@@ -196,6 +196,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
         new Change("9.7", "Issues flows in the response may contain a description and a type"),
         new Change("9.6", "Response field 'fromHotspot' dropped."),
         new Change("9.6", "Added facets 'pciDss-3.2' and 'pciDss-4.0"),
