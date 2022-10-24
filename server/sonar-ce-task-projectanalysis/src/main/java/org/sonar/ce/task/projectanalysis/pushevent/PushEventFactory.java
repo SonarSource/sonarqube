@@ -57,7 +57,7 @@ public class PushEventFactory {
     this.flowGenerator = flowGenerator;
   }
 
-  public Optional<PushEventDto> raiseEventOnIssue(DefaultIssue currentIssue) {
+  public Optional<PushEventDto> raiseEventOnIssue(String projectUuid, DefaultIssue currentIssue) {
     var currentIssueComponentUuid = currentIssue.componentUuid();
     if (!taintChecker.isTaintVulnerability(currentIssue) || currentIssueComponentUuid == null) {
       return Optional.empty();
@@ -65,10 +65,10 @@ public class PushEventFactory {
 
     var component = treeRootHolder.getComponentByUuid(Objects.requireNonNull(currentIssue.componentUuid()));
     if (currentIssue.isNew() || currentIssue.isCopied() || isReopened(currentIssue)) {
-      return Optional.of(raiseTaintVulnerabilityRaisedEvent(component, currentIssue));
+      return Optional.of(raiseTaintVulnerabilityRaisedEvent(projectUuid, component, currentIssue));
     }
     if (currentIssue.isBeingClosed()) {
-      return Optional.of(raiseTaintVulnerabilityClosedEvent(currentIssue));
+      return Optional.of(raiseTaintVulnerabilityClosedEvent(projectUuid, currentIssue));
     }
     return Optional.empty();
   }
@@ -82,11 +82,12 @@ public class PushEventFactory {
     return status != null && status.toString().equals("CLOSED|OPEN");
   }
 
-  private PushEventDto raiseTaintVulnerabilityRaisedEvent(Component component, DefaultIssue issue) {
+  private PushEventDto raiseTaintVulnerabilityRaisedEvent(String projectUuid, Component component, DefaultIssue issue) {
     TaintVulnerabilityRaised event = prepareEvent(component, issue);
     return new PushEventDto()
       .setName("TaintVulnerabilityRaised")
-      .setProjectUuid(treeRootHolder.getRoot().getUuid())
+      .setProjectUuid(projectUuid)
+      .setLanguage(issue.language())
       .setPayload(serializeEvent(event));
   }
 
@@ -116,11 +117,12 @@ public class PushEventFactory {
     return event;
   }
 
-  private PushEventDto raiseTaintVulnerabilityClosedEvent(DefaultIssue issue) {
+  private static PushEventDto raiseTaintVulnerabilityClosedEvent(String projectUuid, DefaultIssue issue) {
     TaintVulnerabilityClosed event = new TaintVulnerabilityClosed(issue.key(), issue.projectKey());
     return new PushEventDto()
       .setName("TaintVulnerabilityClosed")
-      .setProjectUuid(treeRootHolder.getRoot().getUuid())
+      .setProjectUuid(projectUuid)
+      .setLanguage(issue.language())
       .setPayload(serializeEvent(event));
   }
 

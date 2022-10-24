@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
@@ -38,7 +37,6 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
-import org.sonar.db.pushevent.PushEventDto;
 import org.sonar.server.issue.TaintChecker;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,11 +69,13 @@ public class PushEventFactoryTest {
     DefaultIssue defaultIssue = createDefaultIssue()
       .setNew(true);
 
-    assertThat(underTest.raiseEventOnIssue(defaultIssue))
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue))
       .isNotEmpty()
       .hasValueSatisfying(pushEventDto -> {
         assertThat(pushEventDto.getName()).isEqualTo("TaintVulnerabilityRaised");
         assertThat(pushEventDto.getPayload()).isNotNull();
+        assertThat(pushEventDto.getLanguage()).isEqualTo("java");
+        assertThat(pushEventDto.getProjectUuid()).isEqualTo("some-project-uuid");
       });
 
   }
@@ -88,7 +88,7 @@ public class PushEventFactoryTest {
       .setCopied(false)
       .setCurrentChange(new FieldDiffs().setDiff("status", "CLOSED", "OPEN"));
 
-    assertThat(underTest.raiseEventOnIssue(defaultIssue))
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue))
       .isNotEmpty()
       .hasValueSatisfying(pushEventDto -> {
         assertThat(pushEventDto.getName()).isEqualTo("TaintVulnerabilityRaised");
@@ -99,12 +99,12 @@ public class PushEventFactoryTest {
   @Test
   public void skip_event_if_taint_vulnerability_status_change() {
     DefaultIssue defaultIssue = createDefaultIssue()
-        .setChanged(true)
-        .setNew(false)
-        .setCopied(false)
-        .setCurrentChange(new FieldDiffs().setDiff("status", "OPEN", "FIXED"));
+      .setChanged(true)
+      .setNew(false)
+      .setCopied(false)
+      .setCurrentChange(new FieldDiffs().setDiff("status", "OPEN", "FIXED"));
 
-    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue)).isEmpty();
   }
 
   @Test
@@ -112,7 +112,7 @@ public class PushEventFactoryTest {
     DefaultIssue defaultIssue = createDefaultIssue()
       .setCopied(true);
 
-    assertThat(underTest.raiseEventOnIssue(defaultIssue))
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue))
       .isNotEmpty()
       .hasValueSatisfying(pushEventDto -> {
         assertThat(pushEventDto.getName()).isEqualTo("TaintVulnerabilityRaised");
@@ -128,7 +128,7 @@ public class PushEventFactoryTest {
       .setCopied(false)
       .setBeingClosed(true);
 
-    assertThat(underTest.raiseEventOnIssue(defaultIssue))
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue))
       .isNotEmpty()
       .hasValueSatisfying(pushEventDto -> {
         assertThat(pushEventDto.getName()).isEqualTo("TaintVulnerabilityClosed");
@@ -147,7 +147,7 @@ public class PushEventFactoryTest {
       .setCreationDate(DateUtils.parseDate("2022-01-01"))
       .setRuleKey(RuleKey.of("javasecurity", "S123"));
 
-    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue)).isEmpty();
   }
 
   @Test
@@ -160,7 +160,7 @@ public class PushEventFactoryTest {
 
     when(taintChecker.isTaintVulnerability(any())).thenReturn(false);
 
-    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue)).isEmpty();
 
     defaultIssue = new DefaultIssue()
       .setComponentUuid("issue-component-uuid")
@@ -170,7 +170,7 @@ public class PushEventFactoryTest {
       .setType(RuleType.VULNERABILITY)
       .setRuleKey(RuleKey.of("weirdrepo", "S123"));
 
-    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue)).isEmpty();
   }
 
   @Test
@@ -183,7 +183,7 @@ public class PushEventFactoryTest {
 
     when(taintChecker.isTaintVulnerability(any())).thenReturn(false);
 
-    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue)).isEmpty();
   }
 
   @Test
@@ -196,7 +196,7 @@ public class PushEventFactoryTest {
 
     when(taintChecker.isTaintVulnerability(any())).thenReturn(false);
 
-    assertThat(underTest.raiseEventOnIssue(defaultIssue)).isEmpty();
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue)).isEmpty();
   }
 
   private void buildComponentTree() {
@@ -215,6 +215,7 @@ public class PushEventFactoryTest {
     return new DefaultIssue()
       .setComponentUuid("issue-component-uuid")
       .setType(RuleType.VULNERABILITY)
+      .setLanguage("java")
       .setCreationDate(new Date())
       .setLocations(DbIssues.Locations.newBuilder()
         .addFlow(DbIssues.Flow.newBuilder()
@@ -228,24 +229,6 @@ public class PushEventFactoryTest {
           .build())
         .build())
       .setRuleKey(RuleKey.of("javasecurity", "S123"));
-  }
-
-  private static class PushEventMatcher implements ArgumentMatcher<PushEventDto> {
-
-    private final PushEventDto left;
-
-    static PushEventMatcher eq(PushEventDto left) {
-      return new PushEventMatcher(left);
-    }
-
-    private PushEventMatcher(PushEventDto left) {
-      this.left = left;
-    }
-
-    @Override
-    public boolean matches(PushEventDto right) {
-      return left.getName().equals(right.getName());
-    }
   }
 
 }

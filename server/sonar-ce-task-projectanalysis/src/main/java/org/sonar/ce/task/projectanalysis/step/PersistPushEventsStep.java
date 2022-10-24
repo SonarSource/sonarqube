@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.Optional;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.pushevent.PushEventFactory;
 import org.sonar.ce.task.step.ComputationStep;
@@ -38,13 +39,16 @@ public class PersistPushEventsStep implements ComputationStep {
   private final DbClient dbClient;
   private final ProtoIssueCache protoIssueCache;
   private final PushEventFactory pushEventFactory;
+  private final TreeRootHolder treeRootHolder;
 
   public PersistPushEventsStep(DbClient dbClient,
     ProtoIssueCache protoIssueCache,
-    PushEventFactory pushEventFactory) {
+    PushEventFactory pushEventFactory,
+    TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.protoIssueCache = protoIssueCache;
     this.pushEventFactory = pushEventFactory;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
@@ -52,10 +56,11 @@ public class PersistPushEventsStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(true);
       CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
       int batchCounter = 0;
+      var projectUuid = getProjectUuid(dbSession);
 
       while (issues.hasNext()) {
         DefaultIssue currentIssue = issues.next();
-        Optional<PushEventDto> raisedEvent = pushEventFactory.raiseEventOnIssue(currentIssue);
+        Optional<PushEventDto> raisedEvent = pushEventFactory.raiseEventOnIssue(projectUuid, currentIssue);
 
         if (raisedEvent.isEmpty()) {
           continue;
@@ -70,6 +75,14 @@ public class PersistPushEventsStep implements ComputationStep {
     } catch (Exception ex) {
       LOGGER.warn("Error during publishing push event", ex);
     }
+  }
+
+  private String getProjectUuid(DbSession dbSession) {
+    var branch = dbClient.branchDao().selectByUuid(dbSession, treeRootHolder.getRoot().getUuid());
+    if (branch.isEmpty()) {
+      return treeRootHolder.getRoot().getUuid();
+    }
+    return branch.get().getProjectUuid();
   }
 
   private static int flushIfNeeded(DbSession dbSession, int batchCounter) {

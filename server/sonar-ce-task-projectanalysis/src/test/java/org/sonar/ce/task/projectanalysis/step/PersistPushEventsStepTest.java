@@ -31,6 +31,9 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.pushevent.PushEventFactory;
 import org.sonar.ce.task.step.ComputationStep;
@@ -42,6 +45,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -55,14 +60,16 @@ public class PersistPushEventsStepTest {
   public final PushEventFactory pushEventFactory = mock(PushEventFactory.class);
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
+  @Rule
+  public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
   private ProtoIssueCache protoIssueCache;
   private PersistPushEventsStep underTest;
 
   @Before
   public void before() throws IOException {
     protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
-    underTest = new PersistPushEventsStep(db.getDbClient(), protoIssueCache, pushEventFactory);
+    buildComponentTree();
+    underTest = new PersistPushEventsStep(db.getDbClient(), protoIssueCache, pushEventFactory, treeRootHolder);
   }
 
   @Test
@@ -83,7 +90,7 @@ public class PersistPushEventsStepTest {
       createIssue("key1").setType(RuleType.VULNERABILITY))
       .close();
 
-    when(pushEventFactory.raiseEventOnIssue(any())).thenThrow(new RuntimeException("I have a bad feelings about this"));
+    when(pushEventFactory.raiseEventOnIssue(any(), any())).thenThrow(new RuntimeException("I have a bad feelings about this"));
 
     assertThatCode(() -> underTest.execute(mock(ComputationStep.Context.class)))
       .doesNotThrowAnyException();
@@ -125,7 +132,30 @@ public class PersistPushEventsStepTest {
         .setComponentKey("ck2"))
       .close();
 
-    when(pushEventFactory.raiseEventOnIssue(any(DefaultIssue.class))).thenReturn(
+    when(pushEventFactory.raiseEventOnIssue(eq("uuid_1"), any(DefaultIssue.class))).thenReturn(
+      Optional.of(createPushEvent()),
+      Optional.of(createPushEvent()));
+
+    underTest.execute(mock(ComputationStep.Context.class));
+
+    assertThat(db.countSql(db.getSession(), "SELECT count(uuid) FROM push_events")).isEqualTo(2);
+  }
+
+  @Test
+  public void store_push_events_for_branch() {
+    var project = db.components().insertPrivateProject();
+    db.components().insertProjectBranch(project, b -> b.setUuid("uuid_1"));
+
+    protoIssueCache.newAppender()
+      .append(createIssue("key1").setType(RuleType.VULNERABILITY)
+        .setComponentUuid("cu1")
+        .setComponentKey("ck1"))
+      .append(createIssue("key2").setType(RuleType.VULNERABILITY)
+        .setComponentUuid("cu2")
+        .setComponentKey("ck2"))
+      .close();
+
+    when(pushEventFactory.raiseEventOnIssue(eq(project.uuid()), any(DefaultIssue.class))).thenReturn(
       Optional.of(createPushEvent()),
       Optional.of(createPushEvent()));
 
@@ -144,7 +174,7 @@ public class PersistPushEventsStepTest {
           .setComponentUuid("cu" + value)
           .setComponentKey("ck" + value);
         appender.append(defaultIssue);
-        when(pushEventFactory.raiseEventOnIssue(defaultIssue)).thenReturn(Optional.of(createPushEvent()));
+        when(pushEventFactory.raiseEventOnIssue(anyString(), eq(defaultIssue))).thenReturn(Optional.of(createPushEvent()));
       });
 
     appender.close();
@@ -167,6 +197,18 @@ public class PersistPushEventsStepTest {
 
   private PushEventDto createPushEvent() {
     return new PushEventDto().setProjectUuid("project-uuid").setName("event").setPayload("test".getBytes(UTF_8));
+  }
+
+  private void buildComponentTree() {
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1)
+      .setUuid("uuid_1")
+      .addChildren(ReportComponent.builder(Component.Type.FILE, 2)
+        .setUuid("issue-component-uuid")
+        .build())
+      .addChildren(ReportComponent.builder(Component.Type.FILE, 3)
+        .setUuid("location-component-uuid")
+        .build())
+      .build());
   }
 
 }
