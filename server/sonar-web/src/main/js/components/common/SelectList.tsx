@@ -19,7 +19,6 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { KeyboardKeys } from '../../helpers/keycodes';
 import SelectListItem from './SelectListItem';
 
 interface Props {
@@ -31,7 +30,6 @@ interface Props {
 
 interface State {
   active: string;
-  selected: string;
 }
 
 export default class SelectList extends React.PureComponent<Props, State> {
@@ -39,12 +37,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       active: props.currentItem,
-      selected: props.currentItem,
     };
-  }
-
-  componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown, { capture: true });
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -52,54 +45,12 @@ export default class SelectList extends React.PureComponent<Props, State> {
       prevProps.currentItem !== this.props.currentItem &&
       !this.props.items.includes(this.state.active)
     ) {
-      this.setState({ active: this.props.currentItem, selected: this.props.currentItem });
+      this.setState({ active: this.props.currentItem });
     }
   }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown, { capture: true });
-  }
-
-  handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === KeyboardKeys.DownArrow) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      this.setState(this.selectNextElement);
-    } else if (event.key === KeyboardKeys.UpArrow) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      this.setState(this.selectPreviousElement);
-    } else if (event.key === KeyboardKeys.Enter) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      if (this.state.selected != null) {
-        this.handleSelect(this.state.selected);
-      }
-    }
-  };
 
   handleSelect = (item: string) => {
     this.props.onSelect(item);
-  };
-
-  handleHover = (selected: string) => {
-    this.setState({ selected });
-  };
-
-  selectNextElement = (state: State, props: Props) => {
-    const idx = props.items.indexOf(state.selected);
-    if (idx < 0) {
-      return { selected: props.items[0] };
-    }
-    return { selected: props.items[(idx + 1) % props.items.length] };
-  };
-
-  selectPreviousElement = (state: State, props: Props) => {
-    const idx = props.items.indexOf(state.selected);
-    if (idx <= 0) {
-      return { selected: props.items[props.items.length - 1] };
-    }
-    return { selected: props.items[idx - 1] };
   };
 
   renderChild = (child: any) => {
@@ -112,8 +63,6 @@ export default class SelectList extends React.PureComponent<Props, State> {
     }
     return React.cloneElement(child, {
       active: this.state.active,
-      selected: this.state.selected,
-      onHover: this.handleHover,
       onSelect: this.handleSelect,
     });
   };
@@ -128,10 +77,8 @@ export default class SelectList extends React.PureComponent<Props, State> {
           this.props.items.map((item) => (
             <SelectListItem
               active={this.state.active}
-              selected={this.state.selected}
               item={item}
               key={item}
-              onHover={this.handleHover}
               onSelect={this.handleSelect}
             />
           ))}

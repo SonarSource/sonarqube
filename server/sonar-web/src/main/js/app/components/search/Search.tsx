@@ -22,6 +22,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getSuggestions } from '../../../api/components';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import FocusOutHandler from '../../../components/controls/FocusOutHandler';
 import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
 import SearchBox from '../../../components/controls/SearchBox';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
@@ -400,7 +401,9 @@ export class Search extends React.PureComponent<Props, State> {
     );
 
     return this.state.open ? (
-      <OutsideClickHandler onClickOutside={this.handleClickOutside}>{search}</OutsideClickHandler>
+      <FocusOutHandler onFocusOut={this.handleClickOutside}>
+        <OutsideClickHandler onClickOutside={this.handleClickOutside}>{search}</OutsideClickHandler>
+      </FocusOutHandler>
     ) : (
       search
     );

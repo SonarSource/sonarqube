@@ -26,13 +26,22 @@ interface Props {
   active?: string;
   className?: string;
   item: string;
-  onHover?: (item: string) => void;
   onSelect?: (item: string) => void;
-  selected?: string;
   title?: React.ReactNode;
 }
 
-export default class SelectListItem extends React.PureComponent<Props> {
+interface State {
+  selected: boolean;
+}
+
+export default class SelectListItem extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      selected: false,
+    };
+  }
+
   handleSelect = () => {
     if (this.props.onSelect) {
       this.props.onSelect(this.props.item);
@@ -40,13 +49,16 @@ export default class SelectListItem extends React.PureComponent<Props> {
   };
 
   handleHover = () => {
-    if (this.props.onHover) {
-      this.props.onHover(this.props.item);
-    }
+    this.setState({ selected: true });
+  };
+
+  handleBlur = () => {
+    this.setState({ selected: false });
   };
 
   renderLink() {
     const children = this.props.children || this.props.item;
+    const { selected } = this.state;
     return (
       <li>
         <ButtonPlain
@@ -55,13 +67,15 @@ export default class SelectListItem extends React.PureComponent<Props> {
           className={classNames(
             {
               active: this.props.active === this.props.item,
-              hover: this.props.selected === this.props.item,
+              hover: selected,
             },
             this.props.className
           )}
           onClick={this.handleSelect}
           onFocus={this.handleHover}
+          onBlur={this.handleBlur}
           onMouseOver={this.handleHover}
+          onMouseLeave={this.handleBlur}
         >
           {children}
         </ButtonPlain>

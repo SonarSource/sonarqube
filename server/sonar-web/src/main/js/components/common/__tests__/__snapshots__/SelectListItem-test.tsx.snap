@@ -9,8 +9,10 @@ exports[`should render correctly with a tooltip 1`] = `
     <ButtonPlain
       aria-selected={false}
       className=""
+      onBlur={[Function]}
       onClick={[Function]}
       onFocus={[Function]}
+      onMouseLeave={[Function]}
       onMouseOver={[Function]}
       preventDefault={true}
     >
@@ -28,8 +30,10 @@ exports[`should render correctly with children 1`] = `
     <ButtonPlain
       aria-selected={false}
       className=""
+      onBlur={[Function]}
       onClick={[Function]}
       onFocus={[Function]}
+      onMouseLeave={[Function]}
       onMouseOver={[Function]}
       preventDefault={true}
     >
@@ -52,8 +56,10 @@ exports[`should render correctly without children 1`] = `
     <ButtonPlain
       aria-selected={false}
       className=""
+      onBlur={[Function]}
       onClick={[Function]}
       onFocus={[Function]}
+      onMouseLeave={[Function]}
       onMouseOver={[Function]}
       preventDefault={true}
     >
@@ -71,8 +77,10 @@ exports[`should render with the active class 1`] = `
     <ButtonPlain
       aria-selected={true}
       className="active"
+      onBlur={[Function]}
       onClick={[Function]}
       onFocus={[Function]}
+      onMouseLeave={[Function]}
       onMouseOver={[Function]}
       preventDefault={true}
     >

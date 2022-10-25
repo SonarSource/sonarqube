@@ -19,15 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { KeyboardKeys } from '../../../helpers/keycodes';
-import { keydown } from '../../../helpers/testUtils';
 import SelectList from '../SelectList';
 import SelectListItem from '../SelectListItem';
 
 it('should render correctly without children', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  wrapper.instance().componentWillUnmount!();
 });
 
 it('should render correctly with children', () => {
@@ -40,31 +37,6 @@ it('should render correctly with children', () => {
   ));
   const wrapper = shallowRender({ items }, children);
   expect(wrapper).toMatchSnapshot();
-  wrapper.instance().componentWillUnmount!();
-});
-
-it('should correclty handle user actions', () => {
-  const onSelect = jest.fn();
-  const items = ['item', 'seconditem', 'third'];
-  const children = items.map((item) => (
-    <SelectListItem item={item} key={item}>
-      <i className="myicon" />
-      item
-    </SelectListItem>
-  ));
-  const list = shallowRender({ items, onSelect }, children);
-  expect(list.state().selected).toBe('seconditem');
-  keydown({ key: KeyboardKeys.DownArrow });
-  expect(list.state().selected).toBe('third');
-  keydown({ key: KeyboardKeys.DownArrow });
-  expect(list.state().selected).toBe('item');
-  keydown({ key: KeyboardKeys.UpArrow });
-  expect(list.state().selected).toBe('third');
-  keydown({ key: KeyboardKeys.UpArrow });
-  expect(list.state().selected).toBe('seconditem');
-  keydown({ key: KeyboardKeys.Enter });
-  expect(onSelect).toHaveBeenCalledWith('seconditem');
-  list.instance().componentWillUnmount!();
 });
 
 function shallowRender(props: Partial<SelectList['props']> = {}, children?: React.ReactNode) {

@@ -8,9 +8,7 @@ exports[`should render correctly with children 1`] = `
     active="seconditem"
     item="item"
     key=".$item"
-    onHover={[Function]}
     onSelect={[Function]}
-    selected="seconditem"
   >
     <i
       className="myicon"
@@ -21,9 +19,7 @@ exports[`should render correctly with children 1`] = `
     active="seconditem"
     item="seconditem"
     key=".$seconditem"
-    onHover={[Function]}
     onSelect={[Function]}
-    selected="seconditem"
   >
     <i
       className="myicon"
@@ -34,9 +30,7 @@ exports[`should render correctly with children 1`] = `
     active="seconditem"
     item="third"
     key=".$third"
-    onHover={[Function]}
     onSelect={[Function]}
-    selected="seconditem"
   >
     <i
       className="myicon"
@@ -54,25 +48,19 @@ exports[`should render correctly without children 1`] = `
     active="seconditem"
     item="item"
     key="item"
-    onHover={[Function]}
     onSelect={[Function]}
-    selected="seconditem"
   />
   <SelectListItem
     active="seconditem"
     item="seconditem"
     key="seconditem"
-    onHover={[Function]}
     onSelect={[Function]}
-    selected="seconditem"
   />
   <SelectListItem
     active="seconditem"
     item="third"
     key="third"
-    onHover={[Function]}
     onSelect={[Function]}
-    selected="seconditem"
   />
 </ul>
 `;

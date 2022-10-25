@@ -35,6 +35,7 @@ const ui = {
   toggleButton: byRole('button', { name: 'toggle' }),
   outButton: byRole('button', { name: 'out' }),
   overlayButton: byRole('button', { name: 'overlay' }),
+  nextOverlayButton: byRole('button', { name: 'next overlay' }),
 };
 
 async function openToggler(user: UserEvent) {
@@ -51,6 +52,33 @@ function focusOut() {
     ui.outButton.get().focus();
   });
 }
+
+it('should handle key up/down', async () => {
+  const user = userEvent.setup({ delay: null });
+  const rerender = renderToggler();
+
+  await openToggler(user);
+  await user.keyboard('{ArrowUp}');
+  expect(ui.nextOverlayButton.get()).toHaveFocus();
+
+  await user.keyboard('{ArrowDown}');
+  expect(ui.overlayButton.get()).toHaveFocus();
+
+  await user.keyboard('{ArrowDown}');
+  expect(ui.nextOverlayButton.get()).toHaveFocus();
+
+  await user.keyboard('{ArrowUp}');
+  expect(ui.overlayButton.get()).toHaveFocus();
+
+  // No focus change when using shortcut
+  await user.keyboard('{Control>}{ArrowUp}{/Control}');
+  expect(ui.overlayButton.get()).toHaveFocus();
+
+  rerender();
+  await openToggler(user);
+  await user.keyboard('{ArrowDown}');
+  expect(ui.overlayButton.get()).toHaveFocus();
+});
 
 it('should handle escape correclty', async () => {
   const user = userEvent.setup({ delay: null });
@@ -183,7 +211,12 @@ function renderToggler(override?: Partial<Toggler['props']>) {
         <Toggler
           onRequestClose={() => setOpen(false)}
           open={open}
-          overlay={<button type="button">overlay</button>}
+          overlay={
+            <div className="popup">
+              <button type="button">overlay</button>
+              <button type="button">next overlay</button>
+            </div>
+          }
           {...props}
         >
           <button onClick={() => setOpen(true)} type="button">
@@ -196,7 +229,7 @@ function renderToggler(override?: Partial<Toggler['props']>) {
   }
 
   const { rerender } = render(<App {...override} />);
-  return function (reoverride: Partial<Toggler['props']>) {
+  return function (reoverride?: Partial<Toggler['props']>) {
     return rerender(<App {...override} {...reoverride} />);
   };
 }
