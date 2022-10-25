@@ -20,12 +20,21 @@
 package org.sonar.alm.client.bitbucketserver;
 
 import java.io.IOException;
+import java.util.function.Function;
+
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import okhttp3.MediaType;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.SocketPolicy;
+import okio.Buffer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.alm.client.ConstantTimeoutConfiguration;
 import org.sonar.api.utils.log.LogTester;
 
@@ -33,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
+@RunWith(DataProviderRunner.class)
 public class BitbucketServerRestClientTest {
   private final MockWebServer server = new MockWebServer();
   private static final String REPOS_BODY = "{\n" +
@@ -112,7 +122,7 @@ public class BitbucketServerRestClientTest {
     assertThat(gsonBBSRepoList.isLastPage()).isTrue();
     assertThat(gsonBBSRepoList.getValues()).hasSize(2);
     assertThat(gsonBBSRepoList.getValues()).extracting(Repository::getId, Repository::getName, Repository::getSlug,
-      g -> g.getProject().getId(), g -> g.getProject().getKey(), g -> g.getProject().getName())
+        g -> g.getProject().getId(), g -> g.getProject().getKey(), g -> g.getProject().getName())
       .containsExactlyInAnyOrder(
         tuple(2L, "banana", "banana", 2L, "HOY", "hoy"),
         tuple(1L, "potato", "potato", 1L, "HEY", "hey"));
@@ -152,7 +162,7 @@ public class BitbucketServerRestClientTest {
     assertThat(gsonBBSRepoList.isLastPage()).isTrue();
     assertThat(gsonBBSRepoList.getValues()).hasSize(2);
     assertThat(gsonBBSRepoList.getValues()).extracting(Repository::getId, Repository::getName, Repository::getSlug,
-      g -> g.getProject().getId(), g -> g.getProject().getKey(), g -> g.getProject().getName())
+        g -> g.getProject().getId(), g -> g.getProject().getKey(), g -> g.getProject().getName())
       .containsExactlyInAnyOrder(
         tuple(2L, "banana", "banana", 2L, "HOY", "hoy"),
         tuple(1L, "potato", "potato", 1L, "HEY", "hey"));
@@ -209,6 +219,20 @@ public class BitbucketServerRestClientTest {
       .containsExactlyInAnyOrder(
         tuple(1L, "HEY", "hey"),
         tuple(2L, "HOY", "hoy"));
+  }
+
+  @Test
+  public void get_projects_failed() {
+    server.enqueue(new MockResponse()
+          .setBody(new Buffer().write(new byte[4096]))
+          .setSocketPolicy(SocketPolicy.DISCONNECT_DURING_RESPONSE_BODY));
+
+    String serverUrl = server.url("/").toString();
+    assertThatThrownBy(() -> underTest.getProjects(serverUrl, "token"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Unable to contact Bitbucket server");
+
+    assertThat(String.join(", ", logTester.logs())).contains("Unable to contact Bitbucket server");
   }
 
   @Test
@@ -291,6 +315,13 @@ public class BitbucketServerRestClientTest {
   }
 
   @Test
+  public void invalid_empty_url() {
+    assertThatThrownBy(() -> BitbucketServerRestClient.buildUrl(null, ""))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("url must start with http:// or https://");
+  }
+
+  @Test
   public void invalid_url() {
     assertThatThrownBy(() -> BitbucketServerRestClient.buildUrl("file://wrong-url", ""))
       .isInstanceOf(IllegalArgumentException.class)
@@ -301,13 +332,31 @@ public class BitbucketServerRestClientTest {
   public void malformed_json() {
     server.enqueue(new MockResponse()
       .setHeader("Content-Type", "application/json;charset=UTF-8")
-      .setBody(
-        "I'm malformed JSON"));
+      .setBody("I'm malformed JSON"));
 
     String serverUrl = server.url("/").toString();
     assertThatThrownBy(() -> underTest.getRepo(serverUrl, "token", "", ""))
       .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unexpected response from Bitbucket server");
+    assertThat(String.join(", ", logTester.logs()))
+      .contains("Unexpected response from Bitbucket server : [I'm malformed JSON]");
+  }
+
+  @Test
+  public void fail_json_error_handling() {
+    assertThatThrownBy(() -> underTest.applyHandler(body -> underTest.buildGson().fromJson(body, Object.class), "not json"))
+      .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Unable to contact Bitbucket server, got an unexpected response");
+    assertThat(String.join(", ", logTester.logs()))
+      .contains("Unable to contact Bitbucket server. Unexpected body response was : [not json]");
+  }
+
+  @Test
+  public void validate_handler_call_on_empty_body() {
+    server.enqueue(new MockResponse().setResponseCode(200)
+            .setBody(""));
+    assertThat(underTest.doGet("token", server.url("/"),  Function.identity()))
+            .isEmpty();
   }
 
   @Test
@@ -350,6 +399,35 @@ public class BitbucketServerRestClientTest {
     assertThatThrownBy(() -> underTest.getRepo(serverUrl, "token", "", ""))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Invalid personal access token");
+  }
+
+  @DataProvider
+  public static Object[][] expectedErrorMessageFromHttpNoJsonBody() {
+    return new Object[][] {
+      {200, "content ready", "application/json;charset=UTF-8", "Unexpected response from Bitbucket server"},
+      {201, "content ready!", "application/xhtml+xml", "Unexpected response from Bitbucket server"},
+      {401, "<p>unauthorized</p>", "application/json;charset=UTF-8", "Invalid personal access token"},
+      {401, "<p>unauthorized</p>", "application/json", "Invalid personal access token"},
+      {401, "<not-authorized>401</not-authorized>", "application/xhtml+xml", "Invalid personal access token"},
+      {403, "<p>forbidden</p>", "application/json;charset=UTF-8", "Unable to contact Bitbucket server"},
+      {404, "<p>not found</p>","application/json;charset=UTF-8", "Error 404. The requested Bitbucket server is unreachable."},
+      {406, "<p>not accepted</p>", "application/json;charset=UTF-8", "Unable to contact Bitbucket server"},
+      {409, "<p>conflict</p>", "application/json;charset=UTF-8", "Unable to contact Bitbucket server"}
+    };
+  }
+
+  @Test
+  @UseDataProvider("expectedErrorMessageFromHttpNoJsonBody")
+  public void fail_response_when_http_no_json_body(int responseCode, String body, String headerContent, String expectedErrorMessage) {
+    server.enqueue(new MockResponse()
+            .setHeader("Content-Type", headerContent)
+            .setResponseCode(responseCode)
+            .setBody(body));
+
+    String serverUrl = server.url("/").toString();
+    assertThatThrownBy(() -> underTest.getRepo(serverUrl, "token", "", ""))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage(expectedErrorMessage);
   }
 
   @Test
@@ -482,7 +560,7 @@ public class BitbucketServerRestClientTest {
     String serverUrl = server.url("/").toString();
     assertThatThrownBy(() -> underTest.validateUrl(serverUrl))
       .isInstanceOf(BitbucketServerException.class)
-      .hasMessage("something unexpected")
+      .hasMessage("Error 404. The requested Bitbucket server is unreachable.")
       .extracting(e -> ((BitbucketServerException) e).getHttpStatus()).isEqualTo(404);
   }
 
@@ -493,7 +571,7 @@ public class BitbucketServerRestClientTest {
     String serverUrl = server.url("/").toString();
     assertThatThrownBy(() -> underTest.validateUrl(serverUrl))
       .isInstanceOf(BitbucketServerException.class)
-      .hasMessage("")
+      .hasMessage("Error 404. The requested Bitbucket server is unreachable.")
       .extracting(e -> ((BitbucketServerException) e).getHttpStatus()).isEqualTo(404);
   }
 
@@ -516,7 +594,9 @@ public class BitbucketServerRestClientTest {
     String serverUrl = server.url("/").toString();
     assertThatThrownBy(() -> underTest.validateUrl(serverUrl))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Unable to contact Bitbucket server, got an unexpected response");
+      .hasMessage("Unexpected response from Bitbucket server");
+    assertThat(String.join(", ", logTester.logs()))
+      .contains("Unexpected response from Bitbucket server : [this is not a json payload]");
   }
 
   @Test
@@ -538,7 +618,9 @@ public class BitbucketServerRestClientTest {
     String serverUrl = server.url("/").toString();
     assertThatThrownBy(() -> underTest.validateToken(serverUrl, "token"))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Unable to contact Bitbucket server, got an unexpected response");
+      .hasMessage("Unexpected response from Bitbucket server");
+    assertThat(String.join(", ", logTester.logs()))
+            .contains("Unexpected response from Bitbucket server : [this is not a json payload]");
   }
 
   @Test
@@ -571,7 +653,9 @@ public class BitbucketServerRestClientTest {
     String serverUrl = server.url("/").toString();
     assertThatThrownBy(() -> underTest.validateReadPermission(serverUrl, "token"))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Unable to contact Bitbucket server, got an unexpected response");
+      .hasMessage("Unexpected response from Bitbucket server");
+    assertThat(String.join(", ", logTester.logs()))
+            .contains("Unexpected response from Bitbucket server : [this is not a json payload]");
   }
 
   @Test
@@ -583,6 +667,15 @@ public class BitbucketServerRestClientTest {
     assertThatThrownBy(() -> underTest.validateReadPermission(serverUrl, "token"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Invalid personal access token");
+  }
+
+  @Test
+  public void check_mediaTypes_equality() {
+    assertThat(underTest.equals(null, null)).isFalse();
+    assertThat(underTest.equals(MediaType.parse("application/json"), null)).isFalse();
+    assertThat(underTest.equals(null, MediaType.parse("application/json"))).isFalse();
+    assertThat(underTest.equals(MediaType.parse("application/ json"), MediaType.parse("text/html; charset=UTF-8"))).isFalse();
+    assertThat(underTest.equals(MediaType.parse("application/Json"), MediaType.parse("application/JSON"))).isTrue();
   }
 
 }
