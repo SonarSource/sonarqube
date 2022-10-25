@@ -19,34 +19,35 @@
  */
 package org.sonar.auth.ldap;
 
-import java.util.Collection;
-import javax.servlet.http.HttpServletRequest;
+import javax.annotation.Nullable;
 
-public interface LdapGroupsProvider {
+import static org.sonar.api.utils.Preconditions.checkState;
 
-  Collection<String> doGetGroups(Context context);
+public final class LdapAuthenticationResult {
 
-  final class Context {
-    private final String serverKey;
-    private final String username;
-    private final HttpServletRequest request;
+  private final boolean success;
 
-    public Context(String serverKey, String username, HttpServletRequest request) {
-      this.serverKey = serverKey;
-      this.username = username;
-      this.request = request;
-    }
+  private final String serverKey;
 
-    public String getServerKey() {
-      return serverKey;
-    }
+  private LdapAuthenticationResult(boolean success, @Nullable String serverKey) {
+    this.success = success;
+    this.serverKey = serverKey;
+  }
 
-    public String getUsername() {
-      return username;
-    }
+  public static LdapAuthenticationResult failed() {
+    return new LdapAuthenticationResult(false, null);
+  }
 
-    public HttpServletRequest getRequest() {
-      return request;
-    }
+  public static LdapAuthenticationResult success(String serverKey) {
+    return new LdapAuthenticationResult(true, serverKey);
+  }
+
+  public boolean isSuccess() {
+    return success;
+  }
+
+  public String getServerKey() {
+    checkState(isSuccess(), "serverKey is only set for successful authentication.");
+    return serverKey;
   }
 }

@@ -19,10 +19,8 @@
  */
 package org.sonar.auth.ldap;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.naming.NamingEnumeration;
@@ -53,46 +51,32 @@ public class DefaultLdapGroupsProvider implements LdapGroupsProvider {
     this.groupMappings = groupMapping;
   }
 
-  @Override
-  public Collection<String> doGetGroups(Context context) {
-    return getGroups(context.getUsername());
-  }
-
   /**
    * @throws LdapException if unable to retrieve groups
    */
-  public Collection<String> getGroups(String username) {
+  @Override
+  public Collection<String> doGetGroups(Context context) {
+    return getGroups(context.getServerKey(), context.getUsername());
+  }
+
+  private Collection<String> getGroups(String serverKey, String username) {
     checkPrerequisites(username);
     Set<String> groups = new HashSet<>();
-    List<LdapException> exceptions = new ArrayList<>();
-    for (String serverKey : userMappings.keySet()) {
-      if (groupMappings.containsKey(serverKey)) {
-        SearchResult searchResult = searchUserGroups(username, exceptions, serverKey);
-        if (searchResult != null) {
-          try {
-            NamingEnumeration<SearchResult> result = groupMappings
-              .get(serverKey)
-              .createSearch(contextFactories.get(serverKey), searchResult).find();
-            groups.addAll(mapGroups(serverKey, result));
-            // if no exceptions occur, we found the user and his groups and mapped his details.
-            break;
-          } catch (NamingException e) {
-            // just in case if Sonar silently swallowed exception
-            LOG.debug(e.getMessage(), e);
-            exceptions.add(new LdapException(format("Unable to retrieve groups for user %s in %s", username, serverKey), e));
-          }
+    if (groupMappings.containsKey(serverKey)) {
+      SearchResult searchResult = searchUserGroups(username, serverKey);
+      if (searchResult != null) {
+        try {
+          NamingEnumeration<SearchResult> result = groupMappings
+            .get(serverKey)
+            .createSearch(contextFactories.get(serverKey), searchResult).find();
+          groups.addAll(mapGroups(serverKey, result));
+        } catch (NamingException e) {
+          LOG.debug(e.getMessage(), e);
+          throw new LdapException(format("Unable to retrieve groups for user %s in server with key <%s>", username, serverKey), e);
         }
       }
     }
-    checkResults(groups, exceptions);
     return groups;
-  }
-
-  private static void checkResults(Set<String> groups, List<LdapException> exceptions) {
-    if (groups.isEmpty() && !exceptions.isEmpty()) {
-      // No groups found and there is an exception so there is a reason the user could not be found.
-      throw exceptions.iterator().next();
-    }
   }
 
   private void checkPrerequisites(String username) {
@@ -101,26 +85,23 @@ public class DefaultLdapGroupsProvider implements LdapGroupsProvider {
     }
   }
 
-  private SearchResult searchUserGroups(String username, List<LdapException> exceptions, String serverKey) {
-    SearchResult searchResult = null;
+  private SearchResult searchUserGroups(String username, String serverKey) {
     try {
       LOG.debug("Requesting groups for user {}", username);
-
-      searchResult = userMappings.get(serverKey).createSearch(contextFactories.get(serverKey), username)
+      return userMappings.get(serverKey).createSearch(contextFactories.get(serverKey), username)
         .returns(groupMappings.get(serverKey).getRequiredUserAttributes())
         .findUnique();
     } catch (NamingException e) {
       // just in case if Sonar silently swallowed exception
       LOG.debug(e.getMessage(), e);
-      exceptions.add(new LdapException(format("Unable to retrieve groups for user %s in %s", username, serverKey), e));
+      throw new LdapException(format("Unable to retrieve groups for user %s in server with key <%s>", username, serverKey), e);
     }
-    return searchResult;
   }
 
   /**
    * Map all the groups.
    *
-   * @param serverKey The index we use to choose the correct {@link LdapGroupMapping}.
+   * @param serverKey    The index we use to choose the correct {@link LdapGroupMapping}.
    * @param searchResult The {@link SearchResult} from the search for the user.
    * @return A {@link Collection} of groups the user is member of.
    * @throws NamingException

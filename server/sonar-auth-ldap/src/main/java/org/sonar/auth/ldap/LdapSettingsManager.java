@@ -37,11 +37,11 @@ import static org.sonar.auth.ldap.LdapAutodiscovery.LdapSrvRecord;
 @ServerSide
 public class LdapSettingsManager {
 
+  public static final String DEFAULT_LDAP_SERVER_KEY = "default";
   private static final Logger LOG = Loggers.get(LdapSettingsManager.class);
 
   private static final String LDAP_SERVERS_PROPERTY = "ldap.servers";
   private static final String LDAP_PROPERTY_PREFIX = "ldap";
-  private static final String DEFAULT_LDAP_SERVER_KEY = "<default>";
   private final Configuration config;
   private final LdapAutodiscovery ldapAutodiscovery;
   private Map<String, LdapUserMapping> userMappings = null;

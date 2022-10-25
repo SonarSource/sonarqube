@@ -91,6 +91,7 @@ default_artifact_template: &DEFAULT_ARTIFACTS_TEMPLATE
       xmlstarlet edit --inplace --delete '//testsuite[@errors=0 and @failures=0]' {} \;
     junit_artifacts:
       path: "**/build/test-results/**/*.xml"
+      type: "text/xml"
       format: junit
     reports_artifacts:
       path: "**/build/reports/**/*"

@@ -55,57 +55,39 @@ public class DefaultLdapUsersProvider implements LdapUsersProvider {
 
   @Override
   public LdapUserDetails doGetUserDetails(Context context) {
-    return getUserDetails(context.getUsername());
+    return getUserDetails(context.getServerKey(), context.getUsername());
   }
 
   /**
    * @return details for specified user, or null if such user doesn't exist
    * @throws LdapException if unable to retrieve details
    */
-  public LdapUserDetails getUserDetails(String username) {
+  private LdapUserDetails getUserDetails(String serverKey, String username) {
     LOG.debug("Requesting details for user {}", username);
     // If there are no userMappings available, we can not retrieve user details.
-    if (userMappings.isEmpty()) {
-      String errorMessage = format("Unable to retrieve details for user %s: No user mapping found.", username);
+    LdapUserMapping ldapUserMapping = userMappings.get(serverKey);
+    if (ldapUserMapping == null) {
+      String errorMessage = format("Unable to retrieve details for user %s and server key %s: No user mapping found.", username, serverKey);
       LOG.debug(errorMessage);
       throw new LdapException(errorMessage);
     }
-    LdapUserDetails details = null;
-    LdapException exception = null;
-    for (Map.Entry<String, LdapUserMapping> serverEntry : userMappings.entrySet()) {
-      String serverKey = serverEntry.getKey();
-      LdapUserMapping ldapUserMapping = serverEntry.getValue();
+    SearchResult searchResult;
+    try {
+      searchResult = ldapUserMapping.createSearch(contextFactories.get(serverKey), username)
+        .returns(ldapUserMapping.getEmailAttribute(), ldapUserMapping.getRealNameAttribute())
+        .findUnique();
 
-      SearchResult searchResult = null;
-      try {
-        searchResult = ldapUserMapping.createSearch(contextFactories.get(serverKey), username)
-          .returns(ldapUserMapping.getEmailAttribute(), ldapUserMapping.getRealNameAttribute())
-          .findUnique();
-      } catch (NamingException e) {
-        // just in case if Sonar silently swallowed exception
-        LOG.debug(e.getMessage(), e);
-        exception = new LdapException("Unable to retrieve details for user " + username + " in " + serverKey, e);
-      }
       if (searchResult != null) {
-        try {
-          details = mapUserDetails(ldapUserMapping, searchResult);
-          // if no exceptions occur, we found the user and mapped his details.
-          break;
-        } catch (NamingException e) {
-          // just in case if Sonar silently swallowed exception
-          LOG.debug(e.getMessage(), e);
-          exception = new LdapException("Unable to retrieve details for user " + username + " in " + serverKey, e);
-        }
+        return mapUserDetails(ldapUserMapping, searchResult);
       } else {
-        // user not found
         LOG.debug("User {} not found in {}", username, serverKey);
+        return null;
       }
+    } catch (NamingException e) {
+      // just in case if Sonar silently swallowed exception
+      LOG.debug(e.getMessage(), e);
+      throw new LdapException("Unable to retrieve details for user " + username + " in " + serverKey, e);
     }
-    if (details == null && exception != null) {
-      // No user found and there is an exception so there is a reason the user could not be found.
-      throw exception;
-    }
-    return details;
   }
 
   private static LdapUserDetails mapUserDetails(LdapUserMapping ldapUserMapping, SearchResult searchResult) throws NamingException {

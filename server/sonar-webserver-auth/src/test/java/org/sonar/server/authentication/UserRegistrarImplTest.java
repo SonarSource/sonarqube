@@ -51,6 +51,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.UserRegistrarImpl.LDAP_PROVIDER_PREFIX;
+import static org.sonar.server.authentication.UserRegistrarImpl.SQ_AUTHORITY;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 
 public class UserRegistrarImplTest {
@@ -237,13 +239,13 @@ public class UserRegistrarImplTest {
       .setAllowsUsersToSignUp(false);
     Source source = Source.realm(AuthenticationEvent.Method.FORM, identityProvider.getName());
 
-    assertThatThrownBy(() -> {
-      underTest.register(UserRegistration.builder()
-        .setUserIdentity(USER_IDENTITY)
-        .setProvider(identityProvider)
-        .setSource(source)
-        .build());
-    })
+    UserRegistration registration = UserRegistration.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(identityProvider)
+      .setSource(source)
+      .build();
+
+    assertThatThrownBy(() -> underTest.register(registration))
       .isInstanceOf(AuthenticationException.class)
       .hasMessage("User signup disabled for provider 'github'")
       .hasFieldOrPropertyWithValue("source", source)
@@ -427,6 +429,150 @@ public class UserRegistrarImplTest {
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
       .contains(user.getLogin(), "John", "john@email.com", "ABCD", "johndoo", "other", true);
+  }
+
+  @Test
+  public void authenticate_user_eligible_for_ldap_migration() {
+    String providerKey = LDAP_PROVIDER_PREFIX + "PROVIDER";
+
+    UserRegistration registration = UserRegistration.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(new TestIdentityProvider()
+        .setKey(providerKey)
+        .setName("name of provider")
+        .setEnabled(true))
+      .setSource(Source.local(BASIC))
+      .build();
+
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin(USER_IDENTITY.getProviderLogin())
+      .setName("name")
+      .setEmail("another-email@sonarsource.com")
+      .setExternalId("id")
+      .setLocal(false)
+      .setExternalIdentityProvider(SQ_AUTHORITY));
+
+    underTest.register(registration);
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(
+        UserDto::getLogin,
+        UserDto::getName,
+        UserDto::getEmail,
+        UserDto::getExternalId,
+        UserDto::getExternalLogin,
+        UserDto::getExternalIdentityProvider,
+        UserDto::isActive,
+        UserDto::isLocal
+      ).contains(user.getLogin(), "John", "john@email.com", "ABCD", "johndoo", providerKey, true, false);
+  }
+
+  @Test
+  public void authenticate_local_user_for_ldap_migration_is_not_possible() {
+    String providerKey = LDAP_PROVIDER_PREFIX + "PROVIDER";
+
+    UserRegistration registration = UserRegistration.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(new TestIdentityProvider()
+        .setKey(providerKey)
+        .setName("name of provider")
+        .setAllowsUsersToSignUp(true)
+        .setEnabled(true))
+      .setSource(Source.local(BASIC))
+      .build();
+
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin(USER_IDENTITY.getProviderLogin())
+      .setName("name")
+      .setEmail("another-email@sonarsource.com")
+      .setExternalId("id")
+      .setLocal(true)
+      .setExternalIdentityProvider(SQ_AUTHORITY));
+
+    underTest.register(registration);
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(
+        UserDto::getLogin,
+        UserDto::getName,
+        UserDto::getEmail,
+        UserDto::getExternalId,
+        UserDto::getExternalIdentityProvider,
+        UserDto::isActive,
+        UserDto::isLocal
+      ).contains(user.getLogin(), "name", "another-email@sonarsource.com", "id", "sonarqube", true, true);
+  }
+
+  @Test
+  public void authenticate_user_for_ldap_migration_is_not_possible_when_external_identity_provider_is_not_sonarqube() {
+    String providerKey = LDAP_PROVIDER_PREFIX + "PROVIDER";
+
+    UserRegistration registration = UserRegistration.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(new TestIdentityProvider()
+        .setKey(providerKey)
+        .setName("name of provider")
+        .setAllowsUsersToSignUp(true)
+        .setEnabled(true))
+      .setSource(Source.local(BASIC))
+      .build();
+
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin(USER_IDENTITY.getProviderLogin())
+      .setName("name")
+      .setEmail("another-email@sonarsource.com")
+      .setExternalId("id")
+      .setLocal(false)
+      .setExternalIdentityProvider("not_sonarqube"));
+
+    underTest.register(registration);
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(
+        UserDto::getLogin,
+        UserDto::getName,
+        UserDto::getEmail,
+        UserDto::getExternalId,
+        UserDto::getExternalIdentityProvider,
+        UserDto::isActive,
+        UserDto::isLocal
+      ).contains(user.getLogin(), "name", "another-email@sonarsource.com", "id", "not_sonarqube", true, false);
+  }
+
+  @Test
+  public void authenticate_user_for_ldap_migration_is_not_possible_when_identity_provider_key_is_not_prefixed_properly() {
+    String providerKey = "INVALID_PREFIX" + LDAP_PROVIDER_PREFIX + "PROVIDER";
+
+    UserRegistration registration = UserRegistration.builder()
+      .setUserIdentity(USER_IDENTITY)
+      .setProvider(new TestIdentityProvider()
+        .setKey(providerKey)
+        .setName("name of provider")
+        .setAllowsUsersToSignUp(true)
+        .setEnabled(true))
+      .setSource(Source.local(BASIC))
+      .build();
+
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin(USER_IDENTITY.getProviderLogin())
+      .setName("name")
+      .setEmail("another-email@sonarsource.com")
+      .setExternalId("id")
+      .setLocal(false)
+      .setExternalIdentityProvider(SQ_AUTHORITY));
+
+    underTest.register(registration);
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(
+        UserDto::getLogin,
+        UserDto::getName,
+        UserDto::getEmail,
+        UserDto::getExternalId,
+        UserDto::getExternalIdentityProvider,
+        UserDto::isActive,
+        UserDto::isLocal
+      ).contains(user.getLogin(), "name", "another-email@sonarsource.com", "id", "sonarqube", true, false);
   }
 
   @Test

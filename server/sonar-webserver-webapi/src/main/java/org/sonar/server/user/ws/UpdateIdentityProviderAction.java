@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -40,6 +41,8 @@ import org.sonar.server.user.UserUpdater;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.sonar.auth.ldap.LdapRealm.DEFAULT_LDAP_IDENTITY_PROVIDER_ID;
+import static org.sonar.auth.ldap.LdapRealm.LDAP_SECURITY_REALM;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE_IDENTITY_PROVIDER;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
@@ -50,11 +53,11 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
 
   private final DbClient dbClient;
   private final IdentityProviderRepository identityProviderRepository;
+
   private final UserUpdater userUpdater;
   private final UserSession userSession;
 
-  public UpdateIdentityProviderAction(DbClient dbClient, IdentityProviderRepository identityProviderRepository,
-    UserUpdater userUpdater, UserSession userSession) {
+  public UpdateIdentityProviderAction(DbClient dbClient, IdentityProviderRepository identityProviderRepository, UserUpdater userUpdater, UserSession userSession) {
     this.dbClient = dbClient;
     this.identityProviderRepository = identityProviderRepository;
     this.userUpdater = userUpdater;
@@ -78,9 +81,15 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")
       .setRequired(true);
+
     action.createParam(PARAM_NEW_EXTERNAL_PROVIDER)
       .setRequired(true)
-      .setDescription("New external provider. Only authentication system installed are available. Use 'sonarqube' identity provider for LDAP.");
+      .setDescription("New external provider. Only authentication system installed are available. " +
+        "Use 'LDAP' identity provider for single server LDAP setup." +
+        "User 'LDAP_{serverKey}' identity provider for multiple LDAP server setup.");
+
+    action.setChangelog(
+      new Change("9.8", String.format("Use of 'sonarqube' for the value of '%s' is deprecated.", PARAM_NEW_EXTERNAL_PROVIDER)));
 
     action.createParam(PARAM_NEW_EXTERNAL_IDENTITY)
       .setDescription("New external identity, usually the login used in the authentication system. "
@@ -106,18 +115,22 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
   }
 
   private void checkEnabledIdentityProviders(String newExternalProvider) {
-    List<String> availableIdentityProviders = getAvailableIdentityProviders();
-    checkArgument(availableIdentityProviders.contains(newExternalProvider), "Value of parameter 'newExternalProvider' (%s) must be one of: [%s]", newExternalProvider,
-      String.join(", ", availableIdentityProviders));
+    List<String> allowedIdentityProviders = getAvailableIdentityProviders();
+
+    boolean isAllowedProvider = allowedIdentityProviders.contains(newExternalProvider) || isLdapIdentityProvider(newExternalProvider);
+    checkArgument(isAllowedProvider, "Value of parameter 'newExternalProvider' (%s) must be one of: [%s] or [%s]", newExternalProvider,
+      String.join(", ", allowedIdentityProviders), String.join(", ", "LDAP", "LDAP_{serverKey}"));
   }
 
   private List<String> getAvailableIdentityProviders() {
-    List<String> discoveredProviders = identityProviderRepository.getAllEnabledAndSorted()
+    return identityProviderRepository.getAllEnabledAndSorted()
       .stream()
       .map(IdentityProvider::getKey)
       .collect(Collectors.toList());
-    discoveredProviders.add(SQ_AUTHORITY);
-    return discoveredProviders;
+  }
+
+  private static boolean isLdapIdentityProvider(String identityProviderKey) {
+    return identityProviderKey.startsWith(LDAP_SECURITY_REALM + "_");
   }
 
   private UserDto getUser(DbSession dbSession, String login) {
@@ -138,9 +151,13 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
   private static UpdateIdentityProviderRequest toWsRequest(Request request) {
     return UpdateIdentityProviderRequest.builder()
       .setLogin(request.mandatoryParam(PARAM_LOGIN))
-      .setNewExternalProvider(request.mandatoryParam(PARAM_NEW_EXTERNAL_PROVIDER))
+      .setNewExternalProvider(replaceDeprecatedSonarqubeIdentityProviderByLdapForSonar17508(request.mandatoryParam(PARAM_NEW_EXTERNAL_PROVIDER)))
       .setNewExternalIdentity(request.param(PARAM_NEW_EXTERNAL_IDENTITY))
       .build();
+  }
+
+  private static String replaceDeprecatedSonarqubeIdentityProviderByLdapForSonar17508(String newExternalProvider) {
+    return newExternalProvider.equals(SQ_AUTHORITY) || newExternalProvider.equals(LDAP_SECURITY_REALM) ? DEFAULT_LDAP_IDENTITY_PROVIDER_ID : newExternalProvider;
   }
 
   static class UpdateIdentityProviderRequest {

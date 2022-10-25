@@ -23,6 +23,20 @@ cn: bind
 uid: sonar
 userpassword: bindpassword
 
+# Duplicated user on infosupport ldap
+dn: cn=duplicated,ou=users,dc=example,dc=org
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: inetOrgPerson
+objectClass: top
+cn: duplicated
+uid: duplicated
+sn: Duplicated
+mail: duplicated@example.org
+userpassword: duplicated
+
 # Typical user
 dn: cn=Evgeny Mandrikov,ou=users,dc=example,dc=org
 objectClass: organizationalPerson
@@ -82,6 +96,7 @@ objectclass: groupOfUniqueNames
 cn: sonar-users
 uniqueMember: cn=Tester Testerovich,ou=users,dc=example,dc=org
 uniqueMember: cn=Evgeny Mandrikov,ou=users,dc=example,dc=org
+uniqueMember: cn=duplicated,ou=users,dc=example,dc=org
 
 # sonar-developers
 dn: cn=sonar-developers,ou=groups,dc=example,dc=org

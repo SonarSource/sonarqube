@@ -40,7 +40,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
@@ -51,11 +51,15 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 
 public class UserRegistrarImpl implements UserRegistrar {
 
+  public static final String SQ_AUTHORITY = "sonarqube";
+  public static final String LDAP_PROVIDER_PREFIX = "LDAP_";
   private static final Logger LOGGER = Loggers.get(UserRegistrarImpl.class);
-  private static final String SQ_AUTHORITY = "sonarqube";
+  private static final String GITHUB_PROVIDER = "github";
+  private static final String GITLAB_PROVIDER = "gitlab";
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
@@ -82,29 +86,50 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   @CheckForNull
-  private UserDto getUser(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider, AuthenticationEvent.Source source) {
+  private UserDto getUser(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider, Source source) {
     // First, try to authenticate using the external ID
-    UserDto user = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, getProviderIdOrProviderLogin(userIdentity), provider.getKey());
-    if (user != null) {
-      return user;
+    // Then, try with the external login, for instance when external ID has changed or is not used by the provider
+    return retrieveUserByExternalIdAndIdentityProvider(dbSession, userIdentity, provider)
+      .or(() -> retrieveUserByExternalLoginAndIdentityProvider(dbSession, userIdentity, provider, source))
+      .or(() -> retrieveUserByLogin(dbSession, userIdentity, provider))
+      .orElse(null);
+  }
+
+  private Optional<UserDto> retrieveUserByExternalIdAndIdentityProvider(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider) {
+    return Optional.ofNullable(dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, getProviderIdOrProviderLogin(userIdentity), provider.getKey()));
+  }
+
+  private Optional<UserDto> retrieveUserByExternalLoginAndIdentityProvider(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider, Source source) {
+    return Optional.ofNullable(dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey()))
+      .filter(user -> validateAlmSpecificData(user, provider.getKey(), userIdentity, source));
+  }
+
+  private Optional<UserDto> retrieveUserByLogin(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider) {
+    return Optional.ofNullable(dbClient.userDao().selectByLogin(dbSession, userIdentity.getProviderLogin()))
+      .filter(user -> shouldPerformLdapIdentityProviderMigration(user, provider));
+  }
+
+  private static boolean shouldPerformLdapIdentityProviderMigration(UserDto user, IdentityProvider identityProvider) {
+    boolean isLdapIdentityProvider = identityProvider.getKey().startsWith(LDAP_PROVIDER_PREFIX);
+    boolean hasSonarQubeExternalIdentityProvider = SONARQUBE.getKey().equals(user.getExternalIdentityProvider());
+
+    return isLdapIdentityProvider && hasSonarQubeExternalIdentityProvider && !user.isLocal();
+  }
+
+  private static boolean validateAlmSpecificData(UserDto user, String key, UserIdentity userIdentity, Source source) {
+    // All gitlab users have an external ID, so the other two authentication methods should never be used
+    if (GITLAB_PROVIDER.equals(key)) {
+      throw failAuthenticationException(userIdentity, source);
     }
 
-    // Then, try with the external login, for instance when external ID has changed or is not used by the provider
-    user = dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey());
-    if (user == null) {
-      return null;
-    }
-    // all gitlab users have an external ID, so the other two authentication methods should never be used
-    if (provider.getKey().equals("gitlab")) {
-      throw failAuthenticationException(userIdentity, source);
-    } else if (provider.getKey().equals("github")) {
+    if (GITHUB_PROVIDER.equals(key)) {
       validateEmailToAvoidLoginRecycling(userIdentity, user, source);
     }
 
-    return user;
+    return true;
   }
 
-  private static void validateEmailToAvoidLoginRecycling(UserIdentity userIdentity, UserDto user, AuthenticationEvent.Source source) {
+  private static void validateEmailToAvoidLoginRecycling(UserIdentity userIdentity, UserDto user, Source source) {
     String dbEmail = user.getEmail();
 
     if (dbEmail == null) {
@@ -119,12 +144,12 @@ public class UserRegistrarImpl implements UserRegistrar {
     }
   }
 
-  private static AuthenticationException failAuthenticationException(UserIdentity userIdentity, AuthenticationEvent.Source source) {
+  private static AuthenticationException failAuthenticationException(UserIdentity userIdentity, Source source) {
     String message = String.format("Failed to authenticate with login '%s'", userIdentity.getProviderLogin());
     return authException(userIdentity, source, message, message);
   }
 
-  private static AuthenticationException authException(UserIdentity userIdentity, AuthenticationEvent.Source source, String message, String publicMessage) {
+  private static AuthenticationException authException(UserIdentity userIdentity, Source source, String message, String publicMessage) {
     return AuthenticationException.newBuilder()
       .setSource(source)
       .setLogin(userIdentity.getProviderLogin())
@@ -215,7 +240,7 @@ public class UserRegistrarImpl implements UserRegistrar {
       .filter(Objects::nonNull)
       // user should be member of default group only when organizations are disabled, as the IdentityProvider API doesn't handle yet
       // organizations
-      .filter(group -> !defaultGroup.isPresent() || !group.getUuid().equals(defaultGroup.get().getUuid()))
+      .filter(group -> defaultGroup.isEmpty() || !group.getUuid().equals(defaultGroup.get().getUuid()))
       .forEach(groupDto -> {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
         dbClient.userGroupDao().delete(dbSession, groupDto, userDto);

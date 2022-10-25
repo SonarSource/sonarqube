@@ -27,7 +27,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LdapRealmTest {
 
@@ -49,32 +49,29 @@ public class LdapRealmTest {
   public void noConnection() {
     MapSettings settings = new MapSettings()
       .setProperty("ldap.url", "ldap://no-such-host")
-      .setProperty("ldap.group.baseDn", "cn=groups,dc=example,dc=org");
+      .setProperty("ldap.group.baseDn", "cn=groups,dc=example,dc=org")
+      .setProperty("ldap.user.baseDn", "cn=users,dc=example,dc=org");
     LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
-    try {
-      realm.init();
-      fail("Since there is no connection, the init method has to throw an exception.");
-    } catch (LdapException e) {
-      assertThat(e).hasMessage("Unable to open LDAP connection");
-    }
-    assertThat(realm.doGetAuthenticator()).isInstanceOf(DefaultLdapAuthenticator.class);
-    assertThat(realm.getUsersProvider()).isInstanceOf(LdapUsersProvider.class).isInstanceOf(DefaultLdapUsersProvider.class);
-    assertThat(realm.getGroupsProvider()).isInstanceOf(LdapGroupsProvider.class).isInstanceOf(DefaultLdapGroupsProvider.class);
+    assertThatThrownBy(realm::init).isInstanceOf(LdapException.class).hasMessage("Unable to open LDAP connection");
 
-    try {
-      LdapUsersProvider.Context userContext = new DefaultLdapUsersProvider.Context("tester", Mockito.mock(HttpServletRequest.class));
-      realm.getUsersProvider().doGetUserDetails(userContext);
-      fail("Since there is no connection, the doGetUserDetails method has to throw an exception.");
-    } catch (LdapException e) {
-      assertThat(e.getMessage()).contains("Unable to retrieve details for user tester");
-    }
-    try {
-      LdapGroupsProvider.Context groupsContext = new DefaultLdapGroupsProvider.Context("tester", Mockito.mock(HttpServletRequest.class));
-      realm.getGroupsProvider().doGetGroups(groupsContext);
-      fail("Since there is no connection, the doGetGroups method has to throw an exception.");
-    } catch (LdapException e) {
-      assertThat(e.getMessage()).contains("Unable to retrieve details for user tester");
-    }
+    assertThat(realm.doGetAuthenticator()).isInstanceOf(DefaultLdapAuthenticator.class);
+
+    LdapUsersProvider usersProvider = realm.getUsersProvider();
+    assertThat(usersProvider).isInstanceOf(LdapUsersProvider.class).isInstanceOf(DefaultLdapUsersProvider.class);
+
+    LdapGroupsProvider groupsProvider = realm.getGroupsProvider();
+    assertThat(groupsProvider).isInstanceOf(LdapGroupsProvider.class).isInstanceOf(DefaultLdapGroupsProvider.class);
+
+    LdapUsersProvider.Context userContext = new DefaultLdapUsersProvider.Context("<default>", "tester", Mockito.mock(HttpServletRequest.class));
+    assertThatThrownBy(() -> usersProvider.doGetUserDetails(userContext))
+      .isInstanceOf(LdapException.class)
+      .hasMessage("Unable to retrieve details for user tester and server key <default>: No user mapping found.");
+
+    LdapGroupsProvider.Context groupsContext = new DefaultLdapGroupsProvider.Context("default", "tester", Mockito.mock(HttpServletRequest.class));
+    assertThatThrownBy(() -> groupsProvider.doGetGroups(groupsContext))
+      .isInstanceOf(LdapException.class)
+      .hasMessage("Unable to retrieve groups for user tester in server with key <default>");
+
   }
 
 }

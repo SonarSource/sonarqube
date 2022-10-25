@@ -23,6 +23,20 @@ cn: bind
 uid: sonar
 userpassword: bindpassword
 
+# Duplicated user on example ldap
+dn: cn=duplicated,ou=users,dc=infosupport,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: inetOrgPerson
+objectClass: top
+cn: duplicated
+uid: duplicated
+sn: Duplicated
+mail: duplicated@infosupport.com
+userpassword: duplicated
+
 # Typical user
 dn: cn=Robby Developer,ou=users,dc=infosupport,dc=com
 objectClass: organizationalPerson
@@ -52,6 +66,22 @@ sn: Testerovich
 mail: tester@infosupport.com
 uid: testerInfo
 userpassword: secret2
+
+# User repeated on multiple servers
+dn: cn=Tester Testerovich Testerov,ou=users,dc=infosupport,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: extensibleObject
+objectClass: uidObject
+objectClass: inetOrgPerson
+objectClass: top
+cn: Tester Testerovich Testerov
+givenname: Tester
+sn: Testerovich
+mail: tester@example2.org
+uid: tester
+userpassword: secret3
+
 
 # Special case which can cause NPE
 dn: cn=Without Email,ou=users,dc=infosupport,dc=com
@@ -88,6 +118,7 @@ dn: cn=sonar-developers,ou=groups,dc=infosupport,dc=com
 objectclass: groupOfUniqueNames
 cn: sonar-developers
 uniqueMember: cn=Robby Developer,ou=users,dc=infosupport,dc=com
+uniqueMember: cn=duplicated,ou=users,dc=infosupport,dc=com
 
 # linux-users
 dn: cn=linux-users,ou=groups,dc=infosupport,dc=com

@@ -21,7 +21,7 @@ package org.sonar.auth.ldap;
 
 import java.io.File;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -29,6 +29,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class KerberosTest {
 
@@ -39,33 +40,58 @@ public class KerberosTest {
   @ClassRule
   public static LdapServer server = new LdapServer("/krb.ldif");
 
-  @Test
-  public void test() {
-    MapSettings settings = configure();
-    LdapRealm ldapRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
+  LdapAuthenticator authenticator;
+  LdapRealm ldapRealm;
 
+  @Before
+  public void before() {
+    MapSettings settings = configure();
+    ldapRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
     ldapRealm.init();
 
-    assertThat(ldapRealm.doGetAuthenticator().doAuthenticate(new LdapAuthenticator.Context("Godin@EXAMPLE.ORG", "wrong_user_password", Mockito.mock(HttpServletRequest.class))))
-      .isFalse();
-    assertThat(ldapRealm.doGetAuthenticator().doAuthenticate(new LdapAuthenticator.Context("Godin@EXAMPLE.ORG", "user_password", Mockito.mock(HttpServletRequest.class)))).isTrue();
-    // Using default realm from krb5.conf:
-    assertThat(ldapRealm.doGetAuthenticator().doAuthenticate(new LdapAuthenticator.Context("Godin", "user_password", Mockito.mock(HttpServletRequest.class)))).isTrue();
+    authenticator = ldapRealm.doGetAuthenticator();
+  }
 
-    assertThat(ldapRealm.getGroupsProvider().doGetGroups(new LdapGroupsProvider.Context("godin", Mockito.mock(HttpServletRequest.class)))).containsOnly("sonar-users");
+  @Test
+  public void test_wrong_password() {
+    LdapAuthenticator.Context wrongPasswordContext = new LdapAuthenticator.Context("Godin@EXAMPLE.ORG", "wrong_user_password", Mockito.mock(HttpServletRequest.class));
+    assertThat(authenticator.doAuthenticate(wrongPasswordContext).isSuccess()).isFalse();
+  }
+
+  @Test
+  public void test_correct_password() {
+
+    LdapAuthenticator.Context correctPasswordContext = new LdapAuthenticator.Context("Godin@EXAMPLE.ORG", "user_password", Mockito.mock(HttpServletRequest.class));
+    assertThat(authenticator.doAuthenticate(correctPasswordContext).isSuccess()).isTrue();
+
+  }
+
+  @Test
+  public void test_default_realm() {
+
+    // Using default realm from krb5.conf:
+    LdapAuthenticator.Context defaultRealmContext = new LdapAuthenticator.Context("Godin", "user_password", Mockito.mock(HttpServletRequest.class));
+    assertThat(authenticator.doAuthenticate(defaultRealmContext).isSuccess()).isTrue();
+  }
+
+  @Test
+  public void test_groups() {
+    LdapGroupsProvider groupsProvider = ldapRealm.getGroupsProvider();
+    LdapGroupsProvider.Context groupsContext = new LdapGroupsProvider.Context("default", "godin", Mockito.mock(HttpServletRequest.class));
+    assertThat(groupsProvider.doGetGroups(groupsContext))
+      .containsOnly("sonar-users");
   }
 
   @Test
   public void wrong_bind_password() {
     MapSettings settings = configure()
       .setProperty("ldap.bindPassword", "wrong_bind_password");
-    LdapRealm ldapRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
-    try {
-      ldapRealm.init();
-      Assert.fail();
-    } catch (LdapException e) {
-      assertThat(e.getMessage()).isEqualTo("Unable to open LDAP connection");
-    }
+    LdapRealm wrongPasswordRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
+
+    assertThatThrownBy(wrongPasswordRealm::init)
+      .isInstanceOf(LdapException.class)
+      .hasMessage("Unable to open LDAP connection");
+
   }
 
   private static MapSettings configure() {

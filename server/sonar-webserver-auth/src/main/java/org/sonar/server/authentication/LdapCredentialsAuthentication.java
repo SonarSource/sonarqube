@@ -30,6 +30,7 @@ import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.auth.ldap.LdapAuthenticationResult;
 import org.sonar.auth.ldap.LdapAuthenticator;
 import org.sonar.auth.ldap.LdapGroupsProvider;
 import org.sonar.auth.ldap.LdapRealm;
@@ -40,7 +41,6 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
-import org.sonar.server.user.ExternalIdentity;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
@@ -90,25 +90,26 @@ public class LdapCredentialsAuthentication {
 
   private UserDto doAuthenticate(Credentials credentials, HttpServletRequest request, AuthenticationEvent.Method method) {
     try {
-      LdapUsersProvider.Context ldapUsersProviderContext = new LdapUsersProvider.Context(credentials.getLogin(), request);
-      LdapUserDetails details = ldapUsersProvider.doGetUserDetails(ldapUsersProviderContext);
-      if (details == null) {
-        throw AuthenticationException.newBuilder()
-          .setSource(realmEventSource(method))
-          .setLogin(credentials.getLogin())
-          .setMessage("No user details")
-          .build();
-      }
       LdapAuthenticator.Context ldapAuthenticatorContext = new LdapAuthenticator.Context(credentials.getLogin(), credentials.getPassword().orElse(null), request);
-      boolean status = ldapAuthenticator.doAuthenticate(ldapAuthenticatorContext);
-      if (!status) {
+      LdapAuthenticationResult authenticationResult = ldapAuthenticator.doAuthenticate(ldapAuthenticatorContext);
+      if (!authenticationResult.isSuccess()) {
         throw AuthenticationException.newBuilder()
           .setSource(realmEventSource(method))
           .setLogin(credentials.getLogin())
           .setMessage("Realm returned authenticate=false")
           .build();
       }
-      UserDto userDto = synchronize(credentials.getLogin(), details, request, method);
+
+      LdapUsersProvider.Context ldapUsersProviderContext = new LdapUsersProvider.Context(authenticationResult.getServerKey(), credentials.getLogin(), request);
+      LdapUserDetails ldapUserDetails = ldapUsersProvider.doGetUserDetails(ldapUsersProviderContext);
+      if (ldapUserDetails == null) {
+        throw AuthenticationException.newBuilder()
+          .setSource(realmEventSource(method))
+          .setLogin(credentials.getLogin())
+          .setMessage("No user details")
+          .build();
+      }
+      UserDto userDto = synchronize(credentials.getLogin(), authenticationResult.getServerKey(), ldapUserDetails, request, method);
       authenticationEvent.loginSuccess(request, credentials.getLogin(), realmEventSource(method));
       return userDto;
     } catch (AuthenticationException e) {
@@ -128,21 +129,21 @@ public class LdapCredentialsAuthentication {
     return Source.realm(method, "ldap");
   }
 
-  private UserDto synchronize(String userLogin, LdapUserDetails details, HttpServletRequest request, AuthenticationEvent.Method method) {
-    String name = details.getName();
+  private UserDto synchronize(String userLogin, String serverKey, LdapUserDetails userDetails, HttpServletRequest request, AuthenticationEvent.Method method) {
+    String name = userDetails.getName();
     UserIdentity.Builder userIdentityBuilder = UserIdentity.builder()
       .setName(isEmpty(name) ? userLogin : name)
-      .setEmail(trimToNull(details.getEmail()))
+      .setEmail(trimToNull(userDetails.getEmail()))
       .setProviderLogin(userLogin);
     if (ldapGroupsProvider != null) {
-      LdapGroupsProvider.Context context = new LdapGroupsProvider.Context(userLogin, request);
+      LdapGroupsProvider.Context context = new LdapGroupsProvider.Context(serverKey, userLogin, request);
       Collection<String> groups = ldapGroupsProvider.doGetGroups(context);
       userIdentityBuilder.setGroups(new HashSet<>(groups));
     }
     return userRegistrar.register(
       UserRegistration.builder()
         .setUserIdentity(userIdentityBuilder.build())
-        .setProvider(new ExternalIdentityProvider())
+        .setProvider(new LdapIdentityProvider(serverKey))
         .setSource(realmEventSource(method))
         .build());
   }
@@ -154,15 +155,22 @@ public class LdapCredentialsAuthentication {
     return credentials;
   }
 
-  private static class ExternalIdentityProvider implements IdentityProvider {
+  private static class LdapIdentityProvider implements IdentityProvider {
+
+    private final String key;
+
+    private LdapIdentityProvider(String ldapServerKey) {
+      this.key = LDAP_SECURITY_REALM + "_" + ldapServerKey;
+    }
+
     @Override
     public String getKey() {
-      return ExternalIdentity.SQ_AUTHORITY;
+      return key;
     }
 
     @Override
     public String getName() {
-      return ExternalIdentity.SQ_AUTHORITY;
+      return getKey();
     }
 
     @Override

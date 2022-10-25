@@ -29,18 +29,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class IdentityProviderRepositoryTest {
 
-
-  static IdentityProvider GITHUB = new TestIdentityProvider()
+  private static IdentityProvider GITHUB = new TestIdentityProvider()
     .setKey("github")
     .setName("Github")
     .setEnabled(true);
 
-  static IdentityProvider BITBUCKET = new TestIdentityProvider()
+  private static IdentityProvider BITBUCKET = new TestIdentityProvider()
     .setKey("bitbucket")
     .setName("Bitbucket")
     .setEnabled(true);
 
-  static IdentityProvider DISABLED = new TestIdentityProvider()
+  private static IdentityProvider DISABLED = new TestIdentityProvider()
     .setKey("disabled")
     .setName("Disabled")
     .setEnabled(false);

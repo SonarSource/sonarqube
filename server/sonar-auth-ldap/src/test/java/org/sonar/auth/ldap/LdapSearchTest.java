@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.Map;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -57,12 +58,19 @@ public class LdapSearchTest {
     assertThat(search.getParameters()).isEqualTo(new String[] {"inetOrgPerson"});
     assertThat(search.getReturningAttributes()).isEqualTo(new String[] {"objectClass"});
     assertThat(search.toString()).isEqualTo("LdapSearch{baseDn=dc=example,dc=org, scope=subtree, request=(objectClass={0}), parameters=[inetOrgPerson], attributes=[objectClass]}");
-    assertThat(enumerationToArrayList(search.find()).size()).isEqualTo(3);
+    assertThat(enumerationToArrayList(search.find()))
+      .extracting(SearchResult::getName)
+      .containsExactlyInAnyOrder(
+        "cn=Without Email,ou=users",
+        "cn=Evgeny Mandrikov,ou=users",
+        "cn=Tester Testerovich,ou=users",
+        "cn=duplicated,ou=users"
+      );
+
 
     assertThatThrownBy(search::findUnique)
       .isInstanceOf(NamingException.class)
       .hasMessage("Non unique result for " + search.toString());
-
   }
 
   @Test

@@ -20,12 +20,14 @@
 package org.sonar.auth.ldap;
 
 import java.util.Collection;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DefaultLdapGroupsProviderTest {
 
@@ -44,46 +46,60 @@ public class DefaultLdapGroupsProviderTest {
   public static LdapServer infosupportServer = new LdapServer(USERS_INFOSUPPORT_COM_LDIF, "infosupport.com", "dc=infosupport,dc=com");
 
   @Test
-  public void defaults() {
+  public void doGetGroups_when_single_server_without_key() {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, null);
 
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
-    Collection<String> groups;
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(),
+      settingsManager.getGroupMappings());
 
-    groups = groupsProvider.getGroups("tester");
+    Collection<String> groups = getGroupsForContext(createContextForDefaultServer("tester"), groupsProvider);
     assertThat(groups).containsOnly("sonar-users");
 
-    groups = groupsProvider.getGroups("godin");
+    groups = getGroupsForContext(createContextForDefaultServer("godin"), groupsProvider);
     assertThat(groups).containsOnly("sonar-users", "sonar-developers");
 
-    groups = groupsProvider.getGroups("notfound");
+    groups = getGroupsForContext(createContextForDefaultServer("unknown_user"), groupsProvider);
     assertThat(groups).isEmpty();
   }
 
   @Test
-  public void defaultsMultipleLdap() {
+  public void doGetGroups_when_two_ldap_servers() {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
 
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(),
+      settingsManager.getGroupMappings());
 
-    Collection<String> groups;
-
-    groups = groupsProvider.getGroups("tester");
+    Collection<String> groups = getGroupsForContext(createContextForExampleServer("tester"), groupsProvider);
     assertThat(groups).containsOnly("sonar-users");
 
-    groups = groupsProvider.getGroups("godin");
+    groups = getGroupsForContext(createContextForExampleServer("godin"), groupsProvider);
     assertThat(groups).containsOnly("sonar-users", "sonar-developers");
 
-    groups = groupsProvider.getGroups("notfound");
+    groups = getGroupsForContext(createContextForExampleServer("unknown_user"), groupsProvider);
     assertThat(groups).isEmpty();
 
-    groups = groupsProvider.getGroups("testerInfo");
+    groups = getGroupsForContext(createContextForInfoSupportServer("testerInfo"), groupsProvider);
     assertThat(groups).containsOnly("sonar-users");
 
-    groups = groupsProvider.getGroups("robby");
+    groups = getGroupsForContext(createContextForInfoSupportServer("robby"), groupsProvider);
     assertThat(groups).containsOnly("sonar-users", "sonar-developers");
+  }
+
+  @Test
+  public void doGetGroups_when_two_ldap_servers_with_same_username_resolves_groups_from_right_server() {
+    MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
+
+    LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(),
+      settingsManager.getGroupMappings());
+
+    Collection<String> groups = getGroupsForContext(createContextForExampleServer("duplicated"), groupsProvider);
+    assertThat(groups).containsOnly("sonar-users");
+
+    groups = getGroupsForContext(createContextForInfoSupportServer("duplicated"), groupsProvider);
+    assertThat(groups).containsOnly("sonar-developers");
   }
 
   @Test
@@ -91,11 +107,10 @@ public class DefaultLdapGroupsProviderTest {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, null);
     settings.setProperty("ldap.group.request", "(&(objectClass=posixGroup)(memberUid={uid}))");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(),
+      settingsManager.getGroupMappings());
 
-    Collection<String> groups;
-
-    groups = groupsProvider.getGroups("godin");
+    Collection<String> groups = getGroupsForContext(createContextForDefaultServer("godin"), groupsProvider);
     assertThat(groups).containsOnly("linux-users");
   }
 
@@ -105,15 +120,18 @@ public class DefaultLdapGroupsProviderTest {
     settings.setProperty("ldap.example.group.request", "(&(objectClass=posixGroup)(memberUid={uid}))");
     settings.setProperty("ldap.infosupport.group.request", "(&(objectClass=posixGroup)(memberUid={uid}))");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(),
+      settingsManager.getGroupMappings());
 
-    Collection<String> groups;
-
-    groups = groupsProvider.getGroups("godin");
+    Collection<String> groups = getGroupsForContext(createContextForExampleServer("godin"), groupsProvider);
     assertThat(groups).containsOnly("linux-users");
 
-    groups = groupsProvider.getGroups("robby");
+    groups = getGroupsForContext(createContextForInfoSupportServer("robby"), groupsProvider);
     assertThat(groups).containsOnly("linux-users");
+  }
+
+  private static Collection<String> getGroupsForContext(LdapGroupsProvider.Context context, DefaultLdapGroupsProvider groupsProvider) {
+    return groupsProvider.doGetGroups(context);
   }
 
   @Test
@@ -121,11 +139,10 @@ public class DefaultLdapGroupsProviderTest {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
     settings.setProperty("ldap.example.group.request", "(&(|(objectClass=groupOfUniqueNames)(objectClass=posixGroup))(|(uniqueMember={dn})(memberUid={uid})))");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(),
+      settingsManager.getGroupMappings());
 
-    Collection<String> groups;
-
-    groups = groupsProvider.getGroups("godin");
+    Collection<String> groups = getGroupsForContext(createContextForExampleServer("godin"), groupsProvider);
     assertThat(groups).containsOnly("sonar-users", "sonar-developers", "linux-users");
   }
 
@@ -135,15 +152,30 @@ public class DefaultLdapGroupsProviderTest {
     settings.setProperty("ldap.example.group.request", "(&(|(objectClass=groupOfUniqueNames)(objectClass=posixGroup))(|(uniqueMember={dn})(memberUid={uid})))");
     settings.setProperty("ldap.infosupport.group.request", "(&(|(objectClass=groupOfUniqueNames)(objectClass=posixGroup))(|(uniqueMember={dn})(memberUid={uid})))");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(),
+      settingsManager.getGroupMappings());
 
-    Collection<String> groups;
-
-    groups = groupsProvider.getGroups("godin");
+    Collection<String> groups = getGroupsForContext(createContextForExampleServer("godin"), groupsProvider);
     assertThat(groups).containsOnly("sonar-users", "sonar-developers", "linux-users");
 
-    groups = groupsProvider.getGroups("robby");
+    groups = getGroupsForContext(createContextForInfoSupportServer("robby"), groupsProvider);
     assertThat(groups).containsOnly("sonar-users", "sonar-developers", "linux-users");
+  }
+
+  private static LdapGroupsProvider.Context createContextForDefaultServer(String userName) {
+    return createContext("default", userName);
+  }
+
+  private static LdapGroupsProvider.Context createContextForExampleServer(String userName) {
+    return createContext("example", userName);
+  }
+
+  private static LdapGroupsProvider.Context createContextForInfoSupportServer(String userName) {
+    return createContext("infosupport", userName);
+  }
+
+  private static LdapGroupsProvider.Context createContext(String serverName, String userName) {
+    return new LdapGroupsProvider.Context(serverName, userName, mock(HttpServletRequest.class));
   }
 
 }

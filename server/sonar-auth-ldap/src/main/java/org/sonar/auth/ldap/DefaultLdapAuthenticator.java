@@ -47,7 +47,7 @@ public class DefaultLdapAuthenticator implements LdapAuthenticator {
   }
 
   @Override
-  public boolean doAuthenticate(Context context) {
+  public LdapAuthenticationResult doAuthenticate(Context context) {
     return authenticate(context.getUsername(), context.getPassword());
   }
 
@@ -58,7 +58,7 @@ public class DefaultLdapAuthenticator implements LdapAuthenticator {
    * @param password The password to use.
    * @return false if specified user cannot be authenticated with specified password on any LDAP server
    */
-  public boolean authenticate(String login, String password) {
+  private LdapAuthenticationResult authenticate(String login, String password) {
     for (Map.Entry<String, LdapUserMapping> ldapEntry : userMappings.entrySet()) {
       String ldapKey = ldapEntry.getKey();
       LdapUserMapping ldapUserMapping = ldapEntry.getValue();
@@ -75,11 +75,11 @@ public class DefaultLdapAuthenticator implements LdapAuthenticator {
       }
       boolean passwordValid = isPasswordValid(password, ldapKey, ldapContextFactory, principal);
       if (passwordValid) {
-        return true;
+        return LdapAuthenticationResult.success(ldapKey);
       }
     }
     LOG.debug("User {} not found", login);
-    return false;
+    return LdapAuthenticationResult.failed();
   }
 
   private static SearchResult findUser(String login, String ldapKey, LdapUserMapping ldapUserMapping, LdapContextFactory ldapContextFactory) {
@@ -87,11 +87,11 @@ public class DefaultLdapAuthenticator implements LdapAuthenticator {
     try {
       result = ldapUserMapping.createSearch(ldapContextFactory, login).findUnique();
     } catch (NamingException e) {
-      LOG.debug("User {} not found in server {}: {}", login, ldapKey, e.getMessage());
+      LOG.debug("User {} not found in server <{}>: {}", login, ldapKey, e.toString());
       return null;
     }
     if (result == null) {
-      LOG.debug("User {} not found in {}", login, ldapKey);
+      LOG.debug("User {} not found in <{}>", login, ldapKey);
       return null;
     }
     return result;

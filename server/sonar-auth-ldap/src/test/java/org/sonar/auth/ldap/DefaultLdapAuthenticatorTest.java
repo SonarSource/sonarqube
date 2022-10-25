@@ -19,11 +19,13 @@
  */
 package org.sonar.auth.ldap;
 
+import javax.servlet.http.HttpServletRequest;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DefaultLdapAuthenticatorTest {
 
@@ -32,7 +34,7 @@ public class DefaultLdapAuthenticatorTest {
    */
   public static final String USERS_EXAMPLE_ORG_LDIF = "/users.example.org.ldif";
   /**
-   * A reference to an aditional ldif file.
+   * A reference to an additional ldif file.
    */
   public static final String USERS_INFOSUPPORT_COM_LDIF = "/users.infosupport.com.ldif";
   @ClassRule
@@ -44,11 +46,12 @@ public class DefaultLdapAuthenticatorTest {
   public void testNoConnection() {
     exampleServer.disableAnonymousAccess();
     try {
-      LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(),
+      LdapSettingsManager settingsManager = new LdapSettingsManager(
+        LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(),
         new LdapAutodiscovery());
       DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
-      boolean authenticate = authenticator.authenticate("godin", "secret1");
-      assertThat(authenticate).isTrue();
+      boolean isAuthenticationSuccessful = authenticator.doAuthenticate(createContext("godin", "secret1")).isSuccess();
+      assertThat(isAuthenticationSuccessful).isTrue();
     } finally {
       exampleServer.enableAnonymousAccess();
     }
@@ -56,20 +59,27 @@ public class DefaultLdapAuthenticatorTest {
 
   @Test
   public void testSimple() {
-    LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(),
+    LdapSettingsManager settingsManager = new LdapSettingsManager(
+      LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(),
       new LdapAutodiscovery());
     DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
-    assertThat(authenticator.authenticate("godin", "secret1")).isTrue();
-    assertThat(authenticator.authenticate("godin", "wrong")).isFalse();
+    LdapAuthenticationResult user1Success = authenticator.doAuthenticate(createContext("godin", "secret1"));
+    assertThat(user1Success.isSuccess()).isTrue();
+    assertThat(user1Success.getServerKey()).isEqualTo("default");
 
-    assertThat(authenticator.authenticate("tester", "secret2")).isTrue();
-    assertThat(authenticator.authenticate("tester", "wrong")).isFalse();
+    assertThat(authenticator.doAuthenticate(createContext("godin", "wrong")).isSuccess()).isFalse();
 
-    assertThat(authenticator.authenticate("notfound", "wrong")).isFalse();
+    LdapAuthenticationResult user2Success = authenticator.doAuthenticate(createContext("tester", "secret2"));
+    assertThat(user2Success.isSuccess()).isTrue();
+    assertThat(user2Success.getServerKey()).isEqualTo("default");
+
+    assertThat(authenticator.doAuthenticate(createContext("tester", "wrong")).isSuccess()).isFalse();
+
+    assertThat(authenticator.doAuthenticate(createContext("notfound", "wrong")).isSuccess()).isFalse();
     // SONARPLUGINS-2493
-    assertThat(authenticator.authenticate("godin", "")).isFalse();
-    assertThat(authenticator.authenticate("godin", null)).isFalse();
+    assertThat(authenticator.doAuthenticate(createContext("godin", "")).isSuccess()).isFalse();
+    assertThat(authenticator.doAuthenticate(createContext("godin", null)).isSuccess()).isFalse();
   }
 
   @Test
@@ -78,35 +88,53 @@ public class DefaultLdapAuthenticatorTest {
       LdapSettingsFactory.generateAuthenticationSettings(exampleServer, infosupportServer, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(), new LdapAutodiscovery());
     DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
-    assertThat(authenticator.authenticate("godin", "secret1")).isTrue();
-    assertThat(authenticator.authenticate("godin", "wrong")).isFalse();
+    LdapAuthenticationResult user1Success = authenticator.doAuthenticate(createContext("godin", "secret1"));
+    assertThat(user1Success.isSuccess()).isTrue();
+    assertThat(user1Success.getServerKey()).isEqualTo("example");
+    assertThat(authenticator.doAuthenticate(createContext("godin", "wrong")).isSuccess()).isFalse();
 
-    assertThat(authenticator.authenticate("tester", "secret2")).isTrue();
-    assertThat(authenticator.authenticate("tester", "wrong")).isFalse();
+    LdapAuthenticationResult user2Server1Success = authenticator.doAuthenticate(createContext("tester", "secret2"));
+    assertThat(user2Server1Success.isSuccess()).isTrue();
+    assertThat(user2Server1Success.getServerKey()).isEqualTo("example");
 
-    assertThat(authenticator.authenticate("notfound", "wrong")).isFalse();
+    LdapAuthenticationResult user2Server2Success = authenticator.doAuthenticate(createContext("tester", "secret3"));
+    assertThat(user2Server2Success.isSuccess()).isTrue();
+    assertThat(user2Server2Success.getServerKey()).isEqualTo("infosupport");
+
+    assertThat(authenticator.doAuthenticate(createContext("tester", "wrong")).isSuccess()).isFalse();
+
+    assertThat(authenticator.doAuthenticate(createContext("notfound", "wrong")).isSuccess()).isFalse();
     // SONARPLUGINS-2493
-    assertThat(authenticator.authenticate("godin", "")).isFalse();
-    assertThat(authenticator.authenticate("godin", null)).isFalse();
+    assertThat(authenticator.doAuthenticate(createContext("godin", "")).isSuccess()).isFalse();
+    assertThat(authenticator.doAuthenticate(createContext("godin", null)).isSuccess()).isFalse();
 
     // SONARPLUGINS-2793
-    assertThat(authenticator.authenticate("robby", "secret1")).isTrue();
-    assertThat(authenticator.authenticate("robby", "wrong")).isFalse();
+    LdapAuthenticationResult user3Success = authenticator.doAuthenticate(createContext("robby", "secret1"));
+    assertThat(user3Success.isSuccess()).isTrue();
+    assertThat(user3Success.getServerKey()).isEqualTo("infosupport");
+    assertThat(authenticator.doAuthenticate(createContext("robby", "wrong")).isSuccess()).isFalse();
   }
 
   @Test
   public void testSasl() {
-    LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_CRAM_MD5).asConfig(),
+    LdapSettingsManager settingsManager = new LdapSettingsManager(
+      LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_CRAM_MD5).asConfig(),
       new LdapAutodiscovery());
     DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
-    assertThat(authenticator.authenticate("godin", "secret1")).isTrue();
-    assertThat(authenticator.authenticate("godin", "wrong")).isFalse();
+    LdapAuthenticationResult user1Success = authenticator.doAuthenticate(createContext("godin", "secret1"));
+    assertThat(user1Success.isSuccess()).isTrue();
+    assertThat(user1Success.getServerKey()).isEqualTo("default");
 
-    assertThat(authenticator.authenticate("tester", "secret2")).isTrue();
-    assertThat(authenticator.authenticate("tester", "wrong")).isFalse();
+    assertThat(authenticator.doAuthenticate(createContext("godin", "wrong")).isSuccess()).isFalse();
 
-    assertThat(authenticator.authenticate("notfound", "wrong")).isFalse();
+    LdapAuthenticationResult user2Success = authenticator.doAuthenticate(createContext("tester", "secret2"));
+    assertThat(user2Success.isSuccess()).isTrue();
+    assertThat(user2Success.getServerKey()).isEqualTo("default");
+
+    assertThat(authenticator.doAuthenticate(createContext("tester", "wrong")).isSuccess()).isFalse();
+
+    assertThat(authenticator.doAuthenticate(createContext("notfound", "wrong")).isSuccess()).isFalse();
   }
 
   @Test
@@ -115,16 +143,30 @@ public class DefaultLdapAuthenticatorTest {
       LdapSettingsFactory.generateAuthenticationSettings(exampleServer, infosupportServer, LdapContextFactory.AUTH_METHOD_CRAM_MD5).asConfig(), new LdapAutodiscovery());
     DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
-    assertThat(authenticator.authenticate("godin", "secret1")).isTrue();
-    assertThat(authenticator.authenticate("godin", "wrong")).isFalse();
+    LdapAuthenticationResult user1Success = authenticator.doAuthenticate(createContext("godin", "secret1"));
+    assertThat(user1Success.isSuccess()).isTrue();
+    assertThat(authenticator.doAuthenticate(createContext("godin", "wrong")).isSuccess()).isFalse();
 
-    assertThat(authenticator.authenticate("tester", "secret2")).isTrue();
-    assertThat(authenticator.authenticate("tester", "wrong")).isFalse();
+    LdapAuthenticationResult user2Server1Success = authenticator.doAuthenticate(createContext("tester", "secret2"));
+    assertThat(user2Server1Success.isSuccess()).isTrue();
+    assertThat(user2Server1Success.getServerKey()).isEqualTo("example");
 
-    assertThat(authenticator.authenticate("notfound", "wrong")).isFalse();
+    LdapAuthenticationResult user2Server2Success = authenticator.doAuthenticate(createContext("tester", "secret3"));
+    assertThat(user2Server2Success.isSuccess()).isTrue();
+    assertThat(user2Server2Success.getServerKey()).isEqualTo("infosupport");
 
-    assertThat(authenticator.authenticate("robby", "secret1")).isTrue();
-    assertThat(authenticator.authenticate("robby", "wrong")).isFalse();
+    assertThat(authenticator.doAuthenticate(createContext("tester", "wrong")).isSuccess()).isFalse();
+
+    assertThat(authenticator.doAuthenticate(createContext("notfound", "wrong")).isSuccess()).isFalse();
+
+    LdapAuthenticationResult user3Success = authenticator.doAuthenticate(createContext("robby", "secret1"));
+    assertThat(user3Success.isSuccess()).isTrue();
+
+    assertThat(authenticator.doAuthenticate(createContext("robby", "wrong")).isSuccess()).isFalse();
+  }
+
+  private static LdapAuthenticator.Context createContext(String username, String password) {
+    return new LdapAuthenticator.Context(username, password, mock(HttpServletRequest.class));
   }
 
 }

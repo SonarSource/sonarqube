@@ -22,6 +22,7 @@ package org.sonar.server.user.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.auth.ldap.LdapSettingsManager;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -67,6 +68,8 @@ public class UpdateIdentityProviderActionTest {
   private final DbSession dbSession = db.getSession();
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(dbClient, settings.asConfig());
+
+  private final LdapSettingsManager ldapSettingsManager = mock(LdapSettingsManager.class);
 
   private final WsActionTester underTest = new WsActionTester(new UpdateIdentityProviderAction(dbClient, identityProviderRepository,
     new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), null, localAuthentication),
@@ -128,6 +131,54 @@ public class UpdateIdentityProviderActionTest {
   }
 
   @Test
+  public void change_identity_provider_of_a_local_user_to_ldap_default_using_sonarqube_as_parameter() {
+    String userLogin = "login-1";
+    String newExternalIdentityProvider = "LDAP_default";
+    createUser(true, userLogin, userLogin, SQ_AUTHORITY);
+    TestRequest request = underTest.newRequest()
+      .setParam("login", userLogin)
+      .setParam("newExternalProvider", "sonarqube");
+
+    request.execute();
+    assertThat(dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userLogin, newExternalIdentityProvider))
+      .isNotNull()
+      .extracting(UserDto::isLocal, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider)
+      .contains(false, userLogin, newExternalIdentityProvider);
+  }
+
+  @Test
+  public void change_identity_provider_of_a_local_user_to_ldap_default_using_ldap_as_parameter() {
+    String userLogin = "login-1";
+    String newExternalIdentityProvider = "LDAP_default";
+    createUser(true, userLogin, userLogin, SQ_AUTHORITY);
+    TestRequest request = underTest.newRequest()
+      .setParam("login", userLogin)
+      .setParam("newExternalProvider", "LDAP");
+
+    request.execute();
+    assertThat(dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userLogin, newExternalIdentityProvider))
+      .isNotNull()
+      .extracting(UserDto::isLocal, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider)
+      .contains(false, userLogin, newExternalIdentityProvider);
+  }
+
+  @Test
+  public void change_identity_provider_of_a_local_user_to_ldap_default_using_ldap_server_key_as_parameter() {
+    String userLogin = "login-1";
+    String newExternalIdentityProvider = "LDAP_server42";
+    createUser(true, userLogin, userLogin, SQ_AUTHORITY);
+    TestRequest request = underTest.newRequest()
+      .setParam("login", userLogin)
+      .setParam("newExternalProvider", newExternalIdentityProvider);
+
+    request.execute();
+    assertThat(dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userLogin, newExternalIdentityProvider))
+      .isNotNull()
+      .extracting(UserDto::isLocal, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider)
+      .contains(false, userLogin, newExternalIdentityProvider);
+  }
+
+  @Test
   public void fail_if_user_not_exist() {
     TestRequest request = underTest.newRequest()
       .setParam("login", "not-existing")
@@ -147,7 +198,7 @@ public class UpdateIdentityProviderActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value of parameter 'newExternalProvider' (not-existing) must be one of: [github, gitlab, sonarqube]");
+      .hasMessage("Value of parameter 'newExternalProvider' (not-existing) must be one of: [github, gitlab] or [LDAP, LDAP_{serverKey}]");
   }
 
   @Test

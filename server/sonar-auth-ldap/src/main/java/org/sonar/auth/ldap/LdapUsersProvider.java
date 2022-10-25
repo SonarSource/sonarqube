@@ -19,7 +19,6 @@
  */
 package org.sonar.auth.ldap;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 public interface LdapUsersProvider {
@@ -27,11 +26,15 @@ public interface LdapUsersProvider {
   LdapUserDetails doGetUserDetails(Context context);
 
   final class Context {
-    private String username;
-    private HttpServletRequest request;
+    private final String username;
 
-    public Context(@Nullable String username, HttpServletRequest request) {
+    private final String serverKey;
+
+    private final HttpServletRequest request;
+
+    public Context(String serverKey, String username, HttpServletRequest request) {
       this.username = username;
+      this.serverKey = serverKey;
       this.request = request;
     }
 
@@ -39,8 +42,13 @@ public interface LdapUsersProvider {
       return username;
     }
 
+    public String getServerKey() {
+      return serverKey;
+    }
+
     public HttpServletRequest getRequest() {
       return request;
     }
+
   }
 }

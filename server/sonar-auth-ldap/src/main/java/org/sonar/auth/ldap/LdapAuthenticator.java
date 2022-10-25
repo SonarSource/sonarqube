@@ -30,7 +30,7 @@ public interface LdapAuthenticator {
    * @return true if user was successfully authenticated with specified credentials, false otherwise
    * @throws RuntimeException in case of unexpected error such as connection failure
    */
-  boolean doAuthenticate(LdapAuthenticator.Context context);
+  LdapAuthenticationResult doAuthenticate(LdapAuthenticator.Context context);
 
   final class Context {
     private String username;

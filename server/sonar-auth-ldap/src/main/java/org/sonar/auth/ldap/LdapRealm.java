@@ -22,12 +22,16 @@ package org.sonar.auth.ldap;
 import java.util.Map;
 import org.sonar.api.server.ServerSide;
 
+import static org.sonar.auth.ldap.LdapSettingsManager.DEFAULT_LDAP_SERVER_KEY;
+
 /**
  * @author Evgeny Mandrikov
  */
 @ServerSide
 public class LdapRealm {
 
+  public static final String LDAP_SECURITY_REALM = "LDAP";
+  public static final String DEFAULT_LDAP_IDENTITY_PROVIDER_ID = LDAP_SECURITY_REALM + "_" + DEFAULT_LDAP_SERVER_KEY;
   private LdapUsersProvider usersProvider;
   private LdapGroupsProvider groupsProvider;
   private LdapAuthenticator authenticator;
