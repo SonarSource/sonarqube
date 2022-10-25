@@ -5,10 +5,10 @@ env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+PrintFlagsFinal -XshowSettings:vm -XX:+HeapDumpOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF8 -Duser.language=en -Duser.country=US"
   # to be replaced by other credentials
   ARTIFACTORY_PRIVATE_USERNAME: repox-private-reader-sq-ef42e7
-  ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[!78f301d53d89b4f7d7fc29b4ebce24b0aa989c7f742084fae80366b3fe2434a70a549a12e4856d4ca5ab95228f3f37be!]
+  ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[!bdffdd216a1b768605552475d16e8a5cedd97acbf8ca0aeb7256eaf98a2bc54f752c6c1be5391531742ebfee0cbd2ccf!]
   ARTIFACTORY_DEPLOY_USERNAME: repox-qa-deployer-sq-ef42e7
   ARTIFACTORY_DEPLOY_PASSWORD: ENCRYPTED[!d8838c939fe77f3b0a0510774c3b270832646e06cab8e477b35ff776933042105d211e7a0fb8ddcf826ce9f53258c519!]
-  ARTIFACTORY_API_KEY: ENCRYPTED[!78f301d53d89b4f7d7fc29b4ebce24b0aa989c7f742084fae80366b3fe2434a70a549a12e4856d4ca5ab95228f3f37be!]
+  ARTIFACTORY_API_KEY: ENCRYPTED[!bdffdd216a1b768605552475d16e8a5cedd97acbf8ca0aeb7256eaf98a2bc54f752c6c1be5391531742ebfee0cbd2ccf!]
   ARTIFACTORY_PROMOTE_API_KEY: ENCRYPTED[!495d4e94f0847d36d1e54695c204500110da458c3be2c3f16c1e6c6fd8165bac6e8046e0d13c3869348990b34a149027!]
   # download licenses for testing commercial editions
   GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
