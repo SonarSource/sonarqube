@@ -46,8 +46,6 @@ public class LdapAutoDiscoveryWarningLogTest {
     MapSettings settings = new MapSettings()
       .setProperty("ldap.url", server.getUrl());
     LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
-    assertThat(realm.getName()).isEqualTo("LDAP");
-
     realm.init();
 
     assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
@@ -60,7 +58,6 @@ public class LdapAutoDiscoveryWarningLogTest {
     // ldap.url setting is not set
     LdapRealm realm = new LdapRealm(new LdapSettingsManager(new MapSettings().setProperty("ldap.realm", "example.org").asConfig(),
       ldapAutodiscovery));
-
     realm.init();
 
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Auto-discovery feature is deprecated, please use 'ldap.url' to specify LDAP url");

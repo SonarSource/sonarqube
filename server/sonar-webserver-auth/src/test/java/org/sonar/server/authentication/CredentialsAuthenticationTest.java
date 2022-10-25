@@ -65,7 +65,9 @@ public class CredentialsAuthenticationTest {
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", NUMBER_OF_PBKDF2_ITERATIONS);
   private final CredentialsExternalAuthentication externalAuthentication = mock(CredentialsExternalAuthentication.class);
   private final CredentialsLocalAuthentication localAuthentication = spy(new CredentialsLocalAuthentication(dbClient, settings.asConfig()));
-  private final CredentialsAuthentication underTest = new CredentialsAuthentication(dbClient, authenticationEvent, externalAuthentication, localAuthentication);
+  private final LdapCredentialsAuthentication ldapCredentialsAuthentication = mock(LdapCredentialsAuthentication.class);
+  private final CredentialsAuthentication underTest = new CredentialsAuthentication(dbClient, authenticationEvent, externalAuthentication, localAuthentication,
+    ldapCredentialsAuthentication);
 
   @Test
   public void authenticate_local_user() {
@@ -110,12 +112,31 @@ public class CredentialsAuthenticationTest {
     executeAuthenticate(BASIC);
 
     verify(externalAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
+    verifyNoInteractions(ldapCredentialsAuthentication);
     verifyNoInteractions(authenticationEvent);
   }
 
   @Test
-  public void fail_to_authenticate_authenticate_external_user_when_no_external_authentication() {
+  public void authenticate_ldap_user() {
+    when(externalAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC)).thenReturn(Optional.empty());
+
+    String externalId = "12345";
+    when(ldapCredentialsAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC)).thenReturn(Optional.of(newUserDto().setExternalId(externalId)));
+    insertUser(newUserDto()
+      .setLogin(LOGIN)
+      .setLocal(false));
+
+    assertThat(executeAuthenticate(BASIC).getExternalId()).isEqualTo(externalId);
+
+    verify(externalAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
+    verify(ldapCredentialsAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
+    verifyNoInteractions(authenticationEvent);
+  }
+
+  @Test
+  public void fail_to_authenticate_external_user_when_no_external_and_ldap_authentication() {
     when(externalAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN)).thenReturn(Optional.empty());
+    when(ldapCredentialsAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN)).thenReturn(Optional.empty());
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setLocal(false));
@@ -126,6 +147,8 @@ public class CredentialsAuthenticationTest {
       .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
+    verify(externalAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN);
+    verify(ldapCredentialsAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN);
     verifyNoInteractions(authenticationEvent);
   }
 

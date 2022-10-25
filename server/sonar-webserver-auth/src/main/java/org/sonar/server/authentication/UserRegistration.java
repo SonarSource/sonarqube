@@ -28,7 +28,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 
 import static java.util.Objects.requireNonNull;
 
-class UserRegistration {
+public class UserRegistration {
 
   private final UserIdentity userIdentity;
   private final IdentityProvider provider;
@@ -59,7 +59,7 @@ class UserRegistration {
     return organizationAlmIds;
   }
 
-  static UserRegistration.Builder builder() {
+  public static UserRegistration.Builder builder() {
     return new Builder();
   }
 

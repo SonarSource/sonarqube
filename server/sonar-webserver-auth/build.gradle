@@ -17,6 +17,7 @@ dependencies {
   compile project(':server:sonar-server-common')
   compile project(':server:sonar-webserver-api')
   compile project(':sonar-plugin-api-impl')
+  compile project(':server:sonar-auth-ldap')
   compile 'org.mindrot:jbcrypt'
 
   compileOnly 'com.google.code.findbugs:jsr305'

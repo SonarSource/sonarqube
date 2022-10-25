@@ -33,6 +33,7 @@ public class AuthenticationModule extends Module {
       BasicAuthentication.class,
       CredentialsAuthentication.class,
       CredentialsExternalAuthentication.class,
+      LdapCredentialsAuthentication.class,
       CredentialsLocalAuthentication.class,
       DefaultAdminCredentialsVerifierFilter.class,
       GithubWebhookAuthentication.class,

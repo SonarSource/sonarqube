@@ -21,8 +21,8 @@ package org.sonar.server.user;
 
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.Startable;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
@@ -30,10 +30,10 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE;
 import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @since 2.14
@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @ServerSide
 public class SecurityRealmFactory implements Startable {
 
+  private static final String LDAP_SECURITY_REALM = "LDAP";
   private final boolean ignoreStartupFailure;
   private final SecurityRealm realm;
 
@@ -49,6 +50,12 @@ public class SecurityRealmFactory implements Startable {
     ignoreStartupFailure = config.getBoolean(SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE.getKey()).orElse(false);
     String realmName = config.get(SONAR_SECURITY_REALM.getKey()).orElse(null);
     String className = config.get(CoreProperties.CORE_AUTHENTICATOR_CLASS).orElse(null);
+
+    if (LDAP_SECURITY_REALM.equals(realmName)) {
+      realm = null;
+      return;
+    }
+
     SecurityRealm selectedRealm = null;
     if (!StringUtils.isEmpty(realmName)) {
       selectedRealm = selectRealm(realms, realmName);
@@ -66,6 +73,7 @@ public class SecurityRealmFactory implements Startable {
       selectedRealm = new CompatibilityRealm(authenticator);
     }
     realm = selectedRealm;
+
   }
 
   @Autowired(required = false)

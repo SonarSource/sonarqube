@@ -27,7 +27,7 @@ import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LdapGroupsProviderTest {
+public class DefaultLdapGroupsProviderTest {
 
   /**
    * A reference to the original ldif file
@@ -48,7 +48,7 @@ public class LdapGroupsProviderTest {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, null);
 
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    LdapGroupsProvider groupsProvider = new LdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
     Collection<String> groups;
 
     groups = groupsProvider.getGroups("tester");
@@ -66,7 +66,7 @@ public class LdapGroupsProviderTest {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
 
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    LdapGroupsProvider groupsProvider = new LdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
 
     Collection<String> groups;
 
@@ -91,7 +91,7 @@ public class LdapGroupsProviderTest {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, null);
     settings.setProperty("ldap.group.request", "(&(objectClass=posixGroup)(memberUid={uid}))");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    LdapGroupsProvider groupsProvider = new LdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
 
     Collection<String> groups;
 
@@ -105,7 +105,7 @@ public class LdapGroupsProviderTest {
     settings.setProperty("ldap.example.group.request", "(&(objectClass=posixGroup)(memberUid={uid}))");
     settings.setProperty("ldap.infosupport.group.request", "(&(objectClass=posixGroup)(memberUid={uid}))");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    LdapGroupsProvider groupsProvider = new LdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
 
     Collection<String> groups;
 
@@ -121,7 +121,7 @@ public class LdapGroupsProviderTest {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
     settings.setProperty("ldap.example.group.request", "(&(|(objectClass=groupOfUniqueNames)(objectClass=posixGroup))(|(uniqueMember={dn})(memberUid={uid})))");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    LdapGroupsProvider groupsProvider = new LdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
 
     Collection<String> groups;
 
@@ -135,7 +135,7 @@ public class LdapGroupsProviderTest {
     settings.setProperty("ldap.example.group.request", "(&(|(objectClass=groupOfUniqueNames)(objectClass=posixGroup))(|(uniqueMember={dn})(memberUid={uid})))");
     settings.setProperty("ldap.infosupport.group.request", "(&(|(objectClass=groupOfUniqueNames)(objectClass=posixGroup))(|(uniqueMember={dn})(memberUid={uid})))");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    LdapGroupsProvider groupsProvider = new LdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
+    DefaultLdapGroupsProvider groupsProvider = new DefaultLdapGroupsProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings(), settingsManager.getGroupMappings());
 
     Collection<String> groups;
 

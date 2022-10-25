@@ -61,6 +61,15 @@ public class SecurityRealmFactoryTest {
   }
 
   @Test
+  public void return_null_if_realm_is_ldap() {
+    settings.setProperty("sonar.security.realm", "LDAP");
+    SecurityRealmFactory factory = new SecurityRealmFactory(settings.asConfig());
+    factory.start();
+    assertThat(factory.getRealm()).isNull();
+    assertThat(factory.hasExternalAuthentication()).isFalse();
+  }
+
+  @Test
   public void realm_not_found() {
     settings.setProperty("sonar.security.realm", "Fake");
 

@@ -25,7 +25,7 @@ import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LdapAuthenticatorTest {
+public class DefaultLdapAuthenticatorTest {
 
   /**
    * A reference to the original ldif file
@@ -46,8 +46,9 @@ public class LdapAuthenticatorTest {
     try {
       LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(),
         new LdapAutodiscovery());
-      LdapAuthenticator authenticator = new LdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
-      authenticator.authenticate("godin", "secret1");
+      DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
+      boolean authenticate = authenticator.authenticate("godin", "secret1");
+      assertThat(authenticate).isTrue();
     } finally {
       exampleServer.enableAnonymousAccess();
     }
@@ -57,7 +58,7 @@ public class LdapAuthenticatorTest {
   public void testSimple() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(),
       new LdapAutodiscovery());
-    LdapAuthenticator authenticator = new LdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
+    DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     assertThat(authenticator.authenticate("godin", "secret1")).isTrue();
     assertThat(authenticator.authenticate("godin", "wrong")).isFalse();
@@ -75,7 +76,7 @@ public class LdapAuthenticatorTest {
   public void testSimpleMultiLdap() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       LdapSettingsFactory.generateAuthenticationSettings(exampleServer, infosupportServer, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(), new LdapAutodiscovery());
-    LdapAuthenticator authenticator = new LdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
+    DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     assertThat(authenticator.authenticate("godin", "secret1")).isTrue();
     assertThat(authenticator.authenticate("godin", "wrong")).isFalse();
@@ -97,7 +98,7 @@ public class LdapAuthenticatorTest {
   public void testSasl() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_CRAM_MD5).asConfig(),
       new LdapAutodiscovery());
-    LdapAuthenticator authenticator = new LdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
+    DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     assertThat(authenticator.authenticate("godin", "secret1")).isTrue();
     assertThat(authenticator.authenticate("godin", "wrong")).isFalse();
@@ -112,7 +113,7 @@ public class LdapAuthenticatorTest {
   public void testSaslMultipleLdap() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       LdapSettingsFactory.generateAuthenticationSettings(exampleServer, infosupportServer, LdapContextFactory.AUTH_METHOD_CRAM_MD5).asConfig(), new LdapAutodiscovery());
-    LdapAuthenticator authenticator = new LdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
+    DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     assertThat(authenticator.authenticate("godin", "secret1")).isTrue();
     assertThat(authenticator.authenticate("godin", "wrong")).isFalse();

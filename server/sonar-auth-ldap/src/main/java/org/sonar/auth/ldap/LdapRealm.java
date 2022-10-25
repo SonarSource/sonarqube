@@ -20,15 +20,13 @@
 package org.sonar.auth.ldap;
 
 import java.util.Map;
-import org.sonar.api.security.Authenticator;
-import org.sonar.api.security.ExternalGroupsProvider;
-import org.sonar.api.security.ExternalUsersProvider;
-import org.sonar.api.security.SecurityRealm;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class LdapRealm extends SecurityRealm {
+@ServerSide
+public class LdapRealm {
 
   private LdapUsersProvider usersProvider;
   private LdapGroupsProvider groupsProvider;
@@ -39,43 +37,34 @@ public class LdapRealm extends SecurityRealm {
     this.settingsManager = settingsManager;
   }
 
-  @Override
-  public String getName() {
-    return "LDAP";
-  }
-
   /**
    * Initializes LDAP realm and tests connection.
    *
    * @throws LdapException if a NamingException was thrown during test
    */
-  @Override
   public void init() {
     Map<String, LdapContextFactory> contextFactories = settingsManager.getContextFactories();
     Map<String, LdapUserMapping> userMappings = settingsManager.getUserMappings();
-    usersProvider = new LdapUsersProvider(contextFactories, userMappings);
-    authenticator = new LdapAuthenticator(contextFactories, userMappings);
+    usersProvider = new DefaultLdapUsersProvider(contextFactories, userMappings);
+    authenticator = new DefaultLdapAuthenticator(contextFactories, userMappings);
     Map<String, LdapGroupMapping> groupMappings = settingsManager.getGroupMappings();
     if (!groupMappings.isEmpty()) {
-      groupsProvider = new LdapGroupsProvider(contextFactories, userMappings, groupMappings);
+      groupsProvider = new DefaultLdapGroupsProvider(contextFactories, userMappings, groupMappings);
     }
     for (LdapContextFactory contextFactory : contextFactories.values()) {
       contextFactory.testConnection();
     }
   }
 
-  @Override
-  public Authenticator doGetAuthenticator() {
+  public LdapAuthenticator doGetAuthenticator() {
     return authenticator;
   }
 
-  @Override
-  public ExternalUsersProvider getUsersProvider() {
+  public LdapUsersProvider getUsersProvider() {
     return usersProvider;
   }
 
-  @Override
-  public ExternalGroupsProvider getGroupsProvider() {
+  public LdapGroupsProvider getGroupsProvider() {
     return groupsProvider;
   }
 

@@ -40,13 +40,16 @@ public class CredentialsAuthentication {
   private final AuthenticationEvent authenticationEvent;
   private final CredentialsExternalAuthentication externalAuthentication;
   private final CredentialsLocalAuthentication localAuthentication;
+  private final LdapCredentialsAuthentication ldapCredentialsAuthentication;
 
   public CredentialsAuthentication(DbClient dbClient, AuthenticationEvent authenticationEvent,
-    CredentialsExternalAuthentication externalAuthentication, CredentialsLocalAuthentication localAuthentication) {
+    CredentialsExternalAuthentication externalAuthentication, CredentialsLocalAuthentication localAuthentication,
+    LdapCredentialsAuthentication ldapCredentialsAuthentication) {
     this.dbClient = dbClient;
     this.authenticationEvent = authenticationEvent;
     this.externalAuthentication = externalAuthentication;
     this.localAuthentication = localAuthentication;
+    this.ldapCredentialsAuthentication = ldapCredentialsAuthentication;
   }
 
   public UserDto authenticate(Credentials credentials, HttpServletRequest request, Method method) {
@@ -64,7 +67,8 @@ public class CredentialsAuthentication {
       authenticationEvent.loginSuccess(request, localUser.getLogin(), Source.local(method));
       return localUser;
     }
-    Optional<UserDto> externalUser = externalAuthentication.authenticate(credentials, request, method);
+    Optional<UserDto> externalUser = externalAuthentication.authenticate(credentials, request, method)
+      .or(() -> ldapCredentialsAuthentication.authenticate(credentials, request, method));
     if (externalUser.isPresent()) {
       return externalUser.get();
     }

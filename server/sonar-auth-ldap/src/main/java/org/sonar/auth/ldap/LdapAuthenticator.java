@@ -19,112 +19,47 @@
  */
 package org.sonar.auth.ldap;
 
-import java.util.Map;
-import javax.naming.NamingException;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchResult;
-import javax.security.auth.login.Configuration;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.security.Authenticator;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 
-/**
- * @author Evgeny Mandrikov
- */
-public class LdapAuthenticator extends Authenticator {
+import static java.util.Objects.requireNonNull;
 
-  private static final Logger LOG = Loggers.get(LdapAuthenticator.class);
-  private final Map<String, LdapContextFactory> contextFactories;
-  private final Map<String, LdapUserMapping> userMappings;
-
-  public LdapAuthenticator(Map<String, LdapContextFactory> contextFactories, Map<String, LdapUserMapping> userMappings) {
-    this.contextFactories = contextFactories;
-    this.userMappings = userMappings;
-  }
-
-  @Override
-  public boolean doAuthenticate(Context context) {
-    return authenticate(context.getUsername(), context.getPassword());
-  }
+public interface LdapAuthenticator {
 
   /**
-   * Authenticate the user against LDAP servers until first success.
-   * @param login The login to use.
-   * @param password The password to use.
-   * @return false if specified user cannot be authenticated with specified password on any LDAP server
+   * @return true if user was successfully authenticated with specified credentials, false otherwise
+   * @throws RuntimeException in case of unexpected error such as connection failure
    */
-  public boolean authenticate(String login, String password) {
-    for (String ldapKey : userMappings.keySet()) {
-      final String principal;
-      if (contextFactories.get(ldapKey).isSasl()) {
-        principal = login;
-      } else {
-        final SearchResult result;
-        try {
-          result = userMappings.get(ldapKey).createSearch(contextFactories.get(ldapKey), login).findUnique();
-        } catch (NamingException e) {
-          LOG.debug("User {} not found in server {}: {}", login, ldapKey, e.getMessage());
-          continue;
-        }
-        if (result == null) {
-          LOG.debug("User {} not found in {}", login, ldapKey);
-          continue;
-        }
-        principal = result.getNameInNamespace();
-      }
-      boolean passwordValid;
-      if (contextFactories.get(ldapKey).isGssapi()) {
-        passwordValid = checkPasswordUsingGssapi(principal, password, ldapKey);
-      } else {
-        passwordValid = checkPasswordUsingBind(principal, password, ldapKey);
-      }
-      if (passwordValid) {
-        return true;
-      }
-    }
-    LOG.debug("User {} not found", login);
-    return false;
-  }
+  boolean doAuthenticate(LdapAuthenticator.Context context);
 
-  private boolean checkPasswordUsingBind(String principal, String password, String ldapKey) {
-    if (StringUtils.isEmpty(password)) {
-      LOG.debug("Password is blank.");
-      return false;
+  final class Context {
+    private String username;
+    private String password;
+    private HttpServletRequest request;
+
+    public Context(@Nullable String username, @Nullable String password, HttpServletRequest request) {
+      requireNonNull(request);
+      this.request = request;
+      this.username = username;
+      this.password = password;
     }
-    InitialDirContext context = null;
-    try {
-      context = contextFactories.get(ldapKey).createUserContext(principal, password);
-      return true;
-    } catch (NamingException e) {
-      LOG.debug("Password not valid for user {} in server {}: {}", principal, ldapKey, e.getMessage());
-      return false;
-    } finally {
-      ContextHelper.closeQuietly(context);
+
+    /**
+     * Username can be null, for example when using <a href="http://www.jasig.org/cas">CAS</a>.
+     */
+    public String getUsername() {
+      return username;
+    }
+
+    /**
+     * Password can be null, for example when using <a href="http://www.jasig.org/cas">CAS</a>.
+     */
+    public String getPassword() {
+      return password;
+    }
+
+    public HttpServletRequest getRequest() {
+      return request;
     }
   }
-
-  private boolean checkPasswordUsingGssapi(String principal, String password, String ldapKey) {
-    // Use our custom configuration to avoid reliance on external config
-    Configuration.setConfiguration(new Krb5LoginConfiguration());
-    LoginContext lc;
-    try {
-      lc = new LoginContext(getClass().getName(), new CallbackHandlerImpl(principal, password));
-      lc.login();
-    } catch (LoginException e) {
-      // Bad username: Client not found in Kerberos database
-      // Bad password: Integrity check on decrypted field failed
-      LOG.debug("Password not valid for {} in server {}: {}", principal, ldapKey, e.getMessage());
-      return false;
-    }
-    try {
-      lc.logout();
-    } catch (LoginException e) {
-      LOG.warn("Logout fails", e);
-    }
-    return true;
-  }
-
 }

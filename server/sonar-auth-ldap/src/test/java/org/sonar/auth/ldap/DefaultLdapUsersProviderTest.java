@@ -22,12 +22,11 @@ package org.sonar.auth.ldap;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.security.UserDetails;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LdapUsersProviderTest {
+public class DefaultLdapUsersProviderTest {
   /**
    * A reference to the original ldif file
    */
@@ -46,9 +45,9 @@ public class LdapUsersProviderTest {
   public void test() {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
-    LdapUsersProvider usersProvider = new LdapUsersProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings());
+    DefaultLdapUsersProvider usersProvider = new DefaultLdapUsersProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
-    UserDetails details;
+    LdapUserDetails details;
 
     details = usersProvider.getUserDetails("godin");
     assertThat(details.getName()).isEqualTo("Evgeny Mandrikov");
