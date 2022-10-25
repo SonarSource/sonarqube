@@ -161,6 +161,9 @@ public class SearchActionTest {
 
     assertThat(response.getTotal()).isZero();
     assertThat(response.getP()).isOne();
+    assertThat(response.getPaging().getTotal()).isZero();
+    assertThat(response.getPaging().getPageIndex()).isOne();
+    assertThat(response.getPaging().getPageSize()).isNotZero();
     assertThat(response.getRulesCount()).isZero();
   }
 
@@ -541,6 +544,8 @@ public class SearchActionTest {
       .setParam("f", "langName")
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
+    assertThat(result.getPaging().getTotal()).isOne();
+    assertThat(result.getPaging().getPageIndex()).isOne();
     assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
@@ -564,6 +569,8 @@ public class SearchActionTest {
       .setParam("f", "debtRemFn,debtOverloaded,defaultDebtRemFn")
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
+    assertThat(result.getPaging().getTotal()).isOne();
+    assertThat(result.getPaging().getPageIndex()).isOne();
     assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
@@ -596,6 +603,8 @@ public class SearchActionTest {
       .setParam("f", "debtRemFn,debtOverloaded,defaultDebtRemFn")
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
+    assertThat(result.getPaging().getTotal()).isOne();
+    assertThat(result.getPaging().getPageIndex()).isOne();
     assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
@@ -628,6 +637,8 @@ public class SearchActionTest {
       .setParam("f", "debtRemFn,debtOverloaded,defaultDebtRemFn")
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
+    assertThat(result.getPaging().getTotal()).isOne();
+    assertThat(result.getPaging().getPageIndex()).isOne();
     assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
@@ -658,6 +669,8 @@ public class SearchActionTest {
       .setParam("is_template", "true")
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
+    assertThat(result.getPaging().getTotal()).isOne();
+    assertThat(result.getPaging().getPageIndex()).isOne();
     assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
@@ -680,6 +693,8 @@ public class SearchActionTest {
       .setParam("template_key", templateRule.getRepositoryKey() + ":" + templateRule.getRuleKey())
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
+    assertThat(result.getPaging().getTotal()).isOne();
+    assertThat(result.getPaging().getPageIndex()).isOne();
     assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
@@ -696,6 +711,8 @@ public class SearchActionTest {
     SearchResponse result = ws.newRequest().executeProtobuf(SearchResponse.class);
 
     assertThat(result.getTotal()).isZero();
+    assertThat(result.getPaging().getTotal()).isZero();
+    assertThat(result.getPaging().getPageIndex()).isOne();
     assertThat(result.getRulesCount()).isZero();
   }
 
@@ -713,6 +730,8 @@ public class SearchActionTest {
       .setParam("activation", "true")
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
+    assertThat(result.getPaging().getTotal()).isOne();
+    assertThat(result.getPaging().getPageIndex()).isOne();
     assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
@@ -756,6 +775,8 @@ public class SearchActionTest {
       .setParam("qprofile", profile.getKee())
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
+    assertThat(result.getPaging().getTotal()).isOne();
+    assertThat(result.getPaging().getPageIndex()).isOne();
     assertThat(result.getRulesCount()).isOne();
     assertThat(result.getActives()).isNotNull();
     assertThat(result.getActives().getActives().get(rule.getKey().toString())).isNotNull();
@@ -811,6 +832,8 @@ public class SearchActionTest {
       .executeProtobuf(SearchResponse.class);
 
     assertThat(result.getTotal()).isOne();
+    assertThat(result.getPaging().getTotal()).isOne();
+    assertThat(result.getPaging().getPageIndex()).isOne();
     assertThat(result.getRulesCount()).isOne();
     assertThat(result.getActives()).isNotNull();
     assertThat(result.getActives().getActives().get(rule.getKey().toString())).isNotNull();
@@ -950,6 +973,20 @@ public class SearchActionTest {
   }
 
   @Test
+  public void paging() {
+    for (int i = 0; i < 12; i++) {
+      db.rules().insert(r -> r.setLanguage("java"));
+    }
+    indexRules();
+
+    ws.newRequest()
+            .setParam(WebService.Param.PAGE, "2")
+            .setParam(WebService.Param.PAGE_SIZE, "9")
+            .execute()
+            .assertJson(this.getClass(), "paging.json");
+  }
+
+  @Test
   public void compare_to_another_profile() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(JAVA));
     QProfileDto anotherProfile = db.qualityProfiles().insert(p -> p.setLanguage(JAVA));
@@ -1009,11 +1046,14 @@ public class SearchActionTest {
     Rules.SearchResponse response = request.executeProtobuf(Rules.SearchResponse.class);
 
     assertThat(response.getP()).isOne();
+    assertThat(response.getPaging().getPageIndex()).isOne();
+    assertThat(response.getPaging().getPageSize()).isNotZero();
     RuleKey[] expectedRuleKeys = stream(expectedRules).map(RuleDto::getKey).collect(MoreCollectors.toList()).toArray(new RuleKey[0]);
     assertThat(response.getRulesList())
       .extracting(r -> RuleKey.parse(r.getKey()))
       .containsExactlyInAnyOrder(expectedRuleKeys);
     assertThat(response.getTotal()).isEqualTo(expectedRules.length);
+    assertThat(response.getPaging().getTotal()).isEqualTo(expectedRules.length);
     assertThat(response.getRulesCount()).isEqualTo(expectedRules.length);
   }
 

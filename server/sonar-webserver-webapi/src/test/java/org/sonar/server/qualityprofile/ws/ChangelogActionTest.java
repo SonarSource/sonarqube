@@ -83,6 +83,11 @@ public class ChangelogActionTest {
       "  \"total\": 1,\n" +
       "  \"p\": 1,\n" +
       "  \"ps\": 50,\n" +
+      "  \"paging\": {\n" +
+      "     \"pageIndex\": 1,\n" +
+      "     \"pageSize\": 50,\n" +
+      "     \"total\": 1\n" +
+      "  }," +
       "  \"events\": [\n" +
       "    {\n" +
       "      \"date\": \"" + DATE + "\",\n" +
@@ -168,14 +173,13 @@ public class ChangelogActionTest {
   @Test
   public void changelog_empty() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
-
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
       .execute()
       .getInput();
 
-    assertJson(response).isSimilarTo("{\"total\":0,\"p\":1,\"ps\":50,\"events\":[]}");
+    assertJson(response).isSimilarTo("{\"total\":0,\"p\":1,\"ps\":50,\"paging\":{\"pageIndex\":1,\"pageSize\":50,\"total\":0},\"events\":[]}");
   }
 
   @Test
@@ -315,7 +319,7 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void example() {
+  public void changelog_example() {
     QProfileDto profile = db.qualityProfiles().insert();
     String profileUuid = profile.getRulesProfileUuid();
 
@@ -343,15 +347,13 @@ public class ChangelogActionTest {
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
       .setData(ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*$", "ruleUuid", rule3.getUuid())));
 
-    String response = ws.newRequest()
+    ws.newRequest()
       .setMethod("GET")
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam("ps", "10")
       .execute()
-      .getInput();
-
-    assertJson(response).isSimilarTo(getClass().getResource("changelog-example.json"));
+      .assertJson(this.getClass(), "changelog_example.json");
   }
 
   @Test

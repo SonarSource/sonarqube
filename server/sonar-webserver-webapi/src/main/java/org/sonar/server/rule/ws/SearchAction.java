@@ -138,6 +138,8 @@ public class SearchAction implements RulesWsAction {
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setHandler(this)
       .setChangelog(
+        new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
+        new Change("9.8", "The field 'paging' has been added to the response"),
         new Change("5.5", "The field 'effortToFixDescription' has been deprecated use 'gapDescription' instead"),
         new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated use 'remFnGapMultiplier' instead"),
         new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated use 'defaultRemFnGapMultiplier' instead"),
@@ -202,6 +204,14 @@ public class SearchAction implements RulesWsAction {
     response.setTotal(searchResult.total);
     response.setP(context.getPage());
     response.setPs(context.getLimit());
+    response.setPaging(formatPaging(searchResult.total, context.getPage(), context.getLimit()));
+  }
+
+  private static Common.Paging.Builder formatPaging(Long total, int pageIndex, int limit) {
+    return Common.Paging.newBuilder()
+      .setPageIndex(pageIndex)
+      .setPageSize(limit)
+      .setTotal(total.intValue());
   }
 
   private void writeRules(DbSession dbSession, SearchResponse.Builder response, SearchResult result, SearchOptions context) {

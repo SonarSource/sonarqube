@@ -61,6 +61,8 @@ public class UsersActionTest {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isFalse();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead."),
+      tuple("9.8", "The field 'paging' has been added to the response."),
       tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
   }
 
@@ -104,6 +106,11 @@ public class UsersActionTest {
     assertJson(result).isSimilarTo("{\n" +
       "  \"p\": 1,\n" +
       "  \"total\": 0,\n" +
+      "  \"paging\": {\n" +
+      "    \"pageIndex\": 1,\n" +
+      "    \"pageSize\": 25,\n" +
+      "    \"total\": 0\n" +
+      "  }," +
       "  \"users\": []\n" +
       "}");
   }
@@ -232,6 +239,11 @@ public class UsersActionTest {
         "  \"p\": 1,\n" +
         "  \"ps\": 1,\n" +
         "  \"total\": 2,\n" +
+        "  \"paging\": {\n" +
+        "    \"pageIndex\": 1,\n" +
+        "    \"pageSize\": 1,\n" +
+        "    \"total\": 2\n" +
+        "  }," +
         "  \"users\": [\n" +
         "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
         "  ]\n" +
@@ -247,6 +259,11 @@ public class UsersActionTest {
         "  \"p\": 2,\n" +
         "  \"ps\": 1,\n" +
         "  \"total\": 2,\n" +
+        "  \"paging\": {\n" +
+        "    \"pageIndex\": 2,\n" +
+        "    \"pageSize\": 1,\n" +
+        "    \"total\": 2\n" +
+        "  }," +
         "  \"users\": [\n" +
         "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
         "  ]\n" +

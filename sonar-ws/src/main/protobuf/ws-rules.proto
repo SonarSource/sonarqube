@@ -41,13 +41,15 @@ message ListResponse {
 
 // WS api/rules/search
 message SearchResponse {
-  optional int64 total = 1;
-  optional int32 p = 2;
-  optional int64 ps = 3;
+  optional int64 total = 1 [deprecated=true];
+  optional int32 p = 2 [deprecated=true];
+  optional int64 ps = 3 [deprecated=true];
+
   repeated Rule rules = 4;
   optional Actives actives = 5;
   optional QProfiles qProfiles = 6;
   optional sonarqube.ws.commons.Facets facets = 7;
+  optional sonarqube.ws.commons.Paging paging = 8;
 }
 
 //WS api/rules/show

@@ -70,6 +70,9 @@ public class ChangelogAction implements QProfileWsAction {
       .setSince("5.2")
       .setDescription("Get the history of changes on a quality profile: rule activation/deactivation, change in parameters/severity. " +
         "Events are ordered by date in descending order (most recent first).")
+      .setChangelog(
+        new org.sonar.api.server.ws.Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
+        new org.sonar.api.server.ws.Change("9.8", "The field 'paging' has been added to the response"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("changelog-example.json"));
 
@@ -141,9 +144,12 @@ public class ChangelogAction implements QProfileWsAction {
   private static void writeResponse(JsonWriter json, int total, int page, int pageSize, List<Change> changelogs,
     Map<String, UserDto> usersByUuid, Map<String, RuleDto> rulesByRuleUuids) {
     json.beginObject();
-    json.prop("total", total);
-    json.prop(Param.PAGE, page);
-    json.prop(Param.PAGE_SIZE, pageSize);
+    writePaging(json, total, page, pageSize);
+    json.name("paging").beginObject()
+      .prop("pageIndex", page)
+      .prop("pageSize", pageSize)
+      .prop("total", total)
+      .endObject();
     json.name("events").beginArray();
     changelogs.forEach(change -> {
       JsonWriter changeWriter = json.beginObject();
@@ -176,6 +182,16 @@ public class ChangelogAction implements QProfileWsAction {
       json.prop(param.getKey(), param.getValue());
     }
     json.endObject();
+  }
+
+  /**
+   * @deprecated since 9.8 - replaced by 'paging' object structure.
+   */
+  @Deprecated(since = "9.8")
+  private static void writePaging(JsonWriter json, int total, int page, int pageSize) {
+    json.prop("total", total);
+    json.prop(Param.PAGE, page);
+    json.prop(Param.PAGE_SIZE, pageSize);
   }
 
   /**

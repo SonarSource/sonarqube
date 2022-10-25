@@ -25,7 +25,9 @@
       "custom": false
     }
   ],
-  "total": 2,
-  "p": 1,
-  "ps": 100
+  "paging": {
+    "pageSize": 100,
+    "total": 2,
+    "pageIndex": 1
+  }
 }

@@ -1,4 +1,13 @@
-{"total": 1, "p": 1, "ps": 100, "rules": [
+{
+  "total": 1,
+  "p": 1,
+  "ps": 100,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 1
+  },
+  "rules": [
   {
     "key": "xoo:x1",
     "remFnType": "LINEAR_OFFSET",

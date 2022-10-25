@@ -1,4 +1,7 @@
 {
+  "total": 3,
+  "ps": 10,
+  "p": 1,
   "paging": {
     "pageSize": 10,
     "total": 3,

@@ -1,7 +1,9 @@
 {
-  "total": 4,
-  "p": 1,
-  "ps": 3,
+  "paging": {
+    "pageSize": 3,
+    "total": 4,
+    "pageIndex": 1
+  },
   "rules": [
     {
       "key": "squid:S1067",

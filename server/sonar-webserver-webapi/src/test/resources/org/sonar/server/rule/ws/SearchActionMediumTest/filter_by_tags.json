@@ -1,11 +1,20 @@
-{"total": 1, "p": 1, "ps": 100, "rules": [
-  {
-    "key": "xoo:x1",
-    "sysTags": ["tag1"],
-    "tags": []
-  }
-],
-"facets": [
+{
+  "total": 1,
+  "p": 1,
+  "ps": 100,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 1
+  },
+  "rules": [
+    {
+      "key": "xoo:x1",
+      "sysTags": ["tag1"],
+      "tags": []
+    }
+  ],
+  "facets": [
   {
     "property": "tags",
     "values": [

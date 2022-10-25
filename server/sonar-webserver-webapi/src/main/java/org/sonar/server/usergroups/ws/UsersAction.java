@@ -68,6 +68,8 @@ public class UsersAction implements UserGroupsWsAction {
       .addSearchQuery("freddy", "names", "logins")
       .addPagingParams(25)
       .setChangelog(
+        new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead."),
+        new Change("9.8", "The field 'paging' has been added to the response."),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
 
     defineGroupWsParameters(action);
@@ -99,6 +101,11 @@ public class UsersAction implements UserGroupsWsAction {
         json.beginObject();
         writeMembers(json, users);
         writePaging(json, paging);
+        json.name("paging").beginObject()
+          .prop("pageIndex", page)
+          .prop("pageSize", pageSize)
+          .prop("total", total)
+          .endObject();
         json.endObject();
       }
     }
@@ -116,6 +123,10 @@ public class UsersAction implements UserGroupsWsAction {
     json.endArray();
   }
 
+  /**
+   * @deprecated since 9.8 - replaced by 'paging' object structure.
+   */
+  @Deprecated(since = "9.8")
   private static void writePaging(JsonWriter json, Paging paging) {
     json.prop(Param.PAGE, paging.pageIndex())
       .prop(Param.PAGE_SIZE, paging.pageSize())
