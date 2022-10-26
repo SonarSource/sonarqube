@@ -60,7 +60,8 @@ export enum SettingType {
   LICENSE = 'LICENSE',
   LONG = 'LONG',
   SINGLE_SELECT_LIST = 'SINGLE_SELECT_LIST',
-  PROPERTY_SET = 'PROPERTY_SET'
+  PROPERTY_SET = 'PROPERTY_SET',
+  FORMATTED_TEXT = 'FORMATTED_TEXT'
 }
 export interface SettingDefinition {
   description?: string;

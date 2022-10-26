@@ -21,6 +21,7 @@ import * as React from 'react';
 import { SettingType } from '../../../../types/settings';
 import { DefaultSpecializedInputProps } from '../../utils';
 import InputForBoolean from './InputForBoolean';
+import InputForFormattedText from './InputForFormattedText';
 import InputForJSON from './InputForJSON';
 import InputForNumber from './InputForNumber';
 import InputForPassword from './InputForPassword';
@@ -48,7 +49,8 @@ export default function PrimitiveInput(props: DefaultSpecializedInputProps) {
     INTEGER: InputForNumber,
     LONG: InputForNumber,
     FLOAT: InputForNumber,
-    SINGLE_SELECT_LIST: withOptions(definition.options)
+    SINGLE_SELECT_LIST: withOptions(definition.options),
+    FORMATTED_TEXT: InputForFormattedText
   };
 
   const InputComponent = (definition.type && typeMapping[definition.type]) || InputForString;

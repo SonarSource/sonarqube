@@ -26,6 +26,7 @@ import {
   ExtendedSettingDefinition,
   Setting,
   SettingDefinition,
+  SettingType,
   SettingValue,
   SettingWithCategory
 } from '../../types/settings';
@@ -85,8 +86,10 @@ export function getSettingValue(definition: SettingDefinition, settingValue?: Se
   const { fieldValues, value, values } = settingValue || {};
   if (isCategoryDefinition(definition) && definition.multiValues) {
     return values;
-  } else if (definition.type === 'PROPERTY_SET') {
+  } else if (definition.type === SettingType.PROPERTY_SET) {
     return fieldValues;
+  } else if (definition.type === SettingType.FORMATTED_TEXT) {
+    return values ? values[0] : undefined;
   }
   return value;
 }

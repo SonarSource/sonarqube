@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { mockComponent } from '../../../helpers/mocks/component';
-import { mockDefinition } from '../../../helpers/mocks/settings';
+import { mockDefinition, mockSettingValue } from '../../../helpers/mocks/settings';
 import {
   ExtendedSettingDefinition,
   Setting,
   SettingFieldDefinition,
   SettingType
 } from '../../../types/settings';
-import { buildSettingLink, getDefaultValue, getEmptyValue } from '../utils';
+import { buildSettingLink, getDefaultValue, getEmptyValue, getSettingValue } from '../utils';
 
 const fields = [
   { key: 'foo', type: 'STRING' } as SettingFieldDefinition,
@@ -66,6 +66,49 @@ describe('#getEmptyValue()', () => {
       multiValues: true
     };
     expect(getEmptyValue(setting)).toEqual([null]);
+  });
+});
+
+describe('#getSettingValue()', () => {
+  it('should work for property sets', () => {
+    const setting: ExtendedSettingDefinition = {
+      ...settingDefinition,
+      type: SettingType.PROPERTY_SET,
+      fields
+    };
+    const settingValue = mockSettingValue({ fieldValues: [{ foo: '' }] });
+    expect(getSettingValue(setting, settingValue)).toEqual([{ foo: '' }]);
+  });
+
+  it('should work for category definitions', () => {
+    const setting: ExtendedSettingDefinition = {
+      ...settingDefinition,
+      type: SettingType.FORMATTED_TEXT,
+      fields,
+      multiValues: true
+    };
+    const settingValue = mockSettingValue({ values: ['*text*', 'text'] });
+    expect(getSettingValue(setting, settingValue)).toEqual(['*text*', 'text']);
+  });
+
+  it('should work for formatted text', () => {
+    const setting: ExtendedSettingDefinition = {
+      ...settingDefinition,
+      type: SettingType.FORMATTED_TEXT,
+      fields
+    };
+    const settingValue = mockSettingValue({ values: ['*text*', 'text'] });
+    expect(getSettingValue(setting, settingValue)).toEqual('*text*');
+  });
+
+  it('should work for formatted text when values is undefined', () => {
+    const setting: ExtendedSettingDefinition = {
+      ...settingDefinition,
+      type: SettingType.FORMATTED_TEXT,
+      fields
+    };
+    const settingValue = mockSettingValue({ values: undefined });
+    expect(getSettingValue(setting, settingValue)).toBeUndefined();
   });
 });
 

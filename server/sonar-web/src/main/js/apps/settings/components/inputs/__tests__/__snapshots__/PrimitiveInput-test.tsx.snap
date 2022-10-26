@@ -58,6 +58,35 @@ exports[`should render correctly for FLOAT 1`] = `
 />
 `;
 
+exports[`should render correctly for FORMATTED_TEXT 1`] = `
+<InputForFormattedText
+  isDefault={true}
+  name="name"
+  onChange={[MockFunction]}
+  setting={
+    Object {
+      "definition": Object {
+        "category": "foo category",
+        "fields": Array [],
+        "key": "foo",
+        "options": Array [],
+        "subCategory": "foo subCat",
+        "type": "FORMATTED_TEXT",
+      },
+      "hasValue": true,
+      "inherited": true,
+      "key": "foo",
+      "value": "42",
+    }
+  }
+  value={
+    Array [
+      "foo",
+    ]
+  }
+/>
+`;
+
 exports[`should render correctly for INTEGER 1`] = `
 <InputForNumber
   isDefault={true}
