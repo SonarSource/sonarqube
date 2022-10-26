@@ -20,7 +20,11 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../../app/components/available-features/withAvailableFeatures';
 import DocLink from '../../../../components/common/DocLink';
+import Link from '../../../../components/common/Link';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
 import BoxedTabs, { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
 import { Alert } from '../../../../components/ui/Alert';
@@ -28,6 +32,7 @@ import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { searchParamsToQuery } from '../../../../helpers/urls';
 import { AlmKeys } from '../../../../types/alm-settings';
+import { Feature } from '../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { AUTHENTICATION_CATEGORY } from '../../constants';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
@@ -65,7 +70,7 @@ function renderDevOpsIcon(key: string) {
   );
 }
 
-export default function Authentication(props: Props) {
+export function Authentication(props: Props & WithAvailableFeaturesProps) {
   const { definitions } = props;
 
   const [query, setSearchParams] = useSearchParams();
@@ -112,7 +117,23 @@ export default function Authentication(props: Props) {
         <h1 className="page-title">{translate('settings.authentication.title')}</h1>
       </header>
 
-      <div className="spacer-top huge-spacer-bottom">
+      {props.hasFeature(Feature.LoginMessage) && (
+        <Alert variant="info">
+          <FormattedMessage
+            id="settings.authentication.custom_message_information"
+            defaultMessage={translate('settings.authentication.custom_message_information')}
+            values={{
+              link: (
+                <Link to="/admin/settings?category=general#sonar.login.message">
+                  {translate('settings.authentication.custom_message_information.link')}
+                </Link>
+              )
+            }}
+          />
+        </Alert>
+      )}
+
+      <div className="big-spacer-top huge-spacer-bottom">
         <p>{translate('settings.authentication.description')}</p>
       </div>
 
@@ -171,3 +192,5 @@ export default function Authentication(props: Props) {
     </>
   );
 }
+
+export default withAvailableFeatures(Authentication);
