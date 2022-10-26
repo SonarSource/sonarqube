@@ -150,6 +150,7 @@ module.exports = {
 
     info50: '#ECF6FE',
     info100: '#D9EDF7',
+    info200: '#B1DFF3',
     info400: '#4B9FD5',
     info500: '#0271B9',
 

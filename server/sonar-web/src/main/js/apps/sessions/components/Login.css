@@ -31,3 +31,11 @@
   font-size: 24px;
   font-weight: 300;
 }
+
+.login-message {
+  width: 450px;
+  background-color: var(--info50);
+  border: 1px solid var(--info200);
+  border-radius: 2px;
+  color: rgba(0, 0, 0, 0.87);
+}

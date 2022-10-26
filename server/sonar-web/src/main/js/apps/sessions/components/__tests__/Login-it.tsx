@@ -20,6 +20,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { getLoginMessage } from '../../../../api/settings';
 import { getIdentityProviders } from '../../../../api/users';
 import { addGlobalErrorMessage } from '../../../../helpers/globalMessages';
 import { mockLocation } from '../../../../helpers/testMocks';
@@ -37,6 +38,12 @@ jest.mock('../../../../api/users', () => {
 
 jest.mock('../../../../api/auth', () => ({
   logIn: jest.fn((_id, password) => (password === 'valid' ? Promise.resolve() : Promise.reject()))
+}));
+
+jest.mock('../../../../api/settings', () => ({
+  getLoginMessage: jest
+    .fn()
+    .mockResolvedValue({ message: 'Welcome to SQ! Please use your Skynet credentials' })
 }));
 
 jest.mock('../../../../helpers/globalMessages', () => ({
@@ -67,8 +74,9 @@ afterAll(() => {
 beforeEach(jest.clearAllMocks);
 
 it('should behave correctly', async () => {
-  renderLoginContainer();
   const user = userEvent.setup();
+
+  renderLoginContainer();
 
   const heading = await screen.findByRole('heading', { name: 'login.login_to_sonarqube' });
   expect(heading).toBeInTheDocument();
@@ -137,8 +145,30 @@ it("should show a warning if there's an authorization error", async () => {
   expect(screen.getByText('login.unauthorized_access_alert')).toBeInTheDocument();
 });
 
-function renderLoginContainer(props: Partial<LoginContainer['props']> = {}) {
+it('should display a login message if enabled & provided', async () => {
+  renderLoginContainer({}, true);
+
+  const message = await screen.findByText('Welcome to SQ! Please use your Skynet credentials');
+  expect(message).toBeInTheDocument();
+});
+
+it('should handle errors', async () => {
+  (getLoginMessage as jest.Mock).mockRejectedValueOnce('nope');
+  renderLoginContainer({}, true);
+
+  const heading = await screen.findByRole('heading', { name: 'login.login_to_sonarqube' });
+  expect(heading).toBeInTheDocument();
+});
+
+function renderLoginContainer(
+  props: Partial<LoginContainer['props']> = {},
+  loginMessageEnabled = false
+) {
   return renderComponent(
-    <LoginContainer location={mockLocation({ query: { return_to: '/some/path' } })} {...props} />
+    <LoginContainer
+      hasFeature={jest.fn(() => loginMessageEnabled)}
+      location={mockLocation({ query: { return_to: '/some/path' } })}
+      {...props}
+    />
   );
 }

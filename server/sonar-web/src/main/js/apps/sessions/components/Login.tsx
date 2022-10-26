@@ -20,7 +20,9 @@
 import * as React from 'react';
 import { Location } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { sanitizeString } from '../../../helpers/sanitize';
 import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';
 import './Login.css';
@@ -29,32 +31,48 @@ import OAuthProviders from './OAuthProviders';
 
 export interface LoginProps {
   identityProviders: IdentityProvider[];
+  loading: boolean;
+  message?: string;
   onSubmit: (login: string, password: string) => Promise<void>;
   location: Location;
 }
 
 export default function Login(props: LoginProps) {
-  const { identityProviders, location } = props;
+  const { identityProviders, loading, location, message } = props;
   const returnTo = getReturnUrl(location);
   const displayError = Boolean(location.query.authorizationError);
 
   return (
     <div className="login-page" id="login_form">
-      <h1 className="login-title text-center huge-spacer-bottom">
+      <h1 className="login-title text-center big-spacer-bottom">
         {translate('login.login_to_sonarqube')}
       </h1>
 
-      {displayError && (
-        <Alert className="huge-spacer-bottom" display="block" variant="error">
-          {translate('login.unauthorized_access_alert')}
-        </Alert>
-      )}
+      {loading ? (
+        <DeferredSpinner loading={loading} timeout={0} />
+      ) : (
+        <>
+          {displayError && (
+            <Alert className="big-spacer-bottom" display="block" variant="error">
+              {translate('login.unauthorized_access_alert')}
+            </Alert>
+          )}
 
-      {identityProviders.length > 0 && (
-        <OAuthProviders identityProviders={identityProviders} returnTo={returnTo} />
-      )}
+          {message && (
+            <div
+              className="login-message markdown big-padded spacer-top huge-spacer-bottom"
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{ __html: sanitizeString(message) }}
+            />
+          )}
 
-      <LoginForm collapsed={identityProviders.length > 0} onSubmit={props.onSubmit} />
+          {identityProviders.length > 0 && (
+            <OAuthProviders identityProviders={identityProviders} returnTo={returnTo} />
+          )}
+
+          <LoginForm collapsed={identityProviders.length > 0} onSubmit={props.onSubmit} />
+        </>
+      )}
     </div>
   );
 }

@@ -111,3 +111,7 @@ export function generateSecretKey(): Promise<{ secretKey: string }> {
 export function encryptValue(value: string): Promise<{ encryptedValue: string }> {
   return getJSON('/api/settings/encrypt', { value }).catch(throwGlobalError);
 }
+
+export function getLoginMessage(): Promise<{ message: string }> {
+  return getJSON('/api/settings/login_message').catch(throwGlobalError);
+}

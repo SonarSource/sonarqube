@@ -19,29 +19,52 @@
  */
 import * as React from 'react';
 import { logIn } from '../../../api/auth';
+import { getLoginMessage } from '../../../api/settings';
 import { getIdentityProviders } from '../../../api/users';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps
+} from '../../../app/components/available-features/withAvailableFeatures';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getReturnUrl } from '../../../helpers/urls';
+import { Feature } from '../../../types/features';
 import { IdentityProvider } from '../../../types/types';
 import Login from './Login';
 
-interface Props {
+interface Props extends WithAvailableFeaturesProps {
   location: Location;
 }
 interface State {
-  identityProviders?: IdentityProvider[];
+  identityProviders: IdentityProvider[];
+  loading: boolean;
+  message?: string;
 }
 
 export class LoginContainer extends React.PureComponent<Props, State> {
   mounted = false;
 
-  state: State = {};
+  state: State = {
+    identityProviders: [],
+    loading: true
+  };
 
   componentDidMount() {
     this.mounted = true;
-    getIdentityProviders().then(
+    this.loadData();
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  async loadData() {
+    await Promise.all([this.loadIdentityProviders(), this.loadLoginMessage()]);
+    this.setState({ loading: false });
+  }
+
+  loadIdentityProviders() {
+    return getIdentityProviders().then(
       ({ identityProviders }) => {
         if (this.mounted) {
           this.setState({ identityProviders });
@@ -53,8 +76,17 @@ export class LoginContainer extends React.PureComponent<Props, State> {
     );
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
+  async loadLoginMessage() {
+    if (this.props.hasFeature(Feature.LoginMessage)) {
+      try {
+        const { message } = await getLoginMessage();
+        if (this.mounted) {
+          this.setState({ message });
+        }
+      } catch (_) {
+        /* already handled */
+      }
+    }
   }
 
   handleSuccessfulLogin = () => {
@@ -72,15 +104,13 @@ export class LoginContainer extends React.PureComponent<Props, State> {
 
   render() {
     const { location } = this.props;
-    const { identityProviders } = this.state;
-
-    if (!identityProviders) {
-      return null;
-    }
+    const { identityProviders, loading, message } = this.state;
 
     return (
       <Login
         identityProviders={identityProviders}
+        loading={loading}
+        message={message}
         onSubmit={this.handleSubmit}
         location={location}
       />
@@ -88,4 +118,4 @@ export class LoginContainer extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(LoginContainer);
+export default withAvailableFeatures(withRouter(LoginContainer));
