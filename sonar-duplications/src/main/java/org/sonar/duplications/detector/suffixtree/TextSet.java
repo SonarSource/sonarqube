@@ -89,7 +89,7 @@ public final class TextSet extends AbstractText {
 
     @Override
     public boolean equals(Object obj) {
-      return (obj instanceof Terminator) && (((Terminator) obj).stringNumber == stringNumber);
+      return obj != null && getClass() == obj.getClass() && ((Terminator) obj).stringNumber == stringNumber;
     }
 
     @Override

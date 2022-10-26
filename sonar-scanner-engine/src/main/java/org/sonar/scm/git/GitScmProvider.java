@@ -48,6 +48,7 @@ import org.eclipse.jgit.diff.RenameDetector;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.NullProgressMonitor;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -369,12 +370,10 @@ public class GitScmProvider extends ScmProvider {
   public String revisionId(Path path) {
     RepositoryBuilder builder = getVerifiedRepositoryBuilder(path);
     try {
-      Ref head = getHead(builder.build());
-      if (head == null || head.getObjectId() == null) {
-        // can happen on fresh, empty repos
-        return null;
-      }
-      return head.getObjectId().getName();
+      return Optional.ofNullable(getHead(builder.build()))
+        .map(Ref::getObjectId)
+        .map(ObjectId::getName)
+        .orElse(null);
     } catch (IOException e) {
       throw new IllegalStateException("I/O error while getting revision ID for path: " + path, e);
     }

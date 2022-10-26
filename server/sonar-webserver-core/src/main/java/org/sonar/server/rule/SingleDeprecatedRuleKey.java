@@ -106,7 +106,7 @@ class SingleDeprecatedRuleKey {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof SingleDeprecatedRuleKey)) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     SingleDeprecatedRuleKey that = (SingleDeprecatedRuleKey) o;

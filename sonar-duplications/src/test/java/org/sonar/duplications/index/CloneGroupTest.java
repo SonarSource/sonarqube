@@ -17,24 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.duplications.token;
+package org.sonar.duplications.index;
 
-import org.assertj.core.api.Assertions;
+import java.util.List;
 import org.junit.Test;
 
-public class TokenTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class CloneGroupTest {
 
   @Test
   public void test_equals() {
-    Token token = new Token("value_1", 1, 2);
+    ClonePart clone = new ClonePart("id", 1, 1, 2);
+    CloneGroup group = composeGroup(1, 1, clone, List.of(clone));
 
-    Assertions.assertThat(token)
-      .isEqualTo(token)
+    assertThat(group)
+      .isEqualTo(group)
       .isNotEqualTo(null)
       .isNotEqualTo(new Object())
-      .isNotEqualTo(new Token("value_1", 1, 0))
-      .isNotEqualTo(new Token("value_1", 0, 2))
-      .isNotEqualTo(new Token("value_2", 1, 2))
-      .isEqualTo(new Token("value_1", 1, 2));
+      .isNotEqualTo(composeGroup(1, 1, clone, List.of()))
+      .isNotEqualTo(composeGroup(1, 1, new ClonePart("", 1, 1, 2), List.of(clone)))
+      .isNotEqualTo(composeGroup(0, 1, clone, List.of(clone)))
+      .isEqualTo(composeGroup(1, 1, clone, List.of(new ClonePart("id", 1, 1, 2))));
+  }
+
+  private static CloneGroup composeGroup(int length, int lengthInUnits, ClonePart origin, List<ClonePart> parts) {
+    return  CloneGroup.builder()
+      .setLength(length)
+      .setLengthInUnits(lengthInUnits)
+      .setOrigin(origin)
+      .setParts(parts)
+      .build();
   }
 }

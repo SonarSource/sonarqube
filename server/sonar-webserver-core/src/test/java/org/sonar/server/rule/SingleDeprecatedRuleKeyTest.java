@@ -119,6 +119,7 @@ public class SingleDeprecatedRuleKeyTest {
     assertThat(singleDeprecatedRuleKey1)
       .isNotNull()
       .isNotEqualTo("")
+      .isNotEqualTo(null)
       .isNotEqualTo(singleDeprecatedRuleKey2);
     assertThat(singleDeprecatedRuleKey2).isNotEqualTo(singleDeprecatedRuleKey1);
 

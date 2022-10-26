@@ -19,14 +19,14 @@
  */
 package org.sonar.duplications.statement;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.junit.Test;
 import org.sonar.duplications.token.Token;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class StatementTest {
 
@@ -48,4 +48,17 @@ public class StatementTest {
     assertThat(statement.getEndLine(), is(2));
   }
 
+  @Test
+  public void test_equals() {
+    Statement statement = new Statement(1, 2, "value_1");
+
+    assertThat(statement)
+      .isEqualTo(statement)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object())
+      .isNotEqualTo(new Statement(1, 2, "value_2"))
+      .isNotEqualTo(new Statement(1, 0, "value_1"))
+      .isNotEqualTo(new Statement(0, 2, "value_1"))
+      .isEqualTo(new Statement(1, 2, "value_1"));
+  }
 }

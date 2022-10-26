@@ -17,24 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.duplications.token;
+package org.sonar.duplications.detector.suffixtree;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-public class TokenTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class TextSetTest {
 
   @Test
-  public void test_equals() {
-    Token token = new Token("value_1", 1, 2);
+  public void test_terminator_equals() {
+    TextSet.Terminator terminator = new TextSet.Terminator(1);
 
-    Assertions.assertThat(token)
-      .isEqualTo(token)
+    assertThat(terminator)
+      .isEqualTo(terminator)
       .isNotEqualTo(null)
-      .isNotEqualTo(new Object())
-      .isNotEqualTo(new Token("value_1", 1, 0))
-      .isNotEqualTo(new Token("value_1", 0, 2))
-      .isNotEqualTo(new Token("value_2", 1, 2))
-      .isEqualTo(new Token("value_1", 1, 2));
+      .isNotEqualTo(new TextSet.Terminator(0))
+      .isEqualTo(new TextSet.Terminator(1));
   }
 }

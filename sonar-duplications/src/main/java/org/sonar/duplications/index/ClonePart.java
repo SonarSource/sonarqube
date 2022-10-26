@@ -60,7 +60,7 @@ public class ClonePart {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof ClonePart) {
+    if (obj != null && getClass() == obj.getClass()) {
       ClonePart another = (ClonePart) obj;
       return another.resourceId.equals(resourceId)
         && another.startLine == startLine

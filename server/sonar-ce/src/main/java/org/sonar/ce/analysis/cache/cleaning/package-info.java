@@ -17,24 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.duplications.token;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.analysis.cache.cleaning;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
-
-public class TokenTest {
-
-  @Test
-  public void test_equals() {
-    Token token = new Token("value_1", 1, 2);
-
-    Assertions.assertThat(token)
-      .isEqualTo(token)
-      .isNotEqualTo(null)
-      .isNotEqualTo(new Object())
-      .isNotEqualTo(new Token("value_1", 1, 0))
-      .isNotEqualTo(new Token("value_1", 0, 2))
-      .isNotEqualTo(new Token("value_2", 1, 2))
-      .isEqualTo(new Token("value_1", 1, 2));
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

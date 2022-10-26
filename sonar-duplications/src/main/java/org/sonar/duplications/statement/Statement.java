@@ -79,7 +79,7 @@ public class Statement {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof Statement)) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
     Statement other = (Statement) obj;

@@ -20,7 +20,9 @@
 package org.sonar.scanner.ci.vendors;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
@@ -99,10 +101,10 @@ public class Jenkins implements CiVendor {
 
     String refName = "refs/remotes/origin/" + gitBranch;
     try (Repository repo = builder.build()) {
-      Ref ref = repo.exactRef(refName);
-      if (ref != null) {
-        return ref.getObjectId().getName();
-      }
+      return Optional.ofNullable(repo.exactRef(refName))
+        .map(Ref::getObjectId)
+        .map(ObjectId::getName)
+        .orElse(null);
     } catch (Exception e) {
       LOG.debug("Couldn't find git sha1 in '{}': {}", refName, e.getMessage());
     }
