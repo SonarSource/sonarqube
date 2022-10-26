@@ -19,10 +19,11 @@
  */
 
 export enum Feature {
-  MonoRepositoryPullRequestDecoration = 'monorepo',
-  RegulatoryReport = 'regulatory-reports',
-  ProjectImport = 'project-import',
-  MultipleAlm = 'multiple-alm',
   Announcement = 'announcement',
-  BranchSupport = 'branch-support'
+  BranchSupport = 'branch-support',
+  LoginMessage = 'login-message',
+  MonoRepositoryPullRequestDecoration = 'monorepo',
+  MultipleAlm = 'multiple-alm',
+  ProjectImport = 'project-import',
+  RegulatoryReport = 'regulatory-reports'
 }
