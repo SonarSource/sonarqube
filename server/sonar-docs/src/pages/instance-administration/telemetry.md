@@ -3,19 +3,20 @@ title: Telemetry
 url: /instance-administration/telemetry/
 ---
 
-SonarQube sends anonymized telemetry data to SonarSource daily.
+Your SonarQube installation sends telemetry data to SonarSource daily.
 This data helps us understand how SonarQube is used, which helps us improve our products.
 
 
 ## No personally identifiable information is sent
 
-The telemetry doesn't collect personal data, such as usernames or email addresses.
-It doesn't send source code or data such as project name, repository, or author.
-No IP addresses are sent.
+The telemetry feature only sends anonymized, non-project-specific data related to which features of the product are being used.
+
+Personal data, such as usernames or email addresses, is never sent. Neither is source code nor any project-specific data such as project name, repository, or author is ever sent. No IP addresses are ever sent.
+
 The data is sent securely, held under restricted access, and not published outside of SonarSource.
 
 Protecting your privacy is important to us.
-If you have any concerns about telemetry collection, please email us at `security@sonarsource.com`.
+If you have any concerns about telemetry data collection, please email us at `security@sonarsource.com`.
 
 
 ## Turning it off
