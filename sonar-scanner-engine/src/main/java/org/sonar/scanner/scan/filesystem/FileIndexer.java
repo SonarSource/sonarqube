@@ -20,6 +20,7 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -119,6 +120,12 @@ public class FileIndexer {
       return;
     }
 
+    long maxFileSize = properties.fileSizeLimit();
+    if (Files.size(realAbsoluteFile) > maxFileSize * 1024L * 1024L) {
+      LOG.warn("File '{}' is bigger than {}MB and as consequence is removed from the analysis scope.", realAbsoluteFile.toAbsolutePath(), maxFileSize);
+      return;
+    }
+
     Language language = langDetection.language(realAbsoluteFile, projectRelativePath);
 
     if (ignoreCommand != null && ignoreCommand.isIgnored(realAbsoluteFile)) {
@@ -141,7 +148,7 @@ public class FileIndexer {
 
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()));
     if (language != null && language.isPublishAllFiles()) {
-        inputFile.setPublished(true);
+      inputFile.setPublished(true);
     }
     if (!accept(inputFile)) {
       return;

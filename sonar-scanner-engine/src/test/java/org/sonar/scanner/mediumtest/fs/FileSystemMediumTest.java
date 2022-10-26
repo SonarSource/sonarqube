@@ -22,6 +22,7 @@ package org.sonar.scanner.mediumtest.fs;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -50,6 +51,7 @@ import org.sonar.xoo.global.DeprecatedGlobalSensor;
 import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -121,7 +123,7 @@ public class FileSystemMediumTest {
         .put("sonar.sources", "src")
         .build())
       .execute())
-      .isInstanceOf(MessageException.class);
+        .isInstanceOf(MessageException.class);
   }
 
   @Test
@@ -417,6 +419,26 @@ public class FileSystemMediumTest {
   }
 
   @Test
+  public void ignoreFilesWhenGreaterThanDefinedSize() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File fileGreaterThanLimit = writeFile(srcDir, "sample.xoo", 1024 * 1024 + 1);
+    writeFile(srcDir, "another.xoo", "Sample xoo 2\ncontent");
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        // set limit to 1MB
+        .put("sonar.filesize.limit", "1")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+    assertThat(logTester.logs())
+      .contains(format("File '%s' is bigger than 1MB and as consequence is removed from the analysis scope.", fileGreaterThanLimit.getAbsolutePath()));
+  }
+
+  @Test
   public void test_inclusions_on_multi_modules() throws IOException {
     File baseDir = temp.getRoot();
     File baseDirModuleA = new File(baseDir, "moduleA");
@@ -644,8 +666,8 @@ public class FileSystemMediumTest {
         .put("sonar.sources", "src,src/sample.xoo")
         .build())
       .execute())
-      .isInstanceOf(MessageException.class)
-      .hasMessage("File src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
+        .isInstanceOf(MessageException.class)
+        .hasMessage("File src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
   }
 
   // SONAR-9574
@@ -663,8 +685,8 @@ public class FileSystemMediumTest {
         .put("module1.sonar.sources", "src")
         .build())
       .execute())
-      .isInstanceOf(MessageException.class)
-      .hasMessage("File module1/src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
+        .isInstanceOf(MessageException.class)
+        .hasMessage("File module1/src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
   }
 
   // SONAR-5330
@@ -1048,4 +1070,13 @@ public class FileSystemMediumTest {
     FileUtils.write(file, content, StandardCharsets.UTF_8);
     return file;
   }
+
+  private File writeFile(File parent, String name, long size) throws IOException {
+    File file = new File(parent, name);
+    RandomAccessFile raf = new RandomAccessFile(file, "rw");
+    raf.setLength(size);
+    raf.close();
+    return file;
+  }
+
 }

@@ -26,6 +26,7 @@ import org.sonar.api.resources.Qualifiers;
 
 import static java.util.Arrays.asList;
 import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.INTEGER;
 
 public class ScannerProperties {
 
@@ -38,7 +39,7 @@ public class ScannerProperties {
   public static final String PULL_REQUEST_KEY = "sonar.pullrequest.key";
   public static final String PULL_REQUEST_BRANCH = "sonar.pullrequest.branch";
   public static final String PULL_REQUEST_BASE = "sonar.pullrequest.base";
-
+  public static final String FILE_SIZE_LIMIT = "sonar.filesize.limit";
   public static final String LINKS_SOURCES_DEV = "sonar.links.scm_dev";
   public static final String DISABLE_PROJECT_AND_ORG_AUTODETECTION = "sonar.keys_autodetection.disabled";
 
@@ -83,6 +84,14 @@ public class ScannerProperties {
         .name("Disables project auto-detection")
         .description("Disables auto-detection of project keys from scanner execution environment.")
         .type(BOOLEAN)
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(FILE_SIZE_LIMIT)
+        .name("Limit of a file size excluded from analysis in MB")
+        .type(INTEGER)
+        .defaultValue("20")
+        .description(
+          "Allows discarding files from analysis exceeding certain sizes.")
         .hidden()
         .build());
   }

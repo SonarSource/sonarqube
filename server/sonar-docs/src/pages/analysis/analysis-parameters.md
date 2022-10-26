@@ -83,6 +83,7 @@ Key | Description | Default
 `sonar.buildString`| The string passed with this property will be stored with the analysis and available in the results of `api/project_analyses/search`, thus allowing you to later identify a specific analysis and obtain its ID for use with `api/project_analyses/set_baseline`. | |
 `sonar.analysis.[yourKey]`| This property stub allows you to insert custom key/value pairs into the analysis context, which will also be passed forward to [webhooks](/project-administration/webhooks/). | |
 `sonar.newCode.referenceBranch`| Sets the [New Code](/project-administration/new-code-period/) definition to `Reference Branch` for this analysis, overriding the configuration on the server. The `New Code` will be calculated based on the differences between the branch under analysis and the provided branch. This parameter is intended to be set in a configuration file (ex: `sonar-project.properties`), specific to a given branch.
+`sonar.filesize.limit`| Sets the limit in MB for files to be discarded from the analysis scope if the size is greater than specified. | 20
 
 ### Duplications
 Key | Description | Default

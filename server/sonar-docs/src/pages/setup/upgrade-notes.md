@@ -4,6 +4,9 @@ url: /setup/upgrade-notes/
 ---
 
 ## Release 9.8 Upgrade notes
+**Analysis discards from its scope all files greater than 20 MB**
+SonarQube analysis discards from its scope all files greater than 20 MB. This setting can be changed at scanner level using following property `sonar.filesize.limit`. ([SONAR-11096](https://sonarsource.atlassian.net/browse/SONAR-11096)) 
+
 **Dropping the embedded documentation**
 SonarQube no longer ships with an embedded version of the documentation. The documentation will now only be available at [docs.sonarqube.org](https://docs.sonarqube.org/). ([SONAR-17221](https://sonarsource.atlassian.net/browse/SONAR-17221))  
 * All in-app links will now point to the documentation website.

@@ -27,6 +27,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
+import static org.sonar.core.config.ScannerProperties.FILE_SIZE_LIMIT;
 
 /**
  * Properties that can be passed to the scanners and are not exposed in SonarQube.
@@ -91,6 +92,10 @@ public class ScanProperties {
 
   public int reportPublishTimeout() {
     return configuration.getInt(REPORT_PUBLISH_TIMEOUT_IN_SEC).orElse(60);
+  }
+
+  public long fileSizeLimit() {
+    return configuration.getInt(FILE_SIZE_LIMIT).orElse(20);
   }
 
   /**
