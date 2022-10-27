@@ -207,7 +207,7 @@ Click the scanner you're using below to expand the example configuration:
 |   | This configuration is an alternative to the SonarQube Scan Bitbucket Pipe. If you do not need a setup that allows for scanner caching, we recommend using the Bitbucket Pipe.
 |
 | ```
-| image: maven:3.3.9
+| image: <image for build>
 |
 | definitions:
 |   steps: &build-step
