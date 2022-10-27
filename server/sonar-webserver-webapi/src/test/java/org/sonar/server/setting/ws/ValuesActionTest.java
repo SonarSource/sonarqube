@@ -108,6 +108,26 @@ public class ValuesActionTest {
   }
 
   @Test
+  public void return_formatted_values() {
+    logIn();
+    String propertyKey = "sonar.login.message";
+    definitions.addComponent(PropertyDefinition
+      .builder(propertyKey)
+        .type(PropertyType.FORMATTED_TEXT)
+      .build());
+    db.properties().insertProperties(null, null, null, null, newGlobalPropertyDto().setKey(propertyKey).setValue("[link](https://link.com)"));
+
+    ValuesWsResponse result = executeRequestForGlobalProperties(propertyKey);
+
+    assertThat(result.getSettingsList()).hasSize(1);
+    Settings.Setting value = result.getSettings(0);
+    assertThat(value.getKey()).isEqualTo(propertyKey);
+    assertThat(value.getValues().getValuesList())
+      .hasSize(2)
+      .containsExactly("[link](https://link.com)", "<a href=\"https://link.com\" target=\"_blank\">link</a>");
+  }
+
+  @Test
   public void return_multi_values() {
     logIn();
     // Property never defined, default value is returned

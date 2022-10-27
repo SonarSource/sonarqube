@@ -82,6 +82,7 @@ enum Type {
   PROPERTY_SET = 12;
   LICENSE = 13;
   JSON = 14;
+  FORMATTED_TEXT = 15;
 }
 
 // Response of GET api/settings/values

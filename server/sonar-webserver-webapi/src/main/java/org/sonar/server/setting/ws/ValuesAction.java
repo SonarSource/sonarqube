@@ -48,6 +48,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.markdown.Markdown;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
@@ -58,6 +59,7 @@ import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
+import static org.sonar.api.PropertyType.FORMATTED_TEXT;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.setting.ws.PropertySetExtractor.extractPropertySetKeys;
@@ -297,6 +299,8 @@ public class ValuesAction implements SettingsWsAction {
       }
       if (definition.type().equals(PROPERTY_SET)) {
         valueBuilder.setFieldValues(createFieldValuesBuilder(filterVisiblePropertySets(setting.getPropertySets())));
+      } else if (definition.type().equals(FORMATTED_TEXT)) {
+        valueBuilder.setValues(createFormattedTextValuesBuilder(value));
       } else if (definition.multiValues()) {
         valueBuilder.setValues(createValuesBuilder(value));
       } else {
@@ -328,6 +332,11 @@ public class ValuesAction implements SettingsWsAction {
 
     private Settings.Values.Builder createValuesBuilder(String value) {
       List<String> values = COMMA_SPLITTER.splitToList(value).stream().map(v -> v.replace(COMMA_ENCODED_VALUE, ",")).collect(Collectors.toList());
+      return Settings.Values.newBuilder().addAllValues(values);
+    }
+
+    private Settings.Values.Builder createFormattedTextValuesBuilder(String value) {
+      List<String> values = List.of(value, Markdown.convertToHtml(value));
       return Settings.Values.newBuilder().addAllValues(values);
     }
 
