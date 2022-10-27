@@ -18,9 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { debounce } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { createProject, doesComponentExists } from '../../../api/components';
+import { getValue } from '../../../api/settings';
+import DocLink from '../../../components/common/DocLink';
 import ProjectKeyInput from '../../../components/common/ProjectKeyInput';
 import { SubmitButton } from '../../../components/controls/buttons';
 import ValidationInput from '../../../components/controls/ValidationInput';
@@ -30,6 +33,7 @@ import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsEx
 import { translate } from '../../../helpers/l10n';
 import { PROJECT_KEY_INVALID_CHARACTERS, validateProjectKey } from '../../../helpers/projects';
 import { ProjectKeyValidationResult } from '../../../types/component';
+import { GlobalSettingKeys } from '../../../types/settings';
 import { PROJECT_NAME_MAX_LEN } from './constants';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import './ManualProjectCreate.css';
@@ -47,6 +51,9 @@ interface State {
   projectKeyError?: string;
   projectKeyTouched: boolean;
   validatingProjectKey: boolean;
+  mainBranchName: string;
+  mainBranchNameError?: string;
+  mainBranchNameTouched: boolean;
   submitting: boolean;
 }
 
@@ -63,6 +70,8 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       submitting: false,
       projectKeyTouched: false,
       projectNameTouched: false,
+      mainBranchName: 'main',
+      mainBranchNameTouched: false,
       validatingProjectKey: false
     };
     this.checkFreeKey = debounce(this.checkFreeKey, 250);
@@ -70,11 +79,20 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
 
   componentDidMount() {
     this.mounted = true;
+    this.fetchMainBranchName();
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  fetchMainBranchName = async () => {
+    const mainBranchName = await getValue({ key: GlobalSettingKeys.MainBranchName });
+
+    if (this.mounted && mainBranchName.value !== undefined) {
+      this.setState({ mainBranchName: mainBranchName.value });
+    }
+  };
 
   checkFreeKey = (key: string) => {
     this.setState({ validatingProjectKey: true });
@@ -98,23 +116,25 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   };
 
   canSubmit(state: State): state is ValidState {
-    const { projectKey, projectKeyError, projectName, projectNameError } = state;
+    const { projectKey, projectKeyError, projectName, projectNameError, mainBranchName } = state;
     return Boolean(
       projectKeyError === undefined &&
         projectNameError === undefined &&
-        projectKey.length > 0 &&
-        projectName.length > 0
+        !isEmpty(projectKey) &&
+        !isEmpty(projectName) &&
+        !isEmpty(mainBranchName)
     );
   }
 
   handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const { state } = this;
-    if (this.canSubmit(state)) {
+    const { projectKey, projectName, mainBranchName } = this.state;
+    if (this.canSubmit(this.state)) {
       this.setState({ submitting: true });
       createProject({
-        project: state.projectKey,
-        name: (state.projectName || state.projectKey).trim()
+        project: projectKey,
+        name: (projectName || projectKey).trim(),
+        mainBranch: mainBranchName
       }).then(
         ({ project }) => this.props.onProjectCreate(project.key),
         () => {
@@ -158,6 +178,14 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     );
   };
 
+  handleBranchNameChange = (mainBranchName: string, fromUI = false) => {
+    this.setState({
+      mainBranchName,
+      mainBranchNameError: this.validateMainBranchName(mainBranchName),
+      mainBranchNameTouched: fromUI
+    });
+  };
+
   validateKey = (projectKey: string) => {
     const result = validateProjectKey(projectKey);
     return result === ProjectKeyValidationResult.Valid
@@ -166,8 +194,15 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   };
 
   validateName = (projectName: string) => {
-    if (projectName.length === 0) {
+    if (isEmpty(projectName)) {
       return translate('onboarding.create_project.display_name.error.empty');
+    }
+    return undefined;
+  };
+
+  validateMainBranchName = (mainBranchName: string) => {
+    if (isEmpty(mainBranchName)) {
+      return translate('onboarding.create_project.main_branch_name.error.empty');
     }
     return undefined;
   };
@@ -181,13 +216,18 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       projectNameError,
       projectNameTouched,
       validatingProjectKey,
+      mainBranchName,
+      mainBranchNameError,
+      mainBranchNameTouched,
       submitting
     } = this.state;
     const { branchesEnabled } = this.props;
 
-    const touched = !!(projectKeyTouched || projectNameTouched);
+    const touched = Boolean(projectKeyTouched || projectNameTouched);
     const projectNameIsInvalid = projectNameTouched && projectNameError !== undefined;
     const projectNameIsValid = projectNameTouched && projectNameError === undefined;
+    const mainBranchNameIsValid = mainBranchNameTouched && mainBranchNameError === undefined;
+    const mainBranchNameIsInvalid = mainBranchNameTouched && mainBranchNameError !== undefined;
 
     return (
       <>
@@ -229,6 +269,42 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 touched={touched}
                 validating={validatingProjectKey}
               />
+
+              <ValidationInput
+                className="form-field"
+                description={
+                  <FormattedMessage
+                    id="onboarding.create_project.main_branch_name.description"
+                    defaultMessage={translate(
+                      'onboarding.create_project.main_branch_name.description'
+                    )}
+                    values={{
+                      learn_more: (
+                        <DocLink to="/project-administration/project-existence">
+                          {translate('learn_more')}
+                        </DocLink>
+                      )
+                    }}
+                  />
+                }
+                error={mainBranchNameError}
+                id="main-branch-name"
+                isInvalid={mainBranchNameIsInvalid}
+                isValid={mainBranchNameIsValid}
+                label={translate('onboarding.create_project.main_branch_name')}
+                required={true}>
+                <input
+                  id="main-branch-name"
+                  className={classNames('input-super-large', {
+                    'is-invalid': mainBranchNameIsInvalid,
+                    'is-valid': mainBranchNameIsValid
+                  })}
+                  minLength={1}
+                  onChange={e => this.handleBranchNameChange(e.currentTarget.value, true)}
+                  type="text"
+                  value={mainBranchName}
+                />
+              </ValidationInput>
 
               <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
                 {translate('set_up')}

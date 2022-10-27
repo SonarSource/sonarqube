@@ -38,7 +38,8 @@ export enum GlobalSettingKeys {
   DeveloperAggregatedInfoDisabled = 'sonar.developerAggregatedInfo.disabled',
   UpdatecenterActivated = 'sonar.updatecenter.activate',
   DisplayAnnouncementMessage = 'sonar.announcement.displayMessage',
-  AnnouncementMessage = 'sonar.announcement.message'
+  AnnouncementMessage = 'sonar.announcement.message',
+  MainBranchName = 'sonar.projectCreation.mainBranchName'
 }
 
 export type SettingDefinitionAndValue = {

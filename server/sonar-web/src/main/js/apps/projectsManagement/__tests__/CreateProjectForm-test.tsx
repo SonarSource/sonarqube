@@ -17,49 +17,67 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first */
-jest.mock('../../../api/components', () => ({
-  createProject: jest.fn(({ name }: { name: string }) =>
-    Promise.resolve({ project: { key: name, name } })
-  )
-}));
 
-import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { change, submit, waitAndUpdate } from '../../../helpers/testUtils';
+import { createProject } from '../../../api/components';
 import CreateProjectForm from '../CreateProjectForm';
 
-const createProject = require('../../../api/components').createProject as jest.Mock<any>;
+jest.mock('../../../api/components', () => ({
+  createProject: jest.fn().mockResolvedValue({}),
+  doesComponentExists: jest
+    .fn()
+    .mockImplementation(({ component }) => Promise.resolve(component === 'exists'))
+}));
 
-it('creates project', async () => {
-  const wrapper = shallow(
-    <CreateProjectForm
-      defaultProjectVisibility="public"
-      onClose={jest.fn()}
-      onProjectCreated={jest.fn()}
-    />
-  );
-  (wrapper.instance() as CreateProjectForm).mounted = true;
-  expect(wrapper).toMatchSnapshot();
+jest.mock('../../../api/settings', () => ({
+  getValue: jest.fn().mockResolvedValue({ value: 'main' })
+}));
 
-  change(wrapper.find('input[name="name"]'), 'name', {
-    currentTarget: { name: 'name', value: 'name' }
-  });
-  change(wrapper.find('input[name="key"]'), 'key', {
-    currentTarget: { name: 'key', value: 'key' }
-  });
-  wrapper.find('VisibilitySelector').prop<Function>('onChange')('private');
-  wrapper.update();
-  expect(wrapper).toMatchSnapshot();
-
-  submit(wrapper.find('form'));
-  expect(createProject).toHaveBeenCalledWith({
-    name: 'name',
-    project: 'key',
-    visibility: 'private'
-  });
-  expect(wrapper).toMatchSnapshot();
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+beforeEach(() => {
+  jest.clearAllMocks();
 });
+
+it('should render all inputs and create a project', async () => {
+  const user = userEvent.setup();
+  renderCreateProjectForm();
+
+  await user.type(
+    screen.getByRole('textbox', {
+      name: 'onboarding.create_project.display_name field_required'
+    }),
+    'ProjectName'
+  );
+
+  await user.type(
+    screen.getByRole('textbox', {
+      name: 'onboarding.create_project.project_key field_required'
+    }),
+    'ProjectKey'
+  );
+
+  expect(
+    screen.getByRole('textbox', {
+      name: 'onboarding.create_project.main_branch_name field_required'
+    })
+  ).toHaveValue('main');
+
+  await user.type(
+    screen.getByRole('textbox', {
+      name: 'onboarding.create_project.main_branch_name field_required'
+    }),
+    '{Control>}a{/Control}{Backspace}ProjectMainBranch'
+  );
+
+  await user.click(screen.getByRole('button', { name: 'create' }));
+  expect(createProject).toHaveBeenCalledWith({
+    name: 'ProjectName',
+    project: 'ProjectKey',
+    mainBranch: 'ProjectMainBranch'
+  });
+});
+
+function renderCreateProjectForm(props: Partial<CreateProjectForm['props']> = {}) {
+  render(<CreateProjectForm onClose={jest.fn()} onProjectCreated={jest.fn()} {...props} />);
+}

@@ -86,6 +86,7 @@ export function deletePortfolio(portfolio: string): Promise<void | Response> {
 export function createProject(data: {
   name: string;
   project: string;
+  mainBranch: string;
   visibility?: Visibility;
 }): Promise<{ project: ProjectBase }> {
   return postJSON('/api/projects/create', data).catch(throwGlobalError);

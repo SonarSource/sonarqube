@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { createProject } from '../../api/components';
+import { getValue } from '../../api/settings';
 import Link from '../../components/common/Link';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
@@ -29,6 +30,7 @@ import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
+import { GlobalSettingKeys } from '../../types/settings';
 import { Visibility } from '../../types/types';
 
 interface Props {
@@ -45,6 +47,7 @@ interface State {
   visibility?: Visibility;
   // add index declaration to be able to do `this.setState({ [name]: value });`
   [x: string]: any;
+  mainBranchName: string;
 }
 
 export default class CreateProjectForm extends React.PureComponent<Props, State> {
@@ -57,12 +60,14 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
       key: '',
       loading: false,
       name: '',
-      visibility: props.defaultProjectVisibility
+      visibility: props.defaultProjectVisibility,
+      mainBranchName: 'main'
     };
   }
 
   componentDidMount() {
     this.mounted = true;
+    this.fetchMainBranchName();
   }
 
   componentDidUpdate() {
@@ -78,6 +83,14 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
     this.mounted = false;
   }
 
+  fetchMainBranchName = async () => {
+    const mainBranchName = await getValue({ key: GlobalSettingKeys.MainBranchName });
+
+    if (this.mounted && mainBranchName.value !== undefined) {
+      this.setState({ mainBranchName: mainBranchName.value });
+    }
+  };
+
   handleInputChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     const { name, value } = event.currentTarget;
     this.setState({ [name]: value });
@@ -89,11 +102,13 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const { name, key, mainBranchName, visibility } = this.state;
 
     const data = {
-      name: this.state.name,
-      project: this.state.key,
-      visibility: this.state.visibility
+      name,
+      project: key,
+      mainBranch: mainBranchName,
+      visibility
     };
 
     this.setState({ loading: true });
@@ -159,7 +174,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
               <MandatoryFieldsExplanation className="modal-field" />
               <div className="modal-field">
                 <label htmlFor="create-project-name">
-                  {translate('name')}
+                  {translate('onboarding.create_project.display_name')}
                   <MandatoryFieldMarker />
                 </label>
                 <input
@@ -175,7 +190,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
               </div>
               <div className="modal-field">
                 <label htmlFor="create-project-key">
-                  {translate('key')}
+                  {translate('onboarding.create_project.project_key')}
                   <MandatoryFieldMarker />
                 </label>
                 <input
@@ -186,6 +201,21 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
                   required={true}
                   type="text"
                   value={this.state.key}
+                />
+              </div>
+              <div className="modal-field">
+                <label htmlFor="create-project-main-branch-name">
+                  {translate('onboarding.create_project.main_branch_name')}
+                  <MandatoryFieldMarker />
+                </label>
+                <input
+                  id="create-project-main-branch-name"
+                  maxLength={400}
+                  name="mainBranchName"
+                  onChange={this.handleInputChange}
+                  required={true}
+                  type="text"
+                  value={this.state.mainBranchName}
                 />
               </div>
               <div className="modal-field">

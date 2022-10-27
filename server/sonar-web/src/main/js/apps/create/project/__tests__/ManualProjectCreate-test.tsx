@@ -31,6 +31,10 @@ jest.mock('../../../../api/components', () => ({
     .mockImplementation(({ component }) => Promise.resolve(component === 'exists'))
 }));
 
+jest.mock('../../../../api/settings', () => ({
+  getValue: jest.fn().mockResolvedValue({ value: 'main' })
+}));
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -70,12 +74,11 @@ it('should validate form input', async () => {
   ).toHaveValue('This-is-not-a-key-');
 
   // Clear name
-  await user.click(
-    await screen.findByRole('textbox', {
+  await user.clear(
+    screen.getByRole('textbox', {
       name: 'onboarding.create_project.display_name field_required'
     })
   );
-  await user.keyboard('{Control>}a{/Control}{Backspace}');
   expect(
     screen.getByRole('textbox', { name: 'onboarding.create_project.project_key field_required' })
   ).toHaveValue('');
@@ -117,6 +120,16 @@ it('should validate form input', async () => {
   expect(
     await screen.findByText('onboarding.create_project.project_key.taken')
   ).toBeInTheDocument();
+
+  // Invalid main branch name
+  await user.clear(
+    screen.getByRole('textbox', {
+      name: 'onboarding.create_project.main_branch_name field_required'
+    })
+  );
+  expect(
+    await screen.findByText('onboarding.create_project.main_branch_name.error.empty')
+  ).toBeInTheDocument();
 });
 
 it('should submit form input', async () => {
@@ -132,7 +145,11 @@ it('should submit form input', async () => {
   );
   await user.keyboard('test');
   await user.click(screen.getByRole('button', { name: 'set_up' }));
-  expect(createProject).toHaveBeenCalledWith({ name: 'test', project: 'test' });
+  expect(createProject).toHaveBeenCalledWith({
+    name: 'test',
+    project: 'test',
+    mainBranch: 'main'
+  });
   expect(onProjectCreate).toHaveBeenCalled();
 });
 
