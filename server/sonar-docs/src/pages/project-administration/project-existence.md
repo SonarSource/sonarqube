@@ -8,7 +8,7 @@ Typically, projects are created during their first analysis and never deleted (b
 ## How do I provision a project before its first analysis?
 Provisioning a project allows you to declare and configure it (define permissions, set Quality Profiles, etc.) before running the first analysis. To be able to provision projects, you have to be logged in and be granted the Provision Projects permission.
 
-To provision a new project either use the '+' menu in the top menu or if you have global administration privileges, go to **[Administration > Projects > Management](/#sonarqube-admin#/admin/projects_management/)** and click on **Create Project**. The only required information is the key and the name of your project.
+To provision a new project, either go to the **Projects** page and click on **Create Project**, or go to **Administration > Projects > Management** and click on **Create Project**.
 
 Once the project is provisioned, you can configure it (define permissions, set Quality Profiles, etc.), and when you're finished with the configuration, you can simply run the project's first analysis.
 
