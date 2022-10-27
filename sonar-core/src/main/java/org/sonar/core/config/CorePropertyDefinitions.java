@@ -37,12 +37,14 @@ import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 public class CorePropertyDefinitions {
 
   public static final String SONAR_ANALYSIS = "sonar.analysis.";
+  public static final String SONAR_PROJECTCREATION_MAINBRANCHNAME = "sonar.projectCreation.mainBranchName";
   public static final String SONAR_ANALYSIS_DETECTEDSCM = "sonar.analysis.detectedscm";
   public static final String SONAR_ANALYSIS_DETECTEDCI = "sonar.analysis.detectedci";
 
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
 
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
+  public static final String SUBCATEGORY_PROJECT_CREATION = "subProjectCreation";
 
   private CorePropertyDefinitions() {
     // only static stuff
@@ -74,7 +76,15 @@ public class CorePropertyDefinitions {
         .description("HTTP(S) URL of this SonarQube server, such as <i>https://yourhost.yourdomain/sonar</i>. This value is used outside SonarQube itself, e.g. for PR decoration, emails, etc.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .build(),
-
+      PropertyDefinition.builder(SONAR_PROJECTCREATION_MAINBRANCHNAME)
+        .name("Default main branch name")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_PROJECT_CREATION)
+        .description("Each project has a main branch at creation. This setting defines the instance-wide default main branch name. "
+          + " A user can override this when creating a project. This setting does not apply to projects imported from a DevOps platform.")
+        .type(STRING)
+        .defaultValue("main")
+        .build(),
       PropertyDefinition.builder(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)
         .name("Encryption secret key path")
         .description("Path to a file that contains encryption secret key that is used to encrypting other settings.")
