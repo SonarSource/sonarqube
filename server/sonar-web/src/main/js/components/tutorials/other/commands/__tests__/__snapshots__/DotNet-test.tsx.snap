@@ -16,6 +16,7 @@ exports[`should render correctly 1`] = `
     titleLabelKey="onboarding.build.dotnet.variant"
   />
   <DotNetCore
+    baseUrl="host"
     component={
       Object {
         "breadcrumbs": Array [],
@@ -38,7 +39,6 @@ exports[`should render correctly 1`] = `
         "tags": Array [],
       }
     }
-    host="host"
     token="token"
   />
 </Fragment>

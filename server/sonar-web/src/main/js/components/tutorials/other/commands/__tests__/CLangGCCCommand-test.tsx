@@ -30,7 +30,6 @@ it('should render correctly', () => {
         os={OSs.Linux}
         baseUrl="http://example.com"
         isLocal={true}
-        host="host"
         component={mockComponent({ key: 'projectKey' })}
         token="token"
       />

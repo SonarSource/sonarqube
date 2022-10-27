@@ -29,6 +29,12 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<OthersProps> = {}) {
   return shallow<OthersProps>(
-    <Others branchesEnabled={true} component={mockComponent()} {...props} onDone={jest.fn()} />
+    <Others
+      branchesEnabled={true}
+      component={mockComponent()}
+      mainBranchName="main"
+      onDone={jest.fn()}
+      {...props}
+    />
   );
 }

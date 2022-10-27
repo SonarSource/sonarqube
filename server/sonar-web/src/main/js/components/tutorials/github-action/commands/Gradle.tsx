@@ -26,26 +26,17 @@ import CodeSnippet from '../../../common/CodeSnippet';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import FinishButton from '../../components/FinishButton';
 import { buildGradleSnippet } from '../../utils';
+import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
+import { generateGitHubActionsYaml } from '../utils';
 
 export interface GradleProps {
   branchesEnabled?: boolean;
+  mainBranchName: string;
   component: Component;
   onDone: () => void;
 }
-const gradleYamlTemplate = (branchesEnabled: boolean) => `name: Build
-on:
-  push:
-    branches:
-      - master # or the name of your main branch
-${branchesEnabled ? '  pull_request:\n    types: [opened, synchronize, reopened]' : ''}
-jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+const GRADLE_YAML_STEPS = `
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
@@ -70,7 +61,7 @@ jobs:
         run: ./gradlew build sonarqube --info`;
 
 export default function Gradle(props: GradleProps) {
-  const { component, branchesEnabled } = props;
+  const { component, branchesEnabled, mainBranchName } = props;
 
   return (
     <>
@@ -92,7 +83,12 @@ export default function Gradle(props: GradleProps) {
       </li>
       <CreateYmlFile
         yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={gradleYamlTemplate(!!branchesEnabled)}
+        yamlTemplate={generateGitHubActionsYaml(
+          mainBranchName,
+          !!branchesEnabled,
+          GITHUB_ACTIONS_RUNS_ON_LINUX,
+          GRADLE_YAML_STEPS
+        )}
       />
       <FinishButton onClick={props.onDone} />
     </>

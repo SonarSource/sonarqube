@@ -17,36 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { BuildTools } from '../../../types';
-import PipeCommand from '../PipeCommand';
+export function generateGitHubActionsYaml(
+  mainBranchName: string,
+  branchesEnabled: boolean,
+  runsOn: string,
+  steps: string
+) {
+  return `name: Build
 
-it.each([
-  [BuildTools.Maven],
-  [BuildTools.Gradle],
-  [BuildTools.DotNet],
-  [BuildTools.CFamily],
-  [BuildTools.Other]
-])('should render correctly for %s', buildTool => {
-  expect(
-    shallow(
-      <PipeCommand
-        buildTool={buildTool}
-        branchesEnabled={true}
-        mainBranchName="main"
-        projectKey="test"
-      />
-    )
-  ).toMatchSnapshot('branches enabled');
-  expect(
-    shallow(
-      <PipeCommand
-        buildTool={buildTool}
-        branchesEnabled={true}
-        mainBranchName="main"
-        projectKey="test"
-      />
-    )
-  ).toMatchSnapshot('branches not enabled');
-});
+on:
+  push:
+    branches:
+      - ${mainBranchName}
+${branchesEnabled ? '  pull_request:\n    types: [opened, synchronize, reopened]' : ''}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${runsOn}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis${steps}`;
+}

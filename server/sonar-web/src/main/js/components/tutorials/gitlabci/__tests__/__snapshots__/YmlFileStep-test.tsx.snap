@@ -44,6 +44,7 @@ exports[`should render correctly for build tool cfamily: with branch support 1`]
           <PipeCommand
             branchesEnabled={true}
             buildTool="cfamily"
+            mainBranchName="main"
             projectKey="test"
           />
         </div>
@@ -108,6 +109,7 @@ exports[`should render correctly for build tool cfamily: without branch support 
           <PipeCommand
             branchesEnabled={false}
             buildTool="cfamily"
+            mainBranchName="main"
             projectKey="test"
           />
         </div>
@@ -168,6 +170,7 @@ exports[`should render correctly for build tool dotnet: with branch support 1`] 
           <PipeCommand
             branchesEnabled={true}
             buildTool="dotnet"
+            mainBranchName="main"
             projectKey="test"
           />
         </div>
@@ -228,6 +231,7 @@ exports[`should render correctly for build tool dotnet: without branch support 1
           <PipeCommand
             branchesEnabled={false}
             buildTool="dotnet"
+            mainBranchName="main"
             projectKey="test"
           />
         </div>
@@ -288,6 +292,7 @@ exports[`should render correctly for build tool gradle: with branch support 1`] 
           <PipeCommand
             branchesEnabled={true}
             buildTool="gradle"
+            mainBranchName="main"
             projectKey="test"
           />
         </div>
@@ -348,6 +353,7 @@ exports[`should render correctly for build tool gradle: without branch support 1
           <PipeCommand
             branchesEnabled={false}
             buildTool="gradle"
+            mainBranchName="main"
             projectKey="test"
           />
         </div>
@@ -408,6 +414,7 @@ exports[`should render correctly for build tool maven: with branch support 1`] =
           <PipeCommand
             branchesEnabled={true}
             buildTool="maven"
+            mainBranchName="main"
             projectKey="test"
           />
         </div>
@@ -468,6 +475,7 @@ exports[`should render correctly for build tool maven: without branch support 1`
           <PipeCommand
             branchesEnabled={false}
             buildTool="maven"
+            mainBranchName="main"
             projectKey="test"
           />
         </div>
@@ -528,6 +536,7 @@ exports[`should render correctly for build tool other: with branch support 1`] =
           <PipeCommand
             branchesEnabled={true}
             buildTool="other"
+            mainBranchName="main"
             projectKey="test"
           />
         </div>
@@ -588,6 +597,7 @@ exports[`should render correctly for build tool other: without branch support 1`
           <PipeCommand
             branchesEnabled={false}
             buildTool="other"
+            mainBranchName="main"
             projectKey="test"
           />
         </div>

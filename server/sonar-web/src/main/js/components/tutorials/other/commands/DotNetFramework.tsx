@@ -25,10 +25,10 @@ import { DotNetProps } from './DotNet';
 import DotNetExecute from './DotNetExecute';
 
 export default function DotNetFramework(props: DotNetProps) {
-  const { host, component, token } = props;
+  const { baseUrl, component, token } = props;
 
   const commands = [
-    `SonarScanner.MSBuild.exe begin /k:"${component.key}" /d:sonar.host.url="${host}" /d:sonar.login="${token}"`,
+    `SonarScanner.MSBuild.exe begin /k:"${component.key}" /d:sonar.host.url="${baseUrl}" /d:sonar.login="${token}"`,
     'MsBuild.exe /t:Rebuild',
     `SonarScanner.MSBuild.exe end /d:sonar.login="${token}"`
   ];

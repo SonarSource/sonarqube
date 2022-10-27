@@ -25,7 +25,7 @@ import JavaMaven from '../JavaMaven';
 it('renders correctly', () => {
   expect(
     shallow(
-      <JavaMaven host="host" component={mockComponent({ key: 'projectKey' })} token="token" />
+      <JavaMaven baseUrl="host" component={mockComponent({ key: 'projectKey' })} token="token" />
     )
   ).toMatchSnapshot();
 });

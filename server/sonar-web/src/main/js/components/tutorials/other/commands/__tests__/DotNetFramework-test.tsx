@@ -25,7 +25,11 @@ import DotNetFramework from '../DotNetFramework';
 it('should render correctly', () => {
   expect(
     shallow(
-      <DotNetFramework host="host" component={mockComponent({ key: 'projectKey' })} token="token" />
+      <DotNetFramework
+        baseUrl="host"
+        component={mockComponent({ key: 'projectKey' })}
+        token="token"
+      />
     )
   ).toMatchSnapshot();
 });

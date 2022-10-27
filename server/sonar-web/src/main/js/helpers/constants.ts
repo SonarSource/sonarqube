@@ -76,3 +76,5 @@ export const IMPORT_COMPATIBLE_ALMS = [
 export const IMPORT_COMPATIBLE_ALM_COUNT = IMPORT_COMPATIBLE_ALMS.filter(
   a => a !== AlmKeys.BitbucketCloud
 ).length;
+
+export const GRADLE_SCANNER_VERSION = '3.4.0.2513';

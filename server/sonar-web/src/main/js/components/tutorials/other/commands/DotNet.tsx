@@ -26,7 +26,7 @@ import DotNetFramework from './DotNetFramework';
 
 export interface DotNetProps {
   component: Component;
-  host: string;
+  baseUrl: string;
   token: string;
 }
 

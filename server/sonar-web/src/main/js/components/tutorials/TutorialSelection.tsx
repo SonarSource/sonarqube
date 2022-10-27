@@ -21,9 +21,12 @@ import * as React from 'react';
 import { getAlmSettingsNoCatch } from '../../api/alm-settings';
 import { getScannableProjects } from '../../api/components';
 import { getValue } from '../../api/settings';
+import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
+import { isMainBranch } from '../../helpers/branch-like';
 import { getHostUrl } from '../../helpers/urls';
 import { hasGlobalPermission } from '../../helpers/users';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
+import { MainBranch } from '../../types/branch-like';
 import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
 import { Component } from '../../types/types';
@@ -47,6 +50,8 @@ interface State {
   baseUrl: string;
   loading: boolean;
 }
+
+const DEFAULT_MAIN_BRANCH_NAME = 'main';
 
 export class TutorialSelection extends React.PureComponent<Props, State> {
   mounted = false;
@@ -134,18 +139,26 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
     const selectedTutorial: TutorialModes | undefined = location.query?.selectedTutorial;
 
     return (
-      <TutorialSelectionRenderer
-        almBinding={almBinding}
-        baseUrl={baseUrl}
-        component={component}
-        currentUser={currentUser}
-        currentUserCanScanProject={currentUserCanScanProject}
-        loading={loading}
-        onSelectTutorial={this.handleSelectTutorial}
-        projectBinding={projectBinding}
-        selectedTutorial={selectedTutorial}
-        willRefreshAutomatically={willRefreshAutomatically}
-      />
+      <ComponentContext.Consumer>
+        {({ branchLikes }) => (
+          <TutorialSelectionRenderer
+            almBinding={almBinding}
+            baseUrl={baseUrl}
+            component={component}
+            currentUser={currentUser}
+            currentUserCanScanProject={currentUserCanScanProject}
+            loading={loading}
+            mainBranchName={
+              (branchLikes.find(b => isMainBranch(b)) as MainBranch | undefined)?.name ||
+              DEFAULT_MAIN_BRANCH_NAME
+            }
+            onSelectTutorial={this.handleSelectTutorial}
+            projectBinding={projectBinding}
+            selectedTutorial={selectedTutorial}
+            willRefreshAutomatically={willRefreshAutomatically}
+          />
+        )}
+      </ComponentContext.Consumer>
     );
   }
 }

@@ -29,6 +29,12 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<JavaMavenProps> = {}) {
   return shallow<JavaMavenProps>(
-    <JavaMaven branchesEnabled={true} component={mockComponent()} {...props} onDone={jest.fn()} />
+    <JavaMaven
+      branchesEnabled={true}
+      component={mockComponent()}
+      mainBranchName="main"
+      onDone={jest.fn()}
+      {...props}
+    />
   );
 }

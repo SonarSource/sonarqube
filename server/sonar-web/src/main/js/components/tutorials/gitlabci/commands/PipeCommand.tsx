@@ -25,6 +25,7 @@ import { BuildTools } from '../../types';
 export interface PipeCommandProps {
   branchesEnabled?: boolean;
   buildTool: BuildTools;
+  mainBranchName: string;
   projectKey: string;
 }
 
@@ -55,7 +56,8 @@ const BUILD_TOOL_SPECIFIC = {
   }
 };
 
-export default function PipeCommand({ projectKey, branchesEnabled, buildTool }: PipeCommandProps) {
+export default function PipeCommand(props: PipeCommandProps) {
+  const { projectKey, branchesEnabled, buildTool, mainBranchName } = props;
   let command: string;
   if (buildTool === BuildTools.CFamily) {
     command = `image: <image ready for your build toolchain>
@@ -91,9 +93,9 @@ sonarqube-check:
   } else {
     const onlyBlock = branchesEnabled
       ? `- merge_requests
-    - master # or the name of your main branch
+    - ${mainBranchName}
     - develop`
-      : '- master # or the name of your main branch';
+      : `- ${mainBranchName}`;
 
     const { image, script } = BUILD_TOOL_SPECIFIC[buildTool];
 

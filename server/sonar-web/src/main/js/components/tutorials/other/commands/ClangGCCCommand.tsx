@@ -30,13 +30,12 @@ export interface ClangGCCCustomProps {
   component: Component;
   baseUrl: string;
   isLocal: boolean;
-  host: string;
   os: OSs;
   token: string;
 }
 
 export default function ClangGCCCustom(props: ClangGCCCustomProps) {
-  const { os, baseUrl, host, component, isLocal, token } = props;
+  const { os, baseUrl, component, isLocal, token } = props;
 
   return (
     <div>
@@ -45,7 +44,7 @@ export default function ClangGCCCustom(props: ClangGCCCustomProps) {
       <ExecBuildWrapper os={os} />
       <CompilationInfo />
       <ExecScanner
-        host={host}
+        baseUrl={baseUrl}
         isLocal={isLocal}
         component={component}
         os={os}

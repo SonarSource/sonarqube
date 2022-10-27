@@ -22,35 +22,18 @@ import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
 import FinishButton from '../../components/FinishButton';
+import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
+import { generateGitHubActionsYaml } from '../utils';
 
 export interface OthersProps {
   branchesEnabled?: boolean;
+  mainBranchName: string;
   component: Component;
   onDone: () => void;
 }
 
-const yamlTemplate = (branchesEnabled: boolean) => {
-  let output = `name: Build
-on:
-  push:
-    branches:
-      - master # or the name of your main branch`;
-
-  if (branchesEnabled) {
-    output += `
-  pull_request:
-    types: [opened, synchronize, reopened]`;
-  }
-
-  output += `
-jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+function otherYamlSteps(branchesEnabled: boolean) {
+  let output = `
       - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
@@ -71,16 +54,21 @@ jobs:
       #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}`;
 
   return output;
-};
+}
 
 export default function Others(props: OthersProps) {
-  const { component, branchesEnabled } = props;
+  const { component, branchesEnabled, mainBranchName } = props;
   return (
     <>
       <DefaultProjectKey component={component} />
       <CreateYmlFile
         yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={yamlTemplate(!!branchesEnabled)}
+        yamlTemplate={generateGitHubActionsYaml(
+          mainBranchName,
+          !!branchesEnabled,
+          GITHUB_ACTIONS_RUNS_ON_LINUX,
+          otherYamlSteps(!!branchesEnabled)
+        )}
       />
       <FinishButton onClick={props.onDone} />
     </>

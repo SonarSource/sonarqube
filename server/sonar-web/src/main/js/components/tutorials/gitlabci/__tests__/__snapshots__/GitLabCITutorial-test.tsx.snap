@@ -83,6 +83,7 @@ exports[`should render correctly 1`] = `
   />
   <withAvailableFeaturesContext(YmlFileStep)
     finished={false}
+    mainBranchName="main"
     onDone={[Function]}
     onOpen={[Function]}
     open={false}

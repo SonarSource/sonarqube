@@ -77,6 +77,7 @@ function shallowRender(props: Partial<GitHubActionTutorialProps> = {}) {
       baseUrl="test"
       currentUser={mockLoggedInUser()}
       component={mockComponent()}
+      mainBranchName="master"
       projectBinding={mockProjectGithubBindingResponse()}
       willRefreshAutomatically={true}
       {...props}

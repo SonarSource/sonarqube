@@ -43,12 +43,14 @@ sonarqube {
   <CreateYmlFile
     yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
+
 on:
   push:
     branches:
-      - master # or the name of your main branch
+      - main
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
   build:
     name: Build
@@ -129,10 +131,12 @@ sonarqube {
   <CreateYmlFile
     yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
+
 on:
   push:
     branches:
-      - master # or the name of your main branch
+      - main
+
 
 jobs:
   build:

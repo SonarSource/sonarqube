@@ -25,10 +25,10 @@ import { DotNetProps } from './DotNet';
 import DotNetExecute from './DotNetExecute';
 
 export default function DotNetCore(props: DotNetProps) {
-  const { host, component, token } = props;
+  const { baseUrl, component, token } = props;
 
   const commands = [
-    `dotnet sonarscanner begin /k:"${component.key}" /d:sonar.host.url="${host}"  /d:sonar.login="${token}"`,
+    `dotnet sonarscanner begin /k:"${component.key}" /d:sonar.host.url="${baseUrl}"  /d:sonar.login="${token}"`,
     'dotnet build',
     `dotnet sonarscanner end /d:sonar.login="${token}"`
   ];

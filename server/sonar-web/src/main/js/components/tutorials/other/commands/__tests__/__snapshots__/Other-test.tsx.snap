@@ -8,6 +8,7 @@ exports[`renders correctly 1`] = `
     token="token"
   />
   <ExecScanner
+    baseUrl="host"
     component={
       Object {
         "breadcrumbs": Array [],
@@ -30,7 +31,6 @@ exports[`renders correctly 1`] = `
         "tags": Array [],
       }
     }
-    host="host"
     isLocal={true}
     os="linux"
     token="token"

@@ -29,6 +29,12 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<DotNetProps> = {}) {
   return shallow<DotNetProps>(
-    <DotNet branchesEnabled={true} component={mockComponent()} {...props} onDone={jest.fn()} />
+    <DotNet
+      branchesEnabled={true}
+      component={mockComponent()}
+      mainBranchName="main"
+      {...props}
+      onDone={jest.fn()}
+    />
   );
 }

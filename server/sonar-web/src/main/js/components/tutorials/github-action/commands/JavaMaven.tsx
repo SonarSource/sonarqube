@@ -21,27 +21,18 @@ import * as React from 'react';
 import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import FinishButton from '../../components/FinishButton';
+import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
+import { generateGitHubActionsYaml } from '../utils';
 
 export interface JavaMavenProps {
   branchesEnabled?: boolean;
+  mainBranchName: string;
   component: Component;
   onDone: () => void;
 }
 
-const mavenYamlTemplte = (branchesEnabled: boolean, projectKey: string) => `name: Build
-on:
-  push:
-    branches:
-      - master # or the name of your main branch
-${branchesEnabled ? '  pull_request:\n    types: [opened, synchronize, reopened]' : ''}
-jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+function mavenYamlSteps(projectKey: string) {
+  return `
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
@@ -64,14 +55,20 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${projectKey}`;
+}
 
 export default function JavaMaven(props: JavaMavenProps) {
-  const { component, branchesEnabled } = props;
+  const { component, branchesEnabled, mainBranchName } = props;
   return (
     <>
       <CreateYmlFile
         yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={mavenYamlTemplte(!!branchesEnabled, component.key)}
+        yamlTemplate={generateGitHubActionsYaml(
+          mainBranchName,
+          !!branchesEnabled,
+          GITHUB_ACTIONS_RUNS_ON_LINUX,
+          mavenYamlSteps(component.key)
+        )}
       />
       <FinishButton onClick={props.onDone} />
     </>

@@ -28,16 +28,16 @@ import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaMavenProps {
   component: Component;
-  host: string;
+  baseUrl: string;
   token: string;
 }
 
 export default function JavaMaven(props: JavaMavenProps) {
-  const { host, component, token } = props;
+  const { baseUrl, component, token } = props;
   const command = [
     'mvn clean verify sonar:sonar',
     `-Dsonar.projectKey=${component.key}`,
-    `-Dsonar.host.url=${host}`,
+    `-Dsonar.host.url=${baseUrl}`,
     `-Dsonar.login=${token}`
   ];
 

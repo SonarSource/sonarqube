@@ -40,6 +40,7 @@ export interface TutorialSelectionRendererProps {
   currentUser: LoggedInUser;
   currentUserCanScanProject: boolean;
   loading: boolean;
+  mainBranchName: string;
   onSelectTutorial: (mode: TutorialModes) => void;
   projectBinding?: ProjectAlmBindingResponse;
   selectedTutorial?: TutorialModes;
@@ -77,13 +78,14 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     currentUser,
     currentUserCanScanProject,
     loading,
+    mainBranchName,
     projectBinding,
     selectedTutorial,
     willRefreshAutomatically
   } = props;
 
   if (loading) {
-    return <i className="spinner" />;
+    return <i aria-label={translate('loading')} className="spinner" />;
   }
 
   if (!currentUserCanScanProject) {
@@ -99,7 +101,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
   if (projectBinding !== undefined) {
     showGitHubActions = projectBinding.alm === AlmKeys.GitHub;
     showGitLabCICD = projectBinding.alm === AlmKeys.GitLab;
-    showBitbucketPipelines = projectBinding?.alm === AlmKeys.BitbucketCloud;
+    showBitbucketPipelines = projectBinding.alm === AlmKeys.BitbucketCloud;
     showAzurePipelines = [AlmKeys.Azure, AlmKeys.GitHub].includes(projectBinding.alm);
     showJenkins = [
       AlmKeys.BitbucketCloud,
@@ -233,6 +235,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           baseUrl={baseUrl}
           component={component}
           currentUser={currentUser}
+          mainBranchName={mainBranchName}
           projectBinding={projectBinding}
           willRefreshAutomatically={willRefreshAutomatically}
         />
@@ -253,13 +256,14 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           baseUrl={baseUrl}
           component={component}
           currentUser={currentUser}
+          mainBranchName={mainBranchName}
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
 
       {selectedTutorial === TutorialModes.AzurePipelines && (
         <AzurePipelinesTutorial
-          alm={almBinding?.alm}
+          alm={projectBinding?.alm}
           baseUrl={baseUrl}
           component={component}
           currentUser={currentUser}

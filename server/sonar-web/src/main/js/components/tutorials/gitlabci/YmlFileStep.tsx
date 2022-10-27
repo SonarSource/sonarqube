@@ -38,10 +38,11 @@ export interface YmlFileStepProps extends WithAvailableFeaturesProps {
   onOpen: () => void;
   open: boolean;
   projectKey: string;
+  mainBranchName: string;
 }
 
 export function YmlFileStep(props: YmlFileStepProps) {
-  const { buildTool, open, finished, projectKey } = props;
+  const { buildTool, open, finished, projectKey, mainBranchName } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   const renderForm = () => (
@@ -79,6 +80,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
                 <PipeCommand
                   buildTool={buildTool}
                   branchesEnabled={branchSupportEnabled}
+                  mainBranchName={mainBranchName}
                   projectKey={projectKey}
                 />
               </div>

@@ -27,7 +27,9 @@ import { now } from '../../../../helpers/dates';
 import { getShortMonthName } from '../../../../helpers/l10n';
 import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
 import { AdminPageExtension } from '../../../../types/extension';
+import { SettingsKey } from '../../../../types/settings';
 import routes from '../../routes';
+import { HousekeepingPolicy } from '../../utils';
 
 jest.mock('../../../../api/settings');
 
@@ -73,11 +75,11 @@ beforeAll(() => {
   handler = new SettingsServiceMock();
 });
 
-afterEach(() => handler.resetSettingvalues());
+afterEach(() => handler.reset());
 
 it('should handle download button click', async () => {
   const user = userEvent.setup();
-  handler.setYearlyHousekeepingPolicy();
+  handler.set(SettingsKey.AuditHouseKeeping, HousekeepingPolicy.Yearly);
   renderAuditLogs();
   const downloadButton = await ui.downloadButton.find();
   expect(downloadButton).toBeInTheDocument();
@@ -152,7 +154,7 @@ it('should show right option when keeping log for month', async () => {
 });
 
 it('should show right option when keeping log for year', async () => {
-  handler.setYearlyHousekeepingPolicy();
+  handler.set(SettingsKey.AuditHouseKeeping, HousekeepingPolicy.Yearly);
   renderAuditLogs();
   expect(await ui.pageTitle.find()).toBeInTheDocument();
   expect(ui.todayRadio.get()).toBeInTheDocument();

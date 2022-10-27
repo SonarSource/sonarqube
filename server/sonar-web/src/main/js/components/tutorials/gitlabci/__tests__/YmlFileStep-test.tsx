@@ -49,6 +49,7 @@ function shallowRender(props: Partial<YmlFileStepProps> = {}) {
       open={true}
       projectKey="test"
       finished={true}
+      mainBranchName="main"
       onDone={jest.fn()}
       onOpen={jest.fn()}
       {...props}

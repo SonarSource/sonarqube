@@ -21,7 +21,7 @@ import { cloneDeep } from 'lodash';
 import { HousekeepingPolicy } from '../../apps/audit-logs/utils';
 import { BranchParameters } from '../../types/branch-like';
 import { SettingsKey, SettingValue } from '../../types/settings';
-import { getValue } from '../settings';
+import { getAllValues, getValue, getValues } from '../settings';
 
 export default class SettingsServiceMock {
   settingValues: SettingValue[];
@@ -34,28 +34,43 @@ export default class SettingsServiceMock {
 
   constructor() {
     this.settingValues = cloneDeep(this.defaultValues);
-    (getValue as jest.Mock).mockImplementation(this.handleGetValues);
+    (getValue as jest.Mock).mockImplementation(this.handleGetValue);
+    (getValues as jest.Mock).mockImplementation(this.handleGetValues);
+    (getAllValues as jest.Mock).mockImplementation(this.handleGetAllValues);
   }
 
-  handleGetValues = (data: { key: string; component?: string } & BranchParameters) => {
+  handleGetValue = (data: { key: string; component?: string } & BranchParameters) => {
     const setting = this.settingValues.find(s => s.key === data.key);
-
     return this.reply(setting);
   };
 
-  emptySettings() {
+  handleGetValues = (data: { keys: string[]; component?: string } & BranchParameters) => {
+    const settings = this.settingValues.filter(s => data.keys.includes(s.key));
+    return this.reply(settings);
+  };
+
+  handleGetAllValues = () => {
+    return this.reply(this.settingValues);
+  };
+
+  emptySettings = () => {
     this.settingValues = [];
-  }
+    return this;
+  };
 
-  setYearlyHousekeepingPolicy() {
-    const auditSetting = this.settingValues.find(s => s.key === SettingsKey.AuditHouseKeeping);
-    if (auditSetting) {
-      auditSetting.value = HousekeepingPolicy.Yearly;
+  set = (key: SettingsKey, value: string) => {
+    const setting = this.settingValues.find(s => s.key === key);
+    if (setting) {
+      setting.value = value;
+    } else {
+      this.settingValues.push({ key, value });
     }
-  }
+    return this;
+  };
 
-  resetSettingvalues = () => {
+  reset = () => {
     this.settingValues = cloneDeep(this.defaultValues);
+    return this;
   };
 
   reply<T>(response: T): Promise<T> {

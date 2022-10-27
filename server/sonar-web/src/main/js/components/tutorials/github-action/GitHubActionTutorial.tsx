@@ -43,6 +43,7 @@ export interface GitHubActionTutorialProps {
   baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
+  mainBranchName: string;
   projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
 }
@@ -54,6 +55,7 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
     currentUser,
     component,
     projectBinding,
+    mainBranchName,
     willRefreshAutomatically
   } = props;
 
@@ -86,6 +88,7 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
             {buildTool => (
               <AnalysisCommand
                 buildTool={buildTool}
+                mainBranchName={mainBranchName}
                 component={component}
                 onDone={() => setStep(Steps.ALL_SET)}
               />

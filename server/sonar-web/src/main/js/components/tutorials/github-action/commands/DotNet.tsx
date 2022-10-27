@@ -21,31 +21,22 @@ import * as React from 'react';
 import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import FinishButton from '../../components/FinishButton';
+import { GITHUB_ACTIONS_RUNS_ON_WINDOWS } from '../constants';
+import { generateGitHubActionsYaml } from '../utils';
 
 export interface DotNetProps {
   branchesEnabled?: boolean;
+  mainBranchName: string;
   component: Component;
   onDone: () => void;
 }
 
-const dotnetYamlTemplate = (projectKey: string, branchesEnabled: boolean) => `name: Build
-on:
-  push:
-    branches:
-      - master # or the name of your main branch
-${branchesEnabled ? '  pull_request:\n    types: [opened, synchronize, reopened]' : ''}
-jobs:
-  build:
-    name: Build
-    runs-on: windows-latest
-    steps:
+function dotnetYamlSteps(projectKey: string) {
+  return `
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
           java-version: 1.11
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Cache SonarQube packages
         uses: actions/cache@v1
         with:
@@ -73,14 +64,20 @@ jobs:
           .\\.sonar\\scanner\\dotnet-sonarscanner begin /k:"${projectKey}" /d:sonar.login="\${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="\${{ secrets.SONAR_HOST_URL }}"
           dotnet build
           .\\.sonar\\scanner\\dotnet-sonarscanner end /d:sonar.login="\${{ secrets.SONAR_TOKEN }}"`;
+}
 
 export default function DotNet(props: DotNetProps) {
-  const { component, branchesEnabled } = props;
+  const { component, branchesEnabled, mainBranchName } = props;
   return (
     <>
       <CreateYmlFile
         yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={dotnetYamlTemplate(component.key, !!branchesEnabled)}
+        yamlTemplate={generateGitHubActionsYaml(
+          mainBranchName,
+          !!branchesEnabled,
+          GITHUB_ACTIONS_RUNS_ON_WINDOWS,
+          dotnetYamlSteps(component.key)
+        )}
       />
       <FinishButton onClick={props.onDone} />
     </>

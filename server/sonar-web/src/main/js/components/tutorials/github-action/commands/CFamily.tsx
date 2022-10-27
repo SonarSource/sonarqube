@@ -27,20 +27,17 @@ import FinishButton from '../../components/FinishButton';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs, TutorialModes } from '../../types';
+import { generateGitHubActionsYaml } from '../utils';
 
 export interface CFamilyProps {
   branchesEnabled?: boolean;
+  mainBranchName: string;
   component: Component;
   onDone: () => void;
 }
 
 const STEPS = {
-  [OSs.Linux]: `steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
+  [OSs.Linux]: `
       - name: Download and install the build wrapper, build the project
         run: |
           mkdir $HOME/.sonar
@@ -64,12 +61,7 @@ const STEPS = {
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`,
-  [OSs.MacOS]: `steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
+  [OSs.MacOS]: `
       - name: Download and install the build wrapper
         run: |
           mkdir $HOME/.sonar
@@ -91,12 +83,7 @@ const STEPS = {
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`,
-  [OSs.Windows]: `steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
+  [OSs.Windows]: `
       - name: Download and install the build wrapper
         shell: powershell
         run: |
@@ -129,21 +116,8 @@ const STEPS = {
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`
 };
 
-const cfamilyYamlTemplate = (branchesEnabled: boolean, os: OSs) => `name: Build
-on:
-  push:
-    branches:
-      - master # or the name of your main branch
-${branchesEnabled ? '  pull_request:\n    types: [opened, synchronize, reopened]' : ''}
-
-jobs:
-  build:
-    runs-on: <image ready for your build toolchain>
-    ${STEPS[os]}
-`;
-
 export default function CFamily(props: CFamilyProps) {
-  const { component, branchesEnabled } = props;
+  const { component, branchesEnabled, mainBranchName } = props;
   const [os, setOs] = React.useState<undefined | OSs>();
 
   return (
@@ -170,7 +144,12 @@ export default function CFamily(props: CFamilyProps) {
         <>
           <CreateYmlFile
             yamlFileName=".github/workflows/build.yml"
-            yamlTemplate={cfamilyYamlTemplate(!!branchesEnabled, os)}
+            yamlTemplate={generateGitHubActionsYaml(
+              mainBranchName,
+              !!branchesEnabled,
+              '<image ready for your build toolchain>',
+              STEPS[os]
+            )}
           />
           <CompilationInfo className="abs-width-800" />
           <FinishButton onClick={props.onDone} />

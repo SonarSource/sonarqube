@@ -102,21 +102,21 @@ exports[`should render correctly for linux: branches disabled 1`] = `
   <CreateYmlFile
     yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
+
 on:
   push:
     branches:
-      - master # or the name of your main branch
+      - main
 
 
 jobs:
   build:
+    name: Build
     runs-on: <image ready for your build toolchain>
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
-
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Download and install the build wrapper, build the project
         run: |
           mkdir $HOME/.sonar
@@ -139,8 +139,7 @@ jobs:
           sonar-scanner --define sonar.cfamily.build-wrapper-output=bw-output  
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-"
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}"
   />
   <CompilationInfo
     className="abs-width-800"
@@ -205,22 +204,22 @@ exports[`should render correctly for mac: branches enabled 1`] = `
   <CreateYmlFile
     yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
+
 on:
   push:
     branches:
-      - master # or the name of your main branch
+      - main
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
   build:
+    name: Build
     runs-on: <image ready for your build toolchain>
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
-
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Download and install the build wrapper
         run: |
           mkdir $HOME/.sonar
@@ -241,8 +240,7 @@ jobs:
           $HOME/.sonar/sonar-scanner-4.6.2.2472-macosx/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-"
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}"
   />
   <CompilationInfo
     className="abs-width-800"
@@ -307,22 +305,22 @@ exports[`should render correctly for win: branches enabled 1`] = `
   <CreateYmlFile
     yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
+
 on:
   push:
     branches:
-      - master # or the name of your main branch
+      - main
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
   build:
+    name: Build
     runs-on: <image ready for your build toolchain>
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
-
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Download and install the build wrapper
         shell: powershell
         run: |
@@ -352,8 +350,7 @@ jobs:
           sonar-scanner.bat \\"-Dsonar.cfamily.build-wrapper-output=bw-output\\"
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-"
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}"
   />
   <CompilationInfo
     className="abs-width-800"

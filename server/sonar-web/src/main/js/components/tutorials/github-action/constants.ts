@@ -17,36 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { BuildTools } from '../../../types';
-import PipeCommand from '../PipeCommand';
-
-it.each([
-  [BuildTools.Maven],
-  [BuildTools.Gradle],
-  [BuildTools.DotNet],
-  [BuildTools.CFamily],
-  [BuildTools.Other]
-])('should render correctly for %s', buildTool => {
-  expect(
-    shallow(
-      <PipeCommand
-        buildTool={buildTool}
-        branchesEnabled={true}
-        mainBranchName="main"
-        projectKey="test"
-      />
-    )
-  ).toMatchSnapshot('branches enabled');
-  expect(
-    shallow(
-      <PipeCommand
-        buildTool={buildTool}
-        branchesEnabled={true}
-        mainBranchName="main"
-        projectKey="test"
-      />
-    )
-  ).toMatchSnapshot('branches not enabled');
-});
+export const GITHUB_ACTIONS_RUNS_ON_LINUX = 'ubuntu-latest';
+export const GITHUB_ACTIONS_RUNS_ON_WINDOWS = 'windows-latest';

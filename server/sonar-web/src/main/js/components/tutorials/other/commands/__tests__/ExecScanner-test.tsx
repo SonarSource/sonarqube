@@ -38,7 +38,7 @@ it('should render correctly for remote execution', () => {
 function shallowRender(props: Partial<ExecScannerProps> = {}) {
   return shallow<ExecScannerProps>(
     <ExecScanner
-      host="host"
+      baseUrl="host"
       isLocal={true}
       os={OSs.Linux}
       component={mockComponent({ key: 'projectKey' })}

@@ -26,18 +26,24 @@ import ExecScanner from './ExecScanner';
 export interface OtherProps {
   component: Component;
   isLocal: boolean;
-  host: string;
+  baseUrl: string;
   os: OSs;
   token: string;
 }
 
 export default function Other(props: OtherProps) {
-  const { host, os, component, isLocal, token } = props;
+  const { baseUrl, os, component, isLocal, token } = props;
 
   return (
     <div>
       <DownloadScanner isLocal={isLocal} os={os} token={token} />
-      <ExecScanner host={host} isLocal={isLocal} os={os} component={component} token={token} />
+      <ExecScanner
+        baseUrl={baseUrl}
+        isLocal={isLocal}
+        os={os}
+        component={component}
+        token={token}
+      />
     </div>
   );
 }

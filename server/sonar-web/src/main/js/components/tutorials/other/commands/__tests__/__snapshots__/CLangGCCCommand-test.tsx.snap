@@ -17,6 +17,7 @@ exports[`should render correctly 1`] = `
   />
   <CompilationInfo />
   <ExecScanner
+    baseUrl="http://example.com"
     cfamily={true}
     component={
       Object {
@@ -40,7 +41,6 @@ exports[`should render correctly 1`] = `
         "tags": Array [],
       }
     }
-    host="host"
     isLocal={true}
     os="linux"
     token="token"

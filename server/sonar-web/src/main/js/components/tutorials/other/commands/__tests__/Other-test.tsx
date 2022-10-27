@@ -30,7 +30,7 @@ it('renders correctly', () => {
 function shallowRender(props: Partial<OtherProps> = {}) {
   return shallow<OtherProps>(
     <Other
-      host="host"
+      baseUrl="host"
       isLocal={true}
       os={OSs.Linux}
       component={mockComponent({ key: 'projectKey' })}

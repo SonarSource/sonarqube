@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Button } from '../../../components/controls/buttons';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
+import { GRADLE_SCANNER_VERSION } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import CodeSnippet from '../../common/CodeSnippet';
@@ -45,7 +46,7 @@ const mavenSnippet = () => `<properties>
 </properties>`;
 
 const gradleSnippet = (key: string) => `plugins {
-  id "org.sonarqube" version "3.4.0.2513"
+  id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
 }
 
 sonarqube {

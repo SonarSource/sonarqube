@@ -24,6 +24,8 @@ import DotNet from '../DotNet';
 
 it('should render correctly', () => {
   expect(
-    shallow(<DotNet host="host" component={mockComponent({ key: 'projectKey' })} token="token" />)
+    shallow(
+      <DotNet baseUrl="host" component={mockComponent({ key: 'projectKey' })} token="token" />
+    )
   ).toMatchSnapshot();
 });

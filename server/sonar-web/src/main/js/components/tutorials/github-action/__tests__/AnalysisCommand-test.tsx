@@ -38,6 +38,7 @@ function shallowRender(props: Partial<AnalysisCommandProps> = {}) {
   return shallow<AnalysisCommandProps>(
     <AnalysisCommand
       hasFeature={jest.fn().mockReturnValue(false)}
+      mainBranchName="main"
       component={mockComponent()}
       buildTool={BuildTools.DotNet}
       onDone={jest.fn()}

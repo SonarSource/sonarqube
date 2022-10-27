@@ -2,6 +2,7 @@
 
 exports[`renders correctly: .NET 1`] = `
 <DotNet
+  baseUrl="http://example.com"
   component={
     Object {
       "breadcrumbs": Array [],
@@ -24,7 +25,6 @@ exports[`renders correctly: .NET 1`] = `
       "tags": Array [],
     }
   }
-  host="HOST"
   token="myToken"
 />
 `;
@@ -54,7 +54,6 @@ exports[`renders correctly: CFamily 1`] = `
       "tags": Array [],
     }
   }
-  host="HOST"
   isLocal={true}
   os="linux"
   token="myToken"
@@ -65,6 +64,7 @@ exports[`renders correctly: Empty CFamily 1`] = `""`;
 
 exports[`renders correctly: gradle 1`] = `
 <JavaGradle
+  baseUrl="http://example.com"
   component={
     Object {
       "breadcrumbs": Array [],
@@ -87,13 +87,13 @@ exports[`renders correctly: gradle 1`] = `
       "tags": Array [],
     }
   }
-  host="HOST"
   token="myToken"
 />
 `;
 
 exports[`renders correctly: maven 1`] = `
 <JavaMaven
+  baseUrl="http://example.com"
   component={
     Object {
       "breadcrumbs": Array [],
@@ -116,13 +116,13 @@ exports[`renders correctly: maven 1`] = `
       "tags": Array [],
     }
   }
-  host="HOST"
   token="myToken"
 />
 `;
 
 exports[`renders correctly: other 1`] = `
 <Other
+  baseUrl="http://example.com"
   component={
     Object {
       "breadcrumbs": Array [],
@@ -145,7 +145,6 @@ exports[`renders correctly: other 1`] = `
       "tags": Array [],
     }
   }
-  host="HOST"
   isLocal={true}
   os="win"
   token="myToken"

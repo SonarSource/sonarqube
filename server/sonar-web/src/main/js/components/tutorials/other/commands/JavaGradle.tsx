@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { GRADLE_SCANNER_VERSION } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import CodeSnippet from '../../../common/CodeSnippet';
@@ -28,18 +29,20 @@ import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaGradleProps {
   component: Component;
-  host: string;
+  baseUrl: string;
   token: string;
 }
 
 export default function JavaGradle(props: JavaGradleProps) {
-  const { host, component, token } = props;
-  const config = 'plugins {\n  id "org.sonarqube" version "3.4.0.2513"\n}';
+  const { baseUrl, component, token } = props;
+  const config = `plugins {
+  id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
+}`;
 
   const command = [
     './gradlew sonarqube',
     `-Dsonar.projectKey=${component.key}`,
-    `-Dsonar.host.url=${host}`,
+    `-Dsonar.host.url=${baseUrl}`,
     `-Dsonar.login=${token}`
   ];
 

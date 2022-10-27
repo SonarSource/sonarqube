@@ -32,12 +32,13 @@ import Others from './commands/Others';
 
 export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
   buildTool: BuildTools;
+  mainBranchName: string;
   component: Component;
   onDone: () => void;
 }
 
 export function AnalysisCommand(props: AnalysisCommandProps) {
-  const { buildTool, component } = props;
+  const { buildTool, component, mainBranchName } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   if (!buildTool) {
@@ -49,6 +50,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
       return (
         <JavaMaven
           branchesEnabled={branchSupportEnabled}
+          mainBranchName={mainBranchName}
           component={component}
           onDone={props.onDone}
         />
@@ -57,6 +59,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
       return (
         <Gradle
           branchesEnabled={branchSupportEnabled}
+          mainBranchName={mainBranchName}
           component={component}
           onDone={props.onDone}
         />
@@ -65,6 +68,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
       return (
         <DotNet
           branchesEnabled={branchSupportEnabled}
+          mainBranchName={mainBranchName}
           component={component}
           onDone={props.onDone}
         />
@@ -73,6 +77,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
       return (
         <CFamily
           branchesEnabled={branchSupportEnabled}
+          mainBranchName={mainBranchName}
           component={component}
           onDone={props.onDone}
         />
@@ -81,12 +86,12 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
       return (
         <Others
           branchesEnabled={branchSupportEnabled}
+          mainBranchName={mainBranchName}
           component={component}
           onDone={props.onDone}
         />
       );
   }
-  return null;
 }
 
 export default withAvailableFeatures(AnalysisCommand);

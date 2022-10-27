@@ -30,7 +30,7 @@ import DoneNextSteps from '../DoneNextSteps';
 
 export interface ExecScannerProps {
   component: Component;
-  host: string;
+  baseUrl: string;
   isLocal: boolean;
   os: OSs;
   token: string;
@@ -38,7 +38,7 @@ export interface ExecScannerProps {
 }
 
 export default function ExecScanner(props: ExecScannerProps) {
-  const { host, os, isLocal, component, token, cfamily } = props;
+  const { baseUrl, os, isLocal, component, token, cfamily } = props;
 
   const q = quote(os);
   const command = [
@@ -46,7 +46,7 @@ export default function ExecScanner(props: ExecScannerProps) {
     '-D' + q(`sonar.projectKey=${component.key}`),
     '-D' + q('sonar.sources=.'),
     cfamily ? '-D' + q('sonar.cfamily.build-wrapper-output=bw-output') : undefined,
-    '-D' + q(`sonar.host.url=${host}`),
+    '-D' + q(`sonar.host.url=${baseUrl}`),
     isLocal ? '-D' + q(`sonar.login=${token}`) : undefined
   ];
 

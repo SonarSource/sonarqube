@@ -99,7 +99,7 @@ exports[`should render correctly for dotnet: branches enabled 1`] = `
   allow_failure: true
   only:
     - merge_requests
-    - master # or the name of your main branch
+    - main
     - develop
 "
   />
@@ -129,7 +129,7 @@ exports[`should render correctly for dotnet: branches not enabled 1`] = `
   allow_failure: true
   only:
     - merge_requests
-    - master # or the name of your main branch
+    - main
     - develop
 "
   />
@@ -152,7 +152,7 @@ exports[`should render correctly for gradle: branches enabled 1`] = `
   allow_failure: true
   only:
     - merge_requests
-    - master # or the name of your main branch
+    - main
     - develop
 "
   />
@@ -175,7 +175,7 @@ exports[`should render correctly for gradle: branches not enabled 1`] = `
   allow_failure: true
   only:
     - merge_requests
-    - master # or the name of your main branch
+    - main
     - develop
 "
   />
@@ -199,7 +199,7 @@ exports[`should render correctly for maven: branches enabled 1`] = `
   allow_failure: true
   only:
     - merge_requests
-    - master # or the name of your main branch
+    - main
     - develop
 "
   />
@@ -223,7 +223,7 @@ exports[`should render correctly for maven: branches not enabled 1`] = `
   allow_failure: true
   only:
     - merge_requests
-    - master # or the name of your main branch
+    - main
     - develop
 "
   />
@@ -249,7 +249,7 @@ exports[`should render correctly for other: branches enabled 1`] = `
   allow_failure: true
   only:
     - merge_requests
-    - master # or the name of your main branch
+    - main
     - develop
 "
   />
@@ -275,7 +275,7 @@ exports[`should render correctly for other: branches not enabled 1`] = `
   allow_failure: true
   only:
     - merge_requests
-    - master # or the name of your main branch
+    - main
     - develop
 "
   />

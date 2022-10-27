@@ -25,7 +25,7 @@ import DotNetCore from '../DotNetCore';
 it('should render correctly', () => {
   expect(
     shallow(
-      <DotNetCore host="host" component={mockComponent({ key: 'projectKey' })} token="token" />
+      <DotNetCore baseUrl="host" component={mockComponent({ key: 'projectKey' })} token="token" />
     )
   ).toMatchSnapshot();
 });

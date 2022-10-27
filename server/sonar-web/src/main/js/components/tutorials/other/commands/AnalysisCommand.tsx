@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getHostUrl } from '../../../../helpers/urls';
 import { Component } from '../../../../types/types';
 import { BuildTools, ManualTutorialConfig } from '../../types';
 import ClangGCCCustom from './ClangGCCCommand';
@@ -42,24 +41,21 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
     return null;
   }
 
-  const host = getHostUrl();
-
   switch (languageConfig.buildTool) {
     case BuildTools.Maven:
-      return <JavaMaven host={host} component={component} token={token} />;
+      return <JavaMaven baseUrl={baseUrl} component={component} token={token} />;
 
     case BuildTools.Gradle:
-      return <JavaGradle host={host} component={component} token={token} />;
+      return <JavaGradle baseUrl={baseUrl} component={component} token={token} />;
 
     case BuildTools.DotNet:
-      return <DotNet host={host} component={component} token={token} />;
+      return <DotNet baseUrl={baseUrl} component={component} token={token} />;
 
     case BuildTools.CFamily:
       return languageConfig.os !== undefined ? (
         <ClangGCCCustom
           os={languageConfig.os}
           baseUrl={baseUrl}
-          host={host}
           component={component}
           isLocal={isLocal}
           token={token}
@@ -69,7 +65,7 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
     case BuildTools.Other:
       return languageConfig.os !== undefined ? (
         <Other
-          host={host}
+          baseUrl={baseUrl}
           os={languageConfig.os}
           component={component}
           isLocal={isLocal}
