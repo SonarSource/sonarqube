@@ -21,4 +21,5 @@ package org.sonar.server.issue.index;
 
 public interface AsyncIssueIndexing {
   void triggerOnIndexCreation();
+  void triggerForProject(String projectUuid);
 }

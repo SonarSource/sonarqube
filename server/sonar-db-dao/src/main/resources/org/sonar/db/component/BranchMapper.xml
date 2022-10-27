@@ -205,11 +205,28 @@
     order by pb.updated_at desc, uuid
   </select>
 
+  <select id="selectBranchNeedingIssueSyncForProject" resultType="org.sonar.db.component.BranchDto">
+    select
+    <include refid="columns"/>
+    from project_branches pb
+    where need_issue_sync = ${_true} and project_uuid = #{projectUuid, jdbcType=VARCHAR}
+    order by pb.updated_at desc, uuid
+  </select>
+
   <update id="updateAllNeedIssueSync">
     update project_branches
     set
       need_issue_sync = ${_true},
       updated_at = #{now, jdbcType=BIGINT}
+  </update>
+
+  <update id="updateAllNeedIssueSyncForProject">
+    update project_branches
+    set
+      need_issue_sync = ${_true},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </update>
 
   <update id="updateNeedIssueSync">

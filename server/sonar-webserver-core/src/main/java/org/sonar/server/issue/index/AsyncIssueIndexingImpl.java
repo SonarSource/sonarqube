@@ -96,6 +96,27 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
     }
   }
 
+  @Override
+  public void triggerForProject(String projectUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+
+      // remove already existing indexation task, if any
+      removeExistingIndexationTasksForProject(dbSession, projectUuid);
+
+      dbClient.branchDao().updateAllNeedIssueSyncForProject(dbSession, projectUuid);
+      List<BranchDto> branchInNeedOfIssueSync = dbClient.branchDao().selectBranchNeedingIssueSyncForProject(dbSession, projectUuid);
+      LOG.info("{} branch(es) found in need of issue sync for project.", branchInNeedOfIssueSync.size());
+
+      List<CeTaskSubmit> tasks = new ArrayList<>();
+      for (BranchDto branch : branchInNeedOfIssueSync) {
+        tasks.add(buildTaskSubmit(branch));
+      }
+
+      ceQueue.massSubmit(tasks);
+      dbSession.commit();
+    }
+  }
+
   private void sortProjectUuids(DbSession dbSession, List<String> projectUuids) {
     Map<String, SnapshotDto> snapshotByProjectUuid = dbClient.snapshotDao()
       .selectLastAnalysesByRootComponentUuids(dbSession, projectUuids).stream()
@@ -122,10 +143,19 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
   }
 
   private void removeExistingIndexationTasks(DbSession dbSession) {
-    List<String> uuids = dbClient.ceQueueDao().selectAllInAscOrder(dbSession).stream()
+    removeIndexationTasks(dbSession, dbClient.ceQueueDao().selectAllInAscOrder(dbSession));
+  }
+
+  private void removeExistingIndexationTasksForProject(DbSession dbSession, String projectUuid) {
+    removeIndexationTasks(dbSession, dbClient.ceQueueDao().selectByMainComponentUuid(dbSession, projectUuid));
+  }
+
+  private void removeIndexationTasks(DbSession dbSession, List<CeQueueDto> ceQueueDtos) {
+    List<String> uuids = ceQueueDtos.stream()
       .filter(p -> p.getTaskType().equals(BRANCH_ISSUE_SYNC))
       .map(CeQueueDto::getUuid)
       .collect(Collectors.toList());
+
     LOG.info(String.format("%s pending indexation task found to be deleted...", uuids.size()));
     for (String uuid : uuids) {
       dbClient.ceQueueDao().deleteByUuid(dbSession, uuid);

@@ -65,7 +65,11 @@ public interface BranchMapper {
 
   List<BranchDto> selectBranchNeedingIssueSync();
 
+  List<BranchDto> selectBranchNeedingIssueSyncForProject(@Param("projectUuid") String projectUuid);
+
   long updateAllNeedIssueSync(@Param("now") long now);
+
+  long updateAllNeedIssueSyncForProject(@Param("projectUuid") String projectUuid, @Param("now") long now);
 
   long updateNeedIssueSync(@Param("uuid") String uuid, @Param("needIssueSync")boolean needIssueSync,@Param("now") long now);
 

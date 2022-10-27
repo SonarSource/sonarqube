@@ -237,7 +237,7 @@ public class BranchDaoTest {
     assertThat(loadedPullRequestData.getBranch()).isEqualTo(branch);
     assertThat(loadedPullRequestData.getTitle()).isEqualTo(title);
     assertThat(loadedPullRequestData.getUrl()).isEqualTo(url);
-    assertThat(loadedPullRequestData.getAttributesMap().get(tokenAttributeName)).isEqualTo(tokenAttributeValue);
+    assertThat(loadedPullRequestData.getAttributesMap()).containsEntry(tokenAttributeName, tokenAttributeValue);
   }
 
   @Test
@@ -303,7 +303,7 @@ public class BranchDaoTest {
     assertThat(loadedPullRequestData.getBranch()).isEqualTo(branch);
     assertThat(loadedPullRequestData.getTitle()).isEqualTo(title);
     assertThat(loadedPullRequestData.getUrl()).isEqualTo(url);
-    assertThat(loadedPullRequestData.getAttributesMap().get(tokenAttributeName)).isEqualTo(tokenAttributeValue);
+    assertThat(loadedPullRequestData.getAttributesMap()).containsEntry(tokenAttributeName, tokenAttributeValue);
   }
 
   @Test
@@ -356,7 +356,7 @@ public class BranchDaoTest {
     assertThat(loadedPullRequestData.getBranch()).isEqualTo(branch);
     assertThat(loadedPullRequestData.getTitle()).isEqualTo(title);
     assertThat(loadedPullRequestData.getUrl()).isEqualTo(url);
-    assertThat(loadedPullRequestData.getAttributesMap().get(tokenAttributeName)).isEqualTo(tokenAttributeValue);
+    assertThat(loadedPullRequestData.getAttributesMap()).containsEntry(tokenAttributeName, tokenAttributeValue);
   }
 
   @Test
@@ -680,12 +680,40 @@ public class BranchDaoTest {
   }
 
   @Test
+  public void selectBranchNeedingIssueSyncForProject() {
+    ComponentDto project = db.components().insertPrivateProject();
+    String uuid = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+
+    assertThat(underTest.selectBranchNeedingIssueSyncForProject(dbSession, project.uuid()))
+      .extracting(BranchDto::getUuid)
+      .containsExactly(uuid);
+  }
+
+  @Test
   public void updateAllNeedIssueSync() {
     ComponentDto project = db.components().insertPrivateProject();
     String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
     String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false)).uuid();
 
     underTest.updateAllNeedIssueSync(dbSession);
+
+    Optional<BranchDto> project1 = underTest.selectByUuid(dbSession, uuid1);
+    assertThat(project1).isPresent();
+    assertThat(project1.get().isNeedIssueSync()).isTrue();
+
+    Optional<BranchDto> project2 = underTest.selectByUuid(dbSession, uuid2);
+    assertThat(project2).isPresent();
+    assertThat(project2.get().isNeedIssueSync()).isTrue();
+  }
+
+  @Test
+  public void updateAllNeedIssueSyncForProject() {
+    ComponentDto project = db.components().insertPrivateProject();
+    String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
+    String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false)).uuid();
+
+    underTest.updateAllNeedIssueSyncForProject(dbSession, project.uuid());
 
     Optional<BranchDto> project1 = underTest.selectByUuid(dbSession, uuid1);
     assertThat(project1).isPresent();

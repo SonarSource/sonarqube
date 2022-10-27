@@ -116,6 +116,10 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
     }
   }
 
+  public void indexProject(String projectUuid) {
+    asyncIssueIndexing.triggerForProject(projectUuid);
+  }
+
   @Override
   public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
     switch (cause) {

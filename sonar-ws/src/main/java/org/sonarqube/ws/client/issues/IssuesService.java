@@ -195,6 +195,19 @@ public class IssuesService extends BaseService {
   /**
    *
    * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/reindex">Further information about this action online (including a response example)</a>
+   * @since 9.8
+   */
+  public void reindex() {
+    call(
+      new PostRequest(path("reindex"))
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/search">Further information about this action online (including a response example)</a>
    * @since 3.6

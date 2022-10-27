@@ -67,6 +67,7 @@ public class IssueWsModule extends Module {
       SetTagsAction.class,
       SetTypeAction.class,
       ComponentTagsAction.class,
+      ReindexAction.class,
       AuthorsAction.class,
       ChangelogAction.class,
       BulkChangeAction.class,
