@@ -50,7 +50,7 @@ export default class InputForSecured extends React.PureComponent<Props, State> {
      *  - the value changes from outside the input (i.e. store update/reset/cancel)
      */
     if (
-      (prevProps.hasValueChanged || this.props.setting !== prevProps.setting) &&
+      (prevProps.hasValueChanged || this.props.setting.value !== prevProps.setting.value) &&
       !this.props.hasValueChanged
     ) {
       this.setState({ changing: !this.props.setting.hasValue });
