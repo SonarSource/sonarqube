@@ -76,7 +76,7 @@ oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
 
 postgres_additional_container_template: &POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   name: postgres
-  image: postgres:13.2
+  image: postgres:15
   port: 5432
   cpu: 1
   memory: 1Gb

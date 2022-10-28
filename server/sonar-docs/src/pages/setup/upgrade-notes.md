@@ -12,6 +12,9 @@ SonarQube no longer ships with an embedded version of the documentation. The doc
 * All in-app links will now point to the documentation website.
 * External links that pointed to `/documentation` will be correctly redirected to the corresponding page on the documentation website.
 
+**Update in the Database support**
+Adding support to the latest version 15 of PostgreSQL. supported versions are now from 9.6 to 15.
+
 [Full release notes](https://sonarsource.atlassian.net/issues/?jql=project%20%3D%2010139%20AND%20fixVersion%20%3D%2013884)
 
 ## Release 9.7 Upgrade notes
