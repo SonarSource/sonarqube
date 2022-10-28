@@ -289,31 +289,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void hasChildProjectsPermission_keeps_cache_of_permissions_of_logged_in_user() {
-    ComponentDto project = db.components().insertPrivateProject();
-    UserDto user = db.users().insertUser();
-    db.users().insertProjectPermissionOnUser(user, USER, project);
-
-    ComponentDto application = db.components().insertPrivateApplication();
-    db.components().addApplicationProject(application, project);
-    // add computed project
-    db.components().insertComponent(newProjectCopy(project, application));
-
-    UserSession session = newUserSession(user);
-
-    // feed the cache
-    assertThat(session.hasChildProjectsPermission(USER, application)).isTrue();
-
-    // change permissions without updating the cache
-    db.users().deletePermissionFromUser(project, user, USER);
-    assertThat(session.hasChildProjectsPermission(USER, application)).isTrue();
-
-    // cache is refreshed when user logs in again
-    session = newUserSession(user);
-    assertThat(session.hasChildProjectsPermission(USER, application)).isFalse();
-  }
-
-  @Test
   public void hasChildProjectsPermission_keeps_cache_of_permissions_of_anonymous_user() {
     db.users().insertPermissionOnAnyone(USER);
 
@@ -395,32 +370,6 @@ public class ServerUserSessionTest {
     db.components().insertComponent(newProjectCopy(project, portfolio));
 
     UserSession session = newAnonymousSession();
-    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isFalse();
-  }
-
-  @Test
-  public void hasPortfolioChildProjectsPermission_keeps_cache_of_permissions_of_logged_in_user() {
-    ComponentDto project = db.components().insertPrivateProject();
-
-    UserDto user = db.users().insertUser();
-    db.users().insertProjectPermissionOnUser(user, USER, project);
-
-    ComponentDto portfolio = db.components().insertPrivatePortfolio();
-    db.components().addPortfolioProject(portfolio, project);
-    // add computed project
-    db.components().insertComponent(newProjectCopy(project, portfolio));
-
-    UserSession session = newUserSession(user);
-
-    // feed the cache
-    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isTrue();
-
-    // change permissions without updating the cache
-    db.users().deletePermissionFromUser(project, user, USER);
-    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isTrue();
-
-    // cache is refreshed when user logs in again
-    session = newUserSession(user);
     assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isFalse();
   }
 

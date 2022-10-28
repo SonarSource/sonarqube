@@ -168,8 +168,8 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
     Set<String> childProjectUuids = loadChildProjectUuids(applicationUuid);
-    return childProjectUuids.stream()
-      .allMatch(uuid -> hasPermission(permission, uuid));
+    Set<String> projectsWithPermission = keepProjectsUuidsByPermission(permission, childProjectUuids);
+    return projectsWithPermission.containsAll(childProjectUuids);
   }
 
   @Override
@@ -178,8 +178,8 @@ public class ServerUserSession extends AbstractUserSession {
     Set<String> branchUuids = findBranchUuids(portfolioHierarchyComponents);
     Set<String> projectUuids = findProjectUuids(branchUuids);
 
-    return projectUuids.stream()
-      .allMatch(uuid -> hasPermission(permission, uuid));
+    Set<String> projectsWithPermission = keepProjectsUuidsByPermission(permission, projectUuids);
+    return projectsWithPermission.containsAll(projectUuids);
   }
 
   @Override
