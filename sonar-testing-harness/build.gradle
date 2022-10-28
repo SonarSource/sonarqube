@@ -13,7 +13,6 @@ dependencies {
   compile 'commons-io:commons-io'
   compile 'junit:junit'
   compile 'org.assertj:assertj-core'
-  compile 'org.hamcrest:hamcrest-core'
   compile 'org.jsoup:jsoup'
   compile 'org.mockito:mockito-core'
 
