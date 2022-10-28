@@ -173,7 +173,7 @@ Click the scanner you're using below to expand the example configuration:
 |
 | ```
 | plugins {
-|   id "org.sonarqube" version "3.4.0.2513"
+|   id "org.sonarqube" version "3.5.0.2730"
 | }
 | ```
 |

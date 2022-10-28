@@ -34,7 +34,7 @@ First, you need to activate the scanner in your build. For Gradle 2.1+, apply th
 
 ```
 plugins {
-  id "org.sonarqube" version "3.4.0.2513"
+  id "org.sonarqube" version "3.5.0.2730"
 }
 ```
 
