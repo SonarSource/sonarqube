@@ -57,6 +57,7 @@ If the **Force user authentication** property is set to false, the following API
 | * api/rules/show
 | * api/rules/tags
 | * api/server/version
+| * api/settings/login_message
 | * api/sources/scm (for public repositories)
 | * api/sources/show (for public repositories)
 | * api/system/db_migration_status

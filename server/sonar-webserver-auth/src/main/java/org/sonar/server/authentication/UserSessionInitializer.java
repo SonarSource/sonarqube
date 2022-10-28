@@ -63,7 +63,8 @@ public class UserSessionInitializer {
     "/api/server/version",
     "/api/users/identity_providers", "/api/l10n/index",
     "/api/authentication/login", "/api/authentication/logout", "/api/authentication/validate",
-    "/api/project_badges/measure", "/api/project_badges/quality_gate");
+    "/api/project_badges/measure", "/api/project_badges/quality_gate",
+    "/api/settings/login_message");
 
   private static final Set<String> URL_USING_PASSCODE = Set.of(
     "/api/ce/info", "/api/ce/pause",

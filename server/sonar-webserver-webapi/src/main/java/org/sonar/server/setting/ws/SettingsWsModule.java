@@ -29,6 +29,7 @@ public class SettingsWsModule extends Module {
       org.sonar.server.setting.ws.SetAction.class,
       SettingsWsSupport.class,
       ListDefinitionsAction.class,
+      LoginMessageAction.class,
       ValuesAction.class,
       ResetAction.class,
       EncryptAction.class,
