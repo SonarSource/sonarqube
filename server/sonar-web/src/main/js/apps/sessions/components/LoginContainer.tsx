@@ -21,18 +21,14 @@ import * as React from 'react';
 import { logIn } from '../../../api/auth';
 import { getLoginMessage } from '../../../api/settings';
 import { getIdentityProviders } from '../../../api/users';
-import withAvailableFeatures, {
-  WithAvailableFeaturesProps
-} from '../../../app/components/available-features/withAvailableFeatures';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getReturnUrl } from '../../../helpers/urls';
-import { Feature } from '../../../types/features';
 import { IdentityProvider } from '../../../types/types';
 import Login from './Login';
 
-interface Props extends WithAvailableFeaturesProps {
+interface Props {
   location: Location;
 }
 interface State {
@@ -77,15 +73,13 @@ export class LoginContainer extends React.PureComponent<Props, State> {
   }
 
   async loadLoginMessage() {
-    if (this.props.hasFeature(Feature.LoginMessage)) {
-      try {
-        const { message } = await getLoginMessage();
-        if (this.mounted) {
-          this.setState({ message });
-        }
-      } catch (_) {
-        /* already handled */
+    try {
+      const { message } = await getLoginMessage();
+      if (this.mounted) {
+        this.setState({ message });
       }
+    } catch (_) {
+      /* already handled */
     }
   }
 
@@ -118,4 +112,4 @@ export class LoginContainer extends React.PureComponent<Props, State> {
   }
 }
 
-export default withAvailableFeatures(withRouter(LoginContainer));
+export default withRouter(LoginContainer);

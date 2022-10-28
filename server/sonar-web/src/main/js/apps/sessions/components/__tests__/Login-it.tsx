@@ -41,9 +41,7 @@ jest.mock('../../../../api/auth', () => ({
 }));
 
 jest.mock('../../../../api/settings', () => ({
-  getLoginMessage: jest
-    .fn()
-    .mockResolvedValue({ message: 'Welcome to SQ! Please use your Skynet credentials' })
+  getLoginMessage: jest.fn().mockResolvedValue({ message: '' })
 }));
 
 jest.mock('../../../../helpers/globalMessages', () => ({
@@ -146,29 +144,23 @@ it("should show a warning if there's an authorization error", async () => {
 });
 
 it('should display a login message if enabled & provided', async () => {
-  renderLoginContainer({}, true);
+  const message = 'Welcome to SQ! Please use your Skynet credentials';
+  (getLoginMessage as jest.Mock).mockResolvedValueOnce({ message });
+  renderLoginContainer({});
 
-  const message = await screen.findByText('Welcome to SQ! Please use your Skynet credentials');
-  expect(message).toBeInTheDocument();
+  expect(await screen.findByText(message)).toBeInTheDocument();
 });
 
 it('should handle errors', async () => {
   (getLoginMessage as jest.Mock).mockRejectedValueOnce('nope');
-  renderLoginContainer({}, true);
+  renderLoginContainer({});
 
   const heading = await screen.findByRole('heading', { name: 'login.login_to_sonarqube' });
   expect(heading).toBeInTheDocument();
 });
 
-function renderLoginContainer(
-  props: Partial<LoginContainer['props']> = {},
-  loginMessageEnabled = false
-) {
+function renderLoginContainer(props: Partial<LoginContainer['props']> = {}) {
   return renderComponent(
-    <LoginContainer
-      hasFeature={jest.fn(() => loginMessageEnabled)}
-      location={mockLocation({ query: { return_to: '/some/path' } })}
-      {...props}
-    />
+    <LoginContainer location={mockLocation({ query: { return_to: '/some/path' } })} {...props} />
   );
 }
