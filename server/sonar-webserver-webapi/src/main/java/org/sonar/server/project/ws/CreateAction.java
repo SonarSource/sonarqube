@@ -44,6 +44,7 @@ import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_CREATE;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_MAIN_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
@@ -74,6 +75,7 @@ public class CreateAction implements ProjectsWsAction {
       .setHandler(this);
 
     action.setChangelog(
+      new Change("9.8", "Field 'mainBranch' added to the request"),
       new Change("7.1", "The 'visibility' parameter is public"));
 
     action.createParam(PARAM_PROJECT)
@@ -86,6 +88,12 @@ public class CreateAction implements ProjectsWsAction {
       .setDescription("Name of the project. If name is longer than %d, it is abbreviated.", MAX_COMPONENT_NAME_LENGTH)
       .setRequired(true)
       .setExampleValue("SonarQube");
+
+    action.createParam(PARAM_MAIN_BRANCH)
+      .setDescription("Key of the main branch of the project. If not provided, the default main branch key will be used.")
+      .setRequired(false)
+      .setSince("9.8")
+      .setExampleValue("develop");
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Whether the created project should be visible to everyone, or only specific user/groups.<br/>" +
@@ -109,13 +117,14 @@ public class CreateAction implements ProjectsWsAction {
       boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
-          .setKey(request.getProjectKey())
-          .setName(request.getName())
-          .setPrivate(changeToPrivate)
-          .setQualifier(PROJECT)
-          .build(),
+        .setKey(request.getProjectKey())
+        .setName(request.getName())
+        .setPrivate(changeToPrivate)
+        .setQualifier(PROJECT)
+        .build(),
         userSession.isLoggedIn() ? userSession.getUuid() : null,
-        userSession.isLoggedIn() ? userSession.getLogin() : null);
+        userSession.isLoggedIn() ? userSession.getLogin() : null,
+        request.getMainBranchKey());
       return toCreateResponse(componentDto);
     }
   }
@@ -125,6 +134,7 @@ public class CreateAction implements ProjectsWsAction {
       .setProjectKey(request.mandatoryParam(PARAM_PROJECT))
       .setName(abbreviate(request.mandatoryParam(PARAM_NAME), MAX_COMPONENT_NAME_LENGTH))
       .setVisibility(request.param(PARAM_VISIBILITY))
+      .setMainBranchKey(request.param(PARAM_MAIN_BRANCH))
       .build();
   }
 
@@ -141,6 +151,7 @@ public class CreateAction implements ProjectsWsAction {
   static class CreateRequest {
     private final String projectKey;
     private final String name;
+    private final String mainBranchKey;
     @CheckForNull
     private final String visibility;
 
@@ -148,6 +159,7 @@ public class CreateAction implements ProjectsWsAction {
       this.projectKey = builder.projectKey;
       this.name = builder.name;
       this.visibility = builder.visibility;
+      this.mainBranchKey = builder.mainBranchKey;
     }
 
     public String getProjectKey() {
@@ -163,6 +175,10 @@ public class CreateAction implements ProjectsWsAction {
       return visibility;
     }
 
+    public String getMainBranchKey() {
+      return mainBranchKey;
+    }
+
     public static Builder builder() {
       return new Builder();
     }
@@ -171,6 +187,8 @@ public class CreateAction implements ProjectsWsAction {
   static class Builder {
     private String projectKey;
     private String name;
+    private String mainBranchKey;
+
     @CheckForNull
     private String visibility;
 
@@ -191,6 +209,11 @@ public class CreateAction implements ProjectsWsAction {
 
     public Builder setVisibility(@Nullable String visibility) {
       this.visibility = visibility;
+      return this;
+    }
+
+    public Builder setMainBranchKey(@Nullable String mainBranchKey) {
+      this.mainBranchKey = mainBranchKey;
       return this;
     }
 

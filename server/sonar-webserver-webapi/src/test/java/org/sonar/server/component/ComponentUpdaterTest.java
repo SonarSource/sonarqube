@@ -19,12 +19,14 @@
  */
 package org.sonar.server.component;
 
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -65,11 +67,10 @@ public class ComponentUpdaterTest {
 
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
-
   private final ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()),
-    projectIndexers, new SequenceUuidFactory());
+    projectIndexers, new SequenceUuidFactory(), db.getDbClient().propertiesDao());
 
   @Test
   public void persist_and_index_when_creating_project() {
@@ -103,6 +104,40 @@ public class ComponentUpdaterTest {
     assertThat(branch.get().getBranchType()).isEqualTo(BranchType.BRANCH);
     assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
     assertThat(branch.get().getProjectUuid()).isEqualTo(returned.uuid());
+  }
+
+  @Test
+  public void create_project_with_main_branch_global_property(){
+    String globalBranchName = "main-branch-global";
+    db.getDbClient().propertiesDao().saveGlobalProperties(Map.of(CorePropertyDefinitions.SONAR_PROJECTCREATION_MAINBRANCHNAME, globalBranchName));
+    NewComponent project = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setPrivate(true)
+      .build();
+
+    ComponentDto returned = underTest.create(db.getSession(), project, null, null, null);
+
+    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.branchUuid());
+    assertThat(branch).get().extracting(BranchDto::getBranchKey).isEqualTo(globalBranchName);
+
+  }
+
+  @Test
+  public void create_project_with_main_branch_param(){
+    String customBranchName = "main-branch-custom";
+    db.getDbClient().propertiesDao().saveGlobalProperties(Map.of(CorePropertyDefinitions.SONAR_PROJECTCREATION_MAINBRANCHNAME, customBranchName));
+    NewComponent project = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setPrivate(true)
+      .build();
+
+    ComponentDto returned = underTest.create(db.getSession(), project, null, null, customBranchName);
+
+    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.branchUuid());
+    assertThat(branch).get().extracting(BranchDto::getBranchKey).isEqualTo(customBranchName);
+
   }
 
   @Test

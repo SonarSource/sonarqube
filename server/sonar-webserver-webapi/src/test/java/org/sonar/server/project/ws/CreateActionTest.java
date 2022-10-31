@@ -29,6 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
@@ -59,6 +60,7 @@ import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_MAIN_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
@@ -67,6 +69,7 @@ public class CreateActionTest {
 
   private static final String DEFAULT_PROJECT_KEY = "project-key";
   private static final String DEFAULT_PROJECT_NAME = "project-name";
+  private static final String MAIN_BRANCH = "main-branch";
 
   private final System2 system2 = System2.INSTANCE;
 
@@ -83,7 +86,8 @@ public class CreateActionTest {
   private final WsActionTester ws = new WsActionTester(
     new CreateAction(
       db.getDbClient(), userSession,
-      new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory()),
+      new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, new FavoriteUpdater(db.getDbClient()), projectIndexers,
+        new SequenceUuidFactory(), db.getDbClient().propertiesDao()),
       projectDefaultVisibility));
 
   @Before
@@ -98,14 +102,20 @@ public class CreateActionTest {
     CreateWsResponse response = call(CreateRequest.builder()
       .setProjectKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
+      .setMainBranchKey(MAIN_BRANCH)
       .build());
 
     assertThat(response.getProject())
       .extracting(Project::getKey, Project::getName, Project::getQualifier, Project::getVisibility)
       .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "public");
-    assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get())
+    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+    assertThat(component)
       .extracting(ComponentDto::getKey, ComponentDto::name, ComponentDto::qualifier, ComponentDto::scope, ComponentDto::isPrivate, ComponentDto::getMainBranchProjectUuid)
       .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "PRJ", false, null);
+
+    assertThat(db.getDbClient().branchDao().selectByUuid(db.getSession(), component.branchUuid()).get())
+      .extracting(BranchDto::getKey)
+      .isEqualTo(MAIN_BRANCH);
   }
 
   @Test
@@ -235,7 +245,7 @@ public class CreateActionTest {
   public void fail_when_missing_project_parameter() {
     userSession.addPermission(PROVISION_PROJECTS);
 
-    assertThatThrownBy(() -> call(null, DEFAULT_PROJECT_NAME))
+    assertThatThrownBy(() -> call(null, DEFAULT_PROJECT_NAME, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'project' parameter is missing");
   }
@@ -244,7 +254,7 @@ public class CreateActionTest {
   public void fail_when_missing_name_parameter() {
     userSession.addPermission(PROVISION_PROJECTS);
 
-    assertThatThrownBy(() -> call(DEFAULT_PROJECT_KEY, null))
+    assertThatThrownBy(() -> call(DEFAULT_PROJECT_KEY, null, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'name' parameter is missing");
   }
@@ -281,7 +291,7 @@ public class CreateActionTest {
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
       PARAM_VISIBILITY,
       PARAM_NAME,
-      PARAM_PROJECT);
+      PARAM_PROJECT, PARAM_MAIN_BRANCH);
 
     WebService.Param visibilityParam = definition.param(PARAM_VISIBILITY);
     assertThat(visibilityParam.description()).isNotEmpty();
@@ -335,14 +345,15 @@ public class CreateActionTest {
   }
 
   private CreateWsResponse call(CreateRequest request) {
-    return call(request.getProjectKey(), request.getName());
+    return call(request.getProjectKey(), request.getName(), request.getMainBranchKey());
   }
 
-  private CreateWsResponse call(@Nullable String projectKey, @Nullable String projectName) {
+  private CreateWsResponse call(@Nullable String projectKey, @Nullable String projectName, @Nullable String mainBranch) {
     TestRequest httpRequest = ws.newRequest()
       .setMethod(POST.name());
     ofNullable(projectKey).ifPresent(key -> httpRequest.setParam("project", key));
     ofNullable(projectName).ifPresent(name -> httpRequest.setParam("name", name));
+    ofNullable(mainBranch).ifPresent(name -> httpRequest.setParam("mainBranch", mainBranch));
     return httpRequest.executeProtobuf(CreateWsResponse.class);
   }
 

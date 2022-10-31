@@ -87,7 +87,8 @@ public class ImportBitbucketServerProjectActionTest {
   private final BitbucketServerRestClient bitbucketServerRestClient = mock(BitbucketServerRestClient.class);
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
-    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory());
+    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()),
+    new TestProjectIndexers(), new SequenceUuidFactory(), db.getDbClient().propertiesDao());
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);

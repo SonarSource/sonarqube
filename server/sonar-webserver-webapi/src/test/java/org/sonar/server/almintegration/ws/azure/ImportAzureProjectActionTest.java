@@ -80,7 +80,8 @@ public class ImportAzureProjectActionTest {
   private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
-    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory());
+    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(),
+    new SequenceUuidFactory(), db.getDbClient().propertiesDao());
 
   private final Encryption encryption = mock(Encryption.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
@@ -109,7 +110,7 @@ public class ImportAzureProjectActionTest {
     GsonAzureRepo repo = getGsonAzureRepo();
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name"))
-      .thenReturn(repo);
+        .thenReturn(repo);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -154,7 +155,7 @@ public class ImportAzureProjectActionTest {
     GsonAzureRepo repo = getEmptyGsonAzureRepo();
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name"))
-      .thenReturn(repo);
+        .thenReturn(repo);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
