@@ -565,7 +565,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
 
   @Test
   public void test_new_security_hotspots() {
-    withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS, 0.0);
+    withNoIssues().assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS, 0);
 
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setInLeak(false).setSeverity(Severity.MAJOR).setCount(3),
@@ -816,66 +816,66 @@ public class MeasureUpdateFormulaFactoryImplTest {
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     // technical_debt not computed
-    withLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 0)
+    with(CoreMetrics.NEW_DEVELOPMENT_COST, 0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
-    withLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 20)
+    with(CoreMetrics.NEW_DEVELOPMENT_COST, 20)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     // development_cost not computed
-    withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 0)
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
-    withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 20)
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     // input measures are available
-    withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
-      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
-    withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
-      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 160.0)
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 160.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 12.5)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.C);
 
-    withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
-      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 10.0D)
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 10.0D)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 200.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.E);
 
     // A is 5% --> min debt is exactly 200*0.05=10
-    withLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 200.0)
-      .andLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 10.0)
+    with(CoreMetrics.NEW_DEVELOPMENT_COST, 200.0)
+      .and(CoreMetrics.NEW_TECHNICAL_DEBT, 10.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 5.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
-    withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
-      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
-    withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
-      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 80.0)
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 80.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0);
 
-    withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, -20.0)
-      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, -20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     // bug, debt can't be negative
-    withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, -20.0)
-      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 80.0)
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, -20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 80.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     // bug, cost can't be negative
-    withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
-      .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, -80.0)
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, -80.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
   }
@@ -896,10 +896,6 @@ public class MeasureUpdateFormulaFactoryImplTest {
     return new Verifier(new IssueGroupDto[0]).andText(metric, value);
   }
 
-  private Verifier withLeak(Metric metric, double leakValue) {
-    return new Verifier(new IssueGroupDto[0]).andLeak(metric, leakValue);
-  }
-
   private class Verifier {
     private final IssueGroupDto[] groups;
     private final InitialValues initialValues = new InitialValues();
@@ -910,11 +906,6 @@ public class MeasureUpdateFormulaFactoryImplTest {
 
     Verifier and(Metric metric, double value) {
       this.initialValues.values.put(metric, value);
-      return this;
-    }
-
-    Verifier andLeak(Metric metric, double value) {
-      this.initialValues.leakValues.put(metric, value);
       return this;
     }
 
@@ -931,19 +922,19 @@ public class MeasureUpdateFormulaFactoryImplTest {
 
     Verifier assertThatLeakValueIs(Metric metric, double expectedValue) {
       TestContext context = run(metric, true);
-      assertThat(context.doubleLeakValue).isNotNull().isEqualTo(expectedValue);
+      assertThat(context.doubleValue).isNotNull().isEqualTo(expectedValue);
       return this;
     }
 
     Verifier assertThatLeakValueIs(Metric metric, Rating expectedRating) {
       TestContext context = run(metric, true);
-      assertThat(context.ratingLeakValue).isNotNull().isEqualTo(expectedRating);
+      assertThat(context.ratingValue).isNotNull().isEqualTo(expectedRating);
       return this;
     }
 
     Verifier assertNoLeakValue(Metric metric) {
       TestContext context = run(metric, true);
-      assertThat(context.ratingLeakValue).isNull();
+      assertThat(context.ratingValue).isNull();
       return this;
     }
 
@@ -1004,8 +995,6 @@ public class MeasureUpdateFormulaFactoryImplTest {
     private final InitialValues initialValues;
     private Double doubleValue;
     private Rating ratingValue;
-    private Double doubleLeakValue;
-    private Rating ratingLeakValue;
 
     private TestContext(Collection<Metric> dependentMetrics, InitialValues initialValues) {
       this.dependentMetrics = new HashSet<>(dependentMetrics);
@@ -1038,11 +1027,6 @@ public class MeasureUpdateFormulaFactoryImplTest {
     }
 
     @Override
-    public List<Double> getChildrenLeakValues() {
-      return initialValues.childrenLeakValues;
-    }
-
-    @Override
     public ComponentDto getComponent() {
       throw new UnsupportedOperationException();
     }
@@ -1072,17 +1056,6 @@ public class MeasureUpdateFormulaFactoryImplTest {
     }
 
     @Override
-    public Optional<Double> getLeakValue(Metric metric) {
-      if (!dependentMetrics.contains(metric)) {
-        throw new IllegalStateException("Metric " + metric.getKey() + " is not declared as a dependency");
-      }
-      if (initialValues.leakValues.containsKey(metric)) {
-        return Optional.of(initialValues.leakValues.get(metric));
-      }
-      return Optional.empty();
-    }
-
-    @Override
     public void setValue(double value) {
       this.doubleValue = value;
     }
@@ -1091,23 +1064,11 @@ public class MeasureUpdateFormulaFactoryImplTest {
     public void setValue(Rating value) {
       this.ratingValue = value;
     }
-
-    @Override
-    public void setLeakValue(double value) {
-      this.doubleLeakValue = value;
-    }
-
-    @Override
-    public void setLeakValue(Rating value) {
-      this.ratingLeakValue = value;
-    }
   }
 
   private class InitialValues {
     private final Map<Metric, Double> values = new HashMap<>();
-    private final Map<Metric, Double> leakValues = new HashMap<>();
     private final List<Double> childrenValues = new ArrayList<>();
-    private final List<Double> childrenLeakValues = new ArrayList<>();
     private final Map<Metric, String> text = new HashMap<>();
     private long childrenHotspotsReviewed = 0;
     private long childrenNewHotspotsReviewed = 0;
@@ -1128,11 +1089,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
     }
 
     public HierarchyTester withValue(Metric metric, Double value) {
-      if (formula.isOnLeak()) {
-        this.initialValues.leakValues.put(metric, value);
-      } else {
-        this.initialValues.values.put(metric, value);
-      }
+      this.initialValues.values.put(metric, value);
       return this;
     }
 
@@ -1150,31 +1107,19 @@ public class MeasureUpdateFormulaFactoryImplTest {
     }
 
     public HierarchyTester withChildrenValues(Double... values) {
-      if (formula.isOnLeak()) {
-        this.initialValues.childrenLeakValues.addAll(asList(values));
-      } else {
-        this.initialValues.childrenValues.addAll(asList(values));
-      }
+      this.initialValues.childrenValues.addAll(asList(values));
       return this;
     }
 
     public HierarchyTester expectedResult(@Nullable Double expected) {
       TestContext ctx = run();
-      if (formula.isOnLeak()) {
-        assertThat(ctx.doubleLeakValue).isEqualTo(expected);
-      } else {
-        assertThat(ctx.doubleValue).isEqualTo(expected);
-      }
+      assertThat(ctx.doubleValue).isEqualTo(expected);
       return this;
     }
 
     public HierarchyTester expectedRating(@Nullable Rating rating) {
       TestContext ctx = run();
-      if (formula.isOnLeak()) {
-        assertThat(ctx.ratingLeakValue).isEqualTo(rating);
-      } else {
-        assertThat(ctx.ratingValue).isEqualTo(rating);
-      }
+      assertThat(ctx.ratingValue).isEqualTo(rating);
       return this;
     }
 
@@ -1182,7 +1127,6 @@ public class MeasureUpdateFormulaFactoryImplTest {
       List<Metric> deps = new LinkedList<>(formula.getDependentMetrics());
       deps.add(formula.getMetric());
       deps.addAll(initialValues.values.keySet());
-      deps.addAll(initialValues.leakValues.keySet());
       deps.addAll(initialValues.text.keySet());
       TestContext context = new TestContext(deps, initialValues);
       formula.computeHierarchy(context);

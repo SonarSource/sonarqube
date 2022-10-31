@@ -28,7 +28,6 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.ce.task.projectanalysis.formula.counter.IntValue;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -130,25 +129,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void verify_aggregation_on_variation() {
-    treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
-
-    measureRepository.addRawMeasure(FILE_1_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(10));
-    measureRepository.addRawMeasure(FILE_2_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(8));
-    measureRepository.addRawMeasure(FILE_3_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(2));
-
-    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeVariationFormula()))
-      .visit(BALANCED_COMPONENT_TREE);
-
-    assertAddedRawMeasureVariation(ROOT_REF, 20);
-    assertAddedRawMeasureVariation(DIRECTORY_1_REF, 18);
-    assertAddedRawMeasureVariation(FILE_1_REF, 10);
-    assertAddedRawMeasureVariation(FILE_2_REF, 8);
-    assertAddedRawMeasureVariation(DIRECTORY_2_REF, 2);
-    assertAddedRawMeasureVariation(FILE_3_REF, 2);
-  }
-
-  @Test
   public void measures_are_0_when_there_is_no_input_measure() {
     ReportComponent project = ReportComponent.builder(PROJECT, ROOT_REF)
       .addChildren(
@@ -219,13 +199,13 @@ public class ReportFormulaExecutorComponentVisitorTest {
     treeRootHolder.setRoot(root);
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(2));
 
-//    expectedException.expectCause(
-//      hasType(UnsupportedOperationException.class)
-//      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", FILE_1_REF, NCLOC_KEY))
-//    );
+    //    expectedException.expectCause(
+    //      hasType(UnsupportedOperationException.class)
+    //      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", FILE_1_REF, NCLOC_KEY))
+    //    );
 
     assertThatThrownBy(() -> new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula())).visit(root))
-      .hasCause( new UnsupportedOperationException(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", FILE_1_REF, NCLOC_KEY)));
+      .hasCause(new UnsupportedOperationException(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", FILE_1_REF, NCLOC_KEY)));
   }
 
   @Test
@@ -234,8 +214,8 @@ public class ReportFormulaExecutorComponentVisitorTest {
     treeRootHolder.setRoot(root);
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(10));
 
-//    expectedException.expectCause(hasType(UnsupportedOperationException.class)
-//      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", ROOT_REF, NCLOC_KEY)));
+    //    expectedException.expectCause(hasType(UnsupportedOperationException.class)
+    //      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", ROOT_REF, NCLOC_KEY)));
 
     assertThatThrownBy(() -> {
       new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
@@ -249,17 +229,8 @@ public class ReportFormulaExecutorComponentVisitorTest {
       .buildFor(ImmutableList.of(formula));
   }
 
-  private static Measure createMeasureWithVariation(double variation) {
-    return newMeasureBuilder().setVariation(variation).createNoValue();
-  }
-
   private void assertAddedRawMeasure(int componentRef, int expectedValue) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(expectedValue)));
-  }
-
-  private void assertAddedRawMeasureVariation(int componentRef, int variation) {
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
-      .containsOnly(entryOf(NEW_COVERAGE_KEY, createMeasureWithVariation(variation)));
   }
 
   private class FakeFormula implements Formula<FakeCounter> {
@@ -336,55 +307,4 @@ public class ReportFormulaExecutorComponentVisitorTest {
       }
     }
   }
-
-  private class FakeVariationFormula implements Formula<FakeVariationCounter> {
-
-    @Override
-    public FakeVariationCounter createNewCounter() {
-      return new FakeVariationCounter();
-    }
-
-    @Override
-    public Optional<Measure> createMeasure(FakeVariationCounter counter, CreateMeasureContext context) {
-      // verify the context which is passed to the method
-      assertThat(context.getComponent()).isNotNull();
-      assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NEW_COVERAGE_KEY));
-
-      IntValue measureVariations = counter.values;
-      if (measureVariations.isSet()) {
-        return Optional.of(
-          newMeasureBuilder()
-            .setVariation(measureVariations.getValue())
-            .createNoValue());
-      }
-      return Optional.empty();
-    }
-
-    @Override
-    public String[] getOutputMetricKeys() {
-      return new String[] {NEW_COVERAGE_KEY};
-    }
-  }
-
-  private static class FakeVariationCounter implements Counter<FakeVariationCounter> {
-    private final IntValue values = new IntValue();
-
-    @Override
-    public void aggregate(FakeVariationCounter counter) {
-      values.increment(counter.values);
-    }
-
-    @Override
-    public void initialize(CounterInitializationContext context) {
-      // verify the context which is passed to the method
-      assertThat(context.getLeaf().getChildren()).isEmpty();
-
-      Optional<Measure> measureOptional = context.getMeasure(NEW_LINES_TO_COVER_KEY);
-      if (!measureOptional.isPresent()) {
-        return;
-      }
-      this.values.increment((int) measureOptional.get().getVariation());
-    }
-  }
-
 }

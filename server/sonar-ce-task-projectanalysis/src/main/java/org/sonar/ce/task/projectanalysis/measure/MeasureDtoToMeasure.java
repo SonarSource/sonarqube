@@ -116,14 +116,6 @@ public class MeasureDtoToMeasure {
         builder.setQualityGateStatus(new QualityGateStatus(qualityGateStatus.get(), measureDto.getAlertText()));
       }
     }
-    if (hasAnyVariation(measureDto)) {
-      builder.setVariation(measureDto.getVariation());
-    }
     return builder;
   }
-
-  private static boolean hasAnyVariation(MeasureDto measureDto) {
-    return measureDto.getVariation() != null;
-  }
-
 }

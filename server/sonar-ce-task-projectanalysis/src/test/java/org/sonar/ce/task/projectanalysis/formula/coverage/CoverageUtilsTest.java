@@ -34,7 +34,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.formula.coverage.CoverageUtils.getLongMeasureValue;
-import static org.sonar.ce.task.projectanalysis.formula.coverage.CoverageUtils.getMeasureVariations;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 public class CoverageUtilsTest {
@@ -84,25 +83,6 @@ public class CoverageUtilsTest {
     })
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("value can not be converted to long because current value type is a DOUBLE");
-  }
-
-  @Test
-  public void getMeasureVariations_returns_0_in_all_MeasureVariations_if_there_is_no_measure() {
-    assertThat(getMeasureVariations(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(DEFAULT_VARIATION);
-  }
-
-  @Test
-  public void getMeasureVariations_returns_0_in_all_MeasureVariations_if_there_is_measure_has_no_variations() {
-    fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().createNoValue());
-
-    assertThat(getMeasureVariations(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(DEFAULT_VARIATION);
-  }
-
-  @Test
-  public void getMeasureVariations_returns_MeasureVariations_of_measure_when_it_has_one() {
-    fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().setVariation(5d).createNoValue());
-
-    assertThat(getMeasureVariations(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(5d);
   }
 
   private static class CounterInitializationContextRule extends ExternalResource implements CounterInitializationContext {

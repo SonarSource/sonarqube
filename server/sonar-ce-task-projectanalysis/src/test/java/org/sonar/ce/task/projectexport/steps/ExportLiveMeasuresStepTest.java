@@ -70,8 +70,8 @@ public class ExportLiveMeasuresStepTest {
   public void export_measures() {
     ComponentDto project = createProject(true);
     componentRepository.register(1, project.uuid(), false);
-    MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(4711.0d).setVariation(null));
+    MetricDto metric = dbTester.measures().insertMetric(m -> m.setKey("metric1").setValueType(INT.name()));
+    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(4711.0d));
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
@@ -131,8 +131,8 @@ public class ExportLiveMeasuresStepTest {
   public void test_exported_fields() {
     ComponentDto project = createProject(true);
     componentRepository.register(1, project.uuid(), false);
-    MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setProjectUuid(project.uuid()).setValue(4711.0d).setData("test").setVariation(7.0d));
+    MetricDto metric = dbTester.measures().insertMetric(m -> m.setKey("new_metric").setValueType(INT.name()));
+    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setProjectUuid(project.uuid()).setValue(7.0d).setData("test"));
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())
@@ -154,7 +154,7 @@ public class ExportLiveMeasuresStepTest {
       .containsOnly(tuple(
         1L,
         0,
-        4711.0d,
+        0.0d,
         "test",
         7.0d));
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 live measures exported");
@@ -166,7 +166,7 @@ public class ExportLiveMeasuresStepTest {
     ComponentDto project = createProject(true);
     componentRepository.register(1, project.uuid(), false);
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setProjectUuid(project.uuid()).setValue(null).setData((String) null).setVariation(null));
+    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setProjectUuid(project.uuid()).setValue(null).setData((String) null));
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(project));
     when(projectHolder.branches()).thenReturn(newArrayList(new BranchDto()
       .setProjectUuid(project.uuid())

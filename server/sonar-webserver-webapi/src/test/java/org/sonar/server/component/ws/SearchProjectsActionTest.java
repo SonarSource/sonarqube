@@ -389,9 +389,9 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_new_rating(String newMetricKey) {
     userSession.logIn();
     MetricDto ratingMetric = db.measures().insertMetric(c -> c.setKey(newMetricKey).setValueType(INT.name()));
-    insertProject(new Measure(ratingMetric, c -> c.setVariation(1d)));
-    ComponentDto project2 = insertProject(new Measure(ratingMetric, c -> c.setVariation(2d)));
-    insertProject(new Measure(ratingMetric, c -> c.setVariation(3d)));
+    insertProject(new Measure(ratingMetric, c -> c.setValue(1d)));
+    ComponentDto project2 = insertProject(new Measure(ratingMetric, c -> c.setValue(2d)));
+    insertProject(new Measure(ratingMetric, c -> c.setValue(3d)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFilter(newMetricKey + " = 2"));
@@ -430,9 +430,9 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_new_coverage() {
     userSession.logIn();
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_COVERAGE).setValueType("PERCENT"));
-    ComponentDto project1 = insertProject(new Measure(coverage, c -> c.setVariation(80d)));
-    ComponentDto project2 = insertProject(new Measure(coverage, c -> c.setVariation(85d)));
-    ComponentDto project3 = insertProject(new Measure(coverage, c -> c.setVariation(10d)));
+    ComponentDto project1 = insertProject(new Measure(coverage, c -> c.setValue(80d)));
+    ComponentDto project2 = insertProject(new Measure(coverage, c -> c.setValue(85d)));
+    ComponentDto project3 = insertProject(new Measure(coverage, c -> c.setValue(10d)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFilter("new_coverage <= 80"));
@@ -486,9 +486,9 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_new_duplications() {
     userSession.logIn();
     MetricDto newDuplications = db.measures().insertMetric(c -> c.setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType("PERCENT"));
-    ComponentDto project1 = insertProject(new Measure(newDuplications, c -> c.setVariation(80d)));
-    ComponentDto project2 = insertProject(new Measure(newDuplications, c -> c.setVariation(85d)));
-    ComponentDto project3 = insertProject(new Measure(newDuplications, c -> c.setVariation(10d)));
+    ComponentDto project1 = insertProject(new Measure(newDuplications, c -> c.setValue(80d)));
+    ComponentDto project2 = insertProject(new Measure(newDuplications, c -> c.setValue(85d)));
+    ComponentDto project3 = insertProject(new Measure(newDuplications, c -> c.setValue(10d)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFilter("new_duplicated_lines_density <= 80"));
@@ -514,9 +514,9 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_new_lines() {
     userSession.logIn();
     MetricDto newLines = db.measures().insertMetric(c -> c.setKey(NEW_LINES_KEY).setValueType(INT.name()));
-    ComponentDto project1 = insertProject(new Measure(newLines, c -> c.setVariation(80d)));
-    ComponentDto project2 = insertProject(new Measure(newLines, c -> c.setVariation(85d)));
-    ComponentDto project3 = insertProject(new Measure(newLines, c -> c.setVariation(10d)));
+    ComponentDto project1 = insertProject(new Measure(newLines, c -> c.setValue(80d)));
+    ComponentDto project2 = insertProject(new Measure(newLines, c -> c.setValue(85d)));
+    ComponentDto project3 = insertProject(new Measure(newLines, c -> c.setValue(10d)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFilter("new_lines <= 80"));
@@ -755,9 +755,9 @@ public class SearchProjectsActionTest {
   public void return_new_lines_facet() {
     userSession.logIn();
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_LINES_KEY).setValueType(INT.name()));
-    insertProject(new Measure(coverage, c -> c.setVariation(100d)));
-    insertProject(new Measure(coverage, c -> c.setVariation(15_000d)));
-    insertProject(new Measure(coverage, c -> c.setVariation(50_000d)));
+    insertProject(new Measure(coverage, c -> c.setValue(100d)));
+    insertProject(new Measure(coverage, c -> c.setValue(15_000d)));
+    insertProject(new Measure(coverage, c -> c.setValue(50_000d)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(NEW_LINES_KEY)));
@@ -949,10 +949,10 @@ public class SearchProjectsActionTest {
   public void return_new_rating_facet(String newRatingMetricKey) {
     userSession.logIn();
     MetricDto newRatingMetric = db.measures().insertMetric(c -> c.setKey(newRatingMetricKey).setValueType("RATING"));
-    insertProject(new Measure(newRatingMetric, c -> c.setVariation(1d)));
-    insertProject(new Measure(newRatingMetric, c -> c.setVariation(1d)));
-    insertProject(new Measure(newRatingMetric, c -> c.setVariation(3d)));
-    insertProject(new Measure(newRatingMetric, c -> c.setVariation(5d)));
+    insertProject(new Measure(newRatingMetric, c -> c.setValue(1d)));
+    insertProject(new Measure(newRatingMetric, c -> c.setValue(1d)));
+    insertProject(new Measure(newRatingMetric, c -> c.setValue(3d)));
+    insertProject(new Measure(newRatingMetric, c -> c.setValue(5d)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(newRatingMetricKey)));
@@ -1001,9 +1001,9 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_COVERAGE).setValueType("PERCENT"));
     insertProject();
-    insertProject(new Measure(coverage, c -> c.setVariation(80d)));
-    insertProject(new Measure(coverage, c -> c.setVariation(85d)));
-    insertProject(new Measure(coverage, c -> c.setVariation(10d)));
+    insertProject(new Measure(coverage, c -> c.setValue(80d)));
+    insertProject(new Measure(coverage, c -> c.setValue(85d)));
+    insertProject(new Measure(coverage, c -> c.setValue(10d)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(NEW_COVERAGE)));
@@ -1053,9 +1053,9 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType("PERCENT"));
     insertProject();
-    insertProject(new Measure(coverage, c -> c.setVariation(10d)));
-    insertProject(new Measure(coverage, c -> c.setVariation(15d)));
-    insertProject(new Measure(coverage, c -> c.setVariation(5d)));
+    insertProject(new Measure(coverage, c -> c.setValue(10d)));
+    insertProject(new Measure(coverage, c -> c.setValue(15d)));
+    insertProject(new Measure(coverage, c -> c.setValue(5d)));
     index();
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(NEW_DUPLICATED_LINES_DENSITY_KEY)));

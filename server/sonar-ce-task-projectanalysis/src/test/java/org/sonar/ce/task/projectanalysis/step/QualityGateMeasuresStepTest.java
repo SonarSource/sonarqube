@@ -261,9 +261,7 @@ public class QualityGateMeasuresStepTest {
     Condition periodCondition = createLessThanCondition(INT_METRIC_1, "1");
 
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_UUID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
-    Measure measure = newMeasureBuilder()
-      .setVariation(rawValue)
-      .create(rawValue, null);
+    Measure measure = newMeasureBuilder().create(rawValue);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
 
     underTest.execute(new TestComputationStepContext());

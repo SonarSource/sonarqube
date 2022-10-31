@@ -43,7 +43,6 @@ public class MeasureToMeasureDtoTest {
   private static final MetricImpl SOME_METRIC = new MetricImpl("42", "metric_key", "metric_name", Metric.MetricType.STRING);
   private static final String SOME_DATA = "some_data";
   private static final String SOME_STRING = "some_string";
-  private static final double SOME_VARIATIONS = 1d;
   private static final MetricImpl SOME_BOOLEAN_METRIC = new MetricImpl("1", "1", "1", Metric.MetricType.BOOL);
   private static final MetricImpl SOME_INT_METRIC = new MetricImpl("2", "2", "2", Metric.MetricType.INT);
   private static final MetricImpl SOME_LONG_METRIC = new MetricImpl("3", "3", "3", Metric.MetricType.DISTRIB);
@@ -88,21 +87,6 @@ public class MeasureToMeasureDtoTest {
       {Measure.newMeasureBuilder().create(SOME_STRING), SOME_STRING_METRIC},
       {Measure.newMeasureBuilder().create(Measure.Level.OK), SOME_LEVEL_METRIC}
     };
-  }
-
-  @Test
-  @UseDataProvider("all_types_Measures")
-  public void toMeasureDto_returns_Dto_without_any_variation_if_Measure_has_no_MeasureVariations(Measure measure, Metric metric) {
-    MeasureDto measureDto = underTest.toMeasureDto(measure, metric, SOME_COMPONENT);
-
-    assertThat(measureDto.getVariation()).isNull();
-  }
-
-  @Test
-  public void toMeasureDto_returns_Dto_with_variation_if_Measure_has_MeasureVariations() {
-    MeasureDto measureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().setVariation(SOME_VARIATIONS).create(SOME_STRING), SOME_STRING_METRIC, SOME_COMPONENT);
-
-    assertThat(measureDto.getVariation()).isEqualTo(1d);
   }
 
   @Test

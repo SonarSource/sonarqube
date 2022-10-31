@@ -145,89 +145,89 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       }),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_CODE_SMELLS, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.countUnresolvedByType(RuleType.CODE_SMELL, true))),
+      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.CODE_SMELL, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_BUGS, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.countUnresolvedByType(RuleType.BUG, true))),
+      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.BUG, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_VULNERABILITIES, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.countUnresolvedByType(RuleType.VULNERABILITY, true))),
+      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.VULNERABILITY, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SECURITY_HOTSPOTS, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, true))),
+      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.countUnresolved(true))),
+      (context, issues) -> context.setValue(issues.countUnresolved(true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_BLOCKER_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.countUnresolvedBySeverity(Severity.BLOCKER, true))),
+      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.BLOCKER, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_CRITICAL_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.countUnresolvedBySeverity(Severity.CRITICAL, true))),
+      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.CRITICAL, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_MAJOR_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.countUnresolvedBySeverity(Severity.MAJOR, true))),
+      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.MAJOR, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_MINOR_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.countUnresolvedBySeverity(Severity.MINOR, true))),
+      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.MINOR, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_INFO_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.countUnresolvedBySeverity(Severity.INFO, true))),
+      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.INFO, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_TECHNICAL_DEBT, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.sumEffortOfUnresolved(RuleType.CODE_SMELL, true))),
+      (context, issues) -> context.setValue(issues.sumEffortOfUnresolved(RuleType.CODE_SMELL, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.sumEffortOfUnresolved(RuleType.BUG, true))),
+      (context, issues) -> context.setValue(issues.sumEffortOfUnresolved(RuleType.BUG, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT, true, new AddChildren(),
-      (context, issues) -> context.setLeakValue(issues.sumEffortOfUnresolved(RuleType.VULNERABILITY, true))),
+      (context, issues) -> context.setValue(issues.sumEffortOfUnresolved(RuleType.VULNERABILITY, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_RELIABILITY_RATING, true, new MaxRatingChildren(),
       (context, issues) -> {
         String highestSeverity = issues.getHighestSeverityOfUnresolved(RuleType.BUG, true).orElse(Severity.INFO);
-        context.setLeakValue(RATING_BY_SEVERITY.get(highestSeverity));
+        context.setValue(RATING_BY_SEVERITY.get(highestSeverity));
       }),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SECURITY_RATING, true, new MaxRatingChildren(),
       (context, issues) -> {
         String highestSeverity = issues.getHighestSeverityOfUnresolved(RuleType.VULNERABILITY, true).orElse(Severity.INFO);
-        context.setLeakValue(RATING_BY_SEVERITY.get(highestSeverity));
+        context.setValue(RATING_BY_SEVERITY.get(highestSeverity));
       }),
 
     new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, true,
-      (context, formula) -> context.setLeakValue(context.getLeakValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS).orElse(0D) + context.getChildrenNewHotspotsReviewed()),
-      (context, issues) -> context.setLeakValue(issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true))),
+      (context, formula) -> context.setValue(context.getValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS).orElse(0D) + context.getChildrenNewHotspotsReviewed()),
+      (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true))),
 
     new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, true,
-      (context, formula) -> context.setLeakValue(context.getLeakValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D) + context.getChildrenNewHotspotsToReview()),
-      (context, issues) -> context.setLeakValue(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true))),
+      (context, formula) -> context.setValue(context.getValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D) + context.getChildrenNewHotspotsToReview()),
+      (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true))),
 
     new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_REVIEWED, true,
       (context, formula) -> {
         Optional<Double> percent = computePercent(
-          context.getLeakValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D).longValue(),
-          context.getLeakValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS).orElse(0D).longValue());
-        percent.ifPresent(context::setLeakValue);
+          context.getValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D).longValue(),
+          context.getValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS).orElse(0D).longValue());
+        percent.ifPresent(context::setValue);
       },
       (context, issues) -> computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true))
-        .ifPresent(context::setLeakValue)),
+        .ifPresent(context::setValue)),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SECURITY_REVIEW_RATING, true,
-      (context, formula) -> context.setLeakValue(computeRating(context.getLeakValue(NEW_SECURITY_HOTSPOTS_REVIEWED).orElse(null))),
+      (context, formula) -> context.setValue(computeRating(context.getValue(NEW_SECURITY_HOTSPOTS_REVIEWED).orElse(null))),
       (context, issues) -> {
         Optional<Double> percent = computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true));
-        context.setLeakValue(computeRating(percent.orElse(null)));
+        context.setValue(computeRating(percent.orElse(null)));
       }),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SQALE_DEBT_RATIO, true,
-      (context, formula) -> context.setLeakValue(100.0D * newDebtDensity(context)),
-      (context, issues) -> context.setLeakValue(100.0D * newDebtDensity(context)),
+      (context, formula) -> context.setValue(100.0D * newDebtDensity(context)),
+      (context, issues) -> context.setValue(100.0D * newDebtDensity(context)),
       asList(CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_DEVELOPMENT_COST)),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_MAINTAINABILITY_RATING, true,
-      (context, formula) -> context.setLeakValue(context.getDebtRatingGrid().getRatingForDensity(newDebtDensity(context))),
-      (context, issues) -> context.setLeakValue(context.getDebtRatingGrid().getRatingForDensity(newDebtDensity(context))),
+      (context, formula) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(newDebtDensity(context))),
+      (context, issues) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(newDebtDensity(context))),
       asList(CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_DEVELOPMENT_COST)));
 
   private static final Set<Metric> FORMULA_METRICS = MeasureUpdateFormulaFactory.extractMetrics(FORMULAS);
@@ -242,8 +242,8 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
   }
 
   private static double newDebtDensity(MeasureUpdateFormula.Context context) {
-    double debt = Math.max(context.getLeakValue(CoreMetrics.NEW_TECHNICAL_DEBT).orElse(0.0D), 0.0D);
-    Optional<Double> devCost = context.getLeakValue(CoreMetrics.NEW_DEVELOPMENT_COST);
+    double debt = Math.max(context.getValue(CoreMetrics.NEW_TECHNICAL_DEBT).orElse(0.0D), 0.0D);
+    Optional<Double> devCost = context.getValue(CoreMetrics.NEW_DEVELOPMENT_COST);
     if (devCost.isPresent() && Double.doubleToRawLongBits(devCost.get()) > 0L) {
       return debt / devCost.get();
     }
@@ -260,33 +260,18 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
   static class AddChildren implements BiConsumer<MeasureUpdateFormula.Context, MeasureUpdateFormula> {
     @Override
     public void accept(MeasureUpdateFormula.Context context, MeasureUpdateFormula formula) {
-      double sum;
-      if (formula.isOnLeak()) {
-        sum = context.getChildrenLeakValues().stream().mapToDouble(x -> x).sum();
-        context.setLeakValue(context.getLeakValue(formula.getMetric()).orElse(0D) + sum);
-      } else {
-        sum = context.getChildrenValues().stream().mapToDouble(x -> x).sum();
-        context.setValue(context.getValue(formula.getMetric()).orElse(0D) + sum);
-      }
+      double sum = context.getChildrenValues().stream().mapToDouble(x -> x).sum();
+      context.setValue(context.getValue(formula.getMetric()).orElse(0D) + sum);
     }
   }
 
   private static class MaxRatingChildren implements BiConsumer<MeasureUpdateFormula.Context, MeasureUpdateFormula> {
     @Override
     public void accept(MeasureUpdateFormula.Context context, MeasureUpdateFormula formula) {
-      OptionalInt max;
-      if (formula.isOnLeak()) {
-        max = context.getChildrenLeakValues().stream().mapToInt(Double::intValue).max();
-        if (max.isPresent()) {
-          int currentRating = context.getLeakValue(formula.getMetric()).map(Double::intValue).orElse(Rating.A.getIndex());
-          context.setLeakValue(Rating.valueOf(Math.max(currentRating, max.getAsInt())));
-        }
-      } else {
-        max = context.getChildrenValues().stream().mapToInt(Double::intValue).max();
-        if (max.isPresent()) {
-          int currentRating = context.getValue(formula.getMetric()).map(Double::intValue).orElse(Rating.A.getIndex());
-          context.setValue(Rating.valueOf(Math.max(currentRating, max.getAsInt())));
-        }
+      OptionalInt max = context.getChildrenValues().stream().mapToInt(Double::intValue).max();
+      if (max.isPresent()) {
+        int currentRating = context.getValue(formula.getMetric()).map(Double::intValue).orElse(Rating.A.getIndex());
+        context.setValue(Rating.valueOf(Math.max(currentRating, max.getAsInt())));
       }
     }
   }

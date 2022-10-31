@@ -252,19 +252,12 @@ public class MeasureTest {
   }
 
   @Test
-  public void updateMeasureBuilder_setVariations_throws_USO_if_measure_already_has_Variations() {
-    assertThatThrownBy(() -> Measure.updatedMeasureBuilder(newMeasureBuilder().setVariation(1d).createNoValue()).setVariation(2d))
-      .isInstanceOf(UnsupportedOperationException.class);
-  }
-
-  @Test
   @UseDataProvider("all")
   public void updateMeasureBuilder_creates_Measure_with_same_immutable_properties(Measure measure) {
     Measure newMeasure = Measure.updatedMeasureBuilder(measure).create();
 
     assertThat(newMeasure.getValueType()).isEqualTo(measure.getValueType());
     assertThat(newMeasure.hasQualityGateStatus()).isEqualTo(measure.hasQualityGateStatus());
-    assertThat(newMeasure.hasVariation()).isEqualTo(measure.hasVariation());
   }
 
   @Test

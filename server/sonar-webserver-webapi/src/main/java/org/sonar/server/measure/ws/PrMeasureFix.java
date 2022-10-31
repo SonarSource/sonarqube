@@ -121,7 +121,7 @@ class PrMeasureFix {
       String originalKey = METRICS.inverse().get(metric.getKey());
       if (originalKey != null && requestedMetricKeys.contains(originalKey)) {
         for (Map.Entry<String, ComponentTreeData.Measure> e : measuresByComponentUuidAndMetric.column(metric).entrySet()) {
-          newEntries.put(e.getKey(), copyMeasureToVariation(e.getValue()));
+          newEntries.put(e.getKey(), e.getValue());
         }
 
         MetricDto originalMetric = metricByKey.get(originalKey);
@@ -142,7 +142,7 @@ class PrMeasureFix {
 
       if (originalKey != null && requestedMetricKeys.contains(originalKey)) {
         MetricDto metricDto = metricByKey.get(originalKey);
-        newEntries.put(metricDto, copyMeasureToVariation(e.getValue(), metricDto.getUuid()));
+        newEntries.put(metricDto, copyMeasure(e.getValue(), metricDto.getUuid()));
       }
     }
 
@@ -150,13 +150,9 @@ class PrMeasureFix {
     measuresByMetric.putAll(newEntries);
   }
 
-  private static ComponentTreeData.Measure copyMeasureToVariation(ComponentTreeData.Measure measure) {
-    return new ComponentTreeData.Measure(null, null, measure.getValue());
-  }
-
-  private static LiveMeasureDto copyMeasureToVariation(LiveMeasureDto dto, String metricUuid) {
+  private static LiveMeasureDto copyMeasure(LiveMeasureDto dto, String metricUuid) {
     LiveMeasureDto copy = new LiveMeasureDto();
-    copy.setVariation(dto.getValue());
+    copy.setValue(dto.getValue());
     copy.setProjectUuid(dto.getProjectUuid());
     copy.setComponentUuid(dto.getComponentUuid());
     copy.setMetricUuid(metricUuid);

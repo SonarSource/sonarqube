@@ -29,7 +29,6 @@ import org.sonarqube.ws.Measures.Measure;
 import static java.lang.Double.compare;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatMeasureValue;
-import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalValue;
 
 class MeasureDtoToWsMeasure {
 
@@ -38,37 +37,38 @@ class MeasureDtoToWsMeasure {
   }
 
   static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, MeasureDto measureDto) {
-    Double value = measureDto.getValue();
-    Double variation = measureDto.getVariation();
-    updateMeasureBuilder(measureBuilder, metricDto, value == null ? Double.NaN : value, measureDto.getData(), variation == null ? Double.NaN : variation);
+    double value = measureDto.getValue() == null ? Double.NaN : measureDto.getValue();
+    boolean onNewCode = metricDto.getKey().startsWith("new_");
+    updateMeasureBuilder(measureBuilder, metricDto, value, measureDto.getData(), onNewCode);
   }
 
   static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, LiveMeasureDto measureDto) {
-    Double value = measureDto.getValue();
-    Double variation = measureDto.getVariation();
-    updateMeasureBuilder(measureBuilder, metricDto, value == null ? Double.NaN : value, measureDto.getDataAsString(), variation == null ? Double.NaN : variation);
+    double value = measureDto.getValue() == null ? Double.NaN : measureDto.getValue();
+    boolean onNewCode = metricDto.getKey().startsWith("new_");
+    updateMeasureBuilder(measureBuilder, metricDto, value, measureDto.getDataAsString(), onNewCode);
   }
 
-  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metric, double doubleValue, @Nullable String stringValue, double variation) {
+  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metric, double doubleValue, @Nullable String stringValue, boolean onNewCode) {
     measureBuilder.setMetric(metric.getKey());
     Double bestValue = metric.getBestValue();
-    // a measure value can be null, new_violations metric for example
-    if (!Double.isNaN(doubleValue) || stringValue != null) {
-      measureBuilder.setValue(formatMeasureValue(doubleValue, stringValue, metric));
-      ofNullable(bestValue).ifPresent(v -> measureBuilder.setBestValue(compare(doubleValue, v) == 0));
-    }
 
-    Measures.PeriodValue.Builder periodBuilder = Measures.PeriodValue.newBuilder();
-    if (Double.isNaN(variation)) {
+    if (Double.isNaN(doubleValue) && stringValue == null) {
       return;
     }
-    Measures.PeriodValue.Builder builderForValue = periodBuilder
-      .clear()
-      .setIndex(1)
-      .setValue(formatNumericalValue(variation, metric));
-    ofNullable(bestValue).ifPresent(v -> builderForValue.setBestValue(compare(variation, v) == 0));
-    //deprecated since 8.1
-    measureBuilder.getPeriodsBuilder().addPeriodsValue(builderForValue);
-    measureBuilder.setPeriod(builderForValue);
+
+    if (!onNewCode) {
+      measureBuilder.setValue(formatMeasureValue(doubleValue, stringValue, metric));
+      ofNullable(bestValue).ifPresent(v -> measureBuilder.setBestValue(compare(doubleValue, v) == 0));
+    } else {
+      Measures.PeriodValue.Builder periodBuilder = Measures.PeriodValue.newBuilder();
+      Measures.PeriodValue.Builder builderForValue = periodBuilder
+        .clear()
+        .setIndex(1)
+        .setValue(formatMeasureValue(doubleValue, stringValue, metric));
+      ofNullable(bestValue).ifPresent(v -> builderForValue.setBestValue(compare(doubleValue, v) == 0));
+      //deprecated since 8.1
+      measureBuilder.getPeriodsBuilder().addPeriodsValue(builderForValue);
+      measureBuilder.setPeriod(builderForValue);
+    }
   }
 }

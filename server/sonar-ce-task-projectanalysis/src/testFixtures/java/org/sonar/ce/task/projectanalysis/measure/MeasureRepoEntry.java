@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -73,7 +71,6 @@ public final class MeasureRepoEntry {
   public static boolean deepEquals(Measure measure, Measure measure1) {
     return measure.getValueType() == measure1.getValueType()
       && equalsByValue(measure, measure1)
-      && equalsByVariation(measure, measure1)
       && equalsByQualityGateStatus(measure, measure1)
       && Objects.equals(measure.getData(), measure1.getData());
   }
@@ -97,18 +94,6 @@ public final class MeasureRepoEntry {
       default:
         throw new IllegalArgumentException("Unsupported ValueType " + measure.getValueType());
     }
-  }
-
-  private static boolean equalsByVariation(Measure measure, Measure measure1) {
-    return measure.hasVariation() == measure1.hasVariation() && (!measure.hasVariation()
-      || Double.compare(scale(measure.getVariation()), scale(measure1.getVariation())) == 0);
-  }
-
-  private static final int DOUBLE_PRECISION = 1;
-
-  private static double scale(double value) {
-    BigDecimal bd = BigDecimal.valueOf(value);
-    return bd.setScale(DOUBLE_PRECISION, RoundingMode.HALF_UP).doubleValue();
   }
 
   private static boolean equalsByQualityGateStatus(Measure measure, Measure measure1) {

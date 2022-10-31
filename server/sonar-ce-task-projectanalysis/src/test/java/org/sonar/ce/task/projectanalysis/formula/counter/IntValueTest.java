@@ -25,58 +25,58 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IntValueTest {
   @Test
-  public void newly_created_IntVariationValue_is_unset_and_has_value_0() {
-    verifyUnsetVariationValue(new IntValue());
+  public void newly_created_IntValue_is_unset_and_has_value_0() {
+    verifyUnsetValue(new IntValue());
   }
 
   @Test
-  public void increment_int_sets_IntVariationValue_and_increments_value() {
-    verifySetVariationValue(new IntValue().increment(10), 10);
+  public void increment_int_sets_IntValue_and_increments_value() {
+    verifySetValue(new IntValue().increment(10), 10);
   }
 
   @Test
-  public void increment_IntVariationValue_has_no_effect_if_arg_is_null() {
-    verifyUnsetVariationValue(new IntValue().increment(null));
+  public void increment_IntValue_has_no_effect_if_arg_is_null() {
+    verifyUnsetValue(new IntValue().increment(null));
   }
 
   @Test
-  public void increment_IntVariationValue_has_no_effect_if_arg_is_unset() {
-    verifyUnsetVariationValue(new IntValue().increment(new IntValue()));
+  public void increment_IntValue_has_no_effect_if_arg_is_unset() {
+    verifyUnsetValue(new IntValue().increment(new IntValue()));
   }
 
   @Test
-  public void increment_IntVariationValue_increments_by_the_value_of_the_arg() {
+  public void increment_IntValue_increments_by_the_value_of_the_arg() {
     IntValue source = new IntValue().increment(10);
     IntValue target = new IntValue().increment(source);
 
-    verifySetVariationValue(target, 10);
+    verifySetValue(target, 10);
   }
 
   @Test
-  public void multiple_calls_to_increment_IntVariationValue_increments_by_the_value_of_the_arg() {
+  public void multiple_calls_to_increment_IntValue_increments_by_the_value_of_the_arg() {
     IntValue target = new IntValue()
       .increment(new IntValue().increment(35))
       .increment(new IntValue().increment(10));
 
-    verifySetVariationValue(target, 45);
+    verifySetValue(target, 45);
   }
 
   @Test
   public void multiples_calls_to_increment_int_increment_the_value() {
-    IntValue variationValue = new IntValue()
+    IntValue value = new IntValue()
       .increment(10)
       .increment(95);
 
-    verifySetVariationValue(variationValue, 105);
+    verifySetValue(value, 105);
   }
 
-  private static void verifyUnsetVariationValue(IntValue variationValue) {
-    assertThat(variationValue.isSet()).isFalse();
-    assertThat(variationValue.getValue()).isZero();
+  private static void verifyUnsetValue(IntValue value) {
+    assertThat(value.isSet()).isFalse();
+    assertThat(value.getValue()).isZero();
   }
 
-  private static void verifySetVariationValue(IntValue variationValue, int expected) {
-    assertThat(variationValue.isSet()).isTrue();
-    assertThat(variationValue.getValue()).isEqualTo(expected);
+  private static void verifySetValue(IntValue value, int expected) {
+    assertThat(value.isSet()).isTrue();
+    assertThat(value.getValue()).isEqualTo(expected);
   }
 }

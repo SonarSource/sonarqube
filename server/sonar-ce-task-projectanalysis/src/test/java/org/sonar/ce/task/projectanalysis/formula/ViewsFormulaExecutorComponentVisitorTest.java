@@ -125,38 +125,6 @@ public class ViewsFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void verify_aggregation_on_variations() {
-    treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
-
-    addRawMeasureWithVariation(PROJECT_VIEW_1_REF, NEW_LINES_TO_COVER_KEY, 10);
-    addRawMeasureWithVariation(PROJECT_VIEW_2_REF, NEW_LINES_TO_COVER_KEY, 8);
-    addRawMeasureWithVariation(PROJECT_VIEW_3_REF, NEW_LINES_TO_COVER_KEY, 2);
-    addRawMeasureWithVariation(PROJECT_VIEW_4_REF, NEW_LINES_TO_COVER_KEY, 3);
-
-    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeVariationFormula()))
-      .visit(BALANCED_COMPONENT_TREE);
-
-    verifyProjectViewsHasNoAddedRawMeasures();
-    verifySingleMetricWithVariation(SUB_SUBVIEW_REF, 18);
-    verifySingleMetricWithVariation(SUBVIEW_1_REF, 18);
-    verifySingleMetricWithVariation(SUBVIEW_2_REF, 2);
-    verifySingleMetricWithVariation(ROOT_REF, 23);
-  }
-
-  private void verifySingleMetricWithVariation(int componentRef, int variation) {
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
-      .containsOnly(entryOf(NEW_COVERAGE_KEY, createMeasureWithVariation(variation)));
-  }
-
-  private MeasureRepositoryRule addRawMeasureWithVariation(int componentRef, String metricKey, int variation) {
-    return measureRepository.addRawMeasure(componentRef, metricKey, createMeasureWithVariation(variation));
-  }
-
-  private static Measure createMeasureWithVariation(double variation) {
-    return newMeasureBuilder().setVariation(variation).createNoValue();
-  }
-
-  @Test
   public void verify_no_measure_added_on_projectView() {
     ViewsComponent project = ViewsComponent.builder(VIEW, ROOT_REF)
       .addChildren(
@@ -287,10 +255,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
 
       IntValue measureVariations = counter.values;
       if (measureVariations.isSet()) {
-        return Optional.of(
-          newMeasureBuilder()
-            .setVariation(measureVariations.getValue())
-            .createNoValue());
+        return Optional.of(newMeasureBuilder().create(measureVariations.getValue()));
       }
       return Optional.empty();
     }
@@ -317,7 +282,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
       if (!measureOptional.isPresent()) {
         return;
       }
-      this.values.increment((int) measureOptional.get().getVariation());
+      this.values.increment(measureOptional.get().getIntValue());
     }
 
   }

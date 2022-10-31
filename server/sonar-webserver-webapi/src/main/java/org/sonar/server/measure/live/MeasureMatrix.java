@@ -102,14 +102,6 @@ class MeasureMatrix {
     changeCell(component, metricKey, m -> m.setData(data));
   }
 
-  void setLeakValue(ComponentDto component, String metricKey, double variation) {
-    changeCell(component, metricKey, c -> c.setVariation(scale(metricsByKeys.get(metricKey), variation)));
-  }
-
-  void setLeakValue(ComponentDto component, String metricKey, Rating variation) {
-    setLeakValue(component, metricKey, variation.getIndex());
-  }
-
   Stream<LiveMeasureDto> getChanged() {
     return table.values().stream()
       .filter(Objects::nonNull)
@@ -144,7 +136,6 @@ class MeasureMatrix {
 
   private static class MeasureCell {
     private final LiveMeasureDto measure;
-    private final Double initialVariation;
     private final Double initialValue;
     private final byte[] initialData;
     private final String initialTextValue;
@@ -152,7 +143,6 @@ class MeasureMatrix {
     private MeasureCell(LiveMeasureDto measure) {
       this.measure = measure;
       this.initialValue = measure.getValue();
-      this.initialVariation = measure.getVariation();
       this.initialData = measure.getData();
       this.initialTextValue = measure.getTextValue();
     }
@@ -162,8 +152,7 @@ class MeasureMatrix {
     }
 
     public boolean isChanged() {
-      return !Objects.equals(initialValue, measure.getValue()) || !Objects.equals(initialVariation, measure.getVariation())
-        || !Arrays.equals(initialData, measure.getData()) || !Objects.equals(initialTextValue, measure.getTextValue());
+      return !Objects.equals(initialValue, measure.getValue()) || !Arrays.equals(initialData, measure.getData()) || !Objects.equals(initialTextValue, measure.getTextValue());
     }
   }
 }

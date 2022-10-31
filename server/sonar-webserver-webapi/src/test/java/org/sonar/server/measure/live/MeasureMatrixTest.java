@@ -92,17 +92,12 @@ public class MeasureMatrixTest {
 
     underTest.setValue(PROJECT, metric.getKey(), 3.148);
     verifyValue(underTest, PROJECT, metric, 3.15);
-    verifyVariation(underTest, PROJECT, metric, null);
   }
 
   private void verifyValue(MeasureMatrix underTest, ComponentDto component, MetricDto metric, @Nullable Double expectedValue) {
     Optional<LiveMeasureDto> measure = underTest.getMeasure(component, metric.getKey());
     assertThat(measure).isPresent();
     assertThat(measure.get().getValue()).isEqualTo(expectedValue);
-  }
-
-  private void verifyVariation(MeasureMatrix underTest, ComponentDto component, MetricDto metric, @Nullable Double expectedVariation) {
-    assertThat(underTest.getMeasure(component, metric.getKey()).get().getVariation()).isEqualTo(expectedVariation);
   }
 
   @Test
@@ -115,33 +110,6 @@ public class MeasureMatrixTest {
 
     assertThat(underTest.getChanged()).isEmpty();
     verifyValue(underTest, PROJECT, metric, 3.14);
-  }
-
-  @Test
-  public void setValue_double_updates_variation() {
-    MetricDto metric = newMetricDto().setDecimalScale(2);
-    LiveMeasureDto measure = newMeasure(metric, PROJECT).setValue(3.14).setVariation(1.14);
-    MeasureMatrix underTest = new MeasureMatrix(asList(PROJECT), asList(metric), asList(measure));
-
-    underTest.setValue(PROJECT, metric.getKey(), 3.56);
-
-    assertThat(underTest.getChanged()).hasSize(1);
-    verifyValue(underTest, PROJECT, metric, 3.56);
-    verifyVariation(underTest, PROJECT, metric, 1.14);
-  }
-
-  @Test
-  public void setValue_double_rounds_up_variation() {
-    MetricDto metric = newMetricDto().setDecimalScale(2);
-    LiveMeasureDto measure = newMeasure(metric, PROJECT).setValue(3.14).setVariation(1.14);
-    MeasureMatrix underTest = new MeasureMatrix(asList(PROJECT), asList(metric), asList(measure));
-
-    underTest.setValue(PROJECT, metric.getKey(), 3.569);
-    underTest.setLeakValue(PROJECT, metric.getKey(), 3.569);
-
-    assertThat(underTest.getChanged()).hasSize(1);
-    verifyValue(underTest, PROJECT, metric, 3.57);
-    verifyVariation(underTest, PROJECT, metric, 3.57);
   }
 
   @Test
@@ -164,35 +132,6 @@ public class MeasureMatrixTest {
 
     assertThat(underTest.getMeasure(PROJECT, METRIC_1.getKey()).get().getDataAsString()).isEqualTo("bar");
     assertThat(underTest.getChanged()).extracting(LiveMeasureDto::getDataAsString).containsExactly("bar");
-  }
-
-  @Test
-  public void setLeakValue_rounds_up_and_updates_value() {
-    MetricDto metric = newMetricDto().setDecimalScale(2);
-    LiveMeasureDto measure = newMeasure(metric, PROJECT).setValue(null);
-    MeasureMatrix underTest = new MeasureMatrix(asList(PROJECT), asList(metric), asList(measure));
-
-    underTest.setLeakValue(PROJECT, metric.getKey(), 3.14159);
-    verifyVariation(underTest, PROJECT, metric, 3.14);
-    // do not update value
-    verifyValue(underTest, PROJECT, metric, null);
-
-    underTest.setLeakValue(PROJECT, metric.getKey(), 3.148);
-    verifyVariation(underTest, PROJECT, metric, 3.15);
-    // do not update value
-    verifyValue(underTest, PROJECT, metric, null);
-  }
-
-  @Test
-  public void setLeakValue_double_does_nothing_if_value_is_unchanged() {
-    MetricDto metric = newMetricDto().setDecimalScale(2);
-    LiveMeasureDto measure = newMeasure(metric, PROJECT).setValue(null).setVariation(3.14);
-    MeasureMatrix underTest = new MeasureMatrix(asList(PROJECT), asList(metric), asList(measure));
-
-    underTest.setLeakValue(PROJECT, metric.getKey(), 3.14159);
-
-    assertThat(underTest.getChanged()).isEmpty();
-    verifyVariation(underTest, PROJECT, metric, 3.14);
   }
 
   private LiveMeasureDto newMeasure(MetricDto metric, ComponentDto component) {

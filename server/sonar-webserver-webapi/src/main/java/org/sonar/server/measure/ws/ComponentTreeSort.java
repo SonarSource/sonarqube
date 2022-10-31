@@ -237,10 +237,10 @@ public class ComponentTreeSort {
     @Override
     public Double apply(@Nonnull ComponentDto input) {
       ComponentTreeData.Measure measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
-      if (measure == null || !measure.isVariationSet()) {
+      if (measure == null || !metric.getKey().startsWith("new_")) {
         return null;
       }
-      return measure.getVariation();
+      return measure.getValue();
     }
   }
 

@@ -112,7 +112,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
         entry -> measureRepository.add(
           component,
           metricsByKey.get(entry.getKey()),
-          newMeasureBuilder().setVariation(entry.getValue().getValue().getIndex()).createNoValue()));
+          newMeasureBuilder().create(entry.getValue().getValue().getIndex())));
     addToParent(path);
   }
 

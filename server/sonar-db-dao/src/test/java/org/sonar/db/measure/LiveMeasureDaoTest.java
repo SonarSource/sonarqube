@@ -291,14 +291,14 @@ public class LiveMeasureDaoTest {
     MetricDto metric = db.measures().insertMetric();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    underTest.insert(db.getSession(), newLiveMeasure(file, metric).setValue(3.14).setVariation(0.1).setData("text_value"));
+    underTest.insert(db.getSession(), newLiveMeasure(file, metric).setValue(3.14).setData("text_value"));
 
     LiveMeasureDto result = underTest.selectMeasure(db.getSession(), file.uuid(), metric.getKey()).orElseThrow(() -> new IllegalArgumentException("Measure not found"));
 
     assertThat(result).as("Fail to map fields of %s", result.toString()).extracting(
-      LiveMeasureDto::getProjectUuid, LiveMeasureDto::getComponentUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue, LiveMeasureDto::getVariation,
+      LiveMeasureDto::getProjectUuid, LiveMeasureDto::getComponentUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue,
       LiveMeasureDto::getDataAsString, LiveMeasureDto::getTextValue)
-      .contains(project.uuid(), file.uuid(), metric.getUuid(), 3.14, 0.1, "text_value", "text_value");
+      .contains(project.uuid(), file.uuid(), metric.getUuid(), 3.14, "text_value", "text_value");
   }
 
   @Test
@@ -403,7 +403,6 @@ public class LiveMeasureDaoTest {
 
     // update
     dto.setValue(dto.getValue() + 1);
-    dto.setVariation(dto.getVariation() + 10);
     dto.setData(dto.getDataAsString() + "_new");
     underTest.insertOrUpdate(db.getSession(), dto);
     verifyPersisted(dto);
@@ -491,7 +490,6 @@ public class LiveMeasureDaoTest {
 
     // update
     dto.setValue(dto.getValue() + 1);
-    dto.setVariation(dto.getVariation() + 10);
     dto.setData(dto.getDataAsString() + "_new");
     count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isOne();
@@ -558,54 +556,6 @@ public class LiveMeasureDaoTest {
 
     // update
     dto.setData((String) null);
-    int count = underTest.upsert(db.getSession(), dto);
-    assertThat(count).isOne();
-    verifyPersisted(dto);
-    verifyTableSize(1);
-  }
-
-  @Test
-  public void upsert_updates_row_if_variation_is_changed() {
-    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
-      return;
-    }
-    LiveMeasureDto dto = newLiveMeasure().setVariation(40.0);
-    underTest.upsert(db.getSession(), dto);
-
-    // update
-    dto.setVariation(50.0);
-    int count = underTest.upsert(db.getSession(), dto);
-    assertThat(count).isOne();
-    verifyPersisted(dto);
-    verifyTableSize(1);
-  }
-
-  @Test
-  public void upsert_updates_row_if_variation_is_removed() {
-    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
-      return;
-    }
-    LiveMeasureDto dto = newLiveMeasure().setVariation(40.0);
-    underTest.upsert(db.getSession(), dto);
-
-    // update
-    dto.setVariation(null);
-    int count = underTest.upsert(db.getSession(), dto);
-    assertThat(count).isOne();
-    verifyPersisted(dto);
-    verifyTableSize(1);
-  }
-
-  @Test
-  public void upsert_updates_row_if_variation_is_added() {
-    if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
-      return;
-    }
-    LiveMeasureDto dto = newLiveMeasure().setVariation(null);
-    underTest.upsert(db.getSession(), dto);
-
-    // update
-    dto.setVariation(40.0);
     int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isOne();
     verifyPersisted(dto);
@@ -698,7 +648,7 @@ public class LiveMeasureDaoTest {
     assertThat(selected).hasSize(1);
     assertThat(selected.get(0)).isEqualToComparingOnlyGivenFields(dto,
       // do not compare the field "uuid", which is used only for insert, not select
-      "componentUuid", "projectUuid", "metricUuid", "value", "textValue", "data", "variation");
+      "componentUuid", "projectUuid", "metricUuid", "value", "textValue", "data");
   }
 
   private void setupProjectsWithLoc() {

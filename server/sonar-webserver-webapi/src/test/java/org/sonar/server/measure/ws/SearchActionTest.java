@@ -80,18 +80,18 @@ public class SearchActionTest {
 
     MetricDto complexity = db.measures().insertMetric(m -> m.setKey("complexity").setValueType(INT.name()));
     db.measures().insertLiveMeasure(project1, complexity, m -> m.setValue(12.0d));
-    db.measures().insertLiveMeasure(project2, complexity, m -> m.setValue(35.0d).setVariation(0.0d));
+    db.measures().insertLiveMeasure(project2, complexity, m -> m.setValue(35.0d));
     db.measures().insertLiveMeasure(project3, complexity, m -> m.setValue(42.0d));
 
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.name()));
     db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(114.0d));
-    db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(217.0d).setVariation(0.0d));
+    db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(217.0d));
     db.measures().insertLiveMeasure(project3, ncloc, m -> m.setValue(1984.0d));
 
     MetricDto newViolations = db.measures().insertMetric(m -> m.setKey("new_violations").setValueType(INT.name()));
-    db.measures().insertLiveMeasure(project1, newViolations, m -> m.setVariation(25.0d));
-    db.measures().insertLiveMeasure(project2, newViolations, m -> m.setVariation(25.0d));
-    db.measures().insertLiveMeasure(project3, newViolations, m -> m.setVariation(255.0d));
+    db.measures().insertLiveMeasure(project1, newViolations, m -> m.setValue(25.0d));
+    db.measures().insertLiveMeasure(project2, newViolations, m -> m.setValue(25.0d));
+    db.measures().insertLiveMeasure(project3, newViolations, m -> m.setValue(255.0d));
 
     List<String> projectKeys = Arrays.asList(project1.getKey(), project2.getKey(), project3.getKey());
 
@@ -147,8 +147,8 @@ public class SearchActionTest {
   public void return_measures_on_new_code_period() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
-    db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(15.5d).setVariation(10d));
+    MetricDto coverage = db.measures().insertMetric(m -> m.setKey("new_metric").setValueType(FLOAT.name()));
+    db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(10d));
 
     SearchWsResponse result = call(singletonList(project.getKey()), singletonList(coverage.getKey()));
 
@@ -156,7 +156,7 @@ public class SearchActionTest {
     assertThat(measures).hasSize(1);
     Measure measure = measures.get(0);
     assertThat(measure.getMetric()).isEqualTo(coverage.getKey());
-    assertThat(measure.getValue()).isEqualTo("15.5");
+    assertThat(measure.getValue()).isEmpty();
     assertThat(measure.getPeriods().getPeriodsValueList())
       .extracting(Measures.PeriodValue::getIndex, Measures.PeriodValue::getValue)
       .containsOnly(tuple(1, "10.0"));

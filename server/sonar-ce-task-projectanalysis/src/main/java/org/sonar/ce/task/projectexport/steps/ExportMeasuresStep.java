@@ -39,7 +39,7 @@ import static org.sonar.db.DatabaseUtils.getString;
 public class ExportMeasuresStep implements ComputationStep {
 
   private static final String QUERY = "select pm.metric_uuid, pm.analysis_uuid, pm.component_uuid, pm.text_value, pm.value," +
-    " pm.alert_status, pm.alert_text, pm.variation_value_1" +
+    " pm.alert_status, pm.alert_text, m.name" +
     " from project_measures pm" +
     " join metrics m on m.uuid=pm.metric_uuid" +
     " join snapshots s on s.uuid=pm.analysis_uuid" +
@@ -104,6 +104,7 @@ public class ExportMeasuresStep implements ComputationStep {
     ProjectDump.DoubleValue.Builder doubleBuilder) throws SQLException {
     long componentRef = componentRepository.getRef(rs.getString(3));
     int metricRef = metricHolder.add(rs.getString(1));
+    String metricKey = rs.getString(8);
 
     builder
       .clear()
@@ -112,15 +113,16 @@ public class ExportMeasuresStep implements ComputationStep {
       .setComponentRef(componentRef)
       .setTextValue(defaultString(getString(rs, 4)));
     Double value = getDouble(rs, 5);
+
     if (value != null) {
-      builder.setDoubleValue(doubleBuilder.setValue(value).build());
+      if (metricKey.startsWith("new_")) {
+        builder.setVariation1(doubleBuilder.setValue(value).build());
+      } else {
+        builder.setDoubleValue(doubleBuilder.setValue(value).build());
+      }
     }
     builder.setAlertStatus(defaultString(getString(rs, 6)));
     builder.setAlertText(defaultString(getString(rs, 7)));
-    Double var1 = getDouble(rs, 8);
-    if (var1 != null) {
-      builder.setVariation1(doubleBuilder.setValue(var1).build());
-    }
     return builder.build();
   }
 

@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import org.assertj.core.data.Offset;
 import org.junit.Test;
@@ -42,11 +40,7 @@ public class LiveMeasureDtoToMeasureTest {
   private static final Metric SOME_STRING_METRIC = new MetricImpl("42", "string", "name", Metric.MetricType.STRING);
   private static final Metric SOME_BOOLEAN_METRIC = new MetricImpl("42", "boolean", "name", Metric.MetricType.BOOL);
   private static final Metric SOME_LEVEL_METRIC = new MetricImpl("42", "level", "name", Metric.MetricType.LEVEL);
-
-  private static final String SOME_DATA = "some_data man!";
-  private static final String SOME_ALERT_TEXT = "some alert text_be_careFul!";
   private static final LiveMeasureDto EMPTY_MEASURE_DTO = new LiveMeasureDto();
-
 
   private LiveMeasureDtoToMeasure underTest = new LiveMeasureDtoToMeasure();
 
@@ -188,41 +182,6 @@ public class LiveMeasureDtoToMeasureTest {
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
-  }
-
-  @DataProvider
-  public static Object[][] all_types_LiveMeasureDtos() {
-    return new Object[][] {
-      {new LiveMeasureDto().setValue(1d), SOME_BOOLEAN_METRIC},
-      {new LiveMeasureDto().setValue(1d), SOME_INT_METRIC},
-      {new LiveMeasureDto().setValue(1d), SOME_LONG_METRIC},
-      {new LiveMeasureDto().setValue(1d), SOME_DOUBLE_METRIC},
-      {new LiveMeasureDto().setData("1"), SOME_STRING_METRIC},
-      {new LiveMeasureDto().setData(Level.OK.name()), SOME_LEVEL_METRIC}
-    };
-  }
-
-  @Test
-  @UseDataProvider("all_types_LiveMeasureDtos")
-  public void toMeasure_creates_no_MeasureVariation_if_dto_has_none_whichever_the_ValueType(LiveMeasureDto LiveMeasureDto, Metric metric) {
-    assertThat(underTest.toMeasure(LiveMeasureDto, metric).get().hasVariation()).isFalse();
-  }
-
-  @Test
-  @UseDataProvider("all_types_LiveMeasureDtos")
-  public void toMeasure_creates_MeasureVariation_and_maps_the_right_one(LiveMeasureDto builder, Metric metric) {
-    assertThat(underTest.toMeasure(builder.setVariation(1d), metric).get().getVariation()).isOne();
-  }
-
-  @Test
-  public void toMeasure_creates_MeasureVariation_and_maps_the_right_one() {
-    LiveMeasureDto LiveMeasureDto = new LiveMeasureDto()
-      .setData("1")
-      .setVariation(2d);
-
-    Optional<Measure> measure = underTest.toMeasure(LiveMeasureDto, SOME_STRING_METRIC);
-
-    assertThat(measure.get().getVariation()).isEqualTo(2);
   }
 
   @Test

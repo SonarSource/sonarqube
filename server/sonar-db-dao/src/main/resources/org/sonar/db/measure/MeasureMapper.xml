@@ -12,8 +12,7 @@
     pm.text_value as textValue,
     pm.alert_status as alertStatus,
     pm.alert_text as alertText,
-    pm.measure_data as dataValue,
-    pm.variation_value_1 as variation
+    pm.measure_data as dataValue
   </sql>
 
   <select id="selectLastMeasure" parameterType="map" resultType="Measure">
@@ -106,7 +105,6 @@
     text_value,
     alert_status,
     alert_text,
-    variation_value_1,
     measure_data)
     VALUES (
     #{uuid, jdbcType=VARCHAR},
@@ -117,7 +115,6 @@
     #{textValue, jdbcType=VARCHAR},
     #{alertStatus, jdbcType=VARCHAR},
     #{alertText, jdbcType=VARCHAR},
-    #{variation, jdbcType=DOUBLE},
     #{dataValue, jdbcType=BINARY}
     )
   </insert>

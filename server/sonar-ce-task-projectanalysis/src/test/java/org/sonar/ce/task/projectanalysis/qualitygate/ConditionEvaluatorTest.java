@@ -35,16 +35,15 @@ import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
+import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.BOOL;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.DATA;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.DISTRIB;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.FLOAT;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.INT;
-import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.LEVEL;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.PERCENT;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.RATING;
 import static org.sonar.ce.task.projectanalysis.metric.Metric.MetricType.STRING;
@@ -159,44 +158,6 @@ public class ConditionEvaluatorTest {
   }
 
   @Test
-  @UseDataProvider("numericNewMetricTypes")
-  public void test_condition_on_numeric_new_metric(MetricType metricType) {
-    Metric metric = createNewMetric(metricType);
-    Measure measure = newMeasureBuilder().setVariation(3d).createNoValue();
-
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3"), measure)).hasLevel(OK);
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "2"), measure)).hasLevel(ERROR);
-  }
-
-  @Test
-  @UseDataProvider("numericNewMetricTypes")
-  public void condition_on_new_metric_without_value_is_OK(MetricType metricType) {
-    Metric metric = createNewMetric(metricType);
-    Measure measure = newMeasureBuilder().createNoValue();
-
-    assertThat(underTest.evaluate(new Condition(metric, GREATER_THAN.getDbValue(), "3"), measure)).hasLevel(OK).hasValue(null);
-  }
-
-  @DataProvider
-  public static Object[][] numericNewMetricTypes() {
-    return new Object[][] {
-      {FLOAT},
-      {INT},
-      {WORK_DUR},
-    };
-  }
-
-  @Test
-  public void fail_when_condition_on_leak_period_is_using_unsupported_metric() {
-    Metric metric = createNewMetric(LEVEL);
-    Measure measure = newMeasureBuilder().setVariation(0d).createNoValue();
-
-    assertThatThrownBy(() ->  underTest.evaluate(new Condition(metric, LESS_THAN.getDbValue(), "3"), measure))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Unsupported metric type LEVEL");
-  }
-
-  @Test
   public void test_condition_on_rating() {
     Metric metric = createMetric(RATING);
     Measure measure = newMeasureBuilder().create(4, "D");
@@ -211,9 +172,5 @@ public class ConditionEvaluatorTest {
 
   private static MetricImpl createMetric(MetricType metricType) {
     return new MetricImpl("1", "key", "name", metricType);
-  }
-
-  private static MetricImpl createNewMetric(MetricType metricType) {
-    return new MetricImpl("1", "new_key", "name", metricType);
   }
 }

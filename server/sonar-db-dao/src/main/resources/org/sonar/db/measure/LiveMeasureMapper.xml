@@ -9,8 +9,7 @@
     lm.metric_uuid as metricUuid,
     lm.value as value,
     lm.text_value as textValue,
-    lm.measure_data as data,
-    lm.variation as variation
+    lm.measure_data as data
   </sql>
 
   <select id="selectByComponentUuidsAndMetricUuids" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
@@ -118,7 +117,6 @@
     metric_uuid,
     value,
     text_value,
-    variation,
     measure_data,
     created_at,
     updated_at
@@ -129,7 +127,6 @@
     #{dto.metricUuid, jdbcType=VARCHAR},
     #{dto.value, jdbcType=DOUBLE},
     #{dto.textValue, jdbcType=VARCHAR},
-    #{dto.variation, jdbcType=DOUBLE},
     #{dto.data, jdbcType=BINARY},
     #{now, jdbcType=BIGINT},
     #{now, jdbcType=BIGINT}
@@ -139,7 +136,6 @@
   <update id="update" parameterType="map">
     update live_measures set
     value = #{dto.value, jdbcType=DOUBLE},
-    variation = #{dto.variation, jdbcType=DOUBLE},
     text_value = #{dto.textValue, jdbcType=VARCHAR},
     measure_data  = #{dto.data, jdbcType=BINARY},
     updated_at = #{now, jdbcType=BIGINT}
@@ -162,7 +158,6 @@
       metric_uuid,
       value,
       text_value,
-      variation,
       measure_data,
       created_at,
       updated_at
@@ -173,20 +168,17 @@
       #{dto.metricUuid, jdbcType=VARCHAR},
       #{dto.value, jdbcType=DOUBLE},
       #{dto.textValue, jdbcType=VARCHAR},
-      #{dto.variation, jdbcType=DOUBLE},
       #{dto.data, jdbcType=BINARY},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
     on conflict(component_uuid, metric_uuid) do update set
       value = excluded.value,
-      variation = excluded.variation,
       text_value = excluded.text_value,
       measure_data  = excluded.measure_data,
       updated_at = excluded.updated_at
     where
       live_measures.value is distinct from excluded.value or
-      live_measures.variation is distinct from excluded.variation or
       live_measures.text_value is distinct from excluded.text_value or
       live_measures.measure_data is distinct from excluded.measure_data
   </update>

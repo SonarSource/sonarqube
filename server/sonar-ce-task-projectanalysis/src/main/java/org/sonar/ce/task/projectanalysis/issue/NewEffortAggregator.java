@@ -90,8 +90,8 @@ public class NewEffortAggregator extends IssueVisitor {
   }
 
   private void computeMeasure(Component component, Metric metric, EffortSum effortSum) {
-    double variation = effortSum.isEmpty ? 0.0 : effortSum.newEffort;
-    measureRepository.add(component, metric, Measure.newMeasureBuilder().setVariation(variation).createNoValue());
+    long value = effortSum.isEmpty ? 0 : effortSum.newEffort;
+    measureRepository.add(component, metric, Measure.newMeasureBuilder().create(value));
   }
 
   private class NewEffortCounter {
@@ -135,19 +135,19 @@ public class NewEffortAggregator extends IssueVisitor {
   }
 
   private static class EffortSum {
-    private Double newEffort;
+    private Long newEffort;
     private boolean isEmpty = true;
 
     void add(long newEffort) {
-      double previous = MoreObjects.firstNonNull(this.newEffort, 0D);
+      long previous = MoreObjects.firstNonNull(this.newEffort, 0L);
       this.newEffort = previous + newEffort;
       isEmpty = false;
     }
 
     void add(EffortSum other) {
-      Double otherValue = other.newEffort;
+      Long otherValue = other.newEffort;
       if (otherValue != null) {
-        add(otherValue.longValue());
+        add(otherValue);
       }
     }
   }

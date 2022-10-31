@@ -39,82 +39,72 @@ public class LiveMeasureDtoToMeasure {
     String data = measureDto.getDataAsString();
     switch (metric.getType().getValueType()) {
       case INT:
-        return toIntegerMeasure(measureDto, value, data);
+        return toIntegerMeasure(value, data);
       case LONG:
-        return toLongMeasure(measureDto, value, data);
+        return toLongMeasure(value, data);
       case DOUBLE:
-        return toDoubleMeasure(measureDto, value, data);
+        return toDoubleMeasure(value, data);
       case BOOLEAN:
-        return toBooleanMeasure(measureDto, value, data);
+        return toBooleanMeasure(value, data);
       case STRING:
-        return toStringMeasure(measureDto, data);
+        return toStringMeasure(data);
       case LEVEL:
-        return toLevelMeasure(measureDto, data);
+        return toLevelMeasure(data);
       case NO_VALUE:
-        return toNoValueMeasure(measureDto);
+        return toNoValueMeasure();
       default:
         throw new IllegalArgumentException("Unsupported Measure.ValueType " + metric.getType().getValueType());
     }
   }
 
-  private static Optional<Measure> toIntegerMeasure(LiveMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
+  private static Optional<Measure> toIntegerMeasure(@Nullable Double value, @Nullable String data) {
     if (value == null) {
-      return toNoValueMeasure(measureDto);
+      return toNoValueMeasure();
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.intValue(), data));
+    return of(Measure.newMeasureBuilder().create(value.intValue(), data));
   }
 
-  private static Optional<Measure> toLongMeasure(LiveMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
+  private static Optional<Measure> toLongMeasure(@Nullable Double value, @Nullable String data) {
     if (value == null) {
-      return toNoValueMeasure(measureDto);
+      return toNoValueMeasure();
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.longValue(), data));
+    return of(Measure.newMeasureBuilder().create(value.longValue(), data));
   }
 
-  private static Optional<Measure> toDoubleMeasure(LiveMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
+  private static Optional<Measure> toDoubleMeasure(@Nullable Double value, @Nullable String data) {
     if (value == null) {
-      return toNoValueMeasure(measureDto);
+      return toNoValueMeasure();
     }
 
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto)
-      .create(value, org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE, data));
+    return of(Measure.newMeasureBuilder().create(value, org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE, data));
   }
 
-  private static Optional<Measure> toBooleanMeasure(LiveMeasureDto measureDto, @Nullable Double value, @Nullable String data) {
+  private static Optional<Measure> toBooleanMeasure(@Nullable Double value, @Nullable String data) {
     if (value == null) {
-      return toNoValueMeasure(measureDto);
+      return toNoValueMeasure();
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(Double.compare(value, 1.0D) == 0, data));
+    return of(Measure.newMeasureBuilder().create(Double.compare(value, 1.0D) == 0, data));
   }
 
-  private static Optional<Measure> toStringMeasure(LiveMeasureDto measureDto, @Nullable String data) {
+  private static Optional<Measure> toStringMeasure(@Nullable String data) {
     if (data == null) {
-      return toNoValueMeasure(measureDto);
+      return toNoValueMeasure();
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(data));
+    return of(Measure.newMeasureBuilder().create(data));
   }
 
-  private static Optional<Measure> toLevelMeasure(LiveMeasureDto measureDto, @Nullable String data) {
+  private static Optional<Measure> toLevelMeasure(@Nullable String data) {
     if (data == null) {
-      return toNoValueMeasure(measureDto);
+      return toNoValueMeasure();
     }
     Optional<Measure.Level> level = toLevel(data);
     if (!level.isPresent()) {
-      return toNoValueMeasure(measureDto);
+      return toNoValueMeasure();
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(level.get()));
+    return of(Measure.newMeasureBuilder().create(level.get()));
   }
 
-  private static Optional<Measure> toNoValueMeasure(LiveMeasureDto measureDto) {
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).createNoValue());
+  private static Optional<Measure> toNoValueMeasure() {
+    return of(Measure.newMeasureBuilder().createNoValue());
   }
-
-  private static Measure.NewMeasureBuilder setCommonProperties(Measure.NewMeasureBuilder builder, LiveMeasureDto measureDto) {
-    Double variation = measureDto.getVariation();
-    if (variation != null) {
-      builder.setVariation(variation);
-    }
-    return builder;
-  }
-
 }

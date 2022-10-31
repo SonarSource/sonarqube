@@ -158,7 +158,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
      */
     @Override
     public long getChildrenHotspotsReviewed() {
-      return getChildrenHotspotsReviewed(LiveMeasureDto::getValue, SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_HOTSPOTS_KEY);
+      return getChildrenHotspotsReviewed(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_HOTSPOTS_KEY);
     }
 
     /**
@@ -175,7 +175,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
 
     @Override
     public long getChildrenNewHotspotsReviewed() {
-      return getChildrenHotspotsReviewed(LiveMeasureDto::getVariation, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, NEW_SECURITY_HOTSPOTS_KEY);
+      return getChildrenHotspotsReviewed(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, NEW_SECURITY_HOTSPOTS_KEY);
     }
 
     /**
@@ -186,39 +186,32 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
       return componentIndex.getChildren(currentComponent)
         .stream()
         .map(c -> matrix.getMeasure(c, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY).or(() -> matrix.getMeasure(c, NEW_SECURITY_HOTSPOTS_KEY)))
-        .mapToLong(lmOpt -> lmOpt.flatMap(lm -> Optional.ofNullable(lm.getVariation())).orElse(0D).longValue())
+        .mapToLong(lmOpt -> lmOpt.flatMap(lm -> Optional.ofNullable(lm.getValue())).orElse(0D).longValue())
         .sum();
     }
 
-    private long getChildrenHotspotsReviewed(Function<LiveMeasureDto, Double> valueFunc, String metricKey, String percMetricKey, String hotspotsMetricKey) {
+    private long getChildrenHotspotsReviewed(String metricKey, String percMetricKey, String hotspotsMetricKey) {
       return componentIndex.getChildren(currentComponent)
         .stream()
-        .mapToLong(c -> getHotspotsReviewed(c, valueFunc, metricKey, percMetricKey, hotspotsMetricKey))
+        .mapToLong(c -> getHotspotsReviewed(c, metricKey, percMetricKey, hotspotsMetricKey))
         .sum();
     }
 
-    private long getHotspotsReviewed(ComponentDto c, Function<LiveMeasureDto, Double> valueFunc, String metricKey, String percMetricKey, String hotspotsMetricKey) {
+    private long getHotspotsReviewed(ComponentDto c, String metricKey, String percMetricKey, String hotspotsMetricKey) {
       Optional<LiveMeasureDto> measure = matrix.getMeasure(c, metricKey);
-      return measure.map(lm -> Optional.ofNullable(valueFunc.apply(lm)).orElse(0D).longValue())
+      return measure.map(lm -> Optional.ofNullable(lm.getValue()).orElse(0D).longValue())
         .orElseGet(() -> matrix.getMeasure(c, percMetricKey)
           .flatMap(percentage -> matrix.getMeasure(c, hotspotsMetricKey)
             .map(hotspots -> {
-              double perc = Optional.ofNullable(valueFunc.apply(percentage)).orElse(0D) / 100D;
-              double toReview = Optional.ofNullable(valueFunc.apply(hotspots)).orElse(0D);
+              double perc = Optional.ofNullable(percentage.getValue()).orElse(0D) / 100D;
+              double toReview = Optional.ofNullable(hotspots.getValue()).orElse(0D);
               double reviewed = (toReview * perc) / (1D - perc);
               return Math.round(reviewed);
             }))
           .orElse(0L));
     }
 
-    public List<Double> getChildrenLeakValues() {
-      List<ComponentDto> children = componentIndex.getChildren(currentComponent);
-      return children.stream()
-        .flatMap(c -> matrix.getMeasure(c, currentFormula.getMetric().getKey()).stream())
-        .map(LiveMeasureDto::getVariation)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-    }
+
 
     @Override
     public ComponentDto getComponent() {
@@ -243,37 +236,15 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
     }
 
     @Override
-    public Optional<Double> getLeakValue(Metric metric) {
-      Optional<LiveMeasureDto> measure = matrix.getMeasure(currentComponent, metric.getKey());
-      return measure.map(LiveMeasureDto::getVariation);
-    }
-
-    @Override
     public void setValue(double value) {
       String metricKey = currentFormula.getMetric().getKey();
-      checkState(!currentFormula.isOnLeak(), "Formula of metric %s accepts only leak values", metricKey);
       matrix.setValue(currentComponent, metricKey, value);
-    }
-
-    @Override
-    public void setLeakValue(double value) {
-      String metricKey = currentFormula.getMetric().getKey();
-      checkState(currentFormula.isOnLeak(), "Formula of metric %s does not accept leak values", metricKey);
-      matrix.setLeakValue(currentComponent, metricKey, value);
     }
 
     @Override
     public void setValue(Rating value) {
       String metricKey = currentFormula.getMetric().getKey();
-      checkState(!currentFormula.isOnLeak(), "Formula of metric %s accepts only leak values", metricKey);
       matrix.setValue(currentComponent, metricKey, value);
-    }
-
-    @Override
-    public void setLeakValue(Rating value) {
-      String metricKey = currentFormula.getMetric().getKey();
-      checkState(currentFormula.isOnLeak(), "Formula of metric %s does not accept leak values", metricKey);
-      matrix.setLeakValue(currentComponent, metricKey, value);
     }
   }
 }

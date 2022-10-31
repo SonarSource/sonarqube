@@ -32,12 +32,9 @@ public class MeasureDtoTest {
   public void test_getter_and_setter() {
     underTest
       .setValue(2d)
-      .setData("text value")
-      .setVariation(1d);
-
+      .setData("text value");
     assertThat(underTest.getValue()).isEqualTo(2d);
     assertThat(underTest.getData()).isNotNull();
-    assertThat(underTest.getVariation()).isEqualTo(1d);
   }
 
   @Test

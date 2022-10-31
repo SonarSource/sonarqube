@@ -144,18 +144,18 @@ public class ComponentTreeActionTest {
 
     MetricDto complexity = insertComplexityMetric();
     db.measures().insertLiveMeasure(file1, complexity, m -> m.setValue(12.0d));
-    db.measures().insertLiveMeasure(dir, complexity, m -> m.setValue(35.0d).setVariation(0.0d));
+    db.measures().insertLiveMeasure(dir, complexity, m -> m.setValue(35.0d));
     db.measures().insertLiveMeasure(project, complexity, m -> m.setValue(42.0d));
 
     MetricDto ncloc = insertNclocMetric();
     db.measures().insertLiveMeasure(file1, ncloc, m -> m.setValue(114.0d));
-    db.measures().insertLiveMeasure(dir, ncloc, m -> m.setValue(217.0d).setVariation(0.0d));
+    db.measures().insertLiveMeasure(dir, ncloc, m -> m.setValue(217.0d));
     db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(1984.0d));
 
     MetricDto newViolations = insertNewViolationsMetric();
-    db.measures().insertLiveMeasure(file1, newViolations, m -> m.setVariation(25.0d));
-    db.measures().insertLiveMeasure(dir, newViolations, m -> m.setVariation(25.0d));
-    db.measures().insertLiveMeasure(project, newViolations, m -> m.setVariation(255.0d));
+    db.measures().insertLiveMeasure(file1, newViolations, m -> m.setValue(25.0d));
+    db.measures().insertLiveMeasure(dir, newViolations, m -> m.setValue(25.0d));
+    db.measures().insertLiveMeasure(project, newViolations, m -> m.setValue(255.0d));
 
     db.commit();
 
@@ -202,7 +202,7 @@ public class ComponentTreeActionTest {
     MetricDto ncloc = insertNclocMetric();
     MetricDto coverage = insertCoverageMetric();
     db.commit();
-    db.measures().insertLiveMeasure(file, ncloc, m -> m.setValue(5.0d).setVariation(4.0d));
+    db.measures().insertLiveMeasure(file, ncloc, m -> m.setValue(5.0d));
     db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(15.5d));
     db.measures().insertLiveMeasure(directory, coverage, m -> m.setValue(15.5d));
 
@@ -287,9 +287,9 @@ public class ComponentTreeActionTest {
       .setKey("new_violations")
       .setValueType(INT.name())
       .setBestValue(null));
-    db.measures().insertLiveMeasure(file, matchingBestValue, m -> m.setValue(null).setData((String) null).setVariation(100d));
-    db.measures().insertLiveMeasure(file, doesNotMatchBestValue, m -> m.setValue(null).setData((String) null).setVariation(10d));
-    db.measures().insertLiveMeasure(file, noBestValue, m -> m.setValue(null).setData((String) null).setVariation(42.0d));
+    db.measures().insertLiveMeasure(file, matchingBestValue, m -> m.setData((String) null).setValue(100d));
+    db.measures().insertLiveMeasure(file, doesNotMatchBestValue, m -> m.setData((String) null).setValue(10d));
+    db.measures().insertLiveMeasure(file, noBestValue, m -> m.setData((String) null).setValue(42.0d));
 
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -333,7 +333,7 @@ public class ComponentTreeActionTest {
       .setBestValue(1d)
       .setValueType(RATING.name()));
     db.commit();
-    db.measures().insertLiveMeasure(directory, metric, m -> m.setVariation(2d));
+    db.measures().insertLiveMeasure(directory, metric, m -> m.setValue(2d));
 
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -434,11 +434,9 @@ public class ComponentTreeActionTest {
     db.components().insertComponent(file4);
     MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
-    db.measures().insertLiveMeasure(file1, ncloc, m -> m.setData((String) null).setValue(1.0d).setVariation(null));
-    db.measures().insertLiveMeasure(file2, ncloc, m -> m.setData((String) null).setValue(2.0d).setVariation(null));
-    db.measures().insertLiveMeasure(file3, ncloc, m -> m.setData((String) null).setValue(3.0d).setVariation(null));
-    // measure on period 1
-    db.measures().insertLiveMeasure(file4, ncloc, m -> m.setData((String) null).setValue(null).setVariation(4.0d));
+    db.measures().insertLiveMeasure(file1, ncloc, m -> m.setData((String) null).setValue(1.0d));
+    db.measures().insertLiveMeasure(file2, ncloc, m -> m.setData((String) null).setValue(2.0d));
+    db.measures().insertLiveMeasure(file3, ncloc, m -> m.setData((String) null).setValue(3.0d));
     db.commit();
 
     ComponentTreeWsResponse response = ws.newRequest()
@@ -466,9 +464,9 @@ public class ComponentTreeActionTest {
     MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     db.commit();
-    db.measures().insertLiveMeasure(file1, ncloc, m -> m.setVariation(1.0d));
-    db.measures().insertLiveMeasure(file2, ncloc, m -> m.setVariation(2.0d));
-    db.measures().insertLiveMeasure(file3, ncloc, m -> m.setVariation(3.0d));
+    db.measures().insertLiveMeasure(file1, ncloc, m -> m.setValue(1.0d));
+    db.measures().insertLiveMeasure(file2, ncloc, m -> m.setValue(2.0d));
+    db.measures().insertLiveMeasure(file3, ncloc, m -> m.setValue(3.0d));
 
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -492,11 +490,9 @@ public class ComponentTreeActionTest {
     ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "file-uuid-1").setKey("file-1-key"));
     MetricDto ncloc = newMetricDto().setKey("new_ncloc").setValueType(INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
-    db.measures().insertLiveMeasure(file1, ncloc, m -> m.setData((String) null).setValue(null).setVariation(1.0d));
-    db.measures().insertLiveMeasure(file2, ncloc, m -> m.setData((String) null).setValue(null).setVariation(2.0d));
-    db.measures().insertLiveMeasure(file3, ncloc, m -> m.setData((String) null).setValue(null).setVariation(3.0d));
-    // file 4 measure is on absolute value
-    db.measures().insertLiveMeasure(file4, ncloc, m -> m.setData((String) null).setValue(4.0d).setVariation(null));
+    db.measures().insertLiveMeasure(file1, ncloc, m -> m.setData((String) null).setValue(1.0d));
+    db.measures().insertLiveMeasure(file2, ncloc, m -> m.setData((String) null).setValue(2.0d));
+    db.measures().insertLiveMeasure(file3, ncloc, m -> m.setData((String) null).setValue(3.0d));
     db.commit();
 
     ComponentTreeWsResponse response = ws.newRequest()

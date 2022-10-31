@@ -85,7 +85,7 @@ public class NewEffortAggregatorTest {
     underTest.onIssue(FILE, resolved);
     underTest.afterComponent(FILE);
 
-    assertVariation(FILE, NEW_TECHNICAL_DEBT_KEY, 10 + 30);
+    assertValue(FILE, NEW_TECHNICAL_DEBT_KEY, 10 + 30);
   }
 
   @Test
@@ -110,7 +110,7 @@ public class NewEffortAggregatorTest {
     underTest.afterComponent(FILE);
 
     // Only effort of CODE SMELL issue is used
-    assertVariation(FILE, NEW_TECHNICAL_DEBT_KEY, 10);
+    assertValue(FILE, NEW_TECHNICAL_DEBT_KEY, 10);
   }
 
   @Test
@@ -134,7 +134,7 @@ public class NewEffortAggregatorTest {
     underTest.onIssue(FILE, resolved);
     underTest.afterComponent(FILE);
 
-    assertVariation(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 10 + 30);
+    assertValue(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 10 + 30);
   }
 
   @Test
@@ -159,7 +159,7 @@ public class NewEffortAggregatorTest {
     underTest.afterComponent(FILE);
 
     // Only effort of BUG issue is used
-    assertVariation(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 15);
+    assertValue(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 15);
   }
 
   @Test
@@ -183,7 +183,7 @@ public class NewEffortAggregatorTest {
     underTest.onIssue(FILE, oldResolved);
     underTest.afterComponent(FILE);
 
-    assertVariation(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 10 + 30);
+    assertValue(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 10 + 30);
   }
 
   @Test
@@ -208,7 +208,7 @@ public class NewEffortAggregatorTest {
     underTest.afterComponent(FILE);
 
     // Only effort of VULNERABILITY issue is used
-    assertVariation(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 12);
+    assertValue(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 12);
   }
 
   @Test
@@ -247,9 +247,9 @@ public class NewEffortAggregatorTest {
     underTest.onIssue(PROJECT, oldVulnerabilityProjectIssue);
     underTest.afterComponent(PROJECT);
 
-    assertVariation(PROJECT, NEW_TECHNICAL_DEBT_KEY, 10 + 30);
-    assertVariation(PROJECT, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 8 + 28);
-    assertVariation(PROJECT, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 12 + 32);
+    assertValue(PROJECT, NEW_TECHNICAL_DEBT_KEY, 10 + 30);
+    assertValue(PROJECT, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 8 + 28);
+    assertValue(PROJECT, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 12 + 32);
   }
 
   @Test
@@ -275,15 +275,14 @@ public class NewEffortAggregatorTest {
     underTest.beforeComponent(FILE);
     underTest.afterComponent(FILE);
 
-    assertVariation(FILE, NEW_TECHNICAL_DEBT_KEY, 0);
-    assertVariation(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 0);
-    assertVariation(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 0);
+    assertValue(FILE, NEW_TECHNICAL_DEBT_KEY, 0);
+    assertValue(FILE, NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, 0);
+    assertValue(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 0);
   }
 
-  private void assertVariation(Component component, String metricKey, int variation) {
+  private void assertValue(Component component, String metricKey, int value) {
     Measure newMeasure = measureRepository.getRawMeasure(component, metricRepository.getByKey(metricKey)).get();
-    assertThat(newMeasure.getVariation()).isEqualTo(variation);
-    assertThat(newMeasure.getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
+    assertThat(newMeasure.getLongValue()).isEqualTo(value);
   }
 
   private DefaultIssue newCodeSmellIssue(long effort) {

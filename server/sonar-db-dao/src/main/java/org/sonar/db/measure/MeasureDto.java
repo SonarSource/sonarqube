@@ -31,7 +31,6 @@ public class MeasureDto {
   private Double value;
   private String textValue;
   private byte[] dataValue;
-  private Double variation;
   private String alertStatus;
   private String alertText;
   private String componentUuid;
@@ -89,16 +88,6 @@ public class MeasureDto {
   }
 
   @CheckForNull
-  public Double getVariation() {
-    return variation;
-  }
-
-  public MeasureDto setVariation(@Nullable Double d) {
-    variation = d;
-    return this;
-  }
-
-  @CheckForNull
   public String getAlertStatus() {
     return alertStatus;
   }
@@ -142,7 +131,6 @@ public class MeasureDto {
       .add("value", value)
       .add("textValue", textValue)
       .add("dataValue", dataValue)
-      .add("variation", variation)
       .add("alertStatus", alertStatus)
       .add("alertText", alertText)
       .add("componentUuid", componentUuid)

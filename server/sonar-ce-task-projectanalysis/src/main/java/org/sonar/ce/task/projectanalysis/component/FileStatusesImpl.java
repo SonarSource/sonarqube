@@ -22,6 +22,8 @@ package org.sonar.ce.task.projectanalysis.component;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.source.SourceHashRepository;
 import org.sonar.db.source.FileHashesDto;
@@ -30,11 +32,14 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class FileStatusesImpl implements FileStatuses {
+  private static final Logger LOG = Loggers.get(FileStatusesImpl.class);
+
   private final PreviousSourceHashRepository previousSourceHashRepository;
   private final SourceHashRepository sourceHashRepository;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TreeRootHolder treeRootHolder;
   private Set<String> fileUuidsMarkedAsUnchanged;
+  private int notMarkedAsUnchanged = 0;
 
   public FileStatusesImpl(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder treeRootHolder, PreviousSourceHashRepository previousSourceHashRepository,
     SourceHashRepository sourceHashRepository) {
@@ -49,6 +54,8 @@ public class FileStatusesImpl implements FileStatuses {
     if (!analysisMetadataHolder.isPullRequest() && !analysisMetadataHolder.isFirstAnalysis()) {
       new DepthTraversalTypeAwareCrawler(new Visitor()).visit(treeRootHolder.getRoot());
     }
+    LOG.warn("FILES MARKED AS UNCHANGED: " + fileUuidsMarkedAsUnchanged.size());
+    LOG.warn("FILES NOT MARKED AS UNCHANGED: " + notMarkedAsUnchanged);
   }
 
   private class Visitor extends TypeAwareVisitorAdapter {
@@ -68,8 +75,11 @@ public class FileStatusesImpl implements FileStatuses {
       if (canTrustUnchangedFlags) {
         if (file.getFileAttributes().isMarkedAsUnchanged()) {
           fileUuidsMarkedAsUnchanged.add(file.getUuid());
+        } else {
+          notMarkedAsUnchanged++;
         }
       } else {
+        LOG.error("FILE HAS DIFFERENT HASH: " + file.getName());
         fileUuidsMarkedAsUnchanged.clear();
       }
     }

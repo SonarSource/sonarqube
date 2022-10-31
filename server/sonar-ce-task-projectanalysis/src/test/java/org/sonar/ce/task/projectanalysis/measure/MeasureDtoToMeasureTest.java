@@ -298,29 +298,6 @@ public class MeasureDtoToMeasureTest {
   }
 
   @Test
-  @UseDataProvider("all_types_MeasureDtos")
-  public void toMeasure_creates_no_MeasureVariation_if_dto_has_none_whichever_the_ValueType(MeasureDto measureDto, Metric metric) {
-    assertThat(underTest.toMeasure(measureDto, metric).get().hasVariation()).isFalse();
-  }
-
-  @Test
-  @UseDataProvider("all_types_MeasureDtos")
-  public void toMeasure_creates_MeasureVariation_and_maps_the_right_one(MeasureDto builder, Metric metric) {
-    assertThat(underTest.toMeasure(builder.setVariation(1d), metric).get().getVariation()).isOne();
-  }
-
-  @Test
-  public void toMeasure_creates_MeasureVariation_and_maps_the_right_one() {
-    MeasureDto measureDto = new MeasureDto()
-      .setData("1")
-      .setVariation(2d);
-
-    Optional<Measure> measure = underTest.toMeasure(measureDto, SOME_STRING_METRIC);
-
-    assertThat(measure.get().getVariation()).isEqualTo(2);
-  }
-
-  @Test
   public void toMeasure_should_not_loose_decimals_of_float_values() {
     MetricImpl metric = new MetricImpl("42", "double", "name", Metric.MetricType.FLOAT, 5, null, false, false);
     MeasureDto measureDto = new MeasureDto()

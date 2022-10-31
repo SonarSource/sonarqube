@@ -121,7 +121,7 @@ class ConditionEvaluator {
   @CheckForNull
   private static Comparable getLeakValue(QualityGateEvaluator.Measure measure) {
     if (NUMERICAL_TYPES.contains(measure.getType())) {
-      return measure.getNewMetricValue().isPresent() ? getNumericValue(measure.getType(), measure.getNewMetricValue().getAsDouble()) : null;
+      return measure.getValue().isPresent() ? getNumericValue(measure.getType(), measure.getValue().getAsDouble()) : null;
     }
 
     throw new IllegalArgumentException("Condition on leak period is not allowed for type " + measure.getType());

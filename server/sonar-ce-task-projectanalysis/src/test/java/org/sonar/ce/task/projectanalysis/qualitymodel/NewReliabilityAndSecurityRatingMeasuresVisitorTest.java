@@ -322,8 +322,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   private void verifyAddedRawMeasureOnLeakPeriod(int componentRef, String metricKey, Rating rating) {
-    MeasureAssert.assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey))
-      .hasVariation(rating.getIndex());
+    MeasureAssert.assertThat(measureRepository.getAddedRawMeasure(componentRef, metricKey)).hasValue(rating.getIndex());
   }
 
   private DefaultIssue newBugIssue(long effort, String severity) {

@@ -136,13 +136,12 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   @Test
   public void measures_on_new_code_period_are_persisted() {
     prepareProject();
-    measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().setVariation(42.0).createNoValue());
+    measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().create(42.0));
 
     TestComputationStepContext context = execute();
 
     MeasureDto persistedMeasure = selectMeasure("project-uuid", INT_METRIC).get();
-    assertThat(persistedMeasure.getValue()).isNull();
-    assertThat(persistedMeasure.getVariation()).isEqualTo(42.0);
+    assertThat(persistedMeasure.getValue()).isEqualTo(42.0);
     assertNbOfInserts(context, 1);
   }
 

@@ -38,28 +38,13 @@ public class BestValueOptimizationTest {
   private static final String SOME_DATA = "some_data";
   private static final MetricImpl METRIC_BOOLEAN_FALSE = createMetric(Metric.MetricType.BOOL, 6d);
   private static final MetricImpl METRIC_BOOLEAN_TRUE = createMetric(Metric.MetricType.BOOL, 1d);
-  private static final double SOME_EMPTY_VARIATIONS = 0d;
-
-  private static Measure.NewMeasureBuilder[] builders_of_non_bestValueOptimized_measures() {
-    QualityGateStatus someQualityGateStatus = new QualityGateStatus(Measure.Level.ERROR, null);
-    double someVariations = 2d;
-    return new Measure.NewMeasureBuilder[] {
-      newMeasureBuilder().setQualityGateStatus(someQualityGateStatus),
-      newMeasureBuilder().setQualityGateStatus(someQualityGateStatus).setVariation(someVariations),
-      newMeasureBuilder().setVariation(someVariations),
-      newMeasureBuilder().setQualityGateStatus(someQualityGateStatus),
-      newMeasureBuilder().setQualityGateStatus(someQualityGateStatus).setVariation(someVariations),
-    };
-  }
 
   @Test
   public void apply_returns_true_for_value_true_for_Boolean_Metric_and_best_value_1() {
     Predicate<Measure> underTest = BestValueOptimization.from(METRIC_BOOLEAN_TRUE, FILE_COMPONENT);
 
     assertThat(underTest.test(newMeasureBuilder().create(true))).isTrue();
-    assertThat(underTest.test(newMeasureBuilder().setVariation(SOME_EMPTY_VARIATIONS).create(true))).isTrue();
     assertThat(underTest.test(newMeasureBuilder().create(false))).isFalse();
-    assertThat(underTest.test(newMeasureBuilder().setVariation(SOME_EMPTY_VARIATIONS).create(false))).isFalse();
   }
 
   @Test
@@ -74,10 +59,9 @@ public class BestValueOptimizationTest {
   public void apply_returns_false_if_measure_has_anything_else_than_value_for_Boolean_Metric_and_best_value_1() {
     Predicate<Measure> underTest = BestValueOptimization.from(METRIC_BOOLEAN_TRUE, FILE_COMPONENT);
 
-    for (Measure.NewMeasureBuilder builder : builders_of_non_bestValueOptimized_measures()) {
-      assertThat(underTest.test(builder.create(true))).isFalse();
-      assertThat(underTest.test(builder.create(false))).isFalse();
-    }
+    Measure.NewMeasureBuilder builder = newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(Measure.Level.ERROR, null));
+    assertThat(underTest.test(builder.create(true))).isFalse();
+    assertThat(underTest.test(builder.create(false))).isFalse();
   }
 
   @Test
@@ -94,7 +78,6 @@ public class BestValueOptimizationTest {
 
     assertThat(underTest.test(newMeasureBuilder().create(true))).isFalse();
     assertThat(underTest.test(newMeasureBuilder().create(false))).isTrue();
-    assertThat(underTest.test(newMeasureBuilder().setVariation(SOME_EMPTY_VARIATIONS).create(false))).isTrue();
   }
 
   @Test
@@ -109,10 +92,9 @@ public class BestValueOptimizationTest {
   public void apply_returns_false_if_measure_has_anything_else_than_value_for_Boolean_Metric_and_best_value_not_1() {
     Predicate<Measure> underTest = BestValueOptimization.from(METRIC_BOOLEAN_FALSE, FILE_COMPONENT);
 
-    for (Measure.NewMeasureBuilder builder : builders_of_non_bestValueOptimized_measures()) {
-      assertThat(underTest.test(builder.create(true))).isFalse();
-      assertThat(underTest.test(builder.create(false))).isFalse();
-    }
+    Measure.NewMeasureBuilder builder = newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(Measure.Level.ERROR, null));
+    assertThat(underTest.test(builder.create(true))).isFalse();
+    assertThat(underTest.test(builder.create(false))).isFalse();
   }
 
   @Test
@@ -128,7 +110,6 @@ public class BestValueOptimizationTest {
     Predicate<Measure> underTest = BestValueOptimization.from(createMetric(Metric.MetricType.INT, 10), FILE_COMPONENT);
 
     assertThat(underTest.test(newMeasureBuilder().create(10))).isTrue();
-    assertThat(underTest.test(newMeasureBuilder().setVariation(SOME_EMPTY_VARIATIONS).create(10))).isTrue();
     assertThat(underTest.test(newMeasureBuilder().create(11))).isFalse();
   }
 
@@ -137,7 +118,6 @@ public class BestValueOptimizationTest {
     Predicate<Measure> underTest = BestValueOptimization.from(createMetric(Metric.MetricType.WORK_DUR, 9511L), FILE_COMPONENT);
 
     assertThat(underTest.test(newMeasureBuilder().create(9511L))).isTrue();
-    assertThat(underTest.test(newMeasureBuilder().setVariation(SOME_EMPTY_VARIATIONS).create(9511L))).isTrue();
     assertThat(underTest.test(newMeasureBuilder().create(963L))).isFalse();
   }
 
@@ -146,9 +126,7 @@ public class BestValueOptimizationTest {
     Predicate<Measure> underTest = BestValueOptimization.from(createMetric(Metric.MetricType.RATING, A.getIndex()), FILE_COMPONENT);
 
     assertThat(underTest.test(newMeasureBuilder().create(A.getIndex()))).isTrue();
-    assertThat(underTest.test(newMeasureBuilder().setVariation(A.getIndex()).createNoValue())).isTrue();
     assertThat(underTest.test(newMeasureBuilder().create(B.getIndex()))).isFalse();
-    assertThat(underTest.test(newMeasureBuilder().setVariation(B.getIndex()).createNoValue())).isFalse();
   }
 
   @Test
@@ -156,7 +134,6 @@ public class BestValueOptimizationTest {
     Predicate<Measure> underTest = BestValueOptimization.from(createMetric(Metric.MetricType.FLOAT, 36.5d), FILE_COMPONENT);
 
     assertThat(underTest.test(newMeasureBuilder().create(36.5d, 1))).isTrue();
-    assertThat(underTest.test(newMeasureBuilder().setVariation(SOME_EMPTY_VARIATIONS).create(36.5d, 1))).isTrue();
     assertThat(underTest.test(newMeasureBuilder().create(36.6d, 1))).isFalse();
   }
 

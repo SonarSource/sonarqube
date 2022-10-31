@@ -110,11 +110,11 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
     }
     double density = computeDensity(path.current());
     double newDebtRatio = 100.0 * density;
-    double newMaintainability = ratingSettings.getDebtRatingGrid().getRatingForDensity(density).getIndex();
-    long newDevelopmentCost = path.current().getDevCost().getValue();
-    measureRepository.add(component, this.newDevelopmentCostMetric, newMeasureBuilder().setVariation(newDevelopmentCost).createNoValue());
-    measureRepository.add(component, this.newDebtRatioMetric, newMeasureBuilder().setVariation(newDebtRatio).createNoValue());
-    measureRepository.add(component, this.newMaintainabilityRatingMetric, newMeasureBuilder().setVariation(newMaintainability).createNoValue());
+    int newMaintainability = ratingSettings.getDebtRatingGrid().getRatingForDensity(density).getIndex();
+    float newDevelopmentCost = path.current().getDevCost().getValue();
+    measureRepository.add(component, this.newDevelopmentCostMetric, newMeasureBuilder().create(newDevelopmentCost));
+    measureRepository.add(component, this.newDebtRatioMetric, newMeasureBuilder().create(newDebtRatio));
+    measureRepository.add(component, this.newMaintainabilityRatingMetric, newMeasureBuilder().create(newMaintainability));
   }
 
   private static double computeDensity(Counter counter) {
@@ -133,10 +133,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   }
 
   private static long getLongValue(Measure measure) {
-    if (measure.hasVariation()) {
-      return (long) measure.getVariation();
-    }
-    return 0L;
+    return measure.getLongValue();
   }
 
   private void initNewDebtRatioCounter(Component file, Path<Counter> path) {

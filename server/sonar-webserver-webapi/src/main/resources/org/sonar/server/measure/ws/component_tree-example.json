@@ -78,17 +78,11 @@
         },
         {
           "metric": "complexity",
-          "value": "35",
-          "period": {
-            "value": "0"
-          }
+          "value": "35"
         },
         {
           "metric": "ncloc",
-          "value": "217",
-          "period": {
-            "value": "0"
-          }
+          "value": "217"
         }
       ]
     }

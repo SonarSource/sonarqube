@@ -129,17 +129,10 @@ public class SearchHistoryResult {
   }
 
   private static MeasureDto toBestValue(MetricDto metric, SnapshotDto analysis) {
-    MeasureDto measure = new MeasureDto()
+    return new MeasureDto()
       .setMetricUuid(metric.getUuid())
-      .setAnalysisUuid(analysis.getUuid());
-
-    if (metric.getKey().startsWith("new_")) {
-      measure.setVariation(metric.getBestValue());
-    } else {
-      measure.setValue(metric.getBestValue());
-    }
-
-    return measure;
+      .setAnalysisUuid(analysis.getUuid())
+      .setValue(metric.getBestValue());
   }
 
   Common.Paging getPaging() {

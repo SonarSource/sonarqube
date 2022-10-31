@@ -8,12 +8,6 @@
     {
       "metric": "complexity",
       "value": "35",
-      "periods": [
-        {
-          "index": 1,
-          "value": "0"
-        }
-      ],
       "component": "MY_PROJECT_2"
     },
     {
@@ -29,12 +23,6 @@
     {
       "metric": "ncloc",
       "value": "217",
-      "periods": [
-        {
-          "index": 1,
-          "value": "0"
-        }
-      ],
       "component": "MY_PROJECT_2"
     },
     {

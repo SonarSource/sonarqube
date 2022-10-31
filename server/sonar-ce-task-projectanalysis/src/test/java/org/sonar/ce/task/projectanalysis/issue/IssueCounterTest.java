@@ -34,7 +34,6 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.rule.RuleTesting;
 
@@ -284,9 +283,9 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertVariations(FILE1, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertValues(FILE1, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_CODE_SMELLS_KEY, 1), entry(NEW_BUGS_KEY, 1), entry(NEW_VULNERABILITIES_KEY, 0), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
-    assertVariations(PROJECT, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertValues(PROJECT, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_CODE_SMELLS_KEY, 1), entry(NEW_BUGS_KEY, 1), entry(NEW_VULNERABILITIES_KEY, 0), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
   }
 
@@ -339,18 +338,17 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertVariations(FILE1, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertValues(FILE1, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_VULNERABILITIES_KEY, 0));
-    assertVariations(PROJECT, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertValues(PROJECT, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_VULNERABILITIES_KEY, 0));
   }
 
   @SafeVarargs
-  private final void assertVariations(Component componentRef, MapEntry<String, Integer>... entries) {
+  private final void assertValues(Component componentRef, MapEntry<String, Integer>... entries) {
     assertThat(measureRepository.getRawMeasures(componentRef).entrySet()
       .stream()
-      .filter(e -> e.getValue().hasVariation())
-      .map(e -> entry(e.getKey(), (int) e.getValue().getVariation())))
+      .map(e -> entry(e.getKey(), e.getValue().getIntValue())))
       .contains(entries);
   }
 
@@ -392,9 +390,4 @@ public class IssueCounterTest {
   private DefaultIssue createNewSecurityHotspot() {
     return createNewIssue(null, STATUS_OPEN, "MAJOR", RuleType.SECURITY_HOTSPOT);
   }
-
-  private static Period newPeriod(long date) {
-    return new Period("mode", null, date);
-  }
-
 }

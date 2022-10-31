@@ -64,7 +64,7 @@ import static org.sonar.ce.task.projectanalysis.measure.MeasureAssert.assertThat
 import static org.sonar.server.measure.Rating.A;
 import static org.sonar.server.measure.Rating.D;
 
-public class NewMaintainabilityMeasuresVisitorTest {
+public class  NewMaintainabilityMeasuresVisitorTest {
 
   private static final double[] RATING_GRID = new double[] {0.1, 0.2, 0.5, 1};
 
@@ -72,7 +72,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
   private static final long LANGUAGE_1_DEV_COST = 30L;
   private static final int ROOT_REF = 1;
   private static final int LANGUAGE_1_FILE_REF = 11111;
-  private static final Offset<Double> VARIATION_COMPARISON_OFFSET = Offset.offset(0.01);
+  private static final Offset<Double> VALUE_COMPARISON_OFFSET = Offset.offset(0.01);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
@@ -422,8 +422,8 @@ public class NewMaintainabilityMeasuresVisitorTest {
     return ReportComponent.builder(type, ref).setKey(String.valueOf(ref));
   }
 
-  private Measure createNewDebtMeasure(double variation) {
-    return newMeasureBuilder().setVariation(variation).createNoValue();
+  private Measure createNewDebtMeasure(long value) {
+    return newMeasureBuilder().create(value);
   }
 
   private static Measure createNclocDataMeasure(Integer... nclocLines) {
@@ -449,16 +449,16 @@ public class NewMaintainabilityMeasuresVisitorTest {
       .isAbsent();
   }
 
-  private void assertNewDebtRatioValues(int componentRef, double expectedVariation) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SQALE_DEBT_RATIO_KEY)).hasVariation(expectedVariation, VARIATION_COMPARISON_OFFSET);
+  private void assertNewDebtRatioValues(int componentRef, double expectedValue) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SQALE_DEBT_RATIO_KEY)).hasValue(expectedValue, VALUE_COMPARISON_OFFSET);
   }
 
-  private void assertNewDevelopmentCostValues(int componentRef, long expectedVariation) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_DEVELOPMENT_COST_KEY)).hasVariation(expectedVariation, VARIATION_COMPARISON_OFFSET);
+  private void assertNewDevelopmentCostValues(int componentRef, float expectedValue) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_DEVELOPMENT_COST_KEY)).hasValue(expectedValue, VALUE_COMPARISON_OFFSET);
   }
 
-  private void assertNewMaintainability(int componentRef, Rating expectedVariation) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_MAINTAINABILITY_RATING_KEY)).hasVariation(expectedVariation.getIndex());
+  private void assertNewMaintainability(int componentRef, Rating expectedValue) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_MAINTAINABILITY_RATING_KEY)).hasValue(expectedValue.getIndex());
   }
 
   private void assertNoNewMaintainability(int componentRef) {

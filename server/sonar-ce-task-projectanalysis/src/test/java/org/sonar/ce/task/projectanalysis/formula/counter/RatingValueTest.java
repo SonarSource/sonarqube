@@ -32,22 +32,22 @@ public class RatingValueTest {
 
   @Test
   public void newly_created_value_is_unset_and_has_value_0() {
-    verifyUnsetVariationValue(new RatingValue());
+    verifyUnsetValue(new RatingValue());
   }
 
   @Test
   public void increment_sets_value_and_increments_value() {
-    verifySetVariationValue(new RatingValue().increment(B), B);
+    verifySetValue(new RatingValue().increment(B), B);
   }
 
   @Test
   public void increment_has_no_effect_if_arg_is_null() {
-    verifyUnsetVariationValue(new RatingValue().increment((RatingValue) null));
+    verifyUnsetValue(new RatingValue().increment((RatingValue) null));
   }
 
   @Test
   public void increment_has_no_effect_if_arg_is_unset() {
-    verifyUnsetVariationValue(new RatingValue().increment(new RatingValue()));
+    verifyUnsetValue(new RatingValue().increment(new RatingValue()));
   }
 
   @Test
@@ -55,7 +55,7 @@ public class RatingValueTest {
     RatingValue source = new RatingValue().increment(B);
     RatingValue target = new RatingValue().increment(source);
 
-    verifySetVariationValue(target, B);
+    verifySetValue(target, B);
   }
 
   @Test
@@ -64,7 +64,7 @@ public class RatingValueTest {
       .increment(new RatingValue().increment(B))
       .increment(new RatingValue().increment(D));
 
-    verifySetVariationValue(target, D);
+    verifySetValue(target, D);
   }
 
   @Test
@@ -73,17 +73,17 @@ public class RatingValueTest {
       .increment(B)
       .increment(C);
 
-    verifySetVariationValue(variationValue, C);
+    verifySetValue(variationValue, C);
   }
 
-  private static void verifyUnsetVariationValue(RatingValue variationValue) {
-    assertThat(variationValue.isSet()).isFalse();
-    assertThat(variationValue.getValue()).isEqualTo(A);
+  private static void verifyUnsetValue(RatingValue ratingValue) {
+    assertThat(ratingValue.isSet()).isFalse();
+    assertThat(ratingValue.getValue()).isEqualTo(A);
   }
 
-  private static void verifySetVariationValue(RatingValue variationValue, Rating expected) {
-    assertThat(variationValue.isSet()).isTrue();
-    assertThat(variationValue.getValue()).isEqualTo(expected);
+  private static void verifySetValue(RatingValue ratingValue, Rating expected) {
+    assertThat(ratingValue.isSet()).isTrue();
+    assertThat(ratingValue.getValue()).isEqualTo(expected);
   }
 
 }

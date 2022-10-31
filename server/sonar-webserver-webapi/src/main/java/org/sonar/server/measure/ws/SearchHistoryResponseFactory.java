@@ -35,7 +35,6 @@ import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryValue;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatMeasureValue;
-import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalValue;
 
 class SearchHistoryResponseFactory {
   private final SearchHistoryResult result;
@@ -105,9 +104,7 @@ class SearchHistoryResponseFactory {
 
   private SnapshotDto addValue(SnapshotDto analysis, MetricDto dbMetric, @Nullable MeasureDto dbMeasure) {
     if (dbMeasure != null) {
-      String measureValue = dbMetric.getKey().startsWith("new_")
-        ? formatNumericalValue(dbMeasure.getVariation(), dbMetric)
-        : formatMeasureValue(dbMeasure, dbMetric);
+      String measureValue = formatMeasureValue(dbMeasure, dbMetric);
       if (measureValue != null) {
         value.setValue(measureValue);
       }

@@ -79,18 +79,18 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private static final String PROJECT_FILTER = " AND p.uuid=?";
 
-  private static final String SQL_MEASURES = "SELECT m.name, pm.value, pm.variation, pm.text_value FROM live_measures pm " +
+  private static final String SQL_MEASURES = "SELECT m.name, pm.value, pm.text_value FROM live_measures pm " +
     "INNER JOIN metrics m ON m.uuid = pm.metric_uuid " +
     "WHERE pm.component_uuid = ? " +
     "AND m.name IN ({metricNames}) " +
-    "AND (pm.value IS NOT NULL OR pm.variation IS NOT NULL OR pm.text_value IS NOT NULL) " +
+    "AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL) " +
     "AND m.enabled = ? ";
 
-  private static final String SQL_NCLOC_LANGUAGE_DISTRIBUTION = "SELECT m.name, pm.value, pm.variation, pm.text_value FROM live_measures pm " +
+  private static final String SQL_NCLOC_LANGUAGE_DISTRIBUTION = "SELECT m.name, pm.value, pm.text_value FROM live_measures pm " +
     "INNER JOIN metrics m ON m.uuid = pm.metric_uuid " +
     "WHERE pm.component_uuid = ? " +
     "AND m.name = ? " +
-    "AND (pm.value IS NOT NULL OR pm.variation IS NOT NULL OR pm.text_value IS NOT NULL) " +
+    "AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL) " +
     "AND m.enabled = ? ";
 
   private static final String SQL_PROJECT_BRANCHES = "SELECT uuid FROM project_branches pb " +
@@ -109,8 +109,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private static final boolean ENABLED = true;
   private static final int FIELD_METRIC_NAME = 1;
   private static final int FIELD_MEASURE_VALUE = 2;
-  private static final int FIELD_MEASURE_VARIATION = 3;
-  private static final int FIELD_MEASURE_TEXT_VALUE = 4;
+  private static final int FIELD_MEASURE_TEXT_VALUE = 3;
 
   private final DbSession dbSession;
   private final PreparedStatement measuresStatement;
@@ -310,7 +309,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private static void readMeasure(ResultSet rs, Measures measures) throws SQLException {
     String metricKey = rs.getString(FIELD_METRIC_NAME);
-    Optional<Double> value = metricKey.startsWith("new_") ? getDouble(rs, FIELD_MEASURE_VARIATION) : getDouble(rs, FIELD_MEASURE_VALUE);
+    Optional<Double> value = getDouble(rs, FIELD_MEASURE_VALUE);
     if (value.isPresent()) {
       measures.addNumericMeasure(metricKey, value.get());
       return;

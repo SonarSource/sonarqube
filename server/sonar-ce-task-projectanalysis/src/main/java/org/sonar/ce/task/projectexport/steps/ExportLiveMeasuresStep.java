@@ -36,7 +36,7 @@ import static org.sonar.db.DatabaseUtils.getString;
 
 public class ExportLiveMeasuresStep implements ComputationStep {
 
-  private static final String QUERY = "select pm.metric_uuid, pm.component_uuid, pm.text_value, pm.value, pm.variation" +
+  private static final String QUERY = "select pm.metric_uuid, pm.component_uuid, pm.text_value, pm.value, m.name" +
     " from live_measures pm" +
     " join metrics m on m.uuid=pm.metric_uuid" +
     " join components p on p.uuid = pm.component_uuid" +
@@ -95,12 +95,13 @@ public class ExportLiveMeasuresStep implements ComputationStep {
       .setComponentRef(componentRef)
       .setTextValue(defaultString(getString(rs, 3)));
     Double value = getDouble(rs, 4);
-    if (value != null) {
-      builder.setDoubleValue(doubleBuilder.setValue(value).build());
-    }
-    Double variation = getDouble(rs, 5);
-    if (variation != null) {
-      builder.setVariation(doubleBuilder.setValue(variation).build());
+    String metricKey = getString(rs, 5);
+    if (value != null && metricKey != null) {
+      if (metricKey.startsWith("new_")) {
+        builder.setVariation(doubleBuilder.setValue(value).build());
+      } else {
+        builder.setDoubleValue(doubleBuilder.setValue(value).build());
+      }
     }
     return builder.build();
   }

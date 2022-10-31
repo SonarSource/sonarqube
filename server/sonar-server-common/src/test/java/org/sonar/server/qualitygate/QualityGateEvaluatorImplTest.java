@@ -39,7 +39,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
-import static org.sonar.server.qualitygate.FakeMeasure.newMeasureOnLeak;
 
 public class QualityGateEvaluatorImplTest {
   private final MapSettings settings = new MapSettings();
@@ -97,7 +96,7 @@ public class QualityGateEvaluatorImplTest {
 
     QualityGate gate = mock(QualityGate.class);
     when(gate.getConditions()).thenReturn(singleton(condition));
-    QualityGateEvaluator.Measures measures = key -> Optional.of(newMeasureOnLeak(1));
+    QualityGateEvaluator.Measures measures = key -> Optional.of(new FakeMeasure(1));
 
     assertThat(underTest.evaluate(gate, measures, configuration).getStatus()).isEqualTo(Metric.Level.ERROR);
   }
@@ -107,12 +106,12 @@ public class QualityGateEvaluatorImplTest {
     Condition condition = new Condition(NEW_DUPLICATED_LINES_KEY, Condition.Operator.GREATER_THAN, "0");
 
     Map<String, QualityGateEvaluator.Measure> notSmallChange = new HashMap<>();
-    notSmallChange.put(NEW_DUPLICATED_LINES_KEY, newMeasureOnLeak(1));
-    notSmallChange.put(NEW_LINES_KEY, newMeasureOnLeak(1000));
+    notSmallChange.put(NEW_DUPLICATED_LINES_KEY, new FakeMeasure(1));
+    notSmallChange.put(NEW_LINES_KEY, new FakeMeasure(1000));
 
     Map<String, QualityGateEvaluator.Measure> smallChange = new HashMap<>();
-    smallChange.put(NEW_DUPLICATED_LINES_KEY, newMeasureOnLeak(1));
-    smallChange.put(NEW_LINES_KEY, newMeasureOnLeak(10));
+    smallChange.put(NEW_DUPLICATED_LINES_KEY, new FakeMeasure(1));
+    smallChange.put(NEW_LINES_KEY, new FakeMeasure(10));
 
     QualityGate gate = mock(QualityGate.class);
     when(gate.getConditions()).thenReturn(singleton(condition));

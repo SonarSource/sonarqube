@@ -394,7 +394,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
     Measures.Measure.Builder measureBuilder = Measures.Measure.newBuilder();
     for (Map.Entry<MetricDto, ComponentTreeData.Measure> entry : measures.entrySet()) {
       ComponentTreeData.Measure measure = entry.getValue();
-      updateMeasureBuilder(measureBuilder, entry.getKey(), measure.getValue(), measure.getData(), measure.getVariation());
+      boolean onNewCode = entry.getKey().getKey().startsWith("new_");
+      updateMeasureBuilder(measureBuilder, entry.getKey(), measure.getValue(), measure.getData(), onNewCode);
       wsComponent.addMeasures(measureBuilder);
       measureBuilder.clear();
     }
@@ -588,7 +589,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     return components
       .stream()
-      .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get(), wsRequest.getMetricPeriodSort()))
+      .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get()))
       .collect(MoreCollectors.toList(components.size()));
   }
 

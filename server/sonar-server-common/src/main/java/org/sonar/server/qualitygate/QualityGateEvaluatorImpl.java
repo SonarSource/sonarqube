@@ -83,8 +83,8 @@ public class QualityGateEvaluatorImpl implements QualityGateEvaluator {
   private static boolean isSmallChangeset(Measures measures) {
     Optional<Measure> newLines = measures.get(CoreMetrics.NEW_LINES_KEY);
     return newLines.isPresent() &&
-      newLines.get().getNewMetricValue().isPresent() &&
-      newLines.get().getNewMetricValue().getAsDouble() < MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS;
+      newLines.get().getValue().isPresent() &&
+      newLines.get().getValue().getAsDouble() < MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS;
   }
 
   private static Level overallStatusOf(Set<EvaluatedCondition> conditions) {

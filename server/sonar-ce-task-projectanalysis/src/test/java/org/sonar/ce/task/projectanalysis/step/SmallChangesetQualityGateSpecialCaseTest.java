@@ -66,7 +66,7 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     mapSettings.setProperty(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES, true);
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
     Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
+    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().create(19));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
@@ -78,7 +78,7 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     mapSettings.setProperty(CoreProperties.QUALITY_GATE_IGNORE_SMALL_CHANGES, false);
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
     Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
+    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().create(19));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
@@ -89,7 +89,7 @@ public class SmallChangesetQualityGateSpecialCaseTest {
   public void should_not_change_for_bigger_changesets() {
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
     Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(20).create(1000));
+    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().create(20));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
@@ -100,7 +100,7 @@ public class SmallChangesetQualityGateSpecialCaseTest {
   public void should_not_change_issue_related_metrics() {
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_BUGS_KEY, ERROR);
     Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
+    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().create(19));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
@@ -111,7 +111,7 @@ public class SmallChangesetQualityGateSpecialCaseTest {
   public void should_not_change_green_conditions() {
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_BUGS_KEY, OK);
     Component project = generateNewRootProject();
-    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
+    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().create(19));
 
     boolean result = underTest.appliesTo(project, metricEvaluationResult);
 

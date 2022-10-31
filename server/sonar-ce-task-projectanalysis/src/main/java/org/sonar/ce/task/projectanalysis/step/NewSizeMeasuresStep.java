@@ -205,7 +205,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
 
     private static Optional<Measure> createMeasure(IntValue intValue) {
       return intValue.isSet()
-        ? Optional.of(Measure.newMeasureBuilder().setVariation(intValue.getValue()).createNoValue())
+        ? Optional.of(Measure.newMeasureBuilder().create(intValue.getValue()))
         : Optional.empty();
     }
 
@@ -213,11 +213,11 @@ public class NewSizeMeasuresStep implements ComputationStep {
       IntValue newLines = counter.newLines;
       IntValue newDuplicatedLines = counter.newDuplicatedLines;
       if (newLines.isSet() && newDuplicatedLines.isSet()) {
-        int newLinesVariations = newLines.getValue();
-        int newDuplicatedLinesVariations = newDuplicatedLines.getValue();
-        if (newLinesVariations > 0D) {
-          double density = Math.min(100D, 100D * newDuplicatedLinesVariations / newLinesVariations);
-          return Optional.of(Measure.newMeasureBuilder().setVariation(density).createNoValue());
+        int newLinesValue = newLines.getValue();
+        int newDuplicatedLinesValue = newDuplicatedLines.getValue();
+        if (newLinesValue > 0D) {
+          double density = Math.min(100D, 100D * newDuplicatedLinesValue / newLinesValue);
+          return Optional.of(Measure.newMeasureBuilder().create(density));
         }
       }
       return Optional.empty();

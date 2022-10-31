@@ -124,7 +124,7 @@ public class ComponentActionTest {
     db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
-    LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d).setVariation(2.0d));
+    LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -164,7 +164,7 @@ public class ComponentActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
-    LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d).setVariation(2.0d));
+    LiveMeasureDto measure = db.measures().insertLiveMeasure(file, complexity, m -> m.setValue(12.0d));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -190,9 +190,9 @@ public class ComponentActionTest {
     MetricDto newBugs = db.measures().insertMetric(m1 -> m1.setKey("new_bugs").setValueType("INT"));
     MetricDto violations = db.measures().insertMetric(m1 -> m1.setKey("violations").setValueType("INT"));
     MetricDto newViolations = db.measures().insertMetric(m1 -> m1.setKey("new_violations").setValueType("INT"));
-    LiveMeasureDto bugMeasure = db.measures().insertLiveMeasure(file, bugs, m -> m.setValue(12.0d).setVariation(null));
-    LiveMeasureDto newBugMeasure = db.measures().insertLiveMeasure(file, newBugs, m -> m.setVariation(1d).setValue(null));
-    LiveMeasureDto violationMeasure = db.measures().insertLiveMeasure(file, violations, m -> m.setValue(20.0d).setVariation(null));
+    LiveMeasureDto bugMeasure = db.measures().insertLiveMeasure(file, bugs, m -> m.setValue(12.0d));
+    LiveMeasureDto newBugMeasure = db.measures().insertLiveMeasure(file, newBugs, m -> m.setValue(1d));
+    LiveMeasureDto violationMeasure = db.measures().insertLiveMeasure(file, violations, m -> m.setValue(20.0d));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -419,7 +419,6 @@ public class ComponentActionTest {
       .setHidden(false));
     db.measures().insertLiveMeasure(file, complexity,
       m -> m.setValue(12.0d)
-        .setVariation(2.0d)
         .setData((String) null));
 
     MetricDto ncloc = db.measures().insertMetric(m1 -> m1.setKey("ncloc")
@@ -432,7 +431,6 @@ public class ComponentActionTest {
       .setHidden(false));
     db.measures().insertLiveMeasure(file, ncloc,
       m -> m.setValue(114.0d)
-        .setVariation(3.0d)
         .setData((String) null));
 
     MetricDto newViolations = db.measures().insertMetric(m -> m.setKey("new_violations")
@@ -444,8 +442,7 @@ public class ComponentActionTest {
       .setQualitative(true)
       .setHidden(false));
     db.measures().insertLiveMeasure(file, newViolations,
-      m -> m.setVariation(25.0d)
-        .setValue(null)
+      m -> m.setValue(25.0d)
         .setData((String) null));
 
     String response = ws.newRequest()

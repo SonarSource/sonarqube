@@ -34,7 +34,6 @@ import static org.sonar.api.measures.Metric.ValueType.BOOL;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
-import static org.sonar.server.qualitygate.FakeMeasure.newMeasureOnLeak;
 
 @RunWith(DataProviderRunner.class)
 public class ConditionEvaluatorTest {
@@ -59,9 +58,9 @@ public class ConditionEvaluatorTest {
     test(new FakeMeasure(10), Condition.Operator.GREATER_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
     test(new FakeMeasure(10), Condition.Operator.GREATER_THAN, "11", EvaluatedCondition.EvaluationStatus.OK, "10");
 
-    testOnLeak(newMeasureOnLeak(10), Condition.Operator.GREATER_THAN, "9", EvaluatedCondition.EvaluationStatus.ERROR, "10");
-    testOnLeak(newMeasureOnLeak(10), Condition.Operator.GREATER_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
-    testOnLeak(newMeasureOnLeak(10), Condition.Operator.GREATER_THAN, "11", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10), Condition.Operator.GREATER_THAN, "9", EvaluatedCondition.EvaluationStatus.ERROR, "10");
+    test(new FakeMeasure(10), Condition.Operator.GREATER_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10), Condition.Operator.GREATER_THAN, "11", EvaluatedCondition.EvaluationStatus.OK, "10");
   }
 
   @Test
@@ -70,9 +69,9 @@ public class ConditionEvaluatorTest {
     test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
     test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
 
-    testOnLeak(newMeasureOnLeak(10), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
-    testOnLeak(newMeasureOnLeak(10), Condition.Operator.LESS_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
-    testOnLeak(newMeasureOnLeak(10), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
+    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
   }
 
   @Test
@@ -87,7 +86,6 @@ public class ConditionEvaluatorTest {
     test(new FakeMeasure((Integer) null), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, null);
     test(null, Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, null);
   }
-
 
   @Test
   @UseDataProvider("unsupportedMetricTypes")
@@ -107,22 +105,9 @@ public class ConditionEvaluatorTest {
     };
   }
 
-  private void test(@Nullable QualityGateEvaluator.Measure measure, Condition.Operator operator, String errorThreshold, EvaluatedCondition.EvaluationStatus expectedStatus, @Nullable String expectedValue) {
-    Condition condition = new Condition("foo", operator, errorThreshold);
-
-    EvaluatedCondition result = ConditionEvaluator.evaluate(condition, new FakeMeasures(measure));
-
-    assertThat(result.getStatus()).isEqualTo(expectedStatus);
-    if (expectedValue == null) {
-      assertThat(result.getValue()).isNotPresent();
-    } else {
-      assertThat(result.getValue()).hasValue(expectedValue);
-    }
-  }
-
-  private void testOnLeak(QualityGateEvaluator.Measure measure, Condition.Operator operator, String errorThreshold, EvaluatedCondition.EvaluationStatus expectedStatus,
+  private void test(@Nullable QualityGateEvaluator.Measure measure, Condition.Operator operator, String errorThreshold, EvaluatedCondition.EvaluationStatus expectedStatus,
     @Nullable String expectedValue) {
-    Condition condition = new Condition("new_foo", operator, errorThreshold);
+    Condition condition = new Condition("foo", operator, errorThreshold);
 
     EvaluatedCondition result = ConditionEvaluator.evaluate(condition, new FakeMeasures(measure));
 

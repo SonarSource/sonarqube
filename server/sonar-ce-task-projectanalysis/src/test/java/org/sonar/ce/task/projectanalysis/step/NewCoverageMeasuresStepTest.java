@@ -179,10 +179,10 @@ public class NewCoverageMeasuresStepTest {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getReportAttributes().getRef()))).contains(
-      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(2d)),
-      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(1d)),
-      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(0d)),
-      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(0d)));
+      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(2)),
+      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(1)),
+      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(0)),
+      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(0)));
   }
 
   @Test
@@ -204,36 +204,36 @@ public class NewCoverageMeasuresStepTest {
 
     // files
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).contains(
-      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(5d)),
-      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(3d)),
-      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(7d)),
-      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(4d)));
+      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(5)),
+      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(3)),
+      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(7)),
+      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(4)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).contains(
-      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(5d)),
-      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(4d)),
-      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(27d)),
-      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(14d)));
+      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(5)),
+      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(4)),
+      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(27)),
+      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(14)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_3_REF))).contains(
-      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(5d)),
-      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(2d)),
-      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(17d)),
-      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(9d)));
+      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(5)),
+      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(2)),
+      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(17)),
+      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(9)));
     // directories
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_1_REF))).contains(
-      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(5d)),
-      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(3d)),
-      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(7d)),
-      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(4d)));
+      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(5)),
+      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(3)),
+      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(7)),
+      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(4)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_2_REF))).contains(
-      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(10d)),
-      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(6d)),
-      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(44d)),
-      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(23d)));
+      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(10)),
+      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(6)),
+      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(44)),
+      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(23)));
     // submodule
-    MeasureRepoEntry[] repoEntriesFromProject = {entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(15d)),
-      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(9d)),
-      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(51d)),
-      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(27d))};
+    MeasureRepoEntry[] repoEntriesFromProject = {entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(15)),
+      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(9)),
+      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(51)),
+      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(27))};
     // project
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(repoEntriesFromProject);
   }
@@ -266,15 +266,15 @@ public class NewCoverageMeasuresStepTest {
   private void verify_aggregates_variations(LinesAndConditionsWithUncoveredMetricKeys metricKeys, String codeCoverageKey, String lineCoverageKey, String branchCoverageKey) {
     treeRootHolder.setRoot(MULTIPLE_FILES_TREE);
     measureRepository
-      .addRawMeasure(FILE_1_REF, metricKeys.getLines(), createMeasure(3000d))
-      .addRawMeasure(FILE_1_REF, metricKeys.getConditions(), createMeasure(300d))
-      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredLines(), createMeasure(30d))
-      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredConditions(), createMeasure(9d))
+      .addRawMeasure(FILE_1_REF, metricKeys.getLines(), createMeasure(3000))
+      .addRawMeasure(FILE_1_REF, metricKeys.getConditions(), createMeasure(300))
+      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredLines(), createMeasure(30))
+      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredConditions(), createMeasure(9))
 
-      .addRawMeasure(FILE_2_REF, metricKeys.getLines(), createMeasure(2000d))
-      .addRawMeasure(FILE_2_REF, metricKeys.getConditions(), createMeasure(400d))
-      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), createMeasure(200d))
-      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), createMeasure(16d));
+      .addRawMeasure(FILE_2_REF, metricKeys.getLines(), createMeasure(2000))
+      .addRawMeasure(FILE_2_REF, metricKeys.getConditions(), createMeasure(400))
+      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), createMeasure(200))
+      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), createMeasure(16));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -309,10 +309,10 @@ public class NewCoverageMeasuresStepTest {
 
   private void verify_only_zero_measures_on_new_lines_and_conditions_measures(Component component) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(component.getReportAttributes().getRef()))).containsOnly(
-      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(0d)),
-      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(0d)),
-      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(0d)),
-      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(0d)));
+      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(0)),
+      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(0)),
+      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(0)),
+      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(0)));
   }
 
   private static final class LineCoverageValues {
@@ -334,16 +334,18 @@ public class NewCoverageMeasuresStepTest {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getReportAttributes().getRef()))).contains(
-      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(5d)),
-      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(3d)),
-      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(7d)),
-      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(4d)));
+      entryOf(NEW_LINES_TO_COVER_KEY, createMeasure(5)),
+      entryOf(NEW_UNCOVERED_LINES_KEY, createMeasure(3)),
+      entryOf(NEW_CONDITIONS_TO_COVER_KEY, createMeasure(7)),
+      entryOf(NEW_UNCOVERED_CONDITIONS_KEY, createMeasure(4)));
   }
 
-  private static Measure createMeasure(Double expectedVariation) {
-    return newMeasureBuilder()
-      .setVariation(expectedVariation)
-      .createNoValue();
+  private static Measure createMeasure(int expectedValue) {
+    return newMeasureBuilder().create(expectedValue);
+  }
+
+  private static Measure createMeasure(double expectedValue) {
+    return newMeasureBuilder().create(expectedValue);
   }
 
   private void setNewLines(Component c, Integer... lines) {

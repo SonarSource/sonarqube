@@ -113,7 +113,7 @@ public class ProjectMeasuresIndexerIteratorTest {
       c -> c.setKey("Project-Key").setName("Project Name"),
       p -> p.setTagsString("platform,java"));
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_lines"));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setVariation(10d));
+    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(10d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -139,7 +139,7 @@ public class ProjectMeasuresIndexerIteratorTest {
   public void does_not_fail_when_quality_gate_has_no_value() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(LEVEL.name()).setKey("alert_status"));
-    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(null).setVariation(null).setData((String) null));
+    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(null).setData((String) null));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -210,8 +210,8 @@ public class ProjectMeasuresIndexerIteratorTest {
     ComponentDto project = dbTester.components().insertPrivateProject();
 
     dbTester.measures().insertLiveMeasure(project, metric1, m -> m.setValue(10d));
-    dbTester.measures().insertLiveMeasure(project, leakMetric, m -> m.setValue(null).setVariation(20d));
-    dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(null).setVariation(null));
+    dbTester.measures().insertLiveMeasure(project, leakMetric, m -> m.setValue(20d));
+    dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(null));
 
     Map<String, Double> numericMeasures = createResultSetAndReturnDocsById().get(project.uuid()).getMeasures().getNumericMeasures();
     assertThat(numericMeasures).containsOnly(entry(metric1.getKey(), 10d), entry(leakMetric.getKey(), 20d));

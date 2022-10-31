@@ -157,16 +157,14 @@ class ComponentTreeData {
   static class Measure {
     private double value;
     private String data;
-    private double variation;
 
-    public Measure(@Nullable String data, @Nullable Double value, @Nullable Double variation) {
+    public Measure(@Nullable String data, @Nullable Double value) {
       this.data = data;
       this.value = toPrimitive(value);
-      this.variation = toPrimitive(variation);
     }
 
     private Measure(LiveMeasureDto measureDto) {
-      this(measureDto.getDataAsString(), measureDto.getValue(), measureDto.getVariation());
+      this(measureDto.getDataAsString(), measureDto.getValue());
     }
 
     public double getValue() {
@@ -180,14 +178,6 @@ class ComponentTreeData {
     @CheckForNull
     public String getData() {
       return data;
-    }
-
-    public double getVariation() {
-      return variation;
-    }
-
-    public boolean isVariationSet() {
-      return !isNaN(variation);
     }
 
     static Measure createFromMeasureDto(LiveMeasureDto measureDto) {

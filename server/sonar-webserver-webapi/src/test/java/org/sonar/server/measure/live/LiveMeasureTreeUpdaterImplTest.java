@@ -170,7 +170,7 @@ public class LiveMeasureTreeUpdaterImplTest {
 
     componentIndex.load(db.getSession(), List.of(file1));
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
-    assertThat(matrix.getMeasure(file1, metric.getKey()).get().getVariation()).isEqualTo(1d);
+    assertThat(matrix.getMeasure(file1, metric.getKey()).get().getValue()).isEqualTo(1d);
   }
 
   @Test
@@ -185,7 +185,7 @@ public class LiveMeasureTreeUpdaterImplTest {
     componentIndex.load(db.getSession(), List.of(file1));
     treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
 
-    assertThat(matrix.getMeasure(file1, metric.getKey()).get().getVariation()).isEqualTo(2d);
+    assertThat(matrix.getMeasure(file1, metric.getKey()).get().getValue()).isEqualTo(2d);
   }
 
   @Test
@@ -215,11 +215,11 @@ public class LiveMeasureTreeUpdaterImplTest {
     matrix = new MeasureMatrix(List.of(project, dir, file1, file2), metrics, List.of());
 
     LiveMeasureTreeUpdaterImpl.FormulaContextImpl context = new LiveMeasureTreeUpdaterImpl.FormulaContextImpl(matrix, componentIndex, null);
-    matrix.setLeakValue(file1, NEW_SECURITY_HOTSPOTS_KEY, 4d);
-    matrix.setLeakValue(file1, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, 33d);
+    matrix.setValue(file1, NEW_SECURITY_HOTSPOTS_KEY, 4d);
+    matrix.setValue(file1, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, 33d);
 
-    matrix.setLeakValue(file2, NEW_SECURITY_HOTSPOTS_KEY, 2d);
-    matrix.setLeakValue(file2, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, 50d);
+    matrix.setValue(file2, NEW_SECURITY_HOTSPOTS_KEY, 2d);
+    matrix.setValue(file2, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, 50d);
 
     context.change(dir, null);
     assertThat(context.getChildrenNewHotspotsToReview()).isEqualTo(6);
@@ -262,18 +262,6 @@ public class LiveMeasureTreeUpdaterImplTest {
     }
   }
 
-  private class NoOpFormula implements MeasureUpdateFormulaFactory {
-
-    @Override
-    public List<MeasureUpdateFormula> getFormulas() {
-      return emptyList();
-    }
-
-    @Override public Set<Metric> getFormulaMetrics() {
-      return emptySet();
-    }
-  }
-
   private class SetValuesFormula implements MeasureUpdateFormulaFactory {
     @Override
     public List<MeasureUpdateFormula> getFormulas() {
@@ -291,7 +279,7 @@ public class LiveMeasureTreeUpdaterImplTest {
     @Override
     public List<MeasureUpdateFormula> getFormulas() {
       return List.of(new MeasureUpdateFormula(metric, true, (c, m) -> {
-      }, (c, i) -> c.setLeakValue(i.countUnresolved(true))));
+      }, (c, i) -> c.setValue(i.countUnresolved(true))));
     }
 
     @Override

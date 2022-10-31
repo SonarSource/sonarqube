@@ -20,7 +20,6 @@
 package org.sonar.server.measure.ws;
 
 import com.google.common.collect.ImmutableSortedSet;
-import java.util.Locale;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.sonar.api.resources.Qualifiers;
@@ -29,7 +28,6 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 
 public class MetricDtoWithBestValue {
-  private static final String LOWER_CASE_NEW_METRIC_PREFIX = "new_";
   private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = ImmutableSortedSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
 
   private final MetricDto metric;
@@ -38,13 +36,7 @@ public class MetricDtoWithBestValue {
   MetricDtoWithBestValue(MetricDto metric) {
     this.metric = metric;
     LiveMeasureDto measure = new LiveMeasureDto().setMetricUuid(metric.getUuid());
-    boolean isNewTypeMetric = metric.getKey().toLowerCase(Locale.ENGLISH).startsWith(LOWER_CASE_NEW_METRIC_PREFIX);
-    if (isNewTypeMetric) {
-      measure.setVariation(metric.getBestValue());
-    } else {
-      measure.setValue(metric.getBestValue());
-    }
-
+    measure.setValue(metric.getBestValue());
     this.bestValue = measure;
   }
 

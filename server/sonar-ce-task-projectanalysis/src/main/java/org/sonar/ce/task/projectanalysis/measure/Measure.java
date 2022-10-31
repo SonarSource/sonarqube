@@ -28,6 +28,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.util.cache.DoubleCache;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
@@ -139,20 +140,8 @@ public interface Measure {
    */
   QualityGateStatus getQualityGateStatus();
 
-  /**
-   * Any Measure, which ever is its value type, can have a variation.
-   */
-  boolean hasVariation();
-
-  /**
-   * The variation of this measure.
-   *
-   * @throws IllegalStateException if the measure has no variation
-   */
-  double getVariation();
-
   default boolean isEmpty() {
-    return getValueType() == ValueType.NO_VALUE && !hasVariation() && getData() == null;
+    return getValueType() == ValueType.NO_VALUE && getData() == null;
   }
 
   static NewMeasureBuilder newMeasureBuilder() {
@@ -173,17 +162,13 @@ public interface Measure {
     private final Level dataLevel;
     @CheckForNull
     private final QualityGateStatus qualityGateStatus;
-    @CheckForNull
-    private final Double variation;
 
-    private MeasureImpl(ValueType valueType, @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
-      @Nullable QualityGateStatus qualityGateStatus, @Nullable Double variation) {
+    private MeasureImpl(ValueType valueType, @Nullable Double value, @Nullable String data, @Nullable Level dataLevel, @Nullable QualityGateStatus qualityGateStatus) {
       this.valueType = valueType;
       this.value = DoubleCache.intern(value);
       this.data = data;
       this.dataLevel = dataLevel;
       this.qualityGateStatus = qualityGateStatus;
-      this.variation = variation;
     }
 
     @Override
@@ -243,17 +228,6 @@ public interface Measure {
       return this.qualityGateStatus;
     }
 
-    @Override
-    public boolean hasVariation() {
-      return variation != null;
-    }
-
-    @Override
-    public double getVariation() {
-      checkState(variation != null, "Measure does not have variation");
-      return variation;
-    }
-
     private static void checkValueType(ValueType expected, ValueType valueType) {
       if (valueType != expected) {
         throw new IllegalStateException(
@@ -266,13 +240,12 @@ public interface Measure {
 
     @Override
     public String toString() {
-      return com.google.common.base.MoreObjects.toStringHelper(this)
+      return toStringHelper(this)
         .add("valueType", valueType)
         .add("value", value)
         .add("data", data)
         .add("dataLevel", dataLevel)
         .add("qualityGateStatus", qualityGateStatus)
-        .add("variations", variation)
         .toString();
     }
   }
@@ -342,16 +315,6 @@ public interface Measure {
     }
 
     @Override
-    public boolean hasVariation() {
-      return false;
-    }
-
-    @Override
-    public double getVariation() {
-      throw new IllegalStateException("Measure does not have variation");
-    }
-
-    @Override
     public boolean equals(Object o) {
       if (this == o)
         return true;
@@ -368,21 +331,14 @@ public interface Measure {
 
     @Override
     public String toString() {
-      return com.google.common.base.MoreObjects.toStringHelper(this)
+      return toStringHelper(this)
         .add("valueType", valueType)
         .add("value", value)
         .toString();
     }
   }
 
-  class NoValueVariationMeasureImpl implements Measure {
-    @Nullable
-    private Double variation;
-
-    private NoValueVariationMeasureImpl(@Nullable Double variation) {
-      this.variation = variation;
-    }
-
+  class NoValueMeasureImpl implements Measure {
     @Override
     public ValueType getValueType() {
       return ValueType.NO_VALUE;
@@ -416,7 +372,6 @@ public interface Measure {
     @Override
     public Level getLevelValue() {
       throw new IllegalStateException();
-
     }
 
     @Override
@@ -435,36 +390,18 @@ public interface Measure {
     }
 
     @Override
-    public boolean hasVariation() {
-      return variation != null;
-    }
-
-    @Override
-    public double getVariation() {
-      checkState(variation != null, "Measure does not have variation");
-      return variation;
-    }
-
-    @Override
     public String toString() {
-      return com.google.common.base.MoreObjects.toStringHelper(this)
+      return toStringHelper(this)
         .add("valueType", ValueType.NO_VALUE)
-        .add("variations", variation)
         .toString();
     }
   }
 
   class NewMeasureBuilder {
     private QualityGateStatus qualityGateStatus;
-    private Double variation;
 
     public NewMeasureBuilder setQualityGateStatus(QualityGateStatus qualityGateStatus) {
       this.qualityGateStatus = requireNonNull(qualityGateStatus, "QualityGateStatus can not be set to null");
-      return this;
-    }
-
-    public NewMeasureBuilder setVariation(double variation) {
-      this.variation = variation;
       return this;
     }
 
@@ -499,30 +436,34 @@ public interface Measure {
     }
 
     private Measure createInternal(ValueType type, double value, @Nullable String data) {
-      if (data == null && qualityGateStatus == null && variation == null) {
+      if (data == null && qualityGateStatus == null) {
         return new ValueMeasureImpl(type, value);
 
       }
-      return new MeasureImpl(type, value, data, null, qualityGateStatus, variation);
+      return new MeasureImpl(type, value, data, null, qualityGateStatus);
     }
 
     public Measure create(double value, int decimalScale) {
       return create(value, decimalScale, null);
     }
 
+    public Measure create(double value) {
+      return create(value, org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE);
+    }
+
     public Measure create(String value) {
-      return new MeasureImpl(ValueType.STRING, null, requireNonNull(value), null, qualityGateStatus, variation);
+      return new MeasureImpl(ValueType.STRING, null, requireNonNull(value), null, qualityGateStatus);
     }
 
     public Measure create(Level level) {
-      return new MeasureImpl(ValueType.LEVEL, null, null, requireNonNull(level), qualityGateStatus, variation);
+      return new MeasureImpl(ValueType.LEVEL, null, null, requireNonNull(level), qualityGateStatus);
     }
 
     public Measure createNoValue() {
       if (qualityGateStatus == null) {
-        return new NoValueVariationMeasureImpl(variation);
+        return new NoValueMeasureImpl();
       }
-      return new MeasureImpl(ValueType.NO_VALUE, null, null, null, qualityGateStatus, variation);
+      return new MeasureImpl(ValueType.NO_VALUE, null, null, null, qualityGateStatus);
     }
 
     private static double scale(double value, int decimalScale) {
@@ -534,7 +475,6 @@ public interface Measure {
   final class UpdateMeasureBuilder {
     private final Measure source;
     private QualityGateStatus qualityGateStatus;
-    private Double variation;
 
     public UpdateMeasureBuilder(Measure source) {
       this.source = requireNonNull(source, "Can not create a measure from null");
@@ -551,19 +491,6 @@ public interface Measure {
         throw new UnsupportedOperationException("QualityGate status can not be changed if already set on source Measure");
       }
       this.qualityGateStatus = requireNonNull(qualityGateStatus, "QualityGateStatus can not be set to null");
-      return this;
-    }
-
-    /**
-     * Sets the variation of the updated Measure to create.
-     *
-     * @throws UnsupportedOperationException if the source measure already has a variation
-     */
-    public UpdateMeasureBuilder setVariation(double variation) {
-      if (source.hasVariation()) {
-        throw new UnsupportedOperationException("Variation can not be changed if already set on source Measure");
-      }
-      this.variation = variation;
       return this;
     }
 
@@ -589,13 +516,7 @@ public interface Measure {
       }
       Level level = source.getValueType() == ValueType.LEVEL ? source.getLevelValue() : null;
       QualityGateStatus status = source.hasQualityGateStatus() ? source.getQualityGateStatus() : qualityGateStatus;
-      Double var;
-      if (source.hasVariation()) {
-        var = source.getVariation();
-      } else {
-        var = variation;
-      }
-      return new MeasureImpl(source.getValueType(), value, source.getData(), level, status, var);
+      return new MeasureImpl(source.getValueType(), value, source.getData(), level, status);
     }
   }
 }

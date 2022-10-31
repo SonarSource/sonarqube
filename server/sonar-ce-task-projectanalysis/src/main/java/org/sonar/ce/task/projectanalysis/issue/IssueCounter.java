@@ -187,10 +187,9 @@ public class IssueCounter extends IssueVisitor {
     if (!newIssueClassifier.isEnabled()) {
       return;
     }
-    double unresolvedVariations = currentCounters.counterForPeriod().unresolved;
+    int unresolved = currentCounters.counterForPeriod().unresolved;
     measureRepository.add(component, metricRepository.getByKey(NEW_VIOLATIONS_KEY), Measure.newMeasureBuilder()
-      .setVariation(unresolvedVariations)
-      .createNoValue());
+      .create(unresolved));
 
     for (Map.Entry<String, String> entry : SEVERITY_TO_NEW_METRIC_KEY.entrySet()) {
       String severity = entry.getKey();
@@ -198,8 +197,7 @@ public class IssueCounter extends IssueVisitor {
       Multiset<String> bag = currentCounters.counterForPeriod().severityBag;
       Metric metric = metricRepository.getByKey(metricKey);
       measureRepository.add(component, metric, Measure.newMeasureBuilder()
-        .setVariation(bag.count(severity))
-        .createNoValue());
+        .create(bag.count(severity)));
     }
 
     // waiting for Java 8 lambda in order to factor this loop with the previous one
@@ -210,8 +208,7 @@ public class IssueCounter extends IssueVisitor {
       Multiset<RuleType> bag = currentCounters.counterForPeriod().typeBag;
       Metric metric = metricRepository.getByKey(metricKey);
       measureRepository.add(component, metric, Measure.newMeasureBuilder()
-        .setVariation(bag.count(type))
-        .createNoValue());
+        .create(bag.count(type)));
     }
   }
 

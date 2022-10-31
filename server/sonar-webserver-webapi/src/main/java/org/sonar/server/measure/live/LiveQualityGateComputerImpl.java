@@ -135,13 +135,5 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
     public Optional<String> getStringValue() {
       return Optional.ofNullable(dto.getTextValue());
     }
-
-    @Override
-    public OptionalDouble getNewMetricValue() {
-      if (dto.getVariation() == null) {
-        return OptionalDouble.empty();
-      }
-      return OptionalDouble.of(dto.getVariation());
-    }
   }
 }

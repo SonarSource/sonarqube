@@ -69,8 +69,8 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
     computeMeasure(project, path);
 
     // The following measures are only computed on projects level as they are required to compute the others measures on applications
-    measureRepository.add(project, newSecurityHotspotsReviewedStatusMetric, Measure.newMeasureBuilder().setVariation(path.current().getHotspotsReviewed()).createNoValue());
-    measureRepository.add(project, newSecurityHotspotsToReviewStatusMetric, Measure.newMeasureBuilder().setVariation(path.current().getHotspotsToReview()).createNoValue());
+    measureRepository.add(project, newSecurityHotspotsReviewedStatusMetric, Measure.newMeasureBuilder().create(path.current().getHotspotsReviewed()));
+    measureRepository.add(project, newSecurityHotspotsToReviewStatusMetric, Measure.newMeasureBuilder().create(path.current().getHotspotsToReview()));
   }
 
   @Override
@@ -91,8 +91,8 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
       .forEach(issue -> path.current().processHotspot(issue));
 
     Optional<Double> percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
-    measureRepository.add(component, newSecurityReviewRatingMetric, Measure.newMeasureBuilder().setVariation(computeRating(percent.orElse(null)).getIndex()).createNoValue());
-    percent.ifPresent(p -> measureRepository.add(component, newSecurityHotspotsReviewedMetric, Measure.newMeasureBuilder().setVariation(p).createNoValue()));
+    measureRepository.add(component, newSecurityReviewRatingMetric, Measure.newMeasureBuilder().create(computeRating(percent.orElse(null)).getIndex()));
+    percent.ifPresent(p -> measureRepository.add(component, newSecurityHotspotsReviewedMetric, Measure.newMeasureBuilder().create(p)));
 
     if (!path.isRoot()) {
       path.parent().add(path.current());

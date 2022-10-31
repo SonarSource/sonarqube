@@ -88,8 +88,6 @@ class MeasureUpdateFormula {
 
     long getChildrenNewHotspotsToReview();
 
-    List<Double> getChildrenLeakValues();
-
     ComponentDto getComponent();
 
     DebtRatingGrid getDebtRatingGrid();
@@ -104,14 +102,8 @@ class MeasureUpdateFormula {
 
     Optional<String> getText(Metric metrc);
 
-    Optional<Double> getLeakValue(Metric metric);
-
     void setValue(double value);
 
     void setValue(Rating value);
-
-    void setLeakValue(double value);
-
-    void setLeakValue(Rating value);
   }
 }

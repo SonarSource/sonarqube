@@ -70,7 +70,7 @@ import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
 
 public class NewSecurityReviewMeasuresVisitorTest {
-  private static final Offset<Double> VARIATION_COMPARISON_OFFSET = Offset.offset(0.01);
+  private static final Offset<Double> VALUE_COMPARISON_OFFSET = Offset.offset(0.01);
   private static final String LANGUAGE_KEY_1 = "lKey1";
 
   private static final int PROJECT_REF = 1;
@@ -341,10 +341,10 @@ public class NewSecurityReviewMeasuresVisitorTest {
   }
 
   private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, @Nullable Double expectedHotspotsReviewed) {
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_REVIEW_RATING_KEY)).hasVariation(expectedReviewRating.getIndex());
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_REVIEW_RATING_KEY)).hasValue(expectedReviewRating.getIndex());
     if (expectedHotspotsReviewed != null) {
-      assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).hasVariation(expectedHotspotsReviewed,
-        VARIATION_COMPARISON_OFFSET);
+      assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).hasValue(expectedHotspotsReviewed,
+        VALUE_COMPARISON_OFFSET);
     } else {
       assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).isAbsent();
     }
@@ -354,12 +354,12 @@ public class NewSecurityReviewMeasuresVisitorTest {
     if (hotspotsReviewed == null) {
       Assertions.assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY)).isEmpty();
     } else {
-      assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY)).hasVariation(hotspotsReviewed);
+      assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY)).hasValue(hotspotsReviewed);
     }
     if (hotspotsReviewed == null) {
       Assertions.assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY)).isEmpty();
     } else {
-      assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY)).hasVariation(hotspotsToReview);
+      assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY)).hasValue(hotspotsToReview);
     }
   }
 

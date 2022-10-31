@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 
 public class FakeMeasure  implements QualityGateEvaluator.Measure {
-  private Double leakValue;
   private Double value;
   private Metric.ValueType valueType;
 
@@ -47,13 +46,6 @@ public class FakeMeasure  implements QualityGateEvaluator.Measure {
     this.valueType = Metric.ValueType.INT;
   }
 
-  public static FakeMeasure newMeasureOnLeak(@Nullable Integer value) {
-    FakeMeasure measure = new FakeMeasure();
-    measure.leakValue = value == null ? null : value.doubleValue();
-    measure.valueType = Metric.ValueType.INT;
-    return measure;
-  }
-
   @Override
   public Metric.ValueType getType() {
     return valueType;
@@ -67,10 +59,5 @@ public class FakeMeasure  implements QualityGateEvaluator.Measure {
   @Override
   public Optional<String> getStringValue() {
     return Optional.empty();
-  }
-
-  @Override
-  public OptionalDouble getNewMetricValue() {
-    return leakValue == null ? OptionalDouble.empty() : OptionalDouble.of(leakValue);
   }
 }

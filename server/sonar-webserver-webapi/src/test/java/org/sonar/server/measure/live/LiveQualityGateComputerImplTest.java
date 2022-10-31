@@ -56,8 +56,6 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class LiveQualityGateComputerImplTest {
-
-
   @Rule
   public DbTester db = DbTester.create();
 
@@ -151,8 +149,8 @@ public class LiveQualityGateComputerImplTest {
     MetricDto statusMetric = newMetricDto().setKey(CoreMetrics.ALERT_STATUS_KEY);
     MetricDto detailsMetric = newMetricDto().setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY);
     QualityGate gate = new QualityGate("1", "foo", Collections.emptySet());
-    LiveMeasureDto numericMeasure = new LiveMeasureDto().setMetricUuid(numericMetric.getUuid()).setValue(1.23).setVariation(4.56).setComponentUuid(project.uuid());
-    LiveMeasureDto numericNewMeasure = new LiveMeasureDto().setMetricUuid(numericNewMetric.getUuid()).setValue(7.8).setVariation(8.9).setComponentUuid(project.uuid());
+    LiveMeasureDto numericMeasure = new LiveMeasureDto().setMetricUuid(numericMetric.getUuid()).setValue(1.23).setComponentUuid(project.uuid());
+    LiveMeasureDto numericNewMeasure = new LiveMeasureDto().setMetricUuid(numericNewMetric.getUuid()).setValue(8.9).setComponentUuid(project.uuid());
     LiveMeasureDto stringMeasure = new LiveMeasureDto().setMetricUuid(stringMetric.getUuid()).setData("bar").setComponentUuid(project.uuid());
     MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(statusMetric, detailsMetric, numericMetric, numericNewMetric, stringMetric),
       asList(numericMeasure, numericNewMeasure, stringMeasure));
@@ -173,7 +171,7 @@ public class LiveQualityGateComputerImplTest {
 
     QualityGateEvaluator.Measure loadedNumericNewMeasure = measures.get(numericNewMetric.getKey()).get();
     assertThat(loadedNumericNewMeasure.getStringValue()).isEmpty();
-    assertThat(loadedNumericNewMeasure.getNewMetricValue()).hasValue(8.9);
+    assertThat(loadedNumericNewMeasure.getValue()).hasValue(8.9);
     assertThat(loadedNumericNewMeasure.getType()).isEqualTo(Metric.ValueType.FLOAT);
   }
 

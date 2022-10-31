@@ -82,6 +82,12 @@ public class ExportMeasuresStepTest {
     .setShortName("Coverage")
     .setEnabled(false);
 
+  private static final MetricDto NEW_NCLOC = new MetricDto()
+    .setUuid("5")
+    .setKey("new_ncloc")
+    .setShortName("New Lines of code")
+    .setEnabled(true);
+
   private static final List<BranchDto> BRANCHES = newArrayList(
     new BranchDto()
       .setBranchType(BranchType.BRANCH)
@@ -107,7 +113,7 @@ public class ExportMeasuresStepTest {
     String projectUuid = dbTester.components().insertPublicProject(PROJECT).uuid();
     componentRepository.register(1, projectUuid, false);
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), FILE, ANOTHER_PROJECT);
-    dbTester.getDbClient().metricDao().insert(dbTester.getSession(), NCLOC, DISABLED_METRIC);
+    dbTester.getDbClient().metricDao().insert(dbTester.getSession(), NCLOC, DISABLED_METRIC, NEW_NCLOC);
     dbTester.commit();
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(PROJECT));
     when(projectHolder.branches()).thenReturn(BRANCHES);
@@ -174,8 +180,7 @@ public class ExportMeasuresStepTest {
       .setValue(100.0)
       .setData("data")
       .setAlertStatus("OK")
-      .setAlertText("alert text")
-      .setVariation(1.0);
+      .setAlertText("alert text");
     insertMeasure(analysis, PROJECT, dto);
     dbTester.commit();
 
@@ -189,7 +194,32 @@ public class ExportMeasuresStepTest {
     assertThat(measure.getTextValue()).isEqualTo(dto.getData());
     assertThat(measure.getMetricRef()).isZero();
     assertThat(measure.getAnalysisUuid()).isEqualTo(analysis.getUuid());
-    assertThat(measure.getVariation1().getValue()).isEqualTo(dto.getVariation());
+    assertThat(measure.getVariation1().getValue()).isZero();
+  }
+
+  @Test
+  public void test_exported_fields_new_metric() {
+    SnapshotDto analysis = insertSnapshot("U_1", PROJECT, STATUS_PROCESSED);
+    MeasureDto dto = new MeasureDto()
+      .setMetricUuid(NEW_NCLOC.getUuid())
+      .setValue(100.0)
+      .setData("data")
+      .setAlertStatus("OK")
+      .setAlertText("alert text");
+    insertMeasure(analysis, PROJECT, dto);
+    dbTester.commit();
+
+    underTest.execute(new TestComputationStepContext());
+
+    List<ProjectDump.Measure> exportedMeasures = dumpWriter.getWrittenMessagesOf(DumpElement.MEASURES);
+    ProjectDump.Measure measure = exportedMeasures.get(0);
+    assertThat(measure.getAlertStatus()).isEqualTo(dto.getAlertStatus());
+    assertThat(measure.getAlertText()).isEqualTo(dto.getAlertText());
+    assertThat(measure.getDoubleValue().getValue()).isZero();
+    assertThat(measure.getTextValue()).isEqualTo(dto.getData());
+    assertThat(measure.getMetricRef()).isZero();
+    assertThat(measure.getAnalysisUuid()).isEqualTo(analysis.getUuid());
+    assertThat(measure.getVariation1().getValue()).isEqualTo(dto.getValue());
   }
 
   @Test

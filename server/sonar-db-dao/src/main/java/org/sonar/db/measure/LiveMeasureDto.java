@@ -44,8 +44,6 @@ public class LiveMeasureDto {
   private String textValue;
   @Nullable
   private byte[] data;
-  @Nullable
-  private Double variation;
 
   void setUuidForUpsert(@Nullable String s) {
     this.uuidForUpsert = s;
@@ -126,16 +124,6 @@ public class LiveMeasureDto {
     return this;
   }
 
-  @CheckForNull
-  public Double getVariation() {
-    return variation;
-  }
-
-  public LiveMeasureDto setVariation(@Nullable Double variation) {
-    this.variation = variation;
-    return this;
-  }
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("LiveMeasureDto{");
@@ -143,7 +131,6 @@ public class LiveMeasureDto {
     sb.append(", projectUuid='").append(projectUuid).append('\'');
     sb.append(", metricUuid=").append(metricUuid);
     sb.append(", value=").append(value);
-    sb.append(", variation=").append(variation);
     sb.append(", textValue='").append(textValue).append('\'');
     sb.append(", data=").append(Arrays.toString(data));
     sb.append('}');

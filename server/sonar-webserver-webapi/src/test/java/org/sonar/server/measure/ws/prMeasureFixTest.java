@@ -72,10 +72,10 @@ public class prMeasureFixTest {
 
     List<MetricDto> metricList = Arrays.asList(bugsMetric, newBugsMetric, violationsMetric, newViolationsMetric);
 
-    LiveMeasureDto bugs = createLiveMeasure(bugsMetric.getUuid(), 10.0, null);
-    LiveMeasureDto newBugs = createLiveMeasure(newBugsMetric.getUuid(), null, 5.0);
-    LiveMeasureDto violations = createLiveMeasure(violationsMetric.getUuid(), 20.0, null);
-    LiveMeasureDto newViolations = createLiveMeasure(newViolationsMetric.getUuid(), null, 3.0);
+    LiveMeasureDto bugs = createLiveMeasure(bugsMetric.getUuid(), 10.0);
+    LiveMeasureDto newBugs = createLiveMeasure(newBugsMetric.getUuid(), 5.0);
+    LiveMeasureDto violations = createLiveMeasure(violationsMetric.getUuid(), 20.0);
+    LiveMeasureDto newViolations = createLiveMeasure(newViolationsMetric.getUuid(), 3.0);
 
     Map<MetricDto, LiveMeasureDto> measureByMetric = new HashMap<>();
     measureByMetric.put(bugsMetric, bugs);
@@ -84,13 +84,13 @@ public class prMeasureFixTest {
     measureByMetric.put(newViolationsMetric, newViolations);
 
     PrMeasureFix.createReplacementMeasures(metricList, measureByMetric, requestedKeys);
-    assertThat(measureByMetric.entrySet()).extracting(e -> e.getKey().getKey(), e -> e.getValue().getValue(), e -> e.getValue().getVariation())
-      .containsOnly(tuple(NEW_BUGS_KEY, null, 10.0),
-        tuple(MINOR_VIOLATIONS_KEY, 20.0, null),
-        tuple(NEW_MINOR_VIOLATIONS_KEY, null, 20.0));
+    assertThat(measureByMetric.entrySet()).extracting(e -> e.getKey().getKey(), e -> e.getValue().getValue())
+      .containsOnly(tuple(NEW_BUGS_KEY, 10.0),
+        tuple(MINOR_VIOLATIONS_KEY, 20.0),
+        tuple(NEW_MINOR_VIOLATIONS_KEY, 20.0));
   }
 
-  private static LiveMeasureDto createLiveMeasure(String metricUuid, @Nullable Double value, @Nullable Double variation) {
-    return new LiveMeasureDto().setMetricUuid(metricUuid).setVariation(variation).setValue(value);
+  private static LiveMeasureDto createLiveMeasure(String metricUuid, @Nullable Double value) {
+    return new LiveMeasureDto().setMetricUuid(metricUuid).setValue(value);
   }
 }

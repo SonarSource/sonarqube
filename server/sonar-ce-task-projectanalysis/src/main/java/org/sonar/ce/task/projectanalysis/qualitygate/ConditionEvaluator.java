@@ -45,7 +45,7 @@ public final class ConditionEvaluator {
   public EvaluationResult evaluate(Condition condition, Measure measure) {
     checkArgument(SUPPORTED_METRIC_TYPE.contains(condition.getMetric().getType()), "Conditions on MetricType %s are not supported", condition.getMetric().getType());
 
-    Comparable measureComparable = parseMeasure(condition, measure);
+    Comparable measureComparable = parseMeasure(measure);
     if (measureComparable == null) {
       return new EvaluationResult(Measure.Level.OK, null);
     }
@@ -100,10 +100,7 @@ public final class ConditionEvaluator {
   }
 
   @CheckForNull
-  private static Comparable parseMeasure(Condition condition, Measure measure) {
-    if (condition.useVariation()) {
-      return parseMeasureFromVariation(condition, measure);
-    }
+  private static Comparable parseMeasure(Measure measure) {
     switch (measure.getValueType()) {
       case INT:
         return measure.getIntValue();
@@ -118,28 +115,6 @@ public final class ConditionEvaluator {
       default:
         throw new IllegalArgumentException(
           String.format("Unsupported measure ValueType %s. Can not parse measure to a Comparable", measure.getValueType()));
-    }
-  }
-
-  @CheckForNull
-  private static Comparable parseMeasureFromVariation(Condition condition, Measure measure) {
-    if (!measure.hasVariation()) {
-      return null;
-    }
-
-    Double variation = measure.getVariation();
-    Metric.MetricType metricType = condition.getMetric().getType();
-    switch (metricType.getValueType()) {
-      case INT:
-        return variation.intValue();
-      case LONG:
-        return variation.longValue();
-      case DOUBLE:
-        return variation;
-      case NO_VALUE:
-      case LEVEL:
-      default:
-        throw new IllegalArgumentException("Unsupported metric type " + metricType);
     }
   }
 }

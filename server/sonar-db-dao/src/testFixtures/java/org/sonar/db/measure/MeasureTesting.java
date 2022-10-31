@@ -62,8 +62,7 @@ public class MeasureTesting {
       .setComponentUuid(String.valueOf(cursor++))
       .setProjectUuid(String.valueOf(cursor++))
       .setData(String.valueOf(cursor++))
-      .setValue((double) cursor++)
-      .setVariation((double) cursor++);
+      .setValue((double) cursor++);
   }
 
   public static LiveMeasureDto newLiveMeasure(ComponentDto component, MetricDto metric) {
@@ -72,7 +71,6 @@ public class MeasureTesting {
       .setComponentUuid(component.uuid())
       .setProjectUuid(component.branchUuid())
       .setData(String.valueOf(cursor++))
-      .setValue((double) cursor++)
-      .setVariation((double) cursor++);
+      .setValue((double) cursor++);
   }
 }
