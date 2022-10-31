@@ -2066,6 +2066,18 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void selectByKeyCaseInsensitive_should_not_match_non_main_branch() {
+    String projectKey = randomAlphabetic(5).toLowerCase();
+    ProjectDto project = db.components().insertPrivateProjectDto(c -> c.setKey(projectKey));
+    BranchDto projectBranch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertFile(projectBranch);
+
+    ComponentDto result = underTest.selectByKeyCaseInsensitive(db.getSession(), file.getKey()).orElse(null);
+
+    assertThat(result).isNull();
+  }
+
+  @Test
   public void selectByKeyCaseInsensitive_shouldNotFindProject_whenKeyIsDifferent() {
     String projectKey = randomAlphabetic(5).toLowerCase();
     db.components().insertPrivateProject(c -> c.setKey(projectKey));

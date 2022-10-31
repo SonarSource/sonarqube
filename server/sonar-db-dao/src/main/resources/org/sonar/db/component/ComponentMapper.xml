@@ -39,6 +39,7 @@
     FROM components p
     where
       lower(p.kee)=lower(#{key,jdbcType=VARCHAR})
+      and p.main_branch_project_uuid is null
   </select>
 
   <select id="selectByKeyAndBranchKey" parameterType="String" resultType="Component">
