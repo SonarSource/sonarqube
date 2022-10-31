@@ -32,6 +32,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
@@ -564,7 +565,7 @@ public class ComponentTreeActionTest {
 
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_BRANCH, "master")
+      .setParam(PARAM_BRANCH, BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME)
       .setParam(PARAM_METRIC_KEYS, complexity.getKey())
       .executeProtobuf(ComponentTreeWsResponse.class);
 

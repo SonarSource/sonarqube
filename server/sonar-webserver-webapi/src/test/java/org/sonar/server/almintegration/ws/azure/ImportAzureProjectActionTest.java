@@ -63,6 +63,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
@@ -173,7 +174,7 @@ public class ImportAzureProjectActionTest {
       .findFirst();
 
     assertThat(mainBranch).isPresent();
-    assertThat(mainBranch.get().getKey()).hasToString("master");
+    assertThat(mainBranch.get().getKey()).hasToString(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
   }
 
   @Test
@@ -183,7 +184,7 @@ public class ImportAzureProjectActionTest {
       .setParam("projectName", "project-name")
       .setParam("repositoryName", "repo-name");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(UnauthorizedException.class);
   }
 

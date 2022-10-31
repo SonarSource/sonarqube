@@ -43,10 +43,8 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +55,7 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTO
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -623,7 +622,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   private ComponentDto prepareProject(Consumer<ComponentDto> populators) {
     ComponentDto dto = db.components().insertPrivateProject(populators);
     analysisMetadataHolder.setProject(Project.from(dto));
-    analysisMetadataHolder.setBranch(new DefaultBranchImpl());
+    analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME));
     return dto;
   }
 

@@ -130,6 +130,7 @@ import org.sonar.server.platform.serverid.JdbcUrlSanitizer;
 import org.sonar.server.platform.serverid.ServerIdChecksum;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.qualitygate.QualityGateEvaluatorImpl;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -443,6 +444,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       InternalPropertiesImpl.class,
       ProjectConfigurationFactory.class,
 
+      DefaultBranchNameResolver.class,
       // webhooks
       new WebhookModule(),
 

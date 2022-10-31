@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.platform.EditionProvider.Edition;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 @RunWith(DataProviderRunner.class)
@@ -210,9 +211,9 @@ public class AnalysisMetadataHolderImplTest {
   public void set_branch() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
 
-    underTest.setBranch(new DefaultBranchImpl());
+    underTest.setBranch(new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME));
 
-    assertThat(underTest.getBranch().getName()).isEqualTo("master");
+    assertThat(underTest.getBranch().getName()).isEqualTo("main");
   }
 
   @Test
@@ -225,9 +226,9 @@ public class AnalysisMetadataHolderImplTest {
   @Test
   public void setBranch_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-    underTest.setBranch(new DefaultBranchImpl());
+    underTest.setBranch(new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME));
 
-    assertThatThrownBy(() -> underTest.setBranch(new DefaultBranchImpl()))
+    assertThatThrownBy(() -> underTest.setBranch(new DefaultBranchImpl("main")))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Branch has already been set");
   }

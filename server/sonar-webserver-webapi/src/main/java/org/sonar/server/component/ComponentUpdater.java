@@ -98,6 +98,20 @@ public class ComponentUpdater {
     return componentDto;
   }
 
+  /**
+   * - Create component
+   * - Apply default permission template
+   * - Add component to favorite if the component has the 'Project Creators' permission
+   * - Index component in es indexes
+   */
+  public ComponentDto createApplicationOrPortfolio(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid,
+    @Nullable String userLogin) {
+    ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userUuid, userLogin,
+      BranchDto.DEFAULT_APPLICATION_MAIN_BRANCH_NAME, c -> {});
+    commitAndIndex(dbSession, componentDto);
+    return componentDto;
+  }
+
   public void commitAndIndex(DbSession dbSession, ComponentDto componentDto) {
     projectIndexers.commitAndIndexComponents(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
   }
@@ -218,7 +232,7 @@ public class ComponentUpdater {
     String branchKey = Optional.ofNullable(mainBranch)
       .or(() -> Optional.ofNullable(propertiesDao.selectGlobalProperty(session, CorePropertyDefinitions.SONAR_PROJECTCREATION_MAINBRANCHNAME))
         .map(PropertyDto::getValue))
-      .orElse(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
+      .orElse(BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME);
 
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.BRANCH)

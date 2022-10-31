@@ -20,12 +20,12 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import org.junit.Test;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 
 public class DefaultBranchImplTest {
   private static final String PROJECT_KEY = "P";
@@ -34,11 +34,11 @@ public class DefaultBranchImplTest {
 
   @Test
   public void default_branch_represents_the_project() {
-    DefaultBranchImpl branch = new DefaultBranchImpl();
+    DefaultBranchImpl branch = new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
 
     assertThat(branch.isMain()).isTrue();
     assertThat(branch.getType()).isEqualTo(BranchType.BRANCH);
-    assertThat(branch.getName()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
+    assertThat(branch.getName()).isEqualTo(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
     assertThat(branch.supportsCrossProjectCpd()).isTrue();
 
     assertThat(branch.generateKey(PROJECT_KEY, null)).isEqualTo("P");

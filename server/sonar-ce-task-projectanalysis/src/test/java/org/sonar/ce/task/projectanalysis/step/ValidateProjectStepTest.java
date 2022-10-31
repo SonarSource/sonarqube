@@ -43,13 +43,14 @@ import org.sonar.db.component.SnapshotTesting;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 
 public class ValidateProjectStepTest {
   static long PAST_ANALYSIS_TIME = 1_420_088_400_000L; // 2015-01-01
   static long DEFAULT_ANALYSIS_TIME = 1_433_131_200_000L; // 2015-06-01
 
   static final String PROJECT_KEY = "PROJECT_KEY";
-  static final Branch DEFAULT_BRANCH = new DefaultBranchImpl();
+  static final Branch DEFAULT_BRANCH = new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);

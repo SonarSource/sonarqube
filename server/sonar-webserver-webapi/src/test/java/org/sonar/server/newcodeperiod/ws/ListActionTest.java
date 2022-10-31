@@ -50,6 +50,7 @@ import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 public class ListActionTest {
@@ -115,7 +116,7 @@ public class ListActionTest {
     assertThat(response).isNotNull();
     assertThat(response.getNewCodePeriodsCount()).isEqualTo(6);
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
-      .contains("master", "BRANCH_0", "BRANCH_1", "BRANCH_2", "BRANCH_3", "BRANCH_4");
+      .contains(DEFAULT_PROJECT_MAIN_BRANCH_NAME, "BRANCH_0", "BRANCH_1", "BRANCH_2", "BRANCH_3", "BRANCH_4");
 
     //check if global default is set
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getType)
@@ -138,7 +139,7 @@ public class ListActionTest {
     assertThat(response).isNotNull();
     assertThat(response.getNewCodePeriodsCount()).isEqualTo(6);
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
-      .contains("master", "BRANCH_0", "BRANCH_1", "BRANCH_2", "BRANCH_3", "BRANCH_4");
+      .contains(DEFAULT_PROJECT_MAIN_BRANCH_NAME, "BRANCH_0", "BRANCH_1", "BRANCH_2", "BRANCH_3", "BRANCH_4");
 
     //check if global default is set
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getType)
@@ -173,7 +174,7 @@ public class ListActionTest {
     assertThat(response).isNotNull();
     assertThat(response.getNewCodePeriodsCount()).isEqualTo(6);
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
-      .contains("master", "BRANCH_0", "BRANCH_1", "BRANCH_2", "BRANCH_3", "BRANCH_4");
+      .contains(DEFAULT_PROJECT_MAIN_BRANCH_NAME, "BRANCH_0", "BRANCH_1", "BRANCH_2", "BRANCH_3", "BRANCH_4");
 
     //check if project setting is set
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getType)
@@ -191,7 +192,7 @@ public class ListActionTest {
     assertThat(response).isNotNull();
     assertThat(response.getNewCodePeriodsCount()).isOne();
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
-      .containsOnly("master");
+      .containsOnly(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
 
     //check if global setting is set
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getType)
@@ -227,7 +228,7 @@ public class ListActionTest {
     assertThat(response).isNotNull();
     assertThat(response.getNewCodePeriodsCount()).isEqualTo(3);
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
-      .contains("master", "OWN_SETTINGS", "GLOBAL_SETTINGS");
+      .contains(DEFAULT_PROJECT_MAIN_BRANCH_NAME, "OWN_SETTINGS", "GLOBAL_SETTINGS");
 
     Optional<ShowWSResponse> ownSettings = response.getNewCodePeriodsList().stream()
       .filter(s -> !s.getInherited())
@@ -282,7 +283,7 @@ public class ListActionTest {
     assertThat(response).isNotNull();
     assertThat(response.getNewCodePeriodsCount()).isEqualTo(3);
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
-      .contains("master", "OWN_SETTINGS", "PROJECT_SETTINGS");
+      .contains(DEFAULT_PROJECT_MAIN_BRANCH_NAME, "OWN_SETTINGS", "PROJECT_SETTINGS");
 
     Optional<ShowWSResponse> ownSettings = response.getNewCodePeriodsList().stream()
       .filter(s -> !s.getInherited())
@@ -343,7 +344,7 @@ public class ListActionTest {
     assertThat(response).isNotNull();
     assertThat(response.getNewCodePeriodsCount()).isEqualTo(2);
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
-      .containsOnly("master", "PROJECT_BRANCH");
+      .containsOnly(DEFAULT_PROJECT_MAIN_BRANCH_NAME, "PROJECT_BRANCH");
 
     ShowWSResponse result = response.getNewCodePeriodsList().get(0);
     assertThat(result.getType()).isEqualTo(NewCodePeriods.NewCodePeriodType.SPECIFIC_ANALYSIS);

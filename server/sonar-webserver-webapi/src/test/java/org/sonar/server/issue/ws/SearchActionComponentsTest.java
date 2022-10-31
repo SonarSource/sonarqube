@@ -66,6 +66,7 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -668,7 +669,7 @@ public class SearchActionComponentsTest {
 
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(PARAM_BRANCH, "master")
+      .setParam(PARAM_BRANCH, DEFAULT_PROJECT_MAIN_BRANCH_NAME)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList())

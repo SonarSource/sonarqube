@@ -40,6 +40,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 
 public class SetAutomaticDeletionProtectionActionTest {
 
@@ -124,7 +125,7 @@ public class SetAutomaticDeletionProtectionActionTest {
 
     assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
-      .setParam("branch", "master")
+      .setParam("branch", DEFAULT_PROJECT_MAIN_BRANCH_NAME)
       .setParam("value", "false")
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
@@ -146,7 +147,7 @@ public class SetAutomaticDeletionProtectionActionTest {
 
     assertThat(db.countRowsOfTable("project_branches")).isEqualTo(2);
     Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid());
-    assertThat(mainBranch.get().getKey()).isEqualTo("master");
+    assertThat(mainBranch.get().getKey()).isEqualTo(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
     assertThat(mainBranch.get().isExcludeFromPurge()).isTrue();
 
     Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.uuid());

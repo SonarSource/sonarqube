@@ -11,7 +11,7 @@
       "excludedFromPurge": false
     },
     {
-      "name": "master",
+      "name": "main",
       "isMain": true,
       "type": "BRANCH",
       "status": {

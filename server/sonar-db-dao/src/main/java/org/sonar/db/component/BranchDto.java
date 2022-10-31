@@ -30,7 +30,8 @@ import org.sonar.db.protobuf.DbProjectBranches;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class BranchDto {
-  public static final String DEFAULT_MAIN_BRANCH_NAME = "master";
+  public static final String DEFAULT_PROJECT_MAIN_BRANCH_NAME = "main";
+  public static final String DEFAULT_APPLICATION_MAIN_BRANCH_NAME = "master";
 
   /**
    * Maximum length of column "kee"

@@ -19,13 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import static org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType.UNSET;
 
-import javax.annotation.Nullable;
-import javax.inject.Inject;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType.UNSET;
 
 public class BranchLoader {
   private final MutableAnalysisMetadataHolder metadataHolder;
@@ -47,7 +48,7 @@ public class BranchLoader {
     } else if (hasBranchProperties(metadata)) {
       throw MessageException.of("Current edition does not support branch feature");
     } else {
-      metadataHolder.setBranch(new DefaultBranchImpl());
+      metadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME));
     }
   }
 

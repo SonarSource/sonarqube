@@ -47,7 +47,7 @@ public class DefaultNewCodePeriodLoaderTest {
   }
 
   private void prepareCallWithResults() throws IOException {
-    WsTestUtil.mockStream(wsClient, createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "master"));
+    WsTestUtil.mockStream(wsClient, createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "main"));
   }
 
   private InputStream createResponse(NewCodePeriods.NewCodePeriodType type, String value) throws IOException {

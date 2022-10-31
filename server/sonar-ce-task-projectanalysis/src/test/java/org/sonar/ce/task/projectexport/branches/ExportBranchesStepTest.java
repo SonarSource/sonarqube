@@ -125,12 +125,12 @@ public class ExportBranchesStepTest {
       .stream()
       .collect(toMap(ProjectDump.Branch::getUuid, Function.identity()));
     assertThat(branches).hasSize(3);
-    ProjectDump.Branch masterBranch = branches.get(PROJECT_UUID);
-    assertThat(masterBranch).isNotNull();
-    assertThat(masterBranch.getKee()).isEqualTo("master");
-    assertThat(masterBranch.getProjectUuid()).isEqualTo(PROJECT_UUID);
-    assertThat(masterBranch.getMergeBranchUuid()).isEmpty();
-    assertThat(masterBranch.getBranchType()).isEqualTo("BRANCH");
+    ProjectDump.Branch mainBranch = branches.get(PROJECT_UUID);
+    assertThat(mainBranch).isNotNull();
+    assertThat(mainBranch.getKee()).isEqualTo(BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    assertThat(mainBranch.getProjectUuid()).isEqualTo(PROJECT_UUID);
+    assertThat(mainBranch.getMergeBranchUuid()).isEmpty();
+    assertThat(mainBranch.getBranchType()).isEqualTo("BRANCH");
     ProjectDump.Branch branch1 = branches.get("branch-1-uuid");
     assertThat(branch1.getKee()).isEqualTo("branch-1");
     assertThat(branch1.getProjectUuid()).isEqualTo(PROJECT_UUID);

@@ -55,6 +55,7 @@ import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -608,12 +609,12 @@ public class IssueQueryFactoryTest {
 
     assertThat(underTest.create(new SearchRequest()
       .setProjects(singletonList(project.getKey()))
-      .setBranch("master")))
+      .setBranch(DEFAULT_PROJECT_MAIN_BRANCH_NAME)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
       .containsOnly(project.uuid(), singletonList(project.uuid()), true);
     assertThat(underTest.create(new SearchRequest()
       .setComponents(singletonList(project.getKey()))
-      .setBranch("master")))
+      .setBranch(DEFAULT_PROJECT_MAIN_BRANCH_NAME)))
       .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
       .containsOnly(project.uuid(), singletonList(project.uuid()), true);
   }

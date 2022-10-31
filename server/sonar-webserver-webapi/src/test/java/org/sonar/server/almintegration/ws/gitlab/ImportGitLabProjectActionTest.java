@@ -56,6 +56,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 
@@ -188,7 +189,7 @@ public class ImportGitLabProjectActionTest {
 
     Assertions.assertThat(db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get()))
       .extracting(BranchDto::getKey, BranchDto::isMain)
-      .containsExactlyInAnyOrder(tuple("master", true));
+      .containsExactlyInAnyOrder(tuple(DEFAULT_PROJECT_MAIN_BRANCH_NAME, true));
   }
 
 

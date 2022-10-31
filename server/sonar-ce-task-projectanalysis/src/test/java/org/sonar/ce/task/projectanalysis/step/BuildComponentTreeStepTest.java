@@ -56,6 +56,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -558,7 +559,7 @@ public class BuildComponentTreeStepTest {
   }
 
   private void setAnalysisMetadataHolder(boolean isPr) {
-    Branch branch = isPr ? new PrBranch() : new DefaultBranchImpl();
+    Branch branch = isPr ? new PrBranch(DEFAULT_PROJECT_MAIN_BRANCH_NAME) : new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
       .setBranch(branch)
@@ -575,6 +576,10 @@ public class BuildComponentTreeStepTest {
   }
 
   private static class PrBranch extends DefaultBranchImpl {
+    public PrBranch(String branch) {
+      super(branch);
+    }
+
     @Override
     public BranchType getType() {
       return BranchType.PULL_REQUEST;

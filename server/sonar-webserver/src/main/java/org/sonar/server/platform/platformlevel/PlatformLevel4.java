@@ -178,6 +178,7 @@ import org.sonar.server.plugins.ws.PluginUpdateAggregator;
 import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectQGChangeEventListener;
 import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.projectanalysis.ws.ProjectAnalysisWsModule;
@@ -297,6 +298,7 @@ public class PlatformLevel4 extends PlatformLevel {
       IndexDefinitions.class,
       WebAnalyticsLoaderImpl.class,
       new MonitoringWsModule(),
+      DefaultBranchNameResolver.class,
 
       // batch
       new BatchWsModule(),

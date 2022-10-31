@@ -64,16 +64,16 @@ public class ReferenceBranchSupplierTest {
   public void get_returns_reference_branch_when_set() {
     when(branchConfiguration.branchType()).thenReturn(BranchType.BRANCH);
     when(branchConfiguration.branchName()).thenReturn(BRANCH_KEY);
-    when(newCodePeriodLoader.load(PROJECT_KEY, BRANCH_KEY)).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "master"));
+    when(newCodePeriodLoader.load(PROJECT_KEY, BRANCH_KEY)).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "main"));
 
-    assertThat(referenceBranchSupplier.get()).isEqualTo("master");
+    assertThat(referenceBranchSupplier.get()).isEqualTo("main");
   }
 
   @Test
   public void get_uses_scanner_property_with_higher_priority() {
     when(branchConfiguration.branchType()).thenReturn(BranchType.BRANCH);
     when(branchConfiguration.branchName()).thenReturn(BRANCH_KEY);
-    when(newCodePeriodLoader.load(PROJECT_KEY, BRANCH_KEY)).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "master"));
+    when(newCodePeriodLoader.load(PROJECT_KEY, BRANCH_KEY)).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "main"));
 
     when(configuration.get("sonar.newCode.referenceBranch")).thenReturn(Optional.of("master2"));
 
@@ -107,9 +107,9 @@ public class ReferenceBranchSupplierTest {
     when(branchConfiguration.branchType()).thenReturn(BranchType.BRANCH);
     when(branchConfiguration.branchName()).thenReturn(null);
     when(projectBranches.defaultBranchName()).thenReturn("default");
-    when(newCodePeriodLoader.load(PROJECT_KEY, "default")).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "master"));
+    when(newCodePeriodLoader.load(PROJECT_KEY, "default")).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "main"));
 
-    assertThat(referenceBranchSupplier.get()).isEqualTo("master");
+    assertThat(referenceBranchSupplier.get()).isEqualTo("main");
   }
 
   @Test

@@ -111,7 +111,7 @@ public class BranchMediumTest {
   public void shouldSkipSensorForUnchangedFilesOnPr() throws Exception {
     AnalysisResult result = getResult(tester
             .setBranchName("myBranch")
-            .setBranchTarget("master")
+            .setBranchTarget("main")
             .setBranchType(BranchType.PULL_REQUEST));
     final DefaultInputFile file = (DefaultInputFile) result.inputFile(FILE_PATH);
 
@@ -125,7 +125,7 @@ public class BranchMediumTest {
   public void shouldNotSkipSensorForUnchangedFilesOnBranch() throws Exception {
     AnalysisResult result = getResult(tester
             .setBranchName("myBranch")
-            .setBranchTarget("master")
+            .setBranchTarget("main")
             .setBranchType(BranchType.BRANCH));
     final DefaultInputFile file = (DefaultInputFile) result.inputFile(FILE_PATH);
 

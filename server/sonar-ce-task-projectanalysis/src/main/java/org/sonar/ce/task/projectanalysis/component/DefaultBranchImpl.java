@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 
 /**
@@ -30,8 +29,8 @@ import org.sonar.db.component.BranchType;
 public class DefaultBranchImpl implements Branch {
   private final String branchName;
 
-  public DefaultBranchImpl() {
-    this.branchName = BranchDto.DEFAULT_MAIN_BRANCH_NAME;
+  public DefaultBranchImpl(String branch) {
+    this.branchName = branch;
   }
 
   @Override

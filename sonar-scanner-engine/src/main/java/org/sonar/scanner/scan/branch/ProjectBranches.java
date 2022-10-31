@@ -32,7 +32,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class ProjectBranches {
   // matches server-side default when creating a project. See BranchDto#DEFAULT_MAIN_BRANCH_NAME
-  private static final String DEFAULT_MAIN_BRANCH_NAME = "master";
+  private static final String DEFAULT_MAIN_BRANCH_NAME = "main";
 
   private final Map<String, BranchInfo> branches;
   private final String defaultBranchName;

@@ -54,6 +54,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 
 @RunWith(DataProviderRunner.class)
 public class SetActionTest {
@@ -130,7 +131,7 @@ public class SetActionTest {
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
-      .setParam("branch", "master")
+      .setParam("branch", DEFAULT_PROJECT_MAIN_BRANCH_NAME)
       .setParam("type", "number_of_days")
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
@@ -145,7 +146,7 @@ public class SetActionTest {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
-      .setParam("branch", "master")
+      .setParam("branch", DEFAULT_PROJECT_MAIN_BRANCH_NAME)
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("New Code Period type 'SPECIFIC_ANALYSIS' requires a value");
@@ -159,7 +160,7 @@ public class SetActionTest {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "number_of_days")
-      .setParam("branch", "master")
+      .setParam("branch", DEFAULT_PROJECT_MAIN_BRANCH_NAME)
       .setParam("value", "unknown")
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
@@ -174,7 +175,7 @@ public class SetActionTest {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
-      .setParam("branch", "master")
+      .setParam("branch", DEFAULT_PROJECT_MAIN_BRANCH_NAME)
       .setParam("value", "unknown")
       .execute())
       .isInstanceOf(NotFoundException.class)
@@ -194,11 +195,12 @@ public class SetActionTest {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
-      .setParam("branch", "master")
+      .setParam("branch", DEFAULT_PROJECT_MAIN_BRANCH_NAME)
       .setParam("value", analysisBranch.getUuid())
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Analysis '" + analysisBranch.getUuid() + "' does not belong to branch 'master' of project '" + project.getKey() + "'");
+      .hasMessageContaining("Analysis '" + analysisBranch.getUuid() + "' does not belong to branch '" + DEFAULT_PROJECT_MAIN_BRANCH_NAME +
+        "' of project '" + project.getKey() + "'");
   }
 
   // validation of project/branch

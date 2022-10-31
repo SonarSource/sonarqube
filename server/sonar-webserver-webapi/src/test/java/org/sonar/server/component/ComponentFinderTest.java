@@ -30,6 +30,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -217,7 +218,7 @@ public class ComponentFinderTest {
   public void get_by_key_and_branch_accept_main_branch() {
     ComponentDto project = db.components().insertPublicProject();
 
-    assertThat(underTest.getByKeyAndBranch(dbSession, project.getKey(), "master").uuid()).isEqualTo(project.uuid());
+    assertThat(underTest.getByKeyAndBranch(dbSession, project.getKey(), DEFAULT_PROJECT_MAIN_BRANCH_NAME).uuid()).isEqualTo(project.uuid());
   }
 
   @Test

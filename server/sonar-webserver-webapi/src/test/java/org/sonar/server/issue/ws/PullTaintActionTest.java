@@ -58,13 +58,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class PullTaintActionTest {
   private static final long NOW = 10_000_000_000L;
   private static final long PAST = 1_000_000_000L;
 
-  private static final String DEFAULT_BRANCH = "master";
+  private static final String DEFAULT_BRANCH = DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 
   @Rule
   public DbTester dbTester = DbTester.create();

@@ -164,7 +164,7 @@ public class GitScmProviderTest {
     git.rm().addFilepattern(fileName).call();
     commit(renamedName);
 
-    Set<Path> files = newScmProvider().branchChangedFiles("master", worktree);
+    Set<Path> files = newScmProvider().branchChangedFiles("main", worktree);
 
     // no shared history, so no diff
     assertThat(files).isNull();
@@ -243,7 +243,7 @@ public class GitScmProviderTest {
     Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
     git = new Git(repo);
 
-    assertThat(newScmProvider().branchChangedFiles("master", worktree)).isNull();
+    assertThat(newScmProvider().branchChangedFiles("main", worktree)).isNull();
   }
 
   @Test
@@ -375,7 +375,7 @@ public class GitScmProviderTest {
     git.checkout().setOrphan(true).setName("b1").call();
     createAndCommitFile("file-b1.xoo");
 
-    Map<Path, Set<Integer>> changedLines = newScmProvider().branchChangedLines("master", worktree, Collections.singleton(Paths.get("")));
+    Map<Path, Set<Integer>> changedLines = newScmProvider().branchChangedLines("main", worktree, Collections.singleton(Paths.get("")));
     assertThat(changedLines).isNull();
   }
 
@@ -476,7 +476,7 @@ public class GitScmProviderTest {
     Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
     git = new Git(repo);
 
-    assertThat(newScmProvider().branchChangedLines("master", worktree, Collections.singleton(Paths.get("file")))).isNull();
+    assertThat(newScmProvider().branchChangedLines("main", worktree, Collections.singleton(Paths.get("file")))).isNull();
   }
 
   /**
@@ -602,14 +602,14 @@ public class GitScmProviderTest {
 
   @Test
   public void branchChangedFiles_should_throw_when_repo_nonexistent() {
-    assertThatThrownBy(() -> newScmProvider().branchChangedFiles("master", temp.newFolder().toPath()))
+    assertThatThrownBy(() -> newScmProvider().branchChangedFiles("main", temp.newFolder().toPath()))
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("Not inside a Git work tree: ");
   }
 
   @Test
   public void branchChangedFiles_should_throw_when_dir_nonexistent() {
-    assertThatThrownBy(() -> newScmProvider().branchChangedFiles("master", temp.getRoot().toPath().resolve("nonexistent")))
+    assertThatThrownBy(() -> newScmProvider().branchChangedFiles("main", temp.getRoot().toPath().resolve("nonexistent")))
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("Not inside a Git work tree: ");
   }

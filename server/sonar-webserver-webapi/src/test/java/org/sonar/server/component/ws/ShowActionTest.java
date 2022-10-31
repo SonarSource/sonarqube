@@ -48,6 +48,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -288,11 +289,10 @@ public class ShowActionTest {
   public void dont_show_branch_if_main_branch() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    String branchKey = "master";
 
     ShowWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_BRANCH, branchKey)
+      .setParam(PARAM_BRANCH, DEFAULT_PROJECT_MAIN_BRANCH_NAME)
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getComponent())
