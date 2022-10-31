@@ -46,6 +46,7 @@ export interface BitbucketPipelinesTutorialProps {
   baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
+  mainBranchName: string;
   projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
 }
@@ -57,7 +58,8 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
     currentUser,
     component,
     projectBinding,
-    willRefreshAutomatically
+    willRefreshAutomatically,
+    mainBranchName
   } = props;
 
   const [step, setStep] = React.useState<Steps>(Steps.REPOSITORY_VARIABLES);
@@ -94,7 +96,11 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
                     ci={TutorialModes.BitbucketPipelines}
                   />
                 )}
-                <AnalysisCommand buildTool={buildTool} component={component} />
+                <AnalysisCommand
+                  buildTool={buildTool}
+                  component={component}
+                  mainBranchName={mainBranchName}
+                />
                 <FinishButton onClick={() => setStep(Steps.ALL_SET)} />
               </>
             )}

@@ -77,6 +77,7 @@ function shallowRender(props: Partial<BitbucketPipelinesTutorialProps> = {}) {
     <BitbucketPipelinesTutorial
       almBinding={mockAlmSettingsInstance()}
       baseUrl="test"
+      mainBranchName="main"
       currentUser={mockLoggedInUser()}
       component={mockComponent()}
       projectBinding={mockProjectBitbucketCloudBindingResponse()}

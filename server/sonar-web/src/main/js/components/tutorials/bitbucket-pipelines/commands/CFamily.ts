@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function cFamilyExample(branchesEnabled: boolean) {
+export default function cFamilyExample(branchesEnabled: boolean, mainBranchName: string) {
   return `image: <image ready for your build toolchain>
 
 definitions:
@@ -43,7 +43,7 @@ clone:
 
 pipelines:
   branches:
-    '{master}': # or the name of your main branch
+    '{${mainBranchName}}':
       - step: *build-step
 ${
   branchesEnabled

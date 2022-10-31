@@ -36,10 +36,15 @@ import { PreambuleYaml } from './PreambuleYaml';
 
 export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
   buildTool: BuildTools;
+  mainBranchName: string;
   component: Component;
 }
 
-const YamlTemplate: Dictionary<(branchesEnabled?: boolean, projectKey?: string) => string> = {
+const YamlTemplate: Dictionary<(
+  branchesEnabled?: boolean,
+  mainBranchName?: string,
+  projectKey?: string
+) => string> = {
   [BuildTools.Gradle]: gradleExample,
   [BuildTools.Maven]: mavenExample,
   [BuildTools.DotNet]: dotNetExample,
@@ -48,14 +53,14 @@ const YamlTemplate: Dictionary<(branchesEnabled?: boolean, projectKey?: string) 
 };
 
 export function AnalysisCommand(props: AnalysisCommandProps) {
-  const { buildTool, component } = props;
+  const { buildTool, mainBranchName, component } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   if (!buildTool) {
     return null;
   }
 
-  const yamlTemplate = YamlTemplate[buildTool](branchSupportEnabled, component.key);
+  const yamlTemplate = YamlTemplate[buildTool](branchSupportEnabled, mainBranchName, component.key);
 
   return (
     <>

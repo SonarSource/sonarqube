@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function dotNetExample(branchesEnabled: boolean, projectKey: string) {
+export default function dotNetExample(
+  branchesEnabled: boolean,
+  mainBranchName: string,
+  projectKey: string
+) {
   return `image: mcr.microsoft.com/dotnet/core/sdk:latest
 
 definitions:
@@ -40,7 +44,7 @@ definitions:
 
 pipelines:
   branches:
-    '{master}': # or the name of your main branch
+    '{${mainBranchName}}':
       - step: *build-step
 ${
   branchesEnabled

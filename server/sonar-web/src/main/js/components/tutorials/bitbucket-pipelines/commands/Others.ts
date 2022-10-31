@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function othersExample(branchesEnabled: boolean) {
+export default function othersExample(branchesEnabled: boolean, mainBranchName: string) {
   return `image: maven:3.3.9
 
 definitions:
@@ -37,7 +37,7 @@ clone:
 
 pipelines:
   branches:
-    '{master}': # or the name of your main branch
+    '{${mainBranchName}}':
       - step: *build-step
 ${
   branchesEnabled

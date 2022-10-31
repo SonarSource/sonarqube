@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function mavenExample(branchesEnabled: boolean, projectKey: string) {
+export default function mavenExample(
+  branchesEnabled: boolean,
+  mainBranchName: string,
+  projectKey: string
+) {
   return `image: maven:3-openjdk-11
 
 definitions:
@@ -37,7 +41,7 @@ clone:
   
 pipelines:
   branches:
-    '{master}': # or the name of your main branch
+    '{${mainBranchName}}':
       - step: *build-step
 ${
   branchesEnabled
