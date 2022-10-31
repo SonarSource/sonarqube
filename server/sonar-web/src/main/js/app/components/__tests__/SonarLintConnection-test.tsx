@@ -123,12 +123,18 @@ it('should require authentication if user is not logged in', () => {
   expect(handleRequiredAuthentication).toHaveBeenCalled();
 });
 
-it('should redirect if port is not provided', () => {
+it('should let the user copy the token if the port is not valid', async () => {
+  const user = userEvent.setup();
+
   renderSonarLintConnection({ port: '' });
 
+  await user.click(
+    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' })
+  );
+
   expect(
-    screen.queryByRole('heading', { name: 'sonarlint-connection.title' })
-  ).not.toBeInTheDocument();
+    await screen.findByText('sonarlint-connection.connection-error.description')
+  ).toBeInTheDocument();
 });
 
 function renderSonarLintConnection(overrides: { currentUser?: CurrentUser; port?: string } = {}) {

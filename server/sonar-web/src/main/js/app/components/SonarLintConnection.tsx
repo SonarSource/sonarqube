@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { generateToken, getTokens } from '../../api/user-tokens';
 import Link from '../../components/common/Link';
 import { Button } from '../../components/controls/buttons';
@@ -40,8 +40,8 @@ import './SonarLintConnection.css';
 enum Status {
   request,
   tokenError,
-  connectionError,
-  success
+  tokenCreated,
+  tokenSent
 }
 
 interface Props {
@@ -64,20 +64,12 @@ async function computeExpirationDate() {
 }
 
 export function SonarLintConnection({ currentUser }: Props) {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = React.useState(Status.request);
   const [newToken, setNewToken] = React.useState<NewUserToken | undefined>(undefined);
 
   const port = parseInt(searchParams.get('port') ?? '0', 10);
   const ideName = searchParams.get('ideName') ?? translate('sonarlint-connection.unspecified-ide');
-
-  // If the port is not in the expected range, redirect to home page
-  React.useEffect(() => {
-    if (!portIsValid(port)) {
-      navigate('/');
-    }
-  }, [navigate, port]);
 
   const { login } = currentUser;
 
@@ -95,11 +87,16 @@ export function SonarLintConnection({ currentUser }: Props) {
 
     setNewToken(token);
 
+    if (!portIsValid(port)) {
+      setStatus(Status.tokenCreated);
+      return;
+    }
+
     try {
       await sendUserToken(port, token);
-      setStatus(Status.success);
+      setStatus(Status.tokenSent);
     } catch (_) {
-      setStatus(Status.connectionError);
+      setStatus(Status.tokenCreated);
     }
   }, [port, ideName, login]);
 
@@ -162,7 +159,7 @@ export function SonarLintConnection({ currentUser }: Props) {
             </>
           )}
 
-          {status === Status.connectionError && newToken && (
+          {status === Status.tokenCreated && newToken && (
             <>
               <img
                 alt=""
@@ -200,7 +197,7 @@ export function SonarLintConnection({ currentUser }: Props) {
             </>
           )}
 
-          {status === Status.success && newToken && (
+          {status === Status.tokenSent && newToken && (
             <>
               <h1 className="big-spacer-top big-spacer-bottom">
                 {translate('sonarlint-connection.success.title')}
