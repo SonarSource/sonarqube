@@ -4087,7 +4087,7 @@
       "title": "Configuration"
     },
     "1.1.1": {
-      "title": "Verify the use of a secure software development lifecycle that addresses security in all stages of development. ([C1](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify the use of a secure software development lifecycle that addresses security in all stages of development.",
       "level": "2"
     },
     "1.1.2": {
@@ -4103,11 +4103,11 @@
       "level": "2"
     },
     "1.1.5": {
-      "title": "Verify definition and security analysis of the application's high-level architecture and all connected remote services. ([C1](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify definition and security analysis of the application's high-level architecture and all connected remote services.",
       "level": "2"
     },
     "1.1.6": {
-      "title": "Verify implementation of centralized, simple (economy of design), vetted, secure, and reusable security controls to avoid duplicate, missing, ineffective, or insecure controls. ([C10](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify implementation of centralized, simple (economy of design), vetted, secure, and reusable security controls to avoid duplicate, missing, ineffective, or insecure controls.",
       "level": "2"
     },
     "1.1.7": {
@@ -4155,7 +4155,7 @@
       "level": "2"
     },
     "1.14.5": {
-      "title": "Verify that application deployments adequately sandbox, containerize and/or isolate at the network level to delay and deter attackers from attacking other applications, especially when they are performing sensitive or dangerous actions such as deserialization. ([C5](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that application deployments adequately sandbox, containerize and/or isolate at the network level to delay and deter attackers from attacking other applications, especially when they are performing sensitive or dangerous actions such as deserialization.",
       "level": "2"
     },
     "1.14.6": {
@@ -4163,11 +4163,11 @@
       "level": "2"
     },
     "1.2.1": {
-      "title": "Verify the use of unique or special low-privilege operating system accounts for all application components, services, and servers. ([C3](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify the use of unique or special low-privilege operating system accounts for all application components, services, and servers.",
       "level": "2"
     },
     "1.2.2": {
-      "title": "Verify that communications between application components, including APIs, middleware and data layers, are authenticated. Components should have the least necessary privileges needed. ([C3](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that communications between application components, including APIs, middleware and data layers, are authenticated. Components should have the least necessary privileges needed.",
       "level": "2"
     },
     "1.2.3": {
@@ -4191,11 +4191,11 @@
       "level": "2"
     },
     "1.4.4": {
-      "title": "Verify the application uses a single and well-vetted access control mechanism for accessing protected data and resources. All requests must pass through this single mechanism to avoid copy and paste or insecure alternative paths. ([C7](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify the application uses a single and well-vetted access control mechanism for accessing protected data and resources. All requests must pass through this single mechanism to avoid copy and paste or insecure alternative paths.",
       "level": "2"
     },
     "1.4.5": {
-      "title": "Verify that attribute or feature-based access control is used whereby the code checks the user's authorization for a feature/data item rather than just their role. Permissions should still be allocated using roles. ([C7](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that attribute or feature-based access control is used whereby the code checks the user's authorization for a feature/data item rather than just their role. Permissions should still be allocated using roles.",
       "level": "2"
     },
     "1.5.1": {
@@ -4207,11 +4207,11 @@
       "level": "2"
     },
     "1.5.3": {
-      "title": "Verify that input validation is enforced on a trusted service layer. ([C5](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that input validation is enforced on a trusted service layer.",
       "level": "2"
     },
     "1.5.4": {
-      "title": "Verify that output encoding occurs close to or by the interpreter for which it is intended. ([C4](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that output encoding occurs close to or by the interpreter for which it is intended.",
       "level": "2"
     },
     "1.6.1": {
@@ -4231,11 +4231,11 @@
       "level": "2"
     },
     "1.7.1": {
-      "title": "Verify that a common logging format and approach is used across the system.  ([C9](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that a common logging format and approach is used across the system. ",
       "level": "2"
     },
     "1.7.2": {
-      "title": "Verify that logs are securely transmitted to a preferably remote system for analysis, detection, alerting, and escalation. ([C9](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that logs are securely transmitted to a preferably remote system for analysis, detection, alerting, and escalation.",
       "level": "2"
     },
     "1.8.1": {
@@ -4247,7 +4247,7 @@
       "level": "2"
     },
     "1.9.1": {
-      "title": "Verify the application encrypts communications between components, particularly when these components are in different containers, systems, sites, or cloud providers. ([C3](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify the application encrypts communications between components, particularly when these components are in different containers, systems, sites, or cloud providers.",
       "level": "2"
     },
     "1.9.2": {
@@ -4255,7 +4255,7 @@
       "level": "2"
     },
     "2.1.1": {
-      "title": "Verify that user set passwords are at least 12 characters in length. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that user set passwords are at least 12 characters in length.",
       "level": "1"
     },
     "2.1.10": {
@@ -4271,11 +4271,11 @@
       "level": "1"
     },
     "2.1.2": {
-      "title": "Verify that passwords 64 characters or longer are permitted. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that passwords 64 characters or longer are permitted.",
       "level": "1"
     },
     "2.1.3": {
-      "title": "Verify that passwords can contain spaces and truncation is not performed. Consecutive multiple spaces MAY optionally be coalesced. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that passwords can contain spaces and truncation is not performed. Consecutive multiple spaces MAY optionally be coalesced.",
       "level": "1"
     },
     "2.1.4": {
@@ -4291,7 +4291,7 @@
       "level": "1"
     },
     "2.1.7": {
-      "title": "Verify that passwords submitted during account registration, login, and password change are checked against a set of breached passwords either locally (such as the top 1,000 or 10,000 most common passwords which match the system's password policy) or using an external API. If using an API a zero knowledge proof or other mechanism should be used to ensure that the plain text password is not sent or used in verifying the breach status of the password. If the password is breached, the application must require the user to set a new non-breached password. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that passwords submitted during account registration, login, and password change are checked against a set of breached passwords either locally (such as the top 1,000 or 10,000 most common passwords which match the system's password policy) or using an external API. If using an API a zero knowledge proof or other mechanism should be used to ensure that the plain text password is not sent or used in verifying the breach status of the password. If the password is breached, the application must require the user to set a new non-breached password.",
       "level": "1"
     },
     "2.1.8": {
@@ -4299,7 +4299,7 @@
       "level": "1"
     },
     "2.1.9": {
-      "title": "Verify that there are no password composition rules limiting the type of characters permitted. There should be no requirement for upper or lower case or numbers or special characters. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that there are no password composition rules limiting the type of characters permitted. There should be no requirement for upper or lower case or numbers or special characters.",
       "level": "1"
     },
     "2.10.1": {
@@ -4359,19 +4359,19 @@
       "level": "2"
     },
     "2.4.1": {
-      "title": "Verify that passwords are stored in a form that is resistant to offline attacks. Passwords SHALL be salted and hashed using an approved one-way key derivation or password hashing function. Key derivation and password hashing functions take a password, a salt, and a cost factor as inputs when generating a password hash. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that passwords are stored in a form that is resistant to offline attacks. Passwords SHALL be salted and hashed using an approved one-way key derivation or password hashing function. Key derivation and password hashing functions take a password, a salt, and a cost factor as inputs when generating a password hash.",
       "level": "2"
     },
     "2.4.2": {
-      "title": "Verify that the salt is at least 32 bits in length and be chosen arbitrarily to minimize salt value collisions among stored hashes. For each credential, a unique salt value and the resulting hash SHALL be stored. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the salt is at least 32 bits in length and be chosen arbitrarily to minimize salt value collisions among stored hashes. For each credential, a unique salt value and the resulting hash SHALL be stored.",
       "level": "2"
     },
     "2.4.3": {
-      "title": "Verify that if PBKDF2 is used, the iteration count SHOULD be as large as verification server performance will allow, typically at least 100,000 iterations. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that if PBKDF2 is used, the iteration count SHOULD be as large as verification server performance will allow, typically at least 100,000 iterations.",
       "level": "2"
     },
     "2.4.4": {
-      "title": "Verify that if bcrypt is used, the work factor SHOULD be as large as verification server performance will allow, typically at least 13. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that if bcrypt is used, the work factor SHOULD be as large as verification server performance will allow, typically at least 13.",
       "level": "2"
     },
     "2.4.5": {
@@ -4379,7 +4379,7 @@
       "level": "2"
     },
     "2.5.1": {
-      "title": "Verify that a system generated initial activation or recovery secret is not sent in clear text to the user. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that a system generated initial activation or recovery secret is not sent in clear text to the user.",
       "level": "1"
     },
     "2.5.2": {
@@ -4387,7 +4387,7 @@
       "level": "1"
     },
     "2.5.3": {
-      "title": "Verify password credential recovery does not reveal the current password in any way. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify password credential recovery does not reveal the current password in any way.",
       "level": "1"
     },
     "2.5.4": {
@@ -4399,7 +4399,7 @@
       "level": "1"
     },
     "2.5.6": {
-      "title": "Verify forgotten password, and other recovery paths use a secure recovery mechanism, such as TOTP or other soft token, mobile push, or another offline recovery mechanism. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify forgotten password, and other recovery paths use a secure recovery mechanism, such as TOTP or other soft token, mobile push, or another offline recovery mechanism.",
       "level": "1"
     },
     "2.5.7": {
@@ -4487,11 +4487,11 @@
       "level": "1"
     },
     "3.2.1": {
-      "title": "Verify the application generates a new session token on user authentication. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify the application generates a new session token on user authentication.",
       "level": "1"
     },
     "3.2.2": {
-      "title": "Verify that session tokens possess at least 64 bits of entropy. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that session tokens possess at least 64 bits of entropy.",
       "level": "1"
     },
     "3.2.3": {
@@ -4499,15 +4499,15 @@
       "level": "1"
     },
     "3.2.4": {
-      "title": "Verify that session token are generated using approved cryptographic algorithms. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that session token are generated using approved cryptographic algorithms.",
       "level": "2"
     },
     "3.3.1": {
-      "title": "Verify that logout and expiration invalidate the session token, such that the back button or a downstream relying party does not resume an authenticated session, including across relying parties. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that logout and expiration invalidate the session token, such that the back button or a downstream relying party does not resume an authenticated session, including across relying parties.",
       "level": "1"
     },
     "3.3.2": {
-      "title": "If authenticators permit users to remain logged in, verify that re-authentication occurs periodically both when actively used or after an idle period. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "If authenticators permit users to remain logged in, verify that re-authentication occurs periodically both when actively used or after an idle period.",
       "level": "1"
     },
     "3.3.3": {
@@ -4519,15 +4519,15 @@
       "level": "2"
     },
     "3.4.1": {
-      "title": "Verify that cookie-based session tokens have the 'Secure' attribute set. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that cookie-based session tokens have the 'Secure' attribute set.",
       "level": "1"
     },
     "3.4.2": {
-      "title": "Verify that cookie-based session tokens have the 'HttpOnly' attribute set. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that cookie-based session tokens have the 'HttpOnly' attribute set.",
       "level": "1"
     },
     "3.4.3": {
-      "title": "Verify that cookie-based session tokens utilize the 'SameSite' attribute to limit exposure to cross-site request forgery attacks. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that cookie-based session tokens utilize the 'SameSite' attribute to limit exposure to cross-site request forgery attacks.",
       "level": "1"
     },
     "3.4.4": {
@@ -4535,7 +4535,7 @@
       "level": "1"
     },
     "3.4.5": {
-      "title": "Verify that if the application is published under a domain name with other applications that set or use session cookies that might override or disclose the session cookies, set the path attribute in cookie-based session tokens using the most precise path possible. ([C6](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that if the application is published under a domain name with other applications that set or use session cookies that might override or disclose the session cookies, set the path attribute in cookie-based session tokens using the most precise path possible.",
       "level": "1"
     },
     "3.5.1": {
@@ -4571,15 +4571,15 @@
       "level": "1"
     },
     "4.1.3": {
-      "title": "Verify that the principle of least privilege exists - users should only be able to access functions, data files, URLs, controllers, services, and other resources, for which they possess specific authorization. This implies protection against spoofing and elevation of privilege. ([C7](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the principle of least privilege exists - users should only be able to access functions, data files, URLs, controllers, services, and other resources, for which they possess specific authorization. This implies protection against spoofing and elevation of privilege.",
       "level": "1"
     },
     "4.1.4": {
-      "title": "Verify that the principle of deny by default exists whereby new users/roles start with minimal or no permissions and users/roles do not receive access to new features until access is explicitly assigned.  ([C7](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the principle of deny by default exists whereby new users/roles start with minimal or no permissions and users/roles do not receive access to new features until access is explicitly assigned. ",
       "level": "1"
     },
     "4.1.5": {
-      "title": "Verify that access controls fail securely including when an exception occurs. ([C10](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that access controls fail securely including when an exception occurs.",
       "level": "1"
     },
     "4.2.1": {
@@ -4607,15 +4607,15 @@
       "level": "1"
     },
     "5.1.2": {
-      "title": "Verify that frameworks protect against mass parameter assignment attacks, or that the application has countermeasures to protect against unsafe parameter assignment, such as marking fields private or similar. ([C5](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that frameworks protect against mass parameter assignment attacks, or that the application has countermeasures to protect against unsafe parameter assignment, such as marking fields private or similar.",
       "level": "1"
     },
     "5.1.3": {
-      "title": "Verify that all input (HTML form fields, REST requests, URL parameters, HTTP headers, cookies, batch files, RSS feeds, etc) is validated using positive validation (whitelisting). ([C5](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that all input (HTML form fields, REST requests, URL parameters, HTTP headers, cookies, batch files, RSS feeds, etc) is validated using positive validation (whitelisting).",
       "level": "1"
     },
     "5.1.4": {
-      "title": "Verify that structured data is strongly typed and validated against a defined schema including allowed characters, length and pattern (e.g. credit card numbers or telephone, or validating that two related fields are reasonable, such as checking that suburb and zip/postcode match). ([C5](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that structured data is strongly typed and validated against a defined schema including allowed characters, length and pattern (e.g. credit card numbers or telephone, or validating that two related fields are reasonable, such as checking that suburb and zip/postcode match).",
       "level": "1"
     },
     "5.1.5": {
@@ -4623,7 +4623,7 @@
       "level": "1"
     },
     "5.2.1": {
-      "title": "Verify that all untrusted HTML input from WYSIWYG editors or similar is properly sanitized with an HTML sanitizer library or framework feature. ([C5](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that all untrusted HTML input from WYSIWYG editors or similar is properly sanitized with an HTML sanitizer library or framework feature.",
       "level": "1"
     },
     "5.2.2": {
@@ -4655,39 +4655,39 @@
       "level": "1"
     },
     "5.3.1": {
-      "title": "Verify that output encoding is relevant for the interpreter and context required. For example, use encoders specifically for HTML values, HTML attributes, JavaScript, URL Parameters, HTTP headers, SMTP, and others as the context requires, especially from untrusted inputs (e.g. names with Unicode or apostrophes, such as ねこ or O'Hara). ([C4](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that output encoding is relevant for the interpreter and context required. For example, use encoders specifically for HTML values, HTML attributes, JavaScript, URL Parameters, HTTP headers, SMTP, and others as the context requires, especially from untrusted inputs (e.g. names with Unicode or apostrophes, such as ねこ or O'Hara).",
       "level": "1"
     },
     "5.3.10": {
-      "title": "Verify that the application protects against XPath injection or XML injection attacks. ([C4](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the application protects against XPath injection or XML injection attacks.",
       "level": "1"
     },
     "5.3.2": {
-      "title": "Verify that output encoding preserves the user's chosen character set and locale, such that any Unicode character point is valid and safely handled. ([C4](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that output encoding preserves the user's chosen character set and locale, such that any Unicode character point is valid and safely handled.",
       "level": "1"
     },
     "5.3.3": {
-      "title": "Verify that context-aware, preferably automated - or at worst, manual - output escaping protects against reflected, stored, and DOM based XSS. ([C4](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that context-aware, preferably automated - or at worst, manual - output escaping protects against reflected, stored, and DOM based XSS.",
       "level": "1"
     },
     "5.3.4": {
-      "title": "Verify that data selection or database queries (e.g. SQL, HQL, ORM, NoSQL) use parameterized queries, ORMs, entity frameworks, or are otherwise protected from database injection attacks. ([C3](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that data selection or database queries (e.g. SQL, HQL, ORM, NoSQL) use parameterized queries, ORMs, entity frameworks, or are otherwise protected from database injection attacks.",
       "level": "1"
     },
     "5.3.5": {
-      "title": "Verify that where parameterized or safer mechanisms are not present, context-specific output encoding is used to protect against injection attacks, such as the use of SQL escaping to protect against SQL injection. ([C3, C4](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that where parameterized or safer mechanisms are not present, context-specific output encoding is used to protect against injection attacks, such as the use of SQL escaping to protect against SQL injection.",
       "level": "1"
     },
     "5.3.6": {
-      "title": "Verify that the application projects against JavaScript or JSON injection attacks, including for eval attacks, remote JavaScript includes, CSP bypasses, DOM XSS, and JavaScript expression evaluation. ([C4](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the application projects against JavaScript or JSON injection attacks, including for eval attacks, remote JavaScript includes, CSP bypasses, DOM XSS, and JavaScript expression evaluation.",
       "level": "1"
     },
     "5.3.7": {
-      "title": "Verify that the application protects against LDAP Injection vulnerabilities, or that specific security controls to prevent LDAP Injection have been implemented. ([C4](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the application protects against LDAP Injection vulnerabilities, or that specific security controls to prevent LDAP Injection have been implemented.",
       "level": "1"
     },
     "5.3.8": {
-      "title": "Verify that the application protects against OS command injection and that operating system calls use parameterized OS queries or use contextual command line output encoding. ([C4](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the application protects against OS command injection and that operating system calls use parameterized OS queries or use contextual command line output encoding.",
       "level": "1"
     },
     "5.3.9": {
@@ -4707,7 +4707,7 @@
       "level": "2"
     },
     "5.5.1": {
-      "title": "Verify that serialized objects use integrity checks or are encrypted to prevent hostile object creation or data tampering. ([C5](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that serialized objects use integrity checks or are encrypted to prevent hostile object creation or data tampering.",
       "level": "1"
     },
     "5.5.2": {
@@ -4739,7 +4739,7 @@
       "level": "1"
     },
     "6.2.2": {
-      "title": "Verify that industry proven or government approved cryptographic algorithms, modes, and libraries are used, instead of custom coded cryptography. ([C8](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that industry proven or government approved cryptographic algorithms, modes, and libraries are used, instead of custom coded cryptography.",
       "level": "2"
     },
     "6.2.3": {
@@ -4747,7 +4747,7 @@
       "level": "2"
     },
     "6.2.4": {
-      "title": "Verify that random number, encryption or hashing algorithms, key lengths, rounds, ciphers or modes, can be reconfigured, upgraded, or swapped at any time, to protect against cryptographic breaks. ([C8](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that random number, encryption or hashing algorithms, key lengths, rounds, ciphers or modes, can be reconfigured, upgraded, or swapped at any time, to protect against cryptographic breaks.",
       "level": "2"
     },
     "6.2.5": {
@@ -4779,27 +4779,27 @@
       "level": "3"
     },
     "6.4.1": {
-      "title": "Verify that a secrets management solution such as a key vault is used to securely create, store, control access to and destroy secrets. ([C8](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that a secrets management solution such as a key vault is used to securely create, store, control access to and destroy secrets.",
       "level": "2"
     },
     "6.4.2": {
-      "title": "Verify that key material is not exposed to the application but instead uses an isolated security module like a vault for cryptographic operations. ([C8](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that key material is not exposed to the application but instead uses an isolated security module like a vault for cryptographic operations.",
       "level": "2"
     },
     "7.1.1": {
-      "title": "Verify that the application does not log credentials or payment details. Session tokens should only be stored in logs in an irreversible, hashed form. ([C9, C10](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the application does not log credentials or payment details. Session tokens should only be stored in logs in an irreversible, hashed form.",
       "level": "1"
     },
     "7.1.2": {
-      "title": "Verify that the application does not log other sensitive data as defined under local privacy laws or relevant security policy. ([C9](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the application does not log other sensitive data as defined under local privacy laws or relevant security policy.",
       "level": "1"
     },
     "7.1.3": {
-      "title": "Verify that the application logs security relevant events including successful and failed authentication events, access control failures, deserialization failures and input validation failures. ([C5, C7](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the application logs security relevant events including successful and failed authentication events, access control failures, deserialization failures and input validation failures.",
       "level": "2"
     },
     "7.1.4": {
-      "title": "Verify that each log event includes necessary information that would allow for a detailed investigation of the timeline when an event happens. ([C9](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that each log event includes necessary information that would allow for a detailed investigation of the timeline when an event happens.",
       "level": "2"
     },
     "7.2.1": {
@@ -4811,31 +4811,31 @@
       "level": "2"
     },
     "7.3.1": {
-      "title": "Verify that the application appropriately encodes user-supplied data to prevent log injection. ([C9](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the application appropriately encodes user-supplied data to prevent log injection.",
       "level": "2"
     },
     "7.3.2": {
-      "title": "Verify that all events are protected from injection when viewed in log viewing software. ([C9](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that all events are protected from injection when viewed in log viewing software.",
       "level": "2"
     },
     "7.3.3": {
-      "title": "Verify that security logs are protected from unauthorized access and modification. ([C9](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that security logs are protected from unauthorized access and modification.",
       "level": "2"
     },
     "7.3.4": {
-      "title": "Verify that time sources are synchronized to the correct time and time zone. Strongly consider logging only in UTC if systems are global to assist with post-incident forensic analysis. ([C9](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that time sources are synchronized to the correct time and time zone. Strongly consider logging only in UTC if systems are global to assist with post-incident forensic analysis.",
       "level": "2"
     },
     "7.4.1": {
-      "title": "Verify that a generic message is shown when an unexpected or security sensitive error occurs, potentially with a unique ID which support personnel can use to investigate.  ([C10](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that a generic message is shown when an unexpected or security sensitive error occurs, potentially with a unique ID which support personnel can use to investigate.",
       "level": "1"
     },
     "7.4.2": {
-      "title": "Verify that exception handling (or a functional equivalent) is used across the codebase to account for expected and unexpected error conditions. ([C10](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that exception handling (or a functional equivalent) is used across the codebase to account for expected and unexpected error conditions.",
       "level": "2"
     },
     "7.4.3": {
-      "title": "Verify that a \"last resort\" error handler is defined which will catch all unhandled exceptions. ([C10](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that a \"last resort\" error handler is defined which will catch all unhandled exceptions.",
       "level": "2"
     },
     "8.1.1": {
@@ -4887,7 +4887,7 @@
       "level": "1"
     },
     "8.3.4": {
-      "title": "Verify that all sensitive data created and processed by the application has been identified, and ensure that a policy is in place on how to deal with sensitive data. ([C8](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that all sensitive data created and processed by the application has been identified, and ensure that a policy is in place on how to deal with sensitive data.",
       "level": "1"
     },
     "8.3.5": {
@@ -4899,7 +4899,7 @@
       "level": "2"
     },
     "8.3.7": {
-      "title": "Verify that sensitive or private information that is required to be encrypted, is encrypted using approved algorithms that provide both confidentiality and integrity. ([C8](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that sensitive or private information that is required to be encrypted, is encrypted using approved algorithms that provide both confidentiality and integrity.",
       "level": "2"
     },
     "8.3.8": {
@@ -4907,7 +4907,7 @@
       "level": "2"
     },
     "9.1.1": {
-      "title": "Verify that secured TLS is used for all client connectivity, and does not fall back to insecure or unencrypted protocols. ([C8](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that secured TLS is used for all client connectivity, and does not fall back to insecure or unencrypted protocols.",
       "level": "1"
     },
     "9.1.2": {
@@ -5003,7 +5003,7 @@
       "level": "2"
     },
     "11.1.7": {
-      "title": "Verify the application monitors for unusual events or activity from a business logic perspective. For example, attempts to perform actions out of order or actions which a normal user would never attempt. ([C9](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify the application monitors for unusual events or activity from a business logic perspective. For example, attempts to perform actions out of order or actions which a normal user would never attempt.",
       "level": "2"
     },
     "11.1.8": {
@@ -5099,7 +5099,7 @@
       "level": "1"
     },
     "13.2.3": {
-      "title": "Verify that RESTful web services that utilize cookies are protected from Cross-Site Request Forgery via the use of at least one or more of the following: triple or double submit cookie pattern (see [references](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet)), CSRF nonces, or ORIGIN request header checks.",
+      "title": "Verify that RESTful web services that utilize cookies are protected from Cross-Site Request Forgery via the use of at least one or more of the following: triple or double submit cookie pattern",
       "level": "1"
     },
     "13.2.4": {
@@ -5151,7 +5151,7 @@
       "level": "3"
     },
     "14.2.1": {
-      "title": "Verify that all components are up to date, preferably using a dependency checker during build or compile time. ([C2](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that all components are up to date, preferably using a dependency checker during build or compile time.",
       "level": "1"
     },
     "14.2.2": {
@@ -5163,15 +5163,15 @@
       "level": "1"
     },
     "14.2.4": {
-      "title": "Verify that third party components come from pre-defined, trusted and continually maintained repositories. ([C2](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that third party components come from pre-defined, trusted and continually maintained repositories.",
       "level": "2"
     },
     "14.2.5": {
-      "title": "Verify that an inventory catalog is maintained of all third party libraries in use. ([C2](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that an inventory catalog is maintained of all third party libraries in use.",
       "level": "2"
     },
     "14.2.6": {
-      "title": "Verify that the attack surface is reduced by sandboxing or encapsulating third party libraries to expose only the required behaviour into the application. ([C2](https://www.owasp.org/index.php/OWASP_Proactive_Controls#tab=Formal_Numbering))",
+      "title": "Verify that the attack surface is reduced by sandboxing or encapsulating third party libraries to expose only the required behaviour into the application.",
       "level": "2"
     },
     "14.3.1": {
