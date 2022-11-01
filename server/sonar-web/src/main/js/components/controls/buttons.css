@@ -125,7 +125,7 @@
   border-radius: 0;
   background: transparent;
   color: var(--darkBlue);
-  border-bottom: 1px solid var(--lightBlue);
+  border-bottom: 1px solid var(--primarya40);
   font-weight: 400;
   font-size: inherit;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, border-bottom 0.2s ease;
@@ -137,7 +137,8 @@
 
 .button-link:hover {
   background: transparent;
-  color: var(--blue);
+  color: var(--darkBlue);
+  border-bottom-color: var(--primary);
 }
 
 .button-link.disabled {
