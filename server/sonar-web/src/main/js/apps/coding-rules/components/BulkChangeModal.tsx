@@ -48,6 +48,7 @@ interface ActivationResult {
 
 interface State {
   finished: boolean;
+  modalWrapperNode: HTMLDivElement | null;
   results: ActivationResult[];
   selectedProfiles: Profile[];
   submitting: boolean;
@@ -66,7 +67,13 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       selectedProfiles.push(availableProfiles[0]);
     }
 
-    this.state = { finished: false, results: [], selectedProfiles, submitting: false };
+    this.state = {
+      finished: false,
+      modalWrapperNode: null,
+      results: [],
+      selectedProfiles,
+      submitting: false
+    };
   }
 
   componentDidMount() {
@@ -76,6 +83,10 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  setModalWrapperNode = (node: HTMLDivElement | null) => {
+    this.setState({ modalWrapperNode: node });
+  };
 
   handleProfileSelect = (selectedProfiles: Profile[]) => {
     this.setState({ selectedProfiles });
@@ -184,6 +195,8 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         isMulti={true}
         isClearable={false}
         isSearchable={true}
+        menuPortalTarget={this.state.modalWrapperNode}
+        menuPosition="fixed"
         noOptionsMessage={() => translate('coding_rules.bulk_change.no_quality_profile')}
         getOptionLabel={profile => `${profile.name} - ${profile.languageName}`}
         getOptionValue={profile => profile.key}
@@ -208,49 +221,51 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
           )} ${translate('coding_rules._rules')})`;
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
-        <form onSubmit={this.handleFormSubmit}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="medium">
+        <div ref={this.setModalWrapperNode}>
+          <form onSubmit={this.handleFormSubmit}>
+            <header className="modal-head">
+              <h2>{header}</h2>
+            </header>
 
-          <div className="modal-body">
-            {this.state.results.map(this.renderResult)}
+            <div className="modal-body modal-container">
+              {this.state.results.map(this.renderResult)}
 
-            {!this.state.finished && !this.state.submitting && (
-              <div className="modal-field">
-                <h3>
-                  <label id="coding-rules-bulk-change-profile-header">
-                    {action === 'activate'
-                      ? translate('coding_rules.activate_in')
-                      : translate('coding_rules.deactivate_in')}
-                  </label>
-                </h3>
-                {profile ? (
-                  <span>
-                    {profile.name}
-                    {' — '}
-                    {translate('are_you_sure')}
-                  </span>
-                ) : (
-                  this.renderProfileSelect()
-                )}
-              </div>
-            )}
-          </div>
+              {!this.state.finished && !this.state.submitting && (
+                <div className="modal-field huge-spacer-bottom">
+                  <h3>
+                    <label id="coding-rules-bulk-change-profile-header">
+                      {action === 'activate'
+                        ? translate('coding_rules.activate_in')
+                        : translate('coding_rules.deactivate_in')}
+                    </label>
+                  </h3>
+                  {profile ? (
+                    <span>
+                      {profile.name}
+                      {' — '}
+                      {translate('are_you_sure')}
+                    </span>
+                  ) : (
+                    this.renderProfileSelect()
+                  )}
+                </div>
+              )}
+            </div>
 
-          <footer className="modal-foot">
-            {this.state.submitting && <i className="spinner spacer-right" />}
-            {!this.state.finished && (
-              <SubmitButton disabled={this.state.submitting} id="coding-rules-submit-bulk-change">
-                {translate('apply')}
-              </SubmitButton>
-            )}
-            <ResetButtonLink onClick={this.props.onClose}>
-              {this.state.finished ? translate('close') : translate('cancel')}
-            </ResetButtonLink>
-          </footer>
-        </form>
+            <footer className="modal-foot">
+              {this.state.submitting && <i className="spinner spacer-right" />}
+              {!this.state.finished && (
+                <SubmitButton disabled={this.state.submitting} id="coding-rules-submit-bulk-change">
+                  {translate('apply')}
+                </SubmitButton>
+              )}
+              <ResetButtonLink onClick={this.props.onClose}>
+                {this.state.finished ? translate('close') : translate('cancel')}
+              </ResetButtonLink>
+            </footer>
+          </form>
+        </div>
       </Modal>
     );
   }
