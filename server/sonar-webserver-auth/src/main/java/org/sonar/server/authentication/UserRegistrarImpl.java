@@ -58,8 +58,8 @@ public class UserRegistrarImpl implements UserRegistrar {
   public static final String SQ_AUTHORITY = "sonarqube";
   public static final String LDAP_PROVIDER_PREFIX = "LDAP_";
   private static final Logger LOGGER = Loggers.get(UserRegistrarImpl.class);
-  private static final String GITHUB_PROVIDER = "github";
-  private static final String GITLAB_PROVIDER = "gitlab";
+  public static final String GITHUB_PROVIDER = "github";
+  public static final String GITLAB_PROVIDER = "gitlab";
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;

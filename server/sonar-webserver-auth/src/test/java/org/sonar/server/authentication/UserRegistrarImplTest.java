@@ -21,6 +21,7 @@ package org.sonar.server.authentication;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -28,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.DbTester;
@@ -50,10 +52,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.authentication.UserRegistrarImpl.GITHUB_PROVIDER;
+import static org.sonar.server.authentication.UserRegistrarImpl.GITLAB_PROVIDER;
 import static org.sonar.server.authentication.UserRegistrarImpl.LDAP_PROVIDER_PREFIX;
 import static org.sonar.server.authentication.UserRegistrarImpl.SQ_AUTHORITY;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source.local;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source.realm;
 
 public class UserRegistrarImplTest {
   private static final String USER_LOGIN = "johndoo";
@@ -111,17 +116,10 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_new_user_with_sq_identity() {
-    TestIdentityProvider sqIdentityProvider = new TestIdentityProvider()
-      .setKey("sonarqube")
-      .setName("sonarqube identity name")
-      .setEnabled(true)
-      .setAllowsUsersToSignUp(true);
+    TestIdentityProvider identityProvider = composeIdentityProvider(SQ_AUTHORITY, "sonarqube identity name", true, true);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, identityProvider, realm(BASIC, identityProvider.getName()));
 
-    UserDto createdUser = underTest.register(UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(sqIdentityProvider)
-      .setSource(Source.realm(BASIC, sqIdentityProvider.getName()))
-      .build());
+    UserDto createdUser = underTest.register(registration);
 
     UserDto user = db.users().selectUserByLogin(createdUser.getLogin()).get();
     assertThat(user).isNotNull();
@@ -183,15 +181,8 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_new_user_with_gitlab_provider() {
-    UserRegistration registration = UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(new TestIdentityProvider()
-        .setKey("gitlab")
-        .setName("name of gitlab")
-        .setEnabled(true)
-        .setAllowsUsersToSignUp(true))
-      .setSource(Source.local(BASIC))
-      .build();
+    TestIdentityProvider identityProvider = composeIdentityProvider(GITLAB_PROVIDER, "name of gitlab", true, true);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, identityProvider, local(BASIC));
 
     UserDto newUser = underTest.register(registration);
     assertThat(newUser)
@@ -202,7 +193,7 @@ public class UserRegistrarImplTest {
   @Test
   public void authenticate_new_user_throws_AuthenticationException_when_when_email_already_exists() {
     db.users().insertUser(u -> u.setEmail("john@email.com"));
-    Source source = Source.local(BASIC);
+    Source source = local(BASIC);
 
     assertThatThrownBy(() -> underTest.register(newUserRegistration()))
       .isInstanceOf(AuthenticationException.class)
@@ -218,7 +209,7 @@ public class UserRegistrarImplTest {
   public void authenticate_new_user_throws_AuthenticationException_when_email_already_exists_multiple_times() {
     db.users().insertUser(u -> u.setEmail("john@email.com"));
     db.users().insertUser(u -> u.setEmail("john@email.com"));
-    Source source = Source.realm(AuthenticationEvent.Method.FORM, GH_IDENTITY_PROVIDER.getName());
+    Source source = realm(AuthenticationEvent.Method.FORM, GH_IDENTITY_PROVIDER.getName());
 
     assertThatThrownBy(() -> underTest.register(newUserRegistration(source)))
       .isInstanceOf(AuthenticationException.class)
@@ -232,18 +223,9 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_new_user_fails_when_allow_users_to_signup_is_false() {
-    TestIdentityProvider identityProvider = new TestIdentityProvider()
-      .setKey("github")
-      .setName("Github")
-      .setEnabled(true)
-      .setAllowsUsersToSignUp(false);
-    Source source = Source.realm(AuthenticationEvent.Method.FORM, identityProvider.getName());
-
-    UserRegistration registration = UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(identityProvider)
-      .setSource(source)
-      .build();
+    TestIdentityProvider identityProvider = composeIdentityProvider(GITHUB_PROVIDER, "Github", true, false);
+    Source source = realm(AuthenticationEvent.Method.FORM, identityProvider.getName());
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, identityProvider, source);
 
     assertThatThrownBy(() -> underTest.register(registration))
       .isInstanceOf(AuthenticationException.class)
@@ -267,13 +249,7 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_and_update_existing_user_matching_external_id() {
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setName("Old name")
-      .setEmail("Old email")
-      .setExternalId(USER_IDENTITY.getProviderId())
-      .setExternalLogin("old identity")
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    UserDto user = insertUser("Old login", "Old name", "Old email", USER_IDENTITY.getProviderId(), "old identity", GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     underTest.register(newUserRegistration());
 
@@ -285,13 +261,7 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_and_update_existing_user_matching_external_login_and_email() {
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setName("Old name")
-      .setEmail(USER_IDENTITY.getEmail())
-      .setExternalId("Old id")
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    UserDto user = insertUser("Old login", "Old name", USER_IDENTITY.getEmail(), "Old id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     underTest.register(newUserRegistration());
 
@@ -303,13 +273,7 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_user_should_not_update_login() {
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("old login")
-      .setName(USER_IDENTITY.getName())
-      .setEmail(USER_IDENTITY.getEmail())
-      .setExternalId(USER_IDENTITY.getProviderId())
-      .setExternalLogin("old identity")
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    UserDto user = insertUser("old login", USER_IDENTITY.getName(), USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), "old identity", GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     underTest.register(newUserRegistration());
 
@@ -325,12 +289,7 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_user_matching_external_login_and_email_when_external_id_is_null() {
-    UserDto user = db.users().insertUser(u -> u
-      .setName("Old name")
-      .setExternalId("Old id")
-      .setEmail("john@email.com")
-      .setExternalLogin("johndoo")
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    UserDto user = insertUser("", "Old name", "john@email.com", "Old id", "johndoo", GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     underTest.register(newUserRegistration(UserIdentity.builder()
       .setProviderId(null)
@@ -347,22 +306,9 @@ public class UserRegistrarImplTest {
 
   @Test
   public void do_not_authenticate_gitlab_user_matching_external_login() {
-    db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setName("Old name")
-      .setEmail(USER_IDENTITY.getEmail())
-      .setExternalId("Old id")
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setExternalIdentityProvider("gitlab"));
-
-    UserRegistration registration = UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(new TestIdentityProvider()
-        .setKey("gitlab")
-        .setName("name of gitlab")
-        .setEnabled(true))
-      .setSource(Source.local(BASIC))
-      .build();
+    IdentityProvider provider = composeIdentityProvider(GITLAB_PROVIDER, "name of gitlab", true,false);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    insertUser("Old login", "Old name", USER_IDENTITY.getEmail(), "Old id", USER_IDENTITY.getProviderLogin(), GITLAB_PROVIDER, false, true);
 
     assertThatThrownBy(() -> underTest.register(registration))
       .isInstanceOf(AuthenticationException.class)
@@ -371,13 +317,7 @@ public class UserRegistrarImplTest {
 
   @Test
   public void do_not_authenticate_and_update_existing_github_user_matching_external_login_if_emails_do_not_match() {
-    db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setName("Old name")
-      .setEmail("another-email@sonarsource.com")
-      .setExternalId("Old id")
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    insertUser("Old login", "Old name", "another-email@sonarsource.com", "Old id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     assertThatThrownBy(() -> underTest.register(newUserRegistration()))
       .isInstanceOf(AuthenticationException.class)
@@ -389,13 +329,7 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_and_update_existing_github_user_matching_external_login_if_emails_match_case_insensitive() {
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setName("Old name")
-      .setEmail("John@Email.com")
-      .setExternalId(USER_IDENTITY.getProviderId())
-      .setExternalLogin("old identity")
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    UserDto user = insertUser("Old login", "Old name", "John@Email.com", USER_IDENTITY.getProviderId(), "old identity", GH_IDENTITY_PROVIDER.getKey(), false, false);
 
     underTest.register(newUserRegistration());
 
@@ -407,24 +341,12 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_and_update_existing_user_matching_external_login_and_emails_mismatch() {
-    UserRegistration registration = UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(new TestIdentityProvider()
-        .setKey("other")
-        .setName("name of other")
-        .setEnabled(true))
-      .setSource(Source.local(BASIC))
-      .build();
-
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setName("Old name")
-      .setEmail("another-email@sonarsource.com")
-      .setExternalId("Old id")
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setExternalIdentityProvider(registration.getProvider().getKey()));
+    IdentityProvider provider = composeIdentityProvider("other", "name of other", true,false);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    UserDto user = insertUser("Old login", "Old name", "another-email@sonarsource.com", "Old id", USER_IDENTITY.getProviderLogin(), registration.getProvider().getKey(), false, true);
 
     underTest.register(registration);
+
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
@@ -434,156 +356,62 @@ public class UserRegistrarImplTest {
   @Test
   public void authenticate_user_eligible_for_ldap_migration() {
     String providerKey = LDAP_PROVIDER_PREFIX + "PROVIDER";
-
-    UserRegistration registration = UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(new TestIdentityProvider()
-        .setKey(providerKey)
-        .setName("name of provider")
-        .setEnabled(true))
-      .setSource(Source.local(BASIC))
-      .build();
-
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin(USER_IDENTITY.getProviderLogin())
-      .setName("name")
-      .setEmail("another-email@sonarsource.com")
-      .setExternalId("id")
-      .setLocal(false)
-      .setExternalIdentityProvider(SQ_AUTHORITY));
+    IdentityProvider provider = composeIdentityProvider(providerKey, "name of provider", true,false);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    UserDto user = insertUser(USER_IDENTITY.getProviderLogin(), "name", "another-email@sonarsource.com", "login", "id", SQ_AUTHORITY, false, true);
 
     underTest.register(registration);
 
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
-      .extracting(
-        UserDto::getLogin,
-        UserDto::getName,
-        UserDto::getEmail,
-        UserDto::getExternalId,
-        UserDto::getExternalLogin,
-        UserDto::getExternalIdentityProvider,
-        UserDto::isActive,
-        UserDto::isLocal
-      ).contains(user.getLogin(), "John", "john@email.com", "ABCD", "johndoo", providerKey, true, false);
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider, UserDto::isActive, UserDto::isLocal)
+      .contains(user.getLogin(), "John", "john@email.com", "ABCD", "johndoo", providerKey, true, false);
   }
 
   @Test
-  public void authenticate_local_user_for_ldap_migration_is_not_possible() {
+  public void authenticate_user_for_ldap_migration_is_not_possible_when_user_is_local() {
     String providerKey = LDAP_PROVIDER_PREFIX + "PROVIDER";
-
-    UserRegistration registration = UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(new TestIdentityProvider()
-        .setKey(providerKey)
-        .setName("name of provider")
-        .setAllowsUsersToSignUp(true)
-        .setEnabled(true))
-      .setSource(Source.local(BASIC))
-      .build();
-
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin(USER_IDENTITY.getProviderLogin())
-      .setName("name")
-      .setEmail("another-email@sonarsource.com")
-      .setExternalId("id")
-      .setLocal(true)
-      .setExternalIdentityProvider(SQ_AUTHORITY));
+    IdentityProvider provider = composeIdentityProvider(providerKey, "name of provider", true,true);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    UserDto user = insertUser(USER_IDENTITY.getProviderLogin(), "name", "another-email@sonarsource.com","id", "login", SQ_AUTHORITY, true, true);
 
     underTest.register(registration);
 
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
-      .extracting(
-        UserDto::getLogin,
-        UserDto::getName,
-        UserDto::getEmail,
-        UserDto::getExternalId,
-        UserDto::getExternalIdentityProvider,
-        UserDto::isActive,
-        UserDto::isLocal
-      ).contains(user.getLogin(), "name", "another-email@sonarsource.com", "id", "sonarqube", true, true);
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalIdentityProvider, UserDto::isActive, UserDto::isLocal)
+      .contains(user.getLogin(), "name", "another-email@sonarsource.com", "id", "sonarqube", true, true);
   }
 
   @Test
   public void authenticate_user_for_ldap_migration_is_not_possible_when_external_identity_provider_is_not_sonarqube() {
     String providerKey = LDAP_PROVIDER_PREFIX + "PROVIDER";
-
-    UserRegistration registration = UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(new TestIdentityProvider()
-        .setKey(providerKey)
-        .setName("name of provider")
-        .setAllowsUsersToSignUp(true)
-        .setEnabled(true))
-      .setSource(Source.local(BASIC))
-      .build();
-
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin(USER_IDENTITY.getProviderLogin())
-      .setName("name")
-      .setEmail("another-email@sonarsource.com")
-      .setExternalId("id")
-      .setLocal(false)
-      .setExternalIdentityProvider("not_sonarqube"));
+    IdentityProvider provider = composeIdentityProvider(providerKey, "name of provider", true,true);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    UserDto user = insertUser(USER_IDENTITY.getProviderLogin(), "name", "another-email@sonarsource.com", "id", "login", "not_sonarqube", false, true);
 
     underTest.register(registration);
 
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
-      .extracting(
-        UserDto::getLogin,
-        UserDto::getName,
-        UserDto::getEmail,
-        UserDto::getExternalId,
-        UserDto::getExternalIdentityProvider,
-        UserDto::isActive,
-        UserDto::isLocal
-      ).contains(user.getLogin(), "name", "another-email@sonarsource.com", "id", "not_sonarqube", true, false);
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalIdentityProvider, UserDto::isActive, UserDto::isLocal)
+      .contains(user.getLogin(), "name", "another-email@sonarsource.com", "id", "not_sonarqube", true, false);
   }
 
   @Test
   public void authenticate_user_for_ldap_migration_is_not_possible_when_identity_provider_key_is_not_prefixed_properly() {
     String providerKey = "INVALID_PREFIX" + LDAP_PROVIDER_PREFIX + "PROVIDER";
-
-    UserRegistration registration = UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(new TestIdentityProvider()
-        .setKey(providerKey)
-        .setName("name of provider")
-        .setAllowsUsersToSignUp(true)
-        .setEnabled(true))
-      .setSource(Source.local(BASIC))
-      .build();
-
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin(USER_IDENTITY.getProviderLogin())
-      .setName("name")
-      .setEmail("another-email@sonarsource.com")
-      .setExternalId("id")
-      .setLocal(false)
-      .setExternalIdentityProvider(SQ_AUTHORITY));
+    IdentityProvider provider = composeIdentityProvider(providerKey, "name of provider", true,true);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    UserDto user = insertUser(USER_IDENTITY.getProviderLogin(), "name", "another-email@sonarsource.com", "id", "login", SQ_AUTHORITY, false, true);
 
     underTest.register(registration);
 
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
-      .extracting(
-        UserDto::getLogin,
-        UserDto::getName,
-        UserDto::getEmail,
-        UserDto::getExternalId,
-        UserDto::getExternalIdentityProvider,
-        UserDto::isActive,
-        UserDto::isLocal
-      ).contains(user.getLogin(), "name", "another-email@sonarsource.com", "id", "sonarqube", true, false);
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalIdentityProvider, UserDto::isActive, UserDto::isLocal)
+      .contains(user.getLogin(), "name", "another-email@sonarsource.com", "id", "sonarqube", true, false);
   }
 
   @Test
   public void authenticate_and_update_existing_user_matching_external_login_if_email_is_missing() {
-    db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setName("Old name")
-      .setExternalId("Old id")
-      .setEmail(null)
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    insertUser("Old login", "Old name", null, "Old id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     underTest.register(newUserRegistration());
 
@@ -594,13 +422,7 @@ public class UserRegistrarImplTest {
 
   @Test
   public void do_not_authenticate_and_update_existing_user_matching_external_id_if_external_provider_does_not_match() {
-    db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setName("Old name")
-      .setExternalId(USER_IDENTITY.getProviderId())
-      .setEmail(null)
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setExternalIdentityProvider("Old provider"));
+    insertUser("Old login", "Old name", null, USER_IDENTITY.getProviderId(), USER_IDENTITY.getProviderLogin(), "Old provider", false, true);
 
     underTest.register(newUserRegistration());
     assertThat(db.countRowsOfTable("users")).isEqualTo(2);
@@ -608,11 +430,7 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_user_should_update_login() {
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("Old login")
-      .setExternalId(USER_IDENTITY.getProviderId())
-      .setExternalLogin("old identity")
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    UserDto user = insertUser("Old login", null, null, USER_IDENTITY.getProviderId(), "old identity", GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     underTest.register(newUserRegistration());
 
@@ -623,14 +441,7 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_disabled_user_should_reactivate_it() {
-    db.users().insertUser(u -> u
-      .setLogin(USER_LOGIN)
-      .setActive(false)
-      .setName("Old name")
-      .setEmail(USER_IDENTITY.getEmail())
-      .setExternalId("Old id")
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    insertUser(USER_LOGIN, "Old name", USER_IDENTITY.getEmail(), "Old id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, false);
 
     underTest.register(newUserRegistration());
 
@@ -645,15 +456,15 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticating_existing_user_throws_AuthenticationException_when_email_already_exists() {
-    UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
-    UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
+    db.users().insertUser(u -> u.setEmail("john@email.com"));
+    db.users().insertUser(u -> u.setEmail(null));
     UserIdentity userIdentity = UserIdentity.builder()
       .setProviderLogin("johndoo")
       .setName("John")
       .setEmail("john@email.com")
       .build();
 
-    Source source = Source.realm(AuthenticationEvent.Method.FORM, GH_IDENTITY_PROVIDER.getName());
+    Source source = realm(AuthenticationEvent.Method.FORM, GH_IDENTITY_PROVIDER.getName());
 
     assertThatThrownBy(() -> underTest.register(newUserRegistration(userIdentity, source)))
       .isInstanceOf(AuthenticationException.class)
@@ -667,8 +478,8 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_user_succeeds_when_email_has_not_changed() {
-    UserDto currentUser = db.users().insertUser(u -> u.setEmail("john@email.com")
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    UserDto currentUser = insertUser("login", "John", "john@email.com", "id", "externalLogin", GH_IDENTITY_PROVIDER.getKey(), false, true);
+
     UserIdentity userIdentity = UserIdentity.builder()
       .setProviderId(currentUser.getExternalId())
       .setProviderLogin(currentUser.getExternalLogin())
@@ -684,12 +495,8 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_user_and_add_new_groups() {
-    UserDto user = db.users().insertUser(newUserDto()
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey())
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setEmail(USER_IDENTITY.getEmail())
-      .setActive(true)
-      .setName("John"));
+    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), "id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+
     GroupDto group1 = db.users().insertGroup("group1");
     GroupDto group2 = db.users().insertGroup("group2");
 
@@ -700,12 +507,8 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_user_and_remove_groups() {
-    UserDto user = db.users().insertUser(newUserDto()
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey())
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setEmail(USER_IDENTITY.getEmail())
-      .setActive(true)
-      .setName("John"));
+    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), "id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+
     GroupDto group1 = db.users().insertGroup("group1");
     GroupDto group2 = db.users().insertGroup("group2");
     db.users().insertMember(group1, user);
@@ -718,9 +521,8 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_user_and_remove_all_groups_expect_default() {
-    UserDto user = db.users().insertUser(newUserDto()
-      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey())
-      .setExternalLogin(USER_IDENTITY.getProviderLogin()));
+    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), "id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+
     GroupDto group1 = db.users().insertGroup("group1");
     GroupDto group2 = db.users().insertGroup("group2");
     db.users().insertMember(group1, user);
@@ -733,7 +535,7 @@ public class UserRegistrarImplTest {
   }
 
   private static UserRegistration newUserRegistration(UserIdentity userIdentity) {
-    return newUserRegistration(userIdentity, Source.local(BASIC));
+    return newUserRegistration(userIdentity, local(BASIC));
   }
 
   private static UserRegistration newUserRegistration(UserIdentity userIdentity, Source source) {
@@ -749,7 +551,7 @@ public class UserRegistrarImplTest {
   }
 
   private static UserRegistration newUserRegistration() {
-    return newUserRegistration(USER_IDENTITY, Source.local(BASIC));
+    return newUserRegistration(USER_IDENTITY, local(BASIC));
   }
 
   private UserDto authenticate(String providerLogin, @Nullable String email, String... groups) {
@@ -767,6 +569,38 @@ public class UserRegistrarImplTest {
 
   private GroupDto insertDefaultGroup() {
     return db.users().insertDefaultGroup();
+  }
+
+  private UserDto insertUser(String login, String name, String email, String externalId, String externalLogin, String externalIdentityProvider, boolean isLocal, boolean isActive) {
+    return db.users().insertUser(configureUser(login, name, email, externalId, externalLogin, externalIdentityProvider, isLocal, isActive));
+  }
+
+  private static Consumer<UserDto> configureUser(String login, String name, String email, String externalId, String externalLogin, String externalIdentityProvider, boolean isLocal, boolean isActive) {
+    return user -> user
+      .setLogin(login)
+      .setName(name)
+      .setEmail(email)
+      .setExternalId(externalId)
+      .setExternalLogin(externalLogin)
+      .setExternalIdentityProvider(externalIdentityProvider)
+      .setLocal(isLocal)
+      .setActive(isActive);
+  }
+
+  private static TestIdentityProvider composeIdentityProvider(String providerKey, String name, boolean enabled, boolean allowsUsersToSignUp) {
+    return new TestIdentityProvider()
+      .setKey(providerKey)
+      .setName(name)
+      .setEnabled(enabled)
+      .setAllowsUsersToSignUp(allowsUsersToSignUp);
+  }
+
+  private static UserRegistration composeUserRegistration(UserIdentity userIdentity, IdentityProvider identityProvider, Source source) {
+    return UserRegistration.builder()
+      .setUserIdentity(userIdentity)
+      .setProvider(identityProvider)
+      .setSource(source)
+      .build();
   }
 
 }
