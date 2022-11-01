@@ -48,6 +48,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
@@ -80,9 +81,11 @@ public class ImportAzureProjectActionTest {
 
   private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
 
+  private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
+
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
-    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(),
-    new SequenceUuidFactory(), db.getDbClient().propertiesDao());
+    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory(),
+    defaultBranchNameResolver);
 
   private final Encryption encryption = mock(Encryption.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
@@ -96,6 +99,7 @@ public class ImportAzureProjectActionTest {
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
     when(projectKeyGenerator.generateUniqueProjectKey(any(), any())).thenReturn(GENERATED_PROJECT_KEY);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
   }
 
   @Test
@@ -111,7 +115,7 @@ public class ImportAzureProjectActionTest {
     GsonAzureRepo repo = getGsonAzureRepo();
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name"))
-        .thenReturn(repo);
+      .thenReturn(repo);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -156,7 +160,7 @@ public class ImportAzureProjectActionTest {
     GsonAzureRepo repo = getEmptyGsonAzureRepo();
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name"))
-        .thenReturn(repo);
+      .thenReturn(repo);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())

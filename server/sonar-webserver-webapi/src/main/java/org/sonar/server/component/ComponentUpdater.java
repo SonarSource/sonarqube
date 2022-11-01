@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -39,12 +38,11 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioDto.SelectionMode;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.server.es.ProjectIndexer.Cause;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.DefaultBranchNameResolver;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -66,11 +64,11 @@ public class ComponentUpdater {
   private final FavoriteUpdater favoriteUpdater;
   private final ProjectIndexers projectIndexers;
   private final UuidFactory uuidFactory;
-  private final PropertiesDao propertiesDao;
+  private final DefaultBranchNameResolver defaultBranchNameResolver;
 
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-    ProjectIndexers projectIndexers, UuidFactory uuidFactory, PropertiesDao propertiesDao) {
+    ProjectIndexers projectIndexers, UuidFactory uuidFactory, DefaultBranchNameResolver defaultBranchNameResolver) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.system2 = system2;
@@ -78,7 +76,7 @@ public class ComponentUpdater {
     this.favoriteUpdater = favoriteUpdater;
     this.projectIndexers = projectIndexers;
     this.uuidFactory = uuidFactory;
-    this.propertiesDao = propertiesDao;
+    this.defaultBranchNameResolver = defaultBranchNameResolver;
   }
 
   /**
@@ -91,7 +89,8 @@ public class ComponentUpdater {
     return create(dbSession, newComponent, userUuid, userLogin, null);
   }
 
-  public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid, @Nullable String userLogin, @Nullable String mainBranchName) {
+  public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid, @Nullable String userLogin,
+    @Nullable String mainBranchName) {
     ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userUuid, userLogin, mainBranchName, c -> {
     });
     commitAndIndex(dbSession, componentDto);
@@ -228,16 +227,10 @@ public class ComponentUpdater {
   }
 
   private void createMainBranch(DbSession session, String componentUuid, @Nullable String mainBranch) {
-
-    String branchKey = Optional.ofNullable(mainBranch)
-      .or(() -> Optional.ofNullable(propertiesDao.selectGlobalProperty(session, CorePropertyDefinitions.SONAR_PROJECTCREATION_MAINBRANCHNAME))
-        .map(PropertyDto::getValue))
-      .orElse(BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME);
-
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.BRANCH)
       .setUuid(componentUuid)
-      .setKey(branchKey)
+      .setKey(Optional.ofNullable(mainBranch).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()))
       .setMergeBranchUuid(null)
       .setExcludeFromPurge(true)
       .setProjectUuid(componentUuid);

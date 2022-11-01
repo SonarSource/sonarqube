@@ -48,6 +48,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
@@ -82,8 +83,8 @@ public class ImportBitbucketCloudRepoActionTest {
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
-    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()),
-    new TestProjectIndexers(), new SequenceUuidFactory(), db.getDbClient().propertiesDao());
+    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory(),
+    mock(DefaultBranchNameResolver.class));
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);

@@ -39,6 +39,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.project.ws.CreateAction.Builder;
@@ -56,6 +57,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -80,19 +82,21 @@ public class CreateActionTest {
   @Rule
   public final I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
 
+  private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private final WsActionTester ws = new WsActionTester(
     new CreateAction(
       db.getDbClient(), userSession,
-      new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, new FavoriteUpdater(db.getDbClient()), projectIndexers,
-        new SequenceUuidFactory(), db.getDbClient().propertiesDao()),
+      new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, new FavoriteUpdater(db.getDbClient()),
+        projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver),
       projectDefaultVisibility));
 
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
   }
 
   @Test

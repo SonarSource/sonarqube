@@ -43,6 +43,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
@@ -56,6 +57,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.github.ImportGithubProjectAction.PARAM_ORGANIZATION;
 import static org.sonar.server.almintegration.ws.github.ImportGithubProjectAction.PARAM_REPOSITORY_KEY;
@@ -70,13 +72,14 @@ public class ImportGithubProjectActionTest {
 
   private final System2 system2 = mock(System2.class);
   private final GithubApplicationClientImpl appClient = mock(GithubApplicationClientImpl.class);
+  private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
 
   @Rule
   public DbTester db = DbTester.create(system2);
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
-    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()),
-    new TestProjectIndexers(), new SequenceUuidFactory(), db.getDbClient().propertiesDao());
+    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory(),
+    defaultBranchNameResolver);
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
@@ -87,6 +90,7 @@ public class ImportGithubProjectActionTest {
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
   }
 
   @Test

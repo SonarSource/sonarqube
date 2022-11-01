@@ -19,14 +19,13 @@
  */
 package org.sonar.server.component;
 
-import java.util.Map;
 import java.util.Optional;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -40,6 +39,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.DefaultBranchNameResolver;
 
 import static java.util.stream.IntStream.rangeClosed;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -52,6 +52,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.component.BranchDto.DEFAULT_APPLICATION_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 
 public class ComponentUpdaterTest {
 
@@ -67,10 +69,17 @@ public class ComponentUpdaterTest {
 
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
+  private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
+
   private final ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()),
-    projectIndexers, new SequenceUuidFactory(), db.getDbClient().propertiesDao());
+    projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver);
+
+  @Before
+  public void before() {
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+  }
 
   @Test
   public void persist_and_index_when_creating_project() {
@@ -99,7 +108,7 @@ public class ComponentUpdaterTest {
 
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
     assertThat(branch).isPresent();
-    assertThat(branch.get().getKey()).isEqualTo(BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    assertThat(branch.get().getKey()).isEqualTo(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
     assertThat(branch.get().getMergeBranchUuid()).isNull();
     assertThat(branch.get().getBranchType()).isEqualTo(BranchType.BRANCH);
     assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
@@ -107,26 +116,23 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void create_project_with_main_branch_global_property(){
-    String globalBranchName = "main-branch-global";
-    db.getDbClient().propertiesDao().saveGlobalProperties(Map.of(CorePropertyDefinitions.SONAR_PROJECTCREATION_MAINBRANCHNAME, globalBranchName));
+  public void create_project_with_main_branch_global_property() {
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn("main-branch-global");
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .setPrivate(true)
       .build();
 
-    ComponentDto returned = underTest.create(db.getSession(), project, null, null, null);
+    ComponentDto returned = underTest.create(db.getSession(), project, null, null);
 
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.branchUuid());
-    assertThat(branch).get().extracting(BranchDto::getBranchKey).isEqualTo(globalBranchName);
-
+    assertThat(branch).get().extracting(BranchDto::getBranchKey).isEqualTo("main-branch-global");
   }
 
   @Test
-  public void create_project_with_main_branch_param(){
+  public void create_project_with_main_branch_param() {
     String customBranchName = "main-branch-custom";
-    db.getDbClient().propertiesDao().saveGlobalProperties(Map.of(CorePropertyDefinitions.SONAR_PROJECTCREATION_MAINBRANCHNAME, customBranchName));
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
@@ -137,7 +143,6 @@ public class ComponentUpdaterTest {
 
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.branchUuid());
     assertThat(branch).get().extracting(BranchDto::getBranchKey).isEqualTo(customBranchName);
-
   }
 
   @Test
@@ -200,7 +205,7 @@ public class ComponentUpdaterTest {
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
     assertThat(branch).isPresent();
-    assertThat(branch.get().getKey()).isEqualTo(BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    assertThat(branch.get().getKey()).isEqualTo(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
     assertThat(branch.get().getMergeBranchUuid()).isNull();
     assertThat(branch.get().getBranchType()).isEqualTo(BranchType.BRANCH);
     assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
@@ -330,5 +335,16 @@ public class ComponentUpdaterTest {
     assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", newKey, existingKey);
+  }
+
+  @Test
+  public void createApplicationOrPortfolio_createsComponentWithMasterBranchName() {
+    String componentNameAndKey = "createApplicationOrPortfolio";
+    ComponentDto app = underTest.createApplicationOrPortfolio(db.getSession(),
+      NewComponent.newComponentBuilder().setName(componentNameAndKey).setKey(componentNameAndKey).setQualifier("APP").build(), null, null);
+
+    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), app.branchUuid());
+    assertThat(branch).isPresent();
+    assertThat(branch.get().getBranchKey()).isEqualTo(DEFAULT_APPLICATION_MAIN_BRANCH_NAME);
   }
 }

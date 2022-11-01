@@ -41,6 +41,7 @@ import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
@@ -72,9 +73,11 @@ public class ImportGitLabProjectActionTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
+  DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
+
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
-    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()),
-    new TestProjectIndexers(), new SequenceUuidFactory(), db.getDbClient().propertiesDao());
+    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory(),
+    defaultBranchNameResolver);
 
   private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
@@ -87,6 +90,7 @@ public class ImportGitLabProjectActionTest {
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
   }
 
   @Test

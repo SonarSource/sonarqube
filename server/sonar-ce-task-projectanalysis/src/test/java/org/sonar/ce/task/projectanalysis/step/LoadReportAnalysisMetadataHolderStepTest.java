@@ -45,6 +45,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.Project;
 
 import static java.util.Arrays.stream;
@@ -297,7 +298,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   private LoadReportAnalysisMetadataHolderStep createStep(CeTask ceTask) {
     return new LoadReportAnalysisMetadataHolderStep(ceTask, reportReader, analysisMetadataHolder,
-      dbClient, new BranchLoader(analysisMetadataHolder), pluginRepository);
+      dbClient, new BranchLoader(analysisMetadataHolder, mock(DefaultBranchNameResolver.class)), pluginRepository);
   }
 
   private static ScannerReport.Metadata.Builder newBatchReportBuilder() {

@@ -39,7 +39,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
-import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
@@ -47,6 +46,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
@@ -67,6 +67,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
@@ -84,15 +85,14 @@ public class ReportSubmitterTest {
   public final DbTester db = DbTester.create();
 
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
+  private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
 
   private final CeQueue queue = mock(CeQueueImpl.class);
   private final TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
-
-  private final PropertiesDao propertiesDao = mock(PropertiesDao.class);
-
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,
-    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), propertiesDao);
+    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver
+    );
   private final BranchSupport ossEditionBranchSupport = new BranchSupport(null);
 
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport,
@@ -101,6 +101,7 @@ public class ReportSubmitterTest {
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
   }
 
   @Test
