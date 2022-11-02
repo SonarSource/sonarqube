@@ -213,7 +213,7 @@ junit_task:
     - ./private/cirrus/cirrus-junit.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
-validate_task:
+sq_analysis_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
@@ -233,7 +233,7 @@ validate_task:
     # For the analysis, we need the full history.
     CIRRUS_CLONE_DEPTH: 0
   script:
-    - ./private/cirrus/cirrus-validate.sh
+    - ./private/cirrus/cirrus-sq-analysis.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 qa_task:
@@ -478,7 +478,7 @@ promote_task:
   <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   depends_on:
     - build
-    - validate
+    - sq_analysis
     - qa
     - qa_saml
     - qa_ldap
