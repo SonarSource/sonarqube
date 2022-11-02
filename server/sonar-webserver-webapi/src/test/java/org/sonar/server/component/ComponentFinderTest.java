@@ -232,4 +232,35 @@ public class ComponentFinderTest {
       .isInstanceOf(NotFoundException.class)
       .hasMessage(format("Component '%s' on branch 'other_branch' not found", fileKey));
   }
+
+  @Test
+  public void get_main_branch_name_when_selecting_any_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+
+    // Copy project ComponentDto and rename it to be used by the branch
+    ComponentDto project2 = project.copy();
+    project2.setName("projectName_branch");
+    project2.setLongName("projectLongName_branch");
+    db.components().insertProjectBranch(project2, b -> b.setKey("my_branch"));
+
+    ComponentDto retrievedProject = underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), "my_branch", null);
+    assertThat(retrievedProject.name()).isEqualTo(project.name());
+    assertThat(retrievedProject.longName()).isEqualTo(project.name());
+  }
+
+  @Test
+  public void ignore_component_parent_name_when_not_branch() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory)
+      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      .setName("RequestContext.java")
+      .setLongName("org.struts.RequestContext")
+      .setLanguage("java")
+      .setPath("src/RequestContext.java"));
+
+    ComponentDto retrievedFile = underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, file.getKey(), null, null);
+    assertThat(retrievedFile.name()).isEqualTo(file.name());
+    assertThat(retrievedFile.longName()).isEqualTo(file.longName());
+  }
 }
