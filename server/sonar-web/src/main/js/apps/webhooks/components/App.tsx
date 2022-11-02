@@ -69,7 +69,7 @@ export class App extends React.PureComponent<Props, State> {
 
   getScopeParams = ({ component } = this.props) => {
     return {
-      project: component && component.key
+      project: component && component.key,
     };
   };
 
@@ -78,7 +78,7 @@ export class App extends React.PureComponent<Props, State> {
       name: data.name,
       url: data.url,
       ...(data.secret && { secret: data.secret }),
-      ...this.getScopeParams()
+      ...this.getScopeParams(),
     };
 
     return createWebhook(createData).then(({ webhook }) => {
@@ -92,7 +92,7 @@ export class App extends React.PureComponent<Props, State> {
     return deleteWebhook({ webhook }).then(() => {
       if (this.mounted) {
         this.setState(({ webhooks }) => ({
-          webhooks: webhooks.filter(item => item.key !== webhook)
+          webhooks: webhooks.filter((item) => item.key !== webhook),
         }));
       }
     });
@@ -103,17 +103,17 @@ export class App extends React.PureComponent<Props, State> {
       webhook: data.webhook,
       name: data.name,
       url: data.url,
-      ...(data.secret && { secret: data.secret })
+      ...(data.secret && { secret: data.secret }),
     };
 
     return updateWebhook(udpateData).then(() => {
       if (this.mounted) {
         this.setState(({ webhooks }) => ({
-          webhooks: webhooks.map(webhook =>
+          webhooks: webhooks.map((webhook) =>
             webhook.key === data.webhook
               ? { ...webhook, name: data.name, secret: data.secret, url: data.url }
               : webhook
-          )
+          ),
         }));
       }
     });

@@ -29,7 +29,7 @@ import {
   RawHotspot,
   ReviewHistoryElement,
   ReviewHistoryType,
-  RiskExposure
+  RiskExposure,
 } from '../../types/security-hotspots';
 import { mockFlowLocation, mockUser } from '../testMocks';
 
@@ -48,7 +48,7 @@ export function mockRawHotspot(overrides: Partial<RawHotspot> = {}): RawHotspot 
     author: 'Developer 1',
     creationDate: '2013-05-13T17:55:39+0200',
     updateDate: '2013-05-13T17:55:39+0200',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -77,11 +77,11 @@ export function mockHotspot(overrides?: Partial<Hotspot>): Hotspot {
       startLine: 142,
       endLine: 142,
       startOffset: 26,
-      endOffset: 83
+      endOffset: 83,
     },
     updateDate: '2013-05-13T17:55:42+0200',
     users: [assigneeUser, authorUser],
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -92,7 +92,7 @@ export function mockHotspotComponent(overrides?: Partial<HotspotComponent>): Hot
     longName: 'Hotspot component long name',
     qualifier: ComponentQualifier.File,
     path: 'path/to/component',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -105,7 +105,7 @@ export function mockHotspotComment(overrides?: Partial<HotspotComment>): Hotspot
     updatable: false,
     login: 'dude-2',
     user: mockUser({ login: 'dude-2' }),
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -115,7 +115,7 @@ export function mockHotspotRule(overrides?: Partial<HotspotRule>): HotspotRule {
     name: 'That rule',
     vulnerabilityProbability: RiskExposure.HIGH,
     securityCategory: 'sql-injection',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -126,7 +126,7 @@ export function mockHotspotReviewHistoryElement(
     date: '2019-09-13T17:55:42+0200',
     type: ReviewHistoryType.Creation,
     user: mockUser(),
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -134,70 +134,70 @@ export function mockStandards(): Standards {
   return {
     cwe: {
       unknown: {
-        title: 'No CWE associated'
+        title: 'No CWE associated',
       },
       '1004': {
-        title: "Sensitive Cookie Without 'HttpOnly' Flag"
-      }
+        title: "Sensitive Cookie Without 'HttpOnly' Flag",
+      },
     },
     owaspTop10: {
       a1: {
-        title: 'Injection'
+        title: 'Injection',
       },
       a2: {
-        title: 'Broken Authentication'
+        title: 'Broken Authentication',
       },
       a3: {
-        title: 'Sensitive Data Exposure'
-      }
+        title: 'Sensitive Data Exposure',
+      },
     },
     'owaspTop10-2021': {
       a1: {
-        title: 'Injection'
+        title: 'Injection',
       },
       a2: {
-        title: 'Broken Authentication'
+        title: 'Broken Authentication',
       },
       a3: {
-        title: 'Sensitive Data Exposure'
-      }
+        title: 'Sensitive Data Exposure',
+      },
     },
     sansTop25: {
       'insecure-interaction': {
-        title: 'Insecure Interaction Between Components'
+        title: 'Insecure Interaction Between Components',
       },
       'risky-resource': {
-        title: 'Risky Resource Management'
+        title: 'Risky Resource Management',
       },
       'porous-defenses': {
-        title: 'Porous Defenses'
-      }
+        title: 'Porous Defenses',
+      },
     },
     sonarsourceSecurity: {
       'buffer-overflow': {
-        title: 'Buffer Overflow'
+        title: 'Buffer Overflow',
       },
       'sql-injection': {
-        title: 'SQL Injection'
+        title: 'SQL Injection',
       },
       rce: {
-        title: 'Code Injection (RCE)'
-      }
+        title: 'Code Injection (RCE)',
+      },
     },
     'pciDss-3.2': {
       '1': {
-        title: ' Install and maintain a firewall configuration to protect cardholder data'
-      }
+        title: ' Install and maintain a firewall configuration to protect cardholder data',
+      },
     },
     'pciDss-4.0': {
       '2': {
-        title: 'This is useless...'
-      }
+        title: 'This is useless...',
+      },
     },
     'owaspAsvs-4.0': {
       '1': {
-        title: 'New OWASP ASVS cat 1'
-      }
-    }
+        title: 'New OWASP ASVS cat 1',
+      },
+    },
   };
 }

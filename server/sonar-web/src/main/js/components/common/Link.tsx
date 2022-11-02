@@ -41,7 +41,8 @@ function Link({ children, size, ...props }: LinkProps, ref: React.ForwardedRef<H
         ref={ref}
         href={to}
         rel={anchorProps.target === '_blank' ? 'noopener noreferrer' : undefined}
-        {...anchorProps}>
+        {...anchorProps}
+      >
         {anchorProps.target === '_blank' && (
           <DetachIcon
             ariaLabel={translate('opens_in_new_window')}
@@ -58,7 +59,8 @@ function Link({ children, size, ...props }: LinkProps, ref: React.ForwardedRef<H
     <ReactRouterDomLink
       ref={ref}
       rel={props.target === '_blank' ? 'noopener noreferrer' : undefined}
-      {...props}>
+      {...props}
+    >
       {children}
     </ReactRouterDomLink>
   );

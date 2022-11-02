@@ -30,11 +30,11 @@ import { Assignee } from '../Assignee';
 import AssigneeRenderer from '../AssigneeRenderer';
 
 jest.mock('../../../../../api/security-hotspots', () => ({
-  assignSecurityHotspot: jest.fn()
+  assignSecurityHotspot: jest.fn(),
 }));
 
 jest.mock('../../../../../helpers/globalMessages', () => ({
-  addGlobalSuccessMessage: jest.fn()
+  addGlobalSuccessMessage: jest.fn(),
 }));
 
 it('should render correctly', () => {
@@ -45,7 +45,7 @@ it.each([
   [HotspotStatus.TO_REVIEW, undefined, true],
   [HotspotStatus.REVIEWED, HotspotResolution.FIXED, false],
   [HotspotStatus.REVIEWED, HotspotResolution.SAFE, false],
-  [HotspotStatus.REVIEWED, HotspotResolution.ACKNOWLEDGED, true]
+  [HotspotStatus.REVIEWED, HotspotResolution.ACKNOWLEDGED, true],
 ])('should allow edition properly', (status, resolution, canEdit) => {
   expect(
     shallowRender({ hotspot: mockHotspot({ status, resolution }) })
@@ -57,22 +57,16 @@ it.each([
 it('should handle edition event correctly', () => {
   const wrapper = shallowRender();
 
-  wrapper
-    .find(AssigneeRenderer)
-    .props()
-    .onEnterEditionMode();
+  wrapper.find(AssigneeRenderer).props().onEnterEditionMode();
   expect(wrapper.state().editing).toBe(true);
 
-  wrapper
-    .find(AssigneeRenderer)
-    .props()
-    .onExitEditionMode();
+  wrapper.find(AssigneeRenderer).props().onExitEditionMode();
   expect(wrapper.state().editing).toBe(false);
 });
 
 it.each([
   ['assign to user', mockUser() as UserActive],
-  ['unassign', { login: '', name: 'unassigned' } as UserActive]
+  ['unassign', { login: '', name: 'unassigned' } as UserActive],
 ])('should handle %s event', async (_, user: UserActive) => {
   const hotspot = mockHotspot();
   const onAssigneeChange = jest.fn();
@@ -80,10 +74,7 @@ it.each([
   const wrapper = shallowRender({ hotspot, onAssigneeChange });
 
   (assignSecurityHotspot as jest.Mock).mockResolvedValueOnce({});
-  wrapper
-    .find(AssigneeRenderer)
-    .props()
-    .onAssign(user);
+  wrapper.find(AssigneeRenderer).props().onAssign(user);
 
   expect(wrapper.state().loading).toBe(true);
   expect(assignSecurityHotspot).toHaveBeenCalledWith(hotspot.key, { assignee: user?.login });
@@ -92,7 +83,7 @@ it.each([
 
   expect(wrapper.state()).toEqual({
     editing: false,
-    loading: false
+    loading: false,
   });
   expect(onAssigneeChange).toHaveBeenCalled();
   expect(addGlobalSuccessMessage).toHaveBeenCalled();

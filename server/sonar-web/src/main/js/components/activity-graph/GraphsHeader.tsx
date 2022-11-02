@@ -53,14 +53,14 @@ export default class GraphsHeader extends React.PureComponent<Props> {
       metrics,
       metricsTypeFilter,
       removeCustomMetric,
-      selectedMetrics = []
+      selectedMetrics = [],
     } = this.props;
 
     const types = getGraphTypes(addCustomMetric === undefined || removeCustomMetric === undefined);
 
-    const selectOptions = types.map(type => ({
+    const selectOptions = types.map((type) => ({
       label: translate('project_activity.graphs', type),
-      value: type
+      value: type,
     }));
 
     return (
@@ -76,7 +76,7 @@ export default class GraphsHeader extends React.PureComponent<Props> {
               isSearchable={false}
               onChange={this.handleGraphChange}
               options={selectOptions}
-              value={selectOptions.find(option => option.value === graph)}
+              value={selectOptions.find((option) => option.value === graph)}
             />
           </div>
           {isCustomGraph(graph) &&

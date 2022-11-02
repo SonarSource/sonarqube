@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAnalysisEvent, mockParsedAnalysis } from '../../../../helpers/mocks/project-activity';
 import BranchAnalysisListRenderer, {
-  BranchAnalysisListRendererProps
+  BranchAnalysisListRendererProps,
 } from '../BranchAnalysisListRenderer';
 
 jest.mock('date-fns', () => {
@@ -32,7 +32,7 @@ jest.mock('date-fns', () => {
       const startDay = new Date(date);
       startDay.setUTCHours(0, 0, 0, 0);
       return startDay;
-    }
+    },
   };
 });
 
@@ -45,24 +45,24 @@ const analyses = [
   mockParsedAnalysis({
     key: '4',
     date: new Date('2017-03-02T10:36:01Z'),
-    projectVersion: '4.2'
+    projectVersion: '4.2',
   }),
   mockParsedAnalysis({
     key: '3',
     date: new Date('2017-03-02T09:36:01Z'),
     events: [mockAnalysisEvent()],
-    projectVersion: '4.2'
+    projectVersion: '4.2',
   }),
   mockParsedAnalysis({
     key: '2',
     date: new Date('2017-03-02T08:36:01Z'),
     events: [
       mockAnalysisEvent(),
-      mockAnalysisEvent({ category: 'VERSION', qualityGate: undefined })
+      mockAnalysisEvent({ category: 'VERSION', qualityGate: undefined }),
     ],
-    projectVersion: '4.1'
+    projectVersion: '4.1',
   }),
-  mockParsedAnalysis({ key: '1', projectVersion: '4.1' })
+  mockParsedAnalysis({ key: '1', projectVersion: '4.1' }),
 ];
 
 it('should render correctly', () => {

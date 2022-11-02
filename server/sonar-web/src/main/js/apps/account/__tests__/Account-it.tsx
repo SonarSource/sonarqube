@@ -38,13 +38,13 @@ jest.mock('../../../api/notifications');
 
 jest.mock('../../../helpers/preferences', () => ({
   getKeyboardShortcutEnabled: jest.fn().mockResolvedValue(true),
-  setKeyboardShortcutEnabled: jest.fn()
+  setKeyboardShortcutEnabled: jest.fn(),
 }));
 
 jest.mock('../../../helpers/dates', () => {
   return {
     ...jest.requireActual('../../../helpers/dates'),
-    now: jest.fn(() => new Date('2022-06-01T12:00:00Z'))
+    now: jest.fn(() => new Date('2022-06-01T12:00:00Z')),
   };
 });
 
@@ -55,9 +55,9 @@ jest.mock('../../../api/settings', () => {
     getAllValues: jest.fn().mockResolvedValue([
       {
         key: SettingsKey.TokenMaxAllowedLifetime,
-        value: 'No expiration'
-      }
-    ])
+        value: 'No expiration',
+      },
+    ]),
   };
 });
 
@@ -71,35 +71,35 @@ jest.mock('../../../api/components', () => ({
         links: [
           {
             type: 'homepage',
-            href: 'http://www.sonarsource.com/proj1'
+            href: 'http://www.sonarsource.com/proj1',
           },
           {
             type: 'issue',
-            href: 'http://jira.sonarsource.com/'
+            href: 'http://jira.sonarsource.com/',
           },
           {
             type: 'scm',
-            href: 'https://github.com/SonarSource/project1'
+            href: 'https://github.com/SonarSource/project1',
           },
           {
             type: 'ci',
-            href: 'https://travis.com/project1'
+            href: 'https://travis.com/project1',
           },
           {
             type: 'other',
-            href: 'https://apidocs.project1.net'
-          }
+            href: 'https://apidocs.project1.net',
+          },
         ],
         description: 'project description',
         lastAnalysisDate: '2019-01-04T09:51:48+0000',
-        qualityGate: 'OK'
+        qualityGate: 'OK',
       },
       {
         key: 'proj2',
         name: 'Project 2',
-        links: []
-      }
-    ]
+        links: [],
+      },
+    ],
   }),
   getSuggestions: jest.fn().mockResolvedValue({
     results: [
@@ -112,7 +112,7 @@ jest.mock('../../../api/components', () => ({
             key: 'sonarqube',
             match: 'SonarQube',
             name: 'SonarQube',
-            project: ''
+            project: '',
           },
           {
             isFavorite: false,
@@ -120,24 +120,24 @@ jest.mock('../../../api/components', () => ({
             key: 'sonarcloud',
             match: 'Sonarcloud',
             name: 'Sonarcloud',
-            project: ''
-          }
-        ]
-      }
-    ]
+            project: '',
+          },
+        ],
+      },
+    ],
   }),
   getScannableProjects: jest.fn().mockResolvedValue({
     projects: [
       {
         key: 'project-key-1',
-        name: 'Project Name 1'
+        name: 'Project Name 1',
       },
       {
         key: 'project-key-2',
-        name: 'Project Name 2'
-      }
-    ]
-  })
+        name: 'Project Name 2',
+      },
+    ],
+  }),
 }));
 
 jest.mock('../../../api/users', () => ({
@@ -147,21 +147,21 @@ jest.mock('../../../api/users', () => ({
         key: 'github',
         name: 'GitHub',
         iconPath: '/images/alm/github-white.svg',
-        backgroundColor: '#444444'
-      }
-    ]
+        backgroundColor: '#444444',
+      },
+    ],
   }),
-  changePassword: jest.fn().mockResolvedValue(true)
+  changePassword: jest.fn().mockResolvedValue(true),
 }));
 
 it('should handle a currentUser not logged in', () => {
   const replace = jest.fn();
-  const locationMock = jest.spyOn(window, 'location', 'get').mockReturnValue(({
+  const locationMock = jest.spyOn(window, 'location', 'get').mockReturnValue({
     pathname: '/account',
     search: '',
     hash: '',
-    replace
-  } as unknown) as Location);
+    replace,
+  } as unknown as Location);
 
   renderAccountApp(mockCurrentUser());
 
@@ -188,7 +188,7 @@ describe('profile page', () => {
     const loggedInUser = mockLoggedInUser({
       email: 'email@company.com',
       groups: ['group1'],
-      scmAccounts: ['account1']
+      scmAccounts: ['account1'],
     });
     renderAccountApp(loggedInUser);
 
@@ -211,7 +211,7 @@ describe('profile page', () => {
   it('should handle known external Providers', async () => {
     const loggedInUser = mockLoggedInUser({
       externalProvider: 'github',
-      externalIdentity: 'gh_id'
+      externalIdentity: 'gh_id',
     });
     renderAccountApp(loggedInUser);
 
@@ -221,7 +221,7 @@ describe('profile page', () => {
   it('should handle unknown external Providers', async () => {
     const loggedInUser = mockLoggedInUser({
       externalProvider: 'swag',
-      externalIdentity: 'king_of_swag'
+      externalIdentity: 'king_of_swag',
     });
     renderAccountApp(loggedInUser);
 
@@ -235,7 +235,7 @@ describe('profile page', () => {
     renderAccountApp(mockLoggedInUser());
 
     const toggle = screen.getByRole('button', {
-      name: 'my_account.preferences.keyboard_shortcuts.enabled'
+      name: 'my_account.preferences.keyboard_shortcuts.enabled',
     });
     expect(toggle).toBeInTheDocument();
 
@@ -261,7 +261,7 @@ describe('security page', () => {
   it.each([
     ['user', TokenType.User],
     ['global', TokenType.Global],
-    ['project analysis', TokenType.Project]
+    ['project analysis', TokenType.Project],
   ])(
     'should allow %s token creation/revocation and display existing tokens',
     async (_, tokenTypeOption) => {
@@ -325,7 +325,7 @@ describe('security page', () => {
       expect(screen.getAllByRole('row')).toHaveLength(4); // 3 tokens + header
 
       const row = screen.getByRole('row', {
-        name: new RegExp(`^${newTokenName}`)
+        name: new RegExp(`^${newTokenName}`),
       });
 
       expect(await within(row).findByText(tokenTypeShortLabel)).toBeInTheDocument();
@@ -337,7 +337,7 @@ describe('security page', () => {
 
       // Revoke the token
       const revokeButtons = within(row).getByRole('button', {
-        name: 'users.tokens.revoke_token'
+        name: 'users.tokens.revoke_token',
       });
       await user.click(revokeButtons);
 
@@ -356,7 +356,7 @@ describe('security page', () => {
       mockUserToken({
         name: 'expired token',
         isExpired: true,
-        expirationDate: '2021-01-23T19:25:19+0000'
+        expirationDate: '2021-01-23T19:25:19+0000',
       })
     );
 
@@ -380,7 +380,7 @@ describe('security page', () => {
 
   it("should not suggest creating a Project token if the user doesn't have at least one scannable Projects", () => {
     (getScannableProjects as jest.Mock).mockResolvedValueOnce({
-      projects: []
+      projects: [],
     });
     renderAccountApp(
       mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
@@ -393,7 +393,7 @@ describe('security page', () => {
 
   it('should preselect the user token type if the user has no scan rights', async () => {
     (getScannableProjects as jest.Mock).mockResolvedValueOnce({
-      projects: []
+      projects: [],
     });
     renderAccountApp(mockLoggedInUser(), securityPagePath);
 
@@ -406,9 +406,9 @@ describe('security page', () => {
       projects: [
         {
           key: 'project-key-1',
-          name: 'Project Name 1'
-        }
-      ]
+          name: 'Project Name 1',
+        },
+      ],
     });
     renderAccountApp(
       mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
@@ -416,7 +416,7 @@ describe('security page', () => {
     );
 
     await selectEvent.select(screen.getAllByRole('textbox')[1], [
-      `users.tokens.${TokenType.Project}`
+      `users.tokens.${TokenType.Project}`,
     ]);
 
     expect(screen.getByText('Project Name 1')).toBeInTheDocument();
@@ -432,16 +432,16 @@ describe('security page', () => {
 
     const oldPasswordField = screen.getByLabelText('my_profile.password.old', {
       selector: 'input',
-      exact: false
+      exact: false,
     });
 
     const newPasswordField = screen.getByLabelText('my_profile.password.new', {
       selector: 'input',
-      exact: false
+      exact: false,
     });
     const confirmPasswordField = screen.getByLabelText('my_profile.password.confirm', {
       selector: 'input',
-      exact: false
+      exact: false,
     });
 
     await fillTextField(user, oldPasswordField, '123456old');
@@ -493,11 +493,11 @@ describe('notifications page', () => {
     // first row is the header: skip it!
     const otherRows = screen
       .getAllByRole('row', {
-        name: (n: string) => n !== 'notification.dispatcher.ChangesOnMyIssue'
+        name: (n: string) => n !== 'notification.dispatcher.ChangesOnMyIssue',
       })
       .slice(1);
 
-    otherRows.forEach(row => {
+    otherRows.forEach((row) => {
       expect(within(row).getByRole('checkbox')).not.toBeChecked();
     });
 
@@ -602,7 +602,7 @@ describe('projects page', () => {
   it('should handle no projects', async () => {
     (getMyProjects as jest.Mock).mockResolvedValueOnce({
       paging: { total: 0, pageIndex: 1, pageSize: 10 },
-      projects: []
+      projects: [],
     });
     renderAccountApp(mockLoggedInUser(), projectsPagePath);
 
@@ -619,9 +619,9 @@ describe('projects page', () => {
           {
             key: 'proj1',
             name: 'Project 1',
-            links: []
-          }
-        ]
+            links: [],
+          },
+        ],
       })
       .mockResolvedValueOnce({
         paging: { total: 2, pageIndex: 2, pageSize: 1 },
@@ -629,9 +629,9 @@ describe('projects page', () => {
           {
             key: 'proj2',
             name: 'Project 2',
-            links: []
-          }
-        ]
+            links: [],
+          },
+        ],
       });
 
     renderAccountApp(mockLoggedInUser(), projectsPagePath);
@@ -656,7 +656,7 @@ async function fillTextField(user: UserEvent, field: HTMLElement, value: string)
 function getProjectBlock(projectName: string) {
   const result = screen
     .getAllByRole('listitem')
-    .find(element => within(element).queryByRole('heading', { name: projectName }) !== null);
+    .find((element) => within(element).queryByRole('heading', { name: projectName }) !== null);
 
   if (!result) {
     // eslint-disable-next-line testing-library/no-debugging-utils

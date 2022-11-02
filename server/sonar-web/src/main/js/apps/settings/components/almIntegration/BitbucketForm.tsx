@@ -23,7 +23,7 @@ import { translate } from '../../../../helpers/l10n';
 import {
   AlmKeys,
   BitbucketCloudBindingDefinition,
-  BitbucketServerBindingDefinition
+  BitbucketServerBindingDefinition,
 } from '../../../../types/alm-settings';
 import BitbucketCloudForm from './BitbucketCloudForm';
 import BitbucketServerForm from './BitbucketServerForm';
@@ -54,9 +54,9 @@ export default function BitbucketForm(props: BitbucketFormProps) {
               options={[
                 {
                   label: 'Bitbucket Server',
-                  value: AlmKeys.BitbucketServer
+                  value: AlmKeys.BitbucketServer,
                 },
-                { label: 'Bitbucket Cloud', value: AlmKeys.BitbucketCloud }
+                { label: 'Bitbucket Cloud', value: AlmKeys.BitbucketCloud },
               ]}
               value={variant}
             />

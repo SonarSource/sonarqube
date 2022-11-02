@@ -51,14 +51,16 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
                 link: (
                   <Link
                     to="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-quick-fix"
-                    target="_blank">
+                    target="_blank"
+                  >
                     SonarLint
                   </Link>
-                )
+                ),
               }}
             />
           }
-          mouseLeaveDelay={0.5}>
+          mouseLeaveDelay={0.5}
+        >
           <SonarLintIcon
             className="it__issues-sonarlint-quick-fix spacer-right"
             size={15}
@@ -73,9 +75,10 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
           links={[
             {
               href: '/user-guide/rules/',
-              label: translateWithParameters('see_x', translate('rules'))
-            }
-          ]}>
+              label: translateWithParameters('see_x', translate('rules')),
+            },
+          ]}
+        >
           <span className="spacer-right badge badge-error">
             {translate('issue.resolution.badge', ruleStatus)}
           </span>

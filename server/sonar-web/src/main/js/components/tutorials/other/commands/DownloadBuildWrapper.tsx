@@ -33,7 +33,7 @@ export interface DownloadBuildWrapperProps {
 const FILENAMES: { [x in OSs]: string } = {
   win: 'build-wrapper-win-x86',
   linux: 'build-wrapper-linux-x86',
-  mac: 'build-wrapper-macosx-x86'
+  mac: 'build-wrapper-macosx-x86',
 };
 
 export default function DownloadBuildWrapper(props: DownloadBuildWrapperProps) {
@@ -48,7 +48,7 @@ export default function DownloadBuildWrapper(props: DownloadBuildWrapperProps) {
               defaultMessage={translate('onboarding.analysis.build_wrapper.text')}
               id="onboarding.analysis.build_wrapper.text"
               values={{
-                env_var: <code>{os === 'win' ? '%PATH%' : 'PATH'}</code>
+                env_var: <code>{os === 'win' ? '%PATH%' : 'PATH'}</code>,
               }}
             />
           </p>
@@ -58,7 +58,8 @@ export default function DownloadBuildWrapper(props: DownloadBuildWrapperProps) {
               download={`${FILENAMES[os]}.zip`}
               href={`${getBaseUrl()}/static/cpp/${FILENAMES[os]}.zip`}
               rel="noopener noreferrer"
-              target="_blank">
+              target="_blank"
+            >
               {translate('download_verb')}
             </a>
           </p>

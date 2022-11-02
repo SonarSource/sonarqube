@@ -24,7 +24,7 @@ import { mockGithubBindingDefinition } from '../../../../../helpers/mocks/alm-se
 import { click, mockEvent } from '../../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionFormRenderer, {
-  AlmBindingDefinitionFormProps
+  AlmBindingDefinitionFormProps,
 } from '../AlmBindingDefinitionFormRenderer';
 import GithubForm from '../GithubForm';
 
@@ -40,7 +40,7 @@ it('should render correctly', () => {
 
 it.each([[AlmKeys.Azure], [AlmKeys.GitHub], [AlmKeys.GitLab], [AlmKeys.BitbucketServer]])(
   'should render correctly for %s',
-  alm => {
+  (alm) => {
     expect(shallowRender({ alm })).toMatchSnapshot();
   }
 );
@@ -69,10 +69,7 @@ it('should handle field change', () => {
   const onFieldChange = jest.fn();
   const wrapper = shallowRender({ onFieldChange });
 
-  wrapper
-    .find(GithubForm)
-    .props()
-    .onFieldChange('key', 'test');
+  wrapper.find(GithubForm).props().onFieldChange('key', 'test');
 
   expect(onFieldChange).toHaveBeenCalledWith('key', 'test');
 });

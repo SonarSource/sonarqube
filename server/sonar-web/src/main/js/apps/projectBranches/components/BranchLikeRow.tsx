@@ -26,7 +26,7 @@ import {
   getBranchLikeDisplayName,
   isBranch,
   isMainBranch,
-  isPullRequest
+  isPullRequest,
 } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';

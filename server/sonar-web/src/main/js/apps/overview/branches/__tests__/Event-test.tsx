@@ -42,8 +42,8 @@ it('should render rich quality gate event', () => {
     qualityGate: {
       failing: [{ branch: 'master', key: 'foo', name: 'Foo' }],
       status: 'ERROR',
-      stillFailing: true
-    }
+      stillFailing: true,
+    },
   };
   expect(shallow(<Event event={event} />)).toMatchSnapshot();
 });

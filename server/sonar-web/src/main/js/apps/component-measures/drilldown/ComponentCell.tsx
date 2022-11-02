@@ -32,7 +32,7 @@ import {
   ComponentQualifier,
   isApplication,
   isPortfolioLike,
-  isProject
+  isProject,
 } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
@@ -54,11 +54,13 @@ export default function ComponentCell(props: ComponentCellProps) {
 
   if (
     view === 'list' &&
-    ([
-      ComponentQualifier.File,
-      ComponentQualifier.TestFile,
-      ComponentQualifier.Directory
-    ] as string[]).includes(component.qualifier) &&
+    (
+      [
+        ComponentQualifier.File,
+        ComponentQualifier.TestFile,
+        ComponentQualifier.Directory,
+      ] as string[]
+    ).includes(component.qualifier) &&
     component.path
   ) {
     ({ head, tail } = splitPath(component.path));
@@ -96,7 +98,8 @@ export default function ComponentCell(props: ComponentCellProps) {
         <Link
           className="link-no-underline"
           to={path}
-          id={'component-measures-component-link-' + component.key}>
+          id={'component-measures-component-link-' + component.key}
+        >
           {component.refKey && (
             <span className="big-spacer-right">
               <LinkIcon />

@@ -27,7 +27,7 @@ import HotspotList from '../HotspotList';
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
-  removeSideBarClass: jest.fn()
+  removeSideBarClass: jest.fn(),
 }));
 
 it('should render correctly', () => {
@@ -57,18 +57,18 @@ const hotspots = [
   mockRawHotspot({
     key: 'h3',
     securityCategory: 'cat1',
-    vulnerabilityProbability: RiskExposure.MEDIUM
+    vulnerabilityProbability: RiskExposure.MEDIUM,
   }),
   mockRawHotspot({
     key: 'h4',
     securityCategory: 'cat1',
-    vulnerabilityProbability: RiskExposure.MEDIUM
+    vulnerabilityProbability: RiskExposure.MEDIUM,
   }),
   mockRawHotspot({
     key: 'h5',
     securityCategory: 'cat2',
-    vulnerabilityProbability: RiskExposure.MEDIUM
-  })
+    vulnerabilityProbability: RiskExposure.MEDIUM,
+  }),
 ];
 
 it('should render correctly with hotspots', () => {

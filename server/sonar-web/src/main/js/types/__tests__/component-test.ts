@@ -23,7 +23,7 @@ import {
   isFile,
   isPortfolioLike,
   isProject,
-  isView
+  isView,
 } from '../component';
 
 it.each([[isFile], [isView], [isProject], [isApplication], [isPortfolioLike]])(

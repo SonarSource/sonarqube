@@ -85,7 +85,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     securityCategories,
     selectedHotspot,
     selectedHotspotLocation,
-    standards
+    standards,
   } = props;
 
   const scrollableRef = React.useRef(null);

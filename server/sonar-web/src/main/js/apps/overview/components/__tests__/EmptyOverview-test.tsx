@@ -37,7 +37,7 @@ it('should render another message when there are branches', () => {
   expect(shallowRender({ branchLikes: [mockMainBranch(), mockBranch()] })).toMatchSnapshot();
   expect(
     shallowRender({
-      branchLikes: [mockMainBranch(), mockBranch(), mockBranch({ name: 'branch-7.8' })]
+      branchLikes: [mockMainBranch(), mockBranch(), mockBranch({ name: 'branch-7.8' })],
     })
   ).toMatchSnapshot();
 });

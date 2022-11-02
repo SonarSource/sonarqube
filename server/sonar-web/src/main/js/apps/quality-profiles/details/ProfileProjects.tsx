@@ -51,7 +51,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     loadingMore: false,
     page: 1,
     projects: [],
-    total: 0
+    total: 0,
   };
 
   componentDidMount() {
@@ -88,7 +88,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
         this.setState({
           projects: results,
           total: paging.total,
-          loading: false
+          loading: false,
         });
       }
     }, this.stopLoading);
@@ -99,10 +99,10 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     const data = { key: this.props.profile.key, page: this.state.page + 1 };
     getProfileProjects(data).then(({ paging, results }) => {
       if (this.mounted) {
-        this.setState(state => ({
+        this.setState((state) => ({
           projects: [...state.projects, ...results],
           total: paging.total,
-          loadingMore: false
+          loadingMore: false,
         }));
       }
     }, this.stopLoading);
@@ -145,7 +145,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     return (
       <>
         <ul>
-          {projects.map(project => (
+          {projects.map((project) => (
             <li className="spacer-top js-profile-project" data-key={project.key} key={project.key}>
               <Link to={getProjectUrl(project.key)}>
                 <QualifierIcon qualifier="TRK" /> <span>{project.name}</span>
@@ -175,11 +175,13 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
                 hasNoActiveRules
                   ? translate('quality_profiles.cannot_associate_projects_no_rules')
                   : null
-              }>
+              }
+            >
               <Button
                 className="js-change-projects"
                 onClick={this.handleChangeClick}
-                disabled={hasNoActiveRules}>
+                disabled={hasNoActiveRules}
+              >
                 {translate('quality_profiles.change_projects')}
               </Button>
             </Tooltip>

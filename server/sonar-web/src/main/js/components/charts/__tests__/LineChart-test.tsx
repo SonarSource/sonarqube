@@ -25,7 +25,7 @@ it('should display line', () => {
   const data = [
     { x: 1, y: 10 },
     { x: 2, y: 30 },
-    { x: 3, y: 20 }
+    { x: 3, y: 20 },
   ];
   const chart = shallow(<LineChart data={data} height={100} width={100} />);
   expect(chart.find('.line-chart-path').length).toBe(1);
@@ -35,7 +35,7 @@ it('should display ticks', () => {
   const data = [
     { x: 1, y: 10 },
     { x: 2, y: 30 },
-    { x: 3, y: 20 }
+    { x: 3, y: 20 },
   ];
   const ticks = ['A', 'B', 'C'];
   const chart = shallow(<LineChart data={data} height={100} width={100} xTicks={ticks} />);
@@ -46,7 +46,7 @@ it('should display values', () => {
   const data = [
     { x: 1, y: 10 },
     { x: 2, y: 30 },
-    { x: 3, y: 20 }
+    { x: 3, y: 20 },
   ];
   const values = ['A', 'B', 'C'];
   const chart = shallow(<LineChart data={data} height={100} width={100} xValues={values} />);

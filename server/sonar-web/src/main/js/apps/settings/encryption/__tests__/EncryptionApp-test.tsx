@@ -25,7 +25,7 @@ import EncryptionApp from '../EncryptionApp';
 
 jest.mock('../../../../api/settings', () => ({
   checkSecretKey: jest.fn().mockResolvedValue({ secretKeyAvailable: true }),
-  generateSecretKey: jest.fn().mockResolvedValue({ secretKey: 'secret' })
+  generateSecretKey: jest.fn().mockResolvedValue({ secretKey: 'secret' }),
 }));
 
 it('should render correctly', () => {

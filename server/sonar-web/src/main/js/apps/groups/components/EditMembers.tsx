@@ -64,7 +64,8 @@ export default class EditMembers extends React.PureComponent<Props, State> {
           aria-label={translate('groups.users.edit')}
           className="button-small"
           onClick={this.handleMembersClick}
-          title={translate('groups.users.edit')}>
+          title={translate('groups.users.edit')}
+        >
           <BulletListIcon />
         </ButtonIcon>
         {this.state.modal && (

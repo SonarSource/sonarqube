@@ -31,7 +31,7 @@ export interface ExecBuildWrapperProps {
 const executables: { [x in OSs]: string } = {
   linux: 'build-wrapper-linux-x86-64',
   win: 'build-wrapper-win-x86-64.exe',
-  mac: 'build-wrapper-macosx-x86'
+  mac: 'build-wrapper-macosx-x86',
 };
 
 export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
@@ -59,7 +59,7 @@ export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
               <DocLink to="/analysis/languages/cfamily/">
                 {translate('onboarding.analysis.build_wrapper.docs_link')}
               </DocLink>
-            )
+            ),
           }}
         />
       </p>

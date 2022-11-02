@@ -23,13 +23,13 @@ import {
   ExtendedSettingDefinition,
   Setting,
   SettingFieldDefinition,
-  SettingType
+  SettingType,
 } from '../../../types/settings';
 import { buildSettingLink, getDefaultValue, getEmptyValue, getSettingValue } from '../utils';
 
 const fields = [
   { key: 'foo', type: 'STRING' } as SettingFieldDefinition,
-  { key: 'bar', type: 'SINGLE_SELECT_LIST' } as SettingFieldDefinition
+  { key: 'bar', type: 'SINGLE_SELECT_LIST' } as SettingFieldDefinition,
 ];
 
 const settingDefinition: ExtendedSettingDefinition = {
@@ -37,7 +37,7 @@ const settingDefinition: ExtendedSettingDefinition = {
   fields: [],
   key: 'test',
   options: [],
-  subCategory: 'subtest'
+  subCategory: 'subtest',
 };
 
 describe('#getEmptyValue()', () => {
@@ -45,7 +45,7 @@ describe('#getEmptyValue()', () => {
     const setting: ExtendedSettingDefinition = {
       ...settingDefinition,
       type: SettingType.PROPERTY_SET,
-      fields
+      fields,
     };
     expect(getEmptyValue(setting)).toEqual([{ foo: '', bar: null }]);
   });
@@ -54,7 +54,7 @@ describe('#getEmptyValue()', () => {
     const setting: ExtendedSettingDefinition = {
       ...settingDefinition,
       type: SettingType.STRING,
-      multiValues: true
+      multiValues: true,
     };
     expect(getEmptyValue(setting)).toEqual(['']);
   });
@@ -63,7 +63,7 @@ describe('#getEmptyValue()', () => {
     const setting: ExtendedSettingDefinition = {
       ...settingDefinition,
       type: SettingType.BOOLEAN,
-      multiValues: true
+      multiValues: true,
     };
     expect(getEmptyValue(setting)).toEqual([null]);
   });
@@ -74,7 +74,7 @@ describe('#getSettingValue()', () => {
     const setting: ExtendedSettingDefinition = {
       ...settingDefinition,
       type: SettingType.PROPERTY_SET,
-      fields
+      fields,
     };
     const settingValue = mockSettingValue({ fieldValues: [{ foo: '' }] });
     expect(getSettingValue(setting, settingValue)).toEqual([{ foo: '' }]);
@@ -85,7 +85,7 @@ describe('#getSettingValue()', () => {
       ...settingDefinition,
       type: SettingType.FORMATTED_TEXT,
       fields,
-      multiValues: true
+      multiValues: true,
     };
     const settingValue = mockSettingValue({ values: ['*text*', 'text'] });
     expect(getSettingValue(setting, settingValue)).toEqual(['*text*', 'text']);
@@ -95,7 +95,7 @@ describe('#getSettingValue()', () => {
     const setting: ExtendedSettingDefinition = {
       ...settingDefinition,
       type: SettingType.FORMATTED_TEXT,
-      fields
+      fields,
     };
     const settingValue = mockSettingValue({ values: ['*text*', 'text'] });
     expect(getSettingValue(setting, settingValue)).toEqual('*text*');
@@ -105,7 +105,7 @@ describe('#getSettingValue()', () => {
     const setting: ExtendedSettingDefinition = {
       ...settingDefinition,
       type: SettingType.FORMATTED_TEXT,
-      fields
+      fields,
     };
     const settingValue = mockSettingValue({ values: undefined });
     expect(getSettingValue(setting, settingValue)).toBeUndefined();
@@ -115,7 +115,7 @@ describe('#getSettingValue()', () => {
 describe('#getDefaultValue()', () => {
   it.each([
     ['true', 'settings.boolean.true'],
-    ['false', 'settings.boolean.false']
+    ['false', 'settings.boolean.false'],
   ])(
     'should work for boolean field when passing "%s"',
     (parentValue?: string, expected?: string) => {
@@ -123,7 +123,7 @@ describe('#getDefaultValue()', () => {
         hasValue: true,
         definition: { key: 'test', options: [], type: SettingType.BOOLEAN },
         parentValue,
-        key: 'test'
+        key: 'test',
       };
       expect(getDefaultValue(setting)).toEqual(expected);
     }
@@ -135,7 +135,7 @@ describe('buildSettingLink', () => {
     [
       mockDefinition({ key: 'anykey' }),
       undefined,
-      { hash: '#anykey', pathname: '/admin/settings', search: '?category=foo+category' }
+      { hash: '#anykey', pathname: '/admin/settings', search: '?category=foo+category' },
     ],
     [
       mockDefinition({ key: 'sonar.auth.gitlab.name' }),
@@ -143,8 +143,8 @@ describe('buildSettingLink', () => {
       {
         hash: '#sonar.auth.gitlab.name',
         pathname: '/admin/settings',
-        search: '?category=foo+category&tab=gitlab'
-      }
+        search: '?category=foo+category&tab=gitlab',
+      },
     ],
     [
       mockDefinition({ key: 'sonar.auth.github.token' }),
@@ -152,8 +152,8 @@ describe('buildSettingLink', () => {
       {
         hash: '#sonar.auth.github.token',
         pathname: '/admin/settings',
-        search: '?category=foo+category&tab=github'
-      }
+        search: '?category=foo+category&tab=github',
+      },
     ],
     [
       mockDefinition({ key: 'sonar.auth.bitbucket.token' }),
@@ -161,8 +161,8 @@ describe('buildSettingLink', () => {
       {
         hash: '#sonar.auth.bitbucket.token',
         pathname: '/admin/settings',
-        search: '?category=foo+category&tab=bitbucket'
-      }
+        search: '?category=foo+category&tab=bitbucket',
+      },
     ],
     [
       mockDefinition({ key: 'sonar.almintegration.azure' }),
@@ -170,8 +170,8 @@ describe('buildSettingLink', () => {
       {
         hash: '#sonar.almintegration.azure',
         pathname: '/admin/settings',
-        search: '?category=foo+category&alm=azure'
-      }
+        search: '?category=foo+category&alm=azure',
+      },
     ],
     [
       mockDefinition({ key: 'defKey' }),
@@ -179,9 +179,9 @@ describe('buildSettingLink', () => {
       {
         hash: '#defKey',
         pathname: '/project/settings',
-        search: '?id=componentKey&category=foo+category'
-      }
-    ]
+        search: '?id=componentKey&category=foo+category',
+      },
+    ],
   ])('should work as expected', (definition, component, expectedUrl) => {
     expect(buildSettingLink(definition, component)).toEqual(expectedUrl);
   });

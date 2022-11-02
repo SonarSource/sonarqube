@@ -23,7 +23,7 @@ import { EditionKey } from '../../../types/editions';
 import EditionBoxes from '../EditionBoxes';
 
 jest.mock('../../../api/navigation', () => ({
-  getMarketplaceNavigation: jest.fn().mockResolvedValue({})
+  getMarketplaceNavigation: jest.fn().mockResolvedValue({}),
 }));
 
 it('should display the available edition boxes correctly', () => {

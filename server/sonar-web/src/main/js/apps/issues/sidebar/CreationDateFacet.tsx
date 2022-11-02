@@ -29,7 +29,7 @@ import FacetItem from '../../../components/facet/FacetItem';
 import { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter, {
-  formatterOption as dateTimeFormatterOption
+  formatterOption as dateTimeFormatterOption,
 } from '../../../components/intl/DateTimeFormatter';
 import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -56,7 +56,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
   property = 'createdAt';
 
   static defaultProps = {
-    open: true
+    open: true,
   };
 
   hasValue = () =>
@@ -81,13 +81,13 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
       createdBefore: undefined,
       createdInLast: undefined,
       inNewCodePeriod: undefined,
-      ...changes
+      ...changes,
     });
   };
 
   handleBarClick = ({
     createdAfter,
-    createdBefore
+    createdBefore,
   }: {
     createdAfter: Date;
     createdBefore?: Date;
@@ -102,13 +102,8 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
   handlePeriodClick = (period: string) => this.resetTo({ createdInLast: period });
 
   getValues() {
-    const {
-      createdAfter,
-      createdAfterIncludesTime,
-      createdAt,
-      createdBefore,
-      createdInLast
-    } = this.props;
+    const { createdAfter, createdAfterIncludesTime, createdAt, createdBefore, createdInLast } =
+      this.props;
     const { formatDate } = this.props.intl;
     const values = [];
     if (createdAfter) {
@@ -146,7 +141,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
 
     const periods = Object.keys(stats);
 
-    if (periods.length < 2 || periods.every(period => !stats[period])) {
+    if (periods.length < 2 || periods.every((period) => !stats[period])) {
       return null;
     }
 
@@ -185,15 +180,15 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
         tooltip,
         description,
         x: index,
-        y: stats[start]
+        y: stats[start],
       };
     });
 
     const barsWidth = Math.floor(250 / data.length);
     const width = barsWidth * data.length - 1 + 10;
 
-    const maxValue = max(data.map(d => d.y));
-    const xValues = data.map(d => (d.y === maxValue ? formatMeasure(maxValue, 'SHORT_INT') : ''));
+    const maxValue = max(data.map((d) => d.y));
+    const xValues = data.map((d) => (d.y === maxValue ? formatMeasure(maxValue, 'SHORT_INT') : ''));
 
     return (
       <BarChart

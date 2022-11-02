@@ -53,14 +53,14 @@ export function getAllTimeMachineData(
   } & BranchParameters,
   prev?: TimeMachineResponse
 ): Promise<TimeMachineResponse> {
-  return getTimeMachineData({ ...data, ps: 1000 }).then(r => {
+  return getTimeMachineData({ ...data, ps: 1000 }).then((r) => {
     const result = prev
       ? {
           measures: prev.measures.map((measure, idx) => ({
             ...measure,
-            history: measure.history.concat(r.measures[idx].history)
+            history: measure.history.concat(r.measures[idx].history),
           })),
-          paging: r.paging
+          paging: r.paging,
         }
       : r;
 

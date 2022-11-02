@@ -35,9 +35,9 @@ jest.mock('../../../api/components');
 
 const ui = {
   selectStatusButton: byRole('button', {
-    name: 'hotspots.status.select_status'
+    name: 'hotspots.status.select_status',
   }),
-  panel: byTestId('security-hotspot-test')
+  panel: byTestId('security-hotspot-test'),
 };
 
 let handler: SecurityHotspotServiceMock;
@@ -80,8 +80,8 @@ function renderSecurityHotspotsApp(navigateTo?: string) {
       navigateTo,
       currentUser: mockLoggedInUser({
         login: 'foo',
-        name: 'foo'
-      })
+        name: 'foo',
+      }),
     },
     {
       branchLikes: [],
@@ -89,8 +89,8 @@ function renderSecurityHotspotsApp(navigateTo?: string) {
       onComponentChange: jest.fn(),
       component: mockComponent({
         key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
-        name: 'benflix'
-      })
+        name: 'benflix',
+      }),
     }
   );
 }

@@ -28,18 +28,18 @@ it.each([
   [AlmKeys.BitbucketServer],
   [AlmKeys.BitbucketCloud],
   [AlmKeys.GitHub],
-  [AlmKeys.GitLab]
-])('should render correctly for %s', alm => {
+  [AlmKeys.GitLab],
+])('should render correctly for %s', (alm) => {
   expect(shallowRender(alm)).toMatchSnapshot();
 });
 
 it.each([
   [
     AlmKeys.BitbucketServer,
-    [mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer, url: 'http://bbs.example.com' })]
+    [mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer, url: 'http://bbs.example.com' })],
   ],
   [AlmKeys.GitHub, [mockAlmSettingsInstance({ url: 'http://example.com/api/v3' })]],
-  [AlmKeys.GitHub, [mockAlmSettingsInstance({ url: 'http://api.github.com' })]]
+  [AlmKeys.GitHub, [mockAlmSettingsInstance({ url: 'http://api.github.com' })]],
 ])(
   'should render correctly for %s if an instance URL is provided',
   (alm: AlmKeys, instances: AlmSettingsInstance[]) => {
@@ -60,7 +60,7 @@ function shallowRender(alm: AlmKeys, props: Partial<AlmSpecificFormProps> = {}) 
         key: '',
         repository: '',
         slug: '',
-        monorepo: false
+        monorepo: false,
       }}
       onFieldChange={jest.fn()}
       hasFeature={jest.fn()}

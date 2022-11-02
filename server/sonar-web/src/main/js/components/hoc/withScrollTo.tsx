@@ -73,7 +73,7 @@ export function withScrollTo<P>(WrappedComponent: React.ComponentClass<P>) {
       return (
         <WrappedComponent
           {...this.props}
-          ref={ref => {
+          ref={(ref) => {
             this.componentRef = ref;
           }}
         />

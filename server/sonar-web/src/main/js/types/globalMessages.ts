@@ -19,7 +19,7 @@
  */
 export enum MessageLevel {
   Error = 'ERROR',
-  Success = 'SUCCESS'
+  Success = 'SUCCESS',
 }
 
 export interface Message {

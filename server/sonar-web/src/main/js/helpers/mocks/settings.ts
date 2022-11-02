@@ -22,7 +22,7 @@ import {
   Setting,
   SettingType,
   SettingValue,
-  SettingWithCategory
+  SettingWithCategory,
 } from '../../types/settings';
 
 export function mockDefinition(
@@ -34,7 +34,7 @@ export function mockDefinition(
     fields: [],
     options: [],
     subCategory: 'foo subCat',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -49,16 +49,16 @@ export function mockSetting(overrides: Partial<Setting> = {}): Setting {
       name: 'Foo setting',
       description: 'When Foo then Bar',
       type: SettingType.INTEGER,
-      options: []
+      options: [],
     },
-    ...overrides
+    ...overrides,
   };
 }
 
 export function mockSettingValue(overrides: Partial<SettingValue> = {}) {
   return {
     key: 'test',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -78,8 +78,8 @@ export function mockSettingWithCategory(
       options: [],
       category: 'general',
       fields: [],
-      subCategory: 'email'
+      subCategory: 'email',
     },
-    ...overrides
+    ...overrides,
   };
 }

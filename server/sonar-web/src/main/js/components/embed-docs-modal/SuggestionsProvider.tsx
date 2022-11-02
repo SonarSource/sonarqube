@@ -35,7 +35,7 @@ export default class SuggestionsProvider extends React.Component<{}, State> {
   fetchSuggestions = () => {
     const jsonList = suggestionsJson as SuggestionsJson;
     let suggestions: SuggestionLink[] = [];
-    this.keys.forEach(key => {
+    this.keys.forEach((key) => {
       if (jsonList[key]) {
         suggestions = [...jsonList[key], ...suggestions];
       }
@@ -50,7 +50,7 @@ export default class SuggestionsProvider extends React.Component<{}, State> {
   };
 
   removeSuggestions = (oldKey: string) => {
-    this.keys = this.keys.filter(key => key !== oldKey);
+    this.keys = this.keys.filter((key) => key !== oldKey);
     this.fetchSuggestions();
   };
 
@@ -60,8 +60,9 @@ export default class SuggestionsProvider extends React.Component<{}, State> {
         value={{
           addSuggestions: this.addSuggestions,
           removeSuggestions: this.removeSuggestions,
-          suggestions: this.state.suggestions
-        }}>
+          suggestions: this.state.suggestions,
+        }}
+      >
         {this.props.children}
       </SuggestionsContext.Provider>
     );

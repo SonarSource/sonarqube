@@ -32,7 +32,7 @@ const user: User = {
   local: false,
   login: 'obi',
   name: 'One',
-  scmAccounts: []
+  scmAccounts: [],
 };
 
 it('should render correctly', () => {

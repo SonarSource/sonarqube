@@ -26,7 +26,7 @@ const project = {
   key: 'project',
   name: 'Project',
   qualifier: ComponentQualifier.Project,
-  visibility: Visibility.Private
+  visibility: Visibility.Private,
 };
 
 it('renders', () => {

@@ -58,7 +58,8 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
                   // To prevent the screen reader from reading out the links for no reason (as
                   // they won't be "clickable"), we hide the whole links section.
                   // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
-                  aria-hidden={true}>
+                  aria-hidden={true}
+                >
                   {doc ? (
                     <DocLink to={href}>{label}</DocLink>
                   ) : (
@@ -71,7 +72,8 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
             </>
           )}
         </div>
-      }>
+      }
+    >
       {props.children}
     </HelpTooltip>
   );

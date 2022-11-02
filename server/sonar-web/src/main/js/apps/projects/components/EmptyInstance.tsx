@@ -51,7 +51,8 @@ export function EmptyInstance(props: EmptyInstanceProps) {
             <Button
               onClick={() => {
                 router.push('/projects/create');
-              }}>
+              }}
+            >
               {translate('my_account.create_new.TRK')}
             </Button>
           </p>

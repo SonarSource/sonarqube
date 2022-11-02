@@ -33,7 +33,7 @@ export const formatterOption: FormatDateOptions = { hour: 'numeric', minute: 'nu
 export const longFormatterOption: FormatDateOptions = {
   hour: 'numeric',
   minute: 'numeric',
-  second: 'numeric'
+  second: 'numeric',
 };
 
 export default function TimeFormatter({ children, date, long }: TimeFormatterProps) {

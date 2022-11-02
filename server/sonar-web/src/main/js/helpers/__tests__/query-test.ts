@@ -67,7 +67,7 @@ describe('parseAsOptionalArray', () => {
     expect(query.parseAsOptionalArray('true,false,false', query.parseAsBoolean)).toEqual([
       true,
       false,
-      false
+      false,
     ]);
     expect(query.parseAsOptionalArray(undefined, query.parseAsString)).toBeUndefined();
   });

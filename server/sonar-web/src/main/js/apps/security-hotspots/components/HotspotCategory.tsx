@@ -46,7 +46,7 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
     selectedHotspot,
     title,
     isLastAndIncomplete,
-    selectedHotspotLocation
+    selectedHotspotLocation,
   } = props;
 
   if (hotspots.length < 1) {
@@ -64,7 +64,8 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
             { 'contains-selected-hotspot': selectedHotspot.securityCategory === categoryKey }
           )}
           onClick={() => props.onToggleExpand && props.onToggleExpand(categoryKey, !expanded)}
-          aria-expanded={expanded}>
+          aria-expanded={expanded}
+        >
           <strong className="flex-1 spacer-right break-word">{title}</strong>
           <span>
             <span className="counter-badge">
@@ -85,7 +86,7 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
       )}
       {expanded && (
         <ul>
-          {hotspots.map(h => (
+          {hotspots.map((h) => (
             <li data-hotspot-key={h.key} key={h.key}>
               <HotspotListItem
                 hotspot={h}

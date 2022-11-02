@@ -49,7 +49,7 @@ interface State {
 export class ProjectInformation extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
-    page: ProjectInformationPages.main
+    page: ProjectInformationPages.main,
   };
 
   componentDidMount() {
@@ -67,13 +67,13 @@ export class ProjectInformation extends React.PureComponent<Props, State> {
 
   loadMeasures = () => {
     const {
-      component: { key }
+      component: { key },
     } = this.props;
 
     return getMeasures({
       component: key,
-      metricKeys: [MetricKey.ncloc, MetricKey.projects].join()
-    }).then(measures => {
+      metricKeys: [MetricKey.ncloc, MetricKey.projects].join(),
+    }).then((measures) => {
       if (this.mounted) {
         this.setState({ measures });
       }
@@ -105,14 +105,16 @@ export class ProjectInformation extends React.PureComponent<Props, State> {
         {canUseBadges && (
           <InfoDrawerPage
             displayed={page === ProjectInformationPages.badges}
-            onPageChange={this.setPage}>
+            onPageChange={this.setPage}
+          >
             <ProjectBadges branchLike={branchLike} component={component} />
           </InfoDrawerPage>
         )}
         {canConfigureNotifications && (
           <InfoDrawerPage
             displayed={page === ProjectInformationPages.notifications}
-            onPageChange={this.setPage}>
+            onPageChange={this.setPage}
+          >
             <ProjectNotifications component={component} />
           </InfoDrawerPage>
         )}

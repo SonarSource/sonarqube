@@ -35,5 +35,5 @@ export const complementary: Dict<string[]> = {
   duplicated_lines_density: ['duplicated_lines'],
   new_duplicated_lines_density: ['new_duplicated_lines'],
   duplicated_lines: ['duplicated_lines_density'],
-  new_duplicated_lines: ['new_duplicated_lines_density']
+  new_duplicated_lines: ['new_duplicated_lines_density'],
 };

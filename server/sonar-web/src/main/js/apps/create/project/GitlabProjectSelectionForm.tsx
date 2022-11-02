@@ -54,7 +54,7 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
     projects = [],
     projectsPaging,
     searching,
-    searchQuery
+    searchQuery,
   } = props;
 
   if (projects.length === 0 && searchQuery.length === 0 && !searching) {
@@ -68,11 +68,12 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
               <Link
                 to={{
                   pathname: '/projects/create',
-                  search: queryToSearch({ mode: CreateProjectModes.GitLab, resetPat: 1 })
-                }}>
+                  search: queryToSearch({ mode: CreateProjectModes.GitLab, resetPat: 1 }),
+                }}
+              >
                 {translate('onboarding.create_project.update_your_token')}
               </Link>
-            )
+            ),
           }}
         />
       </Alert>
@@ -96,7 +97,7 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
       ) : (
         <table className="data zebra zebra-hover">
           <tbody>
-            {projects.map(project => (
+            {projects.map((project) => (
               <tr key={project.id}>
                 <td>
                   <Tooltip overlay={project.slug}>
@@ -125,7 +126,8 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
                   <Link
                     className="display-inline-flex-center big-spacer-right"
                     to={project.url}
-                    target="_blank">
+                    target="_blank"
+                  >
                     {translate('onboarding.create_project.gitlab.link')}
                   </Link>
                 </td>
@@ -140,7 +142,8 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
                   <td className="text-right">
                     <Button
                       disabled={!!importingGitlabProjectId}
-                      onClick={() => props.onImport(project.id)}>
+                      onClick={() => props.onImport(project.id)}
+                    >
                       {translate('onboarding.create_project.set_up')}
                       {importingGitlabProjectId === project.id && (
                         <DeferredSpinner className="spacer-left" />

@@ -33,7 +33,7 @@ it('renders correctly with no value for login message', () => {
 it('renders correctly with a value for login message', async () => {
   const user = userEvent.setup();
   renderInputForFormattedText({
-    setting: mockSetting({ values: ['*text*', 'text'], hasValue: true })
+    setting: mockSetting({ values: ['*text*', 'text'], hasValue: true }),
   });
   expect(screen.getByRole('button', { name: 'edit' })).toBeInTheDocument();
   expect(screen.getByText('text')).toBeInTheDocument();

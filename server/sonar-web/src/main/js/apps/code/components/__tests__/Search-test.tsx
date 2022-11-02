@@ -35,8 +35,8 @@ jest.mock('../../../../api/components', () => {
     getTree: jest.fn().mockResolvedValue({
       baseComponent: mockTreeComponent(),
       components: [mockComponent()],
-      paging: { pageIndex: 0, pageSize: 5, total: 20 }
-    })
+      paging: { pageIndex: 0, pageSize: 5, total: 20 },
+    }),
   };
 });
 
@@ -48,7 +48,7 @@ it('should render correcly', () => {
   expect(
     shallowRender({
       component: mockComponent({ qualifier: ComponentQualifier.Portfolio }),
-      location: mockLocation({ query: { id: 'foo', search: 'bar' } })
+      location: mockLocation({ query: { id: 'foo', search: 'bar' } }),
     })
   ).toMatchSnapshot('new code toggle for portfolio disabled');
 });
@@ -57,14 +57,14 @@ it('should search correct query on mount', async () => {
   const onSearchResults = jest.fn();
   const wrapper = shallowRender({
     location: mockLocation({ query: { id: 'foo', search: 'bar' } }),
-    onSearchResults
+    onSearchResults,
   });
   await waitAndUpdate(wrapper);
   expect(getTree).toHaveBeenCalledWith({
     component: 'my-project',
     q: 'bar',
     qualifiers: 'UTS,FIL',
-    s: 'qualifier,name'
+    s: 'qualifier,name',
   });
   expect(onSearchResults).toHaveBeenCalledWith([
     {
@@ -74,8 +74,8 @@ it('should search correct query on mount', async () => {
       qualifier: 'TRK',
       qualityGate: { isDefault: true, key: '30', name: 'Sonar way' },
       qualityProfiles: [{ deleted: false, key: 'my-qp', language: 'ts', name: 'Sonar way' }],
-      tags: []
-    }
+      tags: [],
+    },
   ]);
 });
 
@@ -88,21 +88,21 @@ it('should handle search correctly', async () => {
   expect(router.replace).toHaveBeenCalledWith({
     pathname: '/path',
     query: {
-      search: 'foo'
-    }
+      search: 'foo',
+    },
   });
   expect(getTree).toHaveBeenCalledWith({
     component: 'my-project',
     q: 'foo',
     qualifiers: 'UTS,FIL',
-    s: 'qualifier,name'
+    s: 'qualifier,name',
   });
 
   wrapper.instance().handleQueryChange('');
   await waitAndUpdate(wrapper);
   expect(router.replace).toHaveBeenCalledWith({
     pathname: '/path',
-    query: {}
+    query: {},
   });
   expect(onSearchClear).toHaveBeenCalledWith();
 });

@@ -20,7 +20,7 @@
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
@@ -51,7 +51,7 @@ const FORBIDDEN_METRICS: string[] = [
   MetricKey.alert_status,
   MetricKey.releasability_rating,
   MetricKey.security_hotspots,
-  MetricKey.new_security_hotspots
+  MetricKey.new_security_hotspots,
 ];
 
 export class Conditions extends React.PureComponent<Props> {
@@ -62,7 +62,7 @@ export class Conditions extends React.PureComponent<Props> {
       canEdit,
       onRemoveCondition,
       onSaveCondition,
-      updatedConditionId
+      updatedConditionId,
     } = this.props;
 
     const captionTranslationId =
@@ -96,7 +96,7 @@ export class Conditions extends React.PureComponent<Props> {
           </tr>
         </thead>
         <tbody>
-          {conditions.map(condition => (
+          {conditions.map((condition) => (
             <Condition
               canEdit={canEdit}
               condition={condition}
@@ -116,36 +116,38 @@ export class Conditions extends React.PureComponent<Props> {
   render() {
     const { conditions, metrics, canEdit } = this.props;
 
-    const existingConditions = conditions.filter(condition => metrics[condition.metric]);
+    const existingConditions = conditions.filter((condition) => metrics[condition.metric]);
     const sortedConditions = sortBy(
       existingConditions,
-      condition => metrics[condition.metric] && metrics[condition.metric].name
+      (condition) => metrics[condition.metric] && metrics[condition.metric].name
     );
 
     const sortedConditionsOnOverallMetrics = sortedConditions.filter(
-      condition => !isDiffMetric(condition.metric)
+      (condition) => !isDiffMetric(condition.metric)
     );
-    const sortedConditionsOnNewMetrics = sortedConditions.filter(condition =>
+    const sortedConditionsOnNewMetrics = sortedConditions.filter((condition) =>
       isDiffMetric(condition.metric)
     );
 
     const duplicates: ConditionType[] = [];
-    const savedConditions = existingConditions.filter(condition => condition.id != null);
-    savedConditions.forEach(condition => {
-      const sameCount = savedConditions.filter(sample => sample.metric === condition.metric).length;
+    const savedConditions = existingConditions.filter((condition) => condition.id != null);
+    savedConditions.forEach((condition) => {
+      const sameCount = savedConditions.filter(
+        (sample) => sample.metric === condition.metric
+      ).length;
       if (sameCount > 1) {
         duplicates.push(condition);
       }
     });
 
-    const uniqDuplicates = uniqBy(duplicates, d => d.metric).map(condition => ({
+    const uniqDuplicates = uniqBy(duplicates, (d) => d.metric).map((condition) => ({
       ...condition,
-      metric: metrics[condition.metric]
+      metric: metrics[condition.metric],
     }));
 
     const availableMetrics = differenceWith(
-      map(metrics, metric => metric).filter(
-        metric =>
+      map(metrics, (metric) => metric).filter(
+        (metric) =>
           !metric.hidden &&
           !FORBIDDEN_METRIC_TYPES.includes(metric.type) &&
           !FORBIDDEN_METRICS.includes(metric.key)
@@ -167,7 +169,8 @@ export class Conditions extends React.PureComponent<Props> {
                   onClose={onClose}
                   qualityGate={this.props.qualityGate}
                 />
-              )}>
+              )}
+            >
               {({ onClick }) => (
                 <Button data-test="quality-gates__add-condition" onClick={onClick}>
                   {translate('quality_gates.add_condition')}
@@ -185,8 +188,8 @@ export class Conditions extends React.PureComponent<Props> {
             links={[
               {
                 href: '/user-guide/clean-as-you-code/',
-                label: translate('quality_gates.conditions.help.link')
-              }
+                label: translate('quality_gates.conditions.help.link'),
+              },
             ]}
           />
         </header>
@@ -195,7 +198,7 @@ export class Conditions extends React.PureComponent<Props> {
           <Alert variant="warning">
             <p>{translate('quality_gates.duplicated_conditions')}</p>
             <ul className="list-styled spacer-top">
-              {uniqDuplicates.map(d => (
+              {uniqDuplicates.map((d) => (
                 <li key={d.metric.key}>{getLocalizedMetricName(d.metric)}</li>
               ))}
             </ul>

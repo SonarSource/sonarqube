@@ -42,12 +42,12 @@ export default class Sidebar extends React.PureComponent<Props, State> {
   }
 
   state: State = {
-    openFacets: {}
+    openFacets: {},
   };
 
   toggleFacet = (name: string) => {
     this.setState(({ openFacets }) => ({
-      openFacets: { ...openFacets, [name]: !openFacets[name] }
+      openFacets: { ...openFacets, [name]: !openFacets[name] },
     }));
   };
 
@@ -69,7 +69,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
           selected={this.props.selectedMetric}
           value={PROJECT_OVERVEW}
         />
-        {groupByDomains(this.props.measures).map(domain => (
+        {groupByDomains(this.props.measures).map((domain) => (
           <DomainFacet
             domain={domain}
             key={domain.name}
@@ -87,7 +87,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
 
 function getOpenFacets(openFacets: Dict<boolean>, { measures, selectedMetric }: Props) {
   const newOpenFacets = { ...openFacets };
-  const measure = measures.find(measure => measure.metric.key === selectedMetric);
+  const measure = measures.find((measure) => measure.metric.key === selectedMetric);
   if (measure && measure.metric && measure.metric.domain) {
     newOpenFacets[measure.metric.domain] = true;
   } else if (KNOWN_DOMAINS.includes(selectedMetric)) {

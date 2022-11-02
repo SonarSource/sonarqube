@@ -23,14 +23,14 @@ import {
   addWhitePageClass,
   removeNoFooterPageClass,
   removeSideBarClass,
-  removeWhitePageClass
+  removeWhitePageClass,
 } from '../pages';
 
 describe('class adders', () => {
   it.each([
     [addSideBarClass, 'sidebar-page'],
     [addNoFooterPageClass, 'no-footer-page'],
-    [addWhitePageClass, 'white-page']
+    [addWhitePageClass, 'white-page'],
   ])('%s should add the class', (fct, cls) => {
     const toggle = jest.spyOn(document.body.classList, 'toggle');
     fct();
@@ -42,7 +42,7 @@ describe('class removers', () => {
   it.each([
     [removeSideBarClass, 'sidebar-page'],
     [removeNoFooterPageClass, 'no-footer-page'],
-    [removeWhitePageClass, 'white-page']
+    [removeWhitePageClass, 'white-page'],
   ])('%s should add the class', (fct, cls) => {
     const toggle = jest.spyOn(document.body.classList, 'toggle');
     fct();

@@ -67,14 +67,14 @@ function getWrapper(period: Partial<Period> = {}) {
       intl={
         {
           formatDate: (date: string) => 'formatted.' + date,
-          formatTime: (date: string) => 'formattedTime.' + date
+          formatTime: (date: string) => 'formattedTime.' + date,
         } as IntlShape
       }
       period={{
         date: '2013-09-22T00:00:00+0200',
         index: 0,
         mode: 'version',
-        ...period
+        ...period,
       }}
     />
   );

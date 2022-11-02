@@ -34,7 +34,7 @@ import {
   post,
   postJSON,
   postJSONBody,
-  requestTryAndRepeatUntil
+  requestTryAndRepeatUntil,
 } from '../request';
 
 jest.mock('../handleRequiredAuthentication', () => jest.fn());
@@ -89,7 +89,7 @@ describe('getText', () => {
 describe('parseError', () => {
   it('should parse error and return the message', async () => {
     const response = new Response(JSON.stringify({ errors: [{ msg: 'Error1' }] }), {
-      status: HttpStatus.BadRequest
+      status: HttpStatus.BadRequest,
     });
     await expect(parseError(response)).resolves.toBe('Error1');
   });
@@ -168,7 +168,7 @@ describe('postJSONBody', () => {
       expect.objectContaining({
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         body: '{"nested":{"data":"test","withArray":[1,2]}}',
-        method: 'POST'
+        method: 'POST',
       })
     );
   });

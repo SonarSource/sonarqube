@@ -34,7 +34,7 @@ export default function TokenStepGenerator(props: TokenStepGeneratorProps) {
   const { component, currentUser } = props;
   const [isModalVisible, toggleModal] = React.useState(false);
 
-  const toggleTokenModal = () => toggleModal(visible => !visible);
+  const toggleTokenModal = () => toggleModal((visible) => !visible);
   const closeTokenModal = () => toggleModal(false);
 
   return (
@@ -50,7 +50,7 @@ export default function TokenStepGenerator(props: TokenStepGeneratorProps) {
               </Button>
             ),
             field: <strong>{translate('onboarding.tutorial.env_variables.field')}</strong>,
-            value: translate('onboarding.tutorial.env_variables.token_generator.value')
+            value: translate('onboarding.tutorial.env_variables.token_generator.value'),
           }}
         />
       </li>

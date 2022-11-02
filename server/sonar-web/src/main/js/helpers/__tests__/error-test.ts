@@ -21,7 +21,7 @@ import { throwGlobalError } from '../error';
 import { addGlobalErrorMessage } from '../globalMessages';
 
 jest.mock('../../helpers/globalMessages', () => ({
-  addGlobalErrorMessage: jest.fn()
+  addGlobalErrorMessage: jest.fn(),
 }));
 
 beforeAll(() => {

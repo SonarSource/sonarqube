@@ -46,7 +46,8 @@ export default function PluginRiskConsentBox(props: PluginRiskConsentBoxProps) {
         )}
         <Button
           className="display-block big-spacer-top button-primary"
-          onClick={props.acknowledgeRisk}>
+          onClick={props.acknowledgeRisk}
+        >
           {translate('marketplace.risk_consent.action')}
         </Button>
       </div>

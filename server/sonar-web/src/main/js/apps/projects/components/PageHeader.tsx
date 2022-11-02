@@ -61,8 +61,9 @@ export default function PageHeader(props: Props) {
       <div className="big-spacer-top display-flex-space-between">
         <div
           className={classNames('display-flex-center', {
-            'is-loading': loading
-          })}>
+            'is-loading': loading,
+          })}
+        >
           {total != null && (
             <span className="projects-total-label">
               <strong id="projects-total">{total}</strong> {translate('projects_')}

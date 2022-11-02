@@ -42,7 +42,7 @@ function getWrapper(plugin = {}) {
         description: 'foo description',
         homepageUrl: 'homepageurl',
         issueTrackerUrl: 'issuetrackerurl',
-        ...plugin
+        ...plugin,
       }}
     />
   );

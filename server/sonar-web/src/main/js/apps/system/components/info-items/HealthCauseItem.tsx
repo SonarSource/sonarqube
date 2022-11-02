@@ -33,7 +33,8 @@ export default function HealthCauseItem({ className, health, healthCause }: Prop
     <Alert
       className={classNames('boxed-group-accordion-alert', className)}
       display="inline"
-      variant={health === 'RED' ? 'error' : 'warning'}>
+      variant={health === 'RED' ? 'error' : 'warning'}
+    >
       {healthCause}
     </Alert>
   );

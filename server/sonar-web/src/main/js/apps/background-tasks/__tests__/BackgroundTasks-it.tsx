@@ -59,7 +59,7 @@ describe('The Global background task page', () => {
 
     await user.click(
       within(modal).getByLabelText('background_tasks.change_number_of_workers', {
-        selector: 'input'
+        selector: 'input',
       })
     );
 
@@ -83,13 +83,13 @@ describe('The Global background task page', () => {
       submittedAt: '2022-02-03T11:45:35+0200',
       executionTimeMs: 167,
       status: TaskStatuses.InProgress,
-      type: TaskTypes.IssueSync
+      type: TaskTypes.IssueSync,
     });
     computeEngineServiceMock.addTask({ status: TaskStatuses.Pending, type: TaskTypes.IssueSync });
     computeEngineServiceMock.addTask({
       componentKey: 'otherComponent',
       status: TaskStatuses.Success,
-      type: TaskTypes.AppRefresh
+      type: TaskTypes.AppRefresh,
     });
 
     renderGlobalBackgroundTasksApp();

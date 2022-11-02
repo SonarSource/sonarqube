@@ -113,7 +113,7 @@ const STEPS = {
           sonar-scanner.bat "-Dsonar.cfamily.build-wrapper-output=bw-output"
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`,
 };
 
 export default function CFamily(props: CFamilyProps) {

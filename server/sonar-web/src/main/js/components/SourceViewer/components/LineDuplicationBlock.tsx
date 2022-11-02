@@ -41,7 +41,7 @@ export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
   const className = classNames('source-meta', 'source-line-duplications', {
-    'source-line-duplicated': duplicated
+    'source-line-duplicated': duplicated,
   });
 
   const tooltip = dropdownOpen ? undefined : translate('source_viewer.tooltip.duplicated_block');
@@ -57,7 +57,8 @@ export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
               <DropdownOverlay placement={PopupPlacement.RightTop}>
                 {props.renderDuplicationPopup(index, line.line)}
               </DropdownOverlay>
-            }>
+            }
+          >
             <ButtonPlain
               aria-label={translate('source_viewer.tooltip.duplicated_block')}
               className="source-line-bar"

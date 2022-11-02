@@ -30,6 +30,6 @@ export default function ClickEventBoundary({ children }: ClickEventBoundaryProps
       if (typeof children.props.onClick === 'function') {
         children.props.onClick(e);
       }
-    }
+    },
   });
 }

@@ -49,7 +49,7 @@ const HOUSEKEEPING_POLICY_VALUES = {
   [HousekeepingPolicy.Weekly]: 7,
   [HousekeepingPolicy.Monthly]: 30,
   [HousekeepingPolicy.Trimestrial]: 90,
-  [HousekeepingPolicy.Yearly]: 365
+  [HousekeepingPolicy.Yearly]: 365,
 };
 
 const getRangeOptions = (housekeepingPolicy: HousekeepingPolicy) => {
@@ -93,11 +93,12 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
                 to={{
                   pathname: '/admin/settings',
                   search: queryToSearch({ category: 'housekeeping' }),
-                  hash: '#auditLogs'
-                }}>
+                  hash: '#auditLogs',
+                }}
+              >
                 {translate('audit_logs.page.description.link')}
               </Link>
-            )
+            ),
           }}
         />
       </p>
@@ -106,12 +107,13 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
         <h2 className="big-spacer-bottom">{translate('audit_logs.download')}</h2>
 
         <ul>
-          {getRangeOptions(housekeepingPolicy).map(option => (
+          {getRangeOptions(housekeepingPolicy).map((option) => (
             <li key={option} className="spacer-bottom">
               <Radio
                 checked={selection === option}
                 onCheck={props.handleOptionSelection}
-                value={option}>
+                value={option}
+              >
                 {translate('audit_logs.range_option', option)}
               </Radio>
             </li>

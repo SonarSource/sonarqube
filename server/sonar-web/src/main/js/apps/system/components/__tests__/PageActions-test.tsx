@@ -23,7 +23,7 @@ import { click } from '../../../../helpers/testUtils';
 import PageActions from '../PageActions';
 
 jest.mock('../../utils', () => ({
-  getFileNameSuffix: (suffix?: string) => `filesuffix(${suffix || ''})`
+  getFileNameSuffix: (suffix?: string) => `filesuffix(${suffix || ''})`,
 }));
 
 it('should render correctly', () => {

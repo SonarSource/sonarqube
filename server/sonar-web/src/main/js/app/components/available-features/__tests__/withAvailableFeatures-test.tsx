@@ -27,8 +27,8 @@ jest.mock('../AvailableFeaturesContext', () => {
     AvailableFeaturesContext: {
       Consumer: ({ children }: { children: (props: {}) => React.ReactNode }) => {
         return children([Feature.MonoRepositoryPullRequestDecoration]);
-      }
-    }
+      },
+    },
   };
 });
 
@@ -44,9 +44,6 @@ it('should provide a way to check if a feature is available', () => {
   const wrapper = shallow(<UnderTest />);
   expect(wrapper.dive().type()).toBe(Wrapped);
   expect(
-    wrapper
-      .dive<Wrapped>()
-      .props()
-      .hasFeature(Feature.MonoRepositoryPullRequestDecoration)
+    wrapper.dive<Wrapped>().props().hasFeature(Feature.MonoRepositoryPullRequestDecoration)
   ).toBe(true);
 });

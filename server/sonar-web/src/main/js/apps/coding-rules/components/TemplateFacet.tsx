@@ -55,7 +55,8 @@ export default class TemplateFacet extends React.PureComponent<Props> {
         renderName={this.renderName}
         renderTextName={this.renderName}
         singleSelection={true}
-        values={value !== undefined ? [String(value)] : []}>
+        values={value !== undefined ? [String(value)] : []}
+      >
         <HelpTooltip
           className="spacer-left"
           overlay={

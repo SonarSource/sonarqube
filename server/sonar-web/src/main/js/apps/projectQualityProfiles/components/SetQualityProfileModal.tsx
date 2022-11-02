@@ -45,7 +45,7 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
     usesDefault ? USE_SYSTEM_DEFAULT : currentProfile.key
   );
 
-  const defaultProfile = availableProfiles.find(p => p.isDefault);
+  const defaultProfile = availableProfiles.find((p) => p.isDefault);
 
   if (defaultProfile === undefined) {
     // Cannot be undefined
@@ -56,15 +56,15 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
     'project_quality_profile.change_lang_X_profile',
     currentProfile.languageName
   );
-  const profileOptions: ProfileOption[] = availableProfiles.map(p => ({
+  const profileOptions: ProfileOption[] = availableProfiles.map((p) => ({
     value: p.key,
     label: p.name,
     language: currentProfile.language,
-    isDisabled: p.activeRuleCount === 0
+    isDisabled: p.activeRuleCount === 0,
   }));
   const hasSelectedSysDefault = selected === USE_SYSTEM_DEFAULT;
   const hasChanged = usesDefault ? !hasSelectedSysDefault : selected !== currentProfile.key;
-  const needsReanalysis = !component.qualityProfiles?.some(p =>
+  const needsReanalysis = !component.qualityProfiles?.some((p) =>
     hasSelectedSysDefault ? p.key === defaultProfile.key : p.key === selected
   );
 
@@ -74,7 +74,8 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
       onClose={props.onClose}
       onSubmit={() =>
         props.onSubmit(hasSelectedSysDefault ? undefined : selected, currentProfile.key)
-      }>
+      }
+    >
       {({ onCloseClick, onFormSubmit, submitting }) => (
         <>
           <div className="modal-head">
@@ -89,7 +90,8 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                   checked={hasSelectedSysDefault}
                   disabled={submitting}
                   onCheck={() => setSelected(USE_SYSTEM_DEFAULT)}
-                  value={USE_SYSTEM_DEFAULT}>
+                  value={USE_SYSTEM_DEFAULT}
+                >
                   <div className="spacer-left">
                     <div className="little-spacer-bottom">
                       {translate('project_quality_profile.always_use_default')}
@@ -110,12 +112,13 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                   className="display-flex-start"
                   checked={!hasSelectedSysDefault}
                   disabled={submitting}
-                  onCheck={value => {
+                  onCheck={(value) => {
                     if (hasSelectedSysDefault) {
                       setSelected(value);
                     }
                   }}
-                  value={currentProfile.key}>
+                  value={currentProfile.key}
+                >
                   <div className="spacer-left">
                     <div className="little-spacer-bottom">
                       {translate('project_quality_profile.always_use_specific')}
@@ -127,10 +130,10 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                         onChange={({ value }: ProfileOption) => setSelected(value)}
                         options={profileOptions}
                         components={{
-                          Option: LanguageProfileSelectOption
+                          Option: LanguageProfileSelectOption,
                         }}
                         value={profileOptions.find(
-                          option =>
+                          (option) =>
                             option.value ===
                             (!hasSelectedSysDefault ? selected : currentProfile.key)
                         )}

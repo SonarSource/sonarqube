@@ -22,10 +22,10 @@ import {
   countBindedProjects,
   deleteConfiguration,
   getAlmDefinitions,
-  validateAlmSettings
+  validateAlmSettings,
 } from '../../../../api/alm-settings';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
 import { Location, Router, withRouter } from '../../../../components/hoc/withRouter';
 import {
@@ -33,7 +33,7 @@ import {
   AlmKeys,
   AlmSettingsBindingDefinitions,
   AlmSettingsBindingStatus,
-  AlmSettingsBindingStatusType
+  AlmSettingsBindingStatusType,
 } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import { Dict } from '../../../../types/types';
@@ -76,17 +76,17 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
         [AlmKeys.BitbucketServer]: [],
         [AlmKeys.BitbucketCloud]: [],
         [AlmKeys.GitHub]: [],
-        [AlmKeys.GitLab]: []
+        [AlmKeys.GitLab]: [],
       },
       definitionStatus: {},
       loadingAlmDefinitions: true,
-      loadingProjectCount: false
+      loadingProjectCount: false,
     };
   }
 
   componentDidMount() {
     this.mounted = true;
-    return this.fetchPullRequestDecorationSetting().then(definitions => {
+    return this.fetchPullRequestDecorationSetting().then((definitions) => {
       if (definitions) {
         // Validate all alms on load:
         [
@@ -94,8 +94,8 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
           AlmKeys.BitbucketCloud,
           AlmKeys.BitbucketServer,
           AlmKeys.GitHub,
-          AlmKeys.GitLab
-        ].forEach(alm => {
+          AlmKeys.GitLab,
+        ].forEach((alm) => {
           this.state.definitions[alm].forEach((def: AlmBindingDefinitionBase) =>
             this.handleCheck(def.key, false)
           );
@@ -128,11 +128,11 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   fetchPullRequestDecorationSetting = () => {
     this.setState({ loadingAlmDefinitions: true });
     return getAlmDefinitions()
-      .then(definitions => {
+      .then((definitions) => {
         if (this.mounted) {
           this.setState({
             definitions,
-            loadingAlmDefinitions: false
+            loadingAlmDefinitions: false,
           });
           return definitions;
         }
@@ -159,12 +159,12 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   handleDelete = (definitionKey: string) => {
     this.setState({ loadingProjectCount: true });
     return countBindedProjects(definitionKey)
-      .then(projectCount => {
+      .then((projectCount) => {
         if (this.mounted) {
           this.setState({
             definitionKeyForDeletion: definitionKey,
             loadingProjectCount: false,
-            projectCount
+            projectCount,
           });
         }
       })
@@ -179,7 +179,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     this.setState(({ definitionStatus }) => {
       definitionStatus[definitionKey] = {
         ...definitionStatus[definitionKey],
-        type: AlmSettingsBindingStatusType.Validating
+        type: AlmSettingsBindingStatusType.Validating,
       };
 
       return { definitionStatus: { ...definitionStatus } };
@@ -202,7 +202,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
         definitionStatus[definitionKey] = {
           alertSuccess,
           failureMessage,
-          type
+          type,
         };
 
         return { definitionStatus: { ...definitionStatus } };
@@ -219,7 +219,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
       definitionStatus,
       loadingAlmDefinitions,
       loadingProjectCount,
-      projectCount
+      projectCount,
     } = this.state;
 
     return (

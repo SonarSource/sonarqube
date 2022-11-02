@@ -58,12 +58,13 @@ export default class ChangeDefaultVisibilityForm extends React.PureComponent<Pro
         </header>
 
         <div className="modal-body">
-          {['public', 'private'].map(visibility => (
+          {['public', 'private'].map((visibility) => (
             <div className="big-spacer-bottom" key={visibility}>
               <Radio
                 value={visibility}
                 checked={this.state.visibility === visibility}
-                onCheck={this.handleVisibilityChange}>
+                onCheck={this.handleVisibilityChange}
+              >
                 <div>
                   {translate('visibility', visibility)}
                   <p className="text-muted spacer-top">

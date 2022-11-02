@@ -36,13 +36,13 @@ import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../he
 import {
   getLocalizedMetricDomain,
   translate,
-  translateWithParameters
+  translateWithParameters,
 } from '../../../helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
-  removeWhitePageClass
+  removeWhitePageClass,
 } from '../../../helpers/pages';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
@@ -52,7 +52,7 @@ import {
   Issue,
   MeasureEnhanced,
   Metric,
-  Period
+  Period,
 } from '../../../types/types';
 import Sidebar from '../sidebar/Sidebar';
 import '../style.css';
@@ -68,7 +68,7 @@ import {
   parseQuery,
   Query,
   serializeQuery,
-  sortMeasures
+  sortMeasures,
 } from '../utils';
 import MeasureContent from './MeasureContent';
 import MeasureOverviewContainer from './MeasureOverviewContainer';
@@ -98,7 +98,7 @@ export class App extends React.PureComponent<Props, State> {
     this.state = {
       loading: true,
       measures: [],
-      metrics: {}
+      metrics: {},
     };
     this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
   }
@@ -107,7 +107,7 @@ export class App extends React.PureComponent<Props, State> {
     this.mounted = true;
 
     getAllMetrics().then(
-      metrics => {
+      (metrics) => {
         const byKey = keyBy(metrics, 'key');
         this.setState({ metrics: byKey });
         this.fetchMeasures(byKey);
@@ -150,7 +150,7 @@ export class App extends React.PureComponent<Props, State> {
     getMeasuresWithPeriod(componentKey, filteredKeys, getBranchLikeQuery(branchLike)).then(
       ({ component, period }) => {
         if (this.mounted) {
-          const measures = banQualityGateMeasure(component).map(measure =>
+          const measures = banQualityGateMeasure(component).map((measure) =>
             enhanceMeasure(measure, metrics)
           );
 
@@ -161,8 +161,8 @@ export class App extends React.PureComponent<Props, State> {
             loading: false,
             leakPeriod,
             measures: measures.filter(
-              measure => measure.value !== undefined || measure.leak !== undefined
-            )
+              (measure) => measure.value !== undefined || measure.leak !== undefined
+            ),
           });
         }
       },
@@ -223,8 +223,8 @@ export class App extends React.PureComponent<Props, State> {
       query: {
         ...serializeQuery(query),
         ...getBranchLikeQuery(this.props.branchLike),
-        id: this.props.component.key
-      }
+        id: this.props.component.key,
+      },
     });
   };
 
@@ -320,7 +320,8 @@ export class App extends React.PureComponent<Props, State> {
                     {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
                       <Alert
                         className="big-spacer-top big-spacer-right big-spacer-left it__portfolio_warning"
-                        variant="warning">
+                        variant="warning"
+                      >
                         <AlertContent>
                           {translate('component_measures.not_all_measures_are_shown')}
                           <HelpTooltip

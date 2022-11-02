@@ -26,7 +26,7 @@ describe('getSecondaryIssueLocationsForLine', () => {
     const sourceLine = mockSourceLine({ line: 2 });
     expect(getSecondaryIssueLocationsForLine(sourceLine, undefined)).toEqual([]);
     expect(getSecondaryIssueLocationsForLine(sourceLine, [mockFlowLocation()])).toEqual([
-      { from: 0, index: undefined, line: 2, startLine: 1, text: undefined, to: 2 }
+      { from: 0, index: undefined, line: 2, startLine: 1, text: undefined, to: 2 },
     ]);
   });
 });
@@ -37,11 +37,11 @@ describe('getLinearLocations', () => {
       [
         { from: 3, line: 6, to: 999999 },
         { from: 0, line: 7, to: 999999 },
-        { from: 0, line: 8, to: 56 }
+        { from: 0, line: 8, to: 56 },
       ]
     );
-    expect(
-      getLinearLocations({ startLine: 6, startOffset: 0, endLine: 6, endOffset: 42 })
-    ).toEqual([{ from: 0, line: 6, to: 42 }]);
+    expect(getLinearLocations({ startLine: 6, startOffset: 0, endLine: 6, endOffset: 42 })).toEqual(
+      [{ from: 0, line: 6, to: 42 }]
+    );
   });
 });

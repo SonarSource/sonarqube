@@ -22,7 +22,7 @@ import { cloneDeep } from 'lodash';
 import {
   AddRemoveNotificationParameters,
   Notification,
-  NotificationsResponse
+  NotificationsResponse,
 } from '../../types/notifications';
 import { addNotification, getNotifications, removeNotification } from '../notifications';
 
@@ -35,11 +35,11 @@ const perProjectTypes = [
   'NewAlerts',
   'NewFalsePositiveIssue',
   'NewIssues',
-  'SQ-MyNewIssues'
+  'SQ-MyNewIssues',
 ];
 
 const defaultNotifications: Notification[] = [
-  { channel: 'EmailNotificationChannel', type: 'ChangesOnMyIssue' }
+  { channel: 'EmailNotificationChannel', type: 'ChangesOnMyIssue' },
 ];
 
 export default class NotificationsMock {
@@ -58,7 +58,7 @@ export default class NotificationsMock {
       channels: [...channels],
       globalTypes: [...globalTypes],
       notifications: cloneDeep(this.notifications),
-      perProjectTypes: [...perProjectTypes]
+      perProjectTypes: [...perProjectTypes],
     });
   };
 
@@ -70,7 +70,7 @@ export default class NotificationsMock {
 
   handleRemoveNotification = (params: AddRemoveNotificationParameters) => {
     const index = this.notifications.findIndex(
-      n => n.project === params.project && n.type === params.type && n.channel === params.channel
+      (n) => n.project === params.project && n.type === params.type && n.channel === params.channel
     );
 
     if (index < 0) {

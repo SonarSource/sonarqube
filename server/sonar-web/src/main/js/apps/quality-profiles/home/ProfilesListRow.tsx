@@ -39,19 +39,20 @@ export function ProfilesListRow(props: ProfilesListRowProps) {
   const offset = 25 * (profile.depth - 1);
   const activeRulesUrl = getRulesUrl({
     qprofile: profile.key,
-    activation: 'true'
+    activation: 'true',
   });
   const deprecatedRulesUrl = getRulesUrl({
     qprofile: profile.key,
     activation: 'true',
-    statuses: 'DEPRECATED'
+    statuses: 'DEPRECATED',
   });
 
   return (
     <tr
       className="quality-profiles-table-row text-middle"
       data-key={profile.key}
-      data-name={profile.name}>
+      data-name={profile.name}
+    >
       <td className="quality-profiles-table-name text-middle">
         <div className="display-flex-center" style={{ paddingLeft: offset }}>
           <div>

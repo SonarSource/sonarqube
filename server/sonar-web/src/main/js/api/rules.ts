@@ -32,7 +32,7 @@ export function searchRules(data: SearchRulesQuery): Promise<SearchRulesResponse
 }
 
 export function takeFacet(response: SearchRulesResponse, property: string) {
-  const facet = response.facets?.find(f => f.property === property);
+  const facet = response.facets?.find((f) => f.property === property);
   return facet ? facet.values : [];
 }
 
@@ -53,7 +53,7 @@ export function getRuleDetails(parameters: {
 }
 
 export function getRuleTags(parameters: { ps?: number; q: string }): Promise<string[]> {
-  return getJSON('/api/rules/tags', parameters).then(r => r.tags, throwGlobalError);
+  return getJSON('/api/rules/tags', parameters).then((r) => r.tags, throwGlobalError);
 }
 
 export function createRule(data: {
@@ -68,8 +68,8 @@ export function createRule(data: {
   type?: string;
 }): Promise<RuleDetails> {
   return postJSON('/api/rules/create', data).then(
-    r => r.rule,
-    response => {
+    (r) => r.rule,
+    (response) => {
       // do not show global error if the status code is 409
       // this case should be handled inside a component
       if (response && response.status === 409) {
@@ -86,5 +86,5 @@ export function deleteRule(parameters: { key: string }) {
 }
 
 export function updateRule(data: RulesUpdateRequest): Promise<RuleDetails> {
-  return postJSON('/api/rules/update', data).then(r => r.rule, throwGlobalError);
+  return postJSON('/api/rules/update', data).then((r) => r.rule, throwGlobalError);
 }

@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownDivider,
-  ActionsDropdownItem
+  ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
 import ClickEventBoundary from '../../../components/controls/ClickEventBoundary';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
@@ -62,7 +62,7 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
     canAdmin,
     canCreateVersion,
     parentScrollContainer,
-    selected
+    selected,
   } = props;
 
   React.useEffect(() => {
@@ -72,7 +72,7 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
         bottomOffset: height + 20,
         topOffset: 60,
         parent: parentScrollContainer,
-        smooth: false
+        smooth: false,
       });
     }
   });
@@ -82,7 +82,7 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
   const [removeAnalysisForm, setRemoveAnalysisForm] = React.useState(false);
 
   const parsedDate = parseDate(analysis.date);
-  const hasVersion = analysis.events.find(event => event.category === 'VERSION') != null;
+  const hasVersion = analysis.events.find((event) => event.category === 'VERSION') != null;
 
   const canAddVersion = canAdmin && !hasVersion && canCreateVersion;
   const canAddEvent = canAdmin;
@@ -92,14 +92,15 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
   return (
     <li
       className={classNames('project-activity-analysis bordered-top bordered-bottom', {
-        selected
+        selected,
       })}
       onClick={() => props.updateSelectedDate(analysis.date)}
-      ref={ref => (node = ref)}>
+      ref={(ref) => (node = ref)}
+    >
       <div className="display-flex-center display-flex-space-between">
         <div className="project-activity-time">
           <TimeFormatter date={parsedDate} long={false}>
-            {formattedTime => (
+            {(formattedTime) => (
               <time className="text-middle" dateTime={parsedDate.toISOString()}>
                 {formattedTime}
               </time>
@@ -122,18 +123,21 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
               <ActionsDropdown
                 overlayPlacement={PopupPlacement.BottomRight}
                 small={true}
-                toggleClassName="js-analysis-actions">
+                toggleClassName="js-analysis-actions"
+              >
                 {canAddVersion && (
                   <ActionsDropdownItem
                     className="js-add-version"
-                    onClick={() => setAddVersionForm(true)}>
+                    onClick={() => setAddVersionForm(true)}
+                  >
                     {translate('project_activity.add_version')}
                   </ActionsDropdownItem>
                 )}
                 {canAddEvent && (
                   <ActionsDropdownItem
                     className="js-add-event"
-                    onClick={() => setAddEventForm(true)}>
+                    onClick={() => setAddEventForm(true)}
+                  >
                     {translate('project_activity.add_custom_event')}
                   </ActionsDropdownItem>
                 )}
@@ -142,7 +146,8 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
                   <ActionsDropdownItem
                     className="js-delete-analysis"
                     destructive={true}
-                    onClick={() => setRemoveAnalysisForm(true)}>
+                    onClick={() => setRemoveAnalysisForm(true)}
+                  >
                     {translate('project_activity.delete_analysis')}
                   </ActionsDropdownItem>
                 )}

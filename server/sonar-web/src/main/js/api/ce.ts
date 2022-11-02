@@ -52,7 +52,7 @@ export function getStatus(
 }
 
 export function getTask(id: string, additionalFields?: string[]): Promise<Task> {
-  return getJSON('/api/ce/task', { id, additionalFields }).then(r => r.task);
+  return getJSON('/api/ce/task', { id, additionalFields }).then((r) => r.task);
 }
 
 export function cancelTask(id: string): Promise<any> {
@@ -71,7 +71,7 @@ export function getTasksForComponent(component: string): Promise<{ queue: Task[]
 }
 
 export function getTypes(): Promise<string[]> {
-  return getJSON('/api/ce/task_types').then(r => r.taskTypes);
+  return getJSON('/api/ce/task_types').then((r) => r.taskTypes);
 }
 
 export function getWorkers(): Promise<{ canSetWorkerCount: boolean; value: number }> {

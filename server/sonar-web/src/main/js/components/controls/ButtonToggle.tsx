@@ -43,14 +43,15 @@ export default function ButtonToggle(props: ButtonToggleProps) {
 
   return (
     <ul aria-label={label} role="group" className="button-toggle">
-      {options.map(option => (
+      {options.map((option) => (
         <li key={option.value.toString()}>
           <Button
             onClick={() => option.value !== value && props.onCheck(option.value)}
             disabled={disabled}
             aria-current={option.value === value}
             data-value={option.value}
-            className={classNames({ selected: option.value === value })}>
+            className={classNames({ selected: option.value === value })}
+          >
             {option.label}
           </Button>
         </li>

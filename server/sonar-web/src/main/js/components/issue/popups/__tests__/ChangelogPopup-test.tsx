@@ -32,10 +32,10 @@ jest.mock('../../../../api/issues', () => ({
         isUserActive: true,
         userName: 'John Doe',
         avatar: 'gravatarhash',
-        diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }]
-      }
-    ]
-  })
+        diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }],
+      },
+    ],
+  }),
 }));
 
 beforeEach(() => {
@@ -56,9 +56,9 @@ it('should render the changelog popup when we have a deleted user', async () => 
         creationDate: '2017-03-01T09:36:01+0100',
         user: 'john.doe',
         isUserActive: false,
-        diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }]
-      }
-    ]
+        diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }],
+      },
+    ],
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -74,9 +74,9 @@ it('should render the changelog popup when change was triggered by a webhook wit
         isUserActive: false,
         diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }],
         webhookSource: 'GitHub',
-        externalUser: 'toto@github.com'
-      }
-    ]
+        externalUser: 'toto@github.com',
+      },
+    ],
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -91,9 +91,9 @@ it('should render the changelog popup when change was triggered by a webhook wit
         user: null,
         isUserActive: false,
         diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }],
-        webhookSource: 'GitHub'
-      }
-    ]
+        webhookSource: 'GitHub',
+      },
+    ],
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -109,9 +109,9 @@ it('should render the changelog popup with SQ user when both SQ and external use
         isUserActive: false,
         diffs: [{ key: 'severity', newValue: 'MINOR', oldValue: 'CRITICAL' }],
         webhookSource: 'GitHub',
-        externalUser: 'toto@github.com'
-      }
-    ]
+        externalUser: 'toto@github.com',
+      },
+    ],
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -124,7 +124,7 @@ function shallowRender(props: Partial<ChangelogPopup['props']> = {}) {
       issue={{
         key: 'issuekey',
         author: 'john.david.dalton@gmail.com',
-        creationDate: '2017-03-01T09:36:01+0100'
+        creationDate: '2017-03-01T09:36:01+0100',
       }}
       {...props}
     />

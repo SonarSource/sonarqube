@@ -32,9 +32,9 @@ const routes = () => (
       element={
         <NavigateWithParams
           pathname="/component_measures"
-          transformParams={params =>
+          transformParams={(params) =>
             omitNil({
-              metric: params['domainName']
+              metric: params['domainName'],
             })
           }
         />
@@ -57,9 +57,9 @@ function MetricRedirect() {
         omitNil({
           id: searchParams.get('id') ?? undefined,
           graph: 'custom',
-          custom_metrics: params.metricKey
+          custom_metrics: params.metricKey,
         })
-      ).toString()
+      ).toString(),
     };
     return <Navigate to={to} replace={true} />;
   }
@@ -69,9 +69,9 @@ function MetricRedirect() {
       omitNil({
         ...searchParamsToQuery(searchParams),
         metric: params.metricKey,
-        view: params.view
+        view: params.view,
       })
-    ).toString()
+    ).toString(),
   };
   return <Navigate to={to} replace={true} />;
 }

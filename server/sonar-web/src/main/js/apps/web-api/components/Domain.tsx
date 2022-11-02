@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default function Domain({ domain, query }: Props) {
-  const filteredActions = domain.actions.filter(action => actionsFilter(query, domain, action));
+  const filteredActions = domain.actions.filter((action) => actionsFilter(query, domain, action));
 
   return (
     <div className="web-api-domain">
@@ -59,7 +59,7 @@ export default function Domain({ domain, query }: Props) {
       )}
 
       <div className="web-api-domain-actions">
-        {filteredActions.map(action => (
+        {filteredActions.map((action) => (
           <Action
             action={action}
             domain={domain}

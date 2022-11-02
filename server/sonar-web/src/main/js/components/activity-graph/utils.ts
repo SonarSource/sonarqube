@@ -30,20 +30,20 @@ export const DEFAULT_GRAPH = GraphType.issues;
 const GRAPHS_METRICS_DISPLAYED: Dict<string[]> = {
   [GraphType.issues]: [MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities],
   [GraphType.coverage]: [MetricKey.lines_to_cover, MetricKey.uncovered_lines],
-  [GraphType.duplications]: [MetricKey.ncloc, MetricKey.duplicated_lines]
+  [GraphType.duplications]: [MetricKey.ncloc, MetricKey.duplicated_lines],
 };
 
 const GRAPHS_METRICS: Dict<string[]> = {
   [GraphType.issues]: GRAPHS_METRICS_DISPLAYED[GraphType.issues].concat([
     MetricKey.reliability_rating,
     MetricKey.security_rating,
-    MetricKey.sqale_rating
+    MetricKey.sqale_rating,
   ]),
   [GraphType.coverage]: [...GRAPHS_METRICS_DISPLAYED[GraphType.coverage], MetricKey.coverage],
   [GraphType.duplications]: [
     ...GRAPHS_METRICS_DISPLAYED[GraphType.duplications],
-    MetricKey.duplicated_lines_density
-  ]
+    MetricKey.duplicated_lines_density,
+  ],
 };
 
 export function isCustomGraph(graph: GraphType) {
@@ -56,11 +56,11 @@ export function getGraphTypes(ignoreCustom = false) {
 }
 
 export function hasDataValues(serie: Serie) {
-  return serie.data.some(point => Boolean(point.y || point.y === 0));
+  return serie.data.some((point) => Boolean(point.y || point.y === 0));
 }
 
 export function hasHistoryData(series: Serie[]) {
-  return series.some(serie => serie.data && serie.data.length > 1);
+  return series.some((serie) => serie.data && serie.data.length > 1);
 }
 
 export function getSeriesMetricType(series: Serie[]) {
@@ -76,13 +76,13 @@ export function getHistoryMetrics(graph: GraphType, customMetrics: string[]) {
 }
 
 export function hasHistoryDataValue(series: Serie[]) {
-  return series.some(serie => serie.data && serie.data.length > 1 && hasDataValues(serie));
+  return series.some((serie) => serie.data && serie.data.length > 1 && hasDataValues(serie));
 }
 
 export function splitSeriesInGraphs(series: Serie[], maxGraph: number, maxSeries: number) {
   return flatMap(
-    groupBy(series, serie => serie.type),
-    type => chunk(type, maxSeries)
+    groupBy(series, (serie) => serie.type),
+    (type) => chunk(type, maxSeries)
   ).slice(0, maxGraph);
 }
 
@@ -90,17 +90,19 @@ export function generateCoveredLinesMetric(
   uncoveredLines: MeasureHistory,
   measuresHistory: MeasureHistory[]
 ) {
-  const linesToCover = measuresHistory.find(measure => measure.metric === MetricKey.lines_to_cover);
+  const linesToCover = measuresHistory.find(
+    (measure) => measure.metric === MetricKey.lines_to_cover
+  );
   return {
     data: linesToCover
       ? uncoveredLines.history.map((analysis, idx) => ({
           x: analysis.date,
-          y: Number(linesToCover.history[idx].value) - Number(analysis.value)
+          y: Number(linesToCover.history[idx].value) - Number(analysis.value),
         }))
       : [],
     name: 'covered_lines',
     translatedName: translate('project_activity.custom_metric.covered_lines'),
-    type: 'INT'
+    type: 'INT',
   };
 }
 
@@ -115,23 +117,23 @@ export function generateSeries(
   }
   return sortBy(
     measuresHistory
-      .filter(measure => displayedMetrics.indexOf(measure.metric) >= 0)
-      .map(measure => {
+      .filter((measure) => displayedMetrics.indexOf(measure.metric) >= 0)
+      .map((measure) => {
         if (measure.metric === MetricKey.uncovered_lines && !isCustomGraph(graph)) {
           return generateCoveredLinesMetric(measure, measuresHistory);
         }
         const metric = findMetric(measure.metric, metrics);
         return {
-          data: measure.history.map(analysis => ({
+          data: measure.history.map((analysis) => ({
             x: analysis.date,
-            y: metric && metric.type === 'LEVEL' ? analysis.value : Number(analysis.value)
+            y: metric && metric.type === 'LEVEL' ? analysis.value : Number(analysis.value),
           })),
           name: measure.metric,
           translatedName: metric ? getLocalizedMetricName(metric) : localizeMetric(measure.metric),
-          type: metric ? metric.type : 'INT'
+          type: metric ? metric.type : 'INT',
         };
       }),
-    serie =>
+    (serie) =>
       displayedMetrics.indexOf(serie.name === 'covered_lines' ? 'uncovered_lines' : serie.name)
   );
 }
@@ -155,13 +157,13 @@ export function getActivityGraph(
   const customGraphs = get(`${namespace}.custom`, project);
   return {
     graph: (get(namespace, project) as GraphType) || DEFAULT_GRAPH,
-    customGraphs: customGraphs ? customGraphs.split(',') : []
+    customGraphs: customGraphs ? customGraphs.split(',') : [],
   };
 }
 
 export function getAnalysisEventsForDate(analyses: ParsedAnalysis[], date?: Date) {
   if (date) {
-    const analysis = analyses.find(a => a.date.valueOf() === date.valueOf());
+    const analysis = analyses.find((a) => a.date.valueOf() === date.valueOf());
     if (analysis) {
       return analysis.events;
     }
@@ -171,7 +173,7 @@ export function getAnalysisEventsForDate(analyses: ParsedAnalysis[], date?: Date
 
 function findMetric(key: string, metrics: Metric[] | Dict<Metric>) {
   if (Array.isArray(metrics)) {
-    return metrics.find(metric => metric.key === key);
+    return metrics.find((metric) => metric.key === key);
   }
   return metrics[key];
 }

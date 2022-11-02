@@ -39,7 +39,7 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      config: this.props.config || {}
+      config: this.props.config || {},
     };
   }
 
@@ -74,9 +74,9 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
           <ButtonToggle
             label={translate('onboarding.build')}
             onCheck={this.handleBuildToolChange}
-            options={buildTools.map(tool => ({
+            options={buildTools.map((tool) => ({
               label: translate('onboarding.build', tool),
-              value: tool
+              value: tool,
             }))}
             value={config.buildTool}
           />

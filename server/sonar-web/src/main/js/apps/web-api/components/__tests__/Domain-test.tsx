@@ -27,18 +27,18 @@ const ACTION = {
   description: 'Foo Desc',
   hasResponseExample: false,
   internal: false,
-  post: false
+  post: false,
 };
 const DOMAIN = {
   actions: [ACTION],
   path: 'api',
   description: 'API Desc',
   deprecated: false,
-  internal: false
+  internal: false,
 };
 const DEFAULT_PROPS = {
   domain: DOMAIN,
-  query: { search: '', deprecated: false, internal: false }
+  query: { search: '', deprecated: false, internal: false },
 };
 const SHOW_DEPRECATED = { search: '', deprecated: true, internal: false };
 const SHOW_INTERNAL = { search: '', deprecated: false, internal: true };
@@ -86,7 +86,7 @@ it('should also render actions with a description matching the query', () => {
   const actions = [
     ACTION,
     { ...ACTION, key: 'bar', description: 'Bar desc' },
-    { ...ACTION, key: 'baz', description: 'foobar' }
+    { ...ACTION, key: 'baz', description: 'foobar' },
   ];
   const domain = { ...DOMAIN, actions };
   expect(

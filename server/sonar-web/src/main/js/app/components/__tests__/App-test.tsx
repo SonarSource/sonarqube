@@ -29,9 +29,9 @@ it('should render correctly', () => {
       appState: mockAppState({
         settings: {
           'sonar.lf.enableGravatar': 'true',
-          'sonar.lf.gravatarServerUrl': 'http://example.com'
-        }
-      })
+          'sonar.lf.gravatarServerUrl': 'http://example.com',
+        },
+      }),
     })
   ).toMatchSnapshot('with gravatar');
 });
@@ -47,8 +47,8 @@ function shallowRender(props: Partial<App['props']> = {}) {
       appState={mockAppState({
         settings: {
           'sonar.lf.enableGravatar': 'false',
-          'sonar.lf.gravatarServerUrl': ''
-        }
+          'sonar.lf.gravatarServerUrl': '',
+        },
       })}
       {...props}
     />

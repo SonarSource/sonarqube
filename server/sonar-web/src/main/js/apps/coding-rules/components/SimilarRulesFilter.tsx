@@ -80,7 +80,8 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
               <a
                 data-test="coding-rules__similar-language"
                 href="#"
-                onClick={this.handleLanguageClick}>
+                onClick={this.handleLanguageClick}
+              >
                 {rule.langName}
               </a>
             </li>
@@ -90,7 +91,8 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
                 className="display-flex-center"
                 data-test="coding-rules__similar-type"
                 href="#"
-                onClick={this.handleTypeClick}>
+                onClick={this.handleTypeClick}
+              >
                 <IssueTypeIcon query={rule.type} />
                 <span className="little-spacer-left">{translate('issue.type', rule.type)}</span>
               </a>
@@ -101,31 +103,35 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
                 <a
                   data-test="coding-rules__similar-severity"
                   href="#"
-                  onClick={this.handleSeverityClick}>
+                  onClick={this.handleSeverityClick}
+                >
                   <SeverityHelper className="display-flex-center" severity={rule.severity} />
                 </a>
               </li>
             )}
 
             {allTags.length > 0 && <li className="divider" />}
-            {allTags.map(tag => (
+            {allTags.map((tag) => (
               <li key={tag}>
                 <a
                   data-tag={tag}
                   data-test="coding-rules__similar-tag"
                   href="#"
-                  onClick={this.handleTagClick}>
+                  onClick={this.handleTagClick}
+                >
                   <TagsIcon className="little-spacer-right text-middle" />
                   <span className="text-middle">{tag}</span>
                 </a>
               </li>
             ))}
           </ul>
-        }>
+        }
+      >
         <a
           className="js-rule-filter link-no-underline spacer-left dropdown-toggle"
           href="#"
-          title={translate('coding_rules.filter_similar_rules')}>
+          title={translate('coding_rules.filter_similar_rules')}
+        >
           <FilterIcon />
           <DropdownIcon />
         </a>

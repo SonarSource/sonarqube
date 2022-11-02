@@ -26,7 +26,7 @@ import { AvailableFeaturesContext } from '../available-features/AvailableFeature
 import SystemAnnouncement from '../SystemAnnouncement';
 
 jest.mock('../../../api/settings', () => ({
-  getValues: jest.fn()
+  getValues: jest.fn(),
 }));
 
 jest.mock('lodash', () => {
@@ -41,41 +41,41 @@ it('should display system announcement', async () => {
       {
         key: 'sonar.announcement.displayMessage',
         value: 'false',
-        inherited: true
-      }
+        inherited: true,
+      },
     ])
     .mockResolvedValueOnce([
       {
         key: 'sonar.announcement.displayMessage',
         value: 'false',
-        inherited: true
-      }
+        inherited: true,
+      },
     ])
     .mockResolvedValueOnce([
       {
         key: 'sonar.announcement.displayMessage',
-        value: 'true'
-      }
+        value: 'true',
+      },
     ])
     .mockResolvedValueOnce([
       {
         key: 'sonar.announcement.displayMessage',
-        value: 'true'
+        value: 'true',
       },
       {
         key: 'sonar.announcement.message',
-        value: ''
-      }
+        value: '',
+      },
     ])
     .mockResolvedValueOnce([
       {
         key: 'sonar.announcement.displayMessage',
-        value: 'true'
+        value: 'true',
       },
       {
         key: 'sonar.announcement.message',
-        value: 'Foo'
-      }
+        value: 'Foo',
+      },
     ]);
 
   renderSystemAnnouncement();

@@ -53,8 +53,8 @@ export default class AuthorFacet extends React.PureComponent<Props> {
     return searchIssueAuthors({
       project,
       ps: SEARCH_SIZE, // maximum
-      q: query
-    }).then(authors => ({ maxResults: authors.length === SEARCH_SIZE, results: authors }));
+      q: query,
+    }).then((authors) => ({ maxResults: authors.length === SEARCH_SIZE, results: authors }));
   };
 
   loadSearchResultCount = (author: string[]) => {

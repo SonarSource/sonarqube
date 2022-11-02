@@ -25,7 +25,7 @@ import {
   getUniqueName,
   isCategoryDefinition,
   isDefaultOrInherited,
-  isSecuredDefinition
+  isSecuredDefinition,
 } from '../../utils';
 import InputForSecured from './InputForSecured';
 import MultiValueInput from './MultiValueInput';

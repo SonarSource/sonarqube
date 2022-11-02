@@ -29,7 +29,7 @@ import { translate } from '../../../helpers/l10n';
 import {
   AlmKeys,
   AlmSettingsInstance,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../../../types/alm-settings';
 import Step from '../components/Step';
 import WebhookStepBitbucket from './WebhookStepBitbucket';
@@ -98,7 +98,7 @@ export default function WebhookStep(props: WebhookStepProps) {
                   <ButtonLink onClick={props.onDone}>
                     {translate('onboarding.tutorial.with.jenkins.webhook.intro.link')}
                   </ButtonLink>
-                )
+                ),
               }}
             />
           </p>

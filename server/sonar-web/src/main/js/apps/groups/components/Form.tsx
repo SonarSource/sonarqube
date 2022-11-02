@@ -44,7 +44,7 @@ export default class Form extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       description: (props.group && props.group.description) || '',
-      name: (props.group && props.group.name) || ''
+      name: (props.group && props.group.name) || '',
     };
   }
 
@@ -68,7 +68,8 @@ export default class Form extends React.PureComponent<Props, State> {
         header={this.props.header}
         onClose={this.props.onClose}
         onSubmit={this.handleSubmit}
-        size="small">
+        size="small"
+      >
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form onSubmit={onFormSubmit}>
             <header className="modal-head">

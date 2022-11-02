@@ -28,7 +28,7 @@ jest.mock('../Extension', () => ({
   __esModule: true,
   default(props: { extension: { key: string; name: string } }) {
     return <h1>{props.extension.name}</h1>;
-  }
+  },
 }));
 
 const extensions = [{ key: 'plugin123/ext42', name: 'extension 42' }];
@@ -60,6 +60,6 @@ function renderGlobalPageExtension(
 ) {
   renderApp(`extension/:pluginKey/:extensionKey`, <GlobalPageExtension params={params} />, {
     appState: mockAppState({ globalPages }),
-    navigateTo
+    navigateTo,
   });
 }

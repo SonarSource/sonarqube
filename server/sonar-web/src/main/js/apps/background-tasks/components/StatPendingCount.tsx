@@ -49,7 +49,8 @@ export function StatPendingCount({ appState, onCancelAllPending, pendingCount }:
             isDestructive={true}
             modalBody={translate('background_tasks.cancel_all_tasks.text')}
             modalHeader={translate('background_tasks.cancel_all_tasks')}
-            onConfirm={onCancelAllPending}>
+            onConfirm={onCancelAllPending}
+          >
             {({ onClick }) => (
               <Tooltip overlay={translate('background_tasks.cancel_all_tasks')}>
                 <ClearButton className="little-spacer-left" color={colors.red} onClick={onClick} />

@@ -26,15 +26,15 @@ const COMPONENTS = [
     key: 'foo',
     measures: [],
     name: 'Foo',
-    qualifier: 'TRK'
-  }
+    qualifier: 'TRK',
+  },
 ];
 
 const METRICS = {
   coverage: { id: '1', key: 'coverage', type: 'PERCENT', name: 'Coverage' },
   new_bugs: { id: '2', key: 'new_bugs', type: 'INT', name: 'New Bugs' },
   uncovered_lines: { id: '3', key: 'uncovered_lines', type: 'INT', name: 'Lines' },
-  uncovered_conditions: { id: '4', key: 'uncovered_conditions', type: 'INT', name: 'Conditions' }
+  uncovered_conditions: { id: '4', key: 'uncovered_conditions', type: 'INT', name: 'Conditions' },
 };
 
 it('should renders correctly', () => {

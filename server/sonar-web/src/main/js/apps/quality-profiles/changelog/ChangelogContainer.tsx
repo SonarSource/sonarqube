@@ -71,7 +71,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     const {
       location: { query },
-      profile
+      profile,
     } = this.props;
 
     getProfileChangelog(query.since, query.to, profile)
@@ -81,7 +81,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
             events: r.events,
             total: r.total,
             page: r.p,
-            loading: false
+            loading: false,
           });
         }
       })
@@ -96,7 +96,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
       this.setState({ loading: true });
       const {
         location: { query },
-        profile
+        profile,
       } = this.props;
 
       getProfileChangelog(query.since, query.to, profile, this.state.page + 1)
@@ -106,7 +106,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
               events: [...events, ...r.events],
               total: r.total,
               page: r.p,
-              loading: false
+              loading: false,
             }));
           }
         })
@@ -117,7 +117,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
   handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
     const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language, {
       since: from && toShortNotSoISOString(from),
-      to: to && toShortNotSoISOString(to)
+      to: to && toShortNotSoISOString(to),
     });
     this.props.router.push(path);
   };
@@ -141,7 +141,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
           <ChangelogSearch
             dateRange={{
               from: query.since ? parseDate(query.since) : undefined,
-              to: query.to ? parseDate(query.to) : undefined
+              to: query.to ? parseDate(query.to) : undefined,
             }}
             onDateRangeChange={this.handleDateRangeChange}
             onReset={this.handleReset}

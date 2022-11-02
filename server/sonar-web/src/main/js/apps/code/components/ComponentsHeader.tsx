@@ -33,14 +33,14 @@ const SHORT_NAME_METRICS = [
   'duplicated_lines_density',
   'new_lines',
   'new_coverage',
-  'new_duplicated_lines_density'
+  'new_duplicated_lines_density',
 ];
 
 export default function ComponentsHeader({
   baseComponent,
   canBePinned = true,
   metrics,
-  rootComponent
+  rootComponent,
 }: Props) {
   const isPortfolio = ['VW', 'SVW'].includes(rootComponent.qualifier);
   let columns: string[] = [];
@@ -51,10 +51,10 @@ export default function ComponentsHeader({
       translate('portfolio.metric_domain.vulnerabilities'),
       translate('portfolio.metric_domain.security_hotspots'),
       translate('metric_domain.Maintainability'),
-      translate('metric', 'ncloc', 'name')
+      translate('metric', 'ncloc', 'name'),
     ];
   } else {
-    columns = metrics.map(metric =>
+    columns = metrics.map((metric) =>
       translate('metric', metric, SHORT_NAME_METRICS.includes(metric) ? 'short_name' : 'name')
     );
   }
@@ -71,9 +71,10 @@ export default function ComponentsHeader({
                 'code-components-cell': !isPortfolio && index > 0,
                 nowrap: !isPortfolio,
                 'text-center': isPortfolio && index < columns.length - 1,
-                'text-right': !isPortfolio || index === columns.length - 1
+                'text-right': !isPortfolio || index === columns.length - 1,
               })}
-              key={column}>
+              key={column}
+            >
               {column}
             </th>
           ))}

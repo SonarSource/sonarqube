@@ -42,7 +42,7 @@ export default function ProjectCard({ project }: Props) {
         id: `link-${i}`,
         name,
         type,
-        url: href
+        url: href,
       };
     })
   );
@@ -55,7 +55,7 @@ export default function ProjectCard({ project }: Props) {
         {lastAnalysisDate !== undefined ? (
           <div className="account-project-analysis">
             <DateFromNow date={lastAnalysisDate}>
-              {fromNow => translateWithParameters('my_account.projects.analyzed_x', fromNow)}
+              {(fromNow) => translateWithParameters('my_account.projects.analyzed_x', fromNow)}
             </DateFromNow>
           </div>
         ) : (
@@ -84,7 +84,7 @@ export default function ProjectCard({ project }: Props) {
       {orderedLinks.length > 0 && (
         <div className="account-project-links">
           <ul className="list-inline">
-            {orderedLinks.map(link => (
+            {orderedLinks.map((link) => (
               <MetaLink iconOnly={true} key={link.id} link={link} />
             ))}
           </ul>

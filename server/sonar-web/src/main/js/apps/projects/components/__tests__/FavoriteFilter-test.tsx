@@ -25,13 +25,13 @@ import {
   mockCurrentUser,
   mockLocation,
   mockLoggedInUser,
-  mockRouter
+  mockRouter,
 } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ALL_PATHNAME, FavoriteFilter, FAVORITE_PATHNAME } from '../FavoriteFilter';
 
 jest.mock('../../../../helpers/storage', () => ({
-  save: jest.fn()
+  save: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -46,7 +46,7 @@ it('renders for logged in user', () => {
 
 it.each([
   ['my_favorites', 'favorite', ALL_PATHNAME],
-  ['all', 'all', FAVORITE_PATHNAME]
+  ['all', 'all', FAVORITE_PATHNAME],
 ])(
   'saves last selection',
   async (optionTranslationId: string, localStorageValue: string, initialPathName: string) => {
@@ -66,7 +66,7 @@ it('does not render for anonymous', () => {
 
 function renderFavoriteFilter({
   currentUser = mockLoggedInUser(),
-  location = mockLocation()
+  location = mockLocation(),
 }: Partial<FavoriteFilter['props']> = {}) {
   renderComponent(
     <FavoriteFilter

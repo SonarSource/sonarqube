@@ -25,7 +25,7 @@ import { TaskTypes } from '../../../../types/tasks';
 import ScannerContext from '../ScannerContext';
 
 jest.mock('../../../../api/ce', () => ({
-  getTask: jest.fn(() => Promise.resolve({ scannerContext: 'context' }))
+  getTask: jest.fn(() => Promise.resolve({ scannerContext: 'context' })),
 }));
 
 const getTask = require('../../../../api/ce').getTask as jest.Mock<any>;
@@ -33,7 +33,7 @@ const getTask = require('../../../../api/ce').getTask as jest.Mock<any>;
 const task = mockTask({
   componentName: 'foo',
   id: '123',
-  type: TaskTypes.Report
+  type: TaskTypes.Report,
 });
 
 beforeEach(() => {

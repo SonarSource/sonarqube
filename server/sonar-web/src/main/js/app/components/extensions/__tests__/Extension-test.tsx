@@ -25,17 +25,17 @@ import {
   mockAppState,
   mockCurrentUser,
   mockLocation,
-  mockRouter
+  mockRouter,
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { Extension } from '../Extension';
 
 jest.mock('../../../../helpers/extensions', () => ({
-  getExtensionStart: jest.fn().mockResolvedValue({})
+  getExtensionStart: jest.fn().mockResolvedValue({}),
 }));
 
 jest.mock('react-helmet-async', () => ({
-  Helmet: () => null
+  Helmet: () => null,
 }));
 
 beforeEach(() => {

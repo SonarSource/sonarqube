@@ -95,7 +95,8 @@ export default class DeliveryAccordion extends React.PureComponent<Props, State>
             <AlertErrorIcon aria-label={translate('error')} className="js-error" />
           )
         }
-        title={<DateTimeFormatter date={delivery.at} />}>
+        title={<DateTimeFormatter date={delivery.at} />}
+      >
         <DeliveryItem
           className="big-spacer-left"
           delivery={delivery}

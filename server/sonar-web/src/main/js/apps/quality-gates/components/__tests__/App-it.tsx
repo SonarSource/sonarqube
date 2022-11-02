@@ -50,12 +50,12 @@ it('should list all quality gates', async () => {
 
   expect(
     await screen.findByRole('menuitem', {
-      name: `${handler.getDefaultQualityGate().name} default`
+      name: `${handler.getDefaultQualityGate().name} default`,
     })
   ).toBeInTheDocument();
   expect(
     await screen.findByRole('menuitem', {
-      name: `${handler.getBuiltInQualityGate().name} quality_gates.built_in`
+      name: `${handler.getBuiltInQualityGate().name} quality_gates.built_in`,
     })
   ).toBeInTheDocument();
 });
@@ -212,7 +212,7 @@ it('should be able to edit a condition', async () => {
 
   const newConditions = within(
     await screen.findByRole('table', {
-      name: 'quality_gates.conditions.new_code.long'
+      name: 'quality_gates.conditions.new_code.long',
     })
   );
 
@@ -248,7 +248,7 @@ it('should be able to handle delete condition', async () => {
 
   const newConditions = within(
     await screen.findByRole('table', {
-      name: 'quality_gates.conditions.new_code.long'
+      name: 'quality_gates.conditions.new_code.long',
     })
   );
 
@@ -357,7 +357,7 @@ describe('The Project section', () => {
   it('should display show more button if there are multiple pages of data', async () => {
     (searchProjects as jest.Mock).mockResolvedValueOnce({
       paging: { pageIndex: 2, pageSize: 3, total: 55 },
-      results: []
+      results: [],
     });
 
     const user = userEvent.setup();
@@ -378,7 +378,7 @@ describe('The Permissions section', () => {
     // await just to make sure we've loaded the page
     expect(
       await screen.findByRole('menuitem', {
-        name: `${handler.getDefaultQualityGate().name} default`
+        name: `${handler.getDefaultQualityGate().name} default`,
       })
     ).toBeInTheDocument();
 
@@ -389,7 +389,7 @@ describe('The Permissions section', () => {
     renderQualityGateApp();
 
     const grantPermissionButton = await screen.findByRole('button', {
-      name: 'quality_gates.permissions.grant'
+      name: 'quality_gates.permissions.grant',
     });
     expect(screen.getByText('quality_gates.permissions')).toBeInTheDocument();
     expect(grantPermissionButton).toBeInTheDocument();
@@ -404,14 +404,14 @@ describe('The Permissions section', () => {
 
     // Granting permission to a user
     const grantPermissionButton = await screen.findByRole('button', {
-      name: 'quality_gates.permissions.grant'
+      name: 'quality_gates.permissions.grant',
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
     const searchUserInput = within(popup).getByRole('textbox');
     expect(searchUserInput).toBeInTheDocument();
     const addUserButton = screen.getByRole('button', {
-      name: 'add_verb'
+      name: 'add_verb',
     });
     expect(addUserButton).toBeDisabled();
     await user.click(searchUserInput);
@@ -427,7 +427,7 @@ describe('The Permissions section', () => {
     await user.keyboard('test{Enter}');
 
     const cancelButton = screen.getByRole('button', {
-      name: 'cancel'
+      name: 'cancel',
     });
     await user.click(cancelButton);
 
@@ -453,13 +453,13 @@ describe('The Permissions section', () => {
 
     // Granting permission to a group
     const grantPermissionButton = await screen.findByRole('button', {
-      name: 'quality_gates.permissions.grant'
+      name: 'quality_gates.permissions.grant',
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
     const searchUserInput = within(popup).getByRole('textbox');
     const addUserButton = screen.getByRole('button', {
-      name: 'add_verb'
+      name: 'add_verb',
     });
     await user.click(searchUserInput);
     expect(screen.getAllByTestId('qg-add-permission-option')).toHaveLength(2);
@@ -484,7 +484,7 @@ describe('The Permissions section', () => {
     renderQualityGateApp();
 
     const grantPermissionButton = await screen.findByRole('button', {
-      name: 'quality_gates.permissions.grant'
+      name: 'quality_gates.permissions.grant',
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');

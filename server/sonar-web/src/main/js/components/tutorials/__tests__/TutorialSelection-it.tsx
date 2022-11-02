@@ -28,7 +28,7 @@ import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import {
   mockGithubBindingDefinition,
-  mockProjectAlmBindingResponse
+  mockProjectAlmBindingResponse,
 } from '../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
@@ -46,15 +46,15 @@ jest.mock('../../../api/user-tokens');
 
 jest.mock('../../../helpers/urls', () => ({
   ...jest.requireActual('../../../helpers/urls'),
-  getHostUrl: jest.fn().mockReturnValue('http://host.url')
+  getHostUrl: jest.fn().mockReturnValue('http://host.url'),
 }));
 
 jest.mock('../../../api/alm-settings', () => ({
-  getAlmSettingsNoCatch: jest.fn().mockRejectedValue(null)
+  getAlmSettingsNoCatch: jest.fn().mockRejectedValue(null),
 }));
 
 jest.mock('../../../api/components', () => ({
-  getScannableProjects: jest.fn().mockResolvedValue({ projects: [] })
+  getScannableProjects: jest.fn().mockResolvedValue({ projects: [] }),
 }));
 
 let settingsMock: SettingsServiceMock;
@@ -76,7 +76,7 @@ const ui = {
   loading: byLabelText('loading'),
   noScanRights: byText('onboarding.tutorial.no_scan_rights'),
   chooseTutorialBtn: (mode: TutorialModes) =>
-    byRole('button', { name: `onboarding.tutorial.choose_method.${mode}` })
+    byRole('button', { name: `onboarding.tutorial.choose_method.${mode}` }),
 };
 
 it.each([
@@ -84,12 +84,12 @@ it.each([
   [TutorialModes.AzurePipelines, 'onboarding.tutorial.with.azure_pipelines.title'],
   [
     TutorialModes.BitbucketPipelines,
-    'onboarding.tutorial.with.bitbucket_pipelines.create_secret.title'
+    'onboarding.tutorial.with.bitbucket_pipelines.create_secret.title',
   ],
   [TutorialModes.GitHubActions, 'onboarding.tutorial.with.github_action.create_secret.title'],
   [TutorialModes.GitLabCI, 'onboarding.tutorial.with.gitlab_ci.title'],
   [TutorialModes.Local, 'onboarding.project_analysis.header'],
-  [TutorialModes.OtherCI, 'onboarding.project_analysis.header']
+  [TutorialModes.OtherCI, 'onboarding.project_analysis.header'],
 ])('should behave correctly for %s', async (mode, title) => {
   const user = userEvent.setup();
   renderTutorialSelection();
@@ -104,26 +104,26 @@ it.each([
 it.each([
   [
     AlmKeys.GitHub,
-    [TutorialModes.GitHubActions, TutorialModes.Jenkins, TutorialModes.AzurePipelines]
+    [TutorialModes.GitHubActions, TutorialModes.Jenkins, TutorialModes.AzurePipelines],
   ],
   [AlmKeys.GitLab, [TutorialModes.GitLabCI, TutorialModes.Jenkins]],
   [AlmKeys.Azure, [TutorialModes.AzurePipelines]],
   [AlmKeys.BitbucketServer, [TutorialModes.Jenkins]],
-  [AlmKeys.BitbucketCloud, [TutorialModes.BitbucketPipelines, TutorialModes.Jenkins]]
+  [AlmKeys.BitbucketCloud, [TutorialModes.BitbucketPipelines, TutorialModes.Jenkins]],
 ])('should show correct buttons if project is bound to %s', async (alm, modes) => {
   renderTutorialSelection({ projectBinding: mockProjectAlmBindingResponse({ alm }) });
   await waitOnDataLoaded();
 
-  modes.forEach(mode => expect(ui.chooseTutorialBtn(mode).get()).toBeInTheDocument());
+  modes.forEach((mode) => expect(ui.chooseTutorialBtn(mode).get()).toBeInTheDocument());
 });
 
 it('should correctly fetch the corresponding ALM setting', async () => {
   (getAlmSettingsNoCatch as jest.Mock).mockResolvedValueOnce([
-    mockGithubBindingDefinition({ key: 'binding', url: 'https://enterprise.github.com' })
+    mockGithubBindingDefinition({ key: 'binding', url: 'https://enterprise.github.com' }),
   ]);
   const user = userEvent.setup();
   renderTutorialSelection({
-    projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.GitHub, key: 'binding' })
+    projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.GitHub, key: 'binding' }),
   });
   await waitOnDataLoaded();
 

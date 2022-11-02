@@ -44,7 +44,8 @@ export default function MeasuresPanelIssueMeasureRow(props: MeasuresPanelIssueMe
   return (
     <div
       className="display-flex-row overview-measures-row"
-      data-test={`overview__measures-${type.toString().toLowerCase()}`}>
+      data-test={`overview__measures-${type.toString().toLowerCase()}`}
+    >
       {type === IssueType.CodeSmell ? (
         <>
           <div className="overview-panel-big-padded flex-1 small display-flex-center big-spacer-left">

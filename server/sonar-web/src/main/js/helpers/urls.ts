@@ -38,7 +38,7 @@ export interface Location {
 
 export enum CodeScope {
   Overall = 'overall',
-  New = 'new'
+  New = 'new',
 }
 
 type CodeScopeType = CodeScope.Overall | CodeScope.New;
@@ -68,7 +68,7 @@ export function queryToSearch(query: RawQuery = {}) {
    * author=a&author=b
    */
   arrayParams.forEach(({ key, values }) => {
-    values.forEach(value => {
+    values.forEach((value) => {
       searchParams.append(key, value);
     });
   });
@@ -106,7 +106,7 @@ export function getProjectUrl(
 ): Partial<Path> {
   return {
     pathname: PROJECT_BASE_URL,
-    search: queryToSearch({ id: project, branch, ...(codeScope && { code_scope: codeScope }) })
+    search: queryToSearch({ id: project, branch, ...(codeScope && { code_scope: codeScope }) }),
   };
 }
 
@@ -120,8 +120,8 @@ export function getProjectQueryUrl(
     search: queryToSearch({
       id: project,
       ...branchParameters,
-      ...(codeScope && { code_scope: codeScope })
-    })
+      ...(codeScope && { code_scope: codeScope }),
+    }),
   };
 }
 
@@ -132,14 +132,14 @@ export function getPortfolioUrl(key: string): To {
 export function getPortfolioAdminUrl(key: string): To {
   return {
     pathname: '/project/admin/extension/governance/console',
-    search: queryToSearch({ id: key, qualifier: ComponentQualifier.Portfolio })
+    search: queryToSearch({ id: key, qualifier: ComponentQualifier.Portfolio }),
   };
 }
 
 export function getApplicationAdminUrl(key: string): To {
   return {
     pathname: '/project/admin/extension/developer-server/application-console',
-    search: queryToSearch({ id: key })
+    search: queryToSearch({ id: key }),
   };
 }
 
@@ -151,7 +151,7 @@ export function getComponentBackgroundTaskUrl(
   return {
     pathname: '/project/background_tasks',
     search: queryToSearch({ id: componentKey, status, taskType }),
-    hash: ''
+    hash: '',
   };
 }
 
@@ -187,7 +187,7 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Path
   return {
     pathname: '/project/issues',
     search: queryToSearch({ ...(query || {}), id: componentKey }),
-    hash: ''
+    hash: '',
   };
 }
 
@@ -215,10 +215,10 @@ export function getComponentSecurityHotspotsUrl(componentKey: string, query: Que
         SecurityStandard.PCI_DSS_3_2,
         SecurityStandard.PCI_DSS_4_0,
         SecurityStandard.OWASP_ASVS_4_0,
-        'owaspAsvsLevel'
-      ])
+        'owaspAsvsLevel',
+      ]),
     }),
-    hash: ''
+    hash: '',
   };
 }
 
@@ -262,7 +262,7 @@ export function getComponentDrilldownUrlWithSelection(
     metric,
     branchLike,
     treemapView: view === 'treemap',
-    listView: view === 'list'
+    listView: view === 'list',
   });
 }
 
@@ -273,7 +273,7 @@ export function getMeasureTreemapUrl(componentKey: string, metric: string) {
 export function getActivityUrl(component: string, branchLike?: BranchLike, graph?: GraphType) {
   return {
     pathname: '/project/activity',
-    search: queryToSearch({ id: component, graph, ...getBranchLikeQuery(branchLike) })
+    search: queryToSearch({ id: component, graph, ...getBranchLikeQuery(branchLike) }),
   };
 }
 
@@ -287,8 +287,8 @@ export function getMeasureHistoryUrl(component: string, metric: string, branchLi
       id: component,
       graph: 'custom',
       custom_metrics: metric,
-      ...getBranchLikeQuery(branchLike)
-    })
+      ...getBranchLikeQuery(branchLike),
+    }),
   };
 }
 
@@ -308,13 +308,13 @@ export function getQualityProfileUrl(name: string, language: string): To {
 
 export function getQualityGateUrl(key: string): To {
   return {
-    pathname: '/quality_gates/show/' + encodeURIComponent(key)
+    pathname: '/quality_gates/show/' + encodeURIComponent(key),
   };
 }
 
 export function getQualityGatesUrl(): To {
   return {
-    pathname: '/quality_gates'
+    pathname: '/quality_gates',
   };
 }
 
@@ -324,14 +324,14 @@ export function getGlobalSettingsUrl(
 ): Partial<Path> {
   return {
     pathname: '/admin/settings',
-    search: queryToSearch({ category, ...query })
+    search: queryToSearch({ category, ...query }),
   };
 }
 
 export function getProjectSettingsUrl(id: string, category?: string): Partial<Path> {
   return {
     pathname: '/project/settings',
-    search: queryToSearch({ id, category })
+    search: queryToSearch({ id, category }),
   };
 }
 
@@ -370,8 +370,8 @@ export function getCodeUrl(
       id: project,
       ...getBranchLikeQuery(branchLike),
       selected,
-      line: line?.toFixed()
-    })
+      line: line?.toFixed(),
+    }),
   };
 }
 

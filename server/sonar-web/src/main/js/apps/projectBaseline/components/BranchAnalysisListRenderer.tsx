@@ -54,14 +54,15 @@ function renderAnalysis(args: {
   return (
     <li
       className={classNames('branch-analysis', {
-        selected: analysis.key === selectedAnalysisKey
+        selected: analysis.key === selectedAnalysisKey,
       })}
       data-date={parseDate(analysis.date).valueOf()}
       key={analysis.key}
-      onClick={() => onSelectAnalysis(analysis)}>
+      onClick={() => onSelectAnalysis(analysis)}
+    >
       <div className="branch-analysis-time spacer-right">
         <TimeFormatter date={parseDate(analysis.date)} long={false}>
-          {formattedTime => (
+          {(formattedTime) => (
             <time className="text-middle" dateTime={parseDate(analysis.date).toISOString()}>
               {formattedTime}
             </time>
@@ -86,7 +87,7 @@ export default function BranchAnalysisListRenderer(props: BranchAnalysisListRend
   const byVersionByDay = React.useMemo(
     () =>
       getAnalysesByVersionByDay(analyses, {
-        category: ''
+        category: '',
       }),
     [analyses]
   );
@@ -98,12 +99,12 @@ export default function BranchAnalysisListRenderer(props: BranchAnalysisListRend
   const options = [
     {
       label: translate('baseline.branch_analyses.ranges.30days'),
-      value: 30
+      value: 30,
     },
     {
       label: translate('baseline.branch_analyses.ranges.allTime'),
-      value: 0
-    }
+      value: 0,
+    },
   ];
 
   return (
@@ -119,14 +120,15 @@ export default function BranchAnalysisListRenderer(props: BranchAnalysisListRend
           onChange={props.handleRangeChange}
           options={options}
           isSearchable={false}
-          value={options.filter(o => o.value === range)}
+          value={options.filter((o) => o.value === range)}
         />
       </div>
       <div className="branch-analysis-list-wrapper">
         <div
           className="bordered branch-analysis-list"
           onScroll={props.handleScroll}
-          ref={props.registerScrollableNode}>
+          ref={props.registerScrollableNode}
+        >
           {loading && <DeferredSpinner className="big-spacer-top" />}
 
           {!loading && !hasFilteredData ? (
@@ -146,33 +148,36 @@ export default function BranchAnalysisListRenderer(props: BranchAnalysisListRend
                       <div
                         className={classNames('branch-analysis-version-badge', {
                           first: idx === 0,
-                          sticky: props.shouldStick(version.version)
+                          sticky: props.shouldStick(version.version),
                         })}
-                        ref={props.registerBadgeNode(version.version)}>
+                        ref={props.registerBadgeNode(version.version)}
+                      >
                         <Tooltip
                           mouseEnterDelay={0.5}
-                          overlay={`${translate('version')} ${version.version}`}>
+                          overlay={`${translate('version')} ${version.version}`}
+                        >
                           <span className="badge">{version.version}</span>
                         </Tooltip>
                       </div>
                     )}
                     <ul className="branch-analysis-days-list">
-                      {days.map(day => (
+                      {days.map((day) => (
                         <li
                           className="branch-analysis-day"
                           data-day={toShortNotSoISOString(Number(day))}
-                          key={day}>
+                          key={day}
+                        >
                           <div className="branch-analysis-date">
                             <DateFormatter date={Number(day)} long={true} />
                           </div>
                           <ul className="branch-analysis-analyses-list">
                             {version.byDay[day] != null &&
-                              version.byDay[day].map(analysis =>
+                              version.byDay[day].map((analysis) =>
                                 renderAnalysis({
                                   analysis,
                                   selectedAnalysisKey,
                                   isFirst: analyses[0].key === analysis.key,
-                                  onSelectAnalysis: props.onSelectAnalysis
+                                  onSelectAnalysis: props.onSelectAnalysis,
                                 })
                               )}
                           </ul>

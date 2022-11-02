@@ -28,7 +28,7 @@ import Definition from '../Definition';
 jest.mock('../../../../api/settings', () => ({
   getValue: jest.fn().mockResolvedValue({}),
   resetSettingValue: jest.fn().mockResolvedValue(undefined),
-  setSettingValue: jest.fn().mockResolvedValue(undefined)
+  setSettingValue: jest.fn().mockResolvedValue(undefined),
 }));
 
 beforeAll(() => {
@@ -51,27 +51,27 @@ describe('Handle change (and check)', () => {
       'empty, default',
       mockDefinition({ defaultValue: 'dflt' }),
       '',
-      'settings.state.value_cant_be_empty'
+      'settings.state.value_cant_be_empty',
     ],
     [
       'invalid url',
       mockDefinition({ key: 'sonar.core.serverBaseURL' }),
       '%invalid',
-      'settings.state.url_not_valid.%invalid'
+      'settings.state.url_not_valid.%invalid',
     ],
     [
       'valid url',
       mockDefinition({ key: 'sonar.core.serverBaseURL' }),
       'http://www.sonarqube.org',
-      undefined
+      undefined,
     ],
     [
       'invalid JSON',
       mockDefinition({ type: SettingType.JSON }),
       '{{broken: "json}',
-      'Unexpected token { in JSON at position 1'
+      'Unexpected token { in JSON at position 1',
     ],
-    ['valid JSON', mockDefinition({ type: SettingType.JSON }), '{"validJson": true}', undefined]
+    ['valid JSON', mockDefinition({ type: SettingType.JSON }), '{"validJson": true}', undefined],
   ])(
     'should handle change (and check value): %s',
     (_caseName, definition, changedValue, expectedValidationMessage) => {

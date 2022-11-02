@@ -26,7 +26,7 @@ import {
   Snippet,
   SnippetGroup,
   SnippetsByComponent,
-  SourceLine
+  SourceLine,
 } from '../../../types/types';
 
 const LINES_ABOVE = 5;
@@ -44,9 +44,9 @@ function unknownComponent(key: string): SnippetsByComponent {
       project: '',
       projectName: '',
       q: ComponentQualifier.File,
-      uuid: ''
+      uuid: '',
     },
-    sources: []
+    sources: [],
   };
 }
 
@@ -61,8 +61,8 @@ export function getPrimaryLocation(issue: Issue): FlowLocation {
       endLine: 0,
       endOffset: 0,
       startLine: 0,
-      startOffset: 0
-    }
+      startOffset: 0,
+    },
   };
 }
 
@@ -98,7 +98,7 @@ export function createSnippets(params: {
       let firstCollision: { start: number; end: number } | undefined;
 
       // Remove ranges that collide into the first collision
-      snippets = snippets.filter(snippet => {
+      snippets = snippets.filter((snippet) => {
         if (collision([snippet.start, snippet.end], [startIndex, endIndex])) {
           let keep = false;
           // Check if we've already collided
@@ -120,7 +120,7 @@ export function createSnippets(params: {
         snippets.push({
           start: startIndex,
           end: endIndex,
-          index
+          index,
         });
       }
 
@@ -136,7 +136,7 @@ export function createSnippets(params: {
 
 export function linesForSnippets(snippets: Snippet[], componentLines: LineMap) {
   return snippets
-    .map(snippet => {
+    .map((snippet) => {
       const lines = [];
       for (let i = snippet.start; i <= snippet.end; i++) {
         if (componentLines[i]) {
@@ -145,7 +145,7 @@ export function linesForSnippets(snippets: Snippet[], componentLines: LineMap) {
       }
       return lines;
     })
-    .filter(snippet => snippet.length > 0);
+    .filter((snippet) => snippet.length > 0);
 }
 
 export function groupLocationsByComponent(
@@ -160,7 +160,7 @@ export function groupLocationsByComponent(
   const addGroup = (componentKey: string) => {
     currentGroup = {
       ...(components[componentKey] || unknownComponent(componentKey)),
-      locations: []
+      locations: [],
     };
     groups.push(currentGroup);
     currentComponent = componentKey;
@@ -168,7 +168,7 @@ export function groupLocationsByComponent(
 
   if (
     issue.secondaryLocations.length > 0 &&
-    locations.every(loc => loc.component !== issue.component)
+    locations.every((loc) => loc.component !== issue.component)
   ) {
     addGroup(issue.component);
   }
@@ -191,13 +191,13 @@ export function groupLocationsByComponent(
 export function expandSnippet({
   direction,
   snippetIndex,
-  snippets
+  snippets,
 }: {
   direction: ExpandDirection;
   snippetIndex: number;
   snippets: Snippet[];
 }) {
-  const snippetToExpand = snippets.find(s => s.index === snippetIndex);
+  const snippetToExpand = snippets.find((s) => s.index === snippetIndex);
   if (!snippetToExpand) {
     throw new Error(`Snippet ${snippetIndex} not found`);
   }
@@ -208,7 +208,7 @@ export function expandSnippet({
   );
   snippetToExpand.end += direction === 'down' ? EXPAND_BY_LINES : 0;
 
-  return snippets.map(snippet => {
+  return snippets.map((snippet) => {
     if (snippet.index === snippetIndex) {
       return snippetToExpand;
     }

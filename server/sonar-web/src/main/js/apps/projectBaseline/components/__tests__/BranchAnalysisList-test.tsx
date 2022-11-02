@@ -31,20 +31,20 @@ jest.mock('date-fns', () => {
   return {
     ...actual,
     startOfDay: jest.fn(() => ({
-      getTime: () => '1488322800000' // 2017-03-02
-    }))
+      getTime: () => '1488322800000', // 2017-03-02
+    })),
   };
 });
 
 jest.mock('../../../../helpers/dates', () => ({
   parseDate: jest.fn().mockReturnValue('2017-03-02'),
-  toShortNotSoISOString: jest.fn().mockReturnValue('2017-03-02')
+  toShortNotSoISOString: jest.fn().mockReturnValue('2017-03-02'),
 }));
 
 jest.mock('../../../../api/projectActivity', () => ({
   getProjectActivity: jest.fn().mockResolvedValue({
-    analyses: []
-  })
+    analyses: [],
+  }),
 }));
 
 beforeEach(() => {
@@ -57,25 +57,25 @@ it('should render correctly', async () => {
       mockAnalysis({
         key: '4',
         date: '2017-03-02T10:36:01',
-        projectVersion: '4.2'
+        projectVersion: '4.2',
       }),
       mockAnalysis({
         key: '3',
         date: '2017-03-02T09:36:01',
         events: [mockAnalysisEvent()],
-        projectVersion: '4.2'
+        projectVersion: '4.2',
       }),
       mockAnalysis({
         key: '2',
         date: '2017-03-02T08:36:01',
         events: [
           mockAnalysisEvent(),
-          mockAnalysisEvent({ category: 'VERSION', qualityGate: undefined })
+          mockAnalysisEvent({ category: 'VERSION', qualityGate: undefined }),
         ],
-        projectVersion: '4.1'
+        projectVersion: '4.1',
       }),
-      mockAnalysis({ key: '1', projectVersion: '4.1' })
-    ]
+      mockAnalysis({ key: '1', projectVersion: '4.1' }),
+    ],
   });
 
   const wrapper = shallowRender();
@@ -92,7 +92,7 @@ it('should reload analyses after range change', () => {
   expect(getProjectActivity).toHaveBeenCalledWith({
     branch: 'master',
     project: 'project1',
-    from: toShortNotSoISOString(subDays(new Date(), 30))
+    from: toShortNotSoISOString(subDays(new Date(), 30)),
   });
 });
 

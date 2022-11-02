@@ -25,7 +25,7 @@ import { PreambuleYaml, PreambuleYamlProps } from '../PreambuleYaml';
 
 it.each([[BuildTools.DotNet], [BuildTools.Gradle], [BuildTools.CFamily], [BuildTools.Other]])(
   'should render correctly for %s',
-  buildTool => {
+  (buildTool) => {
     expect(shallowRender({ buildTool })).toMatchSnapshot();
   }
 );

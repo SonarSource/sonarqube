@@ -31,7 +31,7 @@ it('should not render the only logged in information', () => {
   expect(
     getWrapper({
       hideLoggedInInfo: true,
-      appState: mockAppState({ version: '6.4-SNAPSHOT' })
+      appState: mockAppState({ version: '6.4-SNAPSHOT' }),
     })
   ).toMatchSnapshot();
 });
@@ -39,7 +39,7 @@ it('should not render the only logged in information', () => {
 it('should show the db warning message', () => {
   expect(
     getWrapper({
-      appState: mockAppState({ productionDatabase: false, edition: EditionKey.community })
+      appState: mockAppState({ productionDatabase: false, edition: EditionKey.community }),
     }).find('Alert')
   ).toMatchSnapshot();
 });
@@ -47,7 +47,7 @@ it('should show the db warning message', () => {
 it('should display the sq version', () => {
   expect(
     getWrapper({
-      appState: mockAppState({ edition: EditionKey.enterprise, version: '6.4-SNAPSHOT' })
+      appState: mockAppState({ edition: EditionKey.enterprise, version: '6.4-SNAPSHOT' }),
     })
   ).toMatchSnapshot();
 });

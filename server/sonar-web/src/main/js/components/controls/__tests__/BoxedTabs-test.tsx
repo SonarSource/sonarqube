@@ -29,10 +29,7 @@ it('should call onSelect when a tab is clicked', () => {
   const onSelect = jest.fn();
   const wrapper = shallowRender({ onSelect });
 
-  wrapper
-    .find('Styled(button)')
-    .get(1)
-    .props.onClick();
+  wrapper.find('Styled(button)').get(1).props.onClick();
 
   expect(onSelect).toHaveBeenCalledWith('b');
 });
@@ -60,8 +57,8 @@ function dom(overrides: Partial<BoxedTabsProps<string>>) {
             <span>
               Complex label <strong>!!!</strong>
             </span>
-          )
-        }
+          ),
+        },
       ]}
       {...overrides}
     />

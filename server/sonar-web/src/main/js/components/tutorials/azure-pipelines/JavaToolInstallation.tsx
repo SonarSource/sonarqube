@@ -34,7 +34,7 @@ function renderSentenceWithFieldAndValue(props: {
       )}
       values={{
         field: <strong>{field}</strong>,
-        value: <strong>{value}</strong>
+        value: <strong>{value}</strong>,
       }}
     />
   );
@@ -50,7 +50,7 @@ export default function JavaToolInstallation() {
             field: translate(
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_version'
             ),
-            value: '11'
+            value: '11',
           })}
           {' ' /* explicit space between the two strings */}
           {translate(
@@ -62,7 +62,7 @@ export default function JavaToolInstallation() {
             field: translate(
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_architecture'
             ),
-            value: 'x64'
+            value: 'x64',
           })}
         </li>
         <li>
@@ -72,7 +72,7 @@ export default function JavaToolInstallation() {
             ),
             value: translate(
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.pre-installed'
-            )
+            ),
           })}
         </li>
       </ul>

@@ -32,7 +32,7 @@ export enum Steps {
   PROJECT_KEY,
   ENV_VARIABLES,
   YML,
-  ALL_SET
+  ALL_SET,
 }
 
 export interface GitLabCITutorialProps {

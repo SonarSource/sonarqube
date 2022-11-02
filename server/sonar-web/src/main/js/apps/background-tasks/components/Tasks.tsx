@@ -33,7 +33,7 @@ interface Props {
 
 export default function Tasks({ tasks, component, loading, onCancelTask, onFilterTask }: Props) {
   const className = classNames('data zebra zebra-hover background-tasks', {
-    'new-loading': loading
+    'new-loading': loading,
   });
 
   return (

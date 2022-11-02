@@ -34,7 +34,7 @@ import { ComponentQualifier, isPortfolioLike } from '../../../../types/component
 import { Feature } from '../../../../types/features';
 import { Component, Dict, Extension } from '../../../../types/types';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../available-features/withAvailableFeatures';
 import './Menu.css';
 
@@ -51,7 +51,7 @@ const SETTINGS_URLS = [
   'background_tasks',
   '/project/key',
   '/project/deletion',
-  '/project/webhooks'
+  '/project/webhooks',
 ];
 
 interface Props extends WithAvailableFeaturesProps {
@@ -112,10 +112,10 @@ export class Menu extends React.PureComponent<Props> {
 
   isGovernanceEnabled = () => {
     const {
-      component: { extensions }
+      component: { extensions },
     } = this.props;
 
-    return extensions && extensions.some(extension => extension.key.startsWith('governance/'));
+    return extensions && extensions.some((extension) => extension.key.startsWith('governance/'));
   };
 
   getConfiguration = () => {
@@ -133,7 +133,8 @@ export class Menu extends React.PureComponent<Props> {
           overlay={translateWithParameters(
             'layout.all_project_must_be_accessible',
             translate('qualifier', this.props.component.qualifier)
-          )}>
+          )}
+        >
           <a aria-disabled="true" className="disabled-link">
             {label}
           </a>
@@ -145,7 +146,7 @@ export class Menu extends React.PureComponent<Props> {
   renderMenuLink = ({
     label,
     pathname,
-    additionalQueryParams = {}
+    additionalQueryParams = {},
   }: {
     label: React.ReactNode;
     pathname: string;
@@ -163,8 +164,9 @@ export class Menu extends React.PureComponent<Props> {
           <NavLink
             to={{
               pathname,
-              search: new URLSearchParams({ ...query, ...additionalQueryParams }).toString()
-            }}>
+              search: new URLSearchParams({ ...query, ...additionalQueryParams }).toString(),
+            }}
+          >
             {label}
           </NavLink>
         ) : (
@@ -204,7 +206,7 @@ export class Menu extends React.PureComponent<Props> {
     return this.isPortfolio() && this.isGovernanceEnabled()
       ? this.renderMenuLink({
           label: translate('portfolio_breakdown.page'),
-          pathname: '/code'
+          pathname: '/code',
         })
       : null;
   };
@@ -228,7 +230,7 @@ export class Menu extends React.PureComponent<Props> {
 
     return this.renderMenuLink({
       label: translate('project_activity.page'),
-      pathname: '/project/activity'
+      pathname: '/project/activity',
     });
   };
 
@@ -236,14 +238,14 @@ export class Menu extends React.PureComponent<Props> {
     return this.renderMenuLink({
       label: translate('issues.page'),
       pathname: '/project/issues',
-      additionalQueryParams: { resolved: 'false' }
+      additionalQueryParams: { resolved: 'false' },
     });
   };
 
   renderComponentMeasuresLink = () => {
     return this.renderMenuLink({
       label: translate('layout.measures'),
-      pathname: '/component_measures'
+      pathname: '/component_measures',
     });
   };
 
@@ -253,7 +255,7 @@ export class Menu extends React.PureComponent<Props> {
       !isPortfolio &&
       this.renderMenuLink({
         label: translate('layout.security_hotspots'),
-        pathname: '/security_hotspots'
+        pathname: '/security_hotspots',
       })
     );
   };
@@ -266,7 +268,7 @@ export class Menu extends React.PureComponent<Props> {
       return null;
     }
 
-    const hasSecurityReportsEnabled = extensions.some(extension =>
+    const hasSecurityReportsEnabled = extensions.some((extension) =>
       extension.key.startsWith('securityreport/')
     );
 
@@ -276,7 +278,7 @@ export class Menu extends React.PureComponent<Props> {
 
     return this.renderMenuLink({
       label: translate('layout.security_reports'),
-      pathname: '/project/extension/securityreport/securityreport'
+      pathname: '/project/extension/securityreport/securityreport',
     });
   };
 
@@ -291,10 +293,10 @@ export class Menu extends React.PureComponent<Props> {
       return null;
     }
 
-    const isSettingsActive = SETTINGS_URLS.some(url => window.location.href.indexOf(url) !== -1);
+    const isSettingsActive = SETTINGS_URLS.some((url) => window.location.href.indexOf(url) !== -1);
 
     const adminLinks = this.renderAdministrationLinks(query, isProject, isApplication, isPortfolio);
-    if (!adminLinks.some(link => link != null)) {
+    if (!adminLinks.some((link) => link != null)) {
       return null;
     }
 
@@ -302,14 +304,16 @@ export class Menu extends React.PureComponent<Props> {
       <Dropdown
         data-test="administration"
         overlay={<ul className="menu">{adminLinks}</ul>}
-        tagName="li">
+        tagName="li"
+      >
         {({ onToggleClick, open }) => (
           <ButtonLink
             aria-expanded={open}
             aria-haspopup="menu"
             className={classNames('dropdown-toggle', { active: isSettingsActive || open })}
             id="component-navigation-admin"
-            onClick={onToggleClick}>
+            onClick={onToggleClick}
+          >
             {hasMessage('layout.settings', component.qualifier)
               ? translate('layout.settings', component.qualifier)
               : translate('layout.settings')}
@@ -339,7 +343,7 @@ export class Menu extends React.PureComponent<Props> {
       this.renderBackgroundTasksLink(query),
       this.renderUpdateKeyLink(query),
       this.renderWebhooksLink(query, isProject),
-      this.renderDeletionLink(query)
+      this.renderDeletionLink(query),
     ];
   };
 
@@ -363,9 +367,10 @@ export class Menu extends React.PureComponent<Props> {
           <ButtonLink
             className="show-project-info-button"
             onClick={this.props.onToggleProjectInfo}
-            innerRef={node => {
+            innerRef={(node) => {
               this.projectInfoLink = node;
-            }}>
+            }}
+          >
             <BulletListIcon className="little-spacer-right" />
             {label}
           </ButtonLink>
@@ -381,7 +386,8 @@ export class Menu extends React.PureComponent<Props> {
     return (
       <li key="settings">
         <NavLink
-          to={{ pathname: '/project/settings', search: new URLSearchParams(query).toString() }}>
+          to={{ pathname: '/project/settings', search: new URLSearchParams(query).toString() }}
+        >
           {translate('project_settings.page')}
         </NavLink>
       </li>
@@ -400,7 +406,8 @@ export class Menu extends React.PureComponent<Props> {
     return (
       <li key="branches">
         <NavLink
-          to={{ pathname: '/project/branches', search: new URLSearchParams(query).toString() }}>
+          to={{ pathname: '/project/branches', search: new URLSearchParams(query).toString() }}
+        >
           {translate('project_branch_pull_request.page')}
         </NavLink>
       </li>
@@ -414,7 +421,8 @@ export class Menu extends React.PureComponent<Props> {
     return (
       <li key="baseline">
         <NavLink
-          to={{ pathname: '/project/baseline', search: new URLSearchParams(query).toString() }}>
+          to={{ pathname: '/project/baseline', search: new URLSearchParams(query).toString() }}
+        >
           {translate('project_baseline.page')}
         </NavLink>
       </li>
@@ -430,8 +438,9 @@ export class Menu extends React.PureComponent<Props> {
         <NavLink
           to={{
             pathname: '/project/import_export',
-            search: new URLSearchParams(query).toString()
-          }}>
+            search: new URLSearchParams(query).toString(),
+          }}
+        >
           {translate('project_dump.page')}
         </NavLink>
       </li>
@@ -447,8 +456,9 @@ export class Menu extends React.PureComponent<Props> {
         <NavLink
           to={{
             pathname: '/project/quality_profiles',
-            search: new URLSearchParams(query).toString()
-          }}>
+            search: new URLSearchParams(query).toString(),
+          }}
+        >
           {translate('project_quality_profiles.page')}
         </NavLink>
       </li>
@@ -462,7 +472,8 @@ export class Menu extends React.PureComponent<Props> {
     return (
       <li key="quality_gate">
         <NavLink
-          to={{ pathname: '/project/quality_gate', search: new URLSearchParams(query).toString() }}>
+          to={{ pathname: '/project/quality_gate', search: new URLSearchParams(query).toString() }}
+        >
           {translate('project_quality_gate.page')}
         </NavLink>
       </li>
@@ -504,8 +515,9 @@ export class Menu extends React.PureComponent<Props> {
         <NavLink
           to={{
             pathname: '/project/background_tasks',
-            search: new URLSearchParams(query).toString()
-          }}>
+            search: new URLSearchParams(query).toString(),
+          }}
+        >
           {translate('background_tasks.page')}
         </NavLink>
       </li>
@@ -532,7 +544,8 @@ export class Menu extends React.PureComponent<Props> {
     return (
       <li key="webhooks">
         <NavLink
-          to={{ pathname: '/project/webhooks', search: new URLSearchParams(query).toString() }}>
+          to={{ pathname: '/project/webhooks', search: new URLSearchParams(query).toString() }}
+        >
           {translate('webhooks.page')}
         </NavLink>
       </li>
@@ -550,7 +563,7 @@ export class Menu extends React.PureComponent<Props> {
       ![
         ComponentQualifier.Project,
         ComponentQualifier.Portfolio,
-        ComponentQualifier.Application
+        ComponentQualifier.Application,
       ].includes(qualifier as ComponentQualifier)
     ) {
       return null;
@@ -559,7 +572,8 @@ export class Menu extends React.PureComponent<Props> {
     return (
       <li key="project_delete">
         <NavLink
-          to={{ pathname: '/project/deletion', search: new URLSearchParams(query).toString() }}>
+          to={{ pathname: '/project/deletion', search: new URLSearchParams(query).toString() }}
+        >
           {translate('deletion.page')}
         </NavLink>
       </li>
@@ -579,15 +593,15 @@ export class Menu extends React.PureComponent<Props> {
   renderAdminExtensions = (query: Query, isApplication: boolean) => {
     const extensions = this.getConfiguration().extensions || [];
     return extensions
-      .filter(e => !isApplication || e.key !== 'governance/console')
-      .map(e => this.renderExtension(e, true, query));
+      .filter((e) => !isApplication || e.key !== 'governance/console')
+      .map((e) => this.renderExtension(e, true, query));
   };
 
   renderExtensions = () => {
     const query = this.getQuery();
     const extensions = this.props.component.extensions || [];
     const withoutSecurityExtension = extensions.filter(
-      extension =>
+      (extension) =>
         !extension.key.startsWith('securityreport/') && !extension.key.startsWith('governance/')
     );
 
@@ -600,17 +614,19 @@ export class Menu extends React.PureComponent<Props> {
         data-test="extensions"
         overlay={
           <ul className="menu">
-            {withoutSecurityExtension.map(e => this.renderExtension(e, false, query))}
+            {withoutSecurityExtension.map((e) => this.renderExtension(e, false, query))}
           </ul>
         }
-        tagName="li">
+        tagName="li"
+      >
         {({ onToggleClick, open }) => (
           <ButtonLink
             aria-expanded={open}
             aria-haspopup="menu"
             className={classNames('dropdown-toggle', { active: open })}
             id="component-navigation-more"
-            onClick={onToggleClick}>
+            onClick={onToggleClick}
+          >
             {translate('more')}
             <DropdownIcon className="little-spacer-left" />
           </ButtonLink>

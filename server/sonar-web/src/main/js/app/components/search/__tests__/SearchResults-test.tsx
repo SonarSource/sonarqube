@@ -30,10 +30,10 @@ it('renders different components and dividers between them', () => {
         onMoreClick={jest.fn()}
         onSelect={jest.fn()}
         renderNoResults={() => <div />}
-        renderResult={component => <span key={component.key}>{component.name}</span>}
+        renderResult={(component) => <span key={component.key}>{component.name}</span>}
         results={{
           TRK: [component('foo'), component('bar')],
-          FIL: [component('zux', 'FIL')]
+          FIL: [component('zux', 'FIL')],
         }}
       />
     )
@@ -49,9 +49,9 @@ it('renders "Show More" link', () => {
         onMoreClick={jest.fn()}
         onSelect={jest.fn()}
         renderNoResults={() => <div />}
-        renderResult={component => <span key={component.key}>{component.name}</span>}
+        renderResult={(component) => <span key={component.key}>{component.name}</span>}
         results={{
-          TRK: [component('foo'), component('bar')]
+          TRK: [component('foo'), component('bar')],
         }}
       />
     )

@@ -23,12 +23,12 @@ import {
   associateProject,
   dissociateProject,
   getProfileProjects,
-  ProfileProject
+  ProfileProject,
 } from '../../../api/quality-profiles';
 import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
-  SelectListSearchParams
+  SelectListSearchParams,
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
@@ -55,7 +55,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
     this.state = {
       needToReload: false,
       projects: [],
-      selectedProjects: []
+      selectedProjects: [],
     };
   }
 
@@ -73,16 +73,16 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
       p: searchParams.page,
       ps: searchParams.pageSize,
       q: searchParams.query !== '' ? searchParams.query : undefined,
-      selected: searchParams.filter
-    }).then(data => {
+      selected: searchParams.filter,
+    }).then((data) => {
       if (this.mounted) {
-        this.setState(prevState => {
+        this.setState((prevState) => {
           const more = searchParams.page != null && searchParams.page > 1;
 
           const projects = more ? [...prevState.projects, ...data.results] : data.results;
           const newSeletedProjects = data.results
-            .filter(project => project.selected)
-            .map(project => project.key);
+            .filter((project) => project.selected)
+            .map((project) => project.key);
           const selectedProjects = more
             ? [...prevState.selectedProjects, ...newSeletedProjects]
             : newSeletedProjects;
@@ -92,7 +92,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
             needToReload: false,
             projects,
             projectsTotalCount: data.paging.total,
-            selectedProjects
+            selectedProjects,
           };
         });
       }
@@ -103,7 +103,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
       if (this.mounted) {
         this.setState((state: State) => ({
           needToReload: true,
-          selectedProjects: [...state.selectedProjects, key]
+          selectedProjects: [...state.selectedProjects, key],
         }));
       }
     });
@@ -113,7 +113,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
       if (this.mounted) {
         this.setState((state: State) => ({
           needToReload: true,
-          selectedProjects: without(state.selectedProjects, key)
+          selectedProjects: without(state.selectedProjects, key),
         }));
       }
     });
@@ -152,7 +152,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
         <div className="modal-body modal-container" id="profile-projects">
           <SelectList
             allowBulkSelection={true}
-            elements={this.state.projects.map(project => project.key)}
+            elements={this.state.projects.map((project) => project.key)}
             elementsTotalCount={this.state.projectsTotalCount}
             labelAll={translate('quality_gates.projects.all')}
             labelSelected={translate('quality_gates.projects.with')}

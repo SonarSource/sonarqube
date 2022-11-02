@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockAlmSettingsInstance,
-  mockProjectBitbucketCloudBindingResponse
+  mockProjectBitbucketCloudBindingResponse,
 } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';

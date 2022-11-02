@@ -41,7 +41,7 @@ const labels: Dict<string> = {
   2: '70% - 80%',
   3: '50% - 70%',
   4: '30% - 50%',
-  5: '< 30%'
+  5: '< 30%',
 };
 
 export default function SecurityReviewFilter(props: Props) {

@@ -86,7 +86,7 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
       selectedDate,
       series,
       showAreas,
-      graphDescription
+      graphDescription,
     } = this.props;
     const { tooltipIdx, tooltipXPos } = this.state;
     const events = getAnalysisEventsForDate(analyses, selectedDate);
@@ -149,7 +149,8 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
                 series={series}
                 onClose={onClose}
               />
-            )}>
+            )}
+          >
             {({ onClick }) => (
               <Button className="a11y-hidden" onClick={onClick}>
                 {translate('project_activity.graphs.open_in_table')}

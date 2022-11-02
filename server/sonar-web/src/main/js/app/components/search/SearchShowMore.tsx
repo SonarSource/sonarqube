@@ -61,13 +61,14 @@ export default class SearchShowMore extends React.PureComponent<Props> {
             data-qualifier={qualifier}
             href="#"
             onClick={this.handleMoreClick}
-            onMouseEnter={this.handleMoreMouseEnter}>
+            onMouseEnter={this.handleMoreMouseEnter}
+          >
             <div className="pull-right text-muted-2 menu-footer-note">
               <FormattedMessage
                 defaultMessage={translate('search.show_more.hint')}
                 id="search.show_more.hint"
                 values={{
-                  key: <span className="shortcut-button shortcut-button-small">Enter</span>
+                  key: <span className="shortcut-button shortcut-button-small">Enter</span>,
                 }}
               />
             </div>

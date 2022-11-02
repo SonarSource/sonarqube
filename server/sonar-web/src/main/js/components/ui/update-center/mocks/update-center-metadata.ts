@@ -29,7 +29,7 @@ export function mockMetaDataVersionInformation(
     archived: false,
     downloadURL: 'https://example.com/sonar-java-plugin-5.13.0.18197.jar',
     changeLogUrl: 'https://example.com/sonar-java-plugin/release',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -42,7 +42,7 @@ export function mockMetaDataInformation(
     isSonarSourceCommercial: true,
     organization: {
       name: 'SonarSource',
-      url: 'http://www.sonarsource.com/'
+      url: 'http://www.sonarsource.com/',
     },
     category: 'Languages',
     license: 'SonarSource',
@@ -50,8 +50,8 @@ export function mockMetaDataInformation(
     sourcesURL: 'https://github.com/SonarSource/sonar-java',
     versions: [
       mockMetaDataVersionInformation({ version: '2.0' }),
-      mockMetaDataVersionInformation({ version: '1.0', archived: true })
+      mockMetaDataVersionInformation({ version: '1.0', archived: true }),
     ],
-    ...overrides
+    ...overrides,
   };
 }

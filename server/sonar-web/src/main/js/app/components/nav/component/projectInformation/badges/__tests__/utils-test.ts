@@ -23,13 +23,13 @@ import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from '../utils'
 jest.mock('../../../../../../../helpers/urls', () => ({
   ...jest.requireActual('../../../../../../../helpers/urls'),
   getHostUrl: () => 'host',
-  getPathUrlAsString: (o: Location) => `host${o.pathname}${o.search}`
+  getPathUrlAsString: (o: Location) => `host${o.pathname}${o.search}`,
 }));
 
 const options: BadgeOptions = {
   branch: 'master',
   metric: 'alert_status',
-  project: 'foo'
+  project: 'foo',
 };
 
 describe('#getBadgeUrl', () => {

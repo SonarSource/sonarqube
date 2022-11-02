@@ -28,7 +28,7 @@ import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
   translate,
-  translateWithParameters
+  translateWithParameters,
 } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
@@ -41,13 +41,13 @@ import {
   ComponentMeasureIntern,
   Dict,
   Metric,
-  Paging
+  Paging,
 } from '../../../types/types';
 import {
   BUBBLES_FETCH_LIMIT,
   getBubbleMetrics,
   getBubbleYDomain,
-  isProjectOverview
+  isProjectOverview,
 } from '../utils';
 import EmptyResult from './EmptyResult';
 
@@ -69,11 +69,11 @@ interface State {
 
 export default class BubbleChart extends React.PureComponent<Props, State> {
   state: State = {
-    ratingFilters: {}
+    ratingFilters: {},
   };
 
   getMeasureVal = (component: ComponentMeasureEnhanced, metric: Metric) => {
-    const measure = component.measures.find(measure => measure.metric.key === metric.key);
+    const measure = component.measures.find((measure) => measure.metric.key === metric.key);
     if (!measure) {
       return undefined;
     }
@@ -87,12 +87,12 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
   ) {
     const inner = [
       [component.name, isProject(component.qualifier) ? component.branch : undefined]
-        .filter(s => !!s)
+        .filter((s) => !!s)
         .join(' / '),
       `${metrics.x.name}: ${formatMeasure(values.x, metrics.x.type)}`,
       `${metrics.y.name}: ${formatMeasure(values.y, metrics.y.type)}`,
-      `${metrics.size.name}: ${formatMeasure(values.size, metrics.size.type)}`
-    ].filter(s => !!s);
+      `${metrics.size.name}: ${formatMeasure(values.size, metrics.size.type)}`,
+    ].filter((s) => !!s);
     const { colors: valuesColors } = values;
     const { colors: metricColors } = metrics;
     if (valuesColors && metricColors) {
@@ -136,12 +136,12 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
     const { ratingFilters } = this.state;
 
     const items = this.props.components
-      .map(component => {
+      .map((component) => {
         const x = this.getMeasureVal(component, metrics.x);
         const y = this.getMeasureVal(component, metrics.y);
         const size = this.getMeasureVal(component, metrics.size);
         const colors =
-          metrics.colors && metrics.colors.map(metric => this.getMeasureVal(component, metric));
+          metrics.colors && metrics.colors.map((metric) => this.getMeasureVal(component, metric));
         if ((!x && x !== 0) || (!y && y !== 0) || (!size && size !== 0)) {
           return undefined;
         }
@@ -162,7 +162,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
               ? RATING_COLORS[colorRating - 1]
               : { fill: theme.colors.primary, stroke: theme.colors.primary },
           data: component,
-          tooltip: this.getTooltip(component, { x, y, size, colors }, metrics)
+          tooltip: this.getTooltip(component, { x, y, size, colors }, metrics),
         };
       })
       .filter(isDefined);
@@ -225,7 +225,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
                   colorsMetric.length > 1
                     ? translateWithParameters(
                         'component_measures.legend.worse_of_x_y',
-                        ...colorsMetric.map(metric => getLocalizedMetricName(metric))
+                        ...colorsMetric.map((metric) => getLocalizedMetricName(metric))
                       )
                     : getLocalizedMetricName(colorsMetric[0])
                 )}
@@ -265,8 +265,9 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
                 componentKey,
                 branchLike,
                 metric: isProjectOverview(domain) ? MetricKey.violations : metrics.size.key,
-                listView: true
-              })}>
+                listView: true,
+              })}
+            >
               {translate('component_measures.overview.see_data_as_list')}
             </Link>
           </div>

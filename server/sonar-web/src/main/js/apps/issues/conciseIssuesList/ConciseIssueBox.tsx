@@ -74,12 +74,14 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
     return (
       <div
         className={classNames('concise-issue-box', 'clearfix', { selected })}
-        onClick={selected ? undefined : this.handleClick}>
+        onClick={selected ? undefined : this.handleClick}
+      >
         <ButtonPlain
           className="concise-issue-box-message"
           aria-current={selected}
-          innerRef={node => (this.messageElement = node)}
-          onClick={this.handleClick}>
+          innerRef={(node) => (this.messageElement = node)}
+          onClick={this.handleClick}
+        >
           {issue.message}
         </ButtonPlain>
         <div className="concise-issue-box-attributes">
@@ -88,7 +90,7 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
             <span className="concise-issue-box-flow-indicator muted">
               {translateWithParameters(
                 'issue.x_data_flows',
-                issue.flowsWithType.filter(f => f.type === FlowType.DATA).length
+                issue.flowsWithType.filter((f) => f.type === FlowType.DATA).length
               )}
             </span>
           ) : (

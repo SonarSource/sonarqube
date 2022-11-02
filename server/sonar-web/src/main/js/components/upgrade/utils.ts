@@ -24,19 +24,19 @@ export enum UpdateUseCase {
   NewMinorVersion = 'new_minor_version',
   NewPatch = 'new_patch',
   PreLTS = 'pre_lts',
-  PreviousLTS = 'previous_lts'
+  PreviousLTS = 'previous_lts',
 }
 
 export function sortUpgrades(upgrades: SystemUpgrade[]): SystemUpgrade[] {
   return sortBy(upgrades, [
     (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[0]),
     (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[1] || 0),
-    (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[2] || 0)
+    (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[2] || 0),
   ]);
 }
 
 export function groupUpgrades(upgrades: SystemUpgrade[]): SystemUpgrade[][] {
-  const groupedVersions = groupBy(upgrades, upgrade => upgrade.version.split('.')[0]);
-  const sortedMajor = sortBy(Object.keys(groupedVersions), key => -Number(key));
-  return sortedMajor.map(key => groupedVersions[key]);
+  const groupedVersions = groupBy(upgrades, (upgrade) => upgrade.version.split('.')[0]);
+  const sortedMajor = sortBy(Object.keys(groupedVersions), (key) => -Number(key));
+  return sortedMajor.map((key) => groupedVersions[key]);
 }

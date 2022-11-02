@@ -34,13 +34,13 @@ afterEach(() => {
 });
 
 jest.mock('../../../../api/ce', () => ({
-  getIndexationStatus: jest.fn().mockResolvedValue({})
+  getIndexationStatus: jest.fn().mockResolvedValue({}),
 }));
 
 jest.mock('../../../../helpers/storage', () => ({
   get: jest.fn(),
   remove: jest.fn(),
-  save: jest.fn()
+  save: jest.fn(),
 }));
 
 it('should properly start & stop polling for indexation status', async () => {
@@ -48,7 +48,7 @@ it('should properly start & stop polling for indexation status', async () => {
   const newStatus: IndexationStatus = {
     isCompleted: false,
     percentCompleted: 100,
-    hasFailures: false
+    hasFailures: false,
   };
   (getIndexationStatus as jest.Mock).mockResolvedValueOnce(newStatus);
 

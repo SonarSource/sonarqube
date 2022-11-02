@@ -27,8 +27,8 @@ jest.mock('../LanguagesContext', () => {
     LanguagesContext: {
       Consumer: ({ children }: { children: (props: {}) => React.ReactNode }) => {
         return children({ c: { key: 'c', name: 'c' } });
-      }
-    }
+      },
+    },
   };
 });
 

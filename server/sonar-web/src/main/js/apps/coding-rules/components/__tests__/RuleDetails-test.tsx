@@ -38,11 +38,11 @@ jest.mock('../../../../api/rules', () => {
           severity: 'MAJOR',
           params: [],
           createdAt: '2017-06-16T16:13:38+0200',
-          updatedAt: '2017-06-16T16:13:38+0200'
-        }
-      ]
+          updatedAt: '2017-06-16T16:13:38+0200',
+        },
+      ],
     }),
-    updateRule: jest.fn().mockResolvedValue(null)
+    updateRule: jest.fn().mockResolvedValue(null),
   };
 });
 
@@ -60,7 +60,7 @@ it('should render correctly', async () => {
   expect(getRuleDetails).toHaveBeenCalledWith(
     expect.objectContaining({
       actives: true,
-      key: 'squid:S1337'
+      key: 'squid:S1337',
     })
   );
 });
@@ -75,7 +75,7 @@ it('should correctly handle prop changes', async () => {
   expect(getRuleDetails).toHaveBeenCalledWith(
     expect.objectContaining({
       actives: true,
-      key: ruleKey
+      key: ruleKey,
     })
   );
 });
@@ -91,7 +91,7 @@ it('should correctly handle tag changes', async () => {
 
   expect(updateRule).toHaveBeenCalledWith({
     key: 'squid:S1337',
-    tags: 'foo,bar'
+    tags: 'foo,bar',
   });
 });
 
@@ -105,7 +105,7 @@ it('should correctly handle rule changes', () => {
     repo: 'bar',
     severity: 'MAJOR',
     status: 'READY',
-    type: 'BUG' as RuleType
+    type: 'BUG' as RuleType,
   };
 
   wrapper.instance().handleRuleChange(ruleChange);
@@ -124,7 +124,7 @@ it('should correctly handle activation', async () => {
     'squid:S1337',
     expect.objectContaining({
       inherit: 'NONE',
-      severity: 'MAJOR'
+      severity: 'MAJOR',
     })
   );
 });
@@ -162,7 +162,7 @@ function shallowRender(props: Partial<RuleDetails['props']> = {}) {
       onFilterChange={jest.fn()}
       referencedProfiles={{ key: profile }}
       referencedRepositories={{
-        javascript: { key: 'javascript', language: 'js', name: 'SonarAnalyzer' }
+        javascript: { key: 'javascript', language: 'js', name: 'SonarAnalyzer' },
       }}
       ruleKey="squid:S1337"
       selectedProfile={profile}

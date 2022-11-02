@@ -31,14 +31,14 @@ const SERIES_ISSUES = [
     data: [
       {
         x: parseDate('2011-10-01T22:01:00.000Z'),
-        y: 3
+        y: 3,
       },
       {
         x: parseDate('2011-10-25T10:27:41.000Z'),
-        y: 0
-      }
+        y: 0,
+      },
     ],
-    type: 'INT'
+    type: 'INT',
   },
   {
     name: 'code_smells',
@@ -46,14 +46,14 @@ const SERIES_ISSUES = [
     data: [
       {
         x: parseDate('2011-10-01T22:01:00.000Z'),
-        y: 18
+        y: 18,
       },
       {
         x: parseDate('2011-10-25T10:27:41.000Z'),
-        y: 15
-      }
+        y: 15,
+      },
     ],
-    type: 'INT'
+    type: 'INT',
   },
   {
     name: 'vulnerabilities',
@@ -61,27 +61,27 @@ const SERIES_ISSUES = [
     data: [
       {
         x: parseDate('2011-10-01T22:01:00.000Z'),
-        y: 0
+        y: 0,
       },
       {
         x: parseDate('2011-10-25T10:27:41.000Z'),
-        y: 1
-      }
+        y: 1,
+      },
     ],
-    type: 'INT'
-  }
+    type: 'INT',
+  },
 ];
 
 const DEFAULT_PROPS: GraphsTooltips['props'] = {
   events: [],
-  formatValue: val => 'Formated.' + val,
+  formatValue: (val) => 'Formated.' + val,
   graph: DEFAULT_GRAPH,
   graphWidth: 500,
   measuresHistory: [],
   selectedDate: parseDate('2011-10-01T22:01:00.000Z'),
   series: SERIES_ISSUES,
   tooltipIdx: 0,
-  tooltipPos: 666
+  tooltipPos: 666,
 };
 
 it('should render correctly for issues graphs', () => {

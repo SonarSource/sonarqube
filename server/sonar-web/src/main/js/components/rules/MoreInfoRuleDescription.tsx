@@ -37,7 +37,7 @@ interface Props {
 
 const EDUCATION_PRINCIPLES_MAP: Dict<React.ComponentType> = {
   defense_in_depth: DefenseInDepth,
-  never_trust_user_input: NeverTrustUserInput
+  never_trust_user_input: NeverTrustUserInput,
 };
 export default class MoreInfoRuleDescription extends React.PureComponent<Props, {}> {
   handleNotificationScroll = () => {
@@ -52,7 +52,7 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
       displayEducationalPrinciplesNotification,
       sections = [],
       educationPrinciples = [],
-      educationPrinciplesRef
+      educationPrinciplesRef,
     } = this.props;
     return (
       <div className="padded rule-desc">
@@ -64,7 +64,8 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
             <ButtonLink
               onClick={() => {
                 this.handleNotificationScroll();
-              }}>
+              }}
+            >
               {translate('coding_rules.more_info.scroll_message')}
             </ButtonLink>
           </Alert>
@@ -81,7 +82,7 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
             <h2 ref={educationPrinciplesRef}>
               {translate('coding_rules.more_info.education_principles.title')}
             </h2>
-            {educationPrinciples.map(key => {
+            {educationPrinciples.map((key) => {
               const Concept = EDUCATION_PRINCIPLES_MAP[key];
               if (Concept === undefined) {
                 return null;

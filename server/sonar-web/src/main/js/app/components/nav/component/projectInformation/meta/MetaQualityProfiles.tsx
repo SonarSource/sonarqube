@@ -51,12 +51,12 @@ export class MetaQualityProfiles extends React.PureComponent<Props, State> {
   }
 
   loadDeprecatedRules() {
-    const existingProfiles = this.props.profiles.filter(p => !p.deleted);
-    const requests = existingProfiles.map(profile =>
+    const existingProfiles = this.props.profiles.filter((p) => !p.deleted);
+    const requests = existingProfiles.map((profile) =>
       this.loadDeprecatedRulesForProfile(profile.key)
     );
     Promise.all(requests).then(
-      responses => {
+      (responses) => {
         if (this.mounted) {
           const deprecatedByKey: Dict<number> = {};
           responses.forEach((count, i) => {
@@ -75,9 +75,9 @@ export class MetaQualityProfiles extends React.PureComponent<Props, State> {
       activation: 'true',
       ps: 1,
       qprofile: profileKey,
-      statuses: 'DEPRECATED'
+      statuses: 'DEPRECATED',
     };
-    return searchRules(data).then(r => r.total);
+    return searchRules(data).then((r) => r.total);
   }
 
   getDeprecatedRulesCount(profile: { key: string }) {
@@ -101,7 +101,8 @@ export class MetaQualityProfiles extends React.PureComponent<Props, State> {
                 'overview.link_to_x_profile_y',
                 languageName,
                 profile.name
-              )}>
+              )}
+            >
               {profile.name}
             </span>
           </Link>
@@ -140,7 +141,7 @@ export class MetaQualityProfiles extends React.PureComponent<Props, State> {
         <h3 className={headerClassName}>{translate('overview.quality_profiles')}</h3>
 
         <ul className="project-info-list">
-          {profiles.map(profile => this.renderProfile(profile))}
+          {profiles.map((profile) => this.renderProfile(profile))}
         </ul>
       </>
     );

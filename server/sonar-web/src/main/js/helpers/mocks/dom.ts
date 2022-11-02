@@ -28,8 +28,8 @@ export function mockHtmlElement<T extends Element>(overrides: Partial<T> = {}): 
       top: 10,
       x: 12,
       y: 23,
-      toJSON: () => ''
+      toJSON: () => '',
     }),
-    ...overrides
+    ...overrides,
   } as T;
 }

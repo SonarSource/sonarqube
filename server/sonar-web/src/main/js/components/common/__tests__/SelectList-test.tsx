@@ -32,7 +32,7 @@ it('should render correctly without children', () => {
 
 it('should render correctly with children', () => {
   const items = ['item', 'seconditem', 'third'];
-  const children = items.map(item => (
+  const children = items.map((item) => (
     <SelectListItem item={item} key={item}>
       <i className="myicon" />
       item
@@ -46,7 +46,7 @@ it('should render correctly with children', () => {
 it('should correclty handle user actions', () => {
   const onSelect = jest.fn();
   const items = ['item', 'seconditem', 'third'];
-  const children = items.map(item => (
+  const children = items.map((item) => (
     <SelectListItem item={item} key={item}>
       <i className="myicon" />
       item
@@ -73,7 +73,8 @@ function shallowRender(props: Partial<SelectList['props']> = {}, children?: Reac
       currentItem="seconditem"
       items={['item', 'seconditem', 'third']}
       onSelect={jest.fn()}
-      {...props}>
+      {...props}
+    >
       {children}
     </SelectList>
   );

@@ -26,22 +26,22 @@ import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import Logout from '../Logout';
 
 jest.mock('../../../../api/auth', () => ({
-  logOut: jest.fn().mockResolvedValue(true)
+  logOut: jest.fn().mockResolvedValue(true),
 }));
 
 jest.mock('../../../../helpers/globalMessages', () => ({
-  addGlobalErrorMessage: jest.fn()
+  addGlobalErrorMessage: jest.fn(),
 }));
 
 jest.mock('../../../../helpers/system', () => ({
-  getBaseUrl: jest.fn().mockReturnValue('/context')
+  getBaseUrl: jest.fn().mockReturnValue('/context'),
 }));
 
 jest.mock('../../../../app/components/RecentHistory', () => ({
   __esModule: true,
   default: {
-    clear: jest.fn()
-  }
+    clear: jest.fn(),
+  },
 }));
 
 const originalLocation = window.location;
@@ -50,18 +50,18 @@ const replace = jest.fn();
 beforeAll(() => {
   const location = {
     ...window.location,
-    replace
+    replace,
   };
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: location
+    value: location,
   });
 });
 
 afterAll(() => {
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: originalLocation
+    value: originalLocation,
   });
 });
 

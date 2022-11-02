@@ -21,20 +21,20 @@ import { Query } from './utils';
 
 export const STATUSES = {
   ALL: '__ALL__',
-  ALL_EXCEPT_PENDING: '__ALL_EXCEPT_PENDING__'
+  ALL_EXCEPT_PENDING: '__ALL_EXCEPT_PENDING__',
 };
 
 export const ALL_TYPES = 'ALL_TYPES';
 
 export const CURRENTS = {
   ALL: '__ALL__',
-  ONLY_CURRENTS: 'CURRENTS'
+  ONLY_CURRENTS: 'CURRENTS',
 };
 
 export const DATE = {
   ANY: 'ANY',
   TODAY: 'TODAY',
-  CUSTOM: 'CUSTOM'
+  CUSTOM: 'CUSTOM',
 };
 
 export const DEFAULT_FILTERS: Query = {
@@ -43,7 +43,7 @@ export const DEFAULT_FILTERS: Query = {
   currents: CURRENTS.ALL,
   minSubmittedAt: undefined,
   maxExecutedAt: undefined,
-  query: ''
+  query: '',
 };
 
 export const DATE_FORMAT = 'YYYY-MM-DD';

@@ -88,7 +88,8 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
               id="delete-user"
               className="big-spacer-top"
               checked={anonymize}
-              onCheck={this.handleAnonymize}>
+              onCheck={this.handleAnonymize}
+            >
               <label className="little-spacer-left" htmlFor="delete-user">
                 {translate('users.delete_user')}
               </label>
@@ -103,7 +104,7 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
                       <DocLink to="/instance-administration/authentication/overview/">
                         {translate('users.delete_user.help.link')}
                       </DocLink>
-                    )
+                    ),
                   }}
                 />
               </Alert>

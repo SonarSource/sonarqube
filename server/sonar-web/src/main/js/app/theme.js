@@ -186,7 +186,7 @@ module.exports = {
     blacka38: 'rgba(0, 0, 0, 0.38)',
     blacka60: 'rgba(0, 0, 0, 0.60)',
     blacka75: 'rgba(0, 0, 0, 0.75)',
-    blacka87: 'rgba(0, 0, 0, 0.87)'
+    blacka87: 'rgba(0, 0, 0, 0.87)',
   },
 
   sizes: {
@@ -212,7 +212,7 @@ module.exports = {
 
     maxPageWidth: '1320px',
     minPageWidth: '1080px',
-    pagePadding: '20px'
+    pagePadding: '20px',
   },
 
   rawSizes: {
@@ -220,13 +220,13 @@ module.exports = {
     baseFontSizeRaw,
     globalNavHeightRaw: 6 * grid,
     globalNavContentHeightRaw: 4 * grid,
-    contextNavHeightRaw: 9 * grid
+    contextNavHeightRaw: 9 * grid,
   },
 
   fonts: {
     baseFontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
     systemFontFamily: "-apple-system,'BlinkMacSystemFont','Helvetica','Arial',sans-serif",
-    sourceCodeFontFamily: "Consolas, 'Ubuntu Mono', 'Liberation Mono', Menlo, Courier, monospace"
+    sourceCodeFontFamily: "Consolas, 'Ubuntu Mono', 'Liberation Mono', Menlo, Courier, monospace",
   },
 
   // z-index
@@ -259,10 +259,10 @@ module.exports = {
     modalZIndex: '6001',
     modalOverlayZIndex: '6000',
 
-    popupZIndex: '5000'
+    popupZIndex: '5000',
   },
 
   others: {
-    defaultShadow: '0 6px 12px rgba(0, 0, 0, 0.175)'
-  }
+    defaultShadow: '0 6px 12px rgba(0, 0, 0, 0.175)',
+  },
 };

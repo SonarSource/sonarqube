@@ -33,7 +33,7 @@ import {
   GitlabBindingDefinition,
   GitlabProjectAlmBindingParams,
   ProjectAlmBindingConfigurationErrors,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../types/alm-settings';
 
 export function getAlmDefinitions(): Promise<AlmSettingsBindingDefinitions> {

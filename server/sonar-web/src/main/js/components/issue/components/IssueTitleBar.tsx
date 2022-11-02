@@ -58,7 +58,8 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
       overlay={translateWithParameters(
         'issue.this_issue_involves_x_code_locations',
         formatMeasure(locationsCount, 'INT')
-      )}>
+      )}
+    >
       <LocationIndex>{locationsCount}</LocationIndex>
     </Tooltip>
   );
@@ -69,7 +70,7 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
     ...getBranchLikeQuery(props.branchLike),
     issues: issue.key,
     open: issue.key,
-    types: issue.type === 'SECURITY_HOTSPOT' ? issue.type : undefined
+    types: issue.type === 'SECURITY_HOTSPOT' ? issue.type : undefined,
   });
 
   return (
@@ -115,7 +116,8 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
               className="js-issue-permalink link-no-underline"
               target="_blank"
               title={translate('permalink')}
-              to={issueUrl}>
+              to={issueUrl}
+            >
               <LinkIcon />
             </Link>
           </div>

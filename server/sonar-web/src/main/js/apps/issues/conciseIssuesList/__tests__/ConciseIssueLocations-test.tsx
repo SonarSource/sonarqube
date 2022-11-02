@@ -28,7 +28,7 @@ const loc = { component: '', msg: '', textRange };
 it('should render secondary locations', () => {
   const issue = {
     flows: [],
-    secondaryLocations: [loc, loc, loc]
+    secondaryLocations: [loc, loc, loc],
   };
   expect(
     shallow(
@@ -40,7 +40,7 @@ it('should render secondary locations', () => {
 it('should render one flow', () => {
   const issue = {
     flows: [[loc, loc, loc]],
-    secondaryLocations: []
+    secondaryLocations: [],
   };
   expect(
     shallow(
@@ -54,9 +54,9 @@ it('should render several flows', () => {
     flows: [
       [loc, loc, loc],
       [loc, loc],
-      [loc, loc, loc]
+      [loc, loc, loc],
     ],
-    secondaryLocations: []
+    secondaryLocations: [],
   };
   expect(
     shallow(

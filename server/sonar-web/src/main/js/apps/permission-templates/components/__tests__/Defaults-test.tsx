@@ -27,7 +27,7 @@ const SAMPLE: PermissionTemplate = {
   defaultFor: [],
   id: 'id',
   name: 'name',
-  permissions: []
+  permissions: [],
 };
 
 it('should render one qualifier', () => {

@@ -25,7 +25,7 @@ import NewCodePeriod from '../NewCodePeriod';
 
 jest.mock('../../../../api/newCodePeriod', () => ({
   getNewCodePeriod: jest.fn().mockResolvedValue({}),
-  setNewCodePeriod: jest.fn(() => Promise.resolve())
+  setNewCodePeriod: jest.fn(() => Promise.resolve()),
 }));
 
 beforeEach(() => {
@@ -77,22 +77,12 @@ it('should disable the button if the days are invalid', async () => {
   wrapper.instance().onSelectDays('asd');
   await waitAndUpdate(wrapper);
 
-  expect(
-    wrapper
-      .find('SubmitButton')
-      .first()
-      .prop('disabled')
-  ).toBe(true);
+  expect(wrapper.find('SubmitButton').first().prop('disabled')).toBe(true);
 
   wrapper.instance().onSelectDays('23');
   await waitAndUpdate(wrapper);
 
-  expect(
-    wrapper
-      .find('SubmitButton')
-      .first()
-      .prop('disabled')
-  ).toBe(false);
+  expect(wrapper.find('SubmitButton').first().prop('disabled')).toBe(false);
 });
 
 it('should submit correctly', async () => {

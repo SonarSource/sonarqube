@@ -50,7 +50,7 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
   };
 
   toggleProjectsList = () => {
-    this.setState(state => ({ expanded: !state.expanded }));
+    this.setState((state) => ({ expanded: !state.expanded }));
   };
 
   render() {
@@ -74,7 +74,8 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
             <ResetButtonLink
               className="project-activity-event-inner-more-link"
               onClick={this.toggleProjectsList}
-              stopPropagation={true}>
+              stopPropagation={true}
+            >
               {expanded ? translate('hide') : translate('more')}
               <DropdownIcon className="little-spacer-left" turned={expanded} />
             </ResetButtonLink>
@@ -83,7 +84,7 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
 
         {expanded && (
           <ul className="spacer-left spacer-top">
-            {event.qualityGate.failing.map(project => (
+            {event.qualityGate.failing.map((project) => (
               <li className="display-flex-center spacer-top" key={project.key}>
                 <Level
                   aria-label={translate('quality_gates.status')}
@@ -95,7 +96,8 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
                   <Link
                     onClick={this.stopPropagation}
                     title={project.name}
-                    to={getProjectUrl(project.key, project.branch)}>
+                    to={getProjectUrl(project.key, project.branch)}
+                  >
                     <span aria-label={translateWithParameters('project_x', project.name)}>
                       {project.name}
                     </span>

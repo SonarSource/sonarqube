@@ -33,9 +33,9 @@ export interface MetaSizeProps {
 
 export default function MetaSize({ component, measures }: MetaSizeProps) {
   const isApp = component.qualifier === ComponentQualifier.Application;
-  const ncloc = measures.find(measure => measure.metric === MetricKey.ncloc);
+  const ncloc = measures.find((measure) => measure.metric === MetricKey.ncloc);
   const projects = isApp
-    ? measures.find(measure => measure.metric === MetricKey.projects)
+    ? measures.find((measure) => measure.metric === MetricKey.projects)
     : undefined;
 
   return (
@@ -52,7 +52,8 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
                 aria-label={translateWithParameters(
                   'project.info.see_more_info_on_x_locs',
                   ncloc.value
-                )}>
+                )}
+              >
                 {formatMeasure(ncloc.value, 'SHORT_INT')}
               </span>
             </DrilldownLink>

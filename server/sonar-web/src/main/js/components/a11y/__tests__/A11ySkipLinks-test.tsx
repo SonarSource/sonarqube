@@ -27,11 +27,11 @@ jest.mock('../A11yContext', () => ({
       return children({
         links: [
           { key: 'link1', label: 'Label 1' },
-          { key: 'link2', label: 'Label 2' }
-        ]
+          { key: 'link2', label: 'Label 2' },
+        ],
       });
-    }
-  }
+    },
+  },
 }));
 
 it('should render correctly', () => {

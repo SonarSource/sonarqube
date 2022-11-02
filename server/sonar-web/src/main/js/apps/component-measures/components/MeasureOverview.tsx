@@ -34,7 +34,7 @@ import {
   Issue,
   Metric,
   Paging,
-  Period
+  Period,
 } from '../../../types/types';
 import BubbleChart from '../drilldown/BubbleChart';
 import { BUBBLES_FETCH_LIMIT, enhanceComponent, getBubbleMetrics, hasFullMeasures } from '../utils';
@@ -94,24 +94,24 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
     const { x, y, size, colors } = getBubbleMetrics(domain, metrics);
     const metricsKey = [x.key, y.key, size.key];
     if (colors) {
-      metricsKey.push(...colors.map(metric => metric.key));
+      metricsKey.push(...colors.map((metric) => metric.key));
     }
     const options = {
       ...getBranchLikeQuery(branchLike),
       s: 'metric',
       metricSort: size.key,
       asc: false,
-      ps: BUBBLES_FETCH_LIMIT
+      ps: BUBBLES_FETCH_LIMIT,
     };
 
     this.props.updateLoading({ bubbles: true });
     getComponentLeaves(component.key, metricsKey, options).then(
-      r => {
+      (r) => {
         if (domain === this.props.domain) {
           if (this.mounted) {
             this.setState({
-              components: r.components.map(c => enhanceComponent(c, undefined, metrics)),
-              paging: r.paging
+              components: r.components.map((c) => enhanceComponent(c, undefined, metrics)),
+              paging: r.paging,
             });
           }
           this.props.updateLoading({ bubbles: false });

@@ -26,7 +26,7 @@ import { waitAndUpdate } from '../../../helpers/testUtils';
 import { Props, WorkspaceComponentViewer } from '../WorkspaceComponentViewer';
 
 jest.mock('../../../api/components', () => ({
-  getParents: jest.fn().mockResolvedValue([{ key: 'bar' }])
+  getParents: jest.fn().mockResolvedValue([{ key: 'bar' }]),
 }));
 
 beforeEach(() => {
@@ -50,7 +50,7 @@ it('should call back after load', () => {
   wrapper.find('[onLoaded]').prop<Function>('onLoaded')({
     key: 'foo',
     path: 'src/foo.js',
-    q: 'FIL'
+    q: 'FIL',
   });
   expect(onLoad).toHaveBeenCalledWith({ key: 'foo', name: 'src/foo.js', qualifier: 'FIL' });
 });
@@ -60,7 +60,7 @@ it('should refresh branch status if issues are updated', async () => {
   const branchLike = mockPullRequest();
   const component = {
     branchLike,
-    key: 'foo'
+    key: 'foo',
   };
   const wrapper = shallowRender({ component, fetchBranchStatus });
   const instance = wrapper.instance();

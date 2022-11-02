@@ -23,7 +23,7 @@ import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
 import AzureProjectCreateRenderer, {
-  AzureProjectCreateRendererProps
+  AzureProjectCreateRendererProps,
 } from '../AzureProjectCreateRenderer';
 
 it('should render correctly', () => {
@@ -34,13 +34,13 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       settings: mockAlmSettingsInstance({ alm: AlmKeys.Azure }),
-      showPersonalAccessTokenForm: true
+      showPersonalAccessTokenForm: true,
     })
   ).toMatchSnapshot('setting missing url, admin');
   expect(
     shallowRender({
       canAdmin: false,
-      settings: mockAlmSettingsInstance({ alm: AlmKeys.Azure })
+      settings: mockAlmSettingsInstance({ alm: AlmKeys.Azure }),
     })
   ).toMatchSnapshot('setting missing url, not admin');
 });

@@ -24,7 +24,7 @@ import {
   openHotspot,
   portIsValid,
   probeSonarLintServers,
-  sendUserToken
+  sendUserToken,
 } from '../sonarlint';
 
 describe('buildPortRange', () => {
@@ -79,7 +79,7 @@ describe('portIsValid', () => {
     [64120, true],
     [64125, true],
     [64130, true],
-    [64131, false]
+    [64131, false],
   ])('should validate port %s is within the expected range', (port, expectation) => {
     expect(portIsValid(port)).toBe(expectation);
   });
@@ -93,7 +93,7 @@ describe('sendUserToken', () => {
       createdAt: '12-12-2018',
       expirationDate: '17-02-2019',
       token: '78gfh78d6gf8h',
-      type: TokenType.User
+      type: TokenType.User,
     };
 
     const resp = new Response();
@@ -119,7 +119,7 @@ describe('sendUserToken', () => {
       createdAt: '12-12-2018',
       expirationDate: '17-02-2019',
       token: '78gfh78d6gf8h',
-      type: TokenType.User
+      type: TokenType.User,
     };
 
     const resp = new Response('Meh', { status: HttpStatus.BadRequest, statusText: 'I no likez' });

@@ -51,7 +51,7 @@ export class EmailForm extends React.PureComponent<Props, State> {
       recipient: this.props.currentUser.email || '',
       subject: translate('email_configuration.test.subject'),
       message: translate('email_configuration.test.message_text'),
-      loading: false
+      loading: false,
     };
   }
 
@@ -64,7 +64,7 @@ export class EmailForm extends React.PureComponent<Props, State> {
   }
 
   handleError = (response: Response) => {
-    return parseError(response).then(message => {
+    return parseError(response).then((message) => {
       if (this.mounted) {
         this.setState({ error: message, loading: false });
       }

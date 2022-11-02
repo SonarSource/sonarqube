@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import withIndexationContext, {
-  WithIndexationContextProps
+  WithIndexationContextProps,
 } from '../../../components/hoc/withIndexationContext';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { IndexationNotificationType } from '../../../types/indexation';
@@ -70,13 +70,13 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
       this.setState({
         notificationType: hasFailures
           ? IndexationNotificationType.InProgressWithFailure
-          : IndexationNotificationType.InProgress
+          : IndexationNotificationType.InProgress,
       });
     } else if (hasFailures) {
       this.setState({ notificationType: IndexationNotificationType.CompletedWithFailure });
     } else if (IndexationNotificationHelper.shouldDisplayCompletedNotification()) {
       this.setState({
-        notificationType: IndexationNotificationType.Completed
+        notificationType: IndexationNotificationType.Completed,
       });
       IndexationNotificationHelper.markCompletedNotificationAsDisplayed();
 
@@ -93,8 +93,8 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
     const { notificationType } = this.state;
     const {
       indexationContext: {
-        status: { percentCompleted }
-      }
+        status: { percentCompleted },
+      },
     } = this.props;
 
     if (notificationType === undefined) {

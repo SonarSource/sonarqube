@@ -26,7 +26,7 @@ import MetaTags from '../MetaTags';
 
 jest.mock('../../../../../../../api/components', () => ({
   setApplicationTags: jest.fn().mockResolvedValue(true),
-  setProjectTags: jest.fn().mockResolvedValue(true)
+  setProjectTags: jest.fn().mockResolvedValue(true),
 }));
 
 beforeEach(() => {
@@ -42,9 +42,9 @@ it('should render with tags and admin rights', () => {
     key: 'my-second-project',
     tags: ['foo', 'bar'],
     configuration: {
-      showSettings: true
+      showSettings: true,
     },
-    name: 'MySecondProject'
+    name: 'MySecondProject',
   });
 
   expect(shallowRender({ component })).toMatchSnapshot();
@@ -61,7 +61,7 @@ it('should set tags for a project', () => {
 
 it('should set tags for an app', () => {
   const wrapper = shallowRender({
-    component: mockComponent({ qualifier: ComponentQualifier.Application })
+    component: mockComponent({ qualifier: ComponentQualifier.Application }),
   });
 
   wrapper.instance().handleSetProjectTags(['tag1', 'tag2']);
@@ -73,8 +73,8 @@ it('should set tags for an app', () => {
 function shallowRender(overrides: Partial<MetaTags['props']> = {}) {
   const component = mockComponent({
     configuration: {
-      showSettings: false
-    }
+      showSettings: false,
+    },
   });
 
   return shallow<MetaTags>(

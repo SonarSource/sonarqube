@@ -37,7 +37,7 @@ export default function ComponentBreadcrumbs({
   component,
   issue,
   selectedFlowIndex,
-  selectedLocationIndex
+  selectedLocationIndex,
 }: Props) {
   const displayProject =
     !component ||
@@ -49,7 +49,7 @@ export default function ComponentBreadcrumbs({
 
   const selectedLocation = getSelectedLocation(issue, selectedFlowIndex, selectedLocationIndex);
   const componentName = selectedLocation ? selectedLocation.componentName : issue.componentLongName;
-  const projectName = [issue.projectName, issue.branch].filter(s => !!s).join(' - ');
+  const projectName = [issue.projectName, issue.branch].filter((s) => !!s).join(' - ');
 
   return (
     <div
@@ -57,7 +57,8 @@ export default function ComponentBreadcrumbs({
         'issues.on_file_x',
         `${displayProject ? issue.projectName + ', ' : ''}${componentName}`
       )}
-      className="component-name text-ellipsis">
+      className="component-name text-ellipsis"
+    >
       <QualifierIcon className="spacer-right" qualifier={issue.componentQualifier} />
 
       {displayProject && (

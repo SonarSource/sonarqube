@@ -33,7 +33,7 @@ export default function SearchForm(props: Props) {
   const filterOptions = [
     { value: 'all', label: translate('all') },
     { value: 'users', label: translate('users.page') },
-    { value: 'groups', label: translate('user_groups.page') }
+    { value: 'groups', label: translate('user_groups.page') },
   ];
 
   return (

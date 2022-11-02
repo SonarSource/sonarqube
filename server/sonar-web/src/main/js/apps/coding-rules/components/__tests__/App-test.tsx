@@ -26,7 +26,7 @@ import {
   mockCurrentUser,
   mockLocation,
   mockQualityProfile,
-  mockRouter
+  mockRouter,
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { App } from '../App';
@@ -45,17 +45,17 @@ jest.mock('../../../../api/rules', () => {
       p: 0,
       ps: 100,
       rules: [mockRule(), mockRule()],
-      total: 0
-    })
+      total: 0,
+    }),
   };
 });
 
 jest.mock('../../../../api/quality-profiles', () => ({
-  searchQualityProfiles: jest.fn().mockResolvedValue({ profiles: [] })
+  searchQualityProfiles: jest.fn().mockResolvedValue({ profiles: [] }),
 }));
 
 jest.mock('../../../../helpers/system', () => ({
-  getReactDomContainerSelector: () => '#content'
+  getReactDomContainerSelector: () => '#content',
 }));
 
 it('should render correctly', async () => {
@@ -72,7 +72,7 @@ it('should render correctly', async () => {
 describe('renderBulkButton', () => {
   it('should be null when the user is not logged in', () => {
     const wrapper = shallowRender({
-      currentUser: mockCurrentUser()
+      currentUser: mockCurrentUser(),
     });
     expect(wrapper.instance().renderBulkButton()).toMatchSnapshot();
   });
@@ -95,7 +95,7 @@ describe('renderBulkButton', () => {
   it('should show bulk change button when user has edit rights on specific quality profile', async () => {
     (getRulesApp as jest.Mock).mockReturnValueOnce({ canWrite: false, repositories: [] });
     (searchQualityProfiles as jest.Mock).mockReturnValueOnce({
-      profiles: [mockQualityProfile({ key: 'foo', actions: { edit: true } }), mockQualityProfile()]
+      profiles: [mockQualityProfile({ key: 'foo', actions: { edit: true } }), mockQualityProfile()],
     });
 
     const wrapper = shallowRender();
@@ -109,7 +109,7 @@ function shallowRender(props: Partial<App['props']> = {}) {
   return shallow<App>(
     <App
       currentUser={mockCurrentUser({
-        isLoggedIn: true
+        isLoggedIn: true,
       })}
       location={mockLocation()}
       router={mockRouter()}

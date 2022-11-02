@@ -36,9 +36,7 @@ export interface SubCategoryDefinitionsListProps {
   displaySubCategoryTitle?: boolean;
 }
 
-export class SubCategoryDefinitionsList extends React.PureComponent<
-  SubCategoryDefinitionsListProps
-> {
+export class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefinitionsListProps> {
   componentDidUpdate(prevProps: SubCategoryDefinitionsListProps) {
     const { hash } = this.props.location;
     if (hash && prevProps.location.hash !== hash) {
@@ -67,27 +65,28 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
 
   render() {
     const { displaySubCategoryTitle = true, settings, subCategory, component } = this.props;
-    const bySubCategory = groupBy(settings, setting => setting.definition.subCategory);
-    const subCategories = Object.keys(bySubCategory).map(key => ({
+    const bySubCategory = groupBy(settings, (setting) => setting.definition.subCategory);
+    const subCategories = Object.keys(bySubCategory).map((key) => ({
       key,
       name: getSubCategoryName(bySubCategory[key][0].definition.category, key),
-      description: getSubCategoryDescription(bySubCategory[key][0].definition.category, key)
+      description: getSubCategoryDescription(bySubCategory[key][0].definition.category, key),
     }));
-    const sortedSubCategories = sortBy(subCategories, subCategory =>
+    const sortedSubCategories = sortBy(subCategories, (subCategory) =>
       subCategory.name.toLowerCase()
     );
     const filteredSubCategories = subCategory
-      ? sortedSubCategories.filter(c => c.key === subCategory)
+      ? sortedSubCategories.filter((c) => c.key === subCategory)
       : sortedSubCategories;
     return (
       <ul className="settings-sub-categories-list">
-        {filteredSubCategories.map(subCategory => (
+        {filteredSubCategories.map((subCategory) => (
           <li key={subCategory.key}>
             {displaySubCategoryTitle && (
               <h2
                 className="settings-sub-category-name"
                 data-key={subCategory.key}
-                ref={this.scrollToSubCategoryOrDefinition}>
+                ref={this.scrollToSubCategoryOrDefinition}
+              >
                 {subCategory.name}
               </h2>
             )}
@@ -96,7 +95,7 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
                 className="settings-sub-category-description markdown"
                 // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{
-                  __html: sanitizeStringRestricted(subCategory.description)
+                  __html: sanitizeStringRestricted(subCategory.description),
                 }}
               />
             )}

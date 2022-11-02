@@ -43,11 +43,12 @@ export default function ComponentReportActionsRenderer(props: ComponentReportAct
   const renderDownloadButton = (simple = false) => {
     return (
       <a
-        download={[component.name, branch?.name, 'PDF Report.pdf'].filter(s => !!s).join(' - ')}
+        download={[component.name, branch?.name, 'PDF Report.pdf'].filter((s) => !!s).join(' - ')}
         href={getReportUrl(component.key, branch?.name)}
         target="_blank"
         data-test="overview__download-pdf-report-button"
-        rel="noopener noreferrer">
+        rel="noopener noreferrer"
+      >
         {simple
           ? translate('download_verb')
           : translateWithParameters(
@@ -85,7 +86,8 @@ export default function ComponentReportActionsRenderer(props: ComponentReportAct
           <li>{renderDownloadButton(true)}</li>
           <li>{renderSubscriptionButton()}</li>
         </ul>
-      }>
+      }
+    >
       <Button className="dropdown-toggle">
         {translateWithParameters(
           'component_report.report',

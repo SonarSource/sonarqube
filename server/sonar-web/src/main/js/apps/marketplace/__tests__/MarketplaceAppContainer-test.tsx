@@ -30,9 +30,9 @@ it('should render correctly', () => {
     shallowRender({
       appState: mockAppState({
         settings: {
-          [GlobalSettingKeys.UpdatecenterActivated]: 'true'
-        }
-      })
+          [GlobalSettingKeys.UpdatecenterActivated]: 'true',
+        },
+      }),
     }).dive()
   ).toMatchSnapshot('update center active');
 });

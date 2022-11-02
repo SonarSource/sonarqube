@@ -24,13 +24,13 @@ import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings'
 import { change, submit } from '../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import AzurePersonalAccessTokenForm, {
-  AzurePersonalAccessTokenFormProps
+  AzurePersonalAccessTokenFormProps,
 } from '../AzurePersonalAccessTokenForm';
 
 jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
-    useEffect: jest.fn()
+    useEffect: jest.fn(),
   };
 });
 
@@ -58,7 +58,7 @@ it('should correctly handle form interactions', () => {
   // If validation fails, we toggle the submitting flag and call useEffect()
   // to set the `touched` flag to false again. Trigger a re-render, and mock
   // useEffect(). This should de-activate the submit button again.
-  (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
+  (React.useEffect as jest.Mock).mockImplementationOnce((f) => f());
   wrapper.setProps({ submitting: false });
   expect(wrapper.find(SubmitButton).prop('disabled')).toBe(true);
 });
@@ -68,7 +68,7 @@ function shallowRender(props: Partial<AzurePersonalAccessTokenFormProps> = {}) {
     <AzurePersonalAccessTokenForm
       almSetting={mockAlmSettingsInstance({
         alm: AlmKeys.Azure,
-        url: 'http://www.example.com'
+        url: 'http://www.example.com',
       })}
       onPersonalAccessTokenCreate={jest.fn()}
       validationFailed={false}

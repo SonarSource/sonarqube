@@ -35,20 +35,20 @@ function shallowRender(props: Partial<GraphsLegendCustomProps> = {}) {
           name: 'bugs',
           translatedName: 'Bugs',
           data: [{ x: parseDate('2017-05-16T13:50:02+0200'), y: 1 }],
-          type: 'INT'
+          type: 'INT',
         },
         {
           name: 'my_metric',
           translatedName: 'My Metric',
           data: [{ x: parseDate('2017-05-16T13:50:02+0200'), y: 1 }],
-          type: 'INT'
+          type: 'INT',
         },
         {
           name: 'foo',
           translatedName: 'Foo',
           data: [],
-          type: 'INT'
-        }
+          type: 'INT',
+        },
       ]}
       {...props}
     />

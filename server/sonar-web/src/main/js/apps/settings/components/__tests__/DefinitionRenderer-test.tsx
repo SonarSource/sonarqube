@@ -29,7 +29,7 @@ it('should render correctly', () => {
   ).toMatchSnapshot('with description');
   expect(
     shallowRender({
-      validationMessage: 'validation message'
+      validationMessage: 'validation message',
     })
   ).toMatchSnapshot('in error');
   expect(shallowRender({ success: true })).toMatchSnapshot('success');

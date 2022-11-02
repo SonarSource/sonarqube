@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';

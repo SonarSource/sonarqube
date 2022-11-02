@@ -23,13 +23,13 @@ import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../constants';
 import { ADDITIONAL_CATEGORIES } from '../AdditionalCategories';
 
 it('should render additional categories component correctly', () => {
-  ADDITIONAL_CATEGORIES.forEach(cat => {
+  ADDITIONAL_CATEGORIES.forEach((cat) => {
     expect(
       cat.renderComponent({
         categories: [],
         component: mockComponent(),
         definitions: [],
-        selectedCategory: 'TEST'
+        selectedCategory: 'TEST',
       })
     ).toMatchSnapshot();
   });
@@ -38,7 +38,7 @@ it('should render additional categories component correctly', () => {
 it('should not render pull request decoration binding component when the component is not defined', () => {
   const category = find(
     ADDITIONAL_CATEGORIES,
-    c => c.key === PULL_REQUEST_DECORATION_BINDING_CATEGORY
+    (c) => c.key === PULL_REQUEST_DECORATION_BINDING_CATEGORY
   );
 
   expect(
@@ -46,7 +46,7 @@ it('should not render pull request decoration binding component when the compone
       categories: [],
       component: undefined,
       definitions: [],
-      selectedCategory: ''
+      selectedCategory: '',
     })
   ).toBeUndefined();
 });

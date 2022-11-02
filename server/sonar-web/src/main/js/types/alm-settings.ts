@@ -22,7 +22,7 @@ export const enum AlmKeys {
   BitbucketServer = 'bitbucket',
   BitbucketCloud = 'bitbucketcloud',
   GitHub = 'github',
-  GitLab = 'gitlab'
+  GitLab = 'gitlab',
 }
 
 export type AlmBindingDefinition =
@@ -158,13 +158,13 @@ export enum AlmSettingsBindingStatusType {
   Validating,
   Success,
   Failure,
-  Warning
+  Warning,
 }
 
 export enum ProjectAlmBindingConfigurationErrorScope {
   Global = 'GLOBAL',
   Project = 'PROJECT',
-  Unknown = 'UNKNOWN'
+  Unknown = 'UNKNOWN',
 }
 
 export interface ProjectAlmBindingConfigurationErrors {

@@ -35,8 +35,8 @@ export const domains: Domains = {
       'overall_category',
       MetricKey.bugs,
       MetricKey.reliability_rating,
-      MetricKey.reliability_remediation_effort
-    ]
+      MetricKey.reliability_remediation_effort,
+    ],
   },
 
   Security: {
@@ -50,8 +50,8 @@ export const domains: Domains = {
       'overall_category',
       MetricKey.vulnerabilities,
       MetricKey.security_rating,
-      MetricKey.security_remediation_effort
-    ]
+      MetricKey.security_remediation_effort,
+    ],
   },
 
   SecurityReview: {
@@ -65,8 +65,8 @@ export const domains: Domains = {
       'overall_category',
       MetricKey.security_hotspots,
       MetricKey.security_review_rating,
-      MetricKey.security_hotspots_reviewed
-    ]
+      MetricKey.security_hotspots_reviewed,
+    ],
   },
 
   Maintainability: {
@@ -83,8 +83,8 @@ export const domains: Domains = {
       MetricKey.sqale_index,
       MetricKey.sqale_debt_ratio,
       MetricKey.sqale_rating,
-      MetricKey.effort_to_reach_maintainability_rating_a
-    ]
+      MetricKey.effort_to_reach_maintainability_rating_a,
+    ],
   },
 
   Coverage: {
@@ -114,8 +114,8 @@ export const domains: Domains = {
       MetricKey.test_failures,
       MetricKey.skipped_tests,
       MetricKey.test_success_density,
-      MetricKey.test_execution_time
-    ]
+      MetricKey.test_execution_time,
+    ],
   },
 
   Duplications: {
@@ -130,8 +130,8 @@ export const domains: Domains = {
       MetricKey.duplicated_lines_density,
       MetricKey.duplicated_lines,
       MetricKey.duplicated_blocks,
-      MetricKey.duplicated_files
-    ]
+      MetricKey.duplicated_files,
+    ],
   },
 
   Size: {
@@ -144,16 +144,16 @@ export const domains: Domains = {
       MetricKey.functions,
       MetricKey.classes,
       MetricKey.files,
-      MetricKey.directories
-    ]
+      MetricKey.directories,
+    ],
   },
 
   Complexity: {
-    order: ['complexity', 'function_complexity', 'file_complexity', 'class_complexity']
+    order: ['complexity', 'function_complexity', 'file_complexity', 'class_complexity'],
   },
 
   Releasability: {
-    order: ['releasability_rating', 'releasability_effort', 'alert_status']
+    order: ['releasability_rating', 'releasability_effort', 'alert_status'],
   },
 
   Issues: {
@@ -174,7 +174,7 @@ export const domains: Domains = {
       MetricKey.open_issues,
       MetricKey.reopened_issues,
       MetricKey.confirmed_issues,
-      MetricKey.false_positive_issues
-    ]
-  }
+      MetricKey.false_positive_issues,
+    ],
+  },
 };

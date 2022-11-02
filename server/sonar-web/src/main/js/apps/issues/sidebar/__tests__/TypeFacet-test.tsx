@@ -47,10 +47,10 @@ it('should select a type', () => {
   clickAndCheck('VULNERABILITY', true, ['CODE_SMELL', 'VULNERABILITY']);
 
   function clickAndCheck(type: string, multiple = false, expected = [type]) {
-    wrapper
-      .find(`FacetItemsList`)
-      .find(`FacetItem[value="${type}"]`)
-      .prop<Function>('onClick')(type, multiple);
+    wrapper.find(`FacetItemsList`).find(`FacetItem[value="${type}"]`).prop<Function>('onClick')(
+      type,
+      multiple
+    );
     expect(onChange).toHaveBeenLastCalledWith({ types: expected });
     wrapper.setProps({ types: expected });
   }

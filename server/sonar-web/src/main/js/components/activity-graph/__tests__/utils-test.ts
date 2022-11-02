@@ -26,11 +26,11 @@ jest.mock('date-fns', () => {
   const actual = jest.requireActual('date-fns');
   return {
     ...actual,
-    startOfDay: jest.fn(date => {
+    startOfDay: jest.fn((date) => {
       const startDay = new Date(date);
       startDay.setUTCHours(0, 0, 0, 0);
       return startDay;
-    })
+    }),
   };
 });
 
@@ -39,31 +39,31 @@ const HISTORY = [
     metric: MetricKey.lines_to_cover,
     history: [
       { date: dates.parseDate('2017-04-27T08:21:32.000Z'), value: '100' },
-      { date: dates.parseDate('2017-04-30T23:06:24.000Z'), value: '100' }
-    ]
+      { date: dates.parseDate('2017-04-30T23:06:24.000Z'), value: '100' },
+    ],
   },
   {
     metric: MetricKey.uncovered_lines,
     history: [
       { date: dates.parseDate('2017-04-27T08:21:32.000Z'), value: '12' },
-      { date: dates.parseDate('2017-04-30T23:06:24.000Z'), value: '50' }
-    ]
-  }
+      { date: dates.parseDate('2017-04-30T23:06:24.000Z'), value: '50' },
+    ],
+  },
 ];
 
 const METRICS = [
   { id: '1', key: MetricKey.uncovered_lines, name: 'Uncovered Lines', type: 'INT' },
-  { id: '2', key: MetricKey.lines_to_cover, name: 'Line to Cover', type: 'PERCENT' }
+  { id: '2', key: MetricKey.lines_to_cover, name: 'Line to Cover', type: 'PERCENT' },
 ];
 
 const SERIE: Serie = {
   data: [
     { x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
-    { x: dates.parseDate('2017-04-28T08:21:32.000Z'), y: 2 }
+    { x: dates.parseDate('2017-04-28T08:21:32.000Z'), y: 2 },
   ],
   name: 'foo',
   translatedName: 'Foo',
-  type: 'PERCENT'
+  type: 'PERCENT',
 };
 
 describe('generateCoveredLinesMetric', () => {
@@ -78,7 +78,7 @@ describe('generateSeries', () => {
     expect(
       utils.generateSeries(HISTORY, GraphType.coverage, METRICS, [
         MetricKey.uncovered_lines,
-        MetricKey.lines_to_cover
+        MetricKey.lines_to_cover,
       ])
     ).toMatchSnapshot();
   });
@@ -93,11 +93,11 @@ describe('getDisplayedHistoryMetrics', () => {
     expect(utils.getDisplayedHistoryMetrics(utils.DEFAULT_GRAPH, [])).toEqual([
       MetricKey.bugs,
       MetricKey.code_smells,
-      MetricKey.vulnerabilities
+      MetricKey.vulnerabilities,
     ]);
     expect(utils.getDisplayedHistoryMetrics(GraphType.coverage, customMetrics)).toEqual([
       MetricKey.lines_to_cover,
-      MetricKey.uncovered_lines
+      MetricKey.uncovered_lines,
     ]);
   });
   it('should return all custom metrics for the custom graph', () => {
@@ -116,12 +116,12 @@ describe('getHistoryMetrics', () => {
       MetricKey.vulnerabilities,
       MetricKey.reliability_rating,
       MetricKey.security_rating,
-      MetricKey.sqale_rating
+      MetricKey.sqale_rating,
     ]);
     expect(utils.getHistoryMetrics(GraphType.coverage, customMetrics)).toEqual([
       MetricKey.lines_to_cover,
       MetricKey.uncovered_lines,
-      GraphType.coverage
+      GraphType.coverage,
     ]);
     expect(utils.getHistoryMetrics(GraphType.custom, customMetrics)).toEqual(customMetrics);
   });
@@ -137,9 +137,9 @@ describe('hasHistoryData', () => {
           type: 'INT',
           data: [
             { x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
-            { x: dates.parseDate('2017-04-30T23:06:24.000Z'), y: 2 }
-          ]
-        }
+            { x: dates.parseDate('2017-04-30T23:06:24.000Z'), y: 2 },
+          ],
+        },
       ])
     ).toBe(true);
     expect(
@@ -148,7 +148,7 @@ describe('hasHistoryData', () => {
           name: 'foo',
           translatedName: 'foo',
           type: 'INT',
-          data: []
+          data: [],
         },
         {
           name: 'bar',
@@ -156,9 +156,9 @@ describe('hasHistoryData', () => {
           type: 'INT',
           data: [
             { x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
-            { x: dates.parseDate('2017-04-30T23:06:24.000Z'), y: 2 }
-          ]
-        }
+            { x: dates.parseDate('2017-04-30T23:06:24.000Z'), y: 2 },
+          ],
+        },
       ])
     ).toBe(true);
     expect(
@@ -167,8 +167,8 @@ describe('hasHistoryData', () => {
           name: 'bar',
           translatedName: 'bar',
           type: 'INT',
-          data: [{ x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 }]
-        }
+          data: [{ x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 }],
+        },
       ])
     ).toBe(false);
   });

@@ -24,7 +24,7 @@ export enum TutorialModes {
   GitLabCI = 'gitlab-ci',
   GitHubActions = 'github-actions',
   AzurePipelines = 'azure-pipelines',
-  OtherCI = 'other-ci'
+  OtherCI = 'other-ci',
 }
 
 export enum BuildTools {
@@ -32,13 +32,13 @@ export enum BuildTools {
   Gradle = 'gradle',
   CFamily = 'cfamily',
   DotNet = 'dotnet',
-  Other = 'other'
+  Other = 'other',
 }
 
 export enum OSs {
   Linux = 'linux',
   Windows = 'win',
-  MacOS = 'mac'
+  MacOS = 'mac',
 }
 
 export type ManualTutorialConfig =

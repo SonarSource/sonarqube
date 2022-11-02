@@ -42,7 +42,7 @@ export default function ColorGradientLegend({
   padding = [12, 24, 0, 0],
   height,
   showColorNA = false,
-  width
+  width,
 }: Props) {
   const colorRange: Array<string | number> = colorScale.range();
   const colorDomain: Array<string | number> = colorScale.domain();
@@ -65,8 +65,9 @@ export default function ColorGradientLegend({
           width="30"
           height="30"
           patternTransform="rotate(45 0 0)"
-          patternUnits="userSpaceOnUse">
-          {NA_GRADIENT_LINE_INCREMENTS.map(i => (
+          patternUnits="userSpaceOnUse"
+        >
+          {NA_GRADIENT_LINE_INCREMENTS.map((i) => (
             <React.Fragment key={i}>
               <line
                 x1={i}
@@ -95,7 +96,8 @@ export default function ColorGradientLegend({
             // eslint-disable-next-line react/no-array-index-key
             key={idx}
             x={widthNoPadding * (idx / lastDomainIdx)}
-            y={0}>
+            y={0}
+          >
             {d}
           </text>
         ))}
@@ -113,7 +115,8 @@ export default function ColorGradientLegend({
             className="gradient-legend-na"
             dy="-2px"
             x={NA_SPACING + (padding[1] - NA_SPACING) / 2}
-            y={0}>
+            y={0}
+          >
             N/A
           </text>
         </g>

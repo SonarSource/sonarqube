@@ -66,7 +66,7 @@ export default class RestoreAccessModal extends React.PureComponent<Props, State
     grantPermissionToUser({
       projectKey: this.props.project.key,
       login: this.props.currentUser.login,
-      permission
+      permission,
     });
 
   render() {
@@ -85,7 +85,7 @@ export default class RestoreAccessModal extends React.PureComponent<Props, State
               id="global_permissions.restore_access.message"
               values={{
                 browse: <strong>{translate('projects_role.user')}</strong>,
-                administer: <strong>{translate('projects_role.admin')}</strong>
+                administer: <strong>{translate('projects_role.admin')}</strong>,
               }}
             />
           </div>

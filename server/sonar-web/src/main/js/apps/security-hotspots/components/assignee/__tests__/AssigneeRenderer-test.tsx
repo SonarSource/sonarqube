@@ -38,9 +38,8 @@ it('should render correctly', () => {
   expect(shallowRender({ loggedInUser: undefined }).find(EditButton).length).toBe(0);
   expect(shallowRender({ canEdit: false }).find(EditButton).length).toBe(0);
   expect(
-    shallowRender({ editing: true, assignee: mockUser() })
-      .find(AssigneeSelection)
-      .props().allowCurrentUserSelection
+    shallowRender({ editing: true, assignee: mockUser() }).find(AssigneeSelection).props()
+      .allowCurrentUserSelection
   ).toBe(true);
 });
 
@@ -61,10 +60,7 @@ it('should propagate calls correctly', () => {
     .onSelect(newAssignee as UserActive);
   expect(onAssign).toHaveBeenCalledWith(newAssignee);
 
-  wrapper
-    .find(OutsideClickHandler)
-    .props()
-    .onClickOutside();
+  wrapper.find(OutsideClickHandler).props().onClickOutside();
   expect(onExitEditionMode).toHaveBeenCalled();
 });
 

@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockAlmSettingsInstance,
-  mockProjectGithubBindingResponse
+  mockProjectGithubBindingResponse,
 } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
@@ -32,7 +32,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       almBinding: mockAlmSettingsInstance({ url: 'http://github.enterprise.com/api/v3' }),
-      projectBinding: mockProjectGithubBindingResponse()
+      projectBinding: mockProjectGithubBindingResponse(),
     })
   ).toMatchSnapshot('with binding information');
 });

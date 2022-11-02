@@ -56,7 +56,7 @@ export class Component extends React.PureComponent<Props> {
       previous,
       rootComponent,
       selected = false,
-      newCodeSelected
+      newCodeSelected,
     } = this.props;
 
     const isFile =
@@ -98,18 +98,20 @@ export class Component extends React.PureComponent<Props> {
           </div>
         </td>
 
-        {metrics.map(metric => (
+        {metrics.map((metric) => (
           <td
             className={classNames('thin', {
               'text-center': metric.type === MetricType.Rating,
-              'nowrap text-right': metric.type !== MetricType.Rating
+              'nowrap text-right': metric.type !== MetricType.Rating,
             })}
-            key={metric.key}>
+            key={metric.key}
+          >
             <div
               className={classNames({
                 'code-components-rating-cell': metric.type === MetricType.Rating,
-                'code-components-cell': metric.type !== MetricType.Rating
-              })}>
+                'code-components-cell': metric.type !== MetricType.Rating,
+              })}
+            >
               <ComponentMeasure component={component} metric={metric} />
             </div>
           </td>

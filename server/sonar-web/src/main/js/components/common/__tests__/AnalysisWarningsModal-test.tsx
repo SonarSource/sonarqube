@@ -29,8 +29,8 @@ import { AnalysisWarningsModal } from '../AnalysisWarningsModal';
 jest.mock('../../../api/ce', () => ({
   dismissAnalysisWarning: jest.fn().mockResolvedValue(null),
   getTask: jest.fn().mockResolvedValue({
-    warnings: ['message foo', 'message-bar', 'multiline message\nsecondline\n  third line']
-  })
+    warnings: ['message foo', 'message-bar', 'multiline message\nsecondline\n  third line'],
+  }),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -43,7 +43,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       currentUser: mockCurrentUser({ isLoggedIn: false }),
-      warnings: [mockTaskWarning({ dismissable: true })]
+      warnings: [mockTaskWarning({ dismissable: true })],
     })
   ).toMatchSnapshot('do not show dismissable links for anonymous');
 });
@@ -65,13 +65,10 @@ it('should correctly handle dismissing warnings', async () => {
   const wrapper = shallowRender({
     componentKey: 'foo',
     onWarningDismiss,
-    warnings: [mockTaskWarning({ key: 'bar', dismissable: true })]
+    warnings: [mockTaskWarning({ key: 'bar', dismissable: true })],
   });
 
-  const { onClick } = wrapper
-    .find(ButtonLink)
-    .at(0)
-    .props();
+  const { onClick } = wrapper.find(ButtonLink).at(0).props();
 
   if (onClick) {
     onClick();
@@ -105,7 +102,7 @@ function shallowRender(props: Partial<AnalysisWarningsModal['props']> = {}) {
       onClose={jest.fn()}
       warnings={[
         mockTaskWarning({ message: 'warning 1' }),
-        mockTaskWarning({ message: 'warning 2' })
+        mockTaskWarning({ message: 'warning 2' }),
       ]}
       {...props}
     />

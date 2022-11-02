@@ -27,11 +27,11 @@ const MEASURE = {
     key: 'bugs',
     type: 'INT',
     name: 'Bugs',
-    domain: 'Reliability'
+    domain: 'Reliability',
   },
   value: '5',
   period: { index: 1, value: '5' },
-  leak: '5'
+  leak: '5',
 };
 const LEAK_MEASURE = {
   metric: {
@@ -39,10 +39,10 @@ const LEAK_MEASURE = {
     key: 'new_bugs',
     type: 'INT',
     name: 'New Bugs',
-    domain: 'Reliability'
+    domain: 'Reliability',
   },
   period: { index: 1, value: '5' },
-  leak: '5'
+  leak: '5',
 };
 
 it('should display measure value', () => {

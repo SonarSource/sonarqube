@@ -27,7 +27,7 @@ import TokenStep from '../TokenStep';
 jest.mock('../../../../api/user-tokens', () => ({
   getTokens: jest.fn().mockResolvedValue([{ name: 'foo' }]),
   generateToken: jest.fn().mockResolvedValue({ token: 'abcd1234' }),
-  revokeToken: jest.fn().mockResolvedValue(null)
+  revokeToken: jest.fn().mockResolvedValue(null),
 }));
 
 jest.mock('../../../../api/settings', () => {
@@ -36,9 +36,9 @@ jest.mock('../../../../api/settings', () => {
     getAllValues: jest.fn().mockResolvedValue([
       {
         key: 'sonar.auth.token.max.allowed.lifetime',
-        value: 'No expiration'
-      }
-    ])
+        value: 'No expiration',
+      },
+    ]),
   };
 });
 
@@ -46,12 +46,7 @@ it('sets an initial token name', async () => {
   (getTokens as jest.Mock).mockResolvedValueOnce([{ name: 'fôo' }]);
   const wrapper = shallowRender({ initialTokenName: 'fôo' });
   await waitAndUpdate(wrapper);
-  expect(
-    wrapper
-      .dive()
-      .find('input')
-      .props().value
-  ).toBe('fôo 1');
+  expect(wrapper.dive().find('input').props().value).toBe('fôo 1');
 });
 
 it('generates token', async () => {
@@ -70,10 +65,7 @@ it('revokes token', async () => {
   await new Promise(setImmediate);
   wrapper.setState({ token: 'abcd1234', tokenName: 'my token' });
   expect(wrapper.dive()).toMatchSnapshot();
-  (wrapper
-    .dive()
-    .find('DeleteButton')
-    .prop('onClick') as Function)();
+  (wrapper.dive().find('DeleteButton').prop('onClick') as Function)();
   wrapper.update();
   expect(wrapper.dive()).toMatchSnapshot(); // spinner
   await waitAndUpdate(wrapper);

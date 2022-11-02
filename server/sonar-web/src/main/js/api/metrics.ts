@@ -47,7 +47,7 @@ export function getAllMetrics(data?: {
     data: { p?: number; ps?: number } = { ps: 500 },
     prev?: MetricsResponse
   ): Promise<Metric[]> {
-    return getMetrics(data).then(r => {
+    return getMetrics(data).then((r) => {
       const result = prev ? prev.metrics.concat(r.metrics) : r.metrics;
       if (r.p * r.ps >= r.total) {
         return result;

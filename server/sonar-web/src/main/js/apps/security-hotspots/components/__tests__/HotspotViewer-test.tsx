@@ -36,15 +36,15 @@ const hotspotKey = 'hotspot-key';
 jest.mock('../../../../api/security-hotspots', () => ({
   getSecurityHotspotDetails: jest
     .fn()
-    .mockResolvedValue({ id: `I am a detailled hotspot`, rule: {} })
+    .mockResolvedValue({ id: `I am a detailled hotspot`, rule: {} }),
 }));
 
 jest.mock('../../../../api/rules', () => ({
-  getRuleDetails: jest.fn().mockResolvedValue({ rule: { descriptionSections: [] } })
+  getRuleDetails: jest.fn().mockResolvedValue({ rule: { descriptionSections: [] } }),
 }));
 
 jest.mock('../../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn()
+  scrollToElement: jest.fn(),
 }));
 
 it('should render correctly', async () => {
@@ -69,18 +69,18 @@ it('should render fetch rule details', async () => {
       descriptionSections: [
         {
           key: RuleDescriptionSections.ASSESS_THE_PROBLEM,
-          content: 'assess'
+          content: 'assess',
         },
         {
           key: RuleDescriptionSections.ROOT_CAUSE,
-          content: 'cause'
+          content: 'cause',
         },
         {
           key: RuleDescriptionSections.HOW_TO_FIX,
-          content: 'how'
-        }
-      ]
-    })
+          content: 'how',
+        },
+      ],
+    }),
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -88,26 +88,23 @@ it('should render fetch rule details', async () => {
   expect(wrapper.state().ruleDescriptionSections).toStrictEqual([
     {
       key: RuleDescriptionSections.ASSESS_THE_PROBLEM,
-      content: 'assess'
+      content: 'assess',
     },
     {
       key: RuleDescriptionSections.ROOT_CAUSE,
-      content: 'cause'
+      content: 'cause',
     },
     {
       key: RuleDescriptionSections.HOW_TO_FIX,
-      content: 'how'
-    }
+      content: 'how',
+    },
   ]);
 });
 
 it('should refresh hotspot list on status update', () => {
   const onUpdateHotspot = jest.fn();
   const wrapper = shallowRender({ onUpdateHotspot });
-  wrapper
-    .find(HotspotViewerRenderer)
-    .props()
-    .onUpdateHotspot(true);
+  wrapper.find(HotspotViewerRenderer).props().onUpdateHotspot(true);
   expect(onUpdateHotspot).toHaveBeenCalled();
 });
 
@@ -115,10 +112,7 @@ it('should store last status selected when updating a hotspot status', () => {
   const wrapper = shallowRender();
 
   expect(wrapper.state().lastStatusChangedTo).toBeUndefined();
-  wrapper
-    .find(HotspotViewerRenderer)
-    .props()
-    .onUpdateHotspot(true, HotspotStatusOption.FIXED);
+  wrapper.find(HotspotViewerRenderer).props().onUpdateHotspot(true, HotspotStatusOption.FIXED);
   expect(wrapper.state().lastStatusChangedTo).toBe(HotspotStatusOption.FIXED);
 });
 
@@ -144,18 +138,15 @@ it('should correctly close the success modal', () => {
 it('should NOT refresh hotspot list on assignee/comment updates', () => {
   const onUpdateHotspot = jest.fn();
   const wrapper = shallowRender({ onUpdateHotspot });
-  wrapper
-    .find(HotspotViewerRenderer)
-    .props()
-    .onUpdateHotspot();
+  wrapper.find(HotspotViewerRenderer).props().onUpdateHotspot();
   expect(onUpdateHotspot).not.toHaveBeenCalled();
 });
 
 it('should scroll to comment form', () => {
   const wrapper = shallowRender();
-  const mockTextRef = ({ current: { focus: jest.fn() } } as any) as React.RefObject<
-    HTMLTextAreaElement
-  >;
+  const mockTextRef = {
+    current: { focus: jest.fn() },
+  } as any as React.RefObject<HTMLTextAreaElement>;
   wrapper.instance().commentTextRef = mockTextRef;
 
   wrapper.find(HotspotViewerRenderer).simulate('showCommentForm');

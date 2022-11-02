@@ -44,5 +44,5 @@ export enum ProfileActionModals {
   Copy,
   Extend,
   Rename,
-  Delete
+  Delete,
 }

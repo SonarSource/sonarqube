@@ -42,7 +42,7 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
 
   const [{ language, key }, setSelected] = React.useState<{ language?: string; key?: string }>({
     language: undefined,
-    key: undefined
+    key: undefined,
   });
 
   const header = translate('project_quality_profile.add_language_modal.title');
@@ -50,15 +50,15 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
   const languageOptions: BasicSelectOption[] = difference(
     Object.keys(profilesByLanguage),
     unavailableLanguages
-  ).map(l => ({ value: l, label: languages[l].name }));
+  ).map((l) => ({ value: l, label: languages[l].name }));
 
   const profileOptions: ProfileOption[] =
     language !== undefined
-      ? profilesByLanguage[language].map(p => ({
+      ? profilesByLanguage[language].map((p) => ({
           value: p.key,
           label: p.name,
           language,
-          isDisabled: p.activeRuleCount === 0
+          isDisabled: p.activeRuleCount === 0,
         }))
       : [];
 
@@ -70,7 +70,8 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
         if (language && key) {
           props.onSubmit(key);
         }
-      }}>
+      }}
+    >
       {({ onCloseClick, onFormSubmit, submitting }) => (
         <>
           <div className="modal-head">
@@ -109,9 +110,9 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                   onChange={({ value }: ProfileOption) => setSelected({ language, key: value })}
                   options={profileOptions}
                   components={{
-                    Option: LanguageProfileSelectOption
+                    Option: LanguageProfileSelectOption,
                   }}
-                  value={profileOptions.find(o => o.value === key) ?? null}
+                  value={profileOptions.find((o) => o.value === key) ?? null}
                 />
               </div>
             </div>

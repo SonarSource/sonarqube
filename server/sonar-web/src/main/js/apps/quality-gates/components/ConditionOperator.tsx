@@ -44,7 +44,7 @@ export default class ConditionOperator extends React.PureComponent<Props> {
     const operators = getPossibleOperators(this.props.metric);
 
     if (Array.isArray(operators)) {
-      const operatorOptions = operators.map(op => {
+      const operatorOptions = operators.map((op) => {
         const label = this.getLabel(op, this.props.metric);
         return { label, value: op };
       });
@@ -60,7 +60,7 @@ export default class ConditionOperator extends React.PureComponent<Props> {
           onChange={this.handleChange}
           options={operatorOptions}
           isSearchable={false}
-          value={operatorOptions.filter(o => o.value === this.props.op)}
+          value={operatorOptions.filter((o) => o.value === this.props.op)}
         />
       );
     } else {

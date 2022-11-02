@@ -38,9 +38,9 @@ export default function withAvailableFeatures<P>(
     render() {
       return (
         <AvailableFeaturesContext.Consumer>
-          {availableFeatures => (
+          {(availableFeatures) => (
             <WrappedComponent
-              hasFeature={feature => availableFeatures.includes(feature)}
+              hasFeature={(feature) => availableFeatures.includes(feature)}
               {...(this.props as P)}
             />
           )}

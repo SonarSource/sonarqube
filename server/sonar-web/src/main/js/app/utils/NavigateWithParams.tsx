@@ -33,7 +33,7 @@ export default function NavigateWithParams({ pathname, transformParams }: Naviga
 
   /* Append transformed path params to search params */
   const transformedParams = transformParams(urlParams);
-  Object.keys(transformedParams).forEach(key => {
+  Object.keys(transformedParams).forEach((key) => {
     searchParams.append(key, transformedParams[key]);
   });
 

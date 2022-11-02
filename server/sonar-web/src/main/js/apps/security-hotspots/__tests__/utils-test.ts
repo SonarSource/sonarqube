@@ -26,7 +26,7 @@ import {
   HotspotStatusOption,
   RawHotspot,
   ReviewHistoryType,
-  RiskExposure
+  RiskExposure,
 } from '../../../types/security-hotspots';
 import { FlowLocation, IssueChangelog } from '../../../types/types';
 import {
@@ -37,7 +37,7 @@ import {
   getStatusOptionFromStatusAndResolution,
   groupByCategory,
   mapRules,
-  sortHotspots
+  sortHotspots,
 } from '../utils';
 
 const hotspots = [
@@ -45,87 +45,87 @@ const hotspots = [
     key: '3',
     vulnerabilityProbability: RiskExposure.HIGH,
     securityCategory: 'object-injection',
-    message: 'tfdh'
+    message: 'tfdh',
   }),
   mockRawHotspot({
     key: '5',
     vulnerabilityProbability: RiskExposure.MEDIUM,
     securityCategory: 'xpath-injection',
-    message: 'asdf'
+    message: 'asdf',
   }),
   mockRawHotspot({
     key: '1',
     vulnerabilityProbability: RiskExposure.HIGH,
     securityCategory: 'dos',
-    message: 'a'
+    message: 'a',
   }),
   mockRawHotspot({
     key: '7',
     vulnerabilityProbability: RiskExposure.LOW,
     securityCategory: 'ssrf',
-    message: 'rrrr'
+    message: 'rrrr',
   }),
   mockRawHotspot({
     key: '2',
     vulnerabilityProbability: RiskExposure.HIGH,
     securityCategory: 'dos',
-    message: 'b'
+    message: 'b',
   }),
   mockRawHotspot({
     key: '8',
     vulnerabilityProbability: RiskExposure.LOW,
     securityCategory: 'ssrf',
-    message: 'sssss'
+    message: 'sssss',
   }),
   mockRawHotspot({
     key: '4',
     vulnerabilityProbability: RiskExposure.MEDIUM,
     securityCategory: 'log-injection',
-    message: 'asdf'
+    message: 'asdf',
   }),
   mockRawHotspot({
     key: '9',
     vulnerabilityProbability: RiskExposure.LOW,
     securityCategory: 'xxe',
-    message: 'aaa'
+    message: 'aaa',
   }),
   mockRawHotspot({
     key: '6',
     vulnerabilityProbability: RiskExposure.LOW,
     securityCategory: 'xss',
-    message: 'zzz'
-  })
+    message: 'zzz',
+  }),
 ];
 
 const categories = {
   'object-injection': {
-    title: 'Object Injection'
+    title: 'Object Injection',
   },
   'xpath-injection': {
-    title: 'XPath Injection'
+    title: 'XPath Injection',
   },
   'log-injection': {
-    title: 'Log Injection'
+    title: 'Log Injection',
   },
   dos: {
-    title: 'Denial of Service (DoS)'
+    title: 'Denial of Service (DoS)',
   },
   ssrf: {
-    title: 'Server-Side Request Forgery (SSRF)'
+    title: 'Server-Side Request Forgery (SSRF)',
   },
   xxe: {
-    title: 'XML External Entity (XXE)'
+    title: 'XML External Entity (XXE)',
   },
   xss: {
-    title: 'Cross-Site Scripting (XSS)'
-  }
+    title: 'Cross-Site Scripting (XSS)',
+  },
 };
 
 describe('sortHotspots', () => {
   it('should sort properly', () => {
     const result = sortHotspots(hotspots, categories);
 
-    expect(result.map(h => h.key)).toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    expect(result.map((h) => h.key)).toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
   });
 });
 
@@ -142,13 +142,13 @@ describe('mapRules', () => {
     const rules = [
       { key: 'a', name: 'A rule' },
       { key: 'b', name: 'B rule' },
-      { key: 'c', name: 'C rule' }
+      { key: 'c', name: 'C rule' },
     ];
 
     expect(mapRules(rules)).toEqual({
       a: 'A rule',
       b: 'B rule',
-      c: 'C rule'
+      c: 'C rule',
     });
   });
 });
@@ -164,9 +164,9 @@ describe('getHotspotReviewHistory', () => {
         {
           key: 'assign',
           newValue: 'me',
-          oldValue: 'him'
-        }
-      ]
+          oldValue: 'him',
+        },
+      ],
     };
     const commentElement = {
       key: 'comment-1',
@@ -175,7 +175,7 @@ describe('getHotspotReviewHistory', () => {
       markdown: '*TEST*',
       updatable: true,
       login: 'dude-1',
-      user: mockUser({ login: 'dude-1' })
+      user: mockUser({ login: 'dude-1' }),
     };
     const commentElement1 = {
       key: 'comment-2',
@@ -184,12 +184,12 @@ describe('getHotspotReviewHistory', () => {
       markdown: '*TEST*',
       updatable: true,
       login: 'dude-2',
-      user: mockUser({ login: 'dude-2' })
+      user: mockUser({ login: 'dude-2' }),
     };
     const hotspot = mockHotspot({
       creationDate: '2018-09-01',
       changelog: [changelogElement],
-      comment: [commentElement, commentElement1]
+      comment: [commentElement, commentElement1],
     });
     const reviewHistory = getHotspotReviewHistory(hotspot);
 
@@ -198,7 +198,7 @@ describe('getHotspotReviewHistory', () => {
       expect.objectContaining({
         type: ReviewHistoryType.Creation,
         date: hotspot.creationDate,
-        user: hotspot.authorUser
+        user: hotspot.authorUser,
       })
     );
     expect(reviewHistory[2]).toEqual(
@@ -206,7 +206,7 @@ describe('getHotspotReviewHistory', () => {
         type: ReviewHistoryType.Comment,
         date: commentElement.createdAt,
         user: commentElement.user,
-        html: commentElement.htmlText
+        html: commentElement.htmlText,
       })
     );
     expect(reviewHistory[1]).toEqual(
@@ -214,7 +214,7 @@ describe('getHotspotReviewHistory', () => {
         type: ReviewHistoryType.Comment,
         date: commentElement1.createdAt,
         user: commentElement1.user,
-        html: commentElement1.htmlText
+        html: commentElement1.htmlText,
       })
     );
     expect(reviewHistory[0]).toEqual(
@@ -224,9 +224,9 @@ describe('getHotspotReviewHistory', () => {
         user: {
           avatar: changelogElement.avatar,
           name: changelogElement.userName,
-          active: changelogElement.isUserActive
+          active: changelogElement.isUserActive,
         },
-        diffs: changelogElement.diffs
+        diffs: changelogElement.diffs,
       })
     );
   });
@@ -253,15 +253,15 @@ describe('getStatusAndResolutionFromStatusOption', () => {
   it('should return the correct values', () => {
     expect(getStatusAndResolutionFromStatusOption(HotspotStatusOption.TO_REVIEW)).toEqual({
       status: HotspotStatus.TO_REVIEW,
-      resolution: undefined
+      resolution: undefined,
     });
     expect(getStatusAndResolutionFromStatusOption(HotspotStatusOption.FIXED)).toEqual({
       status: HotspotStatus.REVIEWED,
-      resolution: HotspotResolution.FIXED
+      resolution: HotspotResolution.FIXED,
     });
     expect(getStatusAndResolutionFromStatusOption(HotspotStatusOption.SAFE)).toEqual({
       status: HotspotStatus.REVIEWED,
-      resolution: HotspotResolution.SAFE
+      resolution: HotspotResolution.SAFE,
     });
   });
 });
@@ -285,36 +285,36 @@ describe('getLocations', () => {
     const location1: FlowLocation = {
       component: 'foo',
       msg: 'Do not use foo',
-      textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 8 }
+      textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 8 },
     };
 
     const location2: FlowLocation = {
       component: 'foo2',
       msg: 'Do not use foo2',
-      textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 8 }
+      textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 8 },
     };
 
     let rawFlows: RawHotspot['flows'] = [
       {
-        locations: [location1]
-      }
+        locations: [location1],
+      },
     ];
     expect(getLocations(rawFlows, undefined)).toEqual([location1]);
 
     rawFlows = [
       {
-        locations: [location1, location2]
-      }
+        locations: [location1, location2],
+      },
     ];
     expect(getLocations(rawFlows, undefined)).toEqual([location2, location1]);
 
     rawFlows = [
       {
-        locations: [location1, location2]
+        locations: [location1, location2],
       },
       {
-        locations: []
-      }
+        locations: [],
+      },
     ];
     expect(getLocations(rawFlows, 0)).toEqual([location2, location1]);
   });

@@ -44,7 +44,7 @@ it('should render correctly for vulnerabilities', () => {
 it('should render correctly if no values are present', () => {
   expect(
     shallowRender({
-      measures: [mockMeasureEnhanced({ metric: mockMetric({ key: 'NONE' }) })]
+      measures: [mockMeasureEnhanced({ metric: mockMetric({ key: 'NONE' }) })],
     })
   ).toMatchSnapshot();
 });
@@ -60,7 +60,7 @@ function shallowRender(props: Partial<IssueRatingProps> = {}) {
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_maintainability_rating }) }),
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.sqale_rating }) }),
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_security_rating }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.security_rating }) })
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.security_rating }) }),
       ]}
       type={IssueType.Bug}
       {...props}

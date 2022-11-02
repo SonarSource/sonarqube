@@ -49,7 +49,7 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
     passwordValue,
     location,
     submitting,
-    success
+    success,
   } = props;
 
   if (!canAdmin) {
@@ -84,7 +84,8 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
               onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
                 e.preventDefault();
                 props.onSubmit();
-              }}>
+              }}
+            >
               <h2 className="big-spacer-bottom big">
                 {translate('users.change_admin_password.form.header')}
               </h2>

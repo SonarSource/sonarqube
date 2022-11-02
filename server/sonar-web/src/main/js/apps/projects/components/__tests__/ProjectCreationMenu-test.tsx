@@ -26,7 +26,7 @@ import { AlmKeys } from '../../../../types/alm-settings';
 import { ProjectCreationMenu } from '../ProjectCreationMenu';
 
 jest.mock('../../../../api/alm-settings', () => ({
-  getAlmSettings: jest.fn().mockResolvedValue([])
+  getAlmSettings: jest.fn().mockResolvedValue([]),
 }));
 
 beforeEach(() => {
@@ -57,21 +57,21 @@ it('should filter alm bindings appropriately', async () => {
     .mockResolvedValueOnce([
       // Only faulty configs.
       { alm: AlmKeys.Azure }, // Missing some configuration; will be ignored.
-      { alm: AlmKeys.GitLab } // Missing some configuration; will be ignored.
+      { alm: AlmKeys.GitLab }, // Missing some configuration; will be ignored.
     ])
     .mockResolvedValueOnce([
       // All correct configs.
       { alm: AlmKeys.Azure, url: 'http://ado.example.com' },
       { alm: AlmKeys.BitbucketServer, url: 'b1' },
       { alm: AlmKeys.GitHub },
-      { alm: AlmKeys.GitLab, url: 'gitlab.com' }
+      { alm: AlmKeys.GitLab, url: 'gitlab.com' },
     ])
     .mockResolvedValueOnce([
       // All correct configs.
       { alm: AlmKeys.Azure, url: 'http://ado.example.com' },
       { alm: AlmKeys.BitbucketCloud },
       { alm: AlmKeys.GitHub },
-      { alm: AlmKeys.GitLab, url: 'gitlab.com' }
+      { alm: AlmKeys.GitLab, url: 'gitlab.com' },
     ])
     .mockResolvedValueOnce([
       // Special case for BBS with BBC
@@ -79,7 +79,7 @@ it('should filter alm bindings appropriately', async () => {
       { alm: AlmKeys.BitbucketServer, url: 'b1' },
       { alm: AlmKeys.BitbucketCloud },
       { alm: AlmKeys.GitHub },
-      { alm: AlmKeys.GitLab, url: 'gitlab.com' }
+      { alm: AlmKeys.GitLab, url: 'gitlab.com' },
     ])
     .mockResolvedValueOnce([
       // Only duplicate ALMs; should all be ignored.
@@ -90,7 +90,7 @@ it('should filter alm bindings appropriately', async () => {
       { alm: AlmKeys.GitHub },
       { alm: AlmKeys.GitHub },
       { alm: AlmKeys.GitLab, url: 'gitlab.com' },
-      { alm: AlmKeys.GitLab, url: 'gitlab.com' }
+      { alm: AlmKeys.GitLab, url: 'gitlab.com' },
     ]);
 
   let wrapper = shallowRender();
@@ -103,7 +103,7 @@ it('should filter alm bindings appropriately', async () => {
     AlmKeys.Azure,
     AlmKeys.BitbucketServer,
     AlmKeys.GitHub,
-    AlmKeys.GitLab
+    AlmKeys.GitLab,
   ]);
 
   wrapper = shallowRender();
@@ -112,7 +112,7 @@ it('should filter alm bindings appropriately', async () => {
     AlmKeys.Azure,
     AlmKeys.BitbucketCloud,
     AlmKeys.GitHub,
-    AlmKeys.GitLab
+    AlmKeys.GitLab,
   ]);
 
   wrapper = shallowRender();

@@ -36,13 +36,13 @@ export interface PluginsListProps {
 
 function getPluginStatus(plugin: Plugin, pending: PluginsListProps['pending']): string | undefined {
   const { installing, updating, removing } = pending;
-  if (installing.find(p => p.key === plugin.key)) {
+  if (installing.find((p) => p.key === plugin.key)) {
     return 'installing';
   }
-  if (updating.find(p => p.key === plugin.key)) {
+  if (updating.find((p) => p.key === plugin.key)) {
     return 'updating';
   }
-  if (removing.find(p => p.key === plugin.key)) {
+  if (removing.find((p) => p.key === plugin.key)) {
     return 'removing';
   }
   return undefined;
@@ -54,7 +54,7 @@ export default function PluginsList(props: PluginsListProps) {
   return (
     <div className="boxed-group boxed-group-inner" id="marketplace-plugins">
       <ul>
-        {sortBy(plugins, ({ name }) => name).map(plugin => (
+        {sortBy(plugins, ({ name }) => name).map((plugin) => (
           <li className="panel panel-vertical" key={plugin.key}>
             <table className="marketplace-plugin-table">
               <tbody>

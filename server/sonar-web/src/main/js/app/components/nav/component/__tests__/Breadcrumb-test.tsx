@@ -38,11 +38,11 @@ it('should render correctly when not on a main branch', () => {
         {
           key: 'project',
           name: 'My Project',
-          qualifier: ComponentQualifier.Project
-        }
-      ]
+          qualifier: ComponentQualifier.Project,
+        },
+      ],
     }),
-    currentBranchLike: mockBranch()
+    currentBranchLike: mockBranch(),
   });
   expect(
     screen.getByRole('link', { name: `qualifier.${ComponentQualifier.Project} My Project` })
@@ -57,14 +57,14 @@ function renderBreadcrumb(props: Partial<BreadcrumbProps> = {}) {
           {
             key: 'parent-portfolio',
             name: 'Parent portfolio',
-            qualifier: ComponentQualifier.Portfolio
+            qualifier: ComponentQualifier.Portfolio,
           },
           {
             key: 'child-portfolio',
             name: 'Child portfolio',
-            qualifier: ComponentQualifier.SubPortfolio
-          }
-        ]
+            qualifier: ComponentQualifier.SubPortfolio,
+          },
+        ],
       })}
       currentBranchLike={mockMainBranch()}
       {...props}

@@ -42,7 +42,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
     return null;
   }
 
-  const overallLevel = qgStatuses.map(s => s.status).includes('ERROR') ? 'ERROR' : 'OK';
+  const overallLevel = qgStatuses.map((s) => s.status).includes('ERROR') ? 'ERROR' : 'OK';
   const success = overallLevel === 'OK';
 
   const overallFailedConditionsCount = qgStatuses.reduce(
@@ -53,7 +53,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
   const showIgnoredConditionWarning =
     component.qualifier === 'TRK' &&
     qgStatuses !== undefined &&
-    qgStatuses.some(p => Boolean(p.ignoredConditions));
+    qgStatuses.some((p) => Boolean(p.ignoredConditions));
 
   return (
     <div className="overview-panel" data-test="overview__quality-gate-panel">
@@ -92,8 +92,9 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
             <div
               className={classNames('overview-quality-gate-badge-large', {
                 failed: !success,
-                success
-              })}>
+                success,
+              })}
+            >
               <h3 className="big-spacer-bottom huge">{translate('metric.level', overallLevel)}</h3>
 
               <span className="small">
@@ -108,7 +109,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
             {overallFailedConditionsCount > 0 && (
               <div data-test="overview__quality-gate-conditions">
-                {qgStatuses.map(qgStatus => (
+                {qgStatuses.map((qgStatus) => (
                   <QualityGatePanelSection
                     component={component}
                     key={qgStatus.key}
@@ -121,7 +122,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
         )}
       </div>
       <SonarLintPromotion
-        qgConditions={flatMap(qgStatuses, qgStatus => qgStatus.failedConditions)}
+        qgConditions={flatMap(qgStatuses, (qgStatus) => qgStatus.failedConditions)}
       />
     </div>
   );

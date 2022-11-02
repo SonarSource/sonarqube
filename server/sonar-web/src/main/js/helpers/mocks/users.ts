@@ -22,6 +22,6 @@ import { UserBase } from '../../types/users';
 export function mockUserBase(overrides: Partial<UserBase> = {}): UserBase {
   return {
     login: 'userlogin',
-    ...overrides
+    ...overrides,
   };
 }

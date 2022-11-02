@@ -26,7 +26,7 @@ import { QualityGateProjectStatus } from '../../../../types/quality-gates';
 import BranchStatusContextProvider from '../BranchStatusContextProvider';
 
 jest.mock('../../../../api/quality-gates', () => ({
-  getQualityGateProjectStatus: jest.fn().mockResolvedValue({})
+  getQualityGateProjectStatus: jest.fn().mockResolvedValue({}),
 }));
 
 describe('fetchBranchStatus', () => {
@@ -36,7 +36,7 @@ describe('fetchBranchStatus', () => {
     const status: QualityGateProjectStatus = {
       status: 'OK',
       conditions: [],
-      ignoredConditions: false
+      ignoredConditions: false,
     };
     (getQualityGateProjectStatus as jest.Mock).mockResolvedValueOnce(status);
     const wrapper = shallowRender();
@@ -48,7 +48,7 @@ describe('fetchBranchStatus', () => {
     await waitAndUpdate(wrapper);
 
     expect(wrapper.state().branchStatusByComponent).toEqual({
-      [projectKey]: { [`branch-${branchName}`]: status }
+      [projectKey]: { [`branch-${branchName}`]: status },
     });
   });
 

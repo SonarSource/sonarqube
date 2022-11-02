@@ -25,7 +25,7 @@ const DEFAULT_PROPS = {
   index: 1,
   name: 'code_smells',
   translatedName: 'Code Smells',
-  value: '1.2k'
+  value: '1.2k',
 };
 
 it('should render correctly', () => {

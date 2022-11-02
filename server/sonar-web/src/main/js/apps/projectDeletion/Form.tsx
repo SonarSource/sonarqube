@@ -64,7 +64,8 @@ export class Form extends React.PureComponent<Props> {
           component.name
         )}
         modalHeader={translate('qualifier.delete', component.qualifier)}
-        onConfirm={this.handleDelete}>
+        onConfirm={this.handleDelete}
+      >
         {({ onClick }) => (
           <Button className="button-red" id="delete-project" onClick={onClick}>
             {translate('delete')}

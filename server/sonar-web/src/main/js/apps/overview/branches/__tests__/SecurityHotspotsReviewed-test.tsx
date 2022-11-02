@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
 import { MetricKey } from '../../../../types/metrics';
 import SecurityHotspotsReviewed, {
-  SecurityHotspotsReviewedProps
+  SecurityHotspotsReviewedProps,
 } from '../SecurityHotspotsReviewed';
 
 it('should render correctly', () => {
@@ -37,8 +37,8 @@ function shallowRender(props: Partial<SecurityHotspotsReviewedProps> = {}) {
       measures={[
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.security_hotspots_reviewed }) }),
         mockMeasureEnhanced({
-          metric: mockMetric({ key: MetricKey.new_security_hotspots_reviewed })
-        })
+          metric: mockMetric({ key: MetricKey.new_security_hotspots_reviewed }),
+        }),
       ]}
       {...props}
     />

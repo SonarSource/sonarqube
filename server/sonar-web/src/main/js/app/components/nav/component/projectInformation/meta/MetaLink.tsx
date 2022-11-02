@@ -61,7 +61,8 @@ export default class MetaLink extends React.PureComponent<Props, State> {
           onClick={isValid ? undefined : this.handleClick}
           rel="nofollow noreferrer noopener"
           target="_blank"
-          title={linkTitle}>
+          title={linkTitle}
+        >
           <ProjectLinkIcon className="little-spacer-right" type={link.type} />
           {!iconOnly && linkTitle}
         </a>

@@ -20,5 +20,5 @@
 export enum ProjectInformationPages {
   main,
   badges,
-  notifications
+  notifications,
 }

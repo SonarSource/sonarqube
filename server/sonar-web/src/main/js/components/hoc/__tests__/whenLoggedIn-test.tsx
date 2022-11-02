@@ -44,11 +44,7 @@ it('should not render for anonymous user', () => {
 });
 
 function getRenderedType(wrapper: ShallowWrapper) {
-  return wrapper
-    .dive()
-    .dive()
-    .dive()
-    .type();
+  return wrapper.dive().dive().dive().type();
 }
 
 function shallowRender(isLoggedIn = true) {
@@ -57,8 +53,9 @@ function shallowRender(isLoggedIn = true) {
       value={{
         currentUser: { isLoggedIn, dismissedNotices: {} },
         updateCurrentUserHomepage: () => {},
-        updateDismissedNotices: () => {}
-      }}>
+        updateDismissedNotices: () => {},
+      }}
+    >
       <UnderTest />
     </CurrentUserContext.Provider>
   );

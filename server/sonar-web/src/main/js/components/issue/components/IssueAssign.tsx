@@ -77,7 +77,8 @@ export default class IssueAssign extends React.PureComponent<Props> {
             closeOnEscape={true}
             onRequestClose={this.handleClose}
             open={isOpen}
-            overlay={<SetAssigneePopup onSelect={this.props.onAssign} />}>
+            overlay={<SetAssigneePopup onSelect={this.props.onAssign} />}
+          >
             <Tooltip overlay={assigneeName}>
               <ButtonLink
                 aria-expanded={isOpen}
@@ -90,7 +91,8 @@ export default class IssueAssign extends React.PureComponent<Props> {
                     : translate('issue.assign.unassigned_click_to_assign')
                 }
                 className="issue-action issue-action-with-options js-issue-assign"
-                onClick={this.toggleAssign}>
+                onClick={this.toggleAssign}
+              >
                 {this.renderAssignee()}
                 <DropdownIcon className="little-spacer-left" />
               </ButtonLink>

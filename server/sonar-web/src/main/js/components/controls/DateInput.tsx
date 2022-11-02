@@ -32,7 +32,7 @@ import {
   getShortMonthName,
   getShortWeekDayName,
   getWeekDayName,
-  translate
+  translate,
 } from '../../helpers/l10n';
 import './DayPicker.css';
 import EscKeydownHandler from './EscKeydownHandler';
@@ -86,7 +86,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
     this.setState({
       currentMonth: this.props.value || this.props.currentMonth || new Date(),
       lastHovered: undefined,
-      open: true
+      open: true,
     });
   };
 
@@ -110,15 +110,15 @@ export default class DateInput extends React.PureComponent<Props, State> {
   };
 
   handleCurrentYearChange = ({ value }: { value: number }) => {
-    this.setState(state => ({ currentMonth: setYear(state.currentMonth, value) }));
+    this.setState((state) => ({ currentMonth: setYear(state.currentMonth, value) }));
   };
 
   handlePreviousMonthClick = () => {
-    this.setState(state => ({ currentMonth: subMonths(state.currentMonth, 1) }));
+    this.setState((state) => ({ currentMonth: subMonths(state.currentMonth, 1) }));
   };
 
   handleNextMonthClick = () => {
-    this.setState(state => ({ currentMonth: addMonths(state.currentMonth, 1) }));
+    this.setState((state) => ({ currentMonth: addMonths(state.currentMonth, 1) }));
   };
 
   render() {
@@ -131,7 +131,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
       className,
       inputClassName,
       id,
-      placeholder
+      placeholder,
     } = this.props;
     const { lastHovered, currentMonth, open } = this.state;
 
@@ -156,11 +156,11 @@ export default class DateInput extends React.PureComponent<Props, State> {
     const weekdaysLong = range(7).map(getWeekDayName) as Week;
     const weekdaysShort = range(7).map(getShortWeekDayName) as Week;
 
-    const monthOptions = months.map(month => ({
+    const monthOptions = months.map((month) => ({
       label: getShortMonthName(month),
-      value: month
+      value: month,
     }));
-    const yearOptions = years.map(year => ({ label: String(year), value: year }));
+    const yearOptions = years.map((year) => ({ label: String(year), value: year }));
 
     return (
       <OutsideClickHandler onClickOutside={this.closeCalendar}>
@@ -168,7 +168,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
           <span className={classNames('date-input-control', className)}>
             <InputWrapper
               className={classNames('date-input-control-input', inputClassName, {
-                'is-filled': value !== undefined
+                'is-filled': value !== undefined,
               })}
               id={id}
               innerRef={(node: HTMLInputElement | null) => (this.input = node)}
@@ -200,14 +200,14 @@ export default class DateInput extends React.PureComponent<Props, State> {
                       className="date-input-calender-month-select"
                       onChange={this.handleCurrentMonthChange}
                       options={monthOptions}
-                      value={monthOptions.find(month => month.value === currentMonth.getMonth())}
+                      value={monthOptions.find((month) => month.value === currentMonth.getMonth())}
                     />
                     <Select
                       aria-label={translate('select_year')}
                       className="date-input-calender-month-select spacer-left"
                       onChange={this.handleCurrentYearChange}
                       options={yearOptions}
-                      value={yearOptions.find(year => year.value === currentMonth.getFullYear())}
+                      value={yearOptions.find((year) => year.value === currentMonth.getFullYear())}
                     />
                   </div>
                   <ButtonIcon className="button-small" onClick={this.handleNextMonthClick}>

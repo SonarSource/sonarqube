@@ -58,7 +58,8 @@ export function Status(props: StatusProps) {
       <div className="spacer-top">
         <Tooltip
           overlay={readonly ? translate('hotspots.status.cannot_change_status') : null}
-          placement="bottom">
+          placement="bottom"
+        >
           <div className="dropdown">
             <Toggler
               closeOnClickOutside={true}
@@ -69,7 +70,7 @@ export function Status(props: StatusProps) {
                 <DropdownOverlay noPadding={true} placement={PopupPlacement.Bottom}>
                   <StatusSelection
                     hotspot={hotspot}
-                    onStatusOptionChange={async status => {
+                    onStatusOptionChange={async (status) => {
                       await props.onStatusChange(status);
                       setIsOpen(false);
                     }}
@@ -77,12 +78,14 @@ export function Status(props: StatusProps) {
                     setComment={setComment}
                   />
                 </DropdownOverlay>
-              }>
+              }
+            >
               <Button
                 className="dropdown-toggle big-spacer-left"
                 id="status-trigger"
                 onClick={() => setIsOpen(true)}
-                disabled={readonly}>
+                disabled={readonly}
+              >
                 <span>{translate('hotspots.status.select_status')}</span>
                 <DropdownIcon className="little-spacer-left" />
               </Button>

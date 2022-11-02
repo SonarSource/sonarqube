@@ -36,7 +36,8 @@ export default function GlobalMessage(props: GlobalMessageProps) {
     <MessageBox
       data-test={`global-message__${message.level}`}
       level={message.level}
-      role={message.level === 'SUCCESS' ? 'status' : 'alert'}>
+      role={message.level === 'SUCCESS' ? 'status' : 'alert'}
+    >
       {cutLongWords(message.text)}
       <CloseButton
         className="button-small"

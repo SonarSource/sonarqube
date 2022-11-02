@@ -26,6 +26,6 @@ export function mockUserToken(overrides: Partial<UserToken> = {}): UserToken {
     createdAt: '2019-06-14T09:45:52+0200',
     type: TokenType.User,
     isExpired: false,
-    ...overrides
+    ...overrides,
   };
 }

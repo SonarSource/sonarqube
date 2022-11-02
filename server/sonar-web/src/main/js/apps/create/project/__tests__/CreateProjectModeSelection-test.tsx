@@ -24,7 +24,7 @@ import { click } from '../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import {
   CreateProjectModeSelection,
-  CreateProjectModeSelectionProps
+  CreateProjectModeSelectionProps,
 } from '../CreateProjectModeSelection';
 import { CreateProjectModes } from '../types';
 
@@ -54,7 +54,7 @@ it('should render correctly', () => {
         [AlmKeys.BitbucketCloud]: 0,
         [AlmKeys.BitbucketServer]: 0,
         [AlmKeys.GitHub]: 0,
-        [AlmKeys.GitLab]: 0
+        [AlmKeys.GitLab]: 0,
       }
     )
   ).toMatchSnapshot('no alm conf yet, admin');
@@ -140,7 +140,7 @@ function shallowRender(
     [AlmKeys.BitbucketServer]: 1,
     [AlmKeys.GitHub]: 1,
     [AlmKeys.GitLab]: 1,
-    ...almCountOverrides
+    ...almCountOverrides,
   };
   return shallow<CreateProjectModeSelectionProps>(
     <CreateProjectModeSelection

@@ -35,7 +35,7 @@ export default function ProfileRulesSonarWayComparison(props: Props) {
     qprofile: props.profile,
     activation: 'false',
     compareToProfile: props.sonarway,
-    languages: props.language
+    languages: props.language,
   });
 
   return (

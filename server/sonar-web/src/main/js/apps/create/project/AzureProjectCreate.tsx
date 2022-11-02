@@ -24,7 +24,7 @@ import {
   getAzureRepositories,
   importAzureRepository,
   searchAzureRepositories,
-  setAlmPersonalAccessToken
+  setAlmPersonalAccessToken,
 } from '../../../api/alm-integrations';
 import { Location, Router } from '../../../components/hoc/withRouter';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
@@ -70,7 +70,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       loading: false,
       loadingRepositories: {},
       repositories: {},
-      tokenValidationFailed: false
+      tokenValidationFailed: false,
     };
   }
 
@@ -110,7 +110,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       firstProjectName = projects[0].name;
 
       this.setState(({ loadingRepositories }) => ({
-        loadingRepositories: { ...loadingRepositories, [firstProjectName]: true }
+        loadingRepositories: { ...loadingRepositories, [firstProjectName]: true },
       }));
 
       const repos = await this.fetchAzureRepositories(firstProjectName);
@@ -128,7 +128,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
           loading: false,
           loadingRepositories: { ...loadingRepositories },
           projects,
-          repositories
+          repositories,
         };
       });
     }
@@ -168,14 +168,14 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     }
 
     this.setState(({ loadingRepositories }) => ({
-      loadingRepositories: { ...loadingRepositories, [projectName]: true }
+      loadingRepositories: { ...loadingRepositories, [projectName]: true },
     }));
 
     const projectRepos = await this.fetchAzureRepositories(projectName);
 
     this.setState(({ loadingRepositories, repositories }) => ({
       loadingRepositories: { ...loadingRepositories, [projectName]: false },
-      repositories: { ...repositories, [projectName]: projectRepos }
+      repositories: { ...repositories, [projectName]: projectRepos },
     }));
   };
 
@@ -204,7 +204,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       this.setState({
         searching: false,
         searchResults,
-        searchQuery
+        searchQuery,
       });
     }
   };
@@ -291,7 +291,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       selectedRepository,
       settings,
       submittingToken,
-      tokenValidationFailed
+      tokenValidationFailed,
     } = this.state;
 
     return (

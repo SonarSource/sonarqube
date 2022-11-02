@@ -186,5 +186,5 @@ function getFacet(facets: Facets | undefined, name: string) {
 }
 
 function getMaxFacetValue(facets?: Facets) {
-  return facets && Math.max(...flatMap(Object.values(facets), facet => Object.values(facet)));
+  return facets && Math.max(...flatMap(Object.values(facets), (facet) => Object.values(facet)));
 }

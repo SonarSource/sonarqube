@@ -26,12 +26,12 @@ export function mockEvent(overrides = {}) {
     target: {
       blur() {
         /* noop */
-      }
+      },
     },
     currentTarget: {
       blur() {
         /* noop */
-      }
+      },
     },
     preventDefault() {
       /* noop */
@@ -42,7 +42,7 @@ export function mockEvent(overrides = {}) {
     stopImmediatePropagation() {
       /* noop */
     },
-    ...overrides
+    ...overrides,
   } as any;
 }
 
@@ -65,7 +65,7 @@ export function clickOutside(event = {}): void {
 
 export function submit(element: ShallowWrapper | ReactWrapper): void {
   element.simulate('submit', {
-    preventDefault() {}
+    preventDefault() {},
   });
 }
 
@@ -84,7 +84,7 @@ export function change(
     element.simulate('change', {
       target: { value },
       currentTarget: { value },
-      ...event
+      ...event,
     });
   }
 }
@@ -94,7 +94,7 @@ export const KEYCODE_MAP: { [code in KeyboardKeys]?: string } = {
   [KeyboardKeys.LeftArrow]: 'left',
   [KeyboardKeys.UpArrow]: 'up',
   [KeyboardKeys.RightArrow]: 'right',
-  [KeyboardKeys.DownArrow]: 'down'
+  [KeyboardKeys.DownArrow]: 'down',
 };
 
 export function keydown(args: { key?: KeyboardKeys; metaKey?: boolean; ctrlKey?: boolean }): void {
@@ -109,13 +109,13 @@ export function resizeWindowTo(width?: number, height?: number) {
   if (width) {
     Object.defineProperty(document.documentElement, 'clientWidth', {
       configurable: true,
-      value: width
+      value: width,
     });
   }
   if (height) {
     Object.defineProperty(document.documentElement, 'clientHeight', {
       configurable: true,
-      value: height
+      value: height,
     });
   }
 
@@ -134,13 +134,13 @@ export function setNodeRect({ width = 50, height = 50, left = 0, top = 0 }) {
   const { findDOMNode } = require('react-dom');
   const element = document.createElement('div');
   Object.defineProperty(element, 'getBoundingClientRect', {
-    value: () => ({ width, height, left, top })
+    value: () => ({ width, height, left, top }),
   });
   findDOMNode.mockReturnValue(element);
 }
 
 export function doAsync(fn?: Function): Promise<void> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setImmediate(() => {
       if (fn) {
         fn();

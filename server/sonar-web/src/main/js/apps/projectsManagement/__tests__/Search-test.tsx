@@ -48,17 +48,17 @@ it('updates qualifier', () => {
   const onQualifierChanged = jest.fn();
   const wrapper = shallowRender({
     onQualifierChanged,
-    appState: mockAppState({ qualifiers: ['TRK', 'VW', 'APP'] })
+    appState: mockAppState({ qualifiers: ['TRK', 'VW', 'APP'] }),
   });
   wrapper.find('Select[name="projects-qualifier"]').simulate('change', {
-    value: 'VW'
+    value: 'VW',
   });
   expect(onQualifierChanged).toHaveBeenCalledWith('VW');
 });
 
 it('renders optionrenderer and singlevaluerenderer', () => {
   const wrapper = shallowRender({
-    appState: mockAppState({ qualifiers: ['TRK', 'VW', 'APP'] })
+    appState: mockAppState({ qualifiers: ['TRK', 'VW', 'APP'] }),
   });
   const OptionRendererer = wrapper.instance().optionRenderer;
   const SingleValueRendererer = wrapper.instance().singleValueRenderer;

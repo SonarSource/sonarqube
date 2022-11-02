@@ -31,12 +31,12 @@ jest.mock('lunr', () =>
   jest.fn(() => ({
     search: jest.fn(() => [
       {
-        ref: 'foo'
+        ref: 'foo',
       },
       {
-        ref: 'sonar.new_code_period'
-      }
-    ])
+        ref: 'sonar.new_code_period',
+      },
+    ]),
   }))
 );
 
@@ -108,7 +108,7 @@ describe('instance', () => {
     expect(router.push).toHaveBeenCalledWith({
       hash: '#foo',
       pathname: '/admin/settings',
-      search: queryToSearch({ category: 'foo category' })
+      search: queryToSearch({ category: 'foo category' }),
     });
   });
 

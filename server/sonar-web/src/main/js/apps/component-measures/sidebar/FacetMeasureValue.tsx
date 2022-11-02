@@ -33,7 +33,8 @@ export default function FacetMeasureValue({ measure, displayLeak }: Props) {
     return (
       <div
         className={classNames('domain-measures-value', { 'leak-box': displayLeak })}
-        id={`measure-${measure.metric.key}-leak`}>
+        id={`measure-${measure.metric.key}-leak`}
+      >
         <Measure
           metricKey={measure.metric.key}
           metricType={measure.metric.type}

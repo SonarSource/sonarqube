@@ -50,7 +50,7 @@ function smoothScroll(
   const step = Math.ceil(Math.abs(target - current) / SCROLLING_STEPS);
   let stepsDone = 0;
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const interval = setInterval(() => {
       if (current === target || SCROLLING_STEPS === stepsDone) {
         clearInterval(interval);
@@ -72,12 +72,12 @@ function smoothScroll(
 
 function smoothScrollTop(parent: Element | Window, position: number) {
   const scroll = getScroll(parent);
-  return smoothScroll(position, scroll.y, position => scrollElement(parent, scroll.x, position));
+  return smoothScroll(position, scroll.y, (position) => scrollElement(parent, scroll.x, position));
 }
 
 function smoothScrollLeft(parent: Element | Window, position: number) {
   const scroll = getScroll(parent);
-  return smoothScroll(position, scroll.x, position => scrollElement(parent, position, scroll.y));
+  return smoothScroll(position, scroll.x, (position) => scrollElement(parent, position, scroll.y));
 }
 
 /**
@@ -194,9 +194,7 @@ function processQueue() {
   if (queue.length > 0) {
     queueRunning = true;
     const { fn, element, x, y } = queue.shift()!;
-    fn(element, x, y)
-      .then(processQueue)
-      .catch(processQueue);
+    fn(element, x, y).then(processQueue).catch(processQueue);
   } else {
     queueRunning = false;
   }

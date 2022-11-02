@@ -21,7 +21,7 @@ import * as React from 'react';
 import {
   commentSecurityHotspot,
   deleteSecurityHotspotComment,
-  editSecurityHotspotComment
+  editSecurityHotspotComment,
 } from '../../../api/security-hotspots';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { Button } from '../../../components/controls/buttons';
@@ -47,7 +47,7 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
     super(props);
     this.state = {
       comment: '',
-      showFullHistory: false
+      showFullHistory: false,
     };
   }
 
@@ -55,7 +55,7 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
     if (prevProps.hotspot.key !== this.props.hotspot.key) {
       this.setState({
         comment: '',
-        showFullHistory: false
+        showFullHistory: false,
       });
     }
   }
@@ -109,7 +109,8 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
                 <Button
                   className="huge-spacer-bottom"
                   id="hotspot-comment-box-submit"
-                  onClick={this.handleSubmitComment}>
+                  onClick={this.handleSubmitComment}
+                >
                   {translate('hotspots.comment.submit')}
                 </Button>
               </div>

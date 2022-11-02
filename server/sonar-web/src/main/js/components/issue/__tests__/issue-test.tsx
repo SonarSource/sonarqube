@@ -43,10 +43,10 @@ it('should call the proper function with the proper props when pressing shortcut
         authorLogin: 'admin',
         authorName: 'Admin',
         authorAvatar: 'admin-avatar',
-        authorActive: true
-      }
+        authorActive: true,
+      },
     ],
-    actions: ['assign']
+    actions: ['assign'],
   });
 
   shallowRender({ onPopupToggle, issue, onCheck });
@@ -97,9 +97,9 @@ function shallowRender(props: Partial<Issue['props']> = {}) {
             authorLogin: 'admin',
             authorName: 'Admin',
             authorAvatar: 'admin-avatar',
-            authorActive: true
-          }
-        ]
+            authorActive: true,
+          },
+        ],
       })}
       onChange={jest.fn()}
       onCheck={jest.fn()}

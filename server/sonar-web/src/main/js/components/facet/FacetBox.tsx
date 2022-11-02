@@ -30,7 +30,8 @@ export default function FacetBox(props: FacetBoxProps) {
   return (
     <div
       className={classNames('search-navigator-facet-box', props.className)}
-      data-property={props.property}>
+      data-property={props.property}
+    >
       {props.children}
     </div>
   );

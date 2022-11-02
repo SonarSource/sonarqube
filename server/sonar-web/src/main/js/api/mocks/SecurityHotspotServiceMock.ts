@@ -39,7 +39,7 @@ export default class SecurityHotspotServiceMock {
     this.rawHotspotKey = Object.keys(mockRawHotspot());
     this.hotspots = [
       mockHotspot({ key: '1', status: HotspotStatus.TO_REVIEW }),
-      mockHotspot({ key: '2', status: HotspotStatus.TO_REVIEW })
+      mockHotspot({ key: '2', status: HotspotStatus.TO_REVIEW }),
     ];
 
     (getMeasures as jest.Mock).mockImplementation(this.handleGetMeasures);
@@ -49,10 +49,10 @@ export default class SecurityHotspotServiceMock {
     );
     (getRuleDetails as jest.Mock).mockResolvedValue({ rule: mockRuleDetails() });
     (getSources as jest.Mock).mockResolvedValue(
-      times(NUMBER_OF_LINES, n =>
+      times(NUMBER_OF_LINES, (n) =>
         mockSourceLine({
           line: n,
-          code: '  <span class="sym-35 sym">symbole</span>'
+          code: '  <span class="sym-35 sym">symbole</span>',
         })
       )
     );
@@ -60,7 +60,7 @@ export default class SecurityHotspotServiceMock {
 
   handleGetSources = (data: { key: string; from?: number; to?: number } & BranchParameters) => {
     return this.reply(
-      range(data.from || 1, data.to || MAX_END_RANGE).map(line => mockSourceLine({ line }))
+      range(data.from || 1, data.to || MAX_END_RANGE).map((line) => mockSourceLine({ line }))
     );
   };
 
@@ -77,31 +77,31 @@ export default class SecurityHotspotServiceMock {
   ) => {
     return this.reply({
       paging: { pageIndex: 1, pageSize: data.ps, total: this.hotspots.length },
-      hotspots: this.hotspots.map(hotspot => pick(hotspot, this.rawHotspotKey)),
+      hotspots: this.hotspots.map((hotspot) => pick(hotspot, this.rawHotspotKey)),
       components: [
         {
           key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed:index.php',
           qualifier: 'FIL',
           name: 'index.php',
           longName: 'index.php',
-          path: 'index.php'
+          path: 'index.php',
         },
         {
           key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
           qualifier: 'TRK',
           name: 'benflix',
-          longName: 'benflix'
-        }
-      ]
+          longName: 'benflix',
+        },
+      ],
     });
   };
 
   handleGetSecurityHotspotDetails = (securityHotspotKey: string) => {
-    const hotspot = this.hotspots.find(h => h.key === securityHotspotKey);
+    const hotspot = this.hotspots.find((h) => h.key === securityHotspotKey);
 
     if (hotspot === undefined) {
       return Promise.reject({
-        errors: [{ msg: `No security hotspot for key ${securityHotspotKey}` }]
+        errors: [{ msg: `No security hotspot for key ${securityHotspotKey}` }],
       });
     }
 
@@ -115,9 +115,9 @@ export default class SecurityHotspotServiceMock {
           key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
           name: 'benflix',
           qualifier: 'TRK',
-          measures: [{ metric: 'security_hotspots_reviewed', value: '0.0', bestValue: false }]
-        }
-      }
+          measures: [{ metric: 'security_hotspots_reviewed', value: '0.0', bestValue: false }],
+        },
+      },
     ]);
   };
 
@@ -129,7 +129,7 @@ export default class SecurityHotspotServiceMock {
     this.rawHotspotKey = Object.keys(mockRawHotspot());
     this.hotspots = [
       mockHotspot({ key: '1', status: HotspotStatus.TO_REVIEW }),
-      mockHotspot({ key: '2', status: HotspotStatus.TO_REVIEW })
+      mockHotspot({ key: '2', status: HotspotStatus.TO_REVIEW }),
     ];
   };
 }

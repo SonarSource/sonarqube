@@ -31,14 +31,14 @@ const ANALYSES = [
       {
         key: 'E1',
         category: 'VERSION',
-        name: '6.5-SNAPSHOT'
-      }
-    ]
+        name: '6.5-SNAPSHOT',
+      },
+    ],
   },
   {
     key: 'A2',
     date: parseDate('2016-10-27T12:21:15+0200'),
-    events: []
+    events: [],
   },
   {
     key: 'A3',
@@ -47,15 +47,15 @@ const ANALYSES = [
       {
         key: 'E2',
         category: 'VERSION',
-        name: '6.4'
+        name: '6.4',
       },
       {
         key: 'E3',
         category: 'OTHER',
-        name: 'foo'
-      }
-    ]
-  }
+        name: 'foo',
+      },
+    ],
+  },
 ];
 
 const DEFAULT_PROPS = {
@@ -72,7 +72,7 @@ const DEFAULT_PROPS = {
   project: {
     key: 'foo',
     leakPeriodDate: '2017-05-16T13:50:02+0200',
-    qualifier: 'TRK'
+    qualifier: 'TRK',
   },
   metrics: [{ id: '1', key: 'code_smells', name: 'Code Smells', type: 'INT' }],
   measuresHistory: [
@@ -80,17 +80,17 @@ const DEFAULT_PROPS = {
       metric: 'code_smells',
       history: [
         { date: parseDate('Fri Mar 04 2016 10:40:12 GMT+0100 (CET)'), value: '1749' },
-        { date: parseDate('Fri Mar 04 2016 18:40:16 GMT+0100 (CET)'), value: '2286' }
-      ]
-    }
+        { date: parseDate('Fri Mar 04 2016 18:40:16 GMT+0100 (CET)'), value: '2286' },
+      ],
+    },
   ],
   query: {
     category: '',
     customMetrics: [],
     graph: DEFAULT_GRAPH,
-    project: 'org.sonarsource.sonarqube:sonarqube'
+    project: 'org.sonarsource.sonarqube:sonarqube',
   },
-  updateQuery: () => {}
+  updateQuery: () => {},
 };
 
 it('should render correctly', () => {

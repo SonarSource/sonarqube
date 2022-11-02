@@ -59,7 +59,8 @@ export default function DismissableAlert(props: DismissableAlertProps) {
             onClick={() => {
               hideAlert();
               setShow(false);
-            }}>
+            }}
+          >
             <ClearIcon size={12} thin={true} />
           </ButtonIcon>
         </div>

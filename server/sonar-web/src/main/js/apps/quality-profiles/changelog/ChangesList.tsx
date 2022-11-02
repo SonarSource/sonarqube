@@ -34,7 +34,7 @@ export default function ChangesList({ changes }: Props) {
 
   return (
     <ul>
-      {Object.keys(changes).map(key => (
+      {Object.keys(changes).map((key) => (
         <li key={key}>
           {key === 'severity' ? (
             renderSeverity(key)

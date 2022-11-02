@@ -28,11 +28,11 @@ jest.mock('../../../api/components', () => ({
   createProject: jest.fn().mockResolvedValue({}),
   doesComponentExists: jest
     .fn()
-    .mockImplementation(({ component }) => Promise.resolve(component === 'exists'))
+    .mockImplementation(({ component }) => Promise.resolve(component === 'exists')),
 }));
 
 jest.mock('../../../api/settings', () => ({
-  getValue: jest.fn().mockResolvedValue({ value: 'main' })
+  getValue: jest.fn().mockResolvedValue({ value: 'main' }),
 }));
 
 beforeEach(() => {
@@ -45,27 +45,27 @@ it('should render all inputs and create a project', async () => {
 
   await user.type(
     screen.getByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required'
+      name: 'onboarding.create_project.display_name field_required',
     }),
     'ProjectName'
   );
 
   await user.type(
     screen.getByRole('textbox', {
-      name: 'onboarding.create_project.project_key field_required'
+      name: 'onboarding.create_project.project_key field_required',
     }),
     'ProjectKey'
   );
 
   expect(
     screen.getByRole('textbox', {
-      name: 'onboarding.create_project.main_branch_name field_required'
+      name: 'onboarding.create_project.main_branch_name field_required',
     })
   ).toHaveValue('main');
 
   await user.type(
     screen.getByRole('textbox', {
-      name: 'onboarding.create_project.main_branch_name field_required'
+      name: 'onboarding.create_project.main_branch_name field_required',
     }),
     '{Control>}a{/Control}{Backspace}ProjectMainBranch'
   );
@@ -74,7 +74,7 @@ it('should render all inputs and create a project', async () => {
   expect(createProject).toHaveBeenCalledWith({
     name: 'ProjectName',
     project: 'ProjectKey',
-    mainBranch: 'ProjectMainBranch'
+    mainBranch: 'ProjectMainBranch',
   });
 });
 

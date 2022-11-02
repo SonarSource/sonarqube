@@ -26,7 +26,7 @@ import AppStateContextProvider, { AppStateContextProviderProps } from '../AppSta
 it('should set value correctly', async () => {
   const appState = mockAppState({ settings: { 'sonar.lf.logoUrl': 'whatevs/' } });
   const wrapper = render({
-    appState
+    appState,
   });
   await waitAndUpdate(wrapper);
 

@@ -30,7 +30,7 @@ interface State {
 export default class LanguagesContextProvider extends React.PureComponent<{}, State> {
   mounted = false;
   state: State = {
-    languages: {}
+    languages: {},
   };
 
   componentDidMount() {

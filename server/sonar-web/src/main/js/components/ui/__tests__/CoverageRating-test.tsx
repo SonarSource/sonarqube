@@ -26,22 +26,19 @@ it('should render correctly', () => {
 });
 
 it('should render with muted style', () => {
-  expect(
-    shallowRender({ muted: true })
-      .find('DonutChart')
-      .prop('data')
-  ).toEqual([
+  expect(shallowRender({ muted: true }).find('DonutChart').prop('data')).toEqual([
     { fill: '#b4b4b4', value: 25 },
-    { fill: 'transparent', value: 75 }
+    { fill: 'transparent', value: 75 },
   ]);
 });
 
 it('should render with small size', () => {
-  expect(
-    shallowRender({ size: 'small' })
-      .find('DonutChart')
-      .props()
-  ).toMatchObject({ height: 20, padAngle: 0.1, thickness: 3, width: 20 });
+  expect(shallowRender({ size: 'small' }).find('DonutChart').props()).toMatchObject({
+    height: 20,
+    padAngle: 0.1,
+    thickness: 3,
+    width: 20,
+  });
 });
 
 it('should correctly handle padAngle for 0% and 100% coverage', () => {

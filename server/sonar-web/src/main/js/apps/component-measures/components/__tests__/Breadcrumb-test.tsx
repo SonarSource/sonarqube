@@ -29,7 +29,7 @@ it('should show the last element without clickable link', () => {
         component={{
           key: 'foo',
           name: 'Foo',
-          qualifier: 'TRK'
+          qualifier: 'TRK',
         }}
         handleSelect={() => {}}
         isLast={true}
@@ -46,7 +46,7 @@ it('should correctly show a middle element', () => {
         component={{
           key: 'foo',
           name: 'Foo',
-          qualifier: 'TRK'
+          qualifier: 'TRK',
         }}
         handleSelect={() => {}}
         isLast={false}

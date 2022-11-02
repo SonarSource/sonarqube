@@ -39,7 +39,8 @@ export default function MeasuresLink(props: MeasuresLinkProps) {
   return (
     <Link
       className={classNames('measures-link', className)}
-      to={getComponentDrilldownUrl({ branchLike, componentKey: component, metric })}>
+      to={getComponentDrilldownUrl({ branchLike, componentKey: component, metric })}
+    >
       <MeasuresIcon className="little-spacer-right" size={14} />
       <span>{label || translate('portfolio.measures_link')}</span>
     </Link>

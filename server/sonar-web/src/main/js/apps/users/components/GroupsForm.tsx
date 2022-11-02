@@ -24,7 +24,7 @@ import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
 import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
-  SelectListSearchParams
+  SelectListSearchParams,
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { User } from '../../../types/users';
@@ -52,7 +52,7 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
     this.state = {
       needToReload: false,
       groups: [],
-      selectedGroups: []
+      selectedGroups: [],
     };
   }
 
@@ -70,14 +70,14 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
       p: searchParams.page,
       ps: searchParams.pageSize,
       q: searchParams.query !== '' ? searchParams.query : undefined,
-      selected: searchParams.filter
-    }).then(data => {
+      selected: searchParams.filter,
+    }).then((data) => {
       if (this.mounted) {
-        this.setState(prevState => {
+        this.setState((prevState) => {
           const more = searchParams.page != null && searchParams.page > 1;
 
           const groups = more ? [...prevState.groups, ...data.groups] : data.groups;
-          const newSeletedGroups = data.groups.filter(gp => gp.selected).map(gp => gp.name);
+          const newSeletedGroups = data.groups.filter((gp) => gp.selected).map((gp) => gp.name);
           const selectedGroups = more
             ? [...prevState.selectedGroups, ...newSeletedGroups]
             : newSeletedGroups;
@@ -87,7 +87,7 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
             needToReload: false,
             groups,
             groupsTotalCount: data.paging.total,
-            selectedGroups
+            selectedGroups,
           };
         });
       }
@@ -96,12 +96,12 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
   handleSelect = (name: string) =>
     addUserToGroup({
       name,
-      login: this.props.user.login
+      login: this.props.user.login,
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
           needToReload: true,
-          selectedGroups: [...state.selectedGroups, name]
+          selectedGroups: [...state.selectedGroups, name],
         }));
       }
     });
@@ -109,12 +109,12 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
   handleUnselect = (name: string) =>
     removeUserFromGroup({
       name,
-      login: this.props.user.login
+      login: this.props.user.login,
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
           needToReload: true,
-          selectedGroups: without(state.selectedGroups, name)
+          selectedGroups: without(state.selectedGroups, name),
         }));
       }
     });
@@ -157,7 +157,7 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
 
         <div className="modal-body modal-container">
           <SelectList
-            elements={this.state.groups.map(group => group.name)}
+            elements={this.state.groups.map((group) => group.name)}
             elementsTotalCount={this.state.groupsTotalCount}
             needToReload={
               this.state.needToReload &&

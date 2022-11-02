@@ -32,7 +32,7 @@ const UPGRADES = [
       releaseDate: '2017-06-02',
       changeLogUrl: 'changelogurl',
       downloadUrl: 'downloadurl',
-      plugins: {}
+      plugins: {},
     },
     {
       version: '6.3',
@@ -40,8 +40,8 @@ const UPGRADES = [
       releaseDate: '2017-05-02',
       changeLogUrl: 'changelogurl',
       downloadUrl: 'downloadurl',
-      plugins: {}
-    }
+      plugins: {},
+    },
   ],
   [
     {
@@ -50,7 +50,7 @@ const UPGRADES = [
       releaseDate: '2017-03-01',
       changeLogUrl: 'changelogurl',
       downloadUrl: 'downloadurl',
-      plugins: {}
+      plugins: {},
     },
     {
       version: '5.6.6',
@@ -58,7 +58,7 @@ const UPGRADES = [
       releaseDate: '2017-04-02',
       changeLogUrl: 'changelogurl',
       downloadUrl: 'downloadurl',
-      plugins: {}
+      plugins: {},
     },
     {
       version: '5.6.5',
@@ -66,14 +66,14 @@ const UPGRADES = [
       releaseDate: '2017-03-01',
       changeLogUrl: 'changelogurl',
       downloadUrl: 'downloadurl',
-      plugins: {}
-    }
-  ]
+      plugins: {},
+    },
+  ],
 ];
 
 it.each([...Object.values(UpdateUseCase), undefined])(
   'should display correctly for %s',
-  updateUseCase => {
+  (updateUseCase) => {
     expect(
       shallow(
         <SystemUpgradeForm

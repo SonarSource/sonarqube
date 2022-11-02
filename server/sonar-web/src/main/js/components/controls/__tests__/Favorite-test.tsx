@@ -26,7 +26,7 @@ import Favorite from '../Favorite';
 
 jest.mock('../../../api/favorites', () => ({
   addFavorite: jest.fn().mockResolvedValue(null),
-  removeFavorite: jest.fn().mockResolvedValue(null)
+  removeFavorite: jest.fn().mockResolvedValue(null),
 }));
 
 it('renders and behaves correctly', async () => {

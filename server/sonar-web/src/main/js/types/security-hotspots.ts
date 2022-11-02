@@ -24,32 +24,32 @@ import { UserBase } from './users';
 export enum RiskExposure {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH'
+  HIGH = 'HIGH',
 }
 
 export enum HotspotStatus {
   TO_REVIEW = 'TO_REVIEW',
-  REVIEWED = 'REVIEWED'
+  REVIEWED = 'REVIEWED',
 }
 
 export enum HotspotResolution {
   FIXED = 'FIXED',
   SAFE = 'SAFE',
-  ACKNOWLEDGED = 'ACKNOWLEDGED'
+  ACKNOWLEDGED = 'ACKNOWLEDGED',
 }
 
 export enum HotspotStatusFilter {
   FIXED = 'FIXED',
   SAFE = 'SAFE',
   TO_REVIEW = 'TO_REVIEW',
-  ACKNOWLEDGED = 'ACKNOWLEDGED'
+  ACKNOWLEDGED = 'ACKNOWLEDGED',
 }
 
 export enum HotspotStatusOption {
   FIXED = 'FIXED',
   SAFE = 'SAFE',
   TO_REVIEW = 'TO_REVIEW',
-  ACKNOWLEDGED = 'ACKNOWLEDGED'
+  ACKNOWLEDGED = 'ACKNOWLEDGED',
 }
 
 export interface HotspotFilters {
@@ -151,7 +151,7 @@ export interface ReviewHistoryElement {
 export enum ReviewHistoryType {
   Creation,
   Diff,
-  Comment
+  Comment,
 }
 
 export interface HotspotSearchResponse {

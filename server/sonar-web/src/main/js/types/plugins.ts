@@ -73,13 +73,13 @@ export interface Update {
 
 export enum PluginType {
   Bundled = 'BUNDLED',
-  External = 'EXTERNAL'
+  External = 'EXTERNAL',
 }
 
 export enum RiskConsent {
   Accepted = 'ACCEPTED',
   NotAccepted = 'NOT_ACCEPTED',
-  Required = 'REQUIRED'
+  Required = 'REQUIRED',
 }
 
 export function isAvailablePlugin(plugin: Plugin): plugin is AvailablePlugin {

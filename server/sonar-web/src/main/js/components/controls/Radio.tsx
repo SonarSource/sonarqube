@@ -53,7 +53,8 @@ export default class Radio extends React.PureComponent<Props> {
         )}
         href="#"
         onClick={this.handleClick}
-        role="radio">
+        role="radio"
+      >
         <i className={classNames('icon-radio', 'spacer-right', { 'is-checked': checked })} />
         {children}
       </a>

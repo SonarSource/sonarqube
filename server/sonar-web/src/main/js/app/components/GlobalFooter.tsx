@@ -62,7 +62,8 @@ export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) 
           <a
             href="https://www.gnu.org/licenses/lgpl-3.0.txt"
             rel="noopener noreferrer"
-            target="_blank">
+            target="_blank"
+          >
             {translate('footer.license')}
           </a>
         </li>
@@ -70,7 +71,8 @@ export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) 
           <a
             href="https://community.sonarsource.com/c/help/sq"
             rel="noopener noreferrer"
-            target="_blank">
+            target="_blank"
+          >
             {translate('footer.community')}
           </a>
         </li>
@@ -81,7 +83,8 @@ export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) 
           <a
             href="https://redirect.sonarsource.com/doc/plugin-library.html"
             rel="noopener noreferrer"
-            target="_blank">
+            target="_blank"
+          >
             {translate('footer.plugins')}
           </a>
         </li>

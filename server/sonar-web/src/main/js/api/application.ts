@@ -27,14 +27,14 @@ export function getApplicationLeak(
   branch?: string
 ): Promise<ApplicationPeriod[]> {
   return getJSON('/api/applications/show_leak', { application, branch }).then(
-    r => r.leaks,
+    (r) => r.leaks,
     throwGlobalError
   );
 }
 
 export function getApplicationDetails(application: string, branch?: string): Promise<Application> {
   return getJSON('/api/applications/show', { application, branch }).then(
-    r => r.application,
+    (r) => r.application,
     throwGlobalError
   );
 }

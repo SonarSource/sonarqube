@@ -84,7 +84,7 @@ export class Extension extends React.PureComponent<Props, State> {
       // See SONAR-16207 and core-extension-enterprise-server/src/main/js/portfolios/components/Header.tsx
       // for more information on why we're passing this as a prop to an extension.
       updateCurrentUserHomepage: this.props.updateCurrentUserHomepage,
-      ...this.props.options
+      ...this.props.options,
     });
 
     if (result) {
@@ -120,7 +120,7 @@ export class Extension extends React.PureComponent<Props, State> {
         {this.state.extensionElement ? (
           this.state.extensionElement
         ) : (
-          <div ref={container => (this.container = container)} />
+          <div ref={(container) => (this.container = container)} />
         )}
       </div>
     );

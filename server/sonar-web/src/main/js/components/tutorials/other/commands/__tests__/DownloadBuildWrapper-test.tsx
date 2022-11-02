@@ -22,7 +22,7 @@ import * as React from 'react';
 import { OSs } from '../../../types';
 import DownloadBuildWrapper, { DownloadBuildWrapperProps } from '../DownloadBuildWrapper';
 
-it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('should render correctly for %p', os => {
+it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('should render correctly for %p', (os) => {
   expect(shallowRender({ os, isLocal: false })).toMatchSnapshot('remote');
   expect(shallowRender({ os })).toMatchSnapshot('local');
 });

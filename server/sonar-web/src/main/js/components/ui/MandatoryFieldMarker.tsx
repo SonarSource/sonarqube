@@ -29,7 +29,8 @@ export default function MandatoryFieldMarker({ className }: MandatoryFieldMarker
   return (
     <em
       aria-label={translate('field_required')}
-      className={classNames('mandatory little-spacer-left', className)}>
+      className={classNames('mandatory little-spacer-left', className)}
+    >
       *
     </em>
   );

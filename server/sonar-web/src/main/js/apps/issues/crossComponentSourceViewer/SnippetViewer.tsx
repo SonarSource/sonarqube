@@ -25,7 +25,7 @@ import { symbolsByLine } from '../../../components/SourceViewer/helpers/indexing
 import { getSecondaryIssueLocationsForLine } from '../../../components/SourceViewer/helpers/issueLocations';
 import {
   optimizeHighlightedSymbols,
-  optimizeLocationMessage
+  optimizeLocationMessage,
 } from '../../../components/SourceViewer/helpers/lines';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -35,7 +35,7 @@ import {
   Issue,
   LinearIssueLocation,
   SourceLine,
-  SourceViewerFile
+  SourceViewerFile,
 } from '../../../types/types';
 import './SnippetViewer.css';
 import { LINES_BELOW_ISSUE } from './utils';
@@ -74,7 +74,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
     line,
     snippet,
     symbols,
-    verticalBuffer
+    verticalBuffer,
   }: {
     displayDuplications: boolean;
     displaySCM?: boolean;
@@ -128,21 +128,16 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         previousLine={index > 0 ? snippet[index - 1] : undefined}
         renderDuplicationPopup={this.props.renderDuplicationPopup}
         secondaryIssueLocations={secondaryIssueLocations}
-        verticalBuffer={verticalBuffer}>
+        verticalBuffer={verticalBuffer}
+      >
         {this.props.renderAdditionalChildInLine && this.props.renderAdditionalChildInLine(line)}
       </Line>
     );
   }
 
   render() {
-    const {
-      component,
-      displaySCM,
-      issue,
-      lastSnippetOfLastGroup,
-      locationsByLine,
-      snippet
-    } = this.props;
+    const { component, displaySCM, issue, lastSnippetOfLastGroup, locationsByLine, snippet } =
+      this.props;
     const lastLine =
       component.measures && component.measures.lines && parseInt(component.measures.lines, 10);
 
@@ -157,7 +152,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         : 0;
 
     const displayDuplications =
-      Boolean(this.props.loadDuplications) && snippet.some(s => !!s.duplicated);
+      Boolean(this.props.loadDuplications) && snippet.some((s) => !!s.duplicated);
 
     return (
       <div className="source-viewer-code snippet">
@@ -167,7 +162,8 @@ export default class SnippetViewer extends React.PureComponent<Props> {
               <button
                 aria-label={translate('source_viewer.expand_above')}
                 onClick={this.expandBlock('up')}
-                type="button">
+                type="button"
+              >
                 <ExpandSnippetIcon />
               </button>
             </div>
@@ -175,8 +171,9 @@ export default class SnippetViewer extends React.PureComponent<Props> {
           <table
             className={classNames('source-table', {
               'expand-up': snippet[0].line > 1,
-              'expand-down': !lastLine || snippet[snippet.length - 1].line < lastLine
-            })}>
+              'expand-down': !lastLine || snippet[snippet.length - 1].line < lastLine,
+            })}
+          >
             <tbody>
               {snippet.map((line, index) =>
                 this.renderLine({
@@ -187,7 +184,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
                   line,
                   snippet,
                   symbols: symbols[line.line],
-                  verticalBuffer: index === snippet.length - 1 ? verticalBuffer : 0
+                  verticalBuffer: index === snippet.length - 1 ? verticalBuffer : 0,
                 })
               )}
             </tbody>
@@ -197,7 +194,8 @@ export default class SnippetViewer extends React.PureComponent<Props> {
               <button
                 aria-label={translate('source_viewer.expand_below')}
                 onClick={this.expandBlock('down')}
-                type="button">
+                type="button"
+              >
                 <ExpandSnippetIcon />
               </button>
             </div>

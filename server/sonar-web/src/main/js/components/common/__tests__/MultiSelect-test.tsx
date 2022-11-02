@@ -26,7 +26,7 @@ import MultiSelect from '../MultiSelect';
 const ui = {
   checkbox: (name: string) => byRole('checkbox', { name }),
   search: byRole('searchbox', { name: 'search_verb' }),
-  noResult: byText('no_results_for_x.notfound')
+  noResult: byText('no_results_for_x.notfound'),
 };
 
 it('should handle selection', async () => {
@@ -41,7 +41,7 @@ it('should handle selection', async () => {
   expect(ui.checkbox('create').get()).toBeChecked();
 
   // Custom label
-  rerender({ renderLabel: label => `prefxed-${label}` });
+  rerender({ renderLabel: (label) => `prefxed-${label}` });
   expect(ui.checkbox('prefxed-create').get()).toBeChecked();
 });
 
@@ -85,20 +85,20 @@ function renderMultiSelect(override?: Partial<MultiSelect['props']>) {
         setElements(initial);
         setSelected(initialSelected);
       } else {
-        setElements([...elements.filter(e => e.indexOf(query) !== -1), `${query}-new`]);
-        setSelected(selected.filter(e => e.indexOf(query) !== -1));
+        setElements([...elements.filter((e) => e.indexOf(query) !== -1), `${query}-new`]);
+        setSelected(selected.filter((e) => e.indexOf(query) !== -1));
       }
       return Promise.resolve();
     };
 
     const onSelect = (element: string) => {
       setSelected([...selected, element]);
-      setElements(elements.filter(e => e !== element));
+      setElements(elements.filter((e) => e !== element));
     };
 
     const onUnselect = (element: string) => {
       setElements([...elements, element]);
-      setSelected(selected.filter(e => e !== element));
+      setSelected(selected.filter((e) => e !== element));
     };
     return (
       <MultiSelect
@@ -115,7 +115,7 @@ function renderMultiSelect(override?: Partial<MultiSelect['props']>) {
   }
 
   const { rerender } = render(<Parent {...override} />);
-  return function(reoverride?: Partial<MultiSelect['props']>) {
+  return function (reoverride?: Partial<MultiSelect['props']>) {
     rerender(<Parent {...override} {...reoverride} />);
   };
 }

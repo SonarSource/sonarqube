@@ -64,7 +64,7 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
     return removeGroup({
       group: group.name,
       language: profile.language,
-      qualityProfile: profile.name
+      qualityProfile: profile.name,
     }).then(() => {
       this.handleDeleteModalClose();
       this.props.onDelete(group);
@@ -82,7 +82,7 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
           defaultMessage={translate('quality_profiles.permissions.remove.group.confirmation')}
           id="quality_profiles.permissions.remove.group.confirmation"
           values={{
-            user: <strong>{this.props.group.name}</strong>
+            user: <strong>{this.props.group.name}</strong>,
           }}
         />
       </div>
@@ -115,7 +115,8 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
           <SimpleModal
             header={translate('quality_profiles.permissions.remove.group')}
             onClose={this.handleDeleteModalClose}
-            onSubmit={this.handleDelete}>
+            onSubmit={this.handleDelete}
+          >
             {this.renderDeleteModal}
           </SimpleModal>
         )}

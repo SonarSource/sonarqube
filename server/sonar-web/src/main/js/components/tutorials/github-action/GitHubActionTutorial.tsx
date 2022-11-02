@@ -22,7 +22,7 @@ import { translate } from '../../../helpers/l10n';
 import {
   AlmKeys,
   AlmSettingsInstance,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
@@ -35,7 +35,7 @@ import SecretStep from './SecretStep';
 export enum Steps {
   CREATE_SECRET = 1,
   YAML = 2,
-  ALL_SET = 3
+  ALL_SET = 3,
 }
 
 export interface GitHubActionTutorialProps {
@@ -56,7 +56,7 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
     component,
     projectBinding,
     mainBranchName,
-    willRefreshAutomatically
+    willRefreshAutomatically,
   } = props;
 
   const [step, setStep] = React.useState<Steps>(Steps.CREATE_SECRET);
@@ -85,7 +85,7 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
         open={step === Steps.YAML}
         renderForm={() => (
           <YamlFileStep>
-            {buildTool => (
+            {(buildTool) => (
               <AnalysisCommand
                 buildTool={buildTool}
                 mainBranchName={mainBranchName}

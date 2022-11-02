@@ -31,13 +31,13 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       createdAfter: new Date('2019.04.29T13:33:00Z'),
-      createdAfterIncludesTime: true
+      createdAfterIncludesTime: true,
     })
   ).toMatchSnapshot('created after');
   expect(
     shallowRender({
       createdAfter: new Date('2019.04.29T13:33:00Z'),
-      createdAfterIncludesTime: true
+      createdAfterIncludesTime: true,
     })
   ).toMatchSnapshot('created after timestamp');
   expect(shallowRender({ component: mockComponent() })).toMatchSnapshot('project');
@@ -49,7 +49,7 @@ it('should render correctly', () => {
 it.each([
   ['week', '1w'],
   ['month', '1m'],
-  ['year', '1y']
+  ['year', '1y'],
 ])('should render correctly for createdInLast %s', (_, createdInLast) => {
   expect(shallowRender({ component: mockComponent(), createdInLast })).toMatchSnapshot();
 });
@@ -67,7 +67,7 @@ function shallowRender(props?: Partial<CreationDateFacet['props']>) {
       inNewCodePeriod={false}
       intl={
         {
-          formatDate: (date: string) => 'formatted.' + date
+          formatDate: (date: string) => 'formatted.' + date,
         } as IntlShape
       }
       onChange={jest.fn()}

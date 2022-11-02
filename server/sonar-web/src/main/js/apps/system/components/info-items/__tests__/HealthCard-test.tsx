@@ -30,7 +30,7 @@ it('should show a main section and multiple sub sections', () => {
     Name: 'foo',
     bar: 'Bar',
     Database: { db: 'test' },
-    Elasticseach: { Elastic: 'search' }
+    Elasticseach: { Elastic: 'search' },
   };
   expect(getWrapper({ open: true, sysInfoData })).toMatchSnapshot();
 });

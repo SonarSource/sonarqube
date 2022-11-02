@@ -19,11 +19,11 @@
  */
 import {
   mockQualityGateApplicationStatus,
-  mockQualityGateProjectStatus
+  mockQualityGateProjectStatus,
 } from '../mocks/quality-gates';
 import {
   extractStatusConditionsFromApplicationStatusChildProject,
-  extractStatusConditionsFromProjectStatus
+  extractStatusConditionsFromProjectStatus,
 } from '../qualityGates';
 
 describe('extractStatusConditionsFromProjectStatus', () => {
@@ -35,8 +35,8 @@ describe('extractStatusConditionsFromProjectStatus', () => {
         level: 'OK',
         metric: 'new_bugs',
         op: 'GT',
-        period: 1
-      }
+        period: 1,
+      },
     ]);
   });
 });
@@ -54,7 +54,7 @@ describe('extractStatusConditionsFromApplicationStatusChildProject', () => {
         level: 'ERROR',
         metric: 'coverage',
         op: 'GT',
-        period: undefined
+        period: undefined,
       },
       {
         actual: '5',
@@ -62,8 +62,8 @@ describe('extractStatusConditionsFromApplicationStatusChildProject', () => {
         level: 'ERROR',
         metric: 'new_bugs',
         op: 'GT',
-        period: 1
-      }
+        period: 1,
+      },
     ]);
   });
 });

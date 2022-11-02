@@ -34,7 +34,7 @@ import {
   isCluster,
   parseQuery,
   Query,
-  serializeQuery
+  serializeQuery,
 } from '../utils';
 import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
@@ -66,7 +66,7 @@ export class App extends React.PureComponent<Props, State> {
   fetchSysInfo = () => {
     this.setState({ loading: true });
     getSystemInfo().then(
-      sysInfoData => {
+      (sysInfoData) => {
         if (this.mounted) {
           this.setState({ loading: false, sysInfoData });
         }
@@ -83,7 +83,7 @@ export class App extends React.PureComponent<Props, State> {
     const query = parseQuery(this.props.location.query);
     let expandedCards;
     if (query.expandedCards.includes(toggledCard)) {
-      expandedCards = query.expandedCards.filter(card => card !== toggledCard);
+      expandedCards = query.expandedCards.filter((card) => card !== toggledCard);
     } else {
       expandedCards = query.expandedCards.concat(toggledCard);
     }

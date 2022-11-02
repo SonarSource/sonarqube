@@ -30,16 +30,16 @@ jest.mock('../IndexationNotificationHelper');
 
 describe('Completed banner', () => {
   it('should be displayed', () => {
-    (IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock).mockReturnValueOnce(
-      true
-    );
+    (
+      IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock
+    ).mockReturnValueOnce(true);
 
     const wrapper = shallowRender();
 
     wrapper.setProps({
       indexationContext: {
-        status: { isCompleted: true, percentCompleted: 100, hasFailures: false }
-      }
+        status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
+      },
     });
 
     expect(IndexationNotificationHelper.shouldDisplayCompletedNotification).toHaveBeenCalled();
@@ -47,14 +47,14 @@ describe('Completed banner', () => {
   });
 
   it('should be displayed at startup', () => {
-    (IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock).mockReturnValueOnce(
-      true
-    );
+    (
+      IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock
+    ).mockReturnValueOnce(true);
 
     const wrapper = shallowRender({
       indexationContext: {
-        status: { isCompleted: true, percentCompleted: 100, hasFailures: false }
-      }
+        status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
+      },
     });
 
     expect(IndexationNotificationHelper.shouldDisplayCompletedNotification).toHaveBeenCalled();
@@ -63,14 +63,14 @@ describe('Completed banner', () => {
 
   it('should be hidden once displayed', () => {
     jest.useFakeTimers();
-    (IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock).mockReturnValueOnce(
-      true
-    );
+    (
+      IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock
+    ).mockReturnValueOnce(true);
 
     const wrapper = shallowRender({
       indexationContext: {
-        status: { isCompleted: true, percentCompleted: 100, hasFailures: false }
-      }
+        status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
+      },
     });
 
     expect(wrapper.state().notificationType).toBe(IndexationNotificationType.Completed);
@@ -85,7 +85,7 @@ describe('Completed banner', () => {
 
 it('should display the completed-with-failure banner', () => {
   const wrapper = shallowRender({
-    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: true } }
+    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: true } },
   });
 
   expect(wrapper.state().notificationType).toBe(IndexationNotificationType.CompletedWithFailure);
@@ -93,7 +93,7 @@ it('should display the completed-with-failure banner', () => {
 
 it('should display the progress banner', () => {
   const wrapper = shallowRender({
-    indexationContext: { status: { isCompleted: false, percentCompleted: 23, hasFailures: false } }
+    indexationContext: { status: { isCompleted: false, percentCompleted: 23, hasFailures: false } },
   });
 
   expect(IndexationNotificationHelper.markCompletedNotificationAsToDisplay).toHaveBeenCalled();
@@ -102,7 +102,7 @@ it('should display the progress banner', () => {
 
 it('should display the progress-with-failure banner', () => {
   const wrapper = shallowRender({
-    indexationContext: { status: { isCompleted: false, percentCompleted: 23, hasFailures: true } }
+    indexationContext: { status: { isCompleted: false, percentCompleted: 23, hasFailures: true } },
   });
 
   expect(IndexationNotificationHelper.markCompletedNotificationAsToDisplay).toHaveBeenCalled();
@@ -114,7 +114,7 @@ function shallowRender(props?: Partial<IndexationNotification['props']>) {
     <IndexationNotification
       currentUser={mockCurrentUser()}
       indexationContext={{
-        status: { isCompleted: false, percentCompleted: 23, hasFailures: false }
+        status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
       }}
       {...props}
     />

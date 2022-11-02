@@ -54,7 +54,7 @@ export function IssueLabel(props: IssueLabelProps) {
     ...getBranchLikeQuery(branchLike),
     resolved: 'false',
     types: type,
-    inNewCodePeriod: useDiffMetric ? 'true' : 'false'
+    inNewCodePeriod: useDiffMetric ? 'true' : 'false',
   };
 
   const url =
@@ -74,7 +74,8 @@ export function IssueLabel(props: IssueLabelProps) {
             localizeMetric(metricKey)
           )}
           className="overview-measures-value text-light"
-          to={url}>
+          to={url}
+        >
           {formatMeasure(value, 'SHORT_INT')}
         </Link>
       )}

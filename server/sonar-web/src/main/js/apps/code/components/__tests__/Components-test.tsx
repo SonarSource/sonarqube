@@ -27,7 +27,7 @@ const COMPONENT = {
   key: 'foo',
   name: 'Foo',
   qualifier: ComponentQualifier.Project,
-  branch: 'develop'
+  branch: 'develop',
 };
 const PORTFOLIO = { key: 'bar', name: 'Bar', qualifier: ComponentQualifier.Portfolio };
 const METRICS = [{ id: '1', key: 'coverage', type: 'PERCENT', name: 'Coverage' }];

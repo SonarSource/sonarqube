@@ -27,7 +27,7 @@ import {
   BitbucketRepository,
   GithubOrganization,
   GithubRepository,
-  GitlabProject
+  GitlabProject,
 } from '../types/alm-integration';
 import { Paging } from '../types/types';
 import { ProjectBase } from './components';
@@ -88,7 +88,7 @@ export function importAzureRepository(
   return postJSON('/api/alm_integrations/import_azure_project', {
     almSetting,
     projectName,
-    repositoryName
+    repositoryName,
   }).catch(throwGlobalError);
 }
 
@@ -107,7 +107,7 @@ export function getBitbucketServerRepositories(
 }> {
   return getJSON('/api/alm_integrations/search_bitbucketserver_repos', {
     almSetting,
-    projectName
+    projectName,
   });
 }
 
@@ -119,7 +119,7 @@ export function importBitbucketServerProject(
   return postJSON('/api/alm_integrations/import_bitbucketserver_project', {
     almSetting,
     projectKey,
-    repositorySlug
+    repositorySlug,
   }).catch(throwGlobalError);
 }
 
@@ -132,7 +132,7 @@ export function searchForBitbucketServerRepositories(
 }> {
   return getJSON('/api/alm_integrations/search_bitbucketserver_repos', {
     almSetting,
-    repositoryName
+    repositoryName,
   });
 }
 
@@ -149,7 +149,7 @@ export function searchForBitbucketCloudRepositories(
     almSetting,
     repositoryName,
     p: page,
-    ps: pageSize
+    ps: pageSize,
   });
 }
 
@@ -163,7 +163,7 @@ export function importBitbucketCloudRepository(
 ): Promise<{ project: ProjectBase }> {
   return postJSON('/api/alm_integrations/import_bitbucketcloud_repo', {
     almSetting,
-    repositorySlug
+    repositorySlug,
   }).catch(throwGlobalError);
 }
 
@@ -175,7 +175,7 @@ export function importGithubRepository(
   return postJSON('/api/alm_integrations/import_github_project', {
     almSetting,
     organization,
-    repositoryKey
+    repositoryKey,
   }).catch(throwGlobalError);
 }
 
@@ -185,7 +185,7 @@ export function getGithubOrganizations(
 ): Promise<{ organizations: GithubOrganization[] }> {
   return getJSON('/api/alm_integrations/list_github_organizations', {
     almSetting,
-    token
+    token,
   }).catch((response?: Response) => {
     if (response && response.status !== 400) {
       throwGlobalError(response);
@@ -206,7 +206,7 @@ export function getGithubRepositories(data: {
     organization,
     p: page,
     ps: pageSize,
-    q: query || undefined
+    q: query || undefined,
   }).catch(throwGlobalError);
 }
 
@@ -221,7 +221,7 @@ export function getGitlabProjects(data: {
     almSetting,
     projectName: query || undefined,
     p: page,
-    ps: pageSize
+    ps: pageSize,
   })
     .then(({ repositories, paging }) => ({ projects: repositories, projectsPaging: paging }))
     .catch(throwGlobalError);
@@ -234,6 +234,6 @@ export function importGitlabProject(data: {
   const { almSetting, gitlabProjectId } = data;
   return postJSON('/api/alm_integrations/import_gitlab_project', {
     almSetting,
-    gitlabProjectId
+    gitlabProjectId,
   }).catch(throwGlobalError);
 }

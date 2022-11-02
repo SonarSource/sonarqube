@@ -30,7 +30,7 @@ export function withCLanguageFeature<P>(
     render() {
       return (
         <LanguagesContext.Consumer>
-          {languages => {
+          {(languages) => {
             const hasCLanguageFeature = languages['c'] !== undefined;
 
             return (

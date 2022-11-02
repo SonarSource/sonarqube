@@ -30,42 +30,42 @@ jest.mock('../../../../helpers/security-standard', () => ({
   getStandards: jest.fn().mockResolvedValue({
     owaspTop10: {
       a1: {
-        title: 'Injection'
+        title: 'Injection',
       },
       a2: {
-        title: 'Broken Authentication'
-      }
+        title: 'Broken Authentication',
+      },
     },
     'owaspTop10-2021': {
       a1: {
-        title: 'Injection'
+        title: 'Injection',
       },
       a2: {
-        title: 'Broken Authentication'
-      }
+        title: 'Broken Authentication',
+      },
     },
     sansTop25: {
       'insecure-interaction': {
-        title: 'Insecure Interaction Between Components'
-      }
+        title: 'Insecure Interaction Between Components',
+      },
     },
     cwe: {
       unknown: {
-        title: 'No CWE associated'
+        title: 'No CWE associated',
       },
       '1004': {
-        title: "Sensitive Cookie Without 'HttpOnly' Flag"
-      }
+        title: "Sensitive Cookie Without 'HttpOnly' Flag",
+      },
     },
     sonarsourceSecurity: {
       'sql-injection': {
-        title: 'SQL Injection'
+        title: 'SQL Injection',
       },
       'command-injection': {
-        title: 'Command Injection'
-      }
-    }
-  })
+        title: 'Command Injection',
+      },
+    },
+  }),
 }));
 
 it('should render closed', () => {
@@ -90,7 +90,7 @@ it('should clear standards facet', () => {
     'owaspTop10-2021': [],
     sansTop25: [],
     sonarsourceSecurity: [],
-    standards: []
+    standards: [],
   });
 });
 
@@ -109,7 +109,7 @@ it('should render sub-facets', () => {
       sansTop25Stats: { foo: 12, 'risky-resource': 10 },
       sonarsourceSecurity: ['sql-injection'],
       sonarsourceSecurityOpen: true,
-      sonarsourceSecurityStats: { 'sql-injection': 12 }
+      sonarsourceSecurityStats: { 'sql-injection': 12 },
     })
   ).toMatchSnapshot();
   expect(getStandards).toHaveBeenCalled();
@@ -145,8 +145,8 @@ it('should show sonarsource facet more button', () => {
       'encrypt-data': 3,
       traceability: 3,
       permission: 3,
-      others: 3
-    }
+      others: 3,
+    },
   });
 
   expect(wrapper.find(ListStyleFacetFooter).exists()).toBe(true);
@@ -179,7 +179,7 @@ it('should select items', () => {
     sansTop25Stats: { foo: 12, 'risky-resource': 10 },
     sonarsourceSecurity: ['command-injection'],
     sonarsourceSecurityOpen: true,
-    sonarsourceSecurityStats: { 'sql-injection': 10 }
+    sonarsourceSecurityStats: { 'sql-injection': 10 },
   });
 
   selectAndCheck('owaspTop10', 'a1');
@@ -214,7 +214,7 @@ it('should display correct selection', () => {
     'owaspTop10-2021': ['a1', 'a2'],
     sansTop25: ['risky-resource', 'foo'],
     cwe: ['42', '1111', 'unknown'],
-    sonarsourceSecurity: ['sql-injection', 'others']
+    sonarsourceSecurity: ['sql-injection', 'others'],
   });
   checkValues('standards', [
     'SONAR SQL Injection',
@@ -227,7 +227,7 @@ it('should display correct selection', () => {
     'SANS foo',
     'CWE-42 - cwe-42 title',
     'CWE-1111',
-    'Unknown CWE'
+    'Unknown CWE',
   ]);
   checkValues('owaspTop10', ['A1 - a1 title', 'A3']);
   checkValues('owaspTop10-2021', ['A1 - a1 title', 'A2']);
@@ -236,10 +236,7 @@ it('should display correct selection', () => {
 
   function checkValues(property: string, values: string[]) {
     expect(
-      wrapper
-        .find(`FacetBox[property="${property}"]`)
-        .children('FacetHeader')
-        .prop('values')
+      wrapper.find(`FacetBox[property="${property}"]`).children('FacetHeader').prop('values')
     ).toEqual(values);
   }
 });
@@ -283,9 +280,9 @@ function shallowRender(props: Partial<StandardFacet['props']> = {}) {
       cwe: { 42: { title: 'cwe-42 title' }, unknown: { title: 'Unknown CWE' } },
       sonarsourceSecurity: {
         'sql-injection': { title: 'SQL Injection' },
-        others: { title: 'Others' }
-      }
-    }
+        others: { title: 'Others' },
+      },
+    },
   });
   return wrapper;
 }

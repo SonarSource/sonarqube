@@ -23,7 +23,7 @@ import {
   getGithubClientId,
   getGithubOrganizations,
   getGithubRepositories,
-  importGithubRepository
+  importGithubRepository,
 } from '../../../api/alm-integrations';
 import { Location, Router } from '../../../components/hoc/withRouter';
 import { getHostUrl } from '../../../helpers/urls';
@@ -72,7 +72,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       repositories: [],
       repositoryPaging: { pageSize: REPOSITORY_PAGE_SIZE, total: 0, pageIndex: 1 },
       searchQuery: '',
-      settings: props.settings[0]
+      settings: props.settings[0],
     };
 
     this.triggerSearch = debounce(this.triggerSearch, 250);
@@ -136,7 +136,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
 
     const queryParams = [
       { param: 'client_id', value: clientId },
-      { param: 'redirect_uri', value: `${getHostUrl()}/projects/create?mode=${AlmKeys.GitHub}` }
+      { param: 'redirect_uri', value: `${getHostUrl()}/projects/create?mode=${AlmKeys.GitHub}` },
     ]
       .map(({ param, value }) => `${param}=${value}`)
       .join('&');
@@ -181,14 +181,14 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
         organization: organizationKey,
         pageSize: REPOSITORY_PAGE_SIZE,
         page,
-        query
+        query,
       });
 
       if (this.mounted) {
         this.setState(({ repositories }) => ({
           loadingRepositories: false,
           repositoryPaging: data.paging,
-          repositories: page === 1 ? data.repositories : [...repositories, ...data.repositories]
+          repositories: page === 1 ? data.repositories : [...repositories, ...data.repositories],
         }));
       }
     } catch (_) {
@@ -196,7 +196,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
         this.setState({
           loadingRepositories: false,
           repositoryPaging: { pageIndex: 1, pageSize: REPOSITORY_PAGE_SIZE, total: 0 },
-          repositories: []
+          repositories: [],
         });
       }
     }
@@ -214,14 +214,14 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     this.setState(({ organizations }) => ({
       searchQuery: '',
       selectedRepository: undefined,
-      selectedOrganization: organizations.find(o => o.key === key)
+      selectedOrganization: organizations.find((o) => o.key === key),
     }));
     this.fetchRepositories({ organizationKey: key });
   };
 
   handleSelectRepository = (key: string) => {
     this.setState(({ repositories }) => ({
-      selectedRepository: repositories?.find(r => r.key === key)
+      selectedRepository: repositories?.find((r) => r.key === key),
     }));
   };
 
@@ -237,7 +237,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       this.fetchRepositories({
         organizationKey: selectedOrganization.key,
         page: repositoryPaging.pageIndex + 1,
-        query: searchQuery
+        query: searchQuery,
       });
     }
   };
@@ -276,7 +276,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       repositories,
       searchQuery,
       selectedOrganization,
-      selectedRepository
+      selectedRepository,
     } = this.state;
 
     return (

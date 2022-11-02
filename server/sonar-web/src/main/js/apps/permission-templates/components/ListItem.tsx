@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default function ListItem(props: Props) {
-  const permissions = props.template.permissions.map(p => (
+  const permissions = props.template.permissions.map((p) => (
     <PermissionCell key={p.key} permission={p} />
   ));
 

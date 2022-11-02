@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockAlmSettingsInstance,
-  mockProjectGithubBindingResponse
+  mockProjectGithubBindingResponse,
 } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
@@ -39,35 +39,12 @@ it('should render correctly', () => {
 it('should correctly navigate through the steps', () => {
   const wrapper = shallowRender();
 
-  expect(
-    wrapper
-      .find(Step)
-      .at(0)
-      .props().open
-  ).toBe(true);
-  expect(
-    wrapper
-      .find(Step)
-      .at(1)
-      .props().open
-  ).toBe(false);
+  expect(wrapper.find(Step).at(0).props().open).toBe(true);
+  expect(wrapper.find(Step).at(1).props().open).toBe(false);
 
-  wrapper
-    .find(Step)
-    .at(1)
-    .simulate('open');
-  expect(
-    wrapper
-      .find(Step)
-      .at(0)
-      .props().open
-  ).toBe(false);
-  expect(
-    wrapper
-      .find(Step)
-      .at(1)
-      .props().open
-  ).toBe(true);
+  wrapper.find(Step).at(1).simulate('open');
+  expect(wrapper.find(Step).at(0).props().open).toBe(false);
+  expect(wrapper.find(Step).at(1).props().open).toBe(true);
 });
 
 function shallowRender(props: Partial<GitHubActionTutorialProps> = {}) {

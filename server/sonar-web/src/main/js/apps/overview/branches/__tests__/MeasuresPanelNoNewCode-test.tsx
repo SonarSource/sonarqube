@@ -85,12 +85,12 @@ it('should render the default message', () => {
   ).toMatchInlineSnapshot(defaultMessage);
   expect(
     shallowRender({
-      period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'master' })
+      period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'master' }),
     })
   ).toMatchSnapshot();
   expect(
     shallowRender({
-      period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'notsame' })
+      period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'notsame' }),
     })
   ).toMatchSnapshot();
 });

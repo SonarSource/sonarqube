@@ -28,11 +28,11 @@ import { ComponentNavLicenseNotif } from '../ComponentNavLicenseNotif';
 
 jest.mock('../../../../../helpers/l10n', () => ({
   ...jest.requireActual('../../../../../helpers/l10n'),
-  hasMessage: jest.fn().mockReturnValue(true)
+  hasMessage: jest.fn().mockReturnValue(true),
 }));
 
 jest.mock('../../../../../api/editions', () => ({
-  isValidLicense: jest.fn().mockResolvedValue({ isValidLicense: false })
+  isValidLicense: jest.fn().mockResolvedValue({ isValidLicense: false }),
 }));
 
 beforeEach(() => {
@@ -44,8 +44,8 @@ it('renders background task license info correctly', async () => {
     currentTask: mockTask({
       status: TaskStatuses.Failed,
       errorType: 'LICENSING',
-      errorMessage: 'Foo'
-    })
+      errorMessage: 'Foo',
+    }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -55,8 +55,8 @@ it('renders background task license info correctly', async () => {
     currentTask: mockTask({
       status: TaskStatuses.Failed,
       errorType: 'LICENSING',
-      errorMessage: 'Foo'
-    })
+      errorMessage: 'Foo',
+    }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -68,8 +68,8 @@ it('renders a different message if the license is valid', async () => {
     currentTask: mockTask({
       status: TaskStatuses.Failed,
       errorType: 'LICENSING',
-      errorMessage: 'Foo'
-    })
+      errorMessage: 'Foo',
+    }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -81,8 +81,8 @@ it('renders correctly for LICENSING_LOC error', async () => {
     currentTask: mockTask({
       status: TaskStatuses.Failed,
       errorType: 'LICENSING_LOC',
-      errorMessage: 'Foo'
-    })
+      errorMessage: 'Foo',
+    }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();

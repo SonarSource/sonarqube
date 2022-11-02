@@ -28,7 +28,7 @@ import DeleteBranchModal from '../DeleteBranchModal';
 
 jest.mock('../../../../api/branches', () => ({
   deleteBranch: jest.fn(),
-  deletePullRequest: jest.fn()
+  deletePullRequest: jest.fn(),
 }));
 
 const branch = mockBranch({ name: 'feature/foo' });

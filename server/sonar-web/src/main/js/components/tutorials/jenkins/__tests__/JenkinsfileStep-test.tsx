@@ -37,12 +37,7 @@ it('should render correctly', () => {
 it('should render correctly for Maven', () => {
   const wrapper = shallowRender();
   selectBuildTool(wrapper, BuildTools.Maven);
-  expect(
-    wrapper
-      .find(Step)
-      .props()
-      .renderForm()
-  ).toMatchSnapshot();
+  expect(wrapper.find(Step).props().renderForm()).toMatchSnapshot();
 });
 
 it('should render correctly for Gradle', () => {

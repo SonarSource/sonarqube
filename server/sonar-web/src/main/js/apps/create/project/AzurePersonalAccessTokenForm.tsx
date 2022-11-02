@@ -42,7 +42,7 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
   const {
     almSetting: { alm, url },
     submitting = false,
-    validationFailed
+    validationFailed,
   } = props;
 
   const [touched, setTouched] = React.useState(false);
@@ -82,7 +82,7 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
                 <strong>
                   <em>Code (Read & Write)</em>
                 </strong>
-              )
+              ),
             }}
           />
         </div>
@@ -91,18 +91,20 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
           onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
             e.preventDefault();
             props.onPersonalAccessTokenCreate(token);
-          }}>
+          }}
+        >
           <ValidationInput
             error={errorMessage}
             id="personal_access_token"
             isInvalid={isInvalid}
             isValid={false}
             label={translate('onboarding.create_project.enter_pat')}
-            required={true}>
+            required={true}
+          >
             <input
               autoFocus={true}
               className={classNames('width-100 little-spacer-bottom', {
-                'is-invalid': isInvalid
+                'is-invalid': isInvalid,
               })}
               id="personal_access_token"
               minLength={1}

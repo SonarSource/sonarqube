@@ -20,5 +20,5 @@
 import { EnhancedWindow } from '../types/browser';
 
 export function getEnhancedWindow() {
-  return (window as unknown) as EnhancedWindow;
+  return window as unknown as EnhancedWindow;
 }

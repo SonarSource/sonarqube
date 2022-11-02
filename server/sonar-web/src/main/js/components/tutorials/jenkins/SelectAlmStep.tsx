@@ -51,10 +51,10 @@ export default function SelectAlmStep(props: SelectAlmStepProps) {
               AlmKeys.BitbucketCloud,
               AlmKeys.BitbucketServer,
               AlmKeys.GitHub,
-              AlmKeys.GitLab
-            ].map(almKey => ({
+              AlmKeys.GitLab,
+            ].map((almKey) => ({
               label: getAlmLongName(almKey),
-              value: almKey
+              value: almKey,
             }))}
             value={alm}
           />

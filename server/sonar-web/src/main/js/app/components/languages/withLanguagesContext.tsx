@@ -37,7 +37,7 @@ export default function withLanguagesContext<P>(
     render() {
       return (
         <LanguagesContext.Consumer>
-          {languages => <WrappedComponent languages={languages} {...(this.props as P)} />}
+          {(languages) => <WrappedComponent languages={languages} {...(this.props as P)} />}
         </LanguagesContext.Consumer>
       );
     }

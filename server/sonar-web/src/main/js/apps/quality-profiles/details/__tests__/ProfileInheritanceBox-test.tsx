@@ -28,7 +28,7 @@ it('should render correctly', () => {
     shallowRender({
       depth: 3,
       displayLink: true,
-      profile: mockQualityProfileInheritance({ isBuiltIn: true })
+      profile: mockQualityProfileInheritance({ isBuiltIn: true }),
     })
   ).toMatchSnapshot();
   expect(shallowRender({ extendsBuiltIn: true })).toMatchSnapshot();

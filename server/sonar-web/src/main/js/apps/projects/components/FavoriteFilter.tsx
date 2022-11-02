@@ -54,7 +54,7 @@ export class FavoriteFilter extends React.PureComponent<Props> {
 
   render() {
     const {
-      location: { pathname }
+      location: { pathname },
     } = this.props;
 
     if (!isLoggedIn(this.props.currentUser)) {
@@ -66,7 +66,7 @@ export class FavoriteFilter extends React.PureComponent<Props> {
         <ButtonToggle
           options={[
             { value: true, label: translate('my_favorites') },
-            { value: false, label: translate('all') }
+            { value: false, label: translate('all') },
           ]}
           onCheck={this.onFavoriteChange}
           value={pathname === FAVORITE_PATHNAME}

@@ -26,7 +26,7 @@ import { Dict } from '../../../../../types/types';
 import ProjectCardMeasures, { ProjectCardMeasuresProps } from '../ProjectCardMeasures';
 
 jest.mock('date-fns', () => ({
-  differenceInMilliseconds: () => 1000 * 60 * 60 * 24 * 30 * 8 // ~ 8 months
+  differenceInMilliseconds: () => 1000 * 60 * 60 * 24 * 30 * 8, // ~ 8 months
 }));
 
 describe('Overall measures', () => {
@@ -83,7 +83,7 @@ function shallowRender(
     [MetricKey.new_coverage]: '26.55',
     [MetricKey.new_duplicated_lines_density]: '0.55',
     [MetricKey.new_lines]: '87',
-    ...measuresOverride
+    ...measuresOverride,
   };
 
   return shallow<ProjectCardMeasuresProps>(

@@ -40,7 +40,7 @@ import {
   searchProjects,
   searchUsers,
   setQualityGateAsDefault,
-  updateCondition
+  updateCondition,
 } from '../quality-gates';
 
 export class QualityGatesServiceMock {
@@ -62,7 +62,7 @@ export class QualityGatesServiceMock {
             id: 'AXJMbIUGPAOIsUIE3eNT',
             metric: 'new_maintainability_rating',
             op: 'GT',
-            error: '1'
+            error: '1',
           },
           { id: 'AXJMbIUGPAOIsUIE3eNU', metric: 'new_reliability_rating', op: 'GT', error: '1' },
           { id: 'AXJMbIUGPAOIsUIE3eNV', metric: 'new_security_rating', op: 'GT', error: '1' },
@@ -70,17 +70,17 @@ export class QualityGatesServiceMock {
             id: 'AXJMbIUHPAOIsUIE3eNc',
             metric: 'new_duplicated_lines_density',
             op: 'GT',
-            error: '3'
+            error: '3',
           },
           {
             id: 'AXJMbIUHPAOIsUIE3eOi',
             metric: 'new_security_hotspots_reviewed',
             op: 'LT',
-            error: '100'
-          }
+            error: '100',
+          },
         ],
         isDefault: true,
-        isBuiltIn: false
+        isBuiltIn: false,
       }),
       mockQualityGate({
         id: 'AXGYZrDqC-YjVCvvbRDY',
@@ -88,10 +88,10 @@ export class QualityGatesServiceMock {
         conditions: [
           { id: 'AXJMbIUHPAOIsUIE3eOu', metric: 'new_coverage', op: 'LT', error: '0' },
           { id: 'AXJMbIUHPAOIsUIE3eOubis', metric: 'new_coverage', op: 'LT', error: '1' },
-          { id: 'deprecated', metric: 'function_complexity', op: 'LT', error: '1' }
+          { id: 'deprecated', metric: 'function_complexity', op: 'LT', error: '1' },
         ],
         isDefault: false,
-        isBuiltIn: false
+        isBuiltIn: false,
       }),
       mockQualityGate({
         id: 'AWBWEMe4qGAMGEYPjJlr',
@@ -103,25 +103,25 @@ export class QualityGatesServiceMock {
             id: 'AXJMbIUHPAOIsUIE3eOE',
             metric: 'new_maintainability_rating',
             op: 'GT',
-            error: '1'
+            error: '1',
           },
           { id: 'AXJMbIUHPAOIsUIE3eOF', metric: 'new_coverage', op: 'LT', error: '80' },
           {
             id: 'AXJMbIUHPAOIsUIE3eOG',
             metric: 'new_duplicated_lines_density',
             op: 'GT',
-            error: '3'
+            error: '3',
           },
           {
             id: 'AXJMbIUHPAOIsUIE3eOk',
             metric: 'new_security_hotspots_reviewed',
             op: 'LT',
-            error: '100'
-          }
+            error: '100',
+          },
         ],
         isDefault: false,
-        isBuiltIn: true
-      })
+        isBuiltIn: true,
+      }),
     ];
 
     this.list = cloneDeep(this.readOnlyList);
@@ -130,7 +130,7 @@ export class QualityGatesServiceMock {
       { key: 'test1', name: 'test1', selected: false },
       { key: 'test2', name: 'test2', selected: false },
       { key: 'test3', name: 'test3', selected: true },
-      { key: 'test4', name: 'test4', selected: true }
+      { key: 'test4', name: 'test4', selected: true },
     ];
 
     (fetchQualityGate as jest.Mock).mockImplementation(this.showHandler);
@@ -164,11 +164,11 @@ export class QualityGatesServiceMock {
   }
 
   getDefaultQualityGate() {
-    return this.list.find(q => q.isDefault) || mockQualityGate({ isDefault: true });
+    return this.list.find((q) => q.isDefault) || mockQualityGate({ isDefault: true });
   }
 
   getBuiltInQualityGate() {
-    return this.list.find(q => q.isBuiltIn) || mockQualityGate({ isBuiltIn: true });
+    return this.list.find((q) => q.isBuiltIn) || mockQualityGate({ isBuiltIn: true });
   }
 
   setIsAdmin(isAdmin: boolean) {
@@ -183,26 +183,26 @@ export class QualityGatesServiceMock {
       associateProjects: this.isAdmin,
       delete: q.isBuiltIn ? false : this.isAdmin,
       manageConditions: this.isAdmin,
-      delegate: this.isAdmin
+      delegate: this.isAdmin,
     };
   }
 
   listHandler = () => {
     return this.reply({
       qualitygates: this.list
-        .map(q => omit(q, 'conditions'))
-        .map(q => ({
+        .map((q) => omit(q, 'conditions'))
+        .map((q) => ({
           ...q,
-          actions: this.computeActions(q)
+          actions: this.computeActions(q),
         })),
       default: this.getDefaultQualityGate().id,
-      actions: { create: this.isAdmin }
+      actions: { create: this.isAdmin },
     });
   };
 
   showHandler = ({ id }: { id: string }) => {
     const qualityGate = omit(
-      this.list.find(q => q.id === id),
+      this.list.find((q) => q.id === id),
       'isDefault'
     );
     return this.reply({ ...qualityGate, actions: this.computeActions(qualityGate) });
@@ -216,22 +216,22 @@ export class QualityGatesServiceMock {
         name,
         conditions: [],
         isDefault: false,
-        isBuiltIn: false
+        isBuiltIn: false,
       })
     );
     return this.reply({
       id: newId,
-      name
+      name,
     });
   };
 
   destroyHandler = ({ id }: { id: string }) => {
-    this.list = this.list.filter(q => q.id !== id);
+    this.list = this.list.filter((q) => q.id !== id);
     return Promise.resolve();
   };
 
   copyHandler = ({ id, name }: { id: string; name: string }) => {
-    const newQG = cloneDeep(this.list.find(q => q.id === id));
+    const newQG = cloneDeep(this.list.find((q) => q.id === id));
     if (newQG === undefined) {
       return Promise.reject({ errors: [{ msg: `No quality gate has been found for id ${id}` }] });
     }
@@ -245,27 +245,27 @@ export class QualityGatesServiceMock {
 
     return this.reply({
       id: newQG.id,
-      name
+      name,
     });
   };
 
   renameHandler = ({ id, name }: { id: string; name: string }) => {
-    const renameQG = this.list.find(q => q.id === id);
+    const renameQG = this.list.find((q) => q.id === id);
     if (renameQG === undefined) {
       return Promise.reject({ errors: [{ msg: `No quality gate has been found for id ${id}` }] });
     }
     renameQG.name = name;
     return this.reply({
       id: renameQG.id,
-      name
+      name,
     });
   };
 
   setDefaultHandler = ({ id }: { id: string }) => {
-    this.list.forEach(q => {
+    this.list.forEach((q) => {
       q.isDefault = false;
     });
-    const selectedQG = this.list.find(q => q.id === id);
+    const selectedQG = this.list.find((q) => q.id === id);
     if (selectedQG === undefined) {
       return Promise.reject({ errors: [{ msg: `No quality gate has been found for id ${id}` }] });
     }
@@ -279,10 +279,10 @@ export class QualityGatesServiceMock {
     } & Omit<Condition, 'id'>
   ) => {
     const { metric, gateId, op, error } = data;
-    const qg = this.list.find(q => q.id === gateId);
+    const qg = this.list.find((q) => q.id === gateId);
     if (qg === undefined) {
       return Promise.reject({
-        errors: [{ msg: `No quality gate has been found for id ${gateId}` }]
+        errors: [{ msg: `No quality gate has been found for id ${gateId}` }],
       });
     }
 
@@ -295,7 +295,7 @@ export class QualityGatesServiceMock {
   };
 
   updateConditionHandler = ({ id, metric, op, error }: Condition) => {
-    const condition = flatten(this.list.map(q => q.conditions || [])).find(q => q.id === id);
+    const condition = flatten(this.list.map((q) => q.conditions || [])).find((q) => q.id === id);
     if (condition === undefined) {
       return Promise.reject({ errors: [{ msg: `No condition has been found for id ${id}` }] });
     }
@@ -308,33 +308,33 @@ export class QualityGatesServiceMock {
   };
 
   deleteConditionHandler = ({ id }: { id: string }) => {
-    this.list.forEach(q => {
-      remove(q.conditions || [], c => c.id === id);
+    this.list.forEach((q) => {
+      remove(q.conditions || [], (c) => c.id === id);
     });
     return Promise.resolve();
   };
 
   searchProjectsHandler = ({
     selected,
-    query
+    query,
   }: {
     selected: string;
     query: string | undefined;
   }) => {
     let filteredProjects = this.projects;
     if (selected === 'selected') {
-      filteredProjects = this.projects.filter(p => p.selected);
+      filteredProjects = this.projects.filter((p) => p.selected);
     } else if (selected === 'deselected') {
-      filteredProjects = this.projects.filter(p => !p.selected);
+      filteredProjects = this.projects.filter((p) => !p.selected);
     }
 
     if (query !== '' && query !== undefined) {
-      filteredProjects = filteredProjects.filter(p => p.name.includes(query));
+      filteredProjects = filteredProjects.filter((p) => p.name.includes(query));
     }
 
     const response = {
       paging: { pageIndex: 1, pageSize: 3, total: 55 },
-      results: filteredProjects
+      results: filteredProjects,
     };
     return this.reply(response);
   };
@@ -356,7 +356,7 @@ export class QualityGatesServiceMock {
   };
 
   selectHandler = ({ projectKey }: { projectKey: string }) => {
-    const changedProject = this.projects.find(p => p.key === projectKey);
+    const changedProject = this.projects.find((p) => p.key === projectKey);
     if (changedProject) {
       changedProject.selected = true;
     }
@@ -364,7 +364,7 @@ export class QualityGatesServiceMock {
   };
 
   deSelectHandler = ({ projectKey }: { projectKey: string }) => {
-    const changedProject = this.projects.find(p => p.key === projectKey);
+    const changedProject = this.projects.find((p) => p.key === projectKey);
     if (changedProject) {
       changedProject.selected = false;
     }

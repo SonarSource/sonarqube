@@ -60,7 +60,7 @@ export default function List(props: Props) {
             </tr>
           )}
 
-          {sortBy(props.groups, group => group.name.toLowerCase()).map(group => (
+          {sortBy(props.groups, (group) => group.name.toLowerCase()).map((group) => (
             <ListItem
               group={group}
               key={group.name}

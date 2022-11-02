@@ -25,32 +25,18 @@ import SelectAlmStep, { SelectAlmStepProps } from '../SelectAlmStep';
 
 jest.mock('../../../../helpers/l10n', () => ({
   hasMessage: (_a: string, k: string, _b: string) => k === AlmKeys.BitbucketCloud,
-  translate: (...k: string[]) => k.join('.')
+  translate: (...k: string[]) => k.join('.'),
 }));
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender().find(Step).props().renderForm()).toMatchSnapshot('form, default');
+  expect(shallowRender({ alm: AlmKeys.Azure }).find(Step).props().renderForm()).toMatchSnapshot(
+    'form, with alm'
+  );
+  expect(shallowRender().find(Step).props().renderResult!()).toBeUndefined();
   expect(
-    shallowRender()
-      .find(Step)
-      .props()
-      .renderForm()
-  ).toMatchSnapshot('form, default');
-  expect(
-    shallowRender({ alm: AlmKeys.Azure })
-      .find(Step)
-      .props()
-      .renderForm()
-  ).toMatchSnapshot('form, with alm');
-  expect(
-    shallowRender()
-      .find(Step)
-      .props().renderResult!()
-  ).toBeUndefined();
-  expect(
-    shallowRender({ alm: AlmKeys.BitbucketCloud })
-      .find(Step)
-      .props().renderResult!()
+    shallowRender({ alm: AlmKeys.BitbucketCloud }).find(Step).props().renderResult!()
   ).toMatchSnapshot('result, with alm');
 });
 

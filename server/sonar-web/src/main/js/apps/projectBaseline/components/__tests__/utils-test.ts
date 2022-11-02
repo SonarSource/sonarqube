@@ -23,7 +23,7 @@ describe('getSettingValue', () => {
   const state = {
     analysis: 'analysis',
     days: '35',
-    referenceBranch: 'branch-4.2'
+    referenceBranch: 'branch-4.2',
   };
 
   it('should work for Days', () => {
@@ -50,14 +50,14 @@ describe('validateSettings', () => {
       validateSetting({
         currentSetting: 'PREVIOUS_VERSION',
         days: '12',
-        selected: 'NUMBER_OF_DAYS'
+        selected: 'NUMBER_OF_DAYS',
       })
     ).toEqual({ isChanged: true, isValid: true });
     expect(
       validateSetting({
         currentSetting: 'PREVIOUS_VERSION',
         days: 'nope',
-        selected: 'NUMBER_OF_DAYS'
+        selected: 'NUMBER_OF_DAYS',
       })
     ).toEqual({ isChanged: true, isValid: false });
     expect(
@@ -65,7 +65,7 @@ describe('validateSettings', () => {
         currentSetting: 'NUMBER_OF_DAYS',
         currentSettingValue: '15',
         days: '15',
-        selected: 'NUMBER_OF_DAYS'
+        selected: 'NUMBER_OF_DAYS',
       })
     ).toEqual({ isChanged: false, isValid: true });
     expect(
@@ -73,7 +73,7 @@ describe('validateSettings', () => {
         currentSetting: 'NUMBER_OF_DAYS',
         currentSettingValue: '15',
         days: '13',
-        selected: 'NUMBER_OF_DAYS'
+        selected: 'NUMBER_OF_DAYS',
       })
     ).toEqual({ isChanged: true, isValid: true });
     expect(
@@ -82,7 +82,7 @@ describe('validateSettings', () => {
         currentSetting: 'SPECIFIC_ANALYSIS',
         currentSettingValue: 'analysis1',
         days: '',
-        selected: 'SPECIFIC_ANALYSIS'
+        selected: 'SPECIFIC_ANALYSIS',
       })
     ).toEqual({ isChanged: false, isValid: true });
     expect(
@@ -91,7 +91,7 @@ describe('validateSettings', () => {
         currentSetting: 'SPECIFIC_ANALYSIS',
         currentSettingValue: 'analysis1',
         days: '',
-        selected: 'SPECIFIC_ANALYSIS'
+        selected: 'SPECIFIC_ANALYSIS',
       })
     ).toEqual({ isChanged: true, isValid: true });
     expect(
@@ -100,7 +100,7 @@ describe('validateSettings', () => {
         currentSettingValue: 'master',
         days: '',
         referenceBranch: 'master',
-        selected: 'REFERENCE_BRANCH'
+        selected: 'REFERENCE_BRANCH',
       })
     ).toEqual({ isChanged: false, isValid: true });
     expect(
@@ -109,7 +109,7 @@ describe('validateSettings', () => {
         currentSettingValue: 'master',
         days: '',
         referenceBranch: '',
-        selected: 'REFERENCE_BRANCH'
+        selected: 'REFERENCE_BRANCH',
       })
     ).toEqual({ isChanged: true, isValid: false });
   });
@@ -117,21 +117,21 @@ describe('validateSettings', () => {
   it('should validate at project level', () => {
     expect(validateSetting({ days: '', overrideGeneralSetting: false })).toEqual({
       isChanged: false,
-      isValid: true
+      isValid: true,
     });
     expect(validateSetting({ days: '', overrideGeneralSetting: true })).toEqual({
       isChanged: true,
-      isValid: false
+      isValid: false,
     });
     expect(
       validateSetting({
         currentSetting: 'PREVIOUS_VERSION',
         days: '',
-        overrideGeneralSetting: false
+        overrideGeneralSetting: false,
       })
     ).toEqual({
       isChanged: true,
-      isValid: true
+      isValid: true,
     });
   });
 });

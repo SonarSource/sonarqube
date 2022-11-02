@@ -30,7 +30,7 @@ import {
   ComponentQualifier,
   isApplication,
   isPortfolioLike,
-  isProject
+  isProject,
 } from '../../../types/component';
 import { ComponentMeasure } from '../../../types/types';
 import { mostCommonPrefix } from '../utils';
@@ -42,7 +42,7 @@ export function getTooltip(component: ComponentMeasure) {
     return component.path + '\n\n' + component.key;
   }
 
-  return [component.name, component.key, component.branch].filter(s => !!s).join('\n\n');
+  return [component.name, component.key, component.branch].filter((s) => !!s).join('\n\n');
 }
 
 export interface Props {
@@ -62,7 +62,7 @@ export default function ComponentName({
   rootComponent,
   previous,
   canBrowse = false,
-  newCodeSelected
+  newCodeSelected,
 }: Props) {
   const ariaLabel = unclickable ? translate('code.parent_folder') : undefined;
 
@@ -102,7 +102,8 @@ export default function ComponentName({
     <span
       className="max-width-100 display-inline-block text-ellipsis"
       title={getTooltip(component)}
-      aria-label={ariaLabel}>
+      aria-label={ariaLabel}
+    >
       {renderNameWithIcon(branchLike, component, previous, rootComponent, unclickable, canBrowse)}
     </span>
   );
@@ -138,7 +139,8 @@ function renderNameWithIcon(
           component.qualifier,
           { branch },
           codeType
-        )}>
+        )}
+      >
         <QualifierIcon
           className="little-spacer-right"
           qualifier={component.qualifier}
@@ -155,7 +157,8 @@ function renderNameWithIcon(
     return (
       <Link
         className="display-inline-flex-center link-no-underline"
-        to={{ pathname: '/code', search: queryToSearch(query) }}>
+        to={{ pathname: '/code', search: queryToSearch(query) }}
+      >
         <QualifierIcon
           className="little-spacer-right"
           qualifier={component.qualifier}

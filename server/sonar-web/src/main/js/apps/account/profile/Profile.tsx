@@ -86,7 +86,7 @@ export function Profile({ currentUser }: ProfileProps) {
       <div className="boxed-group-inner">
         <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
         <ul id="groups">
-          {currentUser.groups.map(group => (
+          {currentUser.groups.map((group) => (
             <li className="little-spacer-bottom" key={group} title={group}>
               {group}
             </li>
@@ -129,7 +129,7 @@ export function Profile({ currentUser }: ProfileProps) {
 
           {currentUser.scmAccounts &&
             currentUser.scmAccounts.length > 0 &&
-            currentUser.scmAccounts.map(scmAccount => (
+            currentUser.scmAccounts.map((scmAccount) => (
               <li className="little-spacer-bottom" key={scmAccount} title={scmAccount}>
                 {scmAccount}
               </li>

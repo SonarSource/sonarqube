@@ -23,7 +23,7 @@ import {
   getComponentData,
   getComponentForSourceViewer,
   getDuplications,
-  getSources
+  getSources,
 } from '../../api/components';
 import { getBranchLikeQuery, isSameBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
@@ -38,7 +38,7 @@ import {
   LinearIssueLocation,
   Measure,
   SourceLine,
-  SourceViewerFile
+  SourceViewerFile,
 } from '../../types/types';
 import { Alert } from '../ui/Alert';
 import { WorkspaceContext } from '../workspace/context';
@@ -46,14 +46,14 @@ import DuplicationPopup from './components/DuplicationPopup';
 import {
   filterDuplicationBlocksByLine,
   getDuplicationBlocksForIndex,
-  isDuplicationBlockInRemovedComponent
+  isDuplicationBlockInRemovedComponent,
 } from './helpers/duplications';
 import getCoverageStatus from './helpers/getCoverageStatus';
 import {
   duplicationsByLine,
   issuesByLine,
   locationsByLine,
-  symbolsByLine
+  symbolsByLine,
 } from './helpers/indexing';
 import { LINES_TO_LOAD } from './helpers/lines';
 import loadIssues from './helpers/loadIssues';
@@ -116,7 +116,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     displayAllIssues: false,
     displayIssueLocationsCount: true,
     displayIssueLocationsLink: true,
-    displayLocationMarkers: true
+    displayLocationMarkers: true,
   };
 
   constructor(props: Props) {
@@ -136,7 +136,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       openIssuesByLine: {},
       selectedIssue: props.selectedIssue,
       sourceRemoved: false,
-      symbolsByLine: {}
+      symbolsByLine: {},
     };
   }
 
@@ -168,7 +168,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
         this.setState(
           {
             sources: sources.slice(0, LINES_TO_LOAD),
-            hasSourcesAfter: sources.length > LINES_TO_LOAD
+            hasSourcesAfter: sources.length > LINES_TO_LOAD,
           },
           () => {
             if (this.props.onLoaded && this.state.component && this.state.issues) {
@@ -187,10 +187,10 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
   loadComponent(component: string, branchLike?: BranchLike) {
     return Promise.all([
       getComponentForSourceViewer({ component, ...getBranchLikeQuery(branchLike) }),
-      getComponentData({ component, ...getBranchLikeQuery(branchLike) })
+      getComponentData({ component, ...getBranchLikeQuery(branchLike) }),
     ]).then(([sourceViewerComponent, { component }]) => ({
       ...sourceViewerComponent,
-      leakPeriodDate: component.leakPeriodDate
+      leakPeriodDate: component.leakPeriodDate,
     }));
   }
 
@@ -204,7 +204,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
   }
 
   computeCoverageStatus(lines: SourceLine[]) {
-    return lines.map(line => ({ ...line, coverageStatus: getCoverageStatus(line) }));
+    return lines.map((line) => ({ ...line, coverageStatus: getCoverageStatus(line) }));
   }
 
   isLineOutsideOfRange(lineNumber: number) {
@@ -223,7 +223,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
 
     const loadIssuesCallback = (component: SourceViewerFile, sources: SourceLine[]) => {
       loadIssues(this.props.component, this.props.branchLike).then(
-        issues => {
+        (issues) => {
           if (this.mounted) {
             const finalSources = sources.slice(0, LINES_TO_LOAD);
             this.setState(
@@ -244,7 +244,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
                 issuePopup: undefined,
                 sourceRemoved: false,
                 sources: this.computeCoverageStatus(finalSources),
-                symbolsByLine: symbolsByLine(sources.slice(0, LINES_TO_LOAD))
+                symbolsByLine: symbolsByLine(sources.slice(0, LINES_TO_LOAD)),
               },
               () => {
                 if (this.props.onLoaded) {
@@ -284,8 +284,8 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       const sourcesRequest =
         component.q === 'FIL' || component.q === 'UTS' ? this.fetchSources() : Promise.resolve([]);
       sourcesRequest.then(
-        sources => loadIssuesCallback(component, sources),
-        response => onFailLoadSources(response, component)
+        (sources) => loadIssuesCallback(component, sources),
+        (response) => onFailLoadSources(response, component)
       );
     };
 
@@ -321,7 +321,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       // request one additional line to define `hasSourcesAfter`
       to++;
 
-      this.loadSources(this.props.component, from, to, this.props.branchLike).then(sources => {
+      this.loadSources(this.props.component, from, to, this.props.branchLike).then((sources) => {
         resolve(sources);
       }, onFailLoadSources);
     });
@@ -340,13 +340,13 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
       firstSourceLine.line - 1,
       this.props.branchLike
     ).then(
-      sources => {
+      (sources) => {
         if (this.mounted) {
-          this.setState(prevState => {
+          this.setState((prevState) => {
             return {
               loadingSourcesBefore: false,
               sources: [...this.computeCoverageStatus(sources), ...(prevState.sources || [])],
-              symbolsByLine: { ...prevState.symbolsByLine, ...symbolsByLine(sources) }
+              symbolsByLine: { ...prevState.symbolsByLine, ...symbolsByLine(sources) },
             };
           });
         }
@@ -366,21 +366,21 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
     const fromLine = lastSourceLine.line + 1;
     const toLine = lastSourceLine.line + LINES_TO_LOAD + 1;
     this.loadSources(this.props.component, fromLine, toLine, this.props.branchLike).then(
-      sources => {
+      (sources) => {
         if (this.mounted) {
           const hasSourcesAfter = LINES_TO_LOAD < sources.length;
           if (hasSourcesAfter) {
             sources.pop();
           }
-          this.setState(prevState => {
+          this.setState((prevState) => {
             return {
               hasSourcesAfter,
               loadingSourcesAfter: false,
               sources: [...(prevState.sources || []), ...this.computeCoverageStatus(sources)],
               symbolsByLine: {
                 ...prevState.symbolsByLine,
-                ...symbolsByLine(sources)
-              }
+                ...symbolsByLine(sources),
+              },
             };
           });
         }
@@ -394,14 +394,14 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
   loadDuplications = () => {
     getDuplications({
       key: this.props.component,
-      ...getBranchLikeQuery(this.props.branchLike)
+      ...getBranchLikeQuery(this.props.branchLike),
     }).then(
-      r => {
+      (r) => {
         if (this.mounted) {
           this.setState({
             duplications: r.duplications,
             duplicationsByLine: duplicationsByLine(r.duplications),
-            duplicatedFiles: r.files
+            duplicatedFiles: r.files,
           });
         }
       },
@@ -425,7 +425,7 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
   };
 
   handleSymbolClick = (symbols: string[]) => {
-    this.setState(state => {
+    this.setState((state) => {
       const shouldDisable = intersection(state.highlightedSymbols, symbols).length > 0;
       const highlightedSymbols = shouldDisable ? [] : symbols;
       return { highlightedSymbols };
@@ -449,20 +449,22 @@ export default class SourceViewer extends React.PureComponent<Props, State> {
   };
 
   handleOpenIssues = (line: SourceLine) => {
-    this.setState(state => ({
-      openIssuesByLine: { ...state.openIssuesByLine, [line.line]: true }
+    this.setState((state) => ({
+      openIssuesByLine: { ...state.openIssuesByLine, [line.line]: true },
     }));
   };
 
   handleCloseIssues = (line: SourceLine) => {
-    this.setState(state => ({
-      openIssuesByLine: { ...state.openIssuesByLine, [line.line]: false }
+    this.setState((state) => ({
+      openIssuesByLine: { ...state.openIssuesByLine, [line.line]: false },
     }));
   };
 
   handleIssueChange = (issue: Issue) => {
     this.setState(({ issues = [] }) => {
-      const newIssues = issues.map(candidate => (candidate.key === issue.key ? issue : candidate));
+      const newIssues = issues.map((candidate) =>
+        candidate.key === issue.key ? issue : candidate
+      );
       return { issues: newIssues, issuesByLine: issuesByLine(newIssues) };
     });
     if (this.props.onIssueChange) {

@@ -57,7 +57,7 @@ export default function PluginAvailable(props: PluginAvailableProps) {
                       'marketplace.installing_this_plugin_will_also_install_x',
                       plugin.update.requires
                         .filter(({ key }) => !installedPluginKeys.includes(key))
-                        .map(requiredPlugin => requiredPlugin.name)
+                        .map((requiredPlugin) => requiredPlugin.name)
                         .join(', ')
                     )}
                   </strong>

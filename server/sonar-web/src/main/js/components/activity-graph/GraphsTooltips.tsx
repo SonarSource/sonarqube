@@ -93,7 +93,8 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
       <Popup
         className="disabled-pointer-events"
         placement={placement}
-        style={{ top, left, width: TOOLTIP_WIDTH }}>
+        style={{ top, left, width: TOOLTIP_WIDTH }}
+      >
         <div className="activity-graph-tooltip">
           <div className="activity-graph-tooltip-title spacer-bottom">
             <DateTimeFormatter date={this.props.selectedDate} />

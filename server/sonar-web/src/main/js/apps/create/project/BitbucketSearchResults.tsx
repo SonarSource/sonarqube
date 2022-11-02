@@ -39,7 +39,7 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
     projects,
     searching,
     searchResults = [],
-    selectedRepository
+    selectedRepository,
   } = props;
 
   if (searchResults.length === 0 && !searching) {
@@ -50,10 +50,12 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
     );
   }
 
-  const filteredProjects = projects.filter(p => searchResults.some(r => r.projectKey === p.key));
-  const filteredProjectKeys = filteredProjects.map(p => p.key);
+  const filteredProjects = projects.filter((p) =>
+    searchResults.some((r) => r.projectKey === p.key)
+  );
+  const filteredProjectKeys = filteredProjects.map((p) => p.key);
   const filteredSearchResults = searchResults.filter(
-    r => !filteredProjectKeys.includes(r.projectKey)
+    (r) => !filteredProjectKeys.includes(r.projectKey)
   );
 
   return (
@@ -70,8 +72,8 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
           />
         )}
 
-        {filteredProjects.map(project => {
-          const repositories = searchResults.filter(r => r.projectKey === project.key);
+        {filteredProjects.map((project) => {
+          const repositories = searchResults.filter((r) => r.projectKey === project.key);
 
           return (
             <BitbucketProjectAccordion

@@ -26,13 +26,13 @@ const DEFAULT_PARAM: WebApi.Param = {
   key: 'foo',
   description: 'Foo desc',
   internal: false,
-  required: false
+  required: false,
 };
 
 it('should render deprecated and internal parameters', () => {
   const params = [
     { ...DEFAULT_PARAM, deprecatedSince: '5.0' },
-    { ...DEFAULT_PARAM, deprecatedSince: '5.0', internal: true }
+    { ...DEFAULT_PARAM, deprecatedSince: '5.0', internal: true },
   ];
   expect(
     shallow(<Params params={params} showDeprecated={true} showInternal={true} />)
@@ -49,7 +49,7 @@ it('should not render deprecated parameters', () => {
 it('should render deprecated key', () => {
   const params = [
     { ...DEFAULT_PARAM, deprecatedKey: 'foo-deprecated', deprecatedKeySince: '5.0' },
-    { ...DEFAULT_PARAM, deprecatedSince: '5.0', internal: true }
+    { ...DEFAULT_PARAM, deprecatedSince: '5.0', internal: true },
   ];
   expect(
     shallow(<Params params={params} showDeprecated={true} showInternal={false} />)
@@ -66,7 +66,7 @@ it('should render different value constraints', () => {
     minimumValue: 1,
     maximumValue: 500,
     maxValuesAllowed: 1000,
-    possibleValues: ['foo', 'bar']
+    possibleValues: ['foo', 'bar'],
   };
   expect(
     shallow(<Params params={[param]} showDeprecated={true} showInternal={true} />)

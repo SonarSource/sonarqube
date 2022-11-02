@@ -21,12 +21,12 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   checkPersonalAccessTokenIsValid,
-  setAlmPersonalAccessToken
+  setAlmPersonalAccessToken,
 } from '../../../../api/alm-integrations';
 import { SubmitButton } from '../../../../components/controls/buttons';
 import {
   mockAlmSettingsInstance,
-  mockBitbucketCloudAlmSettingsInstance
+  mockBitbucketCloudAlmSettingsInstance,
 } from '../../../../helpers/mocks/alm-settings';
 import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -34,7 +34,7 @@ import PersonalAccessTokenForm from '../PersonalAccessTokenForm';
 
 jest.mock('../../../../api/alm-integrations', () => ({
   checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue({ status: true }),
-  setAlmPersonalAccessToken: jest.fn().mockResolvedValue({})
+  setAlmPersonalAccessToken: jest.fn().mockResolvedValue({}),
 }));
 
 it('should render correctly', async () => {
@@ -52,7 +52,7 @@ it('should render correctly', async () => {
 
   (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce({ status: false });
   wrapper = shallowRender({
-    almSetting: mockAlmSettingsInstance({ alm: AlmKeys.GitLab, url: 'https://gitlab.com/api/v4' })
+    almSetting: mockAlmSettingsInstance({ alm: AlmKeys.GitLab, url: 'https://gitlab.com/api/v4' }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('gitlab');
@@ -61,8 +61,8 @@ it('should render correctly', async () => {
   wrapper = shallowRender({
     almSetting: mockAlmSettingsInstance({
       alm: AlmKeys.GitLab,
-      url: 'https://gitlabapi.unexpectedurl.org'
-    })
+      url: 'https://gitlabapi.unexpectedurl.org',
+    }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('gitlab with non-standard api path');
@@ -90,7 +90,7 @@ it('should correctly handle form for bitbucket interactions', async () => {
   const onPersonalAccessTokenCreated = jest.fn();
   const wrapper = shallowRender({
     almSetting: mockBitbucketCloudAlmSettingsInstance(),
-    onPersonalAccessTokenCreated
+    onPersonalAccessTokenCreated,
   });
 
   await waitAndUpdate(wrapper);
@@ -113,7 +113,7 @@ it('should correctly handle form for bitbucket interactions', async () => {
 it('should show error when issue', async () => {
   (checkPersonalAccessTokenIsValid as jest.Mock).mockRejectedValueOnce({});
   const wrapper = shallowRender({
-    almSetting: mockBitbucketCloudAlmSettingsInstance()
+    almSetting: mockBitbucketCloudAlmSettingsInstance(),
   });
 
   await waitAndUpdate(wrapper);
@@ -134,7 +134,7 @@ function shallowRender(props: Partial<PersonalAccessTokenForm['props']> = {}) {
     <PersonalAccessTokenForm
       almSetting={mockAlmSettingsInstance({
         alm: AlmKeys.BitbucketServer,
-        url: 'http://www.example.com'
+        url: 'http://www.example.com',
       })}
       onPersonalAccessTokenCreated={jest.fn()}
       resetPat={false}

@@ -24,7 +24,7 @@ import PermissionCell from '../PermissionCell';
 const permissionItem = {
   id: 'foobar',
   name: 'Foobar',
-  permissions: ['bar']
+  permissions: ['bar'],
 };
 
 const permission = { key: 'baz', name: 'Baz', description: '' };
@@ -32,8 +32,8 @@ const permissionGroup = {
   category: 'admin',
   permissions: [
     { key: 'foo', name: 'Foo', description: '' },
-    { key: 'bar', name: 'Bar', description: '' }
-  ]
+    { key: 'bar', name: 'Bar', description: '' },
+  ],
 };
 it('should display unchecked checkbox', () => {
   expect(

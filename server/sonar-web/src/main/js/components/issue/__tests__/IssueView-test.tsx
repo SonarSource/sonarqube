@@ -47,9 +47,9 @@ function shallowRender(props: Partial<IssueView['props']> = {}) {
             authorLogin: 'admin',
             authorName: 'Admin',
             authorAvatar: 'admin-avatar',
-            authorActive: true
-          }
-        ]
+            authorActive: true,
+          },
+        ],
       })}
       onAssign={jest.fn()}
       onChange={jest.fn()}

@@ -36,24 +36,24 @@ jest.mock('../../../../api/measures', () => {
           mockMeasure({ metric: 'new_bugs' }),
           mockMeasure({ metric: 'new_vulnerabilities' }),
           mockMeasure({ metric: 'new_code_smells' }),
-          mockMeasure({ metric: 'new_security_hotspots' })
-        ]
+          mockMeasure({ metric: 'new_security_hotspots' }),
+        ],
       },
       metrics: [
         mockMetric({ key: 'new_bugs', name: 'new_bugs', id: 'new_bugs' }),
         mockMetric({
           key: 'new_vulnerabilities',
           name: 'new_vulnerabilities',
-          id: 'new_vulnerabilities'
+          id: 'new_vulnerabilities',
         }),
         mockMetric({ key: 'new_code_smells', name: 'new_code_smells', id: 'new_code_smells' }),
         mockMetric({
           key: 'new_security_hotspots',
           name: 'new_security_hotspots',
-          id: 'new_security_hotspots'
-        })
-      ]
-    })
+          id: 'new_security_hotspots',
+        }),
+      ],
+    }),
   };
 });
 
@@ -91,14 +91,14 @@ it('should render correctly for a failed QG', async () => {
         error: '1.0',
         level: 'OK',
         metric: 'new_bugs',
-        period: 1
+        period: 1,
       }),
       mockQualityGateStatusCondition({
         error: '1.0',
         metric: 'new_code_smells',
-        period: 1
-      })
-    ]
+        period: 1,
+      }),
+    ],
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -112,7 +112,7 @@ it('should correctly fetch all required metrics for a passing QG', async () => {
 
 it('should correctly fetch all required metrics for a failing QG', async () => {
   const wrapper = shallowRender({
-    conditions: [mockQualityGateStatusCondition({ level: 'ERROR', metric: 'foo' })]
+    conditions: [mockQualityGateStatusCondition({ level: 'ERROR', metric: 'foo' })],
   });
   await waitAndUpdate(wrapper);
   expect(getMeasuresWithMetrics).toHaveBeenCalledWith(

@@ -38,7 +38,8 @@ export default function BaselineSettingPreviousVersion(props: Props) {
       selected={selected}
       title={
         translate('baseline.previous_version') + (isDefault ? ` (${translate('default')})` : '')
-      }>
+      }
+    >
       <p>{translate('baseline.previous_version.description')}</p>
     </RadioCard>
   );

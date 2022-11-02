@@ -183,10 +183,11 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
       <ul
         className="project-activity-versions-list"
         onScroll={this.handleScroll}
-        ref={element => (this.scrollContainer = element)}
+        ref={(element) => (this.scrollContainer = element)}
         style={{
-          paddingTop: this.props.project.qualifier === ComponentQualifier.Project ? 52 : undefined
-        }}>
+          paddingTop: this.props.project.qualifier === ComponentQualifier.Project ? 52 : undefined,
+        }}
+      >
         {byVersionByDay.map((version, idx) => {
           const days = Object.keys(version.byDay);
           if (days.length <= 0) {
@@ -198,23 +199,25 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                 <div className={classNames('project-activity-version-badge', { first: idx === 0 })}>
                   <Tooltip
                     mouseEnterDelay={0.5}
-                    overlay={`${translate('version')} ${version.version}`}>
+                    overlay={`${translate('version')} ${version.version}`}
+                  >
                     <h2 className="analysis-version">{version.version}</h2>
                   </Tooltip>
                 </div>
               )}
               <ul className="project-activity-days-list">
-                {days.map(day => (
+                {days.map((day) => (
                   <li
                     className="project-activity-day"
                     data-day={toShortNotSoISOString(Number(day))}
-                    key={day}>
+                    key={day}
+                  >
                     <h3>
                       <DateFormatter date={Number(day)} long={true} />
                     </h3>
                     <ul className="project-activity-analyses-list">
                       {version.byDay[day] != null &&
-                        version.byDay[day].map(analysis => this.renderAnalysis(analysis))}
+                        version.byDay[day].map((analysis) => this.renderAnalysis(analysis))}
                     </ul>
                   </li>
                 ))}

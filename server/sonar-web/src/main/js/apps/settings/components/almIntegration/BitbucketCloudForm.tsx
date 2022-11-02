@@ -62,7 +62,7 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
                   <strong>{'{workspace}'}</strong>
                   {'/{repository}'}
                 </>
-              )
+              ),
             }}
           />
         }
@@ -86,7 +86,8 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
             oauth: (
               <Link
                 to="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
-                target="_blank">
+                target="_blank"
+              >
                 {translate('settings.almintegration.bitbucketcloud.oauth')}
               </Link>
             ),
@@ -95,7 +96,7 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
               <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketCloud]}>
                 {translate('learn_more')}
               </DocLink>
-            )
+            ),
           }}
         />
       </Alert>

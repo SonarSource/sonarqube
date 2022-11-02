@@ -67,20 +67,20 @@ export default class FileFacet extends React.PureComponent<Props> {
       ...getBranchLikeQuery(branchLike),
       q: query,
       p: page,
-      ps: 30
+      ps: 30,
     }).then(({ components, paging }) => ({
       paging,
-      results: components.filter(file => file.path !== undefined)
+      results: components.filter((file) => file.path !== undefined),
     }));
   };
 
   loadSearchResultCount = (files: TreeComponentWithPath[]) => {
     return this.props.loadSearchResultCount('files', {
       files: files
-        .map(file => {
+        .map((file) => {
           return file.path;
         })
-        .filter(isDefined)
+        .filter(isDefined),
     });
   };
 

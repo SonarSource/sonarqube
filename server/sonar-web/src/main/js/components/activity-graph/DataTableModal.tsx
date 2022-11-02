@@ -99,14 +99,14 @@ export default function DataTableModal(props: DataTableModalProps) {
           <TimeFormatter date={date} />
         </div>
       </td>
-      {metrics.map(metric => (
+      {metrics.map((metric) => (
         <td key={metric} className="thin nowrap">
           {values[metric] || '-'}
         </td>
       ))}
       <td>
         <ul>
-          {getAnalysisEventsForDate(analyses, date).map(event => (
+          {getAnalysisEventsForDate(analyses, date).map((event) => (
             <li className="little-spacer-bottom" key={event.key}>
               <EventInner event={event} readonly={true} />
             </li>
@@ -158,7 +158,7 @@ export default function DataTableModal(props: DataTableModalProps) {
         <thead>
           <tr>
             <th>{translate('date')}</th>
-            {series.map(serie => (
+            {series.map((serie) => (
               <th key={serie.name} className="thin nowrap">
                 {serie.translatedName}
               </th>

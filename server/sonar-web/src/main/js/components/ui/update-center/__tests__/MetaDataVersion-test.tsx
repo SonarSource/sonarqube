@@ -27,13 +27,13 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       versionInformation: mockMetaDataVersionInformation({
-        downloadURL: [{ label: 'macos 64 bits', url: '' }]
-      })
+        downloadURL: [{ label: 'macos 64 bits', url: '' }],
+      }),
     })
   ).toMatchSnapshot('with advanced downloadUrl');
   expect(
     shallowRender({
-      versionInformation: { version: '2.0' }
+      versionInformation: { version: '2.0' },
     })
   ).toMatchSnapshot('with very few info');
 });

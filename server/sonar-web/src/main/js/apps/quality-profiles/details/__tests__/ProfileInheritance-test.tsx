@@ -28,8 +28,8 @@ beforeEach(() => jest.clearAllMocks());
 jest.mock('../../../../api/quality-profiles', () => ({
   getProfileInheritance: jest.fn().mockResolvedValue({
     children: [mockQualityProfileInheritance()],
-    ancestors: [mockQualityProfileInheritance()]
-  })
+    ancestors: [mockQualityProfileInheritance()],
+  }),
 }));
 
 it('should render correctly', async () => {

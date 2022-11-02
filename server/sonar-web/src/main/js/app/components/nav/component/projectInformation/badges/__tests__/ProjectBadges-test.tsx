@@ -32,18 +32,18 @@ import ProjectBadges from '../ProjectBadges';
 jest.mock('../../../../../../../helpers/urls', () => ({
   getHostUrl: () => 'host',
   getPathUrlAsString: (l: Location) => l.pathname,
-  getProjectUrl: () => ({ pathname: '/dashboard' } as Location)
+  getProjectUrl: () => ({ pathname: '/dashboard' } as Location),
 }));
 
 jest.mock('../../../../../../../api/project-badges', () => ({
   getProjectBadgesToken: jest.fn().mockResolvedValue('foo'),
-  renewProjectBadgesToken: jest.fn().mockResolvedValue({})
+  renewProjectBadgesToken: jest.fn().mockResolvedValue({}),
 }));
 
 jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
-    createRef: jest.fn().mockReturnValue({ current: document.createElement('h3') })
+    createRef: jest.fn().mockReturnValue({ current: document.createElement('h3') }),
   };
 });
 
@@ -56,7 +56,7 @@ it('should display correctly', async () => {
 it('should renew token', async () => {
   (getProjectBadgesToken as jest.Mock).mockResolvedValueOnce('foo').mockResolvedValueOnce('bar');
   const wrapper = shallowRender({
-    component: mockComponent({ configuration: { showSettings: true } })
+    component: mockComponent({ configuration: { showSettings: true } }),
   });
   await waitAndUpdate(wrapper);
   wrapper.find('.it__project-info-renew-badge').simulate('click');

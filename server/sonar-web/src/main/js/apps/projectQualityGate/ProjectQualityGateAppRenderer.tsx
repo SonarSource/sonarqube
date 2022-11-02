@@ -47,7 +47,7 @@ export interface ProjectQualityGateAppRendererProps {
 }
 
 function hasConditionOnNewCode(qualityGate: QualityGate): boolean {
-  return !!qualityGate.conditions?.some(condition => isDiffMetric(condition.metric));
+  return !!qualityGate.conditions?.some((condition) => isDiffMetric(condition.metric));
 }
 
 interface QualityGateOption extends BasicSelectOption {
@@ -71,7 +71,7 @@ function renderQualitygateOption(props: OptionProps<QualityGateOption, false>) {
                   <Link to={{ pathname: `/quality_gates/show/${props.data.value}` }}>
                     {translate('project_quality_gate.no_condition.link')}
                   </Link>
-                )
+                ),
               }}
             />
           )}
@@ -83,7 +83,7 @@ function renderQualitygateOption(props: OptionProps<QualityGateOption, false>) {
 
 export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateAppRendererProps) {
   const { allQualityGates, currentQualityGate, loading, selectedQualityGateId, submitting } = props;
-  const defaultQualityGate = allQualityGates?.find(g => g.isDefault);
+  const defaultQualityGate = allQualityGates?.find((g) => g.isDefault);
 
   if (loading) {
     return <i className="spinner" />;
@@ -104,12 +104,12 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
       defaultQualityGate.id !== currentQualityGate.id
     : selectedQualityGateId !== currentQualityGate.id;
 
-  const selectedQualityGate = allQualityGates.find(qg => qg.id === selectedQualityGateId);
+  const selectedQualityGate = allQualityGates.find((qg) => qg.id === selectedQualityGateId);
 
-  const options: QualityGateOption[] = allQualityGates.map(g => ({
+  const options: QualityGateOption[] = allQualityGates.map((g) => ({
     isDisabled: g.conditions === undefined || g.conditions.length === 0,
     label: g.name,
-    value: g.id
+    value: g.id,
   }));
 
   return (
@@ -137,10 +137,11 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
 
         <form
           className="boxed-group-inner"
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault();
             props.onSubmit();
-          }}>
+          }}
+        >
           <p className="big-spacer-bottom">{translate('project_quality_gate.page.description')}</p>
 
           <div className="big-spacer-bottom">
@@ -149,7 +150,8 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
               checked={usesDefault}
               disabled={submitting}
               onCheck={() => props.onSelect(USE_SYSTEM_DEFAULT)}
-              value={USE_SYSTEM_DEFAULT}>
+              value={USE_SYSTEM_DEFAULT}
+            >
               <div className="spacer-left">
                 <div className="little-spacer-bottom">
                   {translate('project_quality_gate.always_use_default')}
@@ -172,12 +174,13 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
               className="display-flex-start"
               checked={!usesDefault}
               disabled={submitting}
-              onCheck={value => {
+              onCheck={(value) => {
                 if (usesDefault) {
                   props.onSelect(value);
                 }
               }}
-              value={!usesDefault ? selectedQualityGateId : currentQualityGate.id}>
+              value={!usesDefault ? selectedQualityGateId : currentQualityGate.id}
+            >
               <div className="spacer-left">
                 <div className="little-spacer-bottom">
                   {translate('project_quality_gate.always_use_specific')}
@@ -186,7 +189,7 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
                   <Select
                     className="abs-width-300 it__project-quality-gate-select"
                     components={{
-                      Option: renderQualitygateOption
+                      Option: renderQualitygateOption,
                     }}
                     isClearable={usesDefault}
                     isDisabled={submitting || usesDefault}
@@ -194,7 +197,7 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
                       props.onSelect(value);
                     }}
                     options={options}
-                    value={options.find(o => o.value === selectedQualityGateId)}
+                    value={options.find((o) => o.value === selectedQualityGateId)}
                   />
                 </div>
               </div>
@@ -210,7 +213,7 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
                       <Link to={{ pathname: `/quality_gates/show/${selectedQualityGate.id}` }}>
                         {translate('project_quality_gate.no_condition.link')}
                       </Link>
-                    )
+                    ),
                   }}
                 />
               </Alert>

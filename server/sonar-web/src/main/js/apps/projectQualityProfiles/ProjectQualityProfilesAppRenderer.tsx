@@ -59,11 +59,11 @@ export default function ProjectQualityProfilesAppRenderer(
     loading,
     showProjectProfileInModal,
     projectProfiles,
-    showAddLanguageModal
+    showAddLanguageModal,
   } = props;
 
   const profilesByLanguage = groupBy(allProfiles, 'language');
-  const orderedProfiles = orderBy(projectProfiles, p => p.profile.languageName);
+  const orderedProfiles = orderBy(projectProfiles, (p) => p.profile.languageName);
 
   return (
     <div className="page page-limited" id="project-quality-profiles">
@@ -108,7 +108,7 @@ export default function ProjectQualityProfilesAppRenderer(
                 </tr>
               </thead>
               <tbody>
-                {orderedProfiles.map(projectProfile => {
+                {orderedProfiles.map((projectProfile) => {
                   const { profile, selected } = projectProfile;
                   return (
                     <tr key={profile.language}>
@@ -136,7 +136,8 @@ export default function ProjectQualityProfilesAppRenderer(
                         <Button
                           onClick={() => {
                             props.onOpenSetProfileModal(projectProfile);
-                          }}>
+                          }}
+                        >
                           <EditIcon className="spacer-right" />
                           {translate('project_quality_profile.change_profile')}
                         </Button>
@@ -177,7 +178,7 @@ export default function ProjectQualityProfilesAppRenderer(
               profilesByLanguage={profilesByLanguage}
               onClose={props.onCloseModal}
               onSubmit={props.onAddLanguage}
-              unavailableLanguages={projectProfiles.map(p => p.profile.language)}
+              unavailableLanguages={projectProfiles.map((p) => p.profile.language)}
             />
           )}
         </div>

@@ -75,7 +75,7 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
                   <DocLink to="/analysis/jenkins/">
                     {translate('onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link')}
                   </DocLink>
-                )
+                ),
               }}
             />
           </p>

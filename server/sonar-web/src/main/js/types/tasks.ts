@@ -25,7 +25,7 @@ export enum TaskTypes {
   ProjectExport = 'PROJECT_EXPORT',
   ProjectImport = 'PROJECT_IMPORT',
   ReportSubmit = 'REPORT_SUBMIT',
-  AuditPurge = 'AUDIT_PURGE'
+  AuditPurge = 'AUDIT_PURGE',
 }
 
 export enum TaskStatuses {
@@ -33,7 +33,7 @@ export enum TaskStatuses {
   InProgress = 'IN_PROGRESS',
   Success = 'SUCCESS',
   Failed = 'FAILED',
-  Canceled = 'CANCELED'
+  Canceled = 'CANCELED',
 }
 
 export interface Task {

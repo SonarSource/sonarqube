@@ -58,7 +58,7 @@ const FLIP_MAP: { [key in Placement]: Placement } = {
   left: 'right',
   right: 'left',
   top: 'bottom',
-  bottom: 'top'
+  bottom: 'top',
 };
 
 function isMeasured(state: State): state is OwnState & Measurements {
@@ -85,7 +85,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   id: string;
 
   static defaultProps = {
-    mouseEnterDelay: 0.1
+    mouseEnterDelay: 0.1,
   };
 
   constructor(props: TooltipProps) {
@@ -93,7 +93,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     this.state = {
       flipped: false,
       placement: props.placement,
-      visible: props.visible !== undefined ? props.visible : false
+      visible: props.visible !== undefined ? props.visible : false,
     };
     this.id = uniqueId('tooltip-');
     this.throttledPositionTooltip = throttle(this.positionTooltip, 10);
@@ -225,7 +225,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
         left: window.pageXOffset + left,
         top: window.pageYOffset + top,
         width,
-        height
+        height,
       });
     }
   };
@@ -237,7 +237,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
       top: undefined,
       width: undefined,
       height: undefined,
-      placement: this.props.placement
+      placement: this.props.placement,
     });
   };
 
@@ -335,7 +335,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
             // Set height to undefined to force ScreenPositionFixer to
             // re-compute our positioning.
             height: undefined,
-            placement: FLIP_MAP[placement]
+            placement: FLIP_MAP[placement],
           }),
           () => {
             if (this.state.visible) {
@@ -357,7 +357,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           left: this.state.left + leftFix,
           top: this.state.top + topFix,
           width: this.state.width,
-          height: this.state.height
+          height: this.state.height,
         }
       : undefined;
 
@@ -367,7 +367,8 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
         onPointerEnter={this.handleOverlayMouseEnter}
         onPointerLeave={this.handleOverlayMouseLeave}
         ref={this.tooltipNodeRef}
-        style={style}>
+        style={style}
+      >
         <div className={`${classNameSpace}-inner`} id={this.id}>
           {this.props.overlay}
         </div>
@@ -398,7 +399,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
           // See https://css-tricks.com/accessible-svgs/
           'aria-describedby': isVisible ? this.id : undefined,
-          'aria-labelledby': isVisible ? this.id : undefined
+          'aria-labelledby': isVisible ? this.id : undefined,
         })}
         {isVisible && (
           <EscKeydownHandler onKeydown={this.handleBlur}>

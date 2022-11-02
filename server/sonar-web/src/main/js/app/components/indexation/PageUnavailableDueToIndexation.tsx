@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withIndexationContext, {
-  WithIndexationContextProps
+  WithIndexationContextProps,
 } from '../../../components/hoc/withIndexationContext';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
@@ -33,7 +33,7 @@ interface Props extends WithIndexationContextProps {
 
 export enum PageContext {
   Issues = 'issues',
-  Portfolios = 'portfolios'
+  Portfolios = 'portfolios',
 }
 
 export class PageUnavailableDueToIndexation extends React.PureComponent<Props> {
@@ -63,7 +63,7 @@ export class PageUnavailableDueToIndexation extends React.PureComponent<Props> {
               defaultMessage={translate(messageKey)}
               values={{
                 componentQualifier: translate('qualifier', component?.qualifier ?? ''),
-                componentName: <em>{component?.name}</em>
+                componentName: <em>{component?.name}</em>,
               }}
             />
           </h1>

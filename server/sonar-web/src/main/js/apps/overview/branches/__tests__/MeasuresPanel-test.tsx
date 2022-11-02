@@ -26,7 +26,7 @@ import {
   mockLocation,
   mockMeasureEnhanced,
   mockMetric,
-  mockPeriod
+  mockPeriod,
 } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
@@ -35,7 +35,7 @@ import { MeasuresPanel, MeasuresPanelProps, MeasuresPanelTabs } from '../Measure
 jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
-    useEffect: jest.fn().mockImplementation(f => f())
+    useEffect: jest.fn().mockImplementation((f) => f()),
   };
 });
 
@@ -48,7 +48,7 @@ it('should render correctly for projects', () => {
 
 it('should render correctly for applications', () => {
   const wrapper = shallowRender({
-    component: mockComponent({ qualifier: ComponentQualifier.Application })
+    component: mockComponent({ qualifier: ComponentQualifier.Application }),
   });
   expect(wrapper).toMatchSnapshot('default');
   wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.Overall);
@@ -59,8 +59,8 @@ it('should render correctly if there is no new code measures', () => {
   const wrapper = shallowRender({
     measures: [
       mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.coverage }) }),
-      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) })
-    ]
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) }),
+    ],
   });
   wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.New);
   expect(wrapper).toMatchSnapshot();
@@ -71,9 +71,9 @@ it('should render correctly if branch is misconfigured', () => {
     branch: mockBranch({ name: 'own-reference' }),
     measures: [
       mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.coverage }) }),
-      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) })
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) }),
     ],
-    period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'own-reference' })
+    period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'own-reference' }),
   });
   wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.New);
   expect(wrapper).toMatchSnapshot('hide settings');
@@ -87,8 +87,8 @@ it('should render correctly if there is no coverage', () => {
     shallowRender({
       measures: [
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) })
-      ]
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) }),
+      ],
     })
   ).toMatchSnapshot();
 });
@@ -100,7 +100,7 @@ it('should render correctly if the data is still loading', () => {
 it('should render correctly when code scope is overall code', () => {
   expect(
     shallowRender({
-      location: mockLocation({ pathname: '/dashboard', query: { code_scope: 'overall' } })
+      location: mockLocation({ pathname: '/dashboard', query: { code_scope: 'overall' } }),
     })
   ).toMatchSnapshot();
 });
@@ -108,7 +108,7 @@ it('should render correctly when code scope is overall code', () => {
 it('should render correctly when code scope is new code', () => {
   expect(
     shallowRender({
-      location: mockLocation({ pathname: '/dashboard', query: { code_scope: 'new' } })
+      location: mockLocation({ pathname: '/dashboard', query: { code_scope: 'new' } }),
     })
   ).toMatchSnapshot();
 });
@@ -122,7 +122,7 @@ function shallowRender(props: Partial<MeasuresPanelProps> = {}) {
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.coverage }) }),
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_coverage }) }),
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) })
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) }),
       ]}
       location={mockLocation()}
       {...props}

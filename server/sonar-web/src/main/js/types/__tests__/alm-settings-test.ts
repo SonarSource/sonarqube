@@ -20,7 +20,7 @@
 import {
   mockBitbucketCloudBindingDefinition,
   mockGithubBindingDefinition,
-  mockGitlabBindingDefinition
+  mockGitlabBindingDefinition,
 } from '../../helpers/mocks/alm-settings';
 import { isGitLabBindingDefinition } from '../alm-settings';
 

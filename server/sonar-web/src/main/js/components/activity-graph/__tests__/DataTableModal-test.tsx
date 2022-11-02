@@ -49,7 +49,7 @@ it('should render correctly if there is no data and we have a start date', () =>
   renderDataTableModal({ graphStartDate: parseDate('3022-01-01') });
   expect(
     screen.getByText('project_activity.graphs.data_table.no_data_warning_check_dates_x', {
-      exact: false
+      exact: false,
     })
   ).toBeInTheDocument();
 });
@@ -58,7 +58,7 @@ it('should render correctly if there is no data and we have an end date', () => 
   renderDataTableModal({ graphEndDate: parseDate('2015-01-01') });
   expect(
     screen.getByText('project_activity.graphs.data_table.no_data_warning_check_dates_y', {
-      exact: false
+      exact: false,
     })
   ).toBeInTheDocument();
 });
@@ -66,11 +66,11 @@ it('should render correctly if there is no data and we have an end date', () => 
 it('should render correctly if there is no data and we have a date range', () => {
   renderDataTableModal({
     graphEndDate: parseDate('2015-01-01'),
-    graphStartDate: parseDate('2014-01-01')
+    graphStartDate: parseDate('2014-01-01'),
   });
   expect(
     screen.getByText('project_activity.graphs.data_table.no_data_warning_check_dates_x_y', {
-      exact: false
+      exact: false,
     })
   ).toBeInTheDocument();
 });
@@ -84,8 +84,8 @@ function renderDataTableModal(props: Partial<DataTableModalProps> = {}) {
 function mockSeries(n = 10) {
   const measuresHistory: MeasureHistory[] = [];
   const metrics: Metric[] = [];
-  [MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities].forEach(metric => {
-    const history = times(n, i => {
+  [MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities].forEach((metric) => {
+    const history = times(n, (i) => {
       const date = parseDate('2016-01-01T00:00:00+0200');
       date.setDate(date.getDate() + 365 * i);
       return mockHistoryItem({ date, value: i.toString() });
@@ -95,7 +95,7 @@ function mockSeries(n = 10) {
       mockMetric({
         key: metric,
         name: metric,
-        type: 'INT'
+        type: 'INT',
       })
     );
   });
@@ -107,7 +107,7 @@ function mockSeries(n = 10) {
     getDisplayedHistoryMetrics(GraphType.issues, [
       MetricKey.bugs,
       MetricKey.code_smells,
-      MetricKey.vulnerabilities
+      MetricKey.vulnerabilities,
     ])
   );
 }

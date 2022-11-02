@@ -45,7 +45,8 @@ function renderDeliveryAccordion(renderHeader?: () => React.ReactNode) {
         onClick={() => setOpen(!open)}
         open={open}
         title="test"
-        renderHeader={renderHeader}>
+        renderHeader={renderHeader}
+      >
         <div>children</div>
       </BoxedGroupAccordion>
     );

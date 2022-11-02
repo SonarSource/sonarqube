@@ -22,7 +22,10 @@ import { getJSON, post, postJSON } from '../helpers/request';
 import { ProjectLink } from '../types/types';
 
 export function getProjectLinks(projectKey: string): Promise<ProjectLink[]> {
-  return getJSON('/api/project_links/search', { projectKey }).then(r => r.links, throwGlobalError);
+  return getJSON('/api/project_links/search', { projectKey }).then(
+    (r) => r.links,
+    throwGlobalError
+  );
 }
 
 export function deleteLink(linkId: string) {
@@ -34,5 +37,5 @@ export function createLink(data: {
   projectKey: string;
   url: string;
 }): Promise<ProjectLink> {
-  return postJSON('/api/project_links/create', data).then(r => r.link, throwGlobalError);
+  return postJSON('/api/project_links/create', data).then((r) => r.link, throwGlobalError);
 }

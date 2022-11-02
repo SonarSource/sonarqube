@@ -59,7 +59,7 @@ type YScale = any;
 export default class ZoomTimeLine extends React.PureComponent<Props, State> {
   static defaultProps = {
     padding: [0, 0, 18, 0],
-    showXTicks: true
+    showXTicks: true,
   };
 
   constructor(props: Props) {
@@ -69,15 +69,11 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
   }
 
   getRatingScale = (availableHeight: number) => {
-    return scalePoint<number>()
-      .domain([5, 4, 3, 2, 1])
-      .range([availableHeight, 0]);
+    return scalePoint<number>().domain([5, 4, 3, 2, 1]).range([availableHeight, 0]);
   };
 
   getLevelScale = (availableHeight: number) => {
-    return scalePoint()
-      .domain(['ERROR', 'WARN', 'OK'])
-      .range([availableHeight, 0]);
+    return scalePoint().domain(['ERROR', 'WARN', 'OK']).range([availableHeight, 0]);
   };
 
   getYScale = (availableHeight: number, flatData: Chart.Point[]): YScale => {
@@ -88,13 +84,13 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
     }
     return scaleLinear()
       .range([availableHeight, 0])
-      .domain([0, max(flatData, d => Number(d.y || 0)) as number])
+      .domain([0, max(flatData, (d) => Number(d.y || 0)) as number])
       .nice();
   };
 
   getXScale = (availableWidth: number, flatData: Chart.Point[]): XScale => {
     return scaleTime()
-      .domain(extent(flatData, d => d.x) as [Date, Date])
+      .domain(extent(flatData, (d) => d.x) as [Date, Date])
       .range([0, availableWidth])
       .clamp(true);
   };
@@ -102,10 +98,10 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
   getScales = () => {
     const availableWidth = this.props.width - this.props.padding[1] - this.props.padding[3];
     const availableHeight = this.props.height - this.props.padding[0] - this.props.padding[2];
-    const flatData = flatten(this.props.series.map(serie => serie.data));
+    const flatData = flatten(this.props.series.map((serie) => serie.data));
     return {
       xScale: this.getXScale(availableWidth, flatData),
-      yScale: this.getYScale(availableHeight, flatData)
+      yScale: this.getYScale(availableHeight, flatData),
     };
   };
 
@@ -118,34 +114,29 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
     this.handleZoomUpdate(xScale, xDim);
   };
 
-  handleSelectionDrag = (xScale: XScale, width: number, xDim: number[], checkDelta = false) => (
-    _: MouseEvent,
-    data: DraggableData
-  ) => {
-    if (!checkDelta || data.deltaX) {
-      const x = Math.max(xDim[0], Math.min(data.x, xDim[1] - width));
-      this.handleZoomUpdate(xScale, [x, width + x]);
-    }
-  };
+  handleSelectionDrag =
+    (xScale: XScale, width: number, xDim: number[], checkDelta = false) =>
+    (_: MouseEvent, data: DraggableData) => {
+      if (!checkDelta || data.deltaX) {
+        const x = Math.max(xDim[0], Math.min(data.x, xDim[1] - width));
+        this.handleZoomUpdate(xScale, [x, width + x]);
+      }
+    };
 
-  handleSelectionHandleDrag = (
-    xScale: XScale,
-    fixedX: number,
-    xDim: number[],
-    handleDirection: string,
-    checkDelta = false
-  ) => (_: MouseEvent, data: DraggableData) => {
-    if (!checkDelta || data.deltaX) {
-      const x = Math.max(xDim[0], Math.min(data.x, xDim[1]));
-      this.handleZoomUpdate(xScale, handleDirection === 'right' ? [fixedX, x] : [x, fixedX]);
-    }
-  };
+  handleSelectionHandleDrag =
+    (xScale: XScale, fixedX: number, xDim: number[], handleDirection: string, checkDelta = false) =>
+    (_: MouseEvent, data: DraggableData) => {
+      if (!checkDelta || data.deltaX) {
+        const x = Math.max(xDim[0], Math.min(data.x, xDim[1]));
+        this.handleZoomUpdate(xScale, handleDirection === 'right' ? [fixedX, x] : [x, fixedX]);
+      }
+    };
 
   handleNewZoomDragStart = (xDim: number[]) => (_: MouseEvent, data: DraggableData) => {
     const overlayLeftPos = data.node.getBoundingClientRect().left;
     this.setState({
       overlayLeftPos,
-      newZoomStart: Math.round(Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1])))
+      newZoomStart: Math.round(Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1]))),
     });
   };
 
@@ -159,17 +150,15 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
     }
   };
 
-  handleNewZoomDragEnd = (xScale: XScale, xDim: number[]) => (
-    _: MouseEvent,
-    data: DraggableData
-  ) => {
-    const { newZoomStart, overlayLeftPos } = this.state;
-    if (newZoomStart !== undefined && overlayLeftPos !== undefined) {
-      const x = Math.round(Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1])));
-      this.handleZoomUpdate(xScale, newZoomStart === x ? xDim : sortBy([newZoomStart, x]));
-      this.setState({ newZoomStart: undefined, overlayLeftPos: undefined });
-    }
-  };
+  handleNewZoomDragEnd =
+    (xScale: XScale, xDim: number[]) => (_: MouseEvent, data: DraggableData) => {
+      const { newZoomStart, overlayLeftPos } = this.state;
+      if (newZoomStart !== undefined && overlayLeftPos !== undefined) {
+        const x = Math.round(Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1])));
+        this.handleZoomUpdate(xScale, newZoomStart === x ? xDim : sortBy([newZoomStart, x]));
+        this.setState({ newZoomStart: undefined, overlayLeftPos: undefined });
+      }
+    };
 
   handleZoomUpdate = (xScale: XScale, xArray: number[]) => {
     const xRange = xScale.range();
@@ -235,9 +224,9 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
 
   renderLines = (xScale: XScale, yScale: YScale) => {
     const lineGenerator = d3Line<Chart.Point>()
-      .defined(d => Boolean(d.y || d.y === 0))
-      .x(d => xScale(d.x))
-      .y(d => yScale(d.y));
+      .defined((d) => Boolean(d.y || d.y === 0))
+      .x((d) => xScale(d.x))
+      .y((d) => yScale(d.y));
     if (this.props.basisCurve) {
       lineGenerator.curve(curveBasis);
     }
@@ -256,9 +245,9 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
 
   renderAreas = (xScale: XScale, yScale: YScale) => {
     const areaGenerator = area<Chart.Point>()
-      .defined(d => Boolean(d.y || d.y === 0))
-      .x(d => xScale(d.x))
-      .y1(d => yScale(d.y))
+      .defined((d) => Boolean(d.y || d.y === 0))
+      .x((d) => xScale(d.x))
+      .y1((d) => yScale(d.y))
       .y0(yScale(0));
     if (this.props.basisCurve) {
       areaGenerator.curve(curveBasis);
@@ -300,7 +289,8 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
         options.xDim,
         options.direction
       )}
-      position={{ x: options.xPos, y: 0 }}>
+      position={{ x: options.xPos, y: 0 }}
+    >
       <rect
         className="zoom-selection-handle"
         height={options.yDim[0] - options.yDim[1] + 1}
@@ -330,7 +320,8 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
         <DraggableCore
           onDrag={this.handleNewZoomDrag(xScale, xDim)}
           onStart={this.handleNewZoomDragStart(xDim)}
-          onStop={this.handleNewZoomDragEnd(xScale, xDim)}>
+          onStop={this.handleNewZoomDragEnd(xScale, xDim)}
+        >
           <rect
             className="zoom-overlay"
             height={yDim[0] - yDim[1]}
@@ -345,7 +336,8 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
             bounds={{ left: xDim[0], right: Math.floor(xDim[1] - zoomBoxWidth) } as DraggableBounds}
             onDrag={this.handleSelectionDrag(xScale, zoomBoxWidth, xDim, true)}
             onStop={this.handleSelectionDrag(xScale, zoomBoxWidth, xDim)}
-            position={{ x: xArray[0], y: 0 }}>
+            position={{ x: xArray[0], y: 0 }}
+          >
             <rect
               className="zoom-selection"
               height={yDim[0] - yDim[1] + 1}
@@ -363,7 +355,7 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
             fixedPos: endX,
             xDim,
             yDim,
-            direction: 'left'
+            direction: 'left',
           })}
         {showZoomArea &&
           this.renderZoomHandle({
@@ -372,7 +364,7 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
             fixedPos: startX,
             xDim,
             yDim,
-            direction: 'right'
+            direction: 'right',
           })}
       </g>
     );

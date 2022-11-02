@@ -58,13 +58,14 @@ export default function AssigneeSelectionRenderer(props: HotspotAssigneeSelectRe
         <DropdownOverlay noPadding={true} placement={PopupPlacement.BottomLeft}>
           <ul className="hotspot-assignee-search-results">
             {suggestedUsers &&
-              suggestedUsers.map(suggestion => (
+              suggestedUsers.map((suggestion) => (
                 <li
                   className={classNames('padded', {
-                    active: highlighted && highlighted.login === suggestion.login
+                    active: highlighted && highlighted.login === suggestion.login,
                   })}
                   key={suggestion.login}
-                  onClick={() => props.onSelect(suggestion)}>
+                  onClick={() => props.onSelect(suggestion)}
+                >
                   {suggestion.login && (
                     <Avatar
                       className="spacer-right"

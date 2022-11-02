@@ -20,7 +20,7 @@
 import { Standards } from '../types/security';
 
 export function getStandards(): Promise<Standards> {
-  return import('./standards.json').then(x => x.default);
+  return import('./standards.json').then((x) => x.default);
 }
 
 export function renderCWECategory(standards: Standards, category: string): string {

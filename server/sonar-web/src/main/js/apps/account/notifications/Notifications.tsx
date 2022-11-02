@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   withNotifications,
-  WithNotificationsProps
+  WithNotificationsProps,
 } from '../../../components/hoc/withNotifications';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -38,10 +38,10 @@ export function Notifications(props: WithNotificationsProps) {
     loading,
     notifications,
     perProjectTypes,
-    removeNotification
+    removeNotification,
   } = props;
 
-  const [globalNotifications, projectNotifications] = partition(notifications, n => !n.project);
+  const [globalNotifications, projectNotifications] = partition(notifications, (n) => !n.project);
 
   return (
     <div className="account-body account-container">

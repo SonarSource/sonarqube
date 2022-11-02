@@ -37,7 +37,7 @@ export default function withIndexationContext<P>(
     render() {
       return (
         <IndexationContext.Consumer>
-          {indexationContext => {
+          {(indexationContext) => {
             if (indexationContext) {
               return (
                 <WrappedComponent indexationContext={indexationContext} {...(this.props as P)} />

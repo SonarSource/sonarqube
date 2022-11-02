@@ -66,7 +66,8 @@ export class GlobalNavUser extends React.PureComponent<Props> {
               {currentUser.email != null && (
                 <div
                   className="little-spacer-top text-ellipsis text-muted"
-                  title={currentUser.email}>
+                  title={currentUser.email}
+                >
                   {currentUser.email}
                 </div>
               )}
@@ -83,7 +84,8 @@ export class GlobalNavUser extends React.PureComponent<Props> {
               </a>
             </li>
           </ul>
-        }>
+        }
+      >
         <a className="dropdown-toggle navbar-avatar" href="#" title={currentUser.name}>
           <Avatar
             hash={currentUser.avatar}

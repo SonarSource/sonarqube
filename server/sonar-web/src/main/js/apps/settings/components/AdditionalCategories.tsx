@@ -27,7 +27,7 @@ import {
   AUTHENTICATION_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
-  PULL_REQUEST_DECORATION_BINDING_CATEGORY
+  PULL_REQUEST_DECORATION_BINDING_CATEGORY,
 } from '../constants';
 import AlmIntegration from './almIntegration/AlmIntegration';
 import { AnalysisScope } from './AnalysisScope';
@@ -60,7 +60,7 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     renderComponent: getLanguagesComponent,
     availableGlobally: true,
     availableForProject: true,
-    displayTab: true
+    displayTab: true,
   },
   {
     key: NEW_CODE_PERIOD_CATEGORY,
@@ -68,7 +68,7 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     renderComponent: getNewCodePeriodComponent,
     availableGlobally: true,
     availableForProject: false,
-    displayTab: true
+    displayTab: true,
   },
   {
     key: ANALYSIS_SCOPE_CATEGORY,
@@ -76,7 +76,7 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     renderComponent: getAnalysisScopeComponent,
     availableGlobally: true,
     availableForProject: true,
-    displayTab: false
+    displayTab: false,
   },
   {
     key: ALM_INTEGRATION_CATEGORY,
@@ -84,7 +84,7 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     renderComponent: getAlmIntegrationComponent,
     availableGlobally: true,
     availableForProject: false,
-    displayTab: true
+    displayTab: true,
   },
   {
     key: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
@@ -93,7 +93,7 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     availableGlobally: false,
     availableForProject: true,
     displayTab: true,
-    requiresBranchSupport: true
+    requiresBranchSupport: true,
   },
   {
     key: AUTHENTICATION_CATEGORY,
@@ -101,8 +101,8 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     renderComponent: getAuthenticationComponent,
     availableGlobally: true,
     availableForProject: false,
-    displayTab: false
-  }
+    displayTab: false,
+  },
 ];
 
 function getLanguagesComponent(props: AdditionalCategoryComponentProps) {

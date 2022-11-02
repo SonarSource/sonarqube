@@ -43,10 +43,10 @@ export class RepositoryFacet extends React.PureComponent<Props> {
   };
 
   handleSearch(query: string) {
-    return getRuleRepositories({ q: query }).then(repos => {
+    return getRuleRepositories({ q: query }).then((repos) => {
       return {
         paging: { pageIndex: 1, pageSize: repos.length, total: repos.length },
-        results: repos.map(r => r.key)
+        results: repos.map((r) => r.key),
       };
     });
   }
@@ -90,7 +90,7 @@ export class RepositoryFacet extends React.PureComponent<Props> {
         facetHeader={translate('coding_rules.facet.repositories')}
         fetching={false}
         getFacetItemText={this.renderTextName}
-        getSearchResultKey={rep => rep}
+        getSearchResultKey={(rep) => rep}
         getSearchResultText={this.renderTextName}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}

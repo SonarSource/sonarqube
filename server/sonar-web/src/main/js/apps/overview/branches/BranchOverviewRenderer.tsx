@@ -71,7 +71,7 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
     period,
     projectBinding,
     projectIsEmpty,
-    qgStatuses
+    qgStatuses,
   } = props;
 
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;

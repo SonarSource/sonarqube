@@ -32,7 +32,7 @@ it('should render maintainability correctly', () => {
   );
   expect(
     shallowRender({
-      appState: mockAppState({ settings: { [GlobalSettingKeys.RatingGrid]: '0,0.1' } })
+      appState: mockAppState({ settings: { [GlobalSettingKeys.RatingGrid]: '0,0.1' } }),
     })
   ).toMatchSnapshot('sqale rating wrong grid');
 });

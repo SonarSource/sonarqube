@@ -46,7 +46,7 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
     return null;
   }
 
-  const sortedConditions = sortBy(failedConditions, condition =>
+  const sortedConditions = sortBy(failedConditions, (condition) =>
     LEVEL_ORDER.indexOf(condition.level)
   );
 
@@ -63,8 +63,9 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
   return (
     <ul
       className="overview-quality-gate-conditions-list"
-      id="overview-quality-gate-conditions-list">
-      {renderConditions.map(condition => (
+      id="overview-quality-gate-conditions-list"
+    >
+      {renderConditions.map((condition) => (
         <QualityGateCondition
           branchLike={branchLike}
           component={component}
@@ -76,7 +77,8 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
         <li>
           <ButtonLink
             className="overview-quality-gate-conditions-list-collapse"
-            onClick={() => toggleCollapsed(!collapsed)}>
+            onClick={() => toggleCollapsed(!collapsed)}
+          >
             {translateWithParameters(
               'overview.X_more_failed_conditions',
               sortedConditions.length - MAX_CONDITIONS

@@ -48,7 +48,8 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
         className="big-spacer-bottom status-radio"
         alignLabel={true}
         onCheck={props.onStatusChange}
-        value={status}>
+        value={status}
+      >
         <StatusDescription statusOption={status} statusInBadge={false} />
       </Radio>
     );

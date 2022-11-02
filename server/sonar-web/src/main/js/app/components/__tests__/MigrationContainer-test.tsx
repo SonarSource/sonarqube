@@ -24,7 +24,7 @@ import { getSystemStatus } from '../../../helpers/system';
 import MigrationContainer from '../MigrationContainer';
 
 jest.mock('../../../helpers/system', () => ({
-  getSystemStatus: jest.fn()
+  getSystemStatus: jest.fn(),
 }));
 
 const originalLocation = window.location;
@@ -33,18 +33,18 @@ beforeAll(() => {
   const location = {
     pathname: '/projects',
     search: '?query=toto',
-    hash: '#hash'
+    hash: '#hash',
   };
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: location
+    value: location,
   });
 });
 
 afterAll(() => {
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: originalLocation
+    value: originalLocation,
   });
 });
 

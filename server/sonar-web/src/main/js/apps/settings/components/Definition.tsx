@@ -52,7 +52,7 @@ export default class Definition extends React.PureComponent<Props, State> {
     this.state = {
       loading: false,
       success: false,
-      settingValue: props.initialSettingValue
+      settingValue: props.initialSettingValue,
     };
   }
 
@@ -85,7 +85,7 @@ export default class Definition extends React.PureComponent<Props, State> {
         loading: false,
         success: true,
         validationMessage: undefined,
-        settingValue
+        settingValue,
       });
 
       this.timeout = window.setTimeout(
@@ -109,7 +109,7 @@ export default class Definition extends React.PureComponent<Props, State> {
     if (isEmptyValue(definition, changedValue)) {
       if (definition.defaultValue === undefined) {
         this.setState({
-          validationMessage: translate('settings.state.value_cant_be_empty_no_default')
+          validationMessage: translate('settings.state.value_cant_be_empty_no_default'),
         });
       } else {
         this.setState({ validationMessage: translate('settings.state.value_cant_be_empty') });
@@ -126,7 +126,7 @@ export default class Definition extends React.PureComponent<Props, State> {
           validationMessage: translateWithParameters(
             'settings.state.url_not_valid',
             changedValue ?? ''
-          )
+          ),
         });
         return false;
       }
@@ -169,7 +169,7 @@ export default class Definition extends React.PureComponent<Props, State> {
           changedValue: undefined,
           loading: false,
           success: true,
-          settingValue
+          settingValue,
         });
 
         this.timeout = window.setTimeout(

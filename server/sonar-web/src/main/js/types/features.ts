@@ -25,5 +25,5 @@ export enum Feature {
   MonoRepositoryPullRequestDecoration = 'monorepo',
   MultipleAlm = 'multiple-alm',
   ProjectImport = 'project-import',
-  RegulatoryReport = 'regulatory-reports'
+  RegulatoryReport = 'regulatory-reports',
 }

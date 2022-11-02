@@ -25,7 +25,7 @@ import { RepositoryFacet } from '../RepositoryFacet';
 jest.mock('../../../../api/rules', () => ({
   getRuleRepositories: jest
     .fn()
-    .mockResolvedValue([{ key: 'clirr', name: 'Clirr', language: 'java' }])
+    .mockResolvedValue([{ key: 'clirr', name: 'Clirr', language: 'java' }]),
 }));
 
 it('should handle search correctly', async () => {
@@ -36,9 +36,9 @@ it('should handle search correctly', async () => {
     paging: {
       pageIndex: 1,
       pageSize: 1,
-      total: 1
+      total: 1,
     },
-    results: ['clirr']
+    results: ['clirr'],
   });
 });
 
@@ -78,7 +78,7 @@ function shallowRender(props: Partial<RepositoryFacet['props']> = {}) {
       languages={{ l: mockLanguage() }}
       referencedRepositories={{
         l: mockRuleRepository(),
-        noName: mockRuleRepository({ name: undefined })
+        noName: mockRuleRepository({ name: undefined }),
       }}
       onChange={jest.fn()}
       onToggle={jest.fn()}

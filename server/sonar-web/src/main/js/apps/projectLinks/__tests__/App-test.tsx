@@ -28,12 +28,12 @@ import { App } from '../App';
 jest.mock('../../../api/projectLinks', () => ({
   getProjectLinks: jest.fn().mockResolvedValue([
     { id: '1', type: 'homepage', url: 'http://example.com' },
-    { id: '2', name: 'foo', type: 'foo', url: 'http://example.com/foo' }
+    { id: '2', name: 'foo', type: 'foo', url: 'http://example.com/foo' },
   ]),
   createLink: jest
     .fn()
     .mockResolvedValue({ id: '3', name: 'bar', type: 'bar', url: 'http://example.com/bar' }),
-  deleteLink: jest.fn().mockResolvedValue(undefined)
+  deleteLink: jest.fn().mockResolvedValue(undefined),
 }));
 
 it('should fetch links and render', async () => {
@@ -62,7 +62,7 @@ it('should create link', async () => {
   expect(createLink).toHaveBeenCalledWith({
     name: 'bar',
     projectKey: 'comp',
-    url: 'http://example.com/bar'
+    url: 'http://example.com/bar',
   });
 });
 

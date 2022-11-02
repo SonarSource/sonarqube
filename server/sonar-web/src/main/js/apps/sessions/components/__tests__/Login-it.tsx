@@ -32,20 +32,20 @@ jest.mock('../../../../api/users', () => {
   return {
     getIdentityProviders: jest
       .fn()
-      .mockResolvedValue({ identityProviders: [mockIdentityProvider()] })
+      .mockResolvedValue({ identityProviders: [mockIdentityProvider()] }),
   };
 });
 
 jest.mock('../../../../api/auth', () => ({
-  logIn: jest.fn((_id, password) => (password === 'valid' ? Promise.resolve() : Promise.reject()))
+  logIn: jest.fn((_id, password) => (password === 'valid' ? Promise.resolve() : Promise.reject())),
 }));
 
 jest.mock('../../../../api/settings', () => ({
-  getLoginMessage: jest.fn().mockResolvedValue({ message: '' })
+  getLoginMessage: jest.fn().mockResolvedValue({ message: '' }),
 }));
 
 jest.mock('../../../../helpers/globalMessages', () => ({
-  addGlobalErrorMessage: jest.fn()
+  addGlobalErrorMessage: jest.fn(),
 }));
 
 const originalLocation = window.location;
@@ -54,18 +54,18 @@ const replace = jest.fn();
 beforeAll(() => {
   const location = {
     ...window.location,
-    replace
+    replace,
   };
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: location
+    value: location,
   });
 });
 
 afterAll(() => {
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: originalLocation
+    value: originalLocation,
   });
 });
 
@@ -133,7 +133,7 @@ it('should not show any OAuth providers if none are configured', async () => {
 
 it("should show a warning if there's an authorization error", async () => {
   renderLoginContainer({
-    location: mockLocation({ query: { authorizationError: 'true' } })
+    location: mockLocation({ query: { authorizationError: 'true' } }),
   });
 
   const heading = await screen.findByRole('heading', { name: 'login.login_to_sonarqube' });

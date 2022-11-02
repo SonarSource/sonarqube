@@ -31,16 +31,16 @@ jest.mock('../../../../../../../api/web-api', () => ({
         actions: [
           {
             key: 'measure',
-            params: [{ key: 'metric', possibleValues: ['alert_status', 'coverage'] }]
-          }
-        ]
-      }
-    ])
+            params: [{ key: 'metric', possibleValues: ['alert_status', 'coverage'] }],
+          },
+        ],
+      },
+    ]),
 }));
 
 const METRICS = {
   alert_status: { key: 'alert_status', name: 'Quality Gate' } as Metric,
-  coverage: { key: 'coverage', name: 'Coverage' } as Metric
+  coverage: { key: 'coverage', name: 'Coverage' } as Metric,
 };
 
 it('should display measure badge params', () => {

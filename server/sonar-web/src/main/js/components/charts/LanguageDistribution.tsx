@@ -34,19 +34,19 @@ interface LanguageDistributionProps {
 const NUMBER_FORMAT_THRESHOLD = 1000;
 
 export function LanguageDistribution(props: LanguageDistributionProps) {
-  let distribution = props.distribution.split(';').map(point => {
+  let distribution = props.distribution.split(';').map((point) => {
     const tokens = point.split('=');
     return { language: tokens[0], lines: parseInt(tokens[1], 10) };
   });
 
-  distribution = sortBy(distribution, d => -d.lines);
+  distribution = sortBy(distribution, (d) => -d.lines);
 
-  const data = distribution.map(d => d.lines);
-  const yTicks = distribution.map(d => getLanguageName(d.language)).map(cutLanguageName);
-  const yTooltips = distribution.map(d =>
+  const data = distribution.map((d) => d.lines);
+  const yTicks = distribution.map((d) => getLanguageName(d.language)).map(cutLanguageName);
+  const yTooltips = distribution.map((d) =>
     d.lines > NUMBER_FORMAT_THRESHOLD ? formatMeasure(d.lines, MetricType.Integer) : ''
   );
-  const yValues = distribution.map(d => formatMeasure(d.lines, MetricType.ShortInteger));
+  const yValues = distribution.map((d) => formatMeasure(d.lines, MetricType.ShortInteger));
 
   return (
     <Histogram

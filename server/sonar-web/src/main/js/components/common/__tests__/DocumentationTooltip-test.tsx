@@ -28,8 +28,8 @@ it('renders correctly', () => {
       links: [
         { href: 'http://link.tosome.place', label: 'external link' },
         { href: '/guide', label: 'internal link' },
-        { href: '/projects', label: 'in place', inPlace: true, doc: false }
-      ]
+        { href: '/projects', label: 'in place', inPlace: true, doc: false },
+      ],
     })
   ).toMatchSnapshot('with links');
   expect(shallowRender({ title: undefined })).toMatchSnapshot('no title');

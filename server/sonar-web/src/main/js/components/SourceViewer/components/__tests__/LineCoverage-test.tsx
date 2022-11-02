@@ -25,14 +25,14 @@ jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
     useRef: jest.fn(),
-    useEffect: jest.fn()
+    useEffect: jest.fn(),
   };
 });
 
 it('should correctly trigger a scroll', () => {
   const scroll = jest.fn();
   const element = { current: { scrollIntoView: scroll } };
-  (React.useEffect as jest.Mock).mockImplementation(f => f());
+  (React.useEffect as jest.Mock).mockImplementation((f) => f());
   (React.useRef as jest.Mock).mockImplementation(() => element);
 
   shallowRender({ scrollToUncoveredLine: true });

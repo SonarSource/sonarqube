@@ -34,13 +34,13 @@ export interface Props {
 
 export default function WorkspaceNav(props: Props) {
   // do not show a tab for the currently open component/rule
-  const components = props.components.filter(x => x.key !== props.open.component);
-  const rules = props.rules.filter(x => x.key !== props.open.rule);
+  const components = props.components.filter((x) => x.key !== props.open.component);
+  const rules = props.rules.filter((x) => x.key !== props.open.rule);
 
   return (
     <nav className="workspace-nav">
       <ul className="workspace-nav-list">
-        {components.map(component => (
+        {components.map((component) => (
           <WorkspaceNavComponent
             component={component}
             key={`component-${component.key}`}
@@ -49,7 +49,7 @@ export default function WorkspaceNav(props: Props) {
           />
         ))}
 
-        {rules.map(rule => (
+        {rules.map((rule) => (
           <WorkspaceNavRule
             key={`rule-${rule.key}`}
             onClose={props.onRuleClose}

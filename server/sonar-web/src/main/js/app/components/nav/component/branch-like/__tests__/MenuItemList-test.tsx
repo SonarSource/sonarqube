@@ -22,7 +22,7 @@ import * as React from 'react';
 import { getBrancheLikesAsTree } from '../../../../../../helpers/branch-like';
 import {
   mockPullRequest,
-  mockSetOfBranchAndPullRequest
+  mockSetOfBranchAndPullRequest,
 } from '../../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
 import { MenuItemList, MenuItemListProps } from '../MenuItemList';
@@ -35,7 +35,7 @@ it('should render correctly', () => {
 function shallowRender(props?: Partial<MenuItemListProps>) {
   const branchLikes = [
     ...mockSetOfBranchAndPullRequest(),
-    mockPullRequest({ base: 'not-in-the-list' })
+    mockPullRequest({ base: 'not-in-the-list' }),
   ];
   const branchLikeTree = getBrancheLikesAsTree(branchLikes);
 

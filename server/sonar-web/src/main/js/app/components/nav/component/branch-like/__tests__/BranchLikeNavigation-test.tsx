@@ -54,10 +54,7 @@ it('should properly close menu when toggler asks for', () => {
   click(wrapper.find(ButtonPlain));
   expect(wrapper.find(Toggler).props().open).toBe(true);
 
-  wrapper
-    .find(Toggler)
-    .props()
-    .onRequestClose();
+  wrapper.find(Toggler).props().onRequestClose();
   expect(wrapper.find(Toggler).props().open).toBe(false);
 });
 

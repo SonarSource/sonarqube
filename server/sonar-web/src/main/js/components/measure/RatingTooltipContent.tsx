@@ -41,8 +41,8 @@ export interface RatingTooltipContentProps {
 function getMaintainabilityGrid(ratingGridSetting: string) {
   const numbers = ratingGridSetting
     .split(',')
-    .map(s => parseFloat(s))
-    .filter(n => !isNaN(n));
+    .map((s) => parseFloat(s))
+    .filter((n) => !isNaN(n));
 
   return numbers.length === RATING_GRID_SIZE ? numbers : [0, 0, 0, 0];
 }
@@ -51,7 +51,7 @@ export function RatingTooltipContent(props: RatingTooltipContentProps) {
   const {
     appState: { settings },
     metricKey,
-    value
+    value,
   } = props;
 
   const finalMetricKey = isDiffMetric(metricKey)

@@ -25,7 +25,7 @@ const PROPS = {
   query: { search: '', deprecated: false, internal: false },
   onSearch: () => {},
   onToggleInternal: () => {},
-  onToggleDeprecated: () => {}
+  onToggleDeprecated: () => {},
 };
 
 it('should render correctly', () => {

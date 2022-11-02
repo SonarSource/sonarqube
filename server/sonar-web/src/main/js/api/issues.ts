@@ -26,7 +26,7 @@ import {
   parseJSON,
   post,
   postJSON,
-  RequestData
+  RequestData,
 } from '../helpers/request';
 import { IssueResponse, RawIssuesResponse } from '../types/issues';
 import { Dict, FacetValue, IssueChangelog, SnippetsByComponent, SourceLine } from '../types/types';
@@ -66,9 +66,9 @@ export function getFacets(
     ...query,
     facets: facets.join(),
     ps: 1,
-    additionalFields: '_all'
+    additionalFields: '_all',
   };
-  return searchIssues(data).then(r => {
+  return searchIssues(data).then((r) => {
     return { facets: r.facets, response: r };
   });
 }
@@ -77,7 +77,7 @@ export function getFacet(
   query: RequestData,
   facet: FacetName
 ): Promise<{ facet: { count: number; val: string }[]; response: RawIssuesResponse }> {
-  return getFacets(query, [facet]).then(r => {
+  return getFacets(query, [facet]).then((r) => {
     return { facet: r.facets[0].values, response: r.response };
   });
 }
@@ -90,7 +90,7 @@ export function searchIssueTags(data: {
   q?: string;
 }): Promise<string[]> {
   return getJSON('/api/issues/tags', data)
-    .then(r => r.tags)
+    .then((r) => r.tags)
     .catch(throwGlobalError);
 }
 
@@ -99,7 +99,7 @@ export function getIssueChangelog(issue: string): Promise<{ changelog: IssueChan
 }
 
 export function getIssueFilters() {
-  return getJSON('/api/issue_filters/search').then(r => r.issueFilters);
+  return getJSON('/api/issue_filters/search').then((r) => r.issueFilters);
 }
 
 export function addIssueComment(data: { issue: string; text: string }): Promise<IssueResponse> {
@@ -149,19 +149,19 @@ export function searchIssueAuthors(data: {
   ps?: number;
   q?: string;
 }): Promise<string[]> {
-  return getJSON('/api/issues/authors', data).then(r => r.authors, throwGlobalError);
+  return getJSON('/api/issues/authors', data).then((r) => r.authors, throwGlobalError);
 }
 
 export function getIssueFlowSnippets(issueKey: string): Promise<Dict<SnippetsByComponent>> {
   return get('/api/sources/issue_snippets', { issueKey })
-    .then(r => {
+    .then((r) => {
       if (r.status === HttpStatus.NoContent) {
         return {} as any;
       }
       return parseJSON(r);
     })
-    .then(result => {
-      Object.keys(result).forEach(k => {
+    .then((result) => {
+      Object.keys(result).forEach((k) => {
         if (result[k].sources) {
           result[k].sources = result[k].sources.reduce(
             (lineMap: Dict<SourceLine>, line: SourceLine) => {

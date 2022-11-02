@@ -70,7 +70,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
             loading: false,
             permissionTemplate:
               permissionTemplates.length > 0 ? permissionTemplates[0].id : undefined,
-            permissionTemplates
+            permissionTemplates,
           });
         }
       },
@@ -91,14 +91,14 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         ? {
             projects: this.props.selection.join(),
             qualifiers: this.props.qualifier,
-            templateId: permissionTemplate
+            templateId: permissionTemplate,
           }
         : {
             analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
             onProvisionedOnly: this.props.provisioned || undefined,
             qualifiers: this.props.qualifier,
             q: this.props.query || undefined,
-            templateId: permissionTemplate
+            templateId: permissionTemplate,
           };
       bulkApplyTemplate(parameters).then(
         () => {
@@ -106,7 +106,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
             this.setState({ done: true, submitting: false });
           }
         },
-        error => {
+        (error) => {
           addGlobalErrorMessageFromAPI(error);
           if (this.mounted) {
             this.setState({ submitting: false });
@@ -137,7 +137,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
   renderSelect = () => {
     const options =
       this.state.permissionTemplates !== undefined
-        ? this.state.permissionTemplates.map(t => ({ label: t.name, value: t.id }))
+        ? this.state.permissionTemplates.map((t) => ({ label: t.name, value: t.id }))
         : [];
     return (
       <div className="modal-field">
@@ -151,7 +151,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
           isDisabled={this.state.submitting}
           onChange={this.handlePermissionTemplateChange}
           options={options}
-          value={options.find(option => option.value === this.state.permissionTemplate)}
+          value={options.find((option) => option.value === this.state.permissionTemplate)}
         />
       </div>
     );

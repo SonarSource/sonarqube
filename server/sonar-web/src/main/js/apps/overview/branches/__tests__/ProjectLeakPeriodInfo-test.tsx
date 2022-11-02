@@ -72,7 +72,7 @@ function shallowRender(period: Partial<Period> = {}) {
       intl={
         {
           formatDate: (date: string) => 'formatted.' + date,
-          formatTime: (date: string) => 'formattedTime.' + date
+          formatTime: (date: string) => 'formattedTime.' + date,
         } as IntlShape
       }
       leakPeriod={mockPeriod({ ...period })}

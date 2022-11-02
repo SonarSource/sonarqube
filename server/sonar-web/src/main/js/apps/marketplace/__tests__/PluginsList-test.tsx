@@ -29,8 +29,8 @@ it('should render correctly', () => {
       pending: {
         installing: [mockPendingPlugin({ key: 'sonar-foo' })],
         updating: [mockPendingPlugin({ key: 'sonar-bar' })],
-        removing: [mockPendingPlugin({ key: 'sonar-baz' })]
-      }
+        removing: [mockPendingPlugin({ key: 'sonar-baz' })],
+      },
     })
   ).toMatchSnapshot('with status');
 });
@@ -41,7 +41,7 @@ function shallowRender(props: Partial<PluginsListProps> = {}) {
       plugins={[
         mockAvailablePlugin({ key: 'sonar-foo' }),
         mockAvailablePlugin({ key: 'sonar-bar', name: 'Sonar Bar' }),
-        mockAvailablePlugin({ key: 'sonar-baz', name: 'Sonar Baz' })
+        mockAvailablePlugin({ key: 'sonar-baz', name: 'Sonar Baz' }),
       ]}
       pending={{ installing: [], updating: [], removing: [] }}
       readOnly={false}

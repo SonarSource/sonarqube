@@ -25,7 +25,7 @@ jest.mock(
   '../EmbedDocsSuggestions.json',
   () => ({
     pageA: [{ link: '/foo', text: 'Foo' }],
-    pageB: [{ link: '/qux', text: 'Qux' }]
+    pageB: [{ link: '/qux', text: 'Qux' }],
   }),
   { virtual: true }
 );
@@ -45,7 +45,7 @@ it('should add & remove suggestions', () => {
   instance.addSuggestions('pageB');
   expect(wrapper.state('suggestions')).toEqual([
     { link: '/qux', text: 'Qux' },
-    { link: '/foo', text: 'Foo' }
+    { link: '/foo', text: 'Foo' },
   ]);
 
   instance.removeSuggestions('pageA');

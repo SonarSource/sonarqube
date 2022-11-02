@@ -23,7 +23,7 @@ import { components, ControlProps, OptionProps, SingleValueProps } from 'react-s
 import {
   searchGroups,
   searchUsers,
-  SearchUsersGroupsParameters
+  SearchUsersGroupsParameters,
 } from '../../../api/quality-profiles';
 import { SearchSelect } from '../../../components/controls/Select';
 import GroupIcon from '../../../components/icons/GroupIcon';
@@ -69,11 +69,11 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
       language: profile.language,
       q,
       qualityProfile: profile.name,
-      selected: 'deselected'
+      selected: 'deselected',
     };
     Promise.all([searchUsers(parameters), searchGroups(parameters)])
       .then(([usersResponse, groupsResponse]) => [...usersResponse.users, ...groupsResponse.groups])
-      .then((options: Option[]) => options.map(opt => ({ ...opt, value: getStringValue(opt) })))
+      .then((options: Option[]) => options.map((opt) => ({ ...opt, value: getStringValue(opt) })))
       .then(resolve)
       .catch(() => resolve([]));
   };
@@ -97,7 +97,7 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
         components={{
           Option: this.optionRenderer,
           SingleValue: this.singleValueRenderer,
-          Control: this.controlRenderer
+          Control: this.controlRenderer,
         }}
       />
     );

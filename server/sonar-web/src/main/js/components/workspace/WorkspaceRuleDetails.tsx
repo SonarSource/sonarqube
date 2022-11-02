@@ -64,7 +64,7 @@ export default class WorkspaceRuleDetails extends React.PureComponent<Props, Sta
           this.setState({
             loading: false,
             referencedRepositories: keyBy(repositories, 'key'),
-            ruleDetails: rule
+            ruleDetails: rule,
           });
           this.props.onLoad({ name: rule.name });
         }

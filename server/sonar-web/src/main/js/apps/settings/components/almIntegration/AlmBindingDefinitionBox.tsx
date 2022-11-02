@@ -35,7 +35,7 @@ import {
   AlmBindingDefinitionBase,
   AlmKeys,
   AlmSettingsBindingStatus,
-  AlmSettingsBindingStatusType
+  AlmSettingsBindingStatusType,
 } from '../../../../types/alm-settings';
 import { EditionKey } from '../../../../types/editions';
 
@@ -53,12 +53,12 @@ export interface AlmBindingDefinitionBoxProps {
 const DEFAULT_STATUS: AlmSettingsBindingStatus = {
   alertSuccess: false,
   failureMessage: '',
-  type: AlmSettingsBindingStatusType.Validating
+  type: AlmSettingsBindingStatusType.Validating,
 };
 
 const STATUS_ICON = {
   [AlmSettingsBindingStatusType.Failure]: <AlertErrorIcon className="spacer-left" />,
-  [AlmSettingsBindingStatusType.Success]: <AlertSuccessIcon className="spacer-left" />
+  [AlmSettingsBindingStatusType.Success]: <AlertSuccessIcon className="spacer-left" />,
 };
 
 function getPRDecorationFeatureStatus(
@@ -86,15 +86,16 @@ function getPRDecorationFeatureStatus(
               link: (
                 <a
                   href={getEditionUrl(getEdition(EditionKey.developer), {
-                    sourceEdition: EditionKey.community
+                    sourceEdition: EditionKey.community,
                   })}
                   rel="noopener noreferrer"
-                  target="_blank">
+                  target="_blank"
+                >
                   {translate(
                     'settings.almintegration.feature.pr_decoration.disabled.no_branches.link'
                   )}
                 </a>
-              )
+              ),
             }}
           />
         }
@@ -194,7 +195,8 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
                   <Tooltip
                     overlay={translate(
                       'settings.almintegration.feature.alm_repo_import.description'
-                    )}>
+                    )}
+                  >
                     <span>
                       {translate('settings.almintegration.feature.alm_repo_import.title')}
                     </span>
@@ -233,7 +235,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
                           <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
                             {translate('learn_more')}
                           </DocLink>
-                        )
+                        ),
                       }}
                     />
                   </Alert>

@@ -47,7 +47,7 @@ const almSettingsValidators = {
   [AlmKeys.BitbucketServer]: (_: AlmSettingsInstance) => true,
   [AlmKeys.BitbucketCloud]: (_: AlmSettingsInstance) => true,
   [AlmKeys.GitHub]: (_: AlmSettingsInstance) => true,
-  [AlmKeys.GitLab]: (settings: AlmSettingsInstance) => !!settings.url
+  [AlmKeys.GitLab]: (settings: AlmSettingsInstance) => !!settings.url,
 };
 
 export class ProjectCreationMenu extends React.PureComponent<Props, State> {
@@ -80,14 +80,14 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
     const almSettings: AlmSettingsInstance[] = await getAlmSettings().catch(() => []);
 
     // Import is only available if exactly one binding is configured
-    const boundAlms = IMPORT_COMPATIBLE_ALMS.filter(key => {
+    const boundAlms = IMPORT_COMPATIBLE_ALMS.filter((key) => {
       let currentAlmSettings: AlmSettingsInstance[];
       if (key === AlmKeys.BitbucketServer || key === AlmKeys.BitbucketCloud) {
         currentAlmSettings = almSettings.filter(
-          s => s.alm === AlmKeys.BitbucketCloud || s.alm === AlmKeys.BitbucketServer
+          (s) => s.alm === AlmKeys.BitbucketCloud || s.alm === AlmKeys.BitbucketServer
         );
       } else {
-        currentAlmSettings = almSettings.filter(s => s.alm === key);
+        currentAlmSettings = almSettings.filter((s) => s.alm === key);
       }
       return (
         currentAlmSettings.length === 1 &&
@@ -98,7 +98,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
 
     if (this.mounted) {
       this.setState({
-        boundAlms
+        boundAlms,
       });
     }
   };
@@ -119,7 +119,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
         onOpen={this.fetchAlmBindings}
         overlay={
           <ul className="menu">
-            {[...boundAlms, 'manual'].map(alm => (
+            {[...boundAlms, 'manual'].map((alm) => (
               <li className="little-spacer-bottom" key={alm}>
                 <ProjectCreationMenuItem alm={alm} />
               </li>
@@ -133,7 +133,8 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
               </li>
             )}
           </ul>
-        }>
+        }
+      >
         <Button className="button-primary">
           {translate('projects.add')}
           <DropdownIcon className="spacer-left " />

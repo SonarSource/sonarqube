@@ -55,21 +55,21 @@ describe('#getBrancheLikesAsTree', () => {
         branch2Pr2,
         branch2Pr1,
         branch1Pr2,
-        branch1Pr1
+        branch1Pr1,
       ])
     ).toEqual({
       mainBranchTree: {
         branch: main,
-        pullRequests: [mainPr2, mainPr1]
+        pullRequests: [mainPr2, mainPr1],
       },
       branchTree: [
         { branch: branch1, pullRequests: [branch1Pr2, branch1Pr1] },
         { branch: branch2, pullRequests: [branch2Pr2, branch2Pr1] },
         { branch: branch3, pullRequests: [] },
-        { branch: branch4, pullRequests: [] }
+        { branch: branch4, pullRequests: [] },
       ],
       parentlessPullRequests: [parentlessPR2, parentlessPR1],
-      orphanPullRequests: [orphanPR2, orphanPR1]
+      orphanPullRequests: [orphanPR2, orphanPR1],
     });
   });
 });

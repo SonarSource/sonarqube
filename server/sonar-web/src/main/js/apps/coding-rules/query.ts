@@ -28,7 +28,7 @@ import {
   serializeDateShort,
   serializeOptionalBoolean,
   serializeString,
-  serializeStringArray
+  serializeStringArray,
 } from '../../helpers/query';
 import { Dict, RawQuery, RuleInheritance } from '../../types/types';
 
@@ -97,7 +97,7 @@ export function parseQuery(query: RawQuery): Query {
     statuses: parseAsArray(query.statuses, parseAsString),
     tags: parseAsArray(query.tags, parseAsString),
     template: parseAsOptionalBoolean(query.is_template),
-    types: parseAsArray(query.types, parseAsString)
+    types: parseAsArray(query.types, parseAsString),
   };
 }
 
@@ -122,7 +122,7 @@ export function serializeQuery(query: Query): RawQuery {
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),
     tags: serializeStringArray(query.tags),
-    types: serializeStringArray(query.types)
+    types: serializeStringArray(query.types),
   });
 }
 
@@ -144,7 +144,7 @@ export function shouldRequestFacet(facet: string): facet is FacetKey {
     'standard',
     'statuses',
     'tags',
-    'types'
+    'types',
   ];
   return facetsToRequest.includes(facet);
 }

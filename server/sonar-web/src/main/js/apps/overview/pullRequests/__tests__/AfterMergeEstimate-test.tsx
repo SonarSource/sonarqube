@@ -32,9 +32,9 @@ it('should render correctly for duplications', () => {
   expect(
     shallowRender({
       measures: [
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.duplicated_lines_density }) })
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.duplicated_lines_density }) }),
       ],
-      type: MeasurementType.Duplication
+      type: MeasurementType.Duplication,
     })
   ).toMatchSnapshot();
 });

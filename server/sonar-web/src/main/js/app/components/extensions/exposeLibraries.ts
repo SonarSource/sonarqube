@@ -27,7 +27,7 @@ import {
   Button,
   EditButton,
   ResetButtonLink,
-  SubmitButton
+  SubmitButton,
 } from '../../../components/controls/buttons';
 import ButtonToggle from '../../../components/controls/ButtonToggle';
 import Checkbox from '../../../components/controls/Checkbox';
@@ -85,7 +85,7 @@ import {
   isBranch,
   isMainBranch,
   isPullRequest,
-  sortBranches
+  sortBranches,
 } from '../../../helpers/branch-like';
 import { throwGlobalError } from '../../../helpers/error';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
@@ -101,7 +101,7 @@ import {
   post,
   postJSON,
   postJSONBody,
-  request
+  request,
 } from '../../../helpers/request';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import {
@@ -110,7 +110,7 @@ import {
   renderOwaspTop102021Category,
   renderOwaspTop10Category,
   renderSansTop25Category,
-  renderSonarSourceSecurityCategory
+  renderSonarSourceSecurityCategory,
 } from '../../../helpers/security-standard';
 import {
   getCodeUrl,
@@ -118,7 +118,7 @@ import {
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
   getMeasureHistoryUrl,
-  getRulesUrl
+  getRulesUrl,
 } from '../../../helpers/urls';
 
 const exposeLibraries = () => {
@@ -135,7 +135,7 @@ const exposeLibraries = () => {
     postJSON,
     postJSONBody,
     throwGlobalError,
-    addGlobalSuccessMessage
+    addGlobalSuccessMessage,
   };
   global.t = translate;
   global.tp = translateWithParameters;
@@ -166,9 +166,9 @@ const exposeLibraries = () => {
         getComponentSecurityHotspotsUrl,
         getMeasureHistoryUrl,
         getRulesUrl,
-        sanitizeStringRestricted
+        sanitizeStringRestricted,
       };
-    }
+    },
   });
 
   /**
@@ -179,7 +179,7 @@ const exposeLibraries = () => {
       // eslint-disable-next-line no-console
       console.warn('SonarMeasures usages are deprecated since SonarQube 8.7');
       return { ...measures };
-    }
+    },
   });
 
   /**
@@ -253,9 +253,9 @@ const exposeLibraries = () => {
         Suggestions,
         Tooltip,
         VulnerabilityIcon,
-        WarningIcon
+        WarningIcon,
       };
-    }
+    },
   });
 };
 

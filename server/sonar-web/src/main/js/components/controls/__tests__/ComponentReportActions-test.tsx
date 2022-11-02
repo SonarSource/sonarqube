@@ -22,7 +22,7 @@ import * as React from 'react';
 import {
   getReportStatus,
   subscribeToEmailReport,
-  unsubscribeFromEmailReport
+  unsubscribeFromEmailReport,
 } from '../../../api/component-report';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { mockBranch } from '../../../helpers/mocks/branch-like';
@@ -41,16 +41,16 @@ jest.mock('../../../api/component-report', () => ({
       jest.requireActual('../../../helpers/mocks/component-report').mockComponentReportStatus()
     ),
   subscribeToEmailReport: jest.fn().mockResolvedValue(undefined),
-  unsubscribeFromEmailReport: jest.fn().mockResolvedValue(undefined)
+  unsubscribeFromEmailReport: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('../../../helpers/system', () => ({
   ...jest.requireActual('../../../helpers/system'),
-  getBaseUrl: jest.fn().mockReturnValue('baseUrl')
+  getBaseUrl: jest.fn().mockReturnValue('baseUrl'),
 }));
 
 jest.mock('../../../helpers/globalMessages', () => ({
-  addGlobalSuccessMessage: jest.fn()
+  addGlobalSuccessMessage: jest.fn(),
 }));
 
 beforeEach(jest.clearAllMocks);

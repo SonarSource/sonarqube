@@ -35,21 +35,24 @@ interface Props {
 export default function Menu(props: Props) {
   const { domains, query, splat } = props;
   const filteredDomains = (domains || [])
-    .map(domain => {
-      const filteredActions = domain.actions.filter(action => actionsFilter(query, domain, action));
+    .map((domain) => {
+      const filteredActions = domain.actions.filter((action) =>
+        actionsFilter(query, domain, action)
+      );
       return { ...domain, filteredActions };
     })
-    .filter(domain => domain.filteredActions.length);
+    .filter((domain) => domain.filteredActions.length);
 
   const renderDomain = (domain: WebApi.Domain) => {
-    const internal = !domain.actions.find(action => !action.internal);
+    const internal = !domain.actions.find((action) => !action.internal);
     return (
       <Link
         className={classNames('list-group-item', {
-          active: isDomainPathActive(domain.path, splat)
+          active: isDomainPathActive(domain.path, splat),
         })}
         key={domain.path}
-        to={{ pathname: '/web_api/' + domain.path, search: queryToSearch(serializeQuery(query)) }}>
+        to={{ pathname: '/web_api/' + domain.path, search: queryToSearch(serializeQuery(query)) }}
+      >
         <h3 className="list-group-item-heading">
           {domain.path}
           {domain.deprecatedSince && <DeprecatedBadge since={domain.deprecatedSince} />}

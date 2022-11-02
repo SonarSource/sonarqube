@@ -23,20 +23,20 @@ import {
   addComponent,
   addComponentBreadcrumbs,
   addComponentChildren,
-  getComponentBreadcrumbs
+  getComponentBreadcrumbs,
 } from '../bucket';
 import {
   getCodeMetrics,
   loadMoreChildren,
   mostCommonPrefix,
   retrieveComponent,
-  retrieveComponentChildren
+  retrieveComponentChildren,
 } from '../utils';
 
 jest.mock('../../../api/components', () => ({
   getBreadcrumbs: jest.fn().mockRejectedValue({}),
   getChildren: jest.fn().mockRejectedValue({}),
-  getComponent: jest.fn().mockRejectedValue({})
+  getComponent: jest.fn().mockRejectedValue({}),
 }));
 
 jest.mock('../bucket', () => ({
@@ -45,7 +45,7 @@ jest.mock('../bucket', () => ({
   addComponentChildren: jest.fn(),
   getComponent: jest.fn(),
   getComponentBreadcrumbs: jest.fn(),
-  getComponentChildren: jest.fn()
+  getComponentChildren: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -79,7 +79,7 @@ describe('retrieveComponentChildren', () => {
     const components = [{}, {}];
     (getChildren as jest.Mock).mockResolvedValueOnce({
       components,
-      paging: { total: 2, pageIndex: 0 }
+      paging: { total: 2, pageIndex: 0 },
     });
 
     await retrieveComponentChildren('key', 'TRK', { mounted: true }, mockMainBranch());
@@ -95,10 +95,10 @@ describe('retrieveComponent', () => {
     const components = [{}, {}];
     (getChildren as jest.Mock).mockResolvedValueOnce({
       components,
-      paging: { total: 2, pageIndex: 0 }
+      paging: { total: 2, pageIndex: 0 },
     });
     (getComponent as jest.Mock).mockResolvedValueOnce({
-      component: {}
+      component: {},
     });
     (getBreadcrumbs as jest.Mock).mockResolvedValueOnce([]);
 
@@ -113,10 +113,10 @@ describe('retrieveComponent', () => {
     const components = [{}, {}];
     (getChildren as jest.Mock).mockResolvedValueOnce({
       components,
-      paging: { total: 2, pageIndex: 0 }
+      paging: { total: 2, pageIndex: 0 },
     });
     (getComponent as jest.Mock).mockResolvedValueOnce({
-      component: {}
+      component: {},
     });
     (getBreadcrumbs as jest.Mock).mockResolvedValueOnce([]);
 
@@ -133,7 +133,7 @@ describe('loadMoreChildren', () => {
     const components = [{}, {}, {}];
     (getChildren as jest.Mock).mockResolvedValueOnce({
       components,
-      paging: { total: 6, pageIndex: 1 }
+      paging: { total: 6, pageIndex: 1 },
     });
 
     await loadMoreChildren('key', 1, 'TRK', { mounted: true }, mockMainBranch());

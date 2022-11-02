@@ -26,7 +26,7 @@ import {
   DefaultInputProps,
   DefaultSpecializedInputProps,
   getUniqueName,
-  isDefaultOrInherited
+  isDefaultOrInherited,
 } from '../../utils';
 
 interface State {
@@ -39,7 +39,7 @@ interface Props extends DefaultInputProps {
 
 export default class InputForSecured extends React.PureComponent<Props, State> {
   state: State = {
-    changing: !this.props.setting.hasValue
+    changing: !this.props.setting.hasValue,
   };
 
   componentDidUpdate(prevProps: Props) {

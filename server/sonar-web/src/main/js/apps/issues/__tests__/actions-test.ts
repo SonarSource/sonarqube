@@ -26,7 +26,7 @@ describe('selectFlow', () => {
     expect(selectFlow(5)()).toEqual({
       locationsNavigator: true,
       selectedFlowIndex: 5,
-      selectedLocationIndex: undefined
+      selectedLocationIndex: undefined,
     });
   });
 });
@@ -38,13 +38,13 @@ describe('enableLocationsNavigator', () => {
     ).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
-        selectedFlowIndex: 20
+        selectedFlowIndex: 20,
       })
     );
     expect(enableLocationsNavigator({ openIssue: mockIssue(true) } as State)).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
-        selectedFlowIndex: 0
+        selectedFlowIndex: 0,
       })
     );
     expect(
@@ -52,7 +52,7 @@ describe('enableLocationsNavigator', () => {
     ).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
-        selectedFlowIndex: undefined
+        selectedFlowIndex: undefined,
       })
     );
   });
@@ -61,7 +61,7 @@ describe('enableLocationsNavigator', () => {
     expect(enableLocationsNavigator({ openIssue: mockIssue(true) } as State)).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
-        selectedLocationIndex: undefined
+        selectedLocationIndex: undefined,
       })
     );
 
@@ -70,7 +70,7 @@ describe('enableLocationsNavigator', () => {
     ).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
-        selectedLocationIndex: 0
+        selectedLocationIndex: 0,
       })
     );
 
@@ -79,7 +79,7 @@ describe('enableLocationsNavigator', () => {
     ).toEqual(
       expect.objectContaining({
         locationsNavigator: true,
-        selectedLocationIndex: 20
+        selectedLocationIndex: 20,
       })
     );
   });
@@ -88,7 +88,7 @@ describe('enableLocationsNavigator', () => {
     expect(enableLocationsNavigator({ openIssue: mockIssue() } as State)).toBeNull();
     expect(
       enableLocationsNavigator({
-        openIssue: mockIssue(true, { flows: [], secondaryLocations: [] })
+        openIssue: mockIssue(true, { flows: [], secondaryLocations: [] }),
       } as State)
     ).toBeNull();
   });

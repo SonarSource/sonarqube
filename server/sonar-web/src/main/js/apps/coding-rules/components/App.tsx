@@ -39,7 +39,7 @@ import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
-  removeWhitePageClass
+  removeWhitePageClass,
 } from '../../../helpers/pages';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { SecurityStandard } from '../../../types/security';
@@ -49,7 +49,7 @@ import {
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
   shouldOpenStandardsFacet,
-  STANDARDS
+  STANDARDS,
 } from '../../issues/utils';
 import {
   Activation,
@@ -66,7 +66,7 @@ import {
   parseQuery,
   Query,
   serializeQuery,
-  shouldRequestFacet
+  shouldRequestFacet,
 } from '../query';
 import '../styles.css';
 import BulkChange from './BulkChange';
@@ -116,11 +116,11 @@ export class App extends React.PureComponent<Props, State> {
         sansTop25: shouldOpenStandardsChildFacet({}, query, SecurityStandard.SANS_TOP25),
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),
-        types: true
+        types: true,
       },
       referencedProfiles: {},
       referencedRepositories: {},
-      rules: []
+      rules: [],
     };
   }
 
@@ -184,7 +184,7 @@ export class App extends React.PureComponent<Props, State> {
 
   getOpenRule = (rules: Rule[]) => {
     const open = getOpen(this.props.location.query);
-    return open && rules.find(rule => rule.key === open);
+    return open && rules.find((rule) => rule.key === open);
   };
 
   getSelectedRuleKey = (props: Props) => {
@@ -209,7 +209,7 @@ export class App extends React.PureComponent<Props, State> {
       'status',
       'sysTags',
       'tags',
-      'templateKey'
+      'templateKey',
     ];
     if (parseQuery(this.props.location.query).profile) {
       fields.push('actives', 'params');
@@ -222,7 +222,7 @@ export class App extends React.PureComponent<Props, State> {
     facets: this.getFacetsToFetch().join(),
     ps: PAGE_SIZE,
     s: 'name',
-    ...this.props.location.query
+    ...this.props.location.query,
   });
 
   stopLoading = () => {
@@ -238,7 +238,7 @@ export class App extends React.PureComponent<Props, State> {
         this.setState({
           canWrite,
           referencedProfiles: keyBy(profiles, 'key'),
-          referencedRepositories: keyBy(repositories, 'key')
+          referencedRepositories: keyBy(repositories, 'key'),
         });
         this.fetchFirstRules();
       },
@@ -268,7 +268,7 @@ export class App extends React.PureComponent<Props, State> {
           facets,
           loading: false,
           paging,
-          rules
+          rules,
         });
       }
     }, this.stopLoading);
@@ -286,7 +286,7 @@ export class App extends React.PureComponent<Props, State> {
               actives: { ...state.actives, ...actives },
               loading: false,
               paging,
-              rules: [...state.rules, ...rules]
+              rules: [...state.rules, ...rules],
             }));
           }
         },
@@ -298,14 +298,14 @@ export class App extends React.PureComponent<Props, State> {
   fetchFacet = (facet: FacetKey) => {
     this.makeFetchRequest({ ps: 1, facets: getServerFacet(facet) }).then(({ facets }) => {
       if (this.mounted) {
-        this.setState(state => ({ facets: { ...state.facets, ...facets }, loading: false }));
+        this.setState((state) => ({ facets: { ...state.facets, ...facets }, loading: false }));
       }
     }, this.stopLoading);
   };
 
   getSelectedIndex = ({ rules } = this.state) => {
     const selected = this.getSelectedRuleKey(this.props) || getOpen(this.props.location.query);
-    const index = rules.findIndex(rule => rule.key === selected);
+    const index = rules.findIndex((rule) => rule.key === selected);
     return index !== -1 ? index : undefined;
   };
 
@@ -347,15 +347,15 @@ export class App extends React.PureComponent<Props, State> {
     pathname: this.props.location.pathname,
     query: {
       ...serializeQuery(parseQuery(this.props.location.query)),
-      open: rule
-    }
+      open: rule,
+    },
   });
 
   routeSelectedRulePath = (rule?: string) => {
     if (rule) {
       this.props.router.replace({
         pathname: this.props.location.pathname,
-        query: { ...serializeQuery(parseQuery(this.props.location.query)), selected: rule }
+        query: { ...serializeQuery(parseQuery(this.props.location.query)), selected: rule },
       });
     }
   };
@@ -382,8 +382,8 @@ export class App extends React.PureComponent<Props, State> {
       query: {
         ...serializeQuery(parseQuery(this.props.location.query)),
         selected: this.getOpenRule(this.state.rules)?.key || this.getSelectedRuleKey(this.props),
-        open: undefined
-      }
+        open: undefined,
+      },
     });
     this.scrollToSelectedRule(false);
   };
@@ -415,8 +415,8 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   closeFacet = (facet: string) =>
-    this.setState(state => ({
-      openFacets: { ...state.openFacets, [facet]: false }
+    this.setState((state) => ({
+      openFacets: { ...state.openFacets, [facet]: false },
     }));
 
   handleRuleOpen = (ruleKey: string) => {
@@ -441,24 +441,24 @@ export class App extends React.PureComponent<Props, State> {
   handleFilterChange = (changes: Partial<Query>) => {
     this.props.router.push({
       pathname: this.props.location.pathname,
-      query: serializeQuery({ ...parseQuery(this.props.location.query), ...changes })
+      query: serializeQuery({ ...parseQuery(this.props.location.query), ...changes }),
     });
 
     this.setState(({ openFacets }) => ({
       openFacets: {
         ...openFacets,
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet(openFacets, changes),
-        standards: shouldOpenStandardsFacet(openFacets, changes)
-      }
+        standards: shouldOpenStandardsFacet(openFacets, changes),
+      },
     }));
   };
 
   handleFacetToggle = (property: string) => {
-    this.setState(state => {
+    this.setState((state) => {
       const willOpenProperty = !state.openFacets[property];
       const newState = {
         loading: state.loading,
-        openFacets: { ...state.openFacets, [property]: willOpenProperty }
+        openFacets: { ...state.openFacets, [property]: willOpenProperty },
       };
 
       // Try to open sonarsource security "subfacet" by default if the standard facet is open
@@ -499,8 +499,8 @@ export class App extends React.PureComponent<Props, State> {
     if (parseQuery(this.props.location.query).ruleKey === ruleKey) {
       this.handleReset();
     } else {
-      this.setState(state => {
-        const rules = state.rules.filter(rule => rule.key !== ruleKey);
+      this.setState((state) => {
+        const rules = state.rules.filter((rule) => rule.key !== ruleKey);
         const selectedIndex = this.getSelectedIndex(state);
         const selected = this.pickRuleAround(rules, selectedIndex);
         this.routeSelectedRulePath(selected);
@@ -521,7 +521,7 @@ export class App extends React.PureComponent<Props, State> {
     });
 
   handleRuleDeactivate = (profile: string, rule: string) =>
-    this.setState(state => {
+    this.setState((state) => {
       const { actives } = state;
       if (actives && actives[rule]) {
         const newRule = { ...actives[rule] };
@@ -539,7 +539,7 @@ export class App extends React.PureComponent<Props, State> {
     const { currentUser } = this.props;
     const { canWrite, paging, referencedProfiles } = this.state;
     const query = parseQuery(this.props.location.query);
-    const canUpdate = canWrite || Object.values(referencedProfiles).some(p => p.actions?.edit);
+    const canUpdate = canWrite || Object.values(referencedProfiles).some((p) => p.actions?.edit);
 
     if (!isLoggedIn(currentUser) || !canUpdate) {
       return <div />;
@@ -613,7 +613,8 @@ export class App extends React.PureComponent<Props, State> {
                       <a
                         className="js-back display-inline-flex-center link-no-underline"
                         href="#"
-                        onClick={this.handleBack}>
+                        onClick={this.handleBack}
+                      >
                         <BackIcon className="spacer-right" />
                         {usingPermalink
                           ? translate('coding_rules.see_all')
@@ -652,7 +653,7 @@ export class App extends React.PureComponent<Props, State> {
               ) : (
                 <>
                   <div role="tab">
-                    {rules.map(rule => (
+                    {rules.map((rule) => (
                       <RuleListItem
                         activation={this.getRuleActivation(rule.key)}
                         isLoggedIn={isLoggedIn(this.props.currentUser)}

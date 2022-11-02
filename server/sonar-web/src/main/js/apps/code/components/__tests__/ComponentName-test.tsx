@@ -46,7 +46,7 @@ describe('#ComponentName', () => {
     expect(
       shallowRender({
         component: mockComponentMeasure(true, { branch: 'foo' }),
-        rootComponent: mockComponentMeasure(false, { qualifier: 'APP' })
+        rootComponent: mockComponentMeasure(false, { qualifier: 'APP' }),
       })
     ).toMatchSnapshot();
     expect(shallowRender({ newCodeSelected: true })).toMatchSnapshot();
@@ -57,13 +57,13 @@ describe('#ComponentName', () => {
     expect(
       shallowRender({
         component: mockComponentMeasure(false, { name: 'src/main/ts/app', qualifier: 'DIR' }),
-        previous: mockComponentMeasure(false, { name: 'src/main/ts/tests', qualifier: 'DIR' })
+        previous: mockComponentMeasure(false, { name: 'src/main/ts/tests', qualifier: 'DIR' }),
       })
     ).toMatchSnapshot();
     expect(
       shallowRender({
         component: mockComponentMeasure(false, { name: 'src', qualifier: 'DIR' }),
-        previous: mockComponentMeasure(false, { name: 'lib', qualifier: 'DIR' })
+        previous: mockComponentMeasure(false, { name: 'lib', qualifier: 'DIR' }),
       })
     ).toMatchSnapshot();
   });
@@ -74,8 +74,8 @@ describe('#ComponentName', () => {
         component: mockComponentMeasure(false, {
           branch: 'foo',
           refKey: 'src/main/ts/app',
-          qualifier: ComponentQualifier.Project
-        })
+          qualifier: ComponentQualifier.Project,
+        }),
       })
     ).toMatchSnapshot();
     expect(
@@ -83,9 +83,9 @@ describe('#ComponentName', () => {
         component: mockComponentMeasure(false, {
           branch: 'foo',
           refKey: 'src/main/ts/app',
-          qualifier: ComponentQualifier.Project
+          qualifier: ComponentQualifier.Project,
         }),
-        rootComponent: mockComponentMeasure(false, { qualifier: ComponentQualifier.Application })
+        rootComponent: mockComponentMeasure(false, { qualifier: ComponentQualifier.Application }),
       })
     ).toMatchSnapshot();
 
@@ -93,9 +93,9 @@ describe('#ComponentName', () => {
       shallowRender({
         component: mockComponentMeasure(false, {
           refKey: 'src/main/ts/app',
-          qualifier: ComponentQualifier.Project
+          qualifier: ComponentQualifier.Project,
         }),
-        rootComponent: mockComponentMeasure(false, { qualifier: ComponentQualifier.Portfolio })
+        rootComponent: mockComponentMeasure(false, { qualifier: ComponentQualifier.Portfolio }),
       })
     ).toMatchSnapshot();
   });
@@ -105,15 +105,15 @@ describe('#ComponentName', () => {
     [ComponentQualifier.Portfolio, 'refKey'],
     [ComponentQualifier.SubPortfolio, 'refKey'],
     [ComponentQualifier.Project, 'refKey'],
-    [ComponentQualifier.Project, undefined]
+    [ComponentQualifier.Project, undefined],
   ])('should render breadcrumb correctly for %s', (qualifier, refKey) => {
     expect(
       shallowRender({
         component: mockComponentMeasure(false, {
           refKey,
-          qualifier
+          qualifier,
         }),
-        unclickable: true
+        unclickable: true,
       })
     ).toMatchSnapshot();
   });

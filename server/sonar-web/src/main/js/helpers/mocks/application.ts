@@ -26,6 +26,6 @@ export function mockApplicationPeriod(
     date: '2017-10-01',
     project: 'foo',
     projectName: 'Foo',
-    ...overrides
+    ...overrides,
   };
 }

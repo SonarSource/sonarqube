@@ -34,7 +34,7 @@ export function LineCoverage({ line, scrollToUncoveredLine }: LineCoverageProps)
       coverageMarker.current.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
-        inline: 'center'
+        inline: 'center',
       });
     }
   }, [scrollToUncoveredLine, coverageMarker]);

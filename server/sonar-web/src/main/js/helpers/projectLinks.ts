@@ -31,8 +31,8 @@ export function isProvided(link: Pick<ProjectLink, 'type'>) {
 export function orderLinks<T extends NameAndType>(links: T[]) {
   const [provided, unknown] = partition<T>(links, isProvided);
   return [
-    ...sortBy(provided, link => PROVIDED_TYPES.indexOf(link.type)),
-    ...sortBy(unknown, link => link.name && link.name.toLowerCase())
+    ...sortBy(provided, (link) => PROVIDED_TYPES.indexOf(link.type)),
+    ...sortBy(unknown, (link) => link.name && link.name.toLowerCase()),
   ];
 }
 

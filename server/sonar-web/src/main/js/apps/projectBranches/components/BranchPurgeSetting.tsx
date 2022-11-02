@@ -67,7 +67,7 @@ export default class BranchPurgeSetting extends React.PureComponent<Props, State
         if (this.mounted) {
           this.setState({
             excludedFromPurge: newValue,
-            loading: false
+            loading: false,
           });
           this.props.onUpdatePurgeSetting();
         }

@@ -44,7 +44,7 @@ export default function ProjectKeyInput(props: ProjectKeyInputProps) {
     projectKey,
     touched,
     validating,
-    autofocus = false
+    autofocus = false,
   } = props;
 
   const isInvalid = touched && error !== undefined;
@@ -60,12 +60,13 @@ export default function ProjectKeyInput(props: ProjectKeyInputProps) {
       isInvalid={isInvalid}
       isValid={isValid}
       label={label}
-      required={label !== undefined}>
+      required={label !== undefined}
+    >
       <input
         autoFocus={autofocus}
         className={classNames('input-super-large', {
           'is-invalid': isInvalid,
-          'is-valid': isValid
+          'is-valid': isValid,
         })}
         id="project-key"
         maxLength={PROJECT_KEY_MAX_LEN}

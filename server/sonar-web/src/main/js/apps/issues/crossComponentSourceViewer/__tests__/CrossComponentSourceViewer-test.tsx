@@ -24,7 +24,7 @@ import { getIssueFlowSnippets } from '../../../../api/issues';
 import {
   mockSnippetsByComponent,
   mockSourceLine,
-  mockSourceViewerFile
+  mockSourceViewerFile,
 } from '../../../../helpers/mocks/sources';
 import { mockFlowLocation, mockIssue } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
@@ -34,13 +34,13 @@ import CrossComponentSourceViewer from '../CrossComponentSourceViewer';
 jest.mock('../../../../api/issues', () => {
   const { mockSnippetsByComponent } = jest.requireActual('../../../../helpers/mocks/sources');
   return {
-    getIssueFlowSnippets: jest.fn().mockResolvedValue({ 'main.js': mockSnippetsByComponent() })
+    getIssueFlowSnippets: jest.fn().mockResolvedValue({ 'main.js': mockSnippetsByComponent() }),
   };
 });
 
 jest.mock('../../../../api/components', () => ({
   getDuplications: jest.fn().mockResolvedValue({}),
-  getComponentForSourceViewer: jest.fn().mockResolvedValue({})
+  getComponentForSourceViewer: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => {
@@ -92,10 +92,7 @@ it('should handle duplication popup', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  wrapper
-    .find(ComponentSourceSnippetGroupViewer)
-    .props()
-    .loadDuplications('foo', mockSourceLine());
+  wrapper.find(ComponentSourceSnippetGroupViewer).props().loadDuplications('foo', mockSourceLine());
 
   await waitAndUpdate(wrapper);
   expect(getDuplications).toHaveBeenCalledWith({ key: 'foo' });
@@ -119,7 +116,7 @@ function shallowRender(props: Partial<CrossComponentSourceViewer['props']> = {})
       issue={mockIssue(true, {
         key: '1',
         component: 'project:main.js',
-        textRange: { startLine: 1, endLine: 2, startOffset: 0, endOffset: 15 }
+        textRange: { startLine: 1, endLine: 2, startOffset: 0, endOffset: 15 },
       })}
       issues={[]}
       locations={[mockFlowLocation({ component: 'project:main.js' })]}

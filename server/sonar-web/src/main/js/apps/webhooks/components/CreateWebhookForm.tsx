@@ -76,12 +76,13 @@ export default class CreateWebhookForm extends React.PureComponent<Props> {
         initialValues={{
           name: (webhook && webhook.name) || '',
           secret: (webhook && webhook.secret) || '',
-          url: (webhook && webhook.url) || ''
+          url: (webhook && webhook.url) || '',
         }}
         onClose={this.props.onClose}
         onSubmit={this.props.onDone}
         size="small"
-        validate={this.handleValidate}>
+        validate={this.handleValidate}
+      >
         {({ dirty, errors, handleBlur, handleChange, isSubmitting, touched, values }) => (
           <>
             <MandatoryFieldsExplanation className="big-spacer-bottom" />

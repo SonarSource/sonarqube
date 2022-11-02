@@ -59,7 +59,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
         id="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
         values={{
           /* This link will be added when the backend provides the project URL */
-          link: <strong>{pipelineDescriptionLinkLabel}</strong>
+          link: <strong>{pipelineDescriptionLinkLabel}</strong>,
         }}
       />
 
@@ -75,7 +75,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
                   {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step1')}
                 </strong>
               ),
-              value: <code className="rule">SONAR_TOKEN</code>
+              value: <code className="rule">SONAR_TOKEN</code>,
             }}
           />
         </li>
@@ -101,7 +101,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
         id="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
         values={{
           /* This link will be added when the backend provides the project URL */
-          link: <strong>{pipelineDescriptionLinkLabel}</strong>
+          link: <strong>{pipelineDescriptionLinkLabel}</strong>,
         }}
       />
 
@@ -117,7 +117,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
                   {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step1')}
                 </strong>
               ),
-              value: <code className="rule">SONAR_HOST_URL</code>
+              value: <code className="rule">SONAR_HOST_URL</code>,
             }}
           />
         </li>
@@ -128,7 +128,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
             values={{
               extra: <ClipboardIconButton copyValue={baseUrl} />,
               field: <strong>{translate('onboarding.tutorial.env_variables.field')}</strong>,
-              value: <code className="rule">{baseUrl}</code>
+              value: <code className="rule">{baseUrl}</code>,
             }}
           />
         </li>

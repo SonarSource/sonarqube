@@ -31,12 +31,12 @@ jest.mock('../../../api/permissions');
 jest.mock('../../../api/components', () => ({
   getComponents: jest.fn().mockResolvedValue({
     paging: { total: 0 },
-    components: []
-  })
+    components: [],
+  }),
 }));
 
 jest.mock('../../../api/settings', () => ({
-  getValue: jest.fn().mockResolvedValue({ value: 'public' })
+  getValue: jest.fn().mockResolvedValue({ value: 'public' }),
 }));
 
 const components = mockComponents(11);
@@ -59,7 +59,7 @@ describe('Bulk Apply', () => {
     renderGlobalBackgroundTasksApp();
 
     const bulkApplyButton = await screen.findByRole('button', {
-      name: 'permission_templates.bulk_apply_permission_template'
+      name: 'permission_templates.bulk_apply_permission_template',
     });
 
     expect(bulkApplyButton).toBeDisabled();
@@ -131,9 +131,9 @@ function getComponentsImplementation(overridePageSize?: number) {
     const startIndex = ((params.p ?? 1) - 1) * pageSize; // artifically bump the page size to 500
     return Promise.resolve({
       paging: {
-        total: 1001
+        total: 1001,
       },
-      components: components.slice(startIndex, startIndex + pageSize)
+      components: components.slice(startIndex, startIndex + pageSize),
     });
   };
 }
@@ -146,7 +146,7 @@ function mockComponents(n: number) {
       key: `project-${i + 1}`,
       name: `Project ${i + 1}`,
       qualifier: ComponentQualifier.Project,
-      visibility: Visibility.Private
+      visibility: Visibility.Private,
     });
   }
 

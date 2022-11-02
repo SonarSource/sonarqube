@@ -69,7 +69,7 @@ export function parseUrlQuery(urlQuery: RawQuery): Query {
     qualifier: getAsQualifier(urlQuery['qualifier']),
     search: getAsString(urlQuery['search']),
     sort: getAsString(urlQuery['sort']),
-    view: getView(urlQuery['view'])
+    view: getView(urlQuery['view']),
   };
 }
 
@@ -84,15 +84,15 @@ export function convertToFilter(query: Query, isFavorite: boolean): string {
     conditions.push(mapPropertyToMetric('gate') + ' = ' + query['gate']);
   }
 
-  ['coverage', 'new_coverage'].forEach(property =>
+  ['coverage', 'new_coverage'].forEach((property) =>
     pushMetricToArray(query, property, conditions, convertCoverage)
   );
 
-  ['duplications', 'new_duplications'].forEach(property =>
+  ['duplications', 'new_duplications'].forEach((property) =>
     pushMetricToArray(query, property, conditions, convertDuplications)
   );
 
-  ['size', 'new_lines'].forEach(property =>
+  ['size', 'new_lines'].forEach((property) =>
     pushMetricToArray(query, property, conditions, convertSize)
   );
 
@@ -104,10 +104,10 @@ export function convertToFilter(query: Query, isFavorite: boolean): string {
     'new_reliability',
     'new_security',
     'new_security_review_rating',
-    'new_maintainability'
-  ].forEach(property => pushMetricToArray(query, property, conditions, convertIssuesRating));
+    'new_maintainability',
+  ].forEach((property) => pushMetricToArray(query, property, conditions, convertIssuesRating));
 
-  ['languages', 'tags', 'qualifier'].forEach(property =>
+  ['languages', 'tags', 'qualifier'].forEach((property) =>
     pushMetricToArray(query, property, conditions, convertArrayMetric)
   );
 
@@ -122,14 +122,14 @@ const viewParems = ['sort', 'view'];
 
 export function hasFilterParams(query: Query) {
   return Object.keys(query)
-    .filter(key => !viewParems.includes(key))
-    .some(key => query[key] !== undefined);
+    .filter((key) => !viewParems.includes(key))
+    .some((key) => query[key] !== undefined);
 }
 
 export function hasViewParams(query: Query) {
   return Object.keys(query)
-    .filter(key => viewParems.includes(key))
-    .some(key => query[key] !== undefined);
+    .filter((key) => viewParems.includes(key))
+    .some((key) => query[key] !== undefined);
 }
 
 function getAsNumericRating(value: any): number | undefined {
@@ -253,7 +253,7 @@ function mapPropertyToMetric(property?: string): string | undefined {
     languages: 'languages',
     tags: 'tags',
     search: 'query',
-    qualifier: 'qualifier'
+    qualifier: 'qualifier',
   };
   return property && map[property];
 }

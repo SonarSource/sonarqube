@@ -30,11 +30,7 @@ it('should render correctly', () => {
 });
 
 it('should render health item', () => {
-  expect(
-    shallowRender('GREEN', 'Health')
-      .find(HealthItem)
-      .prop('health')
-  ).toBe('GREEN');
+  expect(shallowRender('GREEN', 'Health').find(HealthItem).prop('health')).toBe('GREEN');
 });
 
 function shallowRender(value: Props['value'], name: Props['name'] = 'foo') {

@@ -19,7 +19,7 @@
  */
 /* eslint-disable import/first */
 jest.mock('../../../api/components', () => ({
-  bulkDeleteProjects: jest.fn(() => Promise.resolve())
+  bulkDeleteProjects: jest.fn(() => Promise.resolve()),
 }));
 
 import { shallow } from 'enzyme';
@@ -46,7 +46,7 @@ it('deletes all projects', async () => {
     analyzedBefore: '2017-04-08T00:00:00+0000',
     onProvisionedOnly: undefined,
     q: 'bla',
-    qualifiers: 'TRK'
+    qualifiers: 'TRK',
   });
 
   await new Promise(setImmediate);

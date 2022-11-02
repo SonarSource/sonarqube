@@ -70,7 +70,7 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
     this.props.onLoad({
       key: this.props.component.key,
       name: component.path,
-      qualifier: component.q
+      qualifier: component.q,
     });
 
     if (this.container && this.props.component.line) {
@@ -82,7 +82,7 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
           smooth: false,
           parent: this.container,
           topOffset: 50,
-          bottomOffset: 50
+          bottomOffset: 50,
         });
       }
     }
@@ -114,14 +114,16 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
           onCollapse={this.props.onCollapse}
           onMaximize={this.props.onMaximize}
           onMinimize={this.props.onMinimize}
-          onResize={this.props.onResize}>
+          onResize={this.props.onResize}
+        >
           <WorkspaceComponentTitle component={component} />
         </WorkspaceHeader>
 
         <div
           className="workspace-viewer-container"
-          ref={node => (this.container = node)}
-          style={{ height: this.props.height }}>
+          ref={(node) => (this.container = node)}
+          style={{ height: this.props.height }}
+        >
           <SourceViewer
             aroundLine={component.line}
             branchLike={component.branchLike}

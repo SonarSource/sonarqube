@@ -42,7 +42,7 @@ export default class Toggler extends React.Component<Props> {
       closeOnEscape = true,
       closeOnFocusOut = true,
       onRequestClose,
-      overlay
+      overlay,
     } = this.props;
 
     let renderedOverlay = overlay;

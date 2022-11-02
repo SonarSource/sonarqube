@@ -44,7 +44,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
     }
 
     if (profile.parentKey) {
-      const parentProfile = profilesWithDeprecations.find(p => p.key === profile.parentKey);
+      const parentProfile = profilesWithDeprecations.find((p) => p.key === profile.parentKey);
       if (parentProfile) {
         const parentRules = this.getDeprecatedRulesInheritanceChain(
           parentProfile,
@@ -60,7 +60,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
     if (count > 0) {
       rules.push({
         count,
-        from: profile
+        from: profile,
       });
     }
 
@@ -72,7 +72,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
     if (rules.length) {
       return (
         <>
-          {rules.map(rule => {
+          {rules.map((rule) => {
             if (rule.from.key === profile.key) {
               return null;
             }
@@ -96,14 +96,14 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
 
   render() {
     const profilesWithDeprecations = this.props.profiles.filter(
-      profile => profile.activeDeprecatedRuleCount > 0
+      (profile) => profile.activeDeprecatedRuleCount > 0
     );
 
     if (profilesWithDeprecations.length === 0) {
       return null;
     }
 
-    const sortedProfiles = sortBy(profilesWithDeprecations, p => -p.activeDeprecatedRuleCount);
+    const sortedProfiles = sortBy(profilesWithDeprecations, (p) => -p.activeDeprecatedRuleCount);
 
     return (
       <div className="boxed-group boxed-group-inner quality-profiles-evolution-deprecated">
@@ -117,7 +117,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
           )}
         </div>
         <ul>
-          {sortedProfiles.map(profile => (
+          {sortedProfiles.map((profile) => (
             <li className="spacer-top" key={profile.key}>
               <div className="text-ellipsis little-spacer-bottom">
                 <ProfileLink language={profile.language} name={profile.name}>
@@ -129,7 +129,8 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
                 {', '}
                 <Link
                   className="link-no-underline"
-                  to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}>
+                  to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}
+                >
                   {translateWithParameters(
                     'quality_profile.x_rules',
                     profile.activeDeprecatedRuleCount

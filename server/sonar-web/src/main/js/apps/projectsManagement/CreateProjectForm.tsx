@@ -61,7 +61,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
       loading: false,
       name: '',
       visibility: props.defaultProjectVisibility,
-      mainBranchName: 'main'
+      mainBranchName: 'main',
     };
   }
 
@@ -108,12 +108,12 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
       name,
       project: key,
       mainBranch: mainBranchName,
-      visibility
+      visibility,
     };
 
     this.setState({ loading: true });
     createProject(data).then(
-      response => {
+      (response) => {
         if (this.mounted) {
           this.setState({ createdProject: response.project, loading: false });
           this.props.onProjectCreated();
@@ -149,7 +149,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
                   values={{
                     project: (
                       <Link to={getProjectUrl(createdProject.key)}>{createdProject.name}</Link>
-                    )
+                    ),
                   }}
                 />
               </Alert>
@@ -158,8 +158,9 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
             <footer className="modal-foot">
               <ResetButtonLink
                 id="create-project-close"
-                innerRef={node => (this.closeButton = node)}
-                onClick={this.props.onClose}>
+                innerRef={(node) => (this.closeButton = node)}
+                onClick={this.props.onClose}
+              >
                 {translate('close')}
               </ResetButtonLink>
             </footer>

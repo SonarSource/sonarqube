@@ -49,7 +49,7 @@ export default class Table extends React.PureComponent<Props> {
 
     const orderedLinks = orderLinks(this.props.links);
 
-    const linkRows = orderedLinks.map(link => (
+    const linkRows = orderedLinks.map((link) => (
       <LinkRow key={link.id} link={link} onDelete={this.props.onDelete} />
     ));
 

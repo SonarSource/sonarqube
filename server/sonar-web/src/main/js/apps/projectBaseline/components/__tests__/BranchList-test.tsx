@@ -28,7 +28,7 @@ import BranchList from '../BranchList';
 
 jest.mock('../../../../api/newCodePeriod', () => ({
   listBranchesNewCodePeriod: jest.fn().mockResolvedValue({ newCodePeriods: [] }),
-  resetNewCodePeriod: jest.fn().mockResolvedValue(null)
+  resetNewCodePeriod: jest.fn().mockResolvedValue(null),
 }));
 
 const newCodePeriods = [
@@ -36,14 +36,14 @@ const newCodePeriods = [
     projectKey: '',
     branchKey: 'master',
     type: 'NUMBER_OF_DAYS',
-    value: '27'
-  }
+    value: '27',
+  },
 ];
 
 it('should render correctly', async () => {
   (listBranchesNewCodePeriod as jest.Mock).mockResolvedValueOnce({ newCodePeriods });
   const wrapper = shallowRender({
-    branchList: [mockMainBranch(), mockBranch(), mockBranch({ name: 'branch-7.0' })]
+    branchList: [mockMainBranch(), mockBranch(), mockBranch({ name: 'branch-7.0' })],
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().branches).toHaveLength(3);
@@ -58,7 +58,7 @@ it('should handle reset', () => {
 
   expect(resetNewCodePeriod).toHaveBeenCalledWith({
     project: component.key,
-    branch: 'master'
+    branch: 'master',
   });
 });
 
@@ -76,15 +76,15 @@ it('should toggle popup', async () => {
   wrapper.instance().closeEditModal('master', { type: 'NUMBER_OF_DAYS', value: '23' });
 
   expect(wrapper.find('BranchBaselineSettingModal')).toHaveLength(0);
-  expect(wrapper.state().branches.find(b => b.name === 'master')).toEqual({
+  expect(wrapper.state().branches.find((b) => b.name === 'master')).toEqual({
     analysisDate: '2018-01-01',
     excludedFromPurge: true,
     isMain: true,
     name: 'master',
     newCodePeriod: {
       type: 'NUMBER_OF_DAYS',
-      value: '23'
-    }
+      value: '23',
+    },
   });
 });
 

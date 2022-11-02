@@ -36,7 +36,7 @@ it('should filter when clicked', async () => {
     createdAt: undefined,
     createdBefore: undefined,
     createdInLast: undefined,
-    inNewCodePeriod: true
+    inNewCodePeriod: true,
   });
 });
 

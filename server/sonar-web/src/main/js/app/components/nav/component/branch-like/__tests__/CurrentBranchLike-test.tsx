@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockProjectGithubBindingResponse,
-  mockProjectGitLabBindingResponse
+  mockProjectGitLabBindingResponse,
 } from '../../../../../../helpers/mocks/alm-settings';
 import { mockMainBranch } from '../../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
@@ -33,9 +33,9 @@ describe('applications', () => {
     const wrapper = shallowRender({
       component: mockComponent({
         configuration: { showSettings: true },
-        qualifier: ComponentQualifier.Application
+        qualifier: ComponentQualifier.Application,
       }),
-      hasManyBranches: false
+      hasManyBranches: false,
     });
     expect(wrapper).toMatchSnapshot();
   });
@@ -44,9 +44,9 @@ describe('applications', () => {
     const wrapper = shallowRender({
       component: mockComponent({
         configuration: { showSettings: false },
-        qualifier: ComponentQualifier.Application
+        qualifier: ComponentQualifier.Application,
       }),
-      hasManyBranches: false
+      hasManyBranches: false,
     });
     expect(wrapper).toMatchSnapshot();
   });
@@ -55,9 +55,9 @@ describe('applications', () => {
     const wrapper = shallowRender({
       branchesEnabled: true,
       component: mockComponent({
-        qualifier: ComponentQualifier.Application
+        qualifier: ComponentQualifier.Application,
       }),
-      hasManyBranches: true
+      hasManyBranches: true,
     });
     expect(wrapper).toMatchSnapshot();
   });
@@ -69,26 +69,26 @@ describe('projects', () => {
       shallowRender({
         branchesEnabled: false,
         component: mockComponent({
-          qualifier: ComponentQualifier.Project
-        })
+          qualifier: ComponentQualifier.Project,
+        }),
       })
     ).toMatchSnapshot('default');
     expect(
       shallowRender({
         branchesEnabled: false,
         component: mockComponent({
-          qualifier: ComponentQualifier.Project
+          qualifier: ComponentQualifier.Project,
         }),
-        projectBinding: mockProjectGithubBindingResponse()
+        projectBinding: mockProjectGithubBindingResponse(),
       })
     ).toMatchSnapshot('alm with prs');
     expect(
       shallowRender({
         branchesEnabled: false,
         component: mockComponent({
-          qualifier: ComponentQualifier.Project
+          qualifier: ComponentQualifier.Project,
         }),
-        projectBinding: mockProjectGitLabBindingResponse()
+        projectBinding: mockProjectGitLabBindingResponse(),
       })
     ).toMatchSnapshot('alm with mrs');
   });
@@ -97,9 +97,9 @@ describe('projects', () => {
     const wrapper = shallowRender({
       branchesEnabled: true,
       component: mockComponent({
-        qualifier: ComponentQualifier.Project
+        qualifier: ComponentQualifier.Project,
       }),
-      hasManyBranches: false
+      hasManyBranches: false,
     });
     expect(wrapper).toMatchSnapshot();
   });
@@ -108,9 +108,9 @@ describe('projects', () => {
     const wrapper = shallowRender({
       branchesEnabled: true,
       component: mockComponent({
-        qualifier: ComponentQualifier.Project
+        qualifier: ComponentQualifier.Project,
       }),
-      hasManyBranches: true
+      hasManyBranches: true,
     });
     expect(wrapper).toMatchSnapshot();
   });

@@ -48,7 +48,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
   state: State = {
     pendingPlugins: defaultPendingPlugins,
     systemStatus: defaultSystemStatus,
-    adminPages: []
+    adminPages: [],
   };
 
   componentDidMount() {
@@ -68,14 +68,14 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
 
   fetchNavigationSettings = () => {
     getSettingsNavigation().then(
-      r => this.setState({ adminPages: r.extensions }),
+      (r) => this.setState({ adminPages: r.extensions }),
       () => {}
     );
   };
 
   fetchPendingPlugins = () => {
     getPendingPlugins().then(
-      pendingPlugins => {
+      (pendingPlugins) => {
         if (this.mounted) {
           this.setState({ pendingPlugins });
         }
@@ -138,8 +138,9 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
             fetchSystemStatus: this.fetchSystemStatus,
             fetchPendingPlugins: this.fetchPendingPlugins,
             pendingPlugins,
-            systemStatus
-          }}>
+            systemStatus,
+          }}
+        >
           <Outlet context={adminPagesContext} />
         </AdminContext.Provider>
       </div>

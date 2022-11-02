@@ -30,6 +30,6 @@ export function mockComponentReportStatus(
     globalFrequency: '',
     globalRecipients: [],
     subscribed: false,
-    ...props
+    ...props,
   };
 }

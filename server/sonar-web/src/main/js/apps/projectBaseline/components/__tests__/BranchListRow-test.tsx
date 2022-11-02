@@ -28,17 +28,17 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       branch: mockBranch({ name: 'branch-7.3' }),
-      inheritedSetting: { type: 'REFERENCE_BRANCH', value: 'branch-7.3' }
+      inheritedSetting: { type: 'REFERENCE_BRANCH', value: 'branch-7.3' },
     })
   ).toMatchSnapshot('faulty branch');
   expect(
     shallowRender({
-      branch: { ...mockBranch(), newCodePeriod: { type: 'NUMBER_OF_DAYS', value: '21' } }
+      branch: { ...mockBranch(), newCodePeriod: { type: 'NUMBER_OF_DAYS', value: '21' } },
     })
   ).toMatchSnapshot('branch with number of days');
   expect(
     shallowRender({
-      branch: { ...mockBranch(), newCodePeriod: { type: 'PREVIOUS_VERSION' } }
+      branch: { ...mockBranch(), newCodePeriod: { type: 'PREVIOUS_VERSION' } },
     })
   ).toMatchSnapshot('branch with previous version');
   expect(
@@ -48,14 +48,14 @@ it('should render correctly', () => {
         newCodePeriod: {
           type: 'SPECIFIC_ANALYSIS',
           value: 'A85835',
-          effectiveValue: '2018-12-02T13:01:12'
-        }
-      }
+          effectiveValue: '2018-12-02T13:01:12',
+        },
+      },
     })
   ).toMatchSnapshot('branch with specific analysis');
   expect(
     shallowRender({
-      branch: { ...mockBranch(), newCodePeriod: { type: 'REFERENCE_BRANCH', value: 'master' } }
+      branch: { ...mockBranch(), newCodePeriod: { type: 'REFERENCE_BRANCH', value: 'master' } },
     })
   ).toMatchSnapshot('branch with reference branch');
 });
@@ -65,10 +65,7 @@ it('should callback to open modal when clicked', () => {
   const branch = mockBranch();
   const wrapper = shallowRender({ branch, onOpenEditModal: openEditModal });
 
-  wrapper
-    .find(ActionsDropdownItem)
-    .first()
-    .simulate('click');
+  wrapper.find(ActionsDropdownItem).first().simulate('click');
 
   expect(openEditModal).toHaveBeenCalledWith(branch);
 });
@@ -78,13 +75,10 @@ it('should callback to reset when clicked', () => {
   const branchName = 'branch-6.5';
   const wrapper = shallowRender({
     branch: { ...mockBranch({ name: branchName }), newCodePeriod: { type: 'REFERENCE_BRANCH' } },
-    onResetToDefault: resetToDefault
+    onResetToDefault: resetToDefault,
   });
 
-  wrapper
-    .find(ActionsDropdownItem)
-    .at(1)
-    .simulate('click');
+  wrapper.find(ActionsDropdownItem).at(1).simulate('click');
 
   expect(resetToDefault).toHaveBeenCalledWith(branchName);
 });

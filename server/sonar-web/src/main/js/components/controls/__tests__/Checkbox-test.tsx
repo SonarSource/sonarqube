@@ -26,7 +26,7 @@ import Checkbox from '../Checkbox';
 
 describe.each([
   { children: null, describtion: 'with no children' },
-  { children: <a>child</a>, describtion: 'with children' }
+  { children: <a>child</a>, describtion: 'with children' },
 ])('Checkbox $describtion', ({ children }) => {
   it('should call check function', async () => {
     const user = userEvent.setup();
@@ -36,7 +36,7 @@ describe.each([
       children,
       onCheck,
       checked: false,
-      title: 'title'
+      title: 'title',
     });
     await user.click(screen.getByRole('checkbox', { name: 'me' }));
     expect(onCheck).toHaveBeenCalledWith(true, undefined);
@@ -69,7 +69,7 @@ function renderCheckbox(override?: Partial<Checkbox['props']>) {
   const { rerender } = renderComponent(
     <Checkbox checked={true} onCheck={jest.fn()} {...override} />
   );
-  return function(reoverride?: Partial<Checkbox['props']>) {
+  return function (reoverride?: Partial<Checkbox['props']>) {
     rerender(<Checkbox checked={true} onCheck={jest.fn()} {...override} {...reoverride} />);
   };
 }

@@ -73,7 +73,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
     settings,
     showPersonalAccessTokenForm,
     submittingToken,
-    tokenValidationFailed
+    tokenValidationFailed,
   } = props;
 
   const settingIsValid = settings && settings.url;
@@ -91,7 +91,8 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
               <Button
                 className="button-large button-primary"
                 disabled={!selectedRepository || importing}
-                onClick={props.onImportRepository}>
+                onClick={props.onImportRepository}
+              >
                 {translate('onboarding.create_project.import_selected_repo')}
               </Button>
             </div>
@@ -124,7 +125,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
                   <Link to={getGlobalSettingsUrl(ALM_INTEGRATION_CATEGORY)}>
                     {translate('settings.page')}
                   </Link>
-                )
+                ),
               }}
             />
           ) : (

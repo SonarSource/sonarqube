@@ -49,7 +49,7 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
       description: '',
       key: '',
       name: '',
-      visibility: Visibility.Public
+      visibility: Visibility.Public,
     };
   }
 
@@ -84,7 +84,7 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
         if (this.mounted) {
           this.props.onCreate({
             key: application.key,
-            qualifier: ComponentQualifier.Application
+            qualifier: ComponentQualifier.Application,
           });
         }
       }
@@ -101,7 +101,8 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
         header={header}
         onClose={this.props.onClose}
         onSubmit={this.handleFormSubmit}
-        size="small">
+        size="small"
+      >
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form className="views-form" onSubmit={onFormSubmit}>
             <div className="modal-head">
@@ -156,13 +157,14 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
               <div className="modal-field">
                 <label>{translate('visibility')}</label>
                 <div className="little-spacer-top">
-                  {[Visibility.Public, Visibility.Private].map(v => (
+                  {[Visibility.Public, Visibility.Private].map((v) => (
                     <Radio
                       className={`big-spacer-right visibility-${v}`}
                       key={v}
                       checked={visibility === v}
                       value={v}
-                      onCheck={this.handleVisibilityChange}>
+                      onCheck={this.handleVisibilityChange}
+                    >
                       {translate('visibility', v)}
                     </Radio>
                   ))}
@@ -178,7 +180,8 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
               <ResetButtonLink
                 className="js-modal-close"
                 id="view-edit-cancel"
-                onClick={onCloseClick}>
+                onClick={onCloseClick}
+              >
                 {translate('cancel')}
               </ResetButtonLink>
             </div>

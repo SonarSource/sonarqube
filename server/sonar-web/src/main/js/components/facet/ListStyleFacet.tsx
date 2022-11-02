@@ -86,7 +86,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   static defaultProps = {
     maxInitialItems: 15,
     maxItems: 100,
-    minSearchLength: 2
+    minSearchLength: 2,
   };
 
   state: State<S> = {
@@ -94,7 +94,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
     query: '',
     searching: false,
     searchResultsCounts: {},
-    showFullList: false
+    showFullList: false,
   };
 
   componentDidMount() {
@@ -116,7 +116,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         searchResults: undefined,
         searching: false,
         searchResultsCounts: {},
-        showFullList: false
+        showFullList: false,
       });
     } else if (
       prevProps.stats !== this.props.stats &&
@@ -143,7 +143,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         this.props.onChange({ [this.props.property]: newValue });
       } else {
         this.props.onChange({
-          [this.props.property]: values.includes(itemValue) && values.length < 2 ? [] : [itemValue]
+          [this.props.property]: values.includes(itemValue) && values.length < 2 ? [] : [itemValue],
         });
       }
     }
@@ -175,12 +175,12 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         .then(this.loadCountsForSearchResults)
         .then(({ maxResults, paging, results, stats }) => {
           if (this.mounted) {
-            this.setState(state => ({
+            this.setState((state) => ({
               searching: false,
               searchMaxResults: maxResults,
               searchResults: results,
               searchPaging: paging,
-              searchResultsCounts: { ...state.searchResultsCounts, ...stats }
+              searchResultsCounts: { ...state.searchResultsCounts, ...stats },
             }));
           }
         })
@@ -199,11 +199,11 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
         .then(this.loadCountsForSearchResults)
         .then(({ paging, results, stats }) => {
           if (this.mounted) {
-            this.setState(state => ({
+            this.setState((state) => ({
               searching: false,
               searchResults: [...searchResults, ...results],
               searchPaging: paging,
-              searchResultsCounts: { ...state.searchResultsCounts, ...stats }
+              searchResultsCounts: { ...state.searchResultsCounts, ...stats },
             }));
           }
         })
@@ -213,12 +213,12 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
 
   loadCountsForSearchResults = (response: SearchResponse<S>) => {
     const { loadSearchResultCount = () => Promise.resolve({}) } = this.props;
-    const resultsToLoad = response.results.filter(result => {
+    const resultsToLoad = response.results.filter((result) => {
       const key = this.props.getSearchResultKey(result);
       return this.getStat(key) === undefined && this.state.searchResultsCounts[key] === undefined;
     });
     if (resultsToLoad.length > 0) {
-      return loadSearchResultCount(resultsToLoad).then(stats => ({ ...response, stats }));
+      return loadSearchResultCount(resultsToLoad).then((stats) => ({ ...response, stats }));
     } else {
       return { ...response, stats: {} };
     }
@@ -248,8 +248,8 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
       ? this.props.getSortedItems()
       : sortBy(
           Object.keys(stats),
-          key => -stats[key],
-          key => this.props.getFacetItemText(key)
+          (key) => -stats[key],
+          (key) => this.props.getFacetItemText(key)
         );
 
     const limitedList = this.state.showFullList
@@ -261,14 +261,14 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
       ? []
       : sortedItems
           .slice(this.props.maxInitialItems)
-          .filter(item => this.props.values.includes(item));
+          .filter((item) => this.props.values.includes(item));
 
     const mightHaveMoreResults = sortedItems.length >= this.props.maxItems;
 
     return (
       <>
         <FacetItemsList>
-          {limitedList.map(item => (
+          {limitedList.map((item) => (
             <FacetItem
               active={this.props.values.includes(item)}
               key={item}
@@ -284,7 +284,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
           <>
             <div className="note spacer-bottom text-center">⋯</div>
             <FacetItemsList>
-              {selectedBelowLimit.map(item => (
+              {selectedBelowLimit.map((item) => (
                 <FacetItem
                   active={true}
                   key={item}
@@ -342,7 +342,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
     return (
       <>
         <FacetItemsList>
-          {searchResults.map(result => this.renderSearchResult(result))}
+          {searchResults.map((result) => this.renderSearchResult(result))}
         </FacetItemsList>
         {searchMaxResults && (
           <Alert className="spacer-top" variant="warning">
@@ -382,16 +382,17 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   render() {
     const { disabled, stats = {} } = this.props;
     const { query, searching, searchResults } = this.state;
-    const values = this.props.values.map(item => this.props.getFacetItemText(item));
+    const values = this.props.values.map((item) => this.props.getFacetItemText(item));
     const loadingResults =
       query !== '' && searching && (searchResults === undefined || searchResults.length === 0);
     const showList = !query || loadingResults;
     return (
       <FacetBox
         className={classNames(this.props.className, {
-          'search-navigator-facet-box-forbidden': disabled
+          'search-navigator-facet-box-forbidden': disabled,
         })}
-        property={this.props.property}>
+        property={this.props.property}
+      >
         <FacetHeader
           fetching={this.props.fetching}
           name={this.props.facetHeader}

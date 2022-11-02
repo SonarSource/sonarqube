@@ -37,7 +37,8 @@ export default function GlobalFooterBranding() {
         href="https://www.sonarqube.org/?referrer=sonarqube"
         rel="noopener noreferrer"
         target="_blank"
-        title="SonarQube™">
+        title="SonarQube™"
+      >
         SonarQube™
       </a>{' '}
       but is <strong>not</strong> an official version provided by{' '}
@@ -45,7 +46,8 @@ export default function GlobalFooterBranding() {
         href="https://www.sonarsource.com"
         rel="noopener noreferrer"
         target="_blank"
-        title="SonarSource SA">
+        title="SonarSource SA"
+      >
         SonarSource SA
       </a>
       .

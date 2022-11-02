@@ -31,7 +31,7 @@ export function ApplicationLeakPeriodInfo({ leakPeriod }: ApplicationLeakPeriodI
   return (
     <div className="note spacer-top display-inline-flex-center">
       <DateFromNow date={leakPeriod.date}>
-        {fromNow => translateWithParameters('overview.started_x', fromNow)}
+        {(fromNow) => translateWithParameters('overview.started_x', fromNow)}
       </DateFromNow>
       <HelpTooltip
         className="little-spacer-left"

@@ -36,7 +36,7 @@ it('should render correctly', () => {
 it('should correctly pass the leak period start date', () => {
   // Leak period start is more recent than the oldest historic measure.
   let { leakPeriodDate } = shallowRender({
-    leakPeriodDate: parseDate('2017-08-27T16:33:50+0200')
+    leakPeriodDate: parseDate('2017-08-27T16:33:50+0200'),
   })
     .find(GraphsHistory)
     .props();
@@ -59,9 +59,9 @@ function shallowRender(props: Partial<ActivityPanelProps> = {}) {
       component={mockComponent()}
       graph={GraphType.issues}
       loading={false}
-      measuresHistory={[mockMeasure()].map(m => ({
+      measuresHistory={[mockMeasure()].map((m) => ({
         ...m,
-        history: [{ date: parseDate('2016-10-27T16:33:50+0200'), value: '20' }]
+        history: [{ date: parseDate('2016-10-27T16:33:50+0200'), value: '20' }],
       }))}
       metrics={[mockMetric({ key: 'bugs' })]}
       onGraphChange={jest.fn()}

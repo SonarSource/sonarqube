@@ -38,16 +38,16 @@ jest.mock(
 );
 
 jest.mock('../../../../helpers/storage', () => ({
-  get: jest.fn().mockReturnValue(undefined)
+  get: jest.fn().mockReturnValue(undefined),
 }));
 
 jest.mock('../../../../helpers/users', () => ({
   hasGlobalPermission: jest.fn().mockReturnValue(false),
-  isLoggedIn: jest.fn((u: CurrentUser) => u.isLoggedIn)
+  isLoggedIn: jest.fn((u: CurrentUser) => u.isLoggedIn),
 }));
 
 jest.mock('../../../../api/components', () => ({
-  searchProjects: jest.fn().mockResolvedValue({ paging: { total: 0 } })
+  searchProjects: jest.fn().mockResolvedValue({ paging: { total: 0 } }),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -115,7 +115,7 @@ function RouteDisplayer() {
 
 function renderDefaultPageSelector({
   path = '/projects',
-  currentUser = mockLoggedInUser()
+  currentUser = mockLoggedInUser(),
 }: {
   path?: string;
   currentUser?: CurrentUser;

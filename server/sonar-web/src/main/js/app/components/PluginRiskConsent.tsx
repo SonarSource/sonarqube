@@ -55,7 +55,7 @@ export function PluginRiskConsent(props: PluginRiskConsentProps) {
     try {
       await setSimpleSettingValue({
         key: SettingsKey.PluginRiskConsent,
-        value: RiskConsent.Accepted
+        value: RiskConsent.Accepted,
       });
 
       // force a refresh for the backend

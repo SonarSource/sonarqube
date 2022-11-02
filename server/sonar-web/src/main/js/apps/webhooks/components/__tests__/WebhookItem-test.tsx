@@ -24,7 +24,7 @@ import WebhookItem from '../WebhookItem';
 const webhook = {
   key: '1',
   name: 'my webhook',
-  url: 'http://webhook.target'
+  url: 'http://webhook.target',
 };
 
 it('should render correctly', () => {

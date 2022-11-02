@@ -24,7 +24,7 @@ import {
   mockAzureBindingDefinition,
   mockBitbucketCloudBindingDefinition,
   mockGithubBindingDefinition,
-  mockGitlabBindingDefinition
+  mockGitlabBindingDefinition,
 } from '../../../../../helpers/mocks/alm-settings';
 import { AlmKeys, AlmSettingsBindingStatusType } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionBox, { AlmBindingDefinitionBoxProps } from '../AlmBindingDefinitionBox';
@@ -35,16 +35,16 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       status: mockAlmSettingsBindingStatus({
-        type: AlmSettingsBindingStatusType.Success
-      })
+        type: AlmSettingsBindingStatusType.Success,
+      }),
     })
   ).toMatchSnapshot('success');
   expect(
     shallowRender({
       status: mockAlmSettingsBindingStatus({
         failureMessage: 'Oops, something went wrong',
-        type: AlmSettingsBindingStatusType.Failure
-      })
+        type: AlmSettingsBindingStatusType.Failure,
+      }),
     })
   ).toMatchSnapshot('error');
 
@@ -52,16 +52,16 @@ it('should render correctly', () => {
     shallowRender({
       status: mockAlmSettingsBindingStatus({
         alertSuccess: true,
-        type: AlmSettingsBindingStatusType.Success
-      })
+        type: AlmSettingsBindingStatusType.Success,
+      }),
     })
   ).toMatchSnapshot('success with alert');
 
   expect(
     shallowRender({
       status: mockAlmSettingsBindingStatus({
-        type: AlmSettingsBindingStatusType.Warning
-      })
+        type: AlmSettingsBindingStatusType.Warning,
+      }),
     })
   ).toMatchSnapshot('warning');
 
@@ -72,20 +72,20 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       status: mockAlmSettingsBindingStatus({
-        type: AlmSettingsBindingStatusType.Success
+        type: AlmSettingsBindingStatusType.Success,
       }),
       alm: AlmKeys.GitLab,
-      definition: mockGitlabBindingDefinition()
+      definition: mockGitlabBindingDefinition(),
     })
   ).toMatchSnapshot('success for GitLab');
 
   expect(
     shallowRender({
       status: mockAlmSettingsBindingStatus({
-        type: AlmSettingsBindingStatusType.Success
+        type: AlmSettingsBindingStatusType.Success,
       }),
       alm: AlmKeys.BitbucketCloud,
-      definition: mockBitbucketCloudBindingDefinition()
+      definition: mockBitbucketCloudBindingDefinition(),
     })
   ).toMatchSnapshot('success for Bitbucket Cloud');
 
@@ -94,8 +94,8 @@ it('should render correctly', () => {
       branchesEnabled: false,
       status: mockAlmSettingsBindingStatus({
         alertSuccess: true,
-        type: AlmSettingsBindingStatusType.Success
-      })
+        type: AlmSettingsBindingStatusType.Success,
+      }),
     })
   ).toMatchSnapshot('success with branches disabled');
 });

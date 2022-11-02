@@ -57,7 +57,7 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
     loadingMore,
     repositories = [],
     searching,
-    searchQuery
+    searchQuery,
   } = props;
 
   if (repositories.length === 0 && searchQuery.length === 0 && !searching) {
@@ -71,11 +71,12 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
               <Link
                 to={{
                   pathname: '/projects/create',
-                  search: queryToSearch({ mode: CreateProjectModes.BitbucketCloud, resetPat: 1 })
-                }}>
+                  search: queryToSearch({ mode: CreateProjectModes.BitbucketCloud, resetPat: 1 }),
+                }}
+              >
                 {translate('onboarding.create_project.update_your_token')}
               </Link>
-            )
+            ),
           }}
         />
       </Alert>
@@ -99,7 +100,7 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
       ) : (
         <table className="data zebra zebra-hover">
           <tbody>
-            {repositories.map(repository => (
+            {repositories.map((repository) => (
               <tr key={repository.uuid}>
                 <td>
                   <Tooltip overlay={repository.slug}>
@@ -128,7 +129,8 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
                   <Link
                     className="display-inline-flex-center big-spacer-right"
                     to={getRepositoryUrl(repository.workspace, repository.slug)}
-                    target="_blank">
+                    target="_blank"
+                  >
                     {translate('onboarding.create_project.bitbucketcloud.link')}
                   </Link>
                 </td>
@@ -145,7 +147,8 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
                       disabled={Boolean(importingSlug)}
                       onClick={() => {
                         props.onImport(repository.slug);
-                      }}>
+                      }}
+                    >
                       {translate('onboarding.create_project.set_up')}
                       {importingSlug === repository.slug && (
                         <DeferredSpinner className="spacer-left" />
@@ -170,7 +173,8 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
             className="spacer-left"
             disabled={loadingMore}
             data-test="show-more"
-            onClick={props.onLoadMore}>
+            onClick={props.onLoadMore}
+          >
             {translate('show_more')}
           </Button>
         )}

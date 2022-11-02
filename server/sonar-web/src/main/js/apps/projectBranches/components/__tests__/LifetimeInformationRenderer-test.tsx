@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   LifetimeInformationRenderer,
-  LifetimeInformationRendererProps
+  LifetimeInformationRendererProps,
 } from '../LifetimeInformationRenderer';
 
 it('should render correctly', () => {

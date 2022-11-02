@@ -47,7 +47,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     description: '',
     descriptionForm: false,
     submitting: false,
-    removeDescriptionModal: false
+    removeDescriptionModal: false,
   };
 
   componentDidMount() {
@@ -85,9 +85,9 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
     updateRule({
       key: this.props.ruleDetails.key,
-      markdown_note: text
+      markdown_note: text,
     }).then(
-      ruleDetails => {
+      (ruleDetails) => {
         this.props.onChange(ruleDetails);
         if (this.mounted) {
           this.setState({ submitting: false, descriptionForm: false });
@@ -105,7 +105,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     this.setState({
       // set description` to the current `mdNote` each time the form is open
       description: this.props.ruleDetails.mdNote || '',
-      descriptionForm: true
+      descriptionForm: true,
     });
   };
 
@@ -121,7 +121,8 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
       {this.props.canWrite && (
         <Button
           id="coding-rules-detail-extend-description"
-          onClick={this.handleExtendDescriptionClick}>
+          onClick={this.handleExtendDescriptionClick}
+        >
           {translate('coding_rules.extend_description')}
         </Button>
       )}
@@ -149,7 +150,8 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
               <Button
                 disabled={this.state.submitting}
                 id="coding-rules-detail-extend-description-submit"
-                onClick={this.handleSaveClick}>
+                onClick={this.handleSaveClick}
+              >
                 {translate('save')}
               </Button>
               {this.props.ruleDetails.mdNote !== undefined && (
@@ -158,7 +160,8 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
                     className="button-red spacer-left"
                     disabled={this.state.submitting}
                     id="coding-rules-detail-extend-description-remove"
-                    onClick={this.handleRemoveDescriptionClick}>
+                    onClick={this.handleRemoveDescriptionClick}
+                  >
                     {translate('remove')}
                   </Button>
                   {this.state.removeDescriptionModal && (
@@ -173,7 +176,8 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
                 className="spacer-left"
                 disabled={this.state.submitting}
                 id="coding-rules-detail-extend-description-cancel"
-                onClick={this.handleCancelClick}>
+                onClick={this.handleCancelClick}
+              >
                 {translate('cancel')}
               </ResetButtonLink>
               {this.state.submitting && <i className="spinner spacer-left" />}
@@ -204,7 +208,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
         : undefined;
 
     const introductionSection = ruleDetails.descriptionSections?.find(
-      section => section.key === RuleDescriptionSections.INTRODUCTION
+      (section) => section.key === RuleDescriptionSections.INTRODUCTION
     )?.content;
 
     return (

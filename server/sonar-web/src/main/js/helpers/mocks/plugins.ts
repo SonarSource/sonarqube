@@ -23,14 +23,14 @@ import {
   PendingPlugin,
   Plugin,
   Release,
-  Update
+  Update,
 } from '../../types/plugins';
 
 export function mockPlugin(overrides: Partial<Plugin> = {}): Plugin {
   return {
     key: 'sonar-foo',
     name: 'Sonar Foo',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -40,7 +40,7 @@ export function mockPendingPlugin(overrides: Partial<PendingPlugin> = {}): Pendi
     name: 'Sonar Foo',
     version: '1.0',
     implementationBuild: '1.0.0.1234',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -54,7 +54,7 @@ export function mockInstalledPlugin(overrides: Partial<InstalledPlugin> = {}): I
     hash: 'hash',
     sonarLintSupported: false,
     updatedAt: 100,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -63,7 +63,7 @@ export function mockAvailablePlugin(overrides: Partial<AvailablePlugin> = {}): A
     release: mockRelease(),
     update: mockUpdate(),
     ...mockPlugin(),
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -71,7 +71,7 @@ export function mockRelease(overrides: Partial<Release> = {}): Release {
   return {
     date: '2020-01-01',
     version: '8.2',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -79,6 +79,6 @@ export function mockUpdate(overrides: Partial<Update> = {}): Update {
   return {
     status: 'available',
     requires: [],
-    ...overrides
+    ...overrides,
   };
 }

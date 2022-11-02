@@ -24,7 +24,7 @@ import ListFooter from '../../../../components/controls/ListFooter';
 import SearchBox from '../../../../components/controls/SearchBox';
 import { mockGitlabProject } from '../../../../helpers/mocks/alm-integrations';
 import GitlabProjectSelectionForm, {
-  GitlabProjectSelectionFormProps
+  GitlabProjectSelectionFormProps,
 } from '../GitlabProjectSelectionForm';
 
 it('should render correctly', () => {
@@ -50,28 +50,19 @@ describe('appropriate callback', () => {
   const wrapper = shallowRender({ onImport, onLoadMore, onSearch });
 
   it('should be called when clicking to import', () => {
-    wrapper
-      .find(Button)
-      .first()
-      .simulate('click');
+    wrapper.find(Button).first().simulate('click');
 
     expect(onImport).toHaveBeenCalled();
   });
 
   it('should be assigned to the list footer', () => {
-    const { loadMore } = wrapper
-      .find(ListFooter)
-      .first()
-      .props();
+    const { loadMore } = wrapper.find(ListFooter).first().props();
 
     expect(loadMore).toBe(onLoadMore);
   });
 
   it('should be assigned to the search box', () => {
-    const { onChange } = wrapper
-      .find(SearchBox)
-      .first()
-      .props();
+    const { onChange } = wrapper.find(SearchBox).first().props();
 
     expect(onChange).toBe(onSearch);
   });
@@ -83,8 +74,8 @@ function shallowRender(props: Partial<GitlabProjectSelectionFormProps> = {}) {
     mockGitlabProject({
       id: '2',
       sqProjectKey: 'already-imported',
-      sqProjectName: 'Already Imported'
-    })
+      sqProjectName: 'Already Imported',
+    }),
   ];
 
   return shallow<GitlabProjectSelectionFormProps>(

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
   checkPersonalAccessTokenIsValid,
-  setAlmPersonalAccessToken
+  setAlmPersonalAccessToken,
 } from '../../../api/alm-integrations';
 import { SubmitButton } from '../../../components/controls/buttons';
 import ValidationInput from '../../../components/controls/ValidationInput';
@@ -71,14 +71,14 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
       touched: false,
       password: '',
       submitting: false,
-      validationFailed: false
+      validationFailed: false,
     };
   }
 
   async componentDidMount() {
     const {
       almSetting: { key },
-      resetPat
+      resetPat,
     } = this.props;
     this.mounted = true;
 
@@ -95,13 +95,13 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
         // This is the initial message when no token was provided
         if (error === `personal access token for '${key}' is missing`) {
           this.setState({
-            checkingPat: false
+            checkingPat: false,
           });
         } else {
           this.setState({
             checkingPat: false,
             validationFailed: true,
-            validationErrorMessage: error
+            validationErrorMessage: error,
           });
         }
       }
@@ -115,21 +115,21 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
   handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       touched: true,
-      username: event.target.value
+      username: event.target.value,
     });
   };
 
   handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       touched: true,
-      password: event.target.value
+      password: event.target.value,
     });
   };
 
   handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     const { password, username } = this.state;
     const {
-      almSetting: { key }
+      almSetting: { key },
     } = this.props;
 
     e.preventDefault();
@@ -152,7 +152,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
           password: '',
           submitting: false,
           username: '',
-          validationFailed: false
+          validationFailed: false,
         });
         this.props.onPersonalAccessTokenCreated();
       } else if (this.mounted) {
@@ -160,7 +160,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
           submitting: false,
           touched: false,
           validationFailed: true,
-          validationErrorMessage: error
+          validationErrorMessage: error,
         });
       }
     }
@@ -168,7 +168,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
 
   renderHelpBox(suffixTranslationKey: string) {
     const {
-      almSetting: { alm, url }
+      almSetting: { alm, url },
     } = this.props;
 
     return (
@@ -194,7 +194,8 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
               <a
                 href="https://bitbucket.org/account/settings/"
                 rel="noopener noreferrer"
-                target="_blank">
+                target="_blank"
+              >
                 {translate(
                   'onboarding.create_project.pat_help.instructions_username.bitbucketcloud.link'
                 )}
@@ -222,7 +223,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
                   <strong>
                     {translate('onboarding.create_project.pat_help.bitbucket.instructions.button')}
                   </strong>
-                )
+                ),
               }}
             />
           ) : (
@@ -232,7 +233,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
                 `onboarding.create_project.pat_help${suffixTranslationKey}.instructions`
               )}
               values={{
-                alm: translate('onboarding.alm', alm)
+                alm: translate('onboarding.alm', alm),
               }}
             />
           )}
@@ -271,7 +272,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
                     <strong>
                       {translate('onboarding.create_project.pat_help.read_permission')}
                     </strong>
-                  )
+                  ),
                 }}
               />
             </li>
@@ -288,7 +289,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
                     <strong>
                       {translate('onboarding.create_project.pat_help.read_permission')}
                     </strong>
-                  )
+                  ),
                 }}
               />
             </li>
@@ -308,7 +309,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
 
   render() {
     const {
-      almSetting: { alm }
+      almSetting: { alm },
     } = this.props;
     const {
       checkingPat,
@@ -317,7 +318,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
       password,
       username,
       validationFailed,
-      validationErrorMessage
+      validationErrorMessage,
     } = this.state;
 
     if (checkingPat) {
@@ -348,11 +349,12 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
               isInvalid={false}
               isValid={false}
               label={translate('onboarding.create_project.enter_username')}
-              required={true}>
+              required={true}
+            >
               <input
                 autoFocus={true}
                 className={classNames('input-super-large', {
-                  'is-invalid': isInvalid
+                  'is-invalid': isInvalid,
                 })}
                 id="username"
                 minLength={1}
@@ -370,11 +372,12 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
             isInvalid={false}
             isValid={false}
             label={translate(`onboarding.create_project.enter_pat${suffixTranslationKey}`)}
-            required={true}>
+            required={true}
+          >
             <input
               autoFocus={alm !== AlmKeys.BitbucketCloud}
               className={classNames('input-super-large', {
-                'is-invalid': isInvalid
+                'is-invalid': isInvalid,
               })}
               id="personal_access_token"
               minLength={1}
@@ -389,7 +392,8 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
             id="personal_access_token_submit"
             isInvalid={isInvalid}
             isValid={false}
-            label={null}>
+            label={null}
+          >
             <SubmitButton disabled={submitButtonDiabled}>{translate('save')}</SubmitButton>
             <DeferredSpinner className="spacer-left" loading={submitting} />
           </ValidationInput>

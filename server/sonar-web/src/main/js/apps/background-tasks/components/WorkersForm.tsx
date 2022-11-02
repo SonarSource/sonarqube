@@ -44,7 +44,7 @@ export default class WorkersForm extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       newWorkerCount: props.workerCount,
-      submitting: false
+      submitting: false,
     };
   }
 
@@ -90,7 +90,8 @@ export default class WorkersForm extends React.PureComponent<Props, State> {
     return (
       <Modal
         contentLabel={translate('background_tasks.change_number_of_workers')}
-        onRequestClose={this.handleClose}>
+        onRequestClose={this.handleClose}
+      >
         <header className="modal-head">
           <h2 id="background-task-workers-label">
             {translate('background_tasks.change_number_of_workers')}
@@ -104,7 +105,7 @@ export default class WorkersForm extends React.PureComponent<Props, State> {
               isSearchable={false}
               onChange={this.handleWorkerCountChange}
               options={options}
-              value={options.find(o => o.value === this.state.newWorkerCount)}
+              value={options.find((o) => o.value === this.state.newWorkerCount)}
             />
             <Alert className="big-spacer-top" variant="info">
               {translate('background_tasks.change_number_of_workers.hint')}

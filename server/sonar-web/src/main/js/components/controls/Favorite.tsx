@@ -46,7 +46,7 @@ export default class Favorite extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      favorite: props.favorite
+      favorite: props.favorite,
     };
   }
 
@@ -94,9 +94,10 @@ export default class Favorite extends React.PureComponent<Props, State> {
     return (
       <Tooltip overlay={tooltip}>
         <ButtonLink
-          innerRef={node => (this.buttonNode = node)}
+          innerRef={(node) => (this.buttonNode = node)}
           className={classNames('favorite-link', 'link-no-underline', className)}
-          onClick={this.toggleFavorite}>
+          onClick={this.toggleFavorite}
+        >
           <FavoriteIcon aria-label={tooltip} favorite={favorite} />
         </ButtonLink>
       </Tooltip>

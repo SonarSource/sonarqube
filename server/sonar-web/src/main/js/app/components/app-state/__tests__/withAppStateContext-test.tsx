@@ -30,8 +30,8 @@ jest.mock('../AppStateContext', () => {
     AppStateContext: {
       Consumer: ({ children }: { children: (props: {}) => React.ReactNode }) => {
         return children(appState);
-      }
-    }
+      },
+    },
   };
 });
 

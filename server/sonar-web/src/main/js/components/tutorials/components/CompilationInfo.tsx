@@ -39,7 +39,7 @@ export function CompilationInfo({ className = 'spacer-top spacer-bottom' }: Comp
               <DocLink to="/analysis/languages/cfamily/">
                 {translate('onboarding.tutorial.cfamilly.compilation_database_info.link')}
               </DocLink>
-            )
+            ),
           }}
         />
       </p>
@@ -52,7 +52,7 @@ export function CompilationInfo({ className = 'spacer-top spacer-bottom' }: Comp
               <DocLink to="/analysis/languages/cfamily/#analysis-cache">
                 {translate('onboarding.tutorial.cfamilly.speed_caching.link')}
               </DocLink>
-            )
+            ),
           }}
         />
       </p>

@@ -23,7 +23,7 @@ import { getRuleTags } from '../../../../api/rules';
 import TagFacet from '../TagFacet';
 
 jest.mock('../../../../api/rules', () => ({
-  getRuleTags: jest.fn().mockResolvedValue([])
+  getRuleTags: jest.fn().mockResolvedValue([]),
 }));
 
 it('should render correctly', () => {

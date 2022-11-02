@@ -40,7 +40,7 @@ export default function GlobalNotifications(props: Props) {
           <thead>
             <tr>
               <th />
-              {props.channels.map(channel => (
+              {props.channels.map((channel) => (
                 <th className="text-center" key={channel}>
                   <h4>{translate('notification.channel', channel)}</h4>
                 </th>

@@ -24,11 +24,11 @@ import { mockLocation } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import {
   SubCategoryDefinitionsList,
-  SubCategoryDefinitionsListProps
+  SubCategoryDefinitionsListProps,
 } from '../SubCategoryDefinitionsList';
 
 jest.mock('../../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn()
+  scrollToElement: jest.fn(),
 }));
 
 it('should render correctly', () => {
@@ -42,7 +42,7 @@ it('should scroll if hash is defined and updated', async () => {
 
   await waitAndUpdate(wrapper);
 
-  wrapper.find('h2').forEach(node => mount(node.getElement()));
+  wrapper.find('h2').forEach((node) => mount(node.getElement()));
 
   expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled();
 
@@ -65,9 +65,9 @@ function shallowRender(props: Partial<SubCategoryDefinitionsListProps> = {}) {
             subCategory: 'qg',
             fields: [],
             options: [],
-            description: 'awesome description'
-          }
-        })
+            description: 'awesome description',
+          },
+        }),
       ]}
       {...props}
     />

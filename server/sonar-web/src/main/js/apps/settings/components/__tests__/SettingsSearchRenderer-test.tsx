@@ -24,14 +24,14 @@ import { scrollToElement } from '../../../../helpers/scrolling';
 import SettingsSearchRenderer, { SettingsSearchRendererProps } from '../SettingsSearchRenderer';
 
 jest.mock('../../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn()
+  scrollToElement: jest.fn(),
 }));
 
 jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
     useRef: jest.fn(),
-    useEffect: jest.fn()
+    useEffect: jest.fn(),
   };
 });
 
@@ -49,7 +49,7 @@ it('should render correctly when open', () => {
     shallowRender({
       results: [mockDefinition({ name: 'Foo!' }), mockDefinition({ key: 'bar' })],
       selectedResult: 'bar',
-      showResults: true
+      showResults: true,
     })
   ).toMatchSnapshot('results');
 });
@@ -63,7 +63,7 @@ it('should scroll to selected element', () => {
   (React.useRef as jest.Mock)
     .mockImplementationOnce(() => scrollableRef)
     .mockImplementationOnce(() => selectedRef);
-  (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
+  (React.useEffect as jest.Mock).mockImplementationOnce((f) => f());
 
   shallowRender();
 

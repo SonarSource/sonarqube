@@ -58,7 +58,7 @@ const OPTIONAL_FIELDS = [
   'sonar.auth.saml.sp.privateKey.secured',
   'sonar.auth.saml.signature.enabled',
   'sonar.auth.saml.user.email',
-  'sonar.auth.saml.group.name'
+  'sonar.auth.saml.group.name',
 ];
 
 class SamlAuthentication extends React.PureComponent<
@@ -69,9 +69,9 @@ class SamlAuthentication extends React.PureComponent<
 
   constructor(props: SamlAuthenticationProps) {
     super(props);
-    const settingValue = props.definitions.map(def => {
+    const settingValue = props.definitions.map((def) => {
       return {
-        key: def.key
+        key: def.key,
       };
     });
 
@@ -80,13 +80,13 @@ class SamlAuthentication extends React.PureComponent<
       submitting: false,
       dirtyFields: [],
       securedFieldsSubmitted: [],
-      error: {}
+      error: {},
     };
   }
 
   componentDidMount() {
     const { definitions } = this.props;
-    const keys = definitions.map(definition => definition.key);
+    const keys = definitions.map((definition) => definition.key);
     // Added setTimeout to make sure the component gets updated before scrolling
     setTimeout(() => {
       if (location.hash) {
@@ -108,14 +108,14 @@ class SamlAuthentication extends React.PureComponent<
       this.formFieldRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
-        inline: 'nearest'
+        inline: 'nearest',
       });
     }
   };
 
   onFieldChange = (id: string, value: string | boolean) => {
     const { settingValue, dirtyFields } = this.state;
-    const updatedSettingValue = settingValue?.map(set => {
+    const updatedSettingValue = settingValue?.map((set) => {
       if (set.key === id) {
         set.value = String(value);
       }
@@ -125,23 +125,23 @@ class SamlAuthentication extends React.PureComponent<
     if (!dirtyFields.includes(id)) {
       const updatedDirtyFields = [...dirtyFields, id];
       this.setState({
-        dirtyFields: updatedDirtyFields
+        dirtyFields: updatedDirtyFields,
       });
     }
 
     this.setState({
-      settingValue: updatedSettingValue
+      settingValue: updatedSettingValue,
     });
   };
 
   async loadSettingValues(keys: string[]) {
     const { settingValue, securedFieldsSubmitted } = this.state;
     const values = await getValues({
-      keys
+      keys,
     });
     const valuesByDefinitionKey = keyBy(values, 'key');
     const updatedSecuredFieldsSubmitted: string[] = [...securedFieldsSubmitted];
-    const updateSettingValue = settingValue?.map(set => {
+    const updateSettingValue = settingValue?.map((set) => {
       if (valuesByDefinitionKey[set.key]) {
         set.value =
           valuesByDefinitionKey[set.key].value ?? valuesByDefinitionKey[set.key].parentValue;
@@ -160,13 +160,13 @@ class SamlAuthentication extends React.PureComponent<
 
     this.setState({
       settingValue: updateSettingValue,
-      securedFieldsSubmitted: updatedSecuredFieldsSubmitted
+      securedFieldsSubmitted: updatedSecuredFieldsSubmitted,
     });
   }
 
   isSecuredField = (key: string) => {
     const { definitions } = this.props;
-    const fieldDefinition = definitions.find(def => def.key === key);
+    const fieldDefinition = definitions.find((def) => def.key === key);
     if (fieldDefinition && fieldDefinition.type === SettingType.PASSWORD) {
       return true;
     }
@@ -184,9 +184,9 @@ class SamlAuthentication extends React.PureComponent<
     this.setState({ submitting: true, error: {}, success: false });
     const promises: Promise<void>[] = [];
 
-    dirtyFields.forEach(field => {
-      const definition = definitions.find(def => def.key === field);
-      const value = settingValue.find(def => def.key === field)?.value;
+    dirtyFields.forEach((field) => {
+      const definition = definitions.find((def) => def.key === field);
+      const value = settingValue.find((def) => def.key === field)?.value;
       if (definition && value !== undefined) {
         const apiCall =
           value.length > 0
@@ -197,16 +197,16 @@ class SamlAuthentication extends React.PureComponent<
       }
     });
 
-    await Promise.all(promises.map(p => p.catch(e => e))).then(data => {
+    await Promise.all(promises.map((p) => p.catch((e) => e))).then((data) => {
       const dataWithError = data
         .map((data, index) => ({ data, index }))
-        .filter(d => d.data !== undefined && !isSuccessStatus(d.data.status));
+        .filter((d) => d.data !== undefined && !isSuccessStatus(d.data.status));
       if (dataWithError.length > 0) {
-        dataWithError.forEach(async d => {
+        dataWithError.forEach(async (d) => {
           const validationMessage = await parseError(d.data as Response);
           const { error } = this.state;
           this.setState({
-            error: { ...error, ...{ [dirtyFields[d.index]]: validationMessage } }
+            error: { ...error, ...{ [dirtyFields[d.index]]: validationMessage } },
           });
         });
       }
@@ -218,7 +218,7 @@ class SamlAuthentication extends React.PureComponent<
 
   allowEnabling = () => {
     const { settingValue } = this.state;
-    const enabledFlagSettingValue = settingValue.find(set => set.key === SAML_ENABLED_FIELD);
+    const enabledFlagSettingValue = settingValue.find((set) => set.key === SAML_ENABLED_FIELD);
 
     if (enabledFlagSettingValue && enabledFlagSettingValue.value === 'true') {
       return true;
@@ -230,7 +230,7 @@ class SamlAuthentication extends React.PureComponent<
   onEnableFlagChange = (value: boolean) => {
     const { settingValue, dirtyFields } = this.state;
 
-    const updatedSettingValue = settingValue?.map(set => {
+    const updatedSettingValue = settingValue?.map((set) => {
       if (set.key === SAML_ENABLED_FIELD) {
         set.value = String(value);
       }
@@ -240,7 +240,7 @@ class SamlAuthentication extends React.PureComponent<
     this.setState(
       {
         settingValue: updatedSettingValue,
-        dirtyFields: [...dirtyFields, SAML_ENABLED_FIELD]
+        dirtyFields: [...dirtyFields, SAML_ENABLED_FIELD],
       },
       () => {
         this.onSaveConfig();
@@ -273,7 +273,7 @@ class SamlAuthentication extends React.PureComponent<
       const isNotSecuredAndNotSubmitted =
         !isSecured && (setting.value === '' || setting.value === undefined);
       if (isMandatory && (isSecuredAndNotSubmitted || isNotSecuredAndNotSubmitted)) {
-        const settingDef = definitions.find(def => def.key === setting.key);
+        const settingDef = definitions.find((def) => def.key === setting.key);
 
         if (settingDef && settingDef.name) {
           updatedRequiredFields.push(settingDef.name);
@@ -285,31 +285,26 @@ class SamlAuthentication extends React.PureComponent<
 
   render() {
     const { definitions } = this.props;
-    const {
-      submitting,
-      settingValue,
-      securedFieldsSubmitted,
-      error,
-      dirtyFields,
-      success
-    } = this.state;
-    const enabledFlagDefinition = definitions.find(def => def.key === SAML_ENABLED_FIELD);
+    const { submitting, settingValue, securedFieldsSubmitted, error, dirtyFields, success } =
+      this.state;
+    const enabledFlagDefinition = definitions.find((def) => def.key === SAML_ENABLED_FIELD);
 
     const formIsIncomplete = !this.allowEnabling();
     const preventTestingConfig = this.getEmptyRequiredFields().length > 0 || dirtyFields.length > 0;
 
     return (
       <div>
-        {definitions.map(def => {
+        {definitions.map((def) => {
           if (def.key === SAML_ENABLED_FIELD) {
             return null;
           }
           return (
             <div
               key={def.key}
-              ref={this.props.location.hash.substring(1) === def.key ? this.formFieldRef : null}>
+              ref={this.props.location.hash.substring(1) === def.key ? this.formFieldRef : null}
+            >
               <SamlFormField
-                settingValue={settingValue?.find(set => set.key === def.key)}
+                settingValue={settingValue?.find((set) => set.key === def.key)}
                 definition={def}
                 mandatory={!OPTIONAL_FIELDS.includes(def.key)}
                 onFieldChange={this.onFieldChange}
@@ -331,12 +326,13 @@ class SamlAuthentication extends React.PureComponent<
                       'settings.authentication.saml.tooltip.required_fields',
                       this.getEmptyRequiredFields().join(', ')
                     )
-              }>
+              }
+            >
               <div className="display-inline-flex-center">
                 <label className="h3 spacer-right">{enabledFlagDefinition.name}</label>
                 <SamlToggleField
                   definition={enabledFlagDefinition}
-                  settingValue={settingValue?.find(set => set.key === enabledFlagDefinition.key)}
+                  settingValue={settingValue?.find((set) => set.key === enabledFlagDefinition.key)}
                   toggleDisabled={formIsIncomplete}
                   onChange={this.onEnableFlagChange}
                 />
@@ -354,7 +350,8 @@ class SamlAuthentication extends React.PureComponent<
                           Object.keys(error).length
                         )
                       : null
-                  }>
+                  }
+                >
                   {Object.keys(error).length > 0 ? (
                     <span>
                       <AlertWarnIcon className="spacer-right" />
@@ -376,14 +373,16 @@ class SamlAuthentication extends React.PureComponent<
             </SubmitButton>
 
             <Tooltip
-              overlay={this.getTestButtonTooltipContent(formIsIncomplete, dirtyFields.length > 0)}>
+              overlay={this.getTestButtonTooltipContent(formIsIncomplete, dirtyFields.length > 0)}
+            >
               <a
                 className={classNames('button', {
-                  disabled: preventTestingConfig
+                  disabled: preventTestingConfig,
                 })}
                 href={preventTestingConfig ? undefined : `${getBaseUrl()}${CONFIG_TEST_PATH}`}
                 target="_blank"
-                rel="noopener noreferrer">
+                rel="noopener noreferrer"
+              >
                 <DetachIcon className="spacer-right" />
                 {translate('settings.authentication.saml.form.test')}
               </a>

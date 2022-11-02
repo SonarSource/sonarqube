@@ -66,11 +66,12 @@ export function renderAppWithAdminContext(
             /*noop*/
           },
           pendingPlugins: { installing: [], removing: [], updating: [] },
-          systemStatus: overrides.systemStatus ?? 'UP'
-        }}>
+          systemStatus: overrides.systemStatus ?? 'UP',
+        }}
+      >
         <Outlet
           context={{
-            adminPages: overrides.adminPages ?? []
+            adminPages: overrides.adminPages ?? [],
           }}
         />
       </AdminContext.Provider>
@@ -115,8 +116,9 @@ export function renderAppWithComponentContext(
           branchLikes: [],
           onBranchesChange: jest.fn(),
           onComponentChange: jest.fn(),
-          ...componentContext
-        }}>
+          ...componentContext,
+        }}
+      >
         <Outlet />
       </ComponentContext.Provider>
     );
@@ -160,7 +162,7 @@ function renderRoutedApp(
     metrics = DEFAULT_METRICS,
     appState = mockAppState(),
     featureList = [],
-    languages = {}
+    languages = {},
   }: RenderContext = {}
 ): RenderResult {
   const path = parsePath(navigateTo);

@@ -22,7 +22,7 @@ import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import {
   mockSnippetsByComponent,
   mockSourceLine,
-  mockSourceViewerFile
+  mockSourceViewerFile,
 } from '../../helpers/mocks/sources';
 import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
@@ -31,7 +31,7 @@ import {
   mockLoggedInUser,
   mockPaging,
   mockRawIssue,
-  mockRuleDetails
+  mockRuleDetails,
 } from '../../helpers/testMocks';
 import { BranchParameters } from '../../types/branch-like';
 import {
@@ -39,7 +39,7 @@ import {
   RawFacet,
   RawIssue,
   RawIssuesResponse,
-  ReferencedComponent
+  ReferencedComponent,
 } from '../../types/issues';
 import { Standards } from '../../types/security';
 import {
@@ -48,7 +48,7 @@ import {
   RuleActivation,
   RuleDetails,
   SnippetsByComponent,
-  SourceViewerFile
+  SourceViewerFile,
 } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import { getComponentForSourceViewer, getSources } from '../components';
@@ -64,7 +64,7 @@ import {
   setIssueSeverity,
   setIssueTags,
   setIssueTransition,
-  setIssueType
+  setIssueType,
 } from '../issues';
 import { getRuleDetails } from '../rules';
 import { dismissNotice, getCurrentUser, searchUsers } from '../users';
@@ -74,7 +74,7 @@ function mockReferenceComponent(override?: Partial<ReferencedComponent>) {
     key: 'component1',
     name: 'Component1',
     uuid: 'id1',
-    ...override
+    ...override,
   };
 }
 
@@ -93,7 +93,7 @@ export default class IssuesServiceMock {
     // Comment should have their own store as we can test better CRUD operation
     this.sourceViewerFiles = [
       mockSourceViewerFile('file.foo', 'project'),
-      mockSourceViewerFile('file.bar', 'project')
+      mockSourceViewerFile('file.bar', 'project'),
     ];
     this.list = [
       {
@@ -106,7 +106,7 @@ export default class IssuesServiceMock {
             startLine: 10,
             endLine: 10,
             startOffset: 0,
-            endOffset: 2
+            endOffset: 2,
           },
           flows: [
             {
@@ -120,8 +120,8 @@ export default class IssuesServiceMock {
                     startLine: 20,
                     endLine: 20,
                     startOffset: 0,
-                    endOffset: 1
-                  }
+                    endOffset: 1,
+                  },
                 },
                 {
                   component: 'project:file.foo',
@@ -130,10 +130,10 @@ export default class IssuesServiceMock {
                     startLine: 21,
                     endLine: 21,
                     startOffset: 0,
-                    endOffset: 1
-                  }
-                }
-              ]
+                    endOffset: 1,
+                  },
+                },
+              ],
             },
             {
               type: FlowType.EXECUTION,
@@ -145,8 +145,8 @@ export default class IssuesServiceMock {
                     startLine: 20,
                     endLine: 20,
                     startOffset: 0,
-                    endOffset: 1
-                  }
+                    endOffset: 1,
+                  },
                 },
                 {
                   component: 'project:file.bar',
@@ -155,8 +155,8 @@ export default class IssuesServiceMock {
                     startLine: 22,
                     endLine: 22,
                     startOffset: 0,
-                    endOffset: 1
-                  }
+                    endOffset: 1,
+                  },
                 },
                 {
                   component: 'project:file.bar',
@@ -165,28 +165,28 @@ export default class IssuesServiceMock {
                     startLine: 5,
                     endLine: 5,
                     startOffset: 0,
-                    endOffset: 1
-                  }
-                }
-              ]
-            }
-          ]
+                    endOffset: 1,
+                  },
+                },
+              ],
+            },
+          ],
         }),
         snippets: keyBy(
           [
             mockSnippetsByComponent(
               'file.foo',
               'project',
-              times(40, i => i + 1)
+              times(40, (i) => i + 1)
             ),
             mockSnippetsByComponent(
               'file.bar',
               'project',
-              times(40, i => i + 1)
-            )
+              times(40, (i) => i + 1)
+            ),
           ],
           'component.key'
-        )
+        ),
       },
       {
         issue: mockRawIssue(false, {
@@ -195,9 +195,9 @@ export default class IssuesServiceMock {
           message: 'Issue on file',
           rule: 'simpleRuleId',
           textRange: undefined,
-          line: undefined
+          line: undefined,
         }),
-        snippets: {}
+        snippets: {},
       },
       {
         issue: mockRawIssue(false, {
@@ -209,7 +209,7 @@ export default class IssuesServiceMock {
             startLine: 10,
             endLine: 10,
             startOffset: 0,
-            endOffset: 2
+            endOffset: 2,
           },
           flows: [
             {
@@ -221,10 +221,10 @@ export default class IssuesServiceMock {
                     startLine: 1,
                     endLine: 1,
                     startOffset: 0,
-                    endOffset: 1
-                  }
-                }
-              ]
+                    endOffset: 1,
+                  },
+                },
+              ],
             },
             {
               locations: [
@@ -235,28 +235,28 @@ export default class IssuesServiceMock {
                     startLine: 20,
                     endLine: 20,
                     startOffset: 0,
-                    endOffset: 1
-                  }
-                }
-              ]
-            }
-          ]
+                    endOffset: 1,
+                  },
+                },
+              ],
+            },
+          ],
         }),
         snippets: keyBy(
           [
             mockSnippetsByComponent(
               'file.foo',
               'project',
-              times(40, i => i + 1)
+              times(40, (i) => i + 1)
             ),
             mockSnippetsByComponent(
               'file.bar',
               'project',
-              times(40, i => i + 1)
-            )
+              times(40, (i) => i + 1)
+            ),
           ],
           'component.key'
-        )
+        ),
       },
       {
         issue: mockRawIssue(false, {
@@ -270,20 +270,20 @@ export default class IssuesServiceMock {
             startLine: 25,
             endLine: 25,
             startOffset: 0,
-            endOffset: 1
+            endOffset: 1,
           },
-          ruleDescriptionContextKey: 'spring'
+          ruleDescriptionContextKey: 'spring',
         }),
         snippets: keyBy(
           [
             mockSnippetsByComponent(
               'file.bar',
               'project',
-              times(40, i => i + 20)
-            )
+              times(40, (i) => i + 20)
+            ),
           ],
           'component.key'
-        )
+        ),
       },
       {
         issue: mockRawIssue(false, {
@@ -295,19 +295,19 @@ export default class IssuesServiceMock {
             startLine: 28,
             endLine: 28,
             startOffset: 0,
-            endOffset: 1
-          }
+            endOffset: 1,
+          },
         }),
         snippets: keyBy(
           [
             mockSnippetsByComponent(
               'file.bar',
               'project',
-              times(40, i => i + 20)
-            )
+              times(40, (i) => i + 20)
+            ),
           ],
           'component.key'
-        )
+        ),
       },
       {
         issue: mockRawIssue(false, {
@@ -321,23 +321,23 @@ export default class IssuesServiceMock {
             startLine: 25,
             endLine: 25,
             startOffset: 0,
-            endOffset: 1
+            endOffset: 1,
           },
           ruleDescriptionContextKey: 'spring',
           ruleStatus: 'DEPRECATED',
-          quickFixAvailable: true
+          quickFixAvailable: true,
         }),
         snippets: keyBy(
           [
             mockSnippetsByComponent(
               'file.bar',
               'project',
-              times(40, i => i + 20)
-            )
+              times(40, (i) => i + 20)
+            ),
           ],
           'component.key'
-        )
-      }
+        ),
+      },
     ];
     (searchIssues as jest.Mock).mockImplementation(this.handleSearchIssues);
     (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
@@ -372,7 +372,7 @@ export default class IssuesServiceMock {
   owasp2021FacetList(): RawFacet {
     return {
       property: 'owaspTop10-2021',
-      values: [{ val: 'a1', count: 0 }]
+      values: [{ val: 'a1', count: 0 }],
     };
   }
 
@@ -383,22 +383,22 @@ export default class IssuesServiceMock {
   handleBulkChangeIssues = (issueKeys: string[], query: RequestData) => {
     //For now we only check for issue type change.
     this.list
-      .filter(i => issueKeys.includes(i.issue.key))
-      .forEach(data => {
+      .filter((i) => issueKeys.includes(i.issue.key))
+      .forEach((data) => {
         data.issue.type = query.set_type;
       });
     return this.reply({});
   };
 
   handleGetSources = (data: { key: string; from?: number; to?: number } & BranchParameters) => {
-    return this.reply(range(data.from || 1, data.to || 10).map(line => mockSourceLine({ line })));
+    return this.reply(range(data.from || 1, data.to || 10).map((line) => mockSourceLine({ line })));
   };
 
   handleGetComponentForSourceViewer = (data: { component: string } & BranchParameters) => {
-    const file = this.sourceViewerFiles.find(f => f.key === data.component);
+    const file = this.sourceViewerFiles.find((f) => f.key === data.component);
     if (file === undefined) {
       return Promise.reject({
-        errors: [{ msg: `No source file has been found for id ${data.component}` }]
+        errors: [{ msg: `No source file has been found for id ${data.component}` }],
       });
     }
 
@@ -406,7 +406,7 @@ export default class IssuesServiceMock {
   };
 
   handleGetIssueFlowSnippets = (issueKey: string): Promise<Dict<SnippetsByComponent>> => {
-    const issue = this.list.find(i => i.issue.key === issueKey);
+    const issue = this.list.find((i) => i.issue.key === issueKey);
     if (issue === undefined) {
       return Promise.reject({ errors: [{ msg: `No issue has been found for id ${issueKey}` }] });
     }
@@ -433,28 +433,28 @@ export default class IssuesServiceMock {
               key: RuleDescriptionSections.HOW_TO_FIX,
               context: {
                 key: 'spring',
-                displayName: 'Spring'
-              }
+                displayName: 'Spring',
+              },
             },
             {
               content: '<p> Context 2 content<p>',
               key: RuleDescriptionSections.HOW_TO_FIX,
               context: {
                 key: 'context_2',
-                displayName: 'Context 2'
-              }
+                displayName: 'Context 2',
+              },
             },
             {
               content: '<p> Context 3 content<p>',
               key: RuleDescriptionSections.HOW_TO_FIX,
               context: {
                 key: 'context_3',
-                displayName: 'Context 3'
-              }
+                displayName: 'Context 3',
+              },
             },
-            { key: RuleDescriptionSections.RESOURCES, content: '<h1>Link</h1>' }
-          ]
-        })
+            { key: RuleDescriptionSections.RESOURCES, content: '<h1>Link</h1>' },
+          ],
+        }),
       });
     }
     return this.reply({
@@ -465,10 +465,10 @@ export default class IssuesServiceMock {
         descriptionSections: [
           {
             key: RuleDescriptionSections.DEFAULT,
-            content: '<h1>Default</h1> Default description'
-          }
-        ]
-      })
+            content: '<h1>Default</h1> Default description',
+          },
+        ],
+      }),
     });
   };
 
@@ -479,16 +479,16 @@ export default class IssuesServiceMock {
       }
       return {
         property: name,
-        values: []
+        values: [],
       };
     });
     return this.reply({
       components: [mockReferenceComponent()],
       effortTotal: 199629,
       facets,
-      issues: this.list.map(line => line.issue),
+      issues: this.list.map((line) => line.issue),
       languages: [],
-      paging: mockPaging()
+      paging: mockPaging(),
     });
   };
 
@@ -522,25 +522,25 @@ export default class IssuesServiceMock {
       unconfirm: 'REOPENED',
       resolve: 'RESOLVED',
       wontfix: 'RESOLVED',
-      falsepositive: 'RESOLVED'
+      falsepositive: 'RESOLVED',
     };
     const transitionMap: Dict<string[]> = {
       REOPENED: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
       OPEN: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
       CONFIRMED: ['resolve', 'unconfirm', 'falsepositive', 'wontfix'],
-      RESOLVED: ['reopen']
+      RESOLVED: ['reopen'],
     };
 
     const resolutionMap: Dict<string> = {
       wontfix: 'WONTFIX',
-      falsepositive: 'FALSE-POSITIVE'
+      falsepositive: 'FALSE-POSITIVE',
     };
 
     return this.getActionsResponse(
       {
         status: statusMap[data.transition],
         transitions: transitionMap[statusMap[data.transition]],
-        resolution: resolutionMap[data.transition]
+        resolution: resolutionMap[data.transition],
       },
       data.issue
     );
@@ -562,9 +562,9 @@ export default class IssuesServiceMock {
             key: '1234',
             login: 'admin',
             markdown: data.text,
-            updatable: true
-          }
-        ]
+            updatable: true,
+          },
+        ],
       },
       data.issue
     );
@@ -581,9 +581,9 @@ export default class IssuesServiceMock {
             key: '1234',
             login: 'admin',
             markdown: data.text,
-            updatable: true
-          }
-        ]
+            updatable: true,
+          },
+        ],
       },
       'issue2'
     );
@@ -593,7 +593,7 @@ export default class IssuesServiceMock {
     // For comment its little more complex to get comment Id
     return this.getActionsResponse(
       {
-        comments: []
+        comments: [],
       },
       'issue2'
     );
@@ -608,15 +608,15 @@ export default class IssuesServiceMock {
   };
 
   getActionsResponse = (overrides: Partial<RawIssue>, issueKey: string) => {
-    const issueDataSelected = this.list.find(l => l.issue.key === issueKey)!;
+    const issueDataSelected = this.list.find((l) => l.issue.key === issueKey)!;
 
     issueDataSelected.issue = {
       ...issueDataSelected?.issue,
-      ...overrides
+      ...overrides,
     };
 
     return this.reply({
-      issue: issueDataSelected.issue
+      issue: issueDataSelected.issue,
     });
   };
 

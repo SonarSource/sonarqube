@@ -55,10 +55,10 @@ function shallowRender(props: Partial<UserHolder['props']> = {}) {
           category: 'admin',
           permissions: [
             { key: 'foo', name: 'Foo', description: '' },
-            { key: 'bar', name: 'Bar', description: '' }
-          ]
+            { key: 'bar', name: 'Bar', description: '' },
+          ],
         },
-        { key: 'baz', name: 'Baz', description: '' }
+        { key: 'baz', name: 'Baz', description: '' },
       ]}
       selectedPermission="bar"
       user={mockPermissionUser({ email: 'john.doe@sonarsource.com', name: 'John Doe' })}

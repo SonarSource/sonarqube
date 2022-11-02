@@ -45,8 +45,8 @@ export function SettingsAppRenderer(props: SettingsAppRendererProps) {
 
   const categories = React.useMemo(() => {
     return uniqBy(
-      definitions.map(definition => definition.category),
-      category => category.toLowerCase()
+      definitions.map((definition) => definition.category),
+      (category) => category.toLowerCase()
     );
   }, [definitions]);
 
@@ -59,7 +59,7 @@ export function SettingsAppRenderer(props: SettingsAppRendererProps) {
   const originalCategory = (query.category as string) || defaultCategory;
   const overriddenCategory = CATEGORY_OVERRIDES[originalCategory.toLowerCase()];
   const selectedCategory = overriddenCategory || originalCategory;
-  const foundAdditionalCategory = ADDITIONAL_CATEGORIES.find(c => c.key === selectedCategory);
+  const foundAdditionalCategory = ADDITIONAL_CATEGORIES.find((c) => c.key === selectedCategory);
   const isProjectSettings = component;
   const shouldRenderAdditionalCategory =
     foundAdditionalCategory &&
@@ -97,7 +97,7 @@ export function SettingsAppRenderer(props: SettingsAppRendererProps) {
                   categories,
                   component,
                   definitions,
-                  selectedCategory: originalCategory
+                  selectedCategory: originalCategory,
                 })
               ) : (
                 <CategoryDefinitionsList

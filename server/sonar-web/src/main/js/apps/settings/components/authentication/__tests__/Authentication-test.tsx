@@ -36,14 +36,14 @@ const mockDefinitionFields = [
     category: 'authentication',
     subCategory: 'saml',
     name: 'test1',
-    description: 'desc1'
+    description: 'desc1',
   }),
   mockDefinition({
     key: 'test2',
     category: 'authentication',
     subCategory: 'saml',
     name: 'test2',
-    description: 'desc2'
+    description: 'desc2',
   }),
   mockDefinition({
     key: 'sonar.auth.saml.certificate.secured',
@@ -51,7 +51,7 @@ const mockDefinitionFields = [
     subCategory: 'saml',
     name: 'Certificate',
     description: 'Secured certificate',
-    type: SettingType.PASSWORD
+    type: SettingType.PASSWORD,
   }),
   mockDefinition({
     key: 'sonar.auth.saml.enabled',
@@ -59,8 +59,8 @@ const mockDefinitionFields = [
     subCategory: 'saml',
     name: 'Enabled',
     description: 'To enable the flag',
-    type: SettingType.BOOLEAN
-  })
+    type: SettingType.BOOLEAN,
+  }),
 ];
 
 let handler: AuthenticationServiceMock;
@@ -99,7 +99,7 @@ describe('SAML tab', () => {
         subCategory: 'saml',
         name: 'Certificate',
         description: 'Secured certificate',
-        type: SettingType.PASSWORD
+        type: SettingType.PASSWORD,
       }),
       mockDefinition({
         key: 'sonar.auth.saml.enabled',
@@ -107,8 +107,8 @@ describe('SAML tab', () => {
         subCategory: 'saml',
         name: 'Enabled',
         description: 'To enable the flag',
-        type: SettingType.BOOLEAN
-      })
+        type: SettingType.BOOLEAN,
+      }),
     ];
 
     renderAuthentication(definitions);

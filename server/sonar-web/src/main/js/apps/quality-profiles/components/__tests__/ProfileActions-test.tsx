@@ -25,7 +25,7 @@ import {
   createQualityProfile,
   deleteProfile,
   renameProfile,
-  setDefaultProfile
+  setDefaultProfile,
 } from '../../../../api/quality-profiles';
 import { mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
@@ -48,7 +48,7 @@ jest.mock('../../../../api/quality-profiles', () => {
       .mockResolvedValue({ profile: mockQualityProfile({ key: 'newProfile' }) }),
     deleteProfile: jest.fn().mockResolvedValue(null),
     setDefaultProfile: jest.fn().mockResolvedValue(null),
-    renameProfile: jest.fn().mockResolvedValue(null)
+    renameProfile: jest.fn().mockResolvedValue(null),
   };
 });
 
@@ -57,7 +57,7 @@ const PROFILE = mockQualityProfile({
   activeDeprecatedRuleCount: 0,
   depth: 0,
   language: 'js',
-  rulesUpdatedAt: '2017-06-28T12:58:44+0000'
+  rulesUpdatedAt: '2017-06-28T12:58:44+0000',
 });
 
 beforeEach(() => jest.clearAllMocks());
@@ -76,9 +76,9 @@ it('renders correctly', () => {
           edit: true,
           delete: true,
           setAsDefault: true,
-          associateProjects: true
-        }
-      }
+          associateProjects: true,
+        },
+      },
     })
   ).toMatchSnapshot('all permissions');
 
@@ -104,23 +104,20 @@ describe('copy a profile', () => {
     const wrapper = shallowRender({
       profile: { ...PROFILE, actions: { copy: true } },
       router: mockRouter({ push }),
-      updateProfiles
+      updateProfiles,
     });
 
     click(wrapper.find('.it__quality-profiles__copy'));
     expect(wrapper.find(ProfileModalForm).exists()).toBe(true);
 
-    wrapper
-      .find(ProfileModalForm)
-      .props()
-      .onSubmit(name);
+    wrapper.find(ProfileModalForm).props().onSubmit(name);
     expect(copyProfile).toHaveBeenCalledWith(PROFILE.key, name);
     await waitAndUpdate(wrapper);
 
     expect(updateProfiles).toHaveBeenCalled();
     expect(push).toHaveBeenCalledWith({
       pathname: '/profiles/show',
-      search: queryToSearch({ name, language: 'js' })
+      search: queryToSearch({ name, language: 'js' }),
     });
     expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
   });
@@ -134,7 +131,7 @@ describe('copy a profile', () => {
     const wrapper = shallowRender({
       profile: { ...PROFILE, actions: { copy: true } },
       router: mockRouter({ push }),
-      updateProfiles
+      updateProfiles,
     });
     wrapper.setState({ openModal: ProfileActionModals.Copy });
 
@@ -158,21 +155,18 @@ describe('extend a profile', () => {
     const wrapper = shallowRender({
       profile,
       router: mockRouter({ push }),
-      updateProfiles
+      updateProfiles,
     });
 
     click(wrapper.find('.it__quality-profiles__extend'));
     expect(wrapper.find(ProfileModalForm).exists()).toBe(true);
 
-    wrapper
-      .find(ProfileModalForm)
-      .props()
-      .onSubmit(name);
+    wrapper.find(ProfileModalForm).props().onSubmit(name);
     expect(createQualityProfile).toHaveBeenCalledWith({ language: profile.language, name });
     await waitAndUpdate(wrapper);
     expect(changeProfileParent).toHaveBeenCalledWith(
       expect.objectContaining({
-        key: 'newProfile'
+        key: 'newProfile',
       }),
       profile
     );
@@ -183,7 +177,7 @@ describe('extend a profile', () => {
 
     expect(push).toHaveBeenCalledWith({
       pathname: '/profiles/show',
-      search: queryToSearch({ name, language: 'js' })
+      search: queryToSearch({ name, language: 'js' }),
     });
     expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
   });
@@ -197,7 +191,7 @@ describe('extend a profile', () => {
     const wrapper = shallowRender({
       profile: { ...PROFILE, actions: { copy: true } },
       router: mockRouter({ push }),
-      updateProfiles
+      updateProfiles,
     });
     wrapper.setState({ openModal: ProfileActionModals.Extend });
 
@@ -219,23 +213,20 @@ describe('rename a profile', () => {
     const wrapper = shallowRender({
       profile: { ...PROFILE, actions: { edit: true } },
       router: mockRouter({ push }),
-      updateProfiles
+      updateProfiles,
     });
 
     click(wrapper.find('.it__quality-profiles__rename'));
     expect(wrapper.find(ProfileModalForm).exists()).toBe(true);
 
-    wrapper
-      .find(ProfileModalForm)
-      .props()
-      .onSubmit(name);
+    wrapper.find(ProfileModalForm).props().onSubmit(name);
     expect(renameProfile).toHaveBeenCalledWith(PROFILE.key, name);
     await waitAndUpdate(wrapper);
 
     expect(updateProfiles).toHaveBeenCalled();
     expect(push).toHaveBeenCalledWith({
       pathname: '/profiles/show',
-      search: queryToSearch({ name, language: 'js' })
+      search: queryToSearch({ name, language: 'js' }),
     });
     expect(wrapper.find(ProfileModalForm).exists()).toBe(false);
   });
@@ -249,7 +240,7 @@ describe('rename a profile', () => {
     const wrapper = shallowRender({
       profile: { ...PROFILE, actions: { copy: true } },
       router: mockRouter({ push }),
-      updateProfiles
+      updateProfiles,
     });
     wrapper.setState({ openModal: ProfileActionModals.Rename });
 
@@ -272,16 +263,13 @@ describe('delete a profile', () => {
     const wrapper = shallowRender({
       profile,
       router: mockRouter({ replace }),
-      updateProfiles
+      updateProfiles,
     });
 
     click(wrapper.find('.it__quality-profiles__delete'));
     expect(wrapper.find(DeleteProfileForm).exists()).toBe(true);
 
-    wrapper
-      .find(DeleteProfileForm)
-      .props()
-      .onDelete();
+    wrapper.find(DeleteProfileForm).props().onDelete();
     expect(deleteProfile).toHaveBeenCalledWith(profile);
     await waitAndUpdate(wrapper);
 
@@ -298,7 +286,7 @@ describe('delete a profile', () => {
     const wrapper = shallowRender({
       profile: { ...PROFILE, actions: { copy: true } },
       router: mockRouter({ replace }),
-      updateProfiles
+      updateProfiles,
     });
     wrapper.setState({ openModal: ProfileActionModals.Delete });
 
@@ -328,8 +316,8 @@ it('should not allow to set a profile as the default if the profile has no activ
   const profile = mockQualityProfile({
     activeRuleCount: 0,
     actions: {
-      setAsDefault: true
-    }
+      setAsDefault: true,
+    },
   });
 
   const wrapper = shallowRender({ profile });

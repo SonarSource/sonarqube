@@ -87,7 +87,8 @@ export default class FacetHeader extends React.PureComponent<Props> {
               type="button"
               onClick={this.handleClick}
               aria-expanded={open}
-              tabIndex={0}>
+              tabIndex={0}
+            >
               <OpenCloseIcon className="little-spacer-right" open={open} />
               {header}
             </button>
@@ -116,7 +117,8 @@ export default class FacetHeader extends React.PureComponent<Props> {
           <Button
             className="search-navigator-facet-header-button button-small button-red"
             aria-label={translateWithParameters('clear_x_filter', name)}
-            onClick={this.props.onClear}>
+            onClick={this.props.onClear}
+          >
             {translate('clear')}
           </Button>
         )}

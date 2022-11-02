@@ -36,7 +36,7 @@ export default function RenderOptions({
   onCheck,
   optionLabelKey,
   options,
-  titleLabelKey
+  titleLabelKey,
 }: RenderOptionsProps) {
   return (
     <div className="big-spacer-top">
@@ -45,9 +45,9 @@ export default function RenderOptions({
       <ButtonToggle
         label={label}
         onCheck={onCheck}
-        options={options.map(build => ({
+        options={options.map((build) => ({
           label: translate(optionLabelKey, build),
-          value: build
+          value: build,
         }))}
         value={checked}
       />

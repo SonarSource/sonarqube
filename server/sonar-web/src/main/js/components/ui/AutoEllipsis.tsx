@@ -48,7 +48,7 @@ export default function AutoEllipsis(props: Props) {
 
   return React.cloneElement(children, {
     className: classNames(children.props.className, { 'text-ellipsis': autoEllispis }),
-    ref
+    ref,
   });
 }
 

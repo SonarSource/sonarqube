@@ -44,7 +44,7 @@ export default function HealthCard({
   onClick,
   open,
   name,
-  sysInfoData
+  sysInfoData,
 }: Props) {
   const { mainSection, sections } = groupSections(sysInfoData);
   const showFields = open && mainSection && Object.keys(mainSection).length > 0;
@@ -62,7 +62,8 @@ export default function HealthCard({
             <Alert
               className="boxed-group-accordion-alert spacer-left"
               display="inline"
-              variant="warning">
+              variant="warning"
+            >
               {translate('system.log_level.warning.short')}
             </Alert>
           )}
@@ -76,7 +77,8 @@ export default function HealthCard({
           )}
         </>
       )}
-      title={name}>
+      title={name}
+    >
       {showFields && <Section items={mainSection} />}
       {showSections &&
         map(sections, (section, name) => <Section items={section} key={name} name={name} />)}

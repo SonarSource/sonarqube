@@ -43,7 +43,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     branches: [],
-    loading: true
+    loading: true,
   };
 
   componentDidMount() {
@@ -64,20 +64,20 @@ export default class BranchList extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
 
     listBranchesNewCodePeriod({ project }).then(
-      branchSettings => {
+      (branchSettings) => {
         const newCodePeriods = branchSettings.newCodePeriods
-          ? branchSettings.newCodePeriods.filter(ncp => !ncp.inherited)
+          ? branchSettings.newCodePeriods.filter((ncp) => !ncp.inherited)
           : [];
 
-        const branchesWithBaseline = this.props.branchList.map(b => {
-          const newCodePeriod = newCodePeriods.find(ncp => ncp.branchKey === b.name);
+        const branchesWithBaseline = this.props.branchList.map((b) => {
+          const newCodePeriod = newCodePeriods.find((ncp) => ncp.branchKey === b.name);
           if (!newCodePeriod) {
             return b;
           }
           const { type = 'PREVIOUS_VERSION', value, effectiveValue } = newCodePeriod;
           return {
             ...b,
-            newCodePeriod: { type, value, effectiveValue }
+            newCodePeriod: { type, value, effectiveValue },
           };
         });
 
@@ -92,7 +92,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
   updateBranchNewCodePeriod = (branch: string, newSetting: NewCodePeriod | undefined) => {
     const { branches } = this.state;
 
-    const updated = branches.find(b => b.name === branch);
+    const updated = branches.find((b) => b.name === branch);
     if (updated) {
       updated.newCodePeriod = newSetting;
     }
@@ -107,7 +107,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     if (branch) {
       this.setState({
         branches: this.updateBranchNewCodePeriod(branch, newSetting),
-        editedBranch: undefined
+        editedBranch: undefined,
       });
     } else {
       this.setState({ editedBranch: undefined });
@@ -117,7 +117,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
   resetToDefault = (branch: string) => {
     return resetNewCodePeriod({
       project: this.props.component.key,
-      branch
+      branch,
     }).then(() => {
       this.setState({ branches: this.updateBranchNewCodePeriod(branch, undefined) });
     });
@@ -148,10 +148,10 @@ export default class BranchList extends React.PureComponent<Props, State> {
             </tr>
           </thead>
           <tbody>
-            {branches.map(branch => (
+            {branches.map((branch) => (
               <BranchListRow
                 branch={branch}
-                existingBranches={branchList.map(b => b.name)}
+                existingBranches={branchList.map((b) => b.name)}
                 inheritedSetting={inheritedSetting}
                 key={branch.name}
                 onOpenEditModal={this.openEditModal}

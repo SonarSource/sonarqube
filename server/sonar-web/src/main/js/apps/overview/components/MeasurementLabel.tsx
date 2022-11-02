@@ -30,7 +30,7 @@ import {
   getMeasurementLabelKeys,
   getMeasurementLinesMetricKey,
   getMeasurementMetricKey,
-  MeasurementType
+  MeasurementType,
 } from '../utils';
 
 interface Props {
@@ -65,10 +65,11 @@ export default class MeasurementLabel extends React.Component<Props> {
               branchLike={branchLike}
               className="big"
               component={component.key}
-              metric={linesMetric}>
+              metric={linesMetric}
+            >
               {formatMeasure(value, 'SHORT_INT')}
             </DrilldownLink>
-          )
+          ),
         }}
       />
     );
@@ -97,7 +98,7 @@ export default class MeasurementLabel extends React.Component<Props> {
     const icon = React.createElement(iconClass, { size: 'big', value: Number(value) });
     const formattedValue = formatMeasure(value, 'PERCENT', {
       decimals: 2,
-      omitExtraDecimalZeros: true
+      omitExtraDecimalZeros: true,
     });
     const link = (
       <DrilldownLink
@@ -109,7 +110,8 @@ export default class MeasurementLabel extends React.Component<Props> {
         branchLike={branchLike}
         className="overview-measures-value text-light"
         component={component.key}
-        metric={metricKey}>
+        metric={metricKey}
+      >
         {formattedValue}
       </DrilldownLink>
     );

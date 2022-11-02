@@ -29,8 +29,8 @@ const profile = mockQualityProfile({
     setAsDefault: true,
     copy: true,
     associateProjects: true,
-    delete: false
-  }
+    delete: false,
+  },
 });
 
 it('should render correctly', () => {
@@ -40,7 +40,7 @@ it('should render correctly', () => {
 
 it('should not a disabled button when edition is not possible', () => {
   const wrapper = shallowRender({
-    referencedProfiles: { key: { ...profile, actions: { ...profile.actions, edit: false } } }
+    referencedProfiles: { key: { ...profile, actions: { ...profile.actions, edit: false } } },
   });
   expect(wrapper).toMatchSnapshot();
 });

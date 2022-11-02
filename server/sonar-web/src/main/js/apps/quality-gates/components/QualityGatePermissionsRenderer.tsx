@@ -46,15 +46,8 @@ export interface QualityGatePermissionsRendererProps {
 }
 
 export default function QualityGatePermissionsRenderer(props: QualityGatePermissionsRendererProps) {
-  const {
-    groups,
-    loading,
-    permissionToDelete,
-    qualityGate,
-    showAddModal,
-    submitting,
-    users
-  } = props;
+  const { groups, loading, permissionToDelete, qualityGate, showAddModal, submitting, users } =
+    props;
 
   return (
     <div className="quality-gate-permissions">
@@ -63,12 +56,12 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
       <div>
         <DeferredSpinner loading={loading}>
           <ul>
-            {users.map(user => (
+            {users.map((user) => (
               <li key={user.login}>
                 <PermissionItem onClickDelete={props.onClickDeletePermission} item={user} />
               </li>
             ))}
-            {groups.map(group => (
+            {groups.map((group) => (
               <li key={group.name}>
                 <PermissionItem onClickDelete={props.onClickDeletePermission} item={group} />
               </li>
@@ -101,7 +94,8 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
           isDestructive={true}
           confirmData={permissionToDelete}
           onClose={props.onCloseDeletePermission}
-          onConfirm={props.onConfirmDeletePermission}>
+          onConfirm={props.onConfirmDeletePermission}
+        >
           <FormattedMessage
             defaultMessage={
               isUser(permissionToDelete)
@@ -110,7 +104,7 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
             }
             id="remove.confirmation"
             values={{
-              user: <strong>{permissionToDelete.name}</strong>
+              user: <strong>{permissionToDelete.name}</strong>,
             }}
           />
         </ConfirmModal>

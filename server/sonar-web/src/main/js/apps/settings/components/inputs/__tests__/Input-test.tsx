@@ -39,7 +39,7 @@ it('should render PrimitiveInput', () => {
 it('should render Secured input', () => {
   const setting: Setting = mockSetting({
     key: 'foo.secured',
-    definition: mockDefinition({ key: 'foo.secured', type: SettingType.PROPERTY_SET })
+    definition: mockDefinition({ key: 'foo.secured', type: SettingType.PROPERTY_SET }),
   });
   const onChange = jest.fn();
   const input = shallowRender({ onChange, setting }).find(InputForSecured);
@@ -50,7 +50,7 @@ it('should render Secured input', () => {
 
 it('should render MultiValueInput', () => {
   const setting = mockSetting({
-    definition: mockDefinition({ multiValues: true })
+    definition: mockDefinition({ multiValues: true }),
   });
   const onChange = jest.fn();
   const value = ['foo', 'bar'];
@@ -63,7 +63,7 @@ it('should render MultiValueInput', () => {
 
 it('should render PropertySetInput', () => {
   const setting: Setting = mockSetting({
-    definition: mockDefinition({ type: SettingType.PROPERTY_SET })
+    definition: mockDefinition({ type: SettingType.PROPERTY_SET }),
   });
 
   const onChange = jest.fn();

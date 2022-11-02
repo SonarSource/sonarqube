@@ -50,12 +50,14 @@ export default class RestartButton extends React.PureComponent<Props> {
           </>
         }
         modalHeader={translate('system.restart_server')}
-        onConfirm={this.handleConfirm}>
+        onConfirm={this.handleConfirm}
+      >
         {({ onClick }) => (
           <Button
             className={classNames('button-red', className)}
             disabled={systemStatus !== 'UP'}
-            onClick={onClick}>
+            onClick={onClick}
+          >
             {systemStatus === 'RESTARTING'
               ? translate('system.restart_in_progress')
               : translate('system.restart_server')}

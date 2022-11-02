@@ -39,8 +39,8 @@ it('should render correctly branch diff', () => {
         // Legacy key
         key: 'from_long_branch',
         oldValue: 'foo',
-        newValue: 'bar'
-      }
+        newValue: 'bar',
+      },
     })
   ).toMatchSnapshot();
 
@@ -50,8 +50,8 @@ it('should render correctly branch diff', () => {
         // Legacy key
         key: 'from_short_branch',
         oldValue: 'foo',
-        newValue: 'bar'
-      }
+        newValue: 'bar',
+      },
     })
   ).toMatchSnapshot();
 
@@ -60,8 +60,8 @@ it('should render correctly branch diff', () => {
       diff: {
         key: 'from_branch',
         oldValue: 'foo',
-        newValue: 'bar'
-      }
+        newValue: 'bar',
+      },
     })
   ).toMatchSnapshot();
 });

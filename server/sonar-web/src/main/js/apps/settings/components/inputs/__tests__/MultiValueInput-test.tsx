@@ -27,7 +27,7 @@ import PrimitiveInput from '../PrimitiveInput';
 
 const settingValue = {
   key: 'example',
-  hasValue: true
+  hasValue: true,
 };
 
 const settingDefinition: ExtendedSettingDefinition = {
@@ -37,7 +37,7 @@ const settingDefinition: ExtendedSettingDefinition = {
   multiValues: true,
   options: [],
   subCategory: 'Branches',
-  type: SettingType.STRING
+  type: SettingType.STRING,
 };
 
 const assertValues = (inputs: ShallowWrapper<any>, values: string[]) => {
@@ -71,20 +71,14 @@ it('should remove value', () => {
 it('should change existing value', () => {
   const onChange = jest.fn();
   const multiValueInput = shallowRender({ onChange, value: ['foo', 'bar', 'baz'] });
-  multiValueInput
-    .find(PrimitiveInput)
-    .at(1)
-    .prop('onChange')('qux');
+  multiValueInput.find(PrimitiveInput).at(1).prop('onChange')('qux');
   expect(onChange).toHaveBeenCalledWith(['foo', 'qux', 'baz']);
 });
 
 it('should add new value', () => {
   const onChange = jest.fn();
   const multiValueInput = shallowRender({ onChange });
-  multiValueInput
-    .find(PrimitiveInput)
-    .at(1)
-    .prop('onChange')('bar');
+  multiValueInput.find(PrimitiveInput).at(1).prop('onChange')('bar');
   expect(onChange).toHaveBeenCalledWith(['foo', 'bar']);
 });
 

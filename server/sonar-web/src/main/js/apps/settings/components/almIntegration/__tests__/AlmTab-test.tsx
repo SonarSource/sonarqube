@@ -32,7 +32,7 @@ it('should handle cancel', async () => {
   const wrapper = shallowRender();
 
   wrapper.setState({
-    editedDefinition: mockAzureBindingDefinition()
+    editedDefinition: mockAzureBindingDefinition(),
   });
 
   wrapper.instance().handleCancel();

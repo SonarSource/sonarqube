@@ -33,7 +33,7 @@ function shallowRender() {
         createdAt: '2020-01-01',
         name: 'test',
         defaultFor: ['user'],
-        permissions: []
+        permissions: [],
       }}
     />
   );

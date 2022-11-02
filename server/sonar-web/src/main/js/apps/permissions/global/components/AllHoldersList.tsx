@@ -28,7 +28,7 @@ import SearchForm from '../../shared/components/SearchForm';
 import {
   convertToPermissionDefinitions,
   filterPermissions,
-  PERMISSIONS_ORDER_GLOBAL
+  PERMISSIONS_ORDER_GLOBAL,
 } from '../../utils';
 
 interface StateProps {
@@ -73,16 +73,8 @@ export class AllHoldersList extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      appState,
-      filter,
-      groups,
-      groupsPaging,
-      users,
-      usersPaging,
-      loading,
-      query
-    } = this.props;
+    const { appState, filter, groups, groupsPaging, users, usersPaging, loading, query } =
+      this.props;
     const l10nPrefix = 'global_permissions';
 
     const hasPortfoliosEnabled = appState.qualifiers.includes(ComponentQualifier.Portfolio);
@@ -113,7 +105,8 @@ export class AllHoldersList extends React.PureComponent<Props> {
           onToggleUser={this.handleToggleUser}
           permissions={permissions}
           query={query}
-          users={users}>
+          users={users}
+        >
           <SearchForm
             filter={filter}
             onFilter={this.props.onFilter}

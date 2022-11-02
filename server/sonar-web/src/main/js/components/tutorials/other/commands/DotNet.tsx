@@ -32,7 +32,7 @@ export interface DotNetProps {
 
 enum Variant {
   DotNetCoreVariant = 'dotnet_core',
-  DotNetFrameworkVariant = 'dotnet_framework'
+  DotNetFrameworkVariant = 'dotnet_framework',
 }
 
 export default function DotNet(props: DotNetProps) {
@@ -44,7 +44,7 @@ export default function DotNet(props: DotNetProps) {
       <RenderOptions
         label={translate('onboarding.build.other.os')}
         checked={variant}
-        onCheck={value => setVariant(value as Variant)}
+        onCheck={(value) => setVariant(value as Variant)}
         optionLabelKey="onboarding.build.dotnet.variant"
         options={['dotnet_core', 'dotnet_framework']}
         titleLabelKey="onboarding.build.dotnet.variant"

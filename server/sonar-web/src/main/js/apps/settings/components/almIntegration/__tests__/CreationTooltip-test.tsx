@@ -35,7 +35,8 @@ function shallowRender(props: Partial<CreationTooltipProps> = {}) {
       alm={AlmKeys.Azure}
       appState={mockAppState({ edition: EditionKey.community })}
       preventCreation={true}
-      {...props}>
+      {...props}
+    >
       <span>Child</span>
     </CreationTooltip>
   );

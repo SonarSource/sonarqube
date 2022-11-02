@@ -24,13 +24,13 @@ import { getComponentLeaves } from '../../../../api/components';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import {
   mockComponentMeasure,
-  mockComponentMeasureEnhanced
+  mockComponentMeasureEnhanced,
 } from '../../../../helpers/mocks/component';
 import {
   mockMeasure,
   mockMeasureEnhanced,
   mockMetric,
-  mockPeriod
+  mockPeriod,
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { MetricKey } from '../../../../types/metrics';
@@ -40,7 +40,7 @@ import MeasureOverview from '../MeasureOverview';
 jest.mock('../../../../api/components', () => ({
   getComponentLeaves: jest
     .fn()
-    .mockResolvedValue({ components: [], paging: { total: 200, pageIndex: 1, pageSize: 100 } })
+    .mockResolvedValue({ components: [], paging: { total: 200, pageIndex: 1, pageSize: 100 } }),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -57,8 +57,8 @@ it('should render correctly', () => {
 it('should correctly enhance leaf components', async () => {
   (getComponentLeaves as jest.Mock).mockResolvedValueOnce({
     components: [
-      mockComponentMeasure(false, { measures: [mockMeasure({ metric: MetricKey.bugs })] })
-    ]
+      mockComponentMeasure(false, { measures: [mockMeasure({ metric: MetricKey.bugs })] }),
+    ],
   });
   const updateLoading = jest.fn();
   const wrapper = shallowRender({ updateLoading });
@@ -70,7 +70,7 @@ it('should correctly enhance leaf components', async () => {
       MetricKey.ncloc,
       MetricKey.reliability_remediation_effort,
       MetricKey.bugs,
-      MetricKey.reliability_rating
+      MetricKey.reliability_rating,
     ],
     expect.objectContaining({ metricSort: MetricKey.bugs, s: 'metric', ps: BUBBLES_FETCH_LIMIT })
   );
@@ -82,10 +82,10 @@ it('should correctly enhance leaf components', async () => {
       measures: [
         mockMeasureEnhanced({
           leak: '1.0',
-          metric: mockMetric({ key: MetricKey.bugs, type: 'INT' })
-        })
-      ]
-    })
+          metric: mockMetric({ key: MetricKey.bugs, type: 'INT' }),
+        }),
+      ],
+    }),
   ]);
   expect(updateLoading).toHaveBeenLastCalledWith({ bubbles: false });
 });
@@ -114,15 +114,15 @@ function shallowRender(props: Partial<MeasureOverview['props']> = {}) {
           mockMetric({ key: MetricKey.ncloc, type: 'INT' }),
           mockMetric({
             key: MetricKey.reliability_remediation_effort,
-            type: 'INT'
+            type: 'INT',
           }),
           mockMetric({ key: MetricKey.bugs, type: 'INT' }),
           mockMetric({
             key: MetricKey.reliability_rating,
-            type: 'DATA'
-          })
+            type: 'DATA',
+          }),
         ],
-        m => m.key
+        (m) => m.key
       )}
       updateLoading={jest.fn()}
       updateSelected={jest.fn()}

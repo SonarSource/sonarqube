@@ -23,10 +23,10 @@ import {
   AlmKeys,
   AlmSettingsInstance,
   ProjectAlmBindingConfigurationErrors,
-  ProjectAlmBindingConfigurationErrorScope
+  ProjectAlmBindingConfigurationErrorScope,
 } from '../../../../../types/alm-settings';
 import PRDecorationBindingRenderer, {
-  PRDecorationBindingRendererProps
+  PRDecorationBindingRendererProps,
 } from '../PRDecorationBindingRenderer';
 
 const urls = ['http://github.enterprise.com', 'http://bbs.enterprise.com'];
@@ -34,26 +34,26 @@ const instances: AlmSettingsInstance[] = [
   {
     alm: AlmKeys.GitHub,
     key: 'i1',
-    url: urls[0]
+    url: urls[0],
   },
   {
     alm: AlmKeys.GitHub,
     key: 'i2',
-    url: urls[0]
+    url: urls[0],
   },
   {
     alm: AlmKeys.BitbucketServer,
     key: 'i3',
-    url: urls[1]
+    url: urls[1],
   },
   {
     alm: AlmKeys.Azure,
-    key: 'i4'
-  }
+    key: 'i4',
+  },
 ];
 const configurationErrors: ProjectAlmBindingConfigurationErrors = {
   scope: ProjectAlmBindingConfigurationErrorScope.Global,
-  errors: [{ msg: 'Test' }, { msg: 'tesT' }]
+  errors: [{ msg: 'Test' }, { msg: 'tesT' }],
 };
 
 it.each([
@@ -68,16 +68,16 @@ it.each([
       formData: {
         key: 'i1',
         repository: 'account/repo',
-        monorepo: false
+        monorepo: false,
       },
       isChanged: false,
       isConfigured: true,
-      instances
-    }
+      instances,
+    },
   ],
   [
     'when there are configuration errors (non-admin user)',
-    { instances, isConfigured: true, configurationErrors }
+    { instances, isConfigured: true, configurationErrors },
   ],
   [
     'when there are configuration errors (admin user)',
@@ -85,13 +85,13 @@ it.each([
       formData: {
         key: 'i1',
         repository: 'account/repo',
-        monorepo: false
+        monorepo: false,
       },
       instances,
       isConfigured: true,
       configurationErrors,
-      isSysAdmin: true
-    }
+      isSysAdmin: true,
+    },
   ],
   [
     'when there are configuration errors (admin user) and error are at PROJECT level',
@@ -100,11 +100,11 @@ it.each([
       isConfigured: true,
       configurationErrors: {
         ...configurationErrors,
-        scope: ProjectAlmBindingConfigurationErrorScope.Project
+        scope: ProjectAlmBindingConfigurationErrorScope.Project,
       },
-      isSysAdmin: true
-    }
-  ]
+      isSysAdmin: true,
+    },
+  ],
 ])('should render correctly', (name: string, props: PRDecorationBindingRendererProps) => {
   expect(shallowRender(props)).toMatchSnapshot(name);
 });
@@ -114,7 +114,7 @@ it.each([
   ['update is successfull', { successfullyUpdated: true }],
   ['form is valid', { isValid: true }],
   ['configuration is saved', { isConfigured: true }],
-  ['configuration check is in progress', { isConfigured: true, checkingConfiguration: true }]
+  ['configuration check is in progress', { isConfigured: true, checkingConfiguration: true }],
 ])(
   'should display action section correctly when',
   (name: string, props: PRDecorationBindingRendererProps) => {
@@ -128,7 +128,7 @@ function shallowRender(props: Partial<PRDecorationBindingRendererProps> = {}) {
       formData={{
         key: '',
         repository: '',
-        monorepo: false
+        monorepo: false,
       }}
       instances={[]}
       isChanged={false}

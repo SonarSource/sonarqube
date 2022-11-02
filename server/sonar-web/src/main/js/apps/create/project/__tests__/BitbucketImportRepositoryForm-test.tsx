@@ -22,11 +22,11 @@ import * as React from 'react';
 import SearchBox from '../../../../components/controls/SearchBox';
 import {
   mockBitbucketProject,
-  mockBitbucketRepository
+  mockBitbucketRepository,
 } from '../../../../helpers/mocks/alm-integrations';
 import { change } from '../../../../helpers/testUtils';
 import BitbucketImportRepositoryForm, {
-  BitbucketImportRepositoryFormProps
+  BitbucketImportRepositoryFormProps,
 } from '../BitbucketImportRepositoryForm';
 
 it('should render correctly', () => {
@@ -56,13 +56,13 @@ function shallowRender(props: Partial<BitbucketImportRepositoryFormProps> = {}) 
           allShown: true,
           repositories: [
             mockBitbucketRepository(),
-            mockBitbucketRepository({ id: 2, slug: 'bar', name: 'Bar', sqProjectKey: 'bar' })
-          ]
-        }
+            mockBitbucketRepository({ id: 2, slug: 'bar', name: 'Bar', sqProjectKey: 'bar' }),
+          ],
+        },
       }}
       projects={[
         mockBitbucketProject(),
-        mockBitbucketProject({ id: 2, key: 'project2', name: 'Project 2' })
+        mockBitbucketProject({ id: 2, key: 'project2', name: 'Project 2' }),
       ]}
       searching={false}
       {...props}

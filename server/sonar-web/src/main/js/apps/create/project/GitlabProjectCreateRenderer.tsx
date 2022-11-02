@@ -58,7 +58,7 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
     searching,
     searchQuery,
     settings,
-    showPersonalAccessTokenForm
+    showPersonalAccessTokenForm,
   } = props;
 
   return (

@@ -28,20 +28,20 @@ jest.mock('../../../../api/components', () => ({
   getBreadcrumbs: jest.fn().mockResolvedValue([
     { key: 'anc1', name: 'Ancestor1' },
     { key: 'anc2', name: 'Ancestor2' },
-    { key: 'bar', name: 'Bar' }
-  ])
+    { key: 'bar', name: 'Bar' },
+  ]),
 }));
 
 const componentFoo = {
   key: 'foo',
   name: 'Foo',
-  qualifier: 'TRK'
+  qualifier: 'TRK',
 };
 
 const componentBar = {
   key: 'bar',
   name: 'Bar',
-  qualifier: 'TRK'
+  qualifier: 'TRK',
 };
 
 beforeEach(() => {

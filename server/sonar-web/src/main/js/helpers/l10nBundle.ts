@@ -25,7 +25,7 @@ import { toNotSoISOString } from './dates';
 const DEFAULT_LOCALE = 'en';
 const DEFAULT_MESSAGES = {
   // eslint-disable-next-line camelcase
-  default_error_message: 'The request cannot be processed. Try again later.'
+  default_error_message: 'The request cannot be processed. Try again later.',
 };
 
 export function getMessages() {
@@ -59,11 +59,11 @@ export async function loadL10nBundle() {
     }
   }
 
-  const { effectiveLocale, messages } = await fetchL10nBundle(params).catch(response => {
+  const { effectiveLocale, messages } = await fetchL10nBundle(params).catch((response) => {
     if (response && response.status === 304) {
       return {
         effectiveLocale: cachedBundle.locale || browserLocale || DEFAULT_LOCALE,
-        messages: cachedBundle.messages ?? {}
+        messages: cachedBundle.messages ?? {},
       };
     }
     throw new Error(`Unexpected status code: ${response.status}`);
@@ -72,7 +72,7 @@ export async function loadL10nBundle() {
   const bundle = {
     timestamp: toNotSoISOString(new Date()),
     locale: effectiveLocale,
-    messages
+    messages,
   };
 
   persistL10nBundleInCache(bundle);
@@ -85,9 +85,9 @@ function getPreferredLanguage() {
 }
 
 function getL10nBundleFromCache() {
-  return ((window as unknown) as any).sonarQubeL10nBundle ?? {};
+  return (window as unknown as any).sonarQubeL10nBundle ?? {};
 }
 
 function persistL10nBundleInCache(bundle: L10nBundle) {
-  ((window as unknown) as any).sonarQubeL10nBundle = bundle;
+  (window as unknown as any).sonarQubeL10nBundle = bundle;
 }

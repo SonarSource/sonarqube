@@ -30,7 +30,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       option: { label: 'Bar', value: 'bar', isDisabled: true },
-      disabledReason: 'bar baz'
+      disabledReason: 'bar baz',
     })
   ).toMatchSnapshot('disabled, with explanation');
 });

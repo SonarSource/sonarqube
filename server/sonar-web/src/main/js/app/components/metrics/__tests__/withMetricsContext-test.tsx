@@ -24,7 +24,7 @@ import { Dict, Metric } from '../../../../types/types';
 import withMetricsContext from '../withMetricsContext';
 
 const metrics = {
-  coverage: mockMetric()
+  coverage: mockMetric(),
 };
 
 jest.mock('../MetricsContext', () => {
@@ -32,8 +32,8 @@ jest.mock('../MetricsContext', () => {
     MetricsContext: {
       Consumer: ({ children }: { children: (props: {}) => React.ReactNode }) => {
         return children({ metrics });
-      }
-    }
+      },
+    },
   };
 });
 

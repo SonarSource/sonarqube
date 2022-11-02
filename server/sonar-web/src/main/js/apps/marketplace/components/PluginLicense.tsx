@@ -37,7 +37,7 @@ export default function PluginLicense({ license }: Props) {
           defaultMessage={translate('marketplace.licensed_under_x')}
           id="marketplace.licensed_under_x"
           values={{
-            license: <span className="js-plugin-license">{license}</span>
+            license: <span className="js-plugin-license">{license}</span>,
           }}
         />
       </li>

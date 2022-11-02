@@ -28,9 +28,9 @@ it('should render correctly', () => {
     shallowRender({
       appState: mockAppState({
         settings: {
-          'sonar.lf.logoUrl': 'http://sonarsource.com/custom-logo.svg'
-        }
-      })
+          'sonar.lf.logoUrl': 'http://sonarsource.com/custom-logo.svg',
+        },
+      }),
     })
   ).toMatchSnapshot('with logo');
   expect(
@@ -38,9 +38,9 @@ it('should render correctly', () => {
       appState: mockAppState({
         settings: {
           'sonar.lf.logoUrl': 'http://sonarsource.com/custom-logo.svg',
-          'sonar.lf.logoWidthPx': '200'
-        }
-      })
+          'sonar.lf.logoWidthPx': '200',
+        },
+      }),
     })
   ).toMatchSnapshot('with logo and width');
 });

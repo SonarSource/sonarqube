@@ -28,26 +28,29 @@ import { ProjectManagementApp, Props } from '../ProjectManagementApp';
 
 jest.mock('lodash', () => {
   const lodash = jest.requireActual('lodash');
-  lodash.debounce = (fn: Function) => (...args: any[]) => fn(args);
+  lodash.debounce =
+    (fn: Function) =>
+    (...args: any[]) =>
+      fn(args);
   return lodash;
 });
 
 jest.mock('../../../api/components', () => ({
-  getComponents: jest.fn().mockResolvedValue({ paging: { total: 0 }, components: [] })
+  getComponents: jest.fn().mockResolvedValue({ paging: { total: 0 }, components: [] }),
 }));
 
 jest.mock('../../../api/permissions', () => ({
-  changeProjectDefaultVisibility: jest.fn().mockResolvedValue({})
+  changeProjectDefaultVisibility: jest.fn().mockResolvedValue({}),
 }));
 
 jest.mock('../../../api/settings', () => ({
-  getValue: jest.fn().mockResolvedValue({ value: 'public' })
+  getValue: jest.fn().mockResolvedValue({ value: 'public' }),
 }));
 
 const defaultSearchParameters = {
   p: undefined,
   ps: 50,
-  q: undefined
+  q: undefined,
 };
 
 beforeEach(() => {
@@ -68,7 +71,7 @@ it('selects provisioned', () => {
   expect(getComponents).toHaveBeenLastCalledWith({
     ...defaultSearchParameters,
     onProvisionedOnly: true,
-    qualifiers: 'TRK'
+    qualifiers: 'TRK',
   });
 });
 
@@ -85,7 +88,7 @@ it('searches', () => {
   expect(getComponents).toHaveBeenLastCalledWith({
     ...defaultSearchParameters,
     q: 'foo',
-    qualifiers: 'TRK'
+    qualifiers: 'TRK',
   });
 });
 
@@ -97,7 +100,7 @@ it('should handle date filtering', () => {
   expect(getComponents).toHaveBeenCalledWith({
     ...defaultSearchParameters,
     qualifiers: 'TRK',
-    analyzedBefore: '2019-11-14'
+    analyzedBefore: '2019-11-14',
   });
 });
 
@@ -120,7 +123,7 @@ it('loads more', () => {
   expect(getComponents).toHaveBeenLastCalledWith({
     ...defaultSearchParameters,
     p: 2,
-    qualifiers: 'TRK'
+    qualifiers: 'TRK',
   });
 });
 

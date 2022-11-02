@@ -30,7 +30,7 @@ export default function Defaults({ template }: Props) {
   const qualifiersToDisplay = template.defaultFor;
 
   const qualifiers = sortBy(qualifiersToDisplay)
-    .map(qualifier => translate('qualifiers', qualifier))
+    .map((qualifier) => translate('qualifiers', qualifier))
     .join(', ');
 
   return (

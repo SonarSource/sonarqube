@@ -39,7 +39,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       active: props.currentItem,
-      selected: props.currentItem
+      selected: props.currentItem,
     };
   }
 
@@ -114,7 +114,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
       active: this.state.active,
       selected: this.state.selected,
       onHover: this.handleHover,
-      onSelect: this.handleSelect
+      onSelect: this.handleSelect,
     });
   };
 
@@ -125,7 +125,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
       <ul className={classNames('menu', this.props.className)}>
         {hasChildren && React.Children.map(children, this.renderChild)}
         {!hasChildren &&
-          this.props.items.map(item => (
+          this.props.items.map((item) => (
             <SelectListItem
               active={this.state.active}
               selected={this.state.selected}

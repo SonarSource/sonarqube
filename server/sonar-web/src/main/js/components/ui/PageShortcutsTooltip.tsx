@@ -70,7 +70,8 @@ export default function PageShortcutsTooltip(props: PageShortcutsTooltipProps) {
             </div>
           )}
         </div>
-      }>
+      }
+    >
       <div
         aria-label={`
         ${translate('shortcuts.on_page.intro')}
@@ -94,7 +95,8 @@ export default function PageShortcutsTooltip(props: PageShortcutsTooltipProps) {
         className={classNames(
           className,
           'page-shortcuts-tooltip note text-center display-inline-block'
-        )}>
+        )}
+      >
         <div>
           <span className="shortcut-button shortcut-button-tiny">↑</span>
         </div>

@@ -37,10 +37,11 @@ export default function LocationIndex(props: Props) {
     <div
       className={classNames('location-index', {
         'is-leading': leading,
-        selected
+        selected,
       })}
       {...clickAttributes}
-      {...other}>
+      {...other}
+    >
       {children}
     </div>
   );

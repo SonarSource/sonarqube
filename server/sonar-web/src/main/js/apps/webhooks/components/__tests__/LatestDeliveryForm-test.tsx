@@ -25,9 +25,9 @@ import LatestDeliveryForm from '../LatestDeliveryForm';
 jest.mock('../../../../api/webhooks', () => ({
   getDelivery: jest.fn(() =>
     Promise.resolve({
-      delivery: { payload: '{ "success": true }' }
+      delivery: { payload: '{ "success": true }' },
     })
-  )
+  ),
 }));
 
 const delivery = {
@@ -35,7 +35,7 @@ const delivery = {
   durationMs: 20,
   httpStatus: 200,
   id: '2',
-  success: true
+  success: true,
 };
 
 const webhook = { key: '1', name: 'foo', url: 'http://foo.bar' };

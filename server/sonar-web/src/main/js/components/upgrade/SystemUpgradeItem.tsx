@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import {
   getEdition,
   getEditionDownloadFilename,
-  getEditionDownloadUrl
+  getEditionDownloadUrl,
 } from '../../helpers/editions';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
@@ -60,7 +60,8 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
           <Link
             className="spacer-left medium"
             to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
-            target="_blank">
+            target="_blank"
+          >
             {translate('system.see_whats_new')}
           </Link>
         )}
@@ -76,7 +77,7 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
       <div className="big-spacer-top">
         {lastUpgrade.releaseDate && (
           <DateFormatter date={lastUpgrade.releaseDate} long={true}>
-            {formattedDate => (
+            {(formattedDate) => (
               <span>{translateWithParameters('system.released_x', formattedDate)}</span>
             )}
           </DateFormatter>
@@ -94,13 +95,15 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
           download={getEditionDownloadFilename(downloadUrl)}
           href={downloadUrl}
           rel="noopener noreferrer"
-          target="_blank">
+          target="_blank"
+        >
           {translateWithParameters('system.download_x', lastUpgrade.version)}
         </a>
         <Link
           className="spacer-left"
           to="https://redirect.sonarsource.com/doc/upgrading.html"
-          target="_blank">
+          target="_blank"
+        >
           {translate('system.how_to_upgrade')}
         </Link>
       </div>

@@ -29,7 +29,7 @@ jest.mock('lodash', () => {
 });
 
 jest.mock('react-dom', () => ({
-  findDOMNode: jest.fn()
+  findDOMNode: jest.fn(),
 }));
 
 beforeEach(() => {

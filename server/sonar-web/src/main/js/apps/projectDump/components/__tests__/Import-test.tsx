@@ -24,7 +24,7 @@ import { TaskStatuses } from '../../../../types/tasks';
 import Import from '../Import';
 
 jest.mock('../../../../api/project-dump', () => ({
-  doImport: jest.fn().mockResolvedValue({})
+  doImport: jest.fn().mockResolvedValue({}),
 }));
 
 it('should render correctly', () => {
@@ -41,7 +41,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       analysis: mockDumpTask(),
-      task: mockDumpTask({ status: TaskStatuses.Success })
+      task: mockDumpTask({ status: TaskStatuses.Success }),
     })
   ).toMatchSnapshot('success, but with analysis -> show form');
   expect(shallowRender({ task: mockDumpTask({ status: TaskStatuses.Pending }) })).toMatchSnapshot(

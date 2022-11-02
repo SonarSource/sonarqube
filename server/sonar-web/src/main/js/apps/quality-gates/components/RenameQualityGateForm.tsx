@@ -64,7 +64,8 @@ export default class RenameQualityGateForm extends React.PureComponent<Props, St
         header={translate('quality_gates.rename')}
         onClose={this.props.onClose}
         onConfirm={this.handleRename}
-        size="small">
+        size="small"
+      >
         <MandatoryFieldsExplanation className="modal-field" />
         <div className="modal-field">
           <label htmlFor="quality-gate-form-name">

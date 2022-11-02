@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { IndexationNotificationType } from '../../../../types/indexation';
 import IndexationNotificationRenderer, {
-  IndexationNotificationRendererProps
+  IndexationNotificationRendererProps,
 } from '../IndexationNotificationRenderer';
 
 it.each([
@@ -32,7 +32,7 @@ it.each([
   [IndexationNotificationType.Completed, false],
   [IndexationNotificationType.Completed, true],
   [IndexationNotificationType.CompletedWithFailure, false],
-  [IndexationNotificationType.CompletedWithFailure, true]
+  [IndexationNotificationType.CompletedWithFailure, true],
 ])(
   'should render correctly for type=%p & isSystemAdmin=%p',
   (type: IndexationNotificationType, isSystemAdmin: boolean) => {

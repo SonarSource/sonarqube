@@ -39,7 +39,7 @@ export default class SingleFileLocationNavigator extends React.PureComponent<Pro
       this.node.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
-        inline: 'center'
+        inline: 'center',
       });
     }
   }
@@ -49,7 +49,7 @@ export default class SingleFileLocationNavigator extends React.PureComponent<Pro
       this.node.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
-        inline: 'center'
+        inline: 'center',
       });
     }
   }
@@ -67,10 +67,11 @@ export default class SingleFileLocationNavigator extends React.PureComponent<Pro
         stopPropagation={true}
         aria-current={selected ? 'location' : false}
         className={classNames('locations-navigator', { selected })}
-        innerRef={node => {
+        innerRef={(node) => {
           this.node = node;
         }}
-        onClick={this.handleClick}>
+        onClick={this.handleClick}
+      >
         <LocationIndex>{index + 1}</LocationIndex>
         <LocationMessage>{message}</LocationMessage>
       </ButtonPlain>

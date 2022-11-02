@@ -38,7 +38,7 @@ function shallowRender(props: Partial<DebtValueProps> = {}) {
       component={mockComponent()}
       measures={[
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.sqale_index }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_technical_debt }) })
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_technical_debt }) }),
       ]}
       {...props}
     />

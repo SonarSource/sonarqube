@@ -29,14 +29,14 @@ import {
   getSeriesMetricType,
   isCustomGraph,
   saveActivityGraph,
-  splitSeriesInGraphs
+  splitSeriesInGraphs,
 } from '../../../components/activity-graph/utils';
 import {
   GraphType,
   MeasureHistory,
   ParsedAnalysis,
   Point,
-  Serie
+  Serie,
 } from '../../../types/project-activity';
 import { Metric } from '../../../types/types';
 import { datesQueryChanged, historyQueryChanged, Query } from '../utils';
@@ -75,7 +75,7 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
     this.state = {
       series,
       graphs: splitSeriesInGraphs(series, MAX_GRAPH_NB, MAX_SERIES_PER_GRAPH),
-      ...this.getStateZoomDates(undefined, props, series)
+      ...this.getStateZoomDates(undefined, props, series),
     };
     this.updateQueryDateRange = debounce(this.updateQueryDateRange, 500);
   }
@@ -116,7 +116,7 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
   getStateZoomDates = (prevProps: Props | undefined, props: Props, newSeries?: Serie[]) => {
     const newDates = {
       from: props.query.from || undefined,
-      to: props.query.to || undefined
+      to: props.query.to || undefined,
     };
     if (!prevProps || datesQueryChanged(prevProps.query, props.query)) {
       return { graphEndDate: newDates.to, graphStartDate: newDates.from };
@@ -124,16 +124,16 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
 
     if (newDates.to === undefined && newDates.from === undefined && newSeries !== undefined) {
       const firstValid = minBy(
-        newSeries.map(serie => serie.data.find(p => Boolean(p.y || p.y === 0))),
+        newSeries.map((serie) => serie.data.find((p) => Boolean(p.y || p.y === 0))),
         'x'
       );
       const lastValid = maxBy<Point>(
-        newSeries.map(serie => findLast(serie.data, p => Boolean(p.y || p.y === 0))!),
+        newSeries.map((serie) => findLast(serie.data, (p) => Boolean(p.y || p.y === 0))!),
         'x'
       );
       return {
         graphEndDate: lastValid && lastValid.x,
-        graphStartDate: firstValid && firstValid.x
+        graphStartDate: firstValid && firstValid.x,
       };
     }
     return null;
@@ -144,8 +144,8 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
       return undefined;
     }
     return this.state.graphs
-      .filter(graph => graph.length < MAX_SERIES_PER_GRAPH)
-      .map(graph => graph[0].type);
+      .filter((graph) => graph.length < MAX_SERIES_PER_GRAPH)
+      .map((graph) => graph[0].type);
   };
 
   addCustomMetric = (metric: string) => {
@@ -155,7 +155,9 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
   };
 
   removeCustomMetric = (removedMetric: string) => {
-    const customMetrics = this.props.query.customMetrics.filter(metric => metric !== removedMetric);
+    const customMetrics = this.props.query.customMetrics.filter(
+      (metric) => metric !== removedMetric
+    );
     saveActivityGraph(PROJECT_ACTIVITY_GRAPH, this.props.project, GraphType.custom, customMetrics);
     this.props.updateQuery({ customMetrics });
   };

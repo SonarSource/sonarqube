@@ -48,7 +48,7 @@ export default function RadioCard(props: Props) {
     recommended,
     selected,
     titleInfo,
-    vertical = false
+    vertical = false,
   } = props;
   const isActionable = Boolean(onClick);
   return (
@@ -60,13 +60,14 @@ export default function RadioCard(props: Props) {
           'radio-card-actionable': isActionable,
           'radio-card-vertical': vertical,
           disabled,
-          selected
+          selected,
         },
         className
       )}
       onClick={isActionable && !disabled ? onClick : undefined}
       role="radio"
-      tabIndex={0}>
+      tabIndex={0}
+    >
       <h2 className="radio-card-header big-spacer-bottom">
         <span className="display-flex-center link-radio">
           {isActionable && (

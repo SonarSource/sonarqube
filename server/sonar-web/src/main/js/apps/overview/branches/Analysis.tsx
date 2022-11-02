@@ -34,7 +34,7 @@ export function Analysis({ analysis, ...props }: AnalysisProps) {
   const sortedEvents = sortBy(
     analysis.events,
     // versions first
-    event => (event.category === 'VERSION' ? 0 : 1),
+    (event) => (event.category === 'VERSION' ? 0 : 1),
     // then the rest sorted by category
     'category'
   );
@@ -55,7 +55,7 @@ export function Analysis({ analysis, ...props }: AnalysisProps) {
 
       {sortedEvents.length > 0 ? (
         <div className="overview-activity-events">
-          {sortedEvents.map(event => (
+          {sortedEvents.map((event) => (
             <Event event={event} key={event.key} />
           ))}
         </div>

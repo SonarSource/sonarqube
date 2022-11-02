@@ -33,7 +33,7 @@ jest.mock('../../../../api/system', () => {
   return {
     getSystemUpgrades: jest
       .fn()
-      .mockResolvedValue({ upgrades: [mockSystemUpgrade({ version: '9.1' })], latestLTS: '8.9' })
+      .mockResolvedValue({ upgrades: [mockSystemUpgrade({ version: '9.1' })], latestLTS: '8.9' }),
   };
 });
 
@@ -44,14 +44,14 @@ function formatDate(date: Date): string {
 it('should render correctly', async () => {
   let wrapper = shallowRender({
     appState: mockAppState({ version: '9.0' }),
-    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('default');
 
   wrapper = shallowRender({
     appState: mockAppState({ version: '9.0' }),
-    currentUser: mockCurrentUser()
+    currentUser: mockCurrentUser(),
   });
   expect(wrapper.type()).toBeNull();
 });
@@ -78,7 +78,7 @@ it('should not show prompt when no upgrade', async () => {
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({ upgrades: [], latestLTS: '8.9' });
   const wrapper = shallowRender({
     appState: mockAppState({ version: '9.1' }),
-    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.type()).toBeNull();
@@ -87,11 +87,11 @@ it('should not show prompt when no upgrade', async () => {
 it('should show prompt when no lts date', async () => {
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({
     upgrades: [mockSystemUpgrade({ version: '8.9', releaseDate: 'INVALID' })],
-    latestLTS: '8.9'
+    latestLTS: '8.9',
   });
   const wrapper = shallowRender({
     appState: mockAppState({ version: '8.1' }),
-    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.find(DismissableAlert).props().alertKey).toBe('previous_lts8.9');
@@ -101,11 +101,11 @@ it('should show prompt when no lts date', async () => {
 it('should show prompt when minor upgrade', async () => {
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({
     upgrades: [mockSystemUpgrade({ version: '9.2' }), mockSystemUpgrade({ version: '9.1' })],
-    latestLTS: '8.9'
+    latestLTS: '8.9',
   });
   const wrapper = shallowRender({
     appState: mockAppState({ version: '9.1' }),
-    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.find(DismissableAlert).props().alertKey).toBe('new_minor_version9.2');
@@ -115,11 +115,11 @@ it('should show prompt when minor upgrade', async () => {
 it('should show prompt when patch upgrade', async () => {
   (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({
     upgrades: [mockSystemUpgrade({ version: '9.2' }), mockSystemUpgrade({ version: '9.1.1' })],
-    latestLTS: '8.9'
+    latestLTS: '8.9',
   });
   const wrapper = shallowRender({
     appState: mockAppState({ version: '9.1' }),
-    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.find(DismissableAlert).props().alertKey).toBe('new_patch9.2');
@@ -131,13 +131,13 @@ it('should show prompt when lts upgrade', async () => {
     upgrades: [
       mockSystemUpgrade({ version: '8.9', releaseDate: formatDate(new Date(Date.now())) }),
       mockSystemUpgrade({ version: '9.2' }),
-      mockSystemUpgrade({ version: '9.1.1' })
+      mockSystemUpgrade({ version: '9.1.1' }),
     ],
-    latestLTS: '8.9'
+    latestLTS: '8.9',
   });
   const wrapper = shallowRender({
     appState: mockAppState({ version: '8.8' }),
-    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.find(DismissableAlert).props().alertKey).toBe('pre_lts8.9');
@@ -151,13 +151,13 @@ it('should show prompt when lts upgrade is more than 6 month', async () => {
     upgrades: [
       mockSystemUpgrade({ version: '8.9', releaseDate: formatDate(ltsDate) }),
       mockSystemUpgrade({ version: '9.2' }),
-      mockSystemUpgrade({ version: '9.1.1' })
+      mockSystemUpgrade({ version: '9.1.1' }),
     ],
-    latestLTS: '8.9'
+    latestLTS: '8.9',
   });
   const wrapper = shallowRender({
     appState: mockAppState({ version: '8.8' }),
-    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.find(DismissableAlert).props().alertKey).toBe('previous_lts8.9');
@@ -169,13 +169,13 @@ it('should show correct alert when not dismissable', async () => {
     upgrades: [
       mockSystemUpgrade({ version: '8.9', releaseDate: formatDate(new Date(Date.now())) }),
       mockSystemUpgrade({ version: '9.2' }),
-      mockSystemUpgrade({ version: '9.1.1' })
+      mockSystemUpgrade({ version: '9.1.1' }),
     ],
-    latestLTS: '8.9'
+    latestLTS: '8.9',
   });
   const wrapper = shallowRender({
     appState: mockAppState({ version: '8.8' }),
-    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.find(DismissableAlert).type).toBeDefined();

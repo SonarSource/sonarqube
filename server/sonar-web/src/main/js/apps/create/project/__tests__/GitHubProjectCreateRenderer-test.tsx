@@ -25,7 +25,7 @@ import Select from '../../../../components/controls/Select';
 import { mockGitHubRepository } from '../../../../helpers/mocks/alm-integrations';
 import { GithubOrganization } from '../../../../types/alm-integration';
 import GitHubProjectCreateRenderer, {
-  GitHubProjectCreateRendererProps
+  GitHubProjectCreateRendererProps,
 } from '../GitHubProjectCreateRenderer';
 
 it('should render correctly', () => {
@@ -36,21 +36,21 @@ it('should render correctly', () => {
 
   const organizations: GithubOrganization[] = [
     { key: 'o1', name: 'org1' },
-    { key: 'o2', name: 'org2' }
+    { key: 'o2', name: 'org2' },
   ];
 
   expect(shallowRender({ organizations })).toMatchSnapshot('organizations');
   expect(
     shallowRender({
       organizations,
-      selectedOrganization: organizations[1]
+      selectedOrganization: organizations[1],
     })
   ).toMatchSnapshot('no repositories');
 
   const repositories = [
     mockGitHubRepository({ id: '1', key: 'repo1' }),
     mockGitHubRepository({ id: '2', key: 'repo2', sqProjectKey: 'repo2' }),
-    mockGitHubRepository({ id: '3', key: 'repo3' })
+    mockGitHubRepository({ id: '3', key: 'repo3' }),
   ];
 
   expect(
@@ -58,7 +58,7 @@ it('should render correctly', () => {
       organizations,
       selectedOrganization: organizations[1],
       repositories,
-      selectedRepository: repositories[2]
+      selectedRepository: repositories[2],
     })
   ).toMatchSnapshot('repositories');
 });
@@ -76,7 +76,7 @@ describe('callback', () => {
     onSearch,
     organizations: [org],
     selectedOrganization: org,
-    repositories: [mockGitHubRepository()]
+    repositories: [mockGitHubRepository()],
   });
 
   beforeEach(() => {
@@ -91,19 +91,13 @@ describe('callback', () => {
 
   it('should be called when searchbox is changed', () => {
     const value = 'search query';
-    wrapper
-      .find(SearchBox)
-      .props()
-      .onChange(value);
+    wrapper.find(SearchBox).props().onChange(value);
     expect(onSearch).toHaveBeenCalledWith(value);
   });
 
   it('should be called when repo is selected', () => {
     const value = 'repo1';
-    wrapper
-      .find(Radio)
-      .props()
-      .onCheck(value);
+    wrapper.find(Radio).props().onCheck(value);
     expect(onSelectRepository).toHaveBeenCalledWith(value);
   });
 });

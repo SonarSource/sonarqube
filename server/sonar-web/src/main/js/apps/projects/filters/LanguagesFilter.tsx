@@ -46,7 +46,7 @@ export class LanguagesFilter extends React.Component<Props> {
     if (facet) {
       languageKeys = difference(languageKeys, Object.keys(facet));
     }
-    return languageKeys.map(key => ({ label: languages[key].name, value: key }));
+    return languageKeys.map((key) => ({ label: languages[key].name, value: key }));
   };
 
   getSortedOptions = (facet: Facet = {}) =>

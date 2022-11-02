@@ -26,7 +26,7 @@ import {
   InstalledPlugin,
   PendingPluginResult,
   PluginType,
-  Update
+  Update,
 } from '../types/plugins';
 
 export function getAvailablePlugins(): Promise<{
@@ -45,8 +45,8 @@ function getLastUpdates(updates: undefined | Update[]): Update[] {
     return [];
   }
   const lastUpdate = ['COMPATIBLE', 'REQUIRES_SYSTEM_UPGRADE', 'DEPS_REQUIRE_SYSTEM_UPGRADE'].map(
-    status => {
-      const index = findLastIndex(updates, update => update.status === status);
+    (status) => {
+      const index = findLastIndex(updates, (update) => update.status === status);
       return index > -1 ? updates[index] : undefined;
     }
   );
@@ -87,9 +87,9 @@ export function getInstalledPluginsWithUpdates(): Promise<InstalledPlugin[]> {
           return {
             ...updatePlugin,
             ...plugin,
-            updates: getLastUpdates(updatePlugin.updates).map(update =>
+            updates: getLastUpdates(updatePlugin.updates).map((update) =>
               addChangelog(update, updatePlugin.updates)
-            )
+            ),
           };
         }
         return plugin;
@@ -102,7 +102,7 @@ export function getPluginUpdates(): Promise<InstalledPlugin[]> {
   return Promise.all([getUpdatesPluginApi(), getInstalledPluginApi()])
     .then(([updates, installed]) =>
       updates.plugins.map((updatePlugin: InstalledPlugin) => {
-        const updates = getLastUpdates(updatePlugin.updates).map(update =>
+        const updates = getLastUpdates(updatePlugin.updates).map((update) =>
           addChangelog(update, updatePlugin.updates)
         );
         const plugin = installed.plugins.find((p: InstalledPlugin) => p.key === updatePlugin.key);
@@ -110,7 +110,7 @@ export function getPluginUpdates(): Promise<InstalledPlugin[]> {
           return {
             ...plugin,
             ...updatePlugin,
-            updates
+            updates,
           };
         }
         return { ...updatePlugin, updates };

@@ -24,7 +24,7 @@ import TaskStatus from '../TaskStatus';
 it('renders', () => {
   expect.assertions(5);
   const statuses = ['PENDING', 'IN_PROGRESS', 'SUCCESS', 'FAILED', 'CANCELED'];
-  statuses.forEach(status => {
+  statuses.forEach((status) => {
     expect(shallow(<TaskStatus status={status} />)).toMatchSnapshot();
   });
 });

@@ -21,7 +21,7 @@ import * as React from 'react';
 import {
   AlmBindingDefinition,
   AlmBindingDefinitionBase,
-  AlmSettingsBindingStatus
+  AlmSettingsBindingStatus,
 } from '../../../../types/alm-settings';
 import { Dict } from '../../../../types/types';
 import { AlmTabs } from './AlmIntegration';
@@ -66,7 +66,7 @@ export default class AlmTab extends React.PureComponent<Props, State> {
   };
 
   handleEdit = (definitionKey: string) => {
-    const editedDefinition = this.props.definitions.find(d => d.key === definitionKey);
+    const editedDefinition = this.props.definitions.find((d) => d.key === definitionKey);
     this.setState({ editDefinition: true, editedDefinition });
   };
 
@@ -74,7 +74,7 @@ export default class AlmTab extends React.PureComponent<Props, State> {
     if (this.mounted) {
       this.setState({
         editDefinition: false,
-        editedDefinition: undefined
+        editedDefinition: undefined,
       });
     }
 
@@ -91,7 +91,7 @@ export default class AlmTab extends React.PureComponent<Props, State> {
       definitionStatus,
       loadingAlmDefinitions,
       loadingProjectCount,
-      multipleAlmEnabled
+      multipleAlmEnabled,
     } = this.props;
     const { editDefinition, editedDefinition } = this.state;
 

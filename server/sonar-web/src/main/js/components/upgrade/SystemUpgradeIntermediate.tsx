@@ -37,7 +37,7 @@ export default class SystemUpgradeIntermediate extends React.PureComponent<Props
   state: State = { showMore: false };
 
   toggleIntermediatVersions = () => {
-    this.setState(state => ({ showMore: !state.showMore }));
+    this.setState((state) => ({ showMore: !state.showMore }));
   };
 
   render() {
@@ -56,11 +56,11 @@ export default class SystemUpgradeIntermediate extends React.PureComponent<Props
           <DropdownIcon className="little-spacer-left" turned={showMore} />
         </ButtonLink>
         {showMore &&
-          upgrades.map(upgrade => (
+          upgrades.map((upgrade) => (
             <div className="note system-upgrade-intermediate" key={upgrade.version}>
               {upgrade.releaseDate && (
                 <DateFormatter date={upgrade.releaseDate} long={true}>
-                  {formattedDate => (
+                  {(formattedDate) => (
                     <p>
                       <b className="little-spacer-right">SonarQube {upgrade.version}</b>
                       {formattedDate}
@@ -69,7 +69,8 @@ export default class SystemUpgradeIntermediate extends React.PureComponent<Props
                           className="spacer-left"
                           href={upgrade.changeLogUrl}
                           rel="noopener noreferrer"
-                          target="_blank">
+                          target="_blank"
+                        >
                           {translate('system.release_notes')}
                         </a>
                       )}

@@ -24,7 +24,7 @@ import { PopupPlacement } from '../../ui/popups';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem,
-  ActionsDropdownProps
+  ActionsDropdownProps,
 } from '../ActionsDropdown';
 
 describe('ActionsDropdown', () => {
@@ -41,7 +41,8 @@ describe('ActionsDropdown', () => {
         overlayPlacement={PopupPlacement.Bottom}
         small={true}
         toggleClassName="bar"
-        {...props}>
+        {...props}
+      >
         <span>Hello world</span>
       </ActionsDropdown>
     );

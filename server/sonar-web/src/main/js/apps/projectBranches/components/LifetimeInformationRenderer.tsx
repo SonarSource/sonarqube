@@ -47,7 +47,7 @@ export function LifetimeInformationRenderer(props: LifetimeInformationRendererPr
               defaultMessage={translate('project_branch_pull_request.lifetime_information.admin')}
               id="project_branch_pull_request.lifetime_information.admin"
               values={{
-                settings: <Link to="/admin/settings">{translate('settings.page')}</Link>
+                settings: <Link to="/admin/settings">{translate('settings.page')}</Link>,
               }}
             />
           )}

@@ -32,7 +32,7 @@ const installedPlugin: InstalledPlugin = {
   termsAndConditionsUrl: 'https://url',
   updatedAt: 1,
   updates: [{ status: 'COMPATIBLE', requires: [] }],
-  version: '7.7'
+  version: '7.7',
 };
 
 const availablePlugin: AvailablePlugin = {
@@ -40,7 +40,7 @@ const availablePlugin: AvailablePlugin = {
   name: 'Foo',
   release: { version: '7.7', date: 'date' },
   termsAndConditionsUrl: 'https://url',
-  update: { status: 'COMPATIBLE', requires: [] }
+  update: { status: 'COMPATIBLE', requires: [] },
 };
 
 it('should render installed plugin correctly', () => {

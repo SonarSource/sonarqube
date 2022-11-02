@@ -34,7 +34,7 @@ it('should render with no suggestions', () => {
 it('should render with suggestions', () => {
   renderEmbedDocsPopup([
     { link: '/docs/awesome-doc', text: 'mindblowing' },
-    { link: '/docs/whocares', text: 'boring' }
+    { link: '/docs/whocares', text: 'boring' },
   ]);
 
   expect(screen.getAllByRole('link')).toHaveLength(7);
@@ -44,7 +44,8 @@ it('should render with suggestions', () => {
 function renderEmbedDocsPopup(suggestions: SuggestionLink[] = []) {
   return renderComponent(
     <SuggestionsContext.Provider
-      value={{ addSuggestions: jest.fn(), removeSuggestions: jest.fn(), suggestions }}>
+      value={{ addSuggestions: jest.fn(), removeSuggestions: jest.fn(), suggestions }}
+    >
       <EmbedDocsPopup onClose={jest.fn()} />
     </SuggestionsContext.Provider>
   );

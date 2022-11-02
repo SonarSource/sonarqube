@@ -57,7 +57,7 @@ export const CATEGORY_OVERRIDES: Dict<string> = {
   'vb.net': LANGUAGES_CATEGORY,
   'visual basic': LANGUAGES_CATEGORY,
   xml: LANGUAGES_CATEGORY,
-  yaml: LANGUAGES_CATEGORY
+  yaml: LANGUAGES_CATEGORY,
 };
 
 // As per Bitbucket Cloud's documentation, Workspace ID's can only contain lowercase letters,

@@ -49,7 +49,8 @@ export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
             return (
               <Tooltip
                 key={serie.name}
-                overlay={translate('project_activity.graphs.custom.metric_no_history')}>
+                overlay={translate('project_activity.graphs.custom.metric_no_history')}
+              >
                 <span className="spacer-left spacer-right">{legendItem}</span>
               </Tooltip>
             );

@@ -36,6 +36,6 @@ export function mockLicense(override?: Partial<License>) {
     remainingLocThreshold: 490000,
     serverId: 'AU-TpxcA-iU5OvuD2FL0',
     type: 'production',
-    ...override
+    ...override,
   };
 }

@@ -28,7 +28,7 @@ import { BuildTools } from '../../types';
 export enum PrepareType {
   JavaMavenGradle,
   StandAlone,
-  MSBuild
+  MSBuild,
 }
 
 export interface PrepareAnalysisCommandProps {
@@ -76,7 +76,7 @@ sonar.projectKey=${projectKey}`;
                   buildTool
                 )}
               </strong>
-            )
+            ),
           }}
         />
       </li>
@@ -105,7 +105,7 @@ sonar.projectKey=${projectKey}`;
                   </b>
                 ),
                 key: <code className="rule">{projectKey}</code>,
-                button: <ClipboardIconButton copyValue={projectKey} />
+                button: <ClipboardIconButton copyValue={projectKey} />,
               }}
             />
           </li>
@@ -132,7 +132,7 @@ sonar.projectKey=${projectKey}`;
                     </b>
                   ),
                   property: <code className="rule">{ADDITIONAL_PROPERTY}</code>,
-                  button: <ClipboardIconButton copyValue={ADDITIONAL_PROPERTY} />
+                  button: <ClipboardIconButton copyValue={ADDITIONAL_PROPERTY} />,
                 }}
               />
             </li>
@@ -166,7 +166,7 @@ sonar.projectKey=${projectKey}`;
                 </b>
               ),
               key: <code className="rule">{projectKey}</code>,
-              button: <ClipboardIconButton copyValue={projectKey} />
+              button: <ClipboardIconButton copyValue={projectKey} />,
             }}
           />
         </li>

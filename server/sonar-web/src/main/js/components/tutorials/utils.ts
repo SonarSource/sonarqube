@@ -39,7 +39,7 @@ sonarqube {
 }
 
 export function getUniqueTokenName(tokens: UserToken[], initialTokenName: string) {
-  const hasToken = (name: string) => tokens.find(token => token.name === name) !== undefined;
+  const hasToken = (name: string) => tokens.find((token) => token.name === name) !== undefined;
 
   if (!hasToken(initialTokenName)) {
     return initialTokenName;

@@ -30,13 +30,13 @@ import {
   getBranchLikeQuery,
   isBranch,
   isMainBranch,
-  isPullRequest
+  isPullRequest,
 } from '../../helpers/branch-like';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl } from '../../helpers/urls';
 import {
   ProjectAlmBindingConfigurationErrors,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../../types/alm-settings';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
@@ -45,7 +45,7 @@ import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
 import { Component, Status } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from './available-features/withAvailableFeatures';
 import withBranchStatusActions from './branch-status/withBranchStatusActions';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
@@ -107,7 +107,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     try {
       const [nav, { component }] = await Promise.all([
         getComponentNavigation({ component: key, branch, pullRequest }),
-        getComponentData({ component: key, branch, pullRequest })
+        getComponentData({ component: key, branch, pullRequest }),
       ]);
       componentWithQualifier = this.addQualifier({ ...nav, ...component });
     } catch (e) {
@@ -146,7 +146,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         branchLikes,
         component: componentWithQualifier,
         projectBinding,
-        loading: false
+        loading: false,
       });
 
       this.fetchStatus(componentWithQualifier.key);
@@ -174,7 +174,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         !hasFeature(Feature.BranchSupport) ||
         breadcrumb.qualifier === ComponentQualifier.Application
           ? Promise.resolve([])
-          : getPullRequests(key)
+          : getPullRequests(key),
       ]);
 
       branchLikes = [...branches, ...pullRequests];
@@ -214,11 +214,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
                 );
               }
 
-              const isPending = pendingTasks.some(task => task.status === TaskStatuses.Pending);
+              const isPending = pendingTasks.some((task) => task.status === TaskStatuses.Pending);
               return {
                 currentTask: newCurrentTask,
                 isPending,
-                tasksInProgress: newTasksInProgress
+                tasksInProgress: newTasksInProgress,
               };
             },
             () => {
@@ -237,7 +237,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     if (component.qualifier === ComponentQualifier.Project) {
       getAnalysisStatus({
         component: component.key,
-        ...getBranchLikeQuery(branchLike)
+        ...getBranchLikeQuery(branchLike),
       }).then(
         ({ component }) => {
           this.setState({ warnings: component.warnings });
@@ -264,14 +264,14 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   addQualifier = (component: Component) => ({
     ...component,
-    qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier
+    qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier,
   });
 
   getCurrentBranchLike = (branchLikes: BranchLike[]) => {
     const { query } = this.props.location;
     return query.pullRequest
-      ? branchLikes.find(b => isPullRequest(b) && b.key === query.pullRequest)
-      : branchLikes.find(b => isBranch(b) && (query.branch ? b.name === query.branch : b.isMain));
+      ? branchLikes.find((b) => isPullRequest(b) && b.key === query.pullRequest)
+      : branchLikes.find((b) => isBranch(b) && (query.branch ? b.name === query.branch : b.isMain));
   };
 
   getCurrentTask = (current: Task, branchLike?: BranchLike) => {
@@ -286,12 +286,12 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   getPendingTasksForBranchLike = (pendingTasks: Task[], branchLike?: BranchLike) => {
     return pendingTasks.filter(
-      task => this.isReportRelatedTask(task) && this.isSameBranch(task, branchLike)
+      (task) => this.isReportRelatedTask(task) && this.isSameBranch(task, branchLike)
     );
   };
 
   getInProgressTasks = (pendingTasks: Task[]) => {
-    return pendingTasks.filter(task => task.status === TaskStatuses.InProgress);
+    return pendingTasks.filter((task) => task.status === TaskStatuses.InProgress);
   };
 
   isReportRelatedTask = (task: Task) => {
@@ -360,7 +360,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   registerBranchStatuses = (branchLikes: BranchLike[], component: Component) => {
-    branchLikes.forEach(branchLike => {
+    branchLikes.forEach((branchLike) => {
       if (branchLike.status) {
         this.props.updateBranchStatus(
           branchLike,
@@ -373,7 +373,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   handleComponentChange = (changes: Partial<Component>) => {
     if (this.mounted) {
-      this.setState(state => {
+      this.setState((state) => {
         if (state.component) {
           const newComponent: Component = { ...state.component, ...changes };
           return { component: newComponent };
@@ -422,7 +422,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       projectBinding,
       projectBindingErrors,
       tasksInProgress,
-      warnings
+      warnings,
     } = this.state;
     const isInProgress = tasksInProgress && tasksInProgress.length > 0;
 
@@ -461,8 +461,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               isPending,
               onBranchesChange: this.handleBranchesChange,
               onComponentChange: this.handleComponentChange,
-              projectBinding
-            }}>
+              projectBinding,
+            }}
+          >
             <Outlet />
           </ComponentContext.Provider>
         )}

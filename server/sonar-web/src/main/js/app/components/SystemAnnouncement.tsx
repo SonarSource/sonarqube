@@ -25,7 +25,7 @@ import { Alert } from '../../components/ui/Alert';
 import { Feature } from '../../types/features';
 import { GlobalSettingKeys, SettingValue } from '../../types/settings';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from './available-features/withAvailableFeatures';
 import './SystemAnnouncement.css';
 
@@ -54,7 +54,7 @@ export class SystemAnnouncement extends React.PureComponent<WithAvailableFeature
 
   getSettings = async () => {
     const values: SettingValue[] = await getValues({
-      keys: [GlobalSettingKeys.DisplayAnnouncementMessage, GlobalSettingKeys.AnnouncementMessage]
+      keys: [GlobalSettingKeys.DisplayAnnouncementMessage, GlobalSettingKeys.AnnouncementMessage],
     });
     const settings = keyBy(values, 'key');
 
@@ -63,7 +63,7 @@ export class SystemAnnouncement extends React.PureComponent<WithAvailableFeature
       message:
         (settings[GlobalSettingKeys.AnnouncementMessage] &&
           settings[GlobalSettingKeys.AnnouncementMessage].value) ||
-        ''
+        '',
     });
   };
 
@@ -86,7 +86,8 @@ export class SystemAnnouncement extends React.PureComponent<WithAvailableFeature
           className="system-announcement-banner"
           title={message}
           display="banner"
-          variant="warning">
+          variant="warning"
+        >
           {message}
         </Alert>
       </div>

@@ -47,7 +47,8 @@ export default class Projects extends React.PureComponent<Props> {
       <div className="boxed-group boxed-group-inner">
         <table
           className={classNames('data', 'zebra', { 'new-loading': !this.props.ready })}
-          id="projects-management-page-projects">
+          id="projects-management-page-projects"
+        >
           <thead>
             <tr>
               <th />
@@ -59,7 +60,7 @@ export default class Projects extends React.PureComponent<Props> {
             </tr>
           </thead>
           <tbody>
-            {this.props.projects.map(project => (
+            {this.props.projects.map((project) => (
               <ProjectRow
                 currentUser={this.props.currentUser}
                 key={project.key}

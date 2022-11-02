@@ -29,19 +29,19 @@ it('should render correctly', () => {
         {
           requires: [],
           status: '',
-          release: { date: '2012-02-10', version: '1.3' }
+          release: { date: '2012-02-10', version: '1.3' },
         },
         {
           requires: [],
           status: '',
-          release: { date: '2012-02-01', version: '1.1' }
+          release: { date: '2012-02-01', version: '1.1' },
         },
         {
           requires: [],
           status: '',
-          release: { date: '2012-02-02', version: '1.2' }
-        }
-      ]
+          release: { date: '2012-02-02', version: '1.2' },
+        },
+      ],
     })
   ).toMatchSnapshot('with status');
 });

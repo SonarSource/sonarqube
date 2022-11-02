@@ -25,7 +25,7 @@ export function mockBranch(overrides: Partial<Branch> = {}): Branch {
     excludedFromPurge: true,
     isMain: false,
     name: 'branch-6.7',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -33,7 +33,7 @@ export function mockMainBranch(overrides: Partial<MainBranch> = {}): MainBranch 
   return mockBranch({
     isMain: true,
     name: 'master',
-    ...overrides
+    ...overrides,
   }) as MainBranch;
 }
 
@@ -45,7 +45,7 @@ export function mockPullRequest(overrides: Partial<PullRequest> = {}): PullReque
     key: '1001',
     target: 'master',
     title: 'Foo Bar feature',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -59,6 +59,6 @@ export function mockSetOfBranchAndPullRequest(): BranchLike[] {
     mockPullRequest({ key: '2', title: 'PR-2' }),
     mockBranch({ name: 'branch-3' }),
     mockBranch({ name: 'branch-2' }),
-    mockPullRequest({ key: '2', title: 'PR-2', target: 'llb-100', isOrphan: true })
+    mockPullRequest({ key: '2', title: 'PR-2', target: 'llb-100', isOrphan: true }),
   ];
 }

@@ -42,7 +42,7 @@ export default function AppHeader(props: AppHeaderProps) {
               <DocLink to="/project-administration/new-code-period/">
                 {translate('project_baseline.page.description.link')}
               </DocLink>
-            )
+            ),
           }}
         />
         <br />
@@ -55,7 +55,7 @@ export default function AppHeader(props: AppHeaderProps) {
                 <Link to="/admin/settings?category=new_code_period">
                   {translate('project_baseline.page.description2.link')}
                 </Link>
-              )
+              ),
             }}
           />
         )}

@@ -33,7 +33,7 @@ it('should render search results correctly', () => {
   const projects = [
     mockAzureProject({ name: 'p1', description: 'p1' }),
     mockAzureProject({ name: 'p2', description: 'p2' }),
-    mockAzureProject({ name: 'p3', description: 'p3' })
+    mockAzureProject({ name: 'p3', description: 'p3' }),
   ];
   const searchResults = [mockAzureRepository({ projectName: 'p2' })];
   expect(shallowRender({ searchResults, projects })).toMatchSnapshot('default');
@@ -43,9 +43,9 @@ it('should render search results correctly', () => {
       searchResults: [
         mockAzureRepository({ projectName: 'p2' }),
         mockAzureRepository({ name: 'Unknown repository 1', projectName: 'u1' }),
-        mockAzureRepository({ name: 'Unknown repository 2', projectName: 'u2' })
+        mockAzureRepository({ name: 'Unknown repository 2', projectName: 'u2' }),
       ],
-      projects
+      projects,
     })
   ).toMatchSnapshot('search results belonging to unknown projects');
 });

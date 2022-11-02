@@ -27,7 +27,7 @@ import {
   highlightIssueLocations,
   highlightSymbol,
   splitByTokens,
-  Token
+  Token,
 } from '../helpers/highlight';
 
 interface Props {
@@ -91,10 +91,10 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
 
     tokens.forEach((token, index) => {
       if (this.props.displayLocationMarkers && token.markers.length > 0) {
-        token.markers.forEach(marker => {
+        token.markers.forEach((marker) => {
           const selected =
             highlightedLocationMessage !== undefined && highlightedLocationMessage.index === marker;
-          const loc = secondaryIssueLocations.find(loc => loc.index === marker);
+          const loc = secondaryIssueLocations.find((loc) => loc.index === marker);
           const message = loc && loc.text;
           renderedTokens.push(this.renderMarker(marker, message, selected, leadingMarker));
         });
@@ -123,9 +123,10 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
           onClick={onClick}
           selected={selected}
           aria-current={selected ? 'location' : false}
-          aria-label={message ? `${index + 1}-${message}` : index + 1}>
+          aria-label={message ? `${index + 1}-${message}` : index + 1}
+        >
           <IssueSourceViewerScrollContext.Consumer>
-            {ctx => (
+            {(ctx) => (
               <span ref={selected ? ctx?.registerSelectedSecondaryLocationRef : undefined}>
                 {index + 1}
               </span>
@@ -145,7 +146,7 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
       issueLocations,
       line,
       padding,
-      secondaryIssueLocations
+      secondaryIssueLocations,
     } = this.props;
 
     const container = document.createElement('div');
@@ -154,7 +155,7 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
     let tokens = splitByTokens(container.childNodes);
 
     if (highlightedSymbols) {
-      highlightedSymbols.forEach(symbol => {
+      highlightedSymbols.forEach((symbol) => {
         tokens = highlightSymbol(tokens, symbol);
       });
     }
@@ -168,7 +169,7 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
 
       if (highlightedLocationMessage) {
         const location = secondaryIssueLocations.find(
-          location => location.index === highlightedLocationMessage.index
+          (location) => location.index === highlightedLocationMessage.index
         );
         if (location) {
           tokens = highlightIssueLocations(tokens, [location], 'selected');
@@ -184,7 +185,8 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
       <td
         className={classNames('source-line-code code', className)}
         data-line-number={line.line}
-        style={style}>
+        style={style}
+      >
         <div className="source-line-code-inner">
           <pre ref={this.nodeNodeRef}>{renderedTokens}</pre>
         </div>

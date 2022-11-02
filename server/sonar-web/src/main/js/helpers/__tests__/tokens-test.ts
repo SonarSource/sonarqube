@@ -27,19 +27,19 @@ import {
   computeTokenExpirationDate,
   EXPIRATION_OPTIONS,
   getAvailableExpirationOptions,
-  getNextTokenName
+  getNextTokenName,
 } from '../tokens';
 
 jest.mock('../../api/settings', () => {
   return {
-    getAllValues: jest.fn().mockResolvedValue([])
+    getAllValues: jest.fn().mockResolvedValue([]),
   };
 });
 
 jest.mock('../dates', () => {
   return {
     ...jest.requireActual('../dates'),
-    now: jest.fn(() => new Date('2022-06-01T12:00:00Z'))
+    now: jest.fn(() => new Date('2022-06-01T12:00:00Z')),
   };
 });
 
@@ -50,21 +50,21 @@ describe('getAvailableExpirationOptions', () => {
 
   it('should correctly return all options if the max setting is no expiration', async () => {
     (getAllValues as jest.Mock).mockResolvedValueOnce([
-      mockSettingValue({ key: SettingsKey.TokenMaxAllowedLifetime, value: 'No expiration' })
+      mockSettingValue({ key: SettingsKey.TokenMaxAllowedLifetime, value: 'No expiration' }),
     ]);
     expect(await getAvailableExpirationOptions()).toEqual(EXPIRATION_OPTIONS);
   });
 
   it('should correctly limit options if the max setting is 1 year', async () => {
     (getAllValues as jest.Mock).mockResolvedValueOnce([
-      mockSettingValue({ key: SettingsKey.TokenMaxAllowedLifetime, value: '1 year' })
+      mockSettingValue({ key: SettingsKey.TokenMaxAllowedLifetime, value: '1 year' }),
     ]);
     expect(await getAvailableExpirationOptions()).toEqual(
       [TokenExpiration.OneMonth, TokenExpiration.ThreeMonths, TokenExpiration.OneYear].map(
-        value => {
+        (value) => {
           return {
             value,
-            label: `users.tokens.expiration.${value.toString()}`
+            label: `users.tokens.expiration.${value.toString()}`,
           };
         }
       )
@@ -73,13 +73,13 @@ describe('getAvailableExpirationOptions', () => {
 
   it('should correctly limit options if the max setting is 3 months', async () => {
     (getAllValues as jest.Mock).mockResolvedValueOnce([
-      mockSettingValue({ key: SettingsKey.TokenMaxAllowedLifetime, value: '90 days' })
+      mockSettingValue({ key: SettingsKey.TokenMaxAllowedLifetime, value: '90 days' }),
     ]);
     expect(await getAvailableExpirationOptions()).toEqual(
-      [TokenExpiration.OneMonth, TokenExpiration.ThreeMonths].map(value => {
+      [TokenExpiration.OneMonth, TokenExpiration.ThreeMonths].map((value) => {
         return {
           value,
-          label: `users.tokens.expiration.${value.toString()}`
+          label: `users.tokens.expiration.${value.toString()}`,
         };
       })
     );
@@ -87,13 +87,13 @@ describe('getAvailableExpirationOptions', () => {
 
   it('should correctly limit options if the max setting is 30 days', async () => {
     (getAllValues as jest.Mock).mockResolvedValueOnce([
-      mockSettingValue({ key: SettingsKey.TokenMaxAllowedLifetime, value: '30 days' })
+      mockSettingValue({ key: SettingsKey.TokenMaxAllowedLifetime, value: '30 days' }),
     ]);
     expect(await getAvailableExpirationOptions()).toEqual([
       {
         value: TokenExpiration.OneMonth,
-        label: `users.tokens.expiration.${TokenExpiration.OneMonth.toString()}`
-      }
+        label: `users.tokens.expiration.${TokenExpiration.OneMonth.toString()}`,
+      },
     ]);
   });
 });
@@ -102,7 +102,7 @@ describe('computeTokenExpirationDate', () => {
   it.each([
     [TokenExpiration.OneMonth, '2022-07-01'],
     [TokenExpiration.ThreeMonths, '2022-08-30'],
-    [TokenExpiration.OneYear, '2023-06-01']
+    [TokenExpiration.OneYear, '2023-06-01'],
   ])('should correctly compute the proper expiration date for %s days', (days, expected) => {
     expect(computeTokenExpirationDate(days)).toBe(expected);
   });
@@ -122,7 +122,7 @@ describe('getNextTokenName', () => {
       mockUserToken({ name: `${tokenName}` }),
       mockUserToken({ name: `${tokenName}-1` }),
       mockUserToken({ name: `${tokenName}-2` }),
-      mockUserToken({ name: `${tokenName}-4` })
+      mockUserToken({ name: `${tokenName}-4` }),
     ];
 
     expect(getNextTokenName(tokenName, tokens)).toBe(`${tokenName}-3`);

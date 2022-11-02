@@ -68,7 +68,7 @@ export default class HotspotSimpleList extends React.Component<HotspotSimpleList
       loadingMore,
       selectedHotspot,
       selectedHotspotLocation,
-      standards
+      standards,
     } = this.props;
 
     const categoryLabel =
@@ -108,7 +108,7 @@ export default class HotspotSimpleList extends React.Component<HotspotSimpleList
               </strong>
             </div>
             <ul>
-              {hotspots.map(h => (
+              {hotspots.map((h) => (
                 <li data-hotspot-key={h.key} key={h.key}>
                   <HotspotListItem
                     hotspot={h}

@@ -59,9 +59,10 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
           return (
             <li
               className={classNames('padded-top padded-bottom', {
-                'bordered-top': historyIndex > 0
+                'bordered-top': historyIndex > 0,
               })}
-              key={historyIndex}>
+              key={historyIndex}
+            >
               <div className="display-flex-center">
                 {user.name && (
                   <>
@@ -120,13 +121,14 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
                               <HotspotCommentPopup
                                 markdownComment={markdown}
                                 onCancelEdit={() => setEditedCommentKey('')}
-                                onCommentEditSubmit={comment => {
+                                onCommentEditSubmit={(comment) => {
                                   setEditedCommentKey('');
                                   props.onEditComment(key, comment);
                                 }}
                               />
                             </DropdownOverlay>
-                          }>
+                          }
+                        >
                           <EditButton
                             className="button-small"
                             onClick={() => setEditedCommentKey(key)}
@@ -140,12 +142,14 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
                             <p>{translate('issue.comment.delete_confirm_message')}</p>
                             <Button
                               className="button-red big-spacer-top pull-right"
-                              onClick={() => props.onDeleteComment(key)}>
+                              onClick={() => props.onDeleteComment(key)}
+                            >
                               {translate('delete')}
                             </Button>
                           </div>
                         }
-                        overlayPlacement={PopupPlacement.BottomRight}>
+                        overlayPlacement={PopupPlacement.BottomRight}
+                      >
                         <DeleteButton className="button-small" />
                       </Dropdown>
                     </div>

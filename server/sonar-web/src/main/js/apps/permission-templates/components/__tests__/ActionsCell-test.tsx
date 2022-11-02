@@ -27,7 +27,7 @@ const SAMPLE = {
   id: 'id',
   name: 'name',
   permissions: [],
-  defaultFor: []
+  defaultFor: [],
 };
 
 function renderActionsCell(props?: Partial<ActionsCell['props']>) {

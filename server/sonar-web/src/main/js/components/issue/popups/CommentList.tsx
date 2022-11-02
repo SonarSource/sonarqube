@@ -43,7 +43,7 @@ export default function CommentList(props: CommentListProps) {
   );
   return (
     <div className="issue-comment-list-wrapper spacer-bottom">
-      {sortedComments?.map(c => (
+      {sortedComments?.map((c) => (
         <CommentTile
           comment={c}
           key={c.key}

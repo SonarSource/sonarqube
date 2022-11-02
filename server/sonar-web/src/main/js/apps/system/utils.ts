@@ -29,7 +29,7 @@ import {
   SysInfoSearchNode,
   SysInfoSection,
   SysInfoStandalone,
-  SysInfoValueObject
+  SysInfoValueObject,
 } from '../../types/types';
 
 export interface Query {
@@ -72,7 +72,7 @@ export function ignoreInfoFields(sysInfoObject: SysInfoValueObject) {
     PLUGINS_FIELD,
     SETTINGS_FIELD,
     SERVER_ID_FIELD,
-    VERSION_FIELD
+    VERSION_FIELD,
   ]);
 }
 
@@ -92,9 +92,9 @@ export function getLogsLevel(sysInfoObject?: SysInfoValueObject): string {
       return sortBy(
         [
           getLogsLevel(sysInfoObject[WEB_LOGGING_FIELD]),
-          getLogsLevel(sysInfoObject[CE_LOGGING_FIELD])
+          getLogsLevel(sysInfoObject[CE_LOGGING_FIELD]),
         ],
-        logLevel => LOGS_LEVELS.indexOf(logLevel)
+        (logLevel) => LOGS_LEVELS.indexOf(logLevel)
       )[1];
     }
   }
@@ -140,7 +140,7 @@ export function getClusterVersion(sysInfoData: SysInfoCluster): string | undefin
 
 export function getSystemLogsLevel(sysInfoData: SysInfoCluster | SysInfoStandalone): string {
   if (isCluster(sysInfoData)) {
-    const logLevels = sortBy(getAppNodes(sysInfoData).map(getLogsLevel), logLevel =>
+    const logLevels = sortBy(getAppNodes(sysInfoData).map(getLogsLevel), (logLevel) =>
       LOGS_LEVELS.indexOf(logLevel)
     );
     return logLevels.length > 0 ? logLevels[logLevels.length - 1] : DEFAULT_LOG_LEVEL;
@@ -171,8 +171,8 @@ export function getClusterMainCardSection(sysInfoData: SysInfoCluster): SysInfoV
       SEARCH_NODES_FIELD,
       SETTINGS_FIELD,
       STATS_FIELD,
-      SYSTEM_FIELD
-    ])
+      SYSTEM_FIELD,
+    ]),
   };
 }
 
@@ -187,7 +187,7 @@ export function getStandaloneMainSections(sysInfoData: SysInfoBase): SysInfoValu
         key.startsWith(CE_FIELD_PREFIX) ||
         key.startsWith(SEARCH_PREFIX) ||
         key.startsWith(WEB_PREFIX)
-    ) as SysInfoValueObject)
+    ) as SysInfoValueObject),
   };
 }
 
@@ -199,7 +199,7 @@ export function getStandaloneSecondarySections(sysInfoData: SysInfoBase): SysInf
     ) as SysInfoValueObject,
     'Search Engine': pickBy(sysInfoData, (_, key) =>
       key.startsWith(SEARCH_PREFIX)
-    ) as SysInfoValueObject
+    ) as SysInfoValueObject,
   };
 }
 
@@ -227,13 +227,13 @@ export function groupSections(sysInfoData: SysInfoValueObject) {
 
 export const parseQuery = memoize(
   (urlQuery: RawQuery): Query => ({
-    expandedCards: parseAsArray(urlQuery.expand, parseAsString)
+    expandedCards: parseAsArray(urlQuery.expand, parseAsString),
   })
 );
 
 export const serializeQuery = memoize(
   (query: Query): RawQuery =>
     cleanQuery({
-      expand: serializeStringArray(query.expandedCards)
+      expand: serializeStringArray(query.expandedCards),
     })
 );

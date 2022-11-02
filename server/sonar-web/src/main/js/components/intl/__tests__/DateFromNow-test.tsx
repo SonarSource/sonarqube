@@ -26,7 +26,7 @@ import DateTimeFormatter from '../DateTimeFormatter';
 const date = '2020-02-20T20:20:20Z';
 
 jest.mock('../dateUtils', () => ({
-  getRelativeTimeProps: jest.fn().mockReturnValue({ value: -1, unit: 'year' })
+  getRelativeTimeProps: jest.fn().mockReturnValue({ value: -1, unit: 'year' }),
 }));
 
 it('should render correctly', () => {
@@ -49,7 +49,7 @@ it('should render correctly when the date is less than one hour in the past', ()
   veryCloseDate.setMinutes(veryCloseDate.getMinutes() - 10);
   const mockDateNow = jest
     .spyOn(Date, 'now')
-    .mockImplementation(() => (new Date(date) as unknown) as number);
+    .mockImplementation(() => new Date(date) as unknown as number);
   const children = jest.fn();
 
   shallowRender({ date: veryCloseDate, hourPrecision: true }, children)
@@ -67,7 +67,7 @@ function shallowRender(overrides: Partial<DateFromNowProps> = {}, children: jest
   return shallow(
     <IntlProvider defaultLocale="en-US" locale="en">
       <DateFromNow date={date} {...overrides}>
-        {formattedDate => children(formattedDate)}
+        {(formattedDate) => children(formattedDate)}
       </DateFromNow>
     </IntlProvider>
   )

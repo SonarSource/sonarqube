@@ -33,7 +33,7 @@ it('should render Select', () => {
   expect(select.prop('options')).toEqual([
     { value: 'foo', label: 'foo' },
     { value: 'bar', label: 'bar' },
-    { value: 'baz', label: 'baz' }
+    { value: 'baz', label: 'baz' },
   ]);
   expect(select.prop('onChange')).toBeDefined();
 });

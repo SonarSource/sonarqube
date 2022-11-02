@@ -40,8 +40,8 @@ const CATEGORIES: { left: Shortcuts; right: Shortcuts } = {
       category: 'global',
       shortcuts: [
         { keys: ['s'], action: 'search' },
-        { keys: ['?'], action: 'open_shortcuts' }
-      ]
+        { keys: ['?'], action: 'open_shortcuts' },
+      ],
     },
     {
       category: 'issues_page',
@@ -57,9 +57,9 @@ const CATEGORIES: { left: Shortcuts; right: Shortcuts } = {
         { keys: ['i'], action: 'severity' },
         { keys: ['c'], action: 'comment' },
         { keys: ['ctrl', '+', 'enter'], action: 'submit_comment' },
-        { keys: ['t'], action: 'tags' }
-      ]
-    }
+        { keys: ['t'], action: 'tags' },
+      ],
+    },
   ],
   right: [
     {
@@ -67,26 +67,26 @@ const CATEGORIES: { left: Shortcuts; right: Shortcuts } = {
       shortcuts: [
         { keys: ['↑', '↓'], action: 'select_files' },
         { keys: ['→'], action: 'open_file' },
-        { keys: ['←'], action: 'back' }
-      ]
+        { keys: ['←'], action: 'back' },
+      ],
     },
     {
       category: 'measures_page',
       shortcuts: [
         { keys: ['↑', '↓'], action: 'select_files' },
         { keys: ['→'], action: 'open_file' },
-        { keys: ['←'], action: 'back' }
-      ]
+        { keys: ['←'], action: 'back' },
+      ],
     },
     {
       category: 'rules_page',
       shortcuts: [
         { keys: ['↑', '↓'], action: 'navigate' },
         { keys: ['→'], action: 'rule_details' },
-        { keys: ['←'], action: 'back' }
-      ]
-    }
-  ]
+        { keys: ['←'], action: 'back' },
+      ],
+    },
+  ],
 };
 
 function renderShortcuts(list: Shortcuts) {
@@ -106,7 +106,7 @@ function renderShortcuts(list: Shortcuts) {
               {shortcuts.map(({ action, keys }) => (
                 <tr key={action}>
                   <td>
-                    {keys.map(k =>
+                    {keys.map((k) =>
                       k === '+' ? (
                         <span key={k} className="little-spacer-right">
                           {k}
@@ -143,7 +143,7 @@ export default function KeyboardShortcutsModal() {
       }
 
       if (event.key === KeyboardKeys.KeyQuestionMark) {
-        setDisplay(d => !d);
+        setDisplay((d) => !d);
       }
     };
 
@@ -169,7 +169,8 @@ export default function KeyboardShortcutsModal() {
           onClick={() => {
             setDisplay(false);
             return true;
-          }}>
+          }}
+        >
           {translate('keyboard_shortcuts.disable_link')}
         </Link>
       </div>

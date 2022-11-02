@@ -117,7 +117,7 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
               modified={this.state.modified}
               refresh={this.loadResults}
               right={this.state.right}
-              rightProfile={profiles.find(p => p.key === withKey)}
+              rightProfile={profiles.find((p) => p.key === withKey)}
             />
           </div>
         )}

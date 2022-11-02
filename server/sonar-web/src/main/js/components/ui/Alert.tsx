@@ -108,36 +108,36 @@ function getAlertVariantInfo(variant: AlertVariant): AlertVariantInformation {
       color: colors.alertTextError,
       borderColor: colors.alertBorderError,
       backGroundColor: colors.alertBackgroundError,
-      role: 'alert'
+      role: 'alert',
     },
     warning: {
       icon: <AlertWarnIcon fill={colors.alertIconWarning} />,
       color: colors.alertTextWarning,
       borderColor: colors.alertBorderWarning,
       backGroundColor: colors.alertBackgroundWarning,
-      role: 'alert'
+      role: 'alert',
     },
     success: {
       icon: <AlertSuccessIcon fill={colors.alertIconSuccess} />,
       color: colors.alertTextSuccess,
       borderColor: colors.alertBorderSuccess,
       backGroundColor: colors.alertBackgroundSuccess,
-      role: 'status'
+      role: 'status',
     },
     info: {
       icon: <InfoIcon fill={colors.alertIconInfo} />,
       color: colors.alertTextInfo,
       borderColor: colors.alertBorderInfo,
       backGroundColor: colors.alertBackgroundInfo,
-      role: 'status'
+      role: 'status',
     },
     loading: {
       icon: <DeferredSpinner timeout={0} />,
       color: colors.alertTextInfo,
       borderColor: colors.alertBorderInfo,
       backGroundColor: colors.alertBackgroundInfo,
-      role: 'status'
-    }
+      role: 'status',
+    },
   };
 
   return variantList[variant];
@@ -156,7 +156,8 @@ export function Alert(props: AlertProps & React.HTMLAttributes<HTMLDivElement>) 
       role={variantInfo.role}
       aria-label={translate('alert.tooltip', variant)}
       variantInfo={variantInfo}
-      {...domProps}>
+      {...domProps}
+    >
       <StyledAlertInner isBanner={isBanner}>
         <StyledAlertIcon isBanner={isBanner} variantInfo={variantInfo}>
           {variantInfo.icon}

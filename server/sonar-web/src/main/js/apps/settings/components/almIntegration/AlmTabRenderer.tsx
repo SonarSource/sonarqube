@@ -30,7 +30,7 @@ import {
   AlmBindingDefinitionBase,
   AlmKeys,
   AlmSettingsBindingStatus,
-  isBitbucketCloudBindingDefinition
+  isBitbucketCloudBindingDefinition,
 } from '../../../../types/alm-settings';
 import { Dict } from '../../../../types/types';
 import AlmBindingDefinitionBox from './AlmBindingDefinitionBox';
@@ -59,7 +59,7 @@ export interface AlmTabRendererProps {
 const AUTHENTICATION_AVAILABLE_PLATFORMS = [
   AlmKeys.GitHub,
   AlmKeys.GitLab,
-  AlmKeys.BitbucketServer
+  AlmKeys.BitbucketServer,
 ];
 
 export default function AlmTabRenderer(props: AlmTabRendererProps) {
@@ -72,7 +72,7 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
     editedDefinition,
     loadingAlmDefinitions,
     loadingProjectCount,
-    multipleAlmEnabled
+    multipleAlmEnabled,
   } = props;
 
   const preventCreation = loadingProjectCount || (!multipleAlmEnabled && definitions.length > 0);
@@ -82,7 +82,8 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
       className="bordered"
       role="tabpanel"
       id={getTabPanelId(almTab)}
-      aria-labelledby={getTabId(almTab)}>
+      aria-labelledby={getTabId(almTab)}
+    >
       <div className="big-padded">
         <DeferredSpinner loading={loadingAlmDefinitions}>
           {definitions.length === 0 && (
@@ -94,12 +95,13 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
               <Button
                 data-test="settings__alm-create"
                 disabled={preventCreation}
-                onClick={props.onCreate}>
+                onClick={props.onCreate}
+              >
                 {translate('settings.almintegration.create')}
               </Button>
             </CreationTooltip>
           </div>
-          {definitions.map(def => (
+          {definitions.map((def) => (
             <AlmBindingDefinitionBox
               alm={isBitbucketCloudBindingDefinition(def) ? AlmKeys.BitbucketCloud : almTab}
               branchesEnabled={branchesEnabled}
@@ -134,11 +136,12 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
                 <Link
                   to={{
                     pathname: '/admin/settings',
-                    search: `category=authentication&tab=${almTab}`
-                  }}>
+                    search: `category=authentication&tab=${almTab}`,
+                  }}
+                >
                   {translate('property.category.authentication')}
                 </Link>
-              )
+              ),
             }}
           />
         </Alert>

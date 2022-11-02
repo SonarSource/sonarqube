@@ -26,9 +26,7 @@ import ColorGradientLegend from '../ColorGradientLegend';
 const COLORS = [colors.green, colors.lightGreen, colors.yellow, colors.orange, colors.red];
 
 it('should render properly', () => {
-  const colorScale = scaleLinear<string, string>()
-    .domain([0, 25, 50, 75, 100])
-    .range(COLORS);
+  const colorScale = scaleLinear<string, string>().domain([0, 25, 50, 75, 100]).range(COLORS);
   const wrapper = shallow(
     <ColorGradientLegend
       className="measure-details-treemap-legend"

@@ -32,7 +32,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       currentUser: mockLoggedInUser(),
-      component: mockComponent({ qualifier: ComponentQualifier.Application })
+      component: mockComponent({ qualifier: ComponentQualifier.Application }),
     })
   ).toMatchSnapshot('user logged in with project Name');
 });

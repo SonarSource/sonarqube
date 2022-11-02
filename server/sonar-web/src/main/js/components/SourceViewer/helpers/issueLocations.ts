@@ -45,12 +45,12 @@ export function getSecondaryIssueLocationsForLine(
   return highlightedLocations.reduce((locations, location) => {
     const linearLocations: LinearIssueLocation[] = location
       ? getLinearLocations(location.textRange)
-          .filter(l => l.line === line.line)
-          .map(l => ({
+          .filter((l) => l.line === line.line)
+          .map((l) => ({
             ...l,
             startLine: location.textRange.startLine,
             index: location.index,
-            text: location.msg
+            text: location.msg,
           }))
       : [];
     return [...locations, ...linearLocations];

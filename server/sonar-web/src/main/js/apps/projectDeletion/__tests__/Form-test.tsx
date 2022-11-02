@@ -26,11 +26,11 @@ import { Form } from '../Form';
 
 jest.mock('../../../api/components', () => ({
   deleteProject: jest.fn().mockResolvedValue(undefined),
-  deletePortfolio: jest.fn().mockResolvedValue(undefined)
+  deletePortfolio: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('../../../api/application', () => ({
-  deleteApplication: jest.fn().mockResolvedValue(undefined)
+  deleteApplication: jest.fn().mockResolvedValue(undefined),
 }));
 
 beforeEach(() => {

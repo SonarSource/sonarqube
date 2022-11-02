@@ -30,7 +30,7 @@ import {
   mockAnalysisEvent,
   mockHistoryItem,
   mockMeasureHistory,
-  mockParsedAnalysis
+  mockParsedAnalysis,
 } from '../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
@@ -52,7 +52,7 @@ const ui = {
   burnedBudgetCheckbox: byRole('checkbox', { name: MetricKey.burned_budget }),
   vulnerabilityCheckbox: byRole('checkbox', { name: MetricKey.vulnerabilities }),
   hiddenOptionsAlert: byText('project_activity.graphs.custom.type_x_message', {
-    exact: false
+    exact: false,
   }),
   maxOptionsAlert: byText('project_activity.graphs.custom.add_metric_info'),
   filterMetrics: byPlaceholderText('search.search_for_metrics'),
@@ -74,8 +74,8 @@ const ui = {
   dataTableColHeaders: byRole('columnheader'),
   onlyFirst100Text: byText('project_activity.graphs.data_table.max_lines_warning.100'),
   noDataTableText: byText('project_activity.graphs.data_table.no_data_warning_check_dates_x', {
-    exact: false
-  })
+    exact: false,
+  }),
 };
 
 it('should correctly handle adding/removing custom metrics', async () => {
@@ -171,7 +171,7 @@ it('shows the same data in a table when filtered by date', async () => {
   const user = userEvent.setup();
   renderActivityGraph({
     graphStartDate: parseDate('2017-01-01'),
-    graphEndDate: parseDate('2019-01-01')
+    graphEndDate: parseDate('2019-01-01'),
   });
 
   await user.click(ui.openInTableBtn.get());
@@ -230,9 +230,9 @@ function renderActivityGraph(
       MetricKey.uncovered_lines,
       MetricKey.coverage,
       MetricKey.duplicated_lines_density,
-      MetricKey.test_success_density
-    ].forEach(metric => {
-      const history = times(HISTORY_COUNT, i => {
+      MetricKey.test_success_density,
+    ].forEach((metric) => {
+      const history = times(HISTORY_COUNT, (i) => {
         const date = parseDate('2016-01-01T00:00:00+0200');
         date.setDate(date.getDate() + i);
         return mockHistoryItem({ date, value: i.toString() });
@@ -246,7 +246,7 @@ function renderActivityGraph(
         mockMetric({
           key: metric,
           name: metric,
-          type: metric.includes('_density') || metric === MetricKey.coverage ? 'PERCENT' : 'INT'
+          type: metric.includes('_density') || metric === MetricKey.coverage ? 'PERCENT' : 'INT',
         })
       );
     });
@@ -267,14 +267,16 @@ function renderActivityGraph(
     const metricsTypeFilter =
       graphs.length < MAX_GRAPHS
         ? undefined
-        : graphs.filter(graph => graph.length < MAX_SERIES_PER_GRAPH).map(graph => graph[0].type);
+        : graphs
+            .filter((graph) => graph.length < MAX_SERIES_PER_GRAPH)
+            .map((graph) => graph[0].type);
 
     const addCustomMetric = (metricKey: string) => {
       setSelectedMetrics([...selectedMetrics, metricKey]);
     };
 
     const removeCustomMetric = (metricKey: string) => {
-      setSelectedMetrics(selectedMetrics.filter(m => m !== metricKey));
+      setSelectedMetrics(selectedMetrics.filter((m) => m !== metricKey));
     };
 
     const updateGraph = (graphType: string) => {
@@ -312,18 +314,18 @@ function renderActivityGraph(
                   key: '2',
                   category: 'VERSION',
                   description: undefined,
-                  qualityGate: undefined
+                  qualityGate: undefined,
                 }),
                 mockAnalysisEvent({
                   key: '3',
                   category: 'DEFINITION_CHANGE',
                   definitionChange: {
-                    projects: [{ changeType: 'ADDED', key: 'foo', name: 'Foo' }]
+                    projects: [{ changeType: 'ADDED', key: 'foo', name: 'Foo' }],
                   },
-                  qualityGate: undefined
-                })
-              ]
-            })
+                  qualityGate: undefined,
+                }),
+              ],
+            }),
           ]}
           graph={graph}
           graphEndDate={toDate}

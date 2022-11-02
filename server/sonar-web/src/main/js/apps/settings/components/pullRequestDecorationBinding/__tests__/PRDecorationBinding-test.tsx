@@ -28,12 +28,12 @@ import {
   setProjectBitbucketCloudBinding,
   setProjectGithubBinding,
   setProjectGitlabBinding,
-  validateProjectAlmBinding
+  validateProjectAlmBinding,
 } from '../../../../../api/alm-settings';
 import {
   mockAlmSettingsInstance,
   mockProjectAlmBindingConfigurationErrors,
-  mockProjectAlmBindingResponse
+  mockProjectAlmBindingResponse,
 } from '../../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockCurrentUser } from '../../../../../helpers/testMocks';
@@ -51,7 +51,7 @@ jest.mock('../../../../../api/alm-settings', () => ({
   setProjectGitlabBinding: jest.fn().mockResolvedValue(undefined),
   setProjectBitbucketCloudBinding: jest.fn().mockResolvedValue(undefined),
   deleteProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
-  validateProjectAlmBinding: jest.fn().mockResolvedValue(undefined)
+  validateProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
 }));
 
 const PROJECT_KEY = 'project-key';
@@ -69,7 +69,7 @@ it('should fill selects and fill formdata', async () => {
   const instances = [{ key: 'instance1', url, alm: AlmKeys.GitHub }];
   const formdata = {
     key: 'instance1',
-    repository: 'account/repo'
+    repository: 'account/repo',
   };
   (getAlmSettings as jest.Mock).mockResolvedValueOnce(instances);
   (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce(formdata);
@@ -89,8 +89,8 @@ it('should handle reset', async () => {
     formData: {
       key: 'whatever',
       repository: 'something/else',
-      monorepo: false
-    }
+      monorepo: false,
+    },
   });
 
   wrapper.instance().handleReset();
@@ -107,7 +107,7 @@ describe('handleSubmit', () => {
     { key: 'azure', alm: AlmKeys.Azure },
     { key: 'bitbucket', alm: AlmKeys.BitbucketServer },
     { key: 'gitlab', alm: AlmKeys.GitLab },
-    { key: 'bitbucketcloud', alm: AlmKeys.BitbucketCloud }
+    { key: 'bitbucketcloud', alm: AlmKeys.BitbucketCloud },
   ];
 
   it('should work for github', async () => {
@@ -119,7 +119,7 @@ describe('handleSubmit', () => {
     const monorepo = true;
     wrapper.setState({
       formData: { key: githubKey, repository, summaryCommentEnabled, monorepo },
-      instances
+      instances,
     });
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
@@ -129,7 +129,7 @@ describe('handleSubmit', () => {
       project: PROJECT_KEY,
       repository,
       summaryCommentEnabled,
-      monorepo
+      monorepo,
     });
     expect(wrapper.state().successfullyUpdated).toBe(true);
   });
@@ -143,7 +143,7 @@ describe('handleSubmit', () => {
     const monorepo = true;
     wrapper.setState({
       formData: { key: azureKey, repository, slug, monorepo },
-      instances
+      instances,
     });
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
@@ -153,7 +153,7 @@ describe('handleSubmit', () => {
       project: PROJECT_KEY,
       projectName: slug,
       repositoryName: repository,
-      monorepo
+      monorepo,
     });
     expect(wrapper.state().successfullyUpdated).toBe(true);
   });
@@ -174,7 +174,7 @@ describe('handleSubmit', () => {
       project: PROJECT_KEY,
       repository,
       slug,
-      monorepo
+      monorepo,
     });
     expect(wrapper.state().successfullyUpdated).toBe(true);
   });
@@ -187,7 +187,7 @@ describe('handleSubmit', () => {
     const monorepo = true;
     wrapper.setState({
       formData: { key: gitlabKey, repository, monorepo },
-      instances
+      instances,
     });
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
@@ -196,7 +196,7 @@ describe('handleSubmit', () => {
       almSetting: gitlabKey,
       project: PROJECT_KEY,
       repository,
-      monorepo
+      monorepo,
     });
     expect(wrapper.state().successfullyUpdated).toBe(true);
   });
@@ -220,18 +220,18 @@ describe('handleSubmit', () => {
       almSetting: bitbucketKey,
       project: PROJECT_KEY,
       repository,
-      monorepo
+      monorepo,
     });
     expect(wrapper.state().successfullyUpdated).toBe(true);
   });
 });
 
-describe.each([[500], [404]])('For status %i', status => {
+describe.each([[500], [404]])('For status %i', (status) => {
   it('should handle failures gracefully', async () => {
     const newFormData = {
       key: 'whatever',
       repository: 'something/else',
-      monorepo: false
+      monorepo: false,
     };
 
     (getProjectAlmBinding as jest.Mock).mockRejectedValueOnce({ status });
@@ -242,7 +242,7 @@ describe.each([[500], [404]])('For status %i', status => {
     await waitAndUpdate(wrapper);
     wrapper.setState({
       formData: newFormData,
-      originalData: undefined
+      originalData: undefined,
     });
 
     wrapper.instance().handleSubmit();
@@ -260,7 +260,7 @@ it('should handle field changes', async () => {
   const instances: AlmSettingsInstance[] = [
     { key: 'instance1', url, alm: AlmKeys.GitHub },
     { key: 'instance2', url, alm: AlmKeys.GitHub },
-    { key: 'instance3', url: 'otherurl', alm: AlmKeys.GitHub }
+    { key: 'instance3', url: 'otherurl', alm: AlmKeys.GitHub },
   ];
   (getAlmSettings as jest.Mock).mockResolvedValueOnce(instances);
   const wrapper = shallowRender();
@@ -270,7 +270,7 @@ it('should handle field changes', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper.state().formData).toEqual({
     key: 'instance2',
-    monorepo: false
+    monorepo: false,
   });
 
   wrapper.instance().handleFieldChange('repository', repository);
@@ -278,7 +278,7 @@ it('should handle field changes', async () => {
   expect(wrapper.state().formData).toEqual({
     key: 'instance2',
     repository,
-    monorepo: false
+    monorepo: false,
   });
 
   wrapper.instance().handleFieldChange('summaryCommentEnabled', true);
@@ -287,7 +287,7 @@ it('should handle field changes', async () => {
     key: 'instance2',
     monorepo: false,
     repository,
-    summaryCommentEnabled: true
+    summaryCommentEnabled: true,
   });
 
   wrapper.instance().handleFieldChange('monorepo', true);
@@ -296,7 +296,7 @@ it('should handle field changes', async () => {
     key: 'instance2',
     repository,
     summaryCommentEnabled: true,
-    monorepo: true
+    monorepo: true,
   });
 });
 
@@ -309,7 +309,7 @@ it.each([
   [AlmKeys.BitbucketServer, { repository: 'test', monorepo: false }],
   [AlmKeys.BitbucketCloud, { monorepo: false }],
   [AlmKeys.GitHub, { monorepo: false }],
-  [AlmKeys.GitLab, { monorepo: false }]
+  [AlmKeys.GitLab, { monorepo: false }],
 ])(
   'should properly reject promise for %s & %s',
   async (almKey: AlmKeys, params: { monorepo: boolean }) => {
@@ -337,8 +337,8 @@ it('should validate form', async () => {
       { key: 'bitbucket', alm: AlmKeys.BitbucketServer },
       { key: 'bitbucketcloud', alm: AlmKeys.BitbucketCloud },
       { key: 'github', alm: AlmKeys.GitHub },
-      { key: 'gitlab', alm: AlmKeys.GitLab }
-    ]
+      { key: 'gitlab', alm: AlmKeys.GitLab },
+    ],
   });
 
   [
@@ -346,19 +346,19 @@ it('should validate form', async () => {
     { values: { key: 'azure', monorepo: false, slug: 'project' }, result: false },
     {
       values: { key: 'azure', monorepo: false, repository: 'repo', slug: 'project' },
-      result: true
+      result: true,
     },
     { values: { key: 'github', monorepo: false, repository: '' }, result: false },
     { values: { key: 'github', monorepo: false, repository: 'asdf' }, result: true },
     { values: { key: 'bitbucket', monorepo: false, repository: 'key' }, result: false },
     {
       values: { key: 'bitbucket', monorepo: false, repository: 'key', slug: 'slug' },
-      result: true
+      result: true,
     },
     { values: { key: 'bitbucketcloud', monorepo: false, repository: '' }, result: false },
     { values: { key: 'bitbucketcloud', monorepo: false, repository: 'key' }, result: true },
     { values: { key: 'gitlab', monorepo: false }, result: false },
-    { values: { key: 'gitlab', monorepo: false, repository: 'key' }, result: true }
+    { values: { key: 'gitlab', monorepo: false, repository: 'key' }, result: true },
   ].forEach(({ values, result }) => {
     expect(validateMethod(values)).toBe(result);
   });
@@ -375,10 +375,7 @@ it('should call the validation WS and store errors', async () => {
 
   const wrapper = shallowRender();
 
-  wrapper
-    .find(PRDecorationBindingRenderer)
-    .props()
-    .onCheckConfiguration();
+  wrapper.find(PRDecorationBindingRenderer).props().onCheckConfiguration();
 
   await waitAndUpdate(wrapper);
 

@@ -44,7 +44,7 @@ it('should render correctly', async () => {
 
 it('should render correctly with organization', async () => {
   const metaDataInfo = mockMetaDataInformation({
-    organization: { name: 'test-org', url: 'test-org-url' }
+    organization: { name: 'test-org', url: 'test-org-url' },
   });
   mockFetchReturnValue(metaDataInfo);
 

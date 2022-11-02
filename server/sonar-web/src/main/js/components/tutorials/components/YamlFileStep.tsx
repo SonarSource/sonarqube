@@ -46,7 +46,7 @@ export function YamlFileStep(props: YamlFileStepProps) {
         <RenderOptions
           label={translate('onboarding.build')}
           checked={buildToolSelected}
-          onCheck={value => setBuildToolSelected(value as BuildTools)}
+          onCheck={(value) => setBuildToolSelected(value as BuildTools)}
           options={buildTools}
           optionLabelKey="onboarding.build"
         />

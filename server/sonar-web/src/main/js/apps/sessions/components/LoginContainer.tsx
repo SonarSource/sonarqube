@@ -42,7 +42,7 @@ export class LoginContainer extends React.PureComponent<Props, State> {
 
   state: State = {
     identityProviders: [],
-    loading: true
+    loading: true,
   };
 
   componentDidMount() {

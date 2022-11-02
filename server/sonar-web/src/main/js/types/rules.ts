@@ -21,7 +21,7 @@ export enum RuleStatus {
   Ready = 'READY',
   Beta = 'BETA',
   Deprecated = 'DEPRECATED',
-  Removed = 'REMOVED'
+  Removed = 'REMOVED',
 }
 
 export interface SearchRulesQuery {

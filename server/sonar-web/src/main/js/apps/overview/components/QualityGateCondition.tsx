@@ -45,7 +45,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     const query: Dict<string | undefined> = {
       resolved: 'false',
       ...getBranchLikeQuery(this.props.branchLike),
-      ...customQuery
+      ...customQuery,
     };
     if (inNewCodePeriod) {
       Object.assign(query, { inNewCodePeriod: 'true' });
@@ -55,7 +55,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
 
   getUrlForSecurityHotspot(inNewCodePeriod: boolean) {
     const query: Dict<string | undefined> = {
-      ...getBranchLikeQuery(this.props.branchLike)
+      ...getBranchLikeQuery(this.props.branchLike),
     };
     if (inNewCodePeriod) {
       Object.assign(query, { inNewCodePeriod: 'true' });
@@ -72,7 +72,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
       'BLOCKER,CRITICAL,MAJOR,MINOR',
       'BLOCKER,CRITICAL,MAJOR',
       'BLOCKER,CRITICAL',
-      'BLOCKER'
+      'BLOCKER',
     ];
 
     const { condition } = this.props;
@@ -80,7 +80,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
 
     return this.getIssuesUrl(inNewCodePeriod, {
       types: type,
-      severities: RATING_TO_SEVERITIES_MAPPING[Number(threshold) - 1]
+      severities: RATING_TO_SEVERITIES_MAPPING[Number(threshold) - 1],
     });
   }
 
@@ -106,7 +106,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
       [MetricKey.sqale_rating]: () => this.getUrlForCodeSmells(false),
       [MetricKey.new_maintainability_rating]: () => this.getUrlForCodeSmells(true),
       [MetricKey.security_hotspots_reviewed]: () => this.getUrlForSecurityHotspot(false),
-      [MetricKey.new_security_hotspots_reviewed]: () => this.getUrlForSecurityHotspot(true)
+      [MetricKey.new_security_hotspots_reviewed]: () => this.getUrlForSecurityHotspot(true),
     };
 
     return (
@@ -121,7 +121,8 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
             className={className}
             component={component.key}
             metric={condition.measure.metric.key}
-            inNewCodePeriod={condition.period != null}>
+            inNewCodePeriod={condition.period != null}
+          >
             {children}
           </DrilldownLink>
         )}

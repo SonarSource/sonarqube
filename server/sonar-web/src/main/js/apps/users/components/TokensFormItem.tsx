@@ -122,13 +122,15 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
                 />
               }
               modalHeader={translate('users.tokens.revoke_token')}
-              onConfirm={this.handleRevoke}>
+              onConfirm={this.handleRevoke}
+            >
               {({ onClick }) => (
                 <Button
                   className="button-red input-small"
                   disabled={loading}
                   onClick={onClick}
-                  title={translate('users.tokens.revoke_token')}>
+                  title={translate('users.tokens.revoke_token')}
+                >
                   {translate('users.tokens.revoke')}
                 </Button>
               )}
@@ -137,7 +139,8 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
             <Button
               className="button-red input-small"
               disabled={loading}
-              onClick={this.handleClick}>
+              onClick={this.handleClick}
+            >
               <DeferredSpinner className="little-spacer-right" loading={loading} />
               {showConfirmation ? translate('users.tokens.sure') : translate('users.tokens.revoke')}
             </Button>

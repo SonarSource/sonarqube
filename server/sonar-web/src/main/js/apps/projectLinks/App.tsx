@@ -58,7 +58,7 @@ export class App extends React.PureComponent<Props, State> {
   fetchLinks = () => {
     this.setState({ loading: true });
     getProjectLinks(this.props.component.key).then(
-      links => {
+      (links) => {
         if (this.mounted) {
           this.setState({ links, loading: false });
         }
@@ -72,10 +72,10 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleCreateLink = (name: string, url: string) => {
-    return createLink({ name, projectKey: this.props.component.key, url }).then(link => {
+    return createLink({ name, projectKey: this.props.component.key, url }).then((link) => {
       if (this.mounted) {
         this.setState(({ links = [] }) => ({
-          links: [...links, link]
+          links: [...links, link],
         }));
       }
     });
@@ -85,7 +85,7 @@ export class App extends React.PureComponent<Props, State> {
     return deleteLink(linkId).then(() => {
       if (this.mounted) {
         this.setState(({ links = [] }) => ({
-          links: links.filter(link => link.id !== linkId)
+          links: links.filter((link) => link.id !== linkId),
         }));
       }
     });

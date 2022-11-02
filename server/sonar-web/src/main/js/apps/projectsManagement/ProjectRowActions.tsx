@@ -112,7 +112,8 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
               {hasAccess === true && (
                 <ActionsDropdownItem
                   className="js-edit-permissions"
-                  to={getComponentPermissionsUrl(this.props.project.key)}>
+                  to={getComponentPermissionsUrl(this.props.project.key)}
+                >
                   {translate('edit_permissions')}
                 </ActionsDropdownItem>
               )}
@@ -120,7 +121,8 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
               {hasAccess === false && (
                 <ActionsDropdownItem
                   className="js-restore-access"
-                  onClick={this.handleRestoreAccessClick}>
+                  onClick={this.handleRestoreAccessClick}
+                >
                   {translate('global_permissions.restore_access')}
                 </ActionsDropdownItem>
               )}
@@ -129,7 +131,8 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
 
           <ActionsDropdownItem
             className="js-apply-template"
-            onClick={this.handleApplyTemplateClick}>
+            onClick={this.handleApplyTemplateClick}
+          >
             {translate('projects_role.apply_template')}
           </ActionsDropdownItem>
         </ActionsDropdown>

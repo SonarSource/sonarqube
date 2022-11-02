@@ -39,7 +39,7 @@ export default function StatusIndicator({ className, color, size }: StatusIndica
           color,
           {
             'small-status-indicator': size === 'small',
-            'big-status-indicator': size === 'big'
+            'big-status-indicator': size === 'big',
           },
           className
         )}

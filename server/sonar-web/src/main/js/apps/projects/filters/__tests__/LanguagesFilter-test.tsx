@@ -27,7 +27,7 @@ const languages = {
   js: { key: 'js', name: 'JavaScript' },
   flex: { key: 'flex', name: 'Flex' },
   php: { key: 'php', name: 'PHP' },
-  py: { key: 'py', name: 'Python' }
+  py: { key: 'py', name: 'Python' },
 };
 
 const languagesFacet = { java: 39, cs: 4, js: 1 };

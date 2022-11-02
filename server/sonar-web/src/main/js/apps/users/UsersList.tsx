@@ -36,7 +36,7 @@ export default function UsersList({
   identityProviders,
   onUpdateUsers,
   updateTokensCount,
-  users
+  users,
 }: Props) {
   return (
     <div className="boxed-group boxed-group-inner">
@@ -53,10 +53,10 @@ export default function UsersList({
           </tr>
         </thead>
         <tbody>
-          {users.map(user => (
+          {users.map((user) => (
             <UserListItem
               identityProvider={identityProviders.find(
-                provider => user.externalProvider === provider.key
+                (provider) => user.externalProvider === provider.key
               )}
               isCurrentUser={currentUser.isLoggedIn && currentUser.login === user.login}
               key={user.login}

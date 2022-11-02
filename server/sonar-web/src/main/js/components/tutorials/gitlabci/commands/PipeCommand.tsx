@@ -34,7 +34,7 @@ const BUILD_TOOL_SPECIFIC = {
   [BuildTools.Maven]: {
     image: 'maven:3.6.3-jdk-11',
     script: (projectKey: string) => `
-    - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}`
+    - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}`,
   },
   [BuildTools.DotNet]: {
     image: 'mcr.microsoft.com/dotnet/core/sdk:latest',
@@ -45,15 +45,15 @@ const BUILD_TOOL_SPECIFIC = {
       - "export PATH=\\"$PATH:$HOME/.dotnet/tools\\""
       - "dotnet sonarscanner begin /k:\\"${projectKey}\\" /d:sonar.login=\\"$SONAR_TOKEN\\" /d:\\"sonar.host.url=$SONAR_HOST_URL\\" "
       - "dotnet build"
-      - "dotnet sonarscanner end /d:sonar.login=\\"$SONAR_TOKEN\\""`
+      - "dotnet sonarscanner end /d:sonar.login=\\"$SONAR_TOKEN\\""`,
   },
   [BuildTools.Other]: {
     image: `
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]`,
     script: () => `
-    - sonar-scanner`
-  }
+    - sonar-scanner`,
+  },
 };
 
 export default function PipeCommand(props: PipeCommandProps) {

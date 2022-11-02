@@ -78,7 +78,7 @@ export default class Import extends React.Component<Props> {
       <div className="boxed-group-inner">
         {task.executedAt && (
           <DateTimeFormatter date={task.executedAt}>
-            {formatted => (
+            {(formatted) => (
               <Alert variant="success">
                 {translateWithParameters('project_dump.import_success', formatted)}
               </Alert>
@@ -94,7 +94,7 @@ export default class Import extends React.Component<Props> {
       <div className="boxed-group-inner" id="import-pending">
         <i className="spinner spacer-right" />
         <DateTimeFormatter date={task.submittedAt}>
-          {formatted => (
+          {(formatted) => (
             <span>{translateWithParameters('project_dump.pending_import', formatted)}</span>
           )}
         </DateTimeFormatter>
@@ -108,7 +108,7 @@ export default class Import extends React.Component<Props> {
         <i className="spinner spacer-right" />
         {task.startedAt && (
           <DateFromNow date={task.startedAt}>
-            {fromNow => (
+            {(fromNow) => (
               <span>{translateWithParameters('project_dump.in_progress_import', fromNow)}</span>
             )}
           </DateFromNow>
@@ -161,9 +161,10 @@ export default class Import extends React.Component<Props> {
     return (
       <div
         className={classNames('boxed-group', {
-          'import-disabled text-muted': !importEnabled
+          'import-disabled text-muted': !importEnabled,
         })}
-        id="project-import">
+        id="project-import"
+      >
         <div className="boxed-group-header">
           <h2>{translate('project_dump.import')}</h2>
         </div>

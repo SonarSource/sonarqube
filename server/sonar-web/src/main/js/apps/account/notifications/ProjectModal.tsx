@@ -82,7 +82,7 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
   getCurrentIndex = () => {
     const { highlighted, suggestions } = this.state;
     return highlighted && suggestions
-      ? suggestions.findIndex(suggestion => suggestion.project === highlighted.project)
+      ? suggestions.findIndex((suggestion) => suggestion.project === highlighted.project)
       : -1;
   };
 
@@ -95,7 +95,7 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
         index = 0;
       }
       this.setState({
-        highlighted: suggestions[index]
+        highlighted: suggestions[index],
       });
     }
   };
@@ -129,16 +129,16 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
 
     this.setState({ loading: true, query });
     return getSuggestions(query).then(
-      r => {
+      (r) => {
         if (this.mounted) {
           let suggestions = undefined;
-          const projects = r.results.find(domain => domain.q === 'TRK');
+          const projects = r.results.find((domain) => domain.q === 'TRK');
           if (projects && projects.items.length > 0) {
             suggestions = projects.items
-              .filter(item => !addedProjects.find(p => p.project === item.key))
-              .map(item => ({
+              .filter((item) => !addedProjects.find((p) => p.project === item.key))
+              .map((item) => ({
                 project: item.key,
-                projectName: item.name
+                projectName: item.name,
               }));
           }
           this.setState({ loading: false, open: true, suggestions });
@@ -156,7 +156,7 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
     this.setState({
       open: false,
       query: selectedProject.projectName,
-      selectedProject
+      selectedProject,
     });
   };
 
@@ -196,13 +196,14 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
                     <DropdownOverlay className="abs-width-400" noPadding={true}>
                       {suggestions && suggestions.length > 0 ? (
                         <ul className="notifications-add-project-search-results">
-                          {suggestions.map(suggestion => (
+                          {suggestions.map((suggestion) => (
                             <li
                               className={classNames({
-                                active: highlighted && highlighted.project === suggestion.project
+                                active: highlighted && highlighted.project === suggestion.project,
                               })}
                               key={suggestion.project}
-                              onClick={() => this.handleSelect(suggestion)}>
+                              onClick={() => this.handleSelect(suggestion)}
+                            >
                               {suggestion.projectName}
                             </li>
                           ))}

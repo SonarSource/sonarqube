@@ -29,10 +29,10 @@ it('should render Select with right options', () => {
 
   expect(output.length).toBe(1);
   expect(output.prop('value')).toEqual([
-    { isDefault: true, value: 'another', label: 'another name' }
+    { isDefault: true, value: 'another', label: 'another name' },
   ]);
   expect(output.prop('options')).toEqual([
-    { isDefault: true, value: 'another', label: 'another name' }
+    { isDefault: true, value: 'another', label: 'another name' },
   ]);
 });
 
@@ -42,8 +42,8 @@ it('should render option correctly', () => {
     {
       value: 'val',
       label: 'label',
-      isDefault: undefined
-    }
+      isDefault: undefined,
+    },
   ];
   const OptionRenderer = wrapper.instance().optionRenderer.bind(null, mockOptions);
   expect(
@@ -57,8 +57,8 @@ it('should render value correctly', () => {
     {
       value: 'val',
       label: 'label',
-      isDefault: true
-    }
+      isDefault: true,
+    },
   ];
   const ValueRenderer = wrapper.instance().singleValueRenderer.bind(null, mockOptions);
   expect(
@@ -71,7 +71,7 @@ function shallowRender(overrides: Partial<ComparisonForm['props']> = {}) {
   const profiles = [
     profile,
     mockQualityProfile({ key: 'another', name: 'another name', isDefault: true }),
-    mockQualityProfile({ key: 'java', name: 'java', language: 'java' })
+    mockQualityProfile({ key: 'java', name: 'java', language: 'java' }),
   ];
 
   return shallow<ComparisonForm>(

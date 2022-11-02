@@ -26,13 +26,13 @@ import {
   ComponentQualifier,
   isApplication,
   isPortfolioLike,
-  isView
+  isView,
 } from '../../../types/component';
 import {
   Facet,
   ReferencedComponent,
   ReferencedLanguage,
-  ReferencedRule
+  ReferencedRule,
 } from '../../../types/issues';
 import { GlobalSettingKeys } from '../../../types/settings';
 import { Component, Dict } from '../../../types/types';
@@ -88,7 +88,7 @@ export class Sidebar extends React.PureComponent<Props> {
       loadSearchResultCount: this.props.loadSearchResultCount,
       onChange: this.props.onFilterChange,
       onToggle: this.props.onFacetToggle,
-      query
+      query,
     };
     return (
       <>
@@ -122,7 +122,7 @@ export class Sidebar extends React.PureComponent<Props> {
       facets,
       openFacets,
       query,
-      branchLike
+      branchLike,
     } = this.props;
 
     const disableDeveloperAggregatedInfo =

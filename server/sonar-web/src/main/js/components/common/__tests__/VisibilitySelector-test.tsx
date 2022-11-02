@@ -27,21 +27,13 @@ it('changes visibility', () => {
   const wrapper = shallowRender({ onChange });
   expect(wrapper).toMatchSnapshot();
 
-  wrapper
-    .find(Radio)
-    .first()
-    .props()
-    .onCheck('private');
+  wrapper.find(Radio).first().props().onCheck('private');
   expect(onChange).toHaveBeenCalledWith('private');
 
   wrapper.setProps({ visibility: 'private' });
   expect(wrapper).toMatchSnapshot();
 
-  wrapper
-    .find(Radio)
-    .first()
-    .props()
-    .onCheck('public');
+  wrapper.find(Radio).first().props().onCheck('public');
   expect(onChange).toHaveBeenCalledWith('public');
 });
 

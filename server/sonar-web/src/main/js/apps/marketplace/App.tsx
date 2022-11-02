@@ -25,7 +25,7 @@ import {
   getAvailablePlugins,
   getInstalledPlugins,
   getInstalledPluginsWithUpdates,
-  getPluginUpdates
+  getPluginUpdates,
 } from '../../api/plugins';
 import { getValue, setSimpleSettingValue } from '../../api/settings';
 import DocLink from '../../components/common/DocLink';
@@ -97,7 +97,7 @@ export class App extends React.PureComponent<Props, State> {
       if (this.mounted) {
         this.setState({
           loadingPlugins: false,
-          plugins: sortBy(plugins, 'name')
+          plugins: sortBy(plugins, 'name'),
         });
       }
     }, this.stopLoadingPlugins);
@@ -123,7 +123,7 @@ export class App extends React.PureComponent<Props, State> {
   acknowledgeRisk = async () => {
     await setSimpleSettingValue({
       key: SettingsKey.PluginRiskConsent,
-      value: RiskConsent.Accepted
+      value: RiskConsent.Accepted,
     });
 
     await this.fetchRiskConsent();
@@ -175,7 +175,7 @@ export class App extends React.PureComponent<Props, State> {
                       <DocLink to="/instance-administration/marketplace/">
                         {translate('marketplace.page.plugins.description2.link')}
                       </DocLink>
-                    )
+                    ),
                   }}
                 />
               </Alert>

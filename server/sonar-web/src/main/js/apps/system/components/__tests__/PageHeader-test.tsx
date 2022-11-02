@@ -23,7 +23,7 @@ import { mockAppState } from '../../../../helpers/testMocks';
 import { PageHeader, Props } from '../PageHeader';
 
 jest.mock('../../../../helpers/dates', () => ({
-  toShortNotSoISOString: () => '2019-01-01'
+  toShortNotSoISOString: () => '2019-01-01',
 }));
 
 it('should render correctly', () => {
@@ -32,7 +32,7 @@ it('should render correctly', () => {
     shallowRender({
       appState: mockAppState({ productionDatabase: false }),
       serverId: 'foo-bar',
-      version: '7.7.0.1234'
+      version: '7.7.0.1234',
     })
   ).toMatchSnapshot('on embedded database');
   expect(shallowRender({ loading: true, showActions: false })).toMatchSnapshot();

@@ -26,7 +26,7 @@ import {
   Group,
   QualityGateApplicationStatus,
   QualityGateProjectStatus,
-  SearchPermissionsParameters
+  SearchPermissionsParameters,
 } from '../types/quality-gates';
 import { Condition, Paging, QualityGate } from '../types/types';
 import { UserBase } from '../types/users';
@@ -83,7 +83,7 @@ export function getGateForProject(data: { project: string }): Promise<QualityGat
     ({ qualityGate }) =>
       qualityGate && {
         ...qualityGate,
-        isDefault: qualityGate.default
+        isDefault: qualityGate.default,
       },
     throwGlobalError
   );
@@ -130,7 +130,7 @@ export function getQualityGateProjectStatus(
   } & BranchParameters
 ): Promise<QualityGateProjectStatus> {
   return getJSON('/api/qualitygates/project_status', data)
-    .then(r => r.projectStatus)
+    .then((r) => r.projectStatus)
     .catch(throwGlobalError);
 }
 

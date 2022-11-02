@@ -29,7 +29,7 @@ const UPGRADES = [
     releaseDate: '2017-04-02',
     changeLogUrl: 'changelogurl',
     downloadUrl: 'downloadurl',
-    plugins: {}
+    plugins: {},
   },
   {
     version: '5.6.5',
@@ -37,8 +37,8 @@ const UPGRADES = [
     releaseDate: '2017-03-01',
     changeLogUrl: 'changelogurl',
     downloadUrl: 'downloadurl',
-    plugins: {}
-  }
+    plugins: {},
+  },
 ];
 
 it('should display correctly', () => {

@@ -23,11 +23,11 @@ import {
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
   importBitbucketServerProject,
-  searchForBitbucketServerRepositories
+  searchForBitbucketServerRepositories,
 } from '../../../../api/alm-integrations';
 import {
   mockBitbucketProject,
-  mockBitbucketRepository
+  mockBitbucketRepository,
 } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
@@ -43,22 +43,22 @@ jest.mock('../../../../api/alm-integrations', () => {
     getBitbucketServerProjects: jest.fn().mockResolvedValue({
       projects: [
         mockBitbucketProject({ key: 'project1', name: 'Project 1' }),
-        mockBitbucketProject({ id: 2, key: 'project2' })
-      ]
+        mockBitbucketProject({ id: 2, key: 'project2' }),
+      ],
     }),
     getBitbucketServerRepositories: jest.fn().mockResolvedValue({
       repositories: [
         mockBitbucketRepository({ projectKey: 'project1' }),
-        mockBitbucketRepository({ id: 2, projectKey: 'project1', slug: 'project__repo2' })
-      ]
+        mockBitbucketRepository({ id: 2, projectKey: 'project1', slug: 'project__repo2' }),
+      ],
     }),
     importBitbucketServerProject: jest.fn().mockResolvedValue({ project: { key: 'baz' } }),
     searchForBitbucketServerRepositories: jest.fn().mockResolvedValue({
       repositories: [
         mockBitbucketRepository(),
-        mockBitbucketRepository({ id: 2, slug: 'project__repo2' })
-      ]
-    })
+        mockBitbucketRepository({ id: 2, slug: 'project__repo2' }),
+      ],
+    }),
   };
 });
 
@@ -90,9 +90,9 @@ it('should correctly fetch projects and repos', async () => {
       project1: expect.objectContaining({
         repositories: expect.arrayContaining([
           expect.objectContaining({ id: 1 }),
-          expect.objectContaining({ id: 2 })
-        ])
-      })
+          expect.objectContaining({ id: 2 }),
+        ]),
+      }),
     })
   );
   expect(wrapper.state().projectRepositories).toBeDefined();

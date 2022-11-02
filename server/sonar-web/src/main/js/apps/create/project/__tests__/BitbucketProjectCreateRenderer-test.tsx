@@ -21,12 +21,12 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockBitbucketProject,
-  mockBitbucketRepository
+  mockBitbucketRepository,
 } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
 import BitbucketProjectCreateRenderer, {
-  BitbucketProjectCreateRendererProps
+  BitbucketProjectCreateRendererProps,
 } from '../BitbucketProjectCreateRenderer';
 
 it('should render correctly', () => {

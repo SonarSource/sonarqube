@@ -46,7 +46,7 @@ interface State {
 export class PageHeader extends React.PureComponent<Props, State> {
   state: State = {
     createFormOpen: false,
-    restoreFormOpen: false
+    restoreFormOpen: false,
   };
 
   handleCreateClick = () => {
@@ -85,13 +85,15 @@ export class PageHeader extends React.PureComponent<Props, State> {
             <Button
               disabled={languages.length === 0}
               id="quality-profiles-create"
-              onClick={this.handleCreateClick}>
+              onClick={this.handleCreateClick}
+            >
               {translate('create')}
             </Button>
             <Button
               className="little-spacer-left"
               id="quality-profiles-restore"
-              onClick={this.handleRestoreClick}>
+              onClick={this.handleRestoreClick}
+            >
               {translate('restore')}
             </Button>
             {languages.length === 0 && (

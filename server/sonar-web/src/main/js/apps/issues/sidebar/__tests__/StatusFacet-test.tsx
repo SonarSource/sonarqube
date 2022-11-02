@@ -48,10 +48,10 @@ it('should select a status', () => {
   clickAndCheck('CLOSED');
 
   function clickAndCheck(status: string, multiple = false, expected = [status]) {
-    wrapper
-      .find(`FacetItemsList`)
-      .find(`FacetItem[value="${status}"]`)
-      .prop<Function>('onClick')(status, multiple);
+    wrapper.find(`FacetItemsList`).find(`FacetItem[value="${status}"]`).prop<Function>('onClick')(
+      status,
+      multiple
+    );
     expect(onChange).toHaveBeenLastCalledWith({ statuses: expected });
     wrapper.setProps({ statuses: expected });
   }
@@ -69,7 +69,7 @@ function shallowRender(props: Partial<StatusFacet['props']> = {}) {
         CONFIRMED: 8,
         REOPENED: 0,
         RESOLVED: 0,
-        CLOSED: 8
+        CLOSED: 8,
       }}
       statuses={[]}
       {...props}

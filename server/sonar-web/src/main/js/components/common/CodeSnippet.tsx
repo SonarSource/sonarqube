@@ -35,7 +35,7 @@ export default function CodeSnippet(props: CodeSnippetProps) {
 
   let finalSnippet: string;
   if (Array.isArray(snippet)) {
-    finalSnippet = snippet.filter(line => isDefined(line)).join(isOneLine ? ' ' : ' \\\n  ');
+    finalSnippet = snippet.filter((line) => isDefined(line)).join(isOneLine ? ' ' : ' \\\n  ');
   } else {
     finalSnippet = snippet;
   }

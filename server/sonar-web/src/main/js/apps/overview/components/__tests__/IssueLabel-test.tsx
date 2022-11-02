@@ -29,7 +29,7 @@ import { IssueLabel, IssueLabelProps } from '../IssueLabel';
 it('should render correctly for bugs', () => {
   const measures = [
     mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) }),
-    mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) })
+    mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) }),
   ];
   expect(shallowRender({ measures })).toMatchSnapshot();
   expect(shallowRender({ measures, useDiffMetric: true })).toMatchSnapshot();
@@ -39,7 +39,7 @@ it('should render correctly for code smells', () => {
   const type = IssueType.CodeSmell;
   const measures = [
     mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.code_smells }) }),
-    mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_code_smells }) })
+    mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_code_smells }) }),
   ];
   expect(shallowRender({ measures, type })).toMatchSnapshot();
   expect(shallowRender({ measures, type, useDiffMetric: true })).toMatchSnapshot();
@@ -49,7 +49,7 @@ it('should render correctly for vulnerabilities', () => {
   const type = IssueType.Vulnerability;
   const measures = [
     mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.vulnerabilities }) }),
-    mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_vulnerabilities }) })
+    mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_vulnerabilities }) }),
   ];
   expect(shallowRender({ measures, type })).toMatchSnapshot();
   expect(shallowRender({ measures, type, useDiffMetric: true })).toMatchSnapshot();
@@ -60,13 +60,13 @@ it('should render correctly for hotspots', () => {
   const type = IssueType.SecurityHotspot;
   const measures = [
     mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.security_hotspots }) }),
-    mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_security_hotspots }) })
+    mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_security_hotspots }) }),
   ];
   expect(
     shallowRender({
       helpTooltip,
       measures,
-      type
+      type,
     })
   ).toMatchSnapshot();
   expect(
@@ -74,7 +74,7 @@ it('should render correctly for hotspots', () => {
       helpTooltip,
       measures,
       type,
-      useDiffMetric: true
+      useDiffMetric: true,
     })
   ).toMatchSnapshot();
 });

@@ -47,7 +47,7 @@ export function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {
   const { hotspot, currentUser, component, branchLike } = props;
   const {
     project,
-    component: { qualifier, path }
+    component: { qualifier, path },
   } = hotspot;
 
   const displayProjectName = component.qualifier === ComponentQualifier.Application;
@@ -55,7 +55,7 @@ export function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {
   const permalink = getPathUrlAsString(
     getComponentSecurityHotspotsUrl(component.key, {
       ...getBranchLikeQuery(branchLike),
-      hotspots: hotspot?.key
+      hotspots: hotspot?.key,
     }),
     false
   );

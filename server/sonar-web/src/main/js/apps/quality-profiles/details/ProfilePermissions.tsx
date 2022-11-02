@@ -22,7 +22,7 @@ import * as React from 'react';
 import {
   searchGroups,
   searchUsers,
-  SearchUsersGroupsParameters
+  SearchUsersGroupsParameters,
 } from '../../../api/quality-profiles';
 import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
@@ -72,7 +72,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     const parameters: SearchUsersGroupsParameters = {
       language: profile.language,
       qualityProfile: profile.name,
-      selected: 'selected'
+      selected: 'selected',
     };
     Promise.all([searchUsers(parameters), searchGroups(parameters)]).then(
       ([usersResponse, groupsResponse]) => {
@@ -80,7 +80,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
           this.setState({
             groups: groupsResponse.groups,
             loading: false,
-            users: usersResponse.users
+            users: usersResponse.users,
           });
         }
       },
@@ -106,7 +106,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     if (this.mounted) {
       this.setState((state: State) => ({
         addUserForm: false,
-        users: state.users && uniqBy([...state.users, addedUser], user => user.login)
+        users: state.users && uniqBy([...state.users, addedUser], (user) => user.login),
       }));
     }
   };
@@ -114,7 +114,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
   handleUserDelete = (removedUser: UserSelected) => {
     if (this.mounted) {
       this.setState((state: State) => ({
-        users: state.users && state.users.filter(user => user !== removedUser)
+        users: state.users && state.users.filter((user) => user !== removedUser),
       }));
     }
   };
@@ -123,7 +123,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     if (this.mounted) {
       this.setState((state: State) => ({
         addUserForm: false,
-        groups: state.groups && uniqBy([...state.groups, addedGroup], group => group.name)
+        groups: state.groups && uniqBy([...state.groups, addedGroup], (group) => group.name),
       }));
     }
   };
@@ -131,7 +131,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
   handleGroupDelete = (removedGroup: Group) => {
     if (this.mounted) {
       this.setState((state: State) => ({
-        groups: state.groups && state.groups.filter(group => group !== removedGroup)
+        groups: state.groups && state.groups.filter((group) => group !== removedGroup),
       }));
     }
   };
@@ -150,7 +150,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
           ) : (
             <div className="big-spacer-top">
               {this.state.users &&
-                sortBy(this.state.users, 'name').map(user => (
+                sortBy(this.state.users, 'name').map((user) => (
                   <ProfilePermissionsUser
                     key={user.login}
                     onDelete={this.handleUserDelete}
@@ -159,7 +159,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
                   />
                 ))}
               {this.state.groups &&
-                sortBy(this.state.groups, 'name').map(group => (
+                sortBy(this.state.groups, 'name').map((group) => (
                   <ProfilePermissionsGroup
                     group={group}
                     key={group.name}

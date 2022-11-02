@@ -37,14 +37,14 @@ export function Events(props: EventsProps) {
   const sortedEvents = sortBy(
     events,
     // versions last
-    event => (event.category === 'VERSION' ? 1 : 0),
+    (event) => (event.category === 'VERSION' ? 1 : 0),
     // then the rest sorted by category
     'category'
   );
 
   return (
     <div className="big-spacer-top">
-      {sortedEvents.map(event => (
+      {sortedEvents.map((event) => (
         <Event
           analysisKey={analysisKey}
           canAdmin={canAdmin}

@@ -28,15 +28,15 @@ it('should render SourceViewer correctly', () => {
   expect(
     shallowRender({
       issues: [mockIssue(true)],
-      openIssue: mockIssue(true, { flows: [[mockFlowLocation()]] })
+      openIssue: mockIssue(true, { flows: [[mockFlowLocation()]] }),
     })
   ).toMatchSnapshot('single secondary location');
   expect(
     shallowRender({
       issues: [mockIssue(true)],
       openIssue: mockIssue(true, {
-        flows: [[mockFlowLocation(), mockFlowLocation(), mockFlowLocation()]]
-      })
+        flows: [[mockFlowLocation(), mockFlowLocation(), mockFlowLocation()]],
+      }),
     })
   ).toMatchSnapshot('all secondary locations on same line');
 });
@@ -54,12 +54,12 @@ it('should render CrossComponentSourceViewer correctly', () => {
                 startLine: 10,
                 startOffset: 1,
                 endLine: 12,
-                endOffset: 2
-              }
-            })
-          ]
-        ]
-      })
+                endOffset: 2,
+              },
+            }),
+          ],
+        ],
+      }),
     })
   ).toMatchSnapshot();
 });

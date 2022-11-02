@@ -30,7 +30,7 @@ export function mockTask(overrides: Partial<Task> = {}): Task {
     status: TaskStatuses.Pending,
     submittedAt: '2020-09-11T11:45:35+0200',
     type: TaskTypes.Report,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -39,6 +39,6 @@ export function mockTaskWarning(overrides: Partial<TaskWarning> = {}): TaskWarni
     key: 'foo',
     message: 'Lorem ipsum',
     dismissable: false,
-    ...overrides
+    ...overrides,
   };
 }

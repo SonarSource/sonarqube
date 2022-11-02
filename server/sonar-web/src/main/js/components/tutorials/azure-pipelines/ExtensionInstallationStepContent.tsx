@@ -34,7 +34,8 @@ export default function ExtensionInstallationStepContent() {
           link: (
             <Link
               to="https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube"
-              target="_blank">
+              target="_blank"
+            >
               {translate(
                 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.link'
               )}
@@ -46,7 +47,7 @@ export default function ExtensionInstallationStepContent() {
                 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.button'
               )}
             </strong>
-          )
+          ),
         }}
       />
     </span>

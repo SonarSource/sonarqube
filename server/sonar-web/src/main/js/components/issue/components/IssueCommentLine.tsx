@@ -41,7 +41,7 @@ interface State {
 
 export default class IssueCommentLine extends React.PureComponent<Props, State> {
   state: State = {
-    openPopup: ''
+    openPopup: '',
   };
 
   handleEdit = (text: string) => {
@@ -55,7 +55,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
   };
 
   togglePopup = (popupName: string, force?: boolean) => {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       if (prevState.openPopup !== popupName && force !== false) {
         return { openPopup: popupName };
       } else if (prevState.openPopup === popupName && force !== true) {
@@ -119,7 +119,8 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
                     placement={PopupPlacement.BottomRight}
                     toggleComment={this.toggleEditPopup}
                   />
-                }>
+                }
+              >
                 <EditButton
                   aria-label={translate('issue.comment.edit')}
                   className="js-issue-comment-edit button-small"
@@ -133,7 +134,8 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
               <Toggler
                 onRequestClose={this.closePopups}
                 open={this.state.openPopup === 'delete'}
-                overlay={<CommentDeletePopup onDelete={this.handleDelete} />}>
+                overlay={<CommentDeletePopup onDelete={this.handleDelete} />}
+              >
                 <DeleteButton
                   aria-label={translate('issue.comment.delete')}
                   className="js-issue-comment-delete button-small"

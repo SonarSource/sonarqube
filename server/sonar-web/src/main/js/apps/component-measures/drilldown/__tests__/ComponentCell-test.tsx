@@ -22,7 +22,7 @@ import * as React from 'react';
 import Link from '../../../../components/common/Link';
 import {
   mockComponentMeasure,
-  mockComponentMeasureEnhanced
+  mockComponentMeasureEnhanced,
 } from '../../../../helpers/mocks/component';
 import { mockMetric } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
@@ -40,14 +40,14 @@ it.each([
   [ComponentQualifier.Application, undefined],
   [ComponentQualifier.Application, 'develop'],
   [ComponentQualifier.Portfolio, undefined],
-  [ComponentQualifier.Portfolio, 'develop']
+  [ComponentQualifier.Portfolio, 'develop'],
 ])(
   'should render correctly for a "%s" root component and a component with branch "%s"',
   (rootComponentQualifier: ComponentQualifier, componentBranch: string | undefined) => {
     expect(
       shallowRender({
         rootComponent: mockComponentMeasure(false, { qualifier: rootComponentQualifier }),
-        component: mockComponentMeasureEnhanced({ branch: componentBranch })
+        component: mockComponentMeasureEnhanced({ branch: componentBranch }),
       })
     ).toMatchSnapshot();
   }
@@ -58,26 +58,22 @@ it('should properly deal with key and refKey', () => {
     shallowRender({
       component: mockComponentMeasureEnhanced({
         qualifier: ComponentQualifier.SubPortfolio,
-        refKey: 'port-key'
-      })
+        refKey: 'port-key',
+      }),
     })
       .find(Link)
       .props().to
   ).toEqual(
     expect.objectContaining({
       pathname: '/component_measures',
-      search: '?id=port-key&metric=bugs&view=list'
+      search: '?id=port-key&metric=bugs&view=list',
     })
   );
 
-  expect(
-    shallowRender()
-      .find(Link)
-      .props().to
-  ).toEqual(
+  expect(shallowRender().find(Link).props().to).toEqual(
     expect.objectContaining({
       pathname: '/component_measures',
-      search: '?id=foo&metric=bugs&view=list&selected=foo%3Asrc%2Findex.tsx'
+      search: '?id=foo&metric=bugs&view=list&selected=foo%3Asrc%2Findex.tsx',
     })
   );
 });
@@ -88,57 +84,57 @@ it.each([
     MetricKey.bugs,
     {
       pathname: '/component_measures',
-      search: `?id=foo&metric=${MetricKey.bugs}&branch=develop&view=list&selected=foo`
-    }
+      search: `?id=foo&metric=${MetricKey.bugs}&branch=develop&view=list&selected=foo`,
+    },
   ],
   [
     ComponentQualifier.Directory,
     MetricKey.bugs,
     {
       pathname: '/component_measures',
-      search: `?id=foo&metric=${MetricKey.bugs}&branch=develop&view=list&selected=foo`
-    }
+      search: `?id=foo&metric=${MetricKey.bugs}&branch=develop&view=list&selected=foo`,
+    },
   ],
   [
     ComponentQualifier.Project,
     MetricKey.projects,
     {
       pathname: '/dashboard',
-      search: '?id=foo&branch=develop'
-    }
+      search: '?id=foo&branch=develop',
+    },
   ],
   [
     ComponentQualifier.Application,
     MetricKey.releasability_rating,
     {
       pathname: '/dashboard',
-      search: '?id=foo&branch=develop'
-    }
+      search: '?id=foo&branch=develop',
+    },
   ],
   [
     ComponentQualifier.Project,
     MetricKey.releasability_rating,
     {
       pathname: '/dashboard',
-      search: '?id=foo&branch=develop'
-    }
+      search: '?id=foo&branch=develop',
+    },
   ],
   [
     ComponentQualifier.Application,
     MetricKey.alert_status,
     {
       pathname: '/dashboard',
-      search: '?id=foo&branch=develop'
-    }
+      search: '?id=foo&branch=develop',
+    },
   ],
   [
     ComponentQualifier.Project,
     MetricKey.alert_status,
     {
       pathname: '/dashboard',
-      search: '?id=foo&branch=develop'
-    }
-  ]
+      search: '?id=foo&branch=develop',
+    },
+  ],
 ])(
   'should display the proper link path for %s component qualifier and %s metric key',
   (
@@ -150,8 +146,8 @@ it.each([
       {
         component: mockComponentMeasureEnhanced({
           qualifier: componentQualifier,
-          branch: 'develop'
-        })
+          branch: 'develop',
+        }),
       },
       metricKey
     );
@@ -164,7 +160,7 @@ function shallowRender(overrides: Partial<ComponentCellProps> = {}, metricKey = 
   const metric = mockMetric({ key: metricKey });
   const component = enhanceComponent(
     mockComponentMeasure(true, {
-      measures: [{ metric: metric.key, value: '1', bestValue: false }]
+      measures: [{ metric: metric.key, value: '1', bestValue: false }],
     }),
     metric,
     { [metric.key]: metric }

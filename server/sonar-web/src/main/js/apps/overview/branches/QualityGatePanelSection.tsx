@@ -34,8 +34,8 @@ export interface QualityGatePanelSectionProps {
 
 export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
   const { component, qgStatus } = props;
-  const newCodeFailedConditions = qgStatus.failedConditions.filter(c => isDiffMetric(c.metric));
-  const overallFailedConditions = qgStatus.failedConditions.filter(c => !isDiffMetric(c.metric));
+  const newCodeFailedConditions = qgStatus.failedConditions.filter((c) => isDiffMetric(c.metric));
+  const overallFailedConditions = qgStatus.failedConditions.filter((c) => !isDiffMetric(c.metric));
 
   if (newCodeFailedConditions.length === 0 && overallFailedConditions.length === 0) {
     return null;

@@ -31,7 +31,7 @@ export function mockSourceViewerFile(
       coverage: '85.2',
       duplicationDensity: '1.0',
       issues: '12',
-      lines: '56'
+      lines: '56',
     },
     project,
     projectName: 'MyProject',
@@ -43,7 +43,7 @@ export function mockSourceViewerFile(
     longName: name,
     fav: false,
     canMarkAsFavorite: true,
-    ...override
+    ...override,
   };
 }
 
@@ -58,7 +58,7 @@ export function mockSourceLine(overrides: Partial<SourceLine> = {}): SourceLine 
     scmDate: '2018-12-11T10:48:39+0100',
     duplicated: false,
     isNew: true,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -73,6 +73,6 @@ export function mockSnippetsByComponent(
   }, {});
   return {
     component: mockSourceViewerFile(file, project),
-    sources
+    sources,
   };
 }

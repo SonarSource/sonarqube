@@ -22,14 +22,14 @@ import * as React from 'react';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
 import {
   ProjectInformationRenderer,
-  ProjectInformationRendererProps
+  ProjectInformationRendererProps,
 } from '../ProjectInformationRenderer';
 
 jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
-    useEffect: jest.fn().mockImplementation(f => f()),
-    useRef: jest.fn().mockReturnValue(document.createElement('h2'))
+    useEffect: jest.fn().mockImplementation((f) => f()),
+    useRef: jest.fn().mockReturnValue(document.createElement('h2')),
   };
 });
 
@@ -59,7 +59,7 @@ it('should render with description', () => {
 it('should handle missing quality profiles and quality gates', () => {
   expect(
     shallowRender({
-      component: mockComponent({ qualityGate: undefined, qualityProfiles: undefined })
+      component: mockComponent({ qualityGate: undefined, qualityProfiles: undefined }),
     })
   ).toMatchSnapshot();
 });
@@ -67,7 +67,7 @@ it('should handle missing quality profiles and quality gates', () => {
 it('should render app correctly when regulatoryReport feature is not enabled', () => {
   expect(
     shallowRender({
-      hasFeature: jest.fn().mockReturnValue(false)
+      hasFeature: jest.fn().mockReturnValue(false),
     })
   ).toMatchSnapshot();
 });

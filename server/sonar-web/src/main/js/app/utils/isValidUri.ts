@@ -19,6 +19,6 @@
  */
 import { isWebUri } from 'valid-url';
 
-export default function(url: string): boolean {
+export default function (url: string): boolean {
   return /^(\/|scm:)/.test(url) || !!isWebUri(url);
 }

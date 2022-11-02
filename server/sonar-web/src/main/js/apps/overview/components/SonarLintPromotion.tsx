@@ -43,12 +43,12 @@ const CONDITIONS_TO_SHOW = [
   MetricKey.new_vulnerabilities,
   MetricKey.new_security_rating,
   MetricKey.new_maintainability_rating,
-  MetricKey.new_reliability_rating
+  MetricKey.new_reliability_rating,
 ];
 
 export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromotionProps) {
   const showMessage = qgConditions?.some(
-    qgCondition =>
+    (qgCondition) =>
       CONDITIONS_TO_SHOW.includes(qgCondition.metric as MetricKey) && qgCondition.level === 'ERROR'
   );
   if (!showMessage || currentUser.usingSonarLintConnectedMode) {
@@ -65,12 +65,13 @@ export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromo
               <a
                 href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube"
                 rel="noopener noreferrer"
-                target="_blank">
+                target="_blank"
+              >
                 SonarLint
               </a>
               <SonarLintIcon size={16} />
             </>
-          )
+          ),
         }}
       />
     </div>

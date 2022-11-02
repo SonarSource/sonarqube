@@ -53,14 +53,15 @@ export default function SecretStep(props: SecretStepProps) {
                 <a
                   href={`${buildGithubLink(almBinding, projectBinding)}/settings/secrets`}
                   target="_blank"
-                  rel="noopener noreferrer">
+                  rel="noopener noreferrer"
+                >
                   {translate('onboarding.tutorial.with.github_action.secret.intro.link')}
                 </a>
               ) : (
                 <strong>
                   {translate('onboarding.tutorial.with.github_action.secret.intro.link')}
                 </strong>
-              )
+              ),
           }}
         />
       </p>
@@ -113,7 +114,7 @@ export default function SecretStep(props: SecretStepProps) {
             values={{
               extra: <ClipboardIconButton copyValue={baseUrl} />,
               field: <strong>{translate('onboarding.tutorial.env_variables.field')}</strong>,
-              value: <code className="rule">{baseUrl}</code>
+              value: <code className="rule">{baseUrl}</code>,
             }}
           />
         </li>

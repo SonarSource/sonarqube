@@ -150,7 +150,7 @@ function renderDom(codeSnippet: string) {
       className="markdown"
       // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{
-        __html: codeSnippet
+        __html: codeSnippet,
       }}
     />
   );

@@ -28,11 +28,11 @@ export const EXPIRATION_OPTIONS = [
   TokenExpiration.OneMonth,
   TokenExpiration.ThreeMonths,
   TokenExpiration.OneYear,
-  TokenExpiration.NoExpiration
-].map(value => {
+  TokenExpiration.NoExpiration,
+].map((value) => {
   return {
     value,
-    label: translate('users.tokens.expiration', value.toString())
+    label: translate('users.tokens.expiration', value.toString()),
   };
 });
 
@@ -40,7 +40,7 @@ const SETTINGS_EXPIRATION_MAP: { [key: string]: TokenExpiration } = {
   '30 days': TokenExpiration.OneMonth,
   '90 days': TokenExpiration.ThreeMonths,
   '1 year': TokenExpiration.OneYear,
-  'No expiration': TokenExpiration.NoExpiration
+  'No expiration': TokenExpiration.NoExpiration,
 };
 
 export async function getAvailableExpirationOptions() {
@@ -48,7 +48,7 @@ export async function getAvailableExpirationOptions() {
    * We intentionally fetch all settings, because fetching a specific setting will
    * return it from the DB as a fallback, even if the setting is not defined at startup.
    */
-  const setting = (await getAllValues()).find(v => v.key === SettingsKey.TokenMaxAllowedLifetime);
+  const setting = (await getAllValues()).find((v) => v.key === SettingsKey.TokenMaxAllowedLifetime);
   if (setting === undefined || setting.value === undefined) {
     return EXPIRATION_OPTIONS;
   }
@@ -56,7 +56,7 @@ export async function getAvailableExpirationOptions() {
   const maxTokenLifetime = setting.value;
   if (SETTINGS_EXPIRATION_MAP[maxTokenLifetime] !== TokenExpiration.NoExpiration) {
     return EXPIRATION_OPTIONS.filter(
-      option =>
+      (option) =>
         option.value <= SETTINGS_EXPIRATION_MAP[maxTokenLifetime] &&
         option.value !== TokenExpiration.NoExpiration
     );

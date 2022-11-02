@@ -36,42 +36,26 @@ it('should correctly allow deletion', () => {
     shallowRender({
       canAdmin: true,
       event: mockAnalysisEvent({ category: 'VERSION' }),
-      isFirst: true
+      isFirst: true,
     })
       .find(DeleteButton)
       .exists()
   ).toBe(false);
 
   expect(
-    shallowRender({ canAdmin: true, event: mockAnalysisEvent() })
-      .find(DeleteButton)
-      .exists()
+    shallowRender({ canAdmin: true, event: mockAnalysisEvent() }).find(DeleteButton).exists()
   ).toBe(false);
 
-  expect(
-    shallowRender({ canAdmin: true })
-      .find(DeleteButton)
-      .exists()
-  ).toBe(true);
+  expect(shallowRender({ canAdmin: true }).find(DeleteButton).exists()).toBe(true);
 });
 
 it('should correctly allow edition', () => {
-  expect(
-    shallowRender({ canAdmin: true })
-      .find(EditButton)
-      .exists()
-  ).toBe(true);
+  expect(shallowRender({ canAdmin: true }).find(EditButton).exists()).toBe(true);
+
+  expect(shallowRender({ canAdmin: true, isFirst: true }).find(EditButton).exists()).toBe(true);
 
   expect(
-    shallowRender({ canAdmin: true, isFirst: true })
-      .find(EditButton)
-      .exists()
-  ).toBe(true);
-
-  expect(
-    shallowRender({ canAdmin: true, event: mockAnalysisEvent() })
-      .find(EditButton)
-      .exists()
+    shallowRender({ canAdmin: true, event: mockAnalysisEvent() }).find(EditButton).exists()
   ).toBe(false);
 });
 

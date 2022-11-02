@@ -30,12 +30,12 @@ const defaultTokens = [
   mockUserToken({
     name: 'local-scanner',
     createdAt: '2022-03-07T09:02:59+0000',
-    lastConnectionDate: '2022-04-07T09:51:48+0000'
+    lastConnectionDate: '2022-04-07T09:51:48+0000',
   }),
   mockUserToken({
     name: 'test',
-    createdAt: '2020-01-23T19:25:19+0000'
-  })
+    createdAt: '2020-01-23T19:25:19+0000',
+  }),
 ];
 
 export default class UserTokensMock {
@@ -59,7 +59,7 @@ export default class UserTokensMock {
     login,
     type,
     projectKey,
-    expirationDate
+    expirationDate,
   }: {
     name: string;
     login?: string;
@@ -78,11 +78,9 @@ export default class UserTokensMock {
       type,
       projectKey,
       isExpired: false,
-      token: Math.random()
-        .toString(RANDOM_RADIX)
-        .slice(RANDOM_PREFIX),
+      token: Math.random().toString(RANDOM_RADIX).slice(RANDOM_PREFIX),
       createdAt: '2022-04-04T04:04:04+0000',
-      expirationDate
+      expirationDate,
     };
 
     this.tokens.push(token);
@@ -91,7 +89,7 @@ export default class UserTokensMock {
   };
 
   handleRevokeToken = ({ name }: { name: string; login?: string }) => {
-    const index = this.tokens.findIndex(t => t.name === name);
+    const index = this.tokens.findIndex((t) => t.name === name);
 
     if (index < 0) {
       return Promise.resolve();

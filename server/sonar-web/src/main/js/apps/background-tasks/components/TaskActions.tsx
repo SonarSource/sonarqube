@@ -45,7 +45,7 @@ export default class TaskActions extends React.PureComponent<Props, State> {
     cancelTaskOpen: false,
     scannerContextOpen: false,
     stacktraceOpen: false,
-    warningsOpen: false
+    warningsOpen: false,
   };
 
   handleFilterClick = () => {
@@ -117,28 +117,32 @@ export default class TaskActions extends React.PureComponent<Props, State> {
             <ActionsDropdownItem
               className="js-task-cancel"
               destructive={true}
-              onClick={this.handleCancelClick}>
+              onClick={this.handleCancelClick}
+            >
               {translate('background_tasks.cancel_task')}
             </ActionsDropdownItem>
           )}
           {task.hasScannerContext && (
             <ActionsDropdownItem
               className="js-task-show-scanner-context"
-              onClick={this.handleShowScannerContextClick}>
+              onClick={this.handleShowScannerContextClick}
+            >
               {translate('background_tasks.show_scanner_context')}
             </ActionsDropdownItem>
           )}
           {canShowStacktrace && (
             <ActionsDropdownItem
               className="js-task-show-stacktrace"
-              onClick={this.handleShowStacktraceClick}>
+              onClick={this.handleShowStacktraceClick}
+            >
               {translate('background_tasks.show_stacktrace')}
             </ActionsDropdownItem>
           )}
           {canShowWarnings && (
             <ActionsDropdownItem
               className="js-task-show-warnings"
-              onClick={this.handleShowWarningsClick}>
+              onClick={this.handleShowWarningsClick}
+            >
               {translate('background_tasks.show_warnings')}
             </ActionsDropdownItem>
           )}
@@ -151,7 +155,8 @@ export default class TaskActions extends React.PureComponent<Props, State> {
             header={translate('background_tasks.cancel_task')}
             isDestructive={true}
             onClose={this.closeCancelTask}
-            onConfirm={this.handleCancelTask}>
+            onConfirm={this.handleCancelTask}
+          >
             {translate('background_tasks.cancel_task.text')}
           </ConfirmModal>
         )}

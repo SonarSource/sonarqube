@@ -62,7 +62,8 @@ export default class BackButton extends React.PureComponent<Props> {
             this.props.className
           )}
           href="#"
-          onClick={this.handleClick}>
+          onClick={this.handleClick}
+        >
           {this.renderIcon()}
         </a>
       </Tooltip>

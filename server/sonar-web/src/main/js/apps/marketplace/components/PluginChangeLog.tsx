@@ -34,17 +34,15 @@ export default function PluginChangeLog({ release, update }: Props) {
       <h6>{translate('changelog')}</h6>
       <ul className="js-plugin-changelog-list">
         {update.previousUpdates &&
-          sortBy(
-            update.previousUpdates,
-            prevUpdate => prevUpdate.release?.date
-          ).map(previousUpdate =>
-            previousUpdate.release ? (
-              <PluginChangeLogItem
-                key={previousUpdate.release.version}
-                release={previousUpdate.release}
-                update={previousUpdate}
-              />
-            ) : null
+          sortBy(update.previousUpdates, (prevUpdate) => prevUpdate.release?.date).map(
+            (previousUpdate) =>
+              previousUpdate.release ? (
+                <PluginChangeLogItem
+                  key={previousUpdate.release.version}
+                  release={previousUpdate.release}
+                  update={previousUpdate}
+                />
+              ) : null
           )}
         <PluginChangeLogItem release={release} update={update} />
       </ul>

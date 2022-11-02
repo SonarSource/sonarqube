@@ -52,7 +52,8 @@ export default class AddEventForm extends React.PureComponent<Props, State> {
         header={translate(this.props.addEventButtonText)}
         onClose={this.props.onClose}
         onConfirm={this.handleSubmit}
-        size="small">
+        size="small"
+      >
         <div className="modal-field">
           <label>{translate('name')}</label>
           <input

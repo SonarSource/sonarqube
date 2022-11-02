@@ -48,7 +48,7 @@ export default function SizeRating({ small = false, muted = false, value }: Prop
 
   const className = classNames('size-rating', {
     'size-rating-small': small,
-    'size-rating-muted': muted
+    'size-rating-muted': muted,
   });
 
   return (

@@ -32,7 +32,7 @@ export default function GenericAvatar({ className, name, round, size }: Props) {
   const color = stringToColor(name);
 
   let text = '';
-  const words = name.split(/\s+/).filter(word => word.length > 0);
+  const words = name.split(/\s+/).filter((word) => word.length > 0);
   if (words.length >= 2) {
     text = words[0][0] + words[1][0];
   } else if (name.length > 0) {
@@ -53,8 +53,9 @@ export default function GenericAvatar({ className, name, round, size }: Props) {
         lineHeight: `${size}px`,
         textAlign: 'center',
         verticalAlign: 'top',
-        width: size
-      }}>
+        width: size,
+      }}
+    >
       {text.toUpperCase()}
     </div>
   );

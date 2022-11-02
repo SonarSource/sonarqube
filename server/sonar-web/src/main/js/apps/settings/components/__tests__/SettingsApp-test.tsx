@@ -25,7 +25,7 @@ import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
-  removeWhitePageClass
+  removeWhitePageClass,
 } from '../../../../helpers/pages';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { SettingsApp } from '../SettingsApp';
@@ -34,11 +34,11 @@ jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   addWhitePageClass: jest.fn(),
   removeSideBarClass: jest.fn(),
-  removeWhitePageClass: jest.fn()
+  removeWhitePageClass: jest.fn(),
 }));
 
 jest.mock('../../../../api/settings', () => ({
-  getDefinitions: jest.fn().mockResolvedValue([])
+  getDefinitions: jest.fn().mockResolvedValue([]),
 }));
 
 it('should render default view correctly', async () => {

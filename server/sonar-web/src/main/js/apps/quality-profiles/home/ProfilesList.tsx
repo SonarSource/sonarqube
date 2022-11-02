@@ -37,7 +37,7 @@ interface Props {
 
 export default class ProfilesList extends React.PureComponent<Props> {
   renderProfiles(profiles: Profile[]) {
-    return profiles.map(profile => (
+    return profiles.map((profile) => (
       <ProfilesListRow
         key={profile.key}
         profile={profile}
@@ -47,7 +47,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
   }
 
   renderHeader(languageKey: string, profilesCount: number) {
-    const language = this.props.languages.find(l => l.key === languageKey);
+    const language = this.props.languages.find((l) => l.key === languageKey);
 
     if (!language) {
       return null;
@@ -95,7 +95,10 @@ export default class ProfilesList extends React.PureComponent<Props> {
   render() {
     const { profiles, languages, language } = this.props;
 
-    const profilesIndex: Dict<Profile[]> = groupBy<Profile>(profiles, profile => profile.language);
+    const profilesIndex: Dict<Profile[]> = groupBy<Profile>(
+      profiles,
+      (profile) => profile.language
+    );
 
     const profilesToShow = language ? pick(profilesIndex, language) : profilesIndex;
 
@@ -116,7 +119,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
           </Alert>
         )}
 
-        {languagesToShow.map(languageKey =>
+        {languagesToShow.map((languageKey) =>
           this.renderLanguage(languageKey, profilesToShow[languageKey])
         )}
       </div>

@@ -82,7 +82,8 @@ export class HomePageSelect extends React.PureComponent<Props> {
           <span
             aria-label={tooltip}
             className={classNames('display-inline-block', className)}
-            role="img">
+            role="img"
+          >
             <HomeIcon filled={isChecked} />
           </span>
         ) : (
@@ -90,7 +91,8 @@ export class HomePageSelect extends React.PureComponent<Props> {
             aria-label={tooltip}
             className={classNames('link-no-underline', 'set-homepage-link', className)}
             onClick={isChecked ? this.handleReset : this.handleClick}
-            innerRef={node => (this.buttonNode = node)}>
+            innerRef={(node) => (this.buttonNode = node)}
+          >
             <HomeIcon filled={isChecked} />
           </ButtonLink>
         )}

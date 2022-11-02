@@ -20,7 +20,7 @@
 import { Dictionary } from 'lodash';
 import * as React from 'react';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
@@ -40,16 +40,14 @@ export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
   component: Component;
 }
 
-const YamlTemplate: Dictionary<(
-  branchesEnabled?: boolean,
-  mainBranchName?: string,
-  projectKey?: string
-) => string> = {
+const YamlTemplate: Dictionary<
+  (branchesEnabled?: boolean, mainBranchName?: string, projectKey?: string) => string
+> = {
   [BuildTools.Gradle]: gradleExample,
   [BuildTools.Maven]: mavenExample,
   [BuildTools.DotNet]: dotNetExample,
   [BuildTools.CFamily]: cFamilyExample,
-  [BuildTools.Other]: othersExample
+  [BuildTools.Other]: othersExample,
 };
 
 export function AnalysisCommand(props: AnalysisCommandProps) {

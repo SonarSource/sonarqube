@@ -23,7 +23,7 @@ import { Component, LightComponent } from './types';
 
 export enum Visibility {
   Public = 'public',
-  Private = 'private'
+  Private = 'private',
 }
 
 export enum ComponentQualifier {
@@ -34,7 +34,7 @@ export enum ComponentQualifier {
   Portfolio = 'VW',
   Project = 'TRK',
   SubPortfolio = 'SVW',
-  TestFile = 'UTS'
+  TestFile = 'UTS',
 }
 
 export enum ProjectKeyValidationResult {
@@ -42,7 +42,7 @@ export enum ProjectKeyValidationResult {
   Empty = 'empty',
   TooLong = 'too_long',
   InvalidChar = 'invalid_char',
-  OnlyDigits = 'only_digits'
+  OnlyDigits = 'only_digits',
 }
 
 export interface TreeComponent extends LightComponent {
@@ -66,7 +66,7 @@ export function isPortfolioLike(
     componentQualifier &&
       [
         ComponentQualifier.Portfolio.toString(),
-        ComponentQualifier.SubPortfolio.toString()
+        ComponentQualifier.SubPortfolio.toString(),
       ].includes(componentQualifier)
   );
 }
@@ -93,7 +93,7 @@ export function isView(componentQualifier?: string | ComponentQualifier): boolea
   return [
     ComponentQualifier.Portfolio,
     ComponentQualifier.SubPortfolio,
-    ComponentQualifier.Application
+    ComponentQualifier.Application,
   ].includes(componentQualifier as ComponentQualifier);
 }
 

@@ -36,40 +36,40 @@ jest.mock('../../../../api/metrics', () => ({
       key: 'lines_to_cover',
       type: 'INT',
       name: 'Lines to Cover',
-      domain: 'Coverage'
+      domain: 'Coverage',
     },
     {
       id: '2',
       key: 'coverage',
       type: 'PERCENT',
       name: 'Coverage',
-      domain: 'Coverage'
+      domain: 'Coverage',
     },
     {
       id: '3',
       key: 'duplicated_lines_density',
       type: 'PERCENT',
       name: 'Duplicated Lines (%)',
-      domain: 'Duplications'
+      domain: 'Duplications',
     },
     {
       id: '4',
       key: 'new_bugs',
       type: 'INT',
       name: 'New Bugs',
-      domain: 'Reliability'
-    }
-  ])
+      domain: 'Reliability',
+    },
+  ]),
 }));
 
 jest.mock('../../../../api/measures', () => ({
-  getMeasuresWithPeriod: jest.fn()
+  getMeasuresWithPeriod: jest.fn(),
 }));
 
 beforeEach(() => {
   (getMeasuresWithPeriod as jest.Mock).mockResolvedValue({
     component: { measures: [{ metric: 'coverage', value: '80.0' }] },
-    period: { mode: 'previous_version' }
+    period: { mode: 'previous_version' },
   });
 });
 
@@ -82,7 +82,7 @@ it('should render correctly', async () => {
 
 it('should render a measure overview', async () => {
   const wrapper = shallowRender({
-    location: mockLocation({ pathname: '/component_measures', query: { metric: 'Reliability' } })
+    location: mockLocation({ pathname: '/component_measures', query: { metric: 'Reliability' } }),
   });
   expect(wrapper.find('.spinner')).toHaveLength(1);
   await waitAndUpdate(wrapper);
@@ -92,7 +92,7 @@ it('should render a measure overview', async () => {
 it('should render a message when there are no measures', async () => {
   (getMeasuresWithPeriod as jest.Mock).mockResolvedValue({
     component: { measures: [] },
-    period: { mode: 'previous_version' }
+    period: { mode: 'previous_version' },
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -120,8 +120,8 @@ it('should render a warning message when user does not have access to all projec
   const wrapper = shallowRender({
     component: mockComponent({
       qualifier: ComponentQualifier.Portfolio,
-      canBrowseAllChildProjects: false
-    })
+      canBrowseAllChildProjects: false,
+    }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.find(ScreenPositionHelper).dive()).toMatchSnapshot(
@@ -132,7 +132,7 @@ it('should render a warning message when user does not have access to all projec
 it.each([
   [ComponentQualifier.Portfolio, true, false],
   [ComponentQualifier.Project, false, false],
-  [ComponentQualifier.Portfolio, false, true]
+  [ComponentQualifier.Portfolio, false, true],
 ])(
   'should not render a warning message',
   async (
@@ -143,17 +143,11 @@ it.each([
     const wrapper = shallowRender({
       component: mockComponent({
         qualifier: componentQualifier,
-        canBrowseAllChildProjects
-      })
+        canBrowseAllChildProjects,
+      }),
     });
     await waitAndUpdate(wrapper);
-    expect(
-      wrapper
-        .find(ScreenPositionHelper)
-        .dive()
-        .find(Alert)
-        .exists()
-    ).toBe(alertIsVisible);
+    expect(wrapper.find(ScreenPositionHelper).dive().find(Alert).exists()).toBe(alertIsVisible);
   }
 );
 

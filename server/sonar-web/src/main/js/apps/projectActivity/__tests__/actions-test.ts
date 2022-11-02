@@ -29,14 +29,14 @@ const ANALYSES = [
       {
         key: 'E1',
         category: 'VERSION',
-        name: '6.5-SNAPSHOT'
-      }
-    ]
+        name: '6.5-SNAPSHOT',
+      },
+    ],
   },
   {
     key: 'A2',
     date: parseDate('2016-10-27T12:21:15+0200'),
-    events: []
+    events: [],
   },
   {
     key: 'A3',
@@ -45,21 +45,21 @@ const ANALYSES = [
       {
         key: 'E2',
         category: 'OTHER',
-        name: 'foo'
+        name: 'foo',
       },
       {
         key: 'E3',
         category: 'OTHER',
-        name: 'foo'
-      }
-    ]
-  }
+        name: 'foo',
+      },
+    ],
+  },
 ];
 
 const newEvent = {
   key: 'Enew',
   name: 'Foo',
-  category: 'Custom'
+  category: 'Custom',
 };
 
 const emptyState = {
@@ -70,7 +70,7 @@ const emptyState = {
   measuresHistory: [],
   measures: [],
   metrics: [],
-  query: { category: '', graph: DEFAULT_GRAPH, project: '', customMetrics: [] }
+  query: { category: '', graph: DEFAULT_GRAPH, project: '', customMetrics: [] },
 };
 
 const state = { ...emptyState, analyses: ANALYSES };

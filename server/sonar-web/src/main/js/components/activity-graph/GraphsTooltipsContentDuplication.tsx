@@ -31,10 +31,10 @@ export interface GraphsTooltipsContentDuplicationProps {
 export default function GraphsTooltipsContentDuplication({
   addSeparator,
   measuresHistory,
-  tooltipIdx
+  tooltipIdx,
 }: GraphsTooltipsContentDuplicationProps) {
   const duplicationDensity = measuresHistory.find(
-    measure => measure.metric === 'duplicated_lines_density'
+    (measure) => measure.metric === 'duplicated_lines_density'
   );
   if (!duplicationDensity || !duplicationDensity.history[tooltipIdx]) {
     return null;

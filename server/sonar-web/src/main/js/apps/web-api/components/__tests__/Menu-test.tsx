@@ -28,22 +28,22 @@ const ACTION: WebApi.Action = {
   description: 'Foo Desc',
   hasResponseExample: false,
   internal: false,
-  post: false
+  post: false,
 };
 const DOMAIN1: WebApi.Domain = {
   actions: [ACTION],
   path: 'foo',
-  description: 'API Foo'
+  description: 'API Foo',
 };
 const DOMAIN2: WebApi.Domain = {
   actions: [ACTION],
   path: 'bar',
-  description: 'API Bar'
+  description: 'API Bar',
 };
 const PROPS = {
   domains: [DOMAIN1, DOMAIN2],
   query: { search: '', deprecated: false, internal: false },
-  splat: ''
+  splat: '',
 };
 
 const SHOW_DEPRECATED = { search: '', deprecated: true, internal: false };
@@ -55,7 +55,7 @@ it('should render deprecated domains', () => {
   const domain: WebApi.Domain = {
     ...DOMAIN2,
     deprecatedSince: '5.0',
-    actions: [{ ...ACTION, deprecatedSince: '5.0' }]
+    actions: [{ ...ACTION, deprecatedSince: '5.0' }],
   };
   const domains = [DOMAIN1, domain];
   expect(shallow(<Menu {...PROPS} domains={domains} query={SHOW_DEPRECATED} />)).toMatchSnapshot();
@@ -65,7 +65,7 @@ it('should not render deprecated domains', () => {
   const domain: WebApi.Domain = {
     ...DOMAIN2,
     deprecatedSince: '5.0',
-    actions: [{ ...ACTION, deprecatedSince: '5.0' }]
+    actions: [{ ...ACTION, deprecatedSince: '5.0' }],
   };
   const domains = [DOMAIN1, domain];
   expect(shallow(<Menu {...PROPS} domains={domains} />)).toMatchSnapshot();
@@ -75,7 +75,7 @@ it('should render internal domains', () => {
   const domain: WebApi.Domain = {
     ...DOMAIN2,
     internal: true,
-    actions: [{ ...ACTION, internal: true }]
+    actions: [{ ...ACTION, internal: true }],
   };
   const domains = [DOMAIN1, domain];
   expect(shallow(<Menu {...PROPS} domains={domains} query={SHOW_INTERNAL} />)).toMatchSnapshot();
@@ -85,7 +85,7 @@ it('should not render internal domains', () => {
   const domain: WebApi.Domain = {
     ...DOMAIN2,
     internal: true,
-    actions: [{ ...ACTION, internal: true }]
+    actions: [{ ...ACTION, internal: true }],
   };
   const domains = [DOMAIN1, domain];
   expect(shallow(<Menu {...PROPS} domains={domains} />)).toMatchSnapshot();
@@ -94,7 +94,7 @@ it('should not render internal domains', () => {
 it('should render only domains with an action matching the query', () => {
   const domain: WebApi.Domain = {
     ...DOMAIN2,
-    actions: [{ ...ACTION, key: 'bar', description: 'Bar Desc' }]
+    actions: [{ ...ACTION, key: 'bar', description: 'Bar Desc' }],
   };
   const domains = [DOMAIN1, domain];
   expect(shallow(<Menu {...PROPS} domains={domains} query={SEARCH_FOO} />)).toMatchSnapshot();
@@ -105,7 +105,7 @@ it('should also render domains with an actions description matching the query', 
     ...DOMAIN1,
     path: 'baz',
     description: 'API Baz',
-    actions: [{ ...ACTION, key: 'baz', description: 'barbaz' }]
+    actions: [{ ...ACTION, key: 'baz', description: 'barbaz' }],
   };
   const domains = [DOMAIN1, DOMAIN2, domain];
   expect(shallow(<Menu {...PROPS} domains={domains} query={SEARCH_BAR} />)).toMatchSnapshot();

@@ -33,10 +33,7 @@ it('should properly notify that a branch or a pr has been changed/deleted', () =
   const onBranchesChange = jest.fn();
   const wrapper = shallowRender({ onBranchesChange });
 
-  wrapper
-    .find(BranchLikeTabs)
-    .props()
-    .onBranchesChange();
+  wrapper.find(BranchLikeTabs).props().onBranchesChange();
 
   expect(onBranchesChange).toHaveBeenCalled();
 });

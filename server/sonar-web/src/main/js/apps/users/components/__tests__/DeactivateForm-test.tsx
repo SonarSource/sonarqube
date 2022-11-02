@@ -26,7 +26,7 @@ import { UserActive } from '../../../../types/users';
 import DeactivateForm from '../DeactivateForm';
 
 jest.mock('../../../../api/users', () => ({
-  deactivateUser: jest.fn().mockResolvedValue({})
+  deactivateUser: jest.fn().mockResolvedValue({}),
 }));
 
 it('should deactivate user with anonymize set to true', () => {

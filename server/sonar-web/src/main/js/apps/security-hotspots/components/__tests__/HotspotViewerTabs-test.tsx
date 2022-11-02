@@ -32,19 +32,19 @@ const originalRemoveEventListener = window.removeEventListener;
 
 beforeEach(() => {
   Object.defineProperty(window, 'addEventListener', {
-    value: jest.fn()
+    value: jest.fn(),
   });
   Object.defineProperty(window, 'removeEventListener', {
-    value: jest.fn()
+    value: jest.fn(),
   });
 });
 
 afterEach(() => {
   Object.defineProperty(window, 'addEventListener', {
-    value: originalAddEventListener
+    value: originalAddEventListener,
   });
   Object.defineProperty(window, 'removeEventListener', {
-    value: originalRemoveEventListener
+    value: originalRemoveEventListener,
   });
 });
 
@@ -63,9 +63,9 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       hotspot: mockHotspot({
-        creationDate: undefined
+        creationDate: undefined,
       }),
-      ruleDescriptionSections: undefined
+      ruleDescriptionSections: undefined,
     })
       .find<BoxedTabsProps<string>>(BoxedTabs)
       .props().tabs
@@ -82,17 +82,17 @@ it('should render correctly', () => {
             login: 'me',
             markdown: '*test*',
             updatable: false,
-            user: mockUser()
-          }
-        ]
-      })
+            user: mockUser(),
+          },
+        ],
+      }),
     })
   ).toMatchSnapshot('with comments or changelog element');
 });
 
 it('should filter empty tab', () => {
   const count = shallowRender({
-    hotspot: mockHotspot()
+    hotspot: mockHotspot(),
   }).state().tabs.length;
 
   expect(
@@ -100,13 +100,13 @@ it('should filter empty tab', () => {
       ruleDescriptionSections: [
         {
           key: RuleDescriptionSections.ROOT_CAUSE,
-          content: 'cause'
+          content: 'cause',
         },
         {
           key: RuleDescriptionSections.HOW_TO_FIX,
-          content: 'how'
-        }
-      ]
+          content: 'how',
+        },
+      ],
     }).state().tabs.length
   ).toBe(count - 1);
 });
@@ -143,7 +143,7 @@ describe('keyboard navigation', () => {
     TabKeys.Code,
     TabKeys.RiskDescription,
     TabKeys.VulnerabilityDescription,
-    TabKeys.FixRecommendation
+    TabKeys.FixRecommendation,
   ];
   const wrapper = shallowRender();
 
@@ -151,7 +151,7 @@ describe('keyboard navigation', () => {
     ['selecting next', 0, KeyboardKeys.RightArrow, 1],
     ['selecting previous', 1, KeyboardKeys.LeftArrow, 0],
     ['selecting previous, non-existent', 0, KeyboardKeys.LeftArrow, 0],
-    ['selecting next, non-existent', 3, KeyboardKeys.RightArrow, 3]
+    ['selecting next, non-existent', 3, KeyboardKeys.RightArrow, 3],
   ])('should work when %s', (_, start, key, expected) => {
     wrapper.setState({ currentTab: wrapper.state().tabs[start] });
     wrapper.instance().handleKeyboardNavigation(mockEvent({ key }));
@@ -193,16 +193,16 @@ function shallowRender(props?: Partial<HotspotViewerTabs['props']>) {
       ruleDescriptionSections={[
         {
           key: RuleDescriptionSections.ASSESS_THE_PROBLEM,
-          content: 'assess'
+          content: 'assess',
         },
         {
           key: RuleDescriptionSections.ROOT_CAUSE,
-          content: 'cause'
+          content: 'cause',
         },
         {
           key: RuleDescriptionSections.HOW_TO_FIX,
-          content: 'how'
-        }
+          content: 'how',
+        },
       ]}
       {...props}
     />

@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import CreateJenkinsfileBulletPoint, {
-  CreateJenkinsfileBulletPointProps
+  CreateJenkinsfileBulletPointProps,
 } from '../CreateJenkinsfileBulletPoint';
 
 it('should render correctly', () => {

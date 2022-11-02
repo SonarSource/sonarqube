@@ -48,7 +48,8 @@ export default class ProjectActivityDateInput extends React.PureComponent<Props>
         <Button
           className="spacer-left"
           disabled={this.props.from === undefined && this.props.to === undefined}
-          onClick={this.handleResetClick}>
+          onClick={this.handleResetClick}
+        >
           {translate('project_activity.reset_dates')}
         </Button>
       </div>

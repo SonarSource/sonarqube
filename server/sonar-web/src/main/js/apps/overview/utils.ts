@@ -77,7 +77,7 @@ export const METRICS: string[] = [
   MetricKey.ncloc_language_distribution,
   MetricKey.projects,
   MetricKey.lines,
-  MetricKey.new_lines
+  MetricKey.new_lines,
 ];
 
 export const PR_METRICS: string[] = [
@@ -95,7 +95,7 @@ export const PR_METRICS: string[] = [
   MetricKey.new_vulnerabilities,
   MetricKey.new_security_hotspots,
   MetricKey.new_security_review_rating,
-  MetricKey.new_security_rating
+  MetricKey.new_security_rating,
 ];
 
 export const HISTORY_METRICS_LIST: string[] = [
@@ -104,12 +104,12 @@ export const HISTORY_METRICS_LIST: string[] = [
   MetricKey.sqale_index,
   MetricKey.duplicated_lines_density,
   MetricKey.ncloc,
-  MetricKey.coverage
+  MetricKey.coverage,
 ];
 
 export enum MeasurementType {
   Coverage = 'COVERAGE',
-  Duplication = 'DUPLICATION'
+  Duplication = 'DUPLICATION',
 }
 
 const MEASUREMENTS_MAP = {
@@ -122,7 +122,7 @@ const MEASUREMENTS_MAP = {
     labelKey: 'metric.coverage.name',
     expandedLabelKey: 'overview.coverage_on_X_lines',
     newLinesExpandedLabelKey: 'overview.coverage_on_X_new_lines',
-    iconClass: CoverageRating
+    iconClass: CoverageRating,
   },
   [MeasurementType.Duplication]: {
     metric: MetricKey.duplicated_lines_density,
@@ -133,8 +133,8 @@ const MEASUREMENTS_MAP = {
     labelKey: 'metric.duplicated_lines_density.short_name',
     expandedLabelKey: 'overview.duplications_on_X_lines',
     newLinesExpandedLabelKey: 'overview.duplications_on_X_new_lines',
-    iconClass: DuplicationsRating
-  }
+    iconClass: DuplicationsRating,
+  },
 };
 
 export function getIssueRatingName(type: IssueType) {
@@ -178,12 +178,12 @@ export function getMeasurementLabelKeys(type: MeasurementType, useDiffMetric: bo
     expandedLabelKey: useDiffMetric
       ? MEASUREMENTS_MAP[type].newLinesExpandedLabelKey
       : MEASUREMENTS_MAP[type].expandedLabelKey,
-    labelKey: MEASUREMENTS_MAP[type].labelKey
+    labelKey: MEASUREMENTS_MAP[type].labelKey,
   };
 }
 
 export const parseQuery = memoize((urlQuery: RawQuery): { codeScope: string } => {
   return {
-    codeScope: parseAsString(urlQuery['code_scope'])
+    codeScope: parseAsString(urlQuery['code_scope']),
   };
 });

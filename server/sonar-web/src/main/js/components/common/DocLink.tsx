@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import withAppStateContext, {
-  WithAppStateContextProps
+  WithAppStateContextProps,
 } from '../../app/components/app-state/withAppStateContext';
 import { getUrlForDoc } from '../../helpers/docs';
 import Link, { LinkProps } from './Link';

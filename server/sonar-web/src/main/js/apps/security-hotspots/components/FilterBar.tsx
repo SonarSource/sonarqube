@@ -47,25 +47,25 @@ const statusOptions: Array<{ label: string; value: HotspotStatusFilter }> = [
   { value: HotspotStatusFilter.TO_REVIEW, label: translate('hotspot.filters.status.to_review') },
   {
     value: HotspotStatusFilter.ACKNOWLEDGED,
-    label: translate('hotspot.filters.status.acknowledged')
+    label: translate('hotspot.filters.status.acknowledged'),
   },
   { value: HotspotStatusFilter.FIXED, label: translate('hotspot.filters.status.fixed') },
-  { value: HotspotStatusFilter.SAFE, label: translate('hotspot.filters.status.safe') }
+  { value: HotspotStatusFilter.SAFE, label: translate('hotspot.filters.status.safe') },
 ];
 
 const periodOptions = [
   { value: true, label: translate('hotspot.filters.period.since_leak_period') },
-  { value: false, label: translate('hotspot.filters.period.overall') }
+  { value: false, label: translate('hotspot.filters.period.overall') },
 ];
 
 export enum AssigneeFilterOption {
   ALL = 'all',
-  ME = 'me'
+  ME = 'me',
 }
 
 const assigneeFilterOptions = [
   { value: AssigneeFilterOption.ME, label: translate('hotspot.filters.assignee.assigned_to_me') },
-  { value: AssigneeFilterOption.ALL, label: translate('hotspot.filters.assignee.all') }
+  { value: AssigneeFilterOption.ALL, label: translate('hotspot.filters.assignee.all') },
 ];
 
 export function FilterBar(props: FilterBarProps) {
@@ -76,7 +76,7 @@ export function FilterBar(props: FilterBarProps) {
     hotspotsReviewedMeasure,
     isStaticListOfHotspots,
     loadingMeasure,
-    onBranch
+    onBranch,
   } = props;
   const isProject = component.qualifier === ComponentQualifier.Project;
 
@@ -89,7 +89,8 @@ export function FilterBar(props: FilterBarProps) {
               id="show_all_hotspot"
               onClick={() => props.onShowAllHotspots()}
               role="link"
-              tabIndex={0}>
+              tabIndex={0}
+            >
               {translate('hotspot.filters.show_all')}
             </a>
           ) : (
@@ -120,7 +121,7 @@ export function FilterBar(props: FilterBarProps) {
                   }
                   options={statusOptions}
                   isSearchable={false}
-                  value={statusOptions.find(status => status.value === filters.status)}
+                  value={statusOptions.find((status) => status.value === filters.status)}
                 />
 
                 {onBranch && (
@@ -132,7 +133,7 @@ export function FilterBar(props: FilterBarProps) {
                     }
                     options={periodOptions}
                     isSearchable={false}
-                    value={periodOptions.find(period => period.value === filters.inNewCodePeriod)}
+                    value={periodOptions.find((period) => period.value === filters.inNewCodePeriod)}
                   />
                 )}
               </div>

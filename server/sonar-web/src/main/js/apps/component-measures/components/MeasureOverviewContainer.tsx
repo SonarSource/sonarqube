@@ -30,7 +30,7 @@ import {
   Dict,
   Issue,
   Metric,
-  Period
+  Period,
 } from '../../../types/types';
 import { Query } from '../utils';
 import MeasureOverview from './MeasureOverview';
@@ -62,7 +62,7 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
   mounted = false;
 
   state: State = {
-    loading: { bubbles: false, component: false }
+    loading: { bubbles: false, component: false },
   };
 
   componentDidMount() {
@@ -107,7 +107,7 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
 
   updateLoading = (loading: Partial<LoadingState>) => {
     if (this.mounted) {
-      this.setState(state => ({ loading: { ...state.loading, ...loading } }));
+      this.setState((state) => ({ loading: { ...state.loading, ...loading } }));
     }
   };
 
@@ -116,7 +116,7 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
       this.props.router.push(getProjectUrl(component.refKey || component.key, component.branch));
     } else {
       this.props.updateQuery({
-        selected: component.key !== this.props.rootComponent.key ? component.key : undefined
+        selected: component.key !== this.props.rootComponent.key ? component.key : undefined,
       });
     }
   };

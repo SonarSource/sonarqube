@@ -62,10 +62,10 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
 
   static defaultProps: DefaultProps = {
     filterSelected: (query: string, selectedElements: string[]) =>
-      selectedElements.filter(elem => elem.includes(query)),
+      selectedElements.filter((elem) => elem.includes(query)),
     listSize: 0,
     renderLabel: (element: string) => element,
-    validateSearchInput: (value: string) => value
+    validateSearchInput: (value: string) => value,
   };
 
   constructor(props: PropsWithDefault) {
@@ -73,7 +73,7 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
     this.state = {
       loading: false,
       query: '',
-      elements: []
+      elements: [],
     };
   }
 
@@ -113,11 +113,11 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
       const newStateElement: Element[] = [
         ...this.props
           .filterSelected(query, this.props.selectedElements)
-          .map(e => ({ value: e, selected: true })),
-        ...this.props.elements.map(e => ({
+          .map((e) => ({ value: e, selected: true })),
+        ...this.props.elements.map((e) => ({
           value: e,
-          selected: false
-        }))
+          selected: false,
+        })),
       ];
 
       this.appendCreateElelement(newStateElement, query, props);
@@ -128,20 +128,22 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
   appendCreateElelement(elements: Element[], query: string, props: PropsWithDefault) {
     const { allowNewElements = true } = props;
     if (this.isNewElement(query, props) && allowNewElements) {
-      const create = elements.find(e => e.custom);
+      const create = elements.find((e) => e.custom);
       if (create) {
         create.value = query;
       } else {
         elements.push({ value: query, selected: false, custom: true });
       }
     } else if (!this.isNewElement(query, props) && allowNewElements) {
-      remove(elements, e => e.custom);
+      remove(elements, (e) => e.custom);
     }
   }
 
   handleSelectChange = (selected: boolean, item: string) => {
     this.setState(({ elements }) => {
-      const newElements = elements.map(e => (e.value === item ? { value: e.value, selected } : e));
+      const newElements = elements.map((e) =>
+        e.value === item ? { value: e.value, selected } : e
+      );
       return { elements: newElements };
     });
     if (selected) {
@@ -162,7 +164,7 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
     if (allowNewElements) {
       this.setState({
         loading: true,
-        query
+        query,
       });
     }
   };
@@ -194,7 +196,7 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
       'menu-vertically-limited': infiniteList,
       'spacer-top': infiniteList,
       'with-top-separator': infiniteList,
-      'with-bottom-separator': Boolean(footerNode)
+      'with-bottom-separator': Boolean(footerNode),
     });
 
     return (
@@ -211,7 +213,7 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
         </div>
         <fieldset aria-label={legend}>
           <ul className={listClasses}>
-            {elements.map(e => (
+            {elements.map((e) => (
               <MultiSelectOption
                 element={e}
                 disabled={!allowSelection && !e.selected}

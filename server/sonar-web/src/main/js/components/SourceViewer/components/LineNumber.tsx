@@ -42,12 +42,14 @@ export function LineNumber({ displayOptions, firstLineNumber, line }: LineNumber
           closeOnClickOutside={true}
           onRequestClose={() => setOpen(false)}
           open={isOpen}
-          overlay={<LineOptionsPopup firstLineNumber={firstLineNumber} line={line} />}>
+          overlay={<LineOptionsPopup firstLineNumber={firstLineNumber} line={line} />}
+        >
           <ButtonPlain
             aria-expanded={isOpen}
             aria-haspopup={true}
             aria-label={translateWithParameters('source_viewer.line_X', lineNumber)}
-            onClick={() => setOpen(true)}>
+            onClick={() => setOpen(true)}
+          >
             {lineNumber}
           </ButtonPlain>
         </Toggler>

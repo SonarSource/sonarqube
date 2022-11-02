@@ -22,7 +22,7 @@ import * as React from 'react';
 import RuleDetailsTagsPopup, { Props } from '../RuleDetailsTagsPopup';
 
 jest.mock('../../../../api/rules', () => ({
-  getRuleTags: jest.fn(() => Promise.resolve(['system', 'foo', 'bar', 'not-system']))
+  getRuleTags: jest.fn(() => Promise.resolve(['system', 'foo', 'bar', 'not-system'])),
 }));
 
 const getRuleTags = require('../../../../api/rules').getRuleTags as jest.Mock<any>;

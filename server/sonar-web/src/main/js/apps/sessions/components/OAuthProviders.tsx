@@ -38,7 +38,7 @@ export default function OAuthProviders(props: Props) {
   const formatFunction = props.formatLabel || defaultFormatLabel;
   return (
     <Container className={classNames('oauth-providers', props.className)}>
-      {props.identityProviders.map(identityProvider => (
+      {props.identityProviders.map((identityProvider) => (
         <OAuthProvider
           format={formatFunction}
           identityProvider={identityProvider}
@@ -66,7 +66,8 @@ function OAuthProvider({ format, identityProvider, returnTo }: ItemProps) {
         url={
           `${getBaseUrl()}/sessions/init/${identityProvider.key}` +
           `?return_to=${encodeURIComponent(returnTo)}`
-        }>
+        }
+      >
         <span>{format(identityProvider.name)}</span>
       </IdentityProviderLink>
       {identityProvider.helpMessage && (

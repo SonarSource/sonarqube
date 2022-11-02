@@ -49,12 +49,14 @@ export default class ValidationModal<V extends FormikValues> extends React.PureC
         contentLabel={this.props.header}
         noBackdrop={this.props.noBackdrop}
         onRequestClose={this.props.onClose}
-        size={this.props.size}>
+        size={this.props.size}
+      >
         <ValidationForm
           initialValues={this.props.initialValues}
           onSubmit={this.handleSubmit}
-          validate={this.props.validate}>
-          {props => (
+          validate={this.props.validate}
+        >
+          {(props) => (
             <>
               <header className="modal-head">
                 <h2>{this.props.header}</h2>
@@ -66,7 +68,8 @@ export default class ValidationModal<V extends FormikValues> extends React.PureC
                 <DeferredSpinner className="spacer-right" loading={props.isSubmitting} />
                 <SubmitButton
                   className={this.props.isDestructive ? 'button-red' : undefined}
-                  disabled={props.isSubmitting || !props.isValid || !props.dirty}>
+                  disabled={props.isSubmitting || !props.isValid || !props.dirty}
+                >
                   {this.props.confirmButtonText}
                 </SubmitButton>
                 <ResetButtonLink disabled={props.isSubmitting} onClick={this.props.onClose}>

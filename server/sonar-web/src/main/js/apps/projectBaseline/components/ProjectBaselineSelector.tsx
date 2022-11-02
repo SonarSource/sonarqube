@@ -96,7 +96,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
     overrideGeneralSetting,
     referenceBranch,
     saving,
-    selected
+    selected,
   } = props;
 
   const { isChanged, isValid } = validateSetting({
@@ -106,7 +106,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
     days,
     overrideGeneralSetting,
     referenceBranch,
-    selected
+    selected,
   });
 
   return (
@@ -116,7 +116,8 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
           checked={!overrideGeneralSetting}
           className="big-spacer-bottom"
           onCheck={() => props.onToggleSpecificSetting(false)}
-          value="general">
+          value="general"
+        >
           {translate('project_baseline.general_setting')}
         </Radio>
         <div className="big-spacer-left">{renderGeneralSetting(generalSetting)}</div>
@@ -125,7 +126,8 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
           checked={overrideGeneralSetting}
           className="huge-spacer-top"
           onCheck={() => props.onToggleSpecificSetting(true)}
-          value="specific">
+          value="specific"
+        >
           {translate('project_baseline.specific_setting')}
         </Radio>
       </div>

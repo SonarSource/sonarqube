@@ -28,7 +28,7 @@ jest.mock('react', () => {
     ...jest.requireActual('react'),
     useContext: jest
       .fn()
-      .mockImplementation(() => ({ externalRulesRepoNames: {}, openRule: jest.fn() }))
+      .mockImplementation(() => ({ externalRulesRepoNames: {}, openRule: jest.fn() })),
   };
 });
 
@@ -49,7 +49,7 @@ it('should open why is this an issue workspace', () => {
   const openRule = jest.fn();
   (React.useContext as jest.Mock).mockImplementationOnce(() => ({
     externalRulesRepoNames: {},
-    openRule
+    openRule,
   }));
   const wrapper = shallowRender();
   wrapper.find(ButtonLink).simulate('click');

@@ -69,20 +69,12 @@ function expectButtonDisabled(
   button: React.ComponentType<{ disabled?: boolean }>
 ) {
   // eslint-disable-next-line jest/valid-expect
-  return expect(
-    getForm(wrapper)
-      .find(button)
-      .props().disabled
-  );
+  return expect(getForm(wrapper).find(button).props().disabled);
 }
 
 function expectProjectKeyInputValue(wrapper: ShallowWrapper) {
   // eslint-disable-next-line jest/valid-expect
-  return expect(
-    getForm(wrapper)
-      .find(ProjectKeyInput)
-      .props().projectKey
-  );
+  return expect(getForm(wrapper).find(ProjectKeyInput).props().projectKey);
 }
 
 function changeInput(wrapper: ShallowWrapper, value: string) {

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
@@ -72,7 +72,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
                           copyValue={translate('onboarding.tutorial.with.gitlab_ci.yml.filename')}
                         />
                       </>
-                    )
+                    ),
                   }}
                 />
               </div>

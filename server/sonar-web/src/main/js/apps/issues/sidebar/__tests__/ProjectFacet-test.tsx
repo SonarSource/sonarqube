@@ -32,8 +32,8 @@ jest.mock('../../../../api/components', () => ({
   searchProjects: jest.fn().mockResolvedValue({
     components: [],
     facets: [],
-    paging: {}
-  })
+    paging: {},
+  }),
 }));
 
 beforeEach(() => jest.clearAllMocks());
@@ -47,7 +47,7 @@ it('should callback to load search results', () => {
   const wrapper = shallowRender({ loadSearchResultCount });
   wrapper.instance().loadSearchResultCount([
     { key: '1', name: 'first' },
-    { key: '2', name: 'seecond' }
+    { key: '2', name: 'seecond' },
   ]);
 
   expect(loadSearchResultCount).toHaveBeenCalledWith('projects', { projects: ['1', '2'] });
@@ -65,7 +65,7 @@ it('should handle search for projects globally', async () => {
 
 it('should handle search for projects in portfolio', async () => {
   const wrapper = shallowRender({
-    component: mockComponent({ qualifier: ComponentQualifier.Portfolio })
+    component: mockComponent({ qualifier: ComponentQualifier.Portfolio }),
   });
   const query = 'my project';
 
@@ -78,9 +78,9 @@ it('should handle search for projects in portfolio', async () => {
 describe("ListStyleFacet's renderers", () => {
   const components: ReferencedComponent[] = [
     { key: 'projectKey', name: 'First Project Name', uuid: '141324' },
-    { key: 'projectKey2', name: 'Second Project Name', uuid: '643878' }
+    { key: 'projectKey2', name: 'Second Project Name', uuid: '643878' },
   ];
-  const referencedComponents = keyBy(components, c => c.key);
+  const referencedComponents = keyBy(components, (c) => c.key);
   const wrapper = shallowRender({ referencedComponents });
   const instance = wrapper.instance();
 

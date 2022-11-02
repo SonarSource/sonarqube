@@ -53,7 +53,7 @@ export function withNotifications<P>(
       globalTypes: [],
       loading: true,
       notifications: [],
-      perProjectTypes: []
+      perProjectTypes: [],
     };
 
     componentDidMount() {
@@ -67,14 +67,14 @@ export function withNotifications<P>(
 
     fetchNotifications = () => {
       getNotifications().then(
-        response => {
+        (response) => {
           if (this.mounted) {
             this.setState({
               channels: response.channels,
               globalTypes: response.globalTypes,
               loading: false,
               notifications: response.notifications,
-              perProjectTypes: response.perProjectTypes
+              perProjectTypes: response.perProjectTypes,
             });
           }
         },
@@ -87,16 +87,16 @@ export function withNotifications<P>(
     };
 
     addNotificationToState = (added: Notification) => {
-      this.setState(state => {
+      this.setState((state) => {
         const notifications = uniqWith([...state.notifications, added], this.areNotificationsEqual);
         return { notifications };
       });
     };
 
     removeNotificationFromState = (removed: Notification) => {
-      this.setState(state => {
+      this.setState((state) => {
         const notifications = state.notifications.filter(
-          notification => !this.areNotificationsEqual(notification, removed)
+          (notification) => !this.areNotificationsEqual(notification, removed)
         );
         return { notifications };
       });

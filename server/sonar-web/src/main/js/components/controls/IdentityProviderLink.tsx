@@ -42,7 +42,7 @@ export default function IdentityProviderLink({
   name,
   onClick,
   small,
-  url
+  url,
 }: Props) {
   const size = small ? 14 : 20;
 
@@ -55,7 +55,8 @@ export default function IdentityProviderLink({
       )}
       href={url}
       onClick={onClick}
-      style={{ backgroundColor }}>
+      style={{ backgroundColor }}
+    >
       <img alt={name} height={size} src={getBaseUrl() + iconPath} width={size} />
       {children}
     </a>

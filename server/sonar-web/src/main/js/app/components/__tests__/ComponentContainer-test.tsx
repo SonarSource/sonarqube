@@ -51,35 +51,35 @@ jest.mock('../../../api/branches', () => {
       .fn()
       .mockResolvedValue([
         mockPullRequest({ key: 'pr-89', status: { qualityGateStatus: 'ERROR' } }),
-        mockPullRequest({ key: 'pr-90', title: 'PR Feature 2' })
-      ])
+        mockPullRequest({ key: 'pr-90', title: 'PR Feature 2' }),
+      ]),
   };
 });
 
 jest.mock('../../../api/ce', () => ({
   getAnalysisStatus: jest.fn().mockResolvedValue({ component: { warnings: [] } }),
-  getTasksForComponent: jest.fn().mockResolvedValue({ queue: [] })
+  getTasksForComponent: jest.fn().mockResolvedValue({ queue: [] }),
 }));
 
 jest.mock('../../../api/components', () => ({
-  getComponentData: jest.fn().mockResolvedValue({ component: { analysisDate: '2018-07-30' } })
+  getComponentData: jest.fn().mockResolvedValue({ component: { analysisDate: '2018-07-30' } }),
 }));
 
 jest.mock('../../../api/navigation', () => ({
   getComponentNavigation: jest.fn().mockResolvedValue({
     breadcrumbs: [{ key: 'portfolioKey', name: 'portfolio', qualifier: 'VW' }],
-    key: 'portfolioKey'
-  })
+    key: 'portfolioKey',
+  }),
 }));
 
 jest.mock('../../../api/alm-settings', () => ({
   getProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
-  validateProjectAlmBinding: jest.fn().mockResolvedValue(undefined)
+  validateProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('../../utils/handleRequiredAuthorization', () => ({
   __esModule: true,
-  default: jest.fn()
+  default: jest.fn(),
 }));
 
 const Inner = () => <div />;
@@ -99,7 +99,7 @@ it('changes component', () => {
   wrapper.setState({
     branchLikes: [mockMainBranch()],
     component: { qualifier: 'TRK', visibility: 'public' } as Component,
-    loading: false
+    loading: false,
   });
 
   wrapper.instance().handleComponentChange({ visibility: 'private' });
@@ -108,7 +108,7 @@ it('changes component', () => {
 
 it('loads the project binding, if any', async () => {
   const component = mockComponent({
-    breadcrumbs: [{ key: 'foo', name: 'foo', qualifier: ComponentQualifier.Project }]
+    breadcrumbs: [{ key: 'foo', name: 'foo', qualifier: ComponentQualifier.Project }],
   });
   (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
   (getComponentData as jest.Mock<any>)
@@ -116,7 +116,7 @@ it('loads the project binding, if any', async () => {
     .mockResolvedValueOnce({ component });
   (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce(undefined).mockResolvedValueOnce({
     alm: AlmKeys.GitHub,
-    key: 'foo'
+    key: 'foo',
   });
 
   const wrapper = shallowRender();
@@ -137,7 +137,7 @@ it("doesn't load branches portfolio", async () => {
   expect(getComponentData).toHaveBeenCalledWith({ component: 'portfolioKey', branch: undefined });
   expect(getComponentNavigation).toHaveBeenCalledWith({
     component: 'portfolioKey',
-    branch: undefined
+    branch: undefined,
   });
 });
 
@@ -146,14 +146,14 @@ it('updates branches on change', async () => {
   const wrapper = shallowRender({
     hasFeature: () => true,
     location: mockLocation({ query: { id: 'portfolioKey' } }),
-    updateBranchStatus
+    updateBranchStatus,
   });
   wrapper.setState({
     branchLikes: [mockMainBranch()],
     component: mockComponent({
-      breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: 'TRK' }]
+      breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: 'TRK' }],
     }),
-    loading: false
+    loading: false,
   });
   wrapper.instance().handleBranchesChange();
   expect(getBranches).toHaveBeenCalledWith('projectKey');
@@ -164,7 +164,7 @@ it('updates branches on change', async () => {
 
 it('fetches status', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
-    component: {}
+    component: {},
   });
 
   const wrapper = shallowRender();
@@ -200,17 +200,17 @@ it('filters correctly the pending tasks for a main branch', () => {
   expect(component.getCurrentTask(currentTask, pullRequest)).toMatchObject(currentTask);
   expect(component.getPendingTasksForBranchLike(pendingTasks, mainBranch)).toMatchObject([{}]);
   expect(component.getPendingTasksForBranchLike(pendingTasks, pullRequest)).toMatchObject([
-    currentTask
+    currentTask,
   ]);
 });
 
 it('reload component after task progress finished', async () => {
   (getTasksForComponent as jest.Mock<any>)
     .mockResolvedValueOnce({
-      queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.ViewRefresh }]
+      queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.ViewRefresh }],
     })
     .mockResolvedValueOnce({
-      queue: []
+      queue: [],
     });
   const wrapper = shallowRender();
 
@@ -245,13 +245,13 @@ it('reload component after task progress finished', async () => {
 
 it('reloads component after task progress finished, and moves straight to current', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
-    component: { key: 'bar' }
+    component: { key: 'bar' },
   });
   (getTasksForComponent as jest.Mock<any>)
     .mockResolvedValueOnce({ queue: [] })
     .mockResolvedValueOnce({
       queue: [],
-      current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh }
+      current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh },
     });
   const wrapper = shallowRender();
 
@@ -279,11 +279,11 @@ it('reloads component after task progress finished, and moves straight to curren
 
 it('only fully loads a non-empty component once', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
-    component: { key: 'bar', analysisDate: '2019-01-01' }
+    component: { key: 'bar', analysisDate: '2019-01-01' },
   });
   (getTasksForComponent as jest.Mock<any>).mockResolvedValueOnce({
     queue: [],
-    current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.Report }
+    current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.Report },
   });
   const wrapper = shallowRender();
 
@@ -294,15 +294,15 @@ it('only fully loads a non-empty component once', async () => {
 
 it('only fully reloads a non-empty component if there was previously some task in progress', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
-    component: { key: 'bar', analysisDate: '2019-01-01' }
+    component: { key: 'bar', analysisDate: '2019-01-01' },
   });
   (getTasksForComponent as jest.Mock<any>)
     .mockResolvedValueOnce({
-      queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.AppRefresh }]
+      queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.AppRefresh }],
     })
     .mockResolvedValueOnce({
       queue: [],
-      current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh }
+      current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh },
     });
   const wrapper = shallowRender();
 
@@ -347,14 +347,14 @@ it('should redirect if the user has no access', async () => {
 it('should redirect if the component is a portfolio', async () => {
   const componentKey = 'comp-key';
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
-    component: { key: componentKey, breadcrumbs: [{ qualifier: ComponentQualifier.Portfolio }] }
+    component: { key: componentKey, breadcrumbs: [{ qualifier: ComponentQualifier.Portfolio }] },
   });
 
   const replace = jest.fn();
 
   const wrapper = shallowRender({
     location: mockLocation({ pathname: '/dashboard' }),
-    router: mockRouter({ replace })
+    router: mockRouter({ replace }),
   });
   await waitAndUpdate(wrapper);
   expect(replace).toHaveBeenCalledWith({ pathname: '/portfolio', search: `?id=${componentKey}` });
@@ -362,7 +362,7 @@ it('should redirect if the component is a portfolio', async () => {
 
 it('should display display the unavailable page if the component needs issue sync', async () => {
   (getComponentData as jest.Mock).mockResolvedValueOnce({
-    component: { key: 'test', qualifier: ComponentQualifier.Project, needIssueSync: true }
+    component: { key: 'test', qualifier: ComponentQualifier.Project, needIssueSync: true },
   });
 
   const wrapper = shallowRender();
@@ -375,8 +375,8 @@ it('should display display the unavailable page if the component needs issue syn
 it('should correctly reload last task warnings if anything got dismissed', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
     component: mockComponent({
-      breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }]
-    })
+      breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }],
+    }),
   });
   (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
 
@@ -390,14 +390,14 @@ it('should correctly reload last task warnings if anything got dismissed', async
 
 describe('should correctly validate the project binding depending on the context', () => {
   const COMPONENT = mockComponent({
-    breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }]
+    breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }],
   });
   const PROJECT_BINDING_ERRORS = mockProjectAlmBindingConfigurationErrors();
 
   it.each([
     ["has an analysis; won't perform any check", { ...COMPONENT, analysisDate: '2020-01' }],
     ['has a project binding; check is OK', COMPONENT, undefined, 1],
-    ['has a project binding; check is not OK', COMPONENT, PROJECT_BINDING_ERRORS, 1]
+    ['has a project binding; check is not OK', COMPONENT, PROJECT_BINDING_ERRORS, 1],
   ])('%s', async (_, component, projectBindingErrors = undefined, n = 0) => {
     (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
     (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ component });
@@ -417,12 +417,12 @@ describe('should correctly validate the project binding depending on the context
 it.each([
   [ComponentQualifier.Application],
   [ComponentQualifier.Portfolio],
-  [ComponentQualifier.SubPortfolio]
+  [ComponentQualifier.SubPortfolio],
 ])(
   'should not care about PR decoration settings for %s',
   async (componentQualifier: ComponentQualifier) => {
     const component = mockComponent({
-      breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: componentQualifier }]
+      breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: componentQualifier }],
     });
     (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
     (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ component });
@@ -442,7 +442,8 @@ function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
       location={mockLocation({ query: { id: 'foo' } })}
       updateBranchStatus={jest.fn()}
       router={mockRouter()}
-      {...props}>
+      {...props}
+    >
       <Inner />
     </ComponentContainer>
   );

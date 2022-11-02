@@ -80,7 +80,8 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                       onRename={this.handleActionRefresh}
                       qualityGate={qualityGate}
                     />
-                  )}>
+                  )}
+                >
                   {({ onClick }) => (
                     <Button id="quality-gate-rename" onClick={onClick}>
                       {translate('rename')}
@@ -96,7 +97,8 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                       onCopy={this.handleActionRefresh}
                       qualityGate={qualityGate}
                     />
-                  )}>
+                  )}
+                >
                   {({ onClick }) => (
                     <Button className="little-spacer-left" id="quality-gate-copy" onClick={onClick}>
                       {translate('copy')}
@@ -110,12 +112,14 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                     hasNoConditions
                       ? translate('quality_gates.cannot_set_default_no_conditions')
                       : null
-                  }>
+                  }
+                >
                   <Button
                     className="little-spacer-left"
                     disabled={hasNoConditions}
                     id="quality-gate-toggle-default"
-                    onClick={this.handleSetAsDefaultClick}>
+                    onClick={this.handleSetAsDefaultClick}
+                  >
                     {translate('set_as_default')}
                   </Button>
                 </Tooltip>

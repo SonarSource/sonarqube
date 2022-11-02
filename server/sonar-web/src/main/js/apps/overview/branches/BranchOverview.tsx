@@ -27,19 +27,19 @@ import { getAllTimeMachineData } from '../../../api/time-machine';
 import {
   getActivityGraph,
   getHistoryMetrics,
-  saveActivityGraph
+  saveActivityGraph,
 } from '../../../components/activity-graph/utils';
 import {
   getBranchLikeDisplayName,
   getBranchLikeQuery,
   isMainBranch,
-  isSameBranchLike
+  isSameBranchLike,
 } from '../../../helpers/branch-like';
 import { parseDate, toNotSoISOString } from '../../../helpers/dates';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import {
   extractStatusConditionsFromApplicationStatusChildProject,
-  extractStatusConditionsFromProjectStatus
+  extractStatusConditionsFromProjectStatus,
 } from '../../../helpers/qualityGates';
 import { isDefined } from '../../../helpers/types';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
@@ -127,12 +127,13 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     // data for the application as a whole.
     const appStatus = await getApplicationQualityGate({
       application: component.key,
-      ...getBranchLikeQuery(branch)
+      ...getBranchLikeQuery(branch),
     });
-    const { measures: appMeasures, metrics, period } = await this.loadMeasuresAndMeta(
-      component.key,
-      branch
-    );
+    const {
+      measures: appMeasures,
+      metrics,
+      period,
+    } = await this.loadMeasuresAndMeta(component.key, branch);
 
     const appBranchName =
       (branch && !isMainBranch(branch) && getBranchLikeDisplayName(branch)) || undefined;
@@ -141,13 +142,13 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
 
     // We also need to load the application leak periods separately.
     getApplicationLeak(component.key, appBranchName).then(
-      leaks => {
+      (leaks) => {
         if (this.mounted && leaks && leaks.length) {
-          const sortedLeaks = sortBy(leaks, leak => {
+          const sortedLeaks = sortBy(leaks, (leak) => {
             return new Date(leak.date);
           });
           this.setState({
-            appLeak: sortedLeaks[0]
+            appLeak: sortedLeaks[0],
           });
         }
       },
@@ -163,8 +164,8 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     // them at the parent application level will not get all the necessary
     // information, unfortunately, as they are aggregated.
     Promise.all(
-      appStatus.projects.map(project => {
-        const projectDetails = appDetails.projects.find(p => p.key === project.key);
+      appStatus.projects.map((project) => {
+        const projectDetails = appDetails.projects.find((p) => p.key === project.key);
         const projectBranchLike = projectDetails
           ? { isMain: projectDetails.isMain, name: projectDetails.branch, excludedFromPurge: false }
           : undefined;
@@ -174,15 +175,15 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
           projectBranchLike,
           // Only load metrics that apply to failing QG conditions; we don't
           // need the others anyway.
-          project.conditions.filter(c => c.status !== 'OK').map(c => c.metric)
+          project.conditions.filter((c) => c.status !== 'OK').map((c) => c.metric)
         ).then(({ measures }) => ({
           measures,
           project,
-          projectBranchLike
+          projectBranchLike,
         }));
       })
     ).then(
-      results => {
+      (results) => {
         if (this.mounted) {
           const qgStatuses = results.map(({ measures = [], project, projectBranchLike }) => {
             const { key, name, status } = project;
@@ -194,7 +195,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
               key,
               name,
               status,
-              branchLike: projectBranchLike
+              branchLike: projectBranchLike,
             };
           });
 
@@ -203,7 +204,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
             measures: appMeasures,
             metrics,
             period,
-            qgStatuses
+            qgStatuses,
           });
         }
       },
@@ -218,20 +219,20 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   loadProjectStatus = async () => {
     const {
       branch,
-      component: { key, name }
+      component: { key, name },
     } = this.props;
     this.setState({ loadingStatus: true });
 
     const projectStatus = await getQualityGateProjectStatus({
       projectKey: key,
-      ...getBranchLikeQuery(branch)
+      ...getBranchLikeQuery(branch),
     });
 
     // Get failing condition metric keys. We need measures for them as well to
     // render them.
     const metricKeys =
       projectStatus.conditions !== undefined
-        ? uniq([...METRICS, ...projectStatus.conditions.map(c => c.metricKey)])
+        ? uniq([...METRICS, ...projectStatus.conditions.map((c) => c.metricKey)])
         : METRICS;
 
     this.loadMeasuresAndMeta(key, branch, metricKeys).then(
@@ -247,7 +248,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
             key,
             name,
             status,
-            branchLike: branch
+            branchLike: branch,
           };
 
           this.setState({
@@ -255,7 +256,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
             measures,
             metrics,
             period,
-            qgStatuses: [qgStatus]
+            qgStatuses: [qgStatus],
           });
         } else if (this.mounted) {
           this.setState({ loadingStatus: false, qgStatuses: undefined });
@@ -282,7 +283,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       return {
         measures: enhanceMeasuresWithMetrics(measures || [], metrics || []),
         metrics,
-        period
+        period,
       };
     });
   };
@@ -307,18 +308,18 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       ...getBranchLikeQuery(branch),
       from: FROM_DATE,
       component: component.key,
-      metrics: metrics.join()
+      metrics: metrics.join(),
     }).then(
       ({ measures }) => {
         if (this.mounted) {
           this.setState({
-            measuresHistory: measures.map(measure => ({
+            measuresHistory: measures.map((measure) => ({
               metric: measure.metric,
-              history: measure.history.map(analysis => ({
+              history: measure.history.map((analysis) => ({
                 date: parseDate(analysis.date),
-                value: analysis.value
-              }))
-            }))
+                value: analysis.value,
+              })),
+            })),
           });
         }
       },
@@ -332,7 +333,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     return getProjectActivity({
       ...getBranchLikeQuery(branch),
       project: this.getTopLevelComponent(),
-      from: FROM_DATE
+      from: FROM_DATE,
     }).then(
       ({ analyses }) => {
         if (this.mounted) {
@@ -341,7 +342,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
               analyses.length > 0
                 ? analyses[0].detectedCI !== undefined && analyses[0].detectedCI !== NO_CI_DETECTED
                 : undefined,
-            analyses
+            analyses,
           });
         }
       },
@@ -352,10 +353,10 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   getFailedConditions = (conditions: QualityGateStatusCondition[], measures: MeasureEnhanced[]) => {
     return (
       conditions
-        .filter(c => c.level !== 'OK')
+        .filter((c) => c.level !== 'OK')
         // Enhance them with Metric information, which will be needed
         // to render the conditions properly.
-        .map(c => enhanceConditionWithMeasure(c, measures))
+        .map((c) => enhanceConditionWithMeasure(c, measures))
         // The enhancement will return undefined if it cannot find the
         // appropriate measure. Make sure we filter them out.
         .filter(isDefined)
@@ -367,11 +368,13 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     let current = component.breadcrumbs.length - 1;
     while (
       current > 0 &&
-      !([
-        ComponentQualifier.Project,
-        ComponentQualifier.Portfolio,
-        ComponentQualifier.Application
-      ] as string[]).includes(component.breadcrumbs[current].qualifier)
+      !(
+        [
+          ComponentQualifier.Project,
+          ComponentQualifier.Portfolio,
+          ComponentQualifier.Application,
+        ] as string[]
+      ).includes(component.breadcrumbs[current].qualifier)
     ) {
       current--;
     }
@@ -381,7 +384,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   doneLoadingHistory = () => {
     if (this.mounted) {
       this.setState({
-        loadingHistory: false
+        loadingHistory: false,
       });
     }
   };
@@ -407,13 +410,13 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       measuresHistory,
       metrics,
       period,
-      qgStatuses
+      qgStatuses,
     } = this.state;
 
     const projectIsEmpty =
       loadingStatus === false &&
       (measures === undefined ||
-        measures.find(measure =>
+        measures.find((measure) =>
           ([MetricKey.lines, MetricKey.new_lines] as string[]).includes(measure.metric.key)
         ) === undefined);
 

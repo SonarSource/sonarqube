@@ -36,10 +36,7 @@ it('should callback when clicked', () => {
   const onSelect = jest.fn();
   const wrapper = shallowRender({ onSelect, selected: false });
 
-  wrapper
-    .find('RadioCard')
-    .first()
-    .simulate('click');
+  wrapper.find('RadioCard').first().simulate('click');
   expect(onSelect).toHaveBeenCalledWith('NUMBER_OF_DAYS');
 });
 

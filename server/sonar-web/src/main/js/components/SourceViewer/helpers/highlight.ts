@@ -47,7 +47,7 @@ export function splitByTokens(code: NodeListOf<ChildNode>, rootClassName = ''): 
 
 export function highlightSymbol(tokens: Token[], symbol: string): Token[] {
   const symbolRegExp = new RegExp(`\\b${symbol}\\b`);
-  return tokens.map(token =>
+  return tokens.map((token) =>
     symbolRegExp.test(token.className)
       ? { ...token, className: `${token.className} highlighted` }
       : token
@@ -85,11 +85,11 @@ export function highlightIssueLocations(
   issueLocations: LinearIssueLocation[],
   rootClassName: string = ISSUE_LOCATION_CLASS
 ): Token[] {
-  issueLocations.forEach(location => {
+  issueLocations.forEach((location) => {
     const nextTokens: Token[] = [];
     let acc = 0;
     let markerAdded = location.line !== location.startLine;
-    tokens.forEach(token => {
+    tokens.forEach((token) => {
       const x = intersect(acc, acc + token.text.length, location.from, location.to);
       const p1 = part(token.text, acc, x.from, acc);
       const p2 = part(token.text, x.from, x.to, acc);
@@ -108,7 +108,7 @@ export function highlightIssueLocations(
             !markerAdded && location.index != null
               ? uniq([...token.markers, location.index])
               : token.markers,
-          text: p2
+          text: p2,
         });
         markerAdded = true;
       }

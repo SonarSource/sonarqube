@@ -120,14 +120,14 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     const {
       issue,
       ruleDetails: { key, name },
-      branchLike
+      branchLike,
     } = this.props;
     const { issuePopupName } = this.state;
     const issueUrl = getComponentIssuesUrl(issue.project, {
       ...getBranchLikeQuery(branchLike),
       issues: issue.key,
       open: issue.key,
-      types: issue.type === 'SECURITY_HOTSPOT' ? issue.type : undefined
+      types: issue.type === 'SECURITY_HOTSPOT' ? issue.type : undefined,
     });
     const ruleStatus = issue.ruleStatus as RuleStatus | undefined;
     const { quickFixAvailable } = issue;
@@ -148,7 +148,8 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
               className="js-issue-permalink link-no-underline"
               target="_blank"
               title={translate('permalink')}
-              to={issueUrl}>
+              to={issueUrl}
+            >
               {translate('issue.action.permalink')}
               <LinkIcon />
             </Link>

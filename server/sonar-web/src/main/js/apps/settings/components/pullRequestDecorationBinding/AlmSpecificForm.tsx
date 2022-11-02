@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
 import DocLink from '../../../../components/common/DocLink';
 import Toggle from '../../../../components/controls/Toggle';
@@ -32,7 +32,7 @@ import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../../../helpe
 import {
   AlmKeys,
   AlmSettingsInstance,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import { Dict } from '../../../../types/types';
@@ -113,7 +113,7 @@ function renderBooleanField(
     renderLabel({ ...props, optional: true }),
     <div className="display-flex-center big-spacer-top">
       <div className="display-inline-block text-top">
-        <Toggle name={id} onChange={v => onFieldChange(propKey, v)} value={value} />
+        <Toggle name={id} onChange={(v) => onFieldChange(propKey, v)} value={value} />
         {value == null && <span className="spacer-left note">{translate('settings.not_set')}</span>}
       </div>
       {inputExtra}
@@ -135,7 +135,7 @@ function renderField(
       id={id}
       maxLength={256}
       name={id}
-      onChange={e => onFieldChange(propKey, e.currentTarget.value)}
+      onChange={(e) => onFieldChange(propKey, e.currentTarget.value)}
       type="text"
       value={value}
     />,
@@ -147,11 +147,11 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
   const {
     alm,
     instances,
-    formData: { repository, slug, summaryCommentEnabled, monorepo }
+    formData: { repository, slug, summaryCommentEnabled, monorepo },
   } = props;
 
   let formFields: JSX.Element;
-  const instance = instances.find(i => i.alm === alm);
+  const instance = instances.find((i) => i.alm === alm);
 
   switch (alm) {
     case AlmKeys.Azure:
@@ -163,7 +163,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             id: 'azure.project',
             onFieldChange: props.onFieldChange,
             propKey: 'slug',
-            value: slug || ''
+            value: slug || '',
           })}
           {renderField({
             help: true,
@@ -171,7 +171,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             id: 'azure.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',
-            value: repository || ''
+            value: repository || '',
           })}
         </>
       );
@@ -193,7 +193,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             id: 'bitbucket.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',
-            value: repository || ''
+            value: repository || '',
           })}
           {renderField({
             help: true,
@@ -209,7 +209,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             id: 'bitbucket.slug',
             onFieldChange: props.onFieldChange,
             propKey: 'slug',
-            value: slug || ''
+            value: slug || '',
           })}
         </>
       );
@@ -228,7 +228,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             id: 'bitbucketcloud.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',
-            value: repository || ''
+            value: repository || '',
           })}
         </>
       );
@@ -249,14 +249,14 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             id: 'github.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',
-            value: repository || ''
+            value: repository || '',
           })}
           {renderBooleanField({
             help: true,
             id: 'github.summary_comment_setting',
             onFieldChange: props.onFieldChange,
             propKey: 'summaryCommentEnabled',
-            value: summaryCommentEnabled === undefined ? true : summaryCommentEnabled
+            value: summaryCommentEnabled === undefined ? true : summaryCommentEnabled,
           })}
         </>
       );
@@ -270,7 +270,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             id: 'gitlab.repository',
             onFieldChange: props.onFieldChange,
             propKey: 'repository',
-            value: repository || ''
+            value: repository || '',
           })}
         </>
       );
@@ -286,7 +286,9 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
         renderBooleanField({
           help: true,
           helpParams: {
-            doc_link: <DocLink to={ALM_DOCUMENTATION_PATHS[alm]}>{translate('learn_more')}</DocLink>
+            doc_link: (
+              <DocLink to={ALM_DOCUMENTATION_PATHS[alm]}>{translate('learn_more')}</DocLink>
+            ),
           },
           id: 'monorepo',
           onFieldChange: props.onFieldChange,
@@ -296,7 +298,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             <Alert className="no-margin-bottom spacer-left" variant="warning" display="inline">
               {translate('settings.pr_decoration.binding.form.monorepo.warning')}
             </Alert>
-          )
+          ),
         })}
     </>
   );

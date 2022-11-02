@@ -105,7 +105,7 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
                             item.webhookSource
                           )}
                       </p>
-                      {item.diffs.map(diff => (
+                      {item.diffs.map((diff) => (
                         <IssueChangelogDiff diff={diff} key={diff.key} />
                       ))}
                     </td>

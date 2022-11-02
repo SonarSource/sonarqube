@@ -36,7 +36,7 @@ export default function AlertClassicEditor() {
             <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
               {translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link')}
             </DocLink>
-          )
+          ),
         }}
       />
     </Alert>

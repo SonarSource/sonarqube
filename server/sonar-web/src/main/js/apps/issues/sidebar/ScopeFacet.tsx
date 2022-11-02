@@ -41,7 +41,7 @@ export interface ScopeFacetProps {
 
 export default function ScopeFacet(props: ScopeFacetProps) {
   const { fetching, open, scopes = [], stats = {} } = props;
-  const values = scopes.map(scope => translate('issue.scope', scope));
+  const values = scopes.map((scope) => translate('issue.scope', scope));
 
   return (
     <FacetBox property="scopes">
@@ -78,11 +78,11 @@ export default function ScopeFacet(props: ScopeFacetProps) {
                   onClick={(itemValue: string, multiple: boolean) => {
                     if (multiple) {
                       props.onChange({
-                        scopes: active ? without(scopes, itemValue) : [...scopes, itemValue]
+                        scopes: active ? without(scopes, itemValue) : [...scopes, itemValue],
                       });
                     } else {
                       props.onChange({
-                        scopes: active && scopes.length === 1 ? [] : [itemValue]
+                        scopes: active && scopes.length === 1 ? [] : [itemValue],
                       });
                     }
                   }}

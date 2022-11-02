@@ -24,7 +24,7 @@ import { BuildTools, OSs } from '../../../types';
 import AnalysisCommand, { AnalysisCommandProps } from '../AnalysisCommand';
 
 jest.mock('../../../../../helpers/urls', () => ({
-  getHostUrl: () => 'HOST'
+  getHostUrl: () => 'HOST',
 }));
 
 it('renders correctly', () => {

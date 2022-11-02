@@ -53,12 +53,12 @@ jest.mock(
 
 jest.mock('../../utils', () => ({
   ...jest.requireActual('../../utils'),
-  fetchProjects: jest.fn(() => Promise.resolve({ projects: [] }))
+  fetchProjects: jest.fn(() => Promise.resolve({ projects: [] })),
 }));
 
 jest.mock('../../../../helpers/storage', () => ({
   get: jest.fn(() => null),
-  save: jest.fn()
+  save: jest.fn(),
 }));
 
 const fetchProjects = require('../../utils').fetchProjects as jest.Mock;
@@ -95,7 +95,7 @@ it('fetches projects', () => {
       size: undefined,
       sort: undefined,
       tags: undefined,
-      view: undefined
+      view: undefined,
     },
     false
   );
@@ -115,7 +115,7 @@ it('changes perspective to leak', () => {
   wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({ view: 'leak' });
   expect(push).toHaveBeenLastCalledWith({
     pathname: '/projects',
-    query: { view: 'leak' }
+    query: { view: 'leak' },
   });
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, undefined);
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, 'leak');
@@ -126,11 +126,11 @@ it('updates sorting when changing perspective from leak', () => {
   const wrapper = shallowRender({}, push);
   wrapper.setState({ query: { sort: 'new_coverage', view: 'leak' } });
   wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({
-    view: undefined
+    view: undefined,
   });
   expect(push).toHaveBeenLastCalledWith({
     pathname: '/projects',
-    query: { sort: 'coverage', view: undefined }
+    query: { sort: 'coverage', view: undefined },
   });
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, 'coverage');
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, undefined);
@@ -155,7 +155,7 @@ function shallowRender(
       isFavorite={false}
       location={mockLocation({ pathname: '/projects', query: {} })}
       appState={mockAppState({
-        qualifiers: [ComponentQualifier.Project, ComponentQualifier.Application]
+        qualifiers: [ComponentQualifier.Project, ComponentQualifier.Application],
       })}
       router={{ push, replace }}
       {...props}
@@ -170,10 +170,10 @@ function shallowRender(
         name: 'Foo',
         qualifier: ComponentQualifier.Project,
         tags: [],
-        visibility: 'public'
-      }
+        visibility: 'public',
+      },
     ],
-    total: 0
+    total: 0,
   });
   return wrapper;
 }

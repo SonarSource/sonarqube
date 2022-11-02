@@ -28,7 +28,7 @@ import {
   getHealthCauses,
   getNodeName,
   getSearchNodes,
-  ignoreInfoFields
+  ignoreInfoFields,
 } from '../utils';
 import HealthCard from './info-items/HealthCard';
 

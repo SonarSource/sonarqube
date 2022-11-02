@@ -26,12 +26,7 @@ import ValidationModal from '../ValidationModal';
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  expect(
-    wrapper
-      .find(ValidationForm)
-      .dive()
-      .dive()
-  ).toMatchSnapshot();
+  expect(wrapper.find(ValidationForm).dive().dive()).toMatchSnapshot();
 });
 
 it('should handle submit', async () => {
@@ -57,8 +52,9 @@ function shallowRender(props: Partial<ValidationModal<{ field: string }>['props'
       onClose={jest.fn()}
       onSubmit={jest.fn()}
       validate={jest.fn()}
-      {...props}>
-      {props => (
+      {...props}
+    >
+      {(props) => (
         <input
           name="field"
           onBlur={props.handleBlur}

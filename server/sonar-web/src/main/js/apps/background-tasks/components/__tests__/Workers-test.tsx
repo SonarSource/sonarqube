@@ -29,7 +29,7 @@ it('renders', () => {
   wrapper.setState({
     canSetWorkerCount: true,
     loading: false,
-    workerCount: 1
+    workerCount: 1,
   });
   expect(wrapper).toMatchSnapshot();
 
@@ -46,7 +46,7 @@ it('opens form', () => {
   wrapper.setState({
     canSetWorkerCount: true,
     loading: false,
-    workerCount: 1
+    workerCount: 1,
   });
   expect(wrapper).toMatchSnapshot();
 
@@ -61,7 +61,7 @@ it('updates worker count', () => {
     canSetWorkerCount: true,
     formOpen: true,
     loading: false,
-    workerCount: 1
+    workerCount: 1,
   });
   expect(wrapper).toMatchSnapshot();
 

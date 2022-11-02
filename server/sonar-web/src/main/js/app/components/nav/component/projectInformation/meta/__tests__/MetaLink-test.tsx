@@ -27,7 +27,7 @@ const DANGEROUS_LINK = {
   id: '1',
   name: 'Dangerous',
   url: 'javascript:alert("hi")',
-  type: 'dangerous'
+  type: 'dangerous',
 };
 
 it('should match snapshot', () => {
@@ -64,7 +64,7 @@ function shallowRender(props: Partial<MetaLink['props']> = {}) {
         id: '1',
         name: 'Foo',
         url: 'http://example.com',
-        type: 'foo'
+        type: 'foo',
       }}
       {...props}
     />

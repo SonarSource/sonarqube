@@ -30,8 +30,8 @@ it('should render correctly', () => {
     shallowRender({
       issues: [
         mockIssue(false, { key: 'foo', type: 'VULNERABILITY' }),
-        mockIssue(false, { key: 'bar', type: 'VULNERABILITY' })
-      ]
+        mockIssue(false, { key: 'bar', type: 'VULNERABILITY' }),
+      ],
     })
   ).toMatchSnapshot('multiple issues, same type');
   expect(
@@ -53,7 +53,7 @@ function shallowRender(props: Partial<LineIssuesIndicatorProps> = {}) {
     <LineIssuesIndicator
       issues={[
         mockIssue(false, { key: 'foo', type: 'CODE_SMELL' }),
-        mockIssue(false, { key: 'bar', type: 'BUG' })
+        mockIssue(false, { key: 'bar', type: 'BUG' }),
       ]}
       line={{ line: 3 }}
       onClick={jest.fn()}

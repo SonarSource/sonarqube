@@ -78,7 +78,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
   fetchRuleDetails = () => {
     return getRuleDetails({
       actives: true,
-      key: this.props.ruleKey
+      key: this.props.ruleKey,
     }).then(
       ({ actives, rule }) => {
         if (this.mounted) {
@@ -102,15 +102,15 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
   handleTagsChange = (tags: string[]) => {
     // optimistic update
     const oldTags = this.state.ruleDetails && this.state.ruleDetails.tags;
-    this.setState(state =>
+    this.setState((state) =>
       state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags } } : null
     );
     updateRule({
       key: this.props.ruleKey,
-      tags: tags.join()
+      tags: tags.join(),
     }).catch(() => {
       if (this.mounted) {
-        this.setState(state =>
+        this.setState((state) =>
           state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags: oldTags } } : null
         );
       }
@@ -121,7 +121,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     return this.fetchRuleDetails().then(() => {
       const { ruleKey, selectedProfile } = this.props;
       if (selectedProfile && this.state.actives) {
-        const active = this.state.actives.find(active => active.qProfile === selectedProfile.key);
+        const active = this.state.actives.find((active) => active.qProfile === selectedProfile.key);
         if (active) {
           this.props.onActivate(selectedProfile.key, ruleKey, active);
         }
@@ -135,7 +135,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
       if (
         selectedProfile &&
         this.state.actives &&
-        !this.state.actives.find(active => active.qProfile === selectedProfile.key)
+        !this.state.actives.find((active) => active.qProfile === selectedProfile.key)
       ) {
         this.props.onDeactivate(selectedProfile.key, ruleKey);
       }
@@ -187,12 +187,14 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
               <CustomRuleButton
                 customRule={ruleDetails}
                 onDone={this.handleRuleChange}
-                templateRule={ruleDetails}>
+                templateRule={ruleDetails}
+              >
                 {({ onClick }) => (
                   <Button
                     className="js-edit-custom"
                     id="coding-rules-detail-custom-rule-change"
-                    onClick={onClick}>
+                    onClick={onClick}
+                  >
                     {translate('edit')}
                   </Button>
                 )}
@@ -205,13 +207,15 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
                   ruleDetails.name
                 )}
                 modalHeader={translate('coding_rules.delete_rule')}
-                onConfirm={this.handleDelete}>
+                onConfirm={this.handleDelete}
+              >
                 {({ onClick }) => (
                   <>
                     <Button
                       className="button-red spacer-left js-delete"
                       id="coding-rules-detail-rule-delete"
-                      onClick={onClick}>
+                      onClick={onClick}
+                    >
                       {translate('delete')}
                     </Button>
                     <HelpTooltip

@@ -51,7 +51,7 @@ export default class WebhooksList extends React.PureComponent<Props> {
       <table className="data zebra">
         {this.renderHeader()}
         <tbody>
-          {sortBy(webhooks, webhook => webhook.name.toLowerCase()).map(webhook => (
+          {sortBy(webhooks, (webhook) => webhook.name.toLowerCase()).map((webhook) => (
             <WebhookItem
               key={webhook.key}
               onDelete={this.props.onDelete}

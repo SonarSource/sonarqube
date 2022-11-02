@@ -64,7 +64,8 @@ export default function UpdateForm(props: UpdateFormProps) {
         </>
       }
       modalHeader={translate('update_key.page')}
-      onConfirm={props.onKeyChange}>
+      onConfirm={props.onKeyChange}
+    >
       {({ onFormSubmit }) => (
         <form onSubmit={onFormSubmit}>
           <MandatoryFieldsExplanation className="spacer-bottom" />
@@ -93,7 +94,8 @@ export default function UpdateForm(props: UpdateFormProps) {
               onClick={() => {
                 setNewKey(undefined);
               }}
-              type="reset">
+              type="reset"
+            >
               {translate('reset_verb')}
             </Button>
           </div>

@@ -25,7 +25,7 @@ import { mockIssue } from '../../../../helpers/testMocks';
 import SnippetViewer from '../SnippetViewer';
 
 jest.mock('../../../../helpers/scrolling', () => ({
-  scrollHorizontally: jest.fn()
+  scrollHorizontally: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -33,19 +33,19 @@ beforeEach(() => {
 });
 
 it('should render correctly', () => {
-  const snippet = range(5, 8).map(line => mockSourceLine({ line }));
+  const snippet = range(5, 8).map((line) => mockSourceLine({ line }));
   const wrapper = shallowRender({
-    snippet
+    snippet,
   });
 
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render correctly with no SCM', () => {
-  const snippet = range(5, 8).map(line => mockSourceLine({ line }));
+  const snippet = range(5, 8).map((line) => mockSourceLine({ line }));
   const wrapper = shallowRender({
     displaySCM: false,
-    snippet
+    snippet,
   });
 
   expect(wrapper).toMatchSnapshot();
@@ -65,16 +65,16 @@ it('should render additional child in line', () => {
     line: sourceline,
     snippet: [sourceline],
     symbols: [],
-    verticalBuffer: 5
+    verticalBuffer: 5,
   });
 
   expect(renderAdditionalChildInLine).toHaveBeenCalledWith(sourceline);
 });
 
 it('should render correctly when at the top of the file', () => {
-  const snippet = range(1, 8).map(line => mockSourceLine({ line }));
+  const snippet = range(1, 8).map((line) => mockSourceLine({ line }));
   const wrapper = shallowRender({
-    snippet
+    snippet,
   });
 
   expect(wrapper).toMatchSnapshot();
@@ -82,35 +82,29 @@ it('should render correctly when at the top of the file', () => {
 
 it('should render correctly when at the bottom of the file', () => {
   const component = mockSourceViewerFile('foo/bar.ts', 'my-project', { measures: { lines: '14' } });
-  const snippet = range(10, 14).map(line => mockSourceLine({ line }));
+  const snippet = range(10, 14).map((line) => mockSourceLine({ line }));
   const wrapper = shallowRender({
     component,
-    snippet
+    snippet,
   });
 
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should correctly handle expansion', () => {
-  const snippet = range(5, 8).map(line => mockSourceLine({ line }));
+  const snippet = range(5, 8).map((line) => mockSourceLine({ line }));
   const expandBlock = jest.fn(() => Promise.resolve());
 
   const wrapper = shallowRender({
     expandBlock,
     index: 2,
-    snippet
+    snippet,
   });
 
-  wrapper
-    .find('.expand-block-above button')
-    .first()
-    .simulate('click');
+  wrapper.find('.expand-block-above button').first().simulate('click');
   expect(expandBlock).toHaveBeenCalledWith(2, 'up');
 
-  wrapper
-    .find('.expand-block-below button')
-    .first()
-    .simulate('click');
+  wrapper.find('.expand-block-below button').first().simulate('click');
   expect(expandBlock).toHaveBeenCalledWith(2, 'down');
 });
 

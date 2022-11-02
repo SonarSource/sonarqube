@@ -43,7 +43,8 @@ export default function BaselineSettingDays(props: Props) {
       disabled={disabled}
       onClick={() => onSelect('NUMBER_OF_DAYS')}
       selected={selected}
-      title={translate('baseline.number_days')}>
+      title={translate('baseline.number_days')}
+    >
       <>
         <p className="big-spacer-bottom">{translate('baseline.number_days.description')}</p>
         {selected && (
@@ -56,8 +57,13 @@ export default function BaselineSettingDays(props: Props) {
               isInvalid={isChanged && !isValid}
               isValid={isChanged && isValid}
               label={translate('baseline.specify_days')}
-              required={true}>
-              <input onChange={e => onChangeDays(e.currentTarget.value)} type="text" value={days} />
+              required={true}
+            >
+              <input
+                onChange={(e) => onChangeDays(e.currentTarget.value)}
+                type="text"
+                value={days}
+              />
             </ValidationInput>
           </>
         )}

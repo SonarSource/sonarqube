@@ -36,7 +36,7 @@ function shallowRender(props: Partial<ProfilesList['props']> = {}) {
       languages={[mockLanguage(), mockLanguage({ key: 'js', name: 'JS' })]}
       profiles={[
         mockQualityProfile(),
-        mockQualityProfile({ language: 'css', languageName: 'CSS' })
+        mockQualityProfile({ language: 'css', languageName: 'CSS' }),
       ]}
       updateProfiles={jest.fn()}
       {...props}

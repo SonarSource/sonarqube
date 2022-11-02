@@ -43,11 +43,13 @@ export default function ActionsDropdown(props: ActionsDropdownProps) {
       className={className}
       onOpen={props.onOpen}
       overlay={<ul className="menu">{children}</ul>}
-      overlayPlacement={overlayPlacement}>
+      overlayPlacement={overlayPlacement}
+    >
       <Button
         className={classNames('dropdown-toggle', toggleClassName, {
-          'button-small': small
-        })}>
+          'button-small': small,
+        })}
+      >
         <SettingsIcon size={small ? 12 : 14} />
         <DropdownIcon className="little-spacer-left" />
       </Button>
@@ -85,7 +87,8 @@ export class ActionsDropdownItem extends React.PureComponent<ItemProps> {
             className={className}
             download={this.props.download}
             href={this.props.to}
-            id={this.props.id}>
+            id={this.props.id}
+          >
             {this.props.children}
           </a>
         </li>

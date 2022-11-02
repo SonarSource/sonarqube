@@ -29,8 +29,8 @@ import { getCurrentPage, HeaderMeta, HeaderMetaProps } from '../HeaderMeta';
 
 jest.mock('react-intl', () => ({
   useIntl: jest.fn().mockImplementation(() => ({
-    formatDate: jest.fn().mockImplementation(() => '2017-01-02T00:00:00.000Z')
-  }))
+    formatDate: jest.fn().mockImplementation(() => '2017-01-02T00:00:00.000Z'),
+  })),
 }));
 
 it('should render correctly for a branch', () => {
@@ -40,14 +40,14 @@ it('should render correctly for a branch', () => {
 
 it('should render correctly for a main project branch', () => {
   const wrapper = shallowRender({
-    branchLike: mockBranch({ isMain: true })
+    branchLike: mockBranch({ isMain: true }),
   });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render correctly for a portfolio', () => {
   const wrapper = shallowRender({
-    component: mockComponent({ key: 'foo', qualifier: ComponentQualifier.Portfolio })
+    component: mockComponent({ key: 'foo', qualifier: ComponentQualifier.Portfolio }),
   });
   expect(wrapper).toMatchSnapshot();
 });
@@ -55,8 +55,8 @@ it('should render correctly for a portfolio', () => {
 it('should render correctly for a pull request', () => {
   const wrapper = shallowRender({
     branchLike: mockPullRequest({
-      url: 'https://example.com/pull/1234'
-    })
+      url: 'https://example.com/pull/1234',
+    }),
   });
   expect(wrapper).toMatchSnapshot();
 });
@@ -75,7 +75,7 @@ describe('#getCurrentPage', () => {
       )
     ).toEqual({
       type: 'PORTFOLIO',
-      component: 'foo'
+      component: 'foo',
     });
   });
 
@@ -92,7 +92,7 @@ describe('#getCurrentPage', () => {
     expect(getCurrentPage(mockComponent(), mockBranch({ name: 'feature/foo' }))).toEqual({
       type: 'PROJECT',
       component: 'my-project',
-      branch: 'feature/foo'
+      branch: 'feature/foo',
     });
   });
 });

@@ -46,7 +46,7 @@ interface Props {
 
 export default class Issue extends React.PureComponent<Props> {
   static defaultProps = {
-    selected: false
+    selected: false,
   };
 
   componentDidMount() {

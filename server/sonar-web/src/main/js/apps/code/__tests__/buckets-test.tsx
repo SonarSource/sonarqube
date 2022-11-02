@@ -25,11 +25,11 @@ const component: ComponentMeasure = { key: 'frodo', name: 'frodo', qualifier: 'f
 const componentKey: string = 'foo';
 const childrenA: ComponentMeasure[] = [
   { key: 'foo', name: 'foo', qualifier: 'foo' },
-  { key: 'bar', name: 'bar', qualifier: 'bar' }
+  { key: 'bar', name: 'bar', qualifier: 'bar' },
 ];
 const childrenB: ComponentMeasure[] = [
   { key: 'bart', name: 'bart', qualifier: 'bart' },
-  { key: 'simpson', name: 'simpson', qualifier: 'simpson' }
+  { key: 'simpson', name: 'simpson', qualifier: 'simpson' },
 ];
 
 it('should have empty bucket at start', () => {

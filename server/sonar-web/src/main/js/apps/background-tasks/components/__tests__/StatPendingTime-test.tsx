@@ -32,16 +32,8 @@ it('should not render', () => {
 });
 
 it('should not render when pending time is too small', () => {
-  expect(
-    shallowRender({ pendingTime: 0 })
-      .find('.emphasised-measure')
-      .exists()
-  ).toBe(false);
-  expect(
-    shallowRender({ pendingTime: 900 })
-      .find('.emphasised-measure')
-      .exists()
-  ).toBe(false);
+  expect(shallowRender({ pendingTime: 0 }).find('.emphasised-measure').exists()).toBe(false);
+  expect(shallowRender({ pendingTime: 900 }).find('.emphasised-measure').exists()).toBe(false);
 });
 
 function shallowRender(props: Partial<Props> = {}) {

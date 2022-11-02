@@ -88,7 +88,7 @@ export function updateUser(data: {
 }): Promise<User> {
   return postJSON('/api/users/update', {
     ...data,
-    scmAccount: data.scmAccount.length > 0 ? data.scmAccount : ''
+    scmAccount: data.scmAccount.length > 0 ? data.scmAccount : '',
   });
 }
 

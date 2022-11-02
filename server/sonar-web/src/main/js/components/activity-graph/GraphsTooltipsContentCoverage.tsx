@@ -31,10 +31,10 @@ export interface GraphsTooltipsContentCoverageProps {
 export default function GraphsTooltipsContentCoverage({
   addSeparator,
   measuresHistory,
-  tooltipIdx
+  tooltipIdx,
 }: GraphsTooltipsContentCoverageProps) {
-  const uncovered = measuresHistory.find(measure => measure.metric === 'uncovered_lines');
-  const coverage = measuresHistory.find(measure => measure.metric === 'coverage');
+  const uncovered = measuresHistory.find((measure) => measure.metric === 'uncovered_lines');
+  const coverage = measuresHistory.find((measure) => measure.metric === 'coverage');
   if (!uncovered || !uncovered.history[tooltipIdx] || !coverage || !coverage.history[tooltipIdx]) {
     return null;
   }

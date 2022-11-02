@@ -26,18 +26,18 @@ import {
   renderPciDss32Category,
   renderPciDss40Category,
   renderSansTop25Category,
-  renderSonarSourceSecurityCategory
+  renderSonarSourceSecurityCategory,
 } from '../security-standard';
 
 describe('renderCWECategory', () => {
   const standards: Standards = {
     cwe: {
       '1004': {
-        title: "Sensitive Cookie Without 'HttpOnly' Flag"
+        title: "Sensitive Cookie Without 'HttpOnly' Flag",
       },
       unknown: {
-        title: 'No CWE associated'
-      }
+        title: 'No CWE associated',
+      },
     },
     owaspTop10: {},
     'owaspTop10-2021': {},
@@ -45,7 +45,7 @@ describe('renderCWECategory', () => {
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
     'pciDss-4.0': {},
-    'owaspAsvs-4.0': {}
+    'owaspAsvs-4.0': {},
   };
   it('should render cwe categories correctly', () => {
     expect(renderCWECategory(standards, '1004')).toEqual(
@@ -61,15 +61,15 @@ describe('renderOwaspTop10Category', () => {
     cwe: {},
     owaspTop10: {
       a1: {
-        title: 'Injection'
-      }
+        title: 'Injection',
+      },
     },
     'owaspTop10-2021': {},
     sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
     'pciDss-4.0': {},
-    'owaspAsvs-4.0': {}
+    'owaspAsvs-4.0': {},
   };
   it('should render owasp categories correctly', () => {
     expect(renderOwaspTop10Category(standards, 'a1')).toEqual('A1 - Injection');
@@ -85,14 +85,14 @@ describe('renderOwaspTop102021Category', () => {
     owaspTop10: {},
     'owaspTop10-2021': {
       a1: {
-        title: 'Injection'
-      }
+        title: 'Injection',
+      },
     },
     sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
     'pciDss-4.0': {},
-    'owaspAsvs-4.0': {}
+    'owaspAsvs-4.0': {},
   };
   it('should render owasp categories correctly', () => {
     expect(renderOwaspTop102021Category(standards, 'a1')).toEqual('A1 - Injection');
@@ -111,11 +111,11 @@ describe('renderPciDss32Category', () => {
     sonarsourceSecurity: {},
     'pciDss-3.2': {
       '1': {
-        title: 'Install and maintain a firewall configuration to protect cardholder data'
-      }
+        title: 'Install and maintain a firewall configuration to protect cardholder data',
+      },
     },
     'pciDss-4.0': {},
-    'owaspAsvs-4.0': {}
+    'owaspAsvs-4.0': {},
   };
   it('should render Pci Dss 3.2 correctly', () => {
     expect(renderPciDss32Category(standards, '1')).toEqual(
@@ -135,10 +135,10 @@ describe('renderPciDss40Category', () => {
     'pciDss-3.2': {},
     'pciDss-4.0': {
       '1': {
-        title: 'Install and maintain a firewall configuration to protect cardholder data'
-      }
+        title: 'Install and maintain a firewall configuration to protect cardholder data',
+      },
     },
-    'owaspAsvs-4.0': {}
+    'owaspAsvs-4.0': {},
   };
   it('should render Pci Dss 4.0 correctly', () => {
     expect(renderPciDss40Category(standards, '1')).toEqual(
@@ -159,13 +159,13 @@ describe('renderOwaspAsvs40Category', () => {
     'pciDss-4.0': {},
     'owaspAsvs-4.0': {
       '1': {
-        title: 'Main category'
+        title: 'Main category',
       },
       '1.1': {
         title: 'Sub category',
-        level: '2'
-      }
-    }
+        level: '2',
+      },
+    },
   };
   it('should render OwaspAsvs 4.0 correctly', () => {
     expect(renderOwaspAsvs40Category(standards, '1')).toEqual('1 - Main category');
@@ -180,13 +180,13 @@ describe('renderSansTop25Category', () => {
     'owaspTop10-2021': {},
     sansTop25: {
       'insecure-interaction': {
-        title: 'Insecure Interaction Between Components'
-      }
+        title: 'Insecure Interaction Between Components',
+      },
     },
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
     'pciDss-4.0': {},
-    'owaspAsvs-4.0': {}
+    'owaspAsvs-4.0': {},
   };
   it('should render sans categories correctly', () => {
     expect(renderSansTop25Category(standards, 'insecure-interaction')).toEqual(
@@ -208,15 +208,15 @@ describe('renderSonarSourceSecurityCategory', () => {
     sansTop25: {},
     sonarsourceSecurity: {
       xss: {
-        title: 'Cross-Site Scripting (XSS)'
+        title: 'Cross-Site Scripting (XSS)',
       },
       others: {
-        title: 'Others'
-      }
+        title: 'Others',
+      },
     },
     'pciDss-3.2': {},
     'pciDss-4.0': {},
-    'owaspAsvs-4.0': {}
+    'owaspAsvs-4.0': {},
   };
   it('should render sonarsource categories correctly', () => {
     expect(renderSonarSourceSecurityCategory(standards, 'xss')).toEqual(

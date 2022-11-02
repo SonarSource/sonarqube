@@ -24,7 +24,7 @@ import {
   useLocation as useLocationRouter,
   useNavigate,
   useParams,
-  useSearchParams
+  useSearchParams,
 } from 'react-router-dom';
 import { queryToSearch, searchParamsToQuery } from '../../helpers/urls';
 import { RawQuery } from '../../types/types';
@@ -67,14 +67,14 @@ export function withRouter<P extends Partial<WithRouterProps>>(
             path.search = queryToSearch((path as Location).query);
           }
           navigate(path);
-        }
+        },
       }),
       [navigate]
     );
 
     const location = {
       ...locationRouter,
-      query: searchParamsToQuery(searchParams)
+      query: searchParamsToQuery(searchParams),
     };
 
     return <WrappedComponent {...props} location={location} params={params} router={router} />;

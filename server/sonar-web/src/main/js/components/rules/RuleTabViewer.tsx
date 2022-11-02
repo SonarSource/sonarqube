@@ -58,14 +58,14 @@ export enum TabKeys {
   WhyIsThisAnIssue = 'why',
   HowToFixIt = 'how_to_fix',
   AssessTheIssue = 'assess_the_problem',
-  MoreInfo = 'more_info'
+  MoreInfo = 'more_info',
 }
 
 const DEBOUNCE_FOR_SCROLL = 250;
 
 export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State> {
   state: State = {
-    tabs: []
+    tabs: [],
   };
 
   educationPrinciplesRef: React.RefObject<HTMLDivElement>;
@@ -80,7 +80,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
   }
 
   componentDidMount() {
-    this.setState(prevState => this.computeState(prevState));
+    this.setState((prevState) => this.computeState(prevState));
     this.attachScrollEvent();
   }
 
@@ -94,7 +94,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
       prevProps.codeTabContent !== codeTabContent ||
       prevProps.currentUser !== currentUser
     ) {
-      this.setState(pState =>
+      this.setState((pState) =>
         this.computeState(
           pState,
           prevProps.ruleDetails !== ruleDetails || prevProps.codeTabContent !== codeTabContent
@@ -122,7 +122,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
   computeState = (prevState: State, resetSelectedTab = false) => {
     const {
       ruleDetails,
-      currentUser: { isLoggedIn, dismissedNotices }
+      currentUser: { isLoggedIn, dismissedNotices },
     } = this.props;
 
     const displayEducationalPrinciplesNotification =
@@ -135,7 +135,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
     return {
       tabs,
       selectedTab: resetSelectedTab || !prevState.selectedTab ? tabs[0] : prevState.selectedTab,
-      displayEducationalPrinciplesNotification
+      displayEducationalPrinciplesNotification,
     };
   };
 
@@ -144,12 +144,12 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
       codeTabContent,
       ruleDetails: { descriptionSections, educationPrinciples, type: ruleType },
       ruleDescriptionContextKey,
-      extendedDescription
+      extendedDescription,
     } = this.props;
 
     // As we might tamper with the description later on, we clone to avoid any side effect
     const descriptionSectionsByKey = cloneDeep(
-      groupBy(descriptionSections, section => section.key)
+      groupBy(descriptionSections, (section) => section.key)
     );
 
     if (extendedDescription) {
@@ -162,8 +162,8 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
         descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] = [
           {
             key: RuleDescriptionSections.RESOURCES,
-            content: extendedDescription
-          }
+            content: extendedDescription,
+          },
         ];
       }
     }
@@ -186,7 +186,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
             isDefault={descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] !== undefined}
             defaultContextKey={ruleDescriptionContextKey}
           />
-        )
+        ),
       },
       {
         key: TabKeys.AssessTheIssue,
@@ -196,7 +196,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
             className="padded"
             sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
           />
-        )
+        ),
       },
       {
         key: TabKeys.HowToFixIt,
@@ -207,7 +207,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
             sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
             defaultContextKey={ruleDescriptionContextKey}
           />
-        )
+        ),
       },
       {
         key: TabKeys.MoreInfo,
@@ -225,37 +225,37 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
             displayEducationalPrinciplesNotification={displayEducationalPrinciplesNotification}
             educationPrinciplesRef={this.educationPrinciplesRef}
           />
-        )
-      }
+        ),
+      },
     ];
 
     if (codeTabContent !== undefined) {
       tabs.unshift({
         key: TabKeys.Code,
         label: translate('issue.tabs', TabKeys.Code),
-        content: codeTabContent
+        content: codeTabContent,
       });
     }
 
-    return tabs.filter(tab => tab.content);
+    return tabs.filter((tab) => tab.content);
   };
 
   attachScrollEvent = () => {
     document.addEventListener('scroll', this.checkIfEducationPrinciplesAreVisible, {
-      capture: true
+      capture: true,
     });
   };
 
   detachScrollEvent = () => {
     document.removeEventListener('scroll', this.checkIfEducationPrinciplesAreVisible, {
-      capture: true
+      capture: true,
     });
   };
 
   checkIfEducationPrinciplesAreVisible = () => {
     const {
       displayEducationalPrinciplesNotification,
-      educationalPrinciplesNotificationHasBeenDismissed
+      educationalPrinciplesNotificationHasBeenDismissed,
     } = this.state;
 
     if (this.educationPrinciplesRef.current) {
@@ -281,7 +281,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
 
   handleSelectTabs = (currentTabKey: TabKeys) => {
     this.setState(({ tabs }) => ({
-      selectedTab: tabs.find(tab => tab.key === currentTabKey) || tabs[0]
+      selectedTab: tabs.find((tab) => tab.key === currentTabKey) || tabs[0],
     }));
   };
 
@@ -293,7 +293,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
       return null;
     }
 
-    const tabContent = tabs.find(t => t.key === selectedTab.key)?.content;
+    const tabContent = tabs.find((t) => t.key === selectedTab.key)?.content;
 
     return (
       <>
@@ -310,12 +310,13 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
             <div
               style={{
                 // We substract the footer height with padding (80) and the main layout padding (20)
-                maxHeight: scrollInTab ? `calc(100vh - ${top + 100}px)` : 'initial'
+                maxHeight: scrollInTab ? `calc(100vh - ${top + 100}px)` : 'initial',
               }}
               className="bordered display-flex-column"
               role="tabpanel"
               aria-labelledby={getTabId(selectedTab.key)}
-              id={getTabPanelId(selectedTab.key)}>
+              id={getTabPanelId(selectedTab.key)}
+            >
               {/* Adding a key to force re-rendering of the tab container, so that it resets the scroll position */}
               <div className="overflow-y-auto spacer" key={selectedTab.key}>
                 {tabContent}

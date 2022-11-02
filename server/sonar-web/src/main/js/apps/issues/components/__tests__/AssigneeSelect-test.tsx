@@ -27,7 +27,7 @@ import { searchAssignees } from '../../utils';
 import AssigneeSelect, {
   AssigneeOption,
   AssigneeSelectProps,
-  MIN_QUERY_LENGTH
+  MIN_QUERY_LENGTH,
 } from '../AssigneeSelect';
 
 jest.mock('../../utils', () => ({
@@ -37,21 +37,21 @@ jest.mock('../../utils', () => ({
         active: true,
         avatar: '##avatar1',
         login: 'toto@toto',
-        name: 'toto'
+        name: 'toto',
       },
       {
         active: false,
         avatar: '##avatar2',
         login: 'tata@tata',
-        name: 'tata'
+        name: 'tata',
       },
       {
         active: true,
         avatar: '##avatar3',
-        login: 'titi@titi'
-      }
-    ]
-  })
+        login: 'titi@titi',
+      },
+    ],
+  }),
 }));
 
 it('should render correctly', () => {
@@ -75,7 +75,7 @@ it('should render options correctly', () => {
       wrapper.instance().renderAssignee({
         avatar: '##avatar1',
         value: 'toto@toto',
-        label: 'toto'
+        label: 'toto',
       })
     )
       .find(Avatar)
@@ -86,7 +86,7 @@ it('should render options correctly', () => {
     shallow(
       wrapper.instance().renderAssignee({
         value: 'toto@toto',
-        label: 'toto'
+        label: 'toto',
       })
     )
       .find(Avatar)
@@ -122,18 +122,18 @@ it('should handle assignee search', async () => {
     {
       avatar: '##avatar1',
       value: 'toto@toto',
-      label: 'toto'
+      label: 'toto',
     },
     {
       avatar: '##avatar2',
       value: 'tata@tata',
-      label: 'user.x_deleted.tata'
+      label: 'user.x_deleted.tata',
     },
     {
       avatar: '##avatar3',
       value: 'titi@titi',
-      label: 'user.x_deleted.titi@titi'
-    }
+      label: 'user.x_deleted.titi@titi',
+    },
   ]);
 });
 

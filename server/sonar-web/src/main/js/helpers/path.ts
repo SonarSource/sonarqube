@@ -88,14 +88,14 @@ export function splitPath(path: string) {
   const tokens = path.split('/');
   return {
     head: tokens.slice(0, -1).join('/'),
-    tail: tokens[tokens.length - 1]
+    tail: tokens[tokens.length - 1],
   };
 }
 
 export function cutLongWords(str: string, limit = 30) {
   return str
     .split(' ')
-    .map(word => (word.length > limit ? word.substr(0, limit) + '...' : word))
+    .map((word) => (word.length > limit ? word.substr(0, limit) + '...' : word))
     .join(' ');
 }
 

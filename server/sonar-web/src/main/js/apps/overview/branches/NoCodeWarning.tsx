@@ -52,7 +52,7 @@ export function NoCodeWarning({ branchLike, component, measures }: Props) {
   if (isApp) {
     if (
       measures === undefined ||
-      measures.find(measure => measure.metric.key === MetricKey.projects) === undefined
+      measures.find((measure) => measure.metric.key === MetricKey.projects) === undefined
     ) {
       title = translate('portfolio.app.empty');
     } else {

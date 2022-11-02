@@ -54,7 +54,8 @@ export default class Toggle extends React.PureComponent<Props> {
       <Button className={className} disabled={disabled} name={name} onClick={this.handleClick}>
         <div
           aria-label={ariaLabel ?? translate(value ? 'on' : 'off')}
-          className="boolean-toggle-handle">
+          className="boolean-toggle-handle"
+        >
           <CheckIcon size={12} />
         </div>
       </Button>

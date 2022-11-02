@@ -24,7 +24,7 @@ import { getLinearLocations } from './issueLocations';
 
 export function issuesByLine(issues: Issue[]) {
   const index: { [line: number]: Issue[] } = {};
-  issues.forEach(issue => {
+  issues.forEach((issue) => {
     const line = issue.textRange ? issue.textRange.endLine : 0;
     if (!(line in index)) {
       index[line] = [];
@@ -34,9 +34,9 @@ export function issuesByLine(issues: Issue[]) {
   return index;
 }
 
-export function issuesByComponentAndLine(
-  issues: Issue[] = []
-): { [component: string]: { [line: number]: Issue[] } } {
+export function issuesByComponentAndLine(issues: Issue[] = []): {
+  [component: string]: { [line: number]: Issue[] };
+} {
   return issues.reduce((mapping: { [component: string]: { [line: number]: Issue[] } }, issue) => {
     mapping[issue.component] = mapping[issue.component] || {};
     const line = issue.textRange ? issue.textRange.endLine : 0;
@@ -48,8 +48,8 @@ export function issuesByComponentAndLine(
 
 export function locationsByLine(issues: Pick<Issue, 'textRange'>[]) {
   const index: { [line: number]: LinearIssueLocation[] } = {};
-  issues.forEach(issue => {
-    getLinearLocations(issue.textRange).forEach(location => {
+  issues.forEach((issue) => {
+    getLinearLocations(issue.textRange).forEach((location) => {
       if (!(location.line in index)) {
         index[location.line] = [];
       }
@@ -67,7 +67,7 @@ export function duplicationsByLine(duplications: Duplication[] | undefined) {
   const duplicationsByLine: { [line: number]: number[] } = {};
 
   duplications.forEach(({ blocks }, duplicationIndex) => {
-    blocks.forEach(block => {
+    blocks.forEach((block) => {
       // eslint-disable-next-line no-underscore-dangle
       if (block._ref === '1') {
         for (let line = block.from; line < block.from + block.size; line++) {
@@ -85,17 +85,17 @@ export function duplicationsByLine(duplications: Duplication[] | undefined) {
 
 export function symbolsByLine(sources: SourceLine[]) {
   const index: { [line: number]: string[] } = {};
-  sources.forEach(line => {
+  sources.forEach((line) => {
     const container = document.createElement('div');
     container.innerHTML = line.code || '';
     const tokens = splitByTokens(container.childNodes);
     const symbols = flatten(
-      tokens.map(token => {
+      tokens.map((token) => {
         const keys = token.className.match(/sym-\d+/g);
         return keys != null ? keys : [];
       })
     );
-    index[line.line] = symbols.filter(key => key);
+    index[line.line] = symbols.filter((key) => key);
   });
   return index;
 }

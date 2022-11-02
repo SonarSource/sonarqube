@@ -32,7 +32,7 @@ const comment: IssueComment = {
   htmlText: '<b>test</b>',
   key: 'comment-key',
   markdown: '*test*',
-  updatable: true
+  updatable: true,
 };
 
 it('should render correctly a comment that is updatable', () => {
@@ -56,7 +56,7 @@ it('should open the right popups when the buttons are clicked', () => {
 it('should render correctly a comment with a deleted author', () => {
   expect(
     shallowRender({
-      comment: { ...comment, authorActive: false, authorName: undefined }
+      comment: { ...comment, authorActive: false, authorName: undefined },
     }).find('.issue-comment-author')
   ).toMatchSnapshot();
 });

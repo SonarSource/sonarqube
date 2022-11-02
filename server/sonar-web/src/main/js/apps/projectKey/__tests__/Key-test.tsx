@@ -24,7 +24,7 @@ import { mockComponent } from '../../../helpers/mocks/component';
 import { Key } from '../Key';
 
 jest.mock('../../../api/components', () => ({
-  changeKey: jest.fn().mockResolvedValue(undefined)
+  changeKey: jest.fn().mockResolvedValue(undefined),
 }));
 
 it('should render and change key', async () => {
@@ -39,6 +39,6 @@ it('should render and change key', async () => {
   expect(changeKey).toHaveBeenCalledWith({ from: 'foo', to: 'bar' });
   expect(withRouterProps.router.replace).toHaveBeenCalledWith({
     pathname: '/project/key',
-    query: { id: 'bar' }
+    query: { id: 'bar' },
   });
 });

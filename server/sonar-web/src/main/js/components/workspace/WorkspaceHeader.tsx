@@ -96,7 +96,8 @@ function WorkspaceHeaderButton({ icon: Icon, onClick, tooltip }: WorkspaceHeader
       aria-label={translate(tooltip)}
       color="#fff"
       onClick={onClick}
-      tooltip={translate(tooltip)}>
+      tooltip={translate(tooltip)}
+    >
       <Icon fill={undefined} />
     </ButtonIcon>
   );

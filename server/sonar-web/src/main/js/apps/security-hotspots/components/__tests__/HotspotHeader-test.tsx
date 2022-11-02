@@ -33,10 +33,7 @@ it('correctly propagates the status change', () => {
   const onUpdateHotspot = jest.fn();
   const wrapper = shallowRender({ onUpdateHotspot });
 
-  wrapper
-    .find(Status)
-    .props()
-    .onStatusChange(HotspotStatusOption.FIXED);
+  wrapper.find(Status).props().onStatusChange(HotspotStatusOption.FIXED);
 
   expect(onUpdateHotspot).toHaveBeenCalledWith(true, HotspotStatusOption.FIXED);
 });

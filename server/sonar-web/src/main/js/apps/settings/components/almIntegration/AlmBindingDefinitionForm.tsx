@@ -30,7 +30,7 @@ import {
   updateBitbucketServerConfiguration,
   updateGithubConfiguration,
   updateGitlabConfiguration,
-  validateAlmSettings
+  validateAlmSettings,
 } from '../../../../api/alm-settings';
 import {
   AlmBindingDefinition,
@@ -41,7 +41,7 @@ import {
   BitbucketServerBindingDefinition,
   GithubBindingDefinition,
   GitlabBindingDefinition,
-  isBitbucketCloudBindingDefinition
+  isBitbucketCloudBindingDefinition,
 } from '../../../../types/alm-settings';
 import { Dict } from '../../../../types/types';
 import { BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT } from '../../constants';
@@ -77,7 +77,7 @@ const BINDING_PER_ALM: {
     createApi: createAzureConfiguration,
     updateApi: updateAzureConfiguration,
     defaultBinding: { key: '', personalAccessToken: '', url: '' } as AzureBindingDefinition,
-    optionalFields: {}
+    optionalFields: {},
   },
   [AlmKeys.GitHub]: {
     createApi: createGithubConfiguration,
@@ -89,15 +89,15 @@ const BINDING_PER_ALM: {
       clientSecret: '',
       url: '',
       privateKey: '',
-      webhookSecret: ''
+      webhookSecret: '',
     } as GithubBindingDefinition,
-    optionalFields: { webhookSecret: true }
+    optionalFields: { webhookSecret: true },
   },
   [AlmKeys.GitLab]: {
     createApi: createGitlabConfiguration,
     updateApi: updateGitlabConfiguration,
     defaultBinding: { key: '', personalAccessToken: '', url: '' } as GitlabBindingDefinition,
-    optionalFields: {}
+    optionalFields: {},
   },
   [AlmKeys.BitbucketServer]: {
     createApi: createBitbucketServerConfiguration,
@@ -105,9 +105,9 @@ const BINDING_PER_ALM: {
     defaultBinding: {
       key: '',
       url: '',
-      personalAccessToken: ''
+      personalAccessToken: '',
     } as BitbucketServerBindingDefinition,
-    optionalFields: {}
+    optionalFields: {},
   },
   [AlmKeys.BitbucketCloud]: {
     createApi: createBitbucketCloudConfiguration,
@@ -116,10 +116,10 @@ const BINDING_PER_ALM: {
       key: '',
       clientId: '',
       clientSecret: '',
-      workspace: ''
+      workspace: '',
     } as BitbucketCloudBindingDefinition,
-    optionalFields: {}
-  }
+    optionalFields: {},
+  },
 };
 
 export default class AlmBindingDefinitionForm extends React.PureComponent<Props, State> {
@@ -141,7 +141,7 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
       formData: props.bindingDefinition ?? BINDING_PER_ALM[alm].defaultBinding,
       touched: false,
       submitting: false,
-      bitbucketVariant
+      bitbucketVariant,
     };
   }
 
@@ -157,9 +157,9 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
     this.setState(({ formData }) => ({
       formData: {
         ...formData,
-        [fieldId]: value
+        [fieldId]: value,
       },
-      touched: true
+      touched: true,
     }));
   };
 
@@ -174,13 +174,13 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
       apiMethod = BINDING_PER_ALM[apiAlm].updateApi({
         newKey: formData.key,
         ...formData,
-        key: alreadySavedFormData.key
+        key: alreadySavedFormData.key,
       } as any);
     } else if (this.props.bindingDefinition?.key) {
       apiMethod = BINDING_PER_ALM[apiAlm].updateApi({
         newKey: formData.key,
         ...formData,
-        key: this.props.bindingDefinition.key
+        key: this.props.bindingDefinition.key,
       } as any);
     } else {
       apiMethod = BINDING_PER_ALM[apiAlm].createApi({ ...formData } as any);
@@ -234,7 +234,7 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
   ) => {
     this.setState({
       bitbucketVariant,
-      formData: { ...BINDING_PER_ALM[bitbucketVariant].defaultBinding }
+      formData: { ...BINDING_PER_ALM[bitbucketVariant].defaultBinding },
     });
   };
 

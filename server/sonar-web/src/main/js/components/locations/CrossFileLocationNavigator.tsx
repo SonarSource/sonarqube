@@ -83,7 +83,7 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
             component: currentComponent,
             componentName: currentComponentName,
             firstLocationIndex: currentFirstLocationIndex,
-            locations: currentLocations
+            locations: currentLocations,
           });
         }
         currentLocations = [location];
@@ -98,7 +98,7 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
         component: currentComponent,
         componentName: currentComponentName,
         firstLocationIndex: currentFirstLocationIndex,
-        locations: currentLocations
+        locations: currentLocations,
       });
     }
 

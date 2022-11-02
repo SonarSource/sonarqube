@@ -24,7 +24,7 @@ import SearchBox from '../../../../../../components/controls/SearchBox';
 import { KeyboardKeys } from '../../../../../../helpers/keycodes';
 import {
   mockPullRequest,
-  mockSetOfBranchAndPullRequest
+  mockSetOfBranchAndPullRequest,
 } from '../../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
 import { mockRouter } from '../../../../../../helpers/testMocks';
@@ -60,18 +60,15 @@ it('should change url and close menu when an element is selected', () => {
 
   const wrapper = shallowRender({ component, onClose, router });
 
-  wrapper
-    .find(MenuItemList)
-    .props()
-    .onSelect(pr);
+  wrapper.find(MenuItemList).props().onSelect(pr);
 
   expect(onClose).toHaveBeenCalled();
   expect(push).toHaveBeenCalledWith(
     expect.objectContaining({
       search: queryToSearch({
         id: component.key,
-        pullRequest: pr.key
-      })
+        pullRequest: pr.key,
+      }),
     })
   );
 });
@@ -79,10 +76,7 @@ it('should change url and close menu when an element is selected', () => {
 it('should filter branchlike list correctly', () => {
   const wrapper = shallowRender();
 
-  wrapper
-    .find(SearchBox)
-    .props()
-    .onChange('PR');
+  wrapper.find(SearchBox).props().onChange('PR');
 
   expect(wrapper.state().branchLikesToDisplay.length).toBe(3);
 });

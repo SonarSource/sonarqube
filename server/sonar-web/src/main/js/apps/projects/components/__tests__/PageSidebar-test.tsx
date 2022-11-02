@@ -28,7 +28,7 @@ import PageSidebar, { PageSidebarProps } from '../PageSidebar';
 
 it('should render the right facets for overview', () => {
   renderPageSidebar({
-    query: { size: '3' }
+    query: { size: '3' },
   });
 
   expect(screen.getByRole('heading', { level: 3, name: 'metric_domain.Size' })).toBeInTheDocument();
@@ -45,7 +45,7 @@ it('should render the right facets for overview', () => {
 it('should not show the qualifier facet with no applications', () => {
   renderPageSidebar({
     applicationsEnabled: false,
-    query: { size: '3' }
+    query: { size: '3' },
   });
 
   expect(
@@ -56,7 +56,7 @@ it('should not show the qualifier facet with no applications', () => {
 it('should show "new lines" instead of "size" when in `leak` view', () => {
   renderPageSidebar({
     query: { view: 'leak' },
-    view: 'leak'
+    view: 'leak',
   });
 
   expect(
@@ -74,7 +74,7 @@ it('should allow to clear all filters', async () => {
   renderPageSidebar({
     onClearAll,
     applicationsEnabled: false,
-    query: { size: '3', reliability: '2' }
+    query: { size: '3', reliability: '2' },
   });
 
   const clearAllButton = screen.getByRole('button', { name: 'clear_all_filters' });
@@ -93,8 +93,9 @@ function renderPageSidebar(overrides: Partial<PageSidebarProps> = {}, currentUse
       value={{
         currentUser: currentUser ?? mockCurrentUser(),
         updateCurrentUserHomepage: jest.fn(),
-        updateDismissedNotices: jest.fn()
-      }}>
+        updateDismissedNotices: jest.fn(),
+      }}
+    >
       <PageSidebar
         applicationsEnabled={true}
         onClearAll={jest.fn()}

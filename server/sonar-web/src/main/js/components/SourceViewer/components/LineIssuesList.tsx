@@ -48,7 +48,7 @@ export default function LineIssuesList(props: LineIssuesListProps) {
     selectedIssue,
     issuesForLine,
     issueLocationsByLine,
-    issuePopup
+    issuePopup,
   } = props;
 
   const showIssues = openIssuesByLine[line.line] || displayAllIssues;
@@ -57,7 +57,7 @@ export default function LineIssuesList(props: LineIssuesListProps) {
   if (showIssues && issuesForLine.length > 0) {
     displayedIssue = issuesForLine;
   } else if (selectedIssue && !showIssues && issueLocations.length) {
-    displayedIssue = issuesForLine.filter(i => i.key === selectedIssue);
+    displayedIssue = issuesForLine.filter((i) => i.key === selectedIssue);
   }
 
   if (displayedIssue.length === 0) {
@@ -65,7 +65,7 @@ export default function LineIssuesList(props: LineIssuesListProps) {
   }
   return (
     <div className="issue-list">
-      {displayedIssue.map(issue => (
+      {displayedIssue.map((issue) => (
         <Issue
           branchLike={props.branchLike}
           displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}

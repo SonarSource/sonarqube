@@ -25,14 +25,14 @@ import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks
 import { RiskExposure } from '../../../../types/security-hotspots';
 import {
   HotspotPrimaryLocationBox,
-  HotspotPrimaryLocationBoxProps
+  HotspotPrimaryLocationBoxProps,
 } from '../HotspotPrimaryLocationBox';
 
 jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
     useRef: jest.fn(),
-    useEffect: jest.fn()
+    useEffect: jest.fn(),
   };
 });
 
@@ -43,9 +43,9 @@ it('should render correctly', () => {
 
 it.each([[RiskExposure.HIGH], [RiskExposure.MEDIUM], [RiskExposure.LOW]])(
   'should indicate risk exposure: %s',
-  vulnerabilityProbability => {
+  (vulnerabilityProbability) => {
     const wrapper = shallowRender({
-      hotspot: mockHotspot({ rule: mockHotspotRule({ vulnerabilityProbability }) })
+      hotspot: mockHotspot({ rule: mockHotspotRule({ vulnerabilityProbability }) }),
     });
 
     expect(wrapper.hasClass(`hotspot-risk-exposure-${vulnerabilityProbability}`)).toBe(true);
@@ -64,7 +64,7 @@ it('should handle click', () => {
 it('should scroll on load if no secondary locations selected', () => {
   const node = document.createElement('div');
   (React.useRef as jest.Mock).mockImplementationOnce(() => ({ current: node }));
-  (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
+  (React.useEffect as jest.Mock).mockImplementationOnce((f) => f());
 
   const scroll = jest.fn();
   shallowRender({ scroll });
@@ -75,7 +75,7 @@ it('should scroll on load if no secondary locations selected', () => {
 it('should not scroll on load if a secondary location is selected', () => {
   const node = document.createElement('div');
   (React.useRef as jest.Mock).mockImplementationOnce(() => ({ current: node }));
-  (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
+  (React.useEffect as jest.Mock).mockImplementationOnce((f) => f());
 
   const scroll = jest.fn();
   shallowRender({ scroll, secondaryLocationSelected: true });
@@ -85,7 +85,7 @@ it('should not scroll on load if a secondary location is selected', () => {
 
 it('should not scroll on load if node is not defined', () => {
   (React.useRef as jest.Mock).mockImplementationOnce(() => ({ current: undefined }));
-  (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
+  (React.useEffect as jest.Mock).mockImplementationOnce((f) => f());
 
   const scroll = jest.fn();
   shallowRender({ scroll });

@@ -25,7 +25,7 @@ import {
   Paging,
   PermissionGroup,
   PermissionUser,
-  Visibility
+  Visibility,
 } from '../../../../types/types';
 import HoldersList from '../../shared/components/HoldersList';
 import SearchForm from '../../shared/components/SearchForm';
@@ -106,7 +106,8 @@ export default class AllHoldersList extends React.PureComponent<Props> {
           permissions={permissions}
           query={this.props.query}
           selectedPermission={this.props.selectedPermission}
-          users={this.props.users}>
+          users={this.props.users}
+        >
           <SearchForm
             filter={this.props.filter}
             onFilter={this.props.onFilterChange}

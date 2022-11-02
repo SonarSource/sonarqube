@@ -24,7 +24,7 @@ import ActionChangelog from '../ActionChangelog';
 it('should render', () => {
   const changelog = [
     { version: '5.0', description: 'foo' },
-    { version: '5.1', description: 'bar' }
+    { version: '5.1', description: 'bar' },
   ];
   expect(shallow(<ActionChangelog changelog={changelog} />)).toMatchSnapshot();
 });

@@ -24,7 +24,7 @@ import {
   dissociateGateWithProject,
   fetchQualityGates,
   getGateForProject,
-  searchProjects
+  searchProjects,
 } from '../../../api/quality-gates';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -42,14 +42,14 @@ jest.mock('../../../api/quality-gates', () => {
     gate1: mockQualityGate({ id: 'gate1' }),
     gate2: mockQualityGate({ id: 'gate2', isBuiltIn: true }),
     gate3: mockQualityGate({ id: 'gate3', isDefault: true }),
-    gate4: mockQualityGate({ id: 'gate4' })
+    gate4: mockQualityGate({ id: 'gate4' }),
   };
 
   return {
     associateGateWithProject: jest.fn().mockResolvedValue(null),
     dissociateGateWithProject: jest.fn().mockResolvedValue(null),
     fetchQualityGates: jest.fn().mockResolvedValue({
-      qualitygates: Object.values(gates)
+      qualitygates: Object.values(gates),
     }),
     fetchQualityGate: jest.fn().mockImplementation((qg: { id: keyof typeof gates }) => {
       if (qg.id === 'gate4') {
@@ -58,12 +58,12 @@ jest.mock('../../../api/quality-gates', () => {
       return Promise.resolve({ conditions, ...gates[qg.id] });
     }),
     getGateForProject: jest.fn().mockResolvedValue(gates.gate2),
-    searchProjects: jest.fn().mockResolvedValue({ results: [] })
+    searchProjects: jest.fn().mockResolvedValue({ results: [] }),
   };
 });
 
 jest.mock('../../../helpers/globalMessages', () => ({
-  addGlobalSuccessMessage: jest.fn()
+  addGlobalSuccessMessage: jest.fn(),
 }));
 
 jest.mock('../../../app/utils/handleRequiredAuthorization', () => jest.fn());
@@ -111,7 +111,7 @@ it('correctly detects if the default Quality Gate was explicitly selected', asyn
     mockQualityGate({ id: 'gate3', isDefault: true })
   );
   (searchProjects as jest.Mock).mockResolvedValueOnce({
-    results: [{ key: 'foo', selected: true }]
+    results: [{ key: 'foo', selected: true }],
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -131,7 +131,7 @@ it('correctly associates a selected Quality Gate', async () => {
 
   expect(associateGateWithProject).toHaveBeenCalledWith({
     gateId: 'gate3',
-    projectKey: 'foo'
+    projectKey: 'foo',
   });
 });
 
@@ -141,13 +141,13 @@ it('correctly associates a project with the system default Quality Gate', async 
 
   wrapper.setState({
     currentQualityGate: mockQualityGate({ id: 'gate1' }),
-    selectedQualityGateId: USE_SYSTEM_DEFAULT
+    selectedQualityGateId: USE_SYSTEM_DEFAULT,
   });
   wrapper.instance().handleSubmit();
 
   expect(dissociateGateWithProject).toHaveBeenCalledWith({
     gateId: 'gate1',
-    projectKey: 'foo'
+    projectKey: 'foo',
   });
 });
 

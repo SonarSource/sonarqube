@@ -52,16 +52,16 @@ export default class LineChart extends React.PureComponent<Props> {
     }
 
     const area = d3Area<DataPoint>()
-      .x(d => xScale(d.x))
+      .x((d) => xScale(d.x))
       .y0(yScale.range()[0])
-      .y1(d => yScale(d.y || 0))
-      .defined(d => d.y != null)
+      .y1((d) => yScale(d.y || 0))
+      .defined((d) => d.y != null)
       .curve(curveBasis);
 
     let { data } = this.props;
     if (this.props.backdropConstraints) {
       const c = this.props.backdropConstraints;
-      data = data.filter(d => c[0] <= d.x && d.x <= c[1]);
+      data = data.filter((d) => c[0] <= d.x && d.x <= c[1]);
     }
 
     return <path className="line-chart-backdrop" d={area(data) as string} />;
@@ -75,7 +75,7 @@ export default class LineChart extends React.PureComponent<Props> {
     }
 
     const points = this.props.data
-      .filter(point => point.y != null)
+      .filter((point) => point.y != null)
       .map((point, index) => {
         const x = xScale(point.x);
         const y = yScale(point.y || 0);
@@ -146,9 +146,9 @@ export default class LineChart extends React.PureComponent<Props> {
 
   renderLine(xScale: ScaleLinear<number, number>, yScale: ScaleLinear<number, number>) {
     const p = d3Line<DataPoint>()
-      .x(d => xScale(d.x))
-      .y(d => yScale(d.y || 0))
-      .defined(d => d.y != null)
+      .x((d) => xScale(d.x))
+      .y((d) => yScale(d.y || 0))
+      .defined((d) => d.y != null)
       .curve(curveBasis);
     return <path className="line-chart-path" d={p(this.props.data) as string} />;
   }
@@ -164,14 +164,14 @@ export default class LineChart extends React.PureComponent<Props> {
     const availableHeight = height - padding[0] - padding[2];
 
     const xScale = scaleLinear()
-      .domain(extent(this.props.data, d => d.x) as [number, number])
+      .domain(extent(this.props.data, (d) => d.x) as [number, number])
       .range([0, availableWidth]);
     const yScale = scaleLinear().range([availableHeight, 0]);
 
     if (this.props.domain) {
       yScale.domain(this.props.domain);
     } else {
-      const maxY = max(this.props.data, d => d.y) as number;
+      const maxY = max(this.props.data, (d) => d.y) as number;
       yScale.domain([0, maxY]);
     }
 
@@ -193,7 +193,7 @@ export default class LineChart extends React.PureComponent<Props> {
     return this.props.width !== undefined ? (
       this.renderChart(this.props.width)
     ) : (
-      <AutoSizer disableHeight={true}>{size => this.renderChart(size.width)}</AutoSizer>
+      <AutoSizer disableHeight={true}>{(size) => this.renderChart(size.width)}</AutoSizer>
     );
   }
 }

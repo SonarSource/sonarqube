@@ -48,7 +48,7 @@ export default class App extends React.PureComponent<{}, State> {
       groups: [],
       loading: true,
       query: '',
-      users: []
+      users: [],
     };
   }
 
@@ -68,7 +68,7 @@ export default class App extends React.PureComponent<{}, State> {
       filter !== 'groups'
         ? api.getGlobalPermissionsUsers({
             q: query || undefined,
-            p: userPage
+            p: userPage,
           })
         : Promise.resolve({ paging: undefined, users: [] });
 
@@ -76,7 +76,7 @@ export default class App extends React.PureComponent<{}, State> {
       filter !== 'users'
         ? api.getGlobalPermissionsGroups({
             q: query || undefined,
-            p: groupsPage
+            p: groupsPage,
           })
         : Promise.resolve({ paging: undefined, groups: [] });
 
@@ -92,7 +92,7 @@ export default class App extends React.PureComponent<{}, State> {
           groupsPaging: groupsResponse.paging,
           loading: false,
           users: usersResponse.users,
-          usersPaging: usersResponse.paging
+          usersPaging: usersResponse.paging,
         });
       }
     }, this.stopLoading);
@@ -111,7 +111,7 @@ export default class App extends React.PureComponent<{}, State> {
           groupsPaging: groupsResponse.paging,
           loading: false,
           users: [...users, ...usersResponse.users],
-          usersPaging: usersResponse.paging
+          usersPaging: usersResponse.paging,
         }));
       }
     }, this.stopLoading);
@@ -126,7 +126,7 @@ export default class App extends React.PureComponent<{}, State> {
   };
 
   addPermissionToGroup = (groups: PermissionGroup[], group: string, permission: string) => {
-    return groups.map(candidate =>
+    return groups.map((candidate) =>
       candidate.name === group
         ? { ...candidate, permissions: [...candidate.permissions, permission] }
         : candidate
@@ -134,7 +134,7 @@ export default class App extends React.PureComponent<{}, State> {
   };
 
   addPermissionToUser = (users: PermissionUser[], user: string, permission: string) => {
-    return users.map(candidate =>
+    return users.map((candidate) =>
       candidate.login === user
         ? { ...candidate, permissions: [...candidate.permissions, permission] }
         : candidate
@@ -142,7 +142,7 @@ export default class App extends React.PureComponent<{}, State> {
   };
 
   removePermissionFromGroup = (groups: PermissionGroup[], group: string, permission: string) => {
-    return groups.map(candidate =>
+    return groups.map((candidate) =>
       candidate.name === group
         ? { ...candidate, permissions: without(candidate.permissions, permission) }
         : candidate
@@ -150,7 +150,7 @@ export default class App extends React.PureComponent<{}, State> {
   };
 
   removePermissionFromUser = (users: PermissionUser[], user: string, permission: string) => {
-    return users.map(candidate =>
+    return users.map((candidate) =>
       candidate.login === user
         ? { ...candidate, permissions: without(candidate.permissions, permission) }
         : candidate
@@ -160,19 +160,19 @@ export default class App extends React.PureComponent<{}, State> {
   grantPermissionToGroup = (group: string, permission: string) => {
     if (this.mounted) {
       this.setState(({ groups }) => ({
-        groups: this.addPermissionToGroup(groups, group, permission)
+        groups: this.addPermissionToGroup(groups, group, permission),
       }));
       return api
         .grantPermissionToGroup({
           groupName: group,
-          permission
+          permission,
         })
         .then(
           () => {},
           () => {
             if (this.mounted) {
               this.setState(({ groups }) => ({
-                groups: this.removePermissionFromGroup(groups, group, permission)
+                groups: this.removePermissionFromGroup(groups, group, permission),
               }));
             }
           }
@@ -184,19 +184,19 @@ export default class App extends React.PureComponent<{}, State> {
   grantPermissionToUser = (user: string, permission: string) => {
     if (this.mounted) {
       this.setState(({ users }) => ({
-        users: this.addPermissionToUser(users, user, permission)
+        users: this.addPermissionToUser(users, user, permission),
       }));
       return api
         .grantPermissionToUser({
           login: user,
-          permission
+          permission,
         })
         .then(
           () => {},
           () => {
             if (this.mounted) {
               this.setState(({ users }) => ({
-                users: this.removePermissionFromUser(users, user, permission)
+                users: this.removePermissionFromUser(users, user, permission),
               }));
             }
           }
@@ -208,19 +208,19 @@ export default class App extends React.PureComponent<{}, State> {
   revokePermissionFromGroup = (group: string, permission: string) => {
     if (this.mounted) {
       this.setState(({ groups }) => ({
-        groups: this.removePermissionFromGroup(groups, group, permission)
+        groups: this.removePermissionFromGroup(groups, group, permission),
       }));
       return api
         .revokePermissionFromGroup({
           groupName: group,
-          permission
+          permission,
         })
         .then(
           () => {},
           () => {
             if (this.mounted) {
               this.setState(({ groups }) => ({
-                groups: this.addPermissionToGroup(groups, group, permission)
+                groups: this.addPermissionToGroup(groups, group, permission),
               }));
             }
           }
@@ -232,19 +232,19 @@ export default class App extends React.PureComponent<{}, State> {
   revokePermissionFromUser = (user: string, permission: string) => {
     if (this.mounted) {
       this.setState(({ users }) => ({
-        users: this.removePermissionFromUser(users, user, permission)
+        users: this.removePermissionFromUser(users, user, permission),
       }));
       return api
         .revokePermissionFromUser({
           login: user,
-          permission
+          permission,
         })
         .then(
           () => {},
           () => {
             if (this.mounted) {
               this.setState(({ users }) => ({
-                users: this.addPermissionToUser(users, user, permission)
+                users: this.addPermissionToUser(users, user, permission),
               }));
             }
           }

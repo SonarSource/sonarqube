@@ -31,7 +31,7 @@ import {
   Paging,
   SourceLine,
   SourceViewerFile,
-  Visibility
+  Visibility,
 } from '../types/types';
 
 export interface BaseSearchProjectsParameters {
@@ -60,9 +60,7 @@ export interface SearchProjectsParameters extends BaseSearchProjectsParameters {
   ps?: number;
 }
 
-export function getComponents(
-  parameters: SearchProjectsParameters
-): Promise<{
+export function getComponents(parameters: SearchProjectsParameters): Promise<{
   components: Project[];
   paging: Paging;
 }> {
@@ -184,11 +182,11 @@ export function getComponentShow(data: { component: string } & BranchParameters)
 }
 
 export function getParents(component: string): Promise<any> {
-  return getComponentShow({ component }).then(r => r.ancestors);
+  return getComponentShow({ component }).then((r) => r.ancestors);
 }
 
 export function getBreadcrumbs(data: { component: string } & BranchParameters): Promise<any> {
-  return getComponentShow(data).then(r => {
+  return getComponentShow(data).then((r) => {
     const reversedAncestors = [...r.ancestors].reverse();
     return [...reversedAncestors, r.component];
   });
@@ -219,9 +217,7 @@ export interface Facet {
   values: Array<{ val: string; count: number }>;
 }
 
-export function searchProjects(
-  data: RequestData
-): Promise<{
+export function searchProjects(data: RequestData): Promise<{
   components: Component[];
   facets: Facet[];
   paging: Paging;
@@ -286,7 +282,7 @@ export function getComponentForSourceViewer(
 export function getSources(
   data: { key: string; from?: number; to?: number } & BranchParameters
 ): Promise<SourceLine[]> {
-  return getJSON('/api/sources/lines', data).then(r => r.sources);
+  return getJSON('/api/sources/lines', data).then((r) => r.sources);
 }
 
 export function getDuplications(
@@ -298,7 +294,7 @@ export function getDuplications(
 export function getTests(
   data: { sourceFileKey: string; sourceFileLineNumber: number | string } & BranchParameters
 ): Promise<any> {
-  return getJSON('/api/tests/list', data).then(r => r.tests);
+  return getJSON('/api/tests/list', data).then((r) => r.tests);
 }
 
 interface ProjectResponse {

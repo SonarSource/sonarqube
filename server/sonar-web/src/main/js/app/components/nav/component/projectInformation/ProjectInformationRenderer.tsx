@@ -27,7 +27,7 @@ import { ComponentQualifier } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Component, Measure } from '../../../../../types/types';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../available-features/withAvailableFeatures';
 import DrawerLink from './DrawerLink';
 import MetaKey from './meta/MetaKey';
@@ -144,7 +144,8 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
                     branchLike={branchLike}
                     onClose={onClose}
                   />
-                )}>
+                )}
+              >
                 {({ onClick }) => (
                   <ButtonLink onClick={onClick}>{translate('regulatory_report.page')}</ButtonLink>
                 )}

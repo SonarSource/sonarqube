@@ -32,24 +32,24 @@ const ACTION = {
       key: 'param',
       description: 'Param desc',
       internal: true,
-      required: true
-    }
+      required: true,
+    },
   ],
-  post: false
+  post: false,
 };
 const DOMAIN = {
   actions: [ACTION],
   path: 'foo',
   description: 'API Foo',
   deprecated: false,
-  internal: false
+  internal: false,
 };
 
 const PROPS = {
   action: ACTION,
   domain: DOMAIN,
   showDeprecated: false,
-  showInternal: false
+  showInternal: false,
 };
 
 it('should render correctly', () => {

@@ -26,14 +26,14 @@ export const PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE = [
   'issueadmin',
   'securityhotspotadmin',
   'admin',
-  'scan'
+  'scan',
 ];
 
 export const PERMISSIONS_ORDER_GLOBAL = [
   'admin',
   { category: 'administer', permissions: ['gateadmin', 'profileadmin'] },
   'scan',
-  { category: 'creator', permissions: ['provisioning', 'applicationcreator', 'portfoliocreator'] }
+  { category: 'creator', permissions: ['provisioning', 'applicationcreator', 'portfoliocreator'] },
 ];
 
 export const PERMISSIONS_ORDER_FOR_VIEW = ['user', 'admin'];
@@ -45,7 +45,7 @@ export const PERMISSIONS_ORDER_BY_QUALIFIER: Dict<string[]> = {
   VW: PERMISSIONS_ORDER_FOR_VIEW,
   SVW: PERMISSIONS_ORDER_FOR_VIEW,
   APP: PERMISSIONS_ORDER_FOR_VIEW,
-  DEV: PERMISSIONS_ORDER_FOR_DEV
+  DEV: PERMISSIONS_ORDER_FOR_DEV,
 };
 
 function convertToPermissionDefinition(permission: string, l10nPrefix: string) {
@@ -55,7 +55,7 @@ function convertToPermissionDefinition(permission: string, l10nPrefix: string) {
   return {
     key: permission,
     name,
-    description
+    description,
   };
 }
 
@@ -64,17 +64,17 @@ export function filterPermissions(
   hasApplicationsEnabled: boolean,
   hasPortfoliosEnabled: boolean
 ) {
-  return permissions.map(permission => {
+  return permissions.map((permission) => {
     if (typeof permission === 'object' && permission.category === 'creator') {
       return {
         ...permission,
-        permissions: permission.permissions.filter(p => {
+        permissions: permission.permissions.filter((p) => {
           return (
             p === 'provisioning' ||
             (p === 'portfoliocreator' && hasPortfoliosEnabled) ||
             (p === 'applicationcreator' && hasApplicationsEnabled)
           );
-        })
+        }),
       };
     }
     return permission;
@@ -85,13 +85,13 @@ export function convertToPermissionDefinitions(
   permissions: Array<string | { category: string; permissions: string[] }>,
   l10nPrefix: string
 ): Array<PermissionDefinition | PermissionDefinitionGroup> {
-  return permissions.map(permission => {
+  return permissions.map((permission) => {
     if (typeof permission === 'object') {
       return {
         category: permission.category,
-        permissions: permission.permissions.map(permission =>
+        permissions: permission.permissions.map((permission) =>
           convertToPermissionDefinition(permission, l10nPrefix)
-        )
+        ),
       };
     }
     return convertToPermissionDefinition(permission, l10nPrefix);

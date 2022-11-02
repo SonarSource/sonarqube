@@ -56,7 +56,7 @@ function render(props?: Partial<ButtonToggleProps>) {
       options={[
         { value: 'one', label: 'first' },
         { value: 'two', label: 'second' },
-        { value: 'tree', label: 'third' }
+        { value: 'tree', label: 'third' },
       ]}
       value="two"
       {...props}

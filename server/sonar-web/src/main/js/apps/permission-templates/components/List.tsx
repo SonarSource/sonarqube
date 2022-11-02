@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default function List(props: Props) {
-  const permissionTemplates = props.permissionTemplates.map(p => (
+  const permissionTemplates = props.permissionTemplates.map((p) => (
     <ListItem key={p.id} refresh={props.refresh} template={p} topQualifiers={props.topQualifiers} />
   ));
 

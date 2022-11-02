@@ -31,14 +31,14 @@ import {
   updateBitbucketServerConfiguration,
   updateGithubConfiguration,
   updateGitlabConfiguration,
-  validateAlmSettings
+  validateAlmSettings,
 } from '../../../../../api/alm-settings';
 import {
   mockAzureBindingDefinition,
   mockBitbucketCloudBindingDefinition,
   mockBitbucketServerBindingDefinition,
   mockGithubBindingDefinition,
-  mockGitlabBindingDefinition
+  mockGitlabBindingDefinition,
 } from '../../../../../helpers/mocks/alm-settings';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { AlmBindingDefinition, AlmKeys } from '../../../../../types/alm-settings';
@@ -57,7 +57,7 @@ jest.mock('../../../../../api/alm-settings', () => ({
   updateGithubConfiguration: jest.fn().mockResolvedValue({}),
   updateGitlabConfiguration: jest.fn().mockResolvedValue({}),
   validateAlmSettings: jest.fn().mockResolvedValue(undefined),
-  deleteConfiguration: jest.fn().mockResolvedValue(undefined)
+  deleteConfiguration: jest.fn().mockResolvedValue(undefined),
 }));
 
 beforeEach(() => {
@@ -111,10 +111,7 @@ it('should handle validation error during submit, and cancellation', async () =>
   expect(wrapper.state().validationError).toBe(error);
   expect(afterSubmit).not.toHaveBeenCalledWith();
 
-  wrapper
-    .find(AlmBindingDefinitionFormRenderer)
-    .props()
-    .onCancel();
+  wrapper.find(AlmBindingDefinitionFormRenderer).props().onCancel();
   expect(deleteConfiguration).toHaveBeenCalledWith(formData.key);
 });
 
@@ -129,8 +126,8 @@ it.each([
   [
     AlmKeys.BitbucketServer,
     mockBitbucketServerBindingDefinition(),
-    updateBitbucketServerConfiguration
-  ]
+    updateBitbucketServerConfiguration,
+  ],
 ])(
   'should call the proper api on submit for %s | %s',
   async (
@@ -150,7 +147,7 @@ it('should call the proper api for BBC', async () => {
   const wrapper = shallowRender({
     // Reminder: due to the way the settings app works, we never pass AlmKeys.BitbucketCloud as `alm`.
     alm: AlmKeys.BitbucketServer,
-    bindingDefinition: undefined
+    bindingDefinition: undefined,
   });
 
   wrapper.instance().handleBitbucketVariantChange(AlmKeys.BitbucketCloud);
@@ -179,7 +176,7 @@ it('should store bitbucket variant', async () => {
     clientId: '',
     clientSecret: '',
     key: '',
-    workspace: ''
+    workspace: '',
   });
 });
 
@@ -187,13 +184,13 @@ it('should (dis)allow submit by validating its state (Bitbucket Cloud)', () => {
   const wrapper = shallowRender({
     // Reminder: due to the way the settings app works, we never pass AlmKeys.BitbucketCloud as `alm`.
     alm: AlmKeys.BitbucketServer,
-    bindingDefinition: mockBitbucketCloudBindingDefinition()
+    bindingDefinition: mockBitbucketCloudBindingDefinition(),
   });
   expect(wrapper.instance().canSubmit()).toBe(false);
 
   wrapper.setState({
     formData: mockBitbucketCloudBindingDefinition({ workspace: 'foo/bar' }),
-    touched: true
+    touched: true,
   });
   expect(wrapper.instance().canSubmit()).toBe(false);
 

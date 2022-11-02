@@ -73,7 +73,7 @@ export function BranchLikeTable(props: BranchLikeTableProps) {
           </tr>
         </thead>
         <tbody>
-          {branchLikes.map(branchLike => (
+          {branchLikes.map((branchLike) => (
             <BranchLikeRow
               branchLike={branchLike}
               component={component}

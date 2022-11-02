@@ -31,23 +31,19 @@ import HotspotReviewHistory, { HotspotReviewHistoryProps } from '../HotspotRevie
 jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
-    useState: jest.fn().mockImplementation(() => ['', jest.fn()])
+    useState: jest.fn().mockImplementation(() => ['', jest.fn()]),
   };
 });
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ showFullHistory: true })).toMatchSnapshot('show full list');
-  expect(
-    shallowRender({ showFullHistory: true })
-      .find(Toggler)
-      .props().overlay
-  ).toMatchSnapshot('edit comment overlay');
-  expect(
-    shallowRender({ showFullHistory: true })
-      .find(Dropdown)
-      .props().overlay
-  ).toMatchSnapshot('delete comment overlay');
+  expect(shallowRender({ showFullHistory: true }).find(Toggler).props().overlay).toMatchSnapshot(
+    'edit comment overlay'
+  );
+  expect(shallowRender({ showFullHistory: true }).find(Dropdown).props().overlay).toMatchSnapshot(
+    'delete comment overlay'
+  );
 });
 
 it('should correctly handle comment updating', () => {
@@ -59,17 +55,10 @@ it('should correctly handle comment updating', () => {
     const wrapper = shallowRender({ onEditComment, showFullHistory: true });
 
     // Closing the Toggler sets the edited key back to an empty string.
-    wrapper
-      .find(Toggler)
-      .at(0)
-      .props()
-      .onRequestClose();
+    wrapper.find(Toggler).at(0).props().onRequestClose();
     expect(setEditedCommentKey).toHaveBeenCalledWith('');
 
-    const editOnClick = wrapper
-      .find(EditButton)
-      .at(0)
-      .props().onClick;
+    const editOnClick = wrapper.find(EditButton).at(0).props().onClick;
     if (!editOnClick) {
       reject();
       return;
@@ -81,23 +70,14 @@ it('should correctly handle comment updating', () => {
 
     // Cancelling an edit sets the edited key back to an empty string
     const dropdownOverlay = shallow(
-      wrapper
-        .find(Toggler)
-        .at(0)
-        .props().overlay as React.ReactElement<DropdownOverlay>
+      wrapper.find(Toggler).at(0).props().overlay as React.ReactElement<DropdownOverlay>
     );
-    dropdownOverlay
-      .find(HotspotCommentPopup)
-      .props()
-      .onCancelEdit();
+    dropdownOverlay.find(HotspotCommentPopup).props().onCancelEdit();
     expect(setEditedCommentKey).toHaveBeenLastCalledWith('');
 
     // Updating the comment sets the edited key back to an empty string, and calls the
     // prop to update the comment value.
-    dropdownOverlay
-      .find(HotspotCommentPopup)
-      .props()
-      .onCommentEditSubmit('comment');
+    dropdownOverlay.find(HotspotCommentPopup).props().onCommentEditSubmit('comment');
     expect(onEditComment).toHaveBeenLastCalledWith('comment-1', 'comment');
     expect(setEditedCommentKey).toHaveBeenLastCalledWith('');
     expect(setEditedCommentKey).toHaveBeenCalledTimes(4);
@@ -115,10 +95,7 @@ it('should correctly handle comment deleting', () => {
     const wrapper = shallowRender({ onDeleteComment, showFullHistory: true });
 
     // Opening the deletion Dropdown sets the edited key back to an empty string.
-    const dropdownOnOpen = wrapper
-      .find(Dropdown)
-      .at(0)
-      .props().onOpen;
+    const dropdownOnOpen = wrapper.find(Dropdown).at(0).props().onOpen;
     if (!dropdownOnOpen) {
       reject();
       return;
@@ -128,10 +105,7 @@ it('should correctly handle comment deleting', () => {
 
     // Confirming deletion calls the prop to delete the comment.
     const dropdownOverlay = shallow(
-      wrapper
-        .find(Dropdown)
-        .at(0)
-        .props().overlay as React.ReactElement<HTMLDivElement>
+      wrapper.find(Dropdown).at(0).props().overlay as React.ReactElement<HTMLDivElement>
     );
     const deleteButtonOnClick = dropdownOverlay.find(Button).props().onClick;
     if (!deleteButtonOnClick) {
@@ -154,19 +128,19 @@ function shallowRender(props?: Partial<HotspotReviewHistoryProps>) {
         changelog: [
           mockIssueChangelog(),
           mockIssueChangelog({
-            creationDate: '2018-10-12'
-          })
+            creationDate: '2018-10-12',
+          }),
         ],
         comment: [
           mockHotspotComment({
             key: 'comment-1',
-            updatable: true
+            updatable: true,
           }),
           mockHotspotComment({ key: 'comment-2', user: mockUser({ name: undefined }) }),
           mockHotspotComment({ key: 'comment-3', user: mockUser({ active: false }) }),
           mockHotspotComment({ key: 'comment-4' }),
-          mockHotspotComment({ key: 'comment-5' })
-        ]
+          mockHotspotComment({ key: 'comment-5' }),
+        ],
       })}
       onDeleteComment={jest.fn()}
       onEditComment={jest.fn()}

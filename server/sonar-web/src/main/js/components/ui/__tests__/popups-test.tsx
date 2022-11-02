@@ -25,7 +25,7 @@ import { Popup, PopupArrow, PopupPlacement, PortalPopup } from '../popups';
 
 jest.mock('react-dom', () => ({
   ...jest.requireActual('react-dom'),
-  findDOMNode: jest.fn().mockReturnValue(undefined)
+  findDOMNode: jest.fn().mockReturnValue(undefined),
 }));
 
 describe('Popup', () => {
@@ -70,8 +70,8 @@ describe('PortalPopup', () => {
 
     wrapper.instance().popupNode = {
       current: {
-        getBoundingClientRect: jest.fn().mockReturnValue({ width: 8, height: 8 })
-      } as any
+        getBoundingClientRect: jest.fn().mockReturnValue({ width: 8, height: 8 }),
+      } as any,
     };
 
     wrapper.instance().positionPopup();

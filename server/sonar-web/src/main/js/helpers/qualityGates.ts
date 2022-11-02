@@ -20,7 +20,7 @@
 import {
   QualityGateApplicationStatusChildProject,
   QualityGateProjectStatus,
-  QualityGateStatusCondition
+  QualityGateStatusCondition,
 } from '../types/quality-gates';
 
 export function extractStatusConditionsFromProjectStatus(
@@ -28,13 +28,13 @@ export function extractStatusConditionsFromProjectStatus(
 ): QualityGateStatusCondition[] {
   const { conditions } = projectStatus;
   return conditions
-    ? conditions.map(c => ({
+    ? conditions.map((c) => ({
         actual: c.actualValue,
         error: c.errorThreshold,
         level: c.status,
         metric: c.metricKey,
         op: c.comparator,
-        period: c.periodIndex
+        period: c.periodIndex,
       }))
     : [];
 }
@@ -44,13 +44,13 @@ export function extractStatusConditionsFromApplicationStatusChildProject(
 ): QualityGateStatusCondition[] {
   const { conditions } = projectStatus;
   return conditions
-    ? conditions.map(c => ({
+    ? conditions.map((c) => ({
         actual: c.value,
         error: c.errorThreshold,
         level: c.status,
         metric: c.metric,
         op: c.comparator,
-        period: c.periodIndex
+        period: c.periodIndex,
       }))
     : [];
 }

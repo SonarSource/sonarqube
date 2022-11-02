@@ -51,11 +51,13 @@ export default class IssueChangelog extends React.PureComponent<Props> {
         <Toggler
           onRequestClose={this.handleClose}
           open={this.props.isOpen}
-          overlay={<ChangelogPopup issue={this.props.issue} />}>
+          overlay={<ChangelogPopup issue={this.props.issue} />}
+        >
           <ButtonLink
             aria-expanded={this.props.isOpen}
             className="issue-action issue-action-with-options js-issue-show-changelog"
-            onClick={this.handleClick}>
+            onClick={this.handleClick}
+          >
             <span className="issue-meta-label">
               <DateFromNow date={this.props.creationDate} />
             </span>

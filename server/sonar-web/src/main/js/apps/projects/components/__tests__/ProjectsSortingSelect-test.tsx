@@ -47,7 +47,7 @@ it('should render option correctly', () => {
         {...mockReactSelectOptionProps<Option, false, GroupTypeBase<Option>>({
           label: 'foo',
           value: 'foo',
-          short: 'fo'
+          short: 'fo',
         })}
       />
     )
@@ -57,7 +57,7 @@ it('should render option correctly', () => {
       <SortOption
         {...mockReactSelectOptionProps<Option, false, GroupTypeBase<Option>>({
           label: 'foo',
-          value: 'foo'
+          value: 'foo',
         })}
       />
     )
@@ -68,7 +68,7 @@ it('changes sorting', () => {
   const onChange = jest.fn();
   const instance = shallowRender({
     selectedSort: '-vulnerability',
-    onChange
+    onChange,
   }).instance() as ProjectsSortingSelect;
   instance.handleSortChange({ label: 'size', value: 'size' });
   expect(onChange).toHaveBeenCalledWith('size', true);

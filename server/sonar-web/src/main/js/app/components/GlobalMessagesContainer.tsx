@@ -38,7 +38,7 @@ export default class GlobalMessagesContainer extends React.Component<{}, State> 
     super(props);
 
     this.state = {
-      messages: []
+      messages: [],
     };
   }
 
@@ -65,7 +65,7 @@ export default class GlobalMessagesContainer extends React.Component<{}, State> 
   closeMessage = (messageId: string) => {
     if (this.mounted) {
       this.setState(({ messages }) => {
-        return { messages: messages.filter(m => m.id !== messageId) };
+        return { messages: messages.filter((m) => m.id !== messageId) };
       });
     }
   };
@@ -79,7 +79,7 @@ export default class GlobalMessagesContainer extends React.Component<{}, State> 
 
     return (
       <MessagesContainer>
-        {messages.map(message => (
+        {messages.map((message) => (
           <GlobalMessage
             closeGlobalMessage={this.closeMessage}
             key={message.id}

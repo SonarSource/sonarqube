@@ -70,7 +70,7 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
       header,
       headerDescription,
       isDestructive,
-      cancelButtonText = translate('cancel')
+      cancelButtonText = translate('cancel'),
     } = this.props;
     return (
       <ClickEventBoundary>
@@ -85,7 +85,8 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
             <SubmitButton
               autoFocus={true}
               className={isDestructive ? 'button-red' : undefined}
-              disabled={submitting || confirmDisable}>
+              disabled={submitting || confirmDisable}
+            >
               {confirmButtonText}
             </SubmitButton>
             <ResetButtonLink disabled={submitting} onClick={onCloseClick}>

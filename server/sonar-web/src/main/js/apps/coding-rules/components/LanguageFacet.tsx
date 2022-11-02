@@ -39,7 +39,7 @@ export class LanguageFacet extends React.PureComponent<Props> {
 
   handleSearch = (query: string) => {
     const options = this.getAllPossibleOptions();
-    const results = options.filter(language =>
+    const results = options.filter((language) =>
       language.name.toLowerCase().includes(query.toLowerCase())
     );
     const paging = { pageIndex: 1, pageSize: results.length, total: results.length };
@@ -53,7 +53,7 @@ export class LanguageFacet extends React.PureComponent<Props> {
     // for such language we don't know their display name, so let's just use their key
     // and make sure we reference each language only once
     return uniqBy<Language>(
-      [...Object.values(languages), ...Object.keys(stats).map(key => ({ key, name: key }))],
+      [...Object.values(languages), ...Object.keys(stats).map((key) => ({ key, name: key }))],
       (language: Language) => language.key
     );
   };
@@ -70,8 +70,8 @@ export class LanguageFacet extends React.PureComponent<Props> {
         facetHeader={translate('coding_rules.facet.languages')}
         fetching={false}
         getFacetItemText={this.getLanguageName}
-        getSearchResultKey={language => language.key}
-        getSearchResultText={language => language.name}
+        getSearchResultKey={(language) => language.key}
+        getSearchResultText={(language) => language.name}
         minSearchLength={1}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}

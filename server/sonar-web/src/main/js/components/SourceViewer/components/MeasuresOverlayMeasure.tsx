@@ -38,7 +38,8 @@ export default function MeasuresOverlayMeasure({ measure }: Props) {
     <div
       className="measure measure-one-line"
       data-metric={measure.metric.key}
-      key={measure.metric.key}>
+      key={measure.metric.key}
+    >
       <span className="measure-name">
         {isMetricKey(measure.metric.key) &&
           [MetricKey.bugs, MetricKey.vulnerabilities, MetricKey.code_smells].includes(

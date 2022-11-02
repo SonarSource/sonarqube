@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockBitbucketProject,
-  mockBitbucketRepository
+  mockBitbucketRepository,
 } from '../../../../helpers/mocks/alm-integrations';
 import { click } from '../../../../helpers/testUtils';
 import BitbucketProjectAccordion from '../BitbucketProjectAccordion';
@@ -51,13 +51,13 @@ function shallowRender(props: Partial<BitbucketRepositoriesProps> = {}) {
           allShown: true,
           repositories: [
             mockBitbucketRepository(),
-            mockBitbucketRepository({ id: 2, slug: 'bar', name: 'Bar', sqProjectKey: 'bar' })
-          ]
-        }
+            mockBitbucketRepository({ id: 2, slug: 'bar', name: 'Bar', sqProjectKey: 'bar' }),
+          ],
+        },
       }}
       projects={[
         mockBitbucketProject(),
-        mockBitbucketProject({ id: 2, key: 'project2', name: 'Project 2' })
+        mockBitbucketProject({ id: 2, key: 'project2', name: 'Project 2' }),
       ]}
       {...props}
     />

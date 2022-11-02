@@ -25,8 +25,8 @@ import { ProjectNotifications } from '../ProjectNotifications';
 jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
-    useEffect: jest.fn().mockImplementation(f => f()),
-    useRef: jest.fn().mockReturnValue({ current: document.createElement('h3') })
+    useEffect: jest.fn().mockImplementation((f) => f()),
+    useRef: jest.fn().mockReturnValue({ current: document.createElement('h3') }),
   };
 });
 
@@ -40,7 +40,7 @@ it('should add and remove a notification for the project', () => {
   const wrapper = shallowRender({ addNotification, removeNotification });
   const notification = {
     channel: 'EmailNotificationChannel',
-    type: 'SQ-MyNewIssues'
+    type: 'SQ-MyNewIssues',
   };
 
   wrapper.find('NotificationsList').prop<Function>('onAdd')(notification);
@@ -72,20 +72,20 @@ function shallowRender(props = {}) {
           channel: 'channel1',
           type: 'type-global',
           project: 'foo',
-          projectName: 'Foo'
+          projectName: 'Foo',
         },
         {
           channel: 'channel1',
           type: 'type-common',
           project: 'bar',
-          projectName: 'Bar'
+          projectName: 'Bar',
         },
         {
           channel: 'channel2',
           type: 'type-common',
           project: 'qux',
-          projectName: 'Qux'
-        }
+          projectName: 'Qux',
+        },
       ]}
       perProjectTypes={['type-common']}
       removeNotification={jest.fn()}

@@ -57,7 +57,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
         login: user.login,
         name: user.name || '',
         password: '',
-        scmAccounts: user.scmAccounts || []
+        scmAccounts: user.scmAccounts || [],
       };
     } else {
       this.state = {
@@ -65,7 +65,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
         login: '',
         name: '',
         password: '',
-        scmAccounts: []
+        scmAccounts: [],
       };
     }
   }
@@ -83,7 +83,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
       return throwGlobalError(response);
     } else {
       return parseError(response).then(
-        errorMsg => this.setState({ error: errorMsg }),
+        (errorMsg) => this.setState({ error: errorMsg }),
         throwGlobalError
       );
     }
@@ -107,7 +107,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
       login: this.state.login,
       name: this.state.name,
       password: this.state.password,
-      scmAccount: this.state.scmAccounts
+      scmAccount: this.state.scmAccounts,
     }).then(() => {
       this.props.onUpdateUsers();
       this.props.onClose();
@@ -120,7 +120,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
       email: user!.local ? this.state.email : undefined,
       login: this.state.login,
       name: user!.local ? this.state.name : undefined,
-      scmAccount: this.state.scmAccounts
+      scmAccount: this.state.scmAccounts,
     }).then(() => {
       this.props.onUpdateUsers();
       this.props.onClose();
@@ -140,7 +140,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
 
   handleRemoveScmAccount = (idx: number) =>
     this.setState(({ scmAccounts }) => ({
-      scmAccounts: scmAccounts.slice(0, idx).concat(scmAccounts.slice(idx + 1))
+      scmAccounts: scmAccounts.slice(0, idx).concat(scmAccounts.slice(idx + 1)),
     }));
 
   render() {
@@ -153,7 +153,8 @@ export default class UserForm extends React.PureComponent<Props, State> {
         header={header}
         onClose={this.props.onClose}
         onSubmit={user ? this.handleUpdateUser : this.handleCreateUser}
-        size="small">
+        size="small"
+      >
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form autoComplete="off" id="user-form" onSubmit={onFormSubmit}>
             <header className="modal-head">

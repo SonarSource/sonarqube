@@ -23,7 +23,7 @@ import BoxedTabs from '../../../../components/controls/BoxedTabs';
 import {
   mockMainBranch,
   mockPullRequest,
-  mockSetOfBranchAndPullRequest
+  mockSetOfBranchAndPullRequest,
 } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { BranchLikeTable } from '../BranchLikeTable';
@@ -48,28 +48,16 @@ it('should render deletion modal correctly', () => {
   const onBranchesChange = jest.fn();
   const wrapper = shallowRender({ onBranchesChange });
 
-  wrapper
-    .find(BranchLikeTable)
-    .props()
-    .onDelete(mockPullRequest());
+  wrapper.find(BranchLikeTable).props().onDelete(mockPullRequest());
   expect(wrapper.state().deleting).toBeDefined();
   expect(wrapper.find(DeleteBranchModal)).toMatchSnapshot();
 
-  wrapper
-    .find(DeleteBranchModal)
-    .props()
-    .onClose();
+  wrapper.find(DeleteBranchModal).props().onClose();
   expect(wrapper.state().deleting).toBeUndefined();
   expect(wrapper.find(DeleteBranchModal).exists()).toBe(false);
 
-  wrapper
-    .find(BranchLikeTable)
-    .props()
-    .onDelete(mockPullRequest());
-  wrapper
-    .find(DeleteBranchModal)
-    .props()
-    .onDelete();
+  wrapper.find(BranchLikeTable).props().onDelete(mockPullRequest());
+  wrapper.find(DeleteBranchModal).props().onDelete();
   expect(wrapper.state().deleting).toBeUndefined();
   expect(wrapper.find(DeleteBranchModal).exists()).toBe(false);
   expect(onBranchesChange).toHaveBeenCalled();
@@ -79,28 +67,16 @@ it('should render renaming modal correctly', () => {
   const onBranchesChange = jest.fn();
   const wrapper = shallowRender({ onBranchesChange });
 
-  wrapper
-    .find(BranchLikeTable)
-    .props()
-    .onRename(mockMainBranch());
+  wrapper.find(BranchLikeTable).props().onRename(mockMainBranch());
   expect(wrapper.state().renaming).toBeDefined();
   expect(wrapper.find(RenameBranchModal)).toMatchSnapshot();
 
-  wrapper
-    .find(RenameBranchModal)
-    .props()
-    .onClose();
+  wrapper.find(RenameBranchModal).props().onClose();
   expect(wrapper.state().renaming).toBeUndefined();
   expect(wrapper.find(RenameBranchModal).exists()).toBe(false);
 
-  wrapper
-    .find(BranchLikeTable)
-    .props()
-    .onRename(mockMainBranch());
-  wrapper
-    .find(RenameBranchModal)
-    .props()
-    .onRename();
+  wrapper.find(BranchLikeTable).props().onRename(mockMainBranch());
+  wrapper.find(RenameBranchModal).props().onRename();
   expect(wrapper.state().renaming).toBeUndefined();
   expect(wrapper.find(RenameBranchModal).exists()).toBe(false);
   expect(onBranchesChange).toHaveBeenCalled();
@@ -109,10 +85,7 @@ it('should render renaming modal correctly', () => {
 it('should NOT render renaming modal for non-main branch', () => {
   const wrapper = shallowRender();
 
-  wrapper
-    .find(BranchLikeTable)
-    .props()
-    .onRename(mockPullRequest());
+  wrapper.find(BranchLikeTable).props().onRename(mockPullRequest());
   expect(wrapper.state().renaming).toBeDefined();
   expect(wrapper.find(RenameBranchModal).exists()).toBe(false);
 });
@@ -121,10 +94,7 @@ it('should correctly propagate an update of purge settings', () => {
   const onBranchesChange = jest.fn();
   const wrapper = shallowRender({ onBranchesChange });
 
-  wrapper
-    .find(BranchLikeTable)
-    .props()
-    .onUpdatePurgeSetting();
+  wrapper.find(BranchLikeTable).props().onUpdatePurgeSetting();
 
   expect(onBranchesChange).toHaveBeenCalled();
 });

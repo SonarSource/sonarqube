@@ -30,11 +30,11 @@ export interface Query {
 const EXCLUDED_PLUGINS = ['license'];
 export function filterPlugins(plugins: Plugin[], search?: string): Plugin[] {
   if (!search) {
-    return plugins.filter(plugin => !EXCLUDED_PLUGINS.includes(plugin.key));
+    return plugins.filter((plugin) => !EXCLUDED_PLUGINS.includes(plugin.key));
   }
 
   const s = search.toLowerCase();
-  return plugins.filter(plugin => {
+  return plugins.filter((plugin) => {
     return (
       !EXCLUDED_PLUGINS.includes(plugin.key) &&
       (plugin.name.toLowerCase().includes(s) ||
@@ -48,7 +48,7 @@ export const DEFAULT_FILTER = 'all';
 export const parseQuery = memoize(
   (urlQuery: RawQuery): Query => ({
     filter: parseAsString(urlQuery['filter']) || DEFAULT_FILTER,
-    search: parseAsString(urlQuery['search'])
+    search: parseAsString(urlQuery['search']),
   })
 );
 
@@ -56,6 +56,6 @@ export const serializeQuery = memoize(
   (query: Query): RawQuery =>
     cleanQuery({
       filter: query.filter === DEFAULT_FILTER ? undefined : serializeString(query.filter),
-      search: query.search ? serializeString(query.search) : undefined
+      search: query.search ? serializeString(query.search) : undefined,
     })
 );

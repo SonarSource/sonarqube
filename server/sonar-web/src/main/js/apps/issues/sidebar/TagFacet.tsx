@@ -53,8 +53,8 @@ export default class TagFacet extends React.PureComponent<Props> {
       project,
       branch,
       ps: SEARCH_SIZE,
-      q: query
-    }).then(tags => ({ maxResults: tags.length === SEARCH_SIZE, results: tags }));
+      q: query,
+    }).then((tags) => ({ maxResults: tags.length === SEARCH_SIZE, results: tags }));
   };
 
   getTagName = (tag: string) => {
@@ -87,8 +87,8 @@ export default class TagFacet extends React.PureComponent<Props> {
         facetHeader={translate('issues.facet.tags')}
         fetching={this.props.fetching}
         getFacetItemText={this.getTagName}
-        getSearchResultKey={tag => tag}
-        getSearchResultText={tag => tag}
+        getSearchResultKey={(tag) => tag}
+        getSearchResultText={(tag) => tag}
         loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}

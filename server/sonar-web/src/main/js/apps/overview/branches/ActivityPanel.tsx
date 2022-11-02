@@ -24,7 +24,7 @@ import {
   DEFAULT_GRAPH,
   generateSeries,
   getDisplayedHistoryMetrics,
-  splitSeriesInGraphs
+  splitSeriesInGraphs,
 } from '../../../components/activity-graph/utils';
 import ActivityLink from '../../../components/common/ActivityLink';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -35,7 +35,7 @@ import { BranchLike } from '../../../types/branch-like';
 import {
   Analysis as AnalysisType,
   GraphType,
-  MeasureHistory
+  MeasureHistory,
 } from '../../../types/project-activity';
 import { Component, Metric } from '../../../types/types';
 import Analysis from './Analysis';
@@ -65,7 +65,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
     leakPeriodDate,
     loading,
     measuresHistory,
-    metrics
+    metrics,
   } = props;
 
   const displayedMetrics = getDisplayedHistoryMetrics(graph, []);
@@ -85,7 +85,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
       startDate.getTime() > leakPeriodDate.getTime() ? startDate : leakPeriodDate;
   }
 
-  const filteredAnalyses = analyses.filter(a => a.events.length > 0).slice(0, MAX_ANALYSES_NB);
+  const filteredAnalyses = analyses.filter((a) => a.events.length > 0).slice(0, MAX_ANALYSES_NB);
 
   return (
     <div className="overview-panel big-spacer-top" data-test="overview__activity-panel">
@@ -100,7 +100,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
                 analyses={[]}
                 ariaLabel={translateWithParameters(
                   'overview.activity.graph_shows_data_for_x',
-                  displayedMetrics.map(metricKey => localizeMetric(metricKey)).join(', ')
+                  displayedMetrics.map((metricKey) => localizeMetric(metricKey)).join(', ')
                 )}
                 canShowDataAsTable={false}
                 graph={graph}
@@ -121,12 +121,13 @@ export function ActivityPanel(props: ActivityPanelProps) {
             <div data-test="overview__activity-analyses">
               <DeferredSpinner
                 className="spacer-top spacer-left"
-                loading={analyses.length === 0 && loading}>
+                loading={analyses.length === 0 && loading}
+              >
                 {analyses.length === 0 ? (
                   <p className="spacer-top spacer-left note">{translate('no_results')}</p>
                 ) : (
                   <ul className="spacer-top spacer-left">
-                    {filteredAnalyses.map(analysis => (
+                    {filteredAnalyses.map((analysis) => (
                       <Analysis
                         analysis={analysis}
                         key={analysis.key}

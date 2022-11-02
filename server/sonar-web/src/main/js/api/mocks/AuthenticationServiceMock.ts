@@ -29,7 +29,7 @@ export default class AuthenticationServiceMock {
     mockSettingValue({ key: 'test1', value: '' }),
     mockSettingValue({ key: 'test2', value: 'test2' }),
     mockSettingValue({ key: 'sonar.auth.saml.certificate.secured' }),
-    mockSettingValue({ key: 'sonar.auth.saml.enabled', value: 'false' })
+    mockSettingValue({ key: 'sonar.auth.saml.enabled', value: 'false' }),
   ];
 
   constructor() {
@@ -41,7 +41,7 @@ export default class AuthenticationServiceMock {
 
   getValuesHandler = (data: { keys: string; component?: string } & BranchParameters) => {
     if (data.keys) {
-      return Promise.resolve(this.settingValues.filter(set => data.keys.includes(set.key)));
+      return Promise.resolve(this.settingValues.filter((set) => data.keys.includes(set.key)));
     }
     return Promise.resolve(this.settingValues);
   };
@@ -50,12 +50,12 @@ export default class AuthenticationServiceMock {
     if (value === 'error') {
       const res = new Response('', {
         status: 400,
-        statusText: 'fail'
+        statusText: 'fail',
       });
 
       return Promise.reject(res);
     }
-    const updatedSettingValue = this.settingValues.find(set => set.key === definition.key);
+    const updatedSettingValue = this.settingValues.find((set) => set.key === definition.key);
     if (updatedSettingValue) {
       updatedSettingValue.value = value;
     }
@@ -64,7 +64,7 @@ export default class AuthenticationServiceMock {
 
   resetValueHandler = (data: { keys: string; component?: string } & BranchParameters) => {
     if (data.keys) {
-      this.settingValues.forEach(set => {
+      this.settingValues.forEach((set) => {
         if (data.keys.includes(set.key)) {
           set.value = '';
         }

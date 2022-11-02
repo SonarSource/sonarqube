@@ -40,7 +40,7 @@ export interface ValidationInputProps {
 
 export enum ValidationInputErrorPlacement {
   Right,
-  Bottom
+  Bottom,
 }
 
 export default function ValidationInput(props: ValidationInputProps) {
@@ -55,7 +55,7 @@ export default function ValidationInput(props: ValidationInputProps) {
     isInvalid,
     isValid,
     label,
-    required
+    required,
   } = props;
   const hasError = isInvalid && error !== undefined;
 

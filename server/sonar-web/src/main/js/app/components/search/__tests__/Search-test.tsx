@@ -32,9 +32,9 @@ it('selects results', () => {
     more: { TRK: 15 },
     open: true,
     results: {
-      TRK: [component('foo'), component('bar')]
+      TRK: [component('foo'), component('bar')],
     },
-    selected: 'foo'
+    selected: 'foo',
   });
   expect(form.state().selected).toBe('foo');
   next(form, 'bar');
@@ -65,13 +65,13 @@ it('opens selected project on enter', () => {
   form.setState({
     open: true,
     results: { [ComponentQualifier.Project]: [component(selectedKey)] },
-    selected: selectedKey
+    selected: selectedKey,
   });
 
   keydown({ key: KeyboardKeys.Enter });
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/dashboard',
-    search: queryToSearch({ id: selectedKey })
+    search: queryToSearch({ id: selectedKey }),
   });
 });
 
@@ -82,15 +82,15 @@ it('opens selected portfolio on enter', () => {
   form.setState({
     open: true,
     results: {
-      [ComponentQualifier.Portfolio]: [component(selectedKey, ComponentQualifier.Portfolio)]
+      [ComponentQualifier.Portfolio]: [component(selectedKey, ComponentQualifier.Portfolio)],
     },
-    selected: selectedKey
+    selected: selectedKey,
   });
 
   keydown({ key: KeyboardKeys.Enter });
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/portfolio',
-    search: queryToSearch({ id: selectedKey })
+    search: queryToSearch({ id: selectedKey }),
   });
 });
 
@@ -101,15 +101,15 @@ it('opens selected subportfolio on enter', () => {
   form.setState({
     open: true,
     results: {
-      [ComponentQualifier.SubPortfolio]: [component(selectedKey, ComponentQualifier.SubPortfolio)]
+      [ComponentQualifier.SubPortfolio]: [component(selectedKey, ComponentQualifier.SubPortfolio)],
     },
-    selected: selectedKey
+    selected: selectedKey,
   });
 
   keydown({ key: KeyboardKeys.Enter });
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/portfolio',
-    search: queryToSearch({ id: selectedKey })
+    search: queryToSearch({ id: selectedKey }),
   });
 });
 

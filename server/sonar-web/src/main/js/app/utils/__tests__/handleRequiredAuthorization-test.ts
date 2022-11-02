@@ -30,18 +30,18 @@ beforeAll(() => {
     pathname: '/path',
     search: '?id=12',
     hash: '#tag',
-    replace
+    replace,
   };
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: location
+    value: location,
   });
 });
 
 afterAll(() => {
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: originalLocation
+    value: originalLocation,
   });
 });
 

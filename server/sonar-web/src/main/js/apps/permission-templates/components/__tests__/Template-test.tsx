@@ -23,7 +23,7 @@ import {
   grantTemplatePermissionToGroup,
   grantTemplatePermissionToUser,
   revokeTemplatePermissionFromGroup,
-  revokeTemplatePermissionFromUser
+  revokeTemplatePermissionFromUser,
 } from '../../../../api/permissions';
 import Template from '../Template';
 
@@ -33,7 +33,7 @@ jest.mock('../../../../api/permissions', () => ({
   grantTemplatePermissionToGroup: jest.fn().mockResolvedValue({}),
   revokeTemplatePermissionFromGroup: jest.fn().mockResolvedValue({}),
   getPermissionTemplateGroups: jest.fn().mockResolvedValue([]),
-  getPermissionTemplateUsers: jest.fn().mockResolvedValue([])
+  getPermissionTemplateUsers: jest.fn().mockResolvedValue([]),
 }));
 
 it('render correctly', () => {
@@ -44,16 +44,16 @@ it('revoke group permission if granted', async () => {
   const wrapper = shallowRender();
   const group = {
     name: 'foo',
-    permissions: ['bar']
+    permissions: ['bar'],
   };
   wrapper.setState({
-    groups: [group]
+    groups: [group],
   });
   await wrapper.instance().handleToggleGroup(group, 'bar');
   expect(revokeTemplatePermissionFromGroup).toHaveBeenCalledWith({
     groupName: 'foo',
     templateId: '1',
-    permission: 'bar'
+    permission: 'bar',
   });
 });
 
@@ -61,16 +61,16 @@ it('grant group permission', async () => {
   const wrapper = shallowRender();
   const group = {
     name: 'foo',
-    permissions: []
+    permissions: [],
   };
   wrapper.setState({
-    groups: [group]
+    groups: [group],
   });
   await wrapper.instance().handleToggleGroup(group, 'bar');
   expect(grantTemplatePermissionToGroup).toHaveBeenCalledWith({
     groupName: 'foo',
     templateId: '1',
-    permission: 'bar'
+    permission: 'bar',
   });
 });
 
@@ -79,16 +79,16 @@ it('revoke user permission if granted', async () => {
   const user = {
     login: 'foo',
     name: 'foo',
-    permissions: ['bar']
+    permissions: ['bar'],
   };
   wrapper.setState({
-    users: [user]
+    users: [user],
   });
   await wrapper.instance().handleToggleUser(user, 'bar');
   expect(revokeTemplatePermissionFromUser).toHaveBeenCalledWith({
     templateId: '1',
     login: 'foo',
-    permission: 'bar'
+    permission: 'bar',
   });
 });
 
@@ -97,16 +97,16 @@ it('grant user permission', async () => {
   const user = {
     login: 'foo',
     name: 'foo',
-    permissions: []
+    permissions: [],
   };
   wrapper.setState({
-    users: [user]
+    users: [user],
   });
   await wrapper.instance().handleToggleUser(user, 'bar');
   expect(grantTemplatePermissionToUser).toHaveBeenCalledWith({
     templateId: '1',
     login: 'foo',
-    permission: 'bar'
+    permission: 'bar',
   });
 });
 
@@ -119,7 +119,7 @@ function shallowRender() {
         createdAt: '2020-01-01',
         name: 'test',
         defaultFor: [],
-        permissions: []
+        permissions: [],
       }}
       topQualifiers={[]}
     />

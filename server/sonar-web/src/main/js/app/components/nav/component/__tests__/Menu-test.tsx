@@ -22,7 +22,7 @@ import * as React from 'react';
 import {
   mockBranch,
   mockMainBranch,
-  mockPullRequest
+  mockPullRequest,
 } from '../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
@@ -32,7 +32,7 @@ import { Menu } from '../Menu';
 const BASE_COMPONENT = mockComponent({
   analysisDate: '2019-12-01',
   key: 'foo',
-  name: 'foo'
+  name: 'foo',
 });
 
 it('should render correctly', () => {
@@ -43,14 +43,14 @@ it('should render correctly', () => {
       extensions: [
         { key: 'foo', name: 'Foo' },
         { key: 'bar', name: 'Bar' },
-        { key: 'securityreport/foo', name: 'Foo' }
-      ]
+        { key: 'securityreport/foo', name: 'Foo' },
+      ],
     },
     extensions: [
       { key: 'component-foo', name: 'ComponentFoo' },
       { key: 'component-bar', name: 'ComponentBar' },
-      { key: 'securityreport/foo', name: 'Security Report' }
-    ]
+      { key: 'securityreport/foo', name: 'Security Report' },
+    ],
   };
   renderMenu({ component });
 
@@ -71,8 +71,8 @@ it('should render correctly when on a branch', () => {
     component: {
       ...BASE_COMPONENT,
       configuration: { showSettings: true },
-      extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
-    }
+      extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
+    },
   });
 
   expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
@@ -93,8 +93,8 @@ it('should render correctly when on a pull request', () => {
     component: {
       ...BASE_COMPONENT,
       configuration: { showSettings: true },
-      extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
-    }
+      extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
+    },
   });
 
   expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
@@ -111,8 +111,8 @@ it('should disable links if no analysis has been done', () => {
   renderMenu({
     component: {
       ...BASE_COMPONENT,
-      analysisDate: undefined
-    }
+      analysisDate: undefined,
+    },
   });
   expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
   expect(screen.queryByRole('link', { name: 'issues.page' })).not.toBeInTheDocument();
@@ -125,8 +125,8 @@ it('should disable links if application has inaccessible projects', () => {
     component: {
       ...BASE_COMPONENT,
       qualifier: ComponentQualifier.Application,
-      canBrowseAllChildProjects: false
-    }
+      canBrowseAllChildProjects: false,
+    },
   });
   expect(screen.queryByRole('link', { name: 'overview.page' })).not.toBeInTheDocument();
   expect(screen.queryByRole('link', { name: 'issues.page' })).not.toBeInTheDocument();

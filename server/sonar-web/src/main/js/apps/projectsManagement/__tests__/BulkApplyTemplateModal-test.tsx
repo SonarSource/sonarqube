@@ -25,7 +25,7 @@ import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
 
 jest.mock('../../../api/permissions', () => ({
   bulkApplyTemplate: jest.fn(() => Promise.resolve()),
-  getPermissionTemplates: jest.fn(() => Promise.resolve({ permissionTemplates: [] }))
+  getPermissionTemplates: jest.fn(() => Promise.resolve({ permissionTemplates: [] })),
 }));
 
 const bulkApplyTemplate = require('../../../api/permissions').bulkApplyTemplate as jest.Mock<any>;
@@ -52,8 +52,8 @@ it('bulk applies template to all results', async () => {
     permissionTemplate: 'foo',
     permissionTemplates: [
       { id: 'foo', name: 'Foo' },
-      { id: 'bar', name: 'Bar' }
-    ]
+      { id: 'bar', name: 'Bar' },
+    ],
   });
   expect(wrapper).toMatchSnapshot();
 
@@ -63,7 +63,7 @@ it('bulk applies template to all results', async () => {
     onProvisionedOnly: true,
     q: 'bla',
     qualifiers: 'TRK',
-    templateId: 'foo'
+    templateId: 'foo',
   });
   expect(wrapper).toMatchSnapshot();
 
@@ -81,8 +81,8 @@ it('bulk applies template to selected results', async () => {
     permissionTemplate: 'foo',
     permissionTemplates: [
       { id: 'foo', name: 'Foo' },
-      { id: 'bar', name: 'Bar' }
-    ]
+      { id: 'bar', name: 'Bar' },
+    ],
   });
   expect(wrapper).toMatchSnapshot();
 
@@ -92,7 +92,7 @@ it('bulk applies template to selected results', async () => {
   expect(bulkApplyTemplate).toHaveBeenCalledWith({
     projects: 'proj1,proj2',
     qualifiers: 'VW',
-    templateId: 'foo'
+    templateId: 'foo',
   });
 
   wrapper.update();

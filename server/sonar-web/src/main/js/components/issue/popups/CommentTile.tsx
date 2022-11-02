@@ -38,7 +38,7 @@ interface CommentTileState {
 
 export default class CommentTile extends React.PureComponent<CommentTileProps, CommentTileState> {
   state = {
-    showEditArea: false
+    showEditArea: false,
   };
 
   handleEditClick = () => {

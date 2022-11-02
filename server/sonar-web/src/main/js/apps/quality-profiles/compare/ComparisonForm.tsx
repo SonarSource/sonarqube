@@ -59,8 +59,8 @@ export default class ComparisonForm extends React.PureComponent<Props> {
   render() {
     const { profile, profiles, withKey } = this.props;
     const options = profiles
-      .filter(p => p.language === profile.language && p !== profile)
-      .map(p => ({ value: p.key, label: p.name, isDefault: p.isDefault }));
+      .filter((p) => p.language === profile.language && p !== profile)
+      .map((p) => ({ value: p.key, label: p.name, isDefault: p.isDefault }));
 
     return (
       <div className="display-inline-block">
@@ -78,9 +78,9 @@ export default class ComparisonForm extends React.PureComponent<Props> {
           isSearchable={true}
           components={{
             Option: this.optionRenderer.bind(this, options),
-            SingleValue: this.singleValueRenderer.bind(null, options)
+            SingleValue: this.singleValueRenderer.bind(null, options),
           }}
-          value={options.filter(o => o.value === withKey)}
+          value={options.filter((o) => o.value === withKey)}
         />
       </div>
     );
@@ -88,7 +88,7 @@ export default class ComparisonForm extends React.PureComponent<Props> {
 }
 
 function renderValue(p: Omit<Option, 'label' | 'isDefault'>, options: Option[]) {
-  const selectedOption = options.find(o => o.value === p.value);
+  const selectedOption = options.find((o) => o.value === p.value);
   if (selectedOption !== undefined) {
     return (
       <div>

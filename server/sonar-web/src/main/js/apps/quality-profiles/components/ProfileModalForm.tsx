@@ -49,7 +49,8 @@ export default function ProfileModalForm(props: ProfileModalFormProps) {
           if (name) {
             props.onSubmit(name);
           }
-        }}>
+        }}
+      >
         <div className="modal-head">
           <h2>{header}</h2>
         </div>

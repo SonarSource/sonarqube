@@ -54,7 +54,8 @@ export default class ActivationButton extends React.PureComponent<Props, State> 
         <Button
           className={this.props.className}
           id="coding-rules-quality-profile-activate"
-          onClick={this.handleButtonClick}>
+          onClick={this.handleButtonClick}
+        >
           {this.props.buttonText}
         </Button>
 

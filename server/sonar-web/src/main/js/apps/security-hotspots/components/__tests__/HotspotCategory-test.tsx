@@ -30,7 +30,7 @@ it('should render correctly with hotspots', () => {
   const securityCategory = 'command-injection';
   const hotspots = [
     mockRawHotspot({ key: 'h1', securityCategory }),
-    mockRawHotspot({ key: 'h2', securityCategory })
+    mockRawHotspot({ key: 'h2', securityCategory }),
   ];
   expect(shallowRender({ hotspots })).toMatchSnapshot();
   expect(shallowRender({ hotspots, expanded: false })).toMatchSnapshot('collapsed');
@@ -51,7 +51,7 @@ it('should handle collapse and expand', () => {
     categoryKey,
     expanded: true,
     hotspots: [mockRawHotspot()],
-    onToggleExpand
+    onToggleExpand,
   });
 
   wrapper.find('.hotspot-category-header').simulate('click');

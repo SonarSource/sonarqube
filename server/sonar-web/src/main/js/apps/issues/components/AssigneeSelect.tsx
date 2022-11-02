@@ -58,17 +58,17 @@ export default class AssigneeSelect extends React.Component<AssigneeSelectProps>
 
     if (isLoggedIn(currentUser)) {
       const canBeAssignedToMe =
-        issues.filter(issue => issue.assignee !== currentUser.login).length > 0;
+        issues.filter((issue) => issue.assignee !== currentUser.login).length > 0;
       if (canBeAssignedToMe) {
         options.push({
           avatar: currentUser.avatar,
           label: currentUser.name,
-          value: currentUser.login
+          value: currentUser.login,
         });
       }
     }
 
-    const canBeUnassigned = issues.filter(issue => issue.assignee).length > 0;
+    const canBeUnassigned = issues.filter((issue) => issue.assignee).length > 0;
     if (canBeUnassigned) {
       options.push({ label: translate('unassigned'), value: '' });
     }
@@ -84,13 +84,13 @@ export default class AssigneeSelect extends React.Component<AssigneeSelectProps>
 
     searchAssignees(query)
       .then(({ results }) =>
-        results.map(r => {
+        results.map((r) => {
           const userInfo = r.name || r.login;
 
           return {
             avatar: r.avatar,
             label: isUserActive(r) ? userInfo : translateWithParameters('user.x_deleted', userInfo),
-            value: r.login
+            value: r.login,
           };
         })
       )
@@ -125,7 +125,7 @@ export default class AssigneeSelect extends React.Component<AssigneeSelectProps>
         inputId={inputId}
         components={{
           Option: this.renderAssigneeOption,
-          SingleValue: this.renderSingleAssignee
+          SingleValue: this.renderSingleAssignee,
         }}
         isClearable={true}
         defaultOptions={this.getDefaultAssignee()}

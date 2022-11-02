@@ -25,7 +25,7 @@ import {
   cancelTask as cancelTaskAPI,
   getActivity,
   getStatus,
-  getTypes
+  getTypes,
 } from '../../../api/ce';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -73,7 +73,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
       failingCount: 0,
       loading: true,
       pendingCount: 0,
-      tasks: []
+      tasks: [],
     };
     this.loadTasksDebounced = debounce(this.loadTasks, DEBOUNCE_DELAY);
   }
@@ -82,7 +82,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     this.mounted = true;
 
     getTypes().then(
-      types => {
+      (types) => {
         this.setState({ types });
         this.loadTasks();
       },
@@ -144,7 +144,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
             pendingCount: pending,
             pendingTime,
             tasks: page === 1 ? newTasks : [...tasks, ...newTasks],
-            pagination: paging
+            pagination: paging,
           }));
         }
       },
@@ -172,18 +172,18 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
 
     this.props.router.push({
       pathname: this.props.location.pathname,
-      query: nextQuery
+      query: nextQuery,
     });
   };
 
   handleCancelTask = (task: Task) => {
     this.setState({ loading: true });
 
-    return cancelTaskAPI(task.id).then(nextTask => {
+    return cancelTaskAPI(task.id).then((nextTask) => {
       if (this.mounted) {
-        this.setState(state => ({
+        this.setState((state) => ({
           tasks: updateTask(state.tasks, nextTask),
-          loading: false
+          loading: false,
         }));
       }
     }, this.stopLoading);
@@ -197,7 +197,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     this.handleFilterUpdate({
       ...DEFAULT_FILTERS,
       status: TaskStatuses.Failed,
-      currents: CURRENTS.ONLY_CURRENTS
+      currents: CURRENTS.ONLY_CURRENTS,
     });
   };
 

@@ -79,11 +79,12 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
                     <Link
                       to={{
                         pathname: '/project/baseline',
-                        search: queryToSearch({ id: component.key, ...getBranchLikeQuery(branch) })
-                      }}>
+                        search: queryToSearch({ id: component.key, ...getBranchLikeQuery(branch) }),
+                      }}
+                    >
                       {translate('settings.new_code_period.category')}
                     </Link>
-                  )
+                  ),
                 }}
               />
             </p>
@@ -96,7 +97,7 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
               values={{
                 learn_more_link: (
                   <DocLink to="/user-guide/clean-as-you-code/">{translate('learn_more')}</DocLink>
-                )
+                ),
               }}
             />
           </p>

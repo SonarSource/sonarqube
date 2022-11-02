@@ -23,7 +23,7 @@ import {
   countBindedProjects,
   deleteConfiguration,
   getAlmDefinitions,
-  validateAlmSettings
+  validateAlmSettings,
 } from '../../../../../api/alm-settings';
 import { mockLocation, mockRouter } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
@@ -37,7 +37,7 @@ jest.mock('../../../../../api/alm-settings', () => ({
   getAlmDefinitions: jest
     .fn()
     .mockResolvedValue({ azure: [], bitbucket: [], bitbucketcloud: [], github: [], gitlab: [] }),
-  validateAlmSettings: jest.fn().mockResolvedValue('')
+  validateAlmSettings: jest.fn().mockResolvedValue(''),
 }));
 
 beforeEach(() => {
@@ -54,7 +54,7 @@ it('should validate existing configurations', async () => {
     [AlmKeys.BitbucketServer]: [{ key: 'b1' }],
     [AlmKeys.BitbucketCloud]: [{ key: 'bc1' }],
     [AlmKeys.GitHub]: [{ key: 'gh1' }, { key: 'gh2' }],
-    [AlmKeys.GitLab]: [{ key: 'gl1' }]
+    [AlmKeys.GitLab]: [{ key: 'gl1' }],
   });
 
   const wrapper = shallowRender();
@@ -89,18 +89,12 @@ it('should handle delete', async () => {
   (countBindedProjects as jest.Mock).mockResolvedValueOnce(7);
   const wrapper = shallowRender();
 
-  wrapper
-    .find(AlmIntegrationRenderer)
-    .props()
-    .onDelete(toBeDeleted);
+  wrapper.find(AlmIntegrationRenderer).props().onDelete(toBeDeleted);
   await waitAndUpdate(wrapper);
   expect(wrapper.state().projectCount).toBe(7);
   expect(wrapper.state().definitionKeyForDeletion).toBe(toBeDeleted);
 
-  wrapper
-    .find(AlmIntegrationRenderer)
-    .props()
-    .onCancelDelete();
+  wrapper.find(AlmIntegrationRenderer).props().onCancelDelete();
   await waitAndUpdate(wrapper);
   expect(wrapper.state().projectCount).toBeUndefined();
   expect(wrapper.state().definitionKeyForDeletion).toBeUndefined();
@@ -134,7 +128,7 @@ it('should validate a configuration', async () => {
   expect(wrapper.state().definitionStatus[definitionKey]).toEqual({
     alertSuccess: true,
     failureMessage: '',
-    type: AlmSettingsBindingStatusType.Warning
+    type: AlmSettingsBindingStatusType.Warning,
   });
 
   await wrapper.instance().handleCheck(definitionKey);
@@ -142,7 +136,7 @@ it('should validate a configuration', async () => {
   expect(wrapper.state().definitionStatus[definitionKey]).toEqual({
     alertSuccess: true,
     failureMessage,
-    type: AlmSettingsBindingStatusType.Failure
+    type: AlmSettingsBindingStatusType.Failure,
   });
 
   await wrapper.instance().handleCheck(definitionKey);
@@ -150,7 +144,7 @@ it('should validate a configuration', async () => {
   expect(wrapper.state().definitionStatus[definitionKey]).toEqual({
     alertSuccess: true,
     failureMessage: '',
-    type: AlmSettingsBindingStatusType.Success
+    type: AlmSettingsBindingStatusType.Success,
   });
 });
 
@@ -160,7 +154,7 @@ it('should fetch settings', async () => {
     [AlmKeys.BitbucketServer]: [{ key: 'b1' }],
     [AlmKeys.BitbucketCloud]: [{ key: 'bc1' }],
     [AlmKeys.GitHub]: [{ key: 'gh1' }],
-    [AlmKeys.GitLab]: [{ key: 'gl1' }]
+    [AlmKeys.GitLab]: [{ key: 'gl1' }],
   };
 
   const wrapper = shallowRender();

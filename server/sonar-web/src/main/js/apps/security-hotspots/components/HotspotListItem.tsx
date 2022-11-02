@@ -43,12 +43,14 @@ export default function HotspotListItem(props: HotspotListItemProps) {
     <ButtonPlain
       aria-current={selected}
       className={classNames('hotspot-item', { highlight: selected })}
-      onClick={() => !selected && props.onClick(hotspot)}>
+      onClick={() => !selected && props.onClick(hotspot)}
+    >
       {/* This is not a real interaction it is only for scrolling */
       /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         className={classNames('little-spacer-left text-bold', { 'cursor-pointer': selected })}
-        onClick={selected ? () => props.onLocationClick() : undefined}>
+        onClick={selected ? () => props.onLocationClick() : undefined}
+      >
         {hotspot.message}
       </div>
       <div className="display-flex-center big-spacer-top">

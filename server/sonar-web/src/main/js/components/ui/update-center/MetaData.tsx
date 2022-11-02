@@ -62,7 +62,7 @@ export default class MetaData extends React.Component<Props, State> {
           }
           return Promise.reject(response);
         })
-        .then(data => {
+        .then((data) => {
           if (this.mounted) {
             this.setState({ data });
           }

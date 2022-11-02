@@ -33,7 +33,7 @@ export interface PeriodFilterProps {
 }
 
 enum Period {
-  NewCode = 'inNewCodePeriod'
+  NewCode = 'inNewCodePeriod',
 }
 
 const PROPERTY = 'period';
@@ -49,7 +49,7 @@ export default function PeriodFilter(props: PeriodFilterProps) {
       createdAt: undefined,
       createdBefore: undefined,
       createdInLast: undefined,
-      [Period.NewCode]: !newCodeSelected
+      [Period.NewCode]: !newCodeSelected,
     });
   }, [newCodeSelected, onChange]);
 

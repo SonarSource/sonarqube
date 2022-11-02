@@ -20,7 +20,7 @@
 import { getPeriodLabel } from '../periods';
 import { mockPeriod } from '../testMocks';
 
-const formatter = jest.fn(v => v);
+const formatter = jest.fn((v) => v);
 
 beforeEach(() => {
   formatter.mockClear();

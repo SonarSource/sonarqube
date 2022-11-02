@@ -37,7 +37,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       currentUser: mockLoggedInUser(),
-      component: mockComponent({ qualifier: ComponentQualifier.Application })
+      component: mockComponent({ qualifier: ComponentQualifier.Application }),
     })
   ).toMatchSnapshot('non-project');
 });
@@ -47,7 +47,7 @@ it('should render correctly when the list of hotspot is static', () => {
 
   const wrapper = shallowRender({
     isStaticListOfHotspots: true,
-    onShowAllHotspots
+    onShowAllHotspots,
   });
   expect(wrapper).toMatchSnapshot();
 
@@ -59,10 +59,7 @@ it('should trigger onChange for status', () => {
   const onChangeFilters = jest.fn();
   const wrapper = shallowRender({ onChangeFilters });
 
-  const { onChange } = wrapper
-    .find(Select)
-    .at(0)
-    .props();
+  const { onChange } = wrapper.find(Select).at(0).props();
 
   onChange({ value: HotspotStatusFilter.SAFE });
   expect(onChangeFilters).toHaveBeenCalledWith({ status: HotspotStatusFilter.SAFE });
@@ -82,10 +79,7 @@ it('should trigger onChange for leak period', () => {
   const onChangeFilters = jest.fn();
   const wrapper = shallowRender({ onChangeFilters });
 
-  const { onChange } = wrapper
-    .find(Select)
-    .at(1)
-    .props();
+  const { onChange } = wrapper.find(Select).at(1).props();
 
   onChange({ value: true });
   expect(onChangeFilters).toHaveBeenCalledWith({ inNewCodePeriod: true });
@@ -99,7 +93,7 @@ function shallowRender(props: Partial<FilterBarProps> = {}) {
       filters={{
         assignedToMe: false,
         inNewCodePeriod: false,
-        status: HotspotStatusFilter.TO_REVIEW
+        status: HotspotStatusFilter.TO_REVIEW,
       }}
       isStaticListOfHotspots={false}
       loadingMeasure={false}

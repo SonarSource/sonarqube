@@ -58,7 +58,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
       [
         ComponentQualifier.Portfolio,
         ComponentQualifier.SubPortfolio,
-        ComponentQualifier.Application
+        ComponentQualifier.Application,
       ].includes(component.qualifier as ComponentQualifier)
     ) {
       return getTree({
@@ -66,26 +66,26 @@ export default class ProjectFacet extends React.PureComponent<Props> {
         p: page,
         ps: 30,
         q: query,
-        qualifiers: ComponentQualifier.Project
+        qualifiers: ComponentQualifier.Project,
       }).then(({ components, paging }) => ({
         paging,
-        results: components.map(component => ({
+        results: components.map((component) => ({
           key: component.refKey || component.key,
-          name: component.name
-        }))
+          name: component.name,
+        })),
       }));
     }
 
     return searchProjects({
       p: page,
       ps: 30,
-      filter: query ? `query = "${query}"` : ''
+      filter: query ? `query = "${query}"` : '',
     }).then(({ components, paging }) => ({
       paging,
-      results: components.map(component => ({
+      results: components.map((component) => ({
         key: component.key,
-        name: component.name
-      }))
+        name: component.name,
+      })),
     }));
   };
 
@@ -96,7 +96,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
 
   loadSearchResultCount = (projects: SearchedProject[]) => {
     return this.props.loadSearchResultCount('projects', {
-      projects: projects.map(project => project.key)
+      projects: projects.map((project) => project.key),
     });
   };
 
@@ -122,8 +122,8 @@ export default class ProjectFacet extends React.PureComponent<Props> {
         facetHeader={translate('issues.facet.projects')}
         fetching={this.props.fetching}
         getFacetItemText={this.getProjectName}
-        getSearchResultKey={project => project.key}
-        getSearchResultText={project => project.name}
+        getSearchResultKey={(project) => project.key}
+        getSearchResultText={(project) => project.name}
         loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}

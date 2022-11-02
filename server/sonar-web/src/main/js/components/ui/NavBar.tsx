@@ -67,7 +67,8 @@ export default class NavBar extends React.PureComponent<
       <nav {...other} className={classNames('navbar', className)} style={{ height, top }}>
         <div
           className={classNames('navbar-inner', { 'navbar-inner-with-notif': notif != null })}
-          style={{ height, left: this.state.left }}>
+          style={{ height, left: this.state.left }}
+        >
           <div className={classNames('clearfix', { 'navbar-limited': limited })}>{children}</div>
           {notif}
         </div>

@@ -49,9 +49,9 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
   onSearch = (query: string) => {
     return getRuleTags({
       q: query,
-      ps: Math.min(this.props.tags.length + LIST_SIZE, 100)
+      ps: Math.min(this.props.tags.length + LIST_SIZE, 100),
     }).then(
-      tags => {
+      (tags) => {
         if (this.mounted) {
           // systems tags can not be unset, don't display them in the results
           this.setState({ searchResult: without(tags, ...this.props.sysTags) });

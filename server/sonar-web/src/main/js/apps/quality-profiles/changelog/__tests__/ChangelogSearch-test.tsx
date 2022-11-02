@@ -28,7 +28,7 @@ it('should render', () => {
     <ChangelogSearch
       dateRange={{
         from: parseDate('2016-01-01T00:00:00.000Z'),
-        to: parseDate('2016-05-05T00:00:00.000Z')
+        to: parseDate('2016-05-05T00:00:00.000Z'),
       }}
       onDateRangeChange={jest.fn()}
       onReset={jest.fn()}
@@ -43,7 +43,7 @@ it('should reset', () => {
     <ChangelogSearch
       dateRange={{
         from: parseDate('2016-01-01T00:00:00.000Z'),
-        to: parseDate('2016-05-05T00:00:00.000Z')
+        to: parseDate('2016-05-05T00:00:00.000Z'),
       }}
       onDateRangeChange={jest.fn()}
       onReset={onReset}

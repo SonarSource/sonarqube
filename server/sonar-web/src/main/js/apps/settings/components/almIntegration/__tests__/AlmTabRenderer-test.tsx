@@ -22,7 +22,7 @@ import * as React from 'react';
 import {
   mockAzureBindingDefinition,
   mockBitbucketCloudBindingDefinition,
-  mockGithubBindingDefinition
+  mockGithubBindingDefinition,
 } from '../../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmTabRenderer, { AlmTabRendererProps } from '../AlmTabRenderer';
@@ -53,7 +53,7 @@ it('should render correctly for single-ALM binding', () => {
 it('should render correctly with validation', () => {
   const githubProps = {
     alm: AlmKeys.GitHub,
-    definitions: [mockGithubBindingDefinition()]
+    definitions: [mockGithubBindingDefinition()],
   };
   expect(shallowRender(githubProps)).toMatchSnapshot('default');
   expect(shallowRender({ ...githubProps, definitions: [] })).toMatchSnapshot('empty');
@@ -61,7 +61,7 @@ it('should render correctly with validation', () => {
   expect(
     shallowRender({
       ...githubProps,
-      editedDefinition: mockGithubBindingDefinition()
+      editedDefinition: mockGithubBindingDefinition(),
     })
   ).toMatchSnapshot('create a second');
 
@@ -69,14 +69,14 @@ it('should render correctly with validation', () => {
     shallowRender({
       ...githubProps,
       definitions: [],
-      editedDefinition: mockGithubBindingDefinition()
+      editedDefinition: mockGithubBindingDefinition(),
     })
   ).toMatchSnapshot('create a first');
 
   expect(
     shallowRender({
       almTab: AlmKeys.BitbucketServer, // BitbucketServer will be passed for both Bitbucket variants.
-      definitions: [mockBitbucketCloudBindingDefinition()]
+      definitions: [mockBitbucketCloudBindingDefinition()],
     })
   ).toMatchSnapshot('pass the correct key for bitbucket cloud');
 });
@@ -84,7 +84,7 @@ it('should render correctly with validation', () => {
 function shallowRenderAzure(props: Partial<AlmTabRendererProps>) {
   return shallowRender({
     definitions: [mockAzureBindingDefinition()],
-    ...props
+    ...props,
   });
 }
 

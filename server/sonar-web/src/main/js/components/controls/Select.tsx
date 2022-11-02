@@ -28,11 +28,11 @@ import ReactSelect, {
   NamedProps,
   OptionProps,
   OptionTypeBase,
-  StylesConfig
+  StylesConfig,
 } from 'react-select';
 import AsyncReactSelect, { AsyncProps } from 'react-select/async';
 import AsyncCreatableReactSelect, {
-  Props as AsyncCreatableProps
+  Props as AsyncCreatableProps,
 } from 'react-select/async-creatable';
 import { LoadingIndicatorProps } from 'react-select/src/components/indicators';
 import { MultiValueRemoveProps } from 'react-select/src/components/MultiValue';
@@ -119,7 +119,7 @@ export default class Select<
           ...this.props.components,
           DropdownIndicator: dropdownIndicator,
           ClearIndicator: clearIndicator,
-          MultiValueRemove: multiValueRemove
+          MultiValueRemove: multiValueRemove,
         }}
       />
     );
@@ -140,7 +140,7 @@ export function CreatableSelect<
         DropdownIndicator: dropdownIndicator,
         ClearIndicator: clearIndicator,
         MultiValueRemove: multiValueRemove,
-        LoadingIndicator: loadingIndicator
+        LoadingIndicator: loadingIndicator,
       }}
     />
   );
@@ -162,7 +162,7 @@ export function SearchSelect<
         DropdownIndicator: dropdownIndicator,
         ClearIndicator: clearIndicator,
         MultiValueRemove: multiValueRemove,
-        LoadingIndicator: loadingIndicator
+        LoadingIndicator: loadingIndicator,
       }}
     />
   );
@@ -182,7 +182,7 @@ export function selectStyle<
       verticalAlign: 'middle',
       fontSize: '12px',
       textAlign: 'left',
-      width: '100%'
+      width: '100%',
     }),
     control: (_provided, state) => ({
       position: 'relative',
@@ -198,7 +198,7 @@ export function selectStyle<
       color: `${colors.baseFontColor}`,
       cursor: 'default',
       outline: 'none',
-      padding: props?.large ? '4px 0px' : '0'
+      padding: props?.large ? '4px 0px' : '0',
     }),
     singleValue: () => ({
       bottom: 0,
@@ -213,13 +213,13 @@ export function selectStyle<
       maxWidth: '100%',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
     }),
     valueContainer: (_provided, state) => {
       if (state.hasValue && state.isMulti) {
         return {
           lineHeight: '23px',
-          paddingLeft: '1px'
+          paddingLeft: '1px',
         };
       }
 
@@ -236,7 +236,7 @@ export function selectStyle<
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
-        display: 'flex'
+        display: 'flex',
       };
     },
     indicatorsContainer: (_provided, state) => ({
@@ -246,7 +246,7 @@ export function selectStyle<
       verticalAlign: 'middle',
       width: '20px',
       paddingRight: '5px',
-      flex: 1
+      flex: 1,
     }),
     multiValue: () => ({
       display: 'inline-block',
@@ -258,7 +258,7 @@ export function selectStyle<
       fontSize: '12px',
       lineHeight: '14px',
       margin: '1px 4px 1px 1px',
-      verticalAlign: 'top'
+      verticalAlign: 'top',
     }),
     multiValueLabel: () => ({
       display: 'inline-block',
@@ -269,7 +269,7 @@ export function selectStyle<
       maxWidth: 'calc(200px - 28px)',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
-      verticalAlign: 'middle'
+      verticalAlign: 'middle',
     }),
     multiValueRemove: () => ({
       order: '-1',
@@ -279,7 +279,7 @@ export function selectStyle<
       padding: '1px 5px',
       fontSize: '12px',
       lineHeight: '14px',
-      display: 'inline-block'
+      display: 'inline-block',
     }),
     menu: () => ({
       borderBottomRightRadius: '4px',
@@ -295,17 +295,17 @@ export function selectStyle<
       width: '100%',
       zIndex: `${zIndexes.dropdownMenuZIndex}`,
       webkitOverflowScrolling: 'touch',
-      boxShadow: `${others.defaultShadow}`
+      boxShadow: `${others.defaultShadow}`,
     }),
     menuList: () => ({
       boxSizing: 'border-box',
       maxHeight: '198px',
       padding: '5px 0',
-      overflowY: 'auto'
+      overflowY: 'auto',
     }),
     placeholder: () => ({
       position: 'absolute',
-      color: '#666'
+      color: '#666',
     }),
     option: (_provided, state) => {
       let borderLeftColor = 'transparent';
@@ -335,21 +335,21 @@ export function selectStyle<
         cursor: state.isDisabled ? 'default' : 'pointer',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        textOverflow: 'ellipsis',
       };
     },
     input: () => ({
       display: 'flex',
-      alignItems: 'center'
+      alignItems: 'center',
     }),
     loadingIndicator: () => ({
       position: 'absolute',
       padding: '8px',
-      fontSize: '4px'
+      fontSize: '4px',
     }),
     noOptionsMessage: () => ({
       color: `${colors.gray60}`,
-      padding: '8px 10px'
-    })
+      padding: '8px 10px',
+    }),
   };
 }

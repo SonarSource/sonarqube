@@ -27,7 +27,7 @@ import TokenStep from './TokenStep';
 
 export enum Steps {
   ANALYSIS,
-  TOKEN
+  TOKEN,
 }
 
 interface Props {

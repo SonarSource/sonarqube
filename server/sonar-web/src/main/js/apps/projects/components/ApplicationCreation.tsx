@@ -54,7 +54,7 @@ export function ApplicationCreation(props: ApplicationCreationProps) {
 
   const handleComponentCreate = ({
     key,
-    qualifier
+    qualifier,
   }: {
     key: string;
     qualifier: ComponentQualifier;

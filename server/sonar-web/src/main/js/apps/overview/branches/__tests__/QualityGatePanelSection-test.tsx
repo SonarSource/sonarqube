@@ -23,7 +23,7 @@ import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import {
   mockQualityGateStatus,
-  mockQualityGateStatusConditionEnhanced
+  mockQualityGateStatusConditionEnhanced,
 } from '../../../../helpers/mocks/quality-gates';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
@@ -35,8 +35,8 @@ it('should render correctly', () => {
     shallowRender({
       qgStatus: mockQualityGateStatus({
         failedConditions: [],
-        status: 'OK'
-      })
+        status: 'OK',
+      }),
     }).type()
   ).toBeNull();
   expect(
@@ -52,9 +52,9 @@ function shallowRender(props: Partial<QualityGatePanelSectionProps> = {}) {
       qgStatus={mockQualityGateStatus({
         failedConditions: [
           mockQualityGateStatusConditionEnhanced({ metric: MetricKey.bugs }),
-          mockQualityGateStatusConditionEnhanced({ metric: MetricKey.new_bugs })
+          mockQualityGateStatusConditionEnhanced({ metric: MetricKey.new_bugs }),
         ],
-        status: 'ERROR'
+        status: 'ERROR',
       })}
       {...props}
     />

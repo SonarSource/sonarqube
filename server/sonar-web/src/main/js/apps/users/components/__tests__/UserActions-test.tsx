@@ -27,7 +27,7 @@ const user = {
   name: 'One',
   active: true,
   scmAccounts: [],
-  local: false
+  local: false,
 };
 
 it('should render correctly', () => {
@@ -37,34 +37,19 @@ it('should render correctly', () => {
 it('should open the update form', () => {
   const wrapper = getWrapper();
   click(wrapper.find('.js-user-update'));
-  expect(
-    wrapper
-      .first()
-      .find('UserForm')
-      .exists()
-  ).toBe(true);
+  expect(wrapper.first().find('UserForm').exists()).toBe(true);
 });
 
 it('should open the password form', () => {
   const wrapper = getWrapper({ user: { ...user, local: true } });
   click(wrapper.find('.js-user-change-password'));
-  expect(
-    wrapper
-      .first()
-      .find('PasswordForm')
-      .exists()
-  ).toBe(true);
+  expect(wrapper.first().find('PasswordForm').exists()).toBe(true);
 });
 
 it('should open the deactivate form', () => {
   const wrapper = getWrapper();
   click(wrapper.find('.js-user-deactivate'));
-  expect(
-    wrapper
-      .first()
-      .find('DeactivateForm')
-      .exists()
-  ).toBe(true);
+  expect(wrapper.first().find('DeactivateForm').exists()).toBe(true);
 });
 
 function getWrapper(props = {}) {

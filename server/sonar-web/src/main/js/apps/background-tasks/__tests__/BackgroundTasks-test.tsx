@@ -32,7 +32,7 @@ describe('Search', () => {
     onFilterUpdate: () => true,
     onReload: () => true,
     maxExecutedAt: undefined,
-    minSubmittedAt: undefined
+    minSubmittedAt: undefined,
   };
 
   it('should render search form', () => {

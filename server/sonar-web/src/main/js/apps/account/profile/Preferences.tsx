@@ -23,7 +23,7 @@ import Toggle from '../../../components/controls/Toggle';
 import { translate } from '../../../helpers/l10n';
 import {
   getKeyboardShortcutEnabled,
-  setKeyboardShortcutEnabled
+  setKeyboardShortcutEnabled,
 } from '../../../helpers/preferences';
 
 export function Preferences() {
@@ -60,7 +60,7 @@ export function Preferences() {
                       <span className="markdown">
                         <code>?</code>
                       </span>
-                    )
+                    ),
                   }}
                 />
               </div>

@@ -27,7 +27,7 @@ import { submit } from '../../../helpers/testUtils';
 import { MetricKey } from '../../../types/metrics';
 import { USE_SYSTEM_DEFAULT } from '../constants';
 import ProjectQualityGateAppRenderer, {
-  ProjectQualityGateAppRendererProps
+  ProjectQualityGateAppRendererProps,
 } from '../ProjectQualityGateAppRenderer';
 
 it('should render correctly', () => {
@@ -37,25 +37,25 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       currentQualityGate: mockQualityGate({ id: '2', isDefault: true }),
-      selectedQualityGateId: USE_SYSTEM_DEFAULT
+      selectedQualityGateId: USE_SYSTEM_DEFAULT,
     })
   ).toMatchSnapshot('always use system default');
   expect(shallowRender({ selectedQualityGateId: '3' })).toMatchSnapshot('show new code warning');
   expect(
     shallowRender({
-      selectedQualityGateId: '5'
+      selectedQualityGateId: '5',
     })
   ).toMatchSnapshot('show warning');
   expect(
     shallowRender({
-      selectedQualityGateId: USE_SYSTEM_DEFAULT
+      selectedQualityGateId: USE_SYSTEM_DEFAULT,
     })
   ).toMatchSnapshot('show warning if not using default');
   expect(shallowRender({ allQualityGates: undefined }).type()).toBeNull(); // no quality gates
 });
 
 it('should render select options correctly', () => {
-  return new Promise<void>(resolve => {
+  return new Promise<void>((resolve) => {
     const wrapper = shallowRender();
     const render = wrapper.find(Select).props().components.Option;
 
@@ -68,23 +68,15 @@ it('should render select options correctly', () => {
 
 it('should correctly handle changes', () => {
   const wrapper = shallowRender();
-  const onSelect = jest.fn(selectedQualityGateId => {
+  const onSelect = jest.fn((selectedQualityGateId) => {
     wrapper.setProps({ selectedQualityGateId });
   });
   wrapper.setProps({ onSelect });
 
-  wrapper
-    .find(Radio)
-    .at(0)
-    .props()
-    .onCheck(USE_SYSTEM_DEFAULT);
+  wrapper.find(Radio).at(0).props().onCheck(USE_SYSTEM_DEFAULT);
   expect(onSelect).toHaveBeenLastCalledWith(USE_SYSTEM_DEFAULT);
 
-  wrapper
-    .find(Radio)
-    .at(1)
-    .props()
-    .onCheck('1');
+  wrapper.find(Radio).at(1).props().onCheck('1');
   expect(onSelect).toHaveBeenLastCalledWith('1');
 
   wrapper.find(Select).props().onChange!({ value: '2' });
@@ -106,7 +98,7 @@ function shallowRender(props: Partial<ProjectQualityGateAppRendererProps> = {}) 
       allQualityGates={[
         mockQualityGate({ conditions }),
         mockQualityGate({ id: '2', isDefault: true, conditions }),
-        mockQualityGate({ id: '3', isDefault: true, conditions: conditionsEmptyOnNew })
+        mockQualityGate({ id: '3', isDefault: true, conditions: conditionsEmptyOnNew }),
       ]}
       currentQualityGate={mockQualityGate({ id: '1' })}
       loading={false}

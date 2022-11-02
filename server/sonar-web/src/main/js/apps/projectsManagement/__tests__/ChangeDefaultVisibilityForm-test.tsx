@@ -35,11 +35,7 @@ it('changes visibility', () => {
   const wrapper = shallowRender({ onConfirm });
   expect(wrapper).toMatchSnapshot();
 
-  wrapper
-    .find(Radio)
-    .first()
-    .props()
-    .onCheck('private');
+  wrapper.find(Radio).first().props().onCheck('private');
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.js-confirm'));

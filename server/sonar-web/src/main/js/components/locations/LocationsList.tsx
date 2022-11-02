@@ -35,10 +35,10 @@ export default class LocationsList extends React.PureComponent<Props> {
   render() {
     const { locations, componentKey, selectedLocationIndex, showCrossFile = true } = this.props;
 
-    const locationComponents = [componentKey, ...locations.map(location => location.component)];
+    const locationComponents = [componentKey, ...locations.map((location) => location.component)];
     const isCrossFile = uniq(locationComponents).length > 1;
 
-    if (!locations || locations.length === 0 || locations.every(location => !location.msg)) {
+    if (!locations || locations.length === 0 || locations.every((location) => !location.msg)) {
       return null;
     }
 

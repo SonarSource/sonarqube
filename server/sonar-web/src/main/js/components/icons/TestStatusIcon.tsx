@@ -30,7 +30,7 @@ const statusIcons: Dict<(props: IconProps) => React.ReactElement> = {
   ok: OkTestStatusIcon,
   failure: FailureTestStatusIcon,
   error: ErrorTestStatusIcon,
-  skipped: SkippedTestStatusIcon
+  skipped: SkippedTestStatusIcon,
 };
 
 export default function TestStatusIcon({ status, ...iconProps }: Props) {

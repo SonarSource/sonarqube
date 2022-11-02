@@ -30,9 +30,15 @@ const defaultPermissionTemplates: PermissionTemplate[] = [
     name: 'Permission Template 1',
     createdAt: '',
     defaultFor: [],
-    permissions: []
+    permissions: [],
   },
-  { id: 'template2', name: 'Permission Template 2', createdAt: '', defaultFor: [], permissions: [] }
+  {
+    id: 'template2',
+    name: 'Permission Template 2',
+    createdAt: '',
+    defaultFor: [],
+    permissions: [],
+  },
 ];
 
 export default class PermissionTemplateServiceMock {

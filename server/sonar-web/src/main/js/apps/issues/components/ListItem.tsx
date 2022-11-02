@@ -110,7 +110,7 @@ export default class ListItem extends React.PureComponent<Props> {
       previousIssue.branch !== issue.branch;
 
     return (
-      <li className="issues-workspace-list-item" ref={node => (this.nodeRef = node)}>
+      <li className="issues-workspace-list-item" ref={(node) => (this.nodeRef = node)}>
         {displayComponent && (
           <div className="issues-workspace-list-component note">
             <ComponentBreadcrumbs component={component} issue={this.props.issue} />

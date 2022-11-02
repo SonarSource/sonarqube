@@ -49,7 +49,7 @@ class LanguageFacet extends React.PureComponent<Props> {
 
   handleSearch = (query: string) => {
     const options = this.getAllPossibleOptions();
-    const results = options.filter(language =>
+    const results = options.filter((language) =>
       language.name.toLowerCase().includes(query.toLowerCase())
     );
     const paging = { pageIndex: 1, pageSize: results.length, total: results.length };
@@ -63,14 +63,14 @@ class LanguageFacet extends React.PureComponent<Props> {
     // for such language we don't know their display name, so let's just use their key
     // and make sure we reference each language only once
     return uniqBy(
-      [...Object.values(languages), ...Object.keys(stats).map(key => ({ key, name: key }))],
-      language => language.key
+      [...Object.values(languages), ...Object.keys(stats).map((key) => ({ key, name: key }))],
+      (language) => language.key
     );
   };
 
   loadSearchResultCount = (languages: Language[]) => {
     return this.props.loadSearchResultCount('languages', {
-      languages: languages.map(language => language.key)
+      languages: languages.map((language) => language.key),
     });
   };
 
@@ -84,8 +84,8 @@ class LanguageFacet extends React.PureComponent<Props> {
         facetHeader={translate('issues.facet.languages')}
         fetching={this.props.fetching}
         getFacetItemText={this.getLanguageName}
-        getSearchResultKey={language => language.key}
-        getSearchResultText={language => language.name}
+        getSearchResultKey={(language) => language.key}
+        getSearchResultText={(language) => language.name}
         loadSearchResultCount={this.loadSearchResultCount}
         minSearchLength={1}
         onChange={this.props.onChange}

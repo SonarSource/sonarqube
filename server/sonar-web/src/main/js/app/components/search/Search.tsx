@@ -73,7 +73,7 @@ export class Search extends React.PureComponent<Props, State> {
       open: false,
       query: '',
       results: {},
-      shortQuery: false
+      shortQuery: false,
     };
   }
 
@@ -134,7 +134,7 @@ export class Search extends React.PureComponent<Props, State> {
         query: '',
         results: {},
         selected: undefined,
-        shortQuery: false
+        shortQuery: false,
       });
     } else {
       this.setState({ open: false });
@@ -143,7 +143,7 @@ export class Search extends React.PureComponent<Props, State> {
 
   getPlainComponentsList = (results: Results, more: More) =>
     sortQualifiers(Object.keys(results)).reduce((components, qualifier) => {
-      const next = [...components, ...results[qualifier].map(component => component.key)];
+      const next = [...components, ...results[qualifier].map((component) => component.key)];
       if (more[qualifier]) {
         next.push('qualifier###' + qualifier);
       }
@@ -159,16 +159,16 @@ export class Search extends React.PureComponent<Props, State> {
   search = (query: string) => {
     if (query.length === 0 || query.length >= MIN_SEARCH_QUERY_LENGTH) {
       this.setState({ loading: true });
-      const recentlyBrowsed = RecentHistory.get().map(component => component.key);
-      getSuggestions(query, recentlyBrowsed).then(response => {
+      const recentlyBrowsed = RecentHistory.get().map((component) => component.key);
+      getSuggestions(query, recentlyBrowsed).then((response) => {
         // compare `this.state.query` and `query` to handle two request done almost at the same time
         // in this case only the request that matches the current query should be taken
         if (this.mounted && this.state.query === query) {
           const results: Results = {};
           const more: More = {};
           this.nodes = {};
-          response.results.forEach(group => {
-            results[group.q] = group.items.map(item => ({ ...item, qualifier: group.q }));
+          response.results.forEach((group) => {
+            results[group.q] = group.items.map((item) => ({ ...item, qualifier: group.q }));
             more[group.q] = group.more;
           });
           const list = this.getPlainComponentsList(results, more);
@@ -177,7 +177,8 @@ export class Search extends React.PureComponent<Props, State> {
             more,
             results,
             selected: list.length > 0 ? list[0] : undefined,
-            shortQuery: query.length > MIN_SEARCH_QUERY_LENGTH && response.warning === 'short_input'
+            shortQuery:
+              query.length > MIN_SEARCH_QUERY_LENGTH && response.warning === 'short_input',
           });
         }
       }, this.stopLoading);
@@ -193,20 +194,20 @@ export class Search extends React.PureComponent<Props, State> {
     }
 
     this.setState({ loading: true, loadingMore: qualifier });
-    const recentlyBrowsed = RecentHistory.get().map(component => component.key);
-    getSuggestions(query, recentlyBrowsed, qualifier).then(response => {
+    const recentlyBrowsed = RecentHistory.get().map((component) => component.key);
+    getSuggestions(query, recentlyBrowsed, qualifier).then((response) => {
       if (this.mounted) {
-        const group = response.results.find(group => group.q === qualifier);
-        const moreResults = (group ? group.items : []).map(item => ({ ...item, qualifier }));
-        this.setState(state => ({
+        const group = response.results.find((group) => group.q === qualifier);
+        const moreResults = (group ? group.items : []).map((item) => ({ ...item, qualifier }));
+        this.setState((state) => ({
           loading: false,
           loadingMore: undefined,
           more: { ...state.more, [qualifier]: 0 },
           results: {
             ...state.results,
-            [qualifier]: uniqBy([...state.results[qualifier], ...moreResults], 'key')
+            [qualifier]: uniqBy([...state.results[qualifier], ...moreResults], 'key'),
           },
-          selected: moreResults.length > 0 ? moreResults[0].key : state.selected
+          selected: moreResults.length > 0 ? moreResults[0].key : state.selected,
         }));
         this.focusInput();
       }
@@ -252,9 +253,9 @@ export class Search extends React.PureComponent<Props, State> {
     } else {
       let qualifier = ComponentQualifier.Project;
 
-      if ((results[ComponentQualifier.Portfolio] ?? []).find(r => r.key === selected)) {
+      if ((results[ComponentQualifier.Portfolio] ?? []).find((r) => r.key === selected)) {
         qualifier = ComponentQualifier.Portfolio;
-      } else if ((results[ComponentQualifier.SubPortfolio] ?? []).find(r => r.key === selected)) {
+      } else if ((results[ComponentQualifier.SubPortfolio] ?? []).find((r) => r.key === selected)) {
         qualifier = ComponentQualifier.SubPortfolio;
       }
 
@@ -367,7 +368,7 @@ export class Search extends React.PureComponent<Props, State> {
 
         {this.state.open && Object.keys(this.state.results).length > 0 && (
           <DropdownOverlay noPadding={true}>
-            <div className="global-navbar-search-dropdown" ref={node => (this.node = node)}>
+            <div className="global-navbar-search-dropdown" ref={(node) => (this.node = node)}>
               <SearchResults
                 allowMore={this.state.query.length !== 1}
                 loadingMore={this.state.loadingMore}
@@ -388,7 +389,7 @@ export class Search extends React.PureComponent<Props, State> {
                   defaultMessage={translate('search.shortcut_hint')}
                   id="search.shortcut_hint"
                   values={{
-                    shortcut: <span className="shortcut-button shortcut-button-small">s</span>
+                    shortcut: <span className="shortcut-button shortcut-button-small">s</span>,
                   }}
                 />
               </div>

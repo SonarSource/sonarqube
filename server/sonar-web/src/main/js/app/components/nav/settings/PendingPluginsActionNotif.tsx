@@ -56,7 +56,7 @@ export default class PendingPluginsActionNotif extends React.PureComponent<Props
           {[
             { length: installing.length, msg: 'marketplace.install_x_plugins' },
             { length: updating.length, msg: 'marketplace.update_x_plugins' },
-            { length: removing.length, msg: 'marketplace.uninstall_x_plugins' }
+            { length: removing.length, msg: 'marketplace.uninstall_x_plugins' },
           ]
             .filter(({ length }) => length > 0)
             .map(({ length, msg }, idx) => (

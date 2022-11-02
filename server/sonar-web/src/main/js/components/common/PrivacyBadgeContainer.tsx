@@ -32,7 +32,7 @@ interface PrivacyBadgeContainerProps {
 export default function PrivacyBadgeContainer({
   className,
   qualifier,
-  visibility
+  visibility,
 }: PrivacyBadgeContainerProps) {
   if (visibility !== 'private') {
     return null;

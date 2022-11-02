@@ -22,10 +22,10 @@ import * as React from 'react';
 import Radio from '../../../../components/controls/Radio';
 import {
   mockBitbucketProject,
-  mockBitbucketRepository
+  mockBitbucketRepository,
 } from '../../../../helpers/mocks/alm-integrations';
 import BitbucketProjectAccordion, {
-  BitbucketProjectAccordionProps
+  BitbucketProjectAccordionProps,
 } from '../BitbucketProjectAccordion';
 
 it('should render correctly', () => {
@@ -46,14 +46,10 @@ it('should correctly handle selecting repos', () => {
   const repo = mockBitbucketRepository();
   const wrapper = shallowRender({
     onSelectRepository,
-    repositories: [repo]
+    repositories: [repo],
   });
 
-  wrapper
-    .find(Radio)
-    .at(0)
-    .props()
-    .onCheck('');
+  wrapper.find(Radio).at(0).props().onCheck('');
   expect(onSelectRepository).toHaveBeenCalledWith(repo);
 });
 
@@ -67,7 +63,7 @@ function shallowRender(props: Partial<BitbucketProjectAccordionProps> = {}) {
       project={mockBitbucketProject()}
       repositories={[
         mockBitbucketRepository(),
-        mockBitbucketRepository({ id: 2, slug: 'bar', name: 'Bar', sqProjectKey: 'bar' })
+        mockBitbucketRepository({ id: 2, slug: 'bar', name: 'Bar', sqProjectKey: 'bar' }),
       ]}
       showingAllRepositories={true}
       {...props}

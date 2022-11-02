@@ -35,14 +35,15 @@ export default function Level(props: LevelProps) {
   const formatted = formatMeasure(props.level, 'LEVEL');
   const className = classNames(props.className, 'level', 'level-' + props.level, {
     'level-small': props.small,
-    'level-muted': props.muted
+    'level-muted': props.muted,
   });
 
   return (
     <span
       aria-label={props['aria-label']}
       aria-labelledby={props['aria-labelledby']}
-      className={className}>
+      className={className}
+    >
       {formatted}
     </span>
   );

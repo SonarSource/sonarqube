@@ -64,14 +64,14 @@ const snippetForBuildTool = {
   [BuildTools.Maven]: mavenSnippet,
   [BuildTools.Gradle]: gradleSnippet,
   [BuildTools.CFamily]: otherSnippet,
-  [BuildTools.Other]: otherSnippet
+  [BuildTools.Other]: otherSnippet,
 };
 
 const filenameForBuildTool = {
   [BuildTools.Maven]: 'pom.xml',
   [BuildTools.Gradle]: 'build.gradle',
   [BuildTools.CFamily]: 'sonar-project.properties',
-  [BuildTools.Other]: 'sonar-project.properties'
+  [BuildTools.Other]: 'sonar-project.properties',
 };
 
 export function ProjectKeyStep(props: ProjectKeyStepProps) {
@@ -119,7 +119,7 @@ export function ProjectKeyStep(props: ProjectKeyStepProps) {
                       copyValue={filenameForBuildTool[buildTool]}
                     />
                   </>
-                )
+                ),
               }}
             />
             <CodeSnippet snippet={snippetForBuildTool[buildTool](component.key)} />

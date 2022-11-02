@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import {
   AlmKeys,
   AlmSettingsInstance,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../../../types/alm-settings';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
@@ -51,7 +51,7 @@ enum Steps {
   MultiBranchPipeline = 2,
   Webhook = 3,
   Jenkinsfile = 4,
-  AllSet = 5
+  AllSet = 5,
 }
 
 export function JenkinsTutorial(props: JenkinsTutorialProps) {
@@ -71,7 +71,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
         <SelectAlmStep
           alm={alm}
           open={step === Steps.SelectAlm}
-          onCheck={value => {
+          onCheck={(value) => {
             setAlm(value);
             setStep(Steps.PreRequisites);
           }}

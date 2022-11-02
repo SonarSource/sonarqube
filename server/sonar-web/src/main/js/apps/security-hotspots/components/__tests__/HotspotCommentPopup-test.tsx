@@ -29,7 +29,7 @@ it('should render correclty', () => {
 
 it('should trigger update comment', () => {
   const props = {
-    onCommentEditSubmit: jest.fn()
+    onCommentEditSubmit: jest.fn(),
   };
   const wrapper = shallowRender(props);
   wrapper.find('textarea').simulate('change', { target: { value: 'foo' } });
@@ -40,7 +40,7 @@ it('should trigger update comment', () => {
 
 it('should trigger cancel update comment', () => {
   const props = {
-    onCancelEdit: jest.fn()
+    onCancelEdit: jest.fn(),
   };
   const wrapper = shallowRender(props);
   wrapper.find(ResetButtonLink).simulate('click');

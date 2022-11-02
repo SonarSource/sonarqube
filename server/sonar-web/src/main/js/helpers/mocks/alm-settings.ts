@@ -34,7 +34,7 @@ import {
   ProjectBitbucketBindingResponse,
   ProjectBitbucketCloudBindingResponse,
   ProjectGitHubBindingResponse,
-  ProjectGitLabBindingResponse
+  ProjectGitLabBindingResponse,
 } from '../../types/alm-settings';
 
 export function mockAlmSettingsInstance(
@@ -43,7 +43,7 @@ export function mockAlmSettingsInstance(
   return {
     alm: AlmKeys.GitHub,
     key: 'key',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -53,7 +53,7 @@ export function mockBitbucketCloudAlmSettingsInstance(
   return {
     alm: AlmKeys.BitbucketCloud,
     key: 'key',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -63,7 +63,7 @@ export function mockAzureBindingDefinition(
   return {
     key: 'key',
     personalAccessToken: 'asdf1234',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -74,7 +74,7 @@ export function mockBitbucketServerBindingDefinition(
     key: 'key',
     personalAccessToken: 'asdf1234',
     url: 'http://bbs.enterprise.com',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -86,7 +86,7 @@ export function mockBitbucketCloudBindingDefinition(
     clientId: 'client1',
     clientSecret: '**clientsecret**',
     workspace: 'workspace',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -101,7 +101,7 @@ export function mockGithubBindingDefinition(
     clientSecret: '**clientsecret**',
     privateKey: 'asdf1234',
     webhookSecret: 'verySecretText!!',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -111,7 +111,7 @@ export function mockGitlabBindingDefinition(
   return {
     key: 'foo',
     personalAccessToken: 'foobar',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -122,7 +122,7 @@ export function mockProjectAlmBindingResponse(
     alm: AlmKeys.GitHub,
     key: 'foo',
     monorepo: false,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -135,7 +135,7 @@ export function mockProjectBitbucketBindingResponse(
     repository: 'PROJECT_KEY',
     slug: 'repo-slug',
     monorepo: true,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -147,7 +147,7 @@ export function mockProjectBitbucketCloudBindingResponse(
     key: 'foo',
     repository: 'repo-slug',
     monorepo: true,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -159,7 +159,7 @@ export function mockProjectGithubBindingResponse(
     key: 'foo',
     repository: 'PROJECT_KEY',
     monorepo: true,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -172,7 +172,7 @@ export function mockProjectGitLabBindingResponse(
     repository: 'PROJECT_KEY',
     url: 'https://gitlab.com/api/v4',
     monorepo: true,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -186,7 +186,7 @@ export function mockProjectAzureBindingResponse(
     repository: 'REPOSITORY_NAME',
     url: 'https://ado.my_company.com/mycollection',
     monorepo: false,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -197,7 +197,7 @@ export function mockAlmSettingsBindingStatus(
     alertSuccess: false,
     failureMessage: '',
     type: AlmSettingsBindingStatusType.Validating,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -207,6 +207,6 @@ export function mockProjectAlmBindingConfigurationErrors(
   return {
     scope: ProjectAlmBindingConfigurationErrorScope.Global,
     errors: [{ msg: 'Foo bar is not correct' }, { msg: 'Bar baz has no permissions here' }],
-    ...overrides
+    ...overrides,
   };
 }

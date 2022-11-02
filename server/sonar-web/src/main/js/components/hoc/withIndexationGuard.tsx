@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { IndexationContext } from '../../app/components/indexation/IndexationContext';
 import PageUnavailableDueToIndexation, {
-  PageContext
+  PageContext,
 } from '../../app/components/indexation/PageUnavailableDueToIndexation';
 
 export default function withIndexationGuard<P>(
@@ -31,7 +31,7 @@ export default function withIndexationGuard<P>(
     render() {
       return (
         <IndexationContext.Consumer>
-          {context =>
+          {(context) =>
             context?.status.isCompleted && !context?.status.hasFailures ? (
               <WrappedComponent {...this.props} />
             ) : (

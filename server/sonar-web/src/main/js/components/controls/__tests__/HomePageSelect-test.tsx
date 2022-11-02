@@ -25,7 +25,7 @@ import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { DEFAULT_HOMEPAGE, HomePageSelect } from '../HomePageSelect';
 
 jest.mock('../../../api/users', () => ({
-  setHomePage: jest.fn().mockResolvedValue(null)
+  setHomePage: jest.fn().mockResolvedValue(null),
 }));
 
 it('renders and behaves correctly', async () => {

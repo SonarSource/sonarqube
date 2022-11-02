@@ -21,14 +21,14 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   importBitbucketCloudRepository,
-  searchForBitbucketCloudRepositories
+  searchForBitbucketCloudRepositories,
 } from '../../../../api/alm-integrations';
 import { mockBitbucketCloudRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockBitbucketCloudAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import BitbucketCloudProjectCreate, {
-  BITBUCKET_CLOUD_PROJECTS_PAGESIZE
+  BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
 } from '../BitbucketCloudProjectCreate';
 
 jest.mock('../../../../api/alm-integrations', () => {
@@ -41,7 +41,7 @@ jest.mock('../../../../api/alm-integrations', () => {
       .fn()
       .mockResolvedValue({ isLastPage: true, repositories: [] }),
     checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue({ status: true }),
-    setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null)
+    setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null),
   };
 });
 
@@ -69,7 +69,7 @@ it('Should handle error correctly', async () => {
   wrapper.setState({
     showPersonalAccessTokenForm: false,
     repositories: [mockBitbucketCloudRepository()],
-    projectsPaging: { pageIndex: 2, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE }
+    projectsPaging: { pageIndex: 2, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
   });
   await wrapper.instance().handlePersonalAccessTokenCreated();
   expect(wrapper.state().repositories).toHaveLength(0);
@@ -83,8 +83,8 @@ it('Should load repository', async () => {
     isLastPage: true,
     repositories: [
       mockBitbucketCloudRepository(),
-      mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' })
-    ]
+      mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' }),
+    ],
   });
 
   const wrapper = shallowRender();
@@ -97,8 +97,8 @@ it('Should load more repository', async () => {
     isLastPage: true,
     repositories: [
       mockBitbucketCloudRepository(),
-      mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' })
-    ]
+      mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' }),
+    ],
   });
 
   const wrapper = shallowRender();
@@ -114,8 +114,8 @@ it('Should handle search repository', async () => {
     isLastPage: true,
     repositories: [
       mockBitbucketCloudRepository(),
-      mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' })
-    ]
+      mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' }),
+    ],
   });
 
   const wrapper = shallowRender();
@@ -123,7 +123,7 @@ it('Should handle search repository', async () => {
     isLastPage: false,
     showPersonalAccessTokenForm: false,
     projectsPaging: { pageIndex: 2, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
-    repositories: [mockBitbucketCloudRepository()]
+    repositories: [mockBitbucketCloudRepository()],
   });
   wrapper.instance().handleSearch('test');
   await waitAndUpdate(wrapper);
@@ -144,7 +144,7 @@ it('Should import repository', async () => {
     isLastPage: false,
     showPersonalAccessTokenForm: false,
     projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
-    repositories: [mockBitbucketCloudRepository({ slug: 'slug-test' })]
+    repositories: [mockBitbucketCloudRepository({ slug: 'slug-test' })],
   });
   await wrapper.instance().handleImport('slug-test');
   expect(importBitbucketCloudRepository).toHaveBeenCalledWith('key', 'slug-test');
@@ -159,7 +159,7 @@ it('Should behave correctly when import fail', async () => {
     isLastPage: false,
     showPersonalAccessTokenForm: false,
     projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
-    repositories: [mockBitbucketCloudRepository({ slug: 'slug-test' })]
+    repositories: [mockBitbucketCloudRepository({ slug: 'slug-test' })],
   });
   await wrapper.instance().handleImport('slug-test');
   expect(importBitbucketCloudRepository).toHaveBeenCalledWith('key', 'slug-test');

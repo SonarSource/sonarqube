@@ -23,7 +23,7 @@ import { getValues } from '../../../api/settings';
 import {
   ExtendedSettingDefinition,
   SettingDefinitionAndValue,
-  SettingValue
+  SettingValue,
 } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
@@ -64,22 +64,22 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
     const { category, component, definitions } = this.props;
 
     const categoryDefinitions = definitions.filter(
-      definition => definition.category.toLowerCase() === category.toLowerCase()
+      (definition) => definition.category.toLowerCase() === category.toLowerCase()
     );
 
-    const keys = categoryDefinitions.map(definition => definition.key);
+    const keys = categoryDefinitions.map((definition) => definition.key);
 
     const values: SettingValue[] = await getValues({
       keys,
-      component: component?.key
+      component: component?.key,
     }).catch(() => []);
     const valuesByDefinitionKey = keyBy(values, 'key');
 
-    const settings: SettingDefinitionAndValue[] = categoryDefinitions.map(definition => {
+    const settings: SettingDefinitionAndValue[] = categoryDefinitions.map((definition) => {
       const settingValue = valuesByDefinitionKey[definition.key];
       return {
         definition,
-        settingValue
+        settingValue,
       };
     });
 

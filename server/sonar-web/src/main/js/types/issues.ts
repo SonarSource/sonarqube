@@ -24,12 +24,12 @@ export enum IssueType {
   CodeSmell = 'CODE_SMELL',
   Vulnerability = 'VULNERABILITY',
   Bug = 'BUG',
-  SecurityHotspot = 'SECURITY_HOTSPOT'
+  SecurityHotspot = 'SECURITY_HOTSPOT',
 }
 
 export enum IssueScope {
   Main = 'MAIN',
-  Test = 'TEST'
+  Test = 'TEST',
 }
 
 interface Comment {

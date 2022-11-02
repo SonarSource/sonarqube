@@ -27,21 +27,21 @@ const ANALYSES = [
   {
     key: 'A1',
     date: parseDate('2016-10-27T16:33:50+0200'),
-    events: [{ key: 'E1', category: 'VERSION', name: '6.5-SNAPSHOT' }]
+    events: [{ key: 'E1', category: 'VERSION', name: '6.5-SNAPSHOT' }],
   },
   {
     key: 'A2',
     date: parseDate('2016-10-27T12:21:15+0200'),
-    events: []
+    events: [],
   },
   {
     key: 'A3',
     date: parseDate('2016-10-26T12:17:29+0200'),
     events: [
       { key: 'E2', category: 'VERSION', name: '6.4' },
-      { key: 'E3', category: 'OTHER', name: 'foo' }
-    ]
-  }
+      { key: 'E3', category: 'OTHER', name: 'foo' },
+    ],
+  },
 ];
 
 const METRICS = [{ id: '1', key: 'code_smells', name: 'Code Smells', type: 'INT' }];
@@ -56,9 +56,9 @@ const DEFAULT_PROPS: ProjectActivityGraphs['props'] = {
       history: [
         { date: parseDate('2016-10-26T12:17:29+0200'), value: '2286' },
         { date: parseDate('2016-10-27T12:21:15+0200'), value: '1749' },
-        { date: parseDate('2016-10-27T16:33:50+0200'), value: '500' }
-      ]
-    }
+        { date: parseDate('2016-10-27T16:33:50+0200'), value: '500' },
+      ],
+    },
   ],
   metrics: METRICS,
   project: 'foo',
@@ -66,9 +66,9 @@ const DEFAULT_PROPS: ProjectActivityGraphs['props'] = {
     category: '',
     customMetrics: [],
     graph: DEFAULT_GRAPH,
-    project: 'org.sonarsource.sonarqube:sonarqube'
+    project: 'org.sonarsource.sonarqube:sonarqube',
   },
-  updateQuery: () => {}
+  updateQuery: () => {},
 };
 
 it('should render correctly the graph and legends', () => {

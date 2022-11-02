@@ -27,7 +27,7 @@ import {
   ANALYSIS_SCOPE_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
-  PULL_REQUEST_DECORATION_BINDING_CATEGORY
+  PULL_REQUEST_DECORATION_BINDING_CATEGORY,
 } from '../../constants';
 import { SettingsAppRenderer, SettingsAppRendererProps } from '../SettingsAppRenderer';
 
@@ -47,10 +47,10 @@ it.each([
   [LANGUAGES_CATEGORY],
   [ANALYSIS_SCOPE_CATEGORY],
   [ALM_INTEGRATION_CATEGORY],
-  [PULL_REQUEST_DECORATION_BINDING_CATEGORY]
-])('should render %s correctly', category => {
+  [PULL_REQUEST_DECORATION_BINDING_CATEGORY],
+])('should render %s correctly', (category) => {
   const wrapper = shallowRender({
-    location: mockLocation({ query: { category } })
+    location: mockLocation({ query: { category } }),
   });
 
   expect(wrapper).toMatchSnapshot();

@@ -39,7 +39,7 @@ const NOTIFICATION_VARIANTS: { [key in IndexationNotificationType]: AlertProps['
   [IndexationNotificationType.InProgress]: 'warning',
   [IndexationNotificationType.InProgressWithFailure]: 'error',
   [IndexationNotificationType.Completed]: 'success',
-  [IndexationNotificationType.CompletedWithFailure]: 'error'
+  [IndexationNotificationType.CompletedWithFailure]: 'error',
 };
 
 export default function IndexationNotificationRenderer(props: IndexationNotificationRendererProps) {
@@ -50,7 +50,8 @@ export default function IndexationNotificationRenderer(props: IndexationNotifica
       <Alert
         className="indexation-notification-banner"
         display="banner"
-        variant={NOTIFICATION_VARIANTS[type]}>
+        variant={NOTIFICATION_VARIANTS[type]}
+      >
         <div className="display-flex-center">
           {type === IndexationNotificationType.Completed && renderCompletedBanner(props)}
           {type === IndexationNotificationType.CompletedWithFailure &&
@@ -79,7 +80,7 @@ function renderCompletedWithFailureBanner(props: IndexationNotificationRendererP
         values={{
           link: isSystemAdmin
             ? renderBackgroundTasksPageLink(true, translate('indexation.completed_with_error.link'))
-            : translate('indexation.completed_with_error.link')
+            : translate('indexation.completed_with_error.link'),
         }}
       />
     </span>
@@ -102,7 +103,7 @@ function renderInProgressBanner(props: IndexationNotificationRendererProps) {
             id="indexation.admin_link"
             defaultMessage={translate('indexation.admin_link')}
             values={{
-              link: renderBackgroundTasksPageLink(false, translate('background_tasks.page'))
+              link: renderBackgroundTasksPageLink(false, translate('background_tasks.page')),
             }}
           />
         </span>
@@ -131,7 +132,7 @@ function renderInProgressWithFailureBanner(props: IndexationNotificationRenderer
                   true,
                   translate('indexation.progression_with_error.link')
                 )
-              : translate('indexation.progression_with_error.link')
+              : translate('indexation.progression_with_error.link'),
           }}
         />
       </span>
@@ -146,9 +147,10 @@ function renderBackgroundTasksPageLink(hasError: boolean, text: string) {
         pathname: '/admin/background_tasks',
         search: queryToSearch({
           taskType: TaskTypes.IssueSync,
-          status: hasError ? TaskStatuses.Failed : undefined
-        })
-      }}>
+          status: hasError ? TaskStatuses.Failed : undefined,
+        }),
+      }}
+    >
       {text}
     </Link>
   );

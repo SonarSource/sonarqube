@@ -36,27 +36,27 @@ jest.mock('../../../../api/users', () => ({
         id: 1001,
         name: 'test1',
         description: 'test1',
-        selected: true
+        selected: true,
       },
       {
         id: 1002,
         name: 'test2',
         description: 'test2',
-        selected: true
+        selected: true,
       },
       {
         id: 1003,
         name: 'test3',
         description: 'test3',
-        selected: false
-      }
-    ]
-  })
+        selected: false,
+      },
+    ],
+  }),
 }));
 
 jest.mock('../../../../api/user_groups', () => ({
   addUserToGroup: jest.fn().mockResolvedValue({}),
-  removeUserFromGroup: jest.fn().mockResolvedValue({})
+  removeUserFromGroup: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => {
@@ -65,15 +65,12 @@ beforeEach(() => {
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();
-  wrapper
-    .find(SelectList)
-    .props()
-    .onSearch({
-      query: '',
-      filter: SelectListFilter.Selected,
-      page: 1,
-      pageSize: 100
-    });
+  wrapper.find(SelectList).props().onSearch({
+    query: '',
+    filter: SelectListFilter.Selected,
+    page: 1,
+    pageSize: 100,
+  });
   await waitAndUpdate(wrapper);
 
   expect(wrapper.instance().mounted).toBe(true);
@@ -87,7 +84,7 @@ it('should render correctly', async () => {
       p: 1,
       ps: 100,
       q: undefined,
-      selected: SelectListFilter.Selected
+      selected: SelectListFilter.Selected,
     })
   );
   expect(wrapper.state().needToReload).toBe(false);
@@ -104,7 +101,7 @@ it('should handle selection properly', async () => {
   expect(addUserToGroup).toHaveBeenCalledWith(
     expect.objectContaining({
       login: user.login,
-      name: 'toto'
+      name: 'toto',
     })
   );
   expect(wrapper.state().needToReload).toBe(true);
@@ -118,7 +115,7 @@ it('should handle deselection properly', async () => {
   expect(removeUserFromGroup).toHaveBeenCalledWith(
     expect.objectContaining({
       login: user.login,
-      name: 'tata'
+      name: 'tata',
     })
   );
   expect(wrapper.state().needToReload).toBe(true);

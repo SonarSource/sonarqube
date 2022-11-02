@@ -34,8 +34,8 @@ it.each([
   [BuildTools.Gradle],
   [BuildTools.DotNet],
   [BuildTools.CFamily],
-  [BuildTools.Other]
-])('should render correctly for build tool %s', buildTool => {
+  [BuildTools.Other],
+])('should render correctly for build tool %s', (buildTool) => {
   expect(renderStepContent(shallowRender({ buildTool }))).toMatchSnapshot('with branch support');
   expect(renderStepContent(shallowRender({ hasFeature: () => false, buildTool }))).toMatchSnapshot(
     'without branch support'

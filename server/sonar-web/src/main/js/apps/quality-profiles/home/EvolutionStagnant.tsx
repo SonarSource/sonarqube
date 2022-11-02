@@ -29,7 +29,7 @@ interface Props {
 }
 
 export default function EvolutionStagnant(props: Props) {
-  const outdated = props.profiles.filter(profile => !profile.isBuiltIn && isStagnant(profile));
+  const outdated = props.profiles.filter((profile) => !profile.isBuiltIn && isStagnant(profile));
 
   if (outdated.length === 0) {
     return null;
@@ -44,19 +44,20 @@ export default function EvolutionStagnant(props: Props) {
         {translate('quality_profiles.not_updated_more_than_year')}
       </div>
       <ul>
-        {outdated.map(profile => (
+        {outdated.map((profile) => (
           <li className="spacer-top" key={profile.key}>
             <div className="text-ellipsis">
               <ProfileLink
                 className="link-no-underline"
                 language={profile.language}
-                name={profile.name}>
+                name={profile.name}
+              >
                 {profile.name}
               </ProfileLink>
             </div>
             {profile.rulesUpdatedAt && (
               <DateFormatter date={profile.rulesUpdatedAt} long={true}>
-                {formattedDate => (
+                {(formattedDate) => (
                   <div className="note">
                     {translateWithParameters(
                       'quality_profiles.x_updated_on_y',

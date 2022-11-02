@@ -29,7 +29,7 @@ import {
   addComponentChildren,
   getComponent as getComponentFromBucket,
   getComponentBreadcrumbs,
-  getComponentChildren
+  getComponentChildren,
 } from './bucket';
 
 const METRICS = [
@@ -39,7 +39,7 @@ const METRICS = [
   MetricKey.code_smells,
   MetricKey.security_hotspots,
   MetricKey.coverage,
-  MetricKey.duplicated_lines_density
+  MetricKey.duplicated_lines_density,
 ];
 
 const APPLICATION_METRICS = [MetricKey.alert_status, ...METRICS];
@@ -50,7 +50,7 @@ const PORTFOLIO_METRICS = [
   MetricKey.security_rating,
   MetricKey.security_review_rating,
   MetricKey.sqale_rating,
-  MetricKey.ncloc
+  MetricKey.ncloc,
 ];
 
 const NEW_PORTFOLIO_METRICS = [
@@ -59,7 +59,7 @@ const NEW_PORTFOLIO_METRICS = [
   MetricKey.new_security_rating,
   MetricKey.new_security_review_rating,
   MetricKey.new_maintainability_rating,
-  MetricKey.new_lines
+  MetricKey.new_lines,
 ];
 
 const LEAK_METRICS = [
@@ -69,7 +69,7 @@ const LEAK_METRICS = [
   MetricKey.code_smells,
   MetricKey.security_hotspots,
   MetricKey.new_coverage,
-  MetricKey.new_duplicated_lines_density
+  MetricKey.new_duplicated_lines_density,
 ];
 
 const PAGE_SIZE = 100;
@@ -84,7 +84,7 @@ function prepareChildren(r: any): Children {
   return {
     components: r.components,
     total: r.paging.total,
-    page: r.paging.pageIndex
+    page: r.paging.pageIndex,
   };
 }
 
@@ -93,7 +93,7 @@ export function showLeakMeasure(branchLike?: BranchLike) {
 }
 
 function skipRootDir(breadcrumbs: ComponentMeasure[]) {
-  return breadcrumbs.filter(component => {
+  return breadcrumbs.filter((component) => {
     return !(component.qualifier === 'DIR' && component.name === '/');
   });
 }
@@ -105,7 +105,7 @@ function storeChildrenBase(children: ComponentMeasure[]) {
 function storeChildrenBreadcrumbs(parentComponentKey: string, children: Breadcrumb[]) {
   const parentBreadcrumbs = getComponentBreadcrumbs(parentComponentKey);
   if (parentBreadcrumbs) {
-    children.forEach(child => {
+    children.forEach((child) => {
       const breadcrumbs = [...parentBreadcrumbs, child];
       addComponentBreadcrumbs(child.key, breadcrumbs);
     });
@@ -153,7 +153,7 @@ function retrieveComponentBase(
   return getComponent({
     component: componentKey,
     metricKeys: metrics.join(),
-    ...getBranchLikeQuery(branchLike)
+    ...getBranchLikeQuery(branchLike),
   }).then(({ component }) => {
     if (instance.mounted) {
       addComponent(component);
@@ -173,21 +173,21 @@ export function retrieveComponentChildren(
     return Promise.resolve({
       components: existing.children,
       total: existing.total,
-      page: existing.page
+      page: existing.page,
     });
   }
 
   const metrics = getCodeMetrics(qualifier, branchLike, {
-    includeQGStatus: true
+    includeQGStatus: true,
   });
 
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,
     s: 'qualifier,name',
-    ...getBranchLikeQuery(branchLike)
+    ...getBranchLikeQuery(branchLike),
   })
     .then(prepareChildren)
-    .then(r => {
+    .then((r) => {
       if (instance.mounted) {
         addComponentChildren(componentKey, r.components, r.total, r.page);
         storeChildrenBase(r.components);
@@ -209,7 +209,7 @@ function retrieveComponentBreadcrumbs(
 
   return getBreadcrumbs({ component, ...getBranchLikeQuery(branchLike) })
     .then(skipRootDir)
-    .then(breadcrumbs => {
+    .then((breadcrumbs) => {
       if (instance.mounted) {
         addComponentBreadcrumbs(component, breadcrumbs);
       }
@@ -232,14 +232,14 @@ export function retrieveComponent(
   return Promise.all([
     retrieveComponentBase(componentKey, qualifier, instance, branchLike),
     retrieveComponentChildren(componentKey, qualifier, instance, branchLike),
-    retrieveComponentBreadcrumbs(componentKey, instance, branchLike)
-  ]).then(r => {
+    retrieveComponentBreadcrumbs(componentKey, instance, branchLike),
+  ]).then((r) => {
     return {
       breadcrumbs: r[2],
       component: r[0],
       components: r[1].components,
       page: r[1].page,
-      total: r[1].total
+      total: r[1].total,
     };
   });
 }
@@ -252,17 +252,17 @@ export function loadMoreChildren(
   branchLike?: BranchLike
 ): Promise<Children> {
   const metrics = getCodeMetrics(qualifier, branchLike, {
-    includeQGStatus: true
+    includeQGStatus: true,
   });
 
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,
     p: page,
     s: 'qualifier,name',
-    ...getBranchLikeQuery(branchLike)
+    ...getBranchLikeQuery(branchLike),
   })
     .then(prepareChildren)
-    .then(r => {
+    .then((r) => {
       if (instance.mounted) {
         addComponentChildren(componentKey, r.components, r.total, r.page);
         storeChildrenBase(r.components);

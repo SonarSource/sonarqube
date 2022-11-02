@@ -29,7 +29,8 @@ it('should render correctly', () => {
       confirmData="data"
       header="title"
       onClose={jest.fn()}
-      onConfirm={jest.fn()}>
+      onConfirm={jest.fn()}
+    >
       <p>My confirm message</p>
     </ConfirmModal>
   );
@@ -46,7 +47,8 @@ it('should confirm and close after confirm', async () => {
       confirmData="data"
       header="title"
       onClose={onClose}
-      onConfirm={onConfirm}>
+      onConfirm={onConfirm}
+    >
       <p>My confirm message</p>
     </ConfirmModal>
   );

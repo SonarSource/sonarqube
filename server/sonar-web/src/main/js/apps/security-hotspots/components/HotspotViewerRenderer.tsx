@@ -61,7 +61,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     showStatusUpdateSuccessModal,
     commentTextRef,
     selectedHotspotLocation,
-    ruleDescriptionSections
+    ruleDescriptionSections,
   } = props;
 
   return (

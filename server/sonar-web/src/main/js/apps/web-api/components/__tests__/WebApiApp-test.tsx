@@ -34,14 +34,14 @@ jest.mock('../../../../api/web-api', () => ({
       description: 'foo',
       internal: true,
       path: 'foo/bar',
-      since: '1.0'
-    }
-  ])
+      since: '1.0',
+    },
+  ]),
 }));
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
-  removeSideBarClass: jest.fn()
+  removeSideBarClass: jest.fn(),
 }));
 
 it('should render correctly', async () => {

@@ -51,10 +51,10 @@ export default class SimilarIssuesPopup extends React.PureComponent<Props> {
       'resolution',
       'assignee',
       'rule',
-      ...(issue.tags || []).map(tag => `tag###${tag}`),
+      ...(issue.tags || []).map((tag) => `tag###${tag}`),
       'project',
-      'file'
-    ].filter(item => item) as string[];
+      'file',
+    ].filter((item) => item) as string[];
 
     const assignee = issue.assigneeName || issue.assignee;
 
@@ -68,7 +68,8 @@ export default class SimilarIssuesPopup extends React.PureComponent<Props> {
           className="issues-similar-issues-menu"
           currentItem={items[0]}
           items={items}
-          onSelect={this.handleSelect}>
+          onSelect={this.handleSelect}
+        >
           <SelectListItem className="display-flex-center" item="type">
             <IssueTypeIcon className="little-spacer-right" query={issue.type} />
             {translate('issue.type', issue.type)}
@@ -116,7 +117,7 @@ export default class SimilarIssuesPopup extends React.PureComponent<Props> {
           <SelectListItem item="rule">{limitComponentName(issue.ruleName)}</SelectListItem>
 
           {issue.tags != null &&
-            issue.tags.map(tag => (
+            issue.tags.map((tag) => (
               <SelectListItem item={`tag###${tag}`} key={`tag###${tag}`}>
                 <TagsIcon className="little-spacer-right text-middle" />
                 <span className="text-middle">{tag}</span>

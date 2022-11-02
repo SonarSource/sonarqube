@@ -38,7 +38,7 @@ export default function GraphsTooltipsContentEvents({ addSeparator, events }: Pr
       )}
       <tr className="activity-graph-tooltip-line">
         <td colSpan={3}>
-          {events.map(event => (
+          {events.map((event) => (
             <div className="little-spacer-bottom" key={event.key}>
               <EventInner event={event} readonly={true} />
             </div>

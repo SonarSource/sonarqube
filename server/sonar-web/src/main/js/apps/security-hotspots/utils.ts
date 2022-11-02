@@ -26,7 +26,7 @@ import {
   renderPciDss32Category,
   renderPciDss40Category,
   renderSansTop25Category,
-  renderSonarSourceSecurityCategory
+  renderSonarSourceSecurityCategory,
 } from '../../helpers/security-standard';
 import { SecurityStandard } from '../../types/security';
 import {
@@ -38,13 +38,13 @@ import {
   RawHotspot,
   ReviewHistoryElement,
   ReviewHistoryType,
-  RiskExposure
+  RiskExposure,
 } from '../../types/security-hotspots';
 import {
   Dict,
   FlowLocation,
   SourceViewerFile,
-  StandardSecurityCategories
+  StandardSecurityCategories,
 } from '../../types/types';
 
 const OTHERS_SECURITY_CATEGORY = 'others';
@@ -58,7 +58,7 @@ export const SECURITY_STANDARDS = [
   SecurityStandard.CWE,
   SecurityStandard.PCI_DSS_3_2,
   SecurityStandard.PCI_DSS_4_0,
-  SecurityStandard.OWASP_ASVS_4_0
+  SecurityStandard.OWASP_ASVS_4_0,
 ];
 
 export const SECURITY_STANDARD_RENDERER = {
@@ -69,7 +69,7 @@ export const SECURITY_STANDARD_RENDERER = {
   [SecurityStandard.CWE]: renderCWECategory,
   [SecurityStandard.PCI_DSS_3_2]: renderPciDss32Category,
   [SecurityStandard.PCI_DSS_4_0]: renderPciDss40Category,
-  [SecurityStandard.OWASP_ASVS_4_0]: renderOwaspAsvs40Category
+  [SecurityStandard.OWASP_ASVS_4_0]: renderOwaspAsvs40Category,
 };
 
 export function mapRules(rules: Array<{ key: string; name: string }>): Dict<string> {
@@ -83,28 +83,28 @@ export function groupByCategory(
   hotspots: RawHotspot[] = [],
   securityCategories: StandardSecurityCategories
 ) {
-  const groups = groupBy(hotspots, h => h.securityCategory);
+  const groups = groupBy(hotspots, (h) => h.securityCategory);
 
-  const groupList = Object.keys(groups).map(key => ({
+  const groupList = Object.keys(groups).map((key) => ({
     key,
     title: getCategoryTitle(key, securityCategories),
-    hotspots: groups[key]
+    hotspots: groups[key],
   }));
 
   return [
     ...sortBy(
-      groupList.filter(group => group.key !== OTHERS_SECURITY_CATEGORY),
-      group => group.title
+      groupList.filter((group) => group.key !== OTHERS_SECURITY_CATEGORY),
+      (group) => group.title
     ),
-    ...groupList.filter(({ key }) => key === OTHERS_SECURITY_CATEGORY)
+    ...groupList.filter(({ key }) => key === OTHERS_SECURITY_CATEGORY),
   ];
 }
 
 export function sortHotspots(hotspots: RawHotspot[], securityCategories: Dict<{ title: string }>) {
   return sortBy(hotspots, [
-    h => RISK_EXPOSURE_LEVELS.indexOf(h.vulnerabilityProbability),
-    h => getCategoryTitle(h.securityCategory, securityCategories),
-    h => h.message
+    (h) => RISK_EXPOSURE_LEVELS.indexOf(h.vulnerabilityProbability),
+    (h) => getCategoryTitle(h.securityCategory, securityCategories),
+    (h) => h.message,
   ]);
 }
 
@@ -123,7 +123,7 @@ export function constructSourceViewerFile(
     project: project.key,
     projectName: project.name,
     q: component.qualifier,
-    uuid: ''
+    uuid: '',
   };
 }
 
@@ -136,44 +136,44 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
       date: hotspot.creationDate,
       user: {
         ...hotspot.authorUser,
-        name: hotspot.authorUser.name || hotspot.authorUser.login
-      }
+        name: hotspot.authorUser.name || hotspot.authorUser.login,
+      },
     });
   }
 
   if (hotspot.changelog && hotspot.changelog.length > 0) {
     history.push(
-      ...hotspot.changelog.map(log => ({
+      ...hotspot.changelog.map((log) => ({
         type: ReviewHistoryType.Diff,
         date: log.creationDate,
         user: {
           active: log.isUserActive,
           avatar: log.avatar,
-          name: log.userName || log.user
+          name: log.userName || log.user,
         },
-        diffs: log.diffs
+        diffs: log.diffs,
       }))
     );
   }
 
   if (hotspot.comment && hotspot.comment.length > 0) {
     history.push(
-      ...hotspot.comment.map(comment => ({
+      ...hotspot.comment.map((comment) => ({
         type: ReviewHistoryType.Comment,
         date: comment.createdAt,
         updatable: comment.updatable,
         user: {
           ...comment.user,
-          name: comment.user.name || comment.user.login
+          name: comment.user.name || comment.user.login,
         },
         html: comment.htmlText,
         key: comment.key,
-        markdown: comment.markdown
+        markdown: comment.markdown,
       }))
     );
   }
 
-  return sortBy(history, elt => elt.date).reverse();
+  return sortBy(history, (elt) => elt.date).reverse();
 }
 
 const STATUS_AND_RESOLUTION_TO_STATUS_OPTION = {
@@ -181,7 +181,7 @@ const STATUS_AND_RESOLUTION_TO_STATUS_OPTION = {
   [HotspotStatus.REVIEWED]: HotspotStatusOption.FIXED,
   [HotspotResolution.ACKNOWLEDGED]: HotspotStatusOption.ACKNOWLEDGED,
   [HotspotResolution.FIXED]: HotspotStatusOption.FIXED,
-  [HotspotResolution.SAFE]: HotspotStatusOption.SAFE
+  [HotspotResolution.SAFE]: HotspotStatusOption.SAFE,
 };
 
 export function getStatusOptionFromStatusAndResolution(
@@ -197,16 +197,16 @@ const STATUS_OPTION_TO_STATUS_AND_RESOLUTION_MAP = {
   [HotspotStatusOption.TO_REVIEW]: { status: HotspotStatus.TO_REVIEW, resolution: undefined },
   [HotspotStatusOption.ACKNOWLEDGED]: {
     status: HotspotStatus.REVIEWED,
-    resolution: HotspotResolution.ACKNOWLEDGED
+    resolution: HotspotResolution.ACKNOWLEDGED,
   },
   [HotspotStatusOption.FIXED]: {
     status: HotspotStatus.REVIEWED,
-    resolution: HotspotResolution.FIXED
+    resolution: HotspotResolution.FIXED,
   },
   [HotspotStatusOption.SAFE]: {
     status: HotspotStatus.REVIEWED,
-    resolution: HotspotResolution.SAFE
-  }
+    resolution: HotspotResolution.SAFE,
+  },
 };
 
 export function getStatusAndResolutionFromStatusOption(statusOption: HotspotStatusOption) {
@@ -217,7 +217,7 @@ const STATUS_OPTION_TO_STATUS_FILTER = {
   [HotspotStatusOption.TO_REVIEW]: HotspotStatusFilter.TO_REVIEW,
   [HotspotStatusOption.ACKNOWLEDGED]: HotspotStatusFilter.ACKNOWLEDGED,
   [HotspotStatusOption.FIXED]: HotspotStatusFilter.FIXED,
-  [HotspotStatusOption.SAFE]: HotspotStatusFilter.SAFE
+  [HotspotStatusOption.SAFE]: HotspotStatusFilter.SAFE,
 };
 
 export function getStatusFilterFromStatusOption(statusOption: HotspotStatusOption) {
@@ -226,15 +226,15 @@ export function getStatusFilterFromStatusOption(statusOption: HotspotStatusOptio
 
 function getSecondaryLocations(flows: RawHotspot['flows']) {
   const parsedFlows: FlowLocation[][] = (flows || [])
-    .filter(flow => flow.locations !== undefined)
-    .map(flow => flow.locations!.filter(location => location.textRange != null))
-    .map(flow =>
-      flow.map(location => {
+    .filter((flow) => flow.locations !== undefined)
+    .map((flow) => flow.locations!.filter((location) => location.textRange != null))
+    .map((flow) =>
+      flow.map((location) => {
         return { ...location };
       })
     );
 
-  const onlySecondaryLocations = parsedFlows.every(flow => flow.length === 1);
+  const onlySecondaryLocations = parsedFlows.every((flow) => flow.length === 1);
 
   return onlySecondaryLocations
     ? { secondaryLocations: orderLocations(flatten(parsedFlows)), flows: [] }
@@ -252,8 +252,8 @@ export function getLocations(rawFlows: RawHotspot['flows'], selectedFlowIndex: n
 function orderLocations(locations: FlowLocation[]) {
   return sortBy(
     locations,
-    location => location.textRange && location.textRange.startLine,
-    location => location.textRange && location.textRange.startOffset
+    (location) => location.textRange && location.textRange.startLine,
+    (location) => location.textRange && location.textRange.startOffset
   );
 }
 

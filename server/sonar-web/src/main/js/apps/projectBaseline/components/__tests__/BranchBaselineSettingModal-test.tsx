@@ -25,7 +25,7 @@ import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import BranchBaselineSettingModal from '../BranchBaselineSettingModal';
 
 jest.mock('../../../../api/newCodePeriod', () => ({
-  setNewCodePeriod: jest.fn().mockResolvedValue({})
+  setNewCodePeriod: jest.fn().mockResolvedValue({}),
 }));
 
 it('should render correctly', () => {
@@ -48,7 +48,7 @@ it('should save correctly', async () => {
   const component = 'compKey';
   const wrapper = shallowRender({
     branch,
-    component
+    component,
   });
 
   wrapper.setState({ analysis: 'analysis572893', selected: 'SPECIFIC_ANALYSIS' });
@@ -61,7 +61,7 @@ it('should save correctly', async () => {
     project: component,
     type: 'SPECIFIC_ANALYSIS',
     value: 'analysis572893',
-    branch: 'branchname'
+    branch: 'branchname',
   });
 });
 
@@ -70,12 +70,7 @@ it('should disable the save button when saving', () => {
 
   wrapper.setState({ saving: true });
 
-  expect(
-    wrapper
-      .find('SubmitButton')
-      .first()
-      .prop('disabled')
-  ).toBe(true);
+  expect(wrapper.find('SubmitButton').first().prop('disabled')).toBe(true);
 });
 
 it('should disable the save button when date is invalid', () => {
@@ -83,12 +78,7 @@ it('should disable the save button when date is invalid', () => {
 
   wrapper.setState({ days: 'asdf' });
 
-  expect(
-    wrapper
-      .find('SubmitButton')
-      .first()
-      .prop('disabled')
-  ).toBe(true);
+  expect(wrapper.find('SubmitButton').first().prop('disabled')).toBe(true);
 });
 
 function shallowRender(props: Partial<BranchBaselineSettingModal['props']> = {}) {

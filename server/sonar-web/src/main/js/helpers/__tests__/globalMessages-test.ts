@@ -21,7 +21,7 @@ import { MessageLevel } from '../../types/globalMessages';
 import {
   addGlobalErrorMessage,
   addGlobalSuccessMessage,
-  registerListener
+  registerListener,
 } from '../globalMessages';
 
 it('should work as expected', () => {

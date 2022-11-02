@@ -27,7 +27,7 @@ import SingleFileLocationNavigator from './SingleFileLocationNavigator';
 
 const FLOW_ORDER_MAP = {
   [FlowType.DATA]: 0,
-  [FlowType.EXECUTION]: 1
+  [FlowType.EXECUTION]: 1,
 };
 export interface Props {
   flows: Flow[];
@@ -65,7 +65,8 @@ export default function FlowsList(props: Props) {
                 flow={true}
                 selected={open}
               />
-            )}>
+            )}
+          >
             <ul>
               {flow.locations.map((location, locIndex) => (
                 // eslint-disable-next-line react/no-array-index-key

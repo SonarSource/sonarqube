@@ -26,7 +26,7 @@ import {
   deleteAnalysis,
   deleteEvent,
   getProjectActivity,
-  ProjectActivityStatuses
+  ProjectActivityStatuses,
 } from '../../../api/projectActivity';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
@@ -34,7 +34,7 @@ import {
   DEFAULT_GRAPH,
   getActivityGraph,
   getHistoryMetrics,
-  isCustomGraph
+  isCustomGraph,
 } from '../../../components/activity-graph/utils';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
@@ -50,7 +50,7 @@ import {
   parseQuery,
   Query,
   serializeQuery,
-  serializeUrlQuery
+  serializeUrlQuery,
 } from '../utils';
 import ProjectActivityAppRenderer from './ProjectActivityAppRenderer';
 
@@ -88,7 +88,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
       initialized: false,
       measuresHistory: [],
       metrics: [],
-      query: parseQuery(props.location.query)
+      query: parseQuery(props.location.query),
     };
   }
 
@@ -168,14 +168,14 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
       statuses: serializeStringArray(statuses),
       p,
       ps,
-      ...getBranchLikeQuery(this.props.branchLike)
+      ...getBranchLikeQuery(this.props.branchLike),
     };
     return getProjectActivity({ ...additional, ...parameters }).then(({ analyses, paging }) => ({
-      analyses: analyses.map(analysis => ({
+      analyses: analyses.map((analysis) => ({
         ...analysis,
-        date: parseDate(analysis.date)
+        date: parseDate(analysis.date),
       })) as ParsedAnalysis[],
-      paging
+      paging,
     }));
   };
 
@@ -186,14 +186,14 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
     return getAllTimeMachineData({
       component: this.props.component.key,
       metrics: metrics.join(),
-      ...getBranchLikeQuery(this.props.branchLike)
+      ...getBranchLikeQuery(this.props.branchLike),
     }).then(({ measures }) =>
-      measures.map(measure => ({
+      measures.map((measure) => ({
         metric: measure.metric,
-        history: measure.history.map(analysis => ({
+        history: measure.history.map((analysis) => ({
           date: parseDate(analysis.date),
-          value: analysis.value
-        }))
+          value: analysis.value,
+        })),
       }))
     );
   };
@@ -205,7 +205,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({
             analyses,
-            analysesLoading: false
+            analysesLoading: false,
           });
         }
       },
@@ -232,17 +232,17 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
       project,
       [
         ProjectActivityStatuses.STATUS_PROCESSED,
-        ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE
+        ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE,
       ],
       nextPage,
       ACTIVITY_PAGE_SIZE
-    ).then(result => {
+    ).then((result) => {
       if (!prevResult) {
         return this.loadAllActivities(project, result);
       }
       return this.loadAllActivities(project, {
         analyses: prevResult.analyses.concat(result.analyses),
-        paging: result.paging
+        paging: result.paging,
       });
     });
   };
@@ -260,8 +260,8 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
 
   filterMetrics({ qualifier }: Component, metrics: Metric[]) {
     return ['VW', 'SVW'].includes(qualifier)
-      ? metrics.filter(metric => metric.key !== MetricKey.security_hotspots_reviewed)
-      : metrics.filter(metric => metric.key !== MetricKey.security_review_rating);
+      ? metrics.filter((metric) => metric.key !== MetricKey.security_hotspots_reviewed)
+      : metrics.filter((metric) => metric.key !== MetricKey.security_review_rating);
   }
 
   firstLoadData(query: Query, component: Component) {
@@ -272,14 +272,14 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
         topLevelComponent,
         [
           ProjectActivityStatuses.STATUS_PROCESSED,
-          ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE
+          ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE,
         ],
         1,
         ACTIVITY_PAGE_SIZE_FIRST_BATCH,
         serializeQuery(query)
       ),
       getAllMetrics(),
-      this.fetchMeasuresHistory(graphMetrics)
+      this.fetchMeasuresHistory(graphMetrics),
     ]).then(
       ([{ analyses }, metrics, measuresHistory]) => {
         if (this.mounted) {
@@ -288,7 +288,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
             graphLoading: false,
             initialized: true,
             measuresHistory,
-            metrics: this.filterMetrics(component, metrics)
+            metrics: this.filterMetrics(component, metrics),
           });
 
           this.fetchAllActivities(topLevelComponent);
@@ -306,7 +306,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
     const graphMetrics = getHistoryMetrics(graph, customMetrics);
     this.setState({ graphLoading: true });
     this.fetchMeasuresHistory(graphMetrics).then(
-      measuresHistory => {
+      (measuresHistory) => {
         if (this.mounted) {
           this.setState({ graphLoading: false, measuresHistory });
         }
@@ -322,15 +322,15 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
   updateQuery = (newQuery: Query) => {
     const query = serializeUrlQuery({
       ...this.state.query,
-      ...newQuery
+      ...newQuery,
     });
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
         ...query,
         ...getBranchLikeQuery(this.props.branchLike),
-        id: this.props.component.key
-      }
+        id: this.props.component.key,
+      },
     });
   };
 

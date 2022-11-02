@@ -25,13 +25,13 @@ import { mockLoggedInUser, mockRouter } from '../../../helpers/testMocks';
 import { PluginRiskConsent, PluginRiskConsentProps } from '../PluginRiskConsent';
 
 jest.mock('../../../api/settings', () => ({
-  setSimpleSettingValue: jest.fn().mockResolvedValue({})
+  setSimpleSettingValue: jest.fn().mockResolvedValue({}),
 }));
 
 jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
-    useEffect: jest.fn().mockImplementation(f => f())
+    useEffect: jest.fn().mockImplementation((f) => f()),
   };
 });
 
@@ -47,7 +47,7 @@ it('should redirect non-admin users', () => {
   const replace = jest.fn();
   const wrapper = shallowRender({
     currentUser: mockLoggedInUser(),
-    router: mockRouter({ replace })
+    router: mockRouter({ replace }),
   });
   expect(wrapper.type()).toBeNull();
   expect(replace).toHaveBeenCalled();
@@ -56,10 +56,7 @@ it('should redirect non-admin users', () => {
 it('should handle acknowledgement and redirect', async () => {
   const wrapper = shallowRender();
 
-  wrapper
-    .find(Button)
-    .first()
-    .simulate('click');
+  wrapper.find(Button).first().simulate('click');
 
   await new Promise(setImmediate);
 

@@ -70,7 +70,7 @@ export default class Export extends React.Component<Props> {
         <div className="boxed-group-inner" id="export-pending">
           <i className="spinner spacer-right" />
           <DateTimeFormatter date={task.submittedAt}>
-            {formatted => (
+            {(formatted) => (
               <span>{translateWithParameters('project_dump.pending_export', formatted)}</span>
             )}
           </DateTimeFormatter>
@@ -88,7 +88,7 @@ export default class Export extends React.Component<Props> {
           <i className="spinner spacer-right" />
           {task.startedAt && (
             <DateFromNow date={task.startedAt}>
-              {fromNow => (
+              {(fromNow) => (
                 <span>{translateWithParameters('project_dump.in_progress_export', fromNow)}</span>
               )}
             </DateFromNow>
@@ -129,7 +129,7 @@ export default class Export extends React.Component<Props> {
       <Alert className="export-dump" variant="success">
         {task && task.executedAt && (
           <DateTimeFormatter date={task.executedAt}>
-            {formatted => (
+            {(formatted) => (
               <div className="export-dump-message">
                 {translateWithParameters('project_dump.latest_export_available', formatted)}
               </div>

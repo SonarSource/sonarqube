@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockUser } from '../../../../../helpers/testMocks';
 import { UserActive } from '../../../../../types/users';
 import AssigneeSelectionRenderer, {
-  HotspotAssigneeSelectRendererProps
+  HotspotAssigneeSelectRendererProps,
 } from '../AssigneeSelectionRenderer';
 
 it('should render correctly', () => {
@@ -33,7 +33,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       highlighted: highlightedUser,
-      suggestedUsers: [mockUser() as UserActive, highlightedUser]
+      suggestedUsers: [mockUser() as UserActive, highlightedUser],
     })
   ).toMatchSnapshot('open with results');
 });
@@ -43,13 +43,10 @@ it('should call onSelect when clicked', () => {
   const onSelect = jest.fn();
   const wrapper = shallowRender({
     onSelect,
-    suggestedUsers: [user]
+    suggestedUsers: [user],
   });
 
-  wrapper
-    .find('li')
-    .at(0)
-    .simulate('click');
+  wrapper.find('li').at(0).simulate('click');
 
   expect(onSelect).toHaveBeenCalledWith(user);
 });

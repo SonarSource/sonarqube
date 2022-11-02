@@ -24,7 +24,7 @@ import { IndexationStatus } from '../../../../types/indexation';
 import { IndexationContext } from '../IndexationContext';
 import {
   IndexationContextProvider,
-  IndexationContextProviderProps
+  IndexationContextProviderProps,
 } from '../IndexationContextProvider';
 import IndexationNotificationHelper from '../IndexationNotificationHelper';
 
@@ -48,7 +48,7 @@ it('should not start polling if no issue sync is needed', () => {
   const expectedStatus: IndexationStatus = {
     isCompleted: true,
     percentCompleted: 100,
-    hasFailures: false
+    hasFailures: false,
   };
   expect(wrapper.state().status).toEqual(expectedStatus);
 });
@@ -61,7 +61,7 @@ it('should update the state on new status', () => {
   const newStatus: IndexationStatus = {
     isCompleted: true,
     percentCompleted: 100,
-    hasFailures: false
+    hasFailures: false,
   };
 
   triggerNewStatus(newStatus);

@@ -31,15 +31,15 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       appState: mockAppState({
-        qualifiers: [ComponentQualifier.Project, ComponentQualifier.Application]
-      })
+        qualifiers: [ComponentQualifier.Project, ComponentQualifier.Application],
+      }),
     })
   ).toMatchSnapshot('applications available');
   expect(
     shallowRender({
       appState: mockAppState({
-        qualifiers: [ComponentQualifier.Project, ComponentQualifier.Portfolio]
-      })
+        qualifiers: [ComponentQualifier.Project, ComponentQualifier.Portfolio],
+      }),
     })
   ).toMatchSnapshot('portfolios available');
 });

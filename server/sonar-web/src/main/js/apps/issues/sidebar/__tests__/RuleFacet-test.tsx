@@ -26,7 +26,7 @@ import { Query } from '../../utils';
 import RuleFacet from '../RuleFacet';
 
 jest.mock('../../../../api/rules', () => ({
-  searchRules: jest.fn().mockResolvedValue({})
+  searchRules: jest.fn().mockResolvedValue({}),
 }));
 
 it('should render correctly', () => {

@@ -71,7 +71,8 @@ export default function CommentForm(props: CommentFormProps) {
             onClick={() => {
               props.onSaveComment(editComment);
               setEditComment('');
-            }}>
+            }}
+          >
             {comment ? translate('save') : translate('issue.comment.submit')}
           </Button>
           {showCancelButton && (
@@ -82,7 +83,8 @@ export default function CommentForm(props: CommentFormProps) {
                   ? translate('issue.comment.edit.cancel')
                   : translate('issue.comment.add_comment.cancel')
               }
-              onClick={() => props.onCancel()}>
+              onClick={() => props.onCancel()}
+            >
               {autoTriggered ? translate('skip') : translate('cancel')}
             </ResetButtonLink>
           )}

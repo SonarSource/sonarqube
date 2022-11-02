@@ -46,17 +46,20 @@ export default function MultiSelectOption(props: MultiSelectOptionProps) {
       onFocus={() => setActive(true)}
       onBlur={() => setActive(false)}
       onMouseLeave={() => setActive(false)}
-      onMouseOver={() => setActive(true)}>
+      onMouseOver={() => setActive(true)}
+    >
       <Checkbox
         checked={element.selected}
         className={className}
         disabled={disabled}
         id={element.value}
-        onCheck={props.onSelectChange}>
+        onCheck={props.onSelectChange}
+      >
         {element.custom ? (
           <span
             aria-label={`${translate('create_new_element')}: ${label}`}
-            className="little-spacer-left">
+            className="little-spacer-left"
+          >
             <span aria-hidden={true} className="little-spacer-right">
               +
             </span>

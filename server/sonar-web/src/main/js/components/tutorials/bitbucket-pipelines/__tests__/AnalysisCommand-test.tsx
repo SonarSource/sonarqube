@@ -28,8 +28,8 @@ it.each([
   [BuildTools.DotNet],
   [BuildTools.Gradle],
   [BuildTools.Maven],
-  [BuildTools.Other]
-])('should render correctly for %s', buildTool => {
+  [BuildTools.Other],
+])('should render correctly for %s', (buildTool) => {
   expect(shallowRender({ buildTool })).toMatchSnapshot();
   expect(shallowRender({ hasFeature: () => true, buildTool })).toMatchSnapshot(
     'with branch enabled'

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
 import GitlabProjectCreateRenderer, {
-  GitlabProjectCreateRendererProps
+  GitlabProjectCreateRendererProps,
 } from '../GitlabProjectCreateRenderer';
 
 it('should render correctly', () => {

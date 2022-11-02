@@ -32,36 +32,36 @@ export const bubbles: {
     x: MetricKey.ncloc,
     y: MetricKey.reliability_remediation_effort,
     size: MetricKey.bugs,
-    colors: [MetricKey.reliability_rating]
+    colors: [MetricKey.reliability_rating],
   },
   Security: {
     x: MetricKey.ncloc,
     y: MetricKey.security_remediation_effort,
     size: MetricKey.vulnerabilities,
-    colors: [MetricKey.security_rating]
+    colors: [MetricKey.security_rating],
   },
   Maintainability: {
     x: MetricKey.ncloc,
     y: MetricKey.sqale_index,
     size: MetricKey.code_smells,
-    colors: [MetricKey.sqale_rating]
+    colors: [MetricKey.sqale_rating],
   },
   Coverage: {
     x: MetricKey.complexity,
     y: MetricKey.coverage,
     size: MetricKey.uncovered_lines,
-    yDomain: [100, 0]
+    yDomain: [100, 0],
   },
   Duplications: {
     x: MetricKey.ncloc,
     y: MetricKey.duplicated_lines,
-    size: MetricKey.duplicated_blocks
+    size: MetricKey.duplicated_blocks,
   },
   project_overview: {
     x: MetricKey.sqale_index,
     y: MetricKey.coverage,
     size: MetricKey.ncloc,
     colors: [MetricKey.reliability_rating, MetricKey.security_rating],
-    yDomain: [100, 0]
-  }
+    yDomain: [100, 0],
+  },
 };

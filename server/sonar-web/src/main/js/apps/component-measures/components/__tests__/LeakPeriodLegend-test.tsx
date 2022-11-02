@@ -32,27 +32,27 @@ jest.mock('date-fns', () => {
 const PROJECT = {
   key: 'foo',
   name: 'Foo',
-  qualifier: 'TRK'
+  qualifier: 'TRK',
 };
 
 const APP = {
   key: 'bar',
   name: 'Bar',
-  qualifier: 'APP'
+  qualifier: 'APP',
 };
 
 const PERIOD: Period = {
   date: '2017-05-16T13:50:02+0200',
   index: 1,
   mode: 'previous_version',
-  parameter: '6,4'
+  parameter: '6,4',
 };
 
 const PERIOD_DAYS: Period = {
   date: '2017-05-16T13:50:02+0200',
   index: 1,
   mode: 'days',
-  parameter: '18'
+  parameter: '18',
 };
 
 it('should render correctly', () => {

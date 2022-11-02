@@ -44,7 +44,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
       { label: 'A', value: '1' },
       { label: 'B', value: '2' },
       { label: 'C', value: '3' },
-      { label: 'D', value: '4' }
+      { label: 'D', value: '4' },
     ];
 
     return (
@@ -58,7 +58,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
         options={options}
         placeholder=""
         isSearchable={false}
-        value={options.find(o => o.value === value)}
+        value={options.find((o) => o.value === value)}
       />
     );
   }

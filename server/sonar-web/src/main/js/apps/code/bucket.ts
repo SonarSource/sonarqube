@@ -48,9 +48,7 @@ export function addComponentChildren(
   childrenBucket[componentKey] = { children, total, page };
 }
 
-export function getComponentChildren(
-  componentKey: string
-): {
+export function getComponentChildren(componentKey: string): {
   children: ComponentMeasure[];
   page: number;
   total: number;

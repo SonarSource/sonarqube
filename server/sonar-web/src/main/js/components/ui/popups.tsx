@@ -44,7 +44,7 @@ export enum PopupPlacement {
   LeftTop = 'left-top',
   RightTop = 'right-top',
   RightBottom = 'right-bottom',
-  TopLeft = 'top-left'
+  TopLeft = 'top-left',
 }
 
 interface PopupProps {
@@ -68,7 +68,8 @@ function PopupBase(props: PopupProps, ref: React.Ref<HTMLDivElement>) {
           props.className
         )}
         ref={ref || React.createRef()}
-        style={props.style}>
+        style={props.style}
+      >
         {props.children}
         <PopupArrow style={props.arrowStyle} />
       </div>
@@ -218,7 +219,7 @@ export class PortalPopup extends React.Component<PortalPopupProps, State> {
         left: window.pageXOffset + left,
         top: window.pageYOffset + top,
         width,
-        height
+        height,
       });
     }
   };
@@ -233,7 +234,7 @@ export class PortalPopup extends React.Component<PortalPopupProps, State> {
         left: this.state.left + leftFix,
         top: this.state.top + topFix,
         width: this.state.width,
-        height: this.state.height
+        height: this.state.height,
       };
       arrowStyle = this.adjustArrowPosition(placement, { leftFix, topFix });
     }
@@ -245,7 +246,8 @@ export class PortalPopup extends React.Component<PortalPopupProps, State> {
         noPadding={noPadding}
         placement={placement}
         ref={this.popupNode}
-        style={style}>
+        style={style}
+      >
         {overlay}
       </Popup>
     );

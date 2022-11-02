@@ -23,7 +23,7 @@ import {
   grantPermissionToGroup,
   grantPermissionToUser,
   revokePermissionFromGroup,
-  revokePermissionFromUser
+  revokePermissionFromUser,
 } from '../../../../../api/permissions';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
@@ -34,8 +34,8 @@ jest.mock('../../../../../api/permissions', () => ({
     paging: { pageIndex: 1, pageSize: 100, total: 2 },
     groups: [
       { name: 'Anyone', permissions: ['admin', 'codeviewer', 'issueadmin'] },
-      { id: '1', name: 'SonarSource', description: 'SonarSource team', permissions: [] }
-    ]
+      { id: '1', name: 'SonarSource', description: 'SonarSource team', permissions: [] },
+    ],
   }),
   getPermissionsUsersForComponent: jest.fn().mockResolvedValue({
     paging: { pageIndex: 1, pageSize: 100, total: 3 },
@@ -45,28 +45,28 @@ jest.mock('../../../../../api/permissions', () => ({
         email: 'admin@gmail.com',
         login: 'admin',
         name: 'Admin Admin',
-        permissions: ['admin']
+        permissions: ['admin'],
       },
       {
         avatar: 'user-avatar-1',
         email: 'user1@gmail.com',
         login: 'user1',
         name: 'User Number 1',
-        permissions: []
+        permissions: [],
       },
       {
         avatar: 'user-avatar-2',
         email: 'user2@gmail.com',
         login: 'user2',
         name: 'User Number 2',
-        permissions: []
-      }
-    ]
+        permissions: [],
+      },
+    ],
   }),
   grantPermissionToGroup: jest.fn().mockResolvedValue({}),
   grantPermissionToUser: jest.fn().mockResolvedValue({}),
   revokePermissionFromGroup: jest.fn().mockResolvedValue({}),
-  revokePermissionFromUser: jest.fn().mockResolvedValue({})
+  revokePermissionFromUser: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => {
@@ -98,7 +98,7 @@ describe('should manage state correctly', () => {
     const apiPayload = {
       projectKey: 'my-project',
       groupName: 'Anyone',
-      permission: 'foo'
+      permission: 'foo',
     };
 
     instance.grantPermissionToGroup('Anyone', 'foo');
@@ -131,7 +131,7 @@ describe('should manage state correctly', () => {
     const apiPayload = {
       projectKey: 'my-project',
       login: 'user1',
-      permission: 'foo'
+      permission: 'foo',
     };
 
     instance.grantPermissionToUser('user1', 'foo');

@@ -37,7 +37,7 @@ it('should display a loader when checking', async () => {
 
 it('should correctly handle a render callback that returns 2 elements', () => {
   const wrapper = shallowRender({
-    renderElement: (foo: string) => [foo, 'extra info']
+    renderElement: (foo: string) => [foo, 'extra info'],
   });
   expect(wrapper.find('.select-list-list-extra').exists()).toBe(true);
 });

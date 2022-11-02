@@ -23,14 +23,14 @@ import { Actions, getExporters, searchQualityProfiles } from '../../../../api/qu
 import {
   mockLanguage,
   mockQualityProfile,
-  mockQualityProfileExporter
+  mockQualityProfileExporter,
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { QualityProfilesApp } from '../QualityProfilesApp';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   getExporters: jest.fn().mockResolvedValue([]),
-  searchQualityProfiles: jest.fn().mockResolvedValue({ profiles: [] })
+  searchQualityProfiles: jest.fn().mockResolvedValue({ profiles: [] }),
 }));
 
 it('should render correctly', async () => {
@@ -60,8 +60,8 @@ it('should render child with additional props', () => {
       profiles,
       languages: [language],
       exporters,
-      updateProfiles: wrapper.instance().updateProfiles
-    }
+      updateProfiles: wrapper.instance().updateProfiles,
+    },
   });
 });
 

@@ -24,7 +24,7 @@ import {
   dissociateProject,
   getProfileProjects,
   Profile,
-  searchQualityProfiles
+  searchQualityProfiles,
 } from '../../api/quality-profiles';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
@@ -82,15 +82,15 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
     // for each existing profile. We only keep those that were effectively
     // selected, and discard the rest.
     const projectProfiles = await Promise.all(
-      allProfiles.map(profile =>
+      allProfiles.map((profile) =>
         getProfileProjects({
           key: profile.key,
           q: component.name,
-          selected: 'selected'
+          selected: 'selected',
         })
           .then(({ results }) => ({
-            selected: Boolean(results.find(p => p.key === component.key)?.selected),
-            profile
+            selected: Boolean(results.find((p) => p.key === component.key)?.selected),
+            profile,
           }))
           .catch(() => ({ selected: false, profile }))
       )
@@ -100,7 +100,7 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
       .filter(({ selected }) => selected)
       .map(({ profile }) => ({
         profile,
-        selected: true
+        selected: true,
       }));
 
     // Finally, the project uses some profiles implicitly, either inheriting
@@ -108,13 +108,15 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
     // yet (in which case the info is outdated). We also need this information.
     const componentProfiles = differenceBy(
       component.qualityProfiles,
-      selectedProjectProfiles.map(p => p.profile),
+      selectedProjectProfiles.map((p) => p.profile),
       'key'
     )
       // Discard languages we already have up-to-date info for.
-      .filter(({ language }) => !selectedProjectProfiles.some(p => p.profile.language === language))
+      .filter(
+        ({ language }) => !selectedProjectProfiles.some((p) => p.profile.language === language)
+      )
       .map(({ key }) => {
-        const profile = allProfiles.find(p => p.key === key);
+        const profile = allProfiles.find((p) => p.key === key);
         if (profile) {
           // If the profile is the default profile, all is good.
           if (profile.isDefault) {
@@ -126,12 +128,12 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
             // be taken into account after a new analysis. Fetch the
             // default profile.
             const defaultProfile = allProfiles.find(
-              p => p.isDefault && p.language === profile.language
+              (p) => p.isDefault && p.language === profile.language
             );
             return (
               defaultProfile && {
                 profile: defaultProfile,
-                selected: false
+                selected: false,
               }
             );
           }
@@ -145,7 +147,7 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
       this.setState({
         allProfiles,
         projectProfiles: [...selectedProjectProfiles, ...componentProfiles],
-        loading: false
+        loading: false,
       });
     }
   };
@@ -165,7 +167,7 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
   handleAddLanguage = async (key: string) => {
     const { component } = this.props;
     const { allProfiles = [] } = this.state;
-    const newProfile = allProfiles.find(p => p.key === key);
+    const newProfile = allProfiles.find((p) => p.key === key);
 
     if (newProfile) {
       try {
@@ -177,8 +179,8 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
               ...projectProfiles,
               {
                 profile: newProfile,
-                selected: true
-              }
+                selected: true,
+              },
             ];
 
             return { projectProfiles: newProjectProfiles, showAddLanguageModal: false };
@@ -203,10 +205,10 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
     const { component } = this.props;
     const { allProfiles = [], projectProfiles = [] } = this.state;
 
-    const newProfile = newKey && allProfiles.find(p => p.key === newKey);
-    const oldProjectProfile = projectProfiles.find(p => p.profile.key === oldKey);
+    const newProfile = newKey && allProfiles.find((p) => p.key === newKey);
+    const oldProjectProfile = projectProfiles.find((p) => p.profile.key === oldKey);
     const defaultProfile = allProfiles.find(
-      p => p.isDefault && p.language === oldProjectProfile?.profile.language
+      (p) => p.isDefault && p.language === oldProjectProfile?.profile.language
     );
 
     if (defaultProfile === undefined || oldProjectProfile === undefined) {
@@ -243,12 +245,12 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
     if (this.mounted) {
       const newProjectProfiles = [
         // Remove the old profile.
-        ...projectProfiles.filter(p => p.profile.key !== oldKey),
+        ...projectProfiles.filter((p) => p.profile.key !== oldKey),
         // Replace with the "new" profile.
         replaceProfile && {
           profile: replaceProfile,
-          selected: newKey !== undefined
-        }
+          selected: newKey !== undefined,
+        },
       ].filter(isDefined);
 
       this.setState({ projectProfiles: newProjectProfiles, showProjectProfileInModal: undefined });
@@ -272,7 +274,7 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
       loading,
       showProjectProfileInModal,
       projectProfiles,
-      showAddLanguageModal
+      showAddLanguageModal,
     } = this.state;
 
     return (

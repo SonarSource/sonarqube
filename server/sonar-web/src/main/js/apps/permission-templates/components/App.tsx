@@ -47,7 +47,7 @@ export class App extends React.PureComponent<Props, State> {
   state: State = {
     ready: false,
     permissions: [],
-    permissionTemplates: []
+    permissionTemplates: [],
   };
 
   componentDidMount() {
@@ -71,7 +71,7 @@ export class App extends React.PureComponent<Props, State> {
       this.setState({
         ready: true,
         permissionTemplates: permissionTemplatesMerged,
-        permissions: sortedPerm
+        permissions: sortedPerm,
       });
     }
   };
@@ -81,7 +81,7 @@ export class App extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const template = this.state.permissionTemplates.find(t => t.id === id);
+    const template = this.state.permissionTemplates.find((t) => t.id === id);
     if (!template) {
       return null;
     }

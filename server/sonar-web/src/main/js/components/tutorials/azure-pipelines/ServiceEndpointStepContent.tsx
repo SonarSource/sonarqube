@@ -62,7 +62,7 @@ export default function ServiceEndpointStepContent(props: ServiceEndpointStepPro
             id="onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.step3.sentence"
             values={{
               url: <code className="rule">{baseUrl}</code>,
-              button: <ClipboardIconButton copyValue={baseUrl} />
+              button: <ClipboardIconButton copyValue={baseUrl} />,
             }}
           />
         </li>

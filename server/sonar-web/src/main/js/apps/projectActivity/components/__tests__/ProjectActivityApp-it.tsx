@@ -34,18 +34,18 @@ jest.mock('../../../../api/time-machine', () => {
       measures: [
         {
           metric: 'bugs',
-          history: [{ date: '2022-01-01', value: '10' }]
-        }
+          history: [{ date: '2022-01-01', value: '10' }],
+        },
       ],
-      paging: mockPaging({ total: 1 })
-    })
+      paging: mockPaging({ total: 1 }),
+    }),
   };
 });
 
 jest.mock('../../../../api/metrics', () => {
   const { mockMetric } = jest.requireActual('../../../../helpers/testMocks');
   return {
-    getAllMetrics: jest.fn().mockResolvedValue([mockMetric()])
+    getAllMetrics: jest.fn().mockResolvedValue([mockMetric()]),
   };
 });
 
@@ -58,8 +58,8 @@ jest.mock('../../../../api/projectActivity', () => {
     changeEvent: jest.fn(),
     getProjectActivity: jest.fn().mockResolvedValue({
       analyses: [mockAnalysis({ key: 'foo' })],
-      paging: mockPaging({ total: 1 })
-    })
+      paging: mockPaging({ total: 1 }),
+    }),
   };
 });
 
@@ -67,14 +67,14 @@ jest.mock('../../../../components/activity-graph/utils', () => {
   const actual = jest.requireActual('../../../../components/activity-graph/utils');
   return {
     ...actual,
-    getActivityGraph: jest.fn()
+    getActivityGraph: jest.fn(),
   };
 });
 
 it('should render default graph', async () => {
   (getActivityGraph as jest.Mock).mockImplementation(() => {
     return {
-      graph: 'issues'
+      graph: 'issues',
     };
   });
 
@@ -87,7 +87,7 @@ it('should reload custom graph from local storage', async () => {
   (getActivityGraph as jest.Mock).mockImplementation(() => {
     return {
       graph: 'custom',
-      customGraphs: ['bugs', 'code_smells']
+      customGraphs: ['bugs', 'code_smells'],
     };
   });
 
@@ -100,9 +100,9 @@ function renderProjectActivityAppContainer(
   { component, navigateTo }: { component: Component; navigateTo?: string } = {
     component: mockComponent({
       breadcrumbs: [
-        { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project }
-      ]
-    })
+        { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project },
+      ],
+    }),
   }
 ) {
   return renderApp(
@@ -112,8 +112,9 @@ function renderProjectActivityAppContainer(
         branchLikes: [],
         onBranchesChange: jest.fn(),
         onComponentChange: jest.fn(),
-        component
-      }}>
+        component,
+      }}
+    >
       <ProjectActivityAppContainer />
     </ComponentContext.Provider>,
     { navigateTo }

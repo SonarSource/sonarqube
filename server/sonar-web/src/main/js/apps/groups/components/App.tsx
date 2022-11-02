@@ -57,7 +57,7 @@ export default class App extends React.PureComponent<{}, State> {
     this.setState({ loading: true });
     return searchUsersGroups({
       q: this.state.query,
-      ...data
+      ...data,
     });
   };
 
@@ -83,13 +83,13 @@ export default class App extends React.PureComponent<{}, State> {
     if (currentPaging && currentPaging.total > currentPaging.pageIndex * currentPaging.pageSize) {
       try {
         const { groups, paging } = await this.makeFetchGroupsRequest({
-          p: currentPaging.pageIndex + 1
+          p: currentPaging.pageIndex + 1,
         });
         if (this.mounted) {
           this.setState(({ groups: existingGroups = [] }) => ({
             groups: [...existingGroups, ...groups],
             loading: false,
-            paging
+            paging,
           }));
         }
       } catch {
@@ -166,7 +166,7 @@ export default class App extends React.PureComponent<{}, State> {
       description,
       id: editedGroup.id,
       // pass `name` only if it has changed, otherwise the WS fails
-      ...omitNil({ name: name !== editedGroup.name ? name : undefined })
+      ...omitNil({ name: name !== editedGroup.name ? name : undefined }),
     };
 
     await updateGroup(data);
@@ -174,9 +174,9 @@ export default class App extends React.PureComponent<{}, State> {
     if (this.mounted) {
       this.setState(({ groups = [] }: State) => ({
         editedGroup: undefined,
-        groups: groups.map(group =>
+        groups: groups.map((group) =>
           group.name === editedGroup.name ? { ...group, ...data } : group
-        )
+        ),
       }));
     }
   };

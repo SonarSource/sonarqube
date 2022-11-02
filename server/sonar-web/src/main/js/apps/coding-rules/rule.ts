@@ -23,7 +23,7 @@ export enum RuleDescriptionSections {
   ROOT_CAUSE = 'root_cause',
   ASSESS_THE_PROBLEM = 'assess_the_problem',
   HOW_TO_FIX = 'how_to_fix',
-  RESOURCES = 'resources'
+  RESOURCES = 'resources',
 }
 
 export interface RuleDescriptionContext {

@@ -36,7 +36,7 @@ export default function HotspotCommentPopup(props: HotspotCommentPopupProps) {
       <div className="issue-comment-form-text">
         <textarea
           autoFocus={true}
-          onChange={event => setComment(event.target.value)}
+          onChange={(event) => setComment(event.target.value)}
           rows={2}
           value={comment}
         />
@@ -48,14 +48,16 @@ export default function HotspotCommentPopup(props: HotspotCommentPopupProps) {
         <div className="">
           <Button
             className="little-spacer-right"
-            onClick={() => props.onCommentEditSubmit(comment)}>
+            onClick={() => props.onCommentEditSubmit(comment)}
+          >
             {translate('save')}
           </Button>
           <ResetButtonLink
             onClick={() => {
               setComment('');
               props.onCancelEdit();
-            }}>
+            }}
+          >
             {translate('cancel')}
           </ResetButtonLink>
         </div>

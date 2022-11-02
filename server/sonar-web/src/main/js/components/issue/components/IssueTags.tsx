@@ -65,11 +65,13 @@ export default class IssueTags extends React.PureComponent<Props> {
           <Toggler
             onRequestClose={this.handleClose}
             open={this.props.isOpen}
-            overlay={<SetIssueTagsPopup selectedTags={tags} setTags={this.setTags} />}>
+            overlay={<SetIssueTagsPopup selectedTags={tags} setTags={this.setTags} />}
+          >
             <ButtonLink
               aria-expanded={this.props.isOpen}
               className="issue-action issue-action-with-options js-issue-edit-tags"
-              onClick={this.toggleSetTags}>
+              onClick={this.toggleSetTags}
+            >
               <TagsList
                 allowUpdate={this.props.canSetTags}
                 tags={

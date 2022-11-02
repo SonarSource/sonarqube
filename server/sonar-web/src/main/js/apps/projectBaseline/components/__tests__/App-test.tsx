@@ -22,7 +22,7 @@ import * as React from 'react';
 import {
   getNewCodePeriod,
   resetNewCodePeriod,
-  setNewCodePeriod
+  setNewCodePeriod,
 } from '../../../../api/newCodePeriod';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -33,7 +33,7 @@ import { App } from '../App';
 jest.mock('../../../../api/newCodePeriod', () => ({
   getNewCodePeriod: jest.fn().mockResolvedValue({}),
   resetNewCodePeriod: jest.fn().mockResolvedValue({}),
-  setNewCodePeriod: jest.fn().mockResolvedValue({})
+  setNewCodePeriod: jest.fn().mockResolvedValue({}),
 }));
 
 it('should render correctly', async () => {
@@ -48,7 +48,7 @@ it('should render correctly', async () => {
 
 it('should initialize correctly', async () => {
   const wrapper = shallowRender({
-    branchLikes: [mockBranch(), mockPullRequest(), mockMainBranch()]
+    branchLikes: [mockBranch(), mockPullRequest(), mockMainBranch()],
   });
   await waitAndUpdate(wrapper);
 
@@ -81,7 +81,7 @@ it('should save correctly', async () => {
   expect(setNewCodePeriod).toHaveBeenCalledWith({
     project: component.key,
     type: 'NUMBER_OF_DAYS',
-    value: '23'
+    value: '23',
   });
   expect(wrapper.state('currentSetting')).toEqual(wrapper.state('selected'));
 });

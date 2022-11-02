@@ -26,7 +26,7 @@ jest.mock('../../../api/rules', () => ({
   getRulesApp: jest.fn(() =>
     Promise.resolve({ repositories: [{ key: 'repo', language: 'xoo', name: 'Xoo Repository' }] })
   ),
-  getRuleDetails: jest.fn(() => Promise.resolve({ rule: { key: 'foo', name: 'Foo' } }))
+  getRuleDetails: jest.fn(() => Promise.resolve({ rule: { key: 'foo', name: 'Foo' } })),
 }));
 
 it('should render', async () => {

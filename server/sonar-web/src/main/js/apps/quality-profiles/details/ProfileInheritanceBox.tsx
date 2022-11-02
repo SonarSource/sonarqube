@@ -43,7 +43,7 @@ export default function ProfileInheritanceBox(props: Props) {
     language,
     profile,
     displayLink = true,
-    type = 'current'
+    type = 'current',
   } = props;
   const offset = 25 * depth;
 

@@ -27,7 +27,7 @@ import {
   FlowLocation,
   Issue,
   LinearIssueLocation,
-  SourceLine
+  SourceLine,
 } from '../../types/types';
 import Line from './components/Line';
 import LineIssuesList from './components/LineIssuesList';
@@ -40,7 +40,7 @@ const ZERO_LINE = {
   code: '',
   duplicated: false,
   isNew: false,
-  line: 0
+  line: 0,
 };
 
 interface Props {
@@ -110,7 +110,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     index,
     displayCoverage,
     displayDuplications,
-    displayIssues
+    displayIssues,
   }: {
     line: SourceLine;
     index: number;
@@ -126,7 +126,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
       displayAllIssues,
       highlightedLocations,
       metricKey,
-      sources
+      sources,
     } = this.props;
 
     const secondaryIssueLocations = getSecondaryIssueLocationsForLine(line, highlightedLocations);
@@ -185,7 +185,8 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         previousLine={index > 0 ? sources[index - 1] : undefined}
         renderDuplicationPopup={this.props.renderDuplicationPopup}
         scrollToUncoveredLine={scrollToUncoveredLine}
-        secondaryIssueLocations={secondaryIssueLocations}>
+        secondaryIssueLocations={secondaryIssueLocations}
+      >
         <LineIssuesList
           displayWhyIsThisAnIssue={true}
           displayAllIssues={displayAllIssues}
@@ -209,11 +210,11 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
   render() {
     const { issues = [], sources } = this.props;
 
-    const displayCoverage = sources.some(s => s.coverageStatus != null);
-    const displayDuplications = sources.some(s => !!s.duplicated);
+    const displayCoverage = sources.some((s) => s.coverageStatus != null);
+    const displayDuplications = sources.some((s) => !!s.duplicated);
     const displayIssues = issues.length > 0;
 
-    const hasFileIssues = displayIssues && issues.some(issue => !issue.textRange);
+    const hasFileIssues = displayIssues && issues.some((issue) => !issue.textRange);
 
     return (
       <div className="source-viewer-code">
@@ -229,7 +230,8 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
             ) : (
               <Button
                 className="js-component-viewer-source-before"
-                onClick={this.props.loadSourcesBefore}>
+                onClick={this.props.loadSourcesBefore}
+              >
                 {translate('source_viewer.load_more_code')}
               </Button>
             )}
@@ -244,7 +246,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
                 index: -1,
                 displayCoverage,
                 displayDuplications,
-                displayIssues
+                displayIssues,
               })}
             {sources.map((line, index) =>
               this.renderLine({ line, index, displayCoverage, displayDuplications, displayIssues })
@@ -264,7 +266,8 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
             ) : (
               <Button
                 className="js-component-viewer-source-after"
-                onClick={this.props.loadSourcesAfter}>
+                onClick={this.props.loadSourcesAfter}
+              >
                 {translate('source_viewer.load_more_code')}
               </Button>
             )}

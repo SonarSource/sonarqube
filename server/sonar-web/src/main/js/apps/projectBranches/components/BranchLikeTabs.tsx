@@ -26,7 +26,7 @@ import {
   isMainBranch,
   isPullRequest,
   sortBranches,
-  sortPullRequests
+  sortPullRequests,
 } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
@@ -49,7 +49,7 @@ interface State {
 
 export enum Tabs {
   Branch,
-  PullRequest
+  PullRequest,
 }
 
 const TABS = [
@@ -62,7 +62,7 @@ const TABS = [
           {translate('project_branch_pull_request.tabs.branches')}
         </span>
       </>
-    )
+    ),
   },
   {
     key: Tabs.PullRequest,
@@ -73,8 +73,8 @@ const TABS = [
           {translate('project_branch_pull_request.tabs.pull_requests')}
         </span>
       </>
-    )
-  }
+    ),
+  },
 ];
 
 export default class BranchLikeTabs extends React.PureComponent<Props, State> {

@@ -64,7 +64,7 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
             loading: false,
             profile: response.profile,
             ruleFailures: response.ruleFailures,
-            ruleSuccesses: response.ruleSuccesses
+            ruleSuccesses: response.ruleSuccesses,
           });
         }
         this.props.onRestore();

@@ -34,7 +34,7 @@ import EditTokenModal from '../EditTokenModal';
 jest.mock('../../../../api/user-tokens');
 
 jest.mock('../../../../api/settings', () => ({
-  getAllValues: jest.fn().mockResolvedValue([])
+  getAllValues: jest.fn().mockResolvedValue([]),
 }));
 
 let tokenMock: UserTokensMock;
@@ -88,7 +88,7 @@ it('should behave correctly', async () => {
 
   // Revoke token.
   await clickButton(user, 'users.tokens.revoke_token');
-  expect(tokenMock.tokens.map(t => t.name)).not.toContain(lastToken.name);
+  expect(tokenMock.tokens.map((t) => t.name)).not.toContain(lastToken.name);
 
   // Generate a new token.
   await typeInField(
@@ -112,7 +112,7 @@ it('should behave correctly', async () => {
 it('should allow setting a preferred token type', async () => {
   renderEditTokenModal({
     preferredTokenType: TokenType.Global,
-    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Scan] } })
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
   });
   const user = userEvent.setup();
 
@@ -128,7 +128,7 @@ it('should allow setting a preferred token type', async () => {
 
 it('should fallback to project tokens if the user cannot generate global tokens', async () => {
   renderEditTokenModal({
-    preferredTokenType: TokenType.Global
+    preferredTokenType: TokenType.Global,
   });
   const user = userEvent.setup();
 

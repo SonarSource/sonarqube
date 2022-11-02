@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../../components/common/DocLink';
 import { ButtonLink } from '../../../../components/controls/buttons';
 import ValidationInput, {
-  ValidationInputErrorPlacement
+  ValidationInputErrorPlacement,
 } from '../../../../components/controls/ValidationInput';
 import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
@@ -61,7 +61,7 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
     overwriteOnly = false,
     propKey,
     value,
-    isSecret
+    isSecret,
   } = props;
   const [showField, setShowField] = React.useState(!overwriteOnly);
 
@@ -82,7 +82,8 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
               onClick={() => {
                 props.onFieldChange(propKey, '');
                 setShowField(true);
-              }}>
+              }}
+            >
               {translate('settings.almintegration.form.secret.update_field')}
             </ButtonLink>
           </div>
@@ -93,7 +94,7 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
             className="width-100"
             id={id}
             maxLength={maxLength || 2000}
-            onChange={e => props.onFieldChange(propKey, e.currentTarget.value)}
+            onChange={(e) => props.onFieldChange(propKey, e.currentTarget.value)}
             required={!optional}
             rows={5}
             value={value}
@@ -105,14 +106,15 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
             error={error}
             errorPlacement={ValidationInputErrorPlacement.Bottom}
             isValid={false}
-            isInvalid={isInvalid}>
+            isInvalid={isInvalid}
+          >
             <input
               className="width-100"
               autoFocus={autoFocus}
               id={id}
               maxLength={maxLength || 100}
               name={id}
-              onChange={e => props.onFieldChange(propKey, e.currentTarget.value)}
+              onChange={(e) => props.onFieldChange(propKey, e.currentTarget.value)}
               size={50}
               type="text"
               value={value}
@@ -130,7 +132,7 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
                   <DocLink to="/instance-administration/security/#settings-encryption">
                     {translate('learn_more')}
                   </DocLink>
-                )
+                ),
               }}
             />
           </Alert>

@@ -38,7 +38,8 @@ export default function PublicProjectDisclaimer({ component, onClose, onConfirm 
       confirmButtonText={translate('projects_role.turn_project_to_public', qualifier)}
       header={translateWithParameters('projects_role.turn_x_to_public', component.name)}
       onClose={onClose}
-      onConfirm={onConfirm}>
+      onConfirm={onConfirm}
+    >
       <Alert variant="warning">
         {translate('projects_role.are_you_sure_to_turn_project_to_public.warning', qualifier)}
       </Alert>

@@ -38,7 +38,8 @@ export default function InfoDrawer(props: InfoDrawerProps) {
   return (
     <div
       className={classNames('info-drawer info-drawer-pane', { open: displayed })}
-      style={{ top }}>
+      style={{ top }}
+    >
       {displayed && (
         <>
           <div className="close-button">

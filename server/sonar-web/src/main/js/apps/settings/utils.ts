@@ -28,7 +28,7 @@ import {
   SettingDefinition,
   SettingType,
   SettingValue,
-  SettingWithCategory
+  SettingWithCategory,
 } from '../../types/settings';
 import { Component, Dict } from '../../types/types';
 
@@ -103,7 +103,7 @@ export function combineDefinitionAndSettingValue(
     key: definition.key,
     hasValue,
     ...value,
-    definition
+    definition,
   };
 }
 
@@ -111,7 +111,9 @@ export function getDefaultCategory(categories: string[]) {
   if (categories.includes(DEFAULT_CATEGORY)) {
     return DEFAULT_CATEGORY;
   }
-  const sortedCategories = sortBy(categories, category => getCategoryName(category).toLowerCase());
+  const sortedCategories = sortBy(categories, (category) =>
+    getCategoryName(category).toLowerCase()
+  );
   return sortedCategories[0];
 }
 
@@ -133,7 +135,7 @@ export function isURLKind(definition: SettingDefinition) {
     'sonar.auth.gitlab.url',
     'sonar.lf.gravatarServerUrl',
     'sonar.lf.logoUrl',
-    'sonar.auth.saml.loginUrl'
+    'sonar.auth.saml.loginUrl',
   ].includes(definition.key);
 }
 
@@ -153,7 +155,7 @@ export function getEmptyValue(item: SettingDefinition | ExtendedSettingDefinitio
 
     if (item.type === 'PROPERTY_SET') {
       const value: Dict<string> = {};
-      item.fields.forEach(field => (value[field.key] = getEmptyValue(field)));
+      item.fields.forEach((field) => (value[field.key] = getEmptyValue(field)));
       return [value];
     }
   }
@@ -208,7 +210,7 @@ export function isRealSettingKey(key: string) {
     `sonar.almintegration.${AlmKeys.Azure}`,
     `sonar.almintegration.${AlmKeys.BitbucketServer}`,
     `sonar.almintegration.${AlmKeys.GitHub}`,
-    `sonar.almintegration.${AlmKeys.GitLab}`
+    `sonar.almintegration.${AlmKeys.GitLab}`,
   ].includes(key);
 }
 
@@ -221,7 +223,7 @@ export function buildSettingLink(
   if (component !== undefined) {
     return {
       ...getProjectSettingsUrl(component.key, category),
-      hash: `#${escape(key)}`
+      hash: `#${escape(key)}`,
     };
   }
 
@@ -239,7 +241,7 @@ export function buildSettingLink(
 
   return {
     ...getGlobalSettingsUrl(category, query),
-    hash: `#${escape(key)}`
+    hash: `#${escape(key)}`,
   };
 }
 
@@ -254,8 +256,8 @@ export const ADDITIONAL_PROJECT_SETTING_DEFINITIONS: ExtendedSettingDefinition[]
     key: ``,
     fields: [],
     options: [],
-    subCategory: ''
-  }
+    subCategory: '',
+  },
 ];
 
 export const ADDITIONAL_SETTING_DEFINITIONS: ExtendedSettingDefinition[] = [
@@ -269,7 +271,7 @@ export const ADDITIONAL_SETTING_DEFINITIONS: ExtendedSettingDefinition[] = [
     key: `sonar.new_code_period`,
     fields: [],
     options: [],
-    subCategory: ''
+    subCategory: '',
   },
   {
     name: 'Azure DevOps integration',
@@ -292,7 +294,7 @@ export const ADDITIONAL_SETTING_DEFINITIONS: ExtendedSettingDefinition[] = [
     key: `sonar.almintegration.${AlmKeys.Azure}`,
     fields: [],
     options: [],
-    subCategory: ''
+    subCategory: '',
   },
   {
     name: 'Bitbucket integration',
@@ -323,7 +325,7 @@ export const ADDITIONAL_SETTING_DEFINITIONS: ExtendedSettingDefinition[] = [
     key: `sonar.almintegration.${AlmKeys.BitbucketServer}`,
     fields: [],
     options: [],
-    subCategory: ''
+    subCategory: '',
   },
   {
     name: 'GitHub integration',
@@ -352,7 +354,7 @@ export const ADDITIONAL_SETTING_DEFINITIONS: ExtendedSettingDefinition[] = [
     key: `sonar.almintegration.${AlmKeys.GitHub}`,
     fields: [],
     options: [],
-    subCategory: ''
+    subCategory: '',
   },
   {
     name: 'Gitlab integration',
@@ -373,6 +375,6 @@ export const ADDITIONAL_SETTING_DEFINITIONS: ExtendedSettingDefinition[] = [
     key: `sonar.almintegration.${AlmKeys.GitLab}`,
     fields: [],
     options: [],
-    subCategory: ''
-  }
+    subCategory: '',
+  },
 ];

@@ -23,7 +23,7 @@ import { ProjectCardLanguages } from '../ProjectCardLanguages';
 
 const languages = {
   java: { key: 'java', name: 'Java' },
-  js: { key: 'js', name: 'JavaScript' }
+  js: { key: 'js', name: 'JavaScript' },
 };
 
 it('renders', () => {

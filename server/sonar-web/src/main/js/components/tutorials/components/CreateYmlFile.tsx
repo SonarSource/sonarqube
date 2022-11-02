@@ -41,7 +41,7 @@ export default function CreateYmlFile(props: CreateYmlFileProps) {
               <code className="rule">{yamlFileName}</code>
               <ClipboardIconButton copyValue={yamlFileName} />
             </>
-          )
+          ),
         }}
       />
       <CodeSnippet snippet={yamlTemplate} />

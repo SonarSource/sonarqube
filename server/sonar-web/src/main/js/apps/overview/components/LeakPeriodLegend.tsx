@@ -34,7 +34,7 @@ interface Props {
 
 const MODE_INCLUDES_TIME: Dict<boolean> = {
   manual_baseline: true,
-  SPECIFIC_ANALYSIS: true
+  SPECIFIC_ANALYSIS: true,
 };
 
 export class LeakPeriodLegend extends React.PureComponent<Props & WrappedComponentProps> {
@@ -95,7 +95,7 @@ export class LeakPeriodLegend extends React.PureComponent<Props & WrappedCompone
           {translateWithParameters('overview.new_code_period_x', leakPeriodLabel)}
           <br />
           <DateFromNow date={leakPeriodDate}>
-            {fromNow => (
+            {(fromNow) => (
               <span className="note">
                 {translateWithParameters(
                   period.mode === 'previous_analysis'

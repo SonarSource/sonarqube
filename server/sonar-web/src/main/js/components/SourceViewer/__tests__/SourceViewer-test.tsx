@@ -32,7 +32,7 @@ jest.mock('../helpers/loadIssues', () => jest.fn().mockRejectedValue({}));
 jest.mock('../../../api/components', () => ({
   getComponentForSourceViewer: jest.fn().mockRejectedValue(''),
   getComponentData: jest.fn().mockRejectedValue(''),
-  getSources: jest.fn().mockRejectedValue('')
+  getSources: jest.fn().mockRejectedValue(''),
 }));
 
 beforeEach(() => {
@@ -47,7 +47,7 @@ it('should render correctly', async () => {
   (defaultLoadIssues as jest.Mock).mockResolvedValueOnce([mockIssue()]);
   (getComponentForSourceViewer as jest.Mock).mockResolvedValueOnce(mockSourceViewerFile());
   (getComponentData as jest.Mock).mockResolvedValueOnce({
-    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' }
+    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' },
   });
   (getSources as jest.Mock).mockResolvedValueOnce([]);
 
@@ -60,11 +60,11 @@ it('should render correctly', async () => {
 it('should load sources before', async () => {
   (defaultLoadIssues as jest.Mock).mockResolvedValueOnce([
     mockIssue(false, { key: 'issue1' }),
-    mockIssue(false, { key: 'issue2' })
+    mockIssue(false, { key: 'issue2' }),
   ]);
   (getComponentForSourceViewer as jest.Mock).mockResolvedValueOnce(mockSourceViewerFile());
   (getComponentData as jest.Mock).mockResolvedValueOnce({
-    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' }
+    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' },
   });
   (getSources as jest.Mock)
     .mockResolvedValueOnce([mockSourceLine()])
@@ -87,11 +87,11 @@ it('should load sources before', async () => {
 it('should load sources after', async () => {
   (defaultLoadIssues as jest.Mock).mockResolvedValueOnce([
     mockIssue(false, { key: 'issue1' }),
-    mockIssue(false, { key: 'issue2' })
+    mockIssue(false, { key: 'issue2' }),
   ]);
   (getComponentForSourceViewer as jest.Mock).mockResolvedValueOnce(mockSourceViewerFile());
   (getComponentData as jest.Mock).mockResolvedValueOnce({
-    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' }
+    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' },
   });
   (getSources as jest.Mock)
     .mockResolvedValueOnce([mockSourceLine()])

@@ -38,7 +38,7 @@ const DotNetFlavor = { win_core: DotNetCore, win_msbuild: DotNetFramework, linux
 const DotOS: { [key in keyof typeof DotNetFlavor]: OSDotNet } = {
   win_core: OSs.Windows,
   win_msbuild: OSs.Windows,
-  linux_core: OSs.Linux
+  linux_core: OSs.Linux,
 };
 
 export default function DotNet(props: LanguageProps) {
@@ -53,7 +53,7 @@ export default function DotNet(props: LanguageProps) {
           label={translate('onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent')}
           checked={flavorComponent}
           optionLabelKey="onboarding.build.dotnet"
-          onCheck={value => setFlavorComponet(value as keyof typeof DotNetFlavor)}
+          onCheck={(value) => setFlavorComponet(value as keyof typeof DotNetFlavor)}
           options={Object.keys(DotNetFlavor)}
         />
       </li>

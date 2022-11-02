@@ -34,7 +34,8 @@ export default function BaselineSettingAnalysis({ disabled, onSelect, selected }
       disabled={disabled}
       onClick={() => onSelect('SPECIFIC_ANALYSIS')}
       selected={selected}
-      title={translate('baseline.specific_analysis')}>
+      title={translate('baseline.specific_analysis')}
+    >
       <p className="big-spacer-bottom">{translate('baseline.specific_analysis.description')}</p>
     </RadioCard>
   );

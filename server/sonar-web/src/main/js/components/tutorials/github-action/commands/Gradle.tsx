@@ -76,7 +76,7 @@ export default function Gradle(props: GradleProps) {
                 <ClipboardIconButton copyValue="build.gradle" />
               </>
             ),
-            sq: <code className="rule">org.sonarqube</code>
+            sq: <code className="rule">org.sonarqube</code>,
           }}
         />
         <CodeSnippet snippet={buildGradleSnippet(component.key)} />

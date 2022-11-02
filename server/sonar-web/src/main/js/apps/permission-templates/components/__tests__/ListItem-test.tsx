@@ -35,7 +35,7 @@ function shallowRender() {
         createdAt: '2020-01-01',
         name: 'test',
         defaultFor: [],
-        permissions: []
+        permissions: [],
       }}
       topQualifiers={[]}
     />

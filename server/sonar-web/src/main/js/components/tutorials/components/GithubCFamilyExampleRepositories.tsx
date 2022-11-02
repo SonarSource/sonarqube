@@ -34,7 +34,7 @@ export interface GithubCFamilyExampleRepositoriesProps {
 const OS_SEARCH_MAP = {
   [OSs.Linux]: 'linux',
   [OSs.Windows]: 'windows',
-  [OSs.MacOS]: 'macos'
+  [OSs.MacOS]: 'macos',
 };
 
 const CI_SEARCH_MAP = {
@@ -44,7 +44,7 @@ const CI_SEARCH_MAP = {
   [TutorialModes.GitLabCI]: 'gitlab',
   [TutorialModes.BitbucketPipelines]: 'bitbucket',
   [TutorialModes.Local]: 'otherci',
-  [TutorialModes.OtherCI]: 'otherci'
+  [TutorialModes.OtherCI]: 'otherci',
 };
 
 export default function GithubCFamilyExampleRepositories(
@@ -52,7 +52,7 @@ export default function GithubCFamilyExampleRepositories(
 ) {
   const { className, os, ci } = props;
   const queryParams = ['sq', os ? OS_SEARCH_MAP[os] : undefined, ci ? CI_SEARCH_MAP[ci] : undefined]
-    .filter(s => !!s)
+    .filter((s) => !!s)
     .join('+');
   const link = `https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=${queryParams}`;
 
@@ -61,7 +61,8 @@ export default function GithubCFamilyExampleRepositories(
       className={classNames(
         'github-cfamily-example-repositories-box big-padded boxed-group',
         className
-      )}>
+      )}
+    >
       <div className="display-flex-center">
         <img
           alt="" // Should be ignored by screen readers

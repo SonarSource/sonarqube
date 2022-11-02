@@ -31,13 +31,13 @@ export interface DateFormatterProps {
 export const formatterOption: FormatDateOptions = {
   year: 'numeric',
   month: 'short',
-  day: '2-digit'
+  day: '2-digit',
 };
 
 export const longFormatterOption: FormatDateOptions = {
   year: 'numeric',
   month: 'long',
-  day: 'numeric'
+  day: 'numeric',
 };
 
 export default function DateFormatter({ children, date, long }: DateFormatterProps) {

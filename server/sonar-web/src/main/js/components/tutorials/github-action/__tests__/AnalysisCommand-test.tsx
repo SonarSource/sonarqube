@@ -29,8 +29,8 @@ it.each([
   BuildTools.DotNet,
   BuildTools.Gradle,
   BuildTools.Maven,
-  BuildTools.Other
-])('should render correctly for %p', buildTool => {
+  BuildTools.Other,
+])('should render correctly for %p', (buildTool) => {
   expect(shallowRender({ buildTool })).toMatchSnapshot();
 });
 

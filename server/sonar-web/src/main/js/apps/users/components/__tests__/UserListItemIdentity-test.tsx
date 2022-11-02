@@ -33,7 +33,7 @@ describe('#UserListItemIdentity', () => {
           backgroundColor: 'blue',
           iconPath: 'icon/path',
           key: 'foo',
-          name: 'Foo Provider'
+          name: 'Foo Provider',
         }}
         user={{
           active: true,
@@ -43,7 +43,7 @@ describe('#UserListItemIdentity', () => {
           local: false,
           login: 'obi',
           name: 'One',
-          scmAccounts: []
+          scmAccounts: [],
         }}
         {...props}
       />
@@ -67,7 +67,7 @@ describe('#ExternalProvider', () => {
           backgroundColor: 'blue',
           iconPath: 'icon/path',
           key: 'foo',
-          name: 'Foo Provider'
+          name: 'Foo Provider',
         }}
         user={{
           active: true,
@@ -77,7 +77,7 @@ describe('#ExternalProvider', () => {
           local: false,
           login: 'obi',
           name: 'One',
-          scmAccounts: []
+          scmAccounts: [],
         }}
         {...props}
       />

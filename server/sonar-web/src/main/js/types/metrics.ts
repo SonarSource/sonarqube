@@ -143,7 +143,7 @@ export enum MetricKey {
   uncovered_lines = 'uncovered_lines',
   violations = 'violations',
   vulnerabilities = 'vulnerabilities',
-  wont_fix_issues = 'wont_fix_issues'
+  wont_fix_issues = 'wont_fix_issues',
 }
 
 export enum MetricType {
@@ -153,7 +153,7 @@ export enum MetricType {
   Level = 'LEVEL',
   ShortInteger = 'SHORT_INT',
   ShortWorkDuration = 'SHORT_WORK_DUR',
-  Data = 'DATA'
+  Data = 'DATA',
 }
 
 export function isMetricKey(key: string): key is MetricKey {

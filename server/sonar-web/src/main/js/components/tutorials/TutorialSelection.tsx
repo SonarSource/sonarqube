@@ -58,7 +58,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   state: State = {
     currentUserCanScanProject: false,
     baseUrl: getHostUrl(),
-    loading: true
+    loading: true,
   };
 
   async componentDidMount() {
@@ -85,7 +85,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
 
     const { projects } = await getScannableProjects();
     this.setState({
-      currentUserCanScanProject: projects.find(p => p.key === component.key) !== undefined
+      currentUserCanScanProject: projects.find((p) => p.key === component.key) !== undefined,
     });
 
     return Promise.resolve();
@@ -99,7 +99,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
       if (this.mounted) {
         let almBinding;
         if (almSettings !== undefined) {
-          almBinding = almSettings.find(d => d.key === projectBinding.key);
+          almBinding = almSettings.find((d) => d.key === projectBinding.key);
         }
         this.setState({ almBinding });
       }
@@ -117,23 +117,18 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
   handleSelectTutorial = (selectedTutorial: TutorialModes) => {
     const {
       router,
-      location: { pathname, query }
+      location: { pathname, query },
     } = this.props;
 
     router.push({
       pathname,
-      query: { ...query, selectedTutorial }
+      query: { ...query, selectedTutorial },
     });
   };
 
   render() {
-    const {
-      component,
-      currentUser,
-      location,
-      projectBinding,
-      willRefreshAutomatically
-    } = this.props;
+    const { component, currentUser, location, projectBinding, willRefreshAutomatically } =
+      this.props;
     const { almBinding, baseUrl, currentUserCanScanProject, loading } = this.state;
 
     const selectedTutorial: TutorialModes | undefined = location.query?.selectedTutorial;
@@ -149,7 +144,7 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
             currentUserCanScanProject={currentUserCanScanProject}
             loading={loading}
             mainBranchName={
-              (branchLikes.find(b => isMainBranch(b)) as MainBranch | undefined)?.name ||
+              (branchLikes.find((b) => isMainBranch(b)) as MainBranch | undefined)?.name ||
               DEFAULT_MAIN_BRANCH_NAME
             }
             onSelectTutorial={this.handleSelectTutorial}

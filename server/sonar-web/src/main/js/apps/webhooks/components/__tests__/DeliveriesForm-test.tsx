@@ -31,23 +31,23 @@ jest.mock('../../../../api/webhooks', () => ({
           durationMs: 20,
           httpStatus: 200,
           id: '2',
-          success: true
+          success: true,
         },
         {
           at: '11.02.2018',
           durationMs: 122,
           httpStatus: 500,
           id: '1',
-          success: false
-        }
+          success: false,
+        },
       ],
       paging: {
         pageIndex: 1,
         pageSize: 10,
-        total: 15
-      }
+        total: 15,
+      },
     })
-  )
+  ),
 }));
 
 const webhook = { key: '1', name: 'foo', url: 'http://foo.bar' };
@@ -63,7 +63,7 @@ it('should render correctly', async () => {
   await new Promise(setImmediate);
   expect(searchDeliveries as jest.Mock<any>).toHaveBeenLastCalledWith({
     webhook: webhook.key,
-    ps: 10
+    ps: 10,
   });
   wrapper.update();
   expect(wrapper).toMatchSnapshot();

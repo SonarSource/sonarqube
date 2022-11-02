@@ -45,7 +45,7 @@ const MAP_VARIANT: Dict<AlertVariant> = {
   [UpdateUseCase.NewMinorVersion]: 'info',
   [UpdateUseCase.NewPatch]: 'warning',
   [UpdateUseCase.PreLTS]: 'warning',
-  [UpdateUseCase.PreviousLTS]: 'error'
+  [UpdateUseCase.PreviousLTS]: 'error',
 };
 
 interface Props {
@@ -73,7 +73,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
       systemUpgrades: [],
       latestLTS: '',
       canSeeNotification: false,
-      useCase: UpdateUseCase.NewMinorVersion
+      useCase: UpdateUseCase.NewMinorVersion,
     };
   }
 
@@ -122,7 +122,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
     const allMinor = systemUpgrades[currentMajor];
     return Object.keys(allMinor)
       .map(Number)
-      .some(minor => minor > currentMinor);
+      .some((minor) => minor > currentMinor);
   }
 
   isPatchUpdate(parsedVersion: number[], systemUpgrades: GroupedSystemUpdate) {
@@ -154,7 +154,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
       return;
     }
     regExpParsedVersion.shift();
-    const parsedVersion = regExpParsedVersion.map(Number).map(n => (isNaN(n) ? 0 : n));
+    const parsedVersion = regExpParsedVersion.map(Number).map((n) => (isNaN(n) ? 0 : n));
 
     const { upgrades, latestLTS } = await getSystemUpgrades();
 
@@ -164,12 +164,12 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
       return;
     }
     const systemUpgrades = mapValues(
-      groupBy(upgrades, upgrade => {
+      groupBy(upgrades, (upgrade) => {
         const [major] = upgrade.version.split('.');
         return major;
       }),
-      upgrades =>
-        groupBy(upgrades, upgrade => {
+      (upgrades) =>
+        groupBy(upgrades, (upgrade) => {
           const [, minor] = upgrade.version.split('.');
           return minor;
         })
@@ -201,7 +201,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
         useCase,
         dismissKey,
         systemUpgrades: upgrades,
-        canSeeNotification: true
+        canSeeNotification: true,
       });
     }
   }
@@ -222,7 +222,8 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
       <DismissableAlert
         alertKey={dismissKey}
         variant={MAP_VARIANT[useCase]}
-        className={`promote-update-notification it__upgrade-prompt-${useCase}`}>
+        className={`promote-update-notification it__upgrade-prompt-${useCase}`}
+      >
         {translate('admin_notification.update', useCase)}
         <SystemUpgradeButton
           systemUpgrades={systemUpgrades}

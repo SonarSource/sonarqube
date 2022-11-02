@@ -58,23 +58,23 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
 
   handleUserAdd = (user: UserSelected) => {
     const {
-      profile: { language, name }
+      profile: { language, name },
     } = this.props;
     addUser({
       language,
       login: user.login,
-      qualityProfile: name
+      qualityProfile: name,
     }).then(() => this.props.onUserAdd(user), this.stopSubmitting);
   };
 
   handleGroupAdd = (group: Group) => {
     const {
-      profile: { language, name }
+      profile: { language, name },
     } = this.props;
     addGroup({
       group: group.name,
       language,
-      qualityProfile: name
+      qualityProfile: name,
     }).then(() => this.props.onGroupAdd(group), this.stopSubmitting);
   };
 

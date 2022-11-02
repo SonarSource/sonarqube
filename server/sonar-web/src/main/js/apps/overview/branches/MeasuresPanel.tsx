@@ -51,13 +51,13 @@ export interface MeasuresPanelProps {
 
 export enum MeasuresPanelTabs {
   New = 'new',
-  Overall = 'overall'
+  Overall = 'overall',
 }
 
 export function MeasuresPanel(props: MeasuresPanelProps) {
   const { appLeak, branch, component, loading, measures = [], period, location } = props;
 
-  const hasDiffMeasures = measures.some(m => isDiffMetric(m.metric.key));
+  const hasDiffMeasures = measures.some((m) => isDiffMetric(m.metric.key));
   const isApp = component.qualifier === ComponentQualifier.Application;
   const leakPeriod = isApp ? appLeak : period;
   const query = parseQuery(location.query);
@@ -88,7 +88,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
           <span className="text-bold">{translate('overview.new_code')}</span>
           {leakPeriod && <LeakPeriodInfo leakPeriod={leakPeriod} />}
         </div>
-      )
+      ),
     },
     {
       key: MeasuresPanelTabs.Overall,
@@ -98,8 +98,8 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
             {translate('overview.overall_code')}
           </span>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   return (
@@ -115,13 +115,14 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
         </div>
       ) : (
         <>
-          <BoxedTabs onSelect={key => selectTab(key)} selected={tab} tabs={tabs} />
+          <BoxedTabs onSelect={(key) => selectTab(key)} selected={tab} tabs={tabs} />
 
           <div
             className="overview-panel-content flex-1 bordered"
             role="tabpanel"
             id={getTabPanelId(tab)}
-            aria-labelledby={getTabId(tab)}>
+            aria-labelledby={getTabId(tab)}
+          >
             {!hasDiffMeasures && isNewCodeTab ? (
               <MeasuresPanelNoNewCode branch={branch} component={component} period={period} />
             ) : (
@@ -130,7 +131,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
                   IssueType.Bug,
                   IssueType.Vulnerability,
                   IssueType.SecurityHotspot,
-                  IssueType.CodeSmell
+                  IssueType.CodeSmell,
                 ].map((type: IssueType) => (
                   <MeasuresPanelIssueMeasureRow
                     branchLike={branch}
@@ -147,7 +148,8 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
                     findMeasure(measures, MetricKey.new_coverage)) && (
                     <div
                       className="overview-panel-huge-padded flex-1 bordered-right display-flex-center"
-                      data-test="overview__measures-coverage">
+                      data-test="overview__measures-coverage"
+                    >
                       <MeasurementLabel
                         branchLike={branch}
                         centered={isNewCodeTab}

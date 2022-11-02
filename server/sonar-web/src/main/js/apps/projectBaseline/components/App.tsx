@@ -23,7 +23,7 @@ import * as React from 'react';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
@@ -67,7 +67,7 @@ interface State {
 const DEFAULT_NUMBER_OF_DAYS = '30';
 
 const DEFAULT_GENERAL_SETTING: { type: NewCodePeriodSettingType } = {
-  type: 'PREVIOUS_VERSION'
+  type: 'PREVIOUS_VERSION',
 };
 
 export class App extends React.PureComponent<Props, State> {
@@ -76,7 +76,7 @@ export class App extends React.PureComponent<Props, State> {
     branchList: [],
     days: DEFAULT_NUMBER_OF_DAYS,
     loading: true,
-    saving: false
+    saving: false,
   };
 
   // We use debounce as we could have multiple save in less that 3sec.
@@ -119,7 +119,7 @@ export class App extends React.PureComponent<Props, State> {
       days: (currentSetting === 'NUMBER_OF_DAYS' && currentSettingValue) || defaultDays,
       analysis: (currentSetting === 'SPECIFIC_ANALYSIS' && currentSettingValue) || '',
       referenceBranch:
-        (currentSetting === 'REFERENCE_BRANCH' && currentSettingValue) || referenceBranch
+        (currentSetting === 'REFERENCE_BRANCH' && currentSettingValue) || referenceBranch,
     };
   }
 
@@ -137,8 +137,8 @@ export class App extends React.PureComponent<Props, State> {
       getNewCodePeriod(),
       getNewCodePeriod({
         branch: this.props.hasFeature(Feature.BranchSupport) ? undefined : branchLike.name,
-        project: component.key
-      })
+        project: component.key,
+      }),
     ]).then(
       ([generalSetting, setting]) => {
         if (this.mounted) {
@@ -152,7 +152,7 @@ export class App extends React.PureComponent<Props, State> {
             this.getUpdatedState({
               generalSetting,
               currentSetting,
-              currentSettingValue
+              currentSettingValue,
             })
           );
         }
@@ -171,7 +171,7 @@ export class App extends React.PureComponent<Props, State> {
           saving: false,
           currentSetting: undefined,
           selected: undefined,
-          success: true
+          success: true,
         });
         this.resetSuccess();
       },
@@ -218,14 +218,14 @@ export class App extends React.PureComponent<Props, State> {
       setNewCodePeriod({
         project: component.key,
         type,
-        value
+        value,
       }).then(
         () => {
           this.setState({
             saving: false,
             currentSetting: type,
             currentSettingValue: value || undefined,
-            success: true
+            success: true,
           });
           this.resetSuccess();
         },
@@ -250,7 +250,7 @@ export class App extends React.PureComponent<Props, State> {
       referenceBranch,
       saving,
       selected,
-      success
+      success,
     } = this.state;
     const branchSupportEnabled = this.props.hasFeature(Feature.BranchSupport);
 
@@ -307,7 +307,7 @@ export class App extends React.PureComponent<Props, State> {
                       currentSetting
                         ? {
                             type: currentSetting,
-                            value: currentSettingValue
+                            value: currentSettingValue,
                           }
                         : generalSetting
                     }

@@ -46,7 +46,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
 
   state: State = {
     formOpen: false,
-    loading: true
+    loading: true,
   };
 
   componentDidMount() {
@@ -66,7 +66,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
 
   loadData() {
     getProfileInheritance(this.props.profile).then(
-      r => {
+      (r) => {
         if (this.mounted) {
           const { ancestors, children } = r;
           ancestors.reverse();
@@ -75,7 +75,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
             children,
             ancestors,
             profile: r.profile,
-            loading: false
+            loading: false,
           });
         }
       },
@@ -115,7 +115,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
       this.state.children != null &&
       (ancestors.length > 0 || this.state.children.length > 0);
 
-    const extendsBuiltIn = ancestors != null && ancestors.some(profile => profile.isBuiltIn);
+    const extendsBuiltIn = ancestors != null && ancestors.some((profile) => profile.isBuiltIn);
 
     return (
       <div className="boxed-group quality-profile-inheritance">
@@ -151,7 +151,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
                 {this.state.profile != null && (
                   <ProfileInheritanceBox
                     className={classNames({
-                      selected: highlightCurrent
+                      selected: highlightCurrent,
                     })}
                     depth={ancestors ? ancestors.length : 0}
                     displayLink={false}
@@ -162,7 +162,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
                 )}
 
                 {this.state.children != null &&
-                  this.state.children.map(child => (
+                  this.state.children.map((child) => (
                     <ProfileInheritanceBox
                       depth={ancestors ? ancestors.length + 1 : 0}
                       key={child.key}
@@ -181,7 +181,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
             onChange={this.handleParentChange}
             onClose={this.closeForm}
             profile={profile}
-            profiles={profiles.filter(p => p !== profile && p.language === profile.language)}
+            profiles={profiles.filter((p) => p !== profile && p.language === profile.language)}
           />
         )}
       </div>

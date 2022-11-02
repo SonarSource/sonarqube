@@ -25,7 +25,7 @@ import { Component, Dict } from './types';
 import { CurrentUser, HomePage } from './users';
 
 export enum AdminPageExtension {
-  GovernanceConsole = 'governance/views_console'
+  GovernanceConsole = 'governance/views_console',
 }
 
 export interface ExtensionRegistryEntry {

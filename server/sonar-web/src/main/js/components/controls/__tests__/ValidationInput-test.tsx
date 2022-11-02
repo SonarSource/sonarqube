@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import ValidationInput, {
   ValidationInputErrorPlacement,
-  ValidationInputProps
+  ValidationInputProps,
 } from '../ValidationInput';
 
 it('should render correctly', () => {
@@ -33,7 +33,7 @@ it('should render correctly', () => {
       error: 'Field error message',
       isInvalid: true,
       isValid: false,
-      required: false
+      required: false,
     })
   ).toMatchSnapshot('with error');
   expect(
@@ -41,7 +41,7 @@ it('should render correctly', () => {
       error: 'Field error message',
       errorPlacement: ValidationInputErrorPlacement.Bottom,
       isInvalid: true,
-      isValid: false
+      isValid: false,
     })
   ).toMatchSnapshot('error under the input');
   expect(shallowRender({ id: undefined, label: undefined })).toMatchSnapshot('no label');
@@ -57,7 +57,8 @@ function shallowRender(props: Partial<ValidationInputProps> = {}) {
       isValid={true}
       label="Field label"
       required={true}
-      {...props}>
+      {...props}
+    >
       <div />
     </ValidationInput>
   );

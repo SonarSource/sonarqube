@@ -33,7 +33,7 @@ function shallowRender(props: Partial<EventsProps> = {}) {
       events={[
         mockAnalysisEvent(),
         mockAnalysisEvent({ category: 'VERSION' }),
-        mockAnalysisEvent({ category: 'OTHER' })
+        mockAnalysisEvent({ category: 'OTHER' }),
       ]}
       onChange={jest.fn()}
       onDelete={jest.fn()}

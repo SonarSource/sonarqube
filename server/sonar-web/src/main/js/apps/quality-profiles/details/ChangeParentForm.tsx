@@ -44,7 +44,7 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
   mounted = false;
   state: State = {
     loading: false,
-    selected: null
+    selected: null,
   };
 
   componentDidMount() {
@@ -62,7 +62,7 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const parent = this.props.profiles.find(p => p.key === this.state.selected);
+    const parent = this.props.profiles.find((p) => p.key === this.state.selected);
 
     this.setState({ loading: true });
     changeProfileParent(this.props.profile, parent)
@@ -79,12 +79,12 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
 
     const options = [
       { label: translate('none'), value: '' },
-      ...sortBy(profiles, 'name').map(profile => ({
+      ...sortBy(profiles, 'name').map((profile) => ({
         label: profile.isBuiltIn
           ? `${profile.name} (${translate('quality_profiles.built_in')})`
           : profile.name,
-        value: profile.key
-      }))
+        value: profile.key,
+      })),
     ];
 
     const submitDisabled =
@@ -98,7 +98,8 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
       <Modal
         contentLabel={translate('quality_profiles.change_parent')}
         onRequestClose={this.props.onClose}
-        size="small">
+        size="small"
+      >
         <form id="change-profile-parent-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{translate('quality_profiles.change_parent')}</h2>
@@ -120,7 +121,7 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
                 onChange={this.handleSelectChange}
                 options={options}
                 isSearchable={true}
-                value={options.filter(o => o.value === selectedValue)}
+                value={options.filter((o) => o.value === selectedValue)}
               />
             </div>
           </div>

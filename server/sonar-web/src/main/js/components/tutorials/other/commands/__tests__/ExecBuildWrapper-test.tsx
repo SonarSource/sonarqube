@@ -22,6 +22,6 @@ import * as React from 'react';
 import { OSs } from '../../../types';
 import ExecBuildWrapper from '../ExecBuildWrapper';
 
-it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('Shoud renders for %p correctly', os => {
+it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('Shoud renders for %p correctly', (os) => {
   expect(shallow(<ExecBuildWrapper os={os} />)).toMatchSnapshot();
 });

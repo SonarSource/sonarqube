@@ -34,19 +34,15 @@ interface State {
 
 export default class ConfirmButton<T> extends React.PureComponent<Props<T>, State> {
   renderConfirmModal = ({ onClose }: ModalProps) => {
-    const {
-      children,
-      modalBody,
-      modalHeader,
-      modalHeaderDescription,
-      ...confirmModalProps
-    } = this.props;
+    const { children, modalBody, modalHeader, modalHeaderDescription, ...confirmModalProps } =
+      this.props;
     return (
       <ConfirmModal
         header={modalHeader}
         headerDescription={modalHeaderDescription}
         onClose={onClose}
-        {...confirmModalProps}>
+        {...confirmModalProps}
+      >
         {modalBody}
       </ConfirmModal>
     );

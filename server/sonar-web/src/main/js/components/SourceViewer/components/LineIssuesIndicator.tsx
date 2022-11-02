@@ -38,7 +38,7 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   const { issues, issuesOpen, line } = props;
   const hasIssues = issues.length > 0;
   const className = classNames('source-meta', 'source-line-issues', {
-    'source-line-with-issues': hasIssues
+    'source-line-with-issues': hasIssues,
   });
 
   if (!hasIssues) {
@@ -46,7 +46,7 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   }
 
   const mostImportantIssue = sortByType(issues)[0];
-  const issueTypes = uniq(issues.map(i => i.type));
+  const issueTypes = uniq(issues.map((i) => i.type));
 
   const tooltipShowHide = translate('source_viewer.issues_on_line', issuesOpen ? 'hide' : 'show');
   let tooltipContent;

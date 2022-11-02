@@ -28,8 +28,8 @@ import DeliveryAccordion from '../DeliveryAccordion';
 
 jest.mock('../../../../api/webhooks', () => ({
   getDelivery: jest.fn().mockResolvedValue({
-    delivery: { payload: '{ "message": "This was successful" }' }
-  })
+    delivery: { payload: '{ "message": "This was successful" }' },
+  }),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -51,10 +51,10 @@ it('should render correctly for successful payloads', async () => {
 it('should render correctly for errored payloads', async () => {
   const user = userEvent.setup();
   (getDelivery as jest.Mock).mockResolvedValueOnce({
-    delivery: { payload: '503 Service Unavailable' }
+    delivery: { payload: '503 Service Unavailable' },
   });
   renderDeliveryAccordion({
-    delivery: mockWebhookDelivery({ httpStatus: undefined, success: false })
+    delivery: mockWebhookDelivery({ httpStatus: undefined, success: false }),
   });
   expect(screen.getByLabelText('error')).toBeInTheDocument();
 

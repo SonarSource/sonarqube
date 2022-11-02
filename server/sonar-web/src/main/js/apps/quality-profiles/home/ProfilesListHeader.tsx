@@ -42,9 +42,9 @@ export class ProfilesListHeader extends React.PureComponent<Props> {
       return null;
     }
 
-    const options = languages.map(language => ({
+    const options = languages.map((language) => ({
       label: language.name,
-      value: language.key
+      value: language.key,
     }));
 
     return (
@@ -61,7 +61,7 @@ export class ProfilesListHeader extends React.PureComponent<Props> {
           onChange={this.handleChange}
           options={options}
           isSearchable={true}
-          value={options.filter(o => o.value === currentFilter)}
+          value={options.filter((o) => o.value === currentFilter)}
         />
       </header>
     );

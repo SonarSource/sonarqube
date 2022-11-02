@@ -50,7 +50,8 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
         <Link
           aria-current={active ? 'page' : undefined}
           className={classNames({ active })}
-          to="/projects">
+          to="/projects"
+        >
           {translate('projects.page')}
         </Link>
       </li>
@@ -68,16 +69,18 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   renderIssuesLink() {
-    const search = (this.props.currentUser.isLoggedIn && isMySet()
-      ? new URLSearchParams({ resolved: 'false', myIssues: 'true' })
-      : new URLSearchParams({ resolved: 'false' })
+    const search = (
+      this.props.currentUser.isLoggedIn && isMySet()
+        ? new URLSearchParams({ resolved: 'false', myIssues: 'true' })
+        : new URLSearchParams({ resolved: 'false' })
     ).toString();
 
     return (
       <li>
         <NavLink
           className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
-          to={{ pathname: '/issues', search }}>
+          to={{ pathname: '/issues', search }}
+        >
           {translate('issues.page')}
         </NavLink>
       </li>
@@ -89,7 +92,8 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
       <li>
         <NavLink
           className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
-          to="/coding_rules">
+          to="/coding_rules"
+        >
           {translate('coding_rules.page')}
         </NavLink>
       </li>
@@ -111,7 +115,8 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
       <li>
         <NavLink
           className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
-          to={getQualityGatesUrl()}>
+          to={getQualityGatesUrl()}
+        >
           {translate('quality_gates.page')}
         </NavLink>
       </li>
@@ -142,14 +147,15 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
 
   renderMore() {
     const { globalPages = [] } = this.props.appState;
-    const withoutPortfolios = globalPages.filter(page => page.key !== 'governance/portfolios');
+    const withoutPortfolios = globalPages.filter((page) => page.key !== 'governance/portfolios');
     if (withoutPortfolios.length === 0) {
       return null;
     }
     return (
       <Dropdown
         overlay={<ul className="menu">{withoutPortfolios.map(this.renderGlobalPageLink)}</ul>}
-        tagName="li">
+        tagName="li"
+      >
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
@@ -158,7 +164,8 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
             className={classNames('dropdown-toggle', { active: open })}
             href="#"
             id="global-navigation-more"
-            onClick={onToggleClick}>
+            onClick={onToggleClick}
+          >
             {translate('more')}
             <DropdownIcon className="little-spacer-left text-middle" />
           </a>

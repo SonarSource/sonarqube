@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import MandatoryFieldsExplanation, {
-  MandatoryFieldsExplanationProps
+  MandatoryFieldsExplanationProps,
 } from '../MandatoryFieldsExplanation';
 
 it('should render correctly', () => {

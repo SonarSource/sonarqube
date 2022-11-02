@@ -32,7 +32,7 @@ it('should not refresh the page once the indexation is complete if there were fa
 
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: { reload }
+    value: { reload },
   });
 
   const wrapper = shallowRender();
@@ -40,7 +40,7 @@ it('should not refresh the page once the indexation is complete if there were fa
   expect(reload).not.toHaveBeenCalled();
 
   wrapper.setProps({
-    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: true } }
+    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: true } },
   });
   wrapper.update();
 
@@ -52,7 +52,7 @@ it('should refresh the page once the indexation is complete if there were NO fai
 
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: { reload }
+    value: { reload },
   });
 
   const wrapper = shallowRender();
@@ -60,7 +60,7 @@ it('should refresh the page once the indexation is complete if there were NO fai
   expect(reload).not.toHaveBeenCalled();
 
   wrapper.setProps({
-    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: false } }
+    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: false } },
   });
   wrapper.update();
 
@@ -71,7 +71,7 @@ function shallowRender(props?: PageUnavailableDueToIndexation['props']) {
   return shallow<PageUnavailableDueToIndexation>(
     <PageUnavailableDueToIndexation
       indexationContext={{
-        status: { isCompleted: false, percentCompleted: 23, hasFailures: false }
+        status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
       }}
       pageContext={PageContext.Issues}
       component={{ qualifier: ComponentQualifier.Portfolio, name: 'test-portfolio' }}

@@ -27,7 +27,7 @@ import Select, { BasicSelectOption } from '../../../../../../components/controls
 import {
   getBranchLikeDisplayName,
   isBranch,
-  isMainBranch
+  isMainBranch,
 } from '../../../../../../helpers/branch-like';
 import { translate } from '../../../../../../helpers/l10n';
 import { Component } from '../../../../../../types/types';
@@ -51,26 +51,26 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
     this.state = {
       downloadStarted: false,
       selectedBranch: '',
-      branchLikesOptions: []
+      branchLikesOptions: [],
     };
   }
 
   componentDidMount() {
     const { component, branchLike } = this.props;
     getBranches(component.key)
-      .then(data => {
+      .then((data) => {
         const mainBranch = data.find(isMainBranch);
         const otherBranchSorted = orderBy(
-          data.filter(isBranch).filter(b => !isMainBranch(b)),
-          b => b.name
+          data.filter(isBranch).filter((b) => !isMainBranch(b)),
+          (b) => b.name
         );
         const sortedBranch = mainBranch ? [mainBranch, ...otherBranchSorted] : otherBranchSorted;
         const options = sortedBranch
-          .filter(br => br.excludedFromPurge)
-          .map(br => {
+          .filter((br) => br.excludedFromPurge)
+          .map((br) => {
             return {
               value: getBranchLikeDisplayName(br),
-              label: getBranchLikeDisplayName(br)
+              label: getBranchLikeDisplayName(br),
             };
           });
 
@@ -120,7 +120,7 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
               id="regulatory-report-branch-select-input"
               onChange={this.onBranchSelect}
               options={branchLikesOptions}
-              value={branchLikesOptions.find(o => o.value === selectedBranch)}
+              value={branchLikesOptions.find((o) => o.value === selectedBranch)}
             />
           </div>
           <div className="modal-field big-spacer-top">
@@ -134,15 +134,16 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
         <div className="modal-foot">
           <a
             className={classNames('button button-primary big-spacer-right', {
-              disabled: downloadStarted
+              disabled: downloadStarted,
             })}
             download={[component.name, selectedBranch, 'regulatory report.zip']
-              .filter(s => !!s)
+              .filter((s) => !!s)
               .join(' - ')}
             onClick={() => this.setState({ downloadStarted: true })}
             href={getRegulatoryReportUrl(component.key, selectedBranch)}
             target="_blank"
-            rel="noopener noreferrer">
+            rel="noopener noreferrer"
+          >
             {translate('download_verb')}
           </a>
           <ButtonLink onClick={onClose}>{translate('close')}</ButtonLink>

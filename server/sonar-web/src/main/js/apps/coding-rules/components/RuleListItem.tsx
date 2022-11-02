@@ -52,7 +52,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
     if (this.props.selectedProfile) {
       const data = {
         key: this.props.selectedProfile.key,
-        rule: this.props.rule.key
+        rule: this.props.rule.key,
       };
       deactivateRule(data).then(
         () => this.props.onDeactivate(data.key, data.rule),
@@ -65,7 +65,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
     if (this.props.selectedProfile) {
       this.props.onActivate(this.props.selectedProfile.key, this.props.rule.key, {
         severity,
-        inherit: 'NONE'
+        inherit: 'NONE',
       });
     }
     return Promise.resolve();
@@ -100,7 +100,8 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   'coding_rules.overrides',
                   selectedProfile.name,
                   selectedProfile.parentName
-                )}>
+                )}
+              >
                 <RuleInheritanceIcon
                   className="little-spacer-left"
                   inheritance={activation.inherit}
@@ -113,7 +114,8 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   'coding_rules.inherits',
                   selectedProfile.name,
                   selectedProfile.parentName
-                )}>
+                )}
+              >
                 <RuleInheritanceIcon
                   className="little-spacer-left"
                   inheritance={activation.inherit}
@@ -158,11 +160,13 @@ export default class RuleListItem extends React.PureComponent<Props> {
               confirmButtonText={translate('yes')}
               modalBody={translate('coding_rules.deactivate.confirm')}
               modalHeader={translate('coding_rules.deactivate')}
-              onConfirm={this.handleDeactivate}>
+              onConfirm={this.handleDeactivate}
+            >
               {({ onClick }) => (
                 <Button
                   className="coding-rules-detail-quality-profile-deactivate button-red"
-                  onClick={onClick}>
+                  onClick={onClick}
+                >
                   {translate('coding_rules.deactivate')}
                 </Button>
               )}
@@ -202,7 +206,8 @@ export default class RuleListItem extends React.PureComponent<Props> {
         className={classNames('coding-rule', { selected })}
         aria-selected={selected}
         role="row"
-        data-rule={rule.key}>
+        data-rule={rule.key}
+      >
         <table className="coding-rule-table">
           <tbody>
             <tr>
@@ -212,7 +217,8 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   <Link
                     className="link-no-underline"
                     onClick={this.handleNameClick}
-                    to={getRuleUrl(rule.key)}>
+                    to={getRuleUrl(rule.key)}
+                  >
                     {rule.name}
                   </Link>
                   {rule.isTemplate && (

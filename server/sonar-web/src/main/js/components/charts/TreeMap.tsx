@@ -75,20 +75,18 @@ export default class TreeMap extends React.PureComponent<Props> {
   render() {
     const { items, height, width } = this.props;
     const hierarchy = d3Hierarchy({ children: items } as HierarchicalTreemapItem)
-      .sum(d => d.size)
+      .sum((d) => d.size)
       .sort((a, b) => (b.value || 0) - (a.value || 0));
 
-    const treemap = d3Treemap<TreeMapItem>()
-      .round(true)
-      .size([width, height]);
+    const treemap = d3Treemap<TreeMapItem>().round(true).size([width, height]);
 
     const nodes = treemap(hierarchy).leaves();
-    const prefix = this.mostCommitPrefix(items.map(item => item.label));
+    const prefix = this.mostCommitPrefix(items.map((item) => item.label));
     const halfWidth = width / 2;
     return (
       <div className="sonar-d3">
         <div className="treemap-container" style={{ width, height }}>
-          {nodes.map(node => (
+          {nodes.map((node) => (
             <TreeMapRect
               fill={node.data.color}
               gradient={node.data.gradient}

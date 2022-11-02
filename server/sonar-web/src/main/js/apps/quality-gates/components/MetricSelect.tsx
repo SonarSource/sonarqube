@@ -42,7 +42,7 @@ export class MetricSelect extends React.PureComponent<Props> {
   handleChange = (option: Option | null) => {
     if (option) {
       const { metricsArray: metrics } = this.props;
-      const selectedMetric = metrics.find(metric => metric.key === option.value);
+      const selectedMetric = metrics.find((metric) => metric.key === option.value);
       if (selectedMetric) {
         this.props.onMetricChange(selectedMetric);
       }
@@ -53,10 +53,10 @@ export class MetricSelect extends React.PureComponent<Props> {
     const { metric, metricsArray, metrics } = this.props;
 
     const options: Array<Option & { domain?: string }> = sortBy(
-      metricsArray.map(m => ({
+      metricsArray.map((m) => ({
         value: m.key,
         label: getLocalizedMetricNameNoDiffMetric(m, metrics),
-        domain: m.domain
+        domain: m.domain,
       })),
       'domain'
     );
@@ -69,7 +69,7 @@ export class MetricSelect extends React.PureComponent<Props> {
         optionsWithDomains.push({
           value: '<domain>',
           label: getLocalizedMetricDomain(option.domain),
-          isDisabled: true
+          isDisabled: true,
         });
       }
       optionsWithDomains.push(option);
@@ -82,7 +82,7 @@ export class MetricSelect extends React.PureComponent<Props> {
         onChange={this.handleChange}
         options={optionsWithDomains}
         placeholder={translate('search.search_for_metrics')}
-        value={optionsWithDomains.find(o => o.value === metric?.key)}
+        value={optionsWithDomains.find((o) => o.value === metric?.key)}
       />
     );
   }

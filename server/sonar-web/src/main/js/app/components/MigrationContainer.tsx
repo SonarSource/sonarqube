@@ -27,8 +27,8 @@ export function MigrationContainer() {
     const to = {
       pathname: '/maintenance',
       search: new URLSearchParams({
-        return_to: returnTo
-      }).toString()
+        return_to: returnTo,
+      }).toString(),
     };
 
     return <Navigate to={to} />;

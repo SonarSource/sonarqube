@@ -42,14 +42,16 @@ export function MenuItem(props: MenuItemProps) {
   return (
     <li
       className={classNames('item', {
-        active: selected
+        active: selected,
       })}
       onClick={() => onSelect(branchLike)}
-      ref={selected ? setSelectedNode : undefined}>
+      ref={selected ? setSelectedNode : undefined}
+    >
       <div
         className={classNames('display-flex-center display-flex-space-between', {
-          'big-spacer-left': indent
-        })}>
+          'big-spacer-left': indent,
+        })}
+      >
         <div className="item-name text-ellipsis" title={displayName}>
           <BranchLikeIcon branchLike={branchLike} />
           <span className="spacer-left">{displayName}</span>

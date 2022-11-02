@@ -43,7 +43,7 @@ it('should compare', () => {
   const inLeft = [{ key: 'rule1', name: 'rule1', severity: 'BLOCKER' }];
   const inRight = [
     { key: 'rule2', name: 'rule2', severity: 'CRITICAL' },
-    { key: 'rule3', name: 'rule3', severity: 'MAJOR' }
+    { key: 'rule3', name: 'rule3', severity: 'MAJOR' },
   ];
   const modified = [
     {
@@ -51,13 +51,13 @@ it('should compare', () => {
       name: 'rule4',
       left: {
         severity: 'BLOCKER',
-        params: { foo: 'bar' }
+        params: { foo: 'bar' },
       },
       right: {
         severity: 'INFO',
-        params: { foo: 'qwe' }
-      }
-    }
+        params: { foo: 'qwe' },
+      },
+    },
   ];
 
   const output = shallow(
@@ -83,40 +83,21 @@ it('should compare', () => {
   const rightDiffs = output.find('.js-comparison-in-right');
   expect(rightDiffs.length).toBe(2);
   expect(rightDiffs.at(0).find(Link).length).toBe(1);
-  expect(
-    rightDiffs
-      .at(0)
-      .find(Link)
-      .prop('to')
-  ).toHaveProperty('search', '?rule_key=rule2&open=rule2');
-  expect(
-    rightDiffs
-      .at(0)
-      .find(Link)
-      .prop('children')
-  ).toContain('rule2');
+  expect(rightDiffs.at(0).find(Link).prop('to')).toHaveProperty(
+    'search',
+    '?rule_key=rule2&open=rule2'
+  );
+  expect(rightDiffs.at(0).find(Link).prop('children')).toContain('rule2');
   expect(rightDiffs.at(0).find('SeverityIcon').length).toBe(1);
-  expect(
-    rightDiffs
-      .at(0)
-      .find('SeverityIcon')
-      .prop('severity')
-  ).toBe('CRITICAL');
+  expect(rightDiffs.at(0).find('SeverityIcon').prop('severity')).toBe('CRITICAL');
 
   const modifiedDiffs = output.find('.js-comparison-modified');
   expect(modifiedDiffs.length).toBe(1);
-  expect(
-    modifiedDiffs
-      .find(Link)
-      .at(0)
-      .prop('to')
-  ).toHaveProperty('search', '?rule_key=rule4&open=rule4');
-  expect(
-    modifiedDiffs
-      .find(Link)
-      .at(0)
-      .prop('children')
-  ).toContain('rule4');
+  expect(modifiedDiffs.find(Link).at(0).prop('to')).toHaveProperty(
+    'search',
+    '?rule_key=rule4&open=rule4'
+  );
+  expect(modifiedDiffs.find(Link).at(0).prop('children')).toContain('rule4');
   expect(modifiedDiffs.find('SeverityIcon').length).toBe(2);
   expect(modifiedDiffs.text()).toContain('bar');
   expect(modifiedDiffs.text()).toContain('qwe');

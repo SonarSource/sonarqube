@@ -28,8 +28,8 @@ beforeEach(() => {
 jest.mock('../../api/l10n', () => ({
   fetchL10nBundle: jest.fn().mockResolvedValue({
     effectiveLocale: 'de',
-    messages: { foo: 'Foo', 'foo.bar': 'Foo Bar' }
-  })
+    messages: { foo: 'Foo', 'foo.bar': 'Foo Bar' },
+  }),
 }));
 
 describe('#loadL10nBundle', () => {
@@ -41,7 +41,7 @@ describe('#loadL10nBundle', () => {
 
   it('should ftech bundle without local storage timestamp if locales are different', async () => {
     const cachedBundle = { timestamp: 'timestamp', locale: 'fr', messages: { cache: 'cache' } };
-    ((window as unknown) as any).sonarQubeL10nBundle = cachedBundle;
+    (window as unknown as any).sonarQubeL10nBundle = cachedBundle;
 
     await loadL10nBundle();
 
@@ -50,7 +50,7 @@ describe('#loadL10nBundle', () => {
 
   it('should fetch bundle with cached bundle timestamp and browser locale', async () => {
     const cachedBundle = { timestamp: 'timestamp', locale: 'de', messages: { cache: 'cache' } };
-    ((window as unknown) as any).sonarQubeL10nBundle = cachedBundle;
+    (window as unknown as any).sonarQubeL10nBundle = cachedBundle;
 
     await loadL10nBundle();
 
@@ -60,7 +60,7 @@ describe('#loadL10nBundle', () => {
   it('should fallback to cached bundle if the server respond with 304', async () => {
     const cachedBundle = { timestamp: 'timestamp', locale: 'fr', messages: { cache: 'cache' } };
     (fetchL10nBundle as jest.Mock).mockRejectedValueOnce({ status: 304 });
-    ((window as unknown) as any).sonarQubeL10nBundle = cachedBundle;
+    (window as unknown as any).sonarQubeL10nBundle = cachedBundle;
 
     const bundle = await loadL10nBundle();
 

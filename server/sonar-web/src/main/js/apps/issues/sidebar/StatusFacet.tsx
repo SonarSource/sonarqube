@@ -54,7 +54,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
       this.props.onChange({ [this.property]: newValue });
     } else {
       this.props.onChange({
-        [this.property]: statuses.includes(itemValue) && statuses.length < 2 ? [] : [itemValue]
+        [this.property]: statuses.includes(itemValue) && statuses.length < 2 ? [] : [itemValue],
       });
     }
   };
@@ -92,7 +92,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
 
   render() {
     const { statuses, stats = {} } = this.props;
-    const values = statuses.map(status => translate('issue.status', status));
+    const values = statuses.map((status) => translate('issue.status', status));
 
     return (
       <FacetBox property={this.property}>

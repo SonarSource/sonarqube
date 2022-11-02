@@ -26,7 +26,7 @@ describe('#decodeJwt', () => {
       exp: 1541062205,
       iat: 1541058605,
       iss: 'ari:cloud:bitbucket::app/{327713ed-f1b2-4659-9c91-c8ecf8be7f3e}/sonarcloud-greg',
-      qsh: 'a6c93addd971c05d08da1e1669c2640fba529e98fbb5b2b9effadf00bf484277'
+      qsh: 'a6c93addd971c05d08da1e1669c2640fba529e98fbb5b2b9effadf00bf484277',
     };
     expect(
       decodeJwt(

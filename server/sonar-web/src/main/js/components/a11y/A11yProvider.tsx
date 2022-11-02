@@ -31,7 +31,7 @@ export default class A11yProvider extends React.Component<{}, State> {
   state: State = { links: [] };
 
   addA11ySkipLink = (link: A11ySkipLink) => {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       const links = [...prevState.links];
       links.push({ ...link, weight: link.weight || 0 });
       return { links };
@@ -39,8 +39,8 @@ export default class A11yProvider extends React.Component<{}, State> {
   };
 
   removeA11ySkipLink = (link: A11ySkipLink) => {
-    this.setState(prevState => {
-      const links = prevState.links.filter(l => l.key !== link.key);
+    this.setState((prevState) => {
+      const links = prevState.links.filter((l) => l.key !== link.key);
       return { links };
     });
   };
@@ -52,8 +52,9 @@ export default class A11yProvider extends React.Component<{}, State> {
         value={{
           addA11ySkipLink: this.addA11ySkipLink,
           links,
-          removeA11ySkipLink: this.removeA11ySkipLink
-        }}>
+          removeA11ySkipLink: this.removeA11ySkipLink,
+        }}
+      >
         {this.props.children}
       </A11yContext.Provider>
     );

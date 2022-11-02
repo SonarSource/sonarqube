@@ -29,8 +29,8 @@ const COMPONENTS = [
     key: 'foo',
     measures: [],
     name: 'Foo',
-    qualifier: 'TRK'
-  }
+    qualifier: 'TRK',
+  },
 ];
 
 const METRICS = { coverage: { id: '1', key: 'coverage', type: 'PERCENT', name: 'Coverage' } };
@@ -48,9 +48,9 @@ it('should render with best values hidden', () => {
           key: 'bar',
           measures: [{ bestValue: true, metric: mockMetric({ key: 'coverage' }) }],
           name: 'Bar',
-          qualifier: 'TRK'
-        }
-      ]
+          qualifier: 'TRK',
+        },
+      ],
     })
   ).toMatchSnapshot();
 });
@@ -63,27 +63,27 @@ it('should correctly bind key events for file navigation', () => {
       key: 'foo',
       measures: [],
       name: 'Foo',
-      qualifier: 'TRK'
+      qualifier: 'TRK',
     },
     {
       key: 'bar',
       measures: [],
       name: 'Bar',
-      qualifier: 'TRK'
+      qualifier: 'TRK',
     },
     {
       key: 'yoo',
       measures: [],
       name: 'Yoo',
-      qualifier: 'TRK'
-    }
+      qualifier: 'TRK',
+    },
   ];
 
   shallowRender({
     handleSelect,
     handleOpen,
     selectedComponent: FILES[0],
-    components: FILES
+    components: FILES,
   });
 
   keydown({ key: KeyboardKeys.DownArrow });
@@ -115,7 +115,7 @@ function shallowRender(props: Partial<FilesView['props']> = {}) {
         key: 'parent',
         measures: [],
         name: 'Parent',
-        qualifier: 'TRK'
+        qualifier: 'TRK',
       }}
       view="tree"
       {...props}

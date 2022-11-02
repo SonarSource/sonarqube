@@ -25,7 +25,7 @@ import { UserSelected } from '../../../../types/types';
 import ProfilePermissionsUser from '../ProfilePermissionsUser';
 
 jest.mock('../../../../api/quality-profiles', () => ({
-  removeUser: jest.fn(() => Promise.resolve())
+  removeUser: jest.fn(() => Promise.resolve()),
 }));
 
 const profile = { language: 'js', name: 'Sonar way' };
@@ -56,7 +56,7 @@ it('removes user', async () => {
   expect(removeUser).toHaveBeenCalledWith({
     language: 'js',
     login: 'luke',
-    qualityProfile: 'Sonar way'
+    qualityProfile: 'Sonar way',
   });
 
   await new Promise(setImmediate);

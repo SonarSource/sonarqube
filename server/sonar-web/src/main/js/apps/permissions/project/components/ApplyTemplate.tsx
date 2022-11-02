@@ -74,7 +74,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
     if (this.state.permissionTemplate) {
       return applyTemplateToProject({
         projectKey: this.props.project.key,
-        templateId: this.state.permissionTemplate
+        templateId: this.state.permissionTemplate,
       }).then(() => {
         if (this.mounted) {
           if (this.props.onApply) {
@@ -99,9 +99,9 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
     );
 
     const options = this.state.permissionTemplates
-      ? this.state.permissionTemplates.map(permissionTemplate => ({
+      ? this.state.permissionTemplates.map((permissionTemplate) => ({
           label: permissionTemplate.name,
-          value: permissionTemplate.id
+          value: permissionTemplate.id,
         }))
       : [];
 
@@ -110,7 +110,8 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
         header={header}
         onClose={this.props.onClose}
         onSubmit={this.handleSubmit}
-        size="small">
+        size="small"
+      >
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form id="project-permissions-apply-template-form" onSubmit={onFormSubmit}>
             <header className="modal-head">
@@ -139,7 +140,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
                         inputId="project-permissions-template-input"
                         onChange={this.handlePermissionTemplateChange}
                         options={options}
-                        value={options.filter(o => o.value === this.state.permissionTemplate)}
+                        value={options.filter((o) => o.value === this.state.permissionTemplate)}
                       />
                     )}
                   </div>

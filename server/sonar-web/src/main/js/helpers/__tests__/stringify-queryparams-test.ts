@@ -27,7 +27,7 @@ describe('stringify', () => {
       prop3: true,
       prop4: '',
       prop5: [9, 8, 7],
-      prop6: { test: 'test' }
+      prop6: { test: 'test' },
     };
 
     expect(stringify(obj)).toEqual(

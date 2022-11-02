@@ -38,7 +38,7 @@ export default function withAppStateContext<P>(
     render() {
       return (
         <AppStateContext.Consumer>
-          {appState => <WrappedComponent appState={appState} {...(this.props as P)} />}
+          {(appState) => <WrappedComponent appState={appState} {...(this.props as P)} />}
         </AppStateContext.Consumer>
       );
     }

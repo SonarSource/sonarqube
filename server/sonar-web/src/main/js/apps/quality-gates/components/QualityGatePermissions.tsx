@@ -25,7 +25,7 @@ import {
   removeGroup,
   removeUser,
   searchGroups,
-  searchUsers
+  searchUsers,
 } from '../../../api/quality-gates';
 import { Group, isUser, SearchPermissionsParameters } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
@@ -52,7 +52,7 @@ export default class QualityGatePermissions extends React.Component<Props, State
     submitting: false,
     loading: true,
     showAddModal: false,
-    users: []
+    users: [],
   };
 
   componentDidMount() {
@@ -77,11 +77,11 @@ export default class QualityGatePermissions extends React.Component<Props, State
 
     const params: SearchPermissionsParameters = {
       gateName: qualityGate.name,
-      selected: 'selected'
+      selected: 'selected',
     };
     const [{ users }, { groups }] = await Promise.all([
       searchUsers(params).catch(() => ({ users: [] })),
-      searchGroups(params).catch(() => ({ groups: [] }))
+      searchGroups(params).catch(() => ({ groups: [] })),
     ]);
 
     if (this.mounted) {
@@ -116,19 +116,19 @@ export default class QualityGatePermissions extends React.Component<Props, State
       if (isUser(item)) {
         this.setState(({ users }) => ({
           showAddModal: false,
-          users: sortBy(users.concat(item), u => u.name)
+          users: sortBy(users.concat(item), (u) => u.name),
         }));
       } else {
         this.setState(({ groups }) => ({
           showAddModal: false,
-          groups: sortBy(groups.concat(item), g => g.name)
+          groups: sortBy(groups.concat(item), (g) => g.name),
         }));
       }
     }
 
     if (this.mounted) {
       this.setState({
-        submitting: false
+        submitting: false,
       });
     }
   };
@@ -158,11 +158,11 @@ export default class QualityGatePermissions extends React.Component<Props, State
     if (this.mounted && !error) {
       if (isUser(item)) {
         this.setState(({ users }) => ({
-          users: users.filter(u => u.login !== item.login)
+          users: users.filter((u) => u.login !== item.login),
         }));
       } else {
         this.setState(({ groups }) => ({
-          groups: groups.filter(g => g.name !== item.name)
+          groups: groups.filter((g) => g.name !== item.name),
         }));
       }
     }

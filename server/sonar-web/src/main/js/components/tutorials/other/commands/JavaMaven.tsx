@@ -38,7 +38,7 @@ export default function JavaMaven(props: JavaMavenProps) {
     'mvn clean verify sonar:sonar',
     `-Dsonar.projectKey=${component.key}`,
     `-Dsonar.host.url=${baseUrl}`,
-    `-Dsonar.login=${token}`
+    `-Dsonar.login=${token}`,
   ];
 
   return (
@@ -57,7 +57,7 @@ export default function JavaMaven(props: JavaMavenProps) {
               <DocLink to="/analysis/scan/sonarscanner-for-maven/">
                 {translate('onboarding.analysis.java.maven.docs_link')}
               </DocLink>
-            )
+            ),
           }}
         />
       </p>

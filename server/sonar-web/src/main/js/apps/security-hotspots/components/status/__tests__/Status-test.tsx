@@ -28,7 +28,7 @@ import { setSecurityHotspotStatus } from '../../../../../api/security-hotspots';
 import { HotspotResolution, HotspotStatus } from '../../../../../types/security-hotspots';
 
 jest.mock('../../../../../api/security-hotspots', () => ({
-  setSecurityHotspotStatus: jest.fn().mockResolvedValue({})
+  setSecurityHotspotStatus: jest.fn().mockResolvedValue({}),
 }));
 
 it('should properly deal with comment/status/submit events', async () => {
@@ -41,7 +41,7 @@ it('should properly deal with comment/status/submit events', async () => {
 
   await user.click(
     screen.getByRole('radio', {
-      name: 'hotspots.status_option.SAFE hotspots.status_option.SAFE.description'
+      name: 'hotspots.status_option.SAFE hotspots.status_option.SAFE.description',
     })
   );
 
@@ -53,7 +53,7 @@ it('should properly deal with comment/status/submit events', async () => {
   expect(setSecurityHotspotStatus).toHaveBeenCalledWith(hotspot.key, {
     status: HotspotStatus.REVIEWED,
     resolution: HotspotResolution.SAFE,
-    comment
+    comment,
   });
 });
 

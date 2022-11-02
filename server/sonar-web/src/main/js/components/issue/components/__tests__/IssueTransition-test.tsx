@@ -25,14 +25,14 @@ const issue: IssueTransition['props']['issue'] = {
   key: 'foo1234',
   transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
   status: 'OPEN',
-  type: 'BUG'
+  type: 'BUG',
 };
 
 it('should render without the action when there is no transitions', () => {
   expect(
     shallowRender({
       hasTransitions: false,
-      issue: { key: 'foo1234', transitions: [], status: 'CLOSED', type: 'BUG' }
+      issue: { key: 'foo1234', transitions: [], status: 'CLOSED', type: 'BUG' },
     })
   ).toMatchSnapshot();
 });

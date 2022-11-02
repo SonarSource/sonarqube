@@ -19,7 +19,7 @@
  */
 /* eslint-disable import/first */
 jest.mock('../../../../api/quality-profiles', () => ({
-  removeGroup: jest.fn(() => Promise.resolve())
+  removeGroup: jest.fn(() => Promise.resolve()),
 }));
 
 import { shallow } from 'enzyme';
@@ -57,7 +57,7 @@ it('removes user', async () => {
   expect(removeGroup).toHaveBeenCalledWith({
     group: 'lambda',
     language: 'js',
-    qualityProfile: 'Sonar way'
+    qualityProfile: 'Sonar way',
   });
 
   await new Promise(setImmediate);

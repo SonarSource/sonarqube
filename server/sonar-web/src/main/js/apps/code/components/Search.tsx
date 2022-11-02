@@ -50,7 +50,7 @@ export class Search extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     query: '',
-    loading: false
+    loading: false,
   };
 
   componentDidMount() {
@@ -65,7 +65,7 @@ export class Search extends React.PureComponent<Props, State> {
     if (nextProps.location.query.id !== this.props.location.query.id) {
       this.setState({
         query: '',
-        loading: false
+        loading: false,
       });
       this.props.onSearchClear();
     }
@@ -92,7 +92,7 @@ export class Search extends React.PureComponent<Props, State> {
       this.setState({ loading: true });
       router.replace({
         pathname: location.pathname,
-        query: { ...location.query, search: query }
+        query: { ...location.query, search: query },
       });
 
       const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
@@ -103,12 +103,12 @@ export class Search extends React.PureComponent<Props, State> {
         q: query,
         s: 'qualifier,name',
         qualifiers,
-        ...getBranchLikeQuery(branchLike)
+        ...getBranchLikeQuery(branchLike),
       })
-        .then(r => {
+        .then((r) => {
           if (this.mounted) {
             this.setState({
-              loading: false
+              loading: false,
             });
             this.props.onSearchResults(r.components);
           }
@@ -146,12 +146,12 @@ export class Search extends React.PureComponent<Props, State> {
               options={[
                 {
                   value: true,
-                  label: translate('projects.view.new_code')
+                  label: translate('projects.view.new_code'),
                 },
                 {
                   value: false,
-                  label: translate('projects.view.overall_code')
-                }
+                  label: translate('projects.view.overall_code'),
+                },
               ]}
               value={newCodeSelected}
               onCheck={this.props.onNewCodeToggle}

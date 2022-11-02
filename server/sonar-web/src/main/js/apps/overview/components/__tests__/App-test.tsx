@@ -28,15 +28,11 @@ const component = {
   breadcrumbs: [],
   name: 'Foo',
   qualifier: 'TRK',
-  version: '0.0.1'
+  version: '0.0.1',
 };
 
 it('should render BranchOverview', () => {
-  expect(
-    getWrapper()
-      .find(BranchOverview)
-      .exists()
-  ).toBe(true);
+  expect(getWrapper().find(BranchOverview).exists()).toBe(true);
 });
 
 function getWrapper(props = {}) {

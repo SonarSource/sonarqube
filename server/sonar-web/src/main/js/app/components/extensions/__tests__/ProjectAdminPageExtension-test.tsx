@@ -30,13 +30,13 @@ import { ComponentContext } from '../../componentContext/ComponentContext';
 import ProjectAdminPageExtension from '../ProjectAdminPageExtension';
 
 jest.mock('../../../../helpers/extensions', () => ({
-  getExtensionStart: jest.fn().mockResolvedValue(jest.fn())
+  getExtensionStart: jest.fn().mockResolvedValue(jest.fn()),
 }));
 
 it('should render correctly when the extension is found', () => {
   renderProjectAdminPageExtension(
     mockComponent({
-      configuration: { extensions: [{ key: 'pluginId/extensionId', name: 'name' }] }
+      configuration: { extensions: [{ key: 'pluginId/extensionId', name: 'name' }] },
     }),
     { pluginKey: 'pluginId', extensionKey: 'extensionId' }
   );

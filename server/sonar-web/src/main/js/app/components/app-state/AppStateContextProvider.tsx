@@ -29,7 +29,7 @@ export interface AppStateContextProviderProps {
 
 export default function AppStateContextProvider({
   appState,
-  children
+  children,
 }: React.PropsWithChildren<AppStateContextProviderProps>) {
   return <AppStateContext.Provider value={appState}>{children}</AppStateContext.Provider>;
 }

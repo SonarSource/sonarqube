@@ -29,7 +29,7 @@ const PROFILE = mockQualityProfile({
   activeDeprecatedRuleCount: 0,
   depth: 0,
   language: 'js',
-  rulesUpdatedAt: '2017-06-28T12:58:44+0000'
+  rulesUpdatedAt: '2017-06-28T12:58:44+0000',
 });
 
 const EDITABLE_PROFILE = { ...PROFILE, actions: { edit: true } };
@@ -43,10 +43,10 @@ const apiResponseAll = {
         { val: 'CODE_SMELL', count: 168 },
         { val: 'BUG', count: 68 },
         { val: 'VULNERABILITY', count: 7 },
-        { val: 'SECURITY_HOTSPOT', count: 10 }
-      ]
-    }
-  ]
+        { val: 'SECURITY_HOTSPOT', count: 10 },
+      ],
+    },
+  ],
 };
 
 const apiResponseActive = {
@@ -58,10 +58,10 @@ const apiResponseActive = {
         { val: 'BUG', count: 68 },
         { val: 'CODE_SMELL', count: 0 },
         { val: 'VULNERABILITY', count: 0 },
-        { val: 'SECURITY_HOTSPOT', count: 0 }
-      ]
-    }
-  ]
+        { val: 'SECURITY_HOTSPOT', count: 0 },
+      ],
+    },
+  ],
 };
 
 jest.mock('../../../../api/rules', () => ({
@@ -70,7 +70,7 @@ jest.mock('../../../../api/rules', () => ({
     .fn()
     .mockImplementation((data: any) =>
       Promise.resolve(data.activation === 'true' ? apiResponseActive : apiResponseAll)
-    )
+    ),
 }));
 
 jest.mock('../../../../api/quality-profiles', () => ({
@@ -80,10 +80,10 @@ jest.mock('../../../../api/quality-profiles', () => ({
       compareToSonarWay: {
         profile: 'sonarway',
         profileName: 'Sonar way',
-        missingRuleCount: 4
-      }
+        missingRuleCount: 4,
+      },
     })
-  )
+  ),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -136,8 +136,8 @@ it('should not show sonarway comparison if there is no missing rules', async () 
     compareToSonarWay: {
       profile: 'sonarway',
       profileName: 'Sonar way',
-      missingRuleCount: 0
-    }
+      missingRuleCount: 0,
+    },
   });
   const wrapper = shallow(<ProfileRules profile={PROFILE} />);
   await waitAndUpdate(wrapper);

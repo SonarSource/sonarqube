@@ -140,7 +140,8 @@ export default function EditionBox({ edition, ncloc, serverId, currentEdition }:
       <div className="marketplace-edition-action spacer-top">
         <Link
           to={getEditionUrl(edition, { ncloc, serverId, sourceEdition: currentEdition })}
-          target="_blank">
+          target="_blank"
+        >
           {translate('marketplace.request_free_trial')}
         </Link>
       </div>

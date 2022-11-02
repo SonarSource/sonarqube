@@ -20,7 +20,7 @@
 import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownDivider,
-  ActionsDropdownItem
+  ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
 import { Webhook } from '../../../types/webhook';
@@ -97,7 +97,8 @@ export default class WebhookActions extends React.PureComponent<Props, State> {
           {webhook.latestDelivery && (
             <ActionsDropdownItem
               className="js-webhook-deliveries"
-              onClick={this.handleDeliveriesClick}>
+              onClick={this.handleDeliveriesClick}
+            >
               {translate('webhooks.deliveries.show')}
             </ActionsDropdownItem>
           )}
@@ -105,7 +106,8 @@ export default class WebhookActions extends React.PureComponent<Props, State> {
           <ActionsDropdownItem
             className="js-webhook-delete"
             destructive={true}
-            onClick={this.handleDeleteClick}>
+            onClick={this.handleDeleteClick}
+          >
             {translate('delete')}
           </ActionsDropdownItem>
         </ActionsDropdown>

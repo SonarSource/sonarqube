@@ -39,7 +39,7 @@ export function CreationTooltip(props: CreationTooltipProps) {
     alm,
     appState: { edition },
     children,
-    preventCreation
+    preventCreation,
   } = props;
 
   const sourceEdition = edition ? EditionKey[edition] : undefined;
@@ -55,19 +55,21 @@ export function CreationTooltip(props: CreationTooltipProps) {
               link: (
                 <a
                   href={getEditionUrl(getEdition(EditionKey.enterprise), {
-                    sourceEdition
+                    sourceEdition,
                   })}
                   rel="noopener noreferrer"
-                  target="_blank">
+                  target="_blank"
+                >
                   {translate('settings.almintegration.create.tooltip.link')}
                 </a>
               ),
-              alm: translate('alm', alm)
+              alm: translate('alm', alm),
             }}
           />
         ) : null
       }
-      mouseLeaveDelay={0.25}>
+      mouseLeaveDelay={0.25}
+    >
       {children}
     </Tooltip>
   );

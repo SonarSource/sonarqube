@@ -33,14 +33,14 @@ afterAll(() => {
 jest.mock('react-dom', () => {
   const actual = jest.requireActual('react-dom');
   return Object.assign({}, actual, {
-    findDOMNode: jest.fn().mockReturnValue(undefined)
+    findDOMNode: jest.fn().mockReturnValue(undefined),
   });
 });
 
 jest.mock('lodash', () => {
   const actual = jest.requireActual('lodash');
   return Object.assign({}, actual, {
-    uniqueId: jest.fn(prefix => `${prefix}1`)
+    uniqueId: jest.fn((prefix) => `${prefix}1`),
   });
 });
 
@@ -114,16 +114,16 @@ it('should adjust arrow position', () => {
   const wrapper = shallowRenderTooltipInner();
 
   expect(wrapper.instance().adjustArrowPosition('left', { leftFix: 10, topFix: 20 })).toEqual({
-    marginTop: -20
+    marginTop: -20,
   });
   expect(wrapper.instance().adjustArrowPosition('right', { leftFix: 10, topFix: 20 })).toEqual({
-    marginTop: -20
+    marginTop: -20,
   });
   expect(wrapper.instance().adjustArrowPosition('top', { leftFix: 10, topFix: 20 })).toEqual({
-    marginLeft: -10
+    marginLeft: -10,
   });
   expect(wrapper.instance().adjustArrowPosition('bottom', { leftFix: 10, topFix: 20 })).toEqual({
-    marginLeft: -10
+    marginLeft: -10,
   });
 });
 

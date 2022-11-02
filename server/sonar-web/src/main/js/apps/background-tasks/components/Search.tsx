@@ -87,16 +87,8 @@ export default class Search extends React.PureComponent<Props> {
   }
 
   render() {
-    const {
-      loading,
-      component,
-      types,
-      status,
-      taskType,
-      currents,
-      minSubmittedAt,
-      maxExecutedAt
-    } = this.props;
+    const { loading, component, types, status, taskType, currents, minSubmittedAt, maxExecutedAt } =
+      this.props;
 
     return (
       <section className="big-spacer-top big-spacer-bottom">
@@ -106,7 +98,8 @@ export default class Search extends React.PureComponent<Props> {
               <label
                 id="background-task-status-filter-label"
                 className="text-bold little-spacer-bottom"
-                htmlFor="status-filter">
+                htmlFor="status-filter"
+              >
                 {translate('status')}
               </label>
               <StatusFilter id="status-filter" onChange={this.handleStatusChange} value={status} />
@@ -118,7 +111,8 @@ export default class Search extends React.PureComponent<Props> {
                 <label
                   id="background-task-type-filter-label"
                   className="text-bold little-spacer-bottom"
-                  htmlFor="types-filter">
+                  htmlFor="types-filter"
+                >
                   {translate('type')}
                 </label>
                 <TypesFilter

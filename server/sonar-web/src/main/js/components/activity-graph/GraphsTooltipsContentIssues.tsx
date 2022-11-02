@@ -35,12 +35,12 @@ export interface GraphsTooltipsContentIssuesProps {
 const METRIC_RATING: Dict<string> = {
   bugs: 'reliability_rating',
   vulnerabilities: 'security_rating',
-  code_smells: 'sqale_rating'
+  code_smells: 'sqale_rating',
 };
 
 export default function GraphsTooltipsContentIssues(props: GraphsTooltipsContentIssuesProps) {
   const rating = props.measuresHistory.find(
-    measure => measure.metric === METRIC_RATING[props.name]
+    (measure) => measure.metric === METRIC_RATING[props.name]
   );
   if (!rating || !rating.history[props.tooltipIdx]) {
     return null;

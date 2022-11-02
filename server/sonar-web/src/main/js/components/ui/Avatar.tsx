@@ -40,7 +40,7 @@ export function Avatar(props: Props) {
     className,
     hash,
     name,
-    size
+    size,
   } = props;
 
   const enableGravatar = settings[GlobalSettingKeys.EnableGravatar] === 'true';

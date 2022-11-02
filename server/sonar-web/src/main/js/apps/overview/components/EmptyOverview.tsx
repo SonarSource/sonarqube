@@ -55,7 +55,7 @@ export function EmptyOverview(props: EmptyOverviewProps) {
   const hasBranches = branchLikes.length > 1;
   const hasBadBranchConfig =
     branchLikes.length > 2 ||
-    (branchLikes.length === 2 && branchLikes.some(branch => isBranch(branch)));
+    (branchLikes.length === 2 && branchLikes.some((branch) => isBranch(branch)));
 
   const showWarning = isMainBranch(branchLike) && hasBranches;
   const showTutorial = isMainBranch(branchLike) && !hasBranches && !hasAnalyses;
@@ -68,7 +68,7 @@ export function EmptyOverview(props: EmptyOverviewProps) {
         id="provisioning.no_analysis_on_main_branch.bad_configuration"
         values={{
           branchName: getBranchLikeDisplayName(branchLike),
-          branchType: translate('branches.main_branch')
+          branchType: translate('branches.main_branch'),
         }}
       />
     );
@@ -78,7 +78,7 @@ export function EmptyOverview(props: EmptyOverviewProps) {
         defaultMessage={translate('provisioning.no_analysis_on_main_branch')}
         id="provisioning.no_analysis_on_main_branch"
         values={{
-          branchName: getBranchLikeDisplayName(branchLike)
+          branchName: getBranchLikeDisplayName(branchLike),
         }}
       />
     );

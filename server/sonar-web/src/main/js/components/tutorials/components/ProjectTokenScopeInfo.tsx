@@ -41,7 +41,7 @@ export default function ProjectTokenScopeInfo({ className }: ProjectTokenScopeIn
               {translate('onboarding.token.text.user_account')}
             </Link>
           ),
-          doc_link: <DocLink to="/user-guide/user-token/">{translate('documentation')}</DocLink>
+          doc_link: <DocLink to="/user-guide/user-token/">{translate('documentation')}</DocLink>,
         }}
       />
     </Alert>

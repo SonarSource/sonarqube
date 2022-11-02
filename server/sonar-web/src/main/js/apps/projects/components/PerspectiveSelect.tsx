@@ -46,7 +46,8 @@ export default class PerspectiveSelect extends React.PureComponent<Props> {
     return (
       <components.Option
         {...omit(props, ['children', 'className'])}
-        className={`it__projects-perspective-option-${data.value} ${className}`}>
+        className={`it__projects-perspective-option-${data.value} ${className}`}
+      >
         <ListIcon className="little-spacer-right" />
         {props.children}
       </components.Option>
@@ -56,10 +57,10 @@ export default class PerspectiveSelect extends React.PureComponent<Props> {
   render() {
     const { view } = this.props;
     const options: PerspectiveOption[] = [
-      ...VIEWS.map(opt => ({
+      ...VIEWS.map((opt) => ({
         value: opt.value,
-        label: translate('projects.view', opt.label)
-      }))
+        label: translate('projects.view', opt.label),
+      })),
     ];
     return (
       <div className={this.props.className}>
@@ -70,11 +71,11 @@ export default class PerspectiveSelect extends React.PureComponent<Props> {
           isClearable={false}
           onChange={this.handleChange}
           components={{
-            Option: this.perspectiveOptionRender
+            Option: this.perspectiveOptionRender,
           }}
           options={options}
           isSearchable={false}
-          value={options.find(option => option.value === view)}
+          value={options.find((option) => option.value === view)}
         />
       </div>
     );

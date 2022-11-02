@@ -35,24 +35,24 @@ it('should render correctly', () => {
               Health: 'GREEN',
               'Health Causes': [],
               'Compute Engine Logging': { 'Logs Level': 'INFO' },
-              'Web Logging': { 'Logs Level': 'INFO' }
+              'Web Logging': { 'Logs Level': 'INFO' },
             },
             {
               Name: 'Bar',
               Health: 'RED',
               'Health Causes': [],
               'Compute Engine Logging': { 'Logs Level': 'INFO' },
-              'Web Logging': { 'Logs Level': 'DEBUG' }
+              'Web Logging': { 'Logs Level': 'DEBUG' },
             },
             {
               Name: 'Baz',
               Health: 'YELLOW',
               'Health Causes': [],
               'Compute Engine Logging': { 'Logs Level': 'TRACE' },
-              'Web Logging': { 'Logs Level': 'DEBUG' }
-            }
-          ]
-        }
+              'Web Logging': { 'Logs Level': 'DEBUG' },
+            },
+          ],
+        },
       })
     ).find('HealthCard')
   ).toHaveLength(4);
@@ -75,8 +75,8 @@ function shallowRender(props = {}) {
             Health: 'GREEN',
             'Health Causes': [],
             'Compute Engine Logging': { 'Logs Level': 'INFO' },
-            'Web Logging': { 'Logs Level': 'INFO' }
-          }
+            'Web Logging': { 'Logs Level': 'INFO' },
+          },
         ],
         ALMs: [{}],
         Bundled: [{}],
@@ -87,9 +87,9 @@ function shallowRender(props = {}) {
             Health: 'YELLOW',
             'Health Causes': [],
             'Compute Engine Logging': { 'Logs Level': 'INFO' },
-            'Web Logging': { 'Logs Level': 'INFO' }
-          }
-        ]
+            'Web Logging': { 'Logs Level': 'INFO' },
+          },
+        ],
       })}
       toggleCard={() => {}}
       {...props}

@@ -44,64 +44,43 @@ it('should correctly navigate between steps', () => {
   expect(wrapper.find(JenkinsfileStep).props().open).toBe(false);
 
   // Pre-reqs done.
-  wrapper
-    .find(PreRequisitesStep)
-    .props()
-    .onDone();
+  wrapper.find(PreRequisitesStep).props().onDone();
   expect(wrapper.find(PreRequisitesStep).props().open).toBe(false);
   expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(true);
   expect(wrapper.find(WebhookStep).props().open).toBe(false);
   expect(wrapper.find(JenkinsfileStep).props().open).toBe(false);
 
   // Multibranch done.
-  wrapper
-    .find(MultiBranchPipelineStep)
-    .props()
-    .onDone();
+  wrapper.find(MultiBranchPipelineStep).props().onDone();
   expect(wrapper.find(PreRequisitesStep).props().open).toBe(false);
   expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(false);
   expect(wrapper.find(WebhookStep).props().open).toBe(true);
   expect(wrapper.find(JenkinsfileStep).props().open).toBe(false);
 
   // Webhook done.
-  wrapper
-    .find(WebhookStep)
-    .props()
-    .onDone();
+  wrapper.find(WebhookStep).props().onDone();
   expect(wrapper.find(PreRequisitesStep).props().open).toBe(false);
   expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(false);
   expect(wrapper.find(WebhookStep).props().open).toBe(false);
   expect(wrapper.find(JenkinsfileStep).props().open).toBe(true);
 
   // Open Pre-reqs.
-  wrapper
-    .find(PreRequisitesStep)
-    .props()
-    .onOpen();
+  wrapper.find(PreRequisitesStep).props().onOpen();
   expect(wrapper.find(PreRequisitesStep).props().open).toBe(true);
 
   // Open Multibranch.
-  wrapper
-    .find(MultiBranchPipelineStep)
-    .props()
-    .onOpen();
+  wrapper.find(MultiBranchPipelineStep).props().onOpen();
   expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(true);
 
   // Open Webhook.
-  wrapper
-    .find(WebhookStep)
-    .props()
-    .onOpen();
+  wrapper.find(WebhookStep).props().onOpen();
   expect(wrapper.find(WebhookStep).props().open).toBe(true);
 });
 
 it('should correctly select an ALM if no project is bound', () => {
   const wrapper = shallowRender({ projectBinding: undefined });
   expect(wrapper.find(PreRequisitesStep).exists()).toBe(false);
-  wrapper
-    .find(SelectAlmStep)
-    .props()
-    .onCheck(AlmKeys.BitbucketCloud);
+  wrapper.find(SelectAlmStep).props().onCheck(AlmKeys.BitbucketCloud);
   expect(wrapper.find(SelectAlmStep).props().open).toBe(false);
   expect(wrapper.find(PreRequisitesStep).exists()).toBe(true);
 });

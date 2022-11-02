@@ -72,10 +72,10 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
         ): section is RuleDescriptionSection & Required<Pick<RuleDescriptionSection, 'context'>> =>
           section.context != null
       )
-      .map(section => ({
+      .map((section) => ({
         displayName: section.context.displayName || section.context.key,
         content: section.content,
-        key: section.context.key
+        key: section.context.key,
       }))
       .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
@@ -83,27 +83,27 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
       contexts.push({
         displayName: translate('coding_rules.description_context.other'),
         content: '',
-        key: OTHERS_KEY
+        key: OTHERS_KEY,
       });
     }
 
     let defaultContext: RuleDescriptionContextDisplay | undefined;
 
     if (defaultContextKey) {
-      defaultContext = contexts.find(context => context.key === defaultContextKey);
+      defaultContext = contexts.find((context) => context.key === defaultContextKey);
     }
 
     return {
       contexts,
       defaultContext,
-      selectedContext: defaultContext ?? contexts[0]
+      selectedContext: defaultContext ?? contexts[0],
     };
   };
 
   handleToggleContext = (value: string) => {
     const { contexts } = this.state;
 
-    const selected = contexts.find(ctxt => ctxt.displayName === value);
+    const selected = contexts.find((ctxt) => ctxt.displayName === value);
     if (selected) {
       this.setState({ selectedContext: selected });
     }
@@ -113,9 +113,9 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
     const { className, sections, isDefault } = this.props;
     const { contexts, defaultContext, selectedContext } = this.state;
 
-    const options = contexts.map(ctxt => ({
+    const options = contexts.map((ctxt) => ({
       label: ctxt.displayName,
-      value: ctxt.displayName
+      value: ctxt.displayName,
     }));
 
     if (contexts.length > 0 && selectedContext) {
@@ -123,11 +123,12 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
         <div
           className={classNames(className, {
             markdown: isDefault,
-            'rule-desc': !isDefault
+            'rule-desc': !isDefault,
           })}
-          ref={node => {
+          ref={(node) => {
             applyCodeDifferences(node);
-          }}>
+          }}
+        >
           <div className="rules-context-description">
             <h2 className="rule-contexts-title">
               {translate('coding_rules.description_context.title')}
@@ -173,14 +174,14 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
       <div
         className={classNames(className, {
           markdown: isDefault,
-          'rule-desc': !isDefault
+          'rule-desc': !isDefault,
         })}
-        ref={node => {
+        ref={(node) => {
           applyCodeDifferences(node);
         }}
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
-          __html: sanitizeString(sections[0].content)
+          __html: sanitizeString(sections[0].content),
         }}
       />
     );

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { ComponentQualifier } from '../../../types/component';
 import ComponentReportActionsRenderer, {
-  ComponentReportActionsRendererProps
+  ComponentReportActionsRendererProps,
 } from '../ComponentReportActionsRenderer';
 
 it('should render correctly', () => {

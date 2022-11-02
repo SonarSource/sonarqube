@@ -27,7 +27,7 @@ import {
   setProjectBitbucketCloudBinding,
   setProjectGithubBinding,
   setProjectGitlabBinding,
-  validateProjectAlmBinding
+  validateProjectAlmBinding,
 } from '../../../../api/alm-settings';
 import withCurrentUserContext from '../../../../app/components/current-user/withCurrentUserContext';
 import { throwGlobalError } from '../../../../helpers/error';
@@ -37,7 +37,7 @@ import {
   AlmKeys,
   AlmSettingsInstance,
   ProjectAlmBindingConfigurationErrors,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../../../../types/alm-settings';
 import { Permissions } from '../../../../types/permissions';
 import { Component } from '../../../../types/types';
@@ -72,7 +72,7 @@ const REQUIRED_FIELDS_BY_ALM: {
   [AlmKeys.BitbucketServer]: ['repository', 'slug'],
   [AlmKeys.BitbucketCloud]: ['repository'],
   [AlmKeys.GitHub]: ['repository'],
-  [AlmKeys.GitLab]: ['repository']
+  [AlmKeys.GitLab]: ['repository'],
 };
 
 export class PRDecorationBinding extends React.PureComponent<Props, State> {
@@ -86,7 +86,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
     loading: true,
     updating: false,
     successfullyUpdated: false,
-    checkingConfiguration: false
+    checkingConfiguration: false,
   };
 
   componentDidMount() {
@@ -113,7 +113,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
               isValid: this.validateForm(newFormData),
               loading: false,
               originalData: newFormData,
-              configurationErrors: undefined
+              configurationErrors: undefined,
             };
           });
         }
@@ -152,14 +152,14 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
               key: '',
               repository: '',
               slug: '',
-              monorepo: false
+              monorepo: false,
             },
             originalData: undefined,
             isChanged: false,
             isConfigured: false,
             updating: false,
             successfullyUpdated: true,
-            configurationErrors: undefined
+            configurationErrors: undefined,
           });
         }
       })
@@ -191,7 +191,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
           project,
           projectName: slug,
           repositoryName: repository,
-          monorepo
+          monorepo,
         });
       }
       case AlmKeys.BitbucketServer: {
@@ -203,7 +203,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
           project,
           repository,
           slug,
-          monorepo
+          monorepo,
         });
       }
       case AlmKeys.BitbucketCloud: {
@@ -211,7 +211,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
           almSetting,
           project,
           repository,
-          monorepo
+          monorepo,
         });
       }
       case AlmKeys.GitHub: {
@@ -222,7 +222,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
           project,
           repository,
           summaryCommentEnabled,
-          monorepo
+          monorepo,
         });
       }
 
@@ -231,7 +231,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
           almSetting,
           project,
           repository,
-          monorepo
+          monorepo,
         });
       }
 
@@ -242,7 +242,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
 
   checkConfiguration = async () => {
     const {
-      component: { key: projectKey }
+      component: { key: projectKey },
     } = this.props;
 
     const { isConfigured } = this.state;
@@ -253,7 +253,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
 
     this.setState({ checkingConfiguration: true, configurationErrors: undefined });
 
-    const configurationErrors = await validateProjectAlmBinding(projectKey).catch(error => error);
+    const configurationErrors = await validateProjectAlmBinding(projectKey).catch((error) => error);
 
     if (this.mounted) {
       this.setState({ checkingConfiguration: false, configurationErrors });
@@ -264,10 +264,10 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
     this.setState({ updating: true });
     const {
       formData: { key, ...additionalFields },
-      instances
+      instances,
     } = this.state;
 
-    const selected = instances.find(i => i.key === key);
+    const selected = instances.find((i) => i.key === key);
     if (!key || !selected) {
       return;
     }
@@ -277,7 +277,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({
             updating: false,
-            successfullyUpdated: true
+            successfullyUpdated: true,
           });
         }
       })
@@ -292,7 +292,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
       repository: oRepository = '',
       slug: oSlug = '',
       summaryCommentEnabled: osummaryCommentEnabled = false,
-      monorepo: omonorepo = false
+      monorepo: omonorepo = false,
     }: FormData
   ) {
     return (
@@ -308,21 +308,21 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
     this.setState(({ formData, originalData }) => {
       const newFormData = {
         ...formData,
-        [id]: value
+        [id]: value,
       };
 
       return {
         formData: newFormData,
         isValid: this.validateForm(newFormData),
         isChanged: !this.isDataSame(newFormData, originalData || { key: '', monorepo: false }),
-        successfullyUpdated: false
+        successfullyUpdated: false,
       };
     });
   };
 
   validateForm = ({ key, ...additionalFields }: State['formData']) => {
     const { instances } = this.state;
-    const selected = instances.find(i => i.key === key);
+    const selected = instances.find((i) => i.key === key);
     if (!key || !selected) {
       return false;
     }

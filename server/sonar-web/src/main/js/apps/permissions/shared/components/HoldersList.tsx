@@ -24,7 +24,7 @@ import {
   Dict,
   PermissionDefinitions,
   PermissionGroup,
-  PermissionUser
+  PermissionUser,
 } from '../../../../types/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 import GroupHolder from './GroupHolder';
@@ -63,11 +63,11 @@ export default class HoldersList extends React.PureComponent<Props, State> {
   handleGroupToggle = (group: PermissionGroup, permission: string) => {
     const key = group.id || group.name;
     if (this.state.initialPermissionsCount[key] === undefined) {
-      this.setState(state => ({
+      this.setState((state) => ({
         initialPermissionsCount: {
           ...state.initialPermissionsCount,
-          [key]: group.permissions.length
-        }
+          [key]: group.permissions.length,
+        },
       }));
     }
     return this.props.onToggleGroup(group, permission);
@@ -75,11 +75,11 @@ export default class HoldersList extends React.PureComponent<Props, State> {
 
   handleUserToggle = (user: PermissionUser, permission: string) => {
     if (this.state.initialPermissionsCount[user.login] === undefined) {
-      this.setState(state => ({
+      this.setState((state) => ({
         initialPermissionsCount: {
           ...state.initialPermissionsCount,
-          [user.login]: user.permissions.length
-        }
+          [user.login]: user.permissions.length,
+        },
       }));
     }
     return this.props.onToggleUser(user, permission);
@@ -123,13 +123,13 @@ export default class HoldersList extends React.PureComponent<Props, State> {
 
   render() {
     const { permissions } = this.props;
-    const items = sortBy([...this.props.users, ...this.props.groups], item => {
+    const items = sortBy([...this.props.users, ...this.props.groups], (item) => {
       if (this.isPermissionUser(item) && item.login === '<creator>') {
         return 0;
       }
       return item.name;
     });
-    const [itemWithPermissions, itemWithoutPermissions] = partition(items, item =>
+    const [itemWithPermissions, itemWithoutPermissions] = partition(items, (item) =>
       this.getItemInitialPermissionsCount(item)
     );
     return (
@@ -138,7 +138,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
           <thead>
             <tr>
               <td className="nowrap bordered-bottom">{this.props.children}</td>
-              {permissions.map(permission => (
+              {permissions.map((permission) => (
                 <PermissionHeader
                   key={
                     isPermissionDefinitionGroup(permission) ? permission.category : permission.key
@@ -153,7 +153,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
           </thead>
           <tbody>
             {items.length === 0 && !this.props.loading && this.renderEmpty()}
-            {itemWithPermissions.map(item => this.renderItem(item, permissions))}
+            {itemWithPermissions.map((item) => this.renderItem(item, permissions))}
             {itemWithPermissions.length > 0 && itemWithoutPermissions.length > 0 && (
               <>
                 <tr>
@@ -163,7 +163,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
                 {/* Keep correct zebra colors in the table */}
               </>
             )}
-            {itemWithoutPermissions.map(item => this.renderItem(item, permissions))}
+            {itemWithoutPermissions.map((item) => this.renderItem(item, permissions))}
           </tbody>
         </table>
       </div>

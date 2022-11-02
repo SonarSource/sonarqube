@@ -35,7 +35,7 @@ export interface Props {
 export default class FacetItem extends React.PureComponent<Props> {
   static defaultProps = {
     halfWidth: false,
-    loading: false
+    loading: false,
   };
 
   handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -54,7 +54,7 @@ export default class FacetItem extends React.PureComponent<Props> {
   render() {
     const { name, halfWidth, active, value, tooltip } = this.props;
     const className = classNames('search-navigator-facet button-link', this.props.className, {
-      active
+      active,
     });
 
     return (
@@ -67,7 +67,8 @@ export default class FacetItem extends React.PureComponent<Props> {
           tabIndex={0}
           title={tooltip}
           role="checkbox"
-          type="button">
+          type="button"
+        >
           <span className="facet-name">{name}</span>
           {this.renderValue()}
         </button>

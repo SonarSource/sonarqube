@@ -34,21 +34,22 @@ export default function MetaDataVersion(props: MetaDataVersionProps) {
       date,
       description,
       downloadURL,
-      version
-    }
+      version,
+    },
   } = props;
 
   const fallbackLabel = 'Download';
 
   const advancedDownloadUrls = isAdvancedDownloadUrlArray(downloadURL)
-    ? downloadURL.map(url => ({ ...url, label: url.label || fallbackLabel }))
+    ? downloadURL.map((url) => ({ ...url, label: url.label || fallbackLabel }))
     : [{ label: fallbackLabel, url: downloadURL }];
 
   return (
     <div
       className={classNames('update-center-meta-data-version', {
-        'update-center-meta-data-version-archived': archived
-      })}>
+        'update-center-meta-data-version-archived': archived,
+      })}
+    >
       <div className="update-center-meta-data-version-version">{version}</div>
 
       <div className="update-center-meta-data-version-release-info">

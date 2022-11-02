@@ -31,7 +31,7 @@ import { portIsValid, sendUserToken } from '../../helpers/sonarlint';
 import {
   computeTokenExpirationDate,
   getAvailableExpirationOptions,
-  getNextTokenName
+  getNextTokenName,
 } from '../../helpers/tokens';
 import { NewUserToken, TokenExpiration } from '../../types/token';
 import { LoggedInUser } from '../../types/users';
@@ -41,7 +41,7 @@ enum Status {
   request,
   tokenError,
   tokenCreated,
-  tokenSent
+  tokenSent,
 }
 
 interface Props {
@@ -152,7 +152,7 @@ export function SonarLintConnection({ currentUser }: Props) {
                       <Link to="/account/security">
                         {translate('sonarlint-connection.token-error.description2.link')}
                       </Link>
-                    )
+                    ),
                   }}
                 />
               </p>

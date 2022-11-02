@@ -24,11 +24,11 @@ import { AdminContainer, AdminContainerProps } from '../AdminContainer';
 
 jest.mock('../../../api/plugins', () => ({
   getSettingsNavigation: jest.fn().mockResolvedValue({}),
-  getPendingPlugins: jest.fn().mockResolvedValue({})
+  getPendingPlugins: jest.fn().mockResolvedValue({}),
 }));
 
 jest.mock('../../../api/system', () => ({
-  getSystemStatus: jest.fn().mockResolvedValue({})
+  getSystemStatus: jest.fn().mockResolvedValue({}),
 }));
 
 it('should render correctly', () => {
@@ -40,9 +40,10 @@ function shallowRender(props: Partial<AdminContainerProps> = {}) {
   return shallow(
     <AdminContainer
       appState={mockAppState({
-        canAdmin: true
+        canAdmin: true,
       })}
-      {...props}>
+      {...props}
+    >
       <div />
     </AdminContainer>
   );

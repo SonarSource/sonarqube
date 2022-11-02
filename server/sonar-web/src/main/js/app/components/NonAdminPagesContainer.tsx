@@ -38,7 +38,8 @@ export default function NonAdminPagesContainer() {
         <Alert
           className="it__alert-no-access-all-child-project max-width-60 huge-spacer-top"
           display="block"
-          variant="error">
+          variant="error"
+        >
           <p>{translate('application.cannot_access_all_child_projects1')}</p>
           <br />
           <p>{translate('application.cannot_access_all_child_projects2')}</p>

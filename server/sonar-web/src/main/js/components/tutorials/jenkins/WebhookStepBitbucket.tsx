@@ -25,7 +25,7 @@ import { stripTrailingSlash } from '../../../helpers/urls';
 import {
   AlmKeys,
   AlmSettingsInstance,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../../../types/alm-settings';
 import CodeSnippet from '../../common/CodeSnippet';
 import Link from '../../common/Link';
@@ -87,7 +87,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
               <strong>
                 {translate('onboarding.tutorial.with.jenkins.webhook', alm, 'step1.link')}
               </strong>
-            )
+            ),
           }}
         />
         <ul className="list-styled">

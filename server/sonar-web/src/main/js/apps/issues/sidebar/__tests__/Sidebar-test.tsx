@@ -38,8 +38,8 @@ it('should render facets for project', () => {
 it.each([
   [ComponentQualifier.Application],
   [ComponentQualifier.Portfolio],
-  [ComponentQualifier.SubPortfolio]
-])('should render facets for %p', qualifier => {
+  [ComponentQualifier.SubPortfolio],
+])('should render facets for %p', (qualifier) => {
   expect(renderSidebar({ component: mockComponent({ qualifier }) })).toMatchSnapshot();
 });
 
@@ -51,8 +51,8 @@ it('should not render developer nominative facets when asked not to', () => {
   expect(
     renderSidebar({
       appState: mockAppState({
-        settings: { [GlobalSettingKeys.DeveloperAggregatedInfoDisabled]: 'true' }
-      })
+        settings: { [GlobalSettingKeys.DeveloperAggregatedInfoDisabled]: 'true' },
+      }),
     })
   ).toMatchSnapshot();
 });
@@ -63,7 +63,7 @@ const renderSidebar = (props?: Partial<Sidebar['props']>) => {
       shallow<Sidebar>(
         <Sidebar
           appState={mockAppState({
-            settings: { [GlobalSettingKeys.DeveloperAggregatedInfoDisabled]: 'false' }
+            settings: { [GlobalSettingKeys.DeveloperAggregatedInfoDisabled]: 'false' },
           })}
           component={undefined}
           createdAfterIncludesTime={false}
@@ -87,9 +87,9 @@ const renderSidebar = (props?: Partial<Sidebar['props']>) => {
   );
 
   function mapChildren(wrapper: ShallowWrapper) {
-    return wrapper.children().map(node => {
+    return wrapper.children().map((node) => {
       if (typeof node.type() === 'symbol') {
-        return node.children().map(n => n.name());
+        return node.children().map((n) => n.name());
       }
       return node.name();
     });

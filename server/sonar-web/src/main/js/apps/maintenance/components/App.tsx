@@ -73,7 +73,7 @@ export default class App extends React.PureComponent<Props, State> {
           message: undefined,
           startedAt: undefined,
           state: undefined,
-          status: 'OFFLINE'
+          status: 'OFFLINE',
         });
       }
     });
@@ -141,9 +141,10 @@ export default class App extends React.PureComponent<Props, State> {
         <div className="page-wrapper-simple" id="bd">
           <div
             className={classNames('page-simple', {
-              'panel-warning': state === 'MIGRATION_REQUIRED'
+              'panel-warning': state === 'MIGRATION_REQUIRED',
             })}
-            id="nonav">
+            id="nonav"
+          >
             {status === 'OFFLINE' && (
               <>
                 <h1 className="maintenance-title text-danger">
@@ -212,10 +213,11 @@ export default class App extends React.PureComponent<Props, State> {
                       link: (
                         <Link
                           to="https://www.sonarlint.org/?referrer=sonarqube-maintenance"
-                          target="_blank">
+                          target="_blank"
+                        >
                           {translate('maintenance.sonarqube_is_under_maintenance_link.1')}
                         </Link>
-                      )
+                      ),
                     }}
                   />
                 </p>
@@ -227,10 +229,11 @@ export default class App extends React.PureComponent<Props, State> {
                       link: (
                         <Link
                           to="https://redirect.sonarsource.com/doc/upgrading.html"
-                          target="_blank">
+                          target="_blank"
+                        >
                           {translate('maintenance.sonarqube_is_under_maintenance_link.2')}
                         </Link>
-                      )
+                      ),
                     }}
                   />
                 </p>

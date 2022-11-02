@@ -35,7 +35,7 @@ function isLeaf(node: ComponentTree) {
 }
 
 function listChildComponent(node: ComponentTree): ComponentMeasure[] {
-  return map(node.child, n => n.component);
+  return map(node.child, (n) => n.component);
 }
 
 function listAllComponent(node: ComponentTree): ComponentMeasure[] {
@@ -65,28 +65,28 @@ export default class CodeServiceMock {
             key: 'foo:folerA',
             name: 'folderA',
             path: 'folderA',
-            qualifier: ComponentQualifier.Directory
+            qualifier: ComponentQualifier.Directory,
           }),
           child: [
             {
               component: mockComponentMeasure(true, {
                 key: 'foo:folderA/out.tsx',
                 name: 'out.tsx',
-                path: 'folderA/out.tsx'
+                path: 'folderA/out.tsx',
               }),
-              child: []
-            }
-          ]
+              child: [],
+            },
+          ],
         },
         {
           component: mockComponentMeasure(true, {
             key: 'foo:index.tsx',
             name: 'index.tsx',
-            path: 'index.tsx'
+            path: 'index.tsx',
           }),
-          child: []
-        }
-      ]
+          child: [],
+        },
+      ],
     };
     (getComponentTree as jest.Mock).mockImplementation(this.handleGetComponentTree);
     (getChildren as jest.Mock).mockImplementation(this.handleGetChildren);
@@ -97,7 +97,7 @@ export default class CodeServiceMock {
     if (from.component.key === key) {
       return from;
     }
-    return from.child.find(node => this.findBaseComponent(key, node));
+    return from.child.find((node) => this.findBaseComponent(key, node));
   }
 
   handleGetChildren = (
@@ -124,7 +124,7 @@ export default class CodeServiceMock {
     let components: ComponentMeasure[] = [];
     if (base === undefined) {
       return Promise.reject({
-        errors: [{ msg: `No component has been found for id ${component}` }]
+        errors: [{ msg: `No component has been found for id ${component}` }],
       });
     }
     if (strategy === 'all' || strategy === '') {
@@ -142,8 +142,8 @@ export default class CodeServiceMock {
       paging: {
         pageIndex: 1,
         pageSize: 100,
-        total: components.length
-      }
+        total: components.length,
+      },
     });
   };
 
@@ -154,7 +154,7 @@ export default class CodeServiceMock {
       facets: [],
       issues: [],
       languages: [],
-      paging: { total: 0, pageIndex: 1, pageSize: 100 }
+      paging: { total: 0, pageIndex: 1, pageSize: 100 },
     });
   };
 

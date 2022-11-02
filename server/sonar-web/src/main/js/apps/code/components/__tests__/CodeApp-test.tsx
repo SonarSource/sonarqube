@@ -38,15 +38,15 @@ jest.mock('../../utils', () => {
       component: { qualifier: 'APP' },
       components: [],
       page: 0,
-      total: 1
+      total: 1,
     }),
-    retrieveComponentChildren: () => Promise.resolve()
+    retrieveComponentChildren: () => Promise.resolve(),
   };
 });
 
 const METRICS = {
   coverage: { id: '2', key: 'coverage', type: 'PERCENT', name: 'Coverage', domain: 'Coverage' },
-  new_bugs: { id: '4', key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' }
+  new_bugs: { id: '4', key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' },
 };
 
 beforeEach(() => {
@@ -57,21 +57,21 @@ it.each([
   [ComponentQualifier.Application],
   [ComponentQualifier.Project],
   [ComponentQualifier.Portfolio],
-  [ComponentQualifier.SubPortfolio]
-])('should render correclty when no sub component for %s', async qualifier => {
+  [ComponentQualifier.SubPortfolio],
+])('should render correclty when no sub component for %s', async (qualifier) => {
   const component = {
     breadcrumbs: [],
     name: 'foo',
     key: 'foo',
     qualifier,
-    canBrowseAllChildProjects: true
+    canBrowseAllChildProjects: true,
   };
   (retrieveComponent as jest.Mock<any>).mockResolvedValueOnce({
     breadcrumbs: [],
     component,
     components: [],
     page: 0,
-    total: 1
+    total: 1,
   });
   const wrapper = shallowRender({ component });
   await waitAndUpdate(wrapper);
@@ -83,7 +83,7 @@ it.each([
     component,
     components: [mockComponent({ qualifier: ComponentQualifier.File })],
     page: 0,
-    total: 1
+    total: 1,
   });
   wrapper.instance().loadComponent(component.key);
   await waitAndUpdate(wrapper);
@@ -109,7 +109,7 @@ it('should load more behave correctly', async () => {
     component: mockComponent(),
     components: [component1],
     page: 0,
-    total: 1
+    total: 1,
   });
   let wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -117,7 +117,7 @@ it('should load more behave correctly', async () => {
   (loadMoreChildren as jest.Mock<any>).mockResolvedValueOnce({
     components: [component2],
     page: 0,
-    total: 1
+    total: 1,
   });
 
   wrapper.instance().handleLoadMore();
@@ -138,7 +138,7 @@ it('should handle go to parent correctly', async () => {
     component: mockComponent(),
     components: [],
     page: 0,
-    total: 1
+    total: 1,
   });
   let wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -149,12 +149,12 @@ it('should handle go to parent correctly', async () => {
   (retrieveComponent as jest.Mock<any>).mockResolvedValueOnce({
     breadcrumbs: [
       { key: 'key1', name: 'name1', qualifier: ComponentQualifier.Directory },
-      breadcrumb
+      breadcrumb,
     ],
     component: mockComponent(),
     components: [],
     page: 0,
-    total: 1
+    total: 1,
   });
   wrapper = shallowRender({ router });
   await waitAndUpdate(wrapper);
@@ -162,7 +162,7 @@ it('should handle go to parent correctly', async () => {
   expect(wrapper.state().highlighted).toBe(breadcrumb);
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/code',
-    search: queryToSearch({ id: 'foo', line: undefined, selected: 'key1' })
+    search: queryToSearch({ id: 'foo', line: undefined, selected: 'key1' }),
   });
 });
 
@@ -174,30 +174,30 @@ it('should correcly display new/overall measure for portfolio', async () => {
       key: 'reliability_rating',
       type: 'RATING',
       name: 'reliability_rating',
-      domain: 'reliability_rating'
+      domain: 'reliability_rating',
     },
     new_reliability_rating: {
       id: '4',
       key: 'new_reliability_rating',
       type: 'RATING',
       name: 'new_reliability_rating',
-      domain: 'new_reliability_rating'
-    }
+      domain: 'new_reliability_rating',
+    },
   };
   (retrieveComponent as jest.Mock<any>).mockResolvedValueOnce({
     breadcrumbs: [],
     component: mockComponent(),
     components: [component1],
     page: 0,
-    total: 1
+    total: 1,
   });
 
   const wrapper = shallowRender({
     component: mockComponent({
       qualifier: ComponentQualifier.Portfolio,
-      canBrowseAllChildProjects: true
+      canBrowseAllChildProjects: true,
     }),
-    metrics
+    metrics,
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.find('withKeyboardNavigation(Components)').props()).toMatchSnapshot('new metrics');
@@ -215,7 +215,7 @@ it('should handle select correctly', () => {
   wrapper.instance().handleSelect(mockComponentMeasure(true, { refKey: 'test' }));
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/dashboard',
-    search: queryToSearch({ branch: undefined, id: 'test', code_scope: 'new' })
+    search: queryToSearch({ branch: undefined, id: 'test', code_scope: 'new' }),
   });
   expect(wrapper.state().highlighted).toBeUndefined();
 
@@ -224,13 +224,13 @@ it('should handle select correctly', () => {
   wrapper.instance().handleSelect(mockComponentMeasure(true, { refKey: 'test' }));
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/dashboard',
-    search: queryToSearch({ branch: undefined, id: 'test', code_scope: 'overall' })
+    search: queryToSearch({ branch: undefined, id: 'test', code_scope: 'overall' }),
   });
 
   wrapper.instance().handleSelect(mockComponentMeasure());
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/code',
-    search: queryToSearch({ id: 'foo', line: undefined, selected: 'foo' })
+    search: queryToSearch({ id: 'foo', line: undefined, selected: 'foo' }),
   });
 });
 
@@ -238,8 +238,8 @@ it('should render a warning message when user does not have access to all projec
   const wrapper = shallowRender({
     component: mockComponent({
       qualifier: ComponentQualifier.Portfolio,
-      canBrowseAllChildProjects: false
-    })
+      canBrowseAllChildProjects: false,
+    }),
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('Project page with warning');
@@ -248,7 +248,7 @@ it('should render a warning message when user does not have access to all projec
 it.each([
   [ComponentQualifier.Portfolio, true, false],
   [ComponentQualifier.Project, false, false],
-  [ComponentQualifier.Portfolio, false, true]
+  [ComponentQualifier.Portfolio, false, true],
 ])(
   'should not render a warning message',
   async (
@@ -259,8 +259,8 @@ it.each([
     const wrapper = shallowRender({
       component: mockComponent({
         qualifier: componentQualifier,
-        canBrowseAllChildProjects
-      })
+        canBrowseAllChildProjects,
+      }),
     });
     await waitAndUpdate(wrapper);
     expect(wrapper.find('Styled(Alert)').exists()).toBe(alertIsVisible);
@@ -274,7 +274,7 @@ function shallowRender(props: Partial<CodeApp['props']> = {}) {
         breadcrumbs: [],
         name: 'foo',
         key: 'foo',
-        qualifier: 'FOO'
+        qualifier: 'FOO',
       }}
       fetchBranchStatus={jest.fn()}
       location={mockLocation({ search: queryToSearch({ branch: 'b', id: 'foo', line: '7' }) })}

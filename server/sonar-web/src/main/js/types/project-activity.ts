@@ -60,7 +60,7 @@ export enum GraphType {
   issues = 'issues',
   coverage = 'coverage',
   duplications = 'duplications',
-  custom = 'custom'
+  custom = 'custom',
 }
 
 export interface HistoryItem {

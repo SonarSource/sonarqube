@@ -65,11 +65,11 @@ export default class ComponentNavWarnings extends React.PureComponent<Props, Sta
                     defaultMessage={translate('component_navigation.x_warnings')}
                     id="component_navigation.x_warnings"
                     values={{
-                      warningsCount: this.props.warnings.length
+                      warningsCount: this.props.warnings.length,
                     }}
                   />
                 </a>
-              )
+              ),
             }}
           />
         </Alert>

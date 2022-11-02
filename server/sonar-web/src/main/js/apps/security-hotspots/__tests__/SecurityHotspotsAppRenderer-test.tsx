@@ -27,11 +27,11 @@ import { SecurityStandard } from '../../../types/security';
 import { HotspotStatusFilter } from '../../../types/security-hotspots';
 import FilterBar from '../components/FilterBar';
 import SecurityHotspotsAppRenderer, {
-  SecurityHotspotsAppRendererProps
+  SecurityHotspotsAppRendererProps,
 } from '../SecurityHotspotsAppRenderer';
 
 jest.mock('../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn()
+  scrollToElement: jest.fn(),
 }));
 
 jest.mock('../../../components/common/ScreenPositionHelper');
@@ -44,7 +44,7 @@ jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
     useRef: jest.fn(),
-    useEffect: jest.fn()
+    useEffect: jest.fn(),
   };
 });
 
@@ -52,7 +52,11 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(
     shallowRender({
-      filters: { assignedToMe: true, inNewCodePeriod: false, status: HotspotStatusFilter.TO_REVIEW }
+      filters: {
+        assignedToMe: true,
+        inNewCodePeriod: false,
+        status: HotspotStatusFilter.TO_REVIEW,
+      },
     })
   ).toMatchSnapshot('no hotspots with filters');
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
@@ -81,7 +85,7 @@ it('should render correctly when filtered by category or cwe', () => {
       filterByCategory: { category: 'a1', standard: SecurityStandard.OWASP_TOP10 },
       hotspots,
       hotspotsTotal: 2,
-      selectedHotspot: hotspots[0]
+      selectedHotspot: hotspots[0],
     })
       .find(ScreenPositionHelper)
       .dive()
@@ -92,10 +96,7 @@ it('should properly propagate the "show all" call', () => {
   const onShowAllHotspots = jest.fn();
   const wrapper = shallowRender({ onShowAllHotspots });
 
-  wrapper
-    .find(FilterBar)
-    .props()
-    .onShowAllHotspots();
+  wrapper.find(FilterBar).props().onShowAllHotspots();
 
   expect(onShowAllHotspots).toHaveBeenCalled();
 });
@@ -105,7 +106,7 @@ describe('side effect', () => {
   const fakeParent = document.createElement('div');
 
   beforeEach(() => {
-    (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
+    (React.useEffect as jest.Mock).mockImplementationOnce((f) => f());
     jest.spyOn(document, 'querySelector').mockImplementationOnce(() => fakeElement);
     (React.useRef as jest.Mock).mockImplementationOnce(() => ({ current: fakeParent }));
   });
@@ -140,7 +141,7 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
       filters={{
         assignedToMe: false,
         inNewCodePeriod: false,
-        status: HotspotStatusFilter.TO_REVIEW
+        status: HotspotStatusFilter.TO_REVIEW,
       }}
       hotspots={[]}
       hotspotsTotal={0}

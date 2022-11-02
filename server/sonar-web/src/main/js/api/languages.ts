@@ -22,5 +22,5 @@ import { getJSON } from '../helpers/request';
 import { Language } from '../types/languages';
 
 export function getLanguages(): Promise<Language[]> {
-  return getJSON('/api/languages/list').then(r => r.languages, throwGlobalError);
+  return getJSON('/api/languages/list').then((r) => r.languages, throwGlobalError);
 }

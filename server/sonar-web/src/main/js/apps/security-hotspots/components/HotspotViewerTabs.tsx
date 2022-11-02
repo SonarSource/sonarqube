@@ -49,7 +49,7 @@ export enum TabKeys {
   Code = 'code',
   RiskDescription = 'risk',
   VulnerabilityDescription = 'vulnerability',
-  FixRecommendation = 'fix'
+  FixRecommendation = 'fix',
 }
 
 export default class HotspotViewerTabs extends React.PureComponent<Props, State> {
@@ -58,7 +58,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
     const tabs = this.computeTabs();
     this.state = {
       currentTab: tabs[0],
-      tabs
+      tabs,
     };
   }
 
@@ -74,7 +74,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
       const tabs = this.computeTabs();
       this.setState({
         currentTab: tabs[0],
-        tabs
+        tabs,
       });
     } else if (
       this.props.selectedHotspotLocation !== undefined &&
@@ -82,7 +82,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
     ) {
       const { tabs } = this.state;
       this.setState({
-        currentTab: tabs[0]
+        currentTab: tabs[0],
       });
     }
   }
@@ -114,13 +114,13 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
 
   handleSelectTabs = (tabKey: TabKeys) => {
     const { tabs } = this.state;
-    const currentTab = tabs.find(tab => tab.key === tabKey)!;
+    const currentTab = tabs.find((tab) => tab.key === tabKey)!;
     this.setState({ currentTab });
   };
 
   computeTabs() {
     const { ruleDescriptionSections, codeTabContent } = this.props;
-    const descriptionSectionsByKey = groupBy(ruleDescriptionSections, section => section.key);
+    const descriptionSectionsByKey = groupBy(ruleDescriptionSections, (section) => section.key);
     const rootCauseDescriptionSections =
       descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
       descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE];
@@ -129,7 +129,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
       {
         key: TabKeys.Code,
         label: translate('hotspots.tabs.code'),
-        content: <div className="padded">{codeTabContent}</div>
+        content: <div className="padded">{codeTabContent}</div>,
       },
       {
         key: TabKeys.RiskDescription,
@@ -140,7 +140,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
             sections={rootCauseDescriptionSections}
             isDefault={true}
           />
-        )
+        ),
       },
       {
         key: TabKeys.VulnerabilityDescription,
@@ -151,7 +151,7 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
             sections={descriptionSectionsByKey[RuleDescriptionSections.ASSESS_THE_PROBLEM]}
             isDefault={true}
           />
-        )
+        ),
       },
       {
         key: TabKeys.FixRecommendation,
@@ -162,19 +162,19 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
             sections={descriptionSectionsByKey[RuleDescriptionSections.HOW_TO_FIX]}
             isDefault={true}
           />
-        )
-      }
-    ].filter(tab => tab.content);
+        ),
+      },
+    ].filter((tab) => tab.content);
   }
 
   selectNeighboringTab(shift: number) {
     this.setState(({ tabs, currentTab }) => {
-      const index = currentTab && tabs.findIndex(tab => tab.key === currentTab.key);
+      const index = currentTab && tabs.findIndex((tab) => tab.key === currentTab.key);
 
       if (index !== undefined && index > -1) {
         const newIndex = Math.max(0, Math.min(tabs.length - 1, index + shift));
         return {
-          currentTab: tabs[newIndex]
+          currentTab: tabs[newIndex],
         };
       }
 
@@ -191,7 +191,8 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
           className="bordered huge-spacer-bottom"
           role="tabpanel"
           aria-labelledby={getTabId(currentTab.key)}
-          id={getTabPanelId(currentTab.key)}>
+          id={getTabPanelId(currentTab.key)}
+        >
           {currentTab.content}
         </div>
       </>

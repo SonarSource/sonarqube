@@ -26,7 +26,7 @@ import { waitAndUpdate } from '../../../../helpers/testUtils';
 import MetricsContextProvider from '../MetricsContextProvider';
 
 jest.mock('../../../../api/metrics', () => ({
-  getAllMetrics: jest.fn().mockResolvedValue({})
+  getAllMetrics: jest.fn().mockResolvedValue({}),
 }));
 
 it('should call metric', async () => {

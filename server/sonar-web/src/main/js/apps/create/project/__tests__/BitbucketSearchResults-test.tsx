@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockBitbucketProject,
-  mockBitbucketRepository
+  mockBitbucketRepository,
 } from '../../../../helpers/mocks/alm-integrations';
 import BitbucketSearchResults, { BitbucketSearchResultsProps } from '../BitbucketSearchResults';
 
@@ -33,7 +33,10 @@ it('should render correctly', () => {
   expect(shallowRender({ searchResults: undefined })).toMatchSnapshot('no results');
   expect(
     shallowRender({
-      searchResults: [mockBitbucketRepository(), mockBitbucketRepository({ projectKey: 'unknown' })]
+      searchResults: [
+        mockBitbucketRepository(),
+        mockBitbucketRepository({ projectKey: 'unknown' }),
+      ],
     })
   ).toMatchSnapshot('unknown project in search results');
 });

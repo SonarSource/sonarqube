@@ -34,7 +34,7 @@ function buildQuery(component: string, branchLike: BranchLike | undefined) {
     resolved: 'false',
     componentKeys: component,
     s: 'FILE_LINE',
-    ...getBranchLikeQuery(branchLike)
+    ...getBranchLikeQuery(branchLike),
   };
 }
 
@@ -42,9 +42,9 @@ function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<
   return searchIssues({
     ...query,
     p: page,
-    ps: pageSize
-  }).then(r =>
-    r.issues.map(issue => parseIssueFromResponse(issue, r.components, r.users, r.rules))
+    ps: pageSize,
+  }).then((r) =>
+    r.issues.map((issue) => parseIssueFromResponse(issue, r.components, r.users, r.rules))
   );
 }
 

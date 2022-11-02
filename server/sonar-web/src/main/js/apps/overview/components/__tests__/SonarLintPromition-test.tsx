@@ -31,7 +31,9 @@ it('should render correctly', () => {
   ).toBeNull();
   expect(
     shallowRender({
-      qgConditions: [mockQualityGateStatusCondition({ metric: MetricKey.new_bugs, level: 'ERROR' })]
+      qgConditions: [
+        mockQualityGateStatusCondition({ metric: MetricKey.new_bugs, level: 'ERROR' }),
+      ],
     })
   ).toMatchSnapshot('has failed condition');
 });
@@ -49,11 +51,11 @@ it.each(
     MetricKey.new_vulnerabilities,
     MetricKey.new_security_rating,
     MetricKey.new_maintainability_rating,
-    MetricKey.new_reliability_rating
+    MetricKey.new_reliability_rating,
   ].map(Array.of)
-)('should show message for %s', metric => {
+)('should show message for %s', (metric) => {
   const wrapper = shallowRender({
-    qgConditions: [mockQualityGateStatusCondition({ metric: metric as string })]
+    qgConditions: [mockQualityGateStatusCondition({ metric: metric as string })],
   });
   expect(wrapper.type()).not.toBeNull();
 });

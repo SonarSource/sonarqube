@@ -33,7 +33,7 @@ jest.mock('date-fns', () => {
       const startDay = new Date(date);
       startDay.setUTCHours(0, 0, 0, 0);
       return startDay;
-    }
+    },
   };
 });
 
@@ -48,7 +48,7 @@ const DEFAULT_QUERY = {
   category: '',
   customMetrics: [],
   graph: DEFAULT_GRAPH,
-  project: 'org.sonarsource.sonarqube:sonarqube'
+  project: 'org.sonarsource.sonarqube:sonarqube',
 };
 
 it('should render correctly', () => {
@@ -72,8 +72,8 @@ it('should correctly filter analyses by date range', () => {
     query: {
       ...DEFAULT_QUERY,
       from: DATE,
-      to: DATE
-    }
+      to: DATE,
+    },
   });
   expect(wrapper).toMatchSnapshot();
 });
@@ -107,7 +107,7 @@ function shallowRender(props: Partial<ProjectActivityAnalysesList['props']> = {}
         mockParsedAnalysis({
           key: 'A1',
           date: DATE,
-          events: [{ key: 'E1', category: 'VERSION', name: '6.5-SNAPSHOT' }]
+          events: [{ key: 'E1', category: 'VERSION', name: '6.5-SNAPSHOT' }],
         }),
         mockParsedAnalysis({ key: 'A2', date: parseDate('2016-10-27T12:21:15+0000') }),
         mockParsedAnalysis({
@@ -115,14 +115,14 @@ function shallowRender(props: Partial<ProjectActivityAnalysesList['props']> = {}
           date: parseDate('2016-10-26T12:17:29+0000'),
           events: [
             { key: 'E2', category: 'VERSION', name: '6.4' },
-            { key: 'E3', category: 'OTHER', name: 'foo' }
-          ]
+            { key: 'E3', category: 'OTHER', name: 'foo' },
+          ],
         }),
         mockParsedAnalysis({
           key: 'A4',
           date: parseDate('2016-10-24T16:33:50+0000'),
-          events: [{ key: 'E1', category: 'QUALITY_GATE', name: 'Quality gate changed to red...' }]
-        })
+          events: [{ key: 'E1', category: 'QUALITY_GATE', name: 'Quality gate changed to red...' }],
+        }),
       ]}
       analysesLoading={false}
       canAdmin={false}

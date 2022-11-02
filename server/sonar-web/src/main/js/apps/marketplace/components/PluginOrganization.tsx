@@ -41,12 +41,13 @@ export default function PluginOrganization({ plugin }: PluginOrganizationProps) 
               className="js-plugin-organization"
               href={plugin.organizationUrl}
               target="_blank"
-              rel="noopener noreferrer">
+              rel="noopener noreferrer"
+            >
               {plugin.organizationName}
             </a>
           ) : (
             <span className="js-plugin-organization">{plugin.organizationName}</span>
-          )
+          ),
         }}
       />
     </li>

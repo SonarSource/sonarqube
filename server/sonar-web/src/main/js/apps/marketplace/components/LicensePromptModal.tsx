@@ -44,7 +44,7 @@ export default function LicensePromptModal({ onClose }: Props) {
               <Link onClick={onClose} to="/admin/extension/license/app">
                 {translate('license.prompt.link')}
               </Link>
-            )
+            ),
           }}
         />
       </div>

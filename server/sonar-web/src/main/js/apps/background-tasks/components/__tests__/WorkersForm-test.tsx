@@ -19,7 +19,7 @@
  */
 /* eslint-disable import/first */
 jest.mock('../../../../api/ce', () => ({
-  setWorkerCount: () => Promise.resolve()
+  setWorkerCount: () => Promise.resolve(),
 }));
 
 import { shallow } from 'enzyme';

@@ -34,7 +34,7 @@ it('should render correctly', () => {
       branchLike: mockBranch(),
       displayLocationsCount: true,
       displayLocationsLink: true,
-      issue: mockIssue(true)
+      issue: mockIssue(true),
     })
   ).toMatchSnapshot('with multi locations and link');
 });

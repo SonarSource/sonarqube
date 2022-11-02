@@ -23,7 +23,7 @@ export enum EditionKey {
   community = 'community',
   developer = 'developer',
   enterprise = 'enterprise',
-  datacenter = 'datacenter'
+  datacenter = 'datacenter',
 }
 
 export interface Edition {

@@ -222,5 +222,5 @@ const mockGetBoundingClientRect = (overrides: Partial<ClientRect>) => () =>
     right: 0,
     top: 0,
     width: 0,
-    ...overrides
+    ...overrides,
   } as DOMRect);

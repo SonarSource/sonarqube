@@ -47,7 +47,7 @@ const ALERT_HEIGHT = 30;
 
 export class SettingsNav extends React.PureComponent<Props> {
   static defaultProps = {
-    extensions: []
+    extensions: [],
   };
 
   isSomethingActive = (urls: string[]) => {
@@ -60,7 +60,7 @@ export class SettingsNav extends React.PureComponent<Props> {
       '/admin/users',
       '/admin/groups',
       '/admin/permissions',
-      '/admin/permission_templates'
+      '/admin/permission_templates',
     ];
     return this.isSomethingActive(urls);
   }
@@ -95,7 +95,7 @@ export class SettingsNav extends React.PureComponent<Props> {
 
   renderConfigurationTab() {
     const extensionsWithoutSupport = this.props.extensions.filter(
-      extension => extension.key !== 'license/support'
+      (extension) => extension.key !== 'license/support'
     );
     return (
       <Dropdown
@@ -119,7 +119,8 @@ export class SettingsNav extends React.PureComponent<Props> {
             {extensionsWithoutSupport.map(this.renderExtension)}
           </ul>
         }
-        tagName="li">
+        tagName="li"
+      >
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
@@ -133,11 +134,12 @@ export class SettingsNav extends React.PureComponent<Props> {
                   !this.isSystemActive() &&
                   !this.isSomethingActive(['/admin/extension/license/support']) &&
                   !this.isMarketplace() &&
-                  !this.isAudit())
+                  !this.isAudit()),
             })}
             href="#"
             id="settings-navigation-configuration"
-            onClick={onToggleClick}>
+            onClick={onToggleClick}
+          >
             {translate('sidebar.project_settings')}
             <DropdownIcon className="little-spacer-left" />
           </a>
@@ -163,7 +165,8 @@ export class SettingsNav extends React.PureComponent<Props> {
             </li>
           </ul>
         }
-        tagName="li">
+        tagName="li"
+      >
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
@@ -171,7 +174,8 @@ export class SettingsNav extends React.PureComponent<Props> {
             role="button"
             className={classNames('dropdown-toggle', { active: open || this.isProjectsActive() })}
             href="#"
-            onClick={onToggleClick}>
+            onClick={onToggleClick}
+          >
             {translate('sidebar.projects')}
             <DropdownIcon className="little-spacer-left" />
           </a>
@@ -207,7 +211,8 @@ export class SettingsNav extends React.PureComponent<Props> {
             </li>
           </ul>
         }
-        tagName="li">
+        tagName="li"
+      >
         {({ onToggleClick, open }) => (
           <a
             aria-expanded={open}
@@ -215,7 +220,8 @@ export class SettingsNav extends React.PureComponent<Props> {
             role="button"
             className={classNames('dropdown-toggle', { active: open || this.isSecurityActive() })}
             href="#"
-            onClick={onToggleClick}>
+            onClick={onToggleClick}
+          >
             {translate('sidebar.security')}
             <DropdownIcon className="little-spacer-left" />
           </a>
@@ -226,9 +232,9 @@ export class SettingsNav extends React.PureComponent<Props> {
 
   render() {
     const { extensions, pendingPlugins } = this.props;
-    const hasSupportExtension = extensions.find(extension => extension.key === 'license/support');
+    const hasSupportExtension = extensions.find((extension) => extension.key === 'license/support');
     const hasGovernanceExtension = extensions.find(
-      e => e.key === AdminPageExtension.GovernanceConsole
+      (e) => e.key === AdminPageExtension.GovernanceConsole
     );
     const totalPendingPlugins =
       pendingPlugins.installing.length +
@@ -253,7 +259,8 @@ export class SettingsNav extends React.PureComponent<Props> {
       <ContextNavBar
         height={notifComponent ? contextNavHeight + ALERT_HEIGHT : contextNavHeight}
         id="context-navigation"
-        notif={notifComponent}>
+        notif={notifComponent}
+      >
         <div className="navbar-context-header">
           <h1>{translate('layout.settings')}</h1>
         </div>

@@ -23,7 +23,7 @@ import { NewUserToken, UserToken } from '../types/token';
 
 /** List tokens for given user login */
 export function getTokens(login: string): Promise<UserToken[]> {
-  return getJSON('/api/user_tokens/search', { login }).then(r => r.userTokens, throwGlobalError);
+  return getJSON('/api/user_tokens/search', { login }).then((r) => r.userTokens, throwGlobalError);
 }
 
 export function generateToken(data: {

@@ -59,7 +59,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     } else {
       this.props.onChange({
         assigned: true,
-        assignees: assignees.includes(itemValue) && assignees.length < 2 ? [] : [itemValue]
+        assignees: assignees.includes(itemValue) && assignees.length < 2 ? [] : [itemValue],
       });
     }
   };
@@ -83,7 +83,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
   loadSearchResultCount = (assignees: UserBase[]) => {
     return this.props.loadSearchResultCount('assignees', {
       assigned: undefined,
-      assignees: assignees.map(assignee => assignee.login)
+      assignees: assignees.map((assignee) => assignee.login),
     });
   };
 
@@ -92,9 +92,9 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     return sortBy(
       Object.keys(stats),
       // put "not assigned" first
-      key => (key === '' ? 0 : 1),
+      (key) => (key === '' ? 0 : 1),
       // the sort by number
-      key => -stats[key]
+      (key) => -stats[key]
     );
   };
 
@@ -147,8 +147,8 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
         facetHeader={translate('issues.facet.assignees')}
         fetching={this.props.fetching}
         getFacetItemText={this.getAssigneeName}
-        getSearchResultKey={user => user.login}
-        getSearchResultText={user => user.name || user.login}
+        getSearchResultKey={(user) => user.login}
+        getSearchResultText={(user) => user.name || user.login}
         // put "not assigned" item first
         getSortedItems={this.getSortedItems}
         loadSearchResultCount={this.loadSearchResultCount}

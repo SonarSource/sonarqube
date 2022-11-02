@@ -23,7 +23,7 @@ import {
   IndicatorProps,
   InputProps,
   OptionProps,
-  OptionTypeBase
+  OptionTypeBase,
 } from 'react-select';
 
 export function mockReactSelectOptionProps<
@@ -36,7 +36,7 @@ export function mockReactSelectOptionProps<
 ): OptionProps<OptionType, IsMulti, GroupType> {
   return {
     ...overrides,
-    data
+    data,
   } as OptionProps<OptionType, IsMulti, GroupType>;
 }
 

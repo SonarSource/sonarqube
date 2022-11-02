@@ -28,6 +28,6 @@ export function mockProject(overrides: Partial<Project> = {}): Project {
     qualifier: ComponentQualifier.Project,
     tags: [],
     visibility: 'public',
-    ...overrides
+    ...overrides,
   };
 }

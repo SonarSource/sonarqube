@@ -64,7 +64,7 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
     return removeUser({
       language: profile.language,
       login: user.login,
-      qualityProfile: profile.name
+      qualityProfile: profile.name,
     }).then(() => {
       this.handleDeleteModalClose();
       this.props.onDelete(user);
@@ -82,7 +82,7 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
           defaultMessage={translate('quality_profiles.permissions.remove.user.confirmation')}
           id="quality_profiles.permissions.remove.user.confirmation"
           values={{
-            user: <strong>{this.props.user.name}</strong>
+            user: <strong>{this.props.user.name}</strong>,
           }}
         />
       </div>
@@ -92,7 +92,8 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
         <SubmitButton
           className="button-red"
           disabled={props.submitting}
-          onClick={props.onSubmitClick}>
+          onClick={props.onSubmitClick}
+        >
           {translate('remove')}
         </SubmitButton>
         <ResetButtonLink onClick={props.onCloseClick}>{translate('cancel')}</ResetButtonLink>
@@ -119,7 +120,8 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
           <SimpleModal
             header={translate('quality_profiles.permissions.remove.user')}
             onClose={this.handleDeleteModalClose}
-            onSubmit={this.handleDelete}>
+            onSubmit={this.handleDelete}
+          >
             {this.renderDeleteModal}
           </SimpleModal>
         )}

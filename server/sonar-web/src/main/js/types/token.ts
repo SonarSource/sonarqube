@@ -21,14 +21,14 @@
 export enum TokenType {
   Project = 'PROJECT_ANALYSIS_TOKEN',
   Global = 'GLOBAL_ANALYSIS_TOKEN',
-  User = 'USER_TOKEN'
+  User = 'USER_TOKEN',
 }
 
 export enum TokenExpiration {
   OneMonth = 30,
   ThreeMonths = 90,
   OneYear = 365,
-  NoExpiration = 0
+  NoExpiration = 0,
 }
 
 export interface UserToken {

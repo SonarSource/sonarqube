@@ -58,7 +58,8 @@ export default class CreationModal extends React.PureComponent<Props, State> {
         header={header}
         onClose={this.props.onClose}
         onSubmit={this.handleSubmit}
-        size="small">
+        size="small"
+      >
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form onSubmit={onFormSubmit}>
             <header className="modal-head">

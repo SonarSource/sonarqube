@@ -43,5 +43,5 @@ export interface WorkspaceContextShape {
 export const WorkspaceContext = createContext<WorkspaceContextShape>({
   externalRulesRepoNames: {},
   openComponent: () => {},
-  openRule: () => {}
+  openRule: () => {},
 });

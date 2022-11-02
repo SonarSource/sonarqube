@@ -22,7 +22,7 @@ import { isDiffMetric } from '../../helpers/measures';
 import { Condition, Dict, Metric, QualityGate } from '../../types/types';
 
 export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): boolean {
-  const finding = list.find(candidate => candidate.id === qualityGate.id);
+  const finding = list.find((candidate) => candidate.id === qualityGate.id);
   return (finding && finding.isDefault) || false;
 }
 
@@ -34,7 +34,7 @@ export function addCondition(qualityGate: QualityGate, condition: Condition): Qu
 
 export function deleteCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
   const conditions =
-    qualityGate.conditions && qualityGate.conditions.filter(candidate => candidate !== condition);
+    qualityGate.conditions && qualityGate.conditions.filter((candidate) => candidate !== condition);
   return { ...qualityGate, conditions };
 }
 
@@ -45,7 +45,7 @@ export function replaceCondition(
 ): QualityGate {
   const conditions =
     qualityGate.conditions &&
-    qualityGate.conditions.map(candidate => {
+    qualityGate.conditions.map((candidate) => {
       return candidate === oldCondition ? newCondition : candidate;
     });
   return { ...qualityGate, conditions };

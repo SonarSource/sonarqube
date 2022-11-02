@@ -35,8 +35,8 @@ it.each([
   [quickMock(MetricKey.new_security_rating, 'RATING', true)],
   [quickMock(MetricKey.new_maintainability_rating, 'RATING', true)],
   [quickMock(MetricKey.security_hotspots_reviewed)],
-  [quickMock(MetricKey.new_security_hotspots_reviewed, 'RATING', true)]
-])('should render correclty', condition => {
+  [quickMock(MetricKey.new_security_hotspots_reviewed, 'RATING', true)],
+])('should render correclty', (condition) => {
   expect(shallowRender({ condition })).toMatchSnapshot();
 });
 
@@ -66,12 +66,12 @@ function quickMock(
       metric: mockMetric({
         key: metric,
         name: metric,
-        type
+        type,
       }),
       value: '3',
-      ...(addPeriod ? { period: { value: '3', index: 1 } } : {})
+      ...(addPeriod ? { period: { value: '3', index: 1 } } : {}),
     },
     metric,
-    ...(addPeriod ? { period: 1 } : {})
+    ...(addPeriod ? { period: 1 } : {}),
   });
 }

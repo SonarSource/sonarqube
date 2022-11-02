@@ -30,12 +30,12 @@ it('should handle search correctly', async () => {
     paging: {
       pageIndex: 1,
       pageSize: 2,
-      total: 2
+      total: 2,
     },
     results: [
       { key: 'js', name: 'javascript' },
-      { key: 'java', name: 'java' }
-    ]
+      { key: 'java', name: 'java' },
+    ],
   });
 });
 
@@ -65,7 +65,7 @@ function shallowRender(props: Partial<LanguageFacet['props']> = {}) {
     <LanguageFacet
       languages={{
         js: mockLanguage({ key: 'js', name: 'javascript' }),
-        c: mockLanguage({ key: 'c', name: 'c' })
+        c: mockLanguage({ key: 'c', name: 'c' }),
       }}
       onChange={jest.fn()}
       onToggle={jest.fn()}

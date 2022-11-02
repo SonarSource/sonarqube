@@ -32,7 +32,7 @@ jest.mock('../../../api/user-tokens');
 
 jest.mock('../../../helpers/handleRequiredAuthentication', () => ({
   __esModule: true,
-  default: jest.fn()
+  default: jest.fn(),
 }));
 
 jest.mock('../../../helpers/sonarlint', () => {
@@ -61,9 +61,9 @@ jest.mock('../../../api/settings', () => {
     getAllValues: jest.fn().mockResolvedValue([
       {
         key: SettingsKey.TokenMaxAllowedLifetime,
-        value: 'No expiration'
-      }
-    ])
+        value: 'No expiration',
+      },
+    ]),
   };
 });
 
@@ -141,7 +141,7 @@ function renderSonarLintConnection(overrides: { currentUser?: CurrentUser; port?
   const { currentUser, port } = {
     currentUser: mockLoggedInUser(),
     port: '64120',
-    ...overrides
+    ...overrides,
   };
 
   const searchParams = new URLSearchParams();
@@ -152,6 +152,6 @@ function renderSonarLintConnection(overrides: { currentUser?: CurrentUser; port?
 
   renderApp('sonarlint/auth', <SonarLintConnection />, {
     currentUser,
-    navigateTo: `sonarlint/auth?${searchParams.toString()}`
+    navigateTo: `sonarlint/auth?${searchParams.toString()}`,
   });
 }

@@ -47,7 +47,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     this.props.onChange({
       activation: this.props.activation === undefined ? true : this.props.activation,
       compareToProfile: undefined,
-      profile: newValue
+      profile: newValue,
     });
   };
 
@@ -59,7 +59,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
       activationSeverities: [],
       compareToProfile: undefined,
       inheritance: undefined,
-      profile: undefined
+      profile: undefined,
     });
 
   handleActiveClick = (event: React.SyntheticEvent<HTMLElement>) => {
@@ -112,21 +112,23 @@ export default class ProfileFacet extends React.PureComponent<Props> {
         <span
           aria-checked={activation}
           className={classNames('js-active', 'facet-toggle', 'facet-toggle-green', {
-            'facet-toggle-active': activation
+            'facet-toggle-active': activation,
           })}
           onClick={isCompare ? this.stopPropagation : this.handleActiveClick}
           role="radio"
-          tabIndex={-1}>
+          tabIndex={-1}
+        >
           active
         </span>
         <span
           aria-checked={!activation}
           className={classNames('js-inactive', 'facet-toggle', 'facet-toggle-red', {
-            'facet-toggle-active': !activation
+            'facet-toggle-active': !activation,
           })}
           onClick={isCompare ? this.stopPropagation : this.handleInactiveClick}
           role="radio"
-          tabIndex={-1}>
+          tabIndex={-1}
+        >
           inactive
         </span>
       </>
@@ -154,12 +156,12 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     const { languages, referencedProfiles } = this.props;
     let profiles = Object.values(referencedProfiles);
     if (languages.length > 0) {
-      profiles = profiles.filter(profile => languages.includes(profile.language));
+      profiles = profiles.filter((profile) => languages.includes(profile.language));
     }
     profiles = sortBy(
       profiles,
-      profile => profile.name.toLowerCase(),
-      profile => profile.languageName
+      (profile) => profile.name.toLowerCase(),
+      (profile) => profile.languageName
     );
 
     return (
@@ -169,15 +171,16 @@ export default class ProfileFacet extends React.PureComponent<Props> {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.getTextValue()}>
+          values={this.getTextValue()}
+        >
           <DocumentationTooltip
             className="spacer-left"
             content={translate('coding_rules.facet.qprofile.help')}
             links={[
               {
                 href: '/instance-administration/quality-profiles/',
-                label: translate('coding_rules.facet.qprofile.link')
-              }
+                label: translate('coding_rules.facet.qprofile.link'),
+              },
             ]}
           />
         </FacetHeader>

@@ -49,7 +49,7 @@ export default function ProjectNotifications(props: Props) {
     props.removeNotification({
       ...props.project,
       channel,
-      type
+      type,
     });
   };
 
@@ -59,12 +59,13 @@ export default function ProjectNotifications(props: Props) {
     <BoxedGroupAccordion
       onClick={toggleExpanded}
       open={!isCollapsed}
-      title={<h4 className="display-inline-block">{project.projectName}</h4>}>
+      title={<h4 className="display-inline-block">{project.projectName}</h4>}
+    >
       <table className="data zebra notifications-table" key={project.project}>
         <thead>
           <tr>
             <th aria-label={translate('project')} />
-            {channels.map(channel => (
+            {channels.map((channel) => (
               <th className="text-center" key={channel}>
                 <h4>{translate('notification.channel', channel)}</h4>
               </th>

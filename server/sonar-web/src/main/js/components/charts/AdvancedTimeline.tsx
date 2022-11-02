@@ -77,7 +77,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     eventSize: 8,
     maxYTicksCount: 4,
     padding: [26, 10, 50, 60],
-    zoomSpeed: 1
+    zoomSpeed: 1,
   };
 
   constructor(props: Props) {
@@ -131,15 +131,11 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   }
 
   getRatingScale = (availableHeight: number) => {
-    return scalePoint<number>()
-      .domain([5, 4, 3, 2, 1])
-      .range([availableHeight, 0]);
+    return scalePoint<number>().domain([5, 4, 3, 2, 1]).range([availableHeight, 0]);
   };
 
   getLevelScale = (availableHeight: number) => {
-    return scalePoint()
-      .domain(['ERROR', 'WARN', 'OK'])
-      .range([availableHeight, 0]);
+    return scalePoint().domain(['ERROR', 'WARN', 'OK']).range([availableHeight, 0]);
   };
 
   getYScale = (props: Props, availableHeight: number, flatData: Chart.Point[]): YScale => {
@@ -150,12 +146,12 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     }
     return scaleLinear()
       .range([availableHeight, 0])
-      .domain([0, max(flatData, d => Number(d.y || 0)) || 1])
+      .domain([0, max(flatData, (d) => Number(d.y || 0)) || 1])
       .nice();
   };
 
   getXScale = ({ startDate, endDate }: Props, availableWidth: number, flatData: Chart.Point[]) => {
-    const dateRange = extent(flatData, d => d.x) as [Date, Date];
+    const dateRange = extent(flatData, (d) => d.x) as [Date, Date];
     const start = startDate && startDate > dateRange[0] ? startDate : dateRange[0];
     const end = endDate && endDate < dateRange[1] ? endDate : dateRange[1];
     const xScale: ScaleTime<number, number> = scaleTime()
@@ -164,31 +160,31 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
       .clamp(false);
     return {
       xScale,
-      maxXRange: dateRange.map(xScale)
+      maxXRange: dateRange.map(xScale),
     };
   };
 
   getScales = (props: Props) => {
     const availableWidth = props.width - props.padding[1] - props.padding[3];
     const availableHeight = props.height - props.padding[0] - props.padding[2];
-    const flatData = flatten(props.series.map(serie => serie.data));
+    const flatData = flatten(props.series.map((serie) => serie.data));
     return {
       ...this.getXScale(props, availableWidth, flatData),
-      yScale: this.getYScale(props, availableHeight, flatData)
+      yScale: this.getYScale(props, availableHeight, flatData),
     };
   };
 
   getSelectedDatePos = (xScale: XScale, selectedDate?: Date) => {
     const firstSerie = this.props.series[0];
     if (selectedDate && firstSerie) {
-      const idx = firstSerie.data.findIndex(p => p.x.valueOf() === selectedDate.valueOf());
+      const idx = firstSerie.data.findIndex((p) => p.x.valueOf() === selectedDate.valueOf());
       const xRange = sortBy(xScale.range());
       const xPos = xScale(selectedDate);
       if (idx >= 0 && xPos >= xRange[0] && xPos <= xRange[1]) {
         return {
           selectedDate,
           selectedDateXPos: xScale(selectedDate),
-          selectedDateIdx: idx
+          selectedDateIdx: idx,
         };
       }
     }
@@ -239,7 +235,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
         mouseOver: false,
         selectedDate: undefined,
         selectedDateXPos: undefined,
-        selectedDateIdx: undefined
+        selectedDateIdx: undefined,
       });
       updateTooltip(undefined, undefined, undefined);
     }
@@ -259,12 +255,12 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   updateTooltipPos = (xPos: number) => {
-    this.setState(state => {
+    this.setState((state) => {
       const firstSerie = this.props.series[0];
       if (state.mouseOver && firstSerie) {
         const { updateTooltip } = this.props;
         const date = state.xScale.invert(xPos);
-        const bisectX = bisector<Chart.Point, Date>(d => d.x).right;
+        const bisectX = bisector<Chart.Point, Date>((d) => d.x).right;
         let idx = bisectX(firstSerie.data, date);
         if (idx >= 0) {
           const previousPoint = firstSerie.data[idx - 1];
@@ -303,7 +299,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     // if there are duplicated ticks, that means 4 ticks are too much for this data
     // so let's just use the domain values (min and max)
     if (formatYTick) {
-      const formattedTicks = ticks.map(tick => formatYTick(tick));
+      const formattedTicks = ticks.map((tick) => formatYTick(tick));
       if (ticks.length > uniq(formattedTicks).length) {
         ticks = yScale.domain();
       }
@@ -311,7 +307,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
 
     return (
       <g>
-        {ticks.map(tick => (
+        {ticks.map((tick) => (
           <g key={tick}>
             {formatYTick != null && (
               <text
@@ -320,7 +316,8 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
                 dy="0.3em"
                 textAnchor="end"
                 x={xScale.range()[0]}
-                y={yScale(tick)}>
+                y={yScale(tick)}
+              >
                 {formatYTick(tick)}
               </text>
             )}
@@ -355,7 +352,8 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
               textAnchor="end"
               transform={`rotate(-35, ${x}, ${y})`}
               x={x}
-              y={y}>
+              y={y}
+            >
               {format(tick)}
             </text>
           );
@@ -407,7 +405,8 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
           ref={this.setLeakLegendTextWidth}
           x={legendPosition}
           y={yRange[yRange.length - 1] - legendPadding - legendMargin}
-          textAnchor={legendTextAnchor}>
+          textAnchor={legendTextAnchor}
+        >
           new code
         </text>
       </>
@@ -449,9 +448,9 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
 
   renderLines = () => {
     const lineGenerator = d3Line<Chart.Point>()
-      .defined(d => Boolean(d.y || d.y === 0))
-      .x(d => this.state.xScale(d.x))
-      .y(d => this.state.yScale(d.y));
+      .defined((d) => Boolean(d.y || d.y === 0))
+      .x((d) => this.state.xScale(d.x))
+      .y((d) => this.state.yScale(d.y));
     if (this.props.basisCurve) {
       lineGenerator.curve(curveBasis);
     }
@@ -496,16 +495,16 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
               })
               .filter(isDefined)
           )
-          .filter(dots => dots.length > 0)}
+          .filter((dots) => dots.length > 0)}
       </g>
     );
   };
 
   renderAreas = () => {
     const areaGenerator = area<Chart.Point>()
-      .defined(d => Boolean(d.y || d.y === 0))
-      .x(d => this.state.xScale(d.x))
-      .y1(d => this.state.yScale(d.y))
+      .defined((d) => Boolean(d.y || d.y === 0))
+      .x((d) => this.state.xScale(d.x))
+      .y1((d) => this.state.yScale(d.y))
       .y0(this.state.yScale(0));
     if (this.props.basisCurve) {
       areaGenerator.curve(curveBasis);
@@ -607,7 +606,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
       hideGrid,
       hideXAxis,
       showAreas,
-      graphDescription
+      graphDescription,
     } = this.props;
     if (!width || !height) {
       return <div />;
@@ -619,7 +618,8 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
         aria-label={graphDescription}
         className={classNames('line-chart', { 'chart-zoomed': isZoomed })}
         height={height}
-        width={width}>
+        width={width}
+      >
         {zoomEnabled && this.renderClipPath()}
         <g transform={`translate(${padding[3]}, ${padding[0]})`}>
           {leakPeriodDate != null && this.renderLeak()}

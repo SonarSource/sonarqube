@@ -29,7 +29,7 @@ import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
-  removeWhitePageClass
+  removeWhitePageClass,
 } from '../../../../helpers/pages';
 import {
   mockCurrentUser,
@@ -37,7 +37,7 @@ import {
   mockLocation,
   mockLoggedInUser,
   mockRawIssue,
-  mockRouter
+  mockRouter,
 } from '../../../../helpers/testMocks';
 import { keydown, mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
@@ -49,7 +49,7 @@ import {
   selectNextFlow,
   selectNextLocation,
   selectPreviousFlow,
-  selectPreviousLocation
+  selectPreviousLocation,
 } from '../../actions';
 import BulkChangeModal from '../BulkChangeModal';
 import { App } from '../IssuesApp';
@@ -58,39 +58,39 @@ jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   addWhitePageClass: jest.fn(),
   removeSideBarClass: jest.fn(),
-  removeWhitePageClass: jest.fn()
+  removeWhitePageClass: jest.fn(),
 }));
 
 jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
 
 jest.mock('../../../../api/issues', () => ({
-  searchIssues: jest.fn().mockResolvedValue({ facets: [], issues: [] })
+  searchIssues: jest.fn().mockResolvedValue({ facets: [], issues: [] }),
 }));
 
 jest.mock('../../../../api/rules', () => ({
-  getRuleDetails: jest.fn()
+  getRuleDetails: jest.fn(),
 }));
 
 jest.mock('../../../../api/users', () => ({
   getCurrentUser: jest.fn().mockResolvedValue({
     dismissedNotices: {
-      something: false
-    }
+      something: false,
+    },
   }),
-  dismissNotification: jest.fn()
+  dismissNotification: jest.fn(),
 }));
 
 const RAW_ISSUES = [
   mockRawIssue(false, { key: 'foo' }),
   mockRawIssue(false, { key: 'bar' }),
   mockRawIssue(true, { key: 'third' }),
-  mockRawIssue(false, { key: 'fourth' })
+  mockRawIssue(false, { key: 'fourth' }),
 ];
 const ISSUES = [
   mockIssue(false, { key: 'foo' }),
   mockIssue(false, { key: 'bar' }),
   mockIssue(true, { key: 'third' }),
-  mockIssue(false, { key: 'fourth' })
+  mockIssue(false, { key: 'fourth' }),
 ];
 const FACETS = [{ property: 'severities', values: [{ val: 'MINOR', count: 4 }] }];
 const PAGING = { pageIndex: 1, pageSize: 100, total: 4 };
@@ -106,7 +106,7 @@ beforeEach(() => {
     languages: [],
     paging: PAGING,
     rules: [],
-    users: []
+    users: [],
   });
 
   (getRuleDetails as jest.Mock).mockResolvedValue({ rule: { test: 'test' } });
@@ -120,8 +120,8 @@ it('should show warnning when not all projects are accessible', () => {
   const wrapper = shallowRender({
     component: mockComponent({
       canBrowseAllChildProjects: false,
-      qualifier: ComponentQualifier.Portfolio
-    })
+      qualifier: ComponentQualifier.Portfolio,
+    }),
   });
   const rootNode = shallow(wrapper.instance().renderSide(undefined));
   expect(rootNode).toMatchSnapshot();
@@ -148,8 +148,8 @@ it('should handle my issue change properly', () => {
     query: {
       id: 'foo',
       author: [],
-      myIssues: 'true'
-    }
+      myIssues: 'true',
+    },
   });
 });
 
@@ -162,7 +162,7 @@ it('should load search result count correcly', async () => {
 it('should not render for anonymous user', () => {
   shallowRender({
     currentUser: mockCurrentUser({ isLoggedIn: false }),
-    location: mockLocation({ query: { myIssues: true.toString() } })
+    location: mockLocation({ query: { myIssues: true.toString() } }),
   });
   expect(handleRequiredAuthentication).toHaveBeenCalled();
 });
@@ -176,14 +176,14 @@ it('should handle reset properly', () => {
     query: {
       id: 'foo',
       myIssues: undefined,
-      resolved: 'false'
-    }
+      resolved: 'false',
+    },
   });
 });
 
 it('should open standard facets for vulnerabilities and hotspots', () => {
   const wrapper = shallowRender({
-    location: mockLocation({ pathname: '/issues', query: { types: 'VULNERABILITY' } })
+    location: mockLocation({ pathname: '/issues', query: { types: 'VULNERABILITY' } }),
   });
   const instance = wrapper.instance();
   const fetchFacet = jest.spyOn(instance, 'fetchFacet');
@@ -266,17 +266,14 @@ it('should be able to bulk change specific issues', async () => {
   instance.handleOpenBulkChange();
   wrapper.update();
   expect(wrapper.find(BulkChangeModal).exists()).toBe(true);
-  const { issues } = await wrapper
-    .find(BulkChangeModal)
-    .props()
-    .fetchIssues({});
+  const { issues } = await wrapper.find(BulkChangeModal).props().fetchIssues({});
   expect(issues).toHaveLength(2);
 });
 
 it('should display the right facets open', () => {
   expect(
     shallowRender({
-      location: mockLocation({ query: { types: 'BUGS' } })
+      location: mockLocation({ query: { types: 'BUGS' } }),
     }).state('openFacets')
   ).toEqual({
     owaspTop10: false,
@@ -285,11 +282,11 @@ it('should display the right facets open', () => {
     severities: true,
     standards: false,
     sonarsourceSecurity: false,
-    types: true
+    types: true,
   });
   expect(
     shallowRender({
-      location: mockLocation({ query: { owaspTop10: 'a1' } })
+      location: mockLocation({ query: { owaspTop10: 'a1' } }),
     }).state('openFacets')
   ).toEqual({
     owaspTop10: true,
@@ -298,7 +295,7 @@ it('should display the right facets open', () => {
     severities: true,
     standards: true,
     sonarsourceSecurity: false,
-    types: true
+    types: true,
   });
 });
 
@@ -310,14 +307,14 @@ it('should correctly handle filter changes', () => {
   expect(instance.state.openFacets).toEqual({
     types: true,
     sonarsourceSecurity: true,
-    standards: true
+    standards: true,
   });
   expect(push).toHaveBeenCalled();
   instance.handleFilterChange({ types: ['BUGS'] });
   expect(instance.state.openFacets).toEqual({
     types: true,
     sonarsourceSecurity: true,
-    standards: true
+    standards: true,
   });
 });
 
@@ -329,8 +326,8 @@ it('should fetch issues until defined', async () => {
 
   const wrapper = shallowRender({
     location: mockLocation({
-      query: { open: '0' }
-    })
+      query: { open: '0' },
+    }),
   });
   const instance = wrapper.instance();
   await waitAndUpdate(wrapper);
@@ -444,7 +441,7 @@ it('should handle createAfter query param with time', async () => {
   (searchIssues as jest.Mock).mockImplementation(mockSearchIssuesResponse());
 
   const wrapper = shallowRender({
-    location: mockLocation({ query: { createdAfter: '2020-10-21' } })
+    location: mockLocation({ query: { createdAfter: '2020-10-21' } }),
   });
   expect(wrapper.instance().createdAfterIncludesTime()).toBe(false);
   await waitAndUpdate(wrapper);
@@ -473,8 +470,8 @@ function mockSearchIssuesResponse(keyCount = 0, lineCount = 1) {
             startLine: lineCount++,
             endLine: lineCount,
             startOffset: 0,
-            endOffset: 15
-          }
+            endOffset: 15,
+          },
         }),
         mockRawIssue(false, {
           key: `${keyCount}`,
@@ -482,14 +479,14 @@ function mockSearchIssuesResponse(keyCount = 0, lineCount = 1) {
             startLine: lineCount++,
             endLine: lineCount,
             startOffset: 0,
-            endOffset: 15
-          }
-        })
+            endOffset: 15,
+          },
+        }),
       ],
       languages: [],
       paging: { pageIndex: p, pageSize: 2, total: 6 },
       rules: [],
-      users: []
+      users: [],
     });
 }
 
@@ -500,7 +497,7 @@ function shallowRender(props: Partial<App['props']> = {}) {
         breadcrumbs: [],
         key: 'foo',
         name: 'bar',
-        qualifier: 'Doe'
+        qualifier: 'Doe',
       }}
       currentUser={mockLoggedInUser()}
       fetchBranchStatus={jest.fn()}

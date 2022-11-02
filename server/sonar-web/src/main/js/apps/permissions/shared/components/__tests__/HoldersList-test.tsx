@@ -27,21 +27,21 @@ const permissions = [
     category: 'admin',
     permissions: [
       { key: 'bar', name: 'Bar', description: '' },
-      { key: 'baz', name: 'Baz', description: '' }
-    ]
-  }
+      { key: 'baz', name: 'Baz', description: '' },
+    ],
+  },
 ];
 
 const groups = [
   { id: 'foobar', name: 'Foobar', permissions: ['bar'] },
   { id: 'barbaz', name: 'Barbaz', permissions: ['bar'] },
-  { id: 'abc', name: 'abc', permissions: [] }
+  { id: 'abc', name: 'abc', permissions: [] },
 ];
 
 const users = [
   { login: 'foobar', name: 'Foobar', permissions: ['bar'] },
   { login: 'barbaz', name: 'Barbaz', permissions: ['bar'] },
-  { login: 'bcd', name: 'bcd', permissions: [] }
+  { login: 'bcd', name: 'bcd', permissions: [] },
 ];
 
 const elementsContainer = (

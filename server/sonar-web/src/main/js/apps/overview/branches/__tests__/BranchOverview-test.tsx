@@ -24,7 +24,7 @@ import { getMeasuresWithPeriodAndMetrics } from '../../../../api/measures';
 import { getProjectActivity } from '../../../../api/projectActivity';
 import {
   getApplicationQualityGate,
-  getQualityGateProjectStatus
+  getQualityGateProjectStatus,
 } from '../../../../api/quality-gates';
 import { getAllTimeMachineData } from '../../../../api/time-machine';
 import { getActivityGraph, saveActivityGraph } from '../../../../components/activity-graph/utils';
@@ -41,8 +41,8 @@ import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '
 import BranchOverviewRenderer from '../BranchOverviewRenderer';
 
 jest.mock('../../../../helpers/dates', () => ({
-  parseDate: jest.fn(date => `PARSED:${date}`),
-  toNotSoISOString: jest.fn(date => date)
+  parseDate: jest.fn((date) => `PARSED:${date}`),
+  toNotSoISOString: jest.fn((date) => date),
 }));
 
 jest.mock('../../../../api/measures', () => {
@@ -51,7 +51,7 @@ jest.mock('../../../../api/measures', () => {
     getMeasuresWithPeriodAndMetrics: jest.fn((_, metricKeys: string[]) => {
       const metrics: Metric[] = [];
       const measures: Measure[] = [];
-      metricKeys.forEach(key => {
+      metricKeys.forEach((key) => {
         if (key === 'unknown_metric') {
           return;
         }
@@ -68,18 +68,18 @@ jest.mock('../../../../api/measures', () => {
         measures.push(
           mockMeasure({
             metric: key,
-            ...(isDiffMetric(key) ? { leak: '1' } : { period: undefined })
+            ...(isDiffMetric(key) ? { leak: '1' } : { period: undefined }),
           })
         );
       });
       return Promise.resolve({
         component: {
           measures,
-          name: 'foo'
+          name: 'foo',
         },
-        metrics
+        metrics,
       });
-    })
+    }),
   };
 });
 
@@ -99,7 +99,7 @@ jest.mock('../../../../api/quality-gates', () => {
             errorThreshold: '1.0',
             metricKey: MetricKey.new_bugs,
             periodIndex: 1,
-            status: 'ERROR'
+            status: 'ERROR',
           },
           {
             actualValue: '5',
@@ -107,7 +107,7 @@ jest.mock('../../../../api/quality-gates', () => {
             errorThreshold: '2.0',
             metricKey: MetricKey.bugs,
             periodIndex: 0,
-            status: 'ERROR'
+            status: 'ERROR',
           },
           {
             actualValue: '2',
@@ -115,12 +115,12 @@ jest.mock('../../../../api/quality-gates', () => {
             errorThreshold: '1.0',
             metricKey: 'unknown_metric',
             periodIndex: 0,
-            status: 'ERROR'
-          }
-        ]
+            status: 'ERROR',
+          },
+        ],
       })
     ),
-    getApplicationQualityGate: jest.fn().mockResolvedValue(mockQualityGateApplicationStatus())
+    getApplicationQualityGate: jest.fn().mockResolvedValue(mockQualityGateApplicationStatus()),
   };
 });
 
@@ -134,12 +134,12 @@ jest.mock('../../../../api/time-machine', () => {
         { metric: MetricKey.sqale_index, history: [{ date: '2019-01-01', value: '1.0' }] },
         {
           metric: MetricKey.duplicated_lines_density,
-          history: [{ date: '2019-01-02', value: '1.0' }]
+          history: [{ date: '2019-01-02', value: '1.0' }],
         },
         { metric: MetricKey.ncloc, history: [{ date: '2019-01-03', value: '10000' }] },
-        { metric: MetricKey.coverage, history: [{ date: '2019-01-04', value: '95.5' }] }
-      ]
-    })
+        { metric: MetricKey.coverage, history: [{ date: '2019-01-04', value: '95.5' }] },
+      ],
+    }),
   };
 });
 
@@ -152,9 +152,9 @@ jest.mock('../../../../api/projectActivity', () => {
         mockAnalysis(),
         mockAnalysis(),
         mockAnalysis(),
-        mockAnalysis()
-      ]
-    })
+        mockAnalysis(),
+      ],
+    }),
   };
 });
 
@@ -167,18 +167,18 @@ jest.mock('../../../../api/application', () => ({
       {
         branch: 'foo',
         key: 'KEY-P1',
-        name: 'P1'
-      }
+        name: 'P1',
+      },
     ],
-    visibility: 'Private'
+    visibility: 'Private',
   }),
   getApplicationLeak: jest.fn().mockResolvedValue([
     {
       date: '2017-01-05',
       project: 'foo',
-      projectName: 'Foo'
-    }
-  ])
+      projectName: 'Foo',
+    },
+  ]),
 }));
 
 jest.mock('../../../../components/activity-graph/utils', () => {
@@ -187,7 +187,7 @@ jest.mock('../../../../components/activity-graph/utils', () => {
   return {
     getActivityGraph: jest.fn(() => ({ graph: GraphType.coverage })),
     saveActivityGraph: jest.fn(),
-    getHistoryMetrics: jest.fn(() => [MetricKey.lines_to_cover, MetricKey.uncovered_lines])
+    getHistoryMetrics: jest.fn(() => [MetricKey.lines_to_cover, MetricKey.uncovered_lines]),
   };
 });
 
@@ -215,7 +215,7 @@ describe('project overview', () => {
       expect.objectContaining({
         name: 'Foo',
         key: 'foo',
-        status: 'ERROR'
+        status: 'ERROR',
       })
     );
 
@@ -226,16 +226,16 @@ describe('project overview', () => {
       level: 'ERROR',
       metric: MetricKey.new_bugs,
       measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: MetricKey.new_bugs })
-      })
+        metric: expect.objectContaining({ key: MetricKey.new_bugs }),
+      }),
     });
     expect(failedConditions[1]).toMatchObject({
       actual: '5',
       level: 'ERROR',
       metric: MetricKey.bugs,
       measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: MetricKey.bugs })
-      })
+        metric: expect.objectContaining({ key: MetricKey.bugs }),
+      }),
     });
   });
 
@@ -251,7 +251,7 @@ describe('project overview', () => {
 describe('application overview', () => {
   const component = mockComponent({
     breadcrumbs: [mockComponent({ key: 'foo', qualifier: ComponentQualifier.Application })],
-    qualifier: ComponentQualifier.Application
+    qualifier: ComponentQualifier.Application,
   });
 
   it('should render correctly', async () => {
@@ -283,7 +283,7 @@ describe('application overview', () => {
       expect.objectContaining({
         name: 'Foo',
         key: 'foo',
-        status: 'ERROR'
+        status: 'ERROR',
       })
     );
 
@@ -294,23 +294,23 @@ describe('application overview', () => {
       level: 'ERROR',
       metric: MetricKey.coverage,
       measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: MetricKey.coverage })
-      })
+        metric: expect.objectContaining({ key: MetricKey.coverage }),
+      }),
     });
     expect(failedConditions1[1]).toMatchObject({
       actual: '5',
       level: 'ERROR',
       metric: MetricKey.new_bugs,
       measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: MetricKey.new_bugs })
-      })
+        metric: expect.objectContaining({ key: MetricKey.new_bugs }),
+      }),
     });
 
     expect(qgStatus1).toEqual(
       expect.objectContaining({
         name: 'Foo',
         key: 'foo',
-        status: 'ERROR'
+        status: 'ERROR',
       })
     );
 
@@ -321,8 +321,8 @@ describe('application overview', () => {
       level: 'ERROR',
       metric: MetricKey.new_bugs,
       measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: MetricKey.new_bugs })
-      })
+        metric: expect.objectContaining({ key: MetricKey.new_bugs }),
+      }),
     });
   });
 
@@ -347,7 +347,7 @@ it("should correctly load a component's history", async () => {
   expect(measuresHistory![0]).toEqual(
     expect.objectContaining({
       metric: MetricKey.bugs,
-      history: [{ date: 'PARSED:2019-01-05', value: '2.0' }]
+      history: [{ date: 'PARSED:2019-01-05', value: '2.0' }],
     })
   );
 });
@@ -356,7 +356,7 @@ it.each([
   ['no analysis', [], undefined],
   ['1 analysis, no CI data', [mockAnalysis()], false],
   ['1 analysis, no CI detected', [mockAnalysis({ detectedCI: NO_CI_DETECTED })], false],
-  ['1 analysis, CI detected', [mockAnalysis({ detectedCI: 'Cirrus CI' })], true]
+  ['1 analysis, CI detected', [mockAnalysis({ detectedCI: 'Cirrus CI' })], true],
 ])(
   "should correctly flag a project that wasn't analyzed using a CI (%s)",
   async (_, analyses, expected) => {
@@ -389,7 +389,7 @@ function shallowRender(props: Partial<BranchOverview['props']> = {}) {
       component={mockComponent({
         breadcrumbs: [mockComponent({ key: 'foo' })],
         key: 'foo',
-        name: 'Foo'
+        name: 'Foo',
       })}
       {...props}
     />

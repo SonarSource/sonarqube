@@ -31,12 +31,12 @@ jest.mock('../../../../api/quality-profiles', () => ({
         id: '633a5180-1ad7-4008-a5cb-e1d3cec4c816',
         key: 'org.sonarsource.xml:xml',
         name: 'SonarXML',
-        selected: true
-      }
+        selected: true,
+      },
     ],
     paging: { pageIndex: 1, pageSize: 2, total: 10 },
-    more: true
-  })
+    more: true,
+  }),
 }));
 
 it('should render correctly', async () => {
@@ -45,19 +45,19 @@ it('should render correctly', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('default');
   wrapper.setProps({
-    profile: mockQualityProfile({ actions: { associateProjects: false } })
+    profile: mockQualityProfile({ actions: { associateProjects: false } }),
   });
   expect(wrapper).toMatchSnapshot('no rights');
   wrapper.setProps({
     profile: mockQualityProfile({
       projectCount: 0,
       activeRuleCount: 0,
-      actions: { associateProjects: true }
-    })
+      actions: { associateProjects: true },
+    }),
   });
   expect(wrapper).toMatchSnapshot('no active rules, but associated projects');
   wrapper.setProps({
-    profile: mockQualityProfile({ activeRuleCount: 0, actions: { associateProjects: true } })
+    profile: mockQualityProfile({ activeRuleCount: 0, actions: { associateProjects: true } }),
   });
   wrapper.setState({ projects: [] });
   expect(wrapper).toMatchSnapshot('no active rules, no associated projects');

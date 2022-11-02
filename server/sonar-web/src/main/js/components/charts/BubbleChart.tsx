@@ -77,7 +77,7 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
     formatXTick: (d: number) => String(d),
     formatYTick: (d: number) => String(d),
     padding: [10, 10, 10, 10],
-    sizeRange: [5, 45]
+    sizeRange: [5, 45],
   };
 
   constructor(props: Props<T>) {
@@ -90,16 +90,14 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
       const rect = this.node.getBoundingClientRect();
       this.zoom.translateExtent([
         [0, 0],
-        [rect.width, rect.height]
+        [rect.width, rect.height],
       ]);
     }
   }
 
   boundNode = (node: SVGSVGElement) => {
     this.node = node;
-    this.zoom = zoom()
-      .scaleExtent([1, 10])
-      .on('zoom', this.zoomed);
+    this.zoom = zoom().scaleExtent([1, 10]).on('zoom', this.zoomed);
     select(this.node).call(this.zoom as any);
   };
 
@@ -110,8 +108,8 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
       transform: {
         x: x + padding[3] * (k - 1),
         y: y + padding[0] * (k - 1),
-        k
-      }
+        k,
+      },
     });
   };
 
@@ -124,16 +122,16 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
   };
 
   getXRange(xScale: Scale, sizeScale: Scale, availableWidth: number) {
-    const minX = min(this.props.items, d => xScale(d.x) - sizeScale(d.size)) || 0;
-    const maxX = max(this.props.items, d => xScale(d.x) + sizeScale(d.size)) || 0;
+    const minX = min(this.props.items, (d) => xScale(d.x) - sizeScale(d.size)) || 0;
+    const maxX = max(this.props.items, (d) => xScale(d.x) + sizeScale(d.size)) || 0;
     const dMinX = minX < 0 ? xScale.range()[0] - minX : xScale.range()[0];
     const dMaxX = maxX > xScale.range()[1] ? maxX - xScale.range()[1] : 0;
     return [dMinX, availableWidth - dMaxX];
   }
 
   getYRange(yScale: Scale, sizeScale: Scale, availableHeight: number) {
-    const minY = min(this.props.items, d => yScale(d.y) - sizeScale(d.size)) || 0;
-    const maxY = max(this.props.items, d => yScale(d.y) + sizeScale(d.size)) || 0;
+    const minY = min(this.props.items, (d) => yScale(d.y) - sizeScale(d.size)) || 0;
+    const maxY = max(this.props.items, (d) => yScale(d.y) + sizeScale(d.size)) || 0;
     const dMinY = minY < 0 ? yScale.range()[1] - minY : yScale.range()[1];
     const dMaxY = maxY > yScale.range()[0] ? maxY - yScale.range()[0] : 0;
     return [availableHeight - dMaxY, dMinY];
@@ -141,7 +139,7 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
 
   getTicks(scale: Scale, format: (d: number) => string) {
     const zoomAmount = Math.ceil(this.state.transform.k);
-    const ticks = scale.ticks(TICKS_COUNT * zoomAmount).map(tick => format(tick));
+    const ticks = scale.ticks(TICKS_COUNT * zoomAmount).map((tick) => format(tick));
     const uniqueTicksCount = uniq(ticks).length;
     const ticksCount =
       uniqueTicksCount < TICKS_COUNT * zoomAmount ? uniqueTicksCount - 1 : TICKS_COUNT * zoomAmount;
@@ -243,7 +241,8 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
           // eslint-disable-next-line react/no-array-index-key
           key={index}
           x={x}
-          y={y}>
+          y={y}
+        >
           {innerText}
         </text>
       ) : null;
@@ -258,15 +257,15 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
     const availableHeight = this.props.height - this.props.padding[0] - this.props.padding[2];
 
     const xScale = scaleLinear()
-      .domain(this.props.xDomain || [0, max(this.props.items, d => d.x) || 0])
+      .domain(this.props.xDomain || [0, max(this.props.items, (d) => d.x) || 0])
       .range([0, availableWidth])
       .nice();
     const yScale = scaleLinear()
-      .domain(this.props.yDomain || [0, max(this.props.items, d => d.y) || 0])
+      .domain(this.props.yDomain || [0, max(this.props.items, (d) => d.y) || 0])
       .range([availableHeight, 0])
       .nice();
     const sizeScale = scaleLinear()
-      .domain(this.props.sizeDomain || [0, max(this.props.items, d => d.size) || 0])
+      .domain(this.props.sizeDomain || [0, max(this.props.items, (d) => d.size) || 0])
       .range(this.props.sizeRange || []);
 
     const xScaleOriginal = xScale.copy();
@@ -275,7 +274,7 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
     xScale.range(this.getXRange(xScale, sizeScale, availableWidth));
     yScale.range(this.getYRange(yScale, sizeScale, availableHeight));
 
-    const bubbles = sortBy(this.props.items, b => -b.size).map((item, index) => {
+    const bubbles = sortBy(this.props.items, (b) => -b.size).map((item, index) => {
       return (
         <Bubble
           color={item.color}
@@ -299,7 +298,8 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
         className={classNames('bubble-chart')}
         height={this.props.height}
         ref={this.boundNode}
-        width={width}>
+        width={width}
+      >
         <defs>
           <clipPath id="graph-region">
             <rect
@@ -336,7 +336,7 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
             </Link>
           </Tooltip>
         </div>
-        <AutoSizer disableHeight={true}>{size => this.renderChart(size.width)}</AutoSizer>
+        <AutoSizer disableHeight={true}>{(size) => this.renderChart(size.width)}</AutoSizer>
       </div>
     );
   }

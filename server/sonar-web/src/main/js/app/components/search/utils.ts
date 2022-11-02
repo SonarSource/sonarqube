@@ -25,11 +25,11 @@ const ORDER = [
   ComponentQualifier.Portfolio,
   ComponentQualifier.SubPortfolio,
   ComponentQualifier.Application,
-  ComponentQualifier.Project
+  ComponentQualifier.Project,
 ];
 
 export function sortQualifiers(qualifiers: string[]) {
-  return sortBy(qualifiers, qualifier => ORDER.indexOf(qualifier as ComponentQualifier));
+  return sortBy(qualifiers, (qualifier) => ORDER.indexOf(qualifier as ComponentQualifier));
 }
 
 export interface ComponentResult {

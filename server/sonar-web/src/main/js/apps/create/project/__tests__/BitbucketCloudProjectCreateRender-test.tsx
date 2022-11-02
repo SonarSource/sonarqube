@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBitbucketCloudAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import BitbucketCloudProjectCreateRenderer, {
-  BitbucketCloudProjectCreateRendererProps
+  BitbucketCloudProjectCreateRendererProps,
 } from '../BitbucketCloudProjectCreateRender';
 
 it('Should render correctly', () => {
@@ -30,7 +30,7 @@ it('Should render correctly', () => {
   expect(shallowRender({ loading: true })).toMatchSnapshot('Loading...');
   expect(
     shallowRender({
-      showPersonalAccessTokenForm: true
+      showPersonalAccessTokenForm: true,
     })
   ).toMatchSnapshot('Need App password');
 });

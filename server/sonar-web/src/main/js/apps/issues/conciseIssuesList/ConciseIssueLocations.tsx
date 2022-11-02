@@ -45,7 +45,8 @@ export default class ConciseIssueLocations extends React.PureComponent<Props, St
     return (
       <Button
         className="concise-issue-expand location-index link-no-underline"
-        onClick={this.handleExpandClick}>
+        onClick={this.handleExpandClick}
+      >
         ...
       </Button>
     );

@@ -62,7 +62,8 @@ export function DebtValue(props: DebtValueProps) {
           branchLike={branchLike}
           className="overview-measures-value text-light"
           component={component.key}
-          metric={metricKey}>
+          metric={metricKey}
+        >
           {formattedValue}
         </DrilldownLink>
       )}

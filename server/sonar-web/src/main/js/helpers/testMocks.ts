@@ -48,7 +48,7 @@ import {
   RuleParameter,
   SysInfoBase,
   SysInfoCluster,
-  SysInfoStandalone
+  SysInfoStandalone,
 } from '../types/types';
 import { CurrentUser, LoggedInUser, User } from '../types/users';
 
@@ -59,7 +59,7 @@ export function mockAlmApplication(overrides: Partial<AlmApplication> = {}): Alm
     installationUrl: 'https://github.com/apps/greg-sonarcloud/installations/new',
     key: 'github',
     name: 'GitHub',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -70,7 +70,7 @@ export function mockAppState(overrides: Partial<AppState> = {}): AppState {
     qualifiers: ['TRK'],
     settings: {},
     version: '1.0',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -79,7 +79,7 @@ export function mockBaseSysInfo(overrides: Partial<any> = {}): SysInfoBase {
     Health: 'GREEN' as HealthType,
     'Health Causes': [],
     System: {
-      Version: '7.8'
+      Version: '7.8',
     },
     Database: {
       Database: 'PostgreSQL',
@@ -87,18 +87,18 @@ export function mockBaseSysInfo(overrides: Partial<any> = {}): SysInfoBase {
       Username: 'sonar',
       URL: 'jdbc:postgresql://localhost/sonar',
       Driver: 'PostgreSQL JDBC Driver',
-      'Driver Version': '42.2.5'
+      'Driver Version': '42.2.5',
     },
     'Compute Engine Tasks': {
       'Total Pending': 0,
-      'Total In Progress': 0
+      'Total In Progress': 0,
     },
     'Search State': { State: 'GREEN', Nodes: 3 },
     'Search Indexes': {
       'Index components - Docs': 30445,
-      'Index components - Shards': 10
+      'Index components - Shards': 10,
     },
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -109,11 +109,11 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
     System: {
       ...baseInfo.System,
       'High Availability': true,
-      'Server ID': 'asd564-asd54a-5dsfg45'
+      'Server ID': 'asd564-asd54a-5dsfg45',
     },
     Settings: {
       'sonar.cluster.enabled': 'true',
-      'sonar.cluster.node.name': 'server9.example.com'
+      'sonar.cluster.node.name': 'server9.example.com',
     },
     'Application Nodes': [
       {
@@ -122,42 +122,42 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
         Health: 'GREEN' as HealthType,
         'Health Causes': [],
         System: {
-          Version: '7.8'
+          Version: '7.8',
         },
         Plugins: {
-          java: '5.13.0.17924 [SonarJava]'
+          java: '5.13.0.17924 [SonarJava]',
         },
         'Web JVM State': {
           'Max Memory (MB)': 1024,
-          'Free Memory (MB)': 122
+          'Free Memory (MB)': 122,
         },
         'Web Database Connection': {
-          'Pool Active Connections': 1
+          'Pool Active Connections': 1,
         },
         'Web Logging': { 'Logs Level': 'DEBUG' },
         'Web JVM Properties': {
           'file.encoding': 'UTF-8',
-          'file.separator': '/'
+          'file.separator': '/',
         },
         'Compute Engine Tasks': {
           Pending: 0,
-          'In Progress': 0
+          'In Progress': 0,
         },
         'Compute Engine JVM State': {
           'Max Memory (MB)': 1024,
-          'Free Memory (MB)': 78
+          'Free Memory (MB)': 78,
         },
         'Compute Engine Database Connection': {
           'Pool Initial Size': 0,
-          'Pool Active Connections': 0
+          'Pool Active Connections': 0,
         },
         'Compute Engine Logging': {
-          'Logs Level': 'INFO'
+          'Logs Level': 'INFO',
         },
         'Compute Engine JVM Properties': {
           'file.encoding': 'UTF-8',
-          'file.separator': '/'
-        }
+          'file.separator': '/',
+        },
       },
       {
         Name: 'server9.example.com',
@@ -165,44 +165,44 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
         Health: 'GREEN' as HealthType,
         'Health Causes': [],
         System: {
-          Version: '7.8'
+          Version: '7.8',
         },
         Plugins: {
-          java: '5.13.0.17924 [SonarJava]'
+          java: '5.13.0.17924 [SonarJava]',
         },
         'Web JVM State': {
           'Max Memory (MB)': 1024,
-          'Free Memory (MB)': 111
+          'Free Memory (MB)': 111,
         },
         'Web Database Connection': {
           'Pool Active Connections': 0,
-          'Pool Max Connections': 60
+          'Pool Max Connections': 60,
         },
         'Web Logging': { 'Logs Level': 'INFO' },
         'Web JVM Properties': {
           'file.encoding': 'UTF-8',
-          'file.separator': '/'
+          'file.separator': '/',
         },
         'Compute Engine Tasks': {
           Pending: 0,
-          'In Progress': 0
+          'In Progress': 0,
         },
         'Compute Engine JVM State': {
           'Max Memory (MB)': 1024,
-          'Free Memory (MB)': 89
+          'Free Memory (MB)': 89,
         },
         'Compute Engine Database Connection': {
           'Pool Initial Size': 0,
-          'Pool Active Connections': 0
+          'Pool Active Connections': 0,
         },
         'Compute Engine Logging': {
-          'Logs Level': 'INFO'
+          'Logs Level': 'INFO',
         },
         'Compute Engine JVM Properties': {
           'file.encoding': 'UTF-8',
-          'file.separator': '/'
-        }
-      }
+          'file.separator': '/',
+        },
+      },
     ],
     'Search Nodes': [
       {
@@ -210,30 +210,30 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
         Host: '10.0.0.0',
         'Search State': {
           'CPU Usage (%)': 0,
-          'Disk Available': '93 GB'
-        }
+          'Disk Available': '93 GB',
+        },
       },
       {
         Name: 'server.example.com',
         Host: '10.0.0.0',
         'Search State': {
           'CPU Usage (%)': 0,
-          'Disk Available': '93 GB'
-        }
+          'Disk Available': '93 GB',
+        },
       },
       {
         Name: 'server.example.com',
         Host: '10.0.0.0',
         'Search State': {
           'CPU Usage (%)': 0,
-          'Disk Available': '93 GB'
-        }
-      }
+          'Disk Available': '93 GB',
+        },
+      },
     ],
     Statistics: {
-      ncloc: 989880
+      ncloc: 989880,
     },
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -243,7 +243,7 @@ export function mockCondition(overrides: Partial<Condition> = {}): Condition {
     id: '1',
     metric: 'coverage',
     op: 'LT',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -251,9 +251,9 @@ export function mockCurrentUser(overrides: Partial<CurrentUser> = {}): CurrentUs
   return {
     isLoggedIn: false,
     dismissedNotices: {
-      educationPrinciples: false
+      educationPrinciples: false,
     },
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -265,9 +265,9 @@ export function mockLoggedInUser(overrides: Partial<LoggedInUser> = {}): LoggedI
     name: 'Skywalker',
     scmAccounts: [],
     dismissedNotices: {
-      educationPrinciples: false
+      educationPrinciples: false,
     },
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -276,7 +276,7 @@ export function mockGroup(overrides: Partial<Group> = {}): Group {
     id: 1,
     membersCount: 1,
     name: 'Foo',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -292,7 +292,7 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
     status: 'OPEN',
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     type: IssueType.CodeSmell,
-    ...overrides
+    ...overrides,
   };
 
   if (withLocations) {
@@ -302,15 +302,15 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
       {
         locations: [
           loc({ component: overrides.component }),
-          loc({ component: overrides.component })
-        ]
-      }
+          loc({ component: overrides.component }),
+        ],
+      },
     ];
   }
 
   return {
     ...rawIssue,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -337,7 +337,7 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
     status: 'OPEN',
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     transitions: [],
-    type: 'BUG'
+    type: 'BUG',
   };
 
   const loc = mockFlowLocation;
@@ -345,14 +345,14 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
   if (withLocations) {
     issue.flows = [
       [loc(), loc(), loc()],
-      [loc(), loc()]
+      [loc(), loc()],
     ];
     issue.secondaryLocations = [loc(), loc()];
   }
 
   return {
     ...issue,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -364,7 +364,7 @@ export function mockLocation(overrides: Partial<Location> = {}): Location {
     query: {},
     search: '',
     state: {},
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -376,7 +376,7 @@ export function mockMetric(overrides: Partial<Pick<Metric, 'key' | 'name' | 'typ
     id: key,
     key,
     name,
-    type
+    type,
   };
 }
 
@@ -387,10 +387,10 @@ export function mockMeasure(overrides: Partial<Measure> = {}): Measure {
     period: {
       bestValue: true,
       index: 1,
-      value: '1.0'
+      value: '1.0',
     },
     value: '1.0',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -402,10 +402,10 @@ export function mockMeasureEnhanced(overrides: Partial<MeasureEnhanced> = {}): M
     period: {
       bestValue: true,
       index: 1,
-      value: '1.0'
+      value: '1.0',
     },
     value: '1.0',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -414,7 +414,7 @@ export function mockPeriod(overrides: Partial<Period> = {}): Period {
     date: '2019-04-23T02:12:32+0100',
     index: 0,
     mode: 'previous_version',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -432,7 +432,7 @@ export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
     languageName: 'JavaScript',
     name: 'name',
     projectCount: 3,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -445,7 +445,7 @@ export function mockQualityProfileInheritance(
     key: 'foo',
     name: 'Foo',
     overridingRuleCount: 0,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -454,11 +454,11 @@ export function mockQualityProfileChangelogEvent(eventOverride?: any) {
     action: 'ACTIVATED',
     date: '2019-04-23T02:12:32+0100',
     params: {
-      severity: 'MAJOR'
+      severity: 'MAJOR',
     },
     ruleKey: 'rule-key',
     ruleName: 'rule-name',
-    ...eventOverride
+    ...eventOverride,
   };
 }
 
@@ -467,7 +467,7 @@ export function mockQualityProfileExporter(override?: Partial<Exporter>): Export
     key: 'exporter-key',
     name: 'exporter-name',
     languages: ['first-lang', 'second-lang'],
-    ...override
+    ...override,
   };
 }
 
@@ -487,7 +487,7 @@ export function mockRouter(
     push: jest.fn(),
     replace: jest.fn(),
     setRouteLeaveHook: jest.fn(),
-    ...overrides
+    ...overrides,
   } as Router;
 }
 
@@ -502,7 +502,7 @@ export function mockRule(overrides: Partial<Rule> = {}): Rule {
     sysTags: ['a', 'b'],
     tags: ['x'],
     type: 'CODE_SMELL',
-    ...overrides
+    ...overrides,
   } as Rule;
 }
 
@@ -513,7 +513,7 @@ export function mockRuleActivation(overrides: Partial<RuleActivation> = {}): Rul
     params: [{ key: 'foo', value: 'Bar' }],
     qProfile: 'baz',
     severity: 'MAJOR',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -526,8 +526,8 @@ export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetai
     descriptionSections: [
       {
         key: RuleDescriptionSections.DEFAULT,
-        content: '<b>Why</b> Because'
-      }
+        content: '<b>Why</b> Because',
+      },
     ],
     htmlDesc: '',
     mdDesc: '',
@@ -552,7 +552,7 @@ export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetai
     scope: 'MAIN',
     isExternal: false,
     type: 'BUG',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -562,7 +562,7 @@ export function mockRuleDetailsParameter(overrides: Partial<RuleParameter> = {})
     htmlDesc: 'description',
     key: '1',
     type: 'number',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -573,49 +573,49 @@ export function mockStandaloneSysInfo(overrides: Partial<any> = {}): SysInfoStan
     System: {
       ...baseInfo.System,
       'High Availability': false,
-      'Server ID': 'asd564-asd54a-5dsfg45'
+      'Server ID': 'asd564-asd54a-5dsfg45',
     },
     Settings: {
       'sonar.cluster.enabled': 'true',
-      'sonar.cluster.node.name': 'server9.example.com'
+      'sonar.cluster.node.name': 'server9.example.com',
     },
     'Web JVM State': {
       'Max Memory (MB)': 1024,
-      'Free Memory (MB)': 111
+      'Free Memory (MB)': 111,
     },
     'Web Database Connection': {
       'Pool Active Connections': 0,
-      'Pool Max Connections': 60
+      'Pool Max Connections': 60,
     },
     'Web Logging': { 'Logs Level': 'INFO', 'Logs Dir': '/logs' },
     'Web JVM Properties': {
       'file.encoding': 'UTF-8',
-      'file.separator': '/'
+      'file.separator': '/',
     },
     'Compute Engine Tasks': {
       Pending: 0,
-      'In Progress': 0
+      'In Progress': 0,
     },
     'Compute Engine JVM State': {
       'Max Memory (MB)': 1024,
-      'Free Memory (MB)': 89
+      'Free Memory (MB)': 89,
     },
     'Compute Engine Database Connection': {
       'Pool Initial Size': 0,
-      'Pool Active Connections': 0
+      'Pool Active Connections': 0,
     },
     'Compute Engine Logging': {
       'Logs Level': 'DEBUG',
-      'Logs Dir': '/logs'
+      'Logs Dir': '/logs',
     },
     'Compute Engine JVM Properties': {
       'file.encoding': 'UTF-8',
-      'file.separator': '/'
+      'file.separator': '/',
     },
     ALMs: {},
     Bundled: {},
     Plugins: {},
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -625,7 +625,7 @@ export function mockUser(overrides: Partial<User> = {}): User {
     local: true,
     login: 'john.doe',
     name: 'John Doe',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -655,7 +655,7 @@ export function mockLanguage(overrides: Partial<Language> = {}): Language {
   return {
     key: 'css',
     name: 'CSS',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -666,9 +666,9 @@ export function mockFlowLocation(overrides: Partial<FlowLocation> = {}): FlowLoc
       startLine: 1,
       startOffset: 1,
       endLine: 2,
-      endOffset: 2
+      endOffset: 2,
     },
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -678,7 +678,7 @@ export function mockIdentityProvider(overrides: Partial<IdentityProvider> = {}):
     iconPath: '/path/icon.svg',
     key: 'github',
     name: 'Github',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -688,8 +688,8 @@ export function mockRef(
   return {
     current: {
       getBoundingClientRect: jest.fn(),
-      ...overrides.current
-    }
+      ...overrides.current,
+    },
   } as React.RefObject<HTMLElement>;
 }
 
@@ -698,7 +698,7 @@ export function mockPaging(overrides: Partial<Paging> = {}): Paging {
     pageIndex: 1,
     pageSize: 100,
     total: 1000,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -708,7 +708,7 @@ export function mockDumpTask(props: Partial<DumpTask> = {}): DumpTask {
     startedAt: '2020-03-12T12:20:20Z',
     submittedAt: '2020-03-12T12:15:20Z',
     executedAt: '2020-03-12T12:22:20Z',
-    ...props
+    ...props,
   };
 }
 
@@ -718,7 +718,7 @@ export function mockDumpStatus(props: Partial<DumpStatus> = {}): DumpStatus {
     canBeImported: true,
     dumpToImport: '',
     exportedDump: '',
-    ...props
+    ...props,
   };
 }
 

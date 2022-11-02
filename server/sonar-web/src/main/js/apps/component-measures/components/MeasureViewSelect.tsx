@@ -49,21 +49,21 @@ export default class MeasureViewSelect extends React.PureComponent<Props> {
       options.push({
         icon: <TreeIcon />,
         label: translate('component_measures.tab.tree'),
-        value: 'tree'
+        value: 'tree',
       });
     }
     if (hasList(metric.key)) {
       options.push({
         icon: <ListIcon />,
         label: translate('component_measures.tab.list'),
-        value: 'list'
+        value: 'list',
       });
     }
     if (hasTreemap(metric.key, metric.type)) {
       options.push({
         icon: <TreemapIcon />,
         label: translate('component_measures.tab.treemap'),
-        value: 'treemap'
+        value: 'treemap',
       });
     }
     return options;
@@ -99,11 +99,11 @@ export default class MeasureViewSelect extends React.PureComponent<Props> {
         onChange={this.handleChange}
         components={{
           Option: this.renderOption,
-          SingleValue: this.renderValue
+          SingleValue: this.renderValue,
         }}
         options={options}
         isSearchable={false}
-        value={options.find(o => o.value === view)}
+        value={options.find((o) => o.value === view)}
       />
     );
   }

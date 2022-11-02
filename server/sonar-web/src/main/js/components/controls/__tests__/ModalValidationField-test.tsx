@@ -42,7 +42,8 @@ function getWrapper(props = {}) {
       // eslint-disable-next-line jsx-a11y/label-has-associated-control
       label={<label>Foo</label>}
       touched={true}
-      {...props}>
+      {...props}
+    >
       {({ className }) => <input className={className} type="text" />}
     </ModalValidationField>
   );

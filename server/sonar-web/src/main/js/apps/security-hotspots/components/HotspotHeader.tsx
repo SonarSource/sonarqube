@@ -48,7 +48,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
       <div className="display-flex-space-between">
         <Status
           hotspot={hotspot}
-          onStatusChange={statusOption => props.onUpdateHotspot(true, statusOption)}
+          onStatusChange={(statusOption) => props.onUpdateHotspot(true, statusOption)}
         />
         <div className="display-flex-end">
           <div className="display-inline-flex-center it__hs-assignee">

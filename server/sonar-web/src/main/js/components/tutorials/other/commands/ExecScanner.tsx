@@ -47,7 +47,7 @@ export default function ExecScanner(props: ExecScannerProps) {
     '-D' + q('sonar.sources=.'),
     cfamily ? '-D' + q('sonar.cfamily.build-wrapper-output=bw-output') : undefined,
     '-D' + q(`sonar.host.url=${baseUrl}`),
-    isLocal ? '-D' + q(`sonar.login=${token}`) : undefined
+    isLocal ? '-D' + q(`sonar.login=${token}`) : undefined,
   ];
 
   return (
@@ -56,7 +56,7 @@ export default function ExecScanner(props: ExecScannerProps) {
         {translate('onboarding.analysis.sq_scanner.execute')}
       </h4>
       <InstanceMessage message={translate('onboarding.analysis.sq_scanner.execute.text')}>
-        {transformedMessage => <p className="spacer-bottom markdown">{transformedMessage}</p>}
+        {(transformedMessage) => <p className="spacer-bottom markdown">{transformedMessage}</p>}
       </InstanceMessage>
       <CodeSnippet isOneLine={os === OSs.Windows} snippet={command} />
       <p className="big-spacer-top markdown">
@@ -68,7 +68,7 @@ export default function ExecScanner(props: ExecScannerProps) {
               <DocLink to="/analysis/scan/sonarscanner/">
                 {translate('onboarding.analysis.sq_scanner.docs_link')}
               </DocLink>
-            )
+            ),
           }}
         />
       </p>

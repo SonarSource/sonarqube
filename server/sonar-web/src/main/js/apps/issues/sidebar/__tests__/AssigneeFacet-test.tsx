@@ -27,11 +27,7 @@ it('should render', () => {
 });
 
 it('should select unassigned', () => {
-  expect(
-    shallowRender({ assigned: false })
-      .find('ListStyleFacet')
-      .prop('values')
-  ).toEqual(['']);
+  expect(shallowRender({ assigned: false }).find('ListStyleFacet').prop('values')).toEqual(['']);
 });
 
 it('should call onChange', () => {
@@ -54,8 +50,8 @@ describe('test behavior', () => {
     assignees: ['foo', 'baz'],
     referencedUsers: {
       foo: { active: false, login: 'foo' },
-      baz: { active: true, login: 'baz', name: 'Name Baz' }
-    }
+      baz: { active: true, login: 'baz', name: 'Name Baz' },
+    },
   }).instance();
 
   it('should correctly render assignee name', () => {

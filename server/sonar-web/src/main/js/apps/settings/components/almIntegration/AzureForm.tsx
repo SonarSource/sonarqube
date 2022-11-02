@@ -75,7 +75,8 @@ export default function AzureForm(props: AzureFormProps) {
               pat: (
                 <Link
                   to="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
-                  target="_blank">
+                  target="_blank"
+                >
                   {translate('settings.almintegration.form.personal_access_token.azure.help.url')}
                 </Link>
               ),
@@ -84,7 +85,7 @@ export default function AzureForm(props: AzureFormProps) {
                 <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
                   {translate('learn_more')}
                 </DocLink>
-              )
+              ),
             }}
           />
         }

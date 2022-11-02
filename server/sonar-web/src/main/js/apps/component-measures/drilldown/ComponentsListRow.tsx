@@ -37,12 +37,12 @@ interface Props {
 
 export default function ComponentsListRow(props: Props) {
   const { branchLike, component, rootComponent } = props;
-  const otherMeasures = props.otherMetrics.map(metric => {
-    const measure = component.measures.find(measure => measure.metric.key === metric.key);
+  const otherMeasures = props.otherMetrics.map((metric) => {
+    const measure = component.measures.find((measure) => measure.metric.key === metric.key);
     return { ...measure, metric };
   });
   const rowClass = classNames('measure-details-component-row', {
-    selected: props.isSelected
+    selected: props.isSelected,
   });
   return (
     <tr className={rowClass}>
@@ -56,7 +56,7 @@ export default function ComponentsListRow(props: Props) {
 
       <MeasureCell component={component} metric={props.metric} />
 
-      {otherMeasures.map(measure => (
+      {otherMeasures.map((measure) => (
         <MeasureCell
           component={component}
           key={measure.metric.key}

@@ -49,7 +49,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
     project,
     repositories,
     selectedRepository,
-    showingAllRepositories
+    showingAllRepositories,
   } = props;
 
   const repositoryCount = repositories.length;
@@ -61,7 +61,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
       className={classNames('big-spacer-bottom', {
         open,
         'not-clickable': !props.onClick,
-        'no-hover': !props.onClick
+        'no-hover': !props.onClick,
       })}
       onClick={
         props.onClick
@@ -71,7 +71,8 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
             }
       }
       open={open}
-      title={<h3>{title}</h3>}>
+      title={<h3>{title}</h3>}
+    >
       {open && (
         <>
           <div className="display-flex-wrap">
@@ -87,22 +88,24 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                           pathname: '/projects/create',
                           search: queryToSearch({
                             mode: CreateProjectModes.BitbucketServer,
-                            resetPat: 1
-                          })
-                        }}>
+                            resetPat: 1,
+                          }),
+                        }}
+                      >
                         {translate('onboarding.create_project.update_your_token')}
                       </Link>
-                    )
+                    ),
                   }}
                 />
               </Alert>
             )}
 
-            {repositories.map(repo =>
+            {repositories.map((repo) =>
               repo.sqProjectKey ? (
                 <div
                   className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
-                  key={repo.id}>
+                  key={repo.id}
+                >
                   <CheckIcon className="spacer-right" fill={colors.green} size={14} />
                   <div className="overflow-hidden">
                     <div className="little-spacer-bottom text-ellipsis">
@@ -119,12 +122,13 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                   className={classNames(
                     'display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden',
                     {
-                      disabled: disableRepositories
+                      disabled: disableRepositories,
                     }
                   )}
                   key={repo.id}
                   onCheck={() => props.onSelectRepository(repo)}
-                  value={String(repo.id)}>
+                  value={String(repo.id)}
+                >
                   <strong className="text-ellipsis" title={repo.name}>
                     {repo.name}
                   </strong>

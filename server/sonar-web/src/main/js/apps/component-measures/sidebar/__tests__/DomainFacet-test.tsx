@@ -39,7 +39,7 @@ it('should render without overview', () => {
   expect(
     wrapper
       .find('FacetItem')
-      .filterWhere(node => node.getElement().key === 'Reliability')
+      .filterWhere((node) => node.getElement().key === 'Reliability')
       .exists()
   ).toBe(false);
 });
@@ -50,9 +50,9 @@ it('should not display subtitles of new measures if there is none', () => {
     measures: [
       {
         metric: { id: '1', key: 'bugs', type: 'INT', name: 'Bugs', domain: 'Reliability' },
-        value: '5'
-      }
-    ]
+        value: '5',
+      },
+    ],
   };
 
   expect(shallowRender({ domain })).toMatchSnapshot();
@@ -64,9 +64,9 @@ it('should not display subtitles of new measures if there is none, even on last 
     measures: [
       {
         metric: { id: '2', key: 'new_bugs', type: 'INT', name: 'New Bugs', domain: 'Reliability' },
-        value: '5'
-      }
-    ]
+        value: '5',
+      },
+    ],
   };
 
   expect(shallowRender({ domain })).toMatchSnapshot();
@@ -84,11 +84,11 @@ function shallowRender(props: Partial<DomainFacet['props']> = {}) {
               key: 'bugs',
               type: 'INT',
               name: 'Bugs',
-              domain: 'Reliability'
+              domain: 'Reliability',
             },
             value: '5',
             period: { index: 1, value: '5' },
-            leak: '5'
+            leak: '5',
           },
           {
             metric: {
@@ -96,12 +96,12 @@ function shallowRender(props: Partial<DomainFacet['props']> = {}) {
               key: 'new_bugs',
               type: 'INT',
               name: 'New Bugs',
-              domain: 'Reliability'
+              domain: 'Reliability',
             },
             period: { index: 1, value: '5' },
-            leak: '5'
-          }
-        ]
+            leak: '5',
+          },
+        ],
       }}
       onChange={() => {}}
       onToggle={() => {}}

@@ -29,11 +29,11 @@ export const ISSUE_TYPES: IssueType[] = [
   IssueType.Bug,
   IssueType.Vulnerability,
   IssueType.CodeSmell,
-  IssueType.SecurityHotspot
+  IssueType.SecurityHotspot,
 ];
 export const SOURCE_SCOPES = [
   { scope: IssueScope.Main, qualifier: ComponentQualifier.File },
-  { scope: IssueScope.Test, qualifier: ComponentQualifier.TestFile }
+  { scope: IssueScope.Test, qualifier: ComponentQualifier.TestFile },
 ];
 export const RULE_TYPES: RuleType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
@@ -43,15 +43,15 @@ export const RATING_COLORS = [
   {
     fill: colors.successVariant,
     fillTransparent: colors.successVarianta20,
-    stroke: colors.successVariantDark
+    stroke: colors.successVariantDark,
   },
   {
     fill: colors.warningVariant,
     fillTransparent: colors.warningVarianta20,
-    stroke: colors.warningVariantDark
+    stroke: colors.warningVariantDark,
   },
   { fill: colors.warningAccent, fillTransparent: colors.warningAccenta20, stroke: colors.warning },
-  { fill: colors.error400, fillTransparent: colors.error400a20, stroke: colors.error700 }
+  { fill: colors.error400, fillTransparent: colors.error400a20, stroke: colors.error700 },
 ];
 
 export const PROJECT_KEY_MAX_LEN = 400;
@@ -61,7 +61,7 @@ export const ALM_DOCUMENTATION_PATHS = {
   [AlmKeys.BitbucketServer]: '/analysis/bitbucket-integration/',
   [AlmKeys.BitbucketCloud]: '/analysis/bitbucket-cloud-integration/',
   [AlmKeys.GitHub]: '/analysis/github-integration/',
-  [AlmKeys.GitLab]: '/analysis/gitlab-integration/'
+  [AlmKeys.GitLab]: '/analysis/gitlab-integration/',
 };
 
 export const IMPORT_COMPATIBLE_ALMS = [
@@ -69,12 +69,12 @@ export const IMPORT_COMPATIBLE_ALMS = [
   AlmKeys.BitbucketServer,
   AlmKeys.BitbucketCloud,
   AlmKeys.GitHub,
-  AlmKeys.GitLab
+  AlmKeys.GitLab,
 ];
 
 // Count both Bitbuckets as a single ALM.
 export const IMPORT_COMPATIBLE_ALM_COUNT = IMPORT_COMPATIBLE_ALMS.filter(
-  a => a !== AlmKeys.BitbucketCloud
+  (a) => a !== AlmKeys.BitbucketCloud
 ).length;
 
 export const GRADLE_SCANNER_VERSION = '3.5.0.2730';

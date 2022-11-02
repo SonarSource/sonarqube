@@ -28,23 +28,23 @@ import ChangeAdminPasswordApp from '../ChangeAdminPasswordApp';
 import { DEFAULT_ADMIN_PASSWORD } from '../constants';
 
 jest.mock('../../../api/users', () => ({
-  changePassword: jest.fn().mockResolvedValue({})
+  changePassword: jest.fn().mockResolvedValue({}),
 }));
 
 const ui = {
   updateButton: byRole('button', { name: 'update_verb' }),
   passwordInput: byLabelText('users.change_admin_password.form.password', {
     selector: 'input',
-    exact: false
+    exact: false,
   }),
   confirmInput: byLabelText('users.change_admin_password.form.confirm', {
     selector: 'input',
-    exact: false
+    exact: false,
   }),
   unauthorizedMessage: byText('unauthorized.message'),
   defaultPasswordWarningMessage: byText(
     'users.change_admin_password.form.cannot_use_default_password'
-  )
+  ),
 };
 
 it('should disallow change when not an admin', () => {
@@ -68,7 +68,7 @@ it('should allow changing password when using the default admin password', async
   await user.click(ui.updateButton.get());
   expect(changePassword).toHaveBeenCalledWith({
     login: 'admin',
-    password: 'password'
+    password: 'password',
   });
 });
 

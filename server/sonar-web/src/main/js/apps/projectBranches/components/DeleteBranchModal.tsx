@@ -55,11 +55,11 @@ export default class DeleteBranchModal extends React.PureComponent<Props, State>
     const request = isPullRequest(this.props.branchLike)
       ? deletePullRequest({
           project: this.props.component.key,
-          pullRequest: this.props.branchLike.key
+          pullRequest: this.props.branchLike.key,
         })
       : deleteBranch({
           branch: this.props.branchLike.name,
-          project: this.props.component.key
+          project: this.props.component.key,
         });
     request.then(
       () => {

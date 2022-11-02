@@ -58,7 +58,7 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
               <strong>
                 {translate('onboarding.tutorial.with.jenkins.webhook.github.step1.link')}
               </strong>
-            )
+            ),
           }}
         />
         <ul className="list-styled">

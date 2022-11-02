@@ -23,7 +23,7 @@ import {
   mockAvailablePlugin,
   mockInstalledPlugin,
   mockPlugin,
-  mockUpdate
+  mockUpdate,
 } from '../../../../helpers/mocks/plugins';
 import PluginAvailable, { PluginAvailableProps } from '../PluginAvailable';
 
@@ -33,8 +33,8 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       plugin: mockAvailablePlugin({
-        update: mockUpdate({ requires: [mockPlugin()] })
-      })
+        update: mockUpdate({ requires: [mockPlugin()] }),
+      }),
     })
   ).toMatchSnapshot('has requirements');
   const installed = mockInstalledPlugin({ key: 'sonar-bar', name: 'Sonar Bar' });
@@ -43,9 +43,9 @@ it('should render correctly', () => {
       installedPlugins: [installed],
       plugin: mockAvailablePlugin({
         update: mockUpdate({
-          requires: [mockPlugin(), installed]
-        })
-      })
+          requires: [mockPlugin(), installed],
+        }),
+      }),
     })
   ).toMatchSnapshot('has requirements, some of them already met');
 });

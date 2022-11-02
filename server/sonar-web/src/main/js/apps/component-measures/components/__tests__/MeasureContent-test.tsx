@@ -26,7 +26,7 @@ import { waitAndUpdate } from '../../../../helpers/testUtils';
 import MeasureContent from '../MeasureContent';
 
 jest.mock('../../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn()
+  scrollToElement: jest.fn(),
 }));
 
 jest.mock('../../../../api/components', () => {
@@ -47,19 +47,19 @@ jest.mock('../../../../api/components', () => {
           key: 'bugs',
           name: 'Bugs',
           qualitative: true,
-          type: 'INT'
-        }
-      ]
-    })
+          type: 'INT',
+        },
+      ],
+    }),
   };
 });
 
 jest.mock('../../../../api/measures', () => ({
-  getMeasures: jest.fn().mockResolvedValue([{ metric: 'bugs', value: '12', bestValue: false }])
+  getMeasures: jest.fn().mockResolvedValue([{ metric: 'bugs', value: '12', bestValue: false }]),
 }));
 
 const METRICS = {
-  bugs: { id: '1', key: 'bugs', type: 'INT', name: 'Bugs', domain: 'Reliability' }
+  bugs: { id: '1', key: 'bugs', type: 'INT', name: 'Bugs', domain: 'Reliability' },
 };
 
 const WINDOW_HEIGHT = 800;
@@ -73,7 +73,7 @@ beforeAll(() => {
   Object.defineProperty(window, 'innerHeight', {
     writable: true,
     configurable: true,
-    value: WINDOW_HEIGHT
+    value: WINDOW_HEIGHT,
   });
 });
 
@@ -81,7 +81,7 @@ afterAll(() => {
   Object.defineProperty(window, 'innerHeight', {
     writable: true,
     configurable: true,
-    value: originalHeight
+    value: originalHeight,
   });
 });
 
@@ -111,7 +111,7 @@ it('should render correctly for a file', async () => {
     paging: { pageIndex: 1, pageSize: 500, total: 0 },
     baseComponent: mockComponentMeasure(true),
     components: [],
-    metrics: [METRICS.bugs]
+    metrics: [METRICS.bugs],
   });
   const wrapper = shallowRender();
   expect(wrapper.type()).toBeNull();
@@ -124,7 +124,7 @@ it('should test fetchMoreComponents to work correctly', async () => {
     paging: { pageIndex: 12, pageSize: 500, total: 0 },
     baseComponent: mockComponentMeasure(false),
     components: [],
-    metrics: [METRICS.bugs]
+    metrics: [METRICS.bugs],
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -136,7 +136,7 @@ it('should test getComponentRequestParams response for different arguments', () 
   const wrapper = shallowRender({ asc: false });
   const metric = {
     direction: -1,
-    key: 'new_reliability_rating'
+    key: 'new_reliability_rating',
   };
   const reqParamsList = {
     metricKeys: ['new_reliability_rating'],
@@ -147,9 +147,9 @@ it('should test getComponentRequestParams response for different arguments', () 
       metricSort: 'new_reliability_rating',
       metricSortFilter: 'withMeasuresOnly',
       ps: 500,
-      s: 'metricPeriod'
+      s: 'metricPeriod',
     },
-    strategy: 'leaves'
+    strategy: 'leaves',
   };
   expect(wrapper.instance().getComponentRequestParams('list', metric, { asc: true })).toEqual(
     reqParamsList
@@ -167,9 +167,9 @@ it('should test getComponentRequestParams response for different arguments', () 
       metricSort: 'new_lines',
       metricSortFilter: 'withMeasuresOnly',
       ps: 500,
-      s: 'metricPeriod'
+      s: 'metricPeriod',
     },
-    strategy: 'children'
+    strategy: 'children',
   };
   expect(wrapper.instance().getComponentRequestParams('treemap', metric, { asc: true })).toEqual(
     reqParamsTreeMap
@@ -186,9 +186,9 @@ it('should test getComponentRequestParams response for different arguments', () 
       additionalFields: 'metrics',
       asc: false,
       ps: 500,
-      s: 'qualifier,name'
+      s: 'qualifier,name',
     },
-    strategy: 'children'
+    strategy: 'children',
   };
   expect(wrapper.instance().getComponentRequestParams('tree', metric, { asc: false })).toEqual(
     reqParamsTree

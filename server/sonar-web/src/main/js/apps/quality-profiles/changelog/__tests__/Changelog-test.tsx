@@ -32,7 +32,7 @@ function createEvent(overrides?: Partial<ProfileChangelogEvent>): ProfileChangel
     ruleKey: 'squid1234',
     ruleName: 'Do not do this',
     params: {},
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -86,17 +86,12 @@ it('should render events sorted by time and action', () => {
     createEvent({ date: '2019-02-07T14:03:45', action: 'DEACTIVATED' }),
     createEvent({ date: '2019-02-07T14:03:14', action: 'DEACTIVATED' }),
     createEvent({ date: '2019-02-07T14:03:14', action: 'ACTIVATED' }),
-    createEvent({ date: '2019-02-07T14:03:07', action: 'ACTIVATED' })
+    createEvent({ date: '2019-02-07T14:03:07', action: 'ACTIVATED' }),
   ];
   const changelog = shallow(<Changelog events={events} />);
   const rows = changelog.find('tbody').find('tr');
 
-  const getAction = (index: number) =>
-    rows
-      .at(index)
-      .childAt(2)
-      .childAt(0)
-      .text();
+  const getAction = (index: number) => rows.at(index).childAt(2).childAt(0).text();
 
   expect(getAction(0)).toBe('quality_profiles.changelog.DEACTIVATED');
   expect(getAction(1)).toBe('quality_profiles.changelog.ACTIVATED');

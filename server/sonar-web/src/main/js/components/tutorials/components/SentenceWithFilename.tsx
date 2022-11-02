@@ -28,7 +28,7 @@ export interface SentenceWithFilenameProps {
 
 export default function SentenceWithFilename({
   filename,
-  translationKey
+  translationKey,
 }: SentenceWithFilenameProps) {
   return (
     <span className="markdown">
@@ -36,7 +36,7 @@ export default function SentenceWithFilename({
         defaultMessage={translate(translationKey, 'sentence')}
         id={`${translationKey}.sentence`}
         values={{
-          file: <code>{filename}</code>
+          file: <code>{filename}</code>,
         }}
       />
     </span>

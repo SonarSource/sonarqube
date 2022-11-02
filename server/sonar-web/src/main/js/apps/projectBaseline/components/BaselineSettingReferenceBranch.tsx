@@ -58,7 +58,8 @@ export function renderBranchOption(props: OptionProps<BranchOption, false>) {
           overlay={translateWithParameters(
             'baseline.reference_branch.does_not_exist',
             option.value
-          )}>
+          )}
+        >
           <span>
             {option.value} <AlertErrorIcon />
           </span>
@@ -70,7 +71,8 @@ export function renderBranchOption(props: OptionProps<BranchOption, false>) {
               option.isDisabled
                 ? translate('baseline.reference_branch.cannot_be_itself')
                 : undefined
-            }>
+            }
+          >
             {option.value}
           </span>
           {option.isMain && (
@@ -85,11 +87,11 @@ export function renderBranchOption(props: OptionProps<BranchOption, false>) {
 export default function BaselineSettingReferenceBranch(props: BaselineSettingReferenceBranchProps) {
   const { branchList, className, disabled, referenceBranch, selected, settingLevel } = props;
 
-  const currentBranch = branchList.find(b => b.value === referenceBranch) || {
+  const currentBranch = branchList.find((b) => b.value === referenceBranch) || {
     label: referenceBranch,
     value: referenceBranch,
     isMain: false,
-    isInvalid: true
+    isInvalid: true,
   };
 
   return (
@@ -98,7 +100,8 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
       disabled={disabled}
       onClick={() => props.onSelect('REFERENCE_BRANCH')}
       selected={selected}
-      title={translate('baseline.reference_branch')}>
+      title={translate('baseline.reference_branch')}
+    >
       <>
         <p>{translate('baseline.reference_branch.description')}</p>
         {selected && (
@@ -118,7 +121,7 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
                 onChange={(option: BranchOption) => props.onChangeReferenceBranch(option.value)}
                 value={currentBranch}
                 components={{
-                  Option: renderBranchOption
+                  Option: renderBranchOption,
                 }}
               />
             </div>

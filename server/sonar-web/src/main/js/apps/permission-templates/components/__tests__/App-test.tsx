@@ -34,16 +34,16 @@ jest.mock('../../../../api/permissions', () => ({
         updatedAt: '2019-02-07T17:23:26+0100',
         permissions: [
           { key: 'admin', usersCount: 0, groupsCount: 1, withProjectCreator: false },
-          { key: 'codeviewer', usersCount: 0, groupsCount: 1, withProjectCreator: false }
-        ]
-      }
+          { key: 'codeviewer', usersCount: 0, groupsCount: 1, withProjectCreator: false },
+        ],
+      },
     ],
     defaultTemplates: [{ templateId: '1', qualifier: 'TRK' }],
     permissions: [
       { key: 'admin', name: 'Administer', description: 'Admin permission' },
-      { key: 'codeviewer', name: 'See Source Code', description: 'Code viewer permission' }
-    ]
-  })
+      { key: 'codeviewer', name: 'See Source Code', description: 'Code viewer permission' },
+    ],
+  }),
 }));
 
 it('should render correctly', async () => {

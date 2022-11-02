@@ -44,7 +44,8 @@ export default class PluginUpdateButton extends React.PureComponent<Props> {
         <Button
           className="js-update little-spacer-bottom"
           disabled={disabled}
-          onClick={this.handleClick}>
+          onClick={this.handleClick}
+        >
           {translateWithParameters('marketplace.update_to_x', update.release.version)}
         </Button>
       </Tooltip>

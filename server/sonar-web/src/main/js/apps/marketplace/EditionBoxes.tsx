@@ -47,7 +47,7 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
 
   fetchData = () => {
     getMarketplaceNavigation().then(
-      formData => {
+      (formData) => {
         if (this.mounted) {
           this.setState({ ...formData });
         }
@@ -67,7 +67,7 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
 
     return (
       <div className="spacer-bottom marketplace-editions">
-        {visibleEditions.map(edition => (
+        {visibleEditions.map((edition) => (
           <EditionBox
             currentEdition={currentEdition}
             edition={edition}

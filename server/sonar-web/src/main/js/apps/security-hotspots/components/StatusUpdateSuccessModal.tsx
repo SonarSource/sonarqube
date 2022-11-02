@@ -56,7 +56,7 @@ export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModal
           id="hotspots.successfully_changed_to_x"
           defaultMessage={translate('hotspots.find_in_status_filter_x')}
           values={{
-            status_label: <strong>{statusLabel}</strong>
+            status_label: <strong>{statusLabel}</strong>,
           }}
         />
         {closingHotspots && (
@@ -68,10 +68,10 @@ export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModal
                 percentage: (
                   <strong>
                     {formatMeasure(hotspotsReviewedMeasure, 'PERCENT', {
-                      omitExtraDecimalZeros: true
+                      omitExtraDecimalZeros: true,
                     })}
                   </strong>
-                )
+                ),
               }}
             />
           </p>

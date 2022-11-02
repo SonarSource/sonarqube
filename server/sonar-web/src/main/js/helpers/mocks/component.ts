@@ -34,11 +34,11 @@ export function mockComponent(overrides: Partial<Component> = {}): Component {
         deleted: false,
         key: 'my-qp',
         language: 'ts',
-        name: 'Sonar way'
-      }
+        name: 'Sonar way',
+      },
     ],
     tags: [],
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -48,7 +48,7 @@ export function mockTreeComponent(overrides: Partial<TreeComponent>): TreeCompon
     qualifier: ComponentQualifier.Project,
     name: 'component',
     visibility: Visibility.Public,
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -63,7 +63,7 @@ export function mockComponentMeasure(
       qualifier: ComponentQualifier.File,
       path: 'src/index.tsx',
       measures: [{ metric: MetricKey.bugs, value: '1', bestValue: false }],
-      ...overrides
+      ...overrides,
     };
   }
   return {
@@ -71,7 +71,7 @@ export function mockComponentMeasure(
     name: 'Foo',
     qualifier: ComponentQualifier.Project,
     measures: [{ metric: MetricKey.bugs, value: '12', bestValue: false }],
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -83,6 +83,6 @@ export function mockComponentMeasureEnhanced(
     leak: undefined,
     measures: [mockMeasureEnhanced()],
     value: undefined,
-    ...overrides
+    ...overrides,
   };
 }

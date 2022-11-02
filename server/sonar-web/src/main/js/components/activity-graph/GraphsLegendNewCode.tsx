@@ -26,7 +26,8 @@ export default function GraphsLegendNewCode() {
     <Tooltip overlay={translate('project_activity.graphs.new_code_long')}>
       <span
         aria-label={translate('project_activity.graphs.new_code_long')}
-        className="activity-graph-new-code-legend display-flex-center pull-right note">
+        className="activity-graph-new-code-legend display-flex-center pull-right note"
+      >
         {translate('project_activity.graphs.new_code')}
       </span>
     </Tooltip>

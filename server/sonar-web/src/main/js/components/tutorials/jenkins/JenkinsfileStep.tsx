@@ -54,7 +54,7 @@ const BUILDTOOL_COMPONENT_MAP: {
   [BuildTools.Gradle]: Gradle,
   [BuildTools.DotNet]: DotNet,
   [BuildTools.CFamily]: CFamilly,
-  [BuildTools.Other]: Other
+  [BuildTools.Other]: Other,
 };
 
 export function JenkinsfileStep(props: JenkinsfileStepProps) {
@@ -77,7 +77,7 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
               <RenderOptions
                 label={translate('onboarding.build')}
                 checked={buildTool}
-                onCheck={value => setBuildTool(value as BuildTools)}
+                onCheck={(value) => setBuildTool(value as BuildTools)}
                 optionLabelKey="onboarding.build"
                 options={buildToolOrder}
               />
@@ -91,7 +91,7 @@ export function JenkinsfileStep(props: JenkinsfileStepProps) {
               React.createElement(BUILDTOOL_COMPONENT_MAP[buildTool], {
                 component,
                 baseUrl,
-                onDone: props.onDone
+                onDone: props.onDone,
               })}
           </ol>
         </div>

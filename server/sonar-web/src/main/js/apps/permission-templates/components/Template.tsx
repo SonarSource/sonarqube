@@ -26,7 +26,7 @@ import HoldersList from '../../permissions/shared/components/HoldersList';
 import SearchForm from '../../permissions/shared/components/SearchForm';
 import {
   convertToPermissionDefinitions,
-  PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE
+  PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
 } from '../../permissions/utils';
 import TemplateDetails from './TemplateDetails';
 import TemplateHeader from './TemplateHeader';
@@ -53,7 +53,7 @@ export default class Template extends React.PureComponent<Props, State> {
     groups: [],
     loading: false,
     query: '',
-    users: []
+    users: [],
   };
 
   componentDidMount() {
@@ -90,7 +90,7 @@ export default class Template extends React.PureComponent<Props, State> {
         this.setState({
           users,
           groups,
-          loading: false
+          loading: false,
         });
       }
     });
@@ -105,7 +105,7 @@ export default class Template extends React.PureComponent<Props, State> {
     const data: { templateId: string; login: string; permission: string } = {
       templateId: template.id,
       login: user.login,
-      permission
+      permission,
     };
 
     const request = hasPermission
@@ -129,7 +129,7 @@ export default class Template extends React.PureComponent<Props, State> {
     const data = {
       templateId: template.id,
       groupName: group.name,
-      permission
+      permission,
     };
     const request = hasPermission
       ? api.revokeTemplatePermissionFromGroup(data)
@@ -176,14 +176,14 @@ export default class Template extends React.PureComponent<Props, State> {
     const allUsers = [...this.state.users];
 
     const creatorPermissions = this.props.template.permissions
-      .filter(p => p.withProjectCreator)
-      .map(p => p.key);
+      .filter((p) => p.withProjectCreator)
+      .map((p) => p.key);
 
     if (this.shouldDisplayCreator(creatorPermissions)) {
       const creator = {
         login: '<creator>',
         name: translate('permission_templates.project_creators'),
-        permissions: creatorPermissions
+        permissions: creatorPermissions,
       };
 
       allUsers.unshift(creator);
@@ -210,7 +210,8 @@ export default class Template extends React.PureComponent<Props, State> {
           permissions={permissions}
           selectedPermission={this.state.selectedPermission}
           showPublicProjectsWarning={true}
-          users={allUsers}>
+          users={allUsers}
+        >
           <SearchForm
             filter={this.state.filter}
             onFilter={this.handleFilter}

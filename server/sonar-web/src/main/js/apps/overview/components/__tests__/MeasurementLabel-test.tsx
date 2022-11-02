@@ -32,17 +32,17 @@ it('should render correctly for coverage', () => {
     shallowRender({
       measures: [
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.coverage }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.lines_to_cover }) })
-      ]
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.lines_to_cover }) }),
+      ],
     })
   ).toMatchSnapshot();
   expect(
     shallowRender({
       measures: [
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_coverage }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_lines_to_cover }) })
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_lines_to_cover }) }),
       ],
-      useDiffMetric: true
+      useDiffMetric: true,
     })
   ).toMatchSnapshot();
 });
@@ -51,30 +51,30 @@ it('should render correctly for duplications', () => {
   expect(
     shallowRender({
       measures: [
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.duplicated_lines_density }) })
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.duplicated_lines_density }) }),
       ],
-      type: MeasurementType.Duplication
+      type: MeasurementType.Duplication,
     })
   ).toMatchSnapshot();
   expect(
     shallowRender({
       measures: [
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.duplicated_lines_density }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.ncloc }) })
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.ncloc }) }),
       ],
-      type: MeasurementType.Duplication
+      type: MeasurementType.Duplication,
     })
   ).toMatchSnapshot();
   expect(
     shallowRender({
       measures: [
         mockMeasureEnhanced({
-          metric: mockMetric({ key: MetricKey.new_duplicated_lines_density })
+          metric: mockMetric({ key: MetricKey.new_duplicated_lines_density }),
         }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_lines }) })
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_lines }) }),
       ],
       type: MeasurementType.Duplication,
-      useDiffMetric: true
+      useDiffMetric: true,
     })
   ).toMatchSnapshot();
 });

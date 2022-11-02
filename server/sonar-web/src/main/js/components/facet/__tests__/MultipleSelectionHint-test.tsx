@@ -24,7 +24,7 @@ import MultipleSelectionHint from '../MultipleSelectionHint';
 it('should render for mac', () => {
   Object.defineProperty(navigator, 'userAgent', {
     configurable: true,
-    value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4)'
+    value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4)',
   });
   expect(shallow(<MultipleSelectionHint options={3} values={1} />)).toMatchSnapshot();
 });
@@ -32,7 +32,7 @@ it('should render for mac', () => {
 it('should render for windows', () => {
   Object.defineProperty(navigator, 'userAgent', {
     configurable: true,
-    value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
   });
   expect(shallow(<MultipleSelectionHint options={3} values={1} />)).toMatchSnapshot();
 });

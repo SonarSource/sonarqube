@@ -26,7 +26,7 @@ import { BranchLike } from '../../../../../types/branch-like';
 import { Feature } from '../../../../../types/features';
 import { Component } from '../../../../../types/types';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../available-features/withAvailableFeatures';
 import './BranchLikeNavigation.css';
 import CurrentBranchLike from './CurrentBranchLike';
@@ -45,7 +45,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
     component,
     component: { configuration },
     currentBranchLike,
-    projectBinding
+    projectBinding,
   } = props;
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -70,9 +70,10 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
       className={classNames(
         'big-spacer-left flex-0 branch-like-navigation-toggler-container display-flex-center',
         {
-          dropdown: isMenuEnabled
+          dropdown: isMenuEnabled,
         }
-      )}>
+      )}
+    >
       {isMenuEnabled ? (
         <Toggler
           onRequestClose={() => setIsMenuOpen(false)}
@@ -85,12 +86,14 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
               currentBranchLike={currentBranchLike}
               onClose={() => setIsMenuOpen(false)}
             />
-          }>
+          }
+        >
           <ButtonPlain
             className={classNames('branch-like-navigation-toggler', { open: isMenuOpen })}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-expanded={isMenuOpen}
-            aria-haspopup="menu">
+            aria-haspopup="menu"
+          >
             {currentBranchLikeElement}
           </ButtonPlain>
         </Toggler>

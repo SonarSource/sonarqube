@@ -21,7 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
 import DocLink from '../../../../components/common/DocLink';
 import Link from '../../../../components/common/Link';
@@ -56,7 +56,7 @@ const DOCUMENTATION_LINK_SUFFIXES = {
   [SAML]: 'saml/overview',
   [AlmKeys.GitHub]: 'github',
   [AlmKeys.GitLab]: 'gitlab',
-  [AlmKeys.BitbucketServer]: 'bitbucket-cloud'
+  [AlmKeys.BitbucketServer]: 'bitbucket-cloud',
 };
 
 function renderDevOpsIcon(key: string) {
@@ -80,7 +80,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
   const tabs = [
     {
       key: SAML,
-      label: 'SAML'
+      label: 'SAML',
     },
     {
       key: AlmKeys.GitHub,
@@ -89,7 +89,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
           {renderDevOpsIcon(AlmKeys.GitHub)}
           GitHub
         </>
-      )
+      ),
     },
     {
       key: AlmKeys.BitbucketServer,
@@ -98,7 +98,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
           {renderDevOpsIcon(AlmKeys.BitbucketServer)}
           Bitbucket
         </>
-      )
+      ),
     },
     {
       key: AlmKeys.GitLab,
@@ -107,8 +107,8 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
           {renderDevOpsIcon(AlmKeys.GitLab)}
           GitLab
         </>
-      )
-    }
+      ),
+    },
   ];
 
   return (
@@ -127,7 +127,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
                 <Link to="/admin/settings?category=general#sonar.login.message">
                   {translate('settings.authentication.custom_message_information.link')}
                 </Link>
-              )
+              ),
             }}
           />
         </Alert>
@@ -149,13 +149,14 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
         {({ top }) => (
           <div
             style={{
-              maxHeight: `calc(100vh - ${top + HEIGHT_ADJUSTMENT}px)`
+              maxHeight: `calc(100vh - ${top + HEIGHT_ADJUSTMENT}px)`,
             }}
             className="bordered overflow-y-auto tabbed-definitions"
             key={currentTab}
             role="tabpanel"
             aria-labelledby={getTabId(currentTab)}
-            id={getTabPanelId(currentTab)}>
+            id={getTabPanelId(currentTab)}
+          >
             <div className="big-padded-top big-padded-left big-padded-right">
               <Alert variant="info">
                 <FormattedMessage
@@ -164,16 +165,17 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
                   values={{
                     link: (
                       <DocLink
-                        to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[currentTab]}/`}>
+                        to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[currentTab]}/`}
+                      >
                         {translate('settings.authentication.help.link')}
                       </DocLink>
-                    )
+                    ),
                   }}
                 />
               </Alert>
               {currentTab === SAML && (
                 <SamlAuthentication
-                  definitions={definitions.filter(def => def.subCategory === SAML)}
+                  definitions={definitions.filter((def) => def.subCategory === SAML)}
                 />
               )}
 

@@ -103,7 +103,8 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
                 tags={tags}
               />
             }
-            overlayPlacement={PopupPlacement.BottomLeft}>
+            overlayPlacement={PopupPlacement.BottomLeft}
+          >
             <ButtonLink>
               <TagsList
                 allowUpdate={canWrite}
@@ -234,7 +235,8 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
               <Link
                 className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
                 title={translate('permalink')}
-                to={getRuleUrl(ruleDetails.key)}>
+                to={getRuleUrl(ruleDetails.key)}
+              >
                 <LinkIcon />
               </Link>
             )}

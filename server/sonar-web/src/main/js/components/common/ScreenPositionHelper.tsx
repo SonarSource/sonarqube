@@ -50,7 +50,7 @@ export default class ScreenPositionHelper extends React.PureComponent<Props> {
     }
     return {
       top: window.pageYOffset + containerPos.top,
-      left: window.pageXOffset + containerPos.left
+      left: window.pageXOffset + containerPos.left,
     };
   };
 
@@ -58,7 +58,8 @@ export default class ScreenPositionHelper extends React.PureComponent<Props> {
     return (
       <div
         className={this.props.className}
-        ref={container => (this.container = container as HTMLDivElement)}>
+        ref={(container) => (this.container = container as HTMLDivElement)}
+      >
         {this.props.children(this.getPosition())}
       </div>
     );

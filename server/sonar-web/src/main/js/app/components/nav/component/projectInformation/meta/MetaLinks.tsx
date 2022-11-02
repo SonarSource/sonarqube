@@ -53,7 +53,7 @@ export default class MetaLinks extends React.PureComponent<Props, State> {
 
   loadLinks = () =>
     getProjectLinks(this.props.component.key).then(
-      links => {
+      (links) => {
         if (this.mounted) {
           this.setState({ links });
         }
@@ -75,7 +75,7 @@ export default class MetaLinks extends React.PureComponent<Props, State> {
         <div className="big-padded bordered-bottom">
           <h3>{translate('overview.external_links')}</h3>
           <ul className="project-info-list">
-            {orderedLinks.map(link => (
+            {orderedLinks.map((link) => (
               <MetaLink key={link.id} link={link} />
             ))}
           </ul>

@@ -29,35 +29,35 @@ it('should render correctly', () => {
         mockQualityProfile({
           key: 'qp-1',
           name: 'Quality Profile 1',
-          activeDeprecatedRuleCount: 0
+          activeDeprecatedRuleCount: 0,
         }),
         mockQualityProfile({
           key: 'qp-2',
           name: 'Quality Profile 2',
           childrenCount: 1,
-          activeDeprecatedRuleCount: 2
+          activeDeprecatedRuleCount: 2,
         }),
         mockQualityProfile({
           key: 'qp-3',
           name: 'Quality Profile 3',
           depth: 2,
           activeDeprecatedRuleCount: 2,
-          parentKey: 'qp-2'
+          parentKey: 'qp-2',
         }),
         mockQualityProfile({
           key: 'qp-4',
           name: 'Quality Profile 4',
           depth: 3,
           activeDeprecatedRuleCount: 3,
-          parentKey: 'qp-3'
+          parentKey: 'qp-3',
         }),
         mockQualityProfile({
           key: 'qp-5',
           name: 'Quality Profile 5',
           depth: 4,
           activeDeprecatedRuleCount: 4,
-          parentKey: 'qp-4'
-        })
+          parentKey: 'qp-4',
+        }),
       ]}
     />
   );

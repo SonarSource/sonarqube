@@ -56,7 +56,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
   constructor(props: Props) {
     super(props);
 
-    const otherBranches = props.branchList.filter(b => b.name !== props.branch.name);
+    const otherBranches = props.branchList.filter((b) => b.name !== props.branch.name);
     const defaultBranch = otherBranches.length > 0 ? otherBranches[0].name : '';
 
     this.state = {
@@ -64,7 +64,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
       days: this.getValueFromProps('NUMBER_OF_DAYS') || '30',
       referenceBranch: this.getValueFromProps('REFERENCE_BRANCH') || defaultBranch,
       saving: false,
-      selected: this.props.branch.newCodePeriod && this.props.branch.newCodePeriod.type
+      selected: this.props.branch.newCodePeriod && this.props.branch.newCodePeriod.type,
     };
   }
 
@@ -86,7 +86,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
     label: b.name,
     value: b.name,
     isMain: b.isMain,
-    isDisabled: b.name === this.props.branch.name // cannot itself be used as a reference branch
+    isDisabled: b.name === this.props.branch.name, // cannot itself be used as a reference branch
   });
 
   handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -103,21 +103,21 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
         project: component,
         type,
         value,
-        branch: branch.name
+        branch: branch.name,
       }).then(
         () => {
           this.setState({
-            saving: false
+            saving: false,
           });
           this.props.onClose(branch.name, {
             type,
             value,
-            effectiveValue: analysisDate && toNotSoISOString(analysisDate)
+            effectiveValue: analysisDate && toNotSoISOString(analysisDate),
           });
         },
         () => {
           this.setState({
-            saving: false
+            saving: false,
           });
         }
       );
@@ -150,7 +150,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
       currentSettingValue,
       days,
       referenceBranch,
-      selected
+      selected,
     });
 
     return (

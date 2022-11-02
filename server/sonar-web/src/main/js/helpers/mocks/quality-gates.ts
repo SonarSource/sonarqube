@@ -22,7 +22,7 @@ import {
   QualityGateProjectStatus,
   QualityGateStatus,
   QualityGateStatusCondition,
-  QualityGateStatusConditionEnhanced
+  QualityGateStatusConditionEnhanced,
 } from '../../types/quality-gates';
 import { QualityGate } from '../../types/types';
 import { mockMeasureEnhanced, mockMetric } from '../testMocks';
@@ -31,7 +31,7 @@ export function mockQualityGate(overrides: Partial<QualityGate> = {}): QualityGa
   return {
     id: '1',
     name: 'qualitygate',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -44,7 +44,7 @@ export function mockQualityGateStatus(
     key: 'foo',
     name: 'Foo',
     status: 'ERROR',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -57,7 +57,7 @@ export function mockQualityGateStatusCondition(
     level: 'ERROR',
     metric: 'foo',
     op: 'GT',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -71,7 +71,7 @@ export function mockQualityGateStatusConditionEnhanced(
     metric: 'foo',
     op: 'GT',
     measure: mockMeasureEnhanced({ ...(overrides.measure || {}) }),
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -86,12 +86,12 @@ export function mockQualityGateProjectStatus(
         errorThreshold: '1.0',
         metricKey: 'new_bugs',
         periodIndex: 1,
-        status: 'OK'
-      }
+        status: 'OK',
+      },
     ],
     ignoredConditions: false,
     status: 'OK',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -110,7 +110,7 @@ export function mockQualityGateApplicationStatus(
             errorThreshold: '1.0',
             metric: 'coverage',
             status: 'ERROR',
-            value: '10'
+            value: '10',
           },
           {
             comparator: 'GT',
@@ -118,10 +118,10 @@ export function mockQualityGateApplicationStatus(
             metric: 'new_bugs',
             periodIndex: 1,
             status: 'ERROR',
-            value: '5'
-          }
+            value: '5',
+          },
         ],
-        status: 'ERROR'
+        status: 'ERROR',
       },
       {
         key: 'bar',
@@ -133,13 +133,13 @@ export function mockQualityGateApplicationStatus(
             metric: 'new_bugs',
             periodIndex: 1,
             status: 'ERROR',
-            value: '15'
-          }
+            value: '15',
+          },
         ],
-        status: 'ERROR'
-      }
+        status: 'ERROR',
+      },
     ],
     status: 'ERROR',
-    ...overrides
+    ...overrides,
   };
 }

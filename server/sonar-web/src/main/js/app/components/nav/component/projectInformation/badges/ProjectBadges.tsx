@@ -20,7 +20,7 @@
 import * as React from 'react';
 import {
   getProjectBadgesToken,
-  renewProjectBadgesToken
+  renewProjectBadgesToken,
 } from '../../../../../../api/project-badges';
 import CodeSnippet from '../../../../../../components/common/CodeSnippet';
 import { Button } from '../../../../../../components/controls/buttons';
@@ -55,7 +55,7 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
     isRenewing: false,
     token: '',
     selectedType: BadgeType.measure,
-    badgeOptions: { metric: MetricKey.alert_status }
+    badgeOptions: { metric: MetricKey.alert_status },
   };
 
   componentDidMount() {
@@ -72,7 +72,7 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
 
   async fetchToken() {
     const {
-      component: { key }
+      component: { key },
     } = this.props;
     const token = await getProjectBadgesToken(key).catch(() => '');
     if (this.mounted) {
@@ -85,14 +85,14 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
   };
 
   handleUpdateOptions = (options: Partial<BadgeOptions>) => {
-    this.setState(state => ({
-      badgeOptions: { ...state.badgeOptions, ...options }
+    this.setState((state) => ({
+      badgeOptions: { ...state.badgeOptions, ...options },
     }));
   };
 
   handleRenew = async () => {
     const {
-      component: { key }
+      component: { key },
     } = this.props;
 
     this.setState({ isRenewing: true });
@@ -106,13 +106,13 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
   render() {
     const {
       branchLike,
-      component: { key: project, qualifier, configuration }
+      component: { key: project, qualifier, configuration },
     } = this.props;
     const { isRenewing, selectedType, badgeOptions, token } = this.state;
     const fullBadgeOptions = {
       project,
       ...badgeOptions,
-      ...getBranchLikeQuery(branchLike)
+      ...getBranchLikeQuery(branchLike),
     };
     const canRenew = configuration?.showSettings;
 
@@ -166,7 +166,8 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
             <Button
               disabled={isRenewing}
               className="spacer-top it__project-info-renew-badge"
-              onClick={this.handleRenew}>
+              onClick={this.handleRenew}
+            >
               {translate('overview.badges.renew')}
             </Button>
           )}

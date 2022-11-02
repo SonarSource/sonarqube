@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockApplicationPeriod } from '../../../../helpers/mocks/application';
 import {
   ApplicationLeakPeriodInfo,
-  ApplicationLeakPeriodInfoProps
+  ApplicationLeakPeriodInfoProps,
 } from '../ApplicationLeakPeriodInfo';
 
 jest.mock('../../../../components/intl/DateFromNow');

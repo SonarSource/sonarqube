@@ -70,7 +70,8 @@ export function HeaderMeta(props: HeaderMetaProps) {
               'overview.project.last_analysis.date_time',
               lastAnalysisDate
             )}
-            className="spacer-left nowrap note">
+            className="spacer-left nowrap note"
+          >
             {lastAnalysisDate}
           </span>
         )}
@@ -90,7 +91,8 @@ export function HeaderMeta(props: HeaderMetaProps) {
               className="link-no-underline big-spacer-right"
               to={branchLike.url}
               target="_blank"
-              size={12}>
+              size={12}
+            >
               {translate('branches.see_the_pr')}
             </Link>
           )}
@@ -115,7 +117,7 @@ export function getCurrentPage(component: Component, branchLike: BranchLike | un
       currentPage = {
         type: 'APPLICATION',
         component: component.key,
-        branch
+        branch,
       };
       break;
     case ComponentQualifier.Project:
@@ -123,7 +125,7 @@ export function getCurrentPage(component: Component, branchLike: BranchLike | un
       currentPage = {
         type: 'PROJECT',
         component: component.key,
-        branch
+        branch,
       };
       break;
   }

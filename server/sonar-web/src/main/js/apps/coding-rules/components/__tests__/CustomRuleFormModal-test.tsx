@@ -47,11 +47,11 @@ function shallowRender(props: Partial<CustomRuleFormModal['props']> = {}) {
         ...mockRuleDetails({
           params: [
             mockRuleDetailsParameter(),
-            mockRuleDetailsParameter({ key: '2', type: 'TEXT', htmlDesc: undefined })
-          ]
+            mockRuleDetailsParameter({ key: '2', type: 'TEXT', htmlDesc: undefined }),
+          ],
         }),
         createdAt: 'date',
-        repo: 'squid'
+        repo: 'squid',
       }}
       {...props}
     />

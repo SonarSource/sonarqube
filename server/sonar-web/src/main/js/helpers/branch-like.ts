@@ -25,7 +25,7 @@ import {
   BranchParameters,
   BranchStatusData,
   MainBranch,
-  PullRequest
+  PullRequest,
 } from '../types/branch-like';
 import { Dict } from '../types/types';
 
@@ -38,7 +38,7 @@ export function isMainBranch(branchLike?: BranchLike): branchLike is MainBranch 
 }
 
 export function sortBranches(branches: Branch[]) {
-  return orderBy(branches, [b => b.isMain, b => b.name], ['desc', 'asc']);
+  return orderBy(branches, [(b) => b.isMain, (b) => b.name], ['desc', 'asc']);
 }
 
 export function isPullRequest(branchLike?: BranchLike): branchLike is PullRequest {
@@ -46,7 +46,7 @@ export function isPullRequest(branchLike?: BranchLike): branchLike is PullReques
 }
 
 export function sortPullRequests(pullRequests: PullRequest[]) {
-  return orderBy(pullRequests, pr => getPullRequestDisplayName(pr));
+  return orderBy(pullRequests, (pr) => getPullRequestDisplayName(pr));
 }
 
 export function getPullRequestDisplayName(pullRequest: PullRequest) {
@@ -84,34 +84,34 @@ export function isSameBranchLike(a: BranchLike | undefined, b: BranchLike | unde
 export function getBrancheLikesAsTree(branchLikes: BranchLike[]): BranchLikeTree {
   const mainBranch = branchLikes.find(isMainBranch);
   const branches = orderBy(
-    branchLikes.filter(isBranch).filter(b => !isMainBranch(b)),
-    b => b.name
+    branchLikes.filter(isBranch).filter((b) => !isMainBranch(b)),
+    (b) => b.name
   );
-  const pullRequests = orderBy(branchLikes.filter(isPullRequest), b => parseInt(b.key, 10), [
-    'desc'
+  const pullRequests = orderBy(branchLikes.filter(isPullRequest), (b) => parseInt(b.key, 10), [
+    'desc',
   ]);
   const parentlessPullRequests = pullRequests.filter(
-    pr => !pr.isOrphan && ![mainBranch, ...branches].find(b => !!b && b.name === pr.base)
+    (pr) => !pr.isOrphan && ![mainBranch, ...branches].find((b) => !!b && b.name === pr.base)
   );
-  const orphanPullRequests = pullRequests.filter(pr => pr.isOrphan);
+  const orphanPullRequests = pullRequests.filter((pr) => pr.isOrphan);
 
   const tree: BranchLikeTree = {
-    branchTree: branches.map(b => ({ branch: b, pullRequests: getPullRequests(b) })),
+    branchTree: branches.map((b) => ({ branch: b, pullRequests: getPullRequests(b) })),
     parentlessPullRequests,
-    orphanPullRequests
+    orphanPullRequests,
   };
 
   if (mainBranch) {
     tree.mainBranchTree = {
       branch: mainBranch,
-      pullRequests: getPullRequests(mainBranch)
+      pullRequests: getPullRequests(mainBranch),
     };
   }
 
   return tree;
 
   function getPullRequests(branch: Branch) {
-    return pullRequests.filter(pr => !pr.isOrphan && pr.base === branch.name);
+    return pullRequests.filter((pr) => !pr.isOrphan && pr.base === branch.name);
   }
 }
 
@@ -132,7 +132,7 @@ export function fillBranchLike(
   if (branch) {
     return {
       isMain: false,
-      name: branch
+      name: branch,
     } as Branch;
   } else if (pullRequest) {
     return { base: '', branch: '', key: pullRequest, title: '' } as PullRequest;

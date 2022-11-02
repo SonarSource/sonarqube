@@ -35,8 +35,8 @@ jest.mock('../../../../api/issues', () => ({
           values: [
             { val: 'CODE_SMELL', count: 2 },
             { val: 'BUG', count: 1 },
-            { val: 'VULNERABILITY', count: 0 }
-          ]
+            { val: 'VULNERABILITY', count: 0 },
+          ],
         },
         {
           property: 'severities',
@@ -45,19 +45,19 @@ jest.mock('../../../../api/issues', () => ({
             { val: 'INFO', count: 2 },
             { val: 'MINOR', count: 3 },
             { val: 'CRITICAL', count: 4 },
-            { val: 'BLOCKER', count: 5 }
-          ]
+            { val: 'BLOCKER', count: 5 },
+          ],
         },
         {
           property: 'tags',
           values: [
             { val: 'bad-practice', count: 1 },
             { val: 'cert', count: 3 },
-            { val: 'design', count: 1 }
-          ]
-        }
-      ]
-    })
+            { val: 'design', count: 1 },
+          ],
+        },
+      ],
+    }),
 }));
 
 jest.mock('../../../../api/measures', () => ({
@@ -96,8 +96,8 @@ jest.mock('../../../../api/measures', () => ({
       { metric: MetricKey.statements, value: '3' },
       { metric: MetricKey.skipped_tests, value: '0' },
       { metric: MetricKey.test_failures, value: '0' },
-      { metric: MetricKey.violations, value: '1' }
-    ])
+      { metric: MetricKey.violations, value: '1' },
+    ]),
 }));
 
 jest.mock('../../../../api/metrics', () => ({
@@ -137,8 +137,8 @@ jest.mock('../../../../api/metrics', () => ({
       { key: MetricKey.violations, type: 'INT', domain: 'Issues' },
       // next two must be filtered out
       { key: 'data', type: 'DATA' },
-      { key: 'hidden', hidden: true }
-    ])
+      { key: 'hidden', hidden: true },
+    ]),
 }));
 
 const sourceViewerFile: SourceViewerFile = {
@@ -148,7 +148,7 @@ const sourceViewerFile: SourceViewerFile = {
   project: 'project-key',
   projectName: 'Project Name',
   q: ComponentQualifier.File,
-  uuid: 'abcd123'
+  uuid: 'abcd123',
 };
 
 const branchLike = mockBranch({ name: 'feature' });
@@ -164,7 +164,7 @@ it('should render source file', async () => {
 
 it('should render test file', async () => {
   const wrapper = shallowRender({
-    sourceViewerFile: { ...sourceViewerFile, q: ComponentQualifier.TestFile }
+    sourceViewerFile: { ...sourceViewerFile, q: ComponentQualifier.TestFile },
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();

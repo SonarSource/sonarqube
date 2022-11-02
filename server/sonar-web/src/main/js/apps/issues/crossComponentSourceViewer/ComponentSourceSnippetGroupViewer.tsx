@@ -35,7 +35,7 @@ import {
   Snippet,
   SnippetGroup,
   SourceLine,
-  SourceViewerFile
+  SourceViewerFile,
 } from '../../../types/types';
 import { IssueSourceViewerScrollContext } from '../components/IssueSourceViewerScrollContext';
 import IssueSourceViewerHeader from './IssueSourceViewerHeader';
@@ -46,7 +46,7 @@ import {
   EXPAND_BY_LINES,
   getPrimaryLocation,
   linesForSnippets,
-  MERGE_DISTANCE
+  MERGE_DISTANCE,
 } from './utils';
 
 interface Props {
@@ -86,7 +86,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       additionalLines: {},
       highlightedSymbols: [],
       loading: false,
-      snippets: []
+      snippets: [],
     };
   }
 
@@ -108,7 +108,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       locations:
         snippetGroup.locations.length === 0
           ? [getPrimaryLocation(issue)]
-          : [getPrimaryLocation(issue), ...snippetGroup.locations]
+          : [getPrimaryLocation(issue), ...snippetGroup.locations],
     });
 
     this.setState({ snippets });
@@ -118,7 +118,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     const { branchLike, snippetGroup } = this.props;
     const { key } = snippetGroup.component;
     const { snippets } = this.state;
-    const snippet = snippets.find(s => s.index === snippetIndex);
+    const snippet = snippets.find((s) => s.index === snippetIndex);
     if (!snippet) {
       return Promise.reject();
     }
@@ -128,36 +128,36 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       direction === 'up'
         ? {
             from: Math.max(1, snippet.start - extension),
-            to: snippet.start - 1
+            to: snippet.start - 1,
           }
         : {
             from: snippet.end + 1,
-            to: snippet.end + extension
+            to: snippet.end + extension,
           };
     return getSources({
       key,
       ...range,
-      ...getBranchLikeQuery(branchLike)
+      ...getBranchLikeQuery(branchLike),
     })
-      .then(lines =>
+      .then((lines) =>
         lines.reduce((lineMap: Dict<SourceLine>, line) => {
           line.coverageStatus = getCoverageStatus(line);
           lineMap[line.line] = line;
           return lineMap;
         }, {})
       )
-      .then(newLinesMapped => {
+      .then((newLinesMapped) => {
         const newSnippets = expandSnippet({
           direction,
           snippetIndex,
-          snippets
+          snippets,
         });
 
         this.setState(({ additionalLines }) => {
           const combinedLines = { ...additionalLines, ...newLinesMapped };
           return {
             additionalLines: combinedLines,
-            snippets: newSnippets.filter(s => !s.toDelete)
+            snippets: newSnippets.filter((s) => !s.toDelete),
           };
         });
       });
@@ -170,14 +170,14 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     this.setState({ loading: true });
 
     getSources({ key, ...getBranchLikeQuery(branchLike) }).then(
-      lines => {
+      (lines) => {
         if (this.mounted) {
           this.setState(({ additionalLines }) => {
             const combinedLines = { ...additionalLines, ...lines };
             return {
               additionalLines: combinedLines,
               loading: false,
-              snippets: [{ start: 0, end: lines[lines.length - 1].line, index: -1 }]
+              snippets: [{ start: 0, end: lines[lines.length - 1].line, index: -1 }],
             };
           });
         }
@@ -193,7 +193,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   handleSymbolClick = (clickedSymbols: string[]) => {
     this.setState(({ highlightedSymbols }) => {
       const newHighlightedSymbols = clickedSymbols.filter(
-        symb => !highlightedSymbols.includes(symb)
+        (symb) => !highlightedSymbols.includes(symb)
       );
       return { highlightedSymbols: newHighlightedSymbols };
     });
@@ -222,11 +222,11 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     return (
       issuesForLine.length > 0 && (
         <div>
-          {issuesForLine.map(issueToDisplay => {
+          {issuesForLine.map((issueToDisplay) => {
             const isSelectedIssue = issueToDisplay.key === issue.key;
             return (
               <IssueSourceViewerScrollContext.Consumer key={issueToDisplay.key}>
-                {ctx => (
+                {(ctx) => (
                   <IssueMessageBox
                     selected={!!(isSelectedIssue && issueLocations.length > 0)}
                     issue={issueToDisplay}
@@ -243,13 +243,8 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   };
 
   render() {
-    const {
-      branchLike,
-      isLastOccurenceOfPrimaryComponent,
-      issue,
-      lastSnippetGroup,
-      snippetGroup
-    } = this.props;
+    const { branchLike, isLastOccurenceOfPrimaryComponent, issue, lastSnippetGroup, snippetGroup } =
+      this.props;
     const { additionalLines, loading, snippets } = this.state;
     const locations =
       issue.component === snippetGroup.component.key && issue.textRange !== undefined
@@ -264,7 +259,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
 
     const snippetLines = linesForSnippets(snippets, {
       ...snippetGroup.sources,
-      ...additionalLines
+      ...additionalLines,
     });
 
     const isFlow = issue.secondaryLocations.length === 0;
@@ -282,7 +277,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
 
         {issue.component === snippetGroup.component.key && issue.textRange === undefined && (
           <IssueSourceViewerScrollContext.Consumer>
-            {ctx => (
+            {(ctx) => (
               <IssueMessageBox
                 selected={true}
                 issue={issue}

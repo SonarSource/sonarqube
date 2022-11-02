@@ -25,7 +25,7 @@ import {
   ClipboardButton,
   ClipboardButtonProps,
   ClipboardIconButton,
-  ClipboardIconButtonProps
+  ClipboardIconButtonProps,
 } from '../clipboard';
 
 beforeAll(() => {

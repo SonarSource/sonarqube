@@ -34,8 +34,8 @@ it('should trigger showing more', () => {
       blur() {},
       dataset: { qualifier: 'TRK' },
       preventDefault() {},
-      stopPropagation() {}
-    }
+      stopPropagation() {},
+    },
   });
   expect(onMoreClick).toHaveBeenCalledWith('TRK');
 });

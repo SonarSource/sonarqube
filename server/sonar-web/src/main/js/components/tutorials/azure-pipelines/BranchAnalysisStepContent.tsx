@@ -38,7 +38,7 @@ const BUILD_TOOLS_ORDERED: Array<BuildTools> = [
   BuildTools.Maven,
   BuildTools.Gradle,
   BuildTools.CFamily,
-  BuildTools.Other
+  BuildTools.Other,
 ];
 
 export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
@@ -47,14 +47,14 @@ export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
   const [buildTechnology, setBuildTechnology] = React.useState<BuildTools | undefined>();
   const buildToolsList = languages['c']
     ? BUILD_TOOLS_ORDERED
-    : BUILD_TOOLS_ORDERED.filter(t => t !== BuildTools.CFamily);
+    : BUILD_TOOLS_ORDERED.filter((t) => t !== BuildTools.CFamily);
   return (
     <>
       <span>{translate('onboarding.build')}</span>
       <RenderOptions
         label={translate('onboarding.build')}
         checked={buildTechnology}
-        onCheck={value => setBuildTechnology(value as BuildTools)}
+        onCheck={(value) => setBuildTechnology(value as BuildTools)}
         optionLabelKey="onboarding.build"
         options={buildToolsList}
       />

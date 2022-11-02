@@ -64,7 +64,8 @@ export class CreateQualityGateForm extends React.PureComponent<Props, State> {
         header={translate('quality_gates.create')}
         onClose={this.props.onClose}
         onConfirm={this.handleCreate}
-        size="small">
+        size="small"
+      >
         <MandatoryFieldsExplanation className="modal-field" />
         <div className="modal-field">
           <label htmlFor="quality-gate-form-name">

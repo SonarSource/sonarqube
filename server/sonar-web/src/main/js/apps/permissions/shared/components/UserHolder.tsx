@@ -50,13 +50,13 @@ export default class UserHolder extends React.PureComponent<Props, State> {
 
   stopLoading = (permission: string) => {
     if (this.mounted) {
-      this.setState(state => ({ loading: without(state.loading, permission) }));
+      this.setState((state) => ({ loading: without(state.loading, permission) }));
     }
   };
 
   handleCheck = (_checked: boolean, permission?: string) => {
     if (permission !== undefined) {
-      this.setState(state => ({ loading: [...state.loading, permission] }));
+      this.setState((state) => ({ loading: [...state.loading, permission] }));
       this.props.onToggle(this.props.user, permission).then(
         () => this.stopLoading(permission),
         () => this.stopLoading(permission)
@@ -66,7 +66,7 @@ export default class UserHolder extends React.PureComponent<Props, State> {
 
   render() {
     const { user } = this.props;
-    const permissionCells = this.props.permissions.map(permission => (
+    const permissionCells = this.props.permissions.map((permission) => (
       <PermissionCell
         key={isPermissionDefinitionGroup(permission) ? permission.category : permission.key}
         loading={this.state.loading}

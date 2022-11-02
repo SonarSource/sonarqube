@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from '../../../helpers/dates';
 import GraphsTooltipsContentIssues, {
-  GraphsTooltipsContentIssuesProps
+  GraphsTooltipsContentIssuesProps,
 } from '../GraphsTooltipsContentIssues';
 
 it('should render correctly', () => {
@@ -38,16 +38,16 @@ function shallowRender(props: Partial<GraphsTooltipsContentIssuesProps> = {}) {
           metric: 'bugs',
           history: [
             { date: parseDate('2011-10-01T22:01:00.000Z'), value: '500' },
-            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '1.2k' }
-          ]
+            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '1.2k' },
+          ],
         },
         {
           metric: 'reliability_rating',
           history: [
             { date: parseDate('2011-10-01T22:01:00.000Z') },
-            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '5.0' }
-          ]
-        }
+            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '5.0' },
+          ],
+        },
       ]}
       name="bugs"
       tooltipIdx={1}

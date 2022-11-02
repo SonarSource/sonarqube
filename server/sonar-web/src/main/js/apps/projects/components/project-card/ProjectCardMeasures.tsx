@@ -73,7 +73,8 @@ function renderDuplication(props: ProjectCardMeasuresProps) {
   return (
     <ProjectCardMeasure
       metricKey={duplicationMetric}
-      label={translate('metric.duplicated_lines_density.short_name')}>
+      label={translate('metric.duplicated_lines_density.short_name')}
+    >
       <div className="display-flex-center">
         <Measure
           className="big"
@@ -100,13 +101,13 @@ function renderRatings(props: ProjectCardMeasuresProps) {
       noShrink: true,
       metricKey: isNewCode ? MetricKey.new_bugs : MetricKey.bugs,
       metricRatingKey: isNewCode ? MetricKey.new_reliability_rating : MetricKey.reliability_rating,
-      metricType: 'SHORT_INT'
+      metricType: 'SHORT_INT',
     },
     {
       iconLabel: translate('metric.vulnerabilities.name'),
       metricKey: isNewCode ? MetricKey.new_vulnerabilities : MetricKey.vulnerabilities,
       metricRatingKey: isNewCode ? MetricKey.new_security_rating : MetricKey.security_rating,
-      metricType: 'SHORT_INT'
+      metricType: 'SHORT_INT',
     },
     {
       iconKey: 'security_hotspots',
@@ -117,17 +118,17 @@ function renderRatings(props: ProjectCardMeasuresProps) {
       metricRatingKey: isNewCode
         ? MetricKey.new_security_review_rating
         : MetricKey.security_review_rating,
-      metricType: 'PERCENT'
+      metricType: 'PERCENT',
     },
     {
       iconLabel: translate('metric.code_smells.name'),
       metricKey: isNewCode ? MetricKey.new_code_smells : MetricKey.code_smells,
       metricRatingKey: isNewCode ? MetricKey.new_maintainability_rating : MetricKey.sqale_rating,
-      metricType: 'SHORT_INT'
-    }
+      metricType: 'SHORT_INT',
+    },
   ];
 
-  return measureList.map(measure => {
+  return measureList.map((measure) => {
     const { iconKey, iconLabel, metricKey, metricRatingKey, metricType, noShrink } = measure;
 
     return (
@@ -136,7 +137,8 @@ function renderRatings(props: ProjectCardMeasuresProps) {
         key={metricKey}
         metricKey={metricKey}
         iconKey={iconKey}
-        label={iconLabel}>
+        label={iconLabel}
+      >
         <Measure
           className="spacer-right big project-card-measure-secondary-info"
           metricKey={metricKey}
@@ -173,14 +175,14 @@ export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
   const measureList = [
     ...renderRatings(props),
     renderCoverage(props),
-    renderDuplication(props)
+    renderDuplication(props),
   ].filter(isDefined);
 
   return (
     <>
       {isNewCode && newCodeTimespan !== undefined && newCodeStartingDate && (
         <DateTimeFormatter date={newCodeStartingDate}>
-          {formattedNewCodeStartingDate => (
+          {(formattedNewCodeStartingDate) => (
             <p className="spacer-top spacer-bottom" title={formattedNewCodeStartingDate}>
               {translateWithParameters(
                 'projects.new_code_period_x',

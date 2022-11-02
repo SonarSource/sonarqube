@@ -34,8 +34,8 @@ function shallowRender(props: Partial<AnalysisProps> = {}) {
       analysis={mockAnalysis({
         events: [
           { key: '1', category: 'OTHER', name: 'test' },
-          { key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' }
-        ]
+          { key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' },
+        ],
       })}
       qualifier={ComponentQualifier.Project}
       {...props}

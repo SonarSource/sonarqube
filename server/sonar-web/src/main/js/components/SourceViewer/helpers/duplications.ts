@@ -23,7 +23,7 @@ import { Duplication, DuplicationBlock } from '../../../types/types';
 export function filterDuplicationBlocksByLine(blocks: DuplicationBlock[], line: number) {
   /* eslint-disable no-underscore-dangle */
   let foundOne = false;
-  return blocks.filter(b => {
+  return blocks.filter((b) => {
     const outOfBounds = b.from > line || b.from + b.size < line;
     const currentFile = b._ref === '1';
     const shouldDisplayForCurrentFile = outOfBounds || foundOne;
@@ -45,5 +45,5 @@ export function getDuplicationBlocksForIndex(
 }
 
 export function isDuplicationBlockInRemovedComponent(blocks: DuplicationBlock[]) {
-  return blocks.some(b => b._ref === undefined); // eslint-disable-line no-underscore-dangle
+  return blocks.some((b) => b._ref === undefined); // eslint-disable-line no-underscore-dangle
 }

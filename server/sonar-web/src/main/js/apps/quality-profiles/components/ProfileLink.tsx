@@ -33,7 +33,8 @@ export default function ProfileLink({ name, language, children, ...other }: Prop
     <NavLink
       className={({ isActive }) => (isActive ? 'link-no-underline' : '')}
       to={getProfilePath(name, language)}
-      {...other}>
+      {...other}
+    >
       {children}
     </NavLink>
   );

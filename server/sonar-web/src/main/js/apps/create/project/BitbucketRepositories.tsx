@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
-  BitbucketRepository
+  BitbucketRepository,
 } from '../../../types/alm-integration';
 import BitbucketProjectAccordion from './BitbucketProjectAccordion';
 
@@ -56,12 +56,13 @@ export default function BitbucketRepositories(props: BitbucketRepositoriesProps)
       <div className="overflow-hidden spacer-bottom">
         <ButtonLink
           className="pull-right"
-          onClick={() => setOpenProjectKeys(allAreExpanded ? [] : projects.map(p => p.key))}>
+          onClick={() => setOpenProjectKeys(allAreExpanded ? [] : projects.map((p) => p.key))}
+        >
           {allAreExpanded ? translate('collapse_all') : translate('expand_all')}
         </ButtonLink>
       </div>
 
-      {projects.map(project => {
+      {projects.map((project) => {
         const isOpen = openProjectKeys.includes(project.key);
         const { allShown, repositories = [] } = projectRepositories[project.key] || {};
 

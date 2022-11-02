@@ -37,7 +37,7 @@ it('renders correctly for SQ', () => {
         currentUser={{
           isLoggedIn: true,
           permissions: { global: ['provisioning'] },
-          dismissedNotices: {}
+          dismissedNotices: {},
         }}
         router={mockRouter()}
       />

@@ -39,7 +39,7 @@ describe('groupSections', () => {
   it('should correctly group the root field into a main section', () => {
     expect(u.groupSections({ foo: 'Foo', bar: 3, baz: { a: 'a' } })).toEqual({
       mainSection: { foo: 'Foo', bar: 3 },
-      sections: { baz: { a: 'a' } }
+      sections: { baz: { a: 'a' } },
     });
   });
 });
@@ -57,14 +57,14 @@ describe('getSystemLogsLevel', () => {
     expect(
       u.getSystemLogsLevel(
         mockClusterSysInfo({
-          'Application Nodes': [{ Name: 'App 1' }, { Name: 'App 2' }]
+          'Application Nodes': [{ Name: 'App 1' }, { Name: 'App 2' }],
         })
       )
     ).toBe('INFO');
     expect(
       u.getSystemLogsLevel(
         mockClusterSysInfo({
-          'Application Nodes': [{ 'Compute Engine Logging': {} }, { Name: 'App 2' }]
+          'Application Nodes': [{ 'Compute Engine Logging': {} }, { Name: 'App 2' }],
         })
       )
     ).toBe('INFO');
@@ -113,7 +113,7 @@ describe('getStandaloneMainSections', () => {
         'High Availability',
         'Health',
         'Health Causes',
-        'Database'
+        'Database',
       ])
     );
   });
@@ -131,7 +131,7 @@ describe('getClusterMainCardSection', () => {
         'Database',
         'Compute Engine Tasks',
         'Search State',
-        'Search Indexes'
+        'Search Indexes',
       ])
     );
   });
@@ -142,7 +142,7 @@ describe('getSearchNodes', () => {
     expect(
       u.getSearchNodes(
         mockClusterSysInfo({
-          'Search Nodes': [{ Name: 'searchnode1' }]
+          'Search Nodes': [{ Name: 'searchnode1' }],
         })
       )
     ).toEqual([{ Name: 'searchnode1' }]);
@@ -154,7 +154,7 @@ describe('getAppNodes', () => {
     expect(
       u.getAppNodes(
         mockClusterSysInfo({
-          'Application Nodes': [{ Name: 'appnode1' }]
+          'Application Nodes': [{ Name: 'appnode1' }],
         })
       )
     ).toEqual([{ Name: 'appnode1' }]);
@@ -190,7 +190,7 @@ describe('getLogsLevel', () => {
     expect(
       u.getLogsLevel({
         'Web Logging': { 'Logs Level': 'DEBUG' },
-        'Compute Engine Logging': { 'Logs Level': 'TRACE' }
+        'Compute Engine Logging': { 'Logs Level': 'TRACE' },
       })
     ).toEqual('TRACE');
   });
@@ -227,7 +227,7 @@ describe('getClusterVersion', () => {
     expect(
       u.getClusterVersion(
         mockClusterSysInfo({
-          'Application Nodes': [{ System: { Version: '1.0' } }]
+          'Application Nodes': [{ System: { Version: '1.0' } }],
         })
       )
     ).toEqual('1.0');
@@ -241,7 +241,7 @@ describe('getClusterVersion', () => {
       u.getClusterVersion(
         mockClusterSysInfo({
           'Application Nodes': [],
-          System: { Version: '1.0' }
+          System: { Version: '1.0' },
         })
       )
     ).toBeUndefined();

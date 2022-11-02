@@ -77,7 +77,7 @@ export default class Filter extends React.PureComponent<Props> {
   ) => {
     if (event.ctrlKey || event.metaKey) {
       if (this.isSelected(option)) {
-        return value.length > 1 ? value.filter(val => val !== option).join(',') : null;
+        return value.length > 1 ? value.filter((val) => val !== option).join(',') : null;
       }
 
       return value.concat(option).join(',');
@@ -125,7 +125,7 @@ export default class Filter extends React.PureComponent<Props> {
       'button-link',
       {
         active,
-        'search-navigator-facet-half': this.props.halfWidth
+        'search-navigator-facet-half': this.props.halfWidth,
       },
       this.props.optionClassName
     );
@@ -145,8 +145,9 @@ export default class Filter extends React.PureComponent<Props> {
         className={classNames({
           'search-navigator-facet-worse-than-highlight': highlightable,
           last: lastHighlightable,
-          active
-        })}>
+          active,
+        })}
+      >
         <button
           aria-label={this.props.renderAccessibleLabel(option)}
           className={className}
@@ -155,7 +156,8 @@ export default class Filter extends React.PureComponent<Props> {
           tabIndex={0}
           onClick={this.handleClick}
           role="checkbox"
-          aria-checked={this.isSelected(option) || isUnderSelectedOption}>
+          aria-checked={this.isSelected(option) || isUnderSelectedOption}
+        >
           <span className="facet-name">
             {this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}
           </span>
@@ -180,17 +182,17 @@ export default class Filter extends React.PureComponent<Props> {
         const afterHighlight = options.slice(max);
         return (
           <ul className="search-navigator-facet-list projects-facet-list">
-            {beforeHighlight.map(option => this.renderOption(option))}
+            {beforeHighlight.map((option) => this.renderOption(option))}
             {insideHighlight.map((option, i) =>
               this.renderOption(option, true, i === insideHighlight.length - 1)
             )}
-            {afterHighlight.map(option => this.renderOption(option))}
+            {afterHighlight.map((option) => this.renderOption(option))}
           </ul>
         );
       }
       return (
         <ul className="search-navigator-facet-list projects-facet-list">
-          {options.map(option => this.renderOption(option))}
+          {options.map((option) => this.renderOption(option))}
         </ul>
       );
     }
@@ -205,7 +207,8 @@ export default class Filter extends React.PureComponent<Props> {
     return (
       <div
         className={classNames('search-navigator-facet-box', this.props.className)}
-        data-key={this.props.property}>
+        data-key={this.props.property}
+      >
         {this.props.header}
         {this.renderOptions()}
         {this.props.footer}

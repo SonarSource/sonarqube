@@ -31,7 +31,7 @@ import Radio from '../../../components/controls/Radio';
 import Select, {
   BasicSelectOption,
   CreatableSelect,
-  SearchSelect
+  SearchSelect,
 } from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
@@ -85,7 +85,7 @@ enum InputField {
   assignee = 'assignee',
   removeTags = 'removeTags',
   severity = 'severity',
-  type = 'type'
+  type = 'type',
 }
 
 export const MAX_PAGE_SIZE = 500;
@@ -111,10 +111,10 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           }
 
           this.setState({
-            initialTags: tags.map(tag => ({ label: tag, value: tag })),
+            initialTags: tags.map((tag) => ({ label: tag, value: tag })),
             issues,
             loading: false,
-            paging
+            paging,
           });
         }
       },
@@ -136,16 +136,15 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
   handleTagsSearch = (query: string, resolve: (option: TagOption[]) => void) => {
     searchIssueTags({ q: query })
-      .then(tags => tags.map(tag => ({ label: tag, value: tag })))
+      .then((tags) => tags.map((tag) => ({ label: tag, value: tag })))
       .then(resolve)
       .catch(() => resolve([]));
   };
 
-  handleTagsSelect = (field: InputField.addTags | InputField.removeTags) => (
-    options: TagOption[]
-  ) => {
-    this.setState<keyof FormFields>({ [field]: options });
-  };
+  handleTagsSelect =
+    (field: InputField.addTags | InputField.removeTags) => (options: TagOption[]) => {
+      this.setState<keyof FormFields>({ [field]: options });
+    };
 
   handleFieldCheck = (field: keyof FormFields) => (checked: boolean) => {
     if (!checked) {
@@ -176,19 +175,19 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const query = pickBy(
       {
-        add_tags: this.state.addTags && this.state.addTags.map(t => t.value).join(),
+        add_tags: this.state.addTags && this.state.addTags.map((t) => t.value).join(),
         assign: this.state.assignee ? this.state.assignee.value : null,
         comment: this.state.comment,
         do_transition: this.state.transition,
-        remove_tags: this.state.removeTags && this.state.removeTags.map(t => t.value).join(),
+        remove_tags: this.state.removeTags && this.state.removeTags.map((t) => t.value).join(),
         sendNotifications: this.state.notifications,
         set_severity: this.state.severity,
-        set_type: this.state.type
+        set_type: this.state.type,
       },
-      x => x !== undefined
+      (x) => x !== undefined
     );
 
-    const issueKeys = this.state.issues.map(issue => issue.key);
+    const issueKeys = this.state.issues.map((issue) => issue.key);
 
     this.setState({ submitting: true });
     bulkChangeIssues(issueKeys, query).then(
@@ -196,7 +195,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
         this.setState({ submitting: false });
         this.props.onDone();
       },
-      error => {
+      (error) => {
         this.setState({ submitting: false });
         throwGlobalError(error);
       }
@@ -205,9 +204,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
   getAvailableTransitions(issues: Issue[]) {
     const transitions: Dict<number> = {};
-    issues.forEach(issue => {
+    issues.forEach((issue) => {
       if (issue.transitions) {
-        issue.transitions.forEach(t => {
+        issue.transitions.forEach((t) => {
           if (transitions[t] !== undefined) {
             transitions[t]++;
           } else {
@@ -216,9 +215,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
         });
       }
     });
-    return sortBy(Object.keys(transitions)).map(transition => ({
+    return sortBy(Object.keys(transitions)).map((transition) => ({
       transition,
-      count: transitions[transition]
+      count: transitions[transition],
     }));
   }
 
@@ -305,9 +304,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }
 
     const types: IssueType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
-    const options: BasicSelectOption[] = types.map(type => ({
+    const options: BasicSelectOption[] = types.map((type) => ({
       label: translate('issue.type', type),
-      value: type
+      value: type,
     }));
 
     const typeRenderer = (option: BasicSelectOption) => (
@@ -329,7 +328,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           ),
           SingleValue: (props: SingleValueProps<BasicSelectOption>) => (
             <components.SingleValue {...props}>{typeRenderer(props.data)}</components.SingleValue>
-          )
+          ),
         }}
         onChange={this.handleSelectFieldChange('type')}
         options={options}
@@ -348,9 +347,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }
 
     const severities = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
-    const options: BasicSelectOption[] = severities.map(severity => ({
+    const options: BasicSelectOption[] = severities.map((severity) => ({
       label: translate('severity', severity),
-      value: severity
+      value: severity,
     }));
 
     const input = (
@@ -370,7 +369,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
             <components.SingleValue {...props}>
               {<SeverityHelper className="display-flex-center" severity={props.data.value} />}
             </components.SingleValue>
-          )
+          ),
         }}
         options={options}
       />
@@ -398,7 +397,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       defaultOptions: this.state.initialTags,
       isMulti: true,
       onChange: this.handleTagsSelect(field),
-      loadOptions: this.handleTagsSearch
+      loadOptions: this.handleTagsSearch,
     };
 
     const input = allowCreate ? (
@@ -421,14 +420,16 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       <div className="modal-field">
         <fieldset>
           <legend>{translate('issue.transition')}</legend>
-          {transitions.map(transition => (
+          {transitions.map((transition) => (
             <span
               className="bulk-change-radio-button display-flex-center display-flex-space-between"
-              key={transition.transition}>
+              key={transition.transition}
+            >
               <Radio
                 checked={this.state.transition === transition.transition}
                 onCheck={this.handleRadioTransitionChange}
-                value={transition.transition}>
+                value={transition.transition}
+              >
                 {translate('issue.transition', transition.transition)}
               </Radio>
               {this.renderAffected(transition.count)}
@@ -472,7 +473,8 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       className="display-inline-block spacer-top"
       id="send-notifications"
       onCheck={this.handleFieldCheck('notifications')}
-      right={true}>
+      right={true}
+    >
       <strong className="little-spacer-right">{translate('issue.send_notifications')}</strong>
     </Checkbox>
   );
@@ -518,7 +520,8 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
           <Tooltip overlay={!canSubmit ? translate('issue_bulk_change.no_change_selected') : null}>
             <SubmitButton
               disabled={!canSubmit || submitting || issues.length === 0}
-              id="bulk-change-submit">
+              id="bulk-change-submit"
+            >
               {translate('apply')}
             </SubmitButton>
           </Tooltip>

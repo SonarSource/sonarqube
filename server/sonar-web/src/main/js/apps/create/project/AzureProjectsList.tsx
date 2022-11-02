@@ -52,7 +52,7 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
     repositories,
     searchResults,
     searchQuery,
-    selectedRepository
+    selectedRepository,
   } = props;
 
   const [page, setPage] = React.useState(1);
@@ -76,11 +76,12 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
               <Link
                 to={{
                   pathname: '/projects/create',
-                  search: queryToSearch({ mode: CreateProjectModes.AzureDevOps, resetPat: 1 })
-                }}>
+                  search: queryToSearch({ mode: CreateProjectModes.AzureDevOps, resetPat: 1 }),
+                }}
+              >
                 {translate('onboarding.create_project.update_your_token')}
               </Link>
-            )
+            ),
           }}
         />
       </Alert>
@@ -90,14 +91,14 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
   let filteredProjects: AzureProject[];
   if (searchResults !== undefined) {
     filteredProjects = uniqBy(
-      searchResults.map(r => {
+      searchResults.map((r) => {
         return (
-          projects.find(p => p.name === r.projectName) || {
+          projects.find((p) => p.name === r.projectName) || {
             name: r.projectName,
             description: translateWithParameters(
               'onboarding.create_project.azure.search_results_for_project_X',
               r.projectName
-            )
+            ),
           }
         );
       }),
@@ -125,7 +126,7 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
           project={p}
           repositories={
             searchResults
-              ? searchResults.filter(s => s.projectName === p.name)
+              ? searchResults.filter((s) => s.projectName === p.name)
               : repositories[p.name]
           }
           selectedRepository={selectedRepository}
@@ -136,7 +137,7 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
 
       <ListFooter
         count={displayedProjects.length}
-        loadMore={() => setPage(p => p + 1)}
+        loadMore={() => setPage((p) => p + 1)}
         total={filteredProjects.length}
       />
     </div>

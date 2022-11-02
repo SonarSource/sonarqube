@@ -36,7 +36,7 @@ interface Component {
 }
 
 export function sortByType<T extends Pick<Issue, 'type'>>(issues: T[]): T[] {
-  return sortBy(issues, issue => ISSUE_TYPES.indexOf(issue.type as IssueType));
+  return sortBy(issues, (issue) => ISSUE_TYPES.indexOf(issue.type as IssueType));
 }
 
 function injectRelational(
@@ -48,9 +48,9 @@ function injectRelational(
   const newFields: Dict<any> = {};
   const baseValue = issue[baseField];
   if (baseValue !== undefined && source !== undefined) {
-    const lookupValue = source.find(candidate => candidate[lookupField] === baseValue);
+    const lookupValue = source.find((candidate) => candidate[lookupField] === baseValue);
     if (lookupValue != null) {
-      Object.keys(lookupValue).forEach(key => {
+      Object.keys(lookupValue).forEach((key) => {
         const newKey = baseField + key.charAt(0).toUpperCase() + key.slice(1);
         newFields[newKey] = lookupValue[key];
       });
@@ -63,11 +63,11 @@ function injectCommentsRelational(issue: RawIssue, users?: UserBase[]) {
   if (!issue.comments) {
     return {};
   }
-  const comments = issue.comments.map(comment => {
+  const comments = issue.comments.map((comment) => {
     const commentWithAuthor = { ...comment, author: comment.login, login: undefined };
     return {
       ...commentWithAuthor,
-      ...injectRelational(commentWithAuthor, users, 'author', 'login')
+      ...injectRelational(commentWithAuthor, users, 'author', 'login'),
     };
   });
   return { comments };
@@ -86,8 +86,8 @@ function ensureTextRange(issue: RawIssue): { textRange?: TextRange } {
           startLine: issue.line,
           endLine: issue.line,
           startOffset: 0,
-          endOffset: 999999
-        }
+          endOffset: 999999,
+        },
       }
     : {};
 }
@@ -102,40 +102,40 @@ function splitFlows(
   issue: RawIssue,
   components: Component[] = []
 ): { secondaryLocations: FlowLocation[]; flows: FlowLocation[][]; flowsWithType: Flow[] } {
-  if (issue.flows?.some(flow => flow.type !== undefined)) {
+  if (issue.flows?.some((flow) => flow.type !== undefined)) {
     return {
       flows: [],
-      flowsWithType: issue.flows.filter(flow => flow.type !== undefined) as Flow[],
-      secondaryLocations: []
+      flowsWithType: issue.flows.filter((flow) => flow.type !== undefined) as Flow[],
+      secondaryLocations: [],
     };
   }
 
   const parsedFlows: FlowLocation[][] = (issue.flows || [])
-    .filter(flow => flow.locations !== undefined)
-    .map(flow => flow.locations!.filter(location => location.textRange != null))
-    .map(flow =>
-      flow.map(location => {
-        const component = components.find(component => component.key === location.component);
+    .filter((flow) => flow.locations !== undefined)
+    .map((flow) => flow.locations!.filter((location) => location.textRange != null))
+    .map((flow) =>
+      flow.map((location) => {
+        const component = components.find((component) => component.key === location.component);
         return { ...location, componentName: component && component.name };
       })
     );
 
-  const onlySecondaryLocations = parsedFlows.every(flow => flow.length === 1);
+  const onlySecondaryLocations = parsedFlows.every((flow) => flow.length === 1);
 
   return onlySecondaryLocations
     ? { secondaryLocations: orderLocations(flatten(parsedFlows)), flowsWithType: [], flows: [] }
     : {
         secondaryLocations: [],
         flowsWithType: [],
-        flows: parsedFlows.map(reverseLocations)
+        flows: parsedFlows.map(reverseLocations),
       };
 }
 
 function orderLocations(locations: FlowLocation[]) {
   return sortBy(
     locations,
-    location => location.textRange && location.textRange.startLine,
-    location => location.textRange && location.textRange.startOffset
+    (location) => location.textRange && location.textRange.startLine,
+    (location) => location.textRange && location.textRange.startOffset
   );
 }
 
@@ -154,7 +154,7 @@ export function parseIssueFromResponse(
     ...injectCommentsRelational(issue, users),
     ...splitFlows(issue, components),
     ...prepareClosed(issue),
-    ...ensureTextRange(issue)
+    ...ensureTextRange(issue),
   } as Issue;
 }
 
@@ -165,7 +165,7 @@ export const ISSUETYPE_METRIC_KEYS_MAP = {
     rating: MetricKey.sqale_rating,
     newRating: MetricKey.new_maintainability_rating,
     ratingName: 'Maintainability',
-    iconClass: CodeSmellIcon
+    iconClass: CodeSmellIcon,
   },
   [IssueType.Vulnerability]: {
     metric: MetricKey.vulnerabilities,
@@ -173,7 +173,7 @@ export const ISSUETYPE_METRIC_KEYS_MAP = {
     rating: MetricKey.security_rating,
     newRating: MetricKey.new_security_rating,
     ratingName: 'Security',
-    iconClass: VulnerabilityIcon
+    iconClass: VulnerabilityIcon,
   },
   [IssueType.Bug]: {
     metric: MetricKey.bugs,
@@ -181,7 +181,7 @@ export const ISSUETYPE_METRIC_KEYS_MAP = {
     rating: MetricKey.reliability_rating,
     newRating: MetricKey.new_reliability_rating,
     ratingName: 'Reliability',
-    iconClass: BugIcon
+    iconClass: BugIcon,
   },
   [IssueType.SecurityHotspot]: {
     metric: MetricKey.security_hotspots,
@@ -189,6 +189,6 @@ export const ISSUETYPE_METRIC_KEYS_MAP = {
     rating: MetricKey.security_review_rating,
     newRating: MetricKey.new_security_review_rating,
     ratingName: 'SecurityReview',
-    iconClass: SecurityHotspotIcon
-  }
+    iconClass: SecurityHotspotIcon,
+  },
 };

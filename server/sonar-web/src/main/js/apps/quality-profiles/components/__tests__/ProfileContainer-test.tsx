@@ -24,7 +24,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import {
   QualityProfilesContextProps,
-  withQualityProfilesContext
+  withQualityProfilesContext,
 } from '../../qualityProfilesContext';
 import { Profile } from '../../types';
 import { ProfileContainer } from '../ProfileContainer';
@@ -32,7 +32,7 @@ import { ProfileContainer } from '../ProfileContainer';
 it('should render the header and child', () => {
   const targetProfile = mockQualityProfile({ name: 'profile1' });
   renderProfileContainer('/?language=js&name=profile1', {
-    profiles: [mockQualityProfile({ language: 'Java', name: 'profile1' }), targetProfile]
+    profiles: [mockQualityProfile({ language: 'Java', name: 'profile1' }), targetProfile],
   });
 
   expect(screen.getByText('profile1')).toBeInTheDocument();
@@ -40,7 +40,7 @@ it('should render the header and child', () => {
 
 it('should render "not found"', () => {
   renderProfileContainer('/?language=java&name=profile2', {
-    profiles: [mockQualityProfile({ name: 'profile1' }), mockQualityProfile({ name: 'profile2' })]
+    profiles: [mockQualityProfile({ name: 'profile1' }), mockQualityProfile({ name: 'profile2' })],
   });
 
   expect(screen.getByText('quality_profiles.not_found')).toBeInTheDocument();
@@ -48,7 +48,7 @@ it('should render "not found"', () => {
 
 it('should render "not found" for wrong key', () => {
   renderProfileContainer('/?key=wrongKey', {
-    profiles: [mockQualityProfile({ key: 'profileKey' })]
+    profiles: [mockQualityProfile({ key: 'profileKey' })],
   });
 
   expect(screen.getByText('quality_profiles.not_found')).toBeInTheDocument();
@@ -56,7 +56,7 @@ it('should render "not found" for wrong key', () => {
 
 it('should handle getting profile by key', () => {
   renderProfileContainer('/?key=profileKey', {
-    profiles: [mockQualityProfile({ key: 'profileKey', name: 'found the profile' })]
+    profiles: [mockQualityProfile({ key: 'profileKey', name: 'found the profile' })],
   });
 
   expect(screen.getByText('found the profile')).toBeInTheDocument();
@@ -83,7 +83,8 @@ function renderProfileContainer(path: string, overrides: Partial<QualityProfiles
                 updateProfiles={jest.fn()}
                 {...overrides}
               />
-            }>
+            }
+          >
             <Route path="*" element={<WrappedChild />} />
           </Route>
         </Routes>

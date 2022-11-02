@@ -30,7 +30,7 @@ jest.mock('d3-scale', () => {
 
   return {
     ...others,
-    scaleTime: scaleUtc
+    scaleTime: scaleUtc,
   };
 });
 
@@ -44,7 +44,7 @@ it('should render correctly', () => {
   expect(shallowRender({ disableZoom: false, updateZoom: () => {} })).toMatchSnapshot(
     'Zoom enabled'
   );
-  expect(shallowRender({ formatYTick: t => `Nicer tick ${t}` })).toMatchSnapshot('format y tick');
+  expect(shallowRender({ formatYTick: (t) => `Nicer tick ${t}` })).toMatchSnapshot('format y tick');
   expect(shallowRender({ width: undefined })).toMatchSnapshot('no width');
   expect(shallowRender({ height: undefined })).toMatchSnapshot('no height');
   expect(shallowRender({ showAreas: undefined })).toMatchSnapshot('no areas');
@@ -61,7 +61,7 @@ it('should render leak correctly', () => {
 it('should render leak legend correctly', () => {
   const wrapper = shallowRender({
     displayNewCodeLegend: true,
-    leakPeriodDate: new Date('2019-10-02')
+    leakPeriodDate: new Date('2019-10-02'),
   });
 
   const leakNode = wrapper;
@@ -81,8 +81,8 @@ it('should render leak legend correctly for small leak', () => {
       mockData(4, '2020-02-04'),
       mockData(5, '2020-02-05'),
       mockData(6, '2020-02-06'),
-      mockData(7, '2020-02-07')
-    ]
+      mockData(7, '2020-02-07'),
+    ],
   });
 
   const leakNode = wrapper;
@@ -94,7 +94,7 @@ it('should set leakLegendTextWidth correctly', () => {
   const wrapper = shallowRender();
 
   wrapper.instance().setLeakLegendTextWidth({
-    getBoundingClientRect: () => ({ width: 12 } as DOMRect)
+    getBoundingClientRect: () => ({ width: 12 } as DOMRect),
   } as SVGTextElement);
 
   expect(wrapper.state().leakLegendTextWidth).toBe(12);
@@ -155,14 +155,14 @@ it('should handle scroll correcly', () => {
   let updateZoom = jest.fn();
   let preventDefault = jest.fn();
   let wrapper = shallowRender({ updateZoom });
-  wrapper.instance().handleWheel(({
+  wrapper.instance().handleWheel({
     preventDefault,
     deltaX: 1,
     deltaY: -2,
     deltaZ: 0,
     pageX: 100,
     pageY: 1,
-    currentTarget: ({
+    currentTarget: {
       getBoundingClientRect: () => ({
         bottom: 0,
         height: 100,
@@ -172,17 +172,17 @@ it('should handle scroll correcly', () => {
         top: 10,
         x: 12,
         y: 23,
-        toJSON: () => ''
-      })
-    } as any) as SVGElement
-  } as any) as React.WheelEvent<SVGElement>);
+        toJSON: () => '',
+      }),
+    } as any as SVGElement,
+  } as any as React.WheelEvent<SVGElement>);
   expect(preventDefault).toHaveBeenCalled();
   expect(updateZoom).toHaveBeenCalledWith(new Date('2019-10-01T06:24:00.000Z'), undefined);
 
   updateZoom = jest.fn();
   preventDefault = jest.fn();
   wrapper = shallowRender({ updateZoom });
-  wrapper.instance().handleWheel(({
+  wrapper.instance().handleWheel({
     preventDefault,
     deltaX: 1,
     deltaY: 2,
@@ -190,7 +190,7 @@ it('should handle scroll correcly', () => {
     pageX: 100,
     pageY: 1,
     deltaMode: 25,
-    currentTarget: ({
+    currentTarget: {
       getBoundingClientRect: () => ({
         bottom: 0,
         height: 100,
@@ -200,10 +200,10 @@ it('should handle scroll correcly', () => {
         top: 10,
         x: 12,
         y: 23,
-        toJSON: () => ''
-      })
-    } as any) as SVGElement
-  } as any) as React.WheelEvent<SVGElement>);
+        toJSON: () => '',
+      }),
+    } as any as SVGElement,
+  } as any as React.WheelEvent<SVGElement>);
   expect(preventDefault).toHaveBeenCalled();
   expect(updateZoom).toHaveBeenCalledWith(undefined, new Date('2019-10-02T20:48:00.000Z'));
 });
@@ -215,7 +215,7 @@ it('should handle mouse out correcly', () => {
     mouseOver: true,
     selectedDate: new Date(),
     selectedDateXPos: 1,
-    selectedDateIdx: 1
+    selectedDateIdx: 1,
   });
   wrapper.instance().handleMouseOut();
   expect(wrapper.state().mouseOver).toBe(true);
@@ -257,13 +257,13 @@ function shallowRender(props?: Partial<AdvancedTimeline['props']>) {
           data: [
             {
               x: new Date('2019-10-01'),
-              y: 1
+              y: 1,
             },
             {
               x: new Date('2019-10-02'),
-              y: 2
-            }
-          ]
+              y: 2,
+            },
+          ],
         },
         {
           name: 'test-2',
@@ -272,10 +272,10 @@ function shallowRender(props?: Partial<AdvancedTimeline['props']>) {
           data: [
             {
               x: new Date('2019-10-03'),
-              y: 3
-            }
-          ]
-        }
+              y: 3,
+            },
+          ],
+        },
       ]}
       width={100}
       zoomSpeed={1}
@@ -289,6 +289,6 @@ function mockData(i: number, date: string): Chart.Serie {
     name: `t${i}`,
     type: 'type',
     translatedName: '',
-    data: [{ x: new Date(date), y: i }]
+    data: [{ x: new Date(date), y: i }],
   };
 }

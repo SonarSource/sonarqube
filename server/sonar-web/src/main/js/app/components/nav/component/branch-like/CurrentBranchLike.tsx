@@ -48,7 +48,7 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
     component: { configuration },
     currentBranchLike,
     hasManyBranches,
-    projectBinding
+    projectBinding,
   } = props;
 
   const displayName = getBranchLikeDisplayName(currentBranchLike);
@@ -75,7 +75,8 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
                   {translate('application.branches.link')}
                 </Link>
               </>
-            }>
+            }
+          >
             {plusIcon}
           </HelpTooltip>
         );
@@ -97,8 +98,8 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
               {
                 href: 'https://redirect.sonarsource.com/editions/developer.html',
                 label: translate('learn_more'),
-                doc: false
-              }
+                doc: false,
+              },
             ]}
             title={
               projectBinding !== undefined
@@ -107,7 +108,8 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
                     isGitLab ? 'mr' : 'pr'
                   )
                 : translate('branch_like_navigation.no_branch_support.title')
-            }>
+            }
+          >
             {plusIcon}
           </DocumentationTooltip>
         );
@@ -121,20 +123,21 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
             links={[
               {
                 href: '/branches/overview/',
-                label: translate('branch_like_navigation.only_one_branch.documentation')
+                label: translate('branch_like_navigation.only_one_branch.documentation'),
               },
               {
                 href: '/analysis/pull-request/',
-                label: translate('branch_like_navigation.only_one_branch.pr_analysis')
+                label: translate('branch_like_navigation.only_one_branch.pr_analysis'),
               },
               {
                 href: `/tutorials?id=${component.key}`,
                 label: translate('branch_like_navigation.tutorial_for_ci'),
                 inPlace: true,
-                doc: false
-              }
+                doc: false,
+              },
             ]}
-            title={translate('branch_like_navigation.only_one_branch.title')}>
+            title={translate('branch_like_navigation.only_one_branch.title')}
+          >
             {plusIcon}
           </DocumentationTooltip>
         );
@@ -149,7 +152,8 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
       <BranchLikeIcon branchLike={currentBranchLike} fill={colors.info500} />
       <span
         className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
-        title={displayName}>
+        title={displayName}
+      >
         {displayName}
       </span>
       {additionalIcon()}

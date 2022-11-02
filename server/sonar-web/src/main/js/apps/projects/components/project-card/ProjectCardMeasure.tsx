@@ -41,7 +41,8 @@ export default function ProjectCardMeasure(
       className={classNames(
         'display-flex-column overflow-hidden it__project_card_measure',
         className
-      )}>
+      )}
+    >
       <div className="spacer-bottom display-flex-center" title={label}>
         {icon}
         <span className="text-ellipsis">{label}</span>

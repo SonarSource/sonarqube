@@ -23,7 +23,7 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderStepContent } from '../../test-utils';
 import EnvironmentVariablesStep, {
-  EnvironmentVariablesStepProps
+  EnvironmentVariablesStepProps,
 } from '../EnvironmentVariablesStep';
 
 it('should render correctly', () => {

@@ -25,7 +25,7 @@ import {
   getHealthCauses,
   getStandaloneMainSections,
   getStandaloneSecondarySections,
-  ignoreInfoFields
+  ignoreInfoFields,
 } from '../utils';
 import HealthCard from './info-items/HealthCard';
 

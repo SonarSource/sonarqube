@@ -68,11 +68,11 @@ export class Search extends React.PureComponent<Props, State> {
   state: State = { bulkApplyTemplateModal: false, deleteModal: false };
 
   getQualifierOptions = () => {
-    const options = this.props.appState.qualifiers.map(q => ({
+    const options = this.props.appState.qualifiers.map((q) => ({
       label: translate('qualifiers', q),
-      value: q
+      value: q,
     }));
-    return sortBy(options, option => QUALIFIERS_ORDER.indexOf(option.value));
+    return sortBy(options, (option) => QUALIFIERS_ORDER.indexOf(option.value));
   };
 
   onCheck = (checked: boolean) => {
@@ -159,10 +159,10 @@ export class Search extends React.PureComponent<Props, State> {
           isSearchable={false}
           components={{
             Option: this.optionRenderer,
-            SingleValue: this.singleValueRenderer
+            SingleValue: this.singleValueRenderer,
           }}
           options={this.getQualifierOptions()}
-          value={options.find(option => option.value === this.props.qualifiers)}
+          value={options.find((option) => option.value === this.props.qualifiers)}
         />
       </td>
     );
@@ -172,7 +172,7 @@ export class Search extends React.PureComponent<Props, State> {
     const options = [
       { value: 'all', label: translate('visibility.both') },
       { value: 'public', label: translate('visibility.public') },
-      { value: 'private', label: translate('visibility.private') }
+      { value: 'private', label: translate('visibility.private') },
     ];
     return (
       <td className="thin nowrap text-middle">
@@ -183,7 +183,7 @@ export class Search extends React.PureComponent<Props, State> {
           onChange={this.handleVisibilityChange}
           options={options}
           isSearchable={false}
-          value={options.find(option => option.value === (this.props.visibility || 'all'))}
+          value={options.find((option) => option.value === (this.props.visibility || 'all'))}
         />
       </td>
     );
@@ -196,7 +196,8 @@ export class Search extends React.PureComponent<Props, State> {
           checked={this.props.provisioned}
           className="link-checkbox-control"
           id="projects-provisioned"
-          onCheck={this.props.onProvisionedChanged}>
+          onCheck={this.props.onProvisionedChanged}
+        >
           <span className="text-middle little-spacer-left">
             {translate('provisioning.only_provisioned')}
           </span>
@@ -247,7 +248,8 @@ export class Search extends React.PureComponent<Props, State> {
                 <Button
                   className="js-bulk-apply-permission-template"
                   disabled={this.props.selection.length === 0}
-                  onClick={this.handleBulkApplyTemplateClick}>
+                  onClick={this.handleBulkApplyTemplateClick}
+                >
                   {translate('permission_templates.bulk_apply_permission_template')}
                 </Button>
                 {this.props.qualifiers === 'TRK' && (
@@ -259,7 +261,8 @@ export class Search extends React.PureComponent<Props, State> {
                       this.props.selection.length === 0
                         ? translate('permission_templates.select_to_delete')
                         : translate('permission_templates.delete_selected')
-                    }>
+                    }
+                  >
                     {translate('delete')}
                   </Button>
                 )}

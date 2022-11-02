@@ -96,7 +96,7 @@ export default class DateRangeInput extends React.PureComponent<Props> {
             maxDate={maxDate}
             onChange={this.handleToChange}
             placeholder={translate('end_date')}
-            ref={element => (this.toDateInput = element)}
+            ref={(element) => (this.toDateInput = element)}
             value={this.to}
           />
         </div>

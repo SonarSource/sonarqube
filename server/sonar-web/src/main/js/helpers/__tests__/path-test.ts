@@ -23,7 +23,7 @@ import {
   cutLongWords,
   fileFromPath,
   limitComponentName,
-  splitPath
+  splitPath,
 } from '../path';
 
 describe('#collapsedDirFromPath()', () => {
@@ -109,7 +109,7 @@ describe('splitPath', () => {
     expect(splitPath('my/super/path')).toEqual({ head: 'my/super', tail: 'path' });
     expect(splitPath('my/super/very/long/path')).toEqual({
       head: 'my/super/very/long',
-      tail: 'path'
+      tail: 'path',
     });
   });
 });

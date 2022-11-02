@@ -55,14 +55,15 @@ export default function RepositoryVariables(props: RepositoryVariablesProps) {
                     projectBinding
                   )}/admin/addon/admin/pipelines/repository-variables`}
                   target="_blank"
-                  rel="noopener noreferrer">
+                  rel="noopener noreferrer"
+                >
                   {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
                 </a>
               ) : (
                 <strong>
                   {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
                 </strong>
-              )
+              ),
           }}
         />
       </p>
@@ -109,7 +110,7 @@ export default function RepositoryVariables(props: RepositoryVariablesProps) {
             values={{
               extra: <ClipboardIconButton copyValue={baseUrl} />,
               field: <strong>{translate('onboarding.tutorial.env_variables.field')}</strong>,
-              value: <code className="rule">{baseUrl}</code>
+              value: <code className="rule">{baseUrl}</code>,
             }}
           />
         </li>

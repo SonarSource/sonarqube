@@ -23,7 +23,7 @@ import {
   createGroup,
   deleteGroup,
   searchUsersGroups,
-  updateGroup
+  updateGroup,
 } from '../../../../api/user_groups';
 import { mockGroup } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
@@ -35,7 +35,7 @@ jest.mock('../../../../api/user_groups', () => ({
     description: 'Desc foo',
     id: 3,
     membersCount: 0,
-    name: 'Foo'
+    name: 'Foo',
   }),
   deleteGroup: jest.fn().mockResolvedValue({}),
   searchUsersGroups: jest.fn().mockResolvedValue({
@@ -46,18 +46,18 @@ jest.mock('../../../../api/user_groups', () => ({
         description: 'Owners of organization foo',
         id: 1,
         membersCount: 1,
-        name: 'Owners'
+        name: 'Owners',
       },
       {
         default: true,
         description: 'Members of organization foo',
         id: 2,
         membersCount: 2,
-        name: 'Members'
-      }
-    ]
+        name: 'Members',
+      },
+    ],
   }),
-  updateGroup: jest.fn().mockResolvedValue({})
+  updateGroup: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => {
@@ -112,7 +112,7 @@ it('should correctly handle edition', async () => {
     description: 'foo',
     id: 1,
     membersCount: 1,
-    name: 'bar'
+    name: 'bar',
   });
 });
 

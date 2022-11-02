@@ -21,7 +21,7 @@ import * as React from 'react';
 import {
   getReportStatus,
   subscribeToEmailReport,
-  unsubscribeFromEmailReport
+  unsubscribeFromEmailReport,
 } from '../../api/component-report';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';

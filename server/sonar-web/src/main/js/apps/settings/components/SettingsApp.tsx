@@ -24,7 +24,7 @@ import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
-  removeWhitePageClass
+  removeWhitePageClass,
 } from '../../../helpers/pages';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
@@ -66,9 +66,9 @@ export class SettingsApp extends React.PureComponent<Props, State> {
   fetchSettings = async () => {
     const { component } = this.props;
 
-    const definitions: ExtendedSettingDefinition[] = await getDefinitions(
-      component?.key
-    ).catch(() => []);
+    const definitions: ExtendedSettingDefinition[] = await getDefinitions(component?.key).catch(
+      () => []
+    );
 
     if (this.mounted) {
       this.setState({ definitions, loading: false });

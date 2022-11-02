@@ -33,7 +33,7 @@ export interface ProjectLeakPeriodInfoProps extends WrappedComponentProps {
 export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
   const {
     intl: { formatDate, formatTime },
-    leakPeriod
+    leakPeriod,
   } = props;
 
   const leakPeriodLabel = getPeriodLabel(
@@ -67,7 +67,7 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
         {leakPeriodLabel}
       </div>
       <DateFromNow date={leakPeriodDate}>
-        {fromNow => (
+        {(fromNow) => (
           <div className="note little-spacer-top">
             {translateWithParameters(
               leakPeriod.mode === 'previous_analysis'

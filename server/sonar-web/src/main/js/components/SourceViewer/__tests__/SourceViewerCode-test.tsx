@@ -30,40 +30,20 @@ it('should correctly flag a line for scrolling', () => {
   const sources = [
     mockSourceLine({ line: 1, coverageStatus: 'covered', isNew: false }),
     mockSourceLine({ line: 2, coverageStatus: 'partially-covered', isNew: false }),
-    mockSourceLine({ line: 3, coverageStatus: 'uncovered', isNew: true })
+    mockSourceLine({ line: 3, coverageStatus: 'uncovered', isNew: true }),
   ];
   let wrapper = shallowRender({ sources, metricKey: MetricKey.uncovered_lines });
 
-  expect(
-    wrapper
-      .find(Line)
-      .at(1)
-      .props().scrollToUncoveredLine
-  ).toBe(true);
-  expect(
-    wrapper
-      .find(Line)
-      .at(2)
-      .props().scrollToUncoveredLine
-  ).toBe(false);
+  expect(wrapper.find(Line).at(1).props().scrollToUncoveredLine).toBe(true);
+  expect(wrapper.find(Line).at(2).props().scrollToUncoveredLine).toBe(false);
 
   wrapper = shallowRender({
     sources,
-    metricKey: MetricKey.new_uncovered_lines
+    metricKey: MetricKey.new_uncovered_lines,
   });
 
-  expect(
-    wrapper
-      .find(Line)
-      .at(1)
-      .props().scrollToUncoveredLine
-  ).toBe(false);
-  expect(
-    wrapper
-      .find(Line)
-      .at(2)
-      .props().scrollToUncoveredLine
-  ).toBe(true);
+  expect(wrapper.find(Line).at(1).props().scrollToUncoveredLine).toBe(false);
+  expect(wrapper.find(Line).at(2).props().scrollToUncoveredLine).toBe(true);
 });
 
 function shallowRender(props: Partial<SourceViewerCode['props']> = {}) {

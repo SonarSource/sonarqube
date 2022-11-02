@@ -30,7 +30,7 @@ import {
   BitbucketCloudBindingDefinition,
   BitbucketServerBindingDefinition,
   GithubBindingDefinition,
-  GitlabBindingDefinition
+  GitlabBindingDefinition,
 } from '../../../../types/alm-settings';
 import AzureForm from './AzureForm';
 import BitbucketForm from './BitbucketForm';
@@ -54,9 +54,7 @@ export interface AlmBindingDefinitionFormProps {
   validationError?: string;
 }
 
-export default class AlmBindingDefinitionFormRenderer extends React.PureComponent<
-  AlmBindingDefinitionFormProps
-> {
+export default class AlmBindingDefinitionFormRenderer extends React.PureComponent<AlmBindingDefinitionFormProps> {
   renderForm = () => {
     const { alm, formData, isUpdate, bitbucketVariant } = this.props;
 
@@ -100,13 +98,8 @@ export default class AlmBindingDefinitionFormRenderer extends React.PureComponen
   };
 
   render() {
-    const {
-      isUpdate,
-      alreadyHaveInstanceConfigured,
-      canSubmit,
-      submitting,
-      validationError
-    } = this.props;
+    const { isUpdate, alreadyHaveInstanceConfigured, canSubmit, submitting, validationError } =
+      this.props;
     const header = translate('settings.almintegration.form.header', isUpdate ? 'edit' : 'create');
 
     const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -119,7 +112,8 @@ export default class AlmBindingDefinitionFormRenderer extends React.PureComponen
         contentLabel={header}
         onRequestClose={this.props.onCancel}
         shouldCloseOnOverlayClick={false}
-        size="medium">
+        size="medium"
+      >
         <form className="views-form" onSubmit={handleSubmit}>
           <div className="modal-head">
             <h2>{header}</h2>

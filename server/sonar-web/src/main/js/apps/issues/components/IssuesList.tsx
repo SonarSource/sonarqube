@@ -43,7 +43,7 @@ interface State {
 
 export default class IssuesList extends React.PureComponent<Props, State> {
   state: State = {
-    prerender: true
+    prerender: true,
   };
 
   componentDidMount() {

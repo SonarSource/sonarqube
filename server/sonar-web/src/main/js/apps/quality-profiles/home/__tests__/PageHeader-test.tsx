@@ -23,7 +23,7 @@ import {
   mockLanguage,
   mockLocation,
   mockQualityProfile,
-  mockRouter
+  mockRouter,
 } from '../../../../helpers/testMocks';
 import { click } from '../../../../helpers/testUtils';
 import { PageHeader } from '../PageHeader';

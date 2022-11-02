@@ -36,7 +36,7 @@ jest.mock('../../../../api/settings');
 const extensions = [
   { key: AdminPageExtension.GovernanceConsole, name: 'Portfolios' },
   { key: 'license/app', name: 'License Manager' },
-  { key: 'license/support', name: 'Support' }
+  { key: 'license/support', name: 'Support' },
 ];
 
 jest.mock('date-fns', () => {
@@ -44,15 +44,15 @@ jest.mock('date-fns', () => {
   const dateFns = jest.requireActual('date-fns');
   return {
     ...dateFns,
-    endOfDay: jest.fn().mockImplementation(d => d),
-    startOfDay: jest.fn().mockImplementation(d => d)
+    endOfDay: jest.fn().mockImplementation((d) => d),
+    startOfDay: jest.fn().mockImplementation((d) => d),
   };
 });
 
 jest.mock('../../../../helpers/dates', () => {
   return {
     ...jest.requireActual('../../../../helpers/dates'),
-    now: jest.fn(() => new Date('2020-07-21T12:00:00Z'))
+    now: jest.fn(() => new Date('2020-07-21T12:00:00Z')),
   };
 });
 
@@ -66,7 +66,7 @@ const ui = {
   customRadio: byRole('radio', { name: 'audit_logs.range_option.custom' }),
   downloadSentenceStart: byText('audit_logs.download_start.sentence.1'),
   startDateInput: byPlaceholderText('start_date'),
-  endDateInput: byPlaceholderText('end_date')
+  endDateInput: byPlaceholderText('end_date'),
 };
 
 let handler: SettingsServiceMock;
@@ -116,19 +116,19 @@ it('should handle download button click', async () => {
   await user.click(ui.startDateInput.get());
 
   await selectEvent.select(screen.getByRole('textbox', { name: 'select_month' }), [
-    getShortMonthName(getMonth(startDay))
+    getShortMonthName(getMonth(startDay)),
   ]);
   await selectEvent.select(screen.getByRole('textbox', { name: 'select_year' }), [
-    getYear(startDay)
+    getYear(startDay),
   ]);
   await user.click(screen.getByText(getDate(startDay)));
   await user.click(ui.endDateInput.get());
 
   await selectEvent.select(screen.getByRole('textbox', { name: 'select_month' }), [
-    getShortMonthName(getMonth(endDate))
+    getShortMonthName(getMonth(endDate)),
   ]);
   await selectEvent.select(screen.getByRole('textbox', { name: 'select_year' }), [
-    getYear(endDate)
+    getYear(endDate),
   ]);
   await user.click(screen.getByText(getDate(endDate)));
 

@@ -43,7 +43,7 @@ export default function Projects(props: Props) {
 
       {projects.length > 0 && (
         <ul className="account-projects-list">
-          {projects.map(project => (
+          {projects.map((project) => (
             <li key={project.key}>
               <ProjectCard project={project} />
             </li>

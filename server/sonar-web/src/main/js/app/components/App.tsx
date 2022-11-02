@@ -68,7 +68,7 @@ export class App extends React.PureComponent<Props> {
 
   renderPreconnectLink = () => {
     const {
-      appState: { settings }
+      appState: { settings },
     } = this.props;
 
     const enableGravatar = settings[GlobalSettingKeys.EnableGravatar] === 'true';

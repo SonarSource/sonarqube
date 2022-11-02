@@ -24,7 +24,7 @@ import {
   fetchQualityGate,
   fetchQualityGates,
   getGateForProject,
-  searchProjects
+  searchProjects,
 } from '../../api/quality-gates';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
@@ -52,7 +52,7 @@ export class ProjectQualityGateApp extends React.PureComponent<Props, State> {
   state: State = {
     loading: true,
     selectedQualityGateId: USE_SYSTEM_DEFAULT,
-    submitting: false
+    submitting: false,
   };
 
   componentDidMount() {
@@ -85,10 +85,10 @@ export class ProjectQualityGateApp extends React.PureComponent<Props, State> {
     // selected, or if we're inheriting the system default.
     const selected = await searchProjects({
       gateName: qualityGate.name,
-      query: component.key
+      query: component.key,
     })
       .then(({ results }) => {
-        return Boolean(results.find(r => r.key === component.key)?.selected);
+        return Boolean(results.find((r) => r.key === component.key)?.selected);
       })
       .catch(() => false);
 
@@ -99,7 +99,7 @@ export class ProjectQualityGateApp extends React.PureComponent<Props, State> {
   fetchDetailedQualityGates = async () => {
     const { qualitygates } = await fetchQualityGates();
     return Promise.all(
-      qualitygates.map(async qg => {
+      qualitygates.map(async (qg) => {
         const detailedQp = await fetchQualityGate({ id: qg.id }).catch(() => qg);
         return { ...detailedQp, ...qg };
       })
@@ -112,7 +112,7 @@ export class ProjectQualityGateApp extends React.PureComponent<Props, State> {
 
     const [allQualityGates, currentQualityGate] = await Promise.all([
       this.fetchDetailedQualityGates(),
-      getGateForProject({ project: component.key })
+      getGateForProject({ project: component.key }),
     ]).catch(() => []);
 
     if (allQualityGates && currentQualityGate) {
@@ -123,7 +123,7 @@ export class ProjectQualityGateApp extends React.PureComponent<Props, State> {
           allQualityGates,
           currentQualityGate,
           selectedQualityGateId: usingDefault ? USE_SYSTEM_DEFAULT : currentQualityGate.id,
-          loading: false
+          loading: false,
         });
       }
     } else if (this.mounted) {
@@ -148,14 +148,14 @@ export class ProjectQualityGateApp extends React.PureComponent<Props, State> {
     if (selectedQualityGateId === USE_SYSTEM_DEFAULT) {
       await dissociateGateWithProject({
         gateId: currentQualityGate.id,
-        projectKey: component.key
+        projectKey: component.key,
       }).catch(() => {
         /* noop */
       });
     } else {
       await associateGateWithProject({
         gateId: selectedQualityGateId,
-        projectKey: component.key
+        projectKey: component.key,
       }).catch(() => {
         /* noop */
       });
@@ -166,8 +166,8 @@ export class ProjectQualityGateApp extends React.PureComponent<Props, State> {
 
       const newGate =
         selectedQualityGateId === USE_SYSTEM_DEFAULT
-          ? allQualityGates.find(gate => gate.isDefault)
-          : allQualityGates.find(gate => gate.id === selectedQualityGateId);
+          ? allQualityGates.find((gate) => gate.isDefault)
+          : allQualityGates.find((gate) => gate.id === selectedQualityGateId);
 
       if (newGate) {
         this.setState({ currentQualityGate: newGate, submitting: false });
@@ -181,13 +181,8 @@ export class ProjectQualityGateApp extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const {
-      allQualityGates,
-      currentQualityGate,
-      loading,
-      selectedQualityGateId,
-      submitting
-    } = this.state;
+    const { allQualityGates, currentQualityGate, loading, selectedQualityGateId, submitting } =
+      this.state;
 
     return (
       <ProjectQualityGateAppRenderer

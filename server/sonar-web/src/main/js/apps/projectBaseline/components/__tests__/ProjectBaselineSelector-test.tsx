@@ -27,7 +27,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       branchesEnabled: false,
-      generalSetting: { type: 'NUMBER_OF_DAYS', value: '23' }
+      generalSetting: { type: 'NUMBER_OF_DAYS', value: '23' },
     })
   ).toMatchSnapshot();
   expect(
@@ -39,21 +39,16 @@ it('should not show save button when unchanged', () => {
   const wrapper = shallowRender({
     currentSetting: 'PREVIOUS_VERSION',
     selected: 'PREVIOUS_VERSION',
-    overrideGeneralSetting: true
+    overrideGeneralSetting: true,
   });
-  expect(
-    wrapper
-      .find('SubmitButton')
-      .parent()
-      .hasClass('invisible')
-  ).toBe(true);
+  expect(wrapper.find('SubmitButton').parent().hasClass('invisible')).toBe(true);
 });
 
 it('should show save button when changed', () => {
   const wrapper = shallowRender({
     currentSetting: 'PREVIOUS_VERSION',
     selected: 'NUMBER_OF_DAYS',
-    overrideGeneralSetting: true
+    overrideGeneralSetting: true,
   });
   expect(wrapper.find('SubmitButton')).toHaveLength(1);
 });
@@ -64,7 +59,7 @@ it('should show save button when value changed', () => {
     currentSettingValue: '23',
     days: '25',
     selected: 'NUMBER_OF_DAYS',
-    overrideGeneralSetting: true
+    overrideGeneralSetting: true,
   });
   expect(wrapper.find('SubmitButton')).toHaveLength(1);
 });
@@ -75,15 +70,10 @@ it('should disable the save button when saving', () => {
     currentSettingValue: '25',
     saving: true,
     selected: 'PREVIOUS_VERSION',
-    overrideGeneralSetting: true
+    overrideGeneralSetting: true,
   });
 
-  expect(
-    wrapper
-      .find('SubmitButton')
-      .first()
-      .prop('disabled')
-  ).toBe(true);
+  expect(wrapper.find('SubmitButton').first().prop('disabled')).toBe(true);
 });
 
 it('should disable the save button when date is invalid', () => {
@@ -91,15 +81,10 @@ it('should disable the save button when date is invalid', () => {
     currentSetting: 'PREVIOUS_VERSION',
     days: 'hello',
     selected: 'NUMBER_OF_DAYS',
-    overrideGeneralSetting: true
+    overrideGeneralSetting: true,
   });
 
-  expect(
-    wrapper
-      .find('SubmitButton')
-      .first()
-      .prop('disabled')
-  ).toBe(true);
+  expect(wrapper.find('SubmitButton').first().prop('disabled')).toBe(true);
 });
 
 function shallowRender(props: Partial<ProjectBaselineSelectorProps> = {}) {

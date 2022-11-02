@@ -52,7 +52,7 @@ export default function IssueSourceViewerHeader(props: Props) {
     linkToProject = true,
     loading,
     onExpand,
-    sourceViewerFile
+    sourceViewerFile,
   } = props;
   const { measures, path, project, projectName, q } = sourceViewerFile;
 
@@ -68,14 +68,16 @@ export default function IssueSourceViewerHeader(props: Props) {
     <div
       className="issue-source-viewer-header display-flex-row display-flex-space-between"
       role="separator"
-      aria-label={sourceViewerFile.path}>
+      aria-label={sourceViewerFile.path}
+    >
       <div className="display-flex-center flex-1">
         {displayProjectName && (
           <div className="spacer-right">
             {linkToProject ? (
               <a
                 className="link-no-underline"
-                href={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}>
+                href={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}
+              >
                 {projectNameLabel}
               </a>
             ) : (
@@ -105,14 +107,16 @@ export default function IssueSourceViewerHeader(props: Props) {
       {!isProjectRoot && measures.issues !== undefined && (
         <div
           className={classNames('flex-0 big-spacer-left', {
-            'little-spacer-right': !expandable || loading
-          })}>
+            'little-spacer-right': !expandable || loading,
+          })}
+        >
           <Link
             to={getComponentIssuesUrl(project, {
               ...getBranchLikeQuery(branchLike),
               files: path,
-              resolved: 'false'
-            })}>
+              resolved: 'false',
+            })}
+          >
             {translate('source_viewer.view_all_issues')}
           </Link>
         </div>
@@ -124,7 +128,8 @@ export default function IssueSourceViewerHeader(props: Props) {
             <ButtonIcon
               aria-label={translate('source_viewer.expand_all_lines')}
               className="js-actions"
-              onClick={onExpand}>
+              onClick={onExpand}
+            >
               <ExpandSnippetIcon />
             </ButtonIcon>
           </div>

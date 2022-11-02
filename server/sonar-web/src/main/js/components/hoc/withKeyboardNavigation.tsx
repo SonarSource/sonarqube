@@ -71,7 +71,7 @@ export default function withKeyboardNavigation<P>(
       const { selected, components = [] } = this.props;
       return selected
         ? components.findIndex(
-            component =>
+            (component) =>
               getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected)
           )
         : -1;

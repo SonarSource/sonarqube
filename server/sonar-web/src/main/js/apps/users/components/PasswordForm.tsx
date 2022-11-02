@@ -50,7 +50,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
     confirmPassword: '',
     newPassword: '',
     oldPassword: '',
-    submitting: false
+    submitting: false,
   };
 
   componentDidMount() {
@@ -66,7 +66,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
       return throwGlobalError(response);
     } else {
       return parseError(response).then(
-        errorMsg => this.setState({ error: errorMsg, submitting: false }),
+        (errorMsg) => this.setState({ error: errorMsg, submitting: false }),
         throwGlobalError
       );
     }
@@ -91,7 +91,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
       changePassword({
         login: this.props.user.login,
         password: this.state.newPassword,
-        previousPassword: this.state.oldPassword
+        previousPassword: this.state.oldPassword,
       }).then(() => {
         addGlobalSuccessMessage(translate('my_profile.password.changed'));
         this.props.onClose();

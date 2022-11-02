@@ -54,11 +54,11 @@ export class BadgeParams extends React.PureComponent<Props> {
 
   fetchBadgeMetrics() {
     fetchWebApi(false).then(
-      webservices => {
+      (webservices) => {
         if (this.mounted) {
-          const domain = webservices.find(d => d.path === 'api/project_badges');
-          const ws = domain && domain.actions.find(w => w.key === 'measure');
-          const param = ws && ws.params && ws.params.find(p => p.key === 'metric');
+          const domain = webservices.find((d) => d.path === 'api/project_badges');
+          const ws = domain && domain.actions.find((w) => w.key === 'measure');
+          const param = ws && ws.params && ws.params.find((p) => p.key === 'metric');
           if (param && param.possibleValues) {
             this.setState({ badgeMetrics: param.possibleValues });
           }
@@ -69,25 +69,25 @@ export class BadgeParams extends React.PureComponent<Props> {
   }
 
   getColorOptions = () => {
-    return ['white', 'black', 'orange'].map(color => ({
+    return ['white', 'black', 'orange'].map((color) => ({
       label: translate('overview.badges.options.colors', color),
-      value: color
+      value: color,
     }));
   };
 
   getFormatOptions = () => {
-    return ['md', 'url'].map(format => ({
+    return ['md', 'url'].map((format) => ({
       label: translate('overview.badges.options.formats', format),
-      value: format as BadgeFormats
+      value: format as BadgeFormats,
     }));
   };
 
   getMetricOptions = () => {
-    return this.state.badgeMetrics.map(key => {
+    return this.state.badgeMetrics.map((key) => {
       const metric = this.props.metrics[key];
       return {
         value: key,
-        label: metric ? getLocalizedMetricName(metric) : key
+        label: metric ? getLocalizedMetricName(metric) : key,
       };
     });
   };
@@ -114,7 +114,7 @@ export class BadgeParams extends React.PureComponent<Props> {
             isSearchable={false}
             onChange={this.handleMetricChange}
             options={metricOptions}
-            value={metricOptions.find(o => o.value === options.metric)}
+            value={metricOptions.find((o) => o.value === options.metric)}
           />
         </>
       );
@@ -131,9 +131,10 @@ export class BadgeParams extends React.PureComponent<Props> {
 
         <label
           className={classNames('spacer-right', {
-            'spacer-top': type !== BadgeType.qualityGate
+            'spacer-top': type !== BadgeType.qualityGate,
           })}
-          htmlFor="badge-format">
+          htmlFor="badge-format"
+        >
           {translate('format')}:
         </label>
         <Select
@@ -142,8 +143,8 @@ export class BadgeParams extends React.PureComponent<Props> {
           isSearchable={false}
           onChange={this.handleFormatChange}
           options={formatOptions}
-          value={formatOptions.find(o => o.value === options.format)}
-          defaultValue={formatOptions.find(o => o.value === 'md')}
+          value={formatOptions.find((o) => o.value === options.format)}
+          defaultValue={formatOptions.find((o) => o.value === 'md')}
         />
       </div>
     );

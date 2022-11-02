@@ -28,7 +28,7 @@ import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
   hasMessage,
-  translate
+  translate,
 } from '../../../helpers/l10n';
 import { MeasureEnhanced } from '../../../types/types';
 import {
@@ -36,7 +36,7 @@ import {
   filterMeasures,
   hasBubbleChart,
   hasFacetStat,
-  sortMeasures
+  sortMeasures,
 } from '../utils';
 import FacetMeasureValue from './FacetMeasureValue';
 
@@ -52,7 +52,7 @@ interface Props {
 export default class DomainFacet extends React.PureComponent<Props> {
   getValues = () => {
     const { domain, selected } = this.props;
-    const measureSelected = domain.measures.find(measure => measure.metric.key === selected);
+    const measureSelected = domain.measures.find((measure) => measure.metric.key === selected);
     const overviewSelected = domain.name === selected && this.hasOverview(domain.name);
     if (measureSelected) {
       return [getLocalizedMetricName(measureSelected.metric)];
@@ -65,7 +65,7 @@ export default class DomainFacet extends React.PureComponent<Props> {
   };
 
   hasFacetSelected = (domain: { name: string }, measures: MeasureEnhanced[], selected: string) => {
-    const measureSelected = measures.find(measure => measure.metric.key === selected);
+    const measureSelected = measures.find((measure) => measure.metric.key === selected);
     const overviewSelected = domain.name === selected && this.hasOverview(domain.name);
     return measureSelected || overviewSelected;
   };
@@ -91,7 +91,7 @@ export default class DomainFacet extends React.PureComponent<Props> {
   renderItemsFacet = () => {
     const { domain, selected } = this.props;
     const items = addMeasureCategories(domain.name, filterMeasures(domain.measures));
-    const hasCategories = items.some(item => typeof item === 'string');
+    const hasCategories = items.some((item) => typeof item === 'string');
     const translateMetric = hasCategories ? getLocalizedCategoryMetricName : getLocalizedMetricName;
     let sortedItems = sortMeasures(domain.name, items);
 
@@ -102,7 +102,7 @@ export default class DomainFacet extends React.PureComponent<Props> {
       );
     });
 
-    return sortedItems.map(item =>
+    return sortedItems.map((item) =>
       typeof item === 'string' ? (
         this.renderCategoryItem(item)
       ) : (

@@ -21,7 +21,7 @@ import * as React from 'react';
 import NotificationsList from '../../../../../../apps/account/notifications/NotificationsList';
 import {
   withNotifications,
-  WithNotificationsProps
+  WithNotificationsProps,
 } from '../../../../../../components/hoc/withNotifications';
 import { Alert } from '../../../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../../../components/ui/DeferredSpinner';
@@ -51,7 +51,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
     props.removeNotification({
       project: component.key,
       channel,
-      type
+      type,
     });
   };
 
@@ -59,7 +59,9 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
     return `project-notification-${component.key}-${type}-${channel}`;
   };
 
-  const projectNotifications = notifications.filter(n => n.project && n.project === component.key);
+  const projectNotifications = notifications.filter(
+    (n) => n.project && n.project === component.key
+  );
 
   return (
     <>
@@ -76,7 +78,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
           <thead>
             <tr>
               <th aria-label={translate('project')} />
-              {channels.map(channel => (
+              {channels.map((channel) => (
                 <th className="text-center" key={channel}>
                   <h4>{translate('notification.channel', channel)}</h4>
                 </th>

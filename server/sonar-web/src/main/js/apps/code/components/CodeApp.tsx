@@ -44,7 +44,7 @@ import {
   getCodeMetrics,
   loadMoreChildren,
   retrieveComponent,
-  retrieveComponentChildren
+  retrieveComponentChildren,
 } from '../utils';
 import Breadcrumbs from './Breadcrumbs';
 import Components from './Components';
@@ -84,7 +84,7 @@ export class CodeApp extends React.Component<Props, State> {
       loading: true,
       page: 0,
       total: 0,
-      newCodeSelected: true
+      newCodeSelected: true,
     };
     this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
   }
@@ -117,7 +117,7 @@ export class CodeApp extends React.Component<Props, State> {
       this.props.component.qualifier,
       this,
       this.props.branchLike
-    ).then(r => {
+    ).then((r) => {
       if (this.mounted) {
         if (['FIL', 'UTS'].includes(r.component.qualifier)) {
           this.setState({
@@ -127,7 +127,7 @@ export class CodeApp extends React.Component<Props, State> {
             page: 0,
             searchResults: undefined,
             sourceViewer: r.component,
-            total: 0
+            total: 0,
           });
         } else {
           this.setState({
@@ -138,7 +138,7 @@ export class CodeApp extends React.Component<Props, State> {
             page: r.page,
             searchResults: undefined,
             sourceViewer: undefined,
-            total: r.total
+            total: r.total,
           });
         }
       }
@@ -177,12 +177,12 @@ export class CodeApp extends React.Component<Props, State> {
       this.props.component.qualifier,
       this,
       this.props.branchLike
-    ).then(r => {
+    ).then((r) => {
       if (this.mounted && r.components.length) {
         this.setState({
           components: [...components, ...r.components],
           page: r.page,
-          total: r.total
+          total: r.total,
         });
       }
     }, this.stopLoading);
@@ -260,7 +260,7 @@ export class CodeApp extends React.Component<Props, State> {
       newCodeSelected,
       total,
       searchResults,
-      sourceViewer
+      sourceViewer,
     } = this.state;
     const { canBrowseAllChildProjects, qualifier } = component;
 
@@ -274,14 +274,14 @@ export class CodeApp extends React.Component<Props, State> {
 
     const componentsClassName = classNames('boxed-group', 'spacer-top', {
       'new-loading': loading,
-      'search-results': showSearch
+      'search-results': showSearch,
     });
 
     const metricKeys = intersection(
       getCodeMetrics(component.qualifier, branchLike, { newCode: newCodeSelected }),
       Object.keys(this.props.metrics)
     );
-    const metrics = metricKeys.map(metric => this.props.metrics[metric]);
+    const metrics = metricKeys.map((metric) => this.props.metrics[metric]);
 
     const defaultTitle =
       baseComponent && ['APP', 'VW', 'SVW'].includes(baseComponent.qualifier)

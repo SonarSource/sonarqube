@@ -39,8 +39,8 @@ it('should populate comments data', () => {
       active: true,
       avatar: 'c1244e6857f7be3dc4549d9e9d51c631',
       login: 'admin',
-      name: 'Admin Admin'
-    }
+      name: 'Admin Admin',
+    },
   ];
   const issue = {
     comments: [
@@ -50,9 +50,9 @@ it('should populate comments data', () => {
         key: 'AVtcKbZkQmGLa7yW8J71',
         login: 'admin',
         markdown: 'comment!',
-        updatable: true
-      }
-    ]
+        updatable: true,
+      },
+    ],
   } as any;
   expect(parseIssueFromResponse(issue, undefined, users, undefined).comments).toEqual([
     {
@@ -66,8 +66,8 @@ it('should populate comments data', () => {
       key: 'AVtcKbZkQmGLa7yW8J71',
       login: undefined,
       markdown: 'comment!',
-      updatable: true
-    }
+      updatable: true,
+    },
   ]);
 });
 
@@ -78,60 +78,60 @@ it('orders secondary locations', () => {
         locations: [
           {
             component: 'foo',
-            textRange: { startLine: 68, startOffset: 5, endLine: 68, endOffset: 7 }
-          }
-        ]
+            textRange: { startLine: 68, startOffset: 5, endLine: 68, endOffset: 7 },
+          },
+        ],
       },
       {
         locations: [
           {
             component: 'unknown',
-            textRange: { startLine: 43, startOffset: 8, endLine: 43, endOffset: 12 }
-          }
-        ]
+            textRange: { startLine: 43, startOffset: 8, endLine: 43, endOffset: 12 },
+          },
+        ],
       },
       {
         locations: [
           {
             component: 'bar',
-            textRange: { startLine: 43, startOffset: 6, endLine: 43, endOffset: 8 }
-          }
-        ]
+            textRange: { startLine: 43, startOffset: 6, endLine: 43, endOffset: 8 },
+          },
+        ],
       },
       {
         locations: [
           {
             component: 'foo',
-            textRange: { startLine: 70, startOffset: 12, endLine: 70, endOffset: 16 }
-          }
-        ]
-      }
-    ]
+            textRange: { startLine: 70, startOffset: 12, endLine: 70, endOffset: 16 },
+          },
+        ],
+      },
+    ],
   } as any;
   const components = [
     { key: 'foo', name: 'src/foo.js' },
-    { key: 'bar', name: 'src/bar.js' }
+    { key: 'bar', name: 'src/bar.js' },
   ];
   expect(parseIssueFromResponse(issue, components).secondaryLocations).toEqual([
     {
       component: 'bar',
       componentName: 'src/bar.js',
-      textRange: { endLine: 43, endOffset: 8, startLine: 43, startOffset: 6 }
+      textRange: { endLine: 43, endOffset: 8, startLine: 43, startOffset: 6 },
     },
     {
       component: 'unknown',
       componentName: undefined,
-      textRange: { endLine: 43, endOffset: 12, startLine: 43, startOffset: 8 }
+      textRange: { endLine: 43, endOffset: 12, startLine: 43, startOffset: 8 },
     },
     {
       component: 'foo',
       componentName: 'src/foo.js',
-      textRange: { endLine: 68, endOffset: 7, startLine: 68, startOffset: 5 }
+      textRange: { endLine: 68, endOffset: 7, startLine: 68, startOffset: 5 },
     },
     {
       component: 'foo',
       componentName: 'src/foo.js',
-      textRange: { endLine: 70, endOffset: 16, startLine: 70, startOffset: 12 }
-    }
+      textRange: { endLine: 70, endOffset: 16, startLine: 70, startOffset: 12 },
+    },
   ]);
 });

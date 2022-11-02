@@ -27,12 +27,12 @@ jest.mock('react', () => {
   let close: () => void;
   return {
     ...jest.requireActual('react'),
-    useEffect: jest.fn().mockImplementation(f => {
+    useEffect: jest.fn().mockImplementation((f) => {
       close = f();
     }),
     clean: () => {
       close();
-    }
+    },
   };
 });
 
@@ -66,13 +66,13 @@ it('should ignore other keydownes', () => {
   expect(wrapper.type()).toBeNull();
 });
 
-it.each([['input'], ['select'], ['textarea']])('should ignore events on a %s', type => {
+it.each([['input'], ['select'], ['textarea']])('should ignore events on a %s', (type) => {
   const wrapper = shallowRender();
 
   const fakeEvent = new KeyboardEvent('keydown', { key: '!' });
 
   Object.defineProperty(fakeEvent, 'target', {
-    value: document.createElement(type)
+    value: document.createElement(type),
   });
 
   document.dispatchEvent(fakeEvent);

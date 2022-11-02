@@ -27,7 +27,7 @@ const user = {
   name: 'One',
   active: true,
   scmAccounts: [],
-  local: false
+  local: false,
 };
 
 const groups = ['foo', 'bar', 'baz', 'plop'];

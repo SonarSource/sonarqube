@@ -57,7 +57,7 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
       this.props.openComponent({
         branchLike: this.props.branchLike,
         key,
-        line: line ? Number(line) : undefined
+        line: line ? Number(line) : undefined,
       });
     }
   };
@@ -69,7 +69,8 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
         data-line={line}
         href="#"
         onClick={this.handleFileClick}
-        title={file.name}>
+        title={file.name}
+      >
         {children}
       </a>
     ) : (
@@ -81,10 +82,10 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     const { duplicatedFiles = {}, sourceViewerFile } = this.props;
 
     const groupedBlocks = groupBy(this.props.blocks, '_ref');
-    let duplications = Object.keys(groupedBlocks).map(fileRef => {
+    let duplications = Object.keys(groupedBlocks).map((fileRef) => {
       return {
         blocks: groupedBlocks[fileRef],
-        file: duplicatedFiles[fileRef]
+        file: duplicatedFiles[fileRef],
       };
     });
 
@@ -94,8 +95,8 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     // then duplications in other projects
     duplications = sortBy(
       duplications,
-      d => d.file.projectName !== sourceViewerFile.projectName,
-      d => d.file.key !== sourceViewerFile.key
+      (d) => d.file.projectName !== sourceViewerFile.projectName,
+      (d) => d.file.key !== sourceViewerFile.key
     );
 
     return (
@@ -110,7 +111,7 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
             <h6 className="spacer-bottom">
               {translate('component_viewer.transition.duplication')}
             </h6>
-            {duplications.map(duplication => (
+            {duplications.map((duplication) => (
               <div className="spacer-top text-ellipsis" key={duplication.file.key}>
                 <div className="component-name">
                   {this.isDifferentComponent(duplication.file, this.props.sourceViewerFile) && (

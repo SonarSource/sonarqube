@@ -29,7 +29,7 @@ it('should render issues', () => {
     selectedIssue: 'issue',
     issueLocationsByLine: { '1': [{ from: 1, to: 1, line: 1 }] },
     line: mockSourceLine({ line: 1 }),
-    issuesForLine: [mockIssue(false, { key: 'issue' })]
+    issuesForLine: [mockIssue(false, { key: 'issue' })],
   });
   expect(wrapper).toMatchSnapshot();
 });

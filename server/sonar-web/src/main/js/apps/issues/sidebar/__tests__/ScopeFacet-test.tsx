@@ -59,7 +59,7 @@ it('should correctly handle facet item clicks', () => {
   clickFacetItem(wrapper, IssueScope.Test, true);
   clickFacetItem(wrapper, IssueScope.Main, true);
   expect(onChange).toHaveBeenLastCalledWith({
-    scopes: expect.arrayContaining([IssueScope.Main, IssueScope.Test])
+    scopes: expect.arrayContaining([IssueScope.Main, IssueScope.Test]),
   });
 
   clickFacetItem(wrapper, IssueScope.Test, true);
@@ -73,7 +73,7 @@ function clickFacetItem(
 ) {
   return wrapper
     .find(FacetItem)
-    .filterWhere(f => f.key() === scope)
+    .filterWhere((f) => f.key() === scope)
     .props()
     .onClick(scope, multiple);
 }

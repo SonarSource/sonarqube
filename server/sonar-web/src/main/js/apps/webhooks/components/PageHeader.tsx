@@ -44,7 +44,7 @@ export default function PageHeader({ children, loading }: Props) {
               <DocLink to="/project-administration/webhooks/">
                 {translate('webhooks.documentation_link')}
               </DocLink>
-            )
+            ),
           }}
         />
       </p>

@@ -24,7 +24,7 @@ import {
   PermissionGroup,
   PermissionTemplate,
   PermissionUser,
-  Visibility
+  Visibility,
 } from '../types/types';
 import { BaseSearchProjectsParameters } from './components';
 
@@ -197,7 +197,7 @@ export function getPermissionTemplateUsers(
   if (permission) {
     data.permission = permission;
   }
-  return getJSON('/api/permissions/template_users', data).then(r => r.users);
+  return getJSON('/api/permissions/template_users', data).then((r) => r.users);
 }
 
 export function getPermissionTemplateGroups(
@@ -212,7 +212,7 @@ export function getPermissionTemplateGroups(
   if (permission) {
     data.permission = permission;
   }
-  return getJSON('/api/permissions/template_groups', data).then(r => r.groups);
+  return getJSON('/api/permissions/template_groups', data).then((r) => r.groups);
 }
 
 export function changeProjectVisibility(

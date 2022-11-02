@@ -33,5 +33,5 @@ export const SuggestionsContext = createContext<SuggestionsContextShape>({
   removeSuggestions: () => {
     /* Implemented by Provider */
   },
-  suggestions: []
+  suggestions: [],
 });

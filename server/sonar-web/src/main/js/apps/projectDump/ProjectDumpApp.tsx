@@ -21,7 +21,7 @@ import * as React from 'react';
 import { getActivity } from '../../api/ce';
 import { getStatus } from '../../api/project-dump';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import { throwGlobalError } from '../../helpers/error';
@@ -76,8 +76,8 @@ export class ProjectDumpApp extends React.Component<Props, State> {
         TaskStatuses.InProgress,
         TaskStatuses.Success,
         TaskStatuses.Failed,
-        TaskStatuses.Canceled
-      ].join(',')
+        TaskStatuses.Canceled,
+      ].join(','),
     };
     return getActivity(data)
       .then(({ tasks }) => (tasks.length > 0 ? tasks[0] : undefined), throwGlobalError)
@@ -90,17 +90,17 @@ export class ProjectDumpApp extends React.Component<Props, State> {
       ? [
           this.getLastTask(componentKey, TaskTypes.ProjectExport),
           this.getLastTask(componentKey, TaskTypes.ProjectImport),
-          this.getLastTask(componentKey, TaskTypes.Report)
+          this.getLastTask(componentKey, TaskTypes.Report),
         ]
       : [
           this.getLastTask(componentKey, TaskTypes.ProjectExport),
           Promise.resolve(),
-          this.getLastTask(componentKey, TaskTypes.Report)
+          this.getLastTask(componentKey, TaskTypes.Report),
         ];
     return Promise.all(all).then(([lastExportTask, lastImportTask, lastAnalysisTask]) => ({
       lastExportTask,
       lastImportTask,
-      lastAnalysisTask
+      lastAnalysisTask,
     }));
   }
 
@@ -113,14 +113,14 @@ export class ProjectDumpApp extends React.Component<Props, State> {
             status,
             lastExportTask,
             lastImportTask,
-            lastAnalysisTask
+            lastAnalysisTask,
           });
         }
         return {
           status,
           lastExportTask,
           lastImportTask,
-          lastAnalysisTask
+          lastAnalysisTask,
         };
       }
     );

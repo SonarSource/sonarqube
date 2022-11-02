@@ -24,12 +24,7 @@ import DonutChart, { DonutChartProps } from '../DonutChart';
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  expect(
-    wrapper
-      .find('Sector')
-      .first()
-      .dive()
-  ).toMatchSnapshot();
+  expect(wrapper.find('Sector').first().dive()).toMatchSnapshot();
 });
 
 it('should render correctly with padding and pad angle too', () => {
@@ -41,7 +36,7 @@ function shallowRender(props: Partial<DonutChartProps> = {}) {
     <DonutChart
       data={[
         { fill: '#000000', value: 25 },
-        { fill: '#ffffff', value: 75 }
+        { fill: '#ffffff', value: 75 },
       ]}
       height={20}
       thickness={2}

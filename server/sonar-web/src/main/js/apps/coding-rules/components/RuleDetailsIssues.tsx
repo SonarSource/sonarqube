@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { getFacet } from '../../../api/issues';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import Link from '../../../components/common/Link';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -68,14 +68,14 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
 
   fetchIssues = () => {
     const {
-      ruleDetails: { key }
+      ruleDetails: { key },
     } = this.props;
 
     this.setState({ loading: true });
     getFacet(
       {
         resolved: 'false',
-        rules: key
+        rules: key,
       },
       'projects'
     ).then(
@@ -84,7 +84,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
           const { components = [], paging } = response;
           const projects = [];
           for (const item of facet) {
-            const project = components.find(component => component.key === item.val);
+            const project = components.find((component) => component.key === item.val);
             if (project) {
               projects.push({ count: item.count, key: project.key, name: project.name });
             }
@@ -102,7 +102,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
 
   renderTotal = () => {
     const {
-      ruleDetails: { key }
+      ruleDetails: { key },
     } = this.props;
 
     const { total } = this.state;
@@ -130,7 +130,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
 
   renderProject = (project: Project) => {
     const {
-      ruleDetails: { key }
+      ruleDetails: { key },
     } = this.props;
 
     const path = getIssuesUrl({ resolved: 'false', rules: key, projects: project.key });

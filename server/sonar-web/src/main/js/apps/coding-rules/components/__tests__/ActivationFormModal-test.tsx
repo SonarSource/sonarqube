@@ -25,12 +25,12 @@ import {
   mockRule,
   mockRuleActivation,
   mockRuleDetails,
-  mockRuleDetailsParameter
+  mockRuleDetailsParameter,
 } from '../../../../helpers/testMocks';
 import ActivationFormModal from '../ActivationFormModal';
 
 jest.mock('../../../../api/quality-profiles', () => ({
-  activateRule: jest.fn().mockResolvedValueOnce({})
+  activateRule: jest.fn().mockResolvedValueOnce({}),
 }));
 
 it('should render correctly', () => {
@@ -39,8 +39,8 @@ it('should render correctly', () => {
     shallowRender({
       profiles: [
         mockQualityProfile(),
-        mockQualityProfile({ depth: 2, actions: { edit: true }, language: 'js' })
-      ]
+        mockQualityProfile({ depth: 2, actions: { edit: true }, language: 'js' }),
+      ],
     })
   ).toMatchSnapshot('with deep profiles');
   expect(shallowRender({ rule: mockRuleDetails({ templateKey: 'foobar' }) })).toMatchSnapshot(
@@ -54,17 +54,17 @@ it('should render correctly', () => {
 
 it('should activate rule on quality profile when submit', () => {
   const wrapper = shallowRender();
-  wrapper.instance().handleFormSubmit(({
-    preventDefault: jest.fn()
-  } as any) as React.SyntheticEvent<HTMLFormElement>);
+  wrapper.instance().handleFormSubmit({
+    preventDefault: jest.fn(),
+  } as any as React.SyntheticEvent<HTMLFormElement>);
   expect(activateRule).toHaveBeenCalledWith({
     key: '',
     params: {
       '1': '1',
-      '2': '1'
+      '2': '1',
     },
     rule: 'javascript:S1067',
-    severity: 'MAJOR'
+    severity: 'MAJOR',
   });
 });
 
@@ -85,8 +85,8 @@ function shallowRender(props: Partial<ActivationFormModal['props']> = {}) {
       rule={mockRule({
         params: [
           mockRuleDetailsParameter(),
-          mockRuleDetailsParameter({ key: '2', type: 'TEXT', htmlDesc: undefined })
-        ]
+          mockRuleDetailsParameter({ key: '2', type: 'TEXT', htmlDesc: undefined }),
+        ],
       })}
       {...props}
     />

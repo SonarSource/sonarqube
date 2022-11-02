@@ -24,7 +24,7 @@ import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { ResetPassword, ResetPasswordProps } from '../ResetPassword';
 
 jest.mock('../../../helpers/system', () => ({
-  getBaseUrl: jest.fn().mockReturnValue('/context')
+  getBaseUrl: jest.fn().mockReturnValue('/context'),
 }));
 
 const originalLocation = window.location;
@@ -32,18 +32,18 @@ const originalLocation = window.location;
 beforeAll(() => {
   const location = {
     ...window.location,
-    href: null
+    href: null,
   };
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: location
+    value: location,
   });
 });
 
 afterAll(() => {
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: originalLocation
+    value: originalLocation,
   });
 });
 

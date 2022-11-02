@@ -33,9 +33,9 @@ jest.mock('../../../../api/quality-profiles', () => ({
     {
       key: 'key_importer',
       languages: ['lang1_importer', 'lang2_importer', 'js'],
-      name: 'name_importer'
-    }
-  ])
+      name: 'name_importer',
+    },
+  ]),
 }));
 
 it('should render correctly', async () => {
@@ -78,7 +78,7 @@ function shallowRender(props?: Partial<CreateProfileForm['props']>) {
     <CreateProfileForm
       languages={[
         { key: 'js', name: 'JavaScript' },
-        { key: 'css', name: 'CSS' }
+        { key: 'css', name: 'CSS' },
       ]}
       location={mockLocation()}
       onClose={jest.fn()}

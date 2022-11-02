@@ -21,9 +21,5 @@ import { ShallowWrapper } from 'enzyme';
 import Step from './components/Step';
 
 export function renderStepContent(wrapper: ShallowWrapper<React.ReactNode>, n = 0) {
-  return wrapper
-    .find(Step)
-    .at(n)
-    .props()
-    .renderForm();
+  return wrapper.find(Step).at(n).props().renderForm();
 }

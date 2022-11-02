@@ -23,7 +23,7 @@ import {
   AnalysisEvent,
   HistoryItem,
   MeasureHistory,
-  ParsedAnalysis
+  ParsedAnalysis,
 } from '../../types/project-activity';
 import { parseDate } from '../dates';
 
@@ -33,7 +33,7 @@ export function mockAnalysis(overrides: Partial<Analysis> = {}): Analysis {
     events: [],
     key: 'foo',
     projectVersion: '1.0',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -43,7 +43,7 @@ export function mockParsedAnalysis(overrides: Partial<ParsedAnalysis> = {}): Par
     events: [],
     key: 'foo',
     projectVersion: '1.0',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -60,16 +60,16 @@ export function mockAnalysisEvent(overrides: Partial<AnalysisEvent> = {}): Analy
         {
           key: 'foo',
           name: 'Foo',
-          branch: 'master'
+          branch: 'master',
         },
         {
           key: 'bar',
           name: 'Bar',
-          branch: 'feature/bar'
-        }
-      ]
+          branch: 'feature/bar',
+        },
+      ],
     },
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -79,9 +79,9 @@ export function mockMeasureHistory(overrides: Partial<MeasureHistory> = {}): Mea
     history: [
       mockHistoryItem(),
       mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '1749' }),
-      mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '500' })
+      mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '500' }),
     ],
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -89,6 +89,6 @@ export function mockHistoryItem(overrides: Partial<HistoryItem> = {}): HistoryIt
   return {
     date: parseDate('2016-10-26T12:17:29+0200'),
     value: '2286',
-    ...overrides
+    ...overrides,
   };
 }

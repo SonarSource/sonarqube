@@ -27,7 +27,7 @@ export default class BranchesServiceMock {
   defaultBranchLikes: BranchLike[] = [
     mockBranch({ isMain: true, name: 'master' }),
     mockBranch({ excludedFromPurge: false, name: 'delete-branch' }),
-    mockBranch({ name: 'normal-branch' })
+    mockBranch({ name: 'normal-branch' }),
   ];
 
   constructor() {

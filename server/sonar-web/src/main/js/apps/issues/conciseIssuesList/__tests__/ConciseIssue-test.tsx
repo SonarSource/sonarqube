@@ -42,7 +42,7 @@ const issue: Issue = {
   severity: '',
   status: '',
   transitions: [],
-  type: 'BUG'
+  type: 'BUG',
 };
 
 it('should render', () => {

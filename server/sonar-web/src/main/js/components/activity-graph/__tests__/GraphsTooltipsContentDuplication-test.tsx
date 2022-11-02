@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from '../../../helpers/dates';
 import GraphsTooltipsContentDuplication, {
-  GraphsTooltipsContentDuplicationProps
+  GraphsTooltipsContentDuplicationProps,
 } from '../GraphsTooltipsContentDuplication';
 
 it('should render correctly', () => {
@@ -40,9 +40,9 @@ function shallowRender(props: Partial<GraphsTooltipsContentDuplicationProps> = {
           metric: 'duplicated_lines_density',
           history: [
             { date: parseDate('2011-10-01T22:01:00.000Z') },
-            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '10245' }
-          ]
-        }
+            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '10245' },
+          ],
+        },
       ]}
       tooltipIdx={1}
       {...props}

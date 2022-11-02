@@ -20,7 +20,7 @@
 import { convertToPermissionDefinitions } from '../utils';
 
 jest.mock('../../../helpers/l10nBundle', () => ({
-  getMessages: jest.fn().mockReturnValue({})
+  getMessages: jest.fn().mockReturnValue({}),
 }));
 
 describe('convertToPermissionDefinitions', () => {
@@ -30,8 +30,8 @@ describe('convertToPermissionDefinitions', () => {
       {
         description: 'global_permissions.admin.desc',
         key: 'admin',
-        name: 'global_permissions.admin'
-      }
+        name: 'global_permissions.admin',
+      },
     ];
 
     expect(data).toEqual(expected);

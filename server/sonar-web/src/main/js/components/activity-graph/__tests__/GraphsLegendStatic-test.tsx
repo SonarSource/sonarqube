@@ -30,7 +30,7 @@ function shallowRender(props: Partial<GraphsLegendStaticProps> = {}) {
     <GraphsLegendStatic
       series={[
         { name: 'bugs', translatedName: 'Bugs' },
-        { name: 'code_smells', translatedName: 'Code Smells' }
+        { name: 'code_smells', translatedName: 'Code Smells' },
       ]}
       {...props}
     />

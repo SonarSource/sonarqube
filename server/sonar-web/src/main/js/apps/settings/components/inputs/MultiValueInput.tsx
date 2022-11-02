@@ -47,7 +47,7 @@ export default class MultiValueInput extends React.PureComponent<DefaultSpeciali
           isDefault={isDefault}
           name={name}
           hasValueChanged={this.props.hasValueChanged}
-          onChange={value => this.handleSingleInputChange(index, value)}
+          onChange={(value) => this.handleSingleInputChange(index, value)}
           setting={setting}
           value={value}
         />

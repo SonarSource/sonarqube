@@ -26,7 +26,7 @@ import { Paging } from '../types/types';
 export enum ProjectActivityStatuses {
   STATUS_PROCESSED = 'P',
   STATUS_UNPROCESSED = 'U',
-  STATUS_LIVE_MEASURE_COMPUTE = 'L'
+  STATUS_LIVE_MEASURE_COMPUTE = 'L',
 }
 
 export function getProjectActivity(
@@ -63,7 +63,10 @@ export function createEvent(
   if (description) {
     data.description = description;
   }
-  return postJSON('/api/project_analyses/create_event', data).then(r => r.event, throwGlobalError);
+  return postJSON('/api/project_analyses/create_event', data).then(
+    (r) => r.event,
+    throwGlobalError
+  );
 }
 
 export function deleteEvent(event: string): Promise<void | Response> {
@@ -82,7 +85,10 @@ export function changeEvent(
   if (description) {
     data.description = description;
   }
-  return postJSON('/api/project_analyses/update_event', data).then(r => r.event, throwGlobalError);
+  return postJSON('/api/project_analyses/update_event', data).then(
+    (r) => r.event,
+    throwGlobalError
+  );
 }
 
 export function deleteAnalysis(analysis: string): Promise<void | Response> {

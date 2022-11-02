@@ -22,14 +22,16 @@ import { mockComponent } from '../../../helpers/mocks/component';
 import * as utils from '../utils';
 
 jest.mock('../../../api/components', () => ({
-  searchProjects: jest.fn().mockResolvedValue({ components: [], facets: [], paging: { total: 10 } })
+  searchProjects: jest
+    .fn()
+    .mockResolvedValue({ components: [], facets: [], paging: { total: 10 } }),
 }));
 
 jest.mock('../../../api/measures', () => ({
   getMeasuresForProjects: jest.fn().mockResolvedValue([
     { component: 'foo', metric: 'new_coverage', period: { index: 1, value: '10' } },
-    { component: 'bar', metric: 'languages', value: '20' }
-  ])
+    { component: 'bar', metric: 'languages', value: '20' },
+  ]),
 }));
 
 describe('localizeSorting', () => {
@@ -91,7 +93,7 @@ describe('fetchProjects', () => {
       facets: utils.FACETS.join(),
       filter: 'isFavorite',
       p: undefined,
-      ps: 50
+      ps: 50,
     });
 
     await utils.fetchProjects({ view: 'leak' }, false, 3);
@@ -99,7 +101,7 @@ describe('fetchProjects', () => {
       f: 'analysisDate,leakPeriodDate',
       facets: utils.LEAK_FACETS.join(),
       p: 3,
-      ps: 50
+      ps: 50,
     });
   });
 
@@ -113,17 +115,17 @@ describe('fetchProjects', () => {
           property: 'languages',
           values: [
             { val: 'css', count: 10 },
-            { val: 'js', count: 2 }
-          ]
-        }
+            { val: 'js', count: 2 },
+          ],
+        },
       ],
-      paging: { total: 2 }
+      paging: { total: 2 },
     });
-    await utils.fetchProjects({}, true).then(r => {
+    await utils.fetchProjects({}, true).then((r) => {
       expect(r).toEqual({
         facets: {
           new_coverage: { NO_DATA: 0 },
-          languages: { css: 10, js: 2 }
+          languages: { css: 10, js: 2 },
         },
         projects: components.map((component: any) => {
           if (component.key === 'foo') {
@@ -133,7 +135,7 @@ describe('fetchProjects', () => {
           }
           return component;
         }),
-        total: 2
+        total: 2,
       });
     });
   });

@@ -26,7 +26,7 @@ export const enum SettingsKey {
   ServerBaseUrl = 'sonar.core.serverBaseURL',
   PluginRiskConsent = 'sonar.plugins.risk.consent',
   LicenceRemainingLocNotificationThreshold = 'sonar.license.notifications.remainingLocThreshold',
-  TokenMaxAllowedLifetime = 'sonar.auth.token.max.allowed.lifetime'
+  TokenMaxAllowedLifetime = 'sonar.auth.token.max.allowed.lifetime',
 }
 
 export enum GlobalSettingKeys {
@@ -39,7 +39,7 @@ export enum GlobalSettingKeys {
   UpdatecenterActivated = 'sonar.updatecenter.activate',
   DisplayAnnouncementMessage = 'sonar.announcement.displayMessage',
   AnnouncementMessage = 'sonar.announcement.message',
-  MainBranchName = 'sonar.projectCreation.mainBranchName'
+  MainBranchName = 'sonar.projectCreation.mainBranchName',
 }
 
 export type SettingDefinitionAndValue = {
@@ -62,7 +62,7 @@ export enum SettingType {
   LONG = 'LONG',
   SINGLE_SELECT_LIST = 'SINGLE_SELECT_LIST',
   PROPERTY_SET = 'PROPERTY_SET',
-  FORMATTED_TEXT = 'FORMATTED_TEXT'
+  FORMATTED_TEXT = 'FORMATTED_TEXT',
 }
 export interface SettingDefinition {
   description?: string;

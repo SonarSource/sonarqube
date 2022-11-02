@@ -48,7 +48,7 @@ export function PreambuleYaml(props: PreambuleYamlProps) {
                   <ClipboardIconButton copyValue="build.gradle" />
                 </>
               ),
-              sq: <code className="rule">org.sonarqube</code>
+              sq: <code className="rule">org.sonarqube</code>,
             }}
           />
           <CodeSnippet snippet={buildGradleSnippet(component.key)} />

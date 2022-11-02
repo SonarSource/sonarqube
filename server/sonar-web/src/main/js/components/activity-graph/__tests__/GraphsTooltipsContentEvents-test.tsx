@@ -23,7 +23,7 @@ import GraphsTooltipsContentEvents from '../GraphsTooltipsContentEvents';
 
 const EVENTS = [
   { key: '1', category: 'VERSION', name: '6.5' },
-  { key: '2', category: 'OTHER', name: 'Foo' }
+  { key: '2', category: 'OTHER', name: 'Foo' },
 ];
 
 it('should render correctly', () => {

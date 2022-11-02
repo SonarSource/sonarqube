@@ -30,7 +30,8 @@ export function sortProfiles(profiles: BaseProfile[]): Profile[] {
 
   function retrieveChildren(parent: BaseProfile | null) {
     return sorted.filter(
-      p => (parent == null && p.parentKey == null) || (parent != null && p.parentKey === parent.key)
+      (p) =>
+        (parent == null && p.parentKey == null) || (parent != null && p.parentKey === parent.key)
     );
   }
 
@@ -41,14 +42,15 @@ export function sortProfiles(profiles: BaseProfile[]): Profile[] {
       result.push({ ...profile, childrenCount: children.length, depth });
     }
 
-    children.forEach(child => putProfile(child, depth + 1));
+    children.forEach((child) => putProfile(child, depth + 1));
   }
 
   sorted
     .filter(
-      profile => profile.parentKey == null || sorted.find(p => p.key === profile.parentKey) == null
+      (profile) =>
+        profile.parentKey == null || sorted.find((p) => p.key === profile.parentKey) == null
     )
-    .forEach(profile => putProfile(profile));
+    .forEach((profile) => putProfile(profile));
 
   return result;
 }
@@ -67,12 +69,12 @@ export const PROFILE_PATH = '/profiles';
 
 export const getProfilesForLanguagePath = (language: string) => ({
   pathname: PROFILE_PATH,
-  search: queryToSearch({ language })
+  search: queryToSearch({ language }),
 });
 
 export const getProfilePath = (name: string, language: string) => ({
   pathname: `${PROFILE_PATH}/show`,
-  search: queryToSearch({ name, language })
+  search: queryToSearch({ name, language }),
 });
 
 export const getProfileComparePath = (name: string, language: string, withKey?: string) => {
@@ -82,7 +84,7 @@ export const getProfileComparePath = (name: string, language: string, withKey?: 
   }
   return {
     pathname: `${PROFILE_PATH}/compare`,
-    search: queryToSearch(query)
+    search: queryToSearch(query),
   };
 };
 
@@ -102,6 +104,6 @@ export const getProfileChangelogPath = (
   }
   return {
     pathname: `${PROFILE_PATH}/changelog`,
-    search: queryToSearch(query)
+    search: queryToSearch(query),
   };
 };

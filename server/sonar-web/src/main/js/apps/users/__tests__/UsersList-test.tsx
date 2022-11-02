@@ -27,15 +27,15 @@ const users = [
     name: 'Luke',
     active: true,
     scmAccounts: [],
-    local: false
+    local: false,
   },
   {
     login: 'obi',
     name: 'One',
     active: true,
     scmAccounts: [],
-    local: false
-  }
+    local: false,
+  },
 ];
 
 it('should render correctly', () => {
@@ -51,8 +51,8 @@ function getWrapper(props = {}) {
           backgroundColor: 'blue',
           iconPath: 'icon/path',
           key: 'foo',
-          name: 'Foo Provider'
-        }
+          name: 'Foo Provider',
+        },
       ]}
       onUpdateUsers={jest.fn()}
       updateTokensCount={jest.fn()}

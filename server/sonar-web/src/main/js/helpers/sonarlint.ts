@@ -27,17 +27,17 @@ const SONARLINT_PORT_RANGE = 11;
 
 export async function probeSonarLintServers(): Promise<Array<Ide>> {
   const probedPorts = buildPortRange();
-  const probeRequests = probedPorts.map(p =>
+  const probeRequests = probedPorts.map((p) =>
     fetch(buildSonarLintEndpoint(p, '/status'))
-      .then(r => r.json())
-      .then(json => {
+      .then((r) => r.json())
+      .then((json) => {
         const { ideName, description } = json;
         return { port: p, ideName, description } as Ide;
       })
       .catch(() => undefined)
   );
   const results = await Promise.all(probeRequests);
-  return results.filter(r => r !== undefined) as Ide[];
+  return results.filter((r) => r !== undefined) as Ide[];
 }
 
 export function openHotspot(calledPort: number, projectKey: string, hotspotKey: string) {
@@ -61,7 +61,7 @@ export async function sendUserToken(port: number, token: NewUserToken) {
     createdAt: token.createdAt,
     expirationDate: token.expirationDate,
     token: token.token,
-    type: token.type
+    type: token.type,
   };
 
   const response = await fetch(tokenUrl, { method: 'POST', body: JSON.stringify(data) });
@@ -77,7 +77,7 @@ export async function sendUserToken(port: number, token: NewUserToken) {
  * @returns [ start , ... , start + size - 1 ]
  */
 export function buildPortRange(start = SONARLINT_PORT_START, size = SONARLINT_PORT_RANGE) {
-  return Array.from(Array(size).keys()).map(p => start + p);
+  return Array.from(Array(size).keys()).map((p) => start + p);
 }
 
 function buildSonarLintEndpoint(port: number, path: string) {

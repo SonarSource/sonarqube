@@ -46,7 +46,8 @@ export default function Rating({
           className
         )}
         aria-label={translate('metric.no_rating')}
-        {...ariaAttrs}>
+        {...ariaAttrs}
+      >
         –
       </span>
     );
@@ -61,7 +62,8 @@ export default function Rating({
         { 'rating-small': small, 'rating-muted': muted },
         className
       )}
-      {...ariaAttrs}>
+      {...ariaAttrs}
+    >
       {formatted}
     </span>
   );

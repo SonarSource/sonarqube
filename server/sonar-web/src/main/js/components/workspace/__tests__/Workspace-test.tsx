@@ -28,13 +28,13 @@ import Workspace, {
   MAX_HEIGHT,
   MIN_HEIGHT,
   TYPE_KEY,
-  WorkspaceTypes
+  WorkspaceTypes,
 } from '../Workspace';
 
 jest.mock('../../../helpers/storage', () => {
   return {
     get: jest.fn(),
-    save: jest.fn()
+    save: jest.fn(),
   };
 });
 
@@ -42,9 +42,9 @@ jest.mock('../../../api/rules', () => ({
   getRulesApp: jest.fn().mockResolvedValue({
     repositories: [
       { key: 'foo', name: 'Foo' },
-      { key: 'external_bar', name: 'Bar' }
-    ]
-  })
+      { key: 'external_bar', name: 'Bar' },
+    ],
+  }),
 }));
 
 const WINDOW_HEIGHT = 1000;
@@ -54,7 +54,7 @@ beforeAll(() => {
   Object.defineProperty(window, 'innerHeight', {
     writable: true,
     configurable: true,
-    value: WINDOW_HEIGHT
+    value: WINDOW_HEIGHT,
   });
 });
 
@@ -62,7 +62,7 @@ afterAll(() => {
   Object.defineProperty(window, 'innerHeight', {
     writable: true,
     configurable: true,
-    value: originalHeight
+    value: originalHeight,
   });
 });
 
@@ -73,13 +73,13 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       components: [{ branchLike: mockBranch(), key: 'foo' }],
-      open: { component: 'foo' }
+      open: { component: 'foo' },
     })
   ).toMatchSnapshot('open component');
   expect(
     shallowRender({
       rules: [{ key: 'foo' }],
-      open: { rule: 'foo' }
+      open: { rule: 'foo' },
     })
   ).toMatchSnapshot('open rule');
 });
@@ -89,12 +89,12 @@ it('should correctly load data from local storage', () => {
   const rule2 = {
     [TYPE_KEY]: WorkspaceTypes.Rule,
     key: 'baz',
-    name: 'Baz'
+    name: 'Baz',
   };
   const component = {
     [TYPE_KEY]: WorkspaceTypes.Component,
     branchLike: mockBranch(),
-    key: 'foo'
+    key: 'foo',
   };
   (get as jest.Mock).mockReturnValue(JSON.stringify([rule1, rule2, component]));
 
@@ -113,7 +113,7 @@ it('should correctly load data from local storage', () => {
 it('should correctly store data locally', () => {
   const wrapper = shallowRender({
     components: [{ branchLike: mockBranch(), key: 'foo' }],
-    rules: [{ key: 'foo' }]
+    rules: [{ key: 'foo' }],
   });
   wrapper.instance().saveWorkspace();
   expect((save as jest.Mock).mock.calls[0][1]).toMatchSnapshot();
@@ -130,7 +130,7 @@ it('should allow elements to be loaded and updated', () => {
   const rule = { key: 'bar' };
   const wrapper = shallowRender({
     components: [component],
-    rules: [rule]
+    rules: [rule],
   });
   const instance = wrapper.instance();
 
@@ -147,7 +147,7 @@ it('should allow elements to be loaded and updated', () => {
 
   instance.handleComponentLoad({ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.File });
   expect(wrapper.state().components).toEqual([
-    { ...component, name: 'Foo', qualifier: ComponentQualifier.File }
+    { ...component, name: 'Foo', qualifier: ComponentQualifier.File },
   ]);
 });
 
@@ -178,11 +178,11 @@ it('should be resizable', () => {
 it('should be openable/collapsible', () => {
   const rule = {
     key: 'baz',
-    name: 'Baz'
+    name: 'Baz',
   };
   const component = {
     branchLike: mockBranch(),
-    key: 'foo'
+    key: 'foo',
   };
   const wrapper = shallowRender();
   const instance = wrapper.instance();

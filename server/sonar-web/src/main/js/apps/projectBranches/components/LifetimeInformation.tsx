@@ -48,11 +48,11 @@ export class LifetimeInformation extends React.PureComponent<Props, State> {
 
   fetchBranchAndPullRequestLifetimeSetting() {
     getValue({ key: SettingsKey.DaysBeforeDeletingInactiveBranchesAndPRs }).then(
-      settings => {
+      (settings) => {
         if (this.mounted) {
           this.setState({
             loading: false,
-            branchAndPullRequestLifeTimeInDays: settings?.value
+            branchAndPullRequestLifeTimeInDays: settings?.value,
           });
         }
       },
@@ -66,7 +66,7 @@ export class LifetimeInformation extends React.PureComponent<Props, State> {
 
   render() {
     const {
-      appState: { canAdmin }
+      appState: { canAdmin },
     } = this.props;
     const { branchAndPullRequestLifeTimeInDays, loading } = this.state;
 

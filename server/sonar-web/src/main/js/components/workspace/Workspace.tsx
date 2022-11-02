@@ -46,7 +46,7 @@ export const INITIAL_HEIGHT = 300;
 export const TYPE_KEY = '__type__';
 export enum WorkspaceTypes {
   Rule = 'rule',
-  Component = 'component'
+  Component = 'component',
 }
 
 export default class Workspace extends React.PureComponent<{}, State> {
@@ -58,7 +58,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
       externalRulesRepoNames: {},
       height: INITIAL_HEIGHT,
       open: {},
-      ...this.loadWorkspace()
+      ...this.loadWorkspace(),
     };
   }
 
@@ -92,9 +92,9 @@ export default class Workspace extends React.PureComponent<{}, State> {
     try {
       const data: any[] = JSON.parse(get(WORKSPACE) || '');
       const components: ComponentDescriptor[] = data.filter(
-        x => x[TYPE_KEY] === WorkspaceTypes.Component
+        (x) => x[TYPE_KEY] === WorkspaceTypes.Component
       );
-      const rules: RuleDescriptor[] = data.filter(x => x[TYPE_KEY] === WorkspaceTypes.Rule);
+      const rules: RuleDescriptor[] = data.filter((x) => x[TYPE_KEY] === WorkspaceTypes.Rule);
       return { components, rules };
     } catch {
       // Fail silently.
@@ -106,18 +106,18 @@ export default class Workspace extends React.PureComponent<{}, State> {
     const data = [
       // Do not save line number, next time the file is open, it should be open
       // on the first line.
-      ...this.state.components.map(x =>
+      ...this.state.components.map((x) =>
         omit({ ...x, [TYPE_KEY]: WorkspaceTypes.Component }, 'line')
       ),
-      ...this.state.rules.map(x => ({ ...x, [TYPE_KEY]: WorkspaceTypes.Rule }))
+      ...this.state.rules.map((x) => ({ ...x, [TYPE_KEY]: WorkspaceTypes.Rule })),
     ];
     save(WORKSPACE, JSON.stringify(data));
   };
 
   handleOpenComponent = (component: ComponentDescriptor) => {
     this.setState((state: State) => ({
-      components: uniqBy([...state.components, component], c => c.key),
-      open: { component: component.key }
+      components: uniqBy([...state.components, component], (c) => c.key),
+      open: { component: component.key },
     }));
   };
 
@@ -128,7 +128,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
   handleOpenRule = (rule: RuleDescriptor) => {
     this.setState((state: State) => ({
       open: { rule: rule.key },
-      rules: uniqBy([...state.rules, rule], r => r.key)
+      rules: uniqBy([...state.rules, rule], (r) => r.key),
     }));
   };
 
@@ -138,21 +138,21 @@ export default class Workspace extends React.PureComponent<{}, State> {
 
   handleComponentClose = (componentKey: string) => {
     this.setState((state: State) => ({
-      components: state.components.filter(x => x.key !== componentKey),
+      components: state.components.filter((x) => x.key !== componentKey),
       open: {
         ...state.open,
-        component: state.open.component === componentKey ? undefined : state.open.component
-      }
+        component: state.open.component === componentKey ? undefined : state.open.component,
+      },
     }));
   };
 
   handleRuleClose = (ruleKey: string) => {
     this.setState((state: State) => ({
-      rules: state.rules.filter(x => x.key !== ruleKey),
+      rules: state.rules.filter((x) => x.key !== ruleKey),
       open: {
         ...state.open,
-        rule: state.open.rule === ruleKey ? undefined : state.open.rule
-      }
+        rule: state.open.rule === ruleKey ? undefined : state.open.rule,
+      },
     }));
   };
 
@@ -160,9 +160,9 @@ export default class Workspace extends React.PureComponent<{}, State> {
     if (this.mounted) {
       const { key, name, qualifier } = details;
       this.setState((state: State) => ({
-        components: state.components.map(component =>
+        components: state.components.map((component) =>
           component.key === key ? { ...component, name, qualifier } : component
-        )
+        ),
       }));
     }
   };
@@ -171,7 +171,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
     if (this.mounted) {
       const { key, name } = details;
       this.setState((state: State) => ({
-        rules: state.rules.map(rule => (rule.key === key ? { ...rule, name } : rule))
+        rules: state.rules.map((rule) => (rule.key === key ? { ...rule, name } : rule)),
       }));
     }
   };
@@ -192,15 +192,15 @@ export default class Workspace extends React.PureComponent<{}, State> {
     const minHeight = window.innerHeight * MIN_HEIGHT;
     const maxHeight = window.innerHeight * MAX_HEIGHT;
     this.setState((state: State) => ({
-      height: Math.min(maxHeight, Math.max(minHeight, state.height - deltaY))
+      height: Math.min(maxHeight, Math.max(minHeight, state.height - deltaY)),
     }));
   };
 
   render() {
     const { components, externalRulesRepoNames, height, maximized, open, rules } = this.state;
 
-    const openComponent = open.component && components.find(x => x.key === open.component);
-    const openRule = open.rule && rules.find(x => x.key === open.rule);
+    const openComponent = open.component && components.find((x) => x.key === open.component);
+    const openRule = open.rule && rules.find((x) => x.key === open.rule);
 
     const actualHeight = maximized ? window.innerHeight * MAX_HEIGHT : height;
 
@@ -209,8 +209,9 @@ export default class Workspace extends React.PureComponent<{}, State> {
         value={{
           externalRulesRepoNames,
           openComponent: this.handleOpenComponent,
-          openRule: this.handleOpenRule
-        }}>
+          openRule: this.handleOpenRule,
+        }}
+      >
         {this.props.children}
         <WorkspacePortal>
           {(components.length > 0 || rules.length > 0) && (

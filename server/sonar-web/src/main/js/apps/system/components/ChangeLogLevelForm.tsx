@@ -68,7 +68,7 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
             <h2>{header}</h2>
           </div>
           <div className="modal-body">
-            {LOGS_LEVELS.map(level => (
+            {LOGS_LEVELS.map((level) => (
               <p className="spacer-bottom" key={level}>
                 <input
                   checked={level === newLevel}

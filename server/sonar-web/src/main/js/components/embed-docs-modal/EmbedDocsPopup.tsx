@@ -66,7 +66,8 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
             <DocLink
               innerRef={i === 0 ? this.focusFirstItem : undefined}
               onClick={this.props.onClose}
-              to={suggestion.link}>
+              to={suggestion.link}
+            >
               {suggestion.text}
             </DocLink>
           </li>
@@ -111,7 +112,8 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
             <Link
               className="display-flex-center"
               to="https://community.sonarsource.com/"
-              target="_blank">
+              target="_blank"
+            >
               {translate('docs.get_help')}
             </Link>
           </li>

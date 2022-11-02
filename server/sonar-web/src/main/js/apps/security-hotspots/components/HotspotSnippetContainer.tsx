@@ -53,7 +53,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
     highlightedSymbols: [],
     loading: true,
     sourceLines: [],
-    secondaryLocations: []
+    secondaryLocations: [],
   };
 
   async componentDidMount() {
@@ -87,7 +87,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
   async fetchSources() {
     const {
       branchLike,
-      hotspot: { component, textRange }
+      hotspot: { component, textRange },
     } = this.props;
 
     const { secondaryLocations } = this.state;
@@ -102,16 +102,16 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
     const from = Math.max(
       1,
       Math.min(
-        ...[textRange, ...secondaryLocations.map(l => l.textRange)].map(
-          t => t.startLine - BUFFER_LINES
+        ...[textRange, ...secondaryLocations.map((l) => l.textRange)].map(
+          (t) => t.startLine - BUFFER_LINES
         )
       )
     );
     // Search for the max endLine within primary and secondary locations
     const to = Math.max(
-      ...[textRange, ...secondaryLocations.map(l => l.textRange)].map(
+      ...[textRange, ...secondaryLocations.map((l) => l.textRange)].map(
         // Add 1 to check for end-of-file
-        t => t.endLine + BUFFER_LINES + 1
+        (t) => t.endLine + BUFFER_LINES + 1
       )
     );
 
@@ -121,7 +121,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
       key: component.key,
       from,
       to,
-      ...getBranchLikeQuery(branchLike)
+      ...getBranchLikeQuery(branchLike),
     }).catch(() => [] as SourceLine[]);
 
     if (this.mounted) {
@@ -136,14 +136,14 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
   initializeSecondaryLocations() {
     const { hotspot } = this.props;
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.setState(
         {
           secondaryLocations: getLocations(hotspot.flows, undefined).map((location, index) => ({
             ...location,
             index,
-            text: location.msg
-          }))
+            text: location.msg,
+          })),
         },
         () => resolve(undefined)
       );
@@ -158,19 +158,19 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
       direction === 'up'
         ? {
             from: Math.max(1, sourceLines[0].line - EXPAND_BY_LINES),
-            to: sourceLines[0].line - 1
+            to: sourceLines[0].line - 1,
           }
         : {
             from: sourceLines[sourceLines.length - 1].line + 1,
             // Add 1 to check for end-of-file:
-            to: sourceLines[sourceLines.length - 1].line + EXPAND_BY_LINES + 1
+            to: sourceLines[sourceLines.length - 1].line + EXPAND_BY_LINES + 1,
           };
 
     return getSources({
       key: hotspot.component.key,
       ...range,
-      ...getBranchLikeQuery(branchLike)
-    }).then(additionalLines => {
+      ...getBranchLikeQuery(branchLike),
+    }).then((additionalLines) => {
       const { lastLine: previousLastLine } = this.state;
 
       const lastLine =
@@ -188,7 +188,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
 
       this.setState({
         lastLine,
-        sourceLines: concatSourceLines
+        sourceLines: concatSourceLines,
       });
     });
   };

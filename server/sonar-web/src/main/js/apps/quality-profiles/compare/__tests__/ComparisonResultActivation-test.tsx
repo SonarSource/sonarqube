@@ -24,7 +24,7 @@ import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 import ComparisonResultActivation from '../ComparisonResultActivation';
 
 jest.mock('../../../../api/rules', () => ({
-  getRuleDetails: jest.fn().mockResolvedValue({ key: 'foo' })
+  getRuleDetails: jest.fn().mockResolvedValue({ key: 'foo' }),
 }));
 
 it('should activate', async () => {

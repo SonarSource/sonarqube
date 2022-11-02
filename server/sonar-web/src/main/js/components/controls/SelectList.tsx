@@ -28,7 +28,7 @@ import SelectListListContainer from './SelectListListContainer';
 export enum SelectListFilter {
   All = 'all',
   Selected = 'selected',
-  Unselected = 'deselected'
+  Unselected = 'deselected',
 }
 
 interface Props {
@@ -75,9 +75,9 @@ export default class SelectList extends React.PureComponent<Props, State> {
         filter: SelectListFilter.Selected,
         page: 1,
         pageSize: props.pageSize ? props.pageSize : DEFAULT_PAGE_SIZE,
-        query: ''
+        query: '',
       },
-      loading: false
+      loading: false,
     };
   }
 
@@ -103,9 +103,9 @@ export default class SelectList extends React.PureComponent<Props, State> {
 
   search = (searchParams: Partial<SelectListSearchParams>) =>
     this.setState(
-      prevState => ({
+      (prevState) => ({
         loading: true,
-        lastSearchParams: { ...prevState.lastSearchParams, ...searchParams }
+        lastSearchParams: { ...prevState.lastSearchParams, ...searchParams },
       }),
       () =>
         this.props
@@ -113,7 +113,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
             filter: this.getFilter(),
             page: this.props.withPaging ? this.state.lastSearchParams.page : undefined,
             pageSize: this.props.withPaging ? this.state.lastSearchParams.pageSize : undefined,
-            query: this.state.lastSearchParams.query
+            query: this.state.lastSearchParams.query,
           })
           .then(this.stopLoading)
           .catch(this.stopLoading)
@@ -126,7 +126,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
   onLoadMore = () =>
     this.search({
       page:
-        this.state.lastSearchParams.page != null ? this.state.lastSearchParams.page + 1 : undefined
+        this.state.lastSearchParams.page != null ? this.state.lastSearchParams.page + 1 : undefined,
     });
 
   onReload = () => this.search({ page: 1 });
@@ -135,7 +135,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
     const {
       labelSelected = translate('selected'),
       labelUnselected = translate('unselected'),
-      labelAll = translate('all')
+      labelAll = translate('all'),
     } = this.props;
     const { filter } = this.state.lastSearchParams;
 
@@ -151,7 +151,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
               options={[
                 { label: labelSelected, value: SelectListFilter.Selected },
                 { label: labelUnselected, value: SelectListFilter.Unselected },
-                { label: labelAll, value: SelectListFilter.All }
+                { label: labelAll, value: SelectListFilter.All },
               ]}
               value={filter}
             />

@@ -45,7 +45,7 @@ export default function SamlSecuredField(props: SamlToggleFieldProps) {
           className="width-100"
           id={definition.key}
           maxLength={4000}
-          onChange={e => props.onFieldChange(definition.key, e.currentTarget.value)}
+          onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
           required={!optional}
           rows={5}
           value={settingValue?.value ?? ''}
@@ -57,7 +57,8 @@ export default function SamlSecuredField(props: SamlToggleFieldProps) {
           <ButtonLink
             onClick={() => {
               setShowField(true);
-            }}>
+            }}
+          >
             {translate('settings.almintegration.form.secret.update_field')}
           </ButtonLink>
         </div>

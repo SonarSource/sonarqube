@@ -24,7 +24,7 @@ import {
   getComponentData,
   getComponentForSourceViewer,
   getDuplications,
-  getSources
+  getSources,
 } from '../../api/components';
 import { mockSourceLine } from '../../helpers/mocks/sources';
 import { HttpStatus } from '../../helpers/request';
@@ -43,7 +43,7 @@ function mockSourceFileView(name: string, project = 'project') {
       analysisDate: '2019-08-08T12:15:12+0200',
       leakPeriodDate: '2018-08-07T11:22:22+0200',
       version: '1.2-SNAPSHOT',
-      needIssueSync: false
+      needIssueSync: false,
     },
     sourceFileView: {
       key: `${project}:${name}`,
@@ -56,8 +56,8 @@ function mockSourceFileView(name: string, project = 'project') {
       projectName: 'Test project',
       fav: false,
       canMarkAsFavorite: true,
-      measures: { lines: '0', issues: '0' }
-    }
+      measures: { lines: '0', issues: '0' },
+    },
   };
 }
 
@@ -72,44 +72,44 @@ const ANCESTORS = [
     visibility: 'public',
     leakPeriodDate: '2018-08-07T11:22:22+0200',
     version: '1.2-SNAPSHOT',
-    needIssueSync: false
-  }
+    needIssueSync: false,
+  },
 ];
 const FILES: Dict<any> = {
   'project:test3.js': {
     ...mockSourceFileView('test3.js'),
     sources: [],
-    ancestors: ANCESTORS
+    ancestors: ANCESTORS,
   },
   'project:test2.js': {
     ...mockSourceFileView('test2.js'),
-    sources: times(200, n =>
+    sources: times(200, (n) =>
       mockSourceLine({
         line: n,
-        code: `\u003cspan class\u003d"cd"\u003eLine ${n}\u003c/span\u003e`
+        code: `\u003cspan class\u003d"cd"\u003eLine ${n}\u003c/span\u003e`,
       })
     ),
-    ancestors: ANCESTORS
+    ancestors: ANCESTORS,
   },
   'foo:index.tsx': {
     ...mockSourceFileView('index.tsx', 'foo'),
-    sources: times(200, n =>
+    sources: times(200, (n) =>
       mockSourceLine({
         line: n,
-        code: 'function Test() {}'
+        code: 'function Test() {}',
       })
     ),
-    ancestors: ANCESTORS
+    ancestors: ANCESTORS,
   },
   'project:testSymb.tsx': {
     ...mockSourceFileView('testSymb.tsx'),
-    sources: times(20, n =>
+    sources: times(20, (n) =>
       mockSourceLine({
         line: n,
-        code: '  <span class="sym-35 sym">symbole</span>'
+        code: '  <span class="sym-35 sym">symbole</span>',
       })
     ),
-    ancestors: ANCESTORS
+    ancestors: ANCESTORS,
   },
   'project:test.js': {
     ...mockSourceFileView('test.js'),
@@ -123,7 +123,7 @@ const FILES: Dict<any> = {
         duplicated: false,
         isNew: false,
         lineHits: 1,
-        coveredConditions: 1
+        coveredConditions: 1,
       },
       {
         line: 2,
@@ -134,7 +134,7 @@ const FILES: Dict<any> = {
         duplicated: false,
         isNew: false,
         lineHits: 0,
-        conditions: 1
+        conditions: 1,
       },
       {
         line: 3,
@@ -144,19 +144,18 @@ const FILES: Dict<any> = {
         scmDate: '2022-01-28T21:03:07+0100',
         duplicated: false,
         isNew: false,
-        lineHits: 1
+        lineHits: 1,
       },
       {
         line: 4,
-        code:
-          '\u003cspan class\u003d"cd"\u003e * mailto:info AT sonarsource DOT com\u003c/span\u003e',
+        code: '\u003cspan class\u003d"cd"\u003e * mailto:info AT sonarsource DOT com\u003c/span\u003e',
         scmRevision: 'f09ee6b610528aa37b7b51be395c93524cebae8f',
         scmAuthor: 'stas.vilchik@sonarsource.com',
         duplicated: false,
         isNew: false,
         lineHits: 1,
         conditions: 1,
-        coveredConditions: 1
+        coveredConditions: 1,
       },
       {
         line: 5,
@@ -166,7 +165,7 @@ const FILES: Dict<any> = {
         isNew: false,
         lineHits: 2,
         conditions: 2,
-        coveredConditions: 1
+        coveredConditions: 1,
       },
       {
         line: 6,
@@ -174,33 +173,32 @@ const FILES: Dict<any> = {
         scmRevision: 'f04ee6b610528aa37b7b51be395c93524cebae8f',
         duplicated: false,
         isNew: false,
-        lineHits: 0
+        lineHits: 0,
       },
       {
         line: 7,
         code: '\u003cspan class\u003d"cd"\u003e * 7\u003c/span\u003e',
         scmRevision: 'f04ee6b610528aa37b7b51be395c93524cebae8f',
         duplicated: true,
-        isNew: true
+        isNew: true,
       },
       {
-        code:
-          '\u003cspan class\u003d"cd"\u003e * This program is free software; you can redistribute it and/or\u003c/span\u003e',
+        code: '\u003cspan class\u003d"cd"\u003e * This program is free software; you can redistribute it and/or\u003c/span\u003e',
         scmRevision: 'f09ee6b610528aa37b7b51be395c93524cebae8f',
         scmAuthor: 'stas.vilchik@sonarsource.com',
         scmDate: '2018-07-10T20:21:20+0200',
         duplicated: false,
-        isNew: false
-      }
+        isNew: false,
+      },
     ],
     ancestors: ANCESTORS,
     duplications: [
       {
         blocks: [
           { from: 7, size: 1, _ref: '1' },
-          { from: 1, size: 1, _ref: '2' }
-        ]
-      }
+          { from: 1, size: 1, _ref: '2' },
+        ],
+      },
     ],
     files: {
       '1': {
@@ -209,7 +207,7 @@ const FILES: Dict<any> = {
         uuid: 'AX8NSmj8EGYw5-dyy63J',
         project: 'project',
         projectUuid: 'AX7juKJqVeQLJMPyb_b-',
-        projectName: 'project'
+        projectName: 'project',
       },
       '2': {
         key: 'project:test2.js',
@@ -217,10 +215,10 @@ const FILES: Dict<any> = {
         uuid: 'BX8NSmj8EGYw5-dyy63J',
         project: 'project',
         projectUuid: 'AX7juKJqVeQLJMPyb_b-',
-        projectName: 'project'
-      }
-    }
-  }
+        projectName: 'project',
+      },
+    },
+  },
 };
 
 export class SourceViewerServiceMock {

@@ -127,7 +127,8 @@ export default class PluginActions extends React.PureComponent<Props, State> {
               checked={this.state.acceptTerms}
               className="js-terms"
               id={'plugin-terms-' + plugin.key}
-              onCheck={this.handleTermsCheck}>
+              onCheck={this.handleTermsCheck}
+            >
               <label className="little-spacer-left" htmlFor={'plugin-terms-' + plugin.key}>
                 {translate('marketplace.i_accept_the')}
               </label>
@@ -136,7 +137,8 @@ export default class PluginActions extends React.PureComponent<Props, State> {
               className="js-plugin-terms nowrap little-spacer-left"
               href={plugin.termsAndConditionsUrl}
               target="_blank"
-              rel="noopener noreferrer">
+              rel="noopener noreferrer"
+            >
               {translate('marketplace.terms_and_conditions')}
             </a>
           </p>
@@ -157,7 +159,8 @@ export default class PluginActions extends React.PureComponent<Props, State> {
               <Button
                 className="js-uninstall button-red little-spacer-left"
                 disabled={loading}
-                onClick={this.handleUninstall}>
+                onClick={this.handleUninstall}
+              >
                 {translate('marketplace.uninstall')}
               </Button>
             </Tooltip>
@@ -170,7 +173,8 @@ export default class PluginActions extends React.PureComponent<Props, State> {
               disabled={
                 loading || (plugin.termsAndConditionsUrl != null && !this.state.acceptTerms)
               }
-              onClick={this.handleInstall}>
+              onClick={this.handleInstall}
+            >
               {translate('marketplace.install')}
             </Button>
           </Tooltip>

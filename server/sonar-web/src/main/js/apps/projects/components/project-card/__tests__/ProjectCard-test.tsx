@@ -32,7 +32,7 @@ const MEASURES = {
   alert_status: 'OK',
   reliability_rating: '1.0',
   sqale_rating: '1.0',
-  new_bugs: '12'
+  new_bugs: '12',
 };
 
 const PROJECT: Project = {
@@ -42,7 +42,7 @@ const PROJECT: Project = {
   name: 'Foo',
   qualifier: ComponentQualifier.Project,
   tags: [],
-  visibility: 'public'
+  visibility: 'public',
 };
 
 const USER_LOGGED_OUT = mockCurrentUser();
@@ -54,29 +54,17 @@ it('should display correclty when project need issue synch', () => {
 
 it('should not display the quality gate', () => {
   const project = { ...PROJECT, analysisDate: undefined };
-  expect(
-    shallowRender(project)
-      .find(ProjectCardQualityGate)
-      .exists()
-  ).toBe(false);
+  expect(shallowRender(project).find(ProjectCardQualityGate).exists()).toBe(false);
 });
 
 it('should display tags', () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
-  expect(
-    shallowRender(project)
-      .find(TagsList)
-      .exists()
-  ).toBe(true);
+  expect(shallowRender(project).find(TagsList).exists()).toBe(true);
 });
 
 it('should display private badge', () => {
   const project: Project = { ...PROJECT, visibility: 'private' };
-  expect(
-    shallowRender(project)
-      .find(PrivacyBadgeContainer)
-      .exists()
-  ).toBe(true);
+  expect(shallowRender(project).find(PrivacyBadgeContainer).exists()).toBe(true);
 });
 
 it('should display the overall measures and quality gate', () => {
@@ -104,7 +92,7 @@ it('should display applications', () => {
     shallowRender({
       ...PROJECT,
       qualifier: ComponentQualifier.Application,
-      measures: { ...MEASURES, projects: '3' }
+      measures: { ...MEASURES, projects: '3' },
     })
   ).toMatchSnapshot('with project count');
 });

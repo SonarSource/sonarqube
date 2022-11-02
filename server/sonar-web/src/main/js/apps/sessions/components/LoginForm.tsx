@@ -43,7 +43,7 @@ export default class LoginForm extends React.PureComponent<Props, State> {
       collapsed: Boolean(props.collapsed),
       loading: false,
       login: '',
-      password: ''
+      password: '',
     };
   }
 
@@ -76,7 +76,8 @@ export default class LoginForm extends React.PureComponent<Props, State> {
           <ButtonLink
             aria-expanded={false}
             className="small js-more-options"
-            onClick={this.handleMoreOptionsClick}>
+            onClick={this.handleMoreOptionsClick}
+          >
             {translate('login.more_options')}
           </ButtonLink>
         </div>

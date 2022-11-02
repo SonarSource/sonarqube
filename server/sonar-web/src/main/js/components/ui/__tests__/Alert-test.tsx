@@ -27,26 +27,22 @@ it('should render properly', () => {
 
 it('verification of all variants of alert', () => {
   const variants: AlertProps['variant'][] = ['error', 'warning', 'success', 'info', 'loading'];
-  variants.forEach(variant => {
+  variants.forEach((variant) => {
     const wrapper = shallowRender({ variant });
     expect(wrapper.prop('variantInfo')).toMatchSnapshot();
   });
 });
 
 it('should render inline alert', () => {
-  expect(
-    shallowRender({ display: 'inline' })
-      .find('Styled(div)[isInline=true]')
-      .exists()
-  ).toBe(true);
+  expect(shallowRender({ display: 'inline' }).find('Styled(div)[isInline=true]').exists()).toBe(
+    true
+  );
 });
 
 it('should render banner alert', () => {
-  expect(
-    shallowRender({ display: 'banner' })
-      .find('Styled(div)[isBanner=true]')
-      .exists()
-  ).toBe(true);
+  expect(shallowRender({ display: 'banner' }).find('Styled(div)[isBanner=true]').exists()).toBe(
+    true
+  );
 });
 
 it('should render banner alert with correct css', () => {

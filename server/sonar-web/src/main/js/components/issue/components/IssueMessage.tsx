@@ -34,14 +34,8 @@ export interface IssueMessageProps {
 }
 
 export default function IssueMessage(props: IssueMessageProps) {
-  const {
-    engine,
-    quickFixAvailable,
-    message,
-    ruleKey,
-    ruleStatus,
-    displayWhyIsThisAnIssue
-  } = props;
+  const { engine, quickFixAvailable, message, ruleKey, ruleStatus, displayWhyIsThisAnIssue } =
+    props;
 
   const { openRule } = React.useContext(WorkspaceContext);
 
@@ -61,9 +55,10 @@ export default function IssueMessage(props: IssueMessageProps) {
           className="issue-see-rule spacer-right text-baseline"
           onClick={() =>
             openRule({
-              key: ruleKey
+              key: ruleKey,
             })
-          }>
+          }
+        >
           {translate('issue.why_this_issue')}
         </ButtonLink>
       )}

@@ -45,7 +45,7 @@ export class AuditApp extends React.PureComponent<Props, State> {
     this.state = {
       downloadStarted: false,
       housekeepingPolicy: HousekeepingPolicy.Monthly,
-      selection: RangeOption.Today
+      selection: RangeOption.Today,
     };
   }
 
@@ -60,13 +60,13 @@ export class AuditApp extends React.PureComponent<Props, State> {
 
     this.setState({
       housekeepingPolicy:
-        (result?.value as HousekeepingPolicy | undefined) ?? HousekeepingPolicy.Monthly
+        (result?.value as HousekeepingPolicy | undefined) ?? HousekeepingPolicy.Monthly,
     });
   };
 
   hasGovernanceExtension = () => {
     return Boolean(
-      this.props.adminPages?.find(e => e.key === AdminPageExtension.GovernanceConsole)
+      this.props.adminPages?.find((e) => e.key === AdminPageExtension.GovernanceConsole)
     );
   };
 

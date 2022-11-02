@@ -30,14 +30,14 @@ it('should render correctly', () => {
       size: 10,
       color: '#777',
       label: 'SonarQube :: Server',
-      component: mockComponentMeasureEnhanced()
+      component: mockComponentMeasureEnhanced(),
     },
     {
       key: '2',
       size: 30,
       color: '#777',
       label: 'SonarQube :: Web',
-      component: mockComponentMeasureEnhanced()
+      component: mockComponentMeasureEnhanced(),
     },
     {
       key: '3',
@@ -45,8 +45,8 @@ it('should render correctly', () => {
       gradient: '#777',
       label: 'SonarQube :: Search',
       metric: { key: 'coverage', type: 'PERCENT' },
-      component: mockComponentMeasureEnhanced()
-    }
+      component: mockComponentMeasureEnhanced(),
+    },
   ];
   const onRectClick = jest.fn();
   const chart = mount(
@@ -56,7 +56,7 @@ it('should render correctly', () => {
   expect(rects).toHaveLength(3);
 
   const event: React.MouseEvent<HTMLAnchorElement> = {
-    stopPropagation: jest.fn()
+    stopPropagation: jest.fn(),
   } as any;
 
   (rects.first().instance() as TreeMapRect).handleLinkClick(event);

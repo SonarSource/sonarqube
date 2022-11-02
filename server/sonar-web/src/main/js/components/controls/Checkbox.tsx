@@ -41,7 +41,7 @@ interface Props {
 
 export default class Checkbox extends React.PureComponent<Props> {
   static defaultProps = {
-    thirdState: false
+    thirdState: false,
   };
 
   handleClick = (event: React.SyntheticEvent<HTMLElement>) => {
@@ -53,21 +53,12 @@ export default class Checkbox extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      checked,
-      children,
-      disabled,
-      id,
-      label,
-      loading,
-      right,
-      thirdState,
-      title
-    } = this.props;
+    const { checked, children, disabled, id, label, loading, right, thirdState, title } =
+      this.props;
     const className = classNames('icon-checkbox', {
       'icon-checkbox-checked': checked,
       'icon-checkbox-single': thirdState,
-      'icon-checkbox-disabled': disabled
+      'icon-checkbox-disabled': disabled,
     });
 
     if (children) {
@@ -77,13 +68,14 @@ export default class Checkbox extends React.PureComponent<Props> {
           aria-label={label}
           aria-disabled={disabled}
           className={classNames('link-checkbox', this.props.className, {
-            disabled
+            disabled,
           })}
           href="#"
           id={id}
           onClick={this.handleClick}
           role="checkbox"
-          title={title}>
+          title={title}
+        >
           {right && children}
           <DeferredSpinner loading={Boolean(loading)}>
             <i className={className} />

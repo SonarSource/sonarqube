@@ -28,7 +28,7 @@ import { Query } from '../../utils';
 import DirectoryFacet from '../DirectoryFacet';
 
 jest.mock('../../../../api/components', () => ({
-  getDirectories: jest.fn().mockResolvedValue({ components: [] })
+  getDirectories: jest.fn().mockResolvedValue({ components: [] }),
 }));
 
 beforeEach(() => jest.clearAllMocks());
@@ -51,17 +51,14 @@ it('should properly search for directory', () => {
 
   const query = 'foo';
 
-  wrapper
-    .find(ListStyleFacet)
-    .props()
-    .onSearch(query);
+  wrapper.find(ListStyleFacet).props().onSearch(query);
 
   expect(getDirectories).toHaveBeenCalledWith({
     branch: branch.name,
     component: component.key,
     q: query,
     ps: 30,
-    p: undefined
+    p: undefined,
   });
 });
 

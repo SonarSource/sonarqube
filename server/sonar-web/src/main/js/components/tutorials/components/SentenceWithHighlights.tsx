@@ -31,12 +31,12 @@ export interface SentenceWithHighlightsProps {
 export default function SentenceWithHighlights({
   highlightKeys,
   translationKey,
-  highlightPrefixKeys
+  highlightPrefixKeys,
 }: SentenceWithHighlightsProps) {
   const values: Dict<JSX.Element> = {};
 
   const transhighlightPrefixKeys = highlightPrefixKeys || translationKey;
-  highlightKeys.forEach(key => {
+  highlightKeys.forEach((key) => {
     values[key] = <strong>{translate(transhighlightPrefixKeys, 'sentence', key)}</strong>;
   });
   return (

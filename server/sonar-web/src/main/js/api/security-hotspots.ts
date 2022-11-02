@@ -27,7 +27,7 @@ import {
   HotspotResolution,
   HotspotSearchResponse,
   HotspotSetStatusRequest,
-  HotspotStatus
+  HotspotStatus,
 } from '../types/security-hotspots';
 import { UserBase } from '../types/users';
 
@@ -100,17 +100,17 @@ export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<H
 
       if (users) {
         if (hotspot.assignee) {
-          hotspot.assigneeUser = users.find(u => u.login === hotspot.assignee) || {
+          hotspot.assigneeUser = users.find((u) => u.login === hotspot.assignee) || {
             active: true,
-            login: hotspot.assignee
+            login: hotspot.assignee,
           };
         }
-        hotspot.authorUser = users.find(u => u.login === hotspot.author) || {
+        hotspot.authorUser = users.find((u) => u.login === hotspot.author) || {
           active: true,
-          login: hotspot.author
+          login: hotspot.author,
         };
-        hotspot.comment.forEach(c => {
-          c.user = users.find(u => u.login === c.login) || { active: true, login: c.login };
+        hotspot.comment.forEach((c) => {
+          c.user = users.find((u) => u.login === c.login) || { active: true, login: c.login };
         });
       }
 

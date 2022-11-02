@@ -20,7 +20,7 @@
 import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownDivider,
-  ActionsDropdownItem
+  ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
 import { isUserActive, User } from '../../../types/users';
@@ -67,7 +67,8 @@ export default class UserActions extends React.PureComponent<Props, State> {
         {user.local && (
           <ActionsDropdownItem
             className="js-user-change-password"
-            onClick={this.handleOpenPasswordForm}>
+            onClick={this.handleOpenPasswordForm}
+          >
             {translate('my_profile.password.title')}
           </ActionsDropdownItem>
         )}
@@ -76,7 +77,8 @@ export default class UserActions extends React.PureComponent<Props, State> {
           <ActionsDropdownItem
             className="js-user-deactivate"
             destructive={true}
-            onClick={this.handleOpenDeactivateForm}>
+            onClick={this.handleOpenDeactivateForm}
+          >
             {translate('users.deactivate')}
           </ActionsDropdownItem>
         )}

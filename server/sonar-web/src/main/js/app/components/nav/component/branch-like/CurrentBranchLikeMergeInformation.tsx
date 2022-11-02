@@ -41,7 +41,7 @@ export function CurrentBranchLikeMergeInformation(props: CurrentBranchLikeMergeI
         id="branch_like_navigation.for_merge_into_x_from_y"
         values={{
           target: <strong>{currentBranchLike.target}</strong>,
-          branch: <strong>{currentBranchLike.branch}</strong>
+          branch: <strong>{currentBranchLike.branch}</strong>,
         }}
       />
     </span>

@@ -57,13 +57,13 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
     const { analyzedBefore } = this.props;
     const parameters = this.props.selection.length
       ? {
-          projects: this.props.selection.join()
+          projects: this.props.selection.join(),
         }
       : {
           analyzedBefore: analyzedBefore && toNotSoISOString(analyzedBefore),
           onProvisionedOnly: this.props.provisioned || undefined,
           qualifiers: this.props.qualifier,
-          q: this.props.query || undefined
+          q: this.props.query || undefined,
         };
     bulkDeleteProjects(parameters).then(
       () => {
@@ -109,7 +109,8 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
           <SubmitButton
             className="button-red"
             disabled={this.state.loading}
-            onClick={this.handleConfirmClick}>
+            onClick={this.handleConfirmClick}
+          >
             {translate('delete')}
           </SubmitButton>
           <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>

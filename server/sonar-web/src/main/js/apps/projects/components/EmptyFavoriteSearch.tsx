@@ -39,11 +39,12 @@ export default function EmptyFavoriteSearch({ query }: { query: Query }) {
               <Link
                 to={{
                   pathname: '/projects',
-                  search: queryToSearch(query as Dict<string | undefined | number>)
-                }}>
+                  search: queryToSearch(query as Dict<string | undefined | number>),
+                }}
+              >
                 {translate('all')}
               </Link>
-            )
+            ),
           }}
         />
       </p>

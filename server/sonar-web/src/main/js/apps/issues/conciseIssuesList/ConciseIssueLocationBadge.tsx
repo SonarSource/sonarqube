@@ -40,7 +40,8 @@ export default function ConciseIssueLocationBadge(props: Props) {
           ? 'issue.this_flow_involves_x_code_locations'
           : 'issue.this_issue_involves_x_code_locations',
         formatMeasure(count, 'INT')
-      )}>
+      )}
+    >
       <LocationIndex onClick={props.onClick} selected={selected}>
         {'+'}
         {count}

@@ -37,7 +37,7 @@ export function optimizeLocationMessage(
 ) {
   return highlightedLocationMessage != null &&
     optimizedSecondaryIssueLocations.some(
-      location => location.index === highlightedLocationMessage.index
+      (location) => location.index === highlightedLocationMessage.index
     )
     ? highlightedLocationMessage
     : undefined;

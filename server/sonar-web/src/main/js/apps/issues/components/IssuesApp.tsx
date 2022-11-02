@@ -49,7 +49,7 @@ import {
   fillBranchLike,
   getBranchLikeQuery,
   isPullRequest,
-  isSameBranchLike
+  isSameBranchLike,
 } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
@@ -60,7 +60,7 @@ import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
-  removeWhitePageClass
+  removeWhitePageClass,
 } from '../../../helpers/pages';
 import { serializeDate } from '../../../helpers/query';
 import { BranchLike } from '../../../types/branch-like';
@@ -70,7 +70,7 @@ import {
   FetchIssuesPromise,
   ReferencedComponent,
   ReferencedLanguage,
-  ReferencedRule
+  ReferencedRule,
 } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
 import { Component, Dict, Issue, Paging, RawQuery, RuleDetails } from '../../../types/types';
@@ -93,7 +93,7 @@ import {
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
   shouldOpenStandardsFacet,
-  STANDARDS
+  STANDARDS,
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
 import IssueHeader from './IssueHeader';
@@ -176,7 +176,7 @@ export class App extends React.PureComponent<Props, State> {
         severities: true,
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),
-        types: true
+        types: true,
       },
       query,
       referencedComponentsById: {},
@@ -184,20 +184,20 @@ export class App extends React.PureComponent<Props, State> {
       referencedLanguages: {},
       referencedRules: {},
       referencedUsers: {},
-      selected: getOpen(props.location.query)
+      selected: getOpen(props.location.query),
     };
     this.refreshBranchStatus = debounce(this.refreshBranchStatus, BRANCH_STATUS_REFRESH_INTERVAL);
   }
 
   static getDerivedStateFromProps(props: Props, state: State) {
     const {
-      location: { query }
+      location: { query },
     } = props;
 
     return {
       myIssues: areMyIssuesSelected(query),
       query: parseQuery(query),
-      openIssue: getOpenIssue(props, state.issues)
+      openIssue: getOpenIssue(props, state.issues),
     };
   }
 
@@ -233,7 +233,7 @@ export class App extends React.PureComponent<Props, State> {
         locationsNavigator: true,
         selected: openIssue.key,
         selectedFlowIndex: 0,
-        selectedLocationIndex: undefined
+        selectedLocationIndex: undefined,
       });
     }
     if (this.state.openIssue && this.state.openIssue.key !== prevState.openIssue?.key) {
@@ -322,7 +322,7 @@ export class App extends React.PureComponent<Props, State> {
 
   getSelectedIndex() {
     const { issues = [], selected } = this.state;
-    const index = issues.findIndex(issue => issue.key === selected);
+    const index = issues.findIndex((issue) => issue.key === selected);
     return index !== -1 ? index : undefined;
   }
 
@@ -336,7 +336,7 @@ export class App extends React.PureComponent<Props, State> {
         this.setState({
           selected: issues[selectedIndex + 1].key,
           selectedFlowIndex: undefined,
-          selectedLocationIndex: undefined
+          selectedLocationIndex: undefined,
         });
       }
     }
@@ -349,7 +349,7 @@ export class App extends React.PureComponent<Props, State> {
     }
     this.setState({ loadingRule: true });
     const openRuleDetails = await getRuleDetails({ key: openIssue.rule })
-      .then(response => response.rule)
+      .then((response) => response.rule)
       .catch(() => undefined);
     if (this.mounted) {
       this.setState({ loadingRule: false, openRuleDetails });
@@ -366,7 +366,7 @@ export class App extends React.PureComponent<Props, State> {
         this.setState({
           selected: issues[selectedIndex - 1].key,
           selectedFlowIndex: undefined,
-          selectedLocationIndex: undefined
+          selectedLocationIndex: undefined,
         });
       }
     }
@@ -380,15 +380,15 @@ export class App extends React.PureComponent<Props, State> {
         ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component && this.props.component.key,
         myIssues: this.state.myIssues ? 'true' : undefined,
-        open: issueKey
-      }
+        open: issueKey,
+      },
     };
     if (this.state.openIssue) {
       if (path.query.open && path.query.open === this.state.openIssue.key) {
         this.setState({
           locationsNavigator: false,
           selectedFlowIndex: undefined,
-          selectedLocationIndex: undefined
+          selectedLocationIndex: undefined,
         });
       } else {
         this.props.router.replace(path);
@@ -407,8 +407,8 @@ export class App extends React.PureComponent<Props, State> {
           ...getBranchLikeQuery(this.props.branchLike),
           id: this.props.component && this.props.component.key,
           myIssues: this.state.myIssues ? 'true' : undefined,
-          open: undefined
-        }
+          open: undefined,
+        },
       });
     }
   };
@@ -426,9 +426,9 @@ export class App extends React.PureComponent<Props, State> {
     return searchIssues({
       ...query,
       additionalFields: '_all',
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    }).then(response => {
-      const parsedIssues = response.issues.map(issue =>
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    }).then((response) => {
+      const parsedIssues = response.issues.map((issue) =>
         parseIssueFromResponse(issue, response.components, response.users, response.rules)
       );
       return { ...response, issues: parsedIssues } as FetchIssuesPromise;
@@ -441,7 +441,7 @@ export class App extends React.PureComponent<Props, State> {
 
     const facets = requestFacets
       ? Object.keys(openFacets)
-          .filter(facet => facet !== STANDARDS && openFacets[facet])
+          .filter((facet) => facet !== STANDARDS && openFacets[facet])
           .join(',')
       : undefined;
 
@@ -452,7 +452,7 @@ export class App extends React.PureComponent<Props, State> {
       ...serializeQuery(query),
       ps: '100',
       facets,
-      ...additional
+      ...additional,
     };
 
     if (query.createdAfter !== undefined && this.createdAfterIncludesTime()) {
@@ -485,7 +485,7 @@ export class App extends React.PureComponent<Props, State> {
         ) {
           return true;
         }
-        return pageIssues.some(issue => issue.key === openIssueKey);
+        return pageIssues.some((issue) => issue.key === openIssueKey);
       });
     } else {
       fetchPromise = this.fetchIssues({}, true);
@@ -499,7 +499,7 @@ export class App extends React.PureComponent<Props, State> {
           if (issues.length > 0) {
             selected = openIssue ? openIssue.key : issues[0].key;
           }
-          this.setState(state => ({
+          this.setState((state) => ({
             cannotShowOpenIssue: Boolean(openIssueKey && !openIssue),
             effortTotal,
             facets: { ...state.facets, ...parseFacets(facets) },
@@ -515,7 +515,7 @@ export class App extends React.PureComponent<Props, State> {
             referencedUsers: keyBy(other.users, 'login'),
             selected,
             selectedFlowIndex: 0,
-            selectedLocationIndex: undefined
+            selectedLocationIndex: undefined,
           }));
         }
         return issues;
@@ -560,12 +560,12 @@ export class App extends React.PureComponent<Props, State> {
 
     this.setState({ checkAll: false, loadingMore: true });
     return this.fetchIssuesPage(p).then(
-      response => {
+      (response) => {
         if (this.mounted) {
-          this.setState(state => ({
+          this.setState((state) => ({
             loadingMore: false,
             issues: [...state.issues, ...response.issues],
-            paging: response.paging
+            paging: response.paging,
           }));
         }
       },
@@ -581,23 +581,23 @@ export class App extends React.PureComponent<Props, State> {
     return this.fetchIssues({ ps: 1, facets: facet }, false).then(
       ({ facets, ...other }) => {
         if (this.mounted) {
-          this.setState(state => ({
+          this.setState((state) => ({
             facets: { ...state.facets, ...parseFacets(facets) },
             loadingFacets: omit(state.loadingFacets, facet),
             referencedComponentsById: {
               ...state.referencedComponentsById,
-              ...keyBy(other.components, 'uuid')
+              ...keyBy(other.components, 'uuid'),
             },
             referencedComponentsByKey: {
               ...state.referencedComponentsByKey,
-              ...keyBy(other.components, 'key')
+              ...keyBy(other.components, 'key'),
             },
             referencedLanguages: {
               ...state.referencedLanguages,
-              ...keyBy(other.languages, 'key')
+              ...keyBy(other.languages, 'key'),
             },
             referencedRules: { ...state.referencedRules, ...keyBy(other.rules, 'key') },
-            referencedUsers: { ...state.referencedUsers, ...keyBy(other.users, 'login') }
+            referencedUsers: { ...state.referencedUsers, ...keyBy(other.users, 'login') },
           }));
         }
       },
@@ -614,7 +614,7 @@ export class App extends React.PureComponent<Props, State> {
 
   getCheckedIssues = () => {
     const issues = this.state.checked
-      .map(checked => this.state.issues.find(issue => issue.key === checked))
+      .map((checked) => this.state.issues.find((issue) => issue.key === checked))
       .filter((issue): issue is Issue => issue !== undefined);
     const paging = { pageIndex: 1, pageSize: issues.length, total: issues.length };
     return Promise.resolve({ issues, paging });
@@ -642,15 +642,15 @@ export class App extends React.PureComponent<Props, State> {
         ...serializeQuery({ ...this.state.query, ...changes }),
         ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component && this.props.component.key,
-        myIssues: this.state.myIssues ? 'true' : undefined
-      }
+        myIssues: this.state.myIssues ? 'true' : undefined,
+      },
     });
     this.setState(({ openFacets }) => ({
       openFacets: {
         ...openFacets,
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet(openFacets, changes),
-        standards: shouldOpenStandardsFacet(openFacets, changes)
-      }
+        standards: shouldOpenStandardsFacet(openFacets, changes),
+      },
     }));
   };
 
@@ -665,8 +665,8 @@ export class App extends React.PureComponent<Props, State> {
         ...serializeQuery({ ...this.state.query, assigned: true, assignees: [] }),
         ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component && this.props.component.key,
-        myIssues: myIssues ? 'true' : undefined
-      }
+        myIssues: myIssues ? 'true' : undefined,
+      },
     });
   };
 
@@ -680,7 +680,7 @@ export class App extends React.PureComponent<Props, State> {
       facets: property,
       s: 'FILE_LINE',
       ...serializeQuery({ ...query, ...changes }),
-      ps: 1
+      ps: 1,
     };
 
     if (myIssues) {
@@ -691,17 +691,17 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   closeFacet = (property: string) => {
-    this.setState(state => ({
-      openFacets: { ...state.openFacets, [property]: false }
+    this.setState((state) => ({
+      openFacets: { ...state.openFacets, [property]: false },
     }));
   };
 
   handleFacetToggle = (property: string) => {
-    this.setState(state => {
+    this.setState((state) => {
       const willOpenProperty = !state.openFacets[property];
       const newState = {
         loadingFacets: state.loadingFacets,
-        openFacets: { ...state.openFacets, [property]: willOpenProperty }
+        openFacets: { ...state.openFacets, [property]: willOpenProperty },
       };
 
       // Try to open sonarsource security "subfacet" by default if the standard facet is open
@@ -731,8 +731,8 @@ export class App extends React.PureComponent<Props, State> {
         ...DEFAULT_QUERY,
         ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component && this.props.component.key,
-        myIssues: this.state.myIssues ? 'true' : undefined
-      }
+        myIssues: this.state.myIssues ? 'true' : undefined,
+      },
     });
   };
 
@@ -752,18 +752,18 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleIssueCheck = (issue: string) => {
-    this.setState(state => ({
+    this.setState((state) => ({
       checkAll: false,
       checked: state.checked.includes(issue)
         ? without(state.checked, issue)
-        : [...state.checked, issue]
+        : [...state.checked, issue],
     }));
   };
 
   handleIssueChange = (issue: Issue) => {
     this.refreshBranchStatus();
-    this.setState(state => ({
-      issues: state.issues.map(candidate => (candidate.key === issue.key ? issue : candidate))
+    this.setState((state) => ({
+      issues: state.issues.map((candidate) => (candidate.key === issue.key ? issue : candidate)),
     }));
   };
 
@@ -812,9 +812,9 @@ export class App extends React.PureComponent<Props, State> {
 
   handleCheckAll = (checked: boolean) => {
     if (checked) {
-      this.setState(state => ({
+      this.setState((state) => ({
         checkAll: true,
-        checked: state.issues.map(issue => issue.key)
+        checked: state.issues.map((issue) => issue.key),
       }));
     } else {
       this.setState({ checkAll: false, checked: [] });
@@ -867,7 +867,8 @@ export class App extends React.PureComponent<Props, State> {
           innerRef={this.bulkButtonRef}
           disabled={checked.length === 0}
           id="issues-bulk-change"
-          onClick={this.handleOpenBulkChange}>
+          onClick={this.handleOpenBulkChange}
+        >
           {this.getButtonLabel(checked, checkAll, paging)}
         </Button>
 
@@ -895,7 +896,7 @@ export class App extends React.PureComponent<Props, State> {
             <ButtonToggle
               options={[
                 { value: true, label: translate('issues.my_issues') },
-                { value: false, label: translate('all') }
+                { value: false, label: translate('all') },
               ]}
               value={this.state.myIssues}
               onCheck={this.handleMyIssuesChange}
@@ -965,7 +966,8 @@ export class App extends React.PureComponent<Props, State> {
           <section
             aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
             className="layout-page-side"
-            style={{ top }}>
+            style={{ top }}
+          >
             <div className="layout-page-side-inner">
               <A11ySkipTarget
                 anchor="issues_sidebar"
@@ -977,7 +979,8 @@ export class App extends React.PureComponent<Props, State> {
               {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
                 <Alert
                   className="big-spacer-top big-spacer-right big-spacer-left it__portfolio_warning"
-                  variant="warning">
+                  variant="warning"
+                >
                   <AlertContent>
                     {translate('issues.not_all_issue_show')}
                     <HelpTooltip
@@ -1054,7 +1057,7 @@ export class App extends React.PureComponent<Props, State> {
   renderHeader({
     openIssue,
     paging,
-    selectedIndex
+    selectedIndex,
   }: {
     openIssue: Issue | undefined;
     paging: Paging | undefined;
@@ -1090,7 +1093,7 @@ export class App extends React.PureComponent<Props, State> {
       loading,
       openIssue,
       paging,
-      loadingRule
+      loadingRule,
     } = this.state;
     return (
       <div className="layout-page-main-inner">
@@ -1156,7 +1159,8 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div
         className={classNames('layout-page issues', { 'project-level': component !== undefined })}
-        id="issues-page">
+        id="issues-page"
+      >
         <Suggestions suggestions="issues" />
         <Helmet defer={false} title={openIssue ? openIssue.message : translate('issues.page')} />
 

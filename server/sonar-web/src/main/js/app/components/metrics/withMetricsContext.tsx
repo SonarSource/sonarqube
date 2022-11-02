@@ -38,7 +38,7 @@ export default function withMetricsContext<P>(
     render() {
       return (
         <MetricsContext.Consumer>
-          {metrics => <WrappedComponent metrics={metrics} {...(this.props as P)} />}
+          {(metrics) => <WrappedComponent metrics={metrics} {...(this.props as P)} />}
         </MetricsContext.Consumer>
       );
     }

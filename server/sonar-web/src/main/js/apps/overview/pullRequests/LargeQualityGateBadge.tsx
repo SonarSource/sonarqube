@@ -45,8 +45,9 @@ export function LargeQualityGateBadge({ component, level }: Props) {
     <div
       className={classNames('overview-quality-gate-badge-large small', {
         failed: !success,
-        success
-      })}>
+        success,
+      })}
+    >
       <div className="display-flex-center">
         <span>{translate('overview.on_new_code_long')}</span>
 
@@ -57,10 +58,11 @@ export function LargeQualityGateBadge({ component, level }: Props) {
               defaultMessage={translate('overview.quality_gate.conditions_on_new_code')}
               id="overview.quality_gate.conditions_on_new_code"
               values={{
-                link: <Link to={path}>{translate('overview.quality_gate')}</Link>
+                link: <Link to={path}>{translate('overview.quality_gate')}</Link>,
               }}
             />
-          }>
+          }
+        >
           <HelpIcon fill={colors.transparentWhite} size={12} />
         </HelpTooltip>
       </div>

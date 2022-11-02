@@ -55,7 +55,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
       error: props.condition ? props.condition.error : '',
       scope: 'new',
       metric: props.metric ? props.metric : undefined,
-      op: props.condition ? props.condition.op : undefined
+      op: props.condition ? props.condition.op : undefined,
     };
   }
 
@@ -69,7 +69,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     const newCondition: Omit<Condition, 'id'> = {
       metric: this.state.metric!.key,
       op: this.getSinglePossibleOperator(this.state.metric!) || this.state.op,
-      error: this.state.error
+      error: this.state.error,
     };
     const submitPromise = condition
       ? updateCondition({ id: condition.id, ...newCondition })
@@ -85,7 +85,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
       if (metric && metrics) {
         const correspondingMetricKey =
           scope === 'new' ? `new_${metric.key}` : metric.key.replace(/^new_/, '');
-        correspondingMetric = metrics.find(m => m.key === correspondingMetricKey);
+        correspondingMetric = metrics.find((m) => m.key === correspondingMetricKey);
       }
 
       return { scope, metric: correspondingMetric };
@@ -114,7 +114,8 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         header={header}
         onClose={onClose}
         onConfirm={this.handleFormSubmit}
-        size="small">
+        size="small"
+      >
         {this.state.errorMessage && <Alert variant="error">{this.state.errorMessage}</Alert>}
 
         {this.props.metric === undefined && (
@@ -128,7 +129,8 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
               checked={scope === 'overall'}
               className="big-spacer-left"
               onCheck={this.handleScopeChange}
-              value="overall">
+              value="overall"
+            >
               <span data-test="quality-gates__condition-scope-overall">
                 {translate('quality_gates.conditions.overall_code')}
               </span>
@@ -143,7 +145,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
           {metrics && (
             <MetricSelect
               metric={metric}
-              metricsArray={metrics.filter(m =>
+              metricsArray={metrics.filter((m) =>
                 scope === 'new' ? isDiffMetric(m.key) : !isDiffMetric(m.key)
               )}
               onMetricChange={this.handleMetricChange}

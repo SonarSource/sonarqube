@@ -55,14 +55,15 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
   };
 
   toggleProjectsList = () => {
-    this.setState(state => ({ expanded: !state.expanded }));
+    this.setState((state) => ({ expanded: !state.expanded }));
   };
 
   renderProjectLink = (project: { key: string; name: string }, branch: string | undefined) => (
     <Link
       onClick={this.stopPropagation}
       title={project.name}
-      to={getProjectUrl(project.key, branch)}>
+      to={getProjectUrl(project.key, branch)}
+    >
       {limitComponentName(project.name, 28)}
     </Link>
   );
@@ -95,7 +96,7 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
             id={message}
             values={{
               project: this.renderProjectLink(project, project.branch),
-              branch: this.renderBranch(project.branch)
+              branch: this.renderBranch(project.branch),
             }}
           />
         </div>
@@ -111,7 +112,7 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
             id={message}
             values={{
               project: this.renderProjectLink(project, project.branch),
-              branch: this.renderBranch(project.branch)
+              branch: this.renderBranch(project.branch),
             }}
           />
         </div>
@@ -124,7 +125,7 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
           values={{
             project: this.renderProjectLink(project, project.newBranch),
             oldBranch: this.renderBranch(project.oldBranch),
-            newBranch: this.renderBranch(project.newBranch)
+            newBranch: this.renderBranch(project.newBranch),
           }}
         />
       );
@@ -147,7 +148,8 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
             <ButtonLink
               className="project-activity-event-inner-more-link"
               onClick={this.toggleProjectsList}
-              stopPropagation={true}>
+              stopPropagation={true}
+            >
               {expanded ? translate('hide') : translate('more')}
               <DropdownIcon className="little-spacer-left" turned={expanded} />
             </ButtonLink>
@@ -156,7 +158,7 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
 
         {expanded && (
           <ul className="spacer-left spacer-top">
-            {event.definitionChange.projects.map(project => (
+            {event.definitionChange.projects.map((project) => (
               <li className="display-flex-center spacer-top" key={project.key}>
                 {this.renderProjectChange(project)}
               </li>

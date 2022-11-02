@@ -35,12 +35,12 @@ export default function ProfileRulesRowOfType(props: Props) {
   const activeRulesUrl = getRulesUrl({
     qprofile: props.qprofile,
     activation: 'true',
-    types: props.type
+    types: props.type,
   });
   const inactiveRulesUrl = getRulesUrl({
     qprofile: props.qprofile,
     activation: 'false',
-    types: props.type
+    types: props.type,
   });
   let inactiveCount = null;
   if (props.count != null && props.total != null) {

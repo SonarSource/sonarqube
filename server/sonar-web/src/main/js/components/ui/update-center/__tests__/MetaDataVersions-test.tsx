@@ -43,7 +43,7 @@ function shallowRender(props?: Partial<MetaDataVersions['props']>) {
       versions={[
         mockMetaDataVersionInformation({ version: '3.0' }),
         mockMetaDataVersionInformation({ version: '2.0', archived: true }),
-        mockMetaDataVersionInformation({ version: '1.0', archived: true })
+        mockMetaDataVersionInformation({ version: '1.0', archived: true }),
       ]}
       {...props}
     />

@@ -26,7 +26,7 @@ import { BackgroundTasksApp } from '../BackgroundTasksApp';
 
 jest.mock('../../../../api/ce', () => ({
   getTypes: jest.fn().mockResolvedValue({
-    taskTypes: ['REPORT', 'PROJECT_EXPORT', 'PROJECT_IMPORT', 'VIEW_REFRESH']
+    taskTypes: ['REPORT', 'PROJECT_EXPORT', 'PROJECT_IMPORT', 'VIEW_REFRESH'],
   }),
   getActivity: jest.fn().mockResolvedValue({
     tasks: [
@@ -48,7 +48,7 @@ jest.mock('../../../../api/ce', () => ({
         hasScannerContext: false,
         errorType: 'LICENSING',
         warningCount: 0,
-        warnings: []
+        warnings: [],
       },
       {
         id: 'AWkGcOThOiAPiP5AE-kL',
@@ -65,14 +65,14 @@ jest.mock('../../../../api/ce', () => ({
         logs: false,
         hasScannerContext: false,
         warningCount: 0,
-        warnings: []
-      }
+        warnings: [],
+      },
     ],
-    paging: { total: 2, pageIndex: 1 }
+    paging: { total: 2, pageIndex: 1 },
   }),
   getStatus: jest.fn().mockResolvedValue({ pending: 0, failing: 15, inProgress: 0 }),
   cancelAllTasks: jest.fn().mockResolvedValue({}),
-  cancelTask: jest.fn().mockResolvedValue({})
+  cancelTask: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => {

@@ -29,11 +29,11 @@ const MEASURES = [
       key: MetricKey.lines_to_cover,
       type: 'INT',
       name: 'Lines to Cover',
-      domain: 'Coverage'
+      domain: 'Coverage',
     },
     value: '431',
     period: { index: 1, value: '70' },
-    leak: '70'
+    leak: '70',
   },
   {
     metric: {
@@ -41,11 +41,11 @@ const MEASURES = [
       key: MetricKey.coverage,
       type: 'PERCENT',
       name: 'Coverage',
-      domain: 'Coverage'
+      domain: 'Coverage',
     },
     value: '99.3',
     period: { index: 1, value: '0.0999999999999943' },
-    leak: '0.0999999999999943'
+    leak: '0.0999999999999943',
   },
   {
     metric: {
@@ -53,12 +53,12 @@ const MEASURES = [
       key: MetricKey.duplicated_lines_density,
       type: 'PERCENT',
       name: 'Duplicated Lines (%)',
-      domain: 'Duplications'
+      domain: 'Duplications',
     },
     value: '3.2',
     period: { index: 1, value: '0.0' },
-    leak: '0.0'
-  }
+    leak: '0.0',
+  },
 ];
 
 describe('filterMeasures', () => {
@@ -71,9 +71,9 @@ describe('filterMeasures', () => {
             id: '2',
             key: MetricKey.critical_violations,
             name: 'Critical Violations',
-            type: 'INT'
-          }
-        }
+            type: 'INT',
+          },
+        },
       ])
     ).toHaveLength(1);
   });
@@ -88,20 +88,20 @@ describe('sortMeasures', () => {
             id: '1',
             key: MetricKey.reliability_remediation_effort,
             name: 'new_bugs',
-            type: 'INT'
-          }
+            type: 'INT',
+          },
         },
         {
           metric: {
             id: '2',
             key: MetricKey.new_reliability_remediation_effort,
             name: 'bugs',
-            type: 'INT'
-          }
+            type: 'INT',
+          },
         },
         { metric: { id: '3', key: MetricKey.new_bugs, name: 'new_bugs', type: 'INT' } },
         { metric: { id: '4', key: MetricKey.bugs, name: 'bugs', type: 'INT' } },
-        'overall_category'
+        'overall_category',
       ])
     ).toMatchSnapshot();
   });
@@ -122,7 +122,7 @@ describe('parseQuery', () => {
     expect(utils.parseQuery({})).toEqual({
       metric: utils.DEFAULT_METRIC,
       selected: '',
-      view: utils.DEFAULT_VIEW
+      view: utils.DEFAULT_VIEW,
     });
     expect(
       utils.parseQuery({ metric: 'foo', selected: 'bar', view: 'tree', asc: 'false' })
@@ -130,7 +130,7 @@ describe('parseQuery', () => {
       metric: 'foo',
       selected: 'bar',
       view: 'tree',
-      asc: false
+      asc: false,
     });
   });
 
@@ -143,11 +143,11 @@ describe('parseQuery', () => {
 describe('serializeQuery', () => {
   it('should correctly serialize the query', () => {
     expect(utils.serializeQuery({ metric: '', selected: '', view: 'list' })).toEqual({
-      view: 'list'
+      view: 'list',
     });
     expect(utils.serializeQuery({ metric: 'foo', selected: 'bar', view: 'tree' })).toEqual({
       metric: 'foo',
-      selected: 'bar'
+      selected: 'bar',
     });
   });
 
@@ -167,19 +167,19 @@ describe('extract measure', () => {
         {
           metric: 'alert_status',
           value: '3.2',
-          period: { index: 1, value: '0.0' }
+          period: { index: 1, value: '0.0' },
         },
         {
           metric: 'releasability_rating',
           value: '3.2',
-          period: { index: 1, value: '0.0' }
+          period: { index: 1, value: '0.0' },
         },
         {
           metric: 'releasability_effort',
           value: '3.2',
-          period: { index: 1, value: '0.0' }
-        }
-      ]
+          period: { index: 1, value: '0.0' },
+        },
+      ],
     };
   };
   it('should ban quality gate for app', () => {

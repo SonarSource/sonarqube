@@ -26,7 +26,7 @@ import {
   cleanQuery,
   parseAsOptionalBoolean,
   parseAsString,
-  serializeString
+  serializeString,
 } from '../../helpers/query';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
@@ -39,7 +39,7 @@ import {
   Measure,
   MeasureEnhanced,
   Metric,
-  RawQuery
+  RawQuery,
 } from '../../types/types';
 import { bubbles } from './config/bubbles';
 import { domains } from './config/domains';
@@ -57,7 +57,7 @@ export const KNOWN_DOMAINS = [
   'Coverage',
   'Duplications',
   'Size',
-  'Complexity'
+  'Complexity',
 ];
 const BANNED_MEASURES = [
   'blocker_violations',
@@ -69,11 +69,11 @@ const BANNED_MEASURES = [
   'minor_violations',
   'new_minor_violations',
   'info_violations',
-  'new_info_violations'
+  'new_info_violations',
 ];
 
 export function filterMeasures(measures: MeasureEnhanced[]): MeasureEnhanced[] {
-  return measures.filter(measure => !BANNED_MEASURES.includes(measure.metric.key));
+  return measures.filter((measure) => !BANNED_MEASURES.includes(measure.metric.key));
 }
 
 export function sortMeasures(
@@ -91,7 +91,7 @@ export function sortMeasures(
       return idx >= 0 ? idx : configOrder.length;
     },
     (item: MeasureEnhanced | string) =>
-      typeof item === 'string' ? item : getLocalizedMetricName(item.metric)
+      typeof item === 'string' ? item : getLocalizedMetricName(item.metric),
   ]);
 }
 
@@ -112,8 +112,8 @@ export function enhanceComponent(
     return { ...component, measures: [] };
   }
 
-  const enhancedMeasures = component.measures.map(measure => enhanceMeasure(measure, metrics));
-  const measure = metric && enhancedMeasures.find(measure => measure.metric.key === metric.key);
+  const enhancedMeasures = component.measures.map((measure) => enhanceMeasure(measure, metrics));
+  const measure = metric && enhancedMeasures.find((measure) => measure.metric.key === metric.key);
   const value = measure && measure.value;
   const leak = measure && measure.leak;
   return { ...component, value, leak, measures: enhancedMeasures };
@@ -126,7 +126,7 @@ export function isSecurityReviewMetric(metricKey: MetricKey | string): boolean {
     MetricKey.security_review_rating,
     MetricKey.new_security_hotspots,
     MetricKey.new_security_hotspots_reviewed,
-    MetricKey.new_security_review_rating
+    MetricKey.new_security_review_rating,
   ].includes(metricKey as MetricKey);
 }
 
@@ -138,13 +138,13 @@ export function banQualityGateMeasure({ measures = [], qualifier }: ComponentMea
   if (qualifier === ComponentQualifier.Application) {
     bannedMetrics.push('releasability_rating', 'releasability_effort');
   }
-  return measures.filter(measure => !bannedMetrics.includes(measure.metric));
+  return measures.filter((measure) => !bannedMetrics.includes(measure.metric));
 }
 
 export const groupByDomains = memoize((measures: MeasureEnhanced[]) => {
-  const domains = toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => ({
+  const domains = toPairs(groupBy(measures, (measure) => measure.metric.domain)).map((r) => ({
     name: r[0],
-    measures: r[1]
+    measures: r[1],
   }));
 
   return sortBy(domains, [
@@ -152,7 +152,7 @@ export const groupByDomains = memoize((measures: MeasureEnhanced[]) => {
       const idx = KNOWN_DOMAINS.indexOf(domain.name);
       return idx >= 0 ? idx : KNOWN_DOMAINS.length;
     },
-    'name'
+    'name',
   ]);
 });
 
@@ -181,10 +181,10 @@ export function hasFullMeasures(branch?: BranchLike) {
 }
 
 export function getMeasuresPageMetricKeys(metrics: Dict<Metric>, branch?: BranchLike) {
-  const metricKeys = getDisplayMetrics(Object.values(metrics)).map(metric => metric.key);
+  const metricKeys = getDisplayMetrics(Object.values(metrics)).map((metric) => metric.key);
 
   if (isPullRequest(branch)) {
-    return metricKeys.filter(key => isDiffMetric(key));
+    return metricKeys.filter((key) => isDiffMetric(key));
   } else {
     return metricKeys;
   }
@@ -196,7 +196,7 @@ export function getBubbleMetrics(domain: string, metrics: Dict<Metric>) {
     x: metrics[conf.x],
     y: metrics[conf.y],
     size: metrics[conf.size],
-    colors: conf.colors && conf.colors.map(color => metrics[color])
+    colors: conf.colors && conf.colors.map((color) => metrics[color]),
   };
 }
 
@@ -225,22 +225,20 @@ export interface Query {
   asc?: boolean;
 }
 
-export const parseQuery = memoize(
-  (urlQuery: RawQuery): Query => {
-    const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
-    return {
-      metric,
-      selected: parseAsString(urlQuery['selected']),
-      view: parseView(metric, urlQuery['view']),
-      asc: parseAsOptionalBoolean(urlQuery['asc'])
-    };
-  }
-);
+export const parseQuery = memoize((urlQuery: RawQuery): Query => {
+  const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
+  return {
+    metric,
+    selected: parseAsString(urlQuery['selected']),
+    view: parseView(metric, urlQuery['view']),
+    asc: parseAsOptionalBoolean(urlQuery['asc']),
+  };
+});
 
 export const serializeQuery = memoize((query: Query) => {
   return cleanQuery({
     metric: query.metric === DEFAULT_METRIC ? undefined : serializeString(query.metric),
     selected: serializeString(query.selected),
-    view: query.view === DEFAULT_VIEW ? undefined : serializeString(query.view)
+    view: query.view === DEFAULT_VIEW ? undefined : serializeString(query.view),
   });
 });

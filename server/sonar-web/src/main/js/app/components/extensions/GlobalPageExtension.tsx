@@ -35,7 +35,7 @@ export interface GlobalPageExtensionProps {
 function GlobalPageExtension(props: GlobalPageExtensionProps) {
   const {
     appState: { globalPages },
-    params
+    params,
   } = props;
   const { extensionKey, pluginKey } = useParams();
 
@@ -44,7 +44,7 @@ function GlobalPageExtension(props: GlobalPageExtensionProps) {
       ? `${params.pluginKey}/${params.extensionKey}`
       : `${pluginKey}/${extensionKey}`;
 
-  const extension = (globalPages || []).find(p => p.key === fullKey);
+  const extension = (globalPages || []).find((p) => p.key === fullKey);
   return extension ? <Extension extension={extension} /> : <NotFound withContainer={false} />;
 }
 

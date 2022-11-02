@@ -22,7 +22,7 @@ import * as React from 'react';
 import {
   deletePermissionTemplate,
   setDefaultPermissionTemplate,
-  updatePermissionTemplate
+  updatePermissionTemplate,
 } from '../../../api/permissions';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
@@ -125,14 +125,15 @@ export class ActionsCell extends React.PureComponent<Props, State> {
         className="js-set-default"
         data-qualifier={qualifier}
         key={qualifier}
-        onClick={this.setDefault(qualifier)}>
+        onClick={this.setDefault(qualifier)}
+      >
         {child}
       </ActionsDropdownItem>
     );
   }
 
   renderIfSingleTopQualifier(availableQualifiers: string[]) {
-    return availableQualifiers.map(qualifier =>
+    return availableQualifiers.map((qualifier) =>
       this.renderSetDefaultLink(
         qualifier,
         <span>{translate('permission_templates.set_default')}</span>
@@ -141,7 +142,7 @@ export class ActionsCell extends React.PureComponent<Props, State> {
   }
 
   renderIfMultipleTopQualifiers(availableQualifiers: string[]) {
-    return availableQualifiers.map(qualifier =>
+    return availableQualifiers.map((qualifier) =>
       this.renderSetDefaultLink(
         qualifier,
         <span>
@@ -162,7 +163,8 @@ export class ActionsCell extends React.PureComponent<Props, State> {
 
           {!this.props.fromDetails && (
             <ActionsDropdownItem
-              to={{ pathname: PERMISSION_TEMPLATES_PATH, search: queryToSearch({ id: t.id }) }}>
+              to={{ pathname: PERMISSION_TEMPLATES_PATH, search: queryToSearch({ id: t.id }) }}
+            >
               {translate('edit_permissions')}
             </ActionsDropdownItem>
           )}
@@ -175,7 +177,8 @@ export class ActionsCell extends React.PureComponent<Props, State> {
             <ActionsDropdownItem
               className="js-delete"
               destructive={true}
-              onClick={this.handleDeleteClick}>
+              onClick={this.handleDeleteClick}
+            >
               {translate('delete')}
             </ActionsDropdownItem>
           )}

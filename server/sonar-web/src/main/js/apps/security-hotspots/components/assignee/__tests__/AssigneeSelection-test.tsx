@@ -27,7 +27,7 @@ import { UserActive } from '../../../../../types/users';
 import AssigneeSelection from '../AssigneeSelection';
 
 jest.mock('../../../../../api/users', () => ({
-  searchUsers: jest.fn().mockResolvedValue([])
+  searchUsers: jest.fn().mockResolvedValue([]),
 }));
 
 it('should render correctly', () => {
@@ -38,7 +38,7 @@ it('should handle keydown', () => {
   const suggestedUsers = [
     mockUser({ login: '1' }) as UserActive,
     mockUser({ login: '2' }) as UserActive,
-    mockUser({ login: '3' }) as UserActive
+    mockUser({ login: '3' }) as UserActive,
   ];
 
   const onSelect = jest.fn();

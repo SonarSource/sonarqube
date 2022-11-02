@@ -26,7 +26,7 @@ import { ComponentQualifier } from '../../../../types/component';
 import { IssueType } from '../../../../types/issues';
 import { MetricKey } from '../../../../types/metrics';
 import MeasuresPanelIssueMeasureRow, {
-  MeasuresPanelIssueMeasureRowProps
+  MeasuresPanelIssueMeasureRowProps,
 } from '../MeasuresPanelIssueMeasureRow';
 
 it('should render correctly for projects', () => {
@@ -54,7 +54,7 @@ function shallowRender(props: Partial<MeasuresPanelIssueMeasureRowProps> = {}) {
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.coverage }) }),
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_coverage }) }),
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) })
+        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) }),
       ]}
       type={IssueType.Bug}
       {...props}

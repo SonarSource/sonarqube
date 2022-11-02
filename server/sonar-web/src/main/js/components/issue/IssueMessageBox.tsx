@@ -37,13 +37,14 @@ export function IssueMessageBox(props: IssueMessageBoxProps, ref: React.Forwarde
     <div
       className={classNames('issue-message-box display-flex-row display-flex-center padded-right', {
         'selected big-padded-top big-padded-bottom text-bold': selected,
-        'secondary-issue padded-top padded-bottom': !selected
+        'secondary-issue padded-top padded-bottom': !selected,
       })}
       key={issue.key}
       onClick={() => props.onClick(issue.key)}
       role="region"
       ref={ref}
-      aria-label={issue.message}>
+      aria-label={issue.message}
+    >
       <IssueTypeIcon
         className="big-spacer-right spacer-left"
         fill={colors.baseFontColor}

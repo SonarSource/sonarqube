@@ -36,16 +36,16 @@ export default class TypesFilter extends React.PureComponent<Props> {
 
   render() {
     const { value, types, id } = this.props;
-    const options = types.map(t => {
+    const options = types.map((t) => {
       return {
         value: t,
-        label: translate('background_task.type', t)
+        label: translate('background_task.type', t),
       };
     });
 
     const allOptions: BasicSelectOption[] = [
       { value: ALL_TYPES, label: translate('background_task.type.ALL') },
-      ...options
+      ...options,
     ];
 
     return (
@@ -57,7 +57,7 @@ export default class TypesFilter extends React.PureComponent<Props> {
         onChange={this.handleChange}
         options={allOptions}
         isSearchable={false}
-        value={allOptions.find(o => o.value === value)}
+        value={allOptions.find((o) => o.value === value)}
       />
     );
   }

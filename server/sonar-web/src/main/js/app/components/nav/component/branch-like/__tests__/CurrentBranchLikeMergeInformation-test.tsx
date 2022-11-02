@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockMainBranch, mockPullRequest } from '../../../../../../helpers/mocks/branch-like';
 import {
   CurrentBranchLikeMergeInformation,
-  CurrentBranchLikeMergeInformationProps
+  CurrentBranchLikeMergeInformationProps,
 } from '../CurrentBranchLikeMergeInformation';
 
 it('should render correctly', () => {

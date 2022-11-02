@@ -65,7 +65,7 @@ it('should be able to bulk change', async () => {
 
   expect(
     issueBoxFixThat.getByRole('button', {
-      name: 'issue.type.type_x_click_to_change.issue.type.CODE_SMELL'
+      name: 'issue.type.type_x_click_to_change.issue.type.CODE_SMELL',
     })
   ).toBeInTheDocument();
 
@@ -78,13 +78,13 @@ it('should be able to bulk change', async () => {
   expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
 
   await selectEvent.select(screen.getByRole('textbox', { name: 'issue.set_type' }), [
-    'issue.type.BUG'
+    'issue.type.BUG',
   ]);
   await user.click(screen.getByRole('button', { name: 'apply' }));
 
   expect(
     issueBoxFixThat.getByRole('button', {
-      name: 'issue.type.type_x_click_to_change.issue.type.BUG'
+      name: 'issue.type.type_x_click_to_change.issue.type.BUG',
     })
   ).toBeInTheDocument();
 });
@@ -239,7 +239,7 @@ it('should open issue and navigate', async () => {
   expect(screen.getByRole('region', { name: 'Issue on file' })).toBeInTheDocument();
   expect(
     screen.getByRole('row', {
-      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
+      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;',
     })
   ).toBeInTheDocument();
 });
@@ -282,12 +282,12 @@ it('should be able to perform action on issues', async () => {
   // changing issue type
   expect(
     screen.getByRole('button', {
-      name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`
+      name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`,
     })
   ).toBeInTheDocument();
   await user.click(
     screen.getByRole('button', {
-      name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`
+      name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`,
     })
   );
   expect(screen.getByText('issue.type.BUG')).toBeInTheDocument();
@@ -296,7 +296,7 @@ it('should be able to perform action on issues', async () => {
   await user.click(screen.getByText('issue.type.VULNERABILITY'));
   expect(
     screen.getByRole('button', {
-      name: `issue.type.type_x_click_to_change.issue.type.VULNERABILITY`
+      name: `issue.type.type_x_click_to_change.issue.type.VULNERABILITY`,
     })
   ).toBeInTheDocument();
 
@@ -305,7 +305,7 @@ it('should be able to perform action on issues', async () => {
 
   await user.click(
     screen.getByRole('button', {
-      name: `issue.severity.severity_x_click_to_change.severity.MAJOR`
+      name: `issue.severity.severity_x_click_to_change.severity.MAJOR`,
     })
   );
   expect(screen.getByText('severity.MINOR')).toBeInTheDocument();
@@ -313,7 +313,7 @@ it('should be able to perform action on issues', async () => {
   await user.click(screen.getByText('severity.MINOR'));
   expect(
     screen.getByRole('button', {
-      name: `issue.severity.severity_x_click_to_change.severity.MINOR`
+      name: `issue.severity.severity_x_click_to_change.severity.MINOR`,
     })
   ).toBeInTheDocument();
 
@@ -327,7 +327,7 @@ it('should be able to perform action on issues', async () => {
   await user.click(screen.getByText('issue.transition.confirm'));
   expect(
     screen.getByRole('button', {
-      name: `issue.transition.status_x_click_to_change.issue.status.CONFIRMED`
+      name: `issue.transition.status_x_click_to_change.issue.status.CONFIRMED`,
     })
   ).toBeInTheDocument();
 
@@ -343,13 +343,13 @@ it('should be able to perform action on issues', async () => {
   // assigning issue to a different user
   expect(
     screen.getByRole('button', {
-      name: `issue.assign.unassigned_click_to_assign`
+      name: `issue.assign.unassigned_click_to_assign`,
     })
   ).toBeInTheDocument();
 
   await user.click(
     screen.getByRole('button', {
-      name: `issue.assign.unassigned_click_to_assign`
+      name: `issue.assign.unassigned_click_to_assign`,
     })
   );
   expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
@@ -363,13 +363,13 @@ it('should be able to perform action on issues', async () => {
   // adding comment to the issue
   expect(
     screen.getByRole('button', {
-      name: `issue.comment.add_comment`
+      name: `issue.comment.add_comment`,
     })
   ).toBeInTheDocument();
 
   await user.click(
     screen.getByRole('button', {
-      name: `issue.comment.add_comment`
+      name: `issue.comment.add_comment`,
     })
   );
   expect(screen.getByText('issue.comment.submit')).toBeInTheDocument();
@@ -438,29 +438,29 @@ it('should not allow performing actions when user does not have permission', asy
 
   expect(
     screen.queryByRole('button', {
-      name: `issue.assign.unassigned_click_to_assign`
+      name: `issue.assign.unassigned_click_to_assign`,
     })
   ).not.toBeInTheDocument();
   expect(
     screen.queryByRole('button', {
-      name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`
+      name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`,
     })
   ).not.toBeInTheDocument();
 
   await user.click(
     screen.getByRole('button', {
-      name: `issue.comment.add_comment`
+      name: `issue.comment.add_comment`,
     })
   );
   expect(screen.queryByRole('button', { name: 'issue.comment.submit' })).not.toBeInTheDocument();
   expect(
     screen.queryByRole('button', {
-      name: `issue.transition.status_x_click_to_change.issue.status.OPEN`
+      name: `issue.transition.status_x_click_to_change.issue.status.OPEN`,
     })
   ).not.toBeInTheDocument();
   expect(
     screen.queryByRole('button', {
-      name: `issue.severity.severity_x_click_to_change.severity.MAJOR`
+      name: `issue.severity.severity_x_click_to_change.severity.MAJOR`,
     })
   ).not.toBeInTheDocument();
 });
@@ -535,14 +535,14 @@ it('should show code tabs when any secondary location is selected', async () => 
   );
   expect(
     screen.queryByRole('row', {
-      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
+      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;',
     })
   ).not.toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: '1 location 1' }));
   expect(
     screen.getByRole('row', {
-      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
+      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;',
     })
   ).toBeInTheDocument();
 
@@ -552,14 +552,14 @@ it('should show code tabs when any secondary location is selected', async () => 
   );
   expect(
     screen.queryByRole('row', {
-      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
+      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;',
     })
   ).not.toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: '1 location 1' }));
   expect(
     screen.getByRole('row', {
-      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;'
+      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;',
     })
   ).toBeInTheDocument();
 });
@@ -574,7 +574,7 @@ it('should show issue tags if applicable', async () => {
 
   expect(
     screen.getByRole('heading', {
-      name: 'Issue with tags sonar-lint-icon issue.resolution.badge.DEPRECATED'
+      name: 'Issue with tags sonar-lint-icon issue.resolution.badge.DEPRECATED',
     })
   ).toBeInTheDocument();
 });

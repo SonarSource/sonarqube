@@ -25,11 +25,11 @@ import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { EmailForm } from '../EmailForm';
 
 jest.mock('../../../../helpers/request', () => ({
-  parseError: jest.fn().mockResolvedValue('Error message')
+  parseError: jest.fn().mockResolvedValue('Error message'),
 }));
 
 jest.mock('../../../../api/settings', () => ({
-  sendTestEmail: jest.fn().mockResolvedValue(null)
+  sendTestEmail: jest.fn().mockResolvedValue(null),
 }));
 
 it('should render correctly', () => {

@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   mockAlmSettingsInstance,
-  mockProjectGithubBindingResponse
+  mockProjectGithubBindingResponse,
 } from '../../../../helpers/mocks/alm-settings';
 import WebhookStepGithub, { WebhookStepGithubProps } from '../WebhookStepGithub';
 

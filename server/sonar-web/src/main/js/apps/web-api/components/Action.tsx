@@ -48,33 +48,33 @@ export default class Action extends React.PureComponent<Props, State> {
   state: State = {
     showChangelog: false,
     showParams: false,
-    showResponse: false
+    showResponse: false,
   };
 
   handleShowParamsClick = (e: React.SyntheticEvent<HTMLElement>) => {
     e.preventDefault();
-    this.setState(state => ({
+    this.setState((state) => ({
       showChangelog: false,
       showResponse: false,
-      showParams: !state.showParams
+      showParams: !state.showParams,
     }));
   };
 
   handleShowResponseClick = (e: React.SyntheticEvent<HTMLElement>) => {
     e.preventDefault();
-    this.setState(state => ({
+    this.setState((state) => ({
       showChangelog: false,
       showParams: false,
-      showResponse: !state.showResponse
+      showResponse: !state.showResponse,
     }));
   };
 
   handleChangelogClick = (e: React.SyntheticEvent<HTMLElement>) => {
     e.preventDefault();
-    this.setState(state => ({
+    this.setState((state) => ({
       showChangelog: !state.showChangelog,
       showParams: false,
-      showResponse: false
+      showResponse: false,
     }));
   };
 
@@ -90,7 +90,8 @@ export default class Action extends React.PureComponent<Props, State> {
               <a
                 className={classNames({ selected: showParams })}
                 href="#"
-                onClick={this.handleShowParamsClick}>
+                onClick={this.handleShowParamsClick}
+              >
                 {translate('api_documentation.parameters')}
               </a>
             </li>
@@ -101,7 +102,8 @@ export default class Action extends React.PureComponent<Props, State> {
               <a
                 className={classNames({ selected: showResponse })}
                 href="#"
-                onClick={this.handleShowResponseClick}>
+                onClick={this.handleShowResponseClick}
+              >
                 {translate('api_documentation.response_example')}
               </a>
             </li>
@@ -112,7 +114,8 @@ export default class Action extends React.PureComponent<Props, State> {
               <a
                 className={classNames({ selected: showChangelog })}
                 href="#"
-                onClick={this.handleChangelogClick}>
+                onClick={this.handleChangelogClick}
+              >
                 {translate('api_documentation.changelog')}
               </a>
             </li>
@@ -140,10 +143,11 @@ export default class Action extends React.PureComponent<Props, State> {
               search: queryToSearch(
                 serializeQuery({
                   deprecated: Boolean(action.deprecatedSince),
-                  internal: Boolean(action.internal)
+                  internal: Boolean(action.internal),
                 })
-              )
-            }}>
+              ),
+            }}
+          >
             <LinkIcon />
           </Link>
 

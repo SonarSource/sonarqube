@@ -24,7 +24,7 @@ import {
   enhanceConditionWithMeasure,
   formatMeasure,
   getMinDecimalsCountToBeDistinctFromThreshold,
-  isPeriodBestValue
+  isPeriodBestValue,
 } from '../measures';
 import { mockQualityGateStatusCondition } from '../mocks/quality-gates';
 import { mockMeasureEnhanced, mockMetric } from '../testMocks';
@@ -33,7 +33,7 @@ jest.unmock('../l10n');
 
 jest.mock('../l10nBundle', () => ({
   getCurrentLocale: jest.fn().mockReturnValue('us'),
-  getMessages: jest.fn().mockReturnValue({})
+  getMessages: jest.fn().mockReturnValue({}),
 }));
 
 const resetMessages = (messages: Dict<string>) =>
@@ -50,7 +50,7 @@ beforeAll(() => {
     'metric.level.OK': 'Ok',
     'short_number_suffix.g': 'G',
     'short_number_suffix.k': 'k',
-    'short_number_suffix.m': 'M'
+    'short_number_suffix.m': 'M',
   });
 });
 
@@ -63,22 +63,22 @@ describe('enhanceConditionWithMeasure', () => {
   it('should correctly map enhance conditions with measure data', () => {
     const measures = [
       mockMeasureEnhanced({ metric: mockMetric({ key: 'bugs' }), period: undefined }),
-      mockMeasureEnhanced({ metric: mockMetric({ key: 'new_bugs' }) })
+      mockMeasureEnhanced({ metric: mockMetric({ key: 'new_bugs' }) }),
     ];
 
     expect(
       enhanceConditionWithMeasure(mockQualityGateStatusCondition({ metric: 'bugs' }), measures)
     ).toMatchObject({
-      measure: expect.objectContaining({ metric: expect.objectContaining({ key: 'bugs' }) })
+      measure: expect.objectContaining({ metric: expect.objectContaining({ key: 'bugs' }) }),
     });
 
     expect(
       enhanceConditionWithMeasure(mockQualityGateStatusCondition({ metric: 'new_bugs' }), measures)
     ).toMatchObject({
       measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: 'new_bugs' })
+        metric: expect.objectContaining({ key: 'new_bugs' }),
       }),
-      period: 1
+      period: 1,
     });
   });
 
@@ -261,7 +261,7 @@ describe('getMinDecimalsCountToBeDistinctFromThreshold', () => {
   });
 
   it('should return 1 if the delta is larger than 0.1', () => {
-    [0.1, 0.15, 0.2, 0.5, 0.8, 1].forEach(delta => {
+    [0.1, 0.15, 0.2, 0.5, 0.8, 1].forEach((delta) => {
       expect(getMinDecimalsCountToBeDistinctFromThreshold(2.5 + delta, 2.5)).toBe(1);
       expect(getMinDecimalsCountToBeDistinctFromThreshold(2.5 - delta, 2.5)).toBe(1);
     });

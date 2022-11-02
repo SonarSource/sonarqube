@@ -30,7 +30,7 @@ import { Dict, Rule, RuleActivation } from '../../../types/types';
 const RULES_LIMIT = 10;
 
 function parseRules(rules: Rule[], actives?: Dict<RuleActivation[]>): ExtendedRule[] {
-  return rules.map(rule => {
+  return rules.map((rule) => {
     const activations = actives && actives[rule.key];
     return { ...rule, activations: activations ? activations.length : 0 };
   });
@@ -72,7 +72,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
       available_since: this.periodStartDate,
       f: 'name,langName,actives',
       ps: RULES_LIMIT,
-      s: 'createdAt'
+      s: 'createdAt',
     };
 
     searchRules(data).then(
@@ -80,7 +80,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
         if (this.mounted) {
           this.setState({
             latestRules: sortBy(parseRules(rules, actives), 'langName'),
-            latestRulesTotal: total
+            latestRulesTotal: total,
           });
         }
       },
@@ -103,7 +103,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
           <strong className="pull-left">{translate('quality_profiles.latest_new_rules')}</strong>
         </div>
         <ul>
-          {this.state.latestRules.map(rule => (
+          {this.state.latestRules.map((rule) => (
             <li className="spacer-top" key={rule.key}>
               <div className="text-ellipsis">
                 <Link className="link-no-underline" to={getRulesUrl({ rule_key: rule.key })}>

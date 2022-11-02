@@ -24,7 +24,7 @@ import {
   mockProjectBitbucketBindingResponse,
   mockProjectBitbucketCloudBindingResponse,
   mockProjectGithubBindingResponse,
-  mockProjectGitLabBindingResponse
+  mockProjectGitLabBindingResponse,
 } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { renderStepContent } from '../../test-utils';
@@ -42,7 +42,7 @@ it('should render correctly', () => {
       shallowRender({
         alm: AlmKeys.BitbucketCloud,
         almBinding: mockAlmSettingsInstance({ url: 'https://bitbucket.org/workspaceId/' }),
-        projectBinding: mockProjectBitbucketCloudBindingResponse()
+        projectBinding: mockProjectBitbucketCloudBindingResponse(),
       })
     )
   ).toMatchSnapshot('content for bitbucket cloud');
@@ -50,7 +50,7 @@ it('should render correctly', () => {
     renderStepContent(
       shallowRender({
         alm: AlmKeys.BitbucketCloud,
-        projectBinding: undefined
+        projectBinding: undefined,
       })
     )
   ).toMatchSnapshot('content for bitbucket cloud, no binding');
@@ -59,14 +59,14 @@ it('should render correctly', () => {
       shallowRender({
         alm: AlmKeys.GitHub,
         almBinding: mockAlmSettingsInstance({ url: 'https://api.github.com/' }),
-        projectBinding: mockProjectGithubBindingResponse()
+        projectBinding: mockProjectGithubBindingResponse(),
       })
     )
   ).toMatchSnapshot('content for github');
   expect(
     renderStepContent(
       shallowRender({
-        alm: AlmKeys.GitHub
+        alm: AlmKeys.GitHub,
       })
     )
   ).toMatchSnapshot('content for github, no binding');

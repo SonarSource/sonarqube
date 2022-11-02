@@ -61,7 +61,7 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
     this.state = {
       isLoading: false,
       search: '',
-      tags: []
+      tags: [],
     };
     this.handleSearch = debounce(this.handleSearch, 250);
   }
@@ -79,7 +79,7 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
     if (this.props.facet) {
       tagsCopy = difference(tagsCopy, Object.keys(this.props.facet));
     }
-    return tagsCopy.slice(0, LIST_SIZE).map(tag => ({ label: tag, value: tag }));
+    return tagsCopy.slice(0, LIST_SIZE).map((tag) => ({ label: tag, value: tag }));
   };
 
   handleSearch = (search?: string) => {
@@ -88,9 +88,9 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
       this.setState({ search, isLoading: true });
       searchProjectTags({
         q: search,
-        ps: size(this.props.facet || {}) + LIST_SIZE
+        ps: size(this.props.facet || {}) + LIST_SIZE,
       }).then(
-        result => {
+        (result) => {
           if (this.mounted) {
             this.setState({ isLoading: false, tags: result.tags });
           }

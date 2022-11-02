@@ -28,7 +28,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   blocker_violations: {
     id: 'AXJMbIl_PAOIsUIE3gtt',
@@ -39,7 +39,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   bugs: {
     id: 'AXJMbIl_PAOIsUIE3gt_',
@@ -50,7 +50,7 @@ export const DEFAULT_METRICS = {
     domain: 'Reliability',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   classes: {
     id: 'AXJMbImPPAOIsUIE3gu5',
@@ -61,7 +61,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   code_smells: {
     id: 'AXJMbIl_PAOIsUIE3gt9',
@@ -72,7 +72,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   cognitive_complexity: {
     id: 'AXJMbIl9PAOIsUIE3gtZ',
@@ -83,7 +83,7 @@ export const DEFAULT_METRICS = {
     domain: 'Complexity',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   comment_lines: {
     id: 'AXJMbImPPAOIsUIE3gup',
@@ -94,7 +94,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: 1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   comment_lines_data: {
     id: 'AXJMbImPPAOIsUIE3guV',
@@ -104,7 +104,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   comment_lines_density: {
     id: 'AXJMbImPPAOIsUIE3guq',
@@ -116,7 +116,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   class_complexity: {
     id: 'AXJMbImPPAOIsUIE3guw',
@@ -128,7 +128,7 @@ export const DEFAULT_METRICS = {
     direction: -1,
     qualitative: true,
     hidden: true,
-    decimalScale: 1
+    decimalScale: 1,
   },
   file_complexity: {
     id: 'AXJMbImPPAOIsUIE3guu',
@@ -140,7 +140,7 @@ export const DEFAULT_METRICS = {
     direction: -1,
     qualitative: true,
     hidden: true,
-    decimalScale: 1
+    decimalScale: 1,
   },
   function_complexity: {
     id: 'AXJMbImPPAOIsUIE3guy',
@@ -152,7 +152,7 @@ export const DEFAULT_METRICS = {
     direction: -1,
     qualitative: true,
     hidden: true,
-    decimalScale: 1
+    decimalScale: 1,
   },
   complexity_in_classes: {
     id: 'AXJMbImPPAOIsUIE3guv',
@@ -163,7 +163,7 @@ export const DEFAULT_METRICS = {
     domain: 'Complexity',
     direction: -1,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   complexity_in_functions: {
     id: 'AXJMbImPPAOIsUIE3gux',
@@ -174,7 +174,7 @@ export const DEFAULT_METRICS = {
     domain: 'Complexity',
     direction: -1,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   branch_coverage: {
     id: 'AXJMbIl9PAOIsUIE3gs-',
@@ -186,7 +186,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   new_branch_coverage: {
     id: 'AXJMbIl9PAOIsUIE3gs_',
@@ -198,7 +198,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   conditions_to_cover: {
     id: 'AXJMbIl9PAOIsUIE3gqt',
@@ -209,7 +209,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   new_conditions_to_cover: {
     id: 'AXJMbIl9PAOIsUIE3gs7',
@@ -220,7 +220,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   confirmed_issues: {
     id: 'AXJMbIl_PAOIsUIE3gt8',
@@ -231,7 +231,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   coverage: {
     id: 'AXJMbIl9PAOIsUIE3gtg',
@@ -243,7 +243,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   new_coverage: {
     id: 'AXJMbIl_PAOIsUIE3gth',
@@ -255,7 +255,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   critical_violations: {
     id: 'AXJMbIl_PAOIsUIE3gtu',
@@ -266,7 +266,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   complexity: {
     id: 'AXJMbImPPAOIsUIE3gut',
@@ -277,7 +277,7 @@ export const DEFAULT_METRICS = {
     domain: 'Complexity',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   last_commit_date: {
     id: 'AXJMbImPPAOIsUIE3gua',
@@ -287,7 +287,7 @@ export const DEFAULT_METRICS = {
     domain: 'SCM',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   development_cost: {
     id: 'AXJMbIl_PAOIsUIE3guI',
@@ -298,7 +298,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   new_development_cost: {
     id: 'AXJMbIl_PAOIsUIE3guJ',
@@ -310,7 +310,7 @@ export const DEFAULT_METRICS = {
     direction: -1,
     qualitative: true,
     hidden: true,
-    decimalScale: 1
+    decimalScale: 1,
   },
   directories: {
     id: 'AXJMbImPPAOIsUIE3gu9',
@@ -321,7 +321,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   duplicated_blocks: {
     id: 'AXJMbIl9PAOIsUIE3gsu',
@@ -332,7 +332,7 @@ export const DEFAULT_METRICS = {
     domain: 'Duplications',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_duplicated_blocks: {
     id: 'AXJMbIl_PAOIsUIE3gto',
@@ -343,7 +343,7 @@ export const DEFAULT_METRICS = {
     domain: 'Duplications',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   duplicated_files: {
     id: 'AXJMbImPPAOIsUIE3gvA',
@@ -354,7 +354,7 @@ export const DEFAULT_METRICS = {
     domain: 'Duplications',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   duplicated_lines: {
     id: 'AXJMbIl9PAOIsUIE3gss',
@@ -365,7 +365,7 @@ export const DEFAULT_METRICS = {
     domain: 'Duplications',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   duplicated_lines_density: {
     id: 'AXJMbIl_PAOIsUIE3gtp',
@@ -377,7 +377,7 @@ export const DEFAULT_METRICS = {
     direction: -1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   new_duplicated_lines_density: {
     id: 'AXJMbIl_PAOIsUIE3gtq',
@@ -389,7 +389,7 @@ export const DEFAULT_METRICS = {
     direction: -1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   new_duplicated_lines: {
     id: 'AXJMbIl9PAOIsUIE3gst',
@@ -400,7 +400,7 @@ export const DEFAULT_METRICS = {
     domain: 'Duplications',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   duplications_data: {
     id: 'AXJMbIl_PAOIsUIE3gtr',
@@ -411,7 +411,7 @@ export const DEFAULT_METRICS = {
     domain: 'Duplications',
     direction: 0,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   effort_to_reach_maintainability_rating_a: {
     id: 'AXJMbIl_PAOIsUIE3guM',
@@ -422,7 +422,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   executable_lines_data: {
     id: 'AXJMbImPPAOIsUIE3guW',
@@ -432,7 +432,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   false_positive_issues: {
     id: 'AXJMbIl_PAOIsUIE3gt4',
@@ -443,7 +443,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   file_complexity_distribution: {
     id: 'AXJMbIl9PAOIsUIE3gtY',
@@ -454,7 +454,7 @@ export const DEFAULT_METRICS = {
     domain: 'Complexity',
     direction: 0,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   files: {
     id: 'AXJMbImPPAOIsUIE3gu6',
@@ -465,7 +465,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   function_complexity_distribution: {
     id: 'AXJMbIl9PAOIsUIE3gtX',
@@ -476,7 +476,7 @@ export const DEFAULT_METRICS = {
     domain: 'Complexity',
     direction: 0,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   functions: {
     id: 'AXJMbImPPAOIsUIE3gu-',
@@ -487,7 +487,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   generated_lines: {
     id: 'AXJMbImPPAOIsUIE3gu0',
@@ -498,7 +498,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   generated_ncloc: {
     id: 'AXJMbImPPAOIsUIE3gu4',
@@ -509,7 +509,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   info_violations: {
     id: 'AXJMbIl_PAOIsUIE3gtx',
@@ -520,7 +520,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: 0,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   violations: {
     id: 'AXJMbImPPAOIsUIE3gul',
@@ -531,7 +531,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   last_change_on_maintainability_rating: {
     id: 'AXJMbImPPAOIsUIE3gud',
@@ -541,7 +541,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   last_change_on_releasability_rating: {
     id: 'AXJMbImPPAOIsUIE3gue',
@@ -551,7 +551,7 @@ export const DEFAULT_METRICS = {
     domain: 'Releasability',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   last_change_on_reliability_rating: {
     id: 'AXJMbImPPAOIsUIE3guf',
@@ -561,7 +561,7 @@ export const DEFAULT_METRICS = {
     domain: 'Reliability',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   last_change_on_security_rating: {
     id: 'AXJMbImPPAOIsUIE3gug',
@@ -571,7 +571,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   last_change_on_security_review_rating: {
     id: 'AXJMbIl9PAOIsUIE3gs4',
@@ -581,7 +581,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   line_coverage: {
     id: 'AXJMbIl_PAOIsUIE3gtl',
@@ -593,7 +593,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   new_line_coverage: {
     id: 'AXJMbIl_PAOIsUIE3gtm',
@@ -605,7 +605,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   lines: {
     id: 'AXJMbImPPAOIsUIE3guz',
@@ -616,7 +616,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   ncloc: {
     id: 'AXJMbImPPAOIsUIE3gu1',
@@ -627,7 +627,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   ncloc_language_distribution: {
     id: 'AXJMbImPPAOIsUIE3gu3',
@@ -638,7 +638,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   lines_to_cover: {
     id: 'AXJMbImPPAOIsUIE3gu_',
@@ -649,7 +649,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   new_lines_to_cover: {
     id: 'AXJMbIl_PAOIsUIE3gti',
@@ -660,7 +660,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   leak_projects: {
     id: 'AXJMbImPPAOIsUIE3gvE',
@@ -669,7 +669,7 @@ export const DEFAULT_METRICS = {
     name: 'List of technical projects with their leaks',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   sqale_rating: {
     id: 'AXJMbIl_PAOIsUIE3guF',
@@ -680,7 +680,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: 0,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   maintainability_rating_distribution: {
     id: 'AX6QkqP7zEziun0YBqmh',
@@ -691,7 +691,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   new_maintainability_rating_distribution: {
     id: 'AX6QkqP8zEziun0YBqml',
@@ -702,7 +702,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   new_maintainability_rating: {
     id: 'AXJMbIl_PAOIsUIE3guH',
@@ -713,7 +713,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   major_violations: {
     id: 'AXJMbIl_PAOIsUIE3gtv',
@@ -724,7 +724,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   minor_violations: {
     id: 'AXJMbIl_PAOIsUIE3gtw',
@@ -735,7 +735,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   ncloc_data: {
     id: 'AXJMbImPPAOIsUIE3guU',
@@ -745,7 +745,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   new_blocker_violations: {
     id: 'AXJMbIl_PAOIsUIE3gtz',
@@ -756,7 +756,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_bugs: {
     id: 'AXJMbIl_PAOIsUIE3guA',
@@ -767,7 +767,7 @@ export const DEFAULT_METRICS = {
     domain: 'Reliability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_code_smells: {
     id: 'AXJMbIl_PAOIsUIE3gt-',
@@ -778,7 +778,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_critical_violations: {
     id: 'AXJMbIl_PAOIsUIE3gt0',
@@ -789,7 +789,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_info_violations: {
     id: 'AXJMbIl_PAOIsUIE3gt3',
@@ -800,7 +800,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_violations: {
     id: 'AXJMbIl_PAOIsUIE3gty',
@@ -811,7 +811,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_lines: {
     id: 'AXJMbImPPAOIsUIE3gu2',
@@ -822,7 +822,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   new_major_violations: {
     id: 'AXJMbIl_PAOIsUIE3gt1',
@@ -833,7 +833,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_minor_violations: {
     id: 'AXJMbIl_PAOIsUIE3gt2',
@@ -844,7 +844,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_security_hotspots: {
     id: 'AXJMbIl9PAOIsUIE3gsw',
@@ -855,7 +855,7 @@ export const DEFAULT_METRICS = {
     domain: 'SecurityReview',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_vulnerabilities: {
     id: 'AXJMbIl_PAOIsUIE3guC',
@@ -866,7 +866,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   unanalyzed_c: {
     id: 'AXTb6RMqLLQlB5osv3xN',
@@ -876,7 +876,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   unanalyzed_cpp: {
     id: 'AXTb6RMtLLQlB5osv3xO',
@@ -886,7 +886,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   open_issues: {
     id: 'AXJMbIl_PAOIsUIE3gt6',
@@ -897,7 +897,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   quality_profiles: {
     id: 'AXJMbImPPAOIsUIE3guZ',
@@ -908,7 +908,7 @@ export const DEFAULT_METRICS = {
     domain: 'General',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   projects: {
     id: 'AXJMbImPPAOIsUIE3guo',
@@ -919,7 +919,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   public_api: {
     id: 'AXJMbImPPAOIsUIE3gun',
@@ -930,7 +930,7 @@ export const DEFAULT_METRICS = {
     domain: 'Documentation',
     direction: -1,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   public_documented_api_density: {
     id: 'AXJMbImPPAOIsUIE3gur',
@@ -942,7 +942,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: true,
-    decimalScale: 1
+    decimalScale: 1,
   },
   public_undocumented_api: {
     id: 'AXJMbImPPAOIsUIE3gus',
@@ -953,7 +953,7 @@ export const DEFAULT_METRICS = {
     domain: 'Documentation',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   quality_gate_details: {
     id: 'AXJMbImPPAOIsUIE3guY',
@@ -964,7 +964,7 @@ export const DEFAULT_METRICS = {
     domain: 'General',
     direction: 0,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   alert_status: {
     id: 'AXJMbImPPAOIsUIE3guX',
@@ -975,7 +975,7 @@ export const DEFAULT_METRICS = {
     domain: 'Releasability',
     direction: 1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   releasability_rating: {
     id: 'AXJMbImPPAOIsUIE3guc',
@@ -985,7 +985,7 @@ export const DEFAULT_METRICS = {
     domain: 'Releasability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   releasability_rating_distribution: {
     id: 'AX6QkqP7zEziun0YBqmg',
@@ -996,7 +996,7 @@ export const DEFAULT_METRICS = {
     domain: 'Releasability',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   reliability_rating: {
     id: 'AXJMbIl_PAOIsUIE3guP',
@@ -1007,7 +1007,7 @@ export const DEFAULT_METRICS = {
     domain: 'Reliability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   reliability_rating_distribution: {
     id: 'AX6QkqP7zEziun0YBqmi',
@@ -1018,7 +1018,7 @@ export const DEFAULT_METRICS = {
     domain: 'Reliability',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   new_reliability_rating_distribution: {
     id: 'AX6QkqP8zEziun0YBqmm',
@@ -1029,7 +1029,7 @@ export const DEFAULT_METRICS = {
     domain: 'Reliability',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   new_reliability_rating: {
     id: 'AXJMbIl_PAOIsUIE3guQ',
@@ -1040,7 +1040,7 @@ export const DEFAULT_METRICS = {
     domain: 'Reliability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   reliability_remediation_effort: {
     id: 'AXJMbIl_PAOIsUIE3guN',
@@ -1051,7 +1051,7 @@ export const DEFAULT_METRICS = {
     domain: 'Reliability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_reliability_remediation_effort: {
     id: 'AXJMbIl_PAOIsUIE3guO',
@@ -1062,7 +1062,7 @@ export const DEFAULT_METRICS = {
     domain: 'Reliability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   reopened_issues: {
     id: 'AXJMbIl_PAOIsUIE3gt7',
@@ -1073,7 +1073,7 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   security_hotspots: {
     id: 'AXJMbIl9PAOIsUIE3gsv',
@@ -1084,7 +1084,7 @@ export const DEFAULT_METRICS = {
     domain: 'SecurityReview',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   security_hotspots_reviewed: {
     id: 'AXJMbIl9PAOIsUIE3gs0',
@@ -1096,7 +1096,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   new_security_hotspots_reviewed: {
     id: 'AXJMbIl9PAOIsUIE3gs1',
@@ -1108,7 +1108,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   security_rating: {
     id: 'AXJMbIl_PAOIsUIE3guS',
@@ -1119,7 +1119,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   security_rating_distribution: {
     id: 'AX6QkqP7zEziun0YBqmj',
@@ -1130,7 +1130,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   new_security_rating_distribution: {
     id: 'AX6QkqP8zEziun0YBqmn',
@@ -1141,7 +1141,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   new_security_rating: {
     id: 'AXJMbImPPAOIsUIE3guT',
@@ -1152,7 +1152,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   security_remediation_effort: {
     id: 'AXJMbIl_PAOIsUIE3guG',
@@ -1163,7 +1163,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   new_security_remediation_effort: {
     id: 'AXJMbIl_PAOIsUIE3guR',
@@ -1174,7 +1174,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   security_review_rating: {
     id: 'AXJMbIl9PAOIsUIE3gsx',
@@ -1185,7 +1185,7 @@ export const DEFAULT_METRICS = {
     domain: 'SecurityReview',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   security_review_rating_distribution: {
     id: 'AX6QkqP8zEziun0YBqmk',
@@ -1196,7 +1196,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   new_security_review_rating_distribution: {
     id: 'AX6QkqP8zEziun0YBqmo',
@@ -1207,7 +1207,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   new_security_review_rating: {
     id: 'AXJMbIl9PAOIsUIE3gtA',
@@ -1218,7 +1218,7 @@ export const DEFAULT_METRICS = {
     domain: 'SecurityReview',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   security_hotspots_reviewed_status: {
     id: 'AXJMbIl9PAOIsUIE3gs2',
@@ -1229,7 +1229,7 @@ export const DEFAULT_METRICS = {
     domain: 'SecurityReview',
     direction: -1,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   new_security_hotspots_reviewed_status: {
     id: 'AXJMbIl9PAOIsUIE3gtB',
@@ -1240,7 +1240,7 @@ export const DEFAULT_METRICS = {
     domain: 'SecurityReview',
     direction: -1,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   security_hotspots_to_review_status: {
     id: 'AXJMbIl9PAOIsUIE3gs3',
@@ -1251,7 +1251,7 @@ export const DEFAULT_METRICS = {
     domain: 'SecurityReview',
     direction: -1,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   new_security_hotspots_to_review_status: {
     id: 'AXJMbIl9PAOIsUIE3gs5',
@@ -1262,7 +1262,7 @@ export const DEFAULT_METRICS = {
     domain: 'SecurityReview',
     direction: -1,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   skipped_tests: {
     id: 'AXJMbIl9PAOIsUIE3gtd',
@@ -1273,7 +1273,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   statements: {
     id: 'AXJMbImPPAOIsUIE3gum',
@@ -1284,7 +1284,7 @@ export const DEFAULT_METRICS = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   sqale_index: {
     id: 'AXJMbIl_PAOIsUIE3guD',
@@ -1296,7 +1296,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   sqale_debt_ratio: {
     id: 'AXJMbIl_PAOIsUIE3guK',
@@ -1309,7 +1309,7 @@ export const DEFAULT_METRICS = {
     direction: -1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   new_sqale_debt_ratio: {
     id: 'AXJMbIl_PAOIsUIE3guL',
@@ -1321,7 +1321,7 @@ export const DEFAULT_METRICS = {
     direction: -1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   maintainability_rating_effort: {
     id: 'AXJMbImPPAOIsUIE3gvD',
@@ -1331,7 +1331,7 @@ export const DEFAULT_METRICS = {
     domain: 'Maintainability',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   reliability_rating_effort: {
     id: 'AXJMbImPPAOIsUIE3gvC',
@@ -1341,7 +1341,7 @@ export const DEFAULT_METRICS = {
     domain: 'Reliability',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   security_rating_effort: {
     id: 'AXJMbImPPAOIsUIE3gvB',
@@ -1351,7 +1351,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   security_review_rating_effort: {
     id: 'AXJMbIl9PAOIsUIE3gs6',
@@ -1361,7 +1361,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: 0,
     qualitative: false,
-    hidden: true
+    hidden: true,
   },
   releasability_effort: {
     id: 'AXJMbImPPAOIsUIE3gub',
@@ -1371,7 +1371,7 @@ export const DEFAULT_METRICS = {
     domain: 'Releasability',
     direction: -1,
     qualitative: true,
-    hidden: true
+    hidden: true,
   },
   uncovered_conditions: {
     id: 'AXJMbIl9PAOIsUIE3gs8',
@@ -1382,7 +1382,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   new_uncovered_conditions: {
     id: 'AXJMbIl9PAOIsUIE3gs9',
@@ -1393,7 +1393,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   uncovered_lines: {
     id: 'AXJMbIl_PAOIsUIE3gtj',
@@ -1404,7 +1404,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   new_uncovered_lines: {
     id: 'AXJMbIl_PAOIsUIE3gtk',
@@ -1415,7 +1415,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   test_execution_time: {
     id: 'AXJMbIl9PAOIsUIE3gtb',
@@ -1426,7 +1426,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   test_errors: {
     id: 'AXJMbIl9PAOIsUIE3gtc',
@@ -1437,7 +1437,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   test_failures: {
     id: 'AXJMbIl9PAOIsUIE3gte',
@@ -1448,7 +1448,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: -1,
     qualitative: true,
-    hidden: false
+    hidden: false,
   },
   tests: {
     id: 'AXJMbIl9PAOIsUIE3gta',
@@ -1459,7 +1459,7 @@ export const DEFAULT_METRICS = {
     domain: 'Coverage',
     direction: 1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   test_success_density: {
     id: 'AXJMbIl9PAOIsUIE3gtf',
@@ -1471,7 +1471,7 @@ export const DEFAULT_METRICS = {
     direction: 1,
     qualitative: true,
     hidden: false,
-    decimalScale: 1
+    decimalScale: 1,
   },
   vulnerabilities: {
     id: 'AXJMbIl_PAOIsUIE3guB',
@@ -1482,7 +1482,7 @@ export const DEFAULT_METRICS = {
     domain: 'Security',
     direction: -1,
     qualitative: false,
-    hidden: false
+    hidden: false,
   },
   wont_fix_issues: {
     id: 'AXJMbIl_PAOIsUIE3gt5',
@@ -1493,6 +1493,6 @@ export const DEFAULT_METRICS = {
     domain: 'Issues',
     direction: -1,
     qualitative: false,
-    hidden: false
-  }
+    hidden: false,
+  },
 };

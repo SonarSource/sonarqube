@@ -22,7 +22,7 @@ import { translate } from '../../../helpers/l10n';
 import {
   AlmKeys,
   AlmSettingsInstance,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
@@ -38,7 +38,7 @@ import RepositoryVariables from './RepositoryVariables';
 export enum Steps {
   REPOSITORY_VARIABLES = 1,
   YAML = 2,
-  ALL_SET = 3
+  ALL_SET = 3,
 }
 
 export interface BitbucketPipelinesTutorialProps {
@@ -59,7 +59,7 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
     component,
     projectBinding,
     willRefreshAutomatically,
-    mainBranchName
+    mainBranchName,
   } = props;
 
   const [step, setStep] = React.useState<Steps>(Steps.REPOSITORY_VARIABLES);
@@ -88,7 +88,7 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
         open={step === Steps.YAML}
         renderForm={() => (
           <YamlFileStep>
-            {buildTool => (
+            {(buildTool) => (
               <>
                 {buildTool === BuildTools.CFamily && (
                   <GithubCFamilyExampleRepositories

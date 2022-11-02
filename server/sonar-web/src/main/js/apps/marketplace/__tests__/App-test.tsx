@@ -23,7 +23,7 @@ import {
   getAvailablePlugins,
   getInstalledPlugins,
   getInstalledPluginsWithUpdates,
-  getPluginUpdates
+  getPluginUpdates,
 } from '../../../api/plugins';
 import { getValue, setSimpleSettingValue } from '../../../api/settings';
 import { mockLocation, mockRouter } from '../../../helpers/testMocks';
@@ -40,13 +40,13 @@ jest.mock('../../../api/plugins', () => {
     getAvailablePlugins: jest.fn().mockResolvedValue({ plugins: [plugin] }),
     getInstalledPlugins: jest.fn().mockResolvedValue([]),
     getInstalledPluginsWithUpdates: jest.fn().mockResolvedValue([]),
-    getPluginUpdates: jest.fn().mockResolvedValue([])
+    getPluginUpdates: jest.fn().mockResolvedValue([]),
   };
 });
 
 jest.mock('../../../api/settings', () => ({
   getValue: jest.fn().mockResolvedValue({}),
-  setSimpleSettingValue: jest.fn().mockResolvedValue(true)
+  setSimpleSettingValue: jest.fn().mockResolvedValue(true),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -108,7 +108,7 @@ function shallowRender(props: Partial<App['props']> = {}) {
       pendingPlugins={{
         installing: [],
         updating: [],
-        removing: []
+        removing: [],
       }}
       router={mockRouter()}
       updateCenterActive={false}

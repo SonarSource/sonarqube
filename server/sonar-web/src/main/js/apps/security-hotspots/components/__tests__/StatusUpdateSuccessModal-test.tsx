@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
 import StatusUpdateSuccessModal, {
-  StatusUpdateSuccessModalProps
+  StatusUpdateSuccessModalProps,
 } from '../StatusUpdateSuccessModal';
 
 it('should render correctly', () => {

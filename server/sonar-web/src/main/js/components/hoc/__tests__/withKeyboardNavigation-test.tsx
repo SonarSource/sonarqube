@@ -39,7 +39,7 @@ const WrappedComponent = withKeyboardNavigation(X);
 const COMPONENTS = [
   mockComponent({ key: 'file-1' }),
   mockComponent({ key: 'file-2' }),
-  mockComponent({ key: 'file-3' })
+  mockComponent({ key: 'file-3' }),
 ];
 
 it('should wrap component correctly', () => {
@@ -49,7 +49,7 @@ it('should wrap component correctly', () => {
 
 it('should correctly bind key events for component navigation', () => {
   const onGoToParent = jest.fn();
-  const onHighlight = jest.fn(selected => {
+  const onHighlight = jest.fn((selected) => {
     wrapper.setProps({ selected });
   });
   const onSelect = jest.fn();
@@ -60,7 +60,7 @@ it('should correctly bind key events for component navigation', () => {
       onGoToParent,
       onHighlight,
       onSelect,
-      selected: COMPONENTS[1]
+      selected: COMPONENTS[1],
     })
   );
 
@@ -95,14 +95,14 @@ it('should correctly bind key events for component navigation', () => {
 
 it('should support not cycling through elements, and triggering a callback on reaching the last element', () => {
   const onEndOfList = jest.fn();
-  const onHighlight = jest.fn(selected => {
+  const onHighlight = jest.fn((selected) => {
     wrapper.setProps({ selected });
   });
 
   const wrapper = mount(
     applyProps({
       onEndOfList,
-      onHighlight
+      onHighlight,
     })
   );
 
@@ -132,7 +132,7 @@ it('should correctly bind key events for codeview navigation', () => {
       onGoToParent,
       onHighlight,
       onSelect,
-      selected: COMPONENTS[1]
+      selected: COMPONENTS[1],
     })
   );
 

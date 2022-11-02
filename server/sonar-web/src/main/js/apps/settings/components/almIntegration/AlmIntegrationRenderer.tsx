@@ -24,7 +24,7 @@ import { getBaseUrl } from '../../../../helpers/system';
 import {
   AlmKeys,
   AlmSettingsBindingDefinitions,
-  AlmSettingsBindingStatus
+  AlmSettingsBindingStatus,
 } from '../../../../types/alm-settings';
 import { Dict } from '../../../../types/types';
 import { AlmTabs } from './AlmIntegration';
@@ -62,7 +62,7 @@ const tabs = [
         />
         GitHub
       </>
-    )
+    ),
   },
   {
     key: AlmKeys.BitbucketServer,
@@ -76,7 +76,7 @@ const tabs = [
         />
         Bitbucket
       </>
-    )
+    ),
   },
   {
     key: AlmKeys.Azure,
@@ -90,7 +90,7 @@ const tabs = [
         />
         Azure DevOps
       </>
-    )
+    ),
   },
   {
     key: AlmKeys.GitLab,
@@ -104,8 +104,8 @@ const tabs = [
         />
         GitLab
       </>
-    )
-  }
+    ),
+  },
 ];
 
 export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProps) {
@@ -118,14 +118,14 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
     loadingProjectCount,
     branchesEnabled,
     multipleAlmEnabled,
-    projectCount
+    projectCount,
   } = props;
 
   const bindingDefinitions = {
     [AlmKeys.Azure]: definitions.azure,
     [AlmKeys.GitLab]: definitions.gitlab,
     [AlmKeys.GitHub]: definitions.github,
-    [AlmKeys.BitbucketServer]: [...definitions.bitbucket, ...definitions.bitbucketcloud]
+    [AlmKeys.BitbucketServer]: [...definitions.bitbucket, ...definitions.bitbucketcloud],
   };
 
   return (

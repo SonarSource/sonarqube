@@ -71,17 +71,19 @@ export default function SettingsSearchRenderer(props: SettingsSearchRendererProp
           <DropdownOverlay noPadding={true}>
             <ul className="settings-search-results menu" ref={scrollableNodeRef}>
               {results && results.length > 0 ? (
-                results.map(r => (
+                results.map((r) => (
                   <li
                     key={r.key}
                     className={classNames('spacer-bottom spacer-top', {
-                      active: selectedResult === r.key
+                      active: selectedResult === r.key,
                     })}
-                    ref={selectedResult === r.key ? selectedNodeRef : undefined}>
+                    ref={selectedResult === r.key ? selectedNodeRef : undefined}
+                  >
                     <Link
                       onClick={props.onClickOutside}
                       onMouseEnter={() => props.onMouseOverResult(r.key)}
-                      to={buildSettingLink(r, component)}>
+                      to={buildSettingLink(r, component)}
+                    >
                       <div className="settings-search-result-title display-flex-space-between">
                         <h3>{r.name || r.subCategory}</h3>
                       </div>

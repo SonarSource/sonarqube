@@ -24,7 +24,7 @@ import {
   mockProjectAlmBindingResponse,
   mockProjectBitbucketBindingResponse,
   mockProjectBitbucketCloudBindingResponse,
-  mockProjectGithubBindingResponse
+  mockProjectGithubBindingResponse,
 } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { renderStepContent } from '../../test-utils';
@@ -35,7 +35,7 @@ it.each([
   [AlmKeys.BitbucketCloud, mockProjectBitbucketCloudBindingResponse()],
   [AlmKeys.BitbucketServer, mockProjectBitbucketBindingResponse()],
   [AlmKeys.GitHub, mockProjectGithubBindingResponse()],
-  [AlmKeys.GitLab, mockProjectAlmBindingResponse({ alm: AlmKeys.GitLab })]
+  [AlmKeys.GitLab, mockProjectAlmBindingResponse({ alm: AlmKeys.GitLab })],
 ])('should render correctly for %s', (alm, projectBinding) => {
   const wrapper = shallowRender({ alm, projectBinding });
   expect(wrapper).toMatchSnapshot('wrapper');

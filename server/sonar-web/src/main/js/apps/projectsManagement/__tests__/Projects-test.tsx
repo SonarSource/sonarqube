@@ -23,7 +23,7 @@ import Projects from '../Projects';
 
 const projects = [
   { key: 'a', name: 'A', qualifier: 'TRK', visibility: 'public' },
-  { key: 'b', name: 'B', qualifier: 'TRK', visibility: 'public' }
+  { key: 'b', name: 'B', qualifier: 'TRK', visibility: 'public' },
 ];
 const selection = ['a'];
 
@@ -36,16 +36,10 @@ it('selects and deselects project', () => {
   const onProjectSelected = jest.fn();
   const wrapper = shallowRender({ onProjectDeselected, onProjectSelected, projects });
 
-  wrapper
-    .find('ProjectRow')
-    .first()
-    .prop<Function>('onProjectCheck')(projects[0], true);
+  wrapper.find('ProjectRow').first().prop<Function>('onProjectCheck')(projects[0], true);
   expect(onProjectSelected).toHaveBeenCalledWith('a');
 
-  wrapper
-    .find('ProjectRow')
-    .first()
-    .prop<Function>('onProjectCheck')(projects[0], false);
+  wrapper.find('ProjectRow').first().prop<Function>('onProjectCheck')(projects[0], false);
   expect(onProjectDeselected).toHaveBeenCalledWith('a');
 });
 

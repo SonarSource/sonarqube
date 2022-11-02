@@ -24,7 +24,7 @@ export function mockPermissionGroup(overrides: Partial<PermissionGroup> = {}): P
   return {
     name: 'sonar-admins',
     permissions: ['provisioning'],
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -34,6 +34,6 @@ export function mockPermissionUser(overrides: Partial<PermissionUser> = {}): Per
     active: true,
     name: 'johndoe',
     permissions: ['provisioning'],
-    ...overrides
+    ...overrides,
   };
 }

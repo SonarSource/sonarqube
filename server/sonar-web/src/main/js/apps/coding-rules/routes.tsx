@@ -28,7 +28,7 @@ const EXPECTED_SPLIT_PARTS = 2;
 function parseHash(hash: string): RawQuery {
   const query: RawQuery = {};
   const parts = hash.split('|');
-  parts.forEach(part => {
+  parts.forEach((part) => {
     const tokens = part.split('=');
     if (tokens.length === EXPECTED_SPLIT_PARTS) {
       query[decodeURIComponent(tokens[0])] = decodeURIComponent(tokens[1]);
@@ -47,7 +47,7 @@ function HashEditWrapper() {
       const query = parseHash(hash.substr(1));
       const normalizedQuery = {
         ...serializeQuery(parseQuery(query)),
-        open: query.open
+        open: query.open,
       };
       navigate(
         { pathname: location.pathname, search: new URLSearchParams(normalizedQuery).toString() },

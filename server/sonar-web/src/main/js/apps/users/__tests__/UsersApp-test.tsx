@@ -32,9 +32,9 @@ jest.mock('../../../api/users', () => ({
           backgroundColor: 'blue',
           iconPath: 'icon/path',
           key: 'foo',
-          name: 'Foo Provider'
-        }
-      ]
+          name: 'Foo Provider',
+        },
+      ],
     })
   ),
   searchUsers: jest.fn(() =>
@@ -42,7 +42,7 @@ jest.mock('../../../api/users', () => ({
       paging: {
         pageIndex: 1,
         pageSize: 1,
-        total: 2
+        total: 2,
       },
       users: [
         {
@@ -50,11 +50,11 @@ jest.mock('../../../api/users', () => ({
           name: 'Luke',
           active: true,
           scmAccounts: [],
-          local: false
-        }
-      ]
+          local: false,
+        },
+      ],
     })
-  )
+  ),
 }));
 
 const getIdentityProviders = require('../../../api/users').getIdentityProviders as jest.Mock<any>;

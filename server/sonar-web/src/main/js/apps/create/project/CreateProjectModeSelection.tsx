@@ -51,7 +51,7 @@ function renderAlmOption(
   const {
     almCounts,
     appState: { canAdmin },
-    loadingBindings
+    loadingBindings,
   } = props;
 
   const hasBitbucketCloudConf = almCounts[AlmKeys.BitbucketCloud] > 0;
@@ -100,7 +100,8 @@ function renderAlmOption(
         )}
         disabled={disabled}
         onClick={onClick}
-        type="button">
+        type="button"
+      >
         <img
           alt="" // Should be ignored by screen readers
           height={DEFAULT_ICON_SIZE}
@@ -130,7 +131,7 @@ function renderAlmOption(
 export function CreateProjectModeSelection(props: CreateProjectModeSelectionProps) {
   const {
     appState: { canAdmin },
-    almCounts
+    almCounts,
   } = props;
   const almTotalCount = Object.values(almCounts).reduce((prev, cur) => prev + cur);
 
@@ -159,7 +160,8 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
       <button
         className="button button-huge display-flex-column create-project-mode-type-manual"
         onClick={() => props.onSelectMode(CreateProjectModes.Manual)}
-        type="button">
+        type="button"
+      >
         <ChevronsIcon size={DEFAULT_ICON_SIZE} />
         <div className="medium big-spacer-top">
           {translate('onboarding.create_project.select_method.manual')}

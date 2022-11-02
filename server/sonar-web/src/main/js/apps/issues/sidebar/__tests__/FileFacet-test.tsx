@@ -28,7 +28,7 @@ import { Query } from '../../utils';
 import FileFacet from '../FileFacet';
 
 jest.mock('../../../../api/components', () => ({
-  getFiles: jest.fn().mockResolvedValue({ components: [] })
+  getFiles: jest.fn().mockResolvedValue({ components: [] }),
 }));
 
 beforeEach(() => jest.clearAllMocks());
@@ -53,17 +53,14 @@ it('should properly search for file', () => {
 
   const query = 'foo';
 
-  wrapper
-    .find(ListStyleFacet)
-    .props()
-    .onSearch(query);
+  wrapper.find(ListStyleFacet).props().onSearch(query);
 
   expect(getFiles).toHaveBeenCalledWith({
     branch: branch.name,
     component: component.key,
     q: query,
     ps: 30,
-    p: undefined
+    p: undefined,
   });
 });
 

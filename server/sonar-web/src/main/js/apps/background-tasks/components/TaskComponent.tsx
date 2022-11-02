@@ -26,7 +26,7 @@ import {
   getBranchUrl,
   getPortfolioUrl,
   getProjectUrl,
-  getPullRequestUrl
+  getPullRequestUrl,
 } from '../../../helpers/urls';
 import { isPortfolioLike } from '../../../types/component';
 import { Task } from '../../../types/tasks';

@@ -23,7 +23,7 @@ import { click } from '../../../helpers/testUtils';
 import Header, { Props } from '../Header';
 
 jest.mock('../../../helpers/system', () => ({
-  getReactDomContainerSelector: jest.fn(() => '#content')
+  getReactDomContainerSelector: jest.fn(() => '#content'),
 }));
 
 it('renders', () => {

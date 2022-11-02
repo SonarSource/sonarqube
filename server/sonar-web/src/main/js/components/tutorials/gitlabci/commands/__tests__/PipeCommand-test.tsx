@@ -27,8 +27,8 @@ it.each([
   [BuildTools.Gradle],
   [BuildTools.DotNet],
   [BuildTools.CFamily],
-  [BuildTools.Other]
-])('should render correctly for %s', buildTool => {
+  [BuildTools.Other],
+])('should render correctly for %s', (buildTool) => {
   expect(
     shallow(
       <PipeCommand

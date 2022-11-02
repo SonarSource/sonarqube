@@ -72,7 +72,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
     project,
     repositories = [],
     searchQuery,
-    selectedRepository
+    selectedRepository,
   } = props;
 
   const [open, setOpen] = React.useState(startsOpen);
@@ -92,11 +92,12 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
   return (
     <BoxedGroupAccordion
       className={classNames('big-spacer-bottom', {
-        open
+        open,
       })}
       onClick={handleClick}
       open={open}
-      title={<h3 title={project.description}>{highlight(project.name, searchQuery, true)}</h3>}>
+      title={<h3 title={project.description}>{highlight(project.name, searchQuery, true)}</h3>}
+    >
       {open && (
         <DeferredSpinner loading={loading}>
           {/* The extra loading guard is to prevent the flash of the Alert */}
@@ -110,21 +111,26 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
                     <Link
                       to={{
                         pathname: '/projects/create',
-                        search: queryToSearch({ mode: CreateProjectModes.AzureDevOps, resetPat: 1 })
-                      }}>
+                        search: queryToSearch({
+                          mode: CreateProjectModes.AzureDevOps,
+                          resetPat: 1,
+                        }),
+                      }}
+                    >
                       {translate('onboarding.create_project.update_your_token')}
                     </Link>
-                  )
+                  ),
                 }}
               />
             </Alert>
           ) : (
             <>
               <div className="display-flex-wrap">
-                {limitedRepositories.map(repo => (
+                {limitedRepositories.map((repo) => (
                   <div
                     className="create-project-azdo-repo display-flex-start spacer-bottom padded-right"
-                    key={repo.name}>
+                    key={repo.name}
+                  >
                     {repo.sqProjectKey ? (
                       <>
                         <CheckIcon className="spacer-right" fill={colors.green} size={14} />
@@ -143,7 +149,8 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
                         className="overflow-hidden"
                         disabled={importing}
                         onCheck={() => props.onSelectRepository(repo)}
-                        value={repo.name}>
+                        value={repo.name}
+                      >
                         <span className="text-ellipsis" title={repo.name}>
                           {highlight(repo.name, searchQuery)}
                         </span>
@@ -155,7 +162,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
               <ListFooter
                 count={limitedRepositories.length}
                 total={repositories.length}
-                loadMore={() => setPage(p => p + 1)}
+                loadMore={() => setPage((p) => p + 1)}
               />
             </>
           )}

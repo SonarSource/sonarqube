@@ -74,7 +74,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
       page: 1,
       query: '',
       qualifiers: 'TRK',
-      selection: []
+      selection: [],
     };
     this.requestProjects = debounce(this.requestProjects, DEBOUNCE_DELAY);
   }
@@ -114,9 +114,9 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
       ps: PAGE_SIZE,
       q: this.state.query || undefined,
       qualifiers: this.state.qualifiers,
-      visibility: this.state.visibility
+      visibility: this.state.visibility,
     };
-    return getComponents(parameters).then(r => {
+    return getComponents(parameters).then((r) => {
       if (this.mounted) {
         let projects: Project[] = r.components;
         if (this.state.page > 1) {
@@ -150,7 +150,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
         provisioned: false,
         query: '',
         qualifiers: newQualifier,
-        selection: []
+        selection: [],
       },
       this.requestProjects
     );
@@ -164,7 +164,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
         provisioned: false,
         query: '',
         visibility: newVisibility === 'all' ? undefined : newVisibility,
-        selection: []
+        selection: [],
       },
       this.requestProjects
     );
@@ -182,7 +182,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
   };
 
   onAllSelected = () => {
-    this.setState(({ projects }) => ({ selection: projects.map(project => project.key) }));
+    this.setState(({ projects }) => ({ selection: projects.map((project) => project.key) }));
   };
 
   onAllDeselected = () => {

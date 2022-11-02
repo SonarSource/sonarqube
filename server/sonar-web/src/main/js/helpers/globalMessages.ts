@@ -37,11 +37,11 @@ export function unregisterListener(callback: (message: Message) => void) {
 }
 
 function addMessage(text: string, level: MessageLevel) {
-  listeners.forEach(listener =>
+  listeners.forEach((listener) =>
     listener({
       id: uniqueId('global-message-'),
       level,
-      text
+      text,
     })
   );
 }

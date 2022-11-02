@@ -61,8 +61,9 @@ export function ExternalProvider({ identityProvider, user }: Props) {
         className="identity-provider"
         style={{
           backgroundColor: identityProvider.backgroundColor,
-          color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor)
-        }}>
+          color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor),
+        }}
+      >
         <img
           alt={identityProvider.name}
           className="little-spacer-right"

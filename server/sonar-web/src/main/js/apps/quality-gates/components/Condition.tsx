@@ -50,7 +50,7 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       deleteFormOpen: false,
-      modal: false
+      modal: false,
     };
   }
 
@@ -137,7 +137,8 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
                 header={translate('quality_gates.delete_condition')}
                 isDestructive={true}
                 onClose={this.closeDeleteForm}
-                onConfirm={this.removeCondition}>
+                onConfirm={this.removeCondition}
+              >
                 {translateWithParameters(
                   'quality_gates.delete_condition.confirm.message',
                   getLocalizedMetricName(this.props.metric)

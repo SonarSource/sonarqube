@@ -29,7 +29,7 @@ import {
   FlowLocation,
   LinearIssueLocation,
   SourceLine,
-  SourceViewerFile
+  SourceViewerFile,
 } from '../../../types/types';
 import SnippetViewer from '../../issues/crossComponentSourceViewer/SnippetViewer';
 import HotspotPrimaryLocationBox from './HotspotPrimaryLocationBox';
@@ -70,7 +70,7 @@ export function getScrollHandler(scrollableRef: React.RefObject<HTMLDivElement>)
           parent,
           topOffset: offset ?? TOP_OFFSET,
           bottomOffset: offset ?? BOTTOM_OFFSET,
-          smooth
+          smooth,
         });
       }
     }, SCROLL_DELAY);
@@ -141,7 +141,7 @@ export default function HotspotSnippetContainerRenderer(
     sourceViewerFile,
     secondaryLocations,
     component,
-    selectedHotspotLocation
+    selectedHotspotLocation,
   } = props;
 
   const scrollableRef = React.useRef<HTMLDivElement>(null);

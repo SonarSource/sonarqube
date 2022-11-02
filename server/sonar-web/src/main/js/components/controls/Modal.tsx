@@ -66,7 +66,7 @@ export default function Modal(props: Props) {
       className={classNames('modal', {
         'modal-small': props.size === 'small',
         'modal-medium': props.size === 'medium',
-        'modal-large': props.size === 'large'
+        'modal-large': props.size === 'large',
       })}
       isOpen={true}
       overlayClassName={classNames('modal-overlay', { 'modal-no-backdrop': props.noBackdrop })}

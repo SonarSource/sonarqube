@@ -25,7 +25,7 @@ import { getBaseUrl } from '../../../helpers/system';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
-  BitbucketRepository
+  BitbucketRepository,
 } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketImportRepositoryForm from './BitbucketImportRepositoryForm';
@@ -63,7 +63,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
     searching,
     searchResults,
     showPersonalAccessTokenForm,
-    resetPat
+    resetPat,
   } = props;
 
   return (
@@ -76,7 +76,8 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
               <Button
                 className="button-large button-primary"
                 disabled={!selectedRepository || importing}
-                onClick={props.onImportRepository}>
+                onClick={props.onImportRepository}
+              >
                 {translate('onboarding.create_project.import_selected_repo')}
               </Button>
             </div>

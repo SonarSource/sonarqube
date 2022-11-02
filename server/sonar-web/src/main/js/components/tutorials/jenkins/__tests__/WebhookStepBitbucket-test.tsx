@@ -22,7 +22,7 @@ import * as React from 'react';
 import {
   mockAlmSettingsInstance,
   mockProjectBitbucketBindingResponse,
-  mockProjectBitbucketCloudBindingResponse
+  mockProjectBitbucketCloudBindingResponse,
 } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
 import WebhookStepBitbucket, { WebhookStepBitbucketProps } from '../WebhookStepBitbucket';
@@ -31,13 +31,13 @@ it.each([
   [
     AlmKeys.BitbucketServer,
     mockProjectBitbucketBindingResponse(),
-    mockAlmSettingsInstance({ url: 'http://bbs.enterprise.com' })
+    mockAlmSettingsInstance({ url: 'http://bbs.enterprise.com' }),
   ],
   [
     AlmKeys.BitbucketCloud,
     mockProjectBitbucketCloudBindingResponse(),
-    mockAlmSettingsInstance({ url: 'http://bitbucket.org/workspace/' })
-  ]
+    mockAlmSettingsInstance({ url: 'http://bitbucket.org/workspace/' }),
+  ],
 ])('should render correctly for %s', (alm, projectBinding, almBinding) => {
   expect(shallowRender({ alm, projectBinding, almBinding })).toMatchSnapshot();
   expect(shallowRender({ alm, projectBinding, almBinding: undefined })).toMatchSnapshot(

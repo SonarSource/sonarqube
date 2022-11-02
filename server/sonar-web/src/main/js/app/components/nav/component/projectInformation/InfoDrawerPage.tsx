@@ -35,16 +35,18 @@ export default function InfoDrawerPage(props: InfoDrawerPageProps) {
       className={classNames(
         'info-drawer-page info-drawer-pane display-flex-column overflow-hidden',
         {
-          open: displayed
+          open: displayed,
         }
-      )}>
+      )}
+    >
       {displayed && (
         <>
           <a
             className="h2 back-button big-padded bordered-bottom"
             onClick={() => onPageChange()}
             role="link"
-            tabIndex={-1}>
+            tabIndex={-1}
+          >
             <BackIcon className="little-spacer-right" />
             {translate('back')}
           </a>

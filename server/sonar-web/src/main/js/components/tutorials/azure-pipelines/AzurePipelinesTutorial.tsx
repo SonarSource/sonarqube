@@ -42,7 +42,7 @@ export enum Steps {
   ExtensionInstallation,
   ServiceEndpoint,
   BranchAnalysis,
-  AllSet
+  AllSet,
 }
 
 interface Step {
@@ -67,18 +67,18 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
           component={component}
           currentUser={currentUser}
         />
-      )
+      ),
     },
     {
       step: Steps.BranchAnalysis,
       content: (
         <BranchAnalysisStepContent
           component={component}
-          onStepValidationChange={isValid => setIsCurrentStepValid(isValid)}
+          onStepValidationChange={(isValid) => setIsCurrentStepValid(isValid)}
         />
       ),
-      checkValidity: true
-    }
+      checkValidity: true,
+    },
   ];
 
   const switchCurrentStep = (step: Steps) => {
@@ -115,7 +115,8 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
                 ) : (
                   <Button
                     className="big-spacer-top spacer-bottom"
-                    onClick={() => switchCurrentStep(step.step + 1)}>
+                    onClick={() => switchCurrentStep(step.step + 1)}
+                  >
                     {translate('continue')}
                   </Button>
                 ))}

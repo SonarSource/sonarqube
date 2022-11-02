@@ -33,11 +33,11 @@ jest.mock('../../../../api/quality-profiles', () => {
       events: [
         mockQualityProfileChangelogEvent(),
         mockQualityProfileChangelogEvent(),
-        mockQualityProfileChangelogEvent()
+        mockQualityProfileChangelogEvent(),
       ],
       total: 6,
-      p: 1
-    })
+      p: 1,
+    }),
   };
 });
 

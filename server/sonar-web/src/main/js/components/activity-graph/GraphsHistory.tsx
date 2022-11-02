@@ -53,7 +53,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      selectedDate: props.selectedDate
+      selectedDate: props.selectedDate,
     };
   }
 

@@ -34,7 +34,7 @@ const RULE: RuleDetails = {
   lang: 'java',
   langName: 'Java',
   scope: 'MAIN',
-  type: 'CODE_SMELL'
+  type: 'CODE_SMELL',
 };
 
 const EXTERNAL_RULE: RuleDetails = {
@@ -47,7 +47,7 @@ const EXTERNAL_RULE: RuleDetails = {
   status: 'READY',
   scope: 'ALL',
   isExternal: true,
-  type: 'UNKNOWN'
+  type: 'UNKNOWN',
 };
 
 const EXTERNAL_RULE_WITH_DATA: RuleDetails = {
@@ -63,7 +63,7 @@ const EXTERNAL_RULE_WITH_DATA: RuleDetails = {
   langName: 'Xoo',
   scope: 'ALL',
   isExternal: true,
-  type: 'BUG'
+  type: 'BUG',
 };
 
 it('should display right meta info', () => {

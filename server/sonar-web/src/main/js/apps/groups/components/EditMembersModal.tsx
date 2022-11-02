@@ -24,7 +24,7 @@ import { ResetButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
-  SelectListSearchParams
+  SelectListSearchParams,
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { Group, UserSelected } from '../../../types/types';
@@ -51,7 +51,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
     this.state = {
       needToReload: false,
       users: [],
-      selectedUsers: []
+      selectedUsers: [],
     };
   }
 
@@ -69,14 +69,16 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
       p: searchParams.page,
       ps: searchParams.pageSize,
       q: searchParams.query !== '' ? searchParams.query : undefined,
-      selected: searchParams.filter
-    }).then(data => {
+      selected: searchParams.filter,
+    }).then((data) => {
       if (this.mounted) {
-        this.setState(prevState => {
+        this.setState((prevState) => {
           const more = searchParams.page != null && searchParams.page > 1;
 
           const users = more ? [...prevState.users, ...data.users] : data.users;
-          const newSelectedUsers = data.users.filter(user => user.selected).map(user => user.login);
+          const newSelectedUsers = data.users
+            .filter((user) => user.selected)
+            .map((user) => user.login);
           const selectedUsers = more
             ? [...prevState.selectedUsers, ...newSelectedUsers]
             : newSelectedUsers;
@@ -87,7 +89,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
             loading: false,
             users,
             usersTotalCount: data.total,
-            selectedUsers
+            selectedUsers,
           };
         });
       }
@@ -96,12 +98,12 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
   handleSelect = (login: string) =>
     addUserToGroup({
       name: this.props.group.name,
-      login
+      login,
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
           needToReload: true,
-          selectedUsers: [...state.selectedUsers, login]
+          selectedUsers: [...state.selectedUsers, login],
         }));
       }
     });
@@ -109,12 +111,12 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
   handleUnselect = (login: string) =>
     removeUserFromGroup({
       name: this.props.group.name,
-      login
+      login,
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
           needToReload: true,
-          selectedUsers: without(state.selectedUsers, login)
+          selectedUsers: without(state.selectedUsers, login),
         }));
       }
     });
@@ -146,7 +148,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
 
         <div className="modal-body modal-container">
           <SelectList
-            elements={this.state.users.map(user => user.login)}
+            elements={this.state.users.map((user) => user.login)}
             elementsTotalCount={this.state.usersTotalCount}
             needToReload={
               this.state.needToReload &&

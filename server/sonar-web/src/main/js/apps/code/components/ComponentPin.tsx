@@ -38,7 +38,7 @@ export default class ComponentPin extends React.PureComponent<Props> {
       branchLike: this.props.branchLike,
       key: this.props.component.key,
       name: this.props.component.path,
-      qualifier: this.props.component.qualifier
+      qualifier: this.props.component.qualifier,
     });
   };
 
@@ -49,7 +49,8 @@ export default class ComponentPin extends React.PureComponent<Props> {
         className="link-no-underline"
         preventDefault={true}
         onClick={this.handleClick}
-        title={translateWithParameters('component_viewer.open_in_workspace_X', name)}>
+        title={translateWithParameters('component_viewer.open_in_workspace_X', name)}
+      >
         <PinIcon fill={theme.colors.primary} />
       </ButtonPlain>
     );

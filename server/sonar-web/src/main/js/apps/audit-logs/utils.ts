@@ -21,7 +21,7 @@ export enum HousekeepingPolicy {
   Weekly = 'Weekly',
   Monthly = 'Monthly',
   Trimestrial = 'Trimestrial',
-  Yearly = 'Yearly'
+  Yearly = 'Yearly',
 }
 
 export enum RangeOption {
@@ -29,5 +29,5 @@ export enum RangeOption {
   Week = '7days',
   Month = '30days',
   Trimester = '90days',
-  Custom = 'custom'
+  Custom = 'custom',
 }

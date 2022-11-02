@@ -22,7 +22,7 @@ import {
   cleanQuery,
   parseAsOptionalBoolean,
   parseAsString,
-  serializeString
+  serializeString,
 } from '../../helpers/query';
 import { RawQuery, WebApi } from '../../types/types';
 
@@ -67,7 +67,7 @@ export const parseQuery = memoize(
   (urlQuery: RawQuery): Query => ({
     search: parseAsString(urlQuery['query']),
     deprecated: parseAsOptionalBoolean(urlQuery['deprecated']) || false,
-    internal: parseAsOptionalBoolean(urlQuery['internal']) || false
+    internal: parseAsOptionalBoolean(urlQuery['internal']) || false,
   })
 );
 
@@ -76,7 +76,7 @@ export const serializeQuery = memoize(
     cleanQuery({
       query: query.search ? serializeString(query.search) : undefined,
       deprecated: query.deprecated || undefined,
-      internal: query.internal || undefined
+      internal: query.internal || undefined,
     })
 );
 

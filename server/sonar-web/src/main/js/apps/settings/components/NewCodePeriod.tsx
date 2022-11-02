@@ -48,7 +48,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
     loading: true,
     days: '30',
     saving: false,
-    success: false
+    success: false,
   };
 
   componentDidMount() {
@@ -70,7 +70,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
           days: currentSetting === 'NUMBER_OF_DAYS' ? String(value) : days,
           loading: false,
           currentSettingValue: value,
-          selected: currentSetting
+          selected: currentSetting,
         }));
       })
       .catch(() => {
@@ -89,7 +89,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
   onCancel = () => {
     this.setState(({ currentSetting, currentSettingValue, days }) => ({
       selected: currentSetting,
-      days: currentSetting === 'NUMBER_OF_DAYS' ? String(currentSettingValue) : days
+      days: currentSetting === 'NUMBER_OF_DAYS' ? String(currentSettingValue) : days,
     }));
   };
 
@@ -105,19 +105,19 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
       this.setState({ saving: true, success: false });
       setNewCodePeriod({
         type,
-        value
+        value,
       }).then(
         () => {
           this.setState({
             saving: false,
             currentSetting: type,
             currentSettingValue: value || undefined,
-            success: true
+            success: true,
           });
         },
         () => {
           this.setState({
-            saving: false
+            saving: false,
           });
         }
       );
@@ -125,15 +125,8 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
   };
 
   render() {
-    const {
-      currentSetting,
-      days,
-      loading,
-      currentSettingValue,
-      saving,
-      selected,
-      success
-    } = this.state;
+    const { currentSetting, days, loading, currentSettingValue, saving, selected, success } =
+      this.state;
 
     const isChanged =
       selected !== currentSetting ||
@@ -150,7 +143,8 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                 <div className="settings-definition-left">
                   <h3
                     className="settings-definition-name"
-                    title={translate('settings.new_code_period.title')}>
+                    title={translate('settings.new_code_period.title')}
+                  >
                     {translate('settings.new_code_period.title')}
                   </h3>
 
@@ -163,7 +157,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                           <DocLink to="/project-administration/new-code-period/">
                             {translate('learn_more')}
                           </DocLink>
-                        )
+                        ),
                       }}
                     />
                     <p className="spacer-top">

@@ -26,7 +26,7 @@ import IssueAssign from '../IssueAssign';
 const issue = mockIssue(false, {
   assignee: 'john',
   assigneeAvatar: 'gravatarhash',
-  assigneeName: 'John Doe'
+  assigneeName: 'John Doe',
 });
 
 it('should render without the action when the correct rights are missing', () => {

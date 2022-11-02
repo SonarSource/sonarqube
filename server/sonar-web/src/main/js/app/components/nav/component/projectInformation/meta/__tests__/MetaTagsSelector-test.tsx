@@ -24,12 +24,12 @@ import { searchProjectTags } from '../../../../../../../api/components';
 import MetaTagsSelector from '../MetaTagsSelector';
 
 jest.mock('../../../../../../../api/components', () => ({
-  searchProjectTags: jest.fn()
+  searchProjectTags: jest.fn(),
 }));
 
 jest.mock('lodash', () => {
   const lodash = jest.requireActual('lodash');
-  lodash.debounce = jest.fn(fn => fn);
+  lodash.debounce = jest.fn((fn) => fn);
   return lodash;
 });
 

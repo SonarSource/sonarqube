@@ -20,7 +20,7 @@
 import { MetricKey } from '../types/metrics';
 import {
   QualityGateStatusCondition,
-  QualityGateStatusConditionEnhanced
+  QualityGateStatusConditionEnhanced,
 } from '../types/quality-gates';
 import { Dict, Measure, MeasureEnhanced, Metric } from '../types/types';
 import { translate, translateWithParameters } from './l10n';
@@ -32,8 +32,8 @@ export function enhanceMeasuresWithMetrics(
   metrics: Metric[]
 ): MeasureEnhanced[] {
   return measures
-    .map(measure => {
-      const metric = metrics.find(metric => metric.key === measure.metric);
+    .map((measure) => {
+      const metric = metrics.find((metric) => metric.key === measure.metric);
       return metric && { ...measure, metric };
     })
     .filter(isDefined);
@@ -43,7 +43,7 @@ export function enhanceConditionWithMeasure(
   condition: QualityGateStatusCondition,
   measures: MeasureEnhanced[]
 ): QualityGateStatusConditionEnhanced | undefined {
-  const measure = measures.find(m => m.metric.key === condition.metric);
+  const measure = measures.find((m) => m.metric.key === condition.metric);
 
   // Make sure we have a period index. This is necessary when dealing with
   // applications.
@@ -65,11 +65,11 @@ export function isDiffMetric(metricKey: MetricKey | string): boolean {
 }
 
 export function getDisplayMetrics(metrics: Metric[]) {
-  return metrics.filter(metric => !metric.hidden && !['DATA', 'DISTRIB'].includes(metric.type));
+  return metrics.filter((metric) => !metric.hidden && !['DATA', 'DISTRIB'].includes(metric.type));
 }
 
 export function findMeasure(measures: MeasureEnhanced[], metric: MetricKey | string) {
-  return measures.find(measure => measure.metric.key === metric);
+  return measures.find((measure) => measure.metric.key === metric);
 }
 
 const HOURS_IN_DAY = 8;
@@ -145,7 +145,7 @@ function getFormatter(type: string): Formatter {
     SHORT_WORK_DUR: shortDurationFormatter,
     RATING: ratingFormatter,
     LEVEL: levelFormatter,
-    MILLISEC: millisecondsFormatter
+    MILLISEC: millisecondsFormatter,
   };
   return FORMATTERS[type] || noFormatter;
 }
@@ -157,7 +157,7 @@ function numberFormatter(
 ) {
   const { format } = new Intl.NumberFormat(getCurrentLocale(), {
     minimumFractionDigits,
-    maximumFractionDigits
+    maximumFractionDigits,
   });
   if (typeof value === 'string') {
     return format(parseFloat(value));
@@ -179,7 +179,7 @@ const shortIntFormats = [
   { unit: 1e7, formatUnit: 1e6, fraction: 0, suffix: 'short_number_suffix.m' },
   { unit: 1e6, formatUnit: 1e6, fraction: 1, suffix: 'short_number_suffix.m' },
   { unit: 1e4, formatUnit: 1e3, fraction: 0, suffix: 'short_number_suffix.k' },
-  { unit: 1e3, formatUnit: 1e3, fraction: 1, suffix: 'short_number_suffix.k' }
+  { unit: 1e3, formatUnit: 1e3, fraction: 1, suffix: 'short_number_suffix.k' },
 ];
 
 function shortIntFormatter(

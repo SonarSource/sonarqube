@@ -28,6 +28,6 @@ export function mockWebhookDelivery(overrides: Partial<WebhookDelivery> = {}): W
     httpStatus: HttpStatus.Ok,
     id: '1',
     success: true,
-    ...overrides
+    ...overrides,
   };
 }

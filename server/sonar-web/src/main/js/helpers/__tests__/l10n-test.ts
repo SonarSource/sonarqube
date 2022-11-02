@@ -27,7 +27,7 @@ import {
   getWeekDayName,
   hasMessage,
   translate,
-  translateWithParameters
+  translateWithParameters,
 } from '../l10n';
 import { getMessages } from '../l10nBundle';
 
@@ -36,7 +36,7 @@ const MSG = 'my_message';
 jest.unmock('../l10n');
 
 jest.mock('../l10nBundle', () => ({
-  getMessages: jest.fn().mockReturnValue({})
+  getMessages: jest.fn().mockReturnValue({}),
 }));
 
 const resetMessages = (messages: Dict<string>) =>
@@ -50,7 +50,7 @@ describe('hasMessage', () => {
   it('should return that the message exists', () => {
     resetMessages({
       foo: 'foo',
-      'foo.bar': 'foobar'
+      'foo.bar': 'foobar',
     });
     expect(hasMessage('foo')).toBe(true);
     expect(hasMessage('foo', 'bar')).toBe(true);
@@ -101,7 +101,7 @@ describe('translateWithParameters', () => {
 
   it('should translate message with several parameters', () => {
     resetMessages({
-      x_apples: '{0}: I have {2} apples in my {1} baskets - {3}'
+      x_apples: '{0}: I have {2} apples in my {1} baskets - {3}',
     });
     expect(translateWithParameters('x_apples', 1, 2, 3, 4)).toBe(
       '1: I have 3 apples in my 2 baskets - 4'
@@ -130,7 +130,7 @@ describe('getLocalizedMetricName', () => {
 
   it('should return the metric short name', () => {
     resetMessages({
-      'metric.new_code.short_name': 'metric.new_code.short_name_t'
+      'metric.new_code.short_name': 'metric.new_code.short_name_t',
     });
     expect(getLocalizedMetricName(metric, true)).toBe('metric.new_code.short_name_t');
   });
@@ -152,7 +152,7 @@ describe('getLocalizedMetricName', () => {
 describe('getLocalizedCategoryMetricName', () => {
   it('should return metric category name translation', () => {
     resetMessages({
-      'metric.new_code.extra_short_name': 'metric.new_code.extra_short_name_t'
+      'metric.new_code.extra_short_name': 'metric.new_code.extra_short_name_t',
     });
     expect(getLocalizedCategoryMetricName({ key: 'new_code' })).toBe(
       'metric.new_code.extra_short_name_t'

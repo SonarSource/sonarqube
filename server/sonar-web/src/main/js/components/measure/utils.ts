@@ -24,14 +24,14 @@ export const KNOWN_RATINGS = [
   'maintainability_rating', // Needed to provide the label for "new_maintainability_rating"
   'reliability_rating',
   'security_rating',
-  'security_review_rating'
+  'security_review_rating',
 ];
 
 export function enhanceMeasure(measure: Measure, metrics: Dict<Metric>): MeasureEnhanced {
   return {
     ...measure,
     metric: metrics[measure.metric],
-    leak: getLeakValue(measure)
+    leak: getLeakValue(measure),
   };
 }
 

@@ -24,7 +24,7 @@ export function mockReferencedRule(overrides: Partial<ReferencedRule> = {}): Ref
   return {
     langName: 'Javascript',
     name: 'RuleFoo',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -38,9 +38,9 @@ export function mockIssueChangelog(overrides: Partial<IssueChangelog> = {}): Iss
       {
         key: 'assign',
         newValue: 'darth.vader',
-        oldValue: 'luke.skywalker'
-      }
+        oldValue: 'luke.skywalker',
+      },
     ],
-    ...overrides
+    ...overrides,
   };
 }

@@ -28,17 +28,17 @@ const series = [
     data: [
       {
         x: new Date('2020-01-01'),
-        y: 'beginning'
+        y: 'beginning',
       },
       {
         x: new Date('2020-02-01'),
-        y: 'end'
-      }
+        y: 'end',
+      },
     ],
     name: 'foo',
     translatedName: 'foo-translated',
-    type: 'bar'
-  }
+    type: 'bar',
+  },
 ];
 
 it('should render correctly', () => {
@@ -55,11 +55,7 @@ it('should draw a graph with lines', () => {
 });
 
 it('should be zoomable', () => {
-  expect(
-    shallowRender()
-      .find('.chart-zoom')
-      .exists()
-  ).toBe(true);
+  expect(shallowRender().find('.chart-zoom').exists()).toBe(true);
 });
 
 it('should render a leak period', () => {
@@ -71,11 +67,7 @@ it('should render a leak period', () => {
 });
 
 it('should render areas under the graph lines', () => {
-  expect(
-    shallowRender({ showAreas: true })
-      .find('.line-chart-area')
-      .exists()
-  ).toBe(true);
+  expect(shallowRender({ showAreas: true }).find('.line-chart-area').exists()).toBe(true);
 });
 
 it('should handle zoom update correctly', () => {
@@ -83,12 +75,9 @@ it('should handle zoom update correctly', () => {
   const startDate = new Date('1970-01-01T00:00:00.001Z');
   const endDate = new Date('2000-01-01T00:00:00.001Z');
   let wrapper = shallowRender({ updateZoom, startDate, endDate });
-  wrapper.instance().handleZoomUpdate(
-    scaleTime()
-      .domain([startDate, endDate])
-      .range([0, 150]),
-    [3, 50]
-  );
+  wrapper
+    .instance()
+    .handleZoomUpdate(scaleTime().domain([startDate, endDate]).range([0, 150]), [3, 50]);
   expect(updateZoom).toHaveBeenCalledWith(
     new Date('1970-08-08T03:21:36.001Z'),
     new Date('1980-01-01T08:00:00.001Z')
@@ -98,12 +87,9 @@ it('should handle zoom update correctly', () => {
 
   // We throttle the handleZoomUpdate so re-render to avoid issue
   wrapper = shallowRender({ updateZoom, startDate, endDate });
-  wrapper.instance().handleZoomUpdate(
-    scaleTime()
-      .domain([startDate, endDate])
-      .range([0, 150]),
-    [-1, 151]
-  );
+  wrapper
+    .instance()
+    .handleZoomUpdate(scaleTime().domain([startDate, endDate]).range([0, 150]), [-1, 151]);
   expect(updateZoom).toHaveBeenCalledWith(undefined, undefined);
 });
 

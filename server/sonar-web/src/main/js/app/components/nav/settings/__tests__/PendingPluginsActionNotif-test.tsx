@@ -23,7 +23,7 @@ import { click } from '../../../../../helpers/testUtils';
 import PendingPluginsActionNotif from '../PendingPluginsActionNotif';
 
 jest.mock('../../../../../api/plugins', () => ({
-  cancelPendingPlugins: jest.fn(() => Promise.resolve())
+  cancelPendingPlugins: jest.fn(() => Promise.resolve()),
 }));
 
 const cancelPendingPlugins = require('../../../../../api/plugins')
@@ -62,15 +62,15 @@ function getWrapper(props = {}) {
             name: 'Foo',
             description: 'foo description',
             version: 'fooversion',
-            implementationBuild: 'foobuild'
+            implementationBuild: 'foobuild',
           },
           {
             key: 'bar',
             name: 'Bar',
             description: 'bar description',
             version: 'barversion',
-            implementationBuild: 'barbuild'
-          }
+            implementationBuild: 'barbuild',
+          },
         ],
         updating: [],
         removing: [
@@ -79,9 +79,9 @@ function getWrapper(props = {}) {
             name: 'Baz',
             description: 'baz description',
             version: 'bazversion',
-            implementationBuild: 'bazbuild'
-          }
-        ]
+            implementationBuild: 'bazbuild',
+          },
+        ],
       }}
       refreshPending={() => {}}
       systemStatus="UP"

@@ -31,14 +31,14 @@ it('should not render children because indexation is in progress', () => {
 
 it('should not render children because indexation has failures', () => {
   const wrapper = mountRender({
-    status: { isCompleted: true, percentCompleted: 100, hasFailures: true }
+    status: { isCompleted: true, percentCompleted: 100, hasFailures: true },
   });
   expect(wrapper.find(TestComponent).exists()).toBe(false);
 });
 
 it('should render children because indexation is completed without failures', () => {
   const wrapper = mountRender({
-    status: { isCompleted: true, percentCompleted: 100, hasFailures: false }
+    status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
   });
   expect(wrapper.find(TestComponent).exists()).toBe(true);
 });
@@ -48,8 +48,9 @@ function mountRender(context?: Partial<IndexationContextInterface>) {
     <IndexationContext.Provider
       value={{
         status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
-        ...context
-      }}>
+        ...context,
+      }}
+    >
       <TestComponentWithGuard />
     </IndexationContext.Provider>
   );

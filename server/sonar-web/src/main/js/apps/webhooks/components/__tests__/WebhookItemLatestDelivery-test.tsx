@@ -27,14 +27,14 @@ const latestDelivery = {
   durationMs: 20,
   httpStatus: 200,
   id: '2',
-  success: true
+  success: true,
 };
 
 const webhook = {
   key: '1',
   name: 'my webhook',
   url: 'http://webhook.target',
-  latestDelivery
+  latestDelivery,
 };
 
 it('should render correctly a success delivery', () => {
@@ -53,7 +53,7 @@ it('should render correctly a failed delivery', () => {
       <WebhookItemLatestDelivery
         webhook={{
           ...webhook,
-          latestDelivery: { ...latestDelivery, httpStatus: 500, success: false }
+          latestDelivery: { ...latestDelivery, httpStatus: 500, success: false },
         }}
       />
     )

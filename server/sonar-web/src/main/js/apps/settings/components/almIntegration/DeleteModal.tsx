@@ -47,7 +47,8 @@ export default function DeleteModal({ id, onDelete, onCancel, projectCount }: De
       header={translate('settings.almintegration.delete.header')}
       isDestructive={true}
       onClose={onCancel}
-      onConfirm={onDelete}>
+      onConfirm={onDelete}
+    >
       <>
         <p className="spacer-bottom">
           <FormattedMessage

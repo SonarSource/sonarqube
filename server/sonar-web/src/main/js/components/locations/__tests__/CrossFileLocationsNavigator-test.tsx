@@ -28,21 +28,21 @@ const location1: FlowLocation = {
   component: 'foo',
   componentName: 'src/foo.js',
   msg: 'Do not use foo',
-  textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 8 }
+  textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 8 },
 };
 
 const location2: FlowLocation = {
   component: 'foo',
   componentName: 'src/foo.js',
   msg: 'Do not use foo',
-  textRange: { startLine: 8, endLine: 8, startOffset: 0, endOffset: 5 }
+  textRange: { startLine: 8, endLine: 8, startOffset: 0, endOffset: 5 },
 };
 
 const location3: FlowLocation = {
   component: 'bar',
   componentName: 'src/bar.js',
   msg: 'Do not use bar',
-  textRange: { startLine: 15, endLine: 16, startOffset: 4, endOffset: 6 }
+  textRange: { startLine: 15, endLine: 16, startOffset: 4, endOffset: 6 },
 };
 
 it('should render with no locations', () => {

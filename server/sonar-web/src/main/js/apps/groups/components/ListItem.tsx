@@ -20,7 +20,7 @@
 import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownDivider,
-  ActionsDropdownItem
+  ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
 import { Group } from '../../../types/types';
@@ -62,7 +62,8 @@ export default function ListItem(props: ListItemProps) {
             <ActionsDropdownItem
               className="js-group-delete"
               destructive={true}
-              onClick={() => props.onDelete(group)}>
+              onClick={() => props.onDelete(group)}
+            >
               {translate('delete')}
             </ActionsDropdownItem>
           </ActionsDropdown>

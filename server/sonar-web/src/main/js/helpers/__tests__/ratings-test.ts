@@ -23,7 +23,7 @@ import {
   getDuplicationsRatingAverageValue,
   getDuplicationsRatingLabel,
   getSizeRatingAverageValue,
-  getSizeRatingLabel
+  getSizeRatingLabel,
 } from '../ratings';
 
 describe('getCoverageRatingLabel', () => {
@@ -37,7 +37,7 @@ describe('getCoverageRatingLabel', () => {
     [2, '70% - 80%'],
     [3, '50% - 70%'],
     [4, '30% - 50%'],
-    [5, '< 30%']
+    [5, '< 30%'],
   ])('should return the correct label for %s', (rating, label) => {
     expect(getCoverageRatingLabel(rating)).toBe(label);
   });
@@ -49,7 +49,7 @@ describe('getCoverageRatingAverageValue', () => {
     [2, 75],
     [3, 60],
     [4, 40],
-    [5, 15]
+    [5, 15],
   ])('should return the correct value', (rating, value) => {
     expect(getCoverageRatingAverageValue(rating)).toBe(value);
   });
@@ -66,7 +66,7 @@ describe('getDuplicationsRatingLabel', () => {
     [2, '3% - 5%'],
     [3, '5% - 10%'],
     [4, '10% - 20%'],
-    [5, '> 20%']
+    [5, '> 20%'],
   ])('should return the correct label for %s', (rating, label) => {
     expect(getDuplicationsRatingLabel(rating)).toBe(label);
   });
@@ -78,7 +78,7 @@ describe('getDuplicationsRatingAverageValue', () => {
     [2, 4],
     [3, 7.5],
     [4, 15],
-    [5, 30]
+    [5, 30],
   ])('should return the correct value', (rating, value) => {
     expect(getDuplicationsRatingAverageValue(rating)).toBe(value);
   });
@@ -95,7 +95,7 @@ describe('getSizeRatingLabel', () => {
     [2, '1k - 10k'],
     [3, '10k - 100k'],
     [4, '100k - 500k'],
-    [5, '> 500k']
+    [5, '> 500k'],
   ])('should return the correct label for %s', (rating, label) => {
     expect(getSizeRatingLabel(rating)).toBe(label);
   });
@@ -107,7 +107,7 @@ describe('getSizeRatingAverageValue', () => {
     [2, 5000],
     [3, 50000],
     [4, 250000],
-    [5, 750000]
+    [5, 750000],
   ])('should return the correct value', (rating, value) => {
     expect(getSizeRatingAverageValue(rating)).toBe(value);
   });

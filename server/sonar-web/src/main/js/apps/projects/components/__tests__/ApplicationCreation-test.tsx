@@ -28,7 +28,7 @@ import { ComponentQualifier } from '../../../../types/component';
 import { ApplicationCreation, ApplicationCreationProps } from '../ApplicationCreation';
 
 jest.mock('../../../../api/navigation', () => ({
-  getComponentNavigation: jest.fn().mockResolvedValue({})
+  getComponentNavigation: jest.fn().mockResolvedValue({}),
 }));
 
 it('should render correctly', () => {
@@ -43,7 +43,7 @@ it('should render correctly', () => {
 
 it('should show form and callback when submitted - admin', async () => {
   (getComponentNavigation as jest.Mock).mockResolvedValueOnce({
-    configuration: { showSettings: true }
+    configuration: { showSettings: true },
   });
   const routerPush = jest.fn();
   const wrapper = shallowRender({ router: mockRouter({ push: routerPush }) });
@@ -53,14 +53,14 @@ it('should show form and callback when submitted - admin', async () => {
   expect(routerPush).toHaveBeenCalledWith({
     pathname: '/project/admin/extension/developer-server/application-console',
     search: queryToSearch({
-      id: 'new app'
-    })
+      id: 'new app',
+    }),
   });
 });
 
 it('should show form and callback when submitted - user', async () => {
   (getComponentNavigation as jest.Mock).mockResolvedValueOnce({
-    configuration: { showSettings: false }
+    configuration: { showSettings: false },
   });
   const routerPush = jest.fn();
   const wrapper = shallowRender({ router: mockRouter({ push: routerPush }) });
@@ -70,8 +70,8 @@ it('should show form and callback when submitted - user', async () => {
   expect(routerPush).toHaveBeenCalledWith({
     pathname: '/dashboard',
     search: queryToSearch({
-      id: 'new app'
-    })
+      id: 'new app',
+    }),
   });
 });
 

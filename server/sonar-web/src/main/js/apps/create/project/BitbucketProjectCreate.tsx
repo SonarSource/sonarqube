@@ -22,13 +22,13 @@ import {
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
   importBitbucketServerProject,
-  searchForBitbucketServerRepositories
+  searchForBitbucketServerRepositories,
 } from '../../../api/alm-integrations';
 import { Location, Router } from '../../../components/hoc/withRouter';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
-  BitbucketRepository
+  BitbucketRepository,
 } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketCreateProjectRenderer from './BitbucketProjectCreateRenderer';
@@ -67,7 +67,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
       importing: false,
       loading: false,
       searching: false,
-      showPersonalAccessTokenForm: true
+      showPersonalAccessTokenForm: true,
     };
   }
 
@@ -105,7 +105,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
         this.setState({
           projects,
           projectRepositories,
-          loading: false
+          loading: false,
         });
       }
     }
@@ -131,7 +131,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     }
 
     return Promise.all(
-      projects.map(p => {
+      projects.map((p) => {
         return getBitbucketServerRepositories(bitbucketSetting.key, p.name).then(
           ({ isLastPage, repositories }) => {
             // Because the WS uses the project name rather than its key to find
@@ -139,7 +139,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
             // example, p.name = "A1" would find repositories for projects "A1",
             // "A10", "A11", etc. This is a limitation of BBS. To make sure we
             // don't display incorrect information, filter on the project key.
-            const filteredRepositories = repositories.filter(r => r.projectKey === p.key);
+            const filteredRepositories = repositories.filter((r) => r.projectKey === p.key);
 
             // And because of the above, the "isLastPage" cannot be relied upon
             // either. This one is impossible to get 100% for now. We can only
@@ -155,12 +155,12 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
             return {
               repositories: filteredRepositories,
               isLastPage: realIsLastPage,
-              projectKey: p.key
+              projectKey: p.key,
             };
           }
         );
       })
-    ).then(results => {
+    ).then((results) => {
       return results.reduce(
         (acc: BitbucketProjectRepositories, { isLastPage, projectKey, repositories }) => {
           return { ...acc, [projectKey]: { allShown: isLastPage, repositories } };
@@ -249,7 +249,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
       searching,
       searchResults,
       selectedRepository,
-      showPersonalAccessTokenForm
+      showPersonalAccessTokenForm,
     } = this.state;
 
     return (

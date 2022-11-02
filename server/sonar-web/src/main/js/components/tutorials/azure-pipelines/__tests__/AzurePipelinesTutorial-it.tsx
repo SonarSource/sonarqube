@@ -33,7 +33,7 @@ import AzurePipelinesTutorial, { AzurePipelinesTutorialProps } from '../AzurePip
 jest.mock('../../../../api/user-tokens');
 
 jest.mock('../../../../api/settings', () => ({
-  getAllValues: jest.fn().mockResolvedValue([])
+  getAllValues: jest.fn().mockResolvedValue([]),
 }));
 
 let tokenMock: UserTokensMock;
@@ -96,7 +96,7 @@ it('should render correctly and allow navigating between the different steps', a
   await clickButton(user, 'onboarding.build.cfamily');
 
   // OS's
-  [OSs.Linux, OSs.Windows, OSs.MacOS].forEach(async os => {
+  [OSs.Linux, OSs.Windows, OSs.MacOS].forEach(async (os) => {
     await clickButton(user, `onboarding.build.other.os.${os}`);
     assertCFamilyStepIsCorrectlyRendered(os);
   });
@@ -117,7 +117,7 @@ it('allows to navigate back to a previous step', async () => {
   // No clickable steps.
   expect(
     screen.queryByRole('button', {
-      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title'
+      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
     })
   ).not.toBeInTheDocument();
 
@@ -128,12 +128,12 @@ it('allows to navigate back to a previous step', async () => {
   // The first 2 steps become clickable.
   expect(
     screen.getByRole('button', {
-      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title'
+      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
     })
   ).toBeInTheDocument();
   expect(
     screen.getByRole('button', {
-      name: '2 onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title'
+      name: '2 onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title',
     })
   ).toBeInTheDocument();
 
@@ -143,7 +143,7 @@ it('allows to navigate back to a previous step', async () => {
   // No more clickable steps.
   expect(
     screen.queryByRole('button', {
-      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title'
+      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
     })
   ).not.toBeInTheDocument();
 });
@@ -165,7 +165,7 @@ it('should not offer CFamily analysis if the language is not available', async (
 function assertDefaultStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
-      name: 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title'
+      name: 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
     })
   ).toBeInTheDocument();
 }
@@ -173,7 +173,7 @@ function assertDefaultStepIsCorrectlyRendered() {
 function assertServiceEndpointStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
-      name: 'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title'
+      name: 'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title',
     })
   ).toBeInTheDocument();
   expect(getCopyToClipboardValue()).toBe('https://sonarqube.example.com/');
@@ -185,7 +185,7 @@ function assertServiceEndpointStepIsCorrectlyRendered() {
 function assertDotNetStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
-      name: 'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.title'
+      name: 'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.title',
     })
   ).toBeInTheDocument();
   expect(getCopyToClipboardValue()).toBe('foo');
@@ -213,7 +213,7 @@ function assertOtherStepIsCorrectlyRendered() {
 function assertFinishStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
-      name: 'onboarding.tutorial.ci_outro.all_set.title'
+      name: 'onboarding.tutorial.ci_outro.all_set.title',
     })
   ).toBeInTheDocument();
 }

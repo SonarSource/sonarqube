@@ -26,12 +26,12 @@ import {
   ExtendedSettingDefinition,
   SettingDefinition,
   SettingValue,
-  SettingValueResponse
+  SettingValueResponse,
 } from '../types/settings';
 
 export function getDefinitions(component?: string): Promise<ExtendedSettingDefinition[]> {
   return getJSON('/api/settings/list_definitions', { component }).then(
-    r => r.definitions,
+    (r) => r.definitions,
     throwGlobalError
   );
 }
@@ -47,10 +47,10 @@ export function getValues(
 ): Promise<SettingValue[]> {
   return getJSON('/api/settings/values', {
     keys: data.keys.join(','),
-    component: data.component
+    component: data.component,
   }).then((r: SettingValueResponse) => [
     ...r.settings,
-    ...r.setSecuredSettings.map(key => ({ key }))
+    ...r.setSecuredSettings.map((key) => ({ key })),
   ]);
 }
 
@@ -59,7 +59,7 @@ export function getAllValues(
 ): Promise<SettingValue[]> {
   return getJSON('/api/settings/values', data).then((r: SettingValueResponse) => [
     ...r.settings,
-    ...r.setSecuredSettings.map(key => ({ key }))
+    ...r.setSecuredSettings.map((key) => ({ key })),
   ]);
 }
 
@@ -75,7 +75,7 @@ export function setSettingValue(
     data.values = value;
   } else if (definition.type === 'PROPERTY_SET') {
     data.fieldValues = value
-      .map((fields: any) => omitBy(fields, value => value == null))
+      .map((fields: any) => omitBy(fields, (value) => value == null))
       .map(JSON.stringify);
   } else {
     data.value = value;

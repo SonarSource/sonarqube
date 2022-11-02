@@ -22,7 +22,7 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
@@ -42,35 +42,35 @@ export function CategoriesList(props: CategoriesListProps) {
   const { categories, component, defaultCategory, selectedCategory } = props;
 
   const categoriesWithName = categories
-    .filter(key => !CATEGORY_OVERRIDES[key.toLowerCase()])
-    .map(key => ({
+    .filter((key) => !CATEGORY_OVERRIDES[key.toLowerCase()])
+    .map((key) => ({
       key,
-      name: getCategoryName(key)
+      name: getCategoryName(key),
     }))
     .concat(
-      ADDITIONAL_CATEGORIES.filter(c => c.displayTab)
-        .filter(c =>
+      ADDITIONAL_CATEGORIES.filter((c) => c.displayTab)
+        .filter((c) =>
           component
             ? // Project settings
               c.availableForProject
             : // Global settings
               c.availableGlobally
         )
-        .filter(c => props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport)
+        .filter((c) => props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport)
     );
-  const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
+  const sortedCategories = sortBy(categoriesWithName, (category) => category.name.toLowerCase());
 
   return (
     <ul className="side-tabs-menu">
-      {sortedCategories.map(c => {
+      {sortedCategories.map((c) => {
         const category = c.key !== defaultCategory ? c.key.toLowerCase() : undefined;
         return (
           <li key={c.key}>
             <NavLink
               end={true}
-              className={_ =>
+              className={(_) =>
                 classNames({
-                  active: c.key.toLowerCase() === selectedCategory.toLowerCase()
+                  active: c.key.toLowerCase() === selectedCategory.toLowerCase(),
                 })
               }
               title={c.name}
@@ -78,7 +78,8 @@ export function CategoriesList(props: CategoriesListProps) {
                 component
                   ? getProjectSettingsUrl(component.key, category)
                   : getGlobalSettingsUrl(category)
-              }>
+              }
+            >
               {c.name}
             </NavLink>
           </li>

@@ -94,10 +94,10 @@ export class UsersApp extends React.PureComponent<Props, State> {
       this.setState({ loading: true });
       searchUsers({
         p: paging.pageIndex + 1,
-        q: parseQuery(this.props.location.query).search
+        q: parseQuery(this.props.location.query).search,
       }).then(({ paging, users }) => {
         if (this.mounted) {
-          this.setState(state => ({ loading: false, users: [...state.users, ...users], paging }));
+          this.setState((state) => ({ loading: false, users: [...state.users, ...users], paging }));
         }
       }, this.finishLoading);
     }
@@ -109,8 +109,8 @@ export class UsersApp extends React.PureComponent<Props, State> {
   };
 
   updateTokensCount = (login: string, tokensCount: number) => {
-    this.setState(state => ({
-      users: state.users.map(user => (user.login === login ? { ...user, tokensCount } : user))
+    this.setState((state) => ({
+      users: state.users.map((user) => (user.login === login ? { ...user, tokensCount } : user)),
     }));
   };
 

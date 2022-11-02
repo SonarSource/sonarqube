@@ -52,7 +52,7 @@ export default class Form extends React.PureComponent<Props, State> {
       description: (props.permissionTemplate && props.permissionTemplate.description) || '',
       name: (props.permissionTemplate && props.permissionTemplate.name) || '',
       projectKeyPattern:
-        (props.permissionTemplate && props.permissionTemplate.projectKeyPattern) || ''
+        (props.permissionTemplate && props.permissionTemplate.projectKeyPattern) || '',
     };
   }
 
@@ -61,7 +61,7 @@ export default class Form extends React.PureComponent<Props, State> {
       .onSubmit({
         description: this.state.description,
         name: this.state.name,
-        projectKeyPattern: this.state.projectKeyPattern
+        projectKeyPattern: this.state.projectKeyPattern,
       })
       .then(this.props.onClose);
   };
@@ -84,7 +84,8 @@ export default class Form extends React.PureComponent<Props, State> {
         header={this.props.header}
         onClose={this.props.onClose}
         onSubmit={this.handleSubmit}
-        size="small">
+        size="small"
+      >
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form id="permission-template-form" onSubmit={onFormSubmit}>
             <header className="modal-head">
@@ -147,7 +148,8 @@ export default class Form extends React.PureComponent<Props, State> {
               <ResetButtonLink
                 disabled={submitting}
                 id="permission-template-cancel"
-                onClick={onCloseClick}>
+                onClick={onCloseClick}
+              >
                 {translate('cancel')}
               </ResetButtonLink>
             </footer>

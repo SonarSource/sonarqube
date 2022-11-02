@@ -83,7 +83,7 @@ export default class Breadcrumbs extends React.PureComponent<Props, State> {
       return;
     }
     getBreadcrumbs({ component: component.key, ...getBranchLikeQuery(branchLike) }).then(
-      breadcrumbs => {
+      (breadcrumbs) => {
         if (this.mounted) {
           this.setState({ breadcrumbs });
         }
@@ -100,7 +100,7 @@ export default class Breadcrumbs extends React.PureComponent<Props, State> {
     const lastItem = breadcrumbs[breadcrumbs.length - 1];
     return (
       <div className={this.props.className}>
-        {breadcrumbs.map(component => (
+        {breadcrumbs.map((component) => (
           <Breadcrumb
             canBrowse={component.key !== lastItem.key}
             component={component}

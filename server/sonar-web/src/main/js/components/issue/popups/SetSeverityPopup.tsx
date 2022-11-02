@@ -36,7 +36,7 @@ export default function SetSeverityPopup({ issue, onSelect }: Props) {
   return (
     <DropdownOverlay>
       <SelectList currentItem={issue.severity} items={SEVERITY} onSelect={onSelect}>
-        {SEVERITY.map(severity => (
+        {SEVERITY.map((severity) => (
           <SelectListItem className="display-flex-center" item={severity} key={severity}>
             <SeverityIcon className="little-spacer-right" severity={severity} />
             {translate('severity', severity)}

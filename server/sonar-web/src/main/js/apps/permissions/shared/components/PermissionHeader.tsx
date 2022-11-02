@@ -48,7 +48,7 @@ export default class PermissionHeader extends React.PureComponent<Props> {
     const { permission } = this.props;
 
     if (isPermissionDefinitionGroup(permission)) {
-      return permission.permissions.map(permission => (
+      return permission.permissions.map((permission) => (
         <React.Fragment key={permission.key}>
           <b className="little-spacer-right">{permission.name}:</b>
           <InstanceMessage key={permission.key} message={permission.description} />
@@ -81,7 +81,8 @@ export default class PermissionHeader extends React.PureComponent<Props> {
           overlay={translateWithParameters(
             'global_permissions.filter_by_x_permission',
             permission.name
-          )}>
+          )}
+        >
           <a href="#" onClick={this.handlePermissionClick}>
             {permission.name}
           </a>
@@ -95,8 +96,9 @@ export default class PermissionHeader extends React.PureComponent<Props> {
         className={classNames('permission-column text-center text-middle', {
           selected:
             !isPermissionDefinitionGroup(permission) &&
-            permission.key === this.props.selectedPermission
-        })}>
+            permission.key === this.props.selectedPermission,
+        })}
+      >
         <div className="permission-column-inner">
           {name}
           <HelpTooltip className="spacer-left" overlay={this.getTooltipOverlay()} />

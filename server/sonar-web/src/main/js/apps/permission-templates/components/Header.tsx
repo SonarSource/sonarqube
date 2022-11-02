@@ -62,11 +62,11 @@ class Header extends React.PureComponent<Props, State> {
     name: string;
     projectKeyPattern: string;
   }) => {
-    return createPermissionTemplate({ ...data }).then(response => {
+    return createPermissionTemplate({ ...data }).then((response) => {
       this.props.refresh().then(() => {
         this.props.router.push({
           pathname: PERMISSION_TEMPLATES_PATH,
-          query: { id: response.permissionTemplate.id }
+          query: { id: response.permissionTemplate.id },
         });
       });
     });

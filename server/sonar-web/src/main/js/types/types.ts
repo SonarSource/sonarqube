@@ -192,7 +192,7 @@ export interface FacetValue<T = string> {
 
 export enum FlowType {
   DATA = 'DATA',
-  EXECUTION = 'EXECUTION'
+  EXECUTION = 'EXECUTION',
 }
 
 export interface Flow {

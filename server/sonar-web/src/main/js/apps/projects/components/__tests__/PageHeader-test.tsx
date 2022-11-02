@@ -30,18 +30,14 @@ it('should render correctly while loading', () => {
 });
 
 it('should not render projects total', () => {
-  expect(
-    shallowRender({ total: undefined })
-      .find('#projects-total')
-      .exists()
-  ).toBe(false);
+  expect(shallowRender({ total: undefined }).find('#projects-total').exists()).toBe(false);
 });
 
 it('should render switch the default sorting option for anonymous users', () => {
   expect(
     shallowRender({
       currentUser: { isLoggedIn: true },
-      open: true
+      open: true,
     }).find('ProjectsSortingSelect')
   ).toMatchSnapshot();
 
@@ -49,7 +45,7 @@ it('should render switch the default sorting option for anonymous users', () => 
     shallowRender({
       currentUser: { isLoggedIn: false },
       open: true,
-      view: 'leak'
+      view: 'leak',
     }).find('ProjectsSortingSelect')
   ).toMatchSnapshot();
 });

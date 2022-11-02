@@ -24,24 +24,24 @@ import { save } from '../../../helpers/storage';
 import { click } from '../../../helpers/testUtils';
 import DismissableAlert, {
   DismissableAlertProps,
-  DISMISSED_ALERT_STORAGE_KEY
+  DISMISSED_ALERT_STORAGE_KEY,
 } from '../DismissableAlert';
 
 jest.mock('../../../helpers/storage', () => ({
   get: jest.fn((_: string, suffix: string) => (suffix === 'bar' ? 'true' : undefined)),
-  save: jest.fn()
+  save: jest.fn(),
 }));
 
 jest.mock('react', () => {
   return {
     ...jest.requireActual('react'),
-    useEffect: jest.fn()
+    useEffect: jest.fn(),
   };
 });
 
 beforeEach(() => {
   jest.clearAllMocks();
-  (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
+  (React.useEffect as jest.Mock).mockImplementationOnce((f) => f());
 });
 
 it('should render correctly', () => {

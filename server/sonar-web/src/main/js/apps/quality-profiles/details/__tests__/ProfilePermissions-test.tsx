@@ -25,7 +25,7 @@ import ProfilePermissions from '../ProfilePermissions';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   searchUsers: jest.fn(() => Promise.resolve([])),
-  searchGroups: jest.fn(() => Promise.resolve([]))
+  searchGroups: jest.fn(() => Promise.resolve([])),
 }));
 
 beforeEach(() => {
@@ -39,7 +39,7 @@ it('renders', () => {
   wrapper.setState({
     groups: [{ name: 'Lambda' }],
     loading: false,
-    users: [{ login: 'luke', name: 'Luke Skywalker', selected: false }]
+    users: [{ login: 'luke', name: 'Luke Skywalker', selected: false }],
   });
   expect(wrapper).toMatchSnapshot();
 });
@@ -77,14 +77,11 @@ it('removes user', () => {
   const joda = { login: 'joda', name: 'Joda', selected: false };
   wrapper.setState({
     loading: false,
-    users: [{ login: 'luke', name: 'Luke Skywalker', selected: false }, joda]
+    users: [{ login: 'luke', name: 'Luke Skywalker', selected: false }, joda],
   });
   expect(wrapper.find('ProfilePermissionsUser')).toHaveLength(2);
 
-  wrapper
-    .find('ProfilePermissionsUser')
-    .first()
-    .prop<Function>('onDelete')(joda);
+  wrapper.find('ProfilePermissionsUser').first().prop<Function>('onDelete')(joda);
   wrapper.update();
   expect(wrapper.find('ProfilePermissionsUser')).toHaveLength(1);
 });
@@ -97,10 +94,7 @@ it('removes group', () => {
   wrapper.setState({ loading: false, groups: [{ name: 'Atlas' }, lambda] });
   expect(wrapper.find('ProfilePermissionsGroup')).toHaveLength(2);
 
-  wrapper
-    .find('ProfilePermissionsGroup')
-    .first()
-    .prop<Function>('onDelete')(lambda);
+  wrapper.find('ProfilePermissionsGroup').first().prop<Function>('onDelete')(lambda);
   wrapper.update();
   expect(wrapper.find('ProfilePermissionsGroup')).toHaveLength(1);
 });
@@ -110,12 +104,12 @@ it('fetches users and groups on mount', () => {
   expect(searchUsers).toHaveBeenCalledWith({
     language: 'js',
     qualityProfile: 'Sonar way',
-    selected: 'selected'
+    selected: 'selected',
   });
   expect(searchGroups).toHaveBeenCalledWith({
     language: 'js',
     qualityProfile: 'Sonar way',
-    selected: 'selected'
+    selected: 'selected',
   });
 });
 

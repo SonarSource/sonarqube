@@ -29,9 +29,9 @@ import { BasicProps } from './Facet';
 
 export default class TagFacet extends React.PureComponent<BasicProps> {
   handleSearch = (query: string) => {
-    return getRuleTags({ ps: 50, q: query }).then(tags => ({
+    return getRuleTags({ ps: 50, q: query }).then((tags) => ({
       paging: { pageIndex: 1, pageSize: tags.length, total: tags.length },
-      results: tags
+      results: tags,
     }));
   };
 
@@ -63,8 +63,8 @@ export default class TagFacet extends React.PureComponent<BasicProps> {
         facetHeader={translate('coding_rules.facet.tags')}
         fetching={false}
         getFacetItemText={this.getTagName}
-        getSearchResultKey={tag => tag}
-        getSearchResultText={tag => tag}
+        getSearchResultKey={(tag) => tag}
+        getSearchResultText={(tag) => tag}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}

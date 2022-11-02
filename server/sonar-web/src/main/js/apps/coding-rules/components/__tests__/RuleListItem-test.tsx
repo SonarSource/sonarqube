@@ -26,7 +26,7 @@ import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import RuleListItem from '../RuleListItem';
 
 jest.mock('../../../../api/quality-profiles', () => ({
-  deactivateRule: jest.fn().mockResolvedValue(null)
+  deactivateRule: jest.fn().mockResolvedValue(null),
 }));
 
 it('should render correctly', () => {
@@ -50,7 +50,7 @@ it('handle activation', () => {
   wrapper.instance().handleActivate('MAJOR');
   expect(onActivate).toHaveBeenCalledWith(profile.key, rule.key, {
     severity: 'MAJOR',
-    inherit: 'NONE'
+    inherit: 'NONE',
   });
 });
 
@@ -64,7 +64,7 @@ it('handle deactivation', async () => {
   expect(deactivateRule).toHaveBeenCalledWith(
     expect.objectContaining({
       key: profile.key,
-      rule: rule.key
+      rule: rule.key,
     })
   );
   await waitAndUpdate(wrapper);
@@ -74,7 +74,7 @@ it('handle deactivation', async () => {
 describe('renderActions', () => {
   it('should be null when there is no selected profile', () => {
     const wrapper = shallowRender({
-      isLoggedIn: true
+      isLoggedIn: true,
     });
 
     expect(wrapper.instance().renderActions()).toBeNull();
@@ -83,7 +83,7 @@ describe('renderActions', () => {
   it('should be null when I am not logged in', () => {
     const wrapper = shallowRender({
       isLoggedIn: false,
-      selectedProfile: mockQualityProfile()
+      selectedProfile: mockQualityProfile(),
     });
 
     expect(wrapper.instance().renderActions()).toBeNull();
@@ -92,7 +92,7 @@ describe('renderActions', () => {
   it('should be null when the user does not have the sufficient permissions', () => {
     const wrapper = shallowRender({
       isLoggedIn: true,
-      selectedProfile: mockQualityProfile()
+      selectedProfile: mockQualityProfile(),
     });
 
     expect(wrapper.instance().renderActions()).toBeNull();
@@ -102,10 +102,10 @@ describe('renderActions', () => {
     const wrapper = shallowRender({
       selectedProfile: mockQualityProfile({
         actions: {
-          copy: true
+          copy: true,
         },
-        isBuiltIn: true
-      })
+        isBuiltIn: true,
+      }),
     });
 
     expect(wrapper.instance().renderActions()).toMatchSnapshot('activate');
@@ -117,14 +117,14 @@ describe('renderActions', () => {
     const wrapper = shallowRender({
       activation: {
         inherit: 'NONE',
-        severity: 'warning'
+        severity: 'warning',
       },
       selectedProfile: mockQualityProfile({
         actions: {
-          edit: true
+          edit: true,
         },
-        isBuiltIn: false
-      })
+        isBuiltIn: false,
+      }),
     });
 
     expect(wrapper.instance().renderActions()).toMatchSnapshot();
@@ -133,14 +133,14 @@ describe('renderActions', () => {
   it('should render the activate button', () => {
     const wrapper = shallowRender({
       rule: mockRule({
-        isTemplate: false
+        isTemplate: false,
       }),
       selectedProfile: mockQualityProfile({
         actions: {
-          edit: true
+          edit: true,
         },
-        isBuiltIn: false
-      })
+        isBuiltIn: false,
+      }),
     });
 
     expect(wrapper.instance().renderActions()).toMatchSnapshot();

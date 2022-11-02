@@ -32,9 +32,9 @@ const metrics = keyBy(
     mockMetric({ key: MetricKey.ncloc, type: 'INT' }),
     mockMetric({ key: MetricKey.security_remediation_effort, type: 'DATA' }),
     mockMetric({ key: MetricKey.vulnerabilities, type: 'INT' }),
-    mockMetric({ key: MetricKey.security_rating, type: 'RATING' })
+    mockMetric({ key: MetricKey.security_rating, type: 'RATING' }),
   ],
-  m => m.key
+  (m) => m.key
 );
 
 it('should render correctly', () => {
@@ -51,13 +51,13 @@ it('should render correctly', () => {
               mockMeasure({ value: '0', metric: MetricKey.ncloc }),
               mockMeasure({ value: '0', metric: MetricKey.security_remediation_effort }),
               mockMeasure({ value: '0', metric: MetricKey.vulnerabilities }),
-              mockMeasure({ value: '0', metric: MetricKey.security_rating })
-            ]
+              mockMeasure({ value: '0', metric: MetricKey.security_rating }),
+            ],
           }),
           metrics[MetricKey.vulnerabilities],
           metrics
-        )
-      ]
+        ),
+      ],
     })
   ).toMatchSnapshot('all on x=0');
 });
@@ -83,12 +83,12 @@ function shallowRender(overrides: Partial<BubbleChart['props']> = {}) {
               mockMeasure({ value: '236', metric: MetricKey.ncloc }),
               mockMeasure({ value: '10', metric: MetricKey.security_remediation_effort }),
               mockMeasure({ value: '3', metric: MetricKey.vulnerabilities }),
-              mockMeasure({ value: '2', metric: MetricKey.security_rating })
-            ]
+              mockMeasure({ value: '2', metric: MetricKey.security_rating }),
+            ],
           }),
           metrics[MetricKey.vulnerabilities],
           metrics
-        )
+        ),
       ]}
       domain="Security"
       metrics={metrics}

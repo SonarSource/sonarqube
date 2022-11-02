@@ -48,11 +48,11 @@ export default class ProjectsContainer extends React.PureComponent<{}, State> {
     this.setState({ loading: true });
     const data = { p: page, ps: 100 };
     return getMyProjects(data).then(({ paging, projects }) => {
-      this.setState(state => ({
+      this.setState((state) => ({
         projects: page > 1 ? [...(state.projects || []), ...projects] : projects,
         loading: false,
         page: paging.pageIndex,
-        total: paging.total
+        total: paging.total,
       }));
     });
   }

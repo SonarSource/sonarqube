@@ -41,8 +41,8 @@ it.each([
   [BuildTools.Gradle],
   [BuildTools.DotNet],
   [BuildTools.CFamily],
-  [BuildTools.Other]
-])('should render correctly for build tool %s', buildTool => {
+  [BuildTools.Other],
+])('should render correctly for build tool %s', (buildTool) => {
   expect(renderStepContent(shallowRender({ buildTool }))).toMatchSnapshot();
 });
 
@@ -56,10 +56,7 @@ it('should correctly callback with selected build tool', () => {
 
 function selectBuildTool(wrapper: ShallowWrapper<ProjectKeyStepProps>, tool: BuildTools) {
   const content = new ShallowWrapper(renderStepContent(wrapper) as JSX.Element);
-  content
-    .find(RenderOptions)
-    .props()
-    .onCheck(tool);
+  content.find(RenderOptions).props().onCheck(tool);
 }
 
 function shallowRender(props: Partial<ProjectKeyStepProps> = {}) {

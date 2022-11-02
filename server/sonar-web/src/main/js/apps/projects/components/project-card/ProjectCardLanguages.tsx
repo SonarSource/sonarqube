@@ -34,8 +34,8 @@ export function ProjectCardLanguages({ className, distribution, languages }: Pro
     return null;
   }
 
-  const parsedLanguages = distribution.split(';').map(item => item.split('='));
-  const finalLanguages = sortBy(parsedLanguages, l => -1 * Number(l[1])).map(l =>
+  const parsedLanguages = distribution.split(';').map((item) => item.split('='));
+  const finalLanguages = sortBy(parsedLanguages, (l) => -1 * Number(l[1])).map((l) =>
     getLanguageName(languages, l[0])
   );
 

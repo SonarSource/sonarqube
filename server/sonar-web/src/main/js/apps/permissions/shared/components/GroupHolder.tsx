@@ -49,13 +49,13 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
 
   stopLoading = (permission: string) => {
     if (this.mounted) {
-      this.setState(state => ({ loading: without(state.loading, permission) }));
+      this.setState((state) => ({ loading: without(state.loading, permission) }));
     }
   };
 
   handleCheck = (_checked: boolean, permission?: string) => {
     if (permission !== undefined) {
-      this.setState(state => ({ loading: [...state.loading, permission] }));
+      this.setState((state) => ({ loading: [...state.loading, permission] }));
       this.props.onToggle(this.props.group, permission).then(
         () => this.stopLoading(permission),
         () => this.stopLoading(permission)
@@ -81,7 +81,7 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
             </div>
           </div>
         </td>
-        {this.props.permissions.map(permission => (
+        {this.props.permissions.map((permission) => (
           <PermissionCell
             key={isPermissionDefinitionGroup(permission) ? permission.category : permission.key}
             loading={this.state.loading}

@@ -43,7 +43,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
   property = 'types';
 
   static defaultProps = {
-    open: true
+    open: true,
   };
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
@@ -55,7 +55,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
       this.props.onChange({ [this.property]: newValue });
     } else {
       this.props.onChange({
-        [this.property]: types.includes(itemValue) && types.length < 2 ? [] : [itemValue]
+        [this.property]: types.includes(itemValue) && types.length < 2 ? [] : [itemValue],
       });
     }
   };
@@ -100,7 +100,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
 
   render() {
     const { types, stats = {} } = this.props;
-    const values = types.map(type => translate('issue.type', type));
+    const values = types.map((type) => translate('issue.type', type));
 
     return (
       <FacetBox property={this.property}>
@@ -116,7 +116,7 @@ export default class TypeFacet extends React.PureComponent<Props> {
         {this.props.open && (
           <>
             <FacetItemsList>
-              {ISSUE_TYPES.filter(t => t !== 'SECURITY_HOTSPOT').map(this.renderItem)}
+              {ISSUE_TYPES.filter((t) => t !== 'SECURITY_HOTSPOT').map(this.renderItem)}
             </FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={types.length} />
           </>

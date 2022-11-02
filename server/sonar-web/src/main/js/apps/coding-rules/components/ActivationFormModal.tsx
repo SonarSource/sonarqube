@@ -62,7 +62,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
       params: this.getParams(props),
       profile: profilesWithDepth.length > 0 ? profilesWithDepth[0] : undefined,
       severity: props.activation ? props.activation.severity : props.rule.severity,
-      submitting: false
+      submitting: false,
     };
   }
 
@@ -93,16 +93,16 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
   getQualityProfilesWithDepth = ({ profiles } = this.props) => {
     return sortProfiles(
       profiles.filter(
-        profile =>
+        (profile) =>
           !profile.isBuiltIn &&
           profile.actions &&
           profile.actions.edit &&
           profile.language === this.props.rule.lang
       )
-    ).map(profile => ({
+    ).map((profile) => ({
       ...profile,
       // Decrease depth by 1, so the top level starts at 0
-      depth: profile.depth - 1
+      depth: profile.depth - 1,
     }));
   };
 
@@ -113,7 +113,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
       key: this.state.profile?.key || '',
       params: this.state.params,
       rule: this.props.rule.key,
-      severity: this.state.severity
+      severity: this.state.severity,
     };
     activateRule(data)
       .then(() => this.props.onDone(data.severity))
@@ -176,7 +176,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                 isClearable={false}
                 isDisabled={submitting || profilesWithDepth.length === 1}
                 onChange={this.handleProfileChange}
-                getOptionLabel={p => '   '.repeat(p.depth) + p.name}
+                getOptionLabel={(p) => '   '.repeat(p.depth) + p.name}
                 options={profilesWithDepth}
                 value={profile}
               />
@@ -195,7 +195,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                 <p className="note">{translate('coding_rules.custom_rule.activation_notice')}</p>
               </div>
             ) : (
-              params.map(param => (
+              params.map((param) => (
                 <div className="modal-field" key={param.key}>
                   <label title={param.key}>{param.key}</label>
                   {param.type === 'TEXT' ? (

@@ -42,7 +42,7 @@ interface Props {
 const MAP_ALERT: { [key in UpdateUseCase]?: AlertVariant } = {
   [UpdateUseCase.NewPatch]: 'warning',
   [UpdateUseCase.PreLTS]: 'warning',
-  [UpdateUseCase.PreviousLTS]: 'error'
+  [UpdateUseCase.PreviousLTS]: 'error',
 };
 
 interface State {
@@ -64,11 +64,13 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
     if (updateUseCase === UpdateUseCase.NewPatch && parsedVersion !== null) {
       const [, major, minor] = parsedVersion;
       const majoMinorVersion = `${major}.${minor}`;
-      patches = flatMap(systemUpgrades, upgrades =>
-        filter(upgrades, upgrade => upgrade.version.startsWith(majoMinorVersion))
+      patches = flatMap(systemUpgrades, (upgrades) =>
+        filter(upgrades, (upgrade) => upgrade.version.startsWith(majoMinorVersion))
       );
       systemUpgradesWithPatch = systemUpgrades
-        .map(upgrades => upgrades.filter(upgrade => !upgrade.version.startsWith(majoMinorVersion)))
+        .map((upgrades) =>
+          upgrades.filter((upgrade) => !upgrade.version.startsWith(majoMinorVersion))
+        )
         .filter(negate(isEmpty));
       systemUpgradesWithPatch.push(patches);
     } else {
@@ -76,7 +78,7 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
       for (const upgrades of systemUpgrades) {
         if (untilLTS === false) {
           systemUpgradesWithPatch.push(upgrades);
-          untilLTS = upgrades.some(upgrade => upgrade.version.startsWith(latestLTS));
+          untilLTS = upgrades.some((upgrade) => upgrade.version.startsWith(latestLTS));
         }
       }
     }
@@ -93,7 +95,7 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
               {translate('admin_notification.update', updateUseCase)}
             </Alert>
           )}
-          {systemUpgradesWithPatch.map(upgrades => (
+          {systemUpgradesWithPatch.map((upgrades) => (
             <SystemUpgradeItem
               edition={
                 appState.edition as EditionKey /* TODO: Fix once AppState is no longer ambiant. */
@@ -101,7 +103,7 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
               key={upgrades[upgrades.length - 1].version}
               systemUpgrades={upgrades}
               isPatch={upgrades === patches}
-              isLTSVersion={upgrades.some(upgrade => upgrade.version.startsWith(latestLTS))}
+              isLTSVersion={upgrades.some((upgrade) => upgrade.version.startsWith(latestLTS))}
             />
           ))}
         </div>
@@ -110,7 +112,8 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
           <Link
             className="pull-left link-no-underline display-flex-center"
             to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
-            target="_blank">
+            target="_blank"
+          >
             {translate('system.see_sonarqube_downloads')}
           </Link>
           <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>

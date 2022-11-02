@@ -29,7 +29,7 @@ export function getSettingValue({
   analysis,
   days,
   referenceBranch,
-  type
+  type,
 }: {
   analysis?: string;
   days?: string;
@@ -64,7 +64,7 @@ export function validateSetting(state: {
     days,
     overrideGeneralSetting,
     referenceBranch = '',
-    selected
+    selected,
   } = state;
 
   let isChanged;

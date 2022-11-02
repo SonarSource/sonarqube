@@ -30,7 +30,7 @@ import {
   getPropertyDescription,
   getPropertyName,
   getSettingValue,
-  isDefaultOrInherited
+  isDefaultOrInherited,
 } from '../utils';
 import DefinitionActions from './DefinitionActions';
 import Input from './inputs/Input';
@@ -65,9 +65,10 @@ export default function DefinitionRenderer(props: DefinitionRendererProps) {
   return (
     <div
       className={classNames('settings-definition', {
-        'settings-definition-changed': hasValueChanged
+        'settings-definition-changed': hasValueChanged,
       })}
-      data-key={definition.key}>
+      data-key={definition.key}
+    >
       <div className="settings-definition-left">
         <h3 className="settings-definition-name" title={propertyName}>
           {propertyName}

@@ -67,7 +67,7 @@ export class QualityProfilesApp extends React.PureComponent<Props, State> {
             actions: profilesResponse.actions,
             exporters,
             profiles: sortProfiles(profilesResponse.profiles),
-            loading: false
+            loading: false,
           });
         }
       },
@@ -80,7 +80,7 @@ export class QualityProfilesApp extends React.PureComponent<Props, State> {
   }
 
   updateProfiles = () => {
-    return this.fetchProfiles().then(r => {
+    return this.fetchProfiles().then((r) => {
       if (this.mounted) {
         this.setState({ profiles: sortProfiles(r.profiles) });
       }
@@ -100,7 +100,7 @@ export class QualityProfilesApp extends React.PureComponent<Props, State> {
       profiles: profiles || [],
       languages: finalLanguages,
       exporters: exporters || [],
-      updateProfiles: this.updateProfiles
+      updateProfiles: this.updateProfiles,
     };
 
     return <Outlet context={context} />;

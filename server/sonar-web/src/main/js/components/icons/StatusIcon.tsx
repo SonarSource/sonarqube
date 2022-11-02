@@ -34,7 +34,7 @@ const statusIcons: Dict<(props: IconProps) => React.ReactElement> = {
   closed: ClosedStatusIcon,
   to_review: OpenStatusIcon,
   in_review: ConfirmedStatusIcon,
-  reviewed: ResolvedStatusIcon
+  reviewed: ResolvedStatusIcon,
 };
 
 export default function StatusIcon({ status, ...iconProps }: Props) {

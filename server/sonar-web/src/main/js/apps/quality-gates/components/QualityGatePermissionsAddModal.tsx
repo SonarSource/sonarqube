@@ -64,7 +64,7 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
     const queryParams: SearchPermissionsParameters = {
       gateName: qualityGate.name,
       q,
-      selected: 'deselected'
+      selected: 'deselected',
     };
 
     Promise.all([searchUsers(queryParams), searchGroups(queryParams)])

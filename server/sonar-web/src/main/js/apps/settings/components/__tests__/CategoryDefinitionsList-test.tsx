@@ -26,7 +26,7 @@ import { waitAndUpdate } from '../../../../helpers/testUtils';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
 
 jest.mock('../../../../api/settings', () => ({
-  getValues: jest.fn().mockResolvedValue([])
+  getValues: jest.fn().mockResolvedValue([]),
 }));
 
 it('should load settings values', async () => {
@@ -36,11 +36,11 @@ it('should load settings values', async () => {
   const definitions = [
     mockDefinition({ category: 'general', key: 'yes' }),
     mockDefinition({ category: 'other', key: 'nope' }),
-    mockDefinition({ category: 'general', key: 'yesagain' })
+    mockDefinition({ category: 'general', key: 'yesagain' }),
   ];
 
   const wrapper = shallowRender({
-    definitions
+    definitions,
   });
 
   await waitAndUpdate(wrapper);
@@ -49,7 +49,7 @@ it('should load settings values', async () => {
 
   expect(wrapper.state().settings).toEqual([
     { definition: definitions[0], settingValue: settings[0] },
-    { definition: definitions[2], settingValue: settings[1] }
+    { definition: definitions[2], settingValue: settings[1] },
   ]);
 });
 
@@ -57,7 +57,7 @@ it('should reload on category change', async () => {
   const definitions = [
     mockDefinition({ category: 'general', key: 'yes' }),
     mockDefinition({ category: 'other', key: 'nope' }),
-    mockDefinition({ category: 'general', key: 'yesagain' })
+    mockDefinition({ category: 'general', key: 'yesagain' }),
   ];
   const wrapper = shallowRender({ component: mockComponent({ key: 'comp-key' }), definitions });
 

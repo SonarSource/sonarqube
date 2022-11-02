@@ -28,7 +28,7 @@ describe('highlightSymbol', () => {
       { className: 'a sym-18 b', markers: [], text: 'foo' },
       { className: 'sym-1 d', markers: [], text: 'bar' },
       { className: 'c sym-1', markers: [], text: 'bar' },
-      { className: 'c sym-1 d', markers: [], text: 'bar' }
+      { className: 'c sym-1 d', markers: [], text: 'bar' },
     ];
     expect(highlightSymbol(tokens, 'sym-1')).toEqual([
       { className: 'sym-18 b', markers: [], text: 'foo' },
@@ -36,7 +36,7 @@ describe('highlightSymbol', () => {
       { className: 'a sym-18 b', markers: [], text: 'foo' },
       { className: 'sym-1 d highlighted', markers: [], text: 'bar' },
       { className: 'c sym-1 highlighted', markers: [], text: 'bar' },
-      { className: 'c sym-1 d highlighted', markers: [], text: 'bar' }
+      { className: 'c sym-1 d highlighted', markers: [], text: 'bar' },
     ]);
   });
 
@@ -44,12 +44,12 @@ describe('highlightSymbol', () => {
     const tokens = [
       { className: 'sym sym-1 sym sym-2', markers: [], text: 'foo' },
       { className: 'sym sym-1', markers: [], text: 'bar' },
-      { className: 'sym sym-2', markers: [], text: 'qux' }
+      { className: 'sym sym-2', markers: [], text: 'qux' },
     ];
     expect(highlightSymbol(tokens, 'sym-1')).toEqual([
       { className: 'sym sym-1 sym sym-2 highlighted', markers: [], text: 'foo' },
       { className: 'sym sym-1 highlighted', markers: [], text: 'bar' },
-      { className: 'sym sym-2', markers: [], text: 'qux' }
+      { className: 'sym sym-2', markers: [], text: 'qux' },
     ]);
   });
 });

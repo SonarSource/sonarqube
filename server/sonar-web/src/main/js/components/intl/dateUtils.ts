@@ -21,7 +21,7 @@ import {
   differenceInDays,
   differenceInMonths,
   differenceInSeconds,
-  differenceInYears
+  differenceInYears,
 } from 'date-fns';
 import { FormattedRelativeTime } from 'react-intl';
 import { parseDate } from '../../helpers/dates';
@@ -52,6 +52,6 @@ export function getRelativeTimeProps(
   return {
     value: differenceInSeconds(date, Date.now()),
     unit: 'second',
-    updateIntervalInSeconds: UPDATE_INTERVAL_IN_SECONDS
+    updateIntervalInSeconds: UPDATE_INTERVAL_IN_SECONDS,
   };
 }

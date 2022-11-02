@@ -31,11 +31,7 @@ it('should not render', () => {
 });
 
 it('should not show cancel pending button', () => {
-  expect(
-    shallowRender({ pendingCount: 0 })
-      .find('ConfirmButton')
-      .exists()
-  ).toBe(false);
+  expect(shallowRender({ pendingCount: 0 }).find('ConfirmButton').exists()).toBe(false);
   expect(
     shallowRender({ appState: mockAppState({ canAdmin: false }) })
       .find('ConfirmButton')

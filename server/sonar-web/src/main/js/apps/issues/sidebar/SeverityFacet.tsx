@@ -44,7 +44,7 @@ export default class SeverityFacet extends React.PureComponent<Props> {
   property = 'severities';
 
   static defaultProps = {
-    open: true
+    open: true,
   };
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
@@ -56,7 +56,7 @@ export default class SeverityFacet extends React.PureComponent<Props> {
       this.props.onChange({ [this.property]: newValue });
     } else {
       this.props.onChange({
-        [this.property]: severities.includes(itemValue) && severities.length < 2 ? [] : [itemValue]
+        [this.property]: severities.includes(itemValue) && severities.length < 2 ? [] : [itemValue],
       });
     }
   };
@@ -94,7 +94,7 @@ export default class SeverityFacet extends React.PureComponent<Props> {
 
   render() {
     const { severities, stats = {} } = this.props;
-    const values = severities.map(severity => translate('severity', severity));
+    const values = severities.map((severity) => translate('severity', severity));
 
     return (
       <FacetBox property={this.property}>

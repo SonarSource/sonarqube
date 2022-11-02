@@ -29,8 +29,8 @@ it.each([
   [mockLoggedInUser(), '/projects'],
   [
     mockLoggedInUser({ homepage: { type: 'ISSUES' } }),
-    expect.objectContaining({ pathname: '/issues' })
-  ]
+    expect.objectContaining({ pathname: '/issues' }),
+  ],
 ])('should render correctly', (currentUser: CurrentUser, expected: string) => {
   const wrapper = shallowRender({ currentUser });
 

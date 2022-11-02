@@ -88,23 +88,23 @@ it('should show hotspot rule section', async () => {
   expect(screen.getByText('Introduction to this rule')).toBeInTheDocument();
   expect(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT'
+      name: 'coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT',
     })
   ).toBeInTheDocument();
   expect(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.assess_the_problem'
+      name: 'coding_rules.description_section.title.assess_the_problem',
     })
   ).toBeInTheDocument();
   expect(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   ).toBeInTheDocument();
   // Check that we render plain html
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   );
   expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();
@@ -119,18 +119,18 @@ it('should show rule advanced section', async () => {
   expect(screen.getByText('Introduction to this rule')).toBeInTheDocument();
   expect(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix'
+      name: 'coding_rules.description_section.title.how_to_fix',
     })
   ).toBeInTheDocument();
   expect(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   ).toBeInTheDocument();
   // Check that we render plain html
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   );
   expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();
@@ -144,13 +144,13 @@ it('should show rule advanced section with context', async () => {
   ).toBeInTheDocument();
   expect(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix'
+      name: 'coding_rules.description_section.title.how_to_fix',
     })
   ).toBeInTheDocument();
 
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix'
+      name: 'coding_rules.description_section.title.how_to_fix',
     })
   );
   expect(screen.getByRole('button', { name: 'Spring' })).toBeInTheDocument();
@@ -177,7 +177,7 @@ it('should show rule advanced section with context', async () => {
   expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
 
   const productBoardLink = screen.getByRole('link', {
-    name: 'opens_in_new_window coding_rules.context.others.feedback_description.link'
+    name: 'opens_in_new_window coding_rules.context.others.feedback_description.link',
   });
   expect(productBoardLink).toBeInTheDocument();
   expect(productBoardLink).toHaveAttribute('target', '_blank');
@@ -226,7 +226,7 @@ it('should list all rules', async () => {
   await waitFor(() => {
     handler
       .allRulesName()
-      .forEach(name => expect(screen.getByRole('link', { name })).toBeInTheDocument());
+      .forEach((name) => expect(screen.getByRole('link', { name })).toBeInTheDocument());
   });
 });
 
@@ -238,8 +238,8 @@ it('should have all type facet', async () => {
       'issue.type.BUG',
       'issue.type.VULNERABILITY',
       'issue.type.CODE_SMELL',
-      'issue.type.SECURITY_HOTSPOT'
-    ].forEach(name => expect(screen.getByRole('checkbox', { name })).toBeInTheDocument());
+      'issue.type.SECURITY_HOTSPOT',
+    ].forEach((name) => expect(screen.getByRole('checkbox', { name })).toBeInTheDocument());
   });
 });
 
@@ -253,7 +253,7 @@ it('select the correct quality profile for bulk change base on language search',
   await user.click(await screen.findByRole('button', { name: 'bulk_change' }));
   await user.click(await screen.findByRole('link', { name: 'coding_rules.activate_in…' }));
   const dialog = screen.getByRole('dialog', {
-    name: 'coding_rules.activate_in_quality_profile (2 coding_rules._rules)'
+    name: 'coding_rules.activate_in_quality_profile (2 coding_rules._rules)',
   });
 
   expect(dialog).toBeInTheDocument();
@@ -270,7 +270,7 @@ it('no quality profile for bulk cahnge base on language search', async () => {
   await user.click(await screen.findByRole('button', { name: 'bulk_change' }));
   await user.click(await screen.findByRole('link', { name: 'coding_rules.activate_in…' }));
   const dialog = screen.getByRole('dialog', {
-    name: 'coding_rules.activate_in_quality_profile (1 coding_rules._rules)'
+    name: 'coding_rules.activate_in_quality_profile (1 coding_rules._rules)',
   });
 
   expect(dialog).toBeInTheDocument();
@@ -291,7 +291,7 @@ it('should be able to bulk activate quality profile', async () => {
   await user.click(await screen.findByRole('link', { name: 'coding_rules.activate_in…' }));
 
   const dialog = screen.getByRole('dialog', {
-    name: `coding_rules.activate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`
+    name: `coding_rules.activate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`,
   });
   expect(dialog).toBeInTheDocument();
 
@@ -322,7 +322,7 @@ it('should be able to bulk activate quality profile', async () => {
   await user.click(await screen.findByRole('link', { name: 'coding_rules.activate_in…' }));
   dialogScreen = within(
     screen.getByRole('dialog', {
-      name: `coding_rules.activate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`
+      name: `coding_rules.activate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`,
     })
   );
   await user.click(dialogScreen.getByRole('textbox', { name: 'coding_rules.activate_in' }));
@@ -332,9 +332,9 @@ it('should be able to bulk activate quality profile', async () => {
   await user.click(dialogScreen.getByRole('button', { name: 'apply' }));
   expect(
     dialogScreen.getByText(
-      `coding_rules.bulk_change.warning.${selectQPWarning.name}.${
-        selectQPWarning.languageName
-      }.${handler.allRulesName().length - 1}.1`
+      `coding_rules.bulk_change.warning.${selectQPWarning.name}.${selectQPWarning.languageName}.${
+        handler.allRulesName().length - 1
+      }.1`
     )
   ).toBeInTheDocument();
 });
@@ -350,7 +350,7 @@ it('should be able to bulk deactivate quality profile', async () => {
   await user.click(await screen.findByRole('link', { name: 'coding_rules.deactivate_in…' }));
   const dialogScreen = within(
     screen.getByRole('dialog', {
-      name: `coding_rules.deactivate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`
+      name: `coding_rules.deactivate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`,
     })
   );
   await user.click(dialogScreen.getByRole('textbox', { name: 'coding_rules.deactivate_in' }));
@@ -381,40 +381,40 @@ it('should show notification for rule advanced section and remove it after user 
   renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
   await screen.findByRole('heading', {
     level: 3,
-    name: 'Awesome Python rule with education principles'
+    name: 'Awesome Python rule with education principles',
   });
   expect(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   ).toBeInTheDocument();
 
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   );
 
   expect(screen.getByText('coding_rules.more_info.notification_message')).toBeInTheDocument();
   expect(
     screen.getByRole('button', {
-      name: 'coding_rules.more_info.scroll_message'
+      name: 'coding_rules.more_info.scroll_message',
     })
   ).toBeInTheDocument();
   await user.click(
     screen.getByRole('button', {
-      name: 'coding_rules.more_info.scroll_message'
+      name: 'coding_rules.more_info.scroll_message',
     })
   );
   // navigate away and come back
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix'
+      name: 'coding_rules.description_section.title.how_to_fix',
     })
   );
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   );
   expect(screen.queryByText('coding_rules.more_info.notification_message')).not.toBeInTheDocument();
@@ -426,42 +426,42 @@ it('should show notification for rule advanced section and removes it when user 
 
   await screen.findByRole('heading', {
     level: 3,
-    name: 'Awesome Python rule with education principles'
+    name: 'Awesome Python rule with education principles',
   });
   expect(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   ).toBeInTheDocument();
 
   // navigate away and come back
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix'
+      name: 'coding_rules.description_section.title.how_to_fix',
     })
   );
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   );
 
   expect(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   ).toBeInTheDocument();
 
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   );
 
   expect(screen.getByText('coding_rules.more_info.notification_message')).toBeInTheDocument();
   expect(
     screen.getByRole('button', {
-      name: 'coding_rules.more_info.scroll_message'
+      name: 'coding_rules.more_info.scroll_message',
     })
   ).toBeInTheDocument();
 
@@ -470,12 +470,12 @@ it('should show notification for rule advanced section and removes it when user 
   // navigate away and come back
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix'
+      name: 'coding_rules.description_section.title.how_to_fix',
     })
   );
   await user.click(
     screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   );
   expect(screen.queryByText('coding_rules.more_info.notification_message')).not.toBeInTheDocument();
@@ -487,14 +487,14 @@ it('should not show notification for anonymous users', async () => {
 
   await user.click(
     await screen.findByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info'
+      name: 'coding_rules.description_section.title.more_info',
     })
   );
 
   expect(screen.queryByText('coding_rules.more_info.notification_message')).not.toBeInTheDocument();
   expect(
     screen.queryByRole('button', {
-      name: 'coding_rules.more_info.scroll_message'
+      name: 'coding_rules.more_info.scroll_message',
     })
   ).not.toBeInTheDocument();
 });
@@ -506,7 +506,7 @@ function renderCodingRulesApp(currentUser?: CurrentUser, navigateTo?: string) {
     languages: {
       js: { key: 'js', name: 'JavaScript' },
       java: { key: 'java', name: 'Java' },
-      c: { key: 'c', name: 'C' }
-    }
+      c: { key: 'c', name: 'C' },
+    },
   });
 }

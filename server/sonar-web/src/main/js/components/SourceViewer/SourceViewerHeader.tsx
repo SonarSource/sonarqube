@@ -37,7 +37,7 @@ import {
   getCodeUrl,
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
-  getPathUrlAsString
+  getPathUrlAsString,
 } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
@@ -90,11 +90,11 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
               ...getBranchLikeQuery(branchLike),
               files: sourceViewerFile.path,
               resolved: 'false',
-              types: type
+              types: type,
             };
 
             const measure = componentMeasures.find(
-              m => m.metric === ISSUETYPE_METRIC_KEYS_MAP[type].metric
+              (m) => m.metric === ISSUETYPE_METRIC_KEYS_MAP[type].metric
             );
 
             const linkUrl =
@@ -136,7 +136,8 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
             <div className="component-name-parent">
               <a
                 className="link-no-underline"
-                href={getPathUrlAsString(getBranchLikeUrl(project, this.props.branchLike))}>
+                href={getPathUrlAsString(getBranchLikeUrl(project, this.props.branchLike))}
+              >
                 <QualifierIcon qualifier={ComponentQualifier.Project} /> <span>{projectName}</span>
               </a>
             </div>
@@ -216,7 +217,8 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
                   className="js-new-window"
                   rel="noopener noreferrer"
                   target="_blank"
-                  to={getCodeUrl(this.props.sourceViewerFile.project, this.props.branchLike, key)}>
+                  to={getCodeUrl(this.props.sourceViewerFile.project, this.props.branchLike, key)}
+                >
                   {translate('component_viewer.new_window')}
                 </Link>
               </li>
@@ -232,13 +234,15 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
                   className="js-raw-source"
                   href={rawSourcesLink}
                   rel="noopener noreferrer"
-                  target="_blank">
+                  target="_blank"
+                >
                   {translate('component_viewer.show_raw_source')}
                 </a>
               </li>
             </ul>
           }
-          overlayPlacement={PopupPlacement.BottomRight}>
+          overlayPlacement={PopupPlacement.BottomRight}
+        >
           <ButtonIcon className="js-actions" aria-label={translate('component_viewer.action_menu')}>
             <ListIcon />
           </ButtonIcon>

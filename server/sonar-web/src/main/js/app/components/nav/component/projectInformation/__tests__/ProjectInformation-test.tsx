@@ -30,7 +30,7 @@ import { ProjectInformationPages } from '../ProjectInformationPages';
 jest.mock('../../../../../../api/measures', () => {
   const { mockMeasure } = jest.requireActual('../../../../../../helpers/testMocks');
   return {
-    getMeasures: jest.fn().mockResolvedValue([mockMeasure()])
+    getMeasures: jest.fn().mockResolvedValue([mockMeasure()]),
   };
 });
 
@@ -57,7 +57,7 @@ it('should handle page change', async () => {
 
 it('should display badge', () => {
   const wrapper = shallowRender({
-    component: mockComponent({ qualifier: ComponentQualifier.Project })
+    component: mockComponent({ qualifier: ComponentQualifier.Project }),
   });
 
   expect(wrapper.find(ProjectBadges).type).toBeDefined();
@@ -72,7 +72,7 @@ function shallowRender(props: Partial<ProjectInformation['props']> = {}) {
       component={mockComponent()}
       currentUser={mockCurrentUser()}
       metrics={{
-        coverage: mockMetric()
+        coverage: mockMetric(),
       }}
       onComponentChange={jest.fn()}
       {...props}

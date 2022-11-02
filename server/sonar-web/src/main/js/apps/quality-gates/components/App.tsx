@@ -30,7 +30,7 @@ import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
-  removeWhitePageClass
+  removeWhitePageClass,
 } from '../../../helpers/pages';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { QualityGate } from '../../../types/types';
@@ -93,19 +93,19 @@ class App extends React.PureComponent<Props, State> {
   };
 
   openDefault(qualityGates: QualityGate[]) {
-    const defaultQualityGate = qualityGates.find(gate => Boolean(gate.isDefault))!;
+    const defaultQualityGate = qualityGates.find((gate) => Boolean(gate.isDefault))!;
     this.props.navigate(getQualityGateUrl(String(defaultQualityGate.id)), { replace: true });
   }
 
   handleSetDefault = (qualityGate: QualityGate) => {
     this.setState(({ qualityGates }) => {
       return {
-        qualityGates: qualityGates.map(candidate => {
+        qualityGates: qualityGates.map((candidate) => {
           if (candidate.isDefault || candidate.id === qualityGate.id) {
             return { ...candidate, isDefault: candidate.id === qualityGate.id };
           }
           return candidate;
-        })
+        }),
       };
     });
   };

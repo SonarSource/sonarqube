@@ -68,13 +68,13 @@ export default class Dropdown extends React.PureComponent<Props, State> {
       event.preventDefault();
       event.currentTarget.blur();
     }
-    this.setState(state => ({ open: !state.open }));
+    this.setState((state) => ({ open: !state.open }));
   };
 
   render() {
     const a11yAttrs = {
       'aria-expanded': String(this.state.open),
-      'aria-haspopup': 'true'
+      'aria-haspopup': 'true',
     };
 
     const child = React.isValidElement(this.props.children)
@@ -82,7 +82,7 @@ export default class Dropdown extends React.PureComponent<Props, State> {
       : this.props.children({
           closeDropdown: this.closeDropdown,
           onToggleClick: this.handleToggleClick,
-          open: this.state.open
+          open: this.state.open,
         });
 
     const { closeOnClick = true, closeOnClickOutside = false } = this.props;
@@ -96,10 +96,12 @@ export default class Dropdown extends React.PureComponent<Props, State> {
         overlay={
           <DropdownOverlay
             noPadding={this.props.noOverlayPadding}
-            placement={this.props.overlayPlacement}>
+            placement={this.props.overlayPlacement}
+          >
             {this.props.overlay}
           </DropdownOverlay>
-        }>
+        }
+      >
         {child}
       </Toggler>
     );
@@ -138,7 +140,8 @@ export class DropdownOverlay extends React.Component<OverlayProps> {
         leftFix !== undefined && topFix !== undefined
           ? { marginLeft: `calc(50% + ${leftFix}px)` }
           : undefined
-      }>
+      }
+    >
       {this.props.children}
     </Popup>
   );

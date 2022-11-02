@@ -29,12 +29,12 @@ it('should render correctly', () => {
   ).toMatchSnapshot('edit permissions');
   expect(
     shallowRender({
-      profile: mockQualityProfile({ activeRuleCount: 0, projectCount: 0 })
+      profile: mockQualityProfile({ activeRuleCount: 0, projectCount: 0 }),
     })
   ).toMatchSnapshot('no active rules (same as default)');
   expect(
     shallowRender({
-      profile: mockQualityProfile({ projectCount: 0, isDefault: true, activeRuleCount: 0 })
+      profile: mockQualityProfile({ projectCount: 0, isDefault: true, activeRuleCount: 0 }),
     })
   ).toMatchSnapshot('is default profile, no active rules');
   expect(

@@ -27,12 +27,12 @@ describe('isSameHomePage', () => {
         {
           type: 'APPLICATION',
           branch: 'test-branch',
-          component: 'test-component'
+          component: 'test-component',
         },
         {
           type: 'APPLICATION',
           branch: 'test-branch',
-          component: 'test-component'
+          component: 'test-component',
         }
       )
     ).toBe(true);
@@ -42,10 +42,10 @@ describe('isSameHomePage', () => {
         {
           type: 'APPLICATION',
           branch: 'test-branch',
-          component: 'test-component'
+          component: 'test-component',
         },
         {
-          type: 'ISSUES'
+          type: 'ISSUES',
         }
       )
     ).toBe(false);
@@ -55,12 +55,12 @@ describe('isSameHomePage', () => {
         {
           type: 'APPLICATION',
           branch: 'test-branch',
-          component: 'test-component'
+          component: 'test-component',
         },
         {
           type: 'APPLICATION',
           branch: 'test-branch-1',
-          component: 'test-component'
+          component: 'test-component',
         }
       )
     ).toBe(false);
@@ -70,12 +70,12 @@ describe('isSameHomePage', () => {
         {
           type: 'APPLICATION',
           branch: 'test-branch',
-          component: 'test-component'
+          component: 'test-component',
         },
         {
           type: 'APPLICATION',
           branch: 'test-branch',
-          component: 'test-component-1'
+          component: 'test-component-1',
         }
       )
     ).toBe(false);

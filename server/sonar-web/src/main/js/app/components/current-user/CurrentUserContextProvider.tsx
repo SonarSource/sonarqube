@@ -36,17 +36,17 @@ export default class CurrentUserContextProvider extends React.PureComponent<Prop
   }
 
   updateCurrentUserHomepage = (homepage: HomePage) => {
-    this.setState(prevState => ({
-      currentUser: { ...prevState.currentUser, homepage }
+    this.setState((prevState) => ({
+      currentUser: { ...prevState.currentUser, homepage },
     }));
   };
 
   updateDismissedNotices = (key: NoticeType, value: boolean) => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       currentUser: {
         ...prevState.currentUser,
-        dismissedNotices: { ...prevState.currentUser.dismissedNotices, [key]: value }
-      }
+        dismissedNotices: { ...prevState.currentUser.dismissedNotices, [key]: value },
+      },
     }));
   };
 
@@ -56,8 +56,9 @@ export default class CurrentUserContextProvider extends React.PureComponent<Prop
         value={{
           currentUser: this.state.currentUser,
           updateCurrentUserHomepage: this.updateCurrentUserHomepage,
-          updateDismissedNotices: this.updateDismissedNotices
-        }}>
+          updateDismissedNotices: this.updateDismissedNotices,
+        }}
+      >
         {this.props.children}
       </CurrentUserContext.Provider>
     );

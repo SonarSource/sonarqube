@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { OSs, TutorialModes } from '../../types';
 import GithubCFamilyExampleRepositories, {
-  GithubCFamilyExampleRepositoriesProps
+  GithubCFamilyExampleRepositoriesProps,
 } from '../GithubCFamilyExampleRepositories';
 
 it('should render correctly', () => {

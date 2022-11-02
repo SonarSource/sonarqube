@@ -23,7 +23,7 @@ import {
   getGithubClientId,
   getGithubOrganizations,
   getGithubRepositories,
-  importGithubRepository
+  importGithubRepository,
 } from '../../../../api/alm-integrations';
 import { mockGitHubRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
@@ -35,7 +35,7 @@ jest.mock('../../../../api/alm-integrations', () => ({
   getGithubClientId: jest.fn().mockResolvedValue({ clientId: 'client-id-124' }),
   getGithubOrganizations: jest.fn().mockResolvedValue({ organizations: [] }),
   getGithubRepositories: jest.fn().mockResolvedValue({ repositories: [], paging: {} }),
-  importGithubRepository: jest.fn().mockResolvedValue({ project: {} })
+  importGithubRepository: jest.fn().mockResolvedValue({ project: {} }),
 }));
 
 const originalLocation = window.location;
@@ -43,18 +43,18 @@ const originalLocation = window.location;
 beforeAll(() => {
   const location = {
     ...window.location,
-    replace: jest.fn()
+    replace: jest.fn(),
   };
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: location
+    value: location,
   });
 });
 
 afterAll(() => {
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: originalLocation
+    value: originalLocation,
   });
 });
 
@@ -78,7 +78,7 @@ it('should redirect when no code', async () => {
 
 it('should redirect when no code - github.com', async () => {
   const wrapper = shallowRender({
-    settings: [mockAlmSettingsInstance({ key: 'a', url: 'api.github.com' })]
+    settings: [mockAlmSettingsInstance({ key: 'a', url: 'api.github.com' })],
   });
   await waitAndUpdate(wrapper);
 
@@ -100,13 +100,13 @@ it('should not redirect when invalid clientId', async () => {
 it('should fetch organizations when code', async () => {
   const organizations = [
     { key: '1', name: 'org1' },
-    { key: '2', name: 'org2' }
+    { key: '2', name: 'org2' },
   ];
   (getGithubOrganizations as jest.Mock).mockResolvedValueOnce({ organizations });
   const replace = jest.fn();
   const wrapper = shallowRender({
     location: mockLocation({ query: { code: '123456' } }),
-    router: mockRouter({ replace })
+    router: mockRouter({ replace }),
   });
   await waitAndUpdate(wrapper);
 
@@ -118,13 +118,13 @@ it('should fetch organizations when code', async () => {
 it('should handle org selection', async () => {
   const organizations = [
     { key: '1', name: 'org1' },
-    { key: '2', name: 'org2' }
+    { key: '2', name: 'org2' },
   ];
   (getGithubOrganizations as jest.Mock).mockResolvedValueOnce({ organizations });
   const repositories = [mockGitHubRepository()];
   (getGithubRepositories as jest.Mock).mockResolvedValueOnce({
     repositories,
-    paging: { total: 1, pageIndex: 1 }
+    paging: { total: 1, pageIndex: 1 },
   });
   const wrapper = shallowRender({ location: mockLocation({ query: { code: '123456' } }) });
   await waitAndUpdate(wrapper);
@@ -145,13 +145,13 @@ it('should load more', async () => {
   const repositories = [
     mockGitHubRepository({ key: 'r1' }),
     mockGitHubRepository({ key: 'r2' }),
-    mockGitHubRepository({ key: 'r3' })
+    mockGitHubRepository({ key: 'r3' }),
   ];
   (getGithubRepositories as jest.Mock).mockResolvedValueOnce({ repositories });
 
   wrapper.setState({
     repositories: startRepos,
-    selectedOrganization: { key: 'o1', name: 'org' }
+    selectedOrganization: { key: 'o1', name: 'org' },
   });
 
   wrapper.instance().handleLoadMore();
@@ -169,13 +169,13 @@ it('should handle search', async () => {
   const repositories = [
     mockGitHubRepository({ key: 'r1' }),
     mockGitHubRepository({ key: 'r2' }),
-    mockGitHubRepository({ key: 'r3' })
+    mockGitHubRepository({ key: 'r3' }),
   ];
   (getGithubRepositories as jest.Mock).mockResolvedValueOnce({ repositories });
 
   wrapper.setState({
     repositories: startRepos,
-    selectedOrganization: { key: 'o1', name: 'org' }
+    selectedOrganization: { key: 'o1', name: 'org' },
   });
 
   wrapper.instance().handleSearch(query);
@@ -187,7 +187,7 @@ it('should handle search', async () => {
     organization: 'o1',
     page: 1,
     pageSize: 30,
-    query: 'query'
+    query: 'query',
   });
   expect(wrapper.state().repositories).toEqual(repositories);
 });
@@ -218,7 +218,7 @@ it('should handle importing', async () => {
   const selectedRepository = mockGitHubRepository();
   wrapper.setState({
     selectedOrganization,
-    selectedRepository
+    selectedRepository,
   });
 
   wrapper.instance().handleImportRepository();

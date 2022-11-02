@@ -22,7 +22,7 @@ import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   getDuplicationsRatingAverageValue,
-  getDuplicationsRatingLabel
+  getDuplicationsRatingLabel,
 } from '../../../helpers/ratings';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';

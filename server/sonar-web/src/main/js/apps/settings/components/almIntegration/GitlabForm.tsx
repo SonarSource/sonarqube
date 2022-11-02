@@ -70,7 +70,8 @@ export default function GitlabForm(props: GitlabFormProps) {
               pat: (
                 <Link
                   to="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
-                  target="_blank">
+                  target="_blank"
+                >
                   {translate('settings.almintegration.form.personal_access_token.gitlab.help.url')}
                 </Link>
               ),
@@ -80,7 +81,7 @@ export default function GitlabForm(props: GitlabFormProps) {
                 <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]}>
                   {translate('learn_more')}
                 </DocLink>
-              )
+              ),
             }}
           />
         }

@@ -61,7 +61,8 @@ function renderButton(
       // Currently, OtherCI is the same tutorial as Manual. We might update it to its own stand-alone
       // tutorial in the future.
       onClick={() => onSelectTutorial(mode)}
-      type="button">
+      type="button"
+    >
       {icon}
       <div className="medium big-spacer-top">
         {translate('onboarding.tutorial.choose_method', mode)}
@@ -81,7 +82,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     mainBranchName,
     projectBinding,
     selectedTutorial,
-    willRefreshAutomatically
+    willRefreshAutomatically,
   } = props;
 
   if (loading) {
@@ -107,7 +108,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
       AlmKeys.BitbucketCloud,
       AlmKeys.BitbucketServer,
       AlmKeys.GitHub,
-      AlmKeys.GitLab
+      AlmKeys.GitLab,
     ].includes(projectBinding.alm);
   }
 

@@ -22,7 +22,7 @@ import * as React from 'react';
 import {
   commentSecurityHotspot,
   deleteSecurityHotspotComment,
-  editSecurityHotspotComment
+  editSecurityHotspotComment,
 } from '../../../../api/security-hotspots';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
@@ -34,7 +34,7 @@ import HotspotReviewHistoryAndComments from '../HotspotReviewHistoryAndComments'
 jest.mock('../../../../api/security-hotspots', () => ({
   commentSecurityHotspot: jest.fn().mockResolvedValue({}),
   deleteSecurityHotspotComment: jest.fn().mockResolvedValue({}),
-  editSecurityHotspotComment: jest.fn().mockResolvedValue({})
+  editSecurityHotspotComment: jest.fn().mockResolvedValue({}),
 }));
 
 jest.mock('../../../../types/users', () => ({ isLoggedIn: jest.fn(() => true) }));
@@ -45,7 +45,7 @@ it('should render correctly', () => {
 });
 
 it('should render correctly without user', () => {
-  ((isLoggedIn as any) as jest.Mock<boolean, [boolean]>).mockReturnValueOnce(false);
+  (isLoggedIn as any as jest.Mock<boolean, [boolean]>).mockReturnValueOnce(false);
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 });
@@ -104,10 +104,7 @@ it('should edit comment', async () => {
 it('should correctly toggle the show full history state', () => {
   const wrapper = shallowRender();
   expect(wrapper.state().showFullHistory).toBe(false);
-  wrapper
-    .find(HotspotReviewHistory)
-    .props()
-    .onShowFullHistory();
+  wrapper.find(HotspotReviewHistory).props().onShowFullHistory();
   expect(wrapper.state().showFullHistory).toBe(true);
 });
 

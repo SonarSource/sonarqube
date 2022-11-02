@@ -27,7 +27,7 @@ import { waitAndUpdate } from '../../../../helpers/testUtils';
 import BranchPurgeSetting from '../BranchPurgeSetting';
 
 jest.mock('../../../../api/branches', () => ({
-  excludeBranchFromPurge: jest.fn().mockResolvedValue({})
+  excludeBranchFromPurge: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => jest.clearAllMocks());

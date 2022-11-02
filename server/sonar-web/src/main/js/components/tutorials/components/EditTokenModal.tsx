@@ -29,7 +29,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   computeTokenExpirationDate,
   EXPIRATION_OPTIONS,
-  getAvailableExpirationOptions
+  getAvailableExpirationOptions,
 } from '../../../helpers/tokens';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';
@@ -62,7 +62,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
     loading: true,
     tokenName: '',
     tokenExpiration: TokenExpiration.OneMonth,
-    tokenExpirationOptions: EXPIRATION_OPTIONS
+    tokenExpirationOptions: EXPIRATION_OPTIONS,
   };
 
   componentDidMount() {
@@ -83,7 +83,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
     if (this.mounted) {
       this.setState({
         loading: false,
-        tokenName: getUniqueTokenName(tokens, `Analyze "${component.name}"`)
+        tokenName: getUniqueTokenName(tokens, `Analyze "${component.name}"`),
       });
     }
   };
@@ -97,7 +97,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
 
   getNewToken = async () => {
     const {
-      component: { key }
+      component: { key },
     } = this.props;
     const { tokenName, tokenExpiration } = this.state;
 
@@ -108,14 +108,14 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
       type,
       projectKey: key,
       ...(tokenExpiration !== TokenExpiration.NoExpiration && {
-        expirationDate: computeTokenExpirationDate(tokenExpiration)
-      })
+        expirationDate: computeTokenExpirationDate(tokenExpiration),
+      }),
     });
 
     if (this.mounted) {
       this.setState({
         token,
-        tokenName
+        tokenName,
       });
     }
   };
@@ -131,7 +131,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
 
   handleTokenNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      tokenName: event.target.value
+      tokenName: event.target.value,
     });
   };
 
@@ -148,7 +148,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
       if (this.mounted) {
         this.setState({
           token: '',
-          tokenName: ''
+          tokenName: '',
         });
       }
     }
@@ -179,7 +179,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
                       <Link target="_blank" to="/account/security">
                         {translate('onboarding.token.text.user_account')}
                       </Link>
-                    )
+                    ),
                   }}
                 />
               </p>
@@ -229,7 +229,8 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
                         <div className="display-flex-column">
                           <label
                             className="text-bold little-spacer-bottom"
-                            htmlFor="token-expiration">
+                            htmlFor="token-expiration"
+                          >
                             {translate('users.tokens.expires_in')}
                           </label>
                           <div className="display-flex-center">
@@ -240,13 +241,14 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
                               onChange={this.handleTokenExpirationChange}
                               options={tokenExpirationOptions}
                               value={tokenExpirationOptions.find(
-                                option => option.value === tokenExpiration
+                                (option) => option.value === tokenExpiration
                               )}
                             />
                             <Button
                               className="text-middle"
                               disabled={!tokenName}
-                              onClick={this.getNewToken}>
+                              onClick={this.getNewToken}
+                            >
                               {translate('onboarding.token.generate')}
                             </Button>
                           </div>

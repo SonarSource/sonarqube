@@ -31,7 +31,7 @@ const qualifierIcons: Dict<(props: IconProps) => React.ReactElement> = {
   svw: SubPortfolioIcon,
   trk: ProjectIcon,
   uts: UnitTestIcon,
-  vw: PortfolioIcon
+  vw: PortfolioIcon,
 };
 
 interface QualifierIconProps extends IconProps {

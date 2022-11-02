@@ -42,7 +42,7 @@ export class Assignee extends React.PureComponent<Props, State> {
   mounted = false;
   state = {
     editing: false,
-    loading: false
+    loading: false,
   };
 
   componentDidMount() {
@@ -64,7 +64,7 @@ export class Assignee extends React.PureComponent<Props, State> {
   handleAssign = (newAssignee: UserActive) => {
     this.setState({ loading: true });
     assignSecurityHotspot(this.props.hotspot.key, {
-      assignee: newAssignee?.login
+      assignee: newAssignee?.login,
     })
       .then(() => {
         if (this.mounted) {
@@ -85,7 +85,7 @@ export class Assignee extends React.PureComponent<Props, State> {
   render() {
     const {
       currentUser,
-      hotspot: { assigneeUser, status, resolution }
+      hotspot: { assigneeUser, status, resolution },
     } = this.props;
     const { editing, loading } = this.state;
 

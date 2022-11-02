@@ -42,7 +42,7 @@ export default class ResetPasswordForm extends React.Component<Props, State> {
   password: HTMLInputElement | null = null;
   passwordConfirmation: HTMLInputElement | null = null;
   state: State = {
-    success: false
+    success: false,
   };
 
   handleSuccessfulChange = () => {
@@ -112,7 +112,7 @@ export default class ResetPasswordForm extends React.Component<Props, State> {
             autoComplete="off"
             id="old_password"
             name="old_password"
-            ref={elem => (this.oldPassword = elem)}
+            ref={(elem) => (this.oldPassword = elem)}
             required={true}
             type="password"
           />
@@ -126,7 +126,7 @@ export default class ResetPasswordForm extends React.Component<Props, State> {
             autoComplete="off"
             id="password"
             name="password"
-            ref={elem => (this.password = elem)}
+            ref={(elem) => (this.password = elem)}
             required={true}
             type="password"
           />
@@ -140,7 +140,7 @@ export default class ResetPasswordForm extends React.Component<Props, State> {
             autoComplete="off"
             id="password_confirmation"
             name="password_confirmation"
-            ref={elem => (this.passwordConfirmation = elem)}
+            ref={(elem) => (this.passwordConfirmation = elem)}
             required={true}
             type="password"
           />

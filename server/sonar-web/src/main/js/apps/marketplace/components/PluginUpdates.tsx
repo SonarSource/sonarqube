@@ -34,7 +34,7 @@ export default function PluginUpdates({ updates }: PluginUpdatesProps) {
     <li className="spacer-top">
       <strong>{translate('marketplace.updates')}:</strong>
       <ul className="little-spacer-top">
-        {updates.map(update =>
+        {updates.map((update) =>
           update.release ? (
             <PluginUpdateItem
               key={update.release.version}

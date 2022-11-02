@@ -44,7 +44,8 @@ export default function ActivityLink(props: ActivityLinkProps) {
         metric !== undefined && graph !== undefined && isCustomGraph(graph)
           ? getMeasureHistoryUrl(component, metric, branchLike)
           : getActivityUrl(component, branchLike, graph)
-      }>
+      }
+    >
       <HistoryIcon className="little-spacer-right" size={14} />
       <span>{label || translate('portfolio.activity_link')}</span>
     </Link>

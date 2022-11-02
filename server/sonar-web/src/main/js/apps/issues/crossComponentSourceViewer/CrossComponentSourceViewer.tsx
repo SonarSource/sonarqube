@@ -25,11 +25,11 @@ import DuplicationPopup from '../../../components/SourceViewer/components/Duplic
 import {
   filterDuplicationBlocksByLine,
   getDuplicationBlocksForIndex,
-  isDuplicationBlockInRemovedComponent
+  isDuplicationBlockInRemovedComponent,
 } from '../../../components/SourceViewer/helpers/duplications';
 import {
   duplicationsByLine as getDuplicationsByLine,
-  issuesByComponentAndLine
+  issuesByComponentAndLine,
 } from '../../../components/SourceViewer/helpers/indexing';
 import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import { Alert } from '../../../components/ui/Alert';
@@ -48,7 +48,7 @@ import {
   FlowLocation,
   Issue,
   SnippetsByComponent,
-  SourceViewerFile
+  SourceViewerFile,
 } from '../../../types/types';
 import ComponentSourceSnippetGroupViewer from './ComponentSourceSnippetGroupViewer';
 import { groupLocationsByComponent } from './utils';
@@ -79,7 +79,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
     components: {},
     duplicationsByLine: {},
     loading: true,
-    notAccessible: false
+    notAccessible: false,
   };
 
   componentDidMount() {
@@ -100,14 +100,14 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
   fetchDuplications = (component: string) => {
     getDuplications({
       key: component,
-      ...getBranchLikeQuery(this.props.branchLike)
+      ...getBranchLikeQuery(this.props.branchLike),
     }).then(
-      r => {
+      (r) => {
         if (this.mounted) {
           this.setState({
             duplicatedFiles: r.files,
             duplications: r.duplications,
-            duplicationsByLine: getDuplicationsByLine(r.duplications)
+            duplicationsByLine: getDuplicationsByLine(r.duplications),
           });
         }
       },
@@ -126,7 +126,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
       if (components[issue.component] === undefined) {
         const issueComponent = await getComponentForSourceViewer({
           component: issue.component,
-          ...getBranchLikeQuery(branchLike)
+          ...getBranchLikeQuery(branchLike),
         });
         components[issue.component] = { component: issueComponent, sources: [] };
         if (isFile(issueComponent.q)) {
@@ -134,15 +134,15 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
             key: issueComponent.key,
             ...getBranchLikeQuery(branchLike),
             from: 1,
-            to: 10
-          }).then(lines => keyBy(lines, 'line'));
+            to: 10,
+          }).then((lines) => keyBy(lines, 'line'));
           components[issue.component].sources = sources;
         }
       }
       if (this.mounted) {
         this.setState({
           components,
-          loading: false
+          loading: false,
         });
       }
     } catch (response) {
@@ -220,7 +220,8 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
             <SourceViewerContext.Provider
               // eslint-disable-next-line react/no-array-index-key
               key={`${issue.key}-${this.props.selectedFlowIndex || 0}-${i}`}
-              value={{ branchLike: this.props.branchLike, file: snippetGroup.component }}>
+              value={{ branchLike: this.props.branchLike, file: snippetGroup.component }}
+            >
               <ComponentSourceSnippetGroupViewer
                 branchLike={this.props.branchLike}
                 duplications={duplications}

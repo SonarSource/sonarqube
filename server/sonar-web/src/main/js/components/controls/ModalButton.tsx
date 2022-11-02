@@ -71,7 +71,7 @@ export default class ModalButton extends React.PureComponent<Props, State> {
       <>
         {this.props.children({
           onClick: this.handleButtonClick,
-          onFormSubmit: this.handleFormSubmit
+          onFormSubmit: this.handleFormSubmit,
         })}
         {this.state.modal && this.props.modal({ onClose: this.handleCloseModal })}
       </>

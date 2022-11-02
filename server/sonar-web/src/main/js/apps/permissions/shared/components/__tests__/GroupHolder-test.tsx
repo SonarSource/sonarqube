@@ -53,10 +53,10 @@ function shallowRender(props: Partial<GroupHolder['props']> = {}) {
           category: 'admin',
           permissions: [
             { key: 'foo', name: 'Foo', description: '' },
-            { key: 'bar', name: 'Bar', description: '' }
-          ]
+            { key: 'bar', name: 'Bar', description: '' },
+          ],
         },
-        { key: 'baz', name: 'Baz', description: '' }
+        { key: 'baz', name: 'Baz', description: '' },
       ]}
       selectedPermission="bar"
       {...props}

@@ -32,7 +32,7 @@ export default function SystemRestartNotif() {
         id="system.instance_restarting"
         values={{
           instance: getInstance(),
-          link: <Link to="/admin/background_tasks">{translate('background_tasks.page')}</Link>
+          link: <Link to="/admin/background_tasks">{translate('background_tasks.page')}</Link>,
         }}
       />
     </Alert>

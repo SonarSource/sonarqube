@@ -25,7 +25,7 @@ import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import Unauthorized from '../Unauthorized';
 
 jest.mock('../../../../helpers/cookies', () => ({
-  getCookie: jest.fn()
+  getCookie: jest.fn(),
 }));
 
 it('should render correctly', () => {

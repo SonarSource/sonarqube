@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import {
   ComponentNavProjectBindingErrorNotif,
-  ComponentNavProjectBindingErrorNotifProps
+  ComponentNavProjectBindingErrorNotifProps,
 } from '../ComponentNavProjectBindingErrorNotif';
 
 it('should render correctly', () => {

@@ -26,7 +26,7 @@ it('should render', () => {
     { id: '1', type: 'homepage', url: 'http://example.com/homepage' },
     { id: '2', type: 'issue', url: 'http://example.com/issue' },
     { id: '3', name: 'foo', type: 'foo', url: 'http://example.com/foo' },
-    { id: '4', name: 'bar', type: 'bar', url: 'http://example.com/bar' }
+    { id: '4', name: 'bar', type: 'bar', url: 'http://example.com/bar' },
   ];
   expect(shallow(<Table links={links} onDelete={jest.fn()} />)).toMatchSnapshot();
 });

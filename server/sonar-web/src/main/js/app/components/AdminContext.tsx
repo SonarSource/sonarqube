@@ -35,6 +35,6 @@ const AdminContext = React.createContext<AdminContextInterface>({
   fetchSystemStatus: () => {},
   fetchPendingPlugins: () => {},
   pendingPlugins: defaultPendingPlugins,
-  systemStatus: defaultSystemStatus
+  systemStatus: defaultSystemStatus,
 });
 export default AdminContext;

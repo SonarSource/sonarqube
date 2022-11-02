@@ -24,14 +24,14 @@ import {
   BitbucketProject,
   BitbucketRepository,
   GithubRepository,
-  GitlabProject
+  GitlabProject,
 } from '../../types/alm-integration';
 
 export function mockAzureProject(overrides: Partial<AzureProject> = {}): AzureProject {
   return {
     name: 'azure-project-1',
     description: 'Azure Project',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -39,7 +39,7 @@ export function mockAzureRepository(overrides: Partial<AzureRepository> = {}): A
   return {
     name: 'Azure repo 1',
     projectName: 'Azure Project',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -48,7 +48,7 @@ export function mockBitbucketProject(overrides: Partial<BitbucketProject> = {}):
     id: 1,
     key: 'project',
     name: 'Project',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -60,7 +60,7 @@ export function mockBitbucketRepository(
     slug: 'project__repo',
     name: 'Repo',
     projectKey: 'project',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -73,7 +73,7 @@ export function mockBitbucketCloudRepository(
     name: 'Repo',
     projectKey: 'project',
     workspace: 'worksapce',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -84,7 +84,7 @@ export function mockGitHubRepository(overrides: Partial<GithubRepository> = {}):
     name: 'repository 1',
     sqProjectKey: '',
     url: 'https://github.com/owner/repo1',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -97,6 +97,6 @@ export function mockGitlabProject(overrides: Partial<GitlabProject> = {}): Gitla
     pathSlug: 'company/best-projects',
     sqProjectKey: '',
     url: 'https://gitlab.company.com/best-projects/awesome-project-exclamation',
-    ...overrides
+    ...overrides,
   };
 }

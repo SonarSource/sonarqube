@@ -41,7 +41,7 @@ it('should display the create form', () => {
   expect(wrapper.find('CreateWebhookForm').exists()).toBe(true);
   wrapper.find('CreateWebhookForm').prop<Function>('onDone')({
     name: 'foo',
-    url: 'http://foo.bar'
+    url: 'http://foo.bar',
   });
   expect(onCreate).toHaveBeenLastCalledWith({ name: 'foo', url: 'http://foo.bar' });
 });

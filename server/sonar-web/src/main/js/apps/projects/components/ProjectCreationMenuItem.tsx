@@ -38,7 +38,8 @@ export default function ProjectCreationMenuItem(props: ProjectCreationMenuItemPr
   return (
     <Link
       className="display-flex-center"
-      to={{ pathname: '/projects/create', search: queryToSearch({ mode: alm }) }}>
+      to={{ pathname: '/projects/create', search: queryToSearch({ mode: alm }) }}
+    >
       {alm === 'manual' ? (
         <ChevronsIcon className="spacer-right" />
       ) : (

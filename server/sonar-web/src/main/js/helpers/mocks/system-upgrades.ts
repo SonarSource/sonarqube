@@ -26,6 +26,6 @@ export function mockSystemUpgrade(override: Partial<SystemUpgrade> = {}): System
     releaseDate: '2017-03-01',
     changeLogUrl: 'changelogurl',
     downloadUrl: 'downloadurl',
-    ...override
+    ...override,
   };
 }

@@ -26,7 +26,7 @@ import SearchableFilterFooter from '../SearchableFilterFooter';
 const options = [
   { label: 'java', value: 'java' },
   { label: 'js', value: 'js' },
-  { label: 'csharp', value: 'csharp' }
+  { label: 'csharp', value: 'csharp' },
 ];
 
 it('should render items without the ones in the facet', () => {

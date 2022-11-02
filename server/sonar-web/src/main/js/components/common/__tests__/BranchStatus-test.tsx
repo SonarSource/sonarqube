@@ -25,12 +25,12 @@ it('should render correctly', () => {
   expect(shallowRender().type()).toBeNull();
   expect(
     shallowRender({
-      status: 'OK'
+      status: 'OK',
     })
   ).toMatchSnapshot('Successful');
   expect(
     shallowRender({
-      status: 'ERROR'
+      status: 'ERROR',
     })
   ).toMatchSnapshot('Error');
 });

@@ -22,11 +22,11 @@ import * as React from 'react';
 import {
   associateGateWithProject,
   dissociateGateWithProject,
-  searchProjects
+  searchProjects,
 } from '../../../api/quality-gates';
 import SelectList, {
   SelectListFilter,
-  SelectListSearchParams
+  SelectListSearchParams,
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { QualityGate } from '../../../types/types';
@@ -60,7 +60,7 @@ export default class Projects extends React.PureComponent<Props, State> {
     this.state = {
       needToReload: false,
       projects: [],
-      selectedProjects: []
+      selectedProjects: [],
     };
   }
 
@@ -78,16 +78,16 @@ export default class Projects extends React.PureComponent<Props, State> {
       page: searchParams.page,
       pageSize: searchParams.pageSize,
       query: searchParams.query !== '' ? searchParams.query : undefined,
-      selected: searchParams.filter
-    }).then(data => {
+      selected: searchParams.filter,
+    }).then((data) => {
       if (this.mounted) {
-        this.setState(prevState => {
+        this.setState((prevState) => {
           const more = searchParams.page != null && searchParams.page > 1;
 
           const projects = more ? [...prevState.projects, ...data.results] : data.results;
           const newSelectedProjects = data.results
-            .filter(project => project.selected)
-            .map(project => project.key);
+            .filter((project) => project.selected)
+            .map((project) => project.key);
           const selectedProjects = more
             ? [...prevState.selectedProjects, ...newSelectedProjects]
             : newSelectedProjects;
@@ -97,7 +97,7 @@ export default class Projects extends React.PureComponent<Props, State> {
             needToReload: false,
             projects,
             projectsTotalCount: data.paging.total,
-            selectedProjects
+            selectedProjects,
           };
         });
       }
@@ -106,12 +106,12 @@ export default class Projects extends React.PureComponent<Props, State> {
   handleSelect = (key: string) =>
     associateGateWithProject({
       gateId: this.props.qualityGate.id,
-      projectKey: key
+      projectKey: key,
     }).then(() => {
       if (this.mounted) {
-        this.setState(prevState => ({
+        this.setState((prevState) => ({
           needToReload: true,
-          selectedProjects: [...prevState.selectedProjects, key]
+          selectedProjects: [...prevState.selectedProjects, key],
         }));
       }
     });
@@ -119,12 +119,12 @@ export default class Projects extends React.PureComponent<Props, State> {
   handleUnselect = (key: string) =>
     dissociateGateWithProject({
       gateId: this.props.qualityGate.id,
-      projectKey: key
+      projectKey: key,
     }).then(() => {
       if (this.mounted) {
-        this.setState(prevState => ({
+        this.setState((prevState) => ({
           needToReload: true,
-          selectedProjects: without(prevState.selectedProjects, key)
+          selectedProjects: without(prevState.selectedProjects, key),
         }));
       }
     });
@@ -157,7 +157,7 @@ export default class Projects extends React.PureComponent<Props, State> {
 
     return (
       <SelectList
-        elements={this.state.projects.map(project => project.key)}
+        elements={this.state.projects.map((project) => project.key)}
         elementsTotalCount={this.state.projectsTotalCount}
         labelAll={translate('quality_gates.projects.all')}
         labelSelected={translate('quality_gates.projects.with')}

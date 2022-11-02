@@ -50,16 +50,16 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
   getSorting = () => {
     const options = this.getOptions();
     const { sortDesc, sortValue } = parseSorting(this.props.selectedSort);
-    return { sortDesc, value: options.find(o => o.value === sortValue) };
+    return { sortDesc, value: options.find((o) => o.value === sortValue) };
   };
 
   getOptions = () => {
     const sortMetrics = this.props.view === 'leak' ? SORTING_LEAK_METRICS : SORTING_METRICS;
-    return sortBy(sortMetrics, option => (option.value === this.props.defaultOption ? 0 : 1)).map(
-      option => ({
+    return sortBy(sortMetrics, (option) => (option.value === this.props.defaultOption ? 0 : 1)).map(
+      (option) => ({
         value: option.value,
         label: translate('projects.sorting', option.value),
-        className: option.class
+        className: option.class,
       })
     );
   };
@@ -81,7 +81,8 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
     return (
       <components.Option
         {...omit(props, ['children'])}
-        className={`it__project-sort-option-${data.value} ${data.className}`}>
+        className={`it__project-sort-option-${data.value} ${data.className}`}
+      >
         {data.short ? data.short : children}
       </components.Option>
     );
@@ -99,7 +100,7 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
           isClearable={false}
           onChange={this.handleSortChange}
           components={{
-            Option: this.projectsSortingSelectOption
+            Option: this.projectsSortingSelectOption,
           }}
           options={this.getOptions()}
           isSearchable={false}
@@ -109,7 +110,8 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
           mouseLeaveDelay={1}
           overlay={
             sortDesc ? translate('projects.sort_descending') : translate('projects.sort_ascending')
-          }>
+          }
+        >
           <ButtonIcon
             aria-label={
               sortDesc
@@ -119,9 +121,10 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
             className="js-projects-sorting-invert spacer-left"
             color={colors.gray52}
             onClick={this.handleDescToggle}
-            innerRef={sortButtonRef => {
+            innerRef={(sortButtonRef) => {
               this.sortOrderButtonNode = sortButtonRef;
-            }}>
+            }}
+          >
             {sortDesc ? <SortDescIcon className="" /> : <SortAscIcon className="" />}
           </ButtonIcon>
         </Tooltip>

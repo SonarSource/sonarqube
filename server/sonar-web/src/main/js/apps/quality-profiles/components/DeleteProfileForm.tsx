@@ -41,7 +41,8 @@ export default function DeleteProfileForm(props: DeleteProfileFormProps) {
         onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
           e.preventDefault();
           props.onDelete();
-        }}>
+        }}
+      >
         <div className="modal-head">
           <h2>{header}</h2>
         </div>

@@ -36,8 +36,8 @@ it('should render correctly for a unit test', () => {
       showMeasures: true,
       sourceViewerFile: mockSourceViewerFile('foo/bar.ts', 'my-project', {
         q: ComponentQualifier.TestFile,
-        measures: { tests: '12' }
-      })
+        measures: { tests: '12' },
+      }),
     })
   ).toMatchSnapshot();
 });
@@ -47,20 +47,20 @@ it('should render correctly if issue details are passed', () => {
     { metric: MetricKey.code_smells, value: '1' },
     { metric: MetricKey.file_complexity_distribution, value: '42' }, // unused, should be ignored
     { metric: MetricKey.security_hotspots, value: '2' },
-    { metric: MetricKey.vulnerabilities, value: '2' }
+    { metric: MetricKey.vulnerabilities, value: '2' },
   ];
 
   expect(
     shallowRender({
       componentMeasures,
-      showMeasures: true
+      showMeasures: true,
     })
   ).toMatchSnapshot();
 
   expect(
     shallowRender({
       componentMeasures,
-      showMeasures: false
+      showMeasures: false,
     })
       .find('.source-viewer-header-measure')
       .exists()

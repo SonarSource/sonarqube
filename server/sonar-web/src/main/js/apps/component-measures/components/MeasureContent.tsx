@@ -43,7 +43,7 @@ import {
   Measure,
   Metric,
   Paging,
-  Period
+  Period,
 } from '../../../types/types';
 import { complementary } from '../config/complementary';
 import FilesView from '../drilldown/FilesView';
@@ -84,7 +84,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     components: [],
-    loadingMoreComponents: false
+    loadingMoreComponents: false,
   };
 
   componentDidMount() {
@@ -113,7 +113,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     const { asc, branchLike, metrics, requestedMetric, rootComponent, selected, view } = this.props;
     // if asc is undefined we dont want to pass it inside options
     const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, requestedMetric, {
-      ...(asc !== undefined && { asc })
+      ...(asc !== undefined && { asc }),
     });
     const componentKey = selected || rootComponent.key;
     const baseComponentMetrics = [requestedMetric.key];
@@ -125,18 +125,18 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
       getMeasures({
         component: componentKey,
         metricKeys: baseComponentMetrics.join(),
-        ...getBranchLikeQuery(branchLike)
-      })
+        ...getBranchLikeQuery(branchLike),
+      }),
     ]).then(
       ([tree, measures]) => {
         if (this.mounted) {
-          const metric = tree.metrics.find(m => m.key === requestedMetric.key);
-          const components = tree.components.map(component =>
+          const metric = tree.metrics.find((m) => m.key === requestedMetric.key);
+          const components = tree.components.map((component) =>
             enhanceComponent(component, metric, metrics)
           );
 
-          const measure = measures.find(m => m.metric === requestedMetric.key);
-          const secondaryMeasure = measures.find(m => m.metric !== requestedMetric.key);
+          const measure = measures.find((m) => m.metric === requestedMetric.key);
+          const secondaryMeasure = measures.find((m) => m.metric !== requestedMetric.key);
 
           this.setState(({ selectedComponent }) => ({
             baseComponent: tree.baseComponent,
@@ -148,12 +148,12 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
             selectedComponent:
               components.length > 0 &&
               components.find(
-                c =>
+                (c) =>
                   getComponentMeasureUniqueKey(c) ===
                   getComponentMeasureUniqueKey(selectedComponent)
               )
                 ? selectedComponent
-                : undefined
+                : undefined,
           }));
         }
       },
@@ -172,19 +172,19 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     // if asc is undefined we dont want to pass it inside options
     const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, metric, {
       p: paging.pageIndex + 1,
-      ...(asc !== undefined && { asc })
+      ...(asc !== undefined && { asc }),
     });
     this.setState({ loadingMoreComponents: true });
     getComponentTree(strategy, baseComponent.key, metricKeys, opts).then(
-      r => {
+      (r) => {
         if (this.mounted && metric.key === this.props.requestedMetric.key) {
-          this.setState(state => ({
+          this.setState((state) => ({
             components: [
               ...state.components,
-              ...r.components.map(component => enhanceComponent(component, metric, metrics))
+              ...r.components.map((component) => enhanceComponent(component, metric, metrics)),
             ],
             loadingMoreComponents: false,
-            paging: r.paging
+            paging: r.paging,
           }));
         }
       },
@@ -206,7 +206,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     const opts: RequestData = {
       ...getBranchLikeQuery(this.props.branchLike),
       additionalFields: 'metrics',
-      ps: 500
+      ps: 500,
     };
 
     const setMetricSort = () => {
@@ -241,7 +241,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
 
   updateSelected = (component: string) => {
     this.props.updateQuery({
-      selected: component !== this.props.rootComponent.key ? component : undefined
+      selected: component !== this.props.rootComponent.key ? component : undefined,
     });
   };
 
@@ -252,7 +252,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
   onOpenComponent = (component: ComponentMeasureIntern) => {
     if (isView(this.props.rootComponent.qualifier)) {
       const comp = this.state.components.find(
-        c =>
+        (c) =>
           c.refKey === component.key ||
           getComponentMeasureUniqueKey(c) === getComponentMeasureUniqueKey(component)
       );
@@ -264,7 +264,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
       return;
     }
 
-    this.setState(state => ({ selectedComponent: state.baseComponent }));
+    this.setState((state) => ({ selectedComponent: state.baseComponent }));
     this.updateSelected(component.key);
     if (this.container) {
       this.container.focus();
@@ -280,7 +280,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
       ? getComponentMeasureUniqueKey(this.state.baseComponent)
       : getComponentMeasureUniqueKey(this.state.selectedComponent);
     const index = this.state.components.findIndex(
-      component => getComponentMeasureUniqueKey(component) === componentKey
+      (component) => getComponentMeasureUniqueKey(component) === componentKey
     );
     return index !== -1 ? index : undefined;
   };
@@ -348,7 +348,10 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     const selectedIdx = this.getSelectedIndex();
 
     return (
-      <div className="layout-page-main no-outline" ref={container => (this.container = container)}>
+      <div
+        className="layout-page-main no-outline"
+        ref={(container) => (this.container = container)}
+      >
         <A11ySkipTarget anchor="measures_main" />
 
         <div className="layout-page-header-panel layout-page-main-header">

@@ -31,7 +31,7 @@ interface State {
 export default class MetricsContextProvider extends React.PureComponent<{}, State> {
   mounted = false;
   state: State = {
-    metrics: {}
+    metrics: {},
   };
 
   componentDidMount() {

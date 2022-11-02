@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
 import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
@@ -72,7 +72,7 @@ export function PublishSteps(props: PublishStepsProps) {
                     'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link'
                   )}
                 </DocLink>
-              )
+              ),
             }}
           />
         </>

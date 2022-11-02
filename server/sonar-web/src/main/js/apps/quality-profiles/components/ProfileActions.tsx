@@ -25,11 +25,11 @@ import {
   deleteProfile,
   getQualityProfileBackupUrl,
   renameProfile,
-  setDefaultProfile
+  setDefaultProfile,
 } from '../../../api/quality-profiles';
 import ActionsDropdown, {
   ActionsDropdownDivider,
-  ActionsDropdownItem
+  ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
 import Tooltip from '../../../components/controls/Tooltip';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
@@ -56,7 +56,7 @@ interface State {
 export class ProfileActions extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
-    loading: false
+    loading: false,
   };
 
   componentDidMount() {
@@ -103,7 +103,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
 
     const data = {
       language: parentProfile.language,
-      name
+      name,
     };
 
     this.setState({ loading: true });
@@ -183,7 +183,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
 
     const activateMoreUrl = getRulesUrl({
       qprofile: profile.key,
-      activation: 'false'
+      activation: 'false',
     });
 
     const hasNoActiveRules = profile.activeRuleCount === 0;
@@ -194,7 +194,8 @@ export class ProfileActions extends React.PureComponent<Props, State> {
           {actions.edit && (
             <ActionsDropdownItem
               className="it__quality-profiles__activate-more-rules"
-              to={activateMoreUrl}>
+              to={activateMoreUrl}
+            >
               {translate('quality_profiles.activate_more_rules')}
             </ActionsDropdownItem>
           )}
@@ -203,14 +204,16 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             <ActionsDropdownItem
               className="it__quality-profiles__backup"
               download={`${profile.key}.xml`}
-              to={backupUrl}>
+              to={backupUrl}
+            >
               {translate('backup_verb')}
             </ActionsDropdownItem>
           )}
 
           <ActionsDropdownItem
             className="it__quality-profiles__compare"
-            to={getProfileComparePath(profile.name, profile.language)}>
+            to={getProfileComparePath(profile.name, profile.language)}
+          >
             {translate('compare')}
           </ActionsDropdownItem>
 
@@ -218,13 +221,15 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             <>
               <ActionsDropdownItem
                 className="it__quality-profiles__copy"
-                onClick={this.handleCopyClick}>
+                onClick={this.handleCopyClick}
+              >
                 {translate('copy')}
               </ActionsDropdownItem>
 
               <ActionsDropdownItem
                 className="it__quality-profiles__extend"
-                onClick={this.handleExtendClick}>
+                onClick={this.handleExtendClick}
+              >
                 {translate('extend')}
               </ActionsDropdownItem>
             </>
@@ -233,7 +238,8 @@ export class ProfileActions extends React.PureComponent<Props, State> {
           {actions.edit && (
             <ActionsDropdownItem
               className="it__quality-profiles__rename"
-              onClick={this.handleRenameClick}>
+              onClick={this.handleRenameClick}
+            >
               {translate('rename')}
             </ActionsDropdownItem>
           )}
@@ -243,7 +249,8 @@ export class ProfileActions extends React.PureComponent<Props, State> {
               <li>
                 <Tooltip
                   placement="left"
-                  overlay={translate('quality_profiles.cannot_set_default_no_rules')}>
+                  overlay={translate('quality_profiles.cannot_set_default_no_rules')}
+                >
                   <span className="it__quality-profiles__set-as-default text-muted-2">
                     {translate('set_as_default')}
                   </span>
@@ -252,7 +259,8 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             ) : (
               <ActionsDropdownItem
                 className="it__quality-profiles__set-as-default"
-                onClick={this.handleSetDefaultClick}>
+                onClick={this.handleSetDefaultClick}
+              >
                 {translate('set_as_default')}
               </ActionsDropdownItem>
             ))}
@@ -263,7 +271,8 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             <ActionsDropdownItem
               className="it__quality-profiles__delete"
               destructive={true}
-              onClick={this.handleDeleteClick}>
+              onClick={this.handleDeleteClick}
+            >
               {translate('delete')}
             </ActionsDropdownItem>
           )}

@@ -26,7 +26,7 @@ import DotNetPrereqsScanner from './DotNetPrereqsScanner';
 
 const OSS_DEP: { [key in OSDotNet]: { shell: string; pathSeparator: string } } = {
   [OSs.Linux]: { shell: 'sh', pathSeparator: '/' },
-  [OSs.Windows]: { shell: 'bat', pathSeparator: '\\\\' }
+  [OSs.Windows]: { shell: 'bat', pathSeparator: '\\\\' },
 };
 
 const jenkinsfileSnippet = (key: string, shell: OSDotNet) => `node {

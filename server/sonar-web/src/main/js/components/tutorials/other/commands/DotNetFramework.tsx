@@ -30,7 +30,7 @@ export default function DotNetFramework(props: DotNetProps) {
   const commands = [
     `SonarScanner.MSBuild.exe begin /k:"${component.key}" /d:sonar.host.url="${baseUrl}" /d:sonar.login="${token}"`,
     'MsBuild.exe /t:Rebuild',
-    `SonarScanner.MSBuild.exe end /d:sonar.login="${token}"`
+    `SonarScanner.MSBuild.exe end /d:sonar.login="${token}"`,
   ];
 
   return (
@@ -48,10 +48,11 @@ export default function DotNetFramework(props: DotNetProps) {
               link: (
                 <Link
                   to="https://redirect.sonarsource.com/doc/download-scanner-msbuild.html"
-                  target="_blank">
+                  target="_blank"
+                >
                   {translate('onboarding.analysis.msbuild.docs_link')}
                 </Link>
-              )
+              ),
             }}
           />
         </p>

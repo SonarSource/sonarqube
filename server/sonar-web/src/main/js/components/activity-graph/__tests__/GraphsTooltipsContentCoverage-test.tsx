@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from '../../../helpers/dates';
 import GraphsTooltipsContentCoverage, {
-  GraphsTooltipsContentCoverageProps
+  GraphsTooltipsContentCoverageProps,
 } from '../GraphsTooltipsContentCoverage';
 
 it('should render correctly', () => {
@@ -39,23 +39,23 @@ function shallowRender(props: Partial<GraphsTooltipsContentCoverageProps> = {}) 
           metric: 'coverage',
           history: [
             { date: parseDate('2011-10-01T22:01:00.000Z') },
-            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '80.3' }
-          ]
+            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '80.3' },
+          ],
         },
         {
           metric: 'lines_to_cover',
           history: [
             { date: parseDate('2011-10-01T22:01:00.000Z'), value: '60545' },
-            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '65215' }
-          ]
+            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '65215' },
+          ],
         },
         {
           metric: 'uncovered_lines',
           history: [
             { date: parseDate('2011-10-01T22:01:00.000Z'), value: '40564' },
-            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '10245' }
-          ]
-        }
+            { date: parseDate('2011-10-25T10:27:41.000Z'), value: '10245' },
+          ],
+        },
       ]}
       tooltipIdx={1}
       {...props}

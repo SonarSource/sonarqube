@@ -28,8 +28,8 @@ export default class SettingsServiceMock {
   defaultValues: SettingValue[] = [
     {
       key: SettingsKey.AuditHouseKeeping,
-      value: HousekeepingPolicy.Weekly
-    }
+      value: HousekeepingPolicy.Weekly,
+    },
   ];
 
   constructor() {
@@ -40,12 +40,12 @@ export default class SettingsServiceMock {
   }
 
   handleGetValue = (data: { key: string; component?: string } & BranchParameters) => {
-    const setting = this.settingValues.find(s => s.key === data.key);
+    const setting = this.settingValues.find((s) => s.key === data.key);
     return this.reply(setting);
   };
 
   handleGetValues = (data: { keys: string[]; component?: string } & BranchParameters) => {
-    const settings = this.settingValues.filter(s => data.keys.includes(s.key));
+    const settings = this.settingValues.filter((s) => data.keys.includes(s.key));
     return this.reply(settings);
   };
 
@@ -59,7 +59,7 @@ export default class SettingsServiceMock {
   };
 
   set = (key: SettingsKey, value: string) => {
-    const setting = this.settingValues.find(s => s.key === key);
+    const setting = this.settingValues.find((s) => s.key === key);
     if (setting) {
       setting.value = value;
     } else {

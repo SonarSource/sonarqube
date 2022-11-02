@@ -30,7 +30,7 @@ import { Issue } from '../../../../types/types';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
 
 jest.mock('../../../../api/issues', () => ({
-  searchIssueTags: jest.fn().mockResolvedValue([undefined, []])
+  searchIssueTags: jest.fn().mockResolvedValue([undefined, []]),
 }));
 
 it('should display error message when no issues available', async () => {
@@ -59,7 +59,7 @@ it('should display warning when too many issues are passed', async () => {
 
 it('should properly handle the search for tags', async () => {
   const wrapper = getWrapper([]);
-  await new Promise(resolve => {
+  await new Promise((resolve) => {
     wrapper.instance().handleTagsSearch('query', resolve);
   });
   expect(searchIssueTags).toHaveBeenCalled();
@@ -67,7 +67,7 @@ it('should properly handle the search for tags', async () => {
 
 it.each([
   ['type', 'set_type'],
-  ['severity', 'set_severity']
+  ['severity', 'set_severity'],
 ])('should render select for %s', async (_field, action) => {
   const wrapper = getWrapper([mockIssue(false, { actions: [action] })]);
   await waitAndUpdate(wrapper);
@@ -90,17 +90,14 @@ it('should disable the submit button unless some change is configured', async ()
   const wrapper = getWrapper([mockIssue(false, { actions: ['set_severity', 'comment'] })]);
   await waitAndUpdate(wrapper);
 
-  return new Promise<void>(resolve => {
+  return new Promise<void>((resolve) => {
     expect(wrapper.find(SubmitButton).props().disabled).toBe(true);
 
     // Setting a comment is not sufficient; some other change must occur.
     change(wrapper.find('#comment'), 'Some comment');
     expect(wrapper.find(SubmitButton).props().disabled).toBe(true);
 
-    wrapper
-      .find<ReactSelectProps>(Select)
-      .at(0)
-      .simulate('change', { value: 'foo' });
+    wrapper.find<ReactSelectProps>(Select).at(0).simulate('change', { value: 'foo' });
 
     expect(wrapper.find(SubmitButton).props().disabled).toBe(false);
     resolve();
@@ -118,8 +115,8 @@ const getWrapper = (issues: Issue[]) => {
           paging: {
             pageIndex: issues.length,
             pageSize: issues.length,
-            total: issues.length
-          }
+            total: issues.length,
+          },
         })
       }
       onClose={() => {}}

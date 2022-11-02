@@ -63,7 +63,8 @@ export function PromotionNotification(props: PromotionNotificationProps) {
           href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-welcome"
           rel="noreferrer"
           onClick={onClick}
-          target="_blank">
+          target="_blank"
+        >
           {translate('learn_more')}
         </a>
         <ButtonLink className="toaster-link" onClick={onClick}>

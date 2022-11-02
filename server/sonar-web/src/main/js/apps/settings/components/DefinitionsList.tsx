@@ -32,11 +32,12 @@ export default function DefinitionsList(props: Props) {
   const { component, settings } = props;
   return (
     <ul className="settings-definitions-list">
-      {settings.map(setting => (
+      {settings.map((setting) => (
         <li
           key={setting.definition.key}
           data-key={setting.definition.key}
-          ref={props.scrollToDefinition}>
+          ref={props.scrollToDefinition}
+        >
           <Definition
             component={component}
             definition={setting.definition}

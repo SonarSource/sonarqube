@@ -34,7 +34,8 @@ export function DrawerLink<P>(props: DrawerLinkProps<P>) {
       className="display-flex-space-between bordered-bottom big-padded"
       onClick={() => props.onPageChange(to)}
       role="link"
-      tabIndex={0}>
+      tabIndex={0}
+    >
       {label}
       <ChevronRightIcon />
     </a>

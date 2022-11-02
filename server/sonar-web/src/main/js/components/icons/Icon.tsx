@@ -60,14 +60,15 @@ export default function Icon({
         clipRule: 'evenodd',
         strokeLinejoin: 'round',
         strokeMiterlimit: 1.41421,
-        ...style
+        ...style,
       }}
       version="1.1"
       viewBox={viewBox}
       width={width}
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve"
-      {...iconProps}>
+      {...iconProps}
+    >
       {children}
     </svg>
   );

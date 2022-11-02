@@ -51,7 +51,8 @@ export function DrilldownMeasureValue(props: DrilldownMeasureValueProps) {
           branchLike={branchLike}
           className="overview-measures-value text-light"
           component={component.key}
-          metric={metric}>
+          metric={metric}
+        >
           {formatMeasure(measure.value, 'SHORT_INT')}
         </DrilldownLink>
       </span>

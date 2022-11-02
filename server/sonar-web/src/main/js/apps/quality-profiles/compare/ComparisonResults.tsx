@@ -53,7 +53,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     }
     return (
       <ul>
-        {Object.keys(params).map(key => (
+        {Object.keys(params).map((key) => (
           <li className="spacer-top break-word" key={key}>
             <code>
               {key}
@@ -84,7 +84,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
           </td>
           <td>&nbsp;</td>
         </tr>
-        {this.props.inLeft.map(rule => (
+        {this.props.inLeft.map((rule) => (
           <tr className="js-comparison-in-left" key={`left-${rule.key}`}>
             <td>{this.renderRule(rule, rule.severity)}</td>
             <td>
@@ -93,7 +93,8 @@ export default class ComparisonResults extends React.PureComponent<Props> {
                   key={rule.key}
                   onDone={this.props.refresh}
                   profile={this.props.rightProfile}
-                  ruleKey={rule.key}>
+                  ruleKey={rule.key}
+                >
                   <ChevronRightIcon />
                 </ComparisonResultActivation>
               )}
@@ -122,14 +123,15 @@ export default class ComparisonResults extends React.PureComponent<Props> {
             </h6>
           </td>
         </tr>
-        {this.props.inRight.map(rule => (
+        {this.props.inRight.map((rule) => (
           <tr className="js-comparison-in-right" key={`right-${rule.key}`}>
             <td className="text-right">
               <ComparisonResultActivation
                 key={rule.key}
                 onDone={this.props.refresh}
                 profile={this.props.leftProfile}
-                ruleKey={rule.key}>
+                ruleKey={rule.key}
+              >
                 <ChevronLeftIcon />
               </ComparisonResultActivation>
             </td>
@@ -164,7 +166,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
             <h6>{this.props.right.name}</h6>
           </td>
         </tr>
-        {this.props.modified.map(rule => (
+        {this.props.modified.map((rule) => (
           <tr className="js-comparison-modified" key={`modified-${rule.key}`}>
             <td>
               {this.renderRule(rule, rule.left.severity)}

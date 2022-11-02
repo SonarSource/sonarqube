@@ -42,12 +42,14 @@ export function LineOptionsPopup({ firstLineNumber, line }: LineOptionsPopupProp
           <DropdownOverlay
             className="big-spacer-left"
             noPadding={true}
-            placement={isAtTop ? PopupPlacement.BottomLeft : PopupPlacement.TopLeft}>
+            placement={isAtTop ? PopupPlacement.BottomLeft : PopupPlacement.TopLeft}
+          >
             <div className="padded source-viewer-bubble-popup nowrap">
               <ClipboardButton
                 className="button-link"
                 copyValue={codeUrl}
-                aria-label={translate('component_viewer.copy_permalink')}>
+                aria-label={translate('component_viewer.copy_permalink')}
+              >
                 {translate('component_viewer.copy_permalink')}
               </ClipboardButton>
             </div>

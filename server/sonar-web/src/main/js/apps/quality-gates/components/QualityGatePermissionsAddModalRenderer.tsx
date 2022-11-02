@@ -65,12 +65,12 @@ export default function QualityGatePermissionsAddModalRenderer(
               noOptionsMessage={() => noResultsText}
               onChange={props.onSelection}
               loadOptions={props.handleSearch}
-              getOptionValue={opt => (isUser(opt) ? opt.login : opt.name)}
+              getOptionValue={(opt) => (isUser(opt) ? opt.login : opt.name)}
               large={true}
               components={{
                 Option: optionRenderer,
                 SingleValue: singleValueRenderer,
-                Control: controlRenderer
+                Control: controlRenderer,
               }}
             />
           </div>

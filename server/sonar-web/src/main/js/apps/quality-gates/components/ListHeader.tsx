@@ -37,7 +37,8 @@ export default function ListHeader({ canCreate, refreshQualityGates }: Props) {
           <ModalButton
             modal={({ onClose }) => (
               <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} />
-            )}>
+            )}
+          >
             {({ onClick }) => (
               <Button data-test="quality-gates__add" onClick={onClick}>
                 {translate('create')}
@@ -55,8 +56,8 @@ export default function ListHeader({ canCreate, refreshQualityGates }: Props) {
           links={[
             {
               href: '/user-guide/quality-gates/',
-              label: translate('learn_more')
-            }
+              label: translate('learn_more'),
+            },
           ]}
         />
       </div>

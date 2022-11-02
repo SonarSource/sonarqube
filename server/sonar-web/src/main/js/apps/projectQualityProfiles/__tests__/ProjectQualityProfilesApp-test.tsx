@@ -24,7 +24,7 @@ import {
   dissociateProject,
   getProfileProjects,
   ProfileProject,
-  searchQualityProfiles
+  searchQualityProfiles,
 } from '../../../api/quality-profiles';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -48,8 +48,8 @@ jest.mock('../../../api/quality-profiles', () => {
         mockQualityProfile({ key: 'js_default', language: 'js', isDefault: true }),
         mockQualityProfile({ key: 'ts_default', language: 'ts', isDefault: true }),
         mockQualityProfile({ key: 'html', language: 'html' }),
-        mockQualityProfile({ key: 'html_default', language: 'html', isDefault: true })
-      ]
+        mockQualityProfile({ key: 'html_default', language: 'html', isDefault: true }),
+      ],
     }),
     getProfileProjects: jest.fn(({ key }) => {
       const results: ProfileProject[] = [];
@@ -57,22 +57,22 @@ jest.mock('../../../api/quality-profiles', () => {
         results.push({
           key: 'foo',
           name: 'Foo',
-          selected: true
+          selected: true,
         });
       } else if (key === 'html') {
         results.push({
           key: 'foobar',
           name: 'FooBar',
-          selected: true
+          selected: true,
         });
       }
       return Promise.resolve({ results });
-    })
+    }),
   };
 });
 
 jest.mock('../../../helpers/globalMessages', () => ({
-  addGlobalSuccessMessage: jest.fn()
+  addGlobalSuccessMessage: jest.fn(),
 }));
 
 jest.mock('../../../app/utils/handleRequiredAuthorization', () => jest.fn());
@@ -85,7 +85,7 @@ it('renders correctly', () => {
 
 it('correctly checks permissions', () => {
   const wrapper = shallowRender({
-    component: mockComponent({ configuration: { showQualityProfiles: false } })
+    component: mockComponent({ configuration: { showQualityProfiles: false } }),
   });
   expect(wrapper.type()).toBeNull();
   expect(handleRequiredAuthorization).toHaveBeenCalled();
@@ -101,20 +101,20 @@ it('correctly fetches and treats profile data', async () => {
   expect(wrapper.state().projectProfiles).toEqual([
     expect.objectContaining({
       profile: expect.objectContaining({ key: 'css' }),
-      selected: true
+      selected: true,
     }),
     expect.objectContaining({
       profile: expect.objectContaining({ key: 'js' }),
-      selected: true
+      selected: true,
     }),
     expect.objectContaining({
       profile: expect.objectContaining({ key: 'html_default' }),
-      selected: true
+      selected: true,
     }),
     expect.objectContaining({
       profile: expect.objectContaining({ key: 'ts_default' }),
-      selected: false
-    })
+      selected: false,
+    }),
   ]);
 });
 
@@ -135,8 +135,8 @@ it('correctly sets a profile', async () => {
       {
         profile: expect.objectContaining({ key: 'css_default' }),
         // It's not explicitly selected, as we're inheriting the default.
-        selected: false
-      }
+        selected: false,
+      },
     ])
   );
 
@@ -152,8 +152,8 @@ it('correctly sets a profile', async () => {
       {
         profile: expect.objectContaining({ key: 'css2' }),
         // It's explicitly selected.
-        selected: true
-      }
+        selected: true,
+      },
     ])
   );
 
@@ -175,8 +175,8 @@ it('correctly sets a profile', async () => {
       {
         profile: expect.objectContaining({ key: 'ts_default' }),
         // It's explicitly selected, even though it is the default profile.
-        selected: true
-      }
+        selected: true,
+      },
     ])
   );
 });
@@ -198,8 +198,8 @@ it('correctly adds a new language', async () => {
         profile: expect.objectContaining({ key: 'java' }),
         // It must be explicitly selected. Adding an unanalyzed language can
         // only happen by explicitly choosing a profile.
-        selected: true
-      }
+        selected: true,
+      },
     ])
   );
 });
@@ -226,8 +226,8 @@ function shallowRender(props: Partial<ProjectQualityProfilesApp['props']> = {}) 
           { key: 'css2', name: 'CSS 2', language: 'css' },
           { key: 'js', name: 'JS', language: 'js' },
           { key: 'ts_default', name: 'TS (default)', language: 'ts' },
-          { key: 'html', name: 'HTML', language: 'html' }
-        ]
+          { key: 'html', name: 'HTML', language: 'html' },
+        ],
       })}
       {...props}
     />

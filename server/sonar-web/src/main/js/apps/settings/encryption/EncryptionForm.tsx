@@ -122,7 +122,8 @@ export default class EncryptionForm extends React.PureComponent<Props, State> {
         <form
           className="huge-spacer-top bordered-top"
           id="encryption-new-key-form"
-          onSubmit={this.handleGenerateSecretKey}>
+          onSubmit={this.handleGenerateSecretKey}
+        >
           <p className="big-spacer-top spacer-bottom">
             <FormattedMessage
               defaultMessage={translate('encryption.form_note')}
@@ -132,7 +133,7 @@ export default class EncryptionForm extends React.PureComponent<Props, State> {
                   <DocLink to="/instance-administration/security/">
                     {translate('more_information')}
                   </DocLink>
-                )
+                ),
               }}
             />
           </p>

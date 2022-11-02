@@ -46,9 +46,10 @@ export default function BoxedGroupAccordion(props: BoxedGroupAccordionProps) {
     <div
       className={classNames('boxed-group boxed-group-accordion', className, {
         'no-border': noBorder,
-        open
+        open,
       })}
-      role="listitem">
+      role="listitem"
+    >
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div onClick={handleClick} className="display-flex-center boxed-group-header">
         <ButtonPlain
@@ -57,7 +58,8 @@ export default function BoxedGroupAccordion(props: BoxedGroupAccordionProps) {
           onClick={handleClick}
           id={`${id}-header`}
           aria-controls={`${id}-panel`}
-          aria-expanded={open}>
+          aria-expanded={open}
+        >
           {title}
         </ButtonPlain>
         {renderHeader && renderHeader()}

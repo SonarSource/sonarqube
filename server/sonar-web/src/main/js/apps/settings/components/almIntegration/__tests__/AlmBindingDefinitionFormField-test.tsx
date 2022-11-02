@@ -24,7 +24,7 @@ import { click } from '../../../../../helpers/testUtils';
 import { AlmBindingDefinitionBase } from '../../../../../types/alm-settings';
 import {
   AlmBindingDefinitionFormField,
-  AlmBindingDefinitionFormFieldProps
+  AlmBindingDefinitionFormFieldProps,
 } from '../AlmBindingDefinitionFormField';
 
 it('should render correctly', () => {

@@ -59,7 +59,7 @@ export default function BitbucketCloudProjectCreateRenderer(
     resetPat,
     searching,
     searchQuery,
-    showPersonalAccessTokenForm
+    showPersonalAccessTokenForm,
   } = props;
 
   return (

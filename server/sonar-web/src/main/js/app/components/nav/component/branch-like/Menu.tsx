@@ -26,7 +26,7 @@ import {
   getBrancheLikesAsTree,
   isBranch,
   isPullRequest,
-  isSameBranchLike
+  isSameBranchLike,
 } from '../../../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../../../helpers/keycodes';
 import { translate } from '../../../../../helpers/l10n';
@@ -58,7 +58,7 @@ export class Menu extends React.PureComponent<Props, State> {
 
     let selectedBranchLike = undefined;
 
-    if (props.branchLikes.some(b => isSameBranchLike(b, props.currentBranchLike))) {
+    if (props.branchLikes.some((b) => isSameBranchLike(b, props.currentBranchLike))) {
       selectedBranchLike = props.currentBranchLike;
     } else if (props.branchLikes.length > 0) {
       selectedBranchLike = props.branchLikes[0];
@@ -67,7 +67,7 @@ export class Menu extends React.PureComponent<Props, State> {
     this.state = {
       query: '',
       selectedBranchLike,
-      ...this.processBranchLikes(props.branchLikes)
+      ...this.processBranchLikes(props.branchLikes),
     };
   }
 
@@ -80,9 +80,9 @@ export class Menu extends React.PureComponent<Props, State> {
           : []),
         ...tree.branchTree.reduce((prev, t) => [...prev, t.branch, ...t.pullRequests], []),
         ...tree.parentlessPullRequests,
-        ...tree.orphanPullRequests
+        ...tree.orphanPullRequests,
       ],
-      branchLikesToDisplayTree: tree
+      branchLikesToDisplayTree: tree,
     };
   };
 
@@ -93,7 +93,7 @@ export class Menu extends React.PureComponent<Props, State> {
   };
 
   highlightSiblingBranchlike = (indexDelta: number) => {
-    const selectBranchLikeIndex = this.state.branchLikesToDisplay.findIndex(b =>
+    const selectBranchLikeIndex = this.state.branchLikesToDisplay.findIndex((b) =>
       isSameBranchLike(b, this.state.selectedBranchLike)
     );
     const newIndex = selectBranchLikeIndex + indexDelta;
@@ -104,7 +104,7 @@ export class Menu extends React.PureComponent<Props, State> {
       newIndex < this.state.branchLikesToDisplay.length
     ) {
       this.setState(({ branchLikesToDisplay }) => ({
-        selectedBranchLike: branchLikesToDisplay[newIndex]
+        selectedBranchLike: branchLikesToDisplay[newIndex],
       }));
     }
   };
@@ -135,13 +135,13 @@ export class Menu extends React.PureComponent<Props, State> {
       isPullRequest(pr) && (pr.title.toLowerCase().includes(q) || pr.key.toLowerCase().includes(q));
 
     const filteredBranchLikes = this.props.branchLikes.filter(
-      bl => filterBranch(bl) || filterPullRequest(bl)
+      (bl) => filterBranch(bl) || filterPullRequest(bl)
     );
 
     this.setState({
       query: q,
       selectedBranchLike: filteredBranchLikes.length > 0 ? filteredBranchLikes[0] : undefined,
-      ...this.processBranchLikes(filteredBranchLikes)
+      ...this.processBranchLikes(filteredBranchLikes),
     });
   };
 
@@ -154,12 +154,8 @@ export class Menu extends React.PureComponent<Props, State> {
 
   render() {
     const { canAdminComponent, component, onClose } = this.props;
-    const {
-      branchLikesToDisplay,
-      branchLikesToDisplayTree,
-      query,
-      selectedBranchLike
-    } = this.state;
+    const { branchLikesToDisplay, branchLikesToDisplayTree, query, selectedBranchLike } =
+      this.state;
 
     const showManageLink = component.qualifier === ComponentQualifier.Project && canAdminComponent;
     const hasResults = branchLikesToDisplay.length > 0;
@@ -190,7 +186,8 @@ export class Menu extends React.PureComponent<Props, State> {
           <div className="hint-container text-right">
             <Link
               onClick={() => onClose()}
-              to={{ pathname: '/project/branches', search: queryToSearch({ id: component.key }) }}>
+              to={{ pathname: '/project/branches', search: queryToSearch({ id: component.key }) }}
+            >
               {translate('branch_like_navigation.manage')}
             </Link>
           </div>

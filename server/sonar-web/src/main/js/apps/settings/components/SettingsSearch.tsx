@@ -27,7 +27,7 @@ import { Component, Dict } from '../../../types/types';
 import {
   ADDITIONAL_PROJECT_SETTING_DEFINITIONS,
   ADDITIONAL_SETTING_DEFINITIONS,
-  buildSettingLink
+  buildSettingLink,
 } from '../utils';
 import SettingsSearchRenderer from './SettingsSearchRenderer';
 
@@ -52,7 +52,7 @@ export class SettingsSearch extends React.Component<Props, State> {
   index: LunrIndex;
   state: State = {
     searchQuery: '',
-    showResults: false
+    showResults: false,
   };
 
   constructor(props: Props) {
@@ -69,14 +69,14 @@ export class SettingsSearch extends React.Component<Props, State> {
   }
 
   buildSearchIndex(definitions: ExtendedSettingDefinition[]) {
-    return lunr(function() {
+    return lunr(function () {
       this.ref('key');
       this.field('key');
       this.field('name');
       this.field('description');
       this.field('splitkey');
 
-      definitions.forEach(definition => {
+      definitions.forEach((definition) => {
         this.add({ ...definition, splitkey: definition.key.replace('.', ' ') });
       });
     });
@@ -94,10 +94,10 @@ export class SettingsSearch extends React.Component<Props, State> {
       .search(
         cleanQuery
           .split(/\s+/)
-          .map(s => `${s} *${s}*`)
+          .map((s) => `${s} *${s}*`)
           .join(' ')
       )
-      .map(match => this.definitionsByKey[match.ref]);
+      .map((match) => this.definitionsByKey[match.ref]);
 
     this.setState({ showResults: true, results, selectedResult: results[0]?.key });
   };
@@ -145,7 +145,7 @@ export class SettingsSearch extends React.Component<Props, State> {
     const { results, selectedResult } = this.state;
 
     if (results && selectedResult) {
-      const index = results.findIndex(r => r.key === selectedResult);
+      const index = results.findIndex((r) => r.key === selectedResult);
 
       if (index > 0) {
         this.setState({ selectedResult: results[index - 1].key });
@@ -157,7 +157,7 @@ export class SettingsSearch extends React.Component<Props, State> {
     const { results, selectedResult } = this.state;
 
     if (results && selectedResult) {
-      const index = results.findIndex(r => r.key === selectedResult);
+      const index = results.findIndex((r) => r.key === selectedResult);
 
       if (index < results.length - 1) {
         this.setState({ selectedResult: results[index + 1].key });

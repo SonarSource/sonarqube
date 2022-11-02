@@ -66,29 +66,19 @@ it('should correctly handle changes', () => {
 });
 
 function diveIntoSimpleModal(wrapper: ShallowWrapper) {
-  return wrapper
-    .find(SimpleModal)
-    .dive()
-    .children();
+  return wrapper.find(SimpleModal).dive().children();
 }
 
 function getLanguageSelect(wrapper: ShallowWrapper) {
-  return diveIntoSimpleModal(wrapper)
-    .find(Select)
-    .at(0);
+  return diveIntoSimpleModal(wrapper).find(Select).at(0);
 }
 
 function getProfileSelect(wrapper: ShallowWrapper) {
-  return diveIntoSimpleModal(wrapper)
-    .find(Select)
-    .at(1);
+  return diveIntoSimpleModal(wrapper).find(Select).at(1);
 }
 
 function submitSimpleModal(wrapper: ShallowWrapper) {
-  wrapper
-    .find(SimpleModal)
-    .props()
-    .onSubmit();
+  wrapper.find(SimpleModal).props().onSubmit();
 }
 
 function shallowRender(props: Partial<AddLanguageModalProps> = {}) {
@@ -97,17 +87,17 @@ function shallowRender(props: Partial<AddLanguageModalProps> = {}) {
       languages={{
         css: { key: 'css', name: 'CSS' },
         ts: { key: 'ts', name: 'TS' },
-        js: { key: 'js', name: 'JS' }
+        js: { key: 'js', name: 'JS' },
       }}
       onClose={jest.fn()}
       onSubmit={jest.fn()}
       profilesByLanguage={{
         css: [
           mockQualityProfile({ key: 'css', name: 'CSS', activeRuleCount: 0 }),
-          mockQualityProfile({ key: 'css2', name: 'CSS 2' })
+          mockQualityProfile({ key: 'css2', name: 'CSS 2' }),
         ],
         ts: [mockQualityProfile({ key: 'ts', name: 'TS' })],
-        js: [mockQualityProfile({ key: 'js', name: 'JS' })]
+        js: [mockQualityProfile({ key: 'js', name: 'JS' })],
       }}
       unavailableLanguages={['js']}
       {...props}

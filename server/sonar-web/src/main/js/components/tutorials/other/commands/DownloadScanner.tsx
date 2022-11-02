@@ -48,10 +48,11 @@ export default function DownloadScanner(props: DownloadScannerProps) {
               link: (
                 <Link
                   to="https://redirect.sonarsource.com/doc/download-scanner.html"
-                  target="_blank">
+                  target="_blank"
+                >
                   {translate('onboarding.analysis.sq_scanner.docs_link')}
                 </Link>
-              )
+              ),
             }}
           />
         </p>

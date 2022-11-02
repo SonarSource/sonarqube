@@ -58,7 +58,7 @@ export default class HotspotList extends React.Component<Props, State> {
 
     this.state = {
       expandedCategories: { [props.selectedHotspot.securityCategory]: true },
-      groupedHotspots: this.groupHotspots(props.hotspots, props.securityCategories)
+      groupedHotspots: this.groupHotspots(props.hotspots, props.securityCategories),
     };
   }
 
@@ -100,17 +100,17 @@ export default class HotspotList extends React.Component<Props, State> {
   }
 
   groupHotspots = (hotspots: RawHotspot[], securityCategories: StandardSecurityCategories) => {
-    const risks = groupBy(hotspots, h => h.vulnerabilityProbability);
+    const risks = groupBy(hotspots, (h) => h.vulnerabilityProbability);
 
-    return RISK_EXPOSURE_LEVELS.map(risk => ({
+    return RISK_EXPOSURE_LEVELS.map((risk) => ({
       risk,
-      categories: groupByCategory(risks[risk], securityCategories)
-    })).filter(risk => risk.categories.length > 0);
+      categories: groupByCategory(risks[risk], securityCategories),
+    })).filter((risk) => risk.categories.length > 0);
   };
 
   handleToggleCategory = (categoryKey: string, value: boolean) => {
     this.setState(({ expandedCategories }) => ({
-      expandedCategories: { ...expandedCategories, [categoryKey]: value }
+      expandedCategories: { ...expandedCategories, [categoryKey]: value },
     }));
   };
 
@@ -122,7 +122,7 @@ export default class HotspotList extends React.Component<Props, State> {
       loadingMore,
       selectedHotspot,
       selectedHotspotLocation,
-      statusFilter
+      statusFilter,
     } = this.props;
 
     const { expandedCategories, groupedHotspots } = this.state;

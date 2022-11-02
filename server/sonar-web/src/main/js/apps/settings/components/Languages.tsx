@@ -44,7 +44,7 @@ export function Languages(props: LanguagesProps) {
   const handleOnChange = (newOption: SelectOption) => {
     router.push({
       ...location,
-      query: { ...location.query, category: newOption.originalValue }
+      query: { ...location.query, category: newOption.originalValue },
     });
   };
 
@@ -60,7 +60,7 @@ export function Languages(props: LanguagesProps) {
           onChange={handleOnChange}
           options={availableLanguages}
           placeholder={translate('settings.languages.select_a_language_placeholder')}
-          value={availableLanguages.find(language => language.value === selectedLanguage)}
+          value={availableLanguages.find((language) => language.value === selectedLanguage)}
         />
       </div>
       {selectedLanguage && (
@@ -81,25 +81,25 @@ function getLanguages(categories: string[], selectedCategory: string) {
   const lowerCasedSelectedCategory = selectedCategory.toLowerCase();
 
   const availableLanguages = categories
-    .filter(c => CATEGORY_OVERRIDES[c.toLowerCase()] === lowerCasedLanguagesCategory)
-    .map(c => ({
+    .filter((c) => CATEGORY_OVERRIDES[c.toLowerCase()] === lowerCasedLanguagesCategory)
+    .map((c) => ({
       label: getCategoryName(c),
       value: c.toLowerCase(),
-      originalValue: c
+      originalValue: c,
     }));
 
   let selectedLanguage = undefined;
 
   if (
     lowerCasedSelectedCategory !== lowerCasedLanguagesCategory &&
-    availableLanguages.find(c => c.value === lowerCasedSelectedCategory)
+    availableLanguages.find((c) => c.value === lowerCasedSelectedCategory)
   ) {
     selectedLanguage = lowerCasedSelectedCategory;
   }
 
   return {
     availableLanguages,
-    selectedLanguage
+    selectedLanguage,
   };
 }
 

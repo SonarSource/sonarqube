@@ -25,7 +25,7 @@ import { click, waitAndUpdate } from '../../../helpers/testUtils';
 import ProjectRowActions, { Props } from '../ProjectRowActions';
 
 jest.mock('../../../api/navigation', () => ({
-  getComponentNavigation: jest.fn().mockResolvedValue({})
+  getComponentNavigation: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => {
@@ -42,8 +42,8 @@ describe('restore access', () => {
     (getComponentNavigation as jest.Mock).mockResolvedValue({
       configuration: {
         canBrowseProject: false,
-        showPermissions: false
-      }
+        showPermissions: false,
+      },
     });
   });
 
@@ -72,7 +72,7 @@ describe('restore access', () => {
 
   it('also shows the restore access when browse permission is missing', async () => {
     (getComponentNavigation as jest.Mock).mockResolvedValueOnce({
-      configuration: { canBrowseProject: false, showPermissions: true }
+      configuration: { canBrowseProject: false, showPermissions: true },
     });
 
     const wrapper = shallowRender();
@@ -89,8 +89,8 @@ describe('permissions', () => {
     (getComponentNavigation as jest.Mock).mockResolvedValue({
       configuration: {
         canBrowseProject: true,
-        showPermissions: true
-      }
+        showPermissions: true,
+      },
     });
   });
 
@@ -124,7 +124,7 @@ function shallowRender(props: Partial<Props> = {}) {
         key: 'foo',
         name: 'Foo',
         qualifier: 'TRK',
-        visibility: 'private'
+        visibility: 'private',
       }}
       {...props}
     />

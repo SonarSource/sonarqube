@@ -45,7 +45,7 @@ export default function DonutChart(props: DonutChartProps) {
 
   const pie = d3Pie<any, DataPoint>()
     .sort(null)
-    .value(d => d.value);
+    .value((d) => d.value);
 
   if (padAngle !== undefined) {
     pie.padAngle(padAngle);

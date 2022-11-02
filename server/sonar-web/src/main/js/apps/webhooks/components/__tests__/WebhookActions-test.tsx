@@ -25,7 +25,7 @@ import WebhookActions from '../WebhookActions';
 const webhook = {
   key: '1',
   name: 'foo',
-  url: 'http://foo.bar'
+  url: 'http://foo.bar',
 };
 
 const delivery = {
@@ -33,7 +33,7 @@ const delivery = {
   durationMs: 20,
   httpStatus: 200,
   id: '2',
-  success: true
+  success: true,
 };
 
 it('should render correctly', () => {
@@ -47,12 +47,12 @@ it('should display the update webhook form', () => {
   expect(wrapper.find('CreateWebhookForm').exists()).toBe(true);
   wrapper.find('CreateWebhookForm').prop<Function>('onDone')({
     name: webhook.name,
-    url: webhook.url
+    url: webhook.url,
   });
   expect(onUpdate).toHaveBeenLastCalledWith({
     webhook: webhook.key,
     name: webhook.name,
-    url: webhook.url
+    url: webhook.url,
   });
 });
 

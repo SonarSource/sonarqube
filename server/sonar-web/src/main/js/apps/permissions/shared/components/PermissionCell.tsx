@@ -24,7 +24,7 @@ import {
   PermissionDefinition,
   PermissionDefinitionGroup,
   PermissionGroup,
-  PermissionUser
+  PermissionUser,
 } from '../../../../types/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 
@@ -42,13 +42,14 @@ export default class PermissionCell extends React.PureComponent<Props> {
     if (isPermissionDefinitionGroup(permission)) {
       return (
         <td className="text-middle">
-          {permission.permissions.map(permission => (
+          {permission.permissions.map((permission) => (
             <div key={permission.key}>
               <Checkbox
                 checked={permissionItem.permissions.includes(permission.key)}
                 disabled={loading.includes(permission.key)}
                 id={permission.key}
-                onCheck={onCheck}>
+                onCheck={onCheck}
+              >
                 <span className="little-spacer-left">{permission.name}</span>
               </Checkbox>
             </div>
@@ -59,8 +60,9 @@ export default class PermissionCell extends React.PureComponent<Props> {
       return (
         <td
           className={classNames('permission-column text-center text-middle', {
-            selected: permission.key === selectedPermission
-          })}>
+            selected: permission.key === selectedPermission,
+          })}
+        >
           <Checkbox
             checked={permissionItem.permissions.includes(permission.key)}
             disabled={loading.includes(permission.key)}

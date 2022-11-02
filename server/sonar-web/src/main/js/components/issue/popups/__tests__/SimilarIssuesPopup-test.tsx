@@ -29,7 +29,7 @@ it('should render correctly', () => {
 it('should render correctly when assigned', () => {
   expect(
     shallowRender({
-      issue: mockIssue(false, { assignee: 'luke', assigneeName: 'Luke Skywalker' })
+      issue: mockIssue(false, { assignee: 'luke', assigneeName: 'Luke Skywalker' }),
     }).find('SelectListItem[item="assignee"]')
   ).toMatchSnapshot();
 

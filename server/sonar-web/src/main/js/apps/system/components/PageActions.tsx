@@ -42,7 +42,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      openLogsLevelForm: false
+      openLogsLevelForm: false,
     };
   }
 
@@ -91,7 +91,8 @@ export default class PageActions extends React.PureComponent<Props, State> {
                     href={logsUrl + '?process=app'}
                     id="logs-link"
                     rel="noopener noreferrer"
-                    target="_blank">
+                    target="_blank"
+                  >
                     Main Process
                   </a>
                 </li>
@@ -101,7 +102,8 @@ export default class PageActions extends React.PureComponent<Props, State> {
                     href={logsUrl + '?process=ce'}
                     id="ce-logs-link"
                     rel="noopener noreferrer"
-                    target="_blank">
+                    target="_blank"
+                  >
                     Compute Engine
                   </a>
                 </li>
@@ -111,7 +113,8 @@ export default class PageActions extends React.PureComponent<Props, State> {
                     href={logsUrl + '?process=es'}
                     id="es-logs-link"
                     rel="noopener noreferrer"
-                    target="_blank">
+                    target="_blank"
+                  >
                     Search Engine
                   </a>
                 </li>
@@ -121,7 +124,8 @@ export default class PageActions extends React.PureComponent<Props, State> {
                     href={logsUrl + '?process=web'}
                     id="web-logs-link"
                     rel="noopener noreferrer"
-                    target="_blank">
+                    target="_blank"
+                  >
                     Web Server
                   </a>
                 </li>
@@ -131,12 +135,14 @@ export default class PageActions extends React.PureComponent<Props, State> {
                     href={logsUrl + '?process=access'}
                     id="access-logs-link"
                     rel="noopener noreferrer"
-                    target="_blank">
+                    target="_blank"
+                  >
                     Access Logs
                   </a>
                 </li>
               </ul>
-            }>
+            }
+          >
             <Button>
               {translate('system.download_logs')}
               <DropdownIcon className="little-spacer-left" />
@@ -150,7 +156,8 @@ export default class PageActions extends React.PureComponent<Props, State> {
           id="download-link"
           onClick={this.removeElementFocus}
           rel="noopener noreferrer"
-          target="_blank">
+          target="_blank"
+        >
           {translate('system.download_system_info')}
         </a>
         {this.state.openLogsLevelForm && (

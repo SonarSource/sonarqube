@@ -86,7 +86,7 @@ export default class GenerateSecretKeyForm extends React.PureComponent<Props, St
                     values={{
                       secret_file: <code>~/.sonar/sonar-secret.txt</code>,
                       property: <code>sonar.secretKeyPath</code>,
-                      propreties_file: <code>conf/sonar.properties</code>
+                      propreties_file: <code>conf/sonar.properties</code>,
                     }}
                   />
                 </li>
@@ -96,7 +96,7 @@ export default class GenerateSecretKeyForm extends React.PureComponent<Props, St
                     defaultMessage={translate('encryption.how_to_use.content3')}
                     id="encryption.how_to_use.content3"
                     values={{
-                      property: <code>sonar.secretKeyPath</code>
+                      property: <code>sonar.secretKeyPath</code>,
                     }}
                   />
                 </li>
@@ -115,7 +115,7 @@ export default class GenerateSecretKeyForm extends React.PureComponent<Props, St
                     <DocLink to="/instance-administration/security/">
                       {translate('more_information')}
                     </DocLink>
-                  )
+                  ),
                 }}
               />
             </p>

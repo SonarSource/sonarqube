@@ -22,7 +22,7 @@ import * as React from 'react';
 import {
   changeProfileParent,
   createQualityProfile,
-  getImporters
+  getImporters,
 } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
@@ -66,7 +66,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
 
   fetchImporters() {
     getImporters().then(
-      importers => {
+      (importers) => {
         if (this.mounted) {
           this.setState({ importers, preloading: false });
         }
@@ -101,7 +101,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
     try {
       const { profile } = await createQualityProfile(data);
 
-      const parentProfile = this.props.profiles.find(p => p.key === this.state.parent);
+      const parentProfile = this.props.profiles.find((p) => p.key === this.state.parent);
       if (parentProfile) {
         await changeProfileParent(profile, parentProfile);
       }
@@ -121,25 +121,25 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
     let profiles: Array<{ label: string; value: string }> = [];
 
     const selectedLanguage = this.state.language || languageQueryFilter || languages[0].key;
-    const importers = this.state.importers.filter(importer =>
+    const importers = this.state.importers.filter((importer) =>
       importer.languages.includes(selectedLanguage)
     );
 
     if (selectedLanguage) {
-      const languageProfiles = this.props.profiles.filter(p => p.language === selectedLanguage);
+      const languageProfiles = this.props.profiles.filter((p) => p.language === selectedLanguage);
       profiles = [
         { label: translate('none'), value: '' },
-        ...sortBy(languageProfiles, 'name').map(profile => ({
+        ...sortBy(languageProfiles, 'name').map((profile) => ({
           label: profile.isBuiltIn
             ? `${profile.name} (${translate('quality_profiles.built_in')})`
             : profile.name,
-          value: profile.key
-        }))
+          value: profile.key,
+        })),
       ];
     }
-    const languagesOptions = languages.map(l => ({
+    const languagesOptions = languages.map((l) => ({
       label: l.name,
-      value: l.key
+      value: l.key,
     }));
 
     const isParentProfileClearable = () => {
@@ -195,7 +195,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                   onChange={this.handleLanguageChange}
                   options={languagesOptions}
                   isSearchable={true}
-                  value={languagesOptions.filter(o => o.value === selectedLanguage)}
+                  value={languagesOptions.filter((o) => o.value === selectedLanguage)}
                 />
               </div>
               {selectedLanguage && profiles.length > 0 && (
@@ -213,15 +213,16 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                     onChange={this.handleParentChange}
                     options={profiles}
                     isSearchable={true}
-                    value={profiles.filter(o => o.value === (this.state.parent || ''))}
+                    value={profiles.filter((o) => o.value === (this.state.parent || ''))}
                   />
                 </div>
               )}
-              {importers.map(importer => (
+              {importers.map((importer) => (
                 <div
                   className="modal-field spacer-bottom js-importer"
                   data-key={importer.key}
-                  key={importer.key}>
+                  key={importer.key}
+                >
                   <label htmlFor={'create-profile-form-backup-' + importer.key}>
                     {importer.name}
                   </label>

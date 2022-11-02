@@ -58,7 +58,7 @@ export class App extends React.PureComponent<Props, State> {
       groups: [],
       loading: true,
       query: '',
-      users: []
+      users: [],
     };
   }
 
@@ -87,7 +87,7 @@ export class App extends React.PureComponent<Props, State> {
             projectKey: component.key,
             q: query || undefined,
             permission: selectedPermission,
-            p: userPage
+            p: userPage,
           })
         : Promise.resolve({ paging: undefined, users: [] });
 
@@ -97,7 +97,7 @@ export class App extends React.PureComponent<Props, State> {
             projectKey: component.key,
             q: query || undefined,
             permission: selectedPermission,
-            p: groupsPage
+            p: groupsPage,
           })
         : Promise.resolve({ paging: undefined, groups: [] });
 
@@ -113,7 +113,7 @@ export class App extends React.PureComponent<Props, State> {
           groupsPaging: groupsResponse.paging,
           loading: false,
           users: usersResponse.users,
-          usersPaging: usersResponse.paging
+          usersPaging: usersResponse.paging,
         });
       }
     }, this.stopLoading);
@@ -132,7 +132,7 @@ export class App extends React.PureComponent<Props, State> {
           groupsPaging: groupsResponse.paging,
           loading: false,
           users: [...users, ...usersResponse.users],
-          usersPaging: usersResponse.paging
+          usersPaging: usersResponse.paging,
         }));
       }
     }, this.stopLoading);
@@ -155,7 +155,7 @@ export class App extends React.PureComponent<Props, State> {
       this.setState(
         (state: State) => ({
           selectedPermission:
-            state.selectedPermission === selectedPermission ? undefined : selectedPermission
+            state.selectedPermission === selectedPermission ? undefined : selectedPermission,
         }),
         this.loadHolders
       );
@@ -163,7 +163,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   addPermissionToGroup = (group: string, permission: string) => {
-    return this.state.groups.map(candidate =>
+    return this.state.groups.map((candidate) =>
       candidate.name === group
         ? { ...candidate, permissions: [...candidate.permissions, permission] }
         : candidate
@@ -171,7 +171,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   addPermissionToUser = (user: string, permission: string) => {
-    return this.state.users.map(candidate =>
+    return this.state.users.map((candidate) =>
       candidate.login === user
         ? { ...candidate, permissions: [...candidate.permissions, permission] }
         : candidate
@@ -179,7 +179,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   removePermissionFromGroup = (group: string, permission: string) => {
-    return this.state.groups.map(candidate =>
+    return this.state.groups.map((candidate) =>
       candidate.name === group
         ? { ...candidate, permissions: without(candidate.permissions, permission) }
         : candidate
@@ -187,7 +187,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   removePermissionFromUser = (user: string, permission: string) => {
-    return this.state.users.map(candidate =>
+    return this.state.users.map((candidate) =>
       candidate.login === user
         ? { ...candidate, permissions: without(candidate.permissions, permission) }
         : candidate
@@ -198,19 +198,19 @@ export class App extends React.PureComponent<Props, State> {
     if (this.mounted) {
       this.setState({
         loading: true,
-        groups: this.addPermissionToGroup(group, permission)
+        groups: this.addPermissionToGroup(group, permission),
       });
       return api
         .grantPermissionToGroup({
           projectKey: this.props.component.key,
           groupName: group,
-          permission
+          permission,
         })
         .then(this.stopLoading, () => {
           if (this.mounted) {
             this.setState({
               loading: false,
-              groups: this.removePermissionFromGroup(group, permission)
+              groups: this.removePermissionFromGroup(group, permission),
             });
           }
         });
@@ -222,19 +222,19 @@ export class App extends React.PureComponent<Props, State> {
     if (this.mounted) {
       this.setState({
         loading: true,
-        users: this.addPermissionToUser(user, permission)
+        users: this.addPermissionToUser(user, permission),
       });
       return api
         .grantPermissionToUser({
           projectKey: this.props.component.key,
           login: user,
-          permission
+          permission,
         })
         .then(this.stopLoading, () => {
           if (this.mounted) {
             this.setState({
               loading: false,
-              users: this.removePermissionFromUser(user, permission)
+              users: this.removePermissionFromUser(user, permission),
             });
           }
         });
@@ -246,19 +246,19 @@ export class App extends React.PureComponent<Props, State> {
     if (this.mounted) {
       this.setState({
         loading: true,
-        groups: this.removePermissionFromGroup(group, permission)
+        groups: this.removePermissionFromGroup(group, permission),
       });
       return api
         .revokePermissionFromGroup({
           projectKey: this.props.component.key,
           groupName: group,
-          permission
+          permission,
         })
         .then(this.stopLoading, () => {
           if (this.mounted) {
             this.setState({
               loading: false,
-              groups: this.addPermissionToGroup(group, permission)
+              groups: this.addPermissionToGroup(group, permission),
             });
           }
         });
@@ -270,19 +270,19 @@ export class App extends React.PureComponent<Props, State> {
     if (this.mounted) {
       this.setState({
         loading: true,
-        users: this.removePermissionFromUser(user, permission)
+        users: this.removePermissionFromUser(user, permission),
       });
       return api
         .revokePermissionFromUser({
           projectKey: this.props.component.key,
           login: user,
-          permission
+          permission,
         })
         .then(this.stopLoading, () => {
           if (this.mounted) {
             this.setState({
               loading: false,
-              users: this.addPermissionToUser(user, permission)
+              users: this.addPermissionToUser(user, permission),
             });
           }
         });
@@ -306,7 +306,7 @@ export class App extends React.PureComponent<Props, State> {
       },
       () => {
         this.props.onComponentChange({
-          visibility: 'private'
+          visibility: 'private',
         });
       }
     );
@@ -320,7 +320,7 @@ export class App extends React.PureComponent<Props, State> {
       },
       () => {
         this.props.onComponentChange({
-          visibility: 'public'
+          visibility: 'public',
         });
       }
     );

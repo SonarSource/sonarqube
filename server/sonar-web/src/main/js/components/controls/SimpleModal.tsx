@@ -93,7 +93,7 @@ export default class SimpleModal extends React.Component<Props, State> {
           onCloseClick: this.handleCloseClick,
           onFormSubmit: this.handleFormSubmit,
           onSubmitClick: this.handleSubmitClick,
-          submitting: this.state.submitting
+          submitting: this.state.submitting,
         })}
       </Modal>
     );

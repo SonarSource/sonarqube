@@ -67,7 +67,8 @@ export default class WorkspaceRuleViewer extends React.PureComponent<Props> {
           onCollapse={this.props.onCollapse}
           onMaximize={this.props.onMaximize}
           onMinimize={this.props.onMinimize}
-          onResize={this.props.onResize}>
+          onResize={this.props.onResize}
+        >
           <WorkspaceRuleTitle rule={rule} />
         </WorkspaceHeader>
 
@@ -75,7 +76,8 @@ export default class WorkspaceRuleViewer extends React.PureComponent<Props> {
           aria-busy={loading}
           aria-live="polite"
           className="workspace-viewer-container"
-          style={{ height: this.props.height }}>
+          style={{ height: this.props.height }}
+        >
           <WorkspaceRuleDetails onLoad={this.handleLoaded} ruleKey={rule.key} />
         </div>
       </div>

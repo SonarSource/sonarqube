@@ -31,28 +31,21 @@ describe('groupLocationsByComponent', () => {
       mockIssue(),
       [
         mockFlowLocation({
-          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 },
         }),
         mockFlowLocation({
-          textRange: { startLine: 16, startOffset: 2, endLine: 16, endOffset: 3 }
+          textRange: { startLine: 16, startOffset: 2, endLine: 16, endOffset: 3 },
         }),
         mockFlowLocation({
-          textRange: { startLine: 24, startOffset: 1, endLine: 24, endOffset: 2 }
-        })
+          textRange: { startLine: 24, startOffset: 1, endLine: 24, endOffset: 2 },
+        }),
       ],
       {
-        'main.js': mockSnippetsByComponent('main.js', 'project', [
-          14,
-          15,
-          16,
-          17,
-          18,
-          22,
-          23,
-          24,
-          25,
-          26
-        ])
+        'main.js': mockSnippetsByComponent(
+          'main.js',
+          'project',
+          [14, 15, 16, 17, 18, 22, 23, 24, 25, 26]
+        ),
       }
     );
 
@@ -65,20 +58,20 @@ describe('groupLocationsByComponent', () => {
       [
         mockFlowLocation({
           component: 'A.js',
-          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 },
         }),
         mockFlowLocation({
           component: 'B.js',
-          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+          textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 },
         }),
         mockFlowLocation({
           component: 'A.js',
-          textRange: { startLine: 15, startOffset: 2, endLine: 15, endOffset: 3 }
-        })
+          textRange: { startLine: 15, startOffset: 2, endLine: 15, endOffset: 3 },
+        }),
       ],
       {
         'A.js': mockSnippetsByComponent('A.js', 'project', [13, 14, 15, 16, 17, 18]),
-        'B.js': mockSnippetsByComponent('B.js', 'project', [14, 15, 16, 17, 18])
+        'B.js': mockSnippetsByComponent('B.js', 'project', [14, 15, 16, 17, 18]),
       }
     );
 
@@ -96,16 +89,16 @@ describe('createSnippets', () => {
   it('should merge snippets correctly', () => {
     const locations = [
       mockFlowLocation({
-        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 },
       }),
       mockFlowLocation({
-        textRange: { startLine: 19, startOffset: 2, endLine: 19, endOffset: 3 }
-      })
+        textRange: { startLine: 19, startOffset: 2, endLine: 19, endOffset: 3 },
+      }),
     ];
     const results = createSnippets({
       component: '',
       locations,
-      issue: mockIssue(false, locations[1])
+      issue: mockIssue(false, locations[1]),
     });
 
     expect(results).toHaveLength(1);
@@ -115,19 +108,19 @@ describe('createSnippets', () => {
   it('should merge snippets correctly, even when not in sequence', () => {
     const locations = [
       mockFlowLocation({
-        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 },
       }),
       mockFlowLocation({
-        textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
+        textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 },
       }),
       mockFlowLocation({
-        textRange: { startLine: 14, startOffset: 2, endLine: 14, endOffset: 3 }
-      })
+        textRange: { startLine: 14, startOffset: 2, endLine: 14, endOffset: 3 },
+      }),
     ];
     const results = createSnippets({
       component: '',
       locations,
-      issue: mockIssue(false, locations[2])
+      issue: mockIssue(false, locations[2]),
     });
 
     expect(results).toHaveLength(2);
@@ -138,22 +131,22 @@ describe('createSnippets', () => {
   it('should merge three snippets together', () => {
     const locations = [
       mockFlowLocation({
-        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
+        textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 },
       }),
       mockFlowLocation({
-        textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 }
+        textRange: { startLine: 47, startOffset: 2, endLine: 47, endOffset: 3 },
       }),
       mockFlowLocation({
-        textRange: { startLine: 23, startOffset: 2, endLine: 23, endOffset: 3 }
+        textRange: { startLine: 23, startOffset: 2, endLine: 23, endOffset: 3 },
       }),
       mockFlowLocation({
-        textRange: { startLine: 18, startOffset: 2, endLine: 18, endOffset: 3 }
-      })
+        textRange: { startLine: 18, startOffset: 2, endLine: 18, endOffset: 3 },
+      }),
     ];
     const results = createSnippets({
       component: '',
       locations,
-      issue: mockIssue(false, locations[0])
+      issue: mockIssue(false, locations[0]),
     });
 
     expect(results).toHaveLength(2);
@@ -164,20 +157,20 @@ describe('createSnippets', () => {
   it("should prepend the issue's main location if necessary", () => {
     const locations = [
       mockFlowLocation({
-        textRange: { startLine: 85, startOffset: 2, endLine: 85, endOffset: 3 }
+        textRange: { startLine: 85, startOffset: 2, endLine: 85, endOffset: 3 },
       }),
       mockFlowLocation({
-        textRange: { startLine: 42, startOffset: 2, endLine: 42, endOffset: 3 }
-      })
+        textRange: { startLine: 42, startOffset: 2, endLine: 42, endOffset: 3 },
+      }),
     ];
     const issue = mockIssue(false, {
       secondaryLocations: [mockFlowLocation()],
-      textRange: { startLine: 12, endLine: 12, startOffset: 0, endOffset: 0 }
+      textRange: { startLine: 12, endLine: 12, startOffset: 0, endOffset: 0 },
     });
     const results = createSnippets({
       component: issue.component,
       locations,
-      issue
+      issue,
     });
 
     expect(results).toHaveLength(3);
@@ -189,17 +182,17 @@ describe('createSnippets', () => {
   it('should ignore location with no textrange', () => {
     const locations = [
       mockFlowLocation({
-        textRange: { startLine: 85, startOffset: 2, endLine: 85, endOffset: 3 }
-      })
+        textRange: { startLine: 85, startOffset: 2, endLine: 85, endOffset: 3 },
+      }),
     ];
     const issue = mockIssue(false, {
       secondaryLocations: [mockFlowLocation()],
-      textRange: undefined
+      textRange: undefined,
     });
     const results = createSnippets({
       component: issue.component,
       locations,
-      issue
+      issue,
     });
 
     expect(results).toHaveLength(1);
@@ -230,7 +223,7 @@ describe('expandSnippet', () => {
     const snippets = [
       { index: 1, start: 4, end: 14 },
       { index: 2, start: 82, end: 92 },
-      { index: 3, start: 37, end: 47 }
+      { index: 3, start: 37, end: 47 },
     ];
 
     const result = expandSnippet({ direction: 'down', snippetIndex: 1, snippets });

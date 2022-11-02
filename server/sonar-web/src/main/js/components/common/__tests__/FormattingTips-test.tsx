@@ -27,14 +27,14 @@ const originalOpen = window.open;
 beforeAll(() => {
   Object.defineProperty(window, 'open', {
     writable: true,
-    value: jest.fn()
+    value: jest.fn(),
   });
 });
 
 afterAll(() => {
   Object.defineProperty(window, 'open', {
     writable: true,
-    value: originalOpen
+    value: originalOpen,
   });
 });
 

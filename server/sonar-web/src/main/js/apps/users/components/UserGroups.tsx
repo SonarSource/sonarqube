@@ -45,7 +45,7 @@ export default class UserGroups extends React.PureComponent<Props, State> {
 
   toggleShowMore = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
     evt.preventDefault();
-    this.setState(state => ({ showMore: !state.showMore }));
+    this.setState((state) => ({ showMore: !state.showMore }));
   };
 
   render() {
@@ -53,14 +53,14 @@ export default class UserGroups extends React.PureComponent<Props, State> {
     const limit = groups.length > GROUPS_LIMIT ? GROUPS_LIMIT - 1 : GROUPS_LIMIT;
     return (
       <ul>
-        {groups.slice(0, limit).map(group => (
+        {groups.slice(0, limit).map((group) => (
           <li className="little-spacer-bottom" key={group}>
             {group}
           </li>
         ))}
         {groups.length > GROUPS_LIMIT &&
           this.state.showMore &&
-          groups.slice(limit).map(group => (
+          groups.slice(limit).map((group) => (
             <li className="little-spacer-bottom" key={group}>
               {group}
             </li>
@@ -74,7 +74,8 @@ export default class UserGroups extends React.PureComponent<Props, State> {
           <ButtonIcon
             className="js-user-groups button-small"
             onClick={this.handleOpenForm}
-            tooltip={translate('users.update_groups')}>
+            tooltip={translate('users.update_groups')}
+          >
             <BulletListIcon />
           </ButtonIcon>
         </li>

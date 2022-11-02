@@ -92,7 +92,8 @@ export default class Histogram extends React.PureComponent<Props> {
         dx={alignTicks ? 0 : '-1em'}
         dy="0.3em"
         x={x}
-        y={y}>
+        y={y}
+      >
         {tick}
       </text>
     );

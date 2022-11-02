@@ -31,7 +31,7 @@ export function enableLocationsNavigator(state: State) {
       selectedFlowIndex,
       // Also reset index = -1 to 0, we don't want to start on the issue when enabling the location navigator
       selectedLocationIndex:
-        selectedLocationIndex && selectedLocationIndex < 0 ? 0 : selectedLocationIndex
+        selectedLocationIndex && selectedLocationIndex < 0 ? 0 : selectedLocationIndex,
     };
   }
   return null;
@@ -55,7 +55,7 @@ export function selectNextLocation(
     }
     return {
       selectedLocationIndex: index !== undefined && index < lastLocationIdx ? index + 1 : index,
-      locationsNavigator: true
+      locationsNavigator: true,
     };
   }
   return null;
@@ -71,7 +71,7 @@ export function selectPreviousLocation(state: State) {
     }
     return {
       selectedLocationIndex: index !== undefined && index > 0 ? index - 1 : index,
-      locationsNavigator: true
+      locationsNavigator: true,
     };
   }
   return null;
@@ -82,7 +82,7 @@ export function selectFlow(nextIndex?: number) {
     return {
       locationsNavigator: true,
       selectedFlowIndex: nextIndex,
-      selectedLocationIndex: undefined
+      selectedLocationIndex: undefined,
     };
   };
 }
@@ -99,7 +99,7 @@ export function selectNextFlow(state: State) {
     return {
       selectedFlowIndex: selectedFlowIndex + 1,
       selectedLocationIndex: 0,
-      locationsNavigator: true
+      locationsNavigator: true,
     };
   } else if (
     openIssue &&
@@ -117,7 +117,7 @@ export function selectPreviousFlow(state: State) {
     return {
       selectedFlowIndex: selectedFlowIndex - 1,
       selectedLocationIndex: 0,
-      locationsNavigator: true
+      locationsNavigator: true,
     };
   }
   return null;

@@ -51,7 +51,7 @@ it('should correctly if the project is empty', () => {
 it('should render correctly if the application is empty or has no lines of code', () => {
   const wrapper = shallowRender({
     component: mockComponent({ qualifier: ComponentQualifier.Application }),
-    measures: [mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.projects }) })]
+    measures: [mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.projects }) })],
   });
   expect(wrapper.children().text()).toBe('portfolio.app.no_lines_of_code');
 

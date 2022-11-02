@@ -48,7 +48,7 @@ export default class MetaTagsSelector extends React.PureComponent<Props, State> 
   onSearch = (query: string) => {
     return searchProjectTags({
       q: query,
-      ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100)
+      ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100),
     }).then(
       ({ tags }) => {
         if (this.mounted) {

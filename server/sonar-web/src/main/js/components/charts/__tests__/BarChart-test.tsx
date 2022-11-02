@@ -25,7 +25,7 @@ it('should display bars', () => {
   const data = [
     { x: 1, y: 10, description: '' },
     { x: 2, y: 30, description: '' },
-    { x: 3, y: 20, description: '' }
+    { x: 3, y: 20, description: '' },
   ];
   const chart = shallow(<BarChart barsWidth={20} data={data} height={100} width={100} />);
   expect(chart.find('.bar-chart-bar').length).toBe(3);
@@ -35,7 +35,7 @@ it('should display ticks', () => {
   const data = [
     { x: 1, y: 10, description: '' },
     { x: 2, y: 30, description: '' },
-    { x: 3, y: 20, description: '' }
+    { x: 3, y: 20, description: '' },
   ];
   const ticks = ['A', 'B', 'C'];
   const chart = shallow(
@@ -48,7 +48,7 @@ it('should display values', () => {
   const data = [
     { x: 1, y: 10, description: '' },
     { x: 2, y: 30, description: '' },
-    { x: 3, y: 20, description: '' }
+    { x: 3, y: 20, description: '' },
   ];
   const values = ['A', 'B', 'C'];
   const chart = shallow(
@@ -61,7 +61,7 @@ it('should display bars, ticks and values', () => {
   const data = [
     { x: 1, y: 10, description: '' },
     { x: 2, y: 30, description: '' },
-    { x: 3, y: 20, description: '' }
+    { x: 3, y: 20, description: '' },
   ];
   const ticks = ['A', 'B', 'C'];
   const values = ['A', 'B', 'C'];

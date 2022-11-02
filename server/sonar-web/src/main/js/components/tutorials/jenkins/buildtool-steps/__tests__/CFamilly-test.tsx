@@ -29,7 +29,7 @@ it('should render correctly for', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it.each([[OSs.Linux], [OSs.MacOS], [OSs.Windows]])('should render correctly for %s', os => {
+it.each([[OSs.Linux], [OSs.MacOS], [OSs.Windows]])('should render correctly for %s', (os) => {
   const wrapper = shallowRender();
   wrapper.find(RenderOptions).simulate('check', os);
   expect(wrapper).toMatchSnapshot(os);

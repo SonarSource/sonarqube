@@ -45,9 +45,6 @@ it('should render menu and select the right IDE', () => {
   );
   expect(wrapper).toMatchSnapshot();
 
-  wrapper
-    .find('a')
-    .last()
-    .simulate('click');
+  wrapper.find('a').last().simulate('click');
   expect(onIdeSelected).toHaveBeenCalledWith(ide2);
 });

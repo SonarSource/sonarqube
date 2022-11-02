@@ -26,7 +26,7 @@ import { updateIssue } from '../actions';
 jest.mock('../../../helpers/error', () => ({ throwGlobalError: jest.fn() }));
 
 jest.mock('../../../helpers/issues', () => ({
-  parseIssueFromResponse: jest.fn()
+  parseIssueFromResponse: jest.fn(),
 }));
 
 describe('updateIssue', () => {
@@ -36,7 +36,7 @@ describe('updateIssue', () => {
   const parsedIssue = mockIssue(false, { key: 'parsed' });
   const successPromise = jest.fn().mockResolvedValue({
     issue: mockIssue(),
-    components: [mockComponent()]
+    components: [mockComponent()],
   });
   const errorPromise = jest.fn().mockRejectedValue(null);
   (parseIssueFromResponse as jest.Mock).mockReturnValue(parsedIssue);

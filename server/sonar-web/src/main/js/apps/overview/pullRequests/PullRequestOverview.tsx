@@ -58,7 +58,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
 
   state: State = {
     loading: false,
-    measures: []
+    measures: [],
   };
 
   componentDidMount() {
@@ -84,9 +84,9 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
     const prevConditions = prevProps.conditions ?? [];
     const newConditions = this.props.conditions ?? [];
     const diff = differenceBy(
-      prevConditions.filter(c => c.level === 'ERROR'),
-      newConditions.filter(c => c.level === 'ERROR'),
-      c => c.metric
+      prevConditions.filter((c) => c.level === 'ERROR'),
+      newConditions.filter((c) => c.level === 'ERROR'),
+      (c) => c.metric
     );
 
     return (
@@ -97,7 +97,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
   fetchBranchStatusData = () => {
     const {
       branchLike,
-      component: { key }
+      component: { key },
     } = this.props;
     this.props.fetchBranchStatus(branchLike, key);
   };
@@ -106,7 +106,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
     const {
       branchLike,
       component: { key },
-      conditions
+      conditions,
     } = this.props;
 
     this.setState({ loading: true });
@@ -114,7 +114,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
     const metricKeys =
       conditions !== undefined
         ? // Also load metrics that apply to failing QG conditions.
-          uniq([...PR_METRICS, ...conditions.filter(c => c.level !== 'OK').map(c => c.metric)])
+          uniq([...PR_METRICS, ...conditions.filter((c) => c.level !== 'OK').map((c) => c.metric)])
         : PR_METRICS;
 
     getMeasuresWithMetrics(key, metricKeys, getBranchLikeQuery(branchLike)).then(
@@ -122,7 +122,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
         if (this.mounted && component.measures) {
           this.setState({
             loading: false,
-            measures: enhanceMeasuresWithMetrics(component.measures || [], metrics)
+            measures: enhanceMeasuresWithMetrics(component.measures || [], metrics),
           });
         }
       },
@@ -151,16 +151,17 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
     }
 
     const failedConditions = conditions
-      .filter(condition => condition.level === 'ERROR')
-      .map(c => enhanceConditionWithMeasure(c, measures))
+      .filter((condition) => condition.level === 'ERROR')
+      .map((c) => enhanceConditionWithMeasure(c, measures))
       .filter(isDefined);
 
     return (
       <div className="page page-limited">
         <div
           className={classNames('pr-overview', {
-            'has-conditions': failedConditions.length > 0
-          })}>
+            'has-conditions': failedConditions.length > 0,
+          })}
+        >
           {ignoredConditions && (
             <Alert className="big-spacer-bottom" display="inline" variant="info">
               <span className="text-middle">
@@ -214,7 +215,7 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
                   IssueType.Bug,
                   IssueType.Vulnerability,
                   IssueType.SecurityHotspot,
-                  IssueType.CodeSmell
+                  IssueType.CodeSmell,
                 ].map((type: IssueType) => (
                   <div className="overview-measures-row display-flex-row" key={type}>
                     <div className="overview-panel-big-padded flex-1 small display-flex-center">

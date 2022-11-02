@@ -28,7 +28,7 @@ it('should render correctly for last, new, and highlighted lines', () => {
     shallowRender({
       highlighted: true,
       last: true,
-      line: mockSourceLine({ isNew: true })
+      line: mockSourceLine({ isNew: true }),
     })
   ).toMatchSnapshot();
 });
@@ -47,7 +47,7 @@ it('handles the opening and closing of issues', () => {
     onIssueSelect,
     onIssuesOpen,
     onIssueUnselect,
-    openIssues: true
+    openIssues: true,
   });
   const instance = wrapper.instance();
 

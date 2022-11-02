@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import ValidationInput, {
-  ValidationInputErrorPlacement
+  ValidationInputErrorPlacement,
 } from '../../../../components/controls/ValidationInput';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { ExtendedSettingDefinition, SettingType, SettingValue } from '../../../../types/settings';
@@ -65,7 +65,7 @@ export default function SamlFormField(props: SamlToggleFieldProps) {
             definition={definition}
             settingValue={settingValue}
             toggleDisabled={false}
-            onChange={val => props.onFieldChange(SAML_SIGNATURE_FIELD, val)}
+            onChange={(val) => props.onFieldChange(SAML_SIGNATURE_FIELD, val)}
           />
         )}
         {definition.type === undefined && (
@@ -73,13 +73,14 @@ export default function SamlFormField(props: SamlToggleFieldProps) {
             error={error[definition.key]}
             errorPlacement={ValidationInputErrorPlacement.Bottom}
             isValid={false}
-            isInvalid={Boolean(error[definition.key])}>
+            isInvalid={Boolean(error[definition.key])}
+          >
             <input
               className="width-100"
               id={definition.key}
               maxLength={100}
               name={definition.key}
-              onChange={e => props.onFieldChange(definition.key, e.currentTarget.value)}
+              onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
               size={50}
               type="text"
               value={settingValue?.value ?? ''}

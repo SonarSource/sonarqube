@@ -34,7 +34,7 @@ afterAll(() => {
 const ui = {
   toggleButton: byRole('button', { name: 'toggle' }),
   outButton: byRole('button', { name: 'out' }),
-  overlayButton: byRole('button', { name: 'overlay' })
+  overlayButton: byRole('button', { name: 'overlay' }),
 };
 
 async function openToggler(user: UserEvent) {
@@ -58,7 +58,7 @@ it('should handle escape correclty', async () => {
     closeOnEscape: true,
     closeOnClick: false,
     closeOnClickOutside: false,
-    closeOnFocusOut: false
+    closeOnFocusOut: false,
   });
 
   await openToggler(user);
@@ -79,7 +79,7 @@ it('should handle focus correctly', async () => {
     closeOnEscape: false,
     closeOnClick: false,
     closeOnClickOutside: false,
-    closeOnFocusOut: true
+    closeOnFocusOut: true,
   });
 
   await openToggler(user);
@@ -100,7 +100,7 @@ it('should handle click correctly', async () => {
     closeOnEscape: false,
     closeOnClick: true,
     closeOnClickOutside: false,
-    closeOnFocusOut: false
+    closeOnFocusOut: false,
   });
 
   await openToggler(user);
@@ -126,7 +126,7 @@ it('should handle click outside correctly', async () => {
     closeOnEscape: false,
     closeOnClick: false,
     closeOnClickOutside: true,
-    closeOnFocusOut: false
+    closeOnFocusOut: false,
   });
 
   await openToggler(user);
@@ -184,7 +184,8 @@ function renderToggler(override?: Partial<Toggler['props']>) {
           onRequestClose={() => setOpen(false)}
           open={open}
           overlay={<button type="button">overlay</button>}
-          {...props}>
+          {...props}
+        >
           <button onClick={() => setOpen(true)} type="button">
             toggle
           </button>
@@ -195,7 +196,7 @@ function renderToggler(override?: Partial<Toggler['props']>) {
   }
 
   const { rerender } = render(<App {...override} />);
-  return function(reoverride: Partial<Toggler['props']>) {
+  return function (reoverride: Partial<Toggler['props']>) {
     return rerender(<App {...override} {...reoverride} />);
   };
 }

@@ -26,7 +26,7 @@ import PasswordForm from '../PasswordForm';
 const password = 'new password asdf';
 
 jest.mock('../../../../api/users', () => ({
-  changePassword: jest.fn(() => Promise.resolve())
+  changePassword: jest.fn(() => Promise.resolve()),
 }));
 
 it('should render correctly', () => {

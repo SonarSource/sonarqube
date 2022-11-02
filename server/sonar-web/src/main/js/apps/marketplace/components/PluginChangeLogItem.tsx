@@ -51,7 +51,8 @@ export default function PluginChangeLogItem({ release, update }: Props) {
             className="js-plugin-changelog-link"
             href={release.changeLogUrl}
             target="_blank"
-            rel="noopener noreferrer">
+            rel="noopener noreferrer"
+          >
             {translate('marketplace.release_notes')}
           </a>
         )}

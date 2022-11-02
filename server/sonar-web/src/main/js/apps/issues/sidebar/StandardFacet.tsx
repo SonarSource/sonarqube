@@ -37,7 +37,7 @@ import {
   renderOwaspTop102021Category,
   renderOwaspTop10Category,
   renderSansTop25Category,
-  renderSonarSourceSecurityCategory
+  renderSonarSourceSecurityCategory,
 } from '../../../helpers/security-standard';
 import { Facet } from '../../../types/issues';
 import { SecurityStandard, Standards } from '../../../types/security';
@@ -99,8 +99,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
       sonarsourceSecurity: {},
       'pciDss-3.2': {},
       'pciDss-4.0': {},
-      'owaspAsvs-4.0': {}
-    }
+      'owaspAsvs-4.0': {},
+    },
   };
 
   componentDidMount() {
@@ -139,7 +139,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         sonarsourceSecurity,
         'pciDss-3.2': pciDss3_2,
         'pciDss-4.0': pciDss4_0,
-        'owaspAsvs-4.0': owaspAsvs4_0
+        'owaspAsvs-4.0': owaspAsvs4_0,
       }: Standards) => {
         if (this.mounted) {
           this.setState({
@@ -151,8 +151,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
               sonarsourceSecurity,
               'pciDss-3.2': pciDss3_2,
               'pciDss-4.0': pciDss4_0,
-              'owaspAsvs-4.0': owaspAsvs4_0
-            }
+              'owaspAsvs-4.0': owaspAsvs4_0,
+            },
           });
         }
       },
@@ -162,19 +162,19 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
 
   getValues = () => {
     return [
-      ...this.props.sonarsourceSecurity.map(item =>
+      ...this.props.sonarsourceSecurity.map((item) =>
         renderSonarSourceSecurityCategory(this.state.standards, item, true)
       ),
-      ...this.props.owaspTop10.map(item =>
+      ...this.props.owaspTop10.map((item) =>
         renderOwaspTop10Category(this.state.standards, item, true)
       ),
-      ...this.props['owaspTop10-2021'].map(item =>
+      ...this.props['owaspTop10-2021'].map((item) =>
         renderOwaspTop102021Category(this.state.standards, item, true)
       ),
-      ...this.props.sansTop25.map(item =>
+      ...this.props.sansTop25.map((item) =>
         renderSansTop25Category(this.state.standards, item, true)
       ),
-      ...this.props.cwe.map(item => renderCWECategory(this.state.standards, item))
+      ...this.props.cwe.map((item) => renderCWECategory(this.state.standards, item)),
     ];
   };
 
@@ -205,7 +205,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
       'owaspTop10-2021': [],
       sansTop25: [],
       cwe: [],
-      sonarsourceSecurity: []
+      sonarsourceSecurity: [],
     });
   };
 
@@ -218,7 +218,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
       this.props.onChange({ [prop]: newValue });
     } else {
       this.props.onChange({
-        [prop]: items.includes(itemValue) && items.length < 2 ? [] : [itemValue]
+        [prop]: items.includes(itemValue) && items.length < 2 ? [] : [itemValue],
       });
     }
   };
@@ -241,11 +241,9 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
 
   handleCWESearch = (query: string) => {
     return Promise.resolve({
-      results: Object.keys(this.state.standards.cwe).filter(cwe =>
-        renderCWECategory(this.state.standards, cwe)
-          .toLowerCase()
-          .includes(query.toLowerCase())
-      )
+      results: Object.keys(this.state.standards.cwe).filter((cwe) =>
+        renderCWECategory(this.state.standards, cwe).toLowerCase().includes(query.toLowerCase())
+      ),
     });
   };
 
@@ -267,7 +265,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     if (!stats) {
       return null;
     }
-    const categories = sortBy(Object.keys(stats), key => -stats[key]);
+    const categories = sortBy(Object.keys(stats), (key) => -stats[key]);
     return this.renderFacetItemsList(stats, values, categories, renderName, renderName, onClick);
   };
 
@@ -294,7 +292,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
 
     return (
       <FacetItemsList>
-        {categories.map(category => (
+        {categories.map((category) => (
           <FacetItem
             active={values.includes(category)}
             key={category}
@@ -352,8 +350,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
 
     const sortedItems = sortBy(
       Object.keys(stats),
-      key => -stats[key],
-      key => renderSonarSourceSecurityCategory(this.state.standards, key)
+      (key) => -stats[key],
+      (key) => renderSonarSourceSecurityCategory(this.state.standards, key)
     );
 
     const limitedList = this.state.showFullSonarSourceList
@@ -363,13 +361,13 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     // make sure all selected items are displayed
     const selectedBelowLimit = this.state.showFullSonarSourceList
       ? []
-      : sortedItems.slice(INITIAL_FACET_COUNT).filter(item => values.includes(item));
+      : sortedItems.slice(INITIAL_FACET_COUNT).filter((item) => values.includes(item));
 
     const allItemShown = limitedList.length + selectedBelowLimit.length === sortedItems.length;
     return (
       <>
         <FacetItemsList>
-          {limitedList.map(item => (
+          {limitedList.map((item) => (
             <FacetItem
               active={values.includes(item)}
               key={item}
@@ -385,7 +383,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
           <>
             {!allItemShown && <div className="note spacer-bottom text-center">⋯</div>}
             <FacetItemsList>
-              {selectedBelowLimit.map(item => (
+              {selectedBelowLimit.map((item) => (
                 <FacetItem
                   active={true}
                   key={item}
@@ -440,7 +438,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             name={translate('issues.facet.sonarsourceSecurity')}
             onClick={this.handleSonarSourceSecurityHeaderClick}
             open={this.props.sonarsourceSecurityOpen}
-            values={this.props.sonarsourceSecurity.map(item =>
+            values={this.props.sonarsourceSecurity.map((item) =>
               renderSonarSourceSecurityCategory(this.state.standards, item)
             )}
           />
@@ -457,7 +455,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             name={translate('issues.facet.owaspTop10_2021')}
             onClick={this.handleOwaspTop102021HeaderClick}
             open={this.props['owaspTop10-2021Open']}
-            values={this.props['owaspTop10-2021'].map(item =>
+            values={this.props['owaspTop10-2021'].map((item) =>
               renderOwaspTop102021Category(this.state.standards, item)
             )}
           />
@@ -474,7 +472,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             name={translate('issues.facet.owaspTop10')}
             onClick={this.handleOwaspTop10HeaderClick}
             open={this.props.owaspTop10Open}
-            values={this.props.owaspTop10.map(item =>
+            values={this.props.owaspTop10.map((item) =>
               renderOwaspTop10Category(this.state.standards, item)
             )}
           />
@@ -491,7 +489,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             name={translate('issues.facet.sansTop25')}
             onClick={this.handleSansTop25HeaderClick}
             open={this.props.sansTop25Open}
-            values={this.props.sansTop25.map(item =>
+            values={this.props.sansTop25.map((item) =>
               renderSansTop25Category(this.state.standards, item)
             )}
           />
@@ -506,9 +504,9 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
           className="is-inner"
           facetHeader={translate('issues.facet.cwe')}
           fetching={this.props.fetchingCwe}
-          getFacetItemText={item => renderCWECategory(this.state.standards, item)}
-          getSearchResultKey={item => item}
-          getSearchResultText={item => renderCWECategory(this.state.standards, item)}
+          getFacetItemText={(item) => renderCWECategory(this.state.standards, item)}
+          getSearchResultKey={(item) => item}
+          getSearchResultText={(item) => renderCWECategory(this.state.standards, item)}
           loadSearchResultCount={this.loadCWESearchResultCount}
           onChange={this.props.onChange}
           onSearch={this.handleCWESearch}
@@ -516,7 +514,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
           open={this.props.cweOpen}
           property={SecurityStandard.CWE}
           query={omit(this.props.query, 'cwe')}
-          renderFacetItem={item => renderCWECategory(this.state.standards, item)}
+          renderFacetItem={(item) => renderCWECategory(this.state.standards, item)}
           renderSearchResult={(item, query) =>
             highlightTerm(renderCWECategory(this.state.standards, item), query)
           }

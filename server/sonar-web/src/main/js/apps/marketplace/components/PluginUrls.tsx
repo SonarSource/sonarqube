@@ -38,7 +38,8 @@ export default function PluginUrls({ plugin }: Props) {
               className="js-plugin-homepage"
               href={plugin.homepageUrl}
               target="_blank"
-              rel="noopener noreferrer">
+              rel="noopener noreferrer"
+            >
               {translate('marketplace.homepage')}
             </a>
           </li>
@@ -49,7 +50,8 @@ export default function PluginUrls({ plugin }: Props) {
               className="js-plugin-issues"
               href={plugin.issueTrackerUrl}
               target="_blank"
-              rel="noopener noreferrer">
+              rel="noopener noreferrer"
+            >
               {translate('marketplace.issue_tracker')}
             </a>
           </li>

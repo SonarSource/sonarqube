@@ -23,7 +23,7 @@ import RecentHistory, { History } from '../RecentHistory';
 jest.mock('../../../helpers/storage', () => ({
   get: jest.fn(),
   remove: jest.fn(),
-  save: jest.fn()
+  save: jest.fn(),
 }));
 
 beforeEach(() => {

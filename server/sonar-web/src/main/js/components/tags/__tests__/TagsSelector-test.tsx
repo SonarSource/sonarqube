@@ -29,7 +29,7 @@ const props = {
   renderLabel: (element: string) => element,
   position: { right: 0, top: 0 },
   selectedTags: ['bar'],
-  tags: ['foo', 'bar', 'baz']
+  tags: ['foo', 'bar', 'baz'],
 };
 
 it('should render with selected tags', () => {

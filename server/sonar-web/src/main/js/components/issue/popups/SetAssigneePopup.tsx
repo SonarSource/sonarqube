@@ -56,7 +56,7 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
     this.state = {
       query: '',
       users: this.defaultUsersArray,
-      currentUser: this.defaultUsersArray.length > 0 ? this.defaultUsersArray[0].login : ''
+      currentUser: this.defaultUsersArray.length > 0 ? this.defaultUsersArray[0].login : '',
     };
   }
 
@@ -68,7 +68,7 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
     const activeUsers = users.filter(isUserActive);
     this.setState({
       users: activeUsers,
-      currentUser: activeUsers.length > 0 ? activeUsers[0].login : ''
+      currentUser: activeUsers.length > 0 ? activeUsers[0].login : '',
     });
   };
 
@@ -77,7 +77,7 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
       this.setState({
         query,
         users: this.defaultUsersArray,
-        currentUser: this.defaultUsersArray[0].login
+        currentUser: this.defaultUsersArray[0].login,
       });
     } else {
       this.setState({ query });
@@ -102,8 +102,9 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
           <SelectList
             currentItem={this.state.currentUser}
             items={map(this.state.users, 'login')}
-            onSelect={this.props.onSelect}>
-            {this.state.users.map(user => (
+            onSelect={this.props.onSelect}
+          >
+            {this.state.users.map((user) => (
               <SelectListItem item={user.login} key={user.login}>
                 {!!user.login && (
                   <Avatar className="spacer-right" hash={user.avatar} name={user.name} size={16} />

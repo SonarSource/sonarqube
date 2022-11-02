@@ -34,7 +34,7 @@ it('renders match', () => {
     key: 'foo',
     name: 'foo',
     match: 'f<mark>o</mark>o',
-    qualifier: ComponentQualifier.Project
+    qualifier: ComponentQualifier.Project,
   };
   const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
@@ -45,7 +45,7 @@ it('renders favorite', () => {
     isFavorite: true,
     key: 'foo',
     name: 'foo',
-    qualifier: ComponentQualifier.Project
+    qualifier: ComponentQualifier.Project,
   };
   const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();
@@ -56,7 +56,7 @@ it('renders recently browsed', () => {
     isRecentlyBrowsed: true,
     key: 'foo',
     name: 'foo',
-    qualifier: ComponentQualifier.Project
+    qualifier: ComponentQualifier.Project,
   };
   const wrapper = shallowRender({ component });
   expect(wrapper).toMatchSnapshot();

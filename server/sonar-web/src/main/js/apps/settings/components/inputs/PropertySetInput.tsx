@@ -23,7 +23,7 @@ import {
   DefaultSpecializedInputProps,
   getEmptyValue,
   getUniqueName,
-  isCategoryDefinition
+  isCategoryDefinition,
 } from '../../utils';
 import PrimitiveInput from './PrimitiveInput';
 
@@ -53,11 +53,11 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
     return (
       <tr key={index}>
         {isCategoryDefinition(definition) &&
-          definition.fields.map(field => {
+          definition.fields.map((field) => {
             const newSetting = {
               ...setting,
               definition: field,
-              value: fieldValues[field.key]
+              value: fieldValues[field.key],
             };
             return (
               <td key={field.key}>
@@ -65,7 +65,7 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
                   isDefault={isDefault}
                   hasValueChanged={this.props.hasValueChanged}
                   name={getUniqueName(definition, field.key)}
-                  onChange={value => this.handleInputChange(index, field.key, value)}
+                  onChange={(value) => this.handleInputChange(index, field.key, value)}
                   setting={newSetting}
                   value={fieldValues[field.key]}
                 />
@@ -92,11 +92,12 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
       <div>
         <table
           className="data zebra-hover no-outer-padding"
-          style={{ width: 'auto', minWidth: 480, marginTop: -12 }}>
+          style={{ width: 'auto', minWidth: 480, marginTop: -12 }}
+        >
           <thead>
             <tr>
               {isCategoryDefinition(definition) &&
-                definition.fields.map(field => (
+                definition.fields.map((field) => (
                   <th key={field.key}>
                     {field.name}
                     {field.description != null && (

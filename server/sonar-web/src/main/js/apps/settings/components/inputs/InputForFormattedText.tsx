@@ -36,7 +36,7 @@ export default class InputForFormattedText extends React.PureComponent<
   constructor(props: DefaultSpecializedInputProps) {
     super(props);
     this.state = {
-      editMessage: !this.props.setting.hasValue
+      editMessage: !this.props.setting.hasValue,
     };
   }
 

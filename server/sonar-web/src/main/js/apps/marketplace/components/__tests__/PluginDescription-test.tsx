@@ -38,7 +38,7 @@ function getWrapper(props = {}) {
         key: 'foo',
         name: 'Foo',
         description: 'foo description',
-        category: 'foocategory'
+        category: 'foocategory',
       }}
       {...props}
     />

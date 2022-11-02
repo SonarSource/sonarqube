@@ -37,7 +37,7 @@ const RANGE_OPTION_START = {
   [RangeOption.Today]: () => now(),
   [RangeOption.Week]: () => subDays(now(), 7),
   [RangeOption.Month]: () => subDays(now(), 30),
-  [RangeOption.Trimester]: () => subDays(now(), 90)
+  [RangeOption.Trimester]: () => subDays(now(), 90),
 };
 
 const toISODateString = (date: Date) => date.toISOString();
@@ -53,13 +53,13 @@ function getRangeParams(selection: RangeOption, dateRange?: { from?: Date; to?: 
 
     return new URLSearchParams({
       from: toISODateString(startOfDay(dateRange.from)),
-      to: toISODateString(endOfDay(dateRange.to))
+      to: toISODateString(endOfDay(dateRange.to)),
     }).toString();
   }
 
   return new URLSearchParams({
     from: toISODateString(startOfDay(RANGE_OPTION_START[selection]())),
-    to: toISODateString(now())
+    to: toISODateString(now()),
   }).toString();
 }
 
@@ -84,7 +84,8 @@ export default function DownloadButton(props: DownloadButtonProps) {
         onClick={downloadDisabled ? undefined : props.onStartDownload}
         href={downloadUrl}
         rel="noopener noreferrer"
-        target="_blank">
+        target="_blank"
+      >
         {translate('download_verb')}
       </a>
 

@@ -48,7 +48,7 @@ export class ChangeAdminPasswordApp extends React.PureComponent<Props, State> {
       passwordValue: '',
       confirmPasswordValue: '',
       submitting: false,
-      success: !props.appState.instanceUsesDefaultAdminCredentials
+      success: !props.appState.instanceUsesDefaultAdminCredentials,
     };
   }
 
@@ -74,7 +74,7 @@ export class ChangeAdminPasswordApp extends React.PureComponent<Props, State> {
       this.setState({ submitting: true });
       const success = await changePassword({
         login: DEFAULT_ADMIN_LOGIN,
-        password: passwordValue
+        password: passwordValue,
       }).then(
         () => true,
         () => false
@@ -87,14 +87,14 @@ export class ChangeAdminPasswordApp extends React.PureComponent<Props, State> {
 
   checkCanSubmit = () => {
     this.setState(({ passwordValue, confirmPasswordValue }) => ({
-      canSubmit: passwordValue === confirmPasswordValue && passwordValue !== DEFAULT_ADMIN_PASSWORD
+      canSubmit: passwordValue === confirmPasswordValue && passwordValue !== DEFAULT_ADMIN_PASSWORD,
     }));
   };
 
   render() {
     const {
       appState: { canAdmin },
-      location
+      location,
     } = this.props;
     const { canSubmit, confirmPasswordValue, passwordValue, submitting, success } = this.state;
     return (

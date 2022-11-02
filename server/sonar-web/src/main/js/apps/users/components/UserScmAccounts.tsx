@@ -35,7 +35,7 @@ export default class UserScmAccounts extends React.PureComponent<Props, State> {
 
   toggleShowMore = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
     evt.preventDefault();
-    this.setState(state => ({ showMore: !state.showMore }));
+    this.setState((state) => ({ showMore: !state.showMore }));
   };
 
   render() {

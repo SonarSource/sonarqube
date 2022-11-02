@@ -25,11 +25,11 @@ import { mockAppState, mockLocation } from '../../../helpers/testMocks';
 import { PageTracker } from '../PageTracker';
 
 jest.mock('../../../helpers/extensions', () => ({
-  installScript: jest.fn().mockResolvedValue({})
+  installScript: jest.fn().mockResolvedValue({}),
 }));
 
 jest.mock('../../../helpers/extensionsHandler', () => ({
-  getWebAnalyticsPageHandlerFromCache: jest.fn().mockReturnValue(undefined)
+  getWebAnalyticsPageHandlerFromCache: jest.fn().mockReturnValue(undefined),
 }));
 
 beforeAll(() => {

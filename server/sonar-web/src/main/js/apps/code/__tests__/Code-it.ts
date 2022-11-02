@@ -35,7 +35,7 @@ jest.mock('../../../components/SourceViewer/helpers/lines', () => {
   const lines = jest.requireActual('../../../components/SourceViewer/helpers/lines');
   return {
     ...lines,
-    LINES_TO_LOAD: 20
+    LINES_TO_LOAD: 20,
   };
 });
 

@@ -27,21 +27,21 @@ const METRIC = {
   id: '1',
   key: 'reliability_rating',
   type: 'RATING',
-  name: 'Reliability Rating'
+  name: 'Reliability Rating',
 };
 
 const LEAK_METRIC = {
   id: '2',
   key: 'new_reliability_rating',
   type: 'RATING',
-  name: 'Reliability Rating on New Code'
+  name: 'Reliability Rating on New Code',
 };
 
 const LEAK_MEASURE = '3.0';
 
 const SECONDARY = {
   value: 'java=175123;js=26382',
-  metric: 'ncloc_language_distribution'
+  metric: 'ncloc_language_distribution',
 };
 
 const PROPS = {
@@ -50,10 +50,10 @@ const PROPS = {
     date: '2017-05-16T13:50:02+0200',
     index: 1,
     mode: 'previous_version',
-    parameter: '6,4'
+    parameter: '6,4',
   } as Period,
   measureValue: '3.0',
-  metric: METRIC
+  metric: METRIC,
 };
 
 it('should render correctly', () => {

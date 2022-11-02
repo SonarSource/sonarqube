@@ -31,7 +31,7 @@ it('should render correctly a legend', () => {
       index: 1,
       metric: 'foo',
       name: 'Foo',
-      removeMetric: jest.fn()
+      removeMetric: jest.fn(),
     })
   ).toMatchSnapshot('with legend');
   expect(shallowRender({ showWarning: true })).toMatchSnapshot('with warning');

@@ -63,7 +63,7 @@ export function stringify(obj: any, sep?: any, eq?: any, name?: any) {
 
   if (typeof obj === 'object') {
     return Object.keys(obj)
-      .map(k => {
+      .map((k) => {
         const ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
         if (Array.isArray(obj[k])) {
           return obj[k]

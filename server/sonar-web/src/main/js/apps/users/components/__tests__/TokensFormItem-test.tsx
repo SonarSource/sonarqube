@@ -29,13 +29,13 @@ jest.mock('../../../../components/intl/DateFromNow');
 jest.mock('../../../../components/intl/DateTimeFormatter');
 
 jest.mock('../../../../api/user-tokens', () => ({
-  revokeToken: jest.fn().mockResolvedValue(undefined)
+  revokeToken: jest.fn().mockResolvedValue(undefined),
 }));
 
 const userToken = mockUserToken({
   name: 'foo',
   createdAt: '2019-01-15T15:06:33+0100',
-  lastConnectionDate: '2019-01-18T15:06:33+0100'
+  lastConnectionDate: '2019-01-18T15:06:33+0100',
 });
 
 beforeEach(() => {

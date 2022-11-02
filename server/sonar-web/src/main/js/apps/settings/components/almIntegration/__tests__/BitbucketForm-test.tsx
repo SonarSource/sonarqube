@@ -22,7 +22,7 @@ import * as React from 'react';
 import ButtonToggle from '../../../../../components/controls/ButtonToggle';
 import {
   mockBitbucketCloudBindingDefinition,
-  mockBitbucketServerBindingDefinition
+  mockBitbucketServerBindingDefinition,
 } from '../../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import BitbucketForm, { BitbucketFormProps } from '../BitbucketForm';
@@ -30,27 +30,27 @@ import BitbucketForm, { BitbucketFormProps } from '../BitbucketForm';
 it('should render correctly', () => {
   let wrapper = shallowRender({
     variant: AlmKeys.BitbucketServer,
-    formData: mockBitbucketServerBindingDefinition()
+    formData: mockBitbucketServerBindingDefinition(),
   });
   expect(wrapper).toMatchSnapshot('bbs');
 
   wrapper = shallowRender({
     variant: AlmKeys.BitbucketCloud,
-    formData: mockBitbucketCloudBindingDefinition()
+    formData: mockBitbucketCloudBindingDefinition(),
   });
   expect(wrapper).toMatchSnapshot('bbc');
 
   wrapper = shallowRender({
     isUpdate: true,
     variant: AlmKeys.BitbucketServer,
-    formData: mockBitbucketServerBindingDefinition()
+    formData: mockBitbucketServerBindingDefinition(),
   });
   expect(wrapper).toMatchSnapshot('update bbs');
 
   wrapper = shallowRender({
     isUpdate: true,
     variant: AlmKeys.BitbucketCloud,
-    formData: mockBitbucketCloudBindingDefinition()
+    formData: mockBitbucketCloudBindingDefinition(),
   });
   expect(wrapper).toMatchSnapshot('update bbc');
 });
@@ -59,10 +59,7 @@ it('should render propagete variant properly', () => {
   const onVariantChange = jest.fn();
   const wrapper = shallowRender({ onVariantChange });
 
-  wrapper
-    .find(ButtonToggle)
-    .props()
-    .onCheck(AlmKeys.BitbucketServer);
+  wrapper.find(ButtonToggle).props().onCheck(AlmKeys.BitbucketServer);
 
   expect(onVariantChange).toHaveBeenCalledWith(AlmKeys.BitbucketServer);
 });

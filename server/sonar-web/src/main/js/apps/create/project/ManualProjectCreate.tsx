@@ -72,7 +72,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       projectNameTouched: false,
       mainBranchName: 'main',
       mainBranchNameTouched: false,
-      validatingProjectKey: false
+      validatingProjectKey: false,
     };
     this.checkFreeKey = debounce(this.checkFreeKey, 250);
   }
@@ -98,13 +98,13 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     this.setState({ validatingProjectKey: true });
 
     return doesComponentExists({ component: key })
-      .then(alreadyExist => {
+      .then((alreadyExist) => {
         if (this.mounted && key === this.state.projectKey) {
           this.setState({
             projectKeyError: alreadyExist
               ? translate('onboarding.create_project.project_key.taken')
               : undefined,
-            validatingProjectKey: false
+            validatingProjectKey: false,
           });
         }
       })
@@ -134,7 +134,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       createProject({
         project: projectKey,
         name: (projectName || projectKey).trim(),
-        mainBranch: mainBranchName
+        mainBranch: mainBranchName,
       }).then(
         ({ project }) => this.props.onProjectCreate(project.key),
         () => {
@@ -152,7 +152,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     this.setState({
       projectKey,
       projectKeyError,
-      projectKeyTouched: fromUI
+      projectKeyTouched: fromUI,
     });
 
     if (projectKeyError === undefined) {
@@ -165,7 +165,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       {
         projectName,
         projectNameError: this.validateName(projectName),
-        projectNameTouched: fromUI
+        projectNameTouched: fromUI,
       },
       () => {
         if (!this.state.projectKeyTouched) {
@@ -182,7 +182,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     this.setState({
       mainBranchName,
       mainBranchNameError: this.validateMainBranchName(mainBranchName),
-      mainBranchNameTouched: fromUI
+      mainBranchNameTouched: fromUI,
     });
   };
 
@@ -219,7 +219,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       mainBranchName,
       mainBranchNameError,
       mainBranchNameTouched,
-      submitting
+      submitting,
     } = this.state;
     const { branchesEnabled } = this.props;
 
@@ -246,16 +246,17 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 isInvalid={projectNameIsInvalid}
                 isValid={projectNameIsValid}
                 label={translate('onboarding.create_project.display_name')}
-                required={true}>
+                required={true}
+              >
                 <input
                   className={classNames('input-super-large', {
                     'is-invalid': projectNameIsInvalid,
-                    'is-valid': projectNameIsValid
+                    'is-valid': projectNameIsValid,
                   })}
                   id="project-name"
                   maxLength={PROJECT_NAME_MAX_LEN}
                   minLength={1}
-                  onChange={e => this.handleProjectNameChange(e.currentTarget.value, true)}
+                  onChange={(e) => this.handleProjectNameChange(e.currentTarget.value, true)}
                   type="text"
                   value={projectName}
                   autoFocus={true}
@@ -264,7 +265,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
               <ProjectKeyInput
                 error={projectKeyError}
                 label={translate('onboarding.create_project.project_key')}
-                onProjectKeyChange={e => this.handleProjectKeyChange(e.currentTarget.value, true)}
+                onProjectKeyChange={(e) => this.handleProjectKeyChange(e.currentTarget.value, true)}
                 projectKey={projectKey}
                 touched={touched}
                 validating={validatingProjectKey}
@@ -283,7 +284,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                         <DocLink to="/project-administration/project-existence">
                           {translate('learn_more')}
                         </DocLink>
-                      )
+                      ),
                     }}
                   />
                 }
@@ -292,15 +293,16 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 isInvalid={mainBranchNameIsInvalid}
                 isValid={mainBranchNameIsValid}
                 label={translate('onboarding.create_project.main_branch_name')}
-                required={true}>
+                required={true}
+              >
                 <input
                   id="main-branch-name"
                   className={classNames('input-super-large', {
                     'is-invalid': mainBranchNameIsInvalid,
-                    'is-valid': mainBranchNameIsValid
+                    'is-valid': mainBranchNameIsValid,
                   })}
                   minLength={1}
-                  onChange={e => this.handleBranchNameChange(e.currentTarget.value, true)}
+                  onChange={(e) => this.handleBranchNameChange(e.currentTarget.value, true)}
                   type="text"
                   value={mainBranchName}
                 />

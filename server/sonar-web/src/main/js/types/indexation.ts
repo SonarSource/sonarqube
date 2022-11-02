@@ -31,5 +31,5 @@ export enum IndexationNotificationType {
   InProgress = 'InProgress',
   InProgressWithFailure = 'InProgressWithFailure',
   Completed = 'Completed',
-  CompletedWithFailure = 'CompletedWithFailure'
+  CompletedWithFailure = 'CompletedWithFailure',
 }

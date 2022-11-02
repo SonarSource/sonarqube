@@ -22,11 +22,11 @@ import {
   serializeQuery,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
-  shouldOpenStandardsFacet
+  shouldOpenStandardsFacet,
 } from '../utils';
 
 jest.mock('../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn()
+  scrollToElement: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -67,7 +67,7 @@ describe('serialize/deserialize', () => {
         sonarsourceSecurity: ['a', 'b'],
         statuses: ['a', 'b'],
         tags: ['a', 'b'],
-        types: ['a', 'b']
+        types: ['a', 'b'],
       })
     ).toStrictEqual({
       assignees: 'a,b',
@@ -98,7 +98,7 @@ describe('serialize/deserialize', () => {
       sonarsourceSecurity: 'a,b',
       statuses: 'a,b',
       tags: 'a,b',
-      types: 'a,b'
+      types: 'a,b',
     });
   });
 });

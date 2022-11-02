@@ -36,29 +36,16 @@ it('should correctly handle changes', () => {
   const onSubmit = jest.fn();
   const wrapper = shallowRender({ onSubmit }, false);
 
-  diveIntoSimpleModal(wrapper)
-    .find(Radio)
-    .at(0)
-    .props()
-    .onCheck('');
+  diveIntoSimpleModal(wrapper).find(Radio).at(0).props().onCheck('');
   submitSimpleModal(wrapper);
   expect(onSubmit).toHaveBeenLastCalledWith(undefined, 'foo');
 
-  diveIntoSimpleModal(wrapper)
-    .find(Radio)
-    .at(1)
-    .props()
-    .onCheck('');
-  diveIntoSimpleModal(wrapper)
-    .find(Select)
-    .props()
-    .onChange({ value: 'bar' });
+  diveIntoSimpleModal(wrapper).find(Radio).at(1).props().onCheck('');
+  diveIntoSimpleModal(wrapper).find(Select).props().onChange({ value: 'bar' });
   submitSimpleModal(wrapper);
   expect(onSubmit).toHaveBeenLastCalledWith('bar', 'foo');
 
-  const change = diveIntoSimpleModal(wrapper)
-    .find(Select)
-    .props().onChange;
+  const change = diveIntoSimpleModal(wrapper).find(Select).props().onChange;
 
   expect(change).toBeDefined();
 
@@ -68,17 +55,11 @@ it('should correctly handle changes', () => {
 });
 
 function diveIntoSimpleModal(wrapper: ShallowWrapper) {
-  return wrapper
-    .find(SimpleModal)
-    .dive()
-    .children();
+  return wrapper.find(SimpleModal).dive().children();
 }
 
 function submitSimpleModal(wrapper: ShallowWrapper) {
-  wrapper
-    .find(SimpleModal)
-    .props()
-    .onSubmit();
+  wrapper.find(SimpleModal).props().onSubmit();
 }
 
 function shallowRender(props: Partial<SetQualityProfileModalProps> = {}, dive = true) {
@@ -86,7 +67,7 @@ function shallowRender(props: Partial<SetQualityProfileModalProps> = {}, dive = 
     <SetQualityProfileModal
       availableProfiles={[
         mockQualityProfile({ key: 'foo', isDefault: true, language: 'js' }),
-        mockQualityProfile({ key: 'bar', language: 'js', activeRuleCount: 0 })
+        mockQualityProfile({ key: 'bar', language: 'js', activeRuleCount: 0 }),
       ]}
       component={mockComponent({ qualityProfiles: [{ key: 'foo', name: 'Foo', language: 'js' }] })}
       currentProfile={mockQualityProfile({ key: 'foo', language: 'js' })}

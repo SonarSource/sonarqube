@@ -24,7 +24,7 @@ import { getExtensionFromCache } from './extensionsHandler';
 let librariesExposed = false;
 
 export function installStyles(url: string, target: 'body' | 'head' = 'head'): Promise<any> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const linkTag = document.createElement('link');
     linkTag.href = `${getBaseUrl()}${url}`;
     linkTag.rel = 'stylesheet';
@@ -34,7 +34,7 @@ export function installStyles(url: string, target: 'body' | 'head' = 'head'): Pr
 }
 
 export function installScript(url: string, target: 'body' | 'head' = 'body'): Promise<any> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const scriptTag = document.createElement('script');
     scriptTag.src = `${getBaseUrl()}${url}`;
     scriptTag.onload = resolve;

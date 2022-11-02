@@ -39,7 +39,7 @@ export default class ComponentMeasure extends React.PureComponent<Props> {
 
     const measure =
       Array.isArray(component.measures) &&
-      component.measures.find(measure => measure.metric === finalMetricKey);
+      component.measures.find((measure) => measure.metric === finalMetricKey);
 
     if (!measure) {
       return measure === false ? <span /> : <span>—</span>;

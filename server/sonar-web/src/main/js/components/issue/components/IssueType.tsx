@@ -63,7 +63,8 @@ export default class IssueType extends React.PureComponent<Props> {
           <Toggler
             onRequestClose={this.handleClose}
             open={this.props.isOpen && this.props.canSetType}
-            overlay={<SetTypePopup issue={issue} onSelect={this.setType} />}>
+            overlay={<SetTypePopup issue={issue} onSelect={this.setType} />}
+          >
             <ButtonLink
               aria-label={translateWithParameters(
                 'issue.type.type_x_click_to_change',
@@ -71,7 +72,8 @@ export default class IssueType extends React.PureComponent<Props> {
               )}
               aria-expanded={this.props.isOpen}
               className="issue-action issue-action-with-options js-issue-set-type"
-              onClick={this.toggleSetType}>
+              onClick={this.toggleSetType}
+            >
               <IssueTypeIcon
                 className="little-spacer-right"
                 fill={colors.baseFontColor}

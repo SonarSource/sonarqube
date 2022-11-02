@@ -63,7 +63,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       showPersonalAccessTokenForm: true,
       searching: false,
       searchQuery: '',
-      settings: props.settings.length === 1 ? props.settings[0] : undefined
+      settings: props.settings.length === 1 ? props.settings[0] : undefined,
     };
   }
 
@@ -96,11 +96,11 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
         this.setState({
           loading: false,
           projects,
-          projectsPaging
+          projectsPaging,
         });
       } else {
         this.setState({
-          loading: false
+          loading: false,
         });
       }
     }
@@ -125,7 +125,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
         almSetting: settings.key,
         page: pageIndex,
         pageSize: GITLAB_PROJECTS_PAGESIZE,
-        query
+        query,
       });
     } catch (_) {
       return this.handleError();
@@ -142,7 +142,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     try {
       return await importGitlabProject({
         almSetting: settings.key,
-        gitlabProjectId
+        gitlabProjectId,
       });
     } catch (_) {
       return this.handleError();
@@ -168,7 +168,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
 
     const {
       projectsPaging: { pageIndex },
-      searchQuery
+      searchQuery,
     } = this.state;
 
     const result = await this.fetchProjects(pageIndex + 1, searchQuery);
@@ -177,7 +177,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       this.setState(({ projects = [], projectsPaging }) => ({
         loadingMore: false,
         projects: result ? [...projects, ...result.projects] : projects,
-        projectsPaging: result ? result.projectsPaging : projectsPaging
+        projectsPaging: result ? result.projectsPaging : projectsPaging,
       }));
     }
   };
@@ -191,7 +191,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       this.setState(({ projects, projectsPaging }) => ({
         searching: false,
         projects: result ? result.projects : projects,
-        projectsPaging: result ? result.projectsPaging : projectsPaging
+        projectsPaging: result ? result.projectsPaging : projectsPaging,
       }));
     }
   };
@@ -220,7 +220,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       searching,
       searchQuery,
       settings,
-      showPersonalAccessTokenForm
+      showPersonalAccessTokenForm,
     } = this.state;
 
     return (

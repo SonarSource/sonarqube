@@ -32,7 +32,7 @@ it('renders correctly for leak values', () => {
     shallow(
       <ComponentMeasure
         component={mockComponentMeasure(false, {
-          measures: [mockMeasure({ metric: 'new_coverage' })]
+          measures: [mockMeasure({ metric: 'new_coverage' })],
         })}
         metric={mockMetric({ key: 'new_coverage', name: 'Coverage on New Code' })}
       />
@@ -54,9 +54,9 @@ it('should render correctly for releasability rating', () => {
   expect(
     shallowRender({
       component: mockComponentMeasure(false, {
-        measures: [mockMeasure({ metric: 'alert_status' })]
+        measures: [mockMeasure({ metric: 'alert_status' })],
       }),
-      metric: mockMetric({ key: 'releasability_rating' })
+      metric: mockMetric({ key: 'releasability_rating' }),
     })
   ).toMatchSnapshot();
 });

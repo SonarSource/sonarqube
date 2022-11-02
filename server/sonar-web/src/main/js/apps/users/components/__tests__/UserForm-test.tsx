@@ -27,7 +27,7 @@ import UserForm from '../UserForm';
 
 jest.mock('../../../../api/users', () => ({
   createUser: jest.fn().mockResolvedValue({}),
-  updateUser: jest.fn().mockResolvedValue({})
+  updateUser: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => {
@@ -49,13 +49,7 @@ it('should correctly show errors', async () => {
   submit(wrapper.dive().find('form'));
   await waitAndUpdate(wrapper);
 
-  expect(
-    wrapper
-      .dive()
-      .find(Alert)
-      .children()
-      .text()
-  ).toMatch('default_error_message');
+  expect(wrapper.dive().find(Alert).children().text()).toMatch('default_error_message');
 });
 
 it('should correctly disable name and email fields for non-local users', () => {
@@ -63,12 +57,7 @@ it('should correctly disable name and email fields for non-local users', () => {
   expect(wrapper.find('#create-user-name').prop('disabled')).toBe(true);
   expect(wrapper.find('#create-user-email').prop('disabled')).toBe(true);
   expect(wrapper.find('Alert').exists()).toBe(true);
-  expect(
-    wrapper
-      .find(Alert)
-      .children()
-      .text()
-  ).toMatch('users.cannot_update_delegated_user');
+  expect(wrapper.find(Alert).children().text()).toMatch('users.cannot_update_delegated_user');
 });
 
 it('should correctly create a new user', () => {
@@ -88,7 +77,7 @@ it('should correctly create a new user', () => {
     login,
     name,
     password,
-    scmAccount: ['gh', 'gh', 'bitbucket']
+    scmAccount: ['gh', 'gh', 'bitbucket'],
   });
 });
 
@@ -105,7 +94,7 @@ it('should correctly update a local user', () => {
     email,
     login,
     name,
-    scmAccount: ['gh', 'gh', 'bitbucket']
+    scmAccount: ['gh', 'gh', 'bitbucket'],
   });
 });
 
@@ -115,7 +104,7 @@ it('should correctly update a non-local user', () => {
   const name = 'Foo';
   const scmAccounts = ['gh', 'bitbucket'];
   const wrapper = shallowRender({
-    user: mockUser({ email, local: false, login, name, scmAccounts })
+    user: mockUser({ email, local: false, login, name, scmAccounts }),
   }).dive();
 
   submit(wrapper.find('form'));
@@ -123,7 +112,7 @@ it('should correctly update a non-local user', () => {
   expect(updateUser).toHaveBeenCalledWith(
     expect.not.objectContaining({
       email,
-      name
+      name,
     })
   );
 });

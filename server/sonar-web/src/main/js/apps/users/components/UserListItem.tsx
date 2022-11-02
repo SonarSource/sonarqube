@@ -72,7 +72,8 @@ export default class UserListItem extends React.PureComponent<Props, State> {
           <ButtonIcon
             className="js-user-tokens spacer-left button-small"
             onClick={this.handleOpenTokensForm}
-            tooltip={translate('users.update_tokens')}>
+            tooltip={translate('users.update_tokens')}
+          >
             <BulletListIcon />
           </ButtonIcon>
         </td>

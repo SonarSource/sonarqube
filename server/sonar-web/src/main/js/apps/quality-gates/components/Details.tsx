@@ -64,7 +64,7 @@ export default class Details extends React.PureComponent<Props, State> {
     const { id } = this.props;
     this.setState({ loading: true });
     return fetchQualityGate({ id }).then(
-      qualityGate => {
+      (qualityGate) => {
         if (this.mounted) {
           this.setState({ loading: false, qualityGate, updatedConditionId: undefined });
         }
@@ -85,7 +85,7 @@ export default class Details extends React.PureComponent<Props, State> {
       addGlobalSuccessMessage(translate('quality_gates.condition_added'));
       return {
         qualityGate: addCondition(qualityGate, condition),
-        updatedConditionId: condition.id
+        updatedConditionId: condition.id,
       };
     });
   };
@@ -98,7 +98,7 @@ export default class Details extends React.PureComponent<Props, State> {
       addGlobalSuccessMessage(translate('quality_gates.condition_updated'));
       return {
         qualityGate: replaceCondition(qualityGate, newCondition, oldCondition),
-        updatedConditionId: newCondition.id
+        updatedConditionId: newCondition.id,
       };
     });
   };
@@ -111,7 +111,7 @@ export default class Details extends React.PureComponent<Props, State> {
       addGlobalSuccessMessage(translate('quality_gates.condition_deleted'));
       return {
         qualityGate: deleteCondition(qualityGate, condition),
-        updatedConditionId: undefined
+        updatedConditionId: undefined,
       };
     });
   };
@@ -124,7 +124,7 @@ export default class Details extends React.PureComponent<Props, State> {
       this.props.onSetDefault(qualityGate);
       const newQualityGate: QualityGate = {
         ...qualityGate,
-        actions: { ...qualityGate.actions, delete: false, setAsDefault: false }
+        actions: { ...qualityGate.actions, delete: false, setAsDefault: false },
       };
       return { qualityGate: newQualityGate };
     });

@@ -56,7 +56,7 @@ it('renders facet bar chart', () => {
       getFacetValueForOption: (facet: any, option: any) => facet[option],
       facet: { a: 17, b: 15, c: 24 },
       maxFacetValue: 24,
-      options: ['a', 'b', 'c']
+      options: ['a', 'b', 'c'],
     })
   ).toMatchSnapshot();
 });
@@ -130,8 +130,8 @@ function shallowRender(overrides: Partial<Filter['props']> = {}) {
       onQueryChange={jest.fn()}
       options={[1, 2, 3]}
       property="foo"
-      renderOption={option => option}
-      renderAccessibleLabel={option => option.toString()}
+      renderOption={(option) => option}
+      renderAccessibleLabel={(option) => option.toString()}
       {...overrides}
     />
   );

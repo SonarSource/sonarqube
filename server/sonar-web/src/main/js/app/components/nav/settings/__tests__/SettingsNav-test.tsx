@@ -37,12 +37,12 @@ it('should display a pending plugin notif', () => {
           key: 'foo',
           name: 'Foo',
           version: '1.0',
-          implementationBuild: '1'
-        }
+          implementationBuild: '1',
+        },
       ],
       removing: [],
-      updating: []
-    }
+      updating: [],
+    },
   });
   expect(wrapper.find('ContextNavBar').prop('notif')).toMatchSnapshot();
 });
@@ -55,7 +55,7 @@ it('should display restart notif', () => {
 it('should render correctly when governance is active', () => {
   expect(
     shallowRender({
-      extensions: [{ key: AdminPageExtension.GovernanceConsole, name: 'governance' }]
+      extensions: [{ key: AdminPageExtension.GovernanceConsole, name: 'governance' }],
     })
   ).toMatchSnapshot();
 });

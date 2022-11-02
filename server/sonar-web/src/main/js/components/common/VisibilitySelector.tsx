@@ -35,14 +35,15 @@ export default class VisibilitySelector extends React.PureComponent<Props> {
   render() {
     return (
       <div className={classNames(this.props.className)}>
-        {['public', 'private'].map(visibility => (
+        {['public', 'private'].map((visibility) => (
           <Radio
             className={`huge-spacer-right visibility-${visibility}`}
             key={visibility}
             value={visibility}
             checked={this.props.visibility === visibility}
             onCheck={this.props.onChange}
-            disabled={visibility === 'private' && !this.props.canTurnToPrivate}>
+            disabled={visibility === 'private' && !this.props.canTurnToPrivate}
+          >
             <div>
               {translate('visibility', visibility)}
               {this.props.showDetails && (

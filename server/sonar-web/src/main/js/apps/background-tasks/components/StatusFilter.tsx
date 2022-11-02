@@ -36,13 +36,13 @@ export default function StatusFilter(props: StatusFilterProps) {
     { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
     {
       value: STATUSES.ALL_EXCEPT_PENDING,
-      label: translate('background_task.status.ALL_EXCEPT_PENDING')
+      label: translate('background_task.status.ALL_EXCEPT_PENDING'),
     },
     { value: TaskStatuses.Pending, label: translate('background_task.status.PENDING') },
     { value: TaskStatuses.InProgress, label: translate('background_task.status.IN_PROGRESS') },
     { value: TaskStatuses.Success, label: translate('background_task.status.SUCCESS') },
     { value: TaskStatuses.Failed, label: translate('background_task.status.FAILED') },
-    { value: TaskStatuses.Canceled, label: translate('background_task.status.CANCELED') }
+    { value: TaskStatuses.Canceled, label: translate('background_task.status.CANCELED') },
   ];
 
   const handleChange = React.useCallback(
@@ -59,7 +59,7 @@ export default function StatusFilter(props: StatusFilterProps) {
       id={id}
       onChange={handleChange}
       options={options}
-      value={options.find(o => o.value === value)}
+      value={options.find((o) => o.value === value)}
       isSearchable={false}
     />
   );

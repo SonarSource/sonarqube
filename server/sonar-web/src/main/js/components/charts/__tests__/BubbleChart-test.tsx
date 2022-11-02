@@ -30,17 +30,17 @@ import { ComponentMeasureEnhanced } from '../../../types/types';
 import BubbleChart from '../BubbleChart';
 
 jest.mock('react-virtualized/dist/commonjs/AutoSizer', () => ({
-  AutoSizer: ({ children }: AutoSizerProps) => children({ width: 100, height: NaN })
+  AutoSizer: ({ children }: AutoSizerProps) => children({ width: 100, height: NaN }),
 }));
 
 jest.mock('d3-selection', () => ({
-  select: jest.fn().mockReturnValue({ call: jest.fn() })
+  select: jest.fn().mockReturnValue({ call: jest.fn() }),
 }));
 
 jest.mock('d3-zoom', () => {
   return {
     zoomidentity: { k: 1, tx: 0, ty: 0 },
-    zoom: jest.fn()
+    zoom: jest.fn(),
   };
 });
 
@@ -52,7 +52,7 @@ it('should display bubbles', () => {
     .find(AutoSizer)
     .dive()
     .find('Bubble')
-    .forEach(bubble => {
+    .forEach((bubble) => {
       expect(bubble.dive()).toMatchSnapshot();
     });
 });
@@ -61,14 +61,14 @@ it('should render bubble links', () => {
   const wrapper = shallowRender({
     items: [
       { x: 1, y: 10, size: 7, color: { fill: 'blue', stroke: 'blue' } },
-      { x: 2, y: 30, size: 5, color: { fill: 'green', stroke: 'green' } }
-    ]
+      { x: 2, y: 30, size: 5, color: { fill: 'green', stroke: 'green' } },
+    ],
   });
   wrapper
     .find(AutoSizer)
     .dive()
     .find('Bubble')
-    .forEach(bubble => {
+    .forEach((bubble) => {
       expect(bubble.dive()).toMatchSnapshot();
     });
 });
@@ -80,7 +80,7 @@ it('should render bubbles with click handlers', () => {
     .find(AutoSizer)
     .dive()
     .find('Bubble')
-    .forEach(bubble => {
+    .forEach((bubble) => {
       click(bubble.dive().find('a'));
       expect(bubble.dive()).toMatchSnapshot();
     });
@@ -104,7 +104,7 @@ it('should correctly handle zooming', () => {
     const wrapper = shallowRender({ padding: [5, 5, 5, 5] });
     wrapper.instance().boundNode(
       mockHtmlElement<SVGSVGElement>({
-        getBoundingClientRect: () => ({ width: 100, height: 100 } as DOMRect)
+        getBoundingClientRect: () => ({ width: 100, height: 100 } as DOMRect),
       })
     );
 
@@ -117,14 +117,11 @@ it('should correctly handle zooming', () => {
     expect(wrapper.state().transform).toEqual({
       x: 105,
       y: 105,
-      k: 20
+      k: 20,
     });
 
     // Reset Zoom levels.
-    const resetZoomClick = wrapper
-      .find('div.bubble-chart-zoom')
-      .find(Link)
-      .props().onClick;
+    const resetZoomClick = wrapper.find('div.bubble-chart-zoom').find(Link).props().onClick;
     if (!resetZoomClick) {
       reject();
       return;
@@ -151,15 +148,15 @@ function shallowRender(props: Partial<BubbleChart<ComponentMeasureEnhanced>['pro
           y: 10,
           size: 7,
           data: mockComponentMeasureEnhanced(),
-          color: { fill: 'blue', stroke: 'blue' }
+          color: { fill: 'blue', stroke: 'blue' },
         },
         {
           x: 2,
           y: 30,
           size: 5,
           data: mockComponentMeasureEnhanced(),
-          color: { fill: 'red', stroke: 'red' }
-        }
+          color: { fill: 'red', stroke: 'red' },
+        },
       ]}
       padding={[0, 0, 0, 0]}
       {...props}

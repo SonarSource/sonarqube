@@ -34,7 +34,7 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingConfigurationErrorScope,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../../../../types/alm-settings';
 import { ALM_INTEGRATION_CATEGORY } from '../../constants';
 import AlmSpecificForm from './AlmSpecificForm';
@@ -88,7 +88,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
     successfullyUpdated,
     checkingConfiguration,
     configurationErrors,
-    isSysAdmin
+    isSysAdmin,
   } = props;
 
   if (loading) {
@@ -108,7 +108,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
                   <Link to={getGlobalSettingsUrl(ALM_INTEGRATION_CATEGORY)}>
                     {translate('settings.pr_decoration.binding.no_bindings.link')}
                   </Link>
-                )
+                ),
               }}
             />
           ) : (
@@ -119,7 +119,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
     );
   }
 
-  const selected = formData.key && instances.find(i => i.key === formData.key);
+  const selected = formData.key && instances.find((i) => i.key === formData.key);
   const alm = selected && selected.alm;
 
   return (
@@ -136,7 +136,8 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
         onSubmit={(event: React.SyntheticEvent<HTMLFormElement>) => {
           event.preventDefault();
           props.onSubmit();
-        }}>
+        }}
+      >
         <MandatoryFieldsExplanation className="form-field" />
 
         <div className="settings-definition big-spacer-bottom">
@@ -159,9 +160,9 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
               onChange={(instance: AlmSettingsInstance) => props.onFieldChange('key', instance.key)}
               components={{
                 Option: optionRenderer,
-                SingleValue: singleValueRenderer
+                SingleValue: singleValueRenderer,
               }}
-              value={instances.filter(instance => instance.key === formData.key)}
+              value={instances.filter((instance) => instance.key === formData.key)}
             />
           </div>
         </div>
@@ -228,7 +229,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
                             'settings.pr_decoration.binding.check_configuration.failure.check_global_settings.link'
                           )}
                         </Link>
-                      )
+                      ),
                     }}
                   />
                 ) : (

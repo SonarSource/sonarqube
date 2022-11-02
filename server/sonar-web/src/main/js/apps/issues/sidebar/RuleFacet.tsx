@@ -49,15 +49,15 @@ export default class RuleFacet extends React.PureComponent<Props> {
       p: page,
       ps: 30,
       s: 'name',
-      include_external: true
-    }).then(response => ({
+      include_external: true,
+    }).then((response) => ({
       paging: { pageIndex: response.p, pageSize: response.ps, total: response.total },
-      results: response.rules
+      results: response.rules,
     }));
   };
 
   loadSearchResultCount = (rules: Rule[]) => {
-    return this.props.loadSearchResultCount('rules', { rules: rules.map(rule => rule.key) });
+    return this.props.loadSearchResultCount('rules', { rules: rules.map((rule) => rule.key) });
   };
 
   getRuleName = (ruleKey: string) => {
@@ -81,8 +81,8 @@ export default class RuleFacet extends React.PureComponent<Props> {
         facetHeader={translate('issues.facet.rules')}
         fetching={this.props.fetching}
         getFacetItemText={this.getRuleName}
-        getSearchResultKey={rule => rule.key}
-        getSearchResultText={rule => rule.name}
+        getSearchResultKey={(rule) => rule.key}
+        getSearchResultText={(rule) => rule.name}
         loadSearchResultCount={this.loadSearchResultCount}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}

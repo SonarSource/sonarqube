@@ -30,7 +30,7 @@ const baseIssue = mockIssue(false, {
   componentQualifier: ComponentQualifier.File,
   project: 'proj',
   projectName: 'proj-name',
-  branch: 'test-branch'
+  branch: 'test-branch',
 });
 
 it('renders', () => {

@@ -31,8 +31,8 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       sourceViewerFile: mockSourceViewerFile('foo/bar.ts', 'my-project', {
-        q: ComponentQualifier.Project
-      })
+        q: ComponentQualifier.Project,
+      }),
     })
   ).toMatchSnapshot('project root');
 });

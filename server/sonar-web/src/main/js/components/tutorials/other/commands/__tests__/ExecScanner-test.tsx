@@ -23,7 +23,7 @@ import { mockComponent } from '../../../../../helpers/mocks/component';
 import { OSs } from '../../../types';
 import ExecScanner, { ExecScannerProps } from '../ExecScanner';
 
-it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('should render correctly for %p', os => {
+it.each([OSs.Linux, OSs.Windows, OSs.MacOS])('should render correctly for %p', (os) => {
   expect(shallowRender({ os })).toMatchSnapshot();
 });
 

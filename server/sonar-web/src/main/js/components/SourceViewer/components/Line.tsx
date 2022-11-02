@@ -104,7 +104,7 @@ export default class Line extends React.PureComponent<Props> {
       previousLine,
       scrollToUncoveredLine,
       secondaryIssueLocations,
-      verticalBuffer
+      verticalBuffer,
     } = this.props;
 
     const className = classNames('source-line', {
@@ -113,7 +113,7 @@ export default class Line extends React.PureComponent<Props> {
       'source-line-filtered-dark':
         displayCoverage &&
         (line.coverageStatus === 'uncovered' || line.coverageStatus === 'partially-covered'),
-      'source-line-last': last === true
+      'source-line-last': last === true,
     });
 
     const bottomPadding = verticalBuffer ? verticalBuffer * LINE_HEIGHT : undefined;
@@ -150,7 +150,7 @@ export default class Line extends React.PureComponent<Props> {
         )}
 
         {blocksLoaded &&
-          times(duplicationsCount - 1, index => {
+          times(duplicationsCount - 1, (index) => {
             return (
               <LineDuplicationBlock
                 blocksLoaded={blocksLoaded}
@@ -176,7 +176,8 @@ export default class Line extends React.PureComponent<Props> {
           onLocationSelect={this.props.onLocationSelect}
           onSymbolClick={this.props.onSymbolClick}
           padding={bottomPadding}
-          secondaryIssueLocations={secondaryIssueLocations}>
+          secondaryIssueLocations={secondaryIssueLocations}
+        >
           {children}
         </LineCode>
       </tr>

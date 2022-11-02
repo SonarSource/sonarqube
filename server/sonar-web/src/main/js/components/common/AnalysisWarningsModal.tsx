@@ -51,7 +51,7 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       loading: !props.warnings,
-      warnings: props.warnings || []
+      warnings: props.warnings || [],
     };
   }
 
@@ -107,7 +107,7 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
       if (this.mounted) {
         this.setState({
           loading: false,
-          warnings: warnings.map(w => ({ key: w, message: w, dismissable: false }))
+          warnings: warnings.map((w) => ({ key: w, message: w, dismissable: false })),
         });
       }
     } catch (e) {
@@ -138,7 +138,7 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
                   <span
                     // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{
-                      __html: sanitizeStringRestricted(message.trim().replace(/\n/g, '<br />'))
+                      __html: sanitizeStringRestricted(message.trim().replace(/\n/g, '<br />')),
                     }}
                   />
 
@@ -148,7 +148,8 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
                         disabled={Boolean(dismissedWarning)}
                         onClick={() => {
                           this.handleDismissMessage(key);
-                        }}>
+                        }}
+                      >
                         {translate('dismiss_permanently')}
                       </ButtonLink>
                       {dismissedWarning === key && <i className="spinner spacer-left" />}

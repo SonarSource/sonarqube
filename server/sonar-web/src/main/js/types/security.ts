@@ -27,7 +27,7 @@ export enum SecurityStandard {
   CWE = 'cwe',
   PCI_DSS_3_2 = 'pciDss-3.2',
   PCI_DSS_4_0 = 'pciDss-4.0',
-  OWASP_ASVS_4_0 = 'owaspAsvs-4.0'
+  OWASP_ASVS_4_0 = 'owaspAsvs-4.0',
 }
 
 export type StandardType = SecurityStandard;

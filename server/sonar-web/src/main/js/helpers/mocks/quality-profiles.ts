@@ -26,6 +26,6 @@ export function mockProfileOption(overrides: Partial<ProfileOption> = {}): Profi
     label: 'Profile 1',
     language: 'Java',
     isDisabled: false,
-    ...overrides
+    ...overrides,
   };
 }

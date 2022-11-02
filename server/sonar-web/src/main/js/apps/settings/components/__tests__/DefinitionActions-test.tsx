@@ -30,14 +30,14 @@ const definition: ExtendedSettingDefinition = {
   name: 'foobar',
   options: [],
   subCategory: 'bar',
-  type: SettingType.STRING
+  type: SettingType.STRING,
 };
 
 const settings = {
   key: 'key',
   hasValue: true,
   definition,
-  value: 'baz'
+  value: 'baz',
 };
 
 it('displays default message when value is default', () => {

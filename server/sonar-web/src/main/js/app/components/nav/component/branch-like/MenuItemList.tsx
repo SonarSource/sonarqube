@@ -55,12 +55,12 @@ export function MenuItemList(props: MenuItemListProps) {
       key={getBranchLikeKey(branchLike)}
       onSelect={onSelect}
       selected={isSameBranchLike(branchLike, selectedBranchLike)}
-      setSelectedNode={node => (selectedNode = node)}
+      setSelectedNode={(node) => (selectedNode = node)}
     />
   );
 
   return (
-    <ul className="item-list" ref={node => (listNode = node)}>
+    <ul className="item-list" ref={(node) => (listNode = node)}>
       {!hasResults && (
         <li className="item">
           <span className="note">{translate('no_results')}</span>
@@ -68,28 +68,30 @@ export function MenuItemList(props: MenuItemListProps) {
       )}
 
       {/* BRANCHES & PR */}
-      {[branchLikeTree.mainBranchTree, ...branchLikeTree.branchTree].filter(isDefined).map(tree => (
-        <React.Fragment key={getBranchLikeKey(tree.branch)}>
-          {renderItem(tree.branch)}
-          {tree.pullRequests.length > 0 && (
-            <>
-              <li className="item header">
-                <span className="big-spacer-left">
-                  {translate('branch_like_navigation.pull_requests')}
-                </span>
-              </li>
-              {tree.pullRequests.map(pr => renderItem(pr, true))}
-            </>
-          )}
-          <hr />
-        </React.Fragment>
-      ))}
+      {[branchLikeTree.mainBranchTree, ...branchLikeTree.branchTree]
+        .filter(isDefined)
+        .map((tree) => (
+          <React.Fragment key={getBranchLikeKey(tree.branch)}>
+            {renderItem(tree.branch)}
+            {tree.pullRequests.length > 0 && (
+              <>
+                <li className="item header">
+                  <span className="big-spacer-left">
+                    {translate('branch_like_navigation.pull_requests')}
+                  </span>
+                </li>
+                {tree.pullRequests.map((pr) => renderItem(pr, true))}
+              </>
+            )}
+            <hr />
+          </React.Fragment>
+        ))}
 
       {/* PARENTLESS PR (for display during search) */}
       {branchLikeTree.parentlessPullRequests.length > 0 && (
         <>
           <li className="item header">{translate('branch_like_navigation.pull_requests')}</li>
-          {branchLikeTree.parentlessPullRequests.map(pr => renderItem(pr))}
+          {branchLikeTree.parentlessPullRequests.map((pr) => renderItem(pr))}
         </>
       )}
 
@@ -103,7 +105,7 @@ export function MenuItemList(props: MenuItemListProps) {
               overlay={translate('branch_like_navigation.orphan_pull_requests.tooltip')}
             />
           </li>
-          {branchLikeTree.orphanPullRequests.map(pr => renderItem(pr))}
+          {branchLikeTree.orphanPullRequests.map((pr) => renderItem(pr))}
         </>
       )}
     </ul>

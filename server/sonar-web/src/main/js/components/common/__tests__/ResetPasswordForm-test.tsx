@@ -25,7 +25,7 @@ import { mockEvent, waitAndUpdate } from '../../../helpers/testUtils';
 import ResetPasswordForm from '../ResetPasswordForm';
 
 jest.mock('../../../api/users', () => ({
-  changePassword: jest.fn().mockResolvedValue({})
+  changePassword: jest.fn().mockResolvedValue({}),
 }));
 
 it('should trigger on password change prop', () => {
@@ -66,7 +66,7 @@ it('should trigger password change', async () => {
   expect(changePassword).toHaveBeenCalledWith({
     login: user.login,
     password: 'test',
-    previousPassword: 'testold'
+    previousPassword: 'testold',
   });
 });
 

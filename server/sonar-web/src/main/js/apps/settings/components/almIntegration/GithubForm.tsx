@@ -73,7 +73,7 @@ export default function GithubForm(props: GithubFormProps) {
               <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
                 {translate('learn_more')}
               </DocLink>
-            )
+            ),
           }}
         />
       </Alert>

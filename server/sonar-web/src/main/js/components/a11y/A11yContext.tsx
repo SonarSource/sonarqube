@@ -33,5 +33,5 @@ export const A11yContext = createContext<A11yContextShape>({
   removeA11ySkipLink: () => {
     /* Implemented by Provider */
   },
-  links: []
+  links: [],
 });

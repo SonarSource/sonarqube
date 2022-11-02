@@ -34,7 +34,7 @@ export interface BadgeOptions {
 
 export enum BadgeType {
   measure = 'measure',
-  qualityGate = 'quality_gate'
+  qualityGate = 'quality_gate',
 }
 
 export function getBadgeSnippet(type: BadgeType, options: BadgeOptions, token: string) {

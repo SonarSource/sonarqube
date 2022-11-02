@@ -31,14 +31,14 @@ import {
   mockFlowLocation,
   mockLocation,
   mockLoggedInUser,
-  mockRouter
+  mockRouter,
 } from '../../../helpers/testMocks';
 import { mockEvent, waitAndUpdate } from '../../../helpers/testUtils';
 import { SecurityStandard } from '../../../types/security';
 import {
   HotspotResolution,
   HotspotStatus,
-  HotspotStatusFilter
+  HotspotStatusFilter,
 } from '../../../types/security-hotspots';
 import { SecurityHotspotsApp } from '../SecurityHotspotsApp';
 import SecurityHotspotsAppRenderer from '../SecurityHotspotsAppRenderer';
@@ -48,20 +48,20 @@ beforeEach(() => {
 });
 
 jest.mock('../../../api/measures', () => ({
-  getMeasures: jest.fn().mockResolvedValue([])
+  getMeasures: jest.fn().mockResolvedValue([]),
 }));
 
 jest.mock('../../../api/security-hotspots', () => ({
   getSecurityHotspots: jest.fn().mockResolvedValue({ hotspots: [], paging: { total: 0 } }),
-  getSecurityHotspotList: jest.fn().mockResolvedValue({ hotspots: [], rules: [] })
+  getSecurityHotspotList: jest.fn().mockResolvedValue({ hotspots: [], rules: [] }),
 }));
 
 jest.mock('../../../helpers/security-standard', () => ({
-  getStandards: jest.fn().mockResolvedValue({ sonarsourceSecurity: { cat1: { title: 'cat 1' } } })
+  getStandards: jest.fn().mockResolvedValue({ sonarsourceSecurity: { cat1: { title: 'cat 1' } } }),
 }));
 
 jest.mock('../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn()
+  scrollToElement: jest.fn(),
 }));
 
 const branch = mockBranch();
@@ -75,8 +75,8 @@ it('should load data correctly', async () => {
   (getSecurityHotspots as jest.Mock).mockResolvedValue({
     hotspots,
     paging: {
-      total: 1
-    }
+      total: 1,
+    },
   });
   (getMeasures as jest.Mock).mockResolvedValue([{ value: '86.6' }]);
 
@@ -88,12 +88,12 @@ it('should load data correctly', async () => {
   expect(getStandards).toHaveBeenCalled();
   expect(getSecurityHotspots).toHaveBeenCalledWith(
     expect.objectContaining({
-      branch: branch.name
+      branch: branch.name,
     })
   );
   expect(getMeasures).toHaveBeenCalledWith(
     expect.objectContaining({
-      branch: branch.name
+      branch: branch.name,
     })
   );
 
@@ -104,8 +104,8 @@ it('should load data correctly', async () => {
   expect(wrapper.state().selectedHotspot).toBe(hotspots[0]);
   expect(wrapper.state().standards).toEqual({
     sonarsourceSecurity: {
-      cat1: { title: 'cat 1' }
-    }
+      cat1: { title: 'cat 1' },
+    },
   });
   expect(wrapper.state().loadingMeasure).toBe(false);
   expect(wrapper.state().hotspotsReviewedMeasure).toBe('86.6');
@@ -116,7 +116,7 @@ it('should handle category request', () => {
   (getMeasures as jest.Mock).mockResolvedValue([{ value: '86.6' }]);
 
   shallowRender({
-    location: mockLocation({ query: { [SecurityStandard.OWASP_TOP10]: 'a1' } })
+    location: mockLocation({ query: { [SecurityStandard.OWASP_TOP10]: 'a1' } }),
   });
 
   expect(getSecurityHotspots).toHaveBeenCalledWith(
@@ -129,7 +129,7 @@ it('should handle cwe request', () => {
   (getMeasures as jest.Mock).mockResolvedValue([{ value: '86.6' }]);
 
   shallowRender({
-    location: mockLocation({ query: { [SecurityStandard.CWE]: '1004' } })
+    location: mockLocation({ query: { [SecurityStandard.CWE]: '1004' } }),
   });
 
   expect(getSecurityHotspots).toHaveBeenCalledWith(
@@ -144,7 +144,7 @@ it('should handle file request', () => {
   const filepath = 'src/path/to/file.java';
 
   shallowRender({
-    location: mockLocation({ query: { files: filepath } })
+    location: mockLocation({ query: { files: filepath } }),
   });
 
   expect(getSecurityHotspots).toHaveBeenCalledWith(expect.objectContaining({ files: filepath }));
@@ -154,24 +154,24 @@ it('should load data correctly when hotspot key list is forced', async () => {
   const hotspots = [
     mockRawHotspot({ key: 'test1' }),
     mockRawHotspot({ key: 'test2' }),
-    mockRawHotspot({ key: 'test3' })
+    mockRawHotspot({ key: 'test3' }),
   ];
-  const hotspotKeys = hotspots.map(h => h.key);
+  const hotspotKeys = hotspots.map((h) => h.key);
   (getSecurityHotspotList as jest.Mock).mockResolvedValueOnce({
-    hotspots
+    hotspots,
   });
 
   const location = mockLocation({ query: { hotspots: hotspotKeys.join() } });
   const router = mockRouter();
   const wrapper = shallowRender({
     location,
-    router
+    router,
   });
 
   await waitAndUpdate(wrapper);
   expect(getSecurityHotspotList).toHaveBeenCalledWith(hotspotKeys, {
     projectKey: 'my-project',
-    branch: 'branch-6.7'
+    branch: 'branch-6.7',
   });
   expect(wrapper.state().hotspotKeys).toEqual(hotspotKeys);
   expect(wrapper.find(SecurityHotspotsAppRenderer).props().isStaticListOfHotspots).toBe(true);
@@ -179,18 +179,15 @@ it('should load data correctly when hotspot key list is forced', async () => {
   // Reset
   (getSecurityHotspots as jest.Mock).mockClear();
   (getSecurityHotspotList as jest.Mock).mockClear();
-  wrapper
-    .find(SecurityHotspotsAppRenderer)
-    .props()
-    .onShowAllHotspots();
+  wrapper.find(SecurityHotspotsAppRenderer).props().onShowAllHotspots();
   expect(router.push).toHaveBeenCalledWith({
     ...location,
-    query: { ...location.query, hotspots: undefined }
+    query: { ...location.query, hotspots: undefined },
   });
 
   // Simulate a new location
   wrapper.setProps({
-    location: { ...location, query: { ...location.query, hotspots: undefined } }
+    location: { ...location, query: { ...location.query, hotspots: undefined } },
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().hotspotKeys).toBeUndefined();
@@ -222,7 +219,7 @@ it('should set "assigned to me" filter according to context (logged in & explici
   expect(
     shallowRender({
       location: mockLocation({ query: { assignedToMe: 'true' } }),
-      currentUser: mockLoggedInUser()
+      currentUser: mockLoggedInUser(),
     }).state().filters.assignedToMe
   ).toBe(true);
 });
@@ -233,11 +230,11 @@ it('should handle loading more', async () => {
   (getSecurityHotspots as jest.Mock)
     .mockResolvedValueOnce({
       hotspots,
-      paging: { total: 5 }
+      paging: { total: 5 },
     })
     .mockResolvedValueOnce({
       hotspots: hotspots2,
-      paging: { total: 5 }
+      paging: { total: 5 },
     });
 
   const wrapper = shallowRender();
@@ -266,7 +263,7 @@ it('should handle hotspot update', async () => {
 
   (getSecurityHotspots as jest.Mock).mockResolvedValueOnce({
     hotspots,
-    paging: { pageIndex: 1, total: 1252 }
+    paging: { pageIndex: 1, total: 1252 },
   });
 
   let wrapper = shallowRender();
@@ -277,21 +274,18 @@ it('should handle hotspot update', async () => {
   (getSecurityHotspots as jest.Mock)
     .mockResolvedValueOnce({
       hotspots: [mockRawHotspot()],
-      paging: { pageIndex: 1, total: 1251 }
+      paging: { pageIndex: 1, total: 1251 },
     })
     .mockResolvedValueOnce({
       hotspots: [mockRawHotspot()],
-      paging: { pageIndex: 2, total: 1251 }
+      paging: { pageIndex: 2, total: 1251 },
     });
 
   const selectedHotspotIndex = wrapper
     .state()
-    .hotspots.findIndex(h => h.key === wrapper.state().selectedHotspot?.key);
+    .hotspots.findIndex((h) => h.key === wrapper.state().selectedHotspot?.key);
 
-  await wrapper
-    .find(SecurityHotspotsAppRenderer)
-    .props()
-    .onUpdateHotspot(key);
+  await wrapper.find(SecurityHotspotsAppRenderer).props().onUpdateHotspot(key);
 
   expect(getSecurityHotspots).toHaveBeenCalledTimes(2);
 
@@ -299,25 +293,22 @@ it('should handle hotspot update', async () => {
   expect(wrapper.state().hotspotsPageIndex).toBe(2);
   expect(wrapper.state().hotspotsTotal).toBe(1251);
   expect(
-    wrapper.state().hotspots.findIndex(h => h.key === wrapper.state().selectedHotspot?.key)
+    wrapper.state().hotspots.findIndex((h) => h.key === wrapper.state().selectedHotspot?.key)
   ).toBe(selectedHotspotIndex);
 
   expect(getMeasures).toHaveBeenCalled();
 
   (getSecurityHotspots as jest.Mock).mockResolvedValueOnce({
     hotspots,
-    paging: { pageIndex: 1, total: 1252 }
+    paging: { pageIndex: 1, total: 1252 },
   });
 
   wrapper = shallowRender({
     branchLike,
     fetchBranchStatus: fetchBranchStatusMock,
-    component: mockComponent({ key: componentKey })
+    component: mockComponent({ key: componentKey }),
   });
-  await wrapper
-    .find(SecurityHotspotsAppRenderer)
-    .props()
-    .onUpdateHotspot(key);
+  await wrapper.find(SecurityHotspotsAppRenderer).props().onUpdateHotspot(key);
   expect(fetchBranchStatusMock).toHaveBeenCalledWith(branchLike, componentKey);
 });
 
@@ -418,10 +409,10 @@ describe('keyboard navigation', () => {
   const hotspots = [
     mockRawHotspot({ key: 'k1' }),
     mockRawHotspot({ key: 'k2' }),
-    mockRawHotspot({ key: 'k3' })
+    mockRawHotspot({ key: 'k3' }),
   ];
   const flowsData = {
-    flows: [{ locations: [mockFlowLocation(), mockFlowLocation(), mockFlowLocation()] }]
+    flows: [{ locations: [mockFlowLocation(), mockFlowLocation(), mockFlowLocation()] }],
   };
   const hotspotsForLocation = mockRawHotspot(flowsData);
 
@@ -436,7 +427,7 @@ describe('keyboard navigation', () => {
     ['selecting next, non-existent', 2, 1, 2],
     ['jumping down', 0, 18, 2],
     ['jumping up', 2, -18, 0],
-    ['none selected', 4, -2, 4]
+    ['none selected', 4, -2, 4],
   ])('should work when %s', (_, start, shift, expected) => {
     wrapper.setState({ selectedHotspot: hotspots[start] });
     wrapper.instance().selectNeighboringHotspot(shift);
@@ -447,7 +438,7 @@ describe('keyboard navigation', () => {
   it.each([
     ['selecting next locations when nothing is selected', undefined, 0],
     ['selecting next locations', 0, 1],
-    ['selecting next locations, non-existent', 2, undefined]
+    ['selecting next locations, non-existent', 2, undefined],
   ])('should work when %s', (_, start, expected) => {
     wrapper.setState({ selectedHotspotLocationIndex: start, selectedHotspot: hotspotsForLocation });
     wrapper.instance().handleKeyDown(mockEvent({ altKey: true, key: KeyboardKeys.DownArrow }));
@@ -458,7 +449,7 @@ describe('keyboard navigation', () => {
   it.each([
     ['selecting previous locations when nothing is selected', undefined, undefined],
     ['selecting previous locations', 1, 0],
-    ['selecting previous locations, non-existent', 0, undefined]
+    ['selecting previous locations, non-existent', 0, undefined],
   ])('should work when %s', (_, start, expected) => {
     wrapper.setState({ selectedHotspotLocationIndex: start, selectedHotspot: hotspotsForLocation });
     wrapper.instance().handleKeyDown(mockEvent({ altKey: true, key: KeyboardKeys.UpArrow }));

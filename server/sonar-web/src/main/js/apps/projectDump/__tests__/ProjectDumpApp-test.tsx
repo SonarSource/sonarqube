@@ -28,11 +28,11 @@ import { TaskStatuses } from '../../../types/tasks';
 import { ProjectDumpApp } from '../ProjectDumpApp';
 
 jest.mock('../../../api/ce', () => ({
-  getActivity: jest.fn().mockResolvedValue({ tasks: [] })
+  getActivity: jest.fn().mockResolvedValue({ tasks: [] }),
 }));
 
 jest.mock('../../../api/project-dump', () => ({
-  getStatus: jest.fn().mockResolvedValue({})
+  getStatus: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => {

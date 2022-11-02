@@ -26,7 +26,7 @@ import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-lik
 import {
   mockSnippetsByComponent,
   mockSourceLine,
-  mockSourceViewerFile
+  mockSourceViewerFile,
 } from '../../../../helpers/mocks/sources';
 import { mockFlowLocation, mockIssue } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
@@ -35,7 +35,7 @@ import ComponentSourceSnippetGroupViewer from '../ComponentSourceSnippetGroupVie
 import SnippetViewer from '../SnippetViewer';
 
 jest.mock('../../../../api/components', () => ({
-  getSources: jest.fn().mockResolvedValue([])
+  getSources: jest.fn().mockResolvedValue([]),
 }));
 
 beforeEach(() => {
@@ -51,25 +51,25 @@ it('should render correctly with secondary locations', () => {
   const issue = mockIssue(true, {
     component: 'project:main.js',
     flows: [],
-    textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 10 }
+    textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 10 },
   });
 
   const snippetGroup: SnippetGroup = {
     locations: [
       mockFlowLocation({
         component: issue.component,
-        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 },
       }),
       mockFlowLocation({
         component: issue.component,
-        textRange: { startLine: 74, endLine: 74, startOffset: 0, endOffset: 0 }
-      })
+        textRange: { startLine: 74, endLine: 74, startOffset: 0, endOffset: 0 },
+      }),
     ],
     ...mockSnippetsByComponent('main.js', 'project', [
       ...range(2, 17),
       ...range(29, 39),
-      ...range(69, 79)
-    ])
+      ...range(69, 79),
+    ]),
   };
   const wrapper = shallowRender({ issue, snippetGroup });
   expect(wrapper.state('snippets')).toHaveLength(3);
@@ -83,25 +83,25 @@ it('should render correctly with flows', () => {
   const issue = mockIssue(true, {
     component: 'project:main.js',
     secondaryLocations: [],
-    textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 10 }
+    textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 10 },
   });
 
   const snippetGroup: SnippetGroup = {
     locations: [
       mockFlowLocation({
         component: issue.component,
-        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 },
       }),
       mockFlowLocation({
         component: issue.component,
-        textRange: { startLine: 74, endLine: 74, startOffset: 0, endOffset: 0 }
-      })
+        textRange: { startLine: 74, endLine: 74, startOffset: 0, endOffset: 0 },
+      }),
     ],
     ...mockSnippetsByComponent('main.js', 'project', [
       ...range(2, 17),
       ...range(29, 39),
-      ...range(69, 79)
-    ])
+      ...range(69, 79),
+    ]),
   };
   const wrapper = shallowRender({ issue, snippetGroup });
   expect(wrapper.state('snippets')).toHaveLength(3);
@@ -110,18 +110,13 @@ it('should render correctly with flows', () => {
   expect(wrapper.state('snippets')[2]).toEqual({ index: 2, start: 69, end: 79 });
 
   // Check that locationsByLine is defined when isLastOccurenceOfPrimaryComponent
-  expect(
-    wrapper
-      .find(SnippetViewer)
-      .at(0)
-      .props().locationsByLine
-  ).not.toEqual({});
+  expect(wrapper.find(SnippetViewer).at(0).props().locationsByLine).not.toEqual({});
 
   // If not, it should be an empty object:
   const snippets = shallowRender({
     isLastOccurenceOfPrimaryComponent: false,
     issue,
-    snippetGroup
+    snippetGroup,
   }).find(SnippetViewer);
 
   expect(snippets.at(0).props().locationsByLine).toEqual({});
@@ -133,7 +128,7 @@ it('should render file-level issue correctly', () => {
   const issue = mockIssue(true, {
     component: 'project:main.js',
     flows: [],
-    textRange: undefined
+    textRange: undefined,
   });
 
   const wrapper = shallowRender({
@@ -142,20 +137,14 @@ it('should render file-level issue correctly', () => {
       locations: [
         mockFlowLocation({
           component: issue.component,
-          textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
-        })
+          textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 },
+        }),
       ],
-      ...mockSnippetsByComponent('main.js', 'project', range(29, 39))
-    }
+      ...mockSnippetsByComponent('main.js', 'project', range(29, 39)),
+    },
   });
 
-  expect(
-    wrapper
-      .find('ContextConsumer')
-      .dive()
-      .find(IssueMessageBox)
-      .exists()
-  ).toBe(true);
+  expect(wrapper.find('ContextConsumer').dive().find(IssueMessageBox).exists()).toBe(true);
 });
 
 it('should expand block', async () => {
@@ -163,20 +152,20 @@ it('should expand block', async () => {
     Object.values(mockSnippetsByComponent('a', 'project', range(6, 59)).sources)
   );
   const issue = mockIssue(true, {
-    textRange: { startLine: 74, endLine: 74, startOffset: 5, endOffset: 10 }
+    textRange: { startLine: 74, endLine: 74, startOffset: 5, endOffset: 10 },
   });
   const snippetGroup: SnippetGroup = {
     locations: [
       mockFlowLocation({
         component: 'a',
-        textRange: { startLine: 74, endLine: 74, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 74, endLine: 74, startOffset: 0, endOffset: 0 },
       }),
       mockFlowLocation({
         component: 'a',
-        textRange: { startLine: 107, endLine: 107, startOffset: 0, endOffset: 0 }
-      })
+        textRange: { startLine: 107, endLine: 107, startOffset: 0, endOffset: 0 },
+      }),
     ],
-    ...mockSnippetsByComponent('a', 'project', [...range(69, 83), ...range(102, 112)])
+    ...mockSnippetsByComponent('a', 'project', [...range(69, 83), ...range(102, 112)]),
   };
 
   const wrapper = shallowRender({ issue, snippetGroup });
@@ -198,14 +187,14 @@ it('should expand full component', async () => {
     locations: [
       mockFlowLocation({
         component: 'a',
-        textRange: { startLine: 3, endLine: 3, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 3, endLine: 3, startOffset: 0, endOffset: 0 },
       }),
       mockFlowLocation({
         component: 'a',
-        textRange: { startLine: 12, endLine: 12, startOffset: 0, endOffset: 0 }
-      })
+        textRange: { startLine: 12, endLine: 12, startOffset: 0, endOffset: 0 },
+      }),
     ],
-    ...mockSnippetsByComponent('a', 'project', [1, 2, 3, 4, 5, 10, 11, 12, 13, 14])
+    ...mockSnippetsByComponent('a', 'project', [1, 2, 3, 4, 5, 10, 11, 12, 13, 14]),
   };
 
   const wrapper = shallowRender({ snippetGroup });
@@ -227,12 +216,12 @@ it('should get the right branch when expanding', async () => {
   );
   const snippetGroup: SnippetGroup = {
     locations: [mockFlowLocation()],
-    ...mockSnippetsByComponent('a', 'project', [1, 2, 3, 4, 5, 6, 7])
+    ...mockSnippetsByComponent('a', 'project', [1, 2, 3, 4, 5, 6, 7]),
   };
 
   const wrapper = shallowRender({
     branchLike: mockBranch({ name: 'asdf' }),
-    snippetGroup
+    snippetGroup,
   });
 
   wrapper.instance().expandBlock(0, 'down');
@@ -255,14 +244,18 @@ it('should correctly handle lines actions', () => {
     locations: [
       mockFlowLocation({
         component: 'my-project:foo/bar.ts',
-        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
+        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 },
       }),
       mockFlowLocation({
         component: 'my-project:foo/bar.ts',
-        textRange: { startLine: 54, endLine: 54, startOffset: 0, endOffset: 0 }
-      })
+        textRange: { startLine: 54, endLine: 54, startOffset: 0, endOffset: 0 },
+      }),
     ],
-    ...mockSnippetsByComponent('foo/bar.ts', 'my-project', [32, 33, 34, 35, 36, 52, 53, 54, 55, 56])
+    ...mockSnippetsByComponent(
+      'foo/bar.ts',
+      'my-project',
+      [32, 33, 34, 35, 36, 52, 53, 54, 55, 56]
+    ),
   };
   const loadDuplications = jest.fn();
   const renderDuplicationPopup = jest.fn();
@@ -270,20 +263,14 @@ it('should correctly handle lines actions', () => {
   const wrapper = shallowRender({
     loadDuplications,
     renderDuplicationPopup,
-    snippetGroup
+    snippetGroup,
   });
 
   const line = mockSourceLine();
-  wrapper
-    .find('SnippetViewer')
-    .first()
-    .prop<Function>('loadDuplications')(line);
+  wrapper.find('SnippetViewer').first().prop<Function>('loadDuplications')(line);
   expect(loadDuplications).toHaveBeenCalledWith('my-project:foo/bar.ts', line);
 
-  wrapper
-    .find('SnippetViewer')
-    .first()
-    .prop<Function>('renderDuplicationPopup')(1, 13);
+  wrapper.find('SnippetViewer').first().prop<Function>('renderDuplicationPopup')(1, 13);
   expect(renderDuplicationPopup).toHaveBeenCalledWith(
     mockSourceViewerFile('foo/bar.ts', 'my-project'),
     1,
@@ -295,7 +282,7 @@ function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']
   const snippetGroup: SnippetGroup = {
     component: mockSourceViewerFile(),
     locations: [],
-    sources: []
+    sources: [],
   };
   return shallow<ComponentSourceSnippetGroupViewer>(
     <ComponentSourceSnippetGroupViewer

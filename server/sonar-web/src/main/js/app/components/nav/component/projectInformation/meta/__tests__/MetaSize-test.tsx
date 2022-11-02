@@ -38,7 +38,7 @@ function shallowRender(props: Partial<MetaSizeProps> = {}) {
       component={mockComponent()}
       measures={[
         mockMeasure({ metric: MetricKey.ncloc }),
-        mockMeasure({ metric: MetricKey.projects })
+        mockMeasure({ metric: MetricKey.projects }),
       ]}
       {...props}
     />

@@ -39,7 +39,7 @@ export default function Measure({
   metricKey,
   metricType,
   small,
-  value
+  value,
 }: Props) {
   if (value === undefined) {
     return <span className={className}>–</span>;
@@ -52,7 +52,7 @@ export default function Measure({
   if (metricType !== 'RATING') {
     const formattedValue = formatMeasure(value, metricType, {
       decimals,
-      omitExtraDecimalZeros: metricType === 'PERCENT'
+      omitExtraDecimalZeros: metricType === 'PERCENT',
     });
     return <span className={className}>{formattedValue != null ? formattedValue : '–'}</span>;
   }

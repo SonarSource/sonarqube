@@ -25,7 +25,7 @@ import {
   getAzureRepositories,
   importAzureRepository,
   searchAzureRepositories,
-  setAlmPersonalAccessToken
+  setAlmPersonalAccessToken,
 } from '../../../../api/alm-integrations';
 import { mockAzureProject, mockAzureRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
@@ -41,7 +41,7 @@ jest.mock('../../../../api/alm-integrations', () => {
     getAzureProjects: jest.fn().mockResolvedValue({ projects: [] }),
     getAzureRepositories: jest.fn().mockResolvedValue({ repositories: [] }),
     searchAzureRepositories: jest.fn().mockResolvedValue({ repositories: [] }),
-    importAzureRepository: jest.fn().mockResolvedValue({ project: { key: 'baz' } })
+    importAzureRepository: jest.fn().mockResolvedValue({ project: { key: 'baz' } }),
   };
 });
 
@@ -98,7 +98,7 @@ it('should correctly fetch projects and repositories on mount', async () => {
   const project = mockAzureProject();
   (getAzureProjects as jest.Mock).mockResolvedValueOnce({ projects: [project] });
   (getAzureRepositories as jest.Mock).mockResolvedValueOnce({
-    repositories: [mockAzureRepository()]
+    repositories: [mockAzureRepository()],
   });
 
   const wrapper = shallowRender();
@@ -111,7 +111,7 @@ it('should correctly fetch projects and repositories on mount', async () => {
 it('should handle opening a project', async () => {
   const projects = [
     mockAzureProject(),
-    mockAzureProject({ name: 'project2', description: 'Project to open' })
+    mockAzureProject({ name: 'project2', description: 'Project to open' }),
   ];
 
   const firstProjectRepos = [mockAzureRepository()];
@@ -120,10 +120,10 @@ it('should handle opening a project', async () => {
   (getAzureProjects as jest.Mock).mockResolvedValueOnce({ projects });
   (getAzureRepositories as jest.Mock)
     .mockResolvedValueOnce({
-      repositories: firstProjectRepos
+      repositories: firstProjectRepos,
     })
     .mockResolvedValueOnce({
-      repositories: secondProjectRepos
+      repositories: secondProjectRepos,
     });
 
   const wrapper = shallowRender();
@@ -136,7 +136,7 @@ it('should handle opening a project', async () => {
 
   expect(wrapper.state().repositories).toEqual({
     [projects[0].name]: firstProjectRepos,
-    [projects[1].name]: secondProjectRepos
+    [projects[1].name]: secondProjectRepos,
   });
 });
 
@@ -147,7 +147,7 @@ it('should handle searching for repositories', async () => {
   const query = 'repo';
   const repositories = [mockAzureRepository({ projectName: 'p2' })];
   (searchAzureRepositories as jest.Mock).mockResolvedValueOnce({
-    repositories
+    repositories,
   });
   wrapper.instance().handleSearchRepositories(query);
   expect(wrapper.state().searching).toBe(true);

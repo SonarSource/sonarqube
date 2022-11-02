@@ -22,7 +22,7 @@ import { sanitize } from 'dompurify';
 export function sanitizeStringRestricted(html: string) {
   return sanitize(html, {
     ALLOWED_TAGS: ['b', 'br', 'code', 'i', 'li', 'p', 'strong', 'ul', 'a'],
-    ALLOWED_ATTR: ['target', 'href']
+    ALLOWED_ATTR: ['target', 'href'],
   });
 }
 

@@ -31,7 +31,7 @@ import { CreateProjectModes } from '../types';
 jest.mock('../../../../api/alm-settings', () => {
   const { AlmKeys } = jest.requireActual('../../../../types/alm-settings');
   return {
-    getAlmSettings: jest.fn().mockResolvedValue([{ alm: AlmKeys.BitbucketServer, key: 'foo' }])
+    getAlmSettings: jest.fn().mockResolvedValue([{ alm: AlmKeys.BitbucketServer, key: 'foo' }]),
   };
 });
 
@@ -48,11 +48,11 @@ it.each([
   [CreateProjectModes.BitbucketServer],
   [CreateProjectModes.BitbucketCloud],
   [CreateProjectModes.GitHub],
-  [CreateProjectModes.GitLab]
+  [CreateProjectModes.GitLab],
 ])('should render correctly for %s mode', (mode: CreateProjectModes) => {
   expect(
     shallowRender({
-      location: mockLocation({ query: { mode } })
+      location: mockLocation({ query: { mode } }),
     })
   ).toMatchSnapshot();
 });
@@ -60,26 +60,17 @@ it.each([
 it('should render alm configuration creation correctly', () => {
   const wrapper = shallowRender();
 
-  wrapper
-    .find(CreateProjectModeSelection)
-    .props()
-    .onConfigMode(AlmKeys.Azure);
+  wrapper.find(CreateProjectModeSelection).props().onConfigMode(AlmKeys.Azure);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should cancel alm configuration creation properly', () => {
   const wrapper = shallowRender();
 
-  wrapper
-    .find(CreateProjectModeSelection)
-    .props()
-    .onConfigMode(AlmKeys.Azure);
+  wrapper.find(CreateProjectModeSelection).props().onConfigMode(AlmKeys.Azure);
   expect(wrapper.state().creatingAlmDefinition).toBe(AlmKeys.Azure);
 
-  wrapper
-    .find(AlmBindingDefinitionForm)
-    .props()
-    .onCancel();
+  wrapper.find(AlmBindingDefinitionForm).props().onCancel();
   expect(wrapper.state().creatingAlmDefinition).toBeUndefined();
 });
 
@@ -87,16 +78,10 @@ it('should submit alm configuration creation properly', async () => {
   const push = jest.fn();
   const wrapper = shallowRender({ router: mockRouter({ push }) });
 
-  wrapper
-    .find(CreateProjectModeSelection)
-    .props()
-    .onConfigMode(AlmKeys.Azure);
+  wrapper.find(CreateProjectModeSelection).props().onConfigMode(AlmKeys.Azure);
   expect(wrapper.state().creatingAlmDefinition).toBe(AlmKeys.Azure);
 
-  wrapper
-    .find(AlmBindingDefinitionForm)
-    .props()
-    .afterSubmit({ key: 'test-key' });
+  wrapper.find(AlmBindingDefinitionForm).props().afterSubmit({ key: 'test-key' });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().creatingAlmDefinition).toBeUndefined();
   expect(getAlmSettings).toHaveBeenCalled();
@@ -107,17 +92,11 @@ it('should submit alm configuration creation properly for BBC', async () => {
   const push = jest.fn();
   const wrapper = shallowRender({ router: mockRouter({ push }) });
 
-  wrapper
-    .find(CreateProjectModeSelection)
-    .props()
-    .onConfigMode(AlmKeys.BitbucketServer);
+  wrapper.find(CreateProjectModeSelection).props().onConfigMode(AlmKeys.BitbucketServer);
   expect(wrapper.state().creatingAlmDefinition).toBe(AlmKeys.BitbucketServer);
 
   (getAlmSettings as jest.Mock).mockResolvedValueOnce([{ alm: AlmKeys.BitbucketCloud }]);
-  wrapper
-    .find(AlmBindingDefinitionForm)
-    .props()
-    .afterSubmit({ key: 'test-key' });
+  wrapper.find(AlmBindingDefinitionForm).props().afterSubmit({ key: 'test-key' });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().creatingAlmDefinition).toBeUndefined();
   expect(getAlmSettings).toHaveBeenCalled();

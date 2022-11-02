@@ -27,7 +27,7 @@ it('should render', () => {
       <MeasuresOverlayMeasure
         measure={{
           metric: { id: '1', key: 'coverage', name: 'Coverage', type: 'PERCENT' },
-          value: '72'
+          value: '72',
         }}
       />
     )
@@ -40,7 +40,7 @@ it('should render issues icon', () => {
       <MeasuresOverlayMeasure
         measure={{
           metric: { id: '1', key: 'bugs', name: 'Bugs', type: 'INT' },
-          value: '2'
+          value: '2',
         }}
       />
     )

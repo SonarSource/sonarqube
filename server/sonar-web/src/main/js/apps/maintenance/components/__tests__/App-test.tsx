@@ -28,12 +28,12 @@ import App from '../App';
 jest.mock('../../../../api/system', () => ({
   getMigrationStatus: jest.fn().mockResolvedValue(null),
   getSystemStatus: jest.fn().mockResolvedValue(null),
-  migrateDatabase: jest.fn().mockResolvedValue(null)
+  migrateDatabase: jest.fn().mockResolvedValue(null),
 }));
 
 jest.mock('../../../../helpers/system', () => ({
   ...jest.requireActual('../../../../helpers/system'),
-  getBaseUrl: jest.fn().mockReturnValue('/context')
+  getBaseUrl: jest.fn().mockReturnValue('/context'),
 }));
 
 const originalLocation = window.location;
@@ -44,11 +44,11 @@ beforeAll(() => {
 
   const location = {
     ...window.location,
-    replace
+    replace,
   };
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: location
+    value: location,
   });
 });
 
@@ -58,7 +58,7 @@ afterAll(() => {
 
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: originalLocation
+    value: originalLocation,
   });
 });
 
@@ -70,23 +70,23 @@ describe('Maintenance', () => {
       'OFFLINE',
       'maintenance.is_offline',
       'maintenance.sonarqube_is_offline.text',
-      { name: 'maintenance.try_again', href: '/context/' }
+      { name: 'maintenance.try_again', href: '/context/' },
     ],
     [
       'UP',
       'maintenance.is_up',
       'maintenance.all_systems_opetational',
-      { name: 'layout.home', href: '/' }
+      { name: 'layout.home', href: '/' },
     ],
     ['STARTING', 'maintenance.is_starting'],
     [
       'DOWN',
       'maintenance.is_down',
       'maintenance.sonarqube_is_down.text',
-      { name: 'maintenance.try_again', href: '/context/' }
+      { name: 'maintenance.try_again', href: '/context/' },
     ],
     ['DB_MIGRATION_NEEDED', 'maintenance.is_under_maintenance'],
-    ['DB_MIGRATION_RUNNING', 'maintenance.is_under_maintenance']
+    ['DB_MIGRATION_RUNNING', 'maintenance.is_under_maintenance'],
   ])(
     'should handle "%p" status correctly',
     async (status, heading, body = undefined, linkInfo = undefined) => {
@@ -155,7 +155,7 @@ describe('Setup', () => {
       'NO_MIGRATION',
       'maintenance.database_is_up_to_date',
       undefined,
-      { name: 'layout.home', href: '/' }
+      { name: 'layout.home', href: '/' },
     ],
     [
       'MIGRATION_REQUIRED',
@@ -163,28 +163,28 @@ describe('Setup', () => {
       [
         'maintenance.upgrade_database.1',
         'maintenance.upgrade_database.2',
-        'maintenance.upgrade_database.3'
-      ]
+        'maintenance.upgrade_database.3',
+      ],
     ],
     [
       'NOT_SUPPORTED',
       'maintenance.migration_not_supported',
-      ['maintenance.migration_not_supported.text']
+      ['maintenance.migration_not_supported.text'],
     ],
     [
       'MIGRATION_RUNNING',
       'maintenance.database_migration',
       undefined,
       undefined,
-      { message: 'MESSAGE', startedAt: '2022-12-01' }
+      { message: 'MESSAGE', startedAt: '2022-12-01' },
     ],
     [
       'MIGRATION_SUCCEEDED',
       'maintenance.database_is_up_to_date',
       undefined,
-      { name: 'layout.home', href: '/' }
+      { name: 'layout.home', href: '/' },
     ],
-    ['MIGRATION_FAILED', 'maintenance.upgrade_failed', ['maintenance.upgrade_failed.text']]
+    ['MIGRATION_FAILED', 'maintenance.upgrade_failed', ['maintenance.upgrade_failed.text']],
   ])(
     'should handle "%p" state correctly',
     async (state, heading, bodyText: string[] = [], linkInfo = undefined, payload = undefined) => {
@@ -195,7 +195,7 @@ describe('Setup', () => {
       expect(title).toBeInTheDocument();
       // eslint-disable-next-line jest/no-conditional-in-test
       if (bodyText.length) {
-        bodyText.forEach(text => {
+        bodyText.forEach((text) => {
           // eslint-disable-next-line jest/no-conditional-expect
           expect(screen.getByText(text)).toBeInTheDocument();
         });
@@ -222,7 +222,7 @@ describe('Setup', () => {
     (migrateDatabase as jest.Mock).mockResolvedValueOnce({
       message: 'MESSAGE',
       startedAt: '2022-12-01',
-      state: 'MIGRATION_RUNNING'
+      state: 'MIGRATION_RUNNING',
     });
     (getMigrationStatus as jest.Mock)
       .mockResolvedValueOnce({ state: 'MIGRATION_REQUIRED' })

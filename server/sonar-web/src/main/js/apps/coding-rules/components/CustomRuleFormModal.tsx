@@ -77,7 +77,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
       severity: (props.customRule && props.customRule.severity) || props.templateRule.severity,
       status: (props.customRule && props.customRule.status) || props.templateRule.status,
       submitting: false,
-      type: (props.customRule && props.customRule.type) || props.templateRule.type
+      type: (props.customRule && props.customRule.type) || props.templateRule.type,
     };
   }
 
@@ -92,14 +92,14 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   prepareRequest = () => {
     const { customRule, templateRule } = this.props;
     const params = Object.keys(this.state.params)
-      .map(key => `${key}=${csvEscape(this.state.params[key])}`)
+      .map((key) => `${key}=${csvEscape(this.state.params[key])}`)
       .join(';');
     const ruleData = {
       markdown_description: this.state.description,
       name: this.state.name,
       params,
       severity: this.state.severity,
-      status: this.state.status
+      status: this.state.status,
     };
     return customRule
       ? updateRule({ ...ruleData, key: customRule.key })
@@ -108,7 +108,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           custom_key: this.state.key,
           prevent_reactivation: !this.state.reactivating,
           template_key: templateRule.key,
-          type: this.state.type
+          type: this.state.type,
         });
   };
 
@@ -116,7 +116,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     event.preventDefault();
     this.setState({ submitting: true });
     this.prepareRequest().then(
-      newRuleDetails => {
+      (newRuleDetails) => {
         if (this.mounted) {
           this.setState({ submitting: false });
           this.props.onDone(newRuleDetails);
@@ -132,9 +132,9 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
 
   handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     const { value: name } = event.currentTarget;
-    this.setState(state => ({
+    this.setState((state) => ({
       name,
-      key: state.keyModifiedByUser ? state.key : latinize(name).replace(/[^A-Za-z0-9]/g, '_')
+      key: state.keyModifiedByUser ? state.key : latinize(name).replace(/[^A-Za-z0-9]/g, '_'),
     }));
   };
 
@@ -230,9 +230,9 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   };
 
   renderTypeField = () => {
-    const ruleTypeOption = RULE_TYPES.map(type => ({
+    const ruleTypeOption = RULE_TYPES.map((type) => ({
       label: translate('issue.type', type),
-      value: type
+      value: type,
     }));
     return (
       <div className="modal-field flex-1 spacer-right">
@@ -245,10 +245,10 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           onChange={this.handleTypeChange}
           components={{
             Option: this.renderTypeOption,
-            SingleValue: this.renderTypeSingleValue
+            SingleValue: this.renderTypeSingleValue,
           }}
           options={ruleTypeOption}
-          value={ruleTypeOption.find(t => t.value === this.state.type)}
+          value={ruleTypeOption.find((t) => t.value === this.state.type)}
         />
       </div>
     );
@@ -267,9 +267,9 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   );
 
   renderStatusField = () => {
-    const statusesOptions = RULE_STATUSES.map(status => ({
+    const statusesOptions = RULE_STATUSES.map((status) => ({
       label: translate('rules.status', status),
-      value: status
+      value: status,
     }));
     return (
       <div className="modal-field flex-1">
@@ -283,7 +283,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           onChange={this.handleStatusChange}
           options={statusesOptions}
           isSearchable={false}
-          value={statusesOptions.find(s => s.value === this.state.status)}
+          value={statusesOptions.find((s) => s.value === this.state.status)}
         />
       </div>
     );
@@ -369,7 +369,8 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
             <ResetButtonLink
               disabled={submitting}
               id="coding-rules-custom-rule-creation-cancel"
-              onClick={this.props.onClose}>
+              onClick={this.props.onClose}
+            >
               {translate('cancel')}
             </ResetButtonLink>
           </div>

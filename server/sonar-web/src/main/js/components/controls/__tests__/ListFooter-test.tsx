@@ -44,7 +44,7 @@ it.each([
   [undefined, 60, 30, true],
   [undefined, 45, 30, false],
   [undefined, 60, undefined, false],
-  [60, 60, 30, false]
+  [60, 60, 30, false],
 ])(
   'handle showing load more button based on total, count and pageSize',
   (total, count, pageSize, expected) => {

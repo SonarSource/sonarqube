@@ -26,25 +26,25 @@ export const PERMISSIONS_ORDER = [
   'issueadmin',
   'securityhotspotadmin',
   'admin',
-  'scan'
+  'scan',
 ];
 
 export const PERMISSION_TEMPLATES_PATH = '/admin/permission_templates';
 
 export function sortPermissions(permissions: Permission[]) {
-  return sortBy(permissions, p => PERMISSIONS_ORDER.indexOf(p.key));
+  return sortBy(permissions, (p) => PERMISSIONS_ORDER.indexOf(p.key));
 }
 
 export function mergePermissionsToTemplates(
   permissionTemplates: PermissionTemplate[],
   basePermissions: Permission[]
 ): PermissionTemplate[] {
-  return permissionTemplates.map(permissionTemplate => {
+  return permissionTemplates.map((permissionTemplate) => {
     // it's important to keep the order of the permission template's permissions
     // the same as the order of base permissions
-    const permissions = basePermissions.map(basePermission => {
+    const permissions = basePermissions.map((basePermission) => {
       const projectPermission = permissionTemplate.permissions.find(
-        p => p.key === basePermission.key
+        (p) => p.key === basePermission.key
       );
       return { usersCount: 0, groupsCount: 0, ...basePermission, ...projectPermission };
     });
@@ -57,10 +57,10 @@ export function mergeDefaultsToTemplates(
   permissionTemplates: PermissionTemplate[],
   defaultTemplates: Array<{ templateId: string; qualifier: string }> = []
 ): PermissionTemplate[] {
-  return permissionTemplates.map(permissionTemplate => {
+  return permissionTemplates.map((permissionTemplate) => {
     const defaultFor: string[] = [];
 
-    defaultTemplates.forEach(defaultTemplate => {
+    defaultTemplates.forEach((defaultTemplate) => {
       if (defaultTemplate.templateId === permissionTemplate.id) {
         defaultFor.push(defaultTemplate.qualifier);
       }

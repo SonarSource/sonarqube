@@ -60,7 +60,7 @@ function renderFirstLine(project: Props['project'], handleFavorite: Props['handl
     name,
     measures,
     needIssueSync,
-    visibility
+    visibility,
   } = project;
 
   return (
@@ -89,7 +89,8 @@ function renderFirstLine(project: Props['project'], handleFavorite: Props['handl
                   </span>
                 )}
               </span>
-            }>
+            }
+          >
             <span className="spacer-right">
               <QualifierIcon qualifier={qualifier} />
             </span>
@@ -104,13 +105,13 @@ function renderFirstLine(project: Props['project'], handleFavorite: Props['handl
             <ProjectCardQualityGate status={measures[MetricKey.alert_status]} />
             <span className="flex-grow" />
             <DateTimeFormatter date={analysisDate}>
-              {formattedAnalysisDate => (
+              {(formattedAnalysisDate) => (
                 <span className="note big-spacer-left text-ellipsis" title={formattedAnalysisDate}>
                   <FormattedMessage
                     id="projects.last_analysis_on_x"
                     defaultMessage={translate('projects.last_analysis_on_x')}
                     values={{
-                      date: <DateFromNow date={analysisDate} />
+                      date: <DateFromNow date={analysisDate} />,
                     }}
                   />
                 </span>
@@ -143,8 +144,9 @@ function renderSecondLine(
   return (
     <div
       className={classNames('display-flex-end flex-grow', {
-        'project-card-leak': isNewCode
-      })}>
+        'project-card-leak': isNewCode,
+      })}
+    >
       <div className="project-card-main big-padded-left big-padded-right big-padded-bottom">
         {renderMeasures(currentUser, project, isNewCode)}
       </div>
@@ -153,7 +155,8 @@ function renderSecondLine(
           ? measures[MetricKey.new_lines] != null && (
               <ProjectCardMeasure
                 metricKey={MetricKey.new_lines}
-                label={translate('metric.lines.name')}>
+                label={translate('metric.lines.name')}
+              >
                 <Measure
                   className="big"
                   metricKey={MetricKey.new_lines}
@@ -165,7 +168,8 @@ function renderSecondLine(
           : measures[MetricKey.ncloc] != null && (
               <ProjectCardMeasure
                 metricKey={MetricKey.ncloc}
-                label={translate('metric.lines.name')}>
+                label={translate('metric.lines.name')}
+              >
                 <div className="display-flex-center">
                   <Measure
                     className="big"
@@ -232,10 +236,11 @@ export default function ProjectCard(props: Props) {
   return (
     <div
       className={classNames('display-flex-column boxed-group it_project_card', {
-        'project-card-disabled': project.needIssueSync
+        'project-card-disabled': project.needIssueSync,
       })}
       data-key={project.key}
-      style={{ height }}>
+      style={{ height }}
+    >
       {renderFirstLine(project, props.handleFavorite)}
       {renderSecondLine(currentUser, project, isNewCode)}
     </div>

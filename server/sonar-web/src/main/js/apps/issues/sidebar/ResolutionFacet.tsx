@@ -44,7 +44,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
   property = 'resolutions';
 
   static defaultProps = {
-    open: true
+    open: true,
   };
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
@@ -63,7 +63,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
       this.props.onChange({
         resolved: true,
         [this.property]:
-          resolutions.includes(itemValue) && resolutions.length < 2 ? [] : [itemValue]
+          resolutions.includes(itemValue) && resolutions.length < 2 ? [] : [itemValue],
       });
     }
   };
@@ -109,7 +109,7 @@ export default class ResolutionFacet extends React.PureComponent<Props> {
 
   render() {
     const { resolutions, stats = {} } = this.props;
-    const values = resolutions.map(resolution => this.getFacetItemName(resolution));
+    const values = resolutions.map((resolution) => this.getFacetItemName(resolution));
 
     return (
       <FacetBox property={this.property}>

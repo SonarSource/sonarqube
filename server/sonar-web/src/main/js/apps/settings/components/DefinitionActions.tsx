@@ -91,7 +91,8 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
             <Button
               className="spacer-right button-success"
               disabled={this.props.hasError}
-              onClick={this.props.onSave}>
+              onClick={this.props.onSave}
+            >
               {translate('save')}
             </Button>
           )}

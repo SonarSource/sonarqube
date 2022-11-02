@@ -47,7 +47,7 @@ const ISSUE_MEASURES = [
   MetricKey.bugs,
   MetricKey.new_bugs,
   MetricKey.vulnerabilities,
-  MetricKey.new_vulnerabilities
+  MetricKey.new_vulnerabilities,
 ];
 
 const issueParamsPerMetric: Dict<Dict<string>> = {
@@ -70,7 +70,7 @@ const issueParamsPerMetric: Dict<Dict<string>> = {
   [MetricKey.bugs]: { resolved: 'false', types: 'BUG' },
   [MetricKey.new_bugs]: { resolved: 'false', types: 'BUG' },
   [MetricKey.vulnerabilities]: { resolved: 'false', types: 'VULNERABILITY' },
-  [MetricKey.new_vulnerabilities]: { resolved: 'false', types: 'VULNERABILITY' }
+  [MetricKey.new_vulnerabilities]: { resolved: 'false', types: 'VULNERABILITY' },
 };
 
 interface Props {
@@ -90,7 +90,7 @@ export default class DrilldownLink extends React.PureComponent<Props> {
 
   propsToIssueParams = () => {
     const params: Dict<string | boolean> = {
-      ...(issueParamsPerMetric[this.props.metric] || { resolved: 'false' })
+      ...(issueParamsPerMetric[this.props.metric] || { resolved: 'false' }),
     };
 
     if (this.props.inNewCodePeriod) {
@@ -105,7 +105,7 @@ export default class DrilldownLink extends React.PureComponent<Props> {
 
     const url = getComponentIssuesUrl(component, {
       ...this.propsToIssueParams(),
-      ...getBranchLikeQuery(branchLike)
+      ...getBranchLikeQuery(branchLike),
     });
 
     return (
@@ -125,7 +125,7 @@ export default class DrilldownLink extends React.PureComponent<Props> {
       componentKey: component,
       metric,
       branchLike,
-      listView: true
+      listView: true,
     });
     return (
       <Link aria-label={ariaLabel} className={className} to={url}>

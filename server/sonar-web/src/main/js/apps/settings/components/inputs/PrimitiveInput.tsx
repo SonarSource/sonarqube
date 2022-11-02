@@ -50,7 +50,7 @@ export default function PrimitiveInput(props: DefaultSpecializedInputProps) {
     LONG: InputForNumber,
     FLOAT: InputForNumber,
     SINGLE_SELECT_LIST: withOptions(definition.options),
-    FORMATTED_TEXT: InputForFormattedText
+    FORMATTED_TEXT: InputForFormattedText,
   };
 
   const InputComponent = (definition.type && typeMapping[definition.type]) || InputForString;

@@ -31,13 +31,10 @@ it('should render correctly', () => {
 it.each([
   [OSs.Linux, false],
   [OSs.MacOS, true],
-  [OSs.Windows, true]
+  [OSs.Windows, true],
 ])('should render correctly for %s', (os: OSs, branchesEnabled: boolean) => {
   const wrapper = shallowRender({ branchesEnabled });
-  wrapper
-    .find(RenderOptions)
-    .props()
-    .onCheck(os);
+  wrapper.find(RenderOptions).props().onCheck(os);
   expect(wrapper).toMatchSnapshot(`branches ${branchesEnabled ? 'enabled' : 'disabled'}`);
 });
 

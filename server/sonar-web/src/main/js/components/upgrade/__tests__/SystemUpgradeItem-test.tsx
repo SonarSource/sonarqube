@@ -38,9 +38,9 @@ it('should display correctly', () => {
           description: 'Version 5.6.7 description',
           releaseDate: '2017-03-01',
           changeLogUrl: 'http://changelog.url/',
-          downloadUrl: 'http://download.url/community'
-        }
-      ]
+          downloadUrl: 'http://download.url/community',
+        },
+      ],
     })
   ).toMatchSnapshot();
 });
@@ -58,7 +58,7 @@ function shallowRender(props: Partial<SystemUpgradeItemProps> = {}) {
           downloadUrl: 'http://download.url/community',
           downloadDeveloperUrl: 'http://download.url/developer',
           downloadEnterpriseUrl: 'http://download.url/enterprise',
-          downloadDatacenterUrl: 'http://download.url/datacenter'
+          downloadDatacenterUrl: 'http://download.url/datacenter',
         },
         {
           version: '5.6.6',
@@ -66,7 +66,7 @@ function shallowRender(props: Partial<SystemUpgradeItemProps> = {}) {
           releaseDate: '2017-04-02',
           changeLogUrl: 'http://changelog.url/',
           downloadUrl: 'http://download.url/community',
-          downloadDeveloperUrl: 'http://download.url/developer'
+          downloadDeveloperUrl: 'http://download.url/developer',
         },
         {
           version: '5.6.5',
@@ -74,8 +74,8 @@ function shallowRender(props: Partial<SystemUpgradeItemProps> = {}) {
           releaseDate: '2017-03-01',
           changeLogUrl: 'http://changelog.url/',
           downloadUrl: 'http://download.url/community',
-          downloadDeveloperUrl: 'http://download.url/developer'
-        }
+          downloadDeveloperUrl: 'http://download.url/developer',
+        },
       ]}
       isPatch={false}
       isLTSVersion={false}

@@ -48,7 +48,7 @@ interface State {
 export default class IssueActionsBar extends React.PureComponent<Props, State> {
   state: State = {
     commentAutoTriggered: false,
-    commentPlaceholder: ''
+    commentPlaceholder: '',
   };
 
   setIssueProperty = (
@@ -73,7 +73,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
   toggleComment = (open: boolean | undefined, placeholder = '', autoTriggered = false) => {
     this.setState({
       commentPlaceholder: placeholder,
-      commentAutoTriggered: autoTriggered
+      commentAutoTriggered: autoTriggered,
     });
     this.props.togglePopup('comment', open);
   };

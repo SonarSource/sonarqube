@@ -24,7 +24,7 @@ import {
   GroupTypeBase,
   InputProps,
   OptionTypeBase,
-  Props as ReactSelectProps
+  Props as ReactSelectProps,
 } from 'react-select';
 import { LoadingIndicatorProps } from 'react-select/src/components/indicators';
 import { MultiValueRemoveProps } from 'react-select/src/components/MultiValue';
@@ -35,7 +35,7 @@ import Select, {
   dropdownIndicator,
   loadingIndicator,
   multiValueRemove,
-  SearchSelect
+  SearchSelect,
 } from '../Select';
 
 describe('Select', () => {
@@ -53,8 +53,8 @@ describe('Select', () => {
         isClearable: true,
         isLoading: true,
         components: {
-          Input: inputRenderer
-        }
+          Input: inputRenderer,
+        },
       })
     ).toMatchSnapshot('other props');
   });
@@ -91,7 +91,7 @@ describe('Select', () => {
 
 it.each([
   ['CreatableSelect', CreatableSelect],
-  ['SearchSelect', SearchSelect]
+  ['SearchSelect', SearchSelect],
 ])('should render %s correctly', (_name, Component) => {
   expect(
     shallow(<Component />)

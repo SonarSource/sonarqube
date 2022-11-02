@@ -72,7 +72,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       modalWrapperNode: null,
       results: [],
       selectedProfiles,
-      submitting: false
+      submitting: false,
     };
   }
 
@@ -95,11 +95,11 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   getAvailableQualityProfiles = ({ query, referencedProfiles } = this.props) => {
     let profiles = Object.values(referencedProfiles);
     if (query.languages.length > 0) {
-      profiles = profiles.filter(profile => query.languages.includes(profile.language));
+      profiles = profiles.filter((profile) => query.languages.includes(profile.language));
     }
     return profiles
-      .filter(profile => profile.actions && profile.actions.edit)
-      .filter(profile => !profile.isBuiltIn);
+      .filter((profile) => profile.actions && profile.actions.edit)
+      .filter((profile) => !profile.isBuiltIn);
   };
 
   processResponse = (profile: string, response: any) => {
@@ -107,9 +107,9 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       const result: ActivationResult = {
         failed: response.failed || 0,
         profile,
-        succeeded: response.succeeded || 0
+        succeeded: response.succeeded || 0,
       };
-      this.setState(state => ({ results: [...state.results, result] }));
+      this.setState((state) => ({ results: [...state.results, result] }));
     }
   };
 
@@ -126,17 +126,17 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     // otherwise take all profiles selected in the dropdown
     const profiles: string[] = this.props.profile
       ? [this.props.profile.key]
-      : this.state.selectedProfiles.map(p => p.key);
+      : this.state.selectedProfiles.map((p) => p.key);
 
     for (const profile of profiles) {
       looper = looper
         .then(() =>
           method({
             ...data,
-            targetKey: profile
+            targetKey: profile,
           })
         )
-        .then(response => this.processResponse(profile, response));
+        .then((response) => this.processResponse(profile, response));
     }
     return looper;
   };
@@ -198,8 +198,8 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         menuPortalTarget={this.state.modalWrapperNode}
         menuPosition="fixed"
         noOptionsMessage={() => translate('coding_rules.bulk_change.no_quality_profile')}
-        getOptionLabel={profile => `${profile.name} - ${profile.languageName}`}
-        getOptionValue={profile => profile.key}
+        getOptionLabel={(profile) => `${profile.name} - ${profile.languageName}`}
+        getOptionValue={(profile) => profile.key}
         onChange={this.handleProfileSelect}
         options={profiles}
         value={this.state.selectedProfiles}

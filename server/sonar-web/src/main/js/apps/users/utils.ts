@@ -27,13 +27,13 @@ export interface Query {
 
 export const parseQuery = memoize(
   (urlQuery: RawQuery): Query => ({
-    search: parseAsString(urlQuery['search'])
+    search: parseAsString(urlQuery['search']),
   })
 );
 
 export const serializeQuery = memoize(
   (query: Query): RawQuery =>
     cleanQuery({
-      search: query.search ? serializeString(query.search) : undefined
+      search: query.search ? serializeString(query.search) : undefined,
     })
 );

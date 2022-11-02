@@ -44,7 +44,7 @@ export default class Workers extends React.PureComponent<{}, State> {
     formOpen: false,
     loading: true,
     noSupportPopup: false,
-    workerCount: 1
+    workerCount: 1,
   };
 
   componentDidMount() {
@@ -64,7 +64,7 @@ export default class Workers extends React.PureComponent<{}, State> {
           this.setState({
             canSetWorkerCount,
             loading: false,
-            workerCount: value
+            workerCount: value,
           });
         }
       },
@@ -95,7 +95,7 @@ export default class Workers extends React.PureComponent<{}, State> {
     if (show !== undefined) {
       this.setState({ noSupportPopup: show });
     } else {
-      this.setState(state => ({ noSupportPopup: !state.noSupportPopup }));
+      this.setState((state) => ({ noSupportPopup: !state.noSupportPopup }));
     }
   };
 

@@ -32,7 +32,7 @@ export default class IndexationNotificationHelper {
     this.stopPolling();
 
     // eslint-disable-next-line promise/catch-or-return
-    this.poll(onNewStatus).then(status => {
+    this.poll(onNewStatus).then((status) => {
       if (!status.isCompleted) {
         this.interval = setInterval(() => this.poll(onNewStatus), POLLING_INTERVAL_MS);
       }

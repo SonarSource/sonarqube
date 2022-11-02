@@ -48,7 +48,7 @@ export class Components extends React.PureComponent<Props> {
       rootComponent,
       selected,
       metrics,
-      newCodeSelected
+      newCodeSelected,
     } = this.props;
 
     const colSpan = metrics.length + BASE_COLUMN_COUNT;
@@ -60,7 +60,7 @@ export class Components extends React.PureComponent<Props> {
           <ComponentsHeader
             baseComponent={baseComponent}
             canBePinned={canBePinned}
-            metrics={metrics.map(metric => metric.key)}
+            metrics={metrics.map((metric) => metric.key)}
             rootComponent={rootComponent}
           />
         )}
@@ -92,9 +92,9 @@ export class Components extends React.PureComponent<Props> {
           {components.length ? (
             sortBy(
               components,
-              c => c.qualifier,
-              c => c.name.toLowerCase(),
-              c => (c.branch ? c.branch.toLowerCase() : '')
+              (c) => c.qualifier,
+              (c) => c.name.toLowerCase(),
+              (c) => (c.branch ? c.branch.toLowerCase() : '')
             ).map((component, index, list) => (
               <Component
                 branchLike={branchLike}

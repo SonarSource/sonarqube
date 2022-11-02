@@ -68,7 +68,7 @@ import { DEFAULT_APP_STATE } from '../components/app-state/AppStateContext';
 import AppStateContextProvider from '../components/app-state/AppStateContextProvider';
 import {
   AvailableFeaturesContext,
-  DEFAULT_AVAILABLE_FEATURES
+  DEFAULT_AVAILABLE_FEATURES,
 } from '../components/available-features/AvailableFeaturesContext';
 import ComponentContainer from '../components/ComponentContainer';
 import CurrentUserContextProvider from '../components/current-user/CurrentUserContextProvider';
@@ -119,7 +119,7 @@ function renderRedirects() {
         element={
           <NavigateWithParams
             pathname="/dashboard"
-            transformParams={params => omitNil({ id: params['key'] })}
+            transformParams={(params) => omitNil({ id: params['key'] })}
           />
         }
       />

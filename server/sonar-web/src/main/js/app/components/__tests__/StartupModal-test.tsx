@@ -31,21 +31,21 @@ import { LoggedInUser } from '../../../types/users';
 import { StartupModal } from '../StartupModal';
 
 jest.mock('../../../api/editions', () => ({
-  showLicense: jest.fn().mockResolvedValue(undefined)
+  showLicense: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('../../../helpers/storage', () => ({
   get: jest.fn(),
-  save: jest.fn()
+  save: jest.fn(),
 }));
 
 jest.mock('../../../helpers/l10n', () => ({
-  hasMessage: jest.fn().mockReturnValue(true)
+  hasMessage: jest.fn().mockReturnValue(true),
 }));
 
 jest.mock('../../../helpers/dates', () => ({
   parseDate: jest.fn().mockReturnValue('parsed-date'),
-  toShortNotSoISOString: jest.fn().mockReturnValue('short-not-iso-date')
+  toShortNotSoISOString: jest.fn().mockReturnValue('short-not-iso-date'),
 }));
 
 jest.mock('date-fns', () => ({ differenceInDays: jest.fn().mockReturnValue(1) }));
@@ -56,7 +56,7 @@ const LOGGED_IN_USER: LoggedInUser = {
   login: 'luke',
   name: 'Skywalker',
   scmAccounts: [],
-  dismissedNotices: {}
+  dismissedNotices: {},
 };
 
 beforeEach(() => {
@@ -90,7 +90,7 @@ it('should render only the children', async () => {
     getWrapper({
       appState: mockAppState({ canAdmin: false }),
       currentUser: { ...LOGGED_IN_USER },
-      location: mockLocation({ pathname: '/create-organization' })
+      location: mockLocation({ pathname: '/create-organization' }),
     })
   );
 });
@@ -124,7 +124,8 @@ function getWrapper(props: Partial<StartupModal['props']> = {}) {
       currentUser={LOGGED_IN_USER}
       location={mockLocation({ pathname: 'foo/bar' })}
       router={mockRouter()}
-      {...props}>
+      {...props}
+    >
       <div />
     </StartupModal>
   );

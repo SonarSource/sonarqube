@@ -36,7 +36,8 @@ export default function DropdownIcon({
       style={turned ? { transform: 'rotate(180deg)' } : undefined}
       viewBox="0 0 7 16"
       width={(size / 16) * 7}
-      {...iconProps}>
+      {...iconProps}
+    >
       <path
         d="M7 6.469a.42.42 0 0 1-.13.307L3.808 9.84a.42.42 0 0 1-.308.13.42.42 0 0 1-.308-.13L.13 6.776A.42.42 0 0 1 0 6.47a.42.42 0 0 1 .13-.308.42.42 0 0 1 .307-.13h6.126a.42.42 0 0 1 .307.13.42.42 0 0 1 .13.308z"
         style={{ fill }}

@@ -35,7 +35,7 @@ export interface BreadcrumbProps {
 export function Breadcrumb(props: BreadcrumbProps) {
   const {
     component: { breadcrumbs },
-    currentBranchLike
+    currentBranchLike,
   } = props;
   const lastBreadcrumbElement = last(breadcrumbs);
   const isNotMainBranch = currentBranchLike && !isMainBranch(currentBranchLike);
@@ -60,7 +60,8 @@ export function Breadcrumb(props: BreadcrumbProps) {
               )}
               <Link
                 className="link-no-underline"
-                to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}>
+                to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}
+              >
                 {showQualifierIcon && isNotMainBranch && (
                   <QualifierIcon
                     className="spacer-right"

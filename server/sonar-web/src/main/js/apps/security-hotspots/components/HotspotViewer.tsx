@@ -24,7 +24,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
 import {
   Hotspot,
   HotspotStatusFilter,
-  HotspotStatusOption
+  HotspotStatusOption,
 } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import { RuleDescriptionSection } from '../../coding-rules/rule';
@@ -81,13 +81,13 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     try {
       const hotspot = await getSecurityHotspotDetails(this.props.hotspotKey);
-      const ruleDetails = await getRuleDetails({ key: hotspot.rule.key }).then(r => r.rule);
+      const ruleDetails = await getRuleDetails({ key: hotspot.rule.key }).then((r) => r.rule);
 
       if (this.mounted) {
         this.setState({
           hotspot,
           loading: false,
-          ruleDescriptionSections: ruleDetails.descriptionSections
+          ruleDescriptionSections: ruleDetails.descriptionSections,
         });
       }
     } catch (error) {
@@ -112,7 +112,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     if (this.commentTextRef.current) {
       this.commentTextRef.current.focus({ preventScroll: true });
       scrollToElement(this.commentTextRef.current, {
-        bottomOffset: SCROLL_TO_COMMENT_BOTTOM_OFFSET
+        bottomOffset: SCROLL_TO_COMMENT_BOTTOM_OFFSET,
       });
     }
   };
@@ -135,7 +135,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
       ruleDescriptionSections,
       lastStatusChangedTo,
       loading,
-      showStatusUpdateSuccessModal
+      showStatusUpdateSuccessModal,
     } = this.state;
 
     return (

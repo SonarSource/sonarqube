@@ -32,9 +32,9 @@ export default class InputForSingleSelectList extends React.PureComponent<Props>
   render() {
     const { options: opts, name, value } = this.props;
 
-    const options = opts.map(option => ({
+    const options = opts.map((option) => ({
       label: option,
-      value: option
+      value: option,
     }));
 
     return (
@@ -43,7 +43,7 @@ export default class InputForSingleSelectList extends React.PureComponent<Props>
         name={name}
         onChange={this.handleInputChange}
         options={options}
-        value={options.find(option => option.value === value)}
+        value={options.find((option) => option.value === value)}
       />
     );
   }

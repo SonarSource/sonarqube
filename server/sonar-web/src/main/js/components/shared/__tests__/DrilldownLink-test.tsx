@@ -40,7 +40,7 @@ describe('propsToIssueParams', () => {
     const wrapper = shallowRender({ metric: 'false_positive_issues', inNewCodePeriod: true });
     expect(wrapper.instance().propsToIssueParams()).toEqual({
       resolutions: 'FALSE-POSITIVE',
-      inNewCodePeriod: true
+      inNewCodePeriod: true,
     });
   });
 });

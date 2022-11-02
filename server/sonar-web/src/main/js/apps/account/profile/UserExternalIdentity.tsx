@@ -40,7 +40,7 @@ export default class UserExternalIdentity extends React.PureComponent<
 > {
   mounted = false;
   state: State = {
-    loading: true
+    loading: true,
   };
 
   componentDidMount() {
@@ -61,11 +61,11 @@ export default class UserExternalIdentity extends React.PureComponent<
   fetchIdentityProviders() {
     this.setState({ loading: true });
     getIdentityProviders()
-      .then(r => r.identityProviders)
-      .then(providers => {
+      .then((r) => r.identityProviders)
+      .then((providers) => {
         if (this.mounted) {
           const identityProvider = providers.find(
-            provider => provider.key === this.props.user.externalProvider
+            (provider) => provider.key === this.props.user.externalProvider
           );
           this.setState({ loading: false, identityProvider });
         }
@@ -100,8 +100,9 @@ export default class UserExternalIdentity extends React.PureComponent<
         className="identity-provider"
         style={{
           backgroundColor: identityProvider.backgroundColor,
-          color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor)
-        }}>
+          color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor),
+        }}
+      >
         <img
           alt={identityProvider.name}
           className="little-spacer-right"

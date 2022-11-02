@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 import {
   computeTokenExpirationDate,
   EXPIRATION_OPTIONS,
-  getAvailableExpirationOptions
+  getAvailableExpirationOptions,
 } from '../../../helpers/tokens';
 import { TokenExpiration, TokenType, UserToken } from '../../../types/token';
 import { LoggedInUser } from '../../../types/users';
@@ -74,7 +74,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
       selection: 'generate',
       tokenName: props.initialTokenName,
       tokenExpiration: TokenExpiration.OneMonth,
-      tokenExpirationOptions: EXPIRATION_OPTIONS
+      tokenExpirationOptions: EXPIRATION_OPTIONS,
     };
   }
 
@@ -137,8 +137,8 @@ export default class TokenStep extends React.PureComponent<Props, State> {
           type: TokenType.Project,
           projectKey,
           ...(tokenExpiration !== TokenExpiration.NoExpiration && {
-            expirationDate: computeTokenExpirationDate(tokenExpiration)
-          })
+            expirationDate: computeTokenExpirationDate(tokenExpiration),
+          }),
         });
         if (this.mounted) {
           this.setState({ loading: false, token });
@@ -183,21 +183,16 @@ export default class TokenStep extends React.PureComponent<Props, State> {
   };
 
   renderGenerateOption = () => {
-    const {
-      loading,
-      selection,
-      tokens,
-      tokenName,
-      tokenExpiration,
-      tokenExpirationOptions
-    } = this.state;
+    const { loading, selection, tokens, tokenName, tokenExpiration, tokenExpirationOptions } =
+      this.state;
     return (
       <div>
         {tokens !== undefined && tokens.length > 0 ? (
           <Radio
             checked={selection === 'generate'}
             onCheck={this.handleModeChange}
-            value="generate">
+            value="generate"
+          >
             {translate('onboarding.token.generate', TokenType.Project)}
           </Radio>
         ) : (
@@ -215,8 +210,8 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                     links={[
                       {
                         href: '/user-guide/user-token/',
-                        label: translate('learn_more')
-                      }
+                        label: translate('learn_more'),
+                      },
                     ]}
                   />
                 </label>
@@ -241,7 +236,9 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                     isSearchable={false}
                     onChange={this.handleTokenExpirationChange}
                     options={tokenExpirationOptions}
-                    value={tokenExpirationOptions.find(option => option.value === tokenExpiration)}
+                    value={tokenExpirationOptions.find(
+                      (option) => option.value === tokenExpiration
+                    )}
                   />
 
                   {loading ? (
@@ -270,7 +267,8 @@ export default class TokenStep extends React.PureComponent<Props, State> {
         <Radio
           checked={this.state.selection === 'use-existing'}
           onCheck={this.handleModeChange}
-          value="use-existing">
+          value="use-existing"
+        >
           {translate('onboarding.token.use_existing_token')}
         </Radio>
         {this.state.selection === 'use-existing' && (
@@ -283,8 +281,8 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                 links={[
                   {
                     href: '/user-guide/user-token/',
-                    label: translate('learn_more')
-                  }
+                    label: translate('learn_more'),
+                  },
                 ]}
               />
             </label>
@@ -344,7 +342,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                 <Link target="_blank" to="/account/security">
                   {translate('onboarding.token.text.user_account')}
                 </Link>
-              )
+              ),
             }}
           />
         </div>

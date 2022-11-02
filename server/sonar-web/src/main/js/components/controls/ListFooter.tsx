@@ -47,7 +47,7 @@ export default function ListFooter(props: ListFooterProps) {
     needReload,
     total,
     pageSize,
-    ready = true
+    ready = true,
   } = props;
 
   const rootNode = React.useRef<HTMLDivElement>(null);
@@ -83,7 +83,8 @@ export default function ListFooter(props: ListFooterProps) {
         className="spacer-left"
         disabled={loading}
         data-test="show-more"
-        onClick={onLoadMore}>
+        onClick={onLoadMore}
+      >
         {translate('show_more')}
       </Button>
     );
@@ -97,7 +98,8 @@ export default function ListFooter(props: ListFooterProps) {
         'list-footer spacer-top note text-center',
         { 'new-loading': !ready },
         className
-      )}>
+      )}
+    >
       {total !== undefined
         ? translateWithParameters(
             'x_of_y_shown',

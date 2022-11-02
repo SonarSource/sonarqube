@@ -43,21 +43,21 @@ export default function JavaGradle(props: JavaGradleProps) {
     './gradlew sonarqube',
     `-Dsonar.projectKey=${component.key}`,
     `-Dsonar.host.url=${baseUrl}`,
-    `-Dsonar.login=${token}`
+    `-Dsonar.login=${token}`,
   ];
 
   return (
     <div>
       <h4 className="spacer-bottom">{translate('onboarding.analysis.java.gradle.header')}</h4>
       <InstanceMessage message={translate('onboarding.analysis.java.gradle.text.1')}>
-        {transformedMessage => (
+        {(transformedMessage) => (
           <p className="spacer-bottom markdown">
             <FormattedMessage
               defaultMessage={transformedMessage}
               id="onboarding.analysis.java.gradle.text.1"
               values={{
                 plugin_code: <code>org.sonarqube</code>,
-                filename: <code>build.gradle</code>
+                filename: <code>build.gradle</code>,
               }}
             />
           </p>
@@ -72,7 +72,7 @@ export default function JavaGradle(props: JavaGradleProps) {
             values={{
               link: (
                 <DocLink to="/analysis/scan/sonarscanner-for-gradle/">{translate('here')}</DocLink>
-              )
+              ),
             }}
           />
         </em>
@@ -90,7 +90,7 @@ export default function JavaGradle(props: JavaGradleProps) {
               <DocLink to="/analysis/scan/sonarscanner-for-gradle/">
                 {translate('onboarding.analysis.java.gradle.docs_link')}
               </DocLink>
-            )
+            ),
           }}
         />
       </p>

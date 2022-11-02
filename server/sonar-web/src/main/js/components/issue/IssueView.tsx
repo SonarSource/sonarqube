@@ -76,7 +76,7 @@ export default class IssueView extends React.PureComponent<Props> {
       currentPopup,
       displayWhyIsThisAnIssue,
       displayLocationsLink,
-      displayLocationsCount
+      displayLocationsCount,
     } = this.props;
 
     const hasCheckbox = this.props.onCheck != null;
@@ -85,7 +85,7 @@ export default class IssueView extends React.PureComponent<Props> {
       'no-click': this.props.onClick === undefined,
       hotspot: issue.type === 'SECURITY_HOTSPOT',
       'issue-with-checkbox': hasCheckbox,
-      selected: this.props.selected
+      selected: this.props.selected,
     });
 
     return (
@@ -93,7 +93,8 @@ export default class IssueView extends React.PureComponent<Props> {
         className={issueClass}
         onClick={this.handleClick}
         role="region"
-        aria-label={issue.message}>
+        aria-label={issue.message}
+      >
         {hasCheckbox && (
           <Checkbox
             checked={checked || false}
@@ -123,7 +124,7 @@ export default class IssueView extends React.PureComponent<Props> {
         />
         {issue.comments && issue.comments.length > 0 && (
           <div className="issue-comments">
-            {issue.comments.map(comment => (
+            {issue.comments.map((comment) => (
               <IssueCommentLine
                 comment={comment}
                 key={comment.key}

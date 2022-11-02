@@ -39,7 +39,7 @@ export default function DotNetExecute({ commands, component }: DotNetExecuteProp
       </h4>
 
       <InstanceMessage message={translate('onboarding.analysis.msbuild.execute.text')}>
-        {transformedMessage => <p className="spacer-bottom markdown">{transformedMessage}</p>}
+        {(transformedMessage) => <p className="spacer-bottom markdown">{transformedMessage}</p>}
       </InstanceMessage>
       {commands.map((command, index) => (
         <CodeSnippet key={index} snippet={command} />
@@ -53,7 +53,7 @@ export default function DotNetExecute({ commands, component }: DotNetExecuteProp
               <DocLink to="/analysis/scan/sonarscanner-for-msbuild/">
                 {translate('onboarding.analysis.msbuild.docs_link')}
               </DocLink>
-            )
+            ),
           }}
         />
       </p>

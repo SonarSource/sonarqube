@@ -32,7 +32,7 @@ interface RawDomain {
 
 export function fetchWebApi(showInternal = true): Promise<RawDomain[]> {
   return getJSON('/api/webservices/list', { include_internals: showInternal })
-    .then(r => r.webServices)
+    .then((r) => r.webServices)
     .catch(throwGlobalError);
 }
 

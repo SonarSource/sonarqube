@@ -87,13 +87,13 @@ export default class Params extends React.PureComponent<Props> {
   render() {
     const { params, showDeprecated, showInternal } = this.props;
     const displayedParameters = params
-      .filter(p => showDeprecated || !p.deprecatedSince)
-      .filter(p => showInternal || !p.internal);
+      .filter((p) => showDeprecated || !p.deprecatedSince)
+      .filter((p) => showInternal || !p.internal);
     return (
       <div className="web-api-params">
         <table>
           <tbody>
-            {displayedParameters.map(param => (
+            {displayedParameters.map((param) => (
               <tr key={param.key}>
                 {this.renderKey(param)}
 
@@ -110,7 +110,7 @@ export default class Params extends React.PureComponent<Props> {
                     <div>
                       <h4>{translate('api_documentation.possible_values')}</h4>
                       <ul className="list-styled">
-                        {param.possibleValues.map(value => (
+                        {param.possibleValues.map((value) => (
                           <li className="little-spacer-top" key={value}>
                             <code>{value}</code>
                           </li>

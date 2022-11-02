@@ -41,7 +41,7 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
   };
 
   toggleHelp = () => {
-    this.setState(state => {
+    this.setState((state) => {
       return { helpOpen: !state.helpOpen };
     });
   };
@@ -56,13 +56,15 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
         <Toggler
           onRequestClose={this.closeHelp}
           open={this.state.helpOpen}
-          overlay={<EmbedDocsPopup onClose={this.closeHelp} />}>
+          overlay={<EmbedDocsPopup onClose={this.closeHelp} />}
+        >
           <ButtonLink
             aria-expanded={this.state.helpOpen}
             aria-haspopup={true}
             className="navbar-help navbar-icon"
             onClick={this.handleClick}
-            title={translate('help')}>
+            title={translate('help')}
+          >
             <HelpIcon />
           </ButtonLink>
         </Toggler>

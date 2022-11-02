@@ -33,9 +33,9 @@ export interface SeveritySelectProps {
 
 export function SeveritySelect(props: SeveritySelectProps) {
   const { isDisabled, severity, ariaLabelledby } = props;
-  const serverityOption = SEVERITIES.map(severity => ({
+  const serverityOption = SEVERITIES.map((severity) => ({
     label: translate('severity', severity),
-    value: severity
+    value: severity,
   }));
 
   function Option(props: OptionProps<OptionTypeBase, false>) {
@@ -62,7 +62,7 @@ export function SeveritySelect(props: SeveritySelectProps) {
       components={{ Option, SingleValue }}
       options={serverityOption}
       isSearchable={false}
-      value={serverityOption.find(s => s.value === severity)}
+      value={serverityOption.find((s) => s.value === severity)}
     />
   );
 }

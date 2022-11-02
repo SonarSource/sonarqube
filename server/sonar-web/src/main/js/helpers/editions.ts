@@ -26,26 +26,26 @@ const EDITIONS: { [x in EditionKey]: Edition } = {
     key: EditionKey.community,
     name: 'Community Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/community.html',
-    downloadProperty: 'downloadUrl'
+    downloadProperty: 'downloadUrl',
   },
   developer: {
     key: EditionKey.developer,
     name: 'Developer Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/developer.html',
-    downloadProperty: 'downloadDeveloperUrl'
+    downloadProperty: 'downloadDeveloperUrl',
   },
   enterprise: {
     key: EditionKey.enterprise,
     name: 'Enterprise Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/enterprise.html',
-    downloadProperty: 'downloadEnterpriseUrl'
+    downloadProperty: 'downloadEnterpriseUrl',
   },
   datacenter: {
     key: EditionKey.datacenter,
     name: 'Data Center Edition',
     homeUrl: 'https://redirect.sonarsource.com/editions/datacenter.html',
-    downloadProperty: 'downloadDatacenterUrl'
-  }
+    downloadProperty: 'downloadDatacenterUrl',
+  },
 };
 
 export function getEdition(editionKey: EditionKey) {
@@ -54,7 +54,7 @@ export function getEdition(editionKey: EditionKey) {
 
 export function getAllEditionsAbove(currentEdition?: EditionKey) {
   const editions = Object.values(EDITIONS);
-  const currentEditionIdx = editions.findIndex(edition => edition.key === currentEdition);
+  const currentEditionIdx = editions.findIndex((edition) => edition.key === currentEdition);
   return editions.slice(currentEditionIdx + 1);
 }
 

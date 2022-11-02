@@ -45,7 +45,7 @@ export const SORTING_METRICS: SortingOption[] = [
   { value: 'maintainability' },
   { value: 'coverage' },
   { value: 'duplications' },
-  { value: 'size' }
+  { value: 'size' },
 ];
 
 export const SORTING_LEAK_METRICS: SortingOption[] = [
@@ -57,7 +57,7 @@ export const SORTING_LEAK_METRICS: SortingOption[] = [
   { value: 'new_maintainability', class: 'projects-leak-sorting-option' },
   { value: 'new_coverage', class: 'projects-leak-sorting-option' },
   { value: 'new_duplications', class: 'projects-leak-sorting-option' },
-  { value: 'new_lines', class: 'projects-leak-sorting-option' }
+  { value: 'new_lines', class: 'projects-leak-sorting-option' },
 ];
 
 export const SORTING_SWITCH: Dict<string> = {
@@ -76,12 +76,12 @@ export const SORTING_SWITCH: Dict<string> = {
   new_maintainability: 'maintainability',
   new_coverage: 'coverage',
   new_duplications: 'duplications',
-  new_lines: 'size'
+  new_lines: 'size',
 };
 
 export const VIEWS = [
   { value: 'overall', label: 'overall' },
-  { value: 'leak', label: 'new_code' }
+  { value: 'leak', label: 'new_code' },
 ];
 
 const PAGE_SIZE = 50;
@@ -100,7 +100,7 @@ export const METRICS = [
   MetricKey.coverage,
   MetricKey.ncloc,
   MetricKey.ncloc_language_distribution,
-  MetricKey.projects
+  MetricKey.projects,
 ];
 
 export const LEAK_METRICS = [
@@ -116,7 +116,7 @@ export const LEAK_METRICS = [
   MetricKey.new_coverage,
   MetricKey.new_duplicated_lines_density,
   MetricKey.new_lines,
-  MetricKey.projects
+  MetricKey.projects,
 ];
 
 export const FACETS = [
@@ -130,7 +130,7 @@ export const FACETS = [
   'alert_status',
   'languages',
   'tags',
-  'qualifier'
+  'qualifier',
 ];
 
 export const LEAK_FACETS = [
@@ -144,7 +144,7 @@ export const LEAK_FACETS = [
   'alert_status',
   'languages',
   'tags',
-  'qualifier'
+  'qualifier',
 ];
 
 const REVERSED_FACETS = ['coverage', 'new_coverage'];
@@ -164,20 +164,20 @@ export function fetchProjects(query: Query, isFavorite: boolean, pageIndex = 1) 
     p: pageIndex > 1 ? pageIndex : undefined,
     ps,
     facets: defineFacets(query).join(),
-    f: 'analysisDate,leakPeriodDate'
+    f: 'analysisDate,leakPeriodDate',
   });
   return searchProjects(data)
-    .then(response =>
+    .then((response) =>
       Promise.all([fetchProjectMeasures(response.components, query), Promise.resolve(response)])
     )
     .then(([measures, { components, facets, paging }]) => {
       return {
         facets: getFacetsMap(facets),
-        projects: components.map(component => {
+        projects: components.map((component) => {
           const componentMeasures: Dict<string> = {};
           measures
-            .filter(measure => measure.component === component.key)
-            .forEach(measure => {
+            .filter((measure) => measure.component === component.key)
+            .forEach((measure) => {
               const value = isDiffMetric(measure.metric) ? measure.period?.value : measure.value;
               if (value !== undefined) {
                 componentMeasures[measure.metric] = value;
@@ -185,7 +185,7 @@ export function fetchProjects(query: Query, isFavorite: boolean, pageIndex = 1) 
             });
           return { ...component, measures: componentMeasures };
         }),
-        total: paging.total
+        total: paging.total,
       };
     });
 }
@@ -226,14 +226,14 @@ export function fetchProjectMeasures(projects: Array<{ key: string }>, query: Qu
     return Promise.resolve([]);
   }
 
-  const projectKeys = projects.map(project => project.key);
+  const projectKeys = projects.map((project) => project.key);
   const metrics = defineMetrics(query);
   return getMeasuresForProjects(projectKeys, metrics);
 }
 
 function mapFacetValues(values: Array<{ val: string; count: number }>) {
   const map: Dict<number> = {};
-  values.forEach(value => {
+  values.forEach((value) => {
     map[value.val] = value.count;
   });
   return map;
@@ -259,14 +259,14 @@ const propertyToMetricMap: Dict<string | undefined> = {
   languages: 'languages',
   tags: 'tags',
   search: 'query',
-  qualifier: 'qualifier'
+  qualifier: 'qualifier',
 };
 
 const metricToPropertyMap = invert(propertyToMetricMap);
 
 function getFacetsMap(facets: Facet[]) {
   const map: Dict<Dict<number>> = {};
-  facets.forEach(facet => {
+  facets.forEach((facet) => {
     const property = metricToPropertyMap[facet.property];
     const { values } = facet;
     if (REVERSED_FACETS.includes(property)) {
@@ -324,6 +324,6 @@ export function formatDuration(ms: number) {
     { value: months, label: 'duration.months' },
     { value: days, label: 'duration.days' },
     { value: hours, label: 'duration.hours' },
-    { value: minutes, label: 'duration.minutes' }
+    { value: minutes, label: 'duration.minutes' },
   ]);
 }

@@ -23,7 +23,7 @@ import {
   createWebhook,
   deleteWebhook,
   searchWebhooks,
-  updateWebhook
+  updateWebhook,
 } from '../../../../api/webhooks';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { App } from '../App';
@@ -37,11 +37,11 @@ jest.mock('../../../../api/webhooks', () => ({
     Promise.resolve({
       webhooks: [
         { key: '1', name: 'foo', url: 'http://foo' },
-        { key: '2', name: 'bar', url: 'http://bar' }
-      ]
+        { key: '2', name: 'bar', url: 'http://bar' },
+      ],
     })
   ),
-  updateWebhook: jest.fn(() => Promise.resolve())
+  updateWebhook: jest.fn(() => Promise.resolve()),
 }));
 
 const component = mockComponent({ key: 'bar', qualifier: 'TRK' });
@@ -81,7 +81,7 @@ describe('should correctly fetch webhooks when', () => {
 
     await new Promise(setImmediate);
     expect(searchWebhooks).toHaveBeenCalledWith({
-      project: component.key
+      project: component.key,
     });
   });
 });
@@ -92,7 +92,7 @@ it('should correctly handle webhook creation', async () => {
   (wrapper.instance() as App).handleCreate({ ...webhook });
   expect(createWebhook).toHaveBeenLastCalledWith({
     ...webhook,
-    project: undefined
+    project: undefined,
   });
 
   await new Promise(setImmediate);
@@ -100,7 +100,7 @@ it('should correctly handle webhook creation', async () => {
   expect(wrapper.state('webhooks')).toEqual([
     { key: '1', name: 'foo', url: 'http://foo' },
     { key: '2', name: 'bar', url: 'http://bar' },
-    { key: '3', name: 'baz', url: 'http://baz' }
+    { key: '3', name: 'baz', url: 'http://baz' },
   ]);
 });
 
@@ -124,6 +124,6 @@ it('should correctly handle webhook update', async () => {
   wrapper.update();
   expect(wrapper.state('webhooks')).toEqual([
     { key: '1', name: 'Cfoo', url: 'http://cfoo' },
-    { key: '2', name: 'bar', url: 'http://bar' }
+    { key: '2', name: 'bar', url: 'http://bar' },
   ]);
 });

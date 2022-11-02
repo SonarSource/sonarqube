@@ -64,7 +64,8 @@ export default class IssueTransition extends React.PureComponent<Props> {
             open={this.props.isOpen && this.props.hasTransitions}
             overlay={
               <SetTransitionPopup onSelect={this.setTransition} transitions={issue.transitions} />
-            }>
+            }
+          >
             <ButtonLink
               aria-label={translateWithParameters(
                 'issue.transition.status_x_click_to_change',
@@ -72,7 +73,8 @@ export default class IssueTransition extends React.PureComponent<Props> {
               )}
               aria-expanded={this.props.isOpen}
               className="issue-action issue-action-with-options js-issue-transition"
-              onClick={this.toggleSetTransition}>
+              onClick={this.toggleSetTransition}
+            >
               <StatusHelper
                 className="issue-meta-label"
                 resolution={issue.resolution}

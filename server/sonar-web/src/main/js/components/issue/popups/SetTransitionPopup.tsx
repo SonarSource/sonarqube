@@ -34,7 +34,7 @@ export default function SetTransitionPopup({ onSelect, transitions }: Props) {
   return (
     <DropdownOverlay>
       <SelectList currentItem={transitions[0]} items={transitions} onSelect={onSelect}>
-        {transitions.map(transition => {
+        {transitions.map((transition) => {
           const [name, description] = translateTransition(transition);
           return (
             <SelectListItem item={transition} key={transition} title={description}>
@@ -59,8 +59,8 @@ function translateTransition(transition: string) {
           <Link to="https://community.sonarsource.com/" target="_blank">
             {translate('issue.transition.community_plug_link')}
           </Link>
-        )
+        ),
       }}
-    />
+    />,
   ];
 }

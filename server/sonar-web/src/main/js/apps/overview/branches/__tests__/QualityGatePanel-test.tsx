@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import {
   mockQualityGateStatus,
-  mockQualityGateStatusConditionEnhanced
+  mockQualityGateStatusConditionEnhanced,
 } from '../../../../helpers/mocks/quality-gates';
 import { mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
@@ -36,7 +36,7 @@ it('should render correctly for projects', () => {
   ).toMatchSnapshot();
 
   const wrapper = shallowRender({
-    qgStatuses: [mockQualityGateStatus({ ignoredConditions: true })]
+    qgStatuses: [mockQualityGateStatus({ ignoredConditions: true })],
   });
   expect(wrapper).toMatchSnapshot();
 });
@@ -52,13 +52,13 @@ it('should render correctly for applications', () => {
             mockQualityGateStatusConditionEnhanced(),
             mockQualityGateStatusConditionEnhanced({
               measure: mockMeasureEnhanced({
-                metric: mockMetric({ key: MetricKey.new_code_smells })
+                metric: mockMetric({ key: MetricKey.new_code_smells }),
               }),
-              metric: MetricKey.new_code_smells
-            })
-          ]
-        })
-      ]
+              metric: MetricKey.new_code_smells,
+            }),
+          ],
+        }),
+      ],
     })
   ).toMatchSnapshot();
 
@@ -68,9 +68,9 @@ it('should render correctly for applications', () => {
       mockQualityGateStatus(),
       mockQualityGateStatus({
         status: 'OK',
-        failedConditions: []
-      })
-    ]
+        failedConditions: [],
+      }),
+    ],
   });
   expect(wrapper).toMatchSnapshot();
 });

@@ -34,25 +34,25 @@ jest.mock('../../../api/notifications', () => ({
           channel: 'channel1',
           type: 'type-global',
           project: 'foo',
-          projectName: 'Foo'
+          projectName: 'Foo',
         },
         {
           channel: 'channel1',
           type: 'type-common',
           project: 'bar',
-          projectName: 'Bar'
+          projectName: 'Bar',
         },
         {
           channel: 'channel2',
           type: 'type-common',
           project: 'qux',
-          projectName: 'Qux'
-        }
+          projectName: 'Qux',
+        },
       ],
-      perProjectTypes: ['type-common']
+      perProjectTypes: ['type-common'],
     })
   ),
-  removeNotification: jest.fn().mockResolvedValue({})
+  removeNotification: jest.fn().mockResolvedValue({}),
 }));
 
 class X extends React.Component<WithNotificationsProps> {
@@ -77,7 +77,7 @@ it('should add and remove a notification', () => {
   const notification = {
     channel: 'EmailNotificationChannel',
     project: 'foo',
-    type: 'SQ-MyNewIssues'
+    type: 'SQ-MyNewIssues',
   };
 
   wrapper.prop('addNotification')(notification);

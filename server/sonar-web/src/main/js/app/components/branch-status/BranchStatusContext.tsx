@@ -42,5 +42,5 @@ export const BranchStatusContext = React.createContext<BranchStatusContextInterf
   },
   updateBranchStatus: () => {
     throw Error('BranchStatusContext is not provided');
-  }
+  },
 });

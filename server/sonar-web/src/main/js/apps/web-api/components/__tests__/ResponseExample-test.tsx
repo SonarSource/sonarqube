@@ -27,19 +27,19 @@ const ACTION = {
   description: 'Foo Desc',
   hasResponseExample: false,
   internal: false,
-  post: false
+  post: false,
 };
 const DOMAIN = {
   actions: [ACTION],
   path: 'foo',
   description: 'API Foo',
   deprecated: false,
-  internal: false
+  internal: false,
 };
 
 const PROPS = {
   action: ACTION,
-  domain: DOMAIN
+  domain: DOMAIN,
 };
 
 it('should render correctly after fetching an example', () => {

@@ -42,8 +42,8 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       hotspot: mockHotspot({
-        assigneeUser: mockUser({ name: undefined, login: 'assignee_login' })
-      })
+        assigneeUser: mockUser({ name: undefined, login: 'assignee_login' }),
+      }),
     })
   ).toMatchSnapshot('assignee without name');
   expect(shallowRender()).toMatchSnapshot('anonymous user');

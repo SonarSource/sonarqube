@@ -23,7 +23,7 @@ import DisableableSelectOption from '../../../../components/common/DisableableSe
 import { mockProfileOption } from '../../../../helpers/mocks/quality-profiles';
 import LanguageProfileSelectOption, {
   LanguageProfileSelectOptionProps,
-  ProfileOption
+  ProfileOption,
 } from '../LanguageProfileSelectOption';
 
 it('should render correctly', () => {

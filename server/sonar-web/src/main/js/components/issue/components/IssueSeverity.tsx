@@ -62,7 +62,8 @@ export default class IssueSeverity extends React.PureComponent<Props> {
           <Toggler
             onRequestClose={this.handleClose}
             open={this.props.isOpen && this.props.canSetSeverity}
-            overlay={<SetSeverityPopup issue={issue} onSelect={this.setSeverity} />}>
+            overlay={<SetSeverityPopup issue={issue} onSelect={this.setSeverity} />}
+          >
             <ButtonLink
               aria-label={translateWithParameters(
                 'issue.severity.severity_x_click_to_change',
@@ -70,7 +71,8 @@ export default class IssueSeverity extends React.PureComponent<Props> {
               )}
               aria-expanded={this.props.isOpen}
               className="issue-action issue-action-with-options js-issue-set-severity"
-              onClick={this.toggleSetSeverity}>
+              onClick={this.toggleSetSeverity}
+            >
               <SeverityHelper className="issue-meta-label" severity={issue.severity} />
               <DropdownIcon className="little-spacer-left" />
             </ButtonLink>

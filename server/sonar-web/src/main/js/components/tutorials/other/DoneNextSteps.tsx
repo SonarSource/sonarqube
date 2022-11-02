@@ -63,7 +63,7 @@ export default function DoneNextSteps({ component }: DoneNextStepsProps) {
                   'onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis'
                 )}
               </DocLink>
-            )
+            ),
           }}
         />
       </p>

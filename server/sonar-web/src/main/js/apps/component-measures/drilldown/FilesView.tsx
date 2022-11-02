@@ -34,7 +34,7 @@ import {
   ComponentMeasureEnhanced,
   Dict,
   Metric,
-  Paging
+  Paging,
 } from '../../../types/types';
 import ComponentsList from './ComponentsList';
 
@@ -113,7 +113,7 @@ export default class FilesView extends React.PureComponent<Props, State> {
     if (this.state.showBestMeasures) {
       return components;
     }
-    const filtered = components.filter(component => !this.hasBestValue(component));
+    const filtered = components.filter((component) => !this.hasBestValue(component));
     if (filtered.length === 0) {
       return components;
     }
@@ -126,7 +126,7 @@ export default class FilesView extends React.PureComponent<Props, State> {
 
   hasBestValue = (component: ComponentMeasureEnhanced) => {
     const { metric } = this.props;
-    const focusedMeasure = component.measures.find(measure => measure.metric.key === metric.key);
+    const focusedMeasure = component.measures.find((measure) => measure.metric.key === metric.key);
     if (focusedMeasure && isDiffMetric(metric.key)) {
       return isPeriodBestValue(focusedMeasure);
     }
@@ -173,7 +173,7 @@ export default class FilesView extends React.PureComponent<Props, State> {
     const filteredComponents = this.getVisibleComponents();
     const hidingBestMeasures = filteredComponents.length < components.length;
     return (
-      <div ref={elem => (this.listContainer = elem)}>
+      <div ref={(elem) => (this.listContainer = elem)}>
         <ComponentsList
           branchLike={this.props.branchLike}
           components={filteredComponents}

@@ -98,14 +98,14 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
   fetchProjects = (query: Query) => {
     this.setState({ loading: true, query });
-    fetchProjects(query, this.props.isFavorite).then(response => {
+    fetchProjects(query, this.props.isFavorite).then((response) => {
       if (this.mounted) {
         this.setState({
           facets: response.facets,
           loading: false,
           pageIndex: 1,
           projects: response.projects,
-          total: response.total
+          total: response.total,
         });
       }
     }, this.stopLoading);
@@ -115,12 +115,12 @@ export class AllProjects extends React.PureComponent<Props, State> {
     const { pageIndex, projects, query } = this.state;
     if (pageIndex && projects && query) {
       this.setState({ loading: true });
-      fetchProjects(query, this.props.isFavorite, pageIndex + 1).then(response => {
+      fetchProjects(query, this.props.isFavorite, pageIndex + 1).then((response) => {
         if (this.mounted) {
           this.setState({
             loading: false,
             pageIndex: pageIndex + 1,
-            projects: [...projects, ...response.projects]
+            projects: [...projects, ...response.projects],
           });
         }
       }, this.stopLoading);
@@ -142,7 +142,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
       }
 
       return {
-        projects: projects.map(p => (p.key === key ? { ...p, isFavorite } : p))
+        projects: projects.map((p) => (p.key === key ? { ...p, isFavorite } : p)),
       };
     });
   };
@@ -152,7 +152,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
       view: string | undefined;
       sort?: string | undefined;
     } = {
-      view: view === 'overall' ? undefined : view
+      view: view === 'overall' ? undefined : view,
     };
 
     if (this.state.query.view === 'leak' || view === 'leak') {
@@ -190,7 +190,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   updateLocationQuery = (newQuery: RawQuery) => {
-    const query = omitBy({ ...this.props.location.query, ...newQuery }, x => !x);
+    const query = omitBy({ ...this.props.location.query, ...newQuery }, (x) => !x);
     this.props.router.push({ pathname: this.props.location.pathname, query });
   };
 
@@ -200,7 +200,8 @@ export class AllProjects extends React.PureComponent<Props, State> {
         <section
           aria-label={translate('filters')}
           className="layout-page-side projects-page-side"
-          style={{ top }}>
+          style={{ top }}
+        >
           <div className="layout-page-side-inner">
             <div className="layout-page-filters">
               <A11ySkipTarget

@@ -29,7 +29,7 @@ it('should render correctly', () => {
 function shallowRender(overrides: Partial<TimeFormatterProps> = {}) {
   return shallow(
     <TimeFormatter date={new Date('2020-02-20T20:20:20Z')} {...overrides}>
-      {formatted => <span>{formatted}</span>}
+      {(formatted) => <span>{formatted}</span>}
     </TimeFormatter>
   );
 }

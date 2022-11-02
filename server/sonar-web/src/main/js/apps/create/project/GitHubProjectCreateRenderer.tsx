@@ -73,7 +73,7 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
     repositoryPaging,
     searchQuery,
     selectedOrganization,
-    selectedRepository
+    selectedRepository,
   } = props;
 
   const isChecked = (repository: GithubRepository) =>
@@ -103,21 +103,23 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
             </DeferredSpinner>
           </div>
         ) : (
-          repositories.map(r => (
+          repositories.map((r) => (
             <Radio
               className="spacer-top spacer-bottom padded create-project-github-repository"
               key={r.key}
               checked={isChecked(r)}
               disabled={isDisabled(r)}
               value={r.key}
-              onCheck={props.onSelectRepository}>
+              onCheck={props.onSelectRepository}
+            >
               <div className="big overflow-hidden max-width-100" title={r.name}>
                 <div className="text-ellipsis">
                   {r.sqProjectKey ? (
                     <div className="display-flex-center max-width-100">
                       <Link
                         className="display-flex-center max-width-60"
-                        to={getProjectUrl(r.sqProjectKey)}>
+                        to={getProjectUrl(r.sqProjectKey)}
+                      >
                         <QualifierIcon
                           className="spacer-right"
                           qualifier={ComponentQualifier.Project}
@@ -138,10 +140,11 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
                 {r.url && (
                   <a
                     className="notice small display-flex-center little-spacer-top"
-                    onClick={e => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                     target="_blank"
                     href={r.url}
-                    rel="noopener noreferrer">
+                    rel="noopener noreferrer"
+                  >
                     {translate('onboarding.create_project.see_on_github')}
                   </a>
                 )}
@@ -172,7 +175,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
     loadingOrganizations,
     organizations,
     selectedOrganization,
-    selectedRepository
+    selectedRepository,
   } = props;
 
   if (loadingBindings) {
@@ -189,7 +192,8 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
               <Button
                 className="button-large button-primary"
                 disabled={!selectedRepository || importing}
-                onClick={props.onImportRepository}>
+                onClick={props.onImportRepository}
+              >
                 {translate('onboarding.create_project.import_selected_repo')}
               </Button>
             </div>
@@ -226,7 +230,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
                       <Link to="/admin/settings?category=almintegration">
                         {translate('onboarding.create_project.github.warning.message_admin.link')}
                       </Link>
-                    )
+                    ),
                   }}
                 />
               ) : (
@@ -260,7 +264,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
                               'onboarding.create_project.github.warning.message_admin.link'
                             )}
                           </Link>
-                        )
+                        ),
                       }}
                     />
                   ) : (

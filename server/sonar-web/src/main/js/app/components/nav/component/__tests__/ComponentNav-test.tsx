@@ -57,7 +57,7 @@ it('renders correctly when there is a failing background task', () => {
 
 it('renders correctly when the project binding is incorrect', () => {
   renderComponentNav({
-    projectBindingErrors: mockProjectAlmBindingConfigurationErrors()
+    projectBindingErrors: mockProjectAlmBindingConfigurationErrors(),
   });
   expect(
     screen.getByText('component_navigation.pr_deco.error_detected_X', { exact: false })
@@ -79,7 +79,7 @@ function renderComponentNav(props: Partial<ComponentNavProps> = {}) {
     <ComponentNav
       branchLikes={[]}
       component={mockComponent({
-        breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }]
+        breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }],
       })}
       currentBranchLike={undefined}
       isInProgress={false}

@@ -32,19 +32,19 @@ jest.mock('../../../api/components');
 jest.mock('../../../api/issues');
 jest.mock('../helpers/loadIssues', () => ({
   __esModule: true,
-  default: jest.fn().mockResolvedValue([])
+  default: jest.fn().mockResolvedValue([]),
 }));
 jest.mock('../helpers/lines', () => {
   const lines = jest.requireActual('../helpers/lines');
   return {
     ...lines,
-    LINES_TO_LOAD: 20
+    LINES_TO_LOAD: 20,
   };
 });
 
 const ui = {
   codeSmellTypeButton: byRole('button', { name: 'issue.type.CODE_SMELL' }),
-  minorSeverityButton: byRole('button', { name: 'severity.MINOR' })
+  minorSeverityButton: byRole('button', { name: 'severity.MINOR' }),
 };
 
 const handler = new SourceViewerServiceMock();
@@ -61,12 +61,12 @@ it('should show a permalink on line number', async () => {
   const rowScreen = within(row);
   await user.click(
     rowScreen.getByRole('button', {
-      name: 'source_viewer.line_X.1'
+      name: 'source_viewer.line_X.1',
     })
   );
   await user.click(
     rowScreen.getByRole('button', {
-      name: 'component_viewer.copy_permalink'
+      name: 'component_viewer.copy_permalink',
     })
   );
 
@@ -95,13 +95,13 @@ it('should show a permalink on line number', async () => {
   const lowerRowScreen = within(row);
   await user.click(
     lowerRowScreen.getByRole('button', {
-      name: 'source_viewer.line_X.6'
+      name: 'source_viewer.line_X.6',
     })
   );
 
   expect(
     lowerRowScreen.getByRole('button', {
-      name: 'component_viewer.copy_permalink'
+      name: 'component_viewer.copy_permalink',
     })
   ).toBeInTheDocument();
 
@@ -114,11 +114,11 @@ it('should show issue on empty file', async () => {
       key: 'first-issue',
       message: 'First Issue',
       line: undefined,
-      textRange: undefined
-    })
+      textRange: undefined,
+    }),
   ]);
   renderSourceViewer({
-    component: handler.getEmptyFile()
+    component: handler.getEmptyFile(),
   });
   expect(await screen.findByRole('table')).toBeInTheDocument();
   expect(await screen.findByRole('row', { name: 'First Issue' })).toBeInTheDocument();
@@ -131,8 +131,8 @@ it('should be able to interact with issue action', async () => {
       key: 'first-issue',
       message: 'First Issue',
       line: 1,
-      textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 }
-    })
+      textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 },
+    }),
   ]);
   const user = userEvent.setup();
   renderSourceViewer();
@@ -146,7 +146,7 @@ it('should be able to interact with issue action', async () => {
   // Open severity
   await user.click(
     await screen.findByRole('button', {
-      name: 'issue.severity.severity_x_click_to_change.severity.MAJOR'
+      name: 'issue.severity.severity_x_click_to_change.severity.MAJOR',
     })
   );
   expect(ui.minorSeverityButton.get()).toBeInTheDocument();
@@ -158,14 +158,14 @@ it('should be able to interact with issue action', async () => {
   // Change the severity
   await user.click(
     await screen.findByRole('button', {
-      name: 'issue.severity.severity_x_click_to_change.severity.MAJOR'
+      name: 'issue.severity.severity_x_click_to_change.severity.MAJOR',
     })
   );
   expect(ui.minorSeverityButton.get()).toBeInTheDocument();
   await user.click(ui.minorSeverityButton.get());
   expect(
     screen.getByRole('button', {
-      name: 'issue.severity.severity_x_click_to_change.severity.MINOR'
+      name: 'issue.severity.severity_x_click_to_change.severity.MINOR',
     })
   ).toBeInTheDocument();
 });
@@ -173,7 +173,7 @@ it('should be able to interact with issue action', async () => {
 it('should load line when looking arround unloaded line', async () => {
   const { rerender } = renderSourceViewer({
     aroundLine: 50,
-    component: handler.getHugeFile()
+    component: handler.getHugeFile(),
   });
   expect(await screen.findByRole('row', { name: /Line 50$/ })).toBeInTheDocument();
   rerender(getSourceViewerUi({ aroundLine: 100, component: handler.getHugeFile() }));
@@ -192,8 +192,7 @@ it('should show SCM information', async () => {
   ).toBeInTheDocument();
   await user.click(
     firstRowScreen.getByRole('button', {
-      name:
-        'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.1'
+      name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.1',
     })
   );
 
@@ -220,8 +219,7 @@ it('should show SCM information', async () => {
   const fourthRowScreen = within(row);
   await user.click(
     fourthRowScreen.getByRole('button', {
-      name:
-        'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.4'
+      name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.4',
     })
   );
 
@@ -231,7 +229,7 @@ it('should show SCM information', async () => {
   expect(
     fourthRowScreen.queryByRole('heading', {
       level: 4,
-      name: 'source_viewer.tooltip.scm.commited_on'
+      name: 'source_viewer.tooltip.scm.commited_on',
     })
   ).not.toBeInTheDocument();
   expect(
@@ -245,7 +243,7 @@ it('should show SCM information', async () => {
   expect(fithRowScreen.getByText('…')).toBeInTheDocument();
   await user.click(
     fithRowScreen.getByRole('button', {
-      name: 'source_viewer.click_for_scm_info.5'
+      name: 'source_viewer.click_for_scm_info.5',
     })
   );
 
@@ -255,7 +253,7 @@ it('should show SCM information', async () => {
   expect(
     fithRowScreen.queryByRole('heading', {
       level: 4,
-      name: 'source_viewer.tooltip.scm.commited_on'
+      name: 'source_viewer.tooltip.scm.commited_on',
     })
   ).not.toBeInTheDocument();
   expect(
@@ -264,7 +262,7 @@ it('should show SCM information', async () => {
 
   // No SCM Popup
   row = await screen.findByRole('row', {
-    name: /\* This program is free software; you can redistribute it and\/or$/
+    name: /\* This program is free software; you can redistribute it and\/or$/,
   });
   expect(row).toBeInTheDocument();
   expect(within(row).queryByRole('button')).not.toBeInTheDocument();
@@ -276,28 +274,27 @@ it('should show issue indicator', async () => {
       key: 'first-issue',
       message: 'First Issue',
       line: 1,
-      textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 }
+      textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 },
     }),
     mockIssue(false, {
       key: 'second-issue',
       message: 'Second Issue',
       line: 1,
-      textRange: { startLine: 1, endLine: 1, startOffset: 1, endOffset: 2 }
-    })
+      textRange: { startLine: 1, endLine: 1, startOffset: 1, endOffset: 2 },
+    }),
   ]);
   const user = userEvent.setup();
   const onIssueSelect = jest.fn();
   renderSourceViewer({
     onIssueSelect,
-    displayAllIssues: false
+    displayAllIssues: false,
   });
   const row = await screen.findByRole('row', { name: /.*\/ \*$/ });
   const issueRow = within(row);
   expect(issueRow.getByText('2')).toBeInTheDocument();
   await user.click(
     issueRow.getByRole('button', {
-      name:
-        'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.BUG.plural'
+      name: 'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.BUG.plural',
     })
   );
   const firstIssueBox = issueRow.getByRole('region', { name: 'First Issue' });
@@ -306,8 +303,7 @@ it('should show issue indicator', async () => {
   expect(secondIssueBox).toBeInTheDocument();
   expect(
     issueRow.getByRole('button', {
-      name:
-        'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.hide.2.issue.type.BUG.plural'
+      name: 'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.hide.2.issue.type.BUG.plural',
     })
   ).toBeInTheDocument();
 
@@ -381,7 +377,7 @@ it('should highlight symbol', async () => {
   await user.click(symbols[0]);
 
   // For now just check the class. Maybe found a better accessible way of showing higlighted symbole
-  symbols.forEach(element => {
+  symbols.forEach((element) => {
     expect(element).toHaveClass('highlighted');
   });
 });

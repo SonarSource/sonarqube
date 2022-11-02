@@ -53,7 +53,7 @@ export default class Projects extends React.PureComponent<Props, State> {
   state: State = {
     addedProjects: [],
     search: '',
-    showModal: false
+    showModal: false,
   };
 
   filterSearch = (project: NotificationProject, search: string) => {
@@ -61,9 +61,9 @@ export default class Projects extends React.PureComponent<Props, State> {
   };
 
   handleAddProject = (project: NotificationProject) => {
-    this.setState(state => {
+    this.setState((state) => {
       return {
-        addedProjects: [...state.addedProjects, project]
+        addedProjects: [...state.addedProjects, project],
       };
     });
   };
@@ -89,7 +89,7 @@ export default class Projects extends React.PureComponent<Props, State> {
   };
 
   removeNotification = (removed: Notification, allProjects: NotificationProject[]) => {
-    const projectToRemove = allProjects.find(p => p.project === removed.project);
+    const projectToRemove = allProjects.find((p) => p.project === removed.project);
     if (projectToRemove) {
       this.handleAddProject(projectToRemove);
     }
@@ -104,9 +104,9 @@ export default class Projects extends React.PureComponent<Props, State> {
     const projects = uniqBy(notifications, ({ project }) => project).filter(
       isNotificationProject
     ) as NotificationProject[];
-    const notificationsByProject = groupBy(notifications, n => n.project);
-    const allProjects = uniqBy([...addedProjects, ...projects], project => project.project);
-    const filteredProjects = sortBy(allProjects, 'projectName').filter(p =>
+    const notificationsByProject = groupBy(notifications, (n) => n.project);
+    const allProjects = uniqBy([...addedProjects, ...projects], (project) => project.project);
+    const filteredProjects = sortBy(allProjects, 'projectName').filter((p) =>
       this.filterSearch(p, search)
     );
     const shouldBeCollapsed = Object.keys(notificationsByProject).length > THRESHOLD_COLLAPSED;
@@ -147,8 +147,8 @@ export default class Projects extends React.PureComponent<Props, State> {
             </div>
           )}
 
-          {filteredProjects.map(project => {
-            const collapsed = addedProjects.find(p => p.project === project.project)
+          {filteredProjects.map((project) => {
+            const collapsed = addedProjects.find((p) => p.project === project.project)
               ? false
               : shouldBeCollapsed;
             return (
@@ -159,7 +159,7 @@ export default class Projects extends React.PureComponent<Props, State> {
                 key={project.project}
                 notifications={notificationsByProject[project.project] || []}
                 project={project}
-                removeNotification={n => this.removeNotification(n, allProjects)}
+                removeNotification={(n) => this.removeNotification(n, allProjects)}
                 types={this.props.types}
               />
             );

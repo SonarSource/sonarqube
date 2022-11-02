@@ -36,7 +36,8 @@ export default function RemoveAnalysisForm({ analysis, deleteAnalysis, onClose }
       header={translate('project_activity.delete_analysis')}
       isDestructive={true}
       onClose={onClose}
-      onConfirm={deleteAnalysis}>
+      onConfirm={deleteAnalysis}
+    >
       {translate('project_activity.delete_analysis.question')}
     </ConfirmModal>
   );

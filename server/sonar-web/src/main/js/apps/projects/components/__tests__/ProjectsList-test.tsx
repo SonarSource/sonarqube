@@ -29,13 +29,9 @@ jest.mock('react-virtualized/dist/commonjs/WindowScroller');
 
 it('renders correctly', () => {
   const wrapper = shallowRender();
-  expect(
-    wrapper
-      .find(WindowScroller)
-      .dive()
-      .find(AutoSizer)
-      .dive()
-  ).toMatchSnapshot('list element');
+  expect(wrapper.find(WindowScroller).dive().find(AutoSizer).dive()).toMatchSnapshot(
+    'list element'
+  );
 
   expect(
     wrapper.instance().renderRow({ index: 0, key: 'foo-key', style: {} } as ListRowProps)
@@ -57,7 +53,7 @@ function shallowRender(props?: any) {
       isFiltered={false}
       projects={[
         { key: 'foo', name: 'Foo' },
-        { key: 'bar', name: 'Bar' }
+        { key: 'bar', name: 'Bar' },
       ]}
       {...props}
     />

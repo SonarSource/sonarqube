@@ -29,7 +29,7 @@ import {
   queriesEqual,
   serializeDateShort,
   serializeString,
-  serializeStringArray
+  serializeStringArray,
 } from '../../helpers/query';
 import { get, save } from '../../helpers/storage';
 import { isDefined } from '../../helpers/types';
@@ -112,7 +112,7 @@ export function parseQuery(query: RawQuery): Query {
     sort: parseAsSort(query.s),
     statuses: parseAsArray(query.statuses, parseAsString),
     tags: parseAsArray(query.tags, parseAsString),
-    types: parseAsArray(query.types, parseAsString)
+    types: parseAsArray(query.types, parseAsString),
   };
 }
 
@@ -122,7 +122,7 @@ export function getOpen(query: RawQuery): string | undefined {
 
 export function getOpenIssue(props: { location: { query: RawQuery } }, issues: Issue[]) {
   const open = getOpen(props.location.query);
-  return open ? issues.find(issue => issue.key === open) : undefined;
+  return open ? issues.find((issue) => issue.key === open) : undefined;
 }
 
 export const areMyIssuesSelected = (query: RawQuery) => query.myIssues === 'true';
@@ -159,7 +159,7 @@ export function serializeQuery(query: Query): RawQuery {
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),
     tags: serializeStringArray(query.tags),
-    types: serializeStringArray(query.types)
+    types: serializeStringArray(query.types),
   };
 
   return cleanQuery(filter);
@@ -174,9 +174,9 @@ export function parseFacets(facets: RawFacet[]): Dict<Facet> {
   }
 
   const result: Dict<Facet> = {};
-  facets.forEach(facet => {
+  facets.forEach((facet) => {
     const values: Facet = {};
-    facet.values.forEach(value => {
+    facet.values.forEach((value) => {
       values[value.val] = value.count;
     });
     result[facet.property] = values;
@@ -194,7 +194,7 @@ export const searchAssignees = (
 ): Promise<{ paging: Paging; results: UserBase[] }> => {
   return searchUsers({ p: page, q: query }).then(({ paging, users }) => ({
     paging,
-    results: users
+    results: users,
   }));
 };
 
@@ -212,7 +212,7 @@ export function getLocations(
   {
     flows,
     secondaryLocations,
-    flowsWithType
+    flowsWithType,
   }: Pick<Issue, 'flows' | 'secondaryLocations' | 'flowsWithType'>,
   selectedFlowIndex: number | undefined
 ) {
@@ -244,7 +244,7 @@ export function allLocationsEmpty(
   issue: Pick<Issue, 'flows' | 'secondaryLocations' | 'flowsWithType'>,
   selectedFlowIndex: number | undefined
 ) {
-  return getLocations(issue, selectedFlowIndex).every(location => !location.msg);
+  return getLocations(issue, selectedFlowIndex).every((location) => !location.msg);
 }
 
 export function shouldOpenStandardsFacet(
@@ -296,7 +296,7 @@ function isOneStandardChildFacetOpen(openFacets: Dict<boolean>, query: Partial<Q
     SecurityStandard.OWASP_TOP10,
     SecurityStandard.SANS_TOP25,
     SecurityStandard.CWE,
-    SecurityStandard.SONARSOURCE
+    SecurityStandard.SONARSOURCE,
   ].some(
     (
       standardType:

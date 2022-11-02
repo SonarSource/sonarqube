@@ -90,7 +90,8 @@ export function PageHeader(props: Props) {
 Server ID: ${serverId}
 Version: ${version}
 Date: ${toShortNotSoISOString(Date.now())}
-`}>
+`}
+            >
               {translate('system.copy_id_info')}
             </ClipboardButton>
           </div>

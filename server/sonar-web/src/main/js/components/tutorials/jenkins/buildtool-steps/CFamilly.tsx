@@ -29,7 +29,7 @@ import { LanguageProps } from '../JenkinsfileStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
 const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
-  [OSs.Linux]: baseUrl => `node {
+  [OSs.Linux]: (baseUrl) => `node {
   stage('SCM') {
     checkout scm
   }
@@ -48,7 +48,7 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
     }
   }
 }`,
-  [OSs.MacOS]: baseUrl => `node {
+  [OSs.MacOS]: (baseUrl) => `node {
   stage('SCM') {
     checkout scm
   }
@@ -71,7 +71,7 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
     }
   }
 }`,
-  [OSs.Windows]: baseUrl => `node {
+  [OSs.Windows]: (baseUrl) => `node {
   stage('SCM') {
     checkout scm
   }
@@ -99,7 +99,7 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
       powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
     }
   }
-}`
+}`,
 };
 
 export default function CFamilly(props: LanguageProps) {
@@ -114,7 +114,7 @@ export default function CFamilly(props: LanguageProps) {
           label={translate('onboarding.build.other.os')}
           checked={os}
           optionLabelKey="onboarding.build.other.os"
-          onCheck={value => setOs(value as OSs)}
+          onCheck={(value) => setOs(value as OSs)}
           options={Object.values(OSs)}
         />
         {os && (
@@ -129,7 +129,8 @@ export default function CFamilly(props: LanguageProps) {
         <>
           <CreateJenkinsfileBulletPoint
             alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
-            snippet={YAML_MAP[os](baseUrl)}>
+            snippet={YAML_MAP[os](baseUrl)}
+          >
             <CompilationInfo />
           </CreateJenkinsfileBulletPoint>
           <FinishButton onClick={props.onDone} />

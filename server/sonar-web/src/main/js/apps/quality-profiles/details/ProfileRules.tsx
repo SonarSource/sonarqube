@@ -58,15 +58,15 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
   state: State = {
     activatedTotal: null,
     activatedByType: keyBy(
-      TYPES.map(t => ({ val: t, count: null })),
+      TYPES.map((t) => ({ val: t, count: null })),
       'val'
     ),
     allByType: keyBy(
-      TYPES.map(t => ({ val: t, count: null })),
+      TYPES.map((t) => ({ val: t, count: null })),
       'val'
     ),
     compareToSonarWay: null,
-    total: null
+    total: null,
   };
 
   componentDidMount() {
@@ -90,7 +90,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     }
     return getQualityProfile({
       compareToSonarWay: true,
-      profile: this.props.profile
+      profile: this.props.profile,
     });
   }
 
@@ -98,7 +98,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     return searchRules({
       languages: this.props.profile.language,
       facets: 'types',
-      ps: 1
+      ps: 1,
     });
   }
 
@@ -107,13 +107,13 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
       activation: 'true',
       facets: 'types',
       ps: 1,
-      qprofile: this.props.profile.key
+      qprofile: this.props.profile.key,
     });
   }
 
   loadRules() {
     return Promise.all([this.loadAllRules(), this.loadActivatedRules(), this.loadProfile()]).then(
-      responses => {
+      (responses) => {
         if (this.mounted) {
           const [allRules, activatedRules, showProfile] = responses;
           this.setState({
@@ -121,7 +121,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             allByType: keyBy<ByType>(takeFacet(allRules, 'types'), 'val'),
             activatedByType: keyBy<ByType>(takeFacet(activatedRules, 'types'), 'val'),
             compareToSonarWay: showProfile && showProfile.compareToSonarWay,
-            total: allRules.total
+            total: allRules.total,
           });
         }
       }
@@ -165,7 +165,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
                 qprofile={profile.key}
                 total={this.state.total}
               />
-              {TYPES.map(type => (
+              {TYPES.map((type) => (
                 <ProfileRulesRowOfType
                   count={this.getRulesCountForType(type)}
                   key={type}

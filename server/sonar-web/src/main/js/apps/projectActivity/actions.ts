@@ -22,42 +22,42 @@ import { State } from './components/ProjectActivityApp';
 
 export function addCustomEvent(analysis: string, event: AnalysisEvent) {
   return (state: State) => ({
-    analyses: state.analyses.map(item => {
+    analyses: state.analyses.map((item) => {
       if (item.key !== analysis) {
         return item;
       }
       return { ...item, events: [...item.events, event] };
-    })
+    }),
   });
 }
 
 export function deleteEvent(analysis: string, event: string) {
   return (state: State) => ({
-    analyses: state.analyses.map(item => {
+    analyses: state.analyses.map((item) => {
       if (item.key !== analysis) {
         return item;
       }
-      return { ...item, events: item.events.filter(eventItem => eventItem.key !== event) };
-    })
+      return { ...item, events: item.events.filter((eventItem) => eventItem.key !== event) };
+    }),
   });
 }
 
 export function changeEvent(analysis: string, event: AnalysisEvent) {
   return (state: State) => ({
-    analyses: state.analyses.map(item => {
+    analyses: state.analyses.map((item) => {
       if (item.key !== analysis) {
         return item;
       }
       return {
         ...item,
-        events: item.events.map(eventItem =>
+        events: item.events.map((eventItem) =>
           eventItem.key === event.key ? { ...eventItem, ...event } : eventItem
-        )
+        ),
       };
-    })
+    }),
   });
 }
 
 export function deleteAnalysis(analysis: string) {
-  return (state: State) => ({ analyses: state.analyses.filter(item => item.key !== analysis) });
+  return (state: State) => ({ analyses: state.analyses.filter((item) => item.key !== analysis) });
 }

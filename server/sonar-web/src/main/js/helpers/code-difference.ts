@@ -52,14 +52,15 @@ function getExamplesFromDom(element: Element) {
   return (
     Object.values(
       groupBy(
-        pres.filter(e => e.getAttribute('data-diff-id') !== undefined),
-        e => e.getAttribute('data-diff-id')
+        pres.filter((e) => e.getAttribute('data-diff-id') !== undefined),
+        (e) => e.getAttribute('data-diff-id')
       )
     )
       // If we have 1 or 3+ example we can't display any differences
-      .filter(diffsBlock => diffsBlock.length === NUMBER_OF_EXAMPLES)
+      .filter((diffsBlock) => diffsBlock.length === NUMBER_OF_EXAMPLES)
       .map(
-        diffBlock => keyBy(diffBlock, block => block.getAttribute('data-diff-type')) as DiffBlock
+        (diffBlock) =>
+          keyBy(diffBlock, (block) => block.getAttribute('data-diff-type')) as DiffBlock
       )
   );
 }
@@ -70,7 +71,7 @@ function differentiateCode(compliant: string, nonCompliant: string) {
   let nonCompliantCode = '';
   let compliantCode = '';
 
-  hunks.forEach(hunk => {
+  hunks.forEach((hunk) => {
     const value = sanitizeString(hunk.value);
     if (!hunk.added && !hunk.removed) {
       nonCompliantCode += `<div>${value}</div>`;

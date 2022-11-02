@@ -39,7 +39,7 @@ describe('HotspotOpenInIdeButton', () => {
     expect(wrapper).toMatchSnapshot();
 
     (sonarlint.probeSonarLintServers as jest.Mock).mockResolvedValue([
-      { port, ideName: 'BlueJ IDE', description: 'Hello World' }
+      { port, ideName: 'BlueJ IDE', description: 'Hello World' },
     ]);
     (sonarlint.openHotspot as jest.Mock).mockResolvedValue(null);
 
@@ -71,7 +71,7 @@ describe('HotspotOpenInIdeButton', () => {
 
     (sonarlint.probeSonarLintServers as jest.Mock).mockResolvedValue([
       { port: port1, ideName: 'BlueJ IDE', description: 'Hello World' },
-      { port: port2, ideName: 'Arduino IDE', description: 'Blink' }
+      { port: port2, ideName: 'Arduino IDE', description: 'Blink' },
     ]);
 
     wrapper.find(Button).simulate('click');

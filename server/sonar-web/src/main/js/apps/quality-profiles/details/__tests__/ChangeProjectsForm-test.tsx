@@ -22,7 +22,7 @@ import * as React from 'react';
 import {
   associateProject,
   dissociateProject,
-  getProfileProjects
+  getProfileProjects,
 } from '../../../../api/quality-profiles';
 import SelectList, { SelectListFilter } from '../../../../components/controls/SelectList';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
@@ -36,11 +36,11 @@ jest.mock('../../../../api/quality-profiles', () => ({
     results: [
       { id: 'test1', key: 'test1', name: 'test1', selected: false },
       { id: 'test2', key: 'test2', name: 'test2', selected: false },
-      { id: 'test3', key: 'test3', name: 'test3', selected: true }
-    ]
+      { id: 'test3', key: 'test3', name: 'test3', selected: true },
+    ],
   }),
   associateProject: jest.fn().mockResolvedValue({}),
-  dissociateProject: jest.fn().mockResolvedValue({})
+  dissociateProject: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => {
@@ -49,15 +49,12 @@ beforeEach(() => {
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();
-  wrapper
-    .find(SelectList)
-    .props()
-    .onSearch({
-      query: '',
-      filter: SelectListFilter.Selected,
-      page: 1,
-      pageSize: 100
-    });
+  wrapper.find(SelectList).props().onSearch({
+    query: '',
+    filter: SelectListFilter.Selected,
+    page: 1,
+    pageSize: 100,
+  });
   await waitAndUpdate(wrapper);
 
   expect(wrapper.instance().mounted).toBe(true);
@@ -71,7 +68,7 @@ it('should render correctly', async () => {
       p: 1,
       ps: 100,
       q: undefined,
-      selected: SelectListFilter.Selected
+      selected: SelectListFilter.Selected,
     })
   );
   expect(wrapper.state().needToReload).toBe(false);

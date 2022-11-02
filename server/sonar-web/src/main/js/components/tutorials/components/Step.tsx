@@ -37,7 +37,7 @@ export default function Step(props: Props) {
   const className = classNames('boxed-group', 'onboarding-step', {
     'is-open': open,
     'is-finished': finished,
-    'no-step-number': stepNumber === undefined
+    'no-step-number': stepNumber === undefined,
   });
 
   const clickable = !open && finished && props.onOpen !== undefined;
@@ -54,7 +54,8 @@ export default function Step(props: Props) {
       className={className}
       onClick={clickable ? handleClick : undefined}
       role={clickable ? 'button' : undefined}
-      tabIndex={clickable ? 0 : undefined}>
+      tabIndex={clickable ? 0 : undefined}
+    >
       {stepNumber !== undefined && <div className="onboarding-step-number">{stepNumber}</div>}
       {!open && props.renderResult && props.renderResult()}
       <div className="boxed-group-header">

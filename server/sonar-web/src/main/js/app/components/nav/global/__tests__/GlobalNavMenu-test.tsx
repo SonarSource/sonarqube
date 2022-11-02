@@ -26,12 +26,12 @@ import { GlobalNavMenu } from '../GlobalNavMenu';
 it('should work with extensions', () => {
   const appState = mockAppState({
     globalPages: [{ key: 'foo', name: 'Foo' }],
-    qualifiers: ['TRK']
+    qualifiers: ['TRK'],
   });
 
   const currentUser = {
     isLoggedIn: false,
-    dismissedNotices: {}
+    dismissedNotices: {},
   };
   renderGlobalNavMenu({ appState, currentUser });
   expect(screen.getByText('more')).toBeInTheDocument();
@@ -41,11 +41,11 @@ it('should show administration menu if the user has the rights', () => {
   const appState = mockAppState({
     canAdmin: true,
     globalPages: [],
-    qualifiers: ['TRK']
+    qualifiers: ['TRK'],
   });
   const currentUser = {
     isLoggedIn: false,
-    dismissedNotices: {}
+    dismissedNotices: {},
   };
 
   renderGlobalNavMenu({ appState, currentUser });
@@ -55,7 +55,7 @@ it('should show administration menu if the user has the rights', () => {
 function renderGlobalNavMenu({
   appState = mockAppState(),
   currentUser = mockCurrentUser(),
-  location = { pathname: '' }
+  location = { pathname: '' },
 }: Partial<GlobalNavMenu['props']>) {
   renderComponent(
     <GlobalNavMenu appState={appState} currentUser={currentUser} location={location} />

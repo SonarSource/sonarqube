@@ -22,20 +22,23 @@ import * as React from 'react';
 import { searchGroups, searchUsers } from '../../../../api/quality-profiles';
 import {
   mockReactSelectControlProps,
-  mockReactSelectOptionProps
+  mockReactSelectOptionProps,
 } from '../../../../helpers/mocks/react-select';
 import { mockUser } from '../../../../helpers/testMocks';
 import ProfilePermissionsFormSelect from '../ProfilePermissionsFormSelect';
 
 jest.mock('lodash', () => {
   const lodash = jest.requireActual('lodash');
-  lodash.debounce = (fn: Function) => (...args: any[]) => fn(...args);
+  lodash.debounce =
+    (fn: Function) =>
+    (...args: any[]) =>
+      fn(...args);
   return lodash;
 });
 
 jest.mock('../../../../api/quality-profiles', () => ({
   searchGroups: jest.fn().mockResolvedValue([]),
-  searchUsers: jest.fn().mockResolvedValue([])
+  searchUsers: jest.fn().mockResolvedValue([]),
 }));
 
 it('should render correctly', () => {
@@ -48,7 +51,7 @@ it('should handle search', async () => {
 
   const wrapper = shallowRender();
   const query = 'Waldo';
-  const results = await new Promise(resolve => {
+  const results = await new Promise((resolve) => {
     wrapper.instance().handleSearch(query, resolve);
   });
   expect(searchUsers).toHaveBeenCalledWith(expect.objectContaining({ q: query }));

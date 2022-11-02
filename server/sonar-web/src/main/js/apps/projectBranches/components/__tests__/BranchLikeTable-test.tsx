@@ -38,11 +38,7 @@ it('should properly propagate delete event', () => {
   const onDelete = jest.fn();
   const wrapper = shallowRender({ onDelete });
 
-  wrapper
-    .find(BranchLikeRow)
-    .first()
-    .props()
-    .onDelete();
+  wrapper.find(BranchLikeRow).first().props().onDelete();
 
   expect(onDelete).toHaveBeenCalled();
 });
@@ -52,11 +48,7 @@ it('should properly propagate rename event', () => {
   const onRename = jest.fn();
   const wrapper = shallowRender({ onDelete, onRename });
 
-  wrapper
-    .find(BranchLikeRow)
-    .first()
-    .props()
-    .onRename();
+  wrapper.find(BranchLikeRow).first().props().onRename();
 
   expect(onRename).toHaveBeenCalled();
 });

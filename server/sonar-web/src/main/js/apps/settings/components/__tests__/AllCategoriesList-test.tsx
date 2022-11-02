@@ -33,7 +33,7 @@ jest.mock('../AdditionalCategories', () => ({
       availableGlobally: true,
       availableForProject: true,
       displayTab: true,
-      requiresBranchSupport: true
+      requiresBranchSupport: true,
     },
     {
       key: 'CAT_2',
@@ -41,7 +41,7 @@ jest.mock('../AdditionalCategories', () => ({
       renderComponent: jest.fn(),
       availableGlobally: true,
       availableForProject: false,
-      displayTab: true
+      displayTab: true,
     },
     {
       key: 'CAT_3',
@@ -49,7 +49,7 @@ jest.mock('../AdditionalCategories', () => ({
       renderComponent: jest.fn(),
       availableGlobally: false,
       availableForProject: true,
-      displayTab: true
+      displayTab: true,
     },
     {
       key: 'CAT_4',
@@ -57,9 +57,9 @@ jest.mock('../AdditionalCategories', () => ({
       renderComponent: jest.fn(),
       availableGlobally: true,
       availableForProject: true,
-      displayTab: false
-    }
-  ] as AdditionalCategory[]
+      displayTab: false,
+    },
+  ] as AdditionalCategory[],
 }));
 
 it('should render correctly', () => {

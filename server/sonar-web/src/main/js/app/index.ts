@@ -34,14 +34,14 @@ async function initApplication() {
     loadL10nBundle(),
     isMainApp() ? getCurrentUser() : undefined,
     isMainApp() ? getGlobalNavigation() : undefined,
-    isMainApp() ? getAvailableFeatures() : undefined
-  ]).catch(error => {
+    isMainApp() ? getAvailableFeatures() : undefined,
+  ]).catch((error) => {
     // eslint-disable-next-line no-console
     console.error('Application failed to start', error);
     throw error;
   });
 
-  const startReactApp = await import('./utils/startReactApp').then(i => i.default);
+  const startReactApp = await import('./utils/startReactApp').then((i) => i.default);
   startReactApp(l10nBundle.locale, currentUser, appState, availableFeatures);
 }
 

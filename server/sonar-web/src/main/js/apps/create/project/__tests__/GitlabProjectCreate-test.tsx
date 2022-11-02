@@ -29,7 +29,7 @@ import GitlabProjectCreate from '../GitlabProjectCreate';
 
 jest.mock('../../../../api/alm-integrations', () => ({
   getGitlabProjects: jest.fn().mockRejectedValue('error'),
-  importGitlabProject: jest.fn().mockRejectedValue('error')
+  importGitlabProject: jest.fn().mockRejectedValue('error'),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -47,7 +47,7 @@ it('should fetch more projects and preserve search', async () => {
     mockGitlabProject({ id: '3' }),
     mockGitlabProject({ id: '4' }),
     mockGitlabProject({ id: '5' }),
-    mockGitlabProject({ id: '6' })
+    mockGitlabProject({ id: '6' }),
   ];
   (getGitlabProjects as jest.Mock)
     .mockResolvedValueOnce({
@@ -55,16 +55,16 @@ it('should fetch more projects and preserve search', async () => {
       projectsPaging: {
         pageIndex: 1,
         pageSize: 4,
-        total: 6
-      }
+        total: 6,
+      },
     })
     .mockResolvedValueOnce({
       projects: projects.slice(5),
       projectsPaging: {
         pageIndex: 2,
         pageSize: 4,
-        total: 6
-      }
+        total: 6,
+      },
     });
 
   const wrapper = shallowRender();
@@ -89,7 +89,7 @@ it('should search for projects', async () => {
     mockGitlabProject({ id: '3' }),
     mockGitlabProject({ id: '4' }),
     mockGitlabProject({ id: '5' }),
-    mockGitlabProject({ id: '6' })
+    mockGitlabProject({ id: '6' }),
   ];
   (getGitlabProjects as jest.Mock)
     .mockResolvedValueOnce({
@@ -97,16 +97,16 @@ it('should search for projects', async () => {
       projectsPaging: {
         pageIndex: 1,
         pageSize: 6,
-        total: 6
-      }
+        total: 6,
+      },
     })
     .mockResolvedValueOnce({
       projects: projects.slice(3, 5),
       projectsPaging: {
         pageIndex: 1,
         pageSize: 6,
-        total: 2
-      }
+        total: 2,
+      },
     });
   const query = 'query';
 
@@ -130,13 +130,13 @@ it('should import', async () => {
     projectsPaging: {
       pageIndex: 1,
       pageSize: 6,
-      total: 2
-    }
+      total: 2,
+    },
   });
   const createdProjectkey = 'imported_project_key';
 
   (importGitlabProject as jest.Mock).mockResolvedValueOnce({
-    project: { key: createdProjectkey }
+    project: { key: createdProjectkey },
   });
 
   const onProjectCreate = jest.fn();
@@ -183,8 +183,8 @@ it('should handle errors when importing a project', async () => {
     projectsPaging: {
       pageIndex: 1,
       pageSize: 10,
-      total: 1
-    }
+      total: 1,
+    },
   });
 
   const wrapper = shallowRender();

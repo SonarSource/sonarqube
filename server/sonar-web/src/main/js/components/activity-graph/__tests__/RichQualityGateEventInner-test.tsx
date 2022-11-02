@@ -29,11 +29,11 @@ const event: RichQualityGateEvent = {
   qualityGate: {
     failing: [
       { branch: 'master', key: 'foo', name: 'Foo' },
-      { branch: 'master', key: 'bar', name: 'Bar' }
+      { branch: 'master', key: 'bar', name: 'Bar' },
     ],
     status: 'ERROR',
-    stillFailing: true
-  }
+    stillFailing: true,
+  },
 };
 
 it('should render', () => {

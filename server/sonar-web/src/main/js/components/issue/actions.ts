@@ -34,7 +34,7 @@ export const updateIssue = (
   }
 
   resultPromise.then(
-    response => {
+    (response) => {
       if (!optimisticUpdate) {
         const issue = parseIssueFromResponse(
           response.issue,
@@ -45,7 +45,7 @@ export const updateIssue = (
         onChange(issue);
       }
     },
-    param => {
+    (param) => {
       if (optimisticUpdate) {
         onChange(oldIssue!);
       }

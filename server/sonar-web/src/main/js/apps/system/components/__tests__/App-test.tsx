@@ -24,13 +24,13 @@ import {
   mockClusterSysInfo,
   mockLocation,
   mockRouter,
-  mockStandaloneSysInfo
+  mockStandaloneSysInfo,
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { App } from '../App';
 
 jest.mock('../../../../api/system', () => ({
-  getSystemInfo: jest.fn().mockResolvedValue(null)
+  getSystemInfo: jest.fn().mockResolvedValue(null),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -64,7 +64,7 @@ it('should toggle cards and update the URL', () => {
   wrapper.instance().toggleSysInfoCards('foo');
   expect(replace).toHaveBeenCalledWith(
     expect.objectContaining({
-      query: { expand: 'foo' }
+      query: { expand: 'foo' },
     })
   );
 
@@ -74,7 +74,7 @@ it('should toggle cards and update the URL', () => {
   wrapper.instance().toggleSysInfoCards('foo');
   expect(replace).toHaveBeenCalledWith(
     expect.objectContaining({
-      query: { expand: 'bar' }
+      query: { expand: 'bar' },
     })
   );
 });

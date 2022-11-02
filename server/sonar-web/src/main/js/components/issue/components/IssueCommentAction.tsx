@@ -92,12 +92,14 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
                 toggleComment={this.props.toggleComment}
               />
             )
-          }>
+          }
+        >
           <ButtonLink
             aria-expanded={this.props.currentPopup === 'comment'}
             aria-label={translate('issue.comment.add_comment')}
             className="issue-action js-issue-comment"
-            onClick={this.handleCommentClick}>
+            onClick={this.handleCommentClick}
+          >
             <span className="issue-meta-label">
               {showCommentsInPopup && comments && (
                 <span>

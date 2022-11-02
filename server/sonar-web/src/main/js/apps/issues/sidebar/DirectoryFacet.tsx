@@ -65,16 +65,16 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
       ...getBranchLikeQuery(branchLike),
       q: query,
       p: page,
-      ps: 30
+      ps: 30,
     }).then(({ components, paging }) => ({
       paging,
-      results: components.filter(dir => dir.path !== undefined)
+      results: components.filter((dir) => dir.path !== undefined),
     }));
   };
 
   loadSearchResultCount = (directories: TreeComponentWithPath[]) => {
     return this.props.loadSearchResultCount('directories', {
-      directories: directories.map(directory => directory.path)
+      directories: directories.map((directory) => directory.path),
     });
   };
 

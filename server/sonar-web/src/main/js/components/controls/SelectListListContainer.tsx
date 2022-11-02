@@ -71,11 +71,11 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
   handleBulkChange = (checked: boolean) => {
     this.setState({ loading: true });
     if (checked) {
-      Promise.all(this.props.elements.map(element => this.props.onSelect(element)))
+      Promise.all(this.props.elements.map((element) => this.props.onSelect(element)))
         .then(this.stopLoading)
         .catch(this.stopLoading);
     } else {
-      Promise.all(this.props.selectedElements.map(element => this.props.onUnselect(element)))
+      Promise.all(this.props.selectedElements.map((element) => this.props.onUnselect(element)))
         .then(this.stopLoading)
         .catch(this.stopLoading);
     }
@@ -90,7 +90,8 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
             checked={selectedElements.length > 0}
             disabled={this.state.loading || readOnly}
             onCheck={this.handleBulkChange}
-            thirdState={selectedElements.length > 0 && elements.length !== selectedElements.length}>
+            thirdState={selectedElements.length > 0 && elements.length !== selectedElements.length}
+          >
             <span className="big-spacer-left">
               {translate('bulk_change')}
               <DeferredSpinner className="spacer-left" loading={this.state.loading} timeout={10} />
@@ -112,7 +113,7 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
             elements.length > 0 &&
             filter === SelectListFilter.All &&
             this.renderBulkSelector()}
-          {elements.map(element => (
+          {elements.map((element) => (
             <SelectListListElement
               disabled={this.isDisabled(element)}
               element={element}

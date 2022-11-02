@@ -23,5 +23,5 @@ export function getPluginStaticFileContent(pluginKey: string, staticFilePath: st
   return request(`/static/${pluginKey}/${staticFilePath}`)
     .submit()
     .then(checkStatus)
-    .then(response => response.text());
+    .then((response) => response.text());
 }

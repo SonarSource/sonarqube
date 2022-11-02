@@ -33,7 +33,7 @@ function shallowRender(props: Partial<Props> = {}) {
         version: '0.11',
         date: '2018-11-05',
         description: 'Change version description',
-        changeLogUrl: 'https://my.change.log/url'
+        changeLogUrl: 'https://my.change.log/url',
       }}
       update={{
         previousUpdates: [
@@ -42,24 +42,24 @@ function shallowRender(props: Partial<Props> = {}) {
               version: '0.11',
               date: '2018-06-08',
               description: 'Change version description',
-              changeLogUrl: 'https://my.change.log/url'
+              changeLogUrl: 'https://my.change.log/url',
             },
             requires: [],
-            status: 'COMPATIBLE'
+            status: 'COMPATIBLE',
           },
           {
             release: {
               version: '0.10',
               date: '2018-06-05',
               description: 'Change version description',
-              changeLogUrl: 'https://my.change.log/url'
+              changeLogUrl: 'https://my.change.log/url',
             },
             requires: [],
-            status: 'COMPATIBLE'
-          }
+            status: 'COMPATIBLE',
+          },
         ],
         requires: [{ key: 'java', name: 'SonarJava', description: 'Code Analyzer for Java' }],
-        status: 'COMPATIBLE'
+        status: 'COMPATIBLE',
       }}
       {...props}
     />

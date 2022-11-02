@@ -28,11 +28,11 @@ jest.mock('../../../../api/components', () => ({
   createProject: jest.fn().mockResolvedValue({ project: { key: 'bar', name: 'Bar' } }),
   doesComponentExists: jest
     .fn()
-    .mockImplementation(({ component }) => Promise.resolve(component === 'exists'))
+    .mockImplementation(({ component }) => Promise.resolve(component === 'exists')),
 }));
 
 jest.mock('../../../../api/settings', () => ({
-  getValue: jest.fn().mockResolvedValue({ value: 'main' })
+  getValue: jest.fn().mockResolvedValue({ value: 'main' }),
 }));
 
 beforeEach(() => {
@@ -53,7 +53,7 @@ it('should validate form input', async () => {
   // All input valid
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required'
+      name: 'onboarding.create_project.display_name field_required',
     })
   );
   await user.keyboard('test');
@@ -65,7 +65,7 @@ it('should validate form input', async () => {
   // Sanitize the key
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required'
+      name: 'onboarding.create_project.display_name field_required',
     })
   );
   await user.keyboard('{Control>}a{/Control}This is not a key%^$');
@@ -76,7 +76,7 @@ it('should validate form input', async () => {
   // Clear name
   await user.clear(
     screen.getByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required'
+      name: 'onboarding.create_project.display_name field_required',
     })
   );
   expect(
@@ -90,7 +90,7 @@ it('should validate form input', async () => {
   // Only key
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.project_key field_required'
+      name: 'onboarding.create_project.project_key field_required',
     })
   );
   await user.keyboard('awsome-key');
@@ -105,7 +105,7 @@ it('should validate form input', async () => {
   // Invalid key
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.project_key field_required'
+      name: 'onboarding.create_project.project_key field_required',
     })
   );
   await user.keyboard('{Control>}a{/Control}123');
@@ -124,7 +124,7 @@ it('should validate form input', async () => {
   // Invalid main branch name
   await user.clear(
     screen.getByRole('textbox', {
-      name: 'onboarding.create_project.main_branch_name field_required'
+      name: 'onboarding.create_project.main_branch_name field_required',
     })
   );
   expect(
@@ -140,7 +140,7 @@ it('should submit form input', async () => {
   // All input valid
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required'
+      name: 'onboarding.create_project.display_name field_required',
     })
   );
   await user.keyboard('test');
@@ -148,7 +148,7 @@ it('should submit form input', async () => {
   expect(createProject).toHaveBeenCalledWith({
     name: 'test',
     project: 'test',
-    mainBranch: 'main'
+    mainBranch: 'main',
   });
   expect(onProjectCreate).toHaveBeenCalled();
 });
@@ -162,7 +162,7 @@ it('should handle create failure', async () => {
   // All input valid
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required'
+      name: 'onboarding.create_project.display_name field_required',
     })
   );
   await user.keyboard('test');
@@ -180,7 +180,7 @@ it('should handle component exists failure', async () => {
   // All input valid
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required'
+      name: 'onboarding.create_project.display_name field_required',
     })
   );
   await user.keyboard('test');

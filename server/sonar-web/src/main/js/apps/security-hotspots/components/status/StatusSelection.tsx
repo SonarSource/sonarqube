@@ -22,7 +22,7 @@ import { setSecurityHotspotStatus } from '../../../../api/security-hotspots';
 import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
 import {
   getStatusAndResolutionFromStatusOption,
-  getStatusOptionFromStatusAndResolution
+  getStatusOptionFromStatusAndResolution,
 } from '../../utils';
 import StatusSelectionRenderer from './StatusSelectionRenderer';
 
@@ -53,7 +53,7 @@ export default class StatusSelection extends React.PureComponent<Props, State> {
     this.state = {
       loading: false,
       initialStatus,
-      selectedStatus: initialStatus
+      selectedStatus: initialStatus,
     };
   }
 
@@ -81,7 +81,7 @@ export default class StatusSelection extends React.PureComponent<Props, State> {
       this.setState({ loading: true });
       setSecurityHotspotStatus(hotspot.key, {
         ...getStatusAndResolutionFromStatusOption(selectedStatus),
-        comment: comment || undefined
+        comment: comment || undefined,
       })
         .then(async () => {
           await this.props.onStatusOptionChange(selectedStatus);

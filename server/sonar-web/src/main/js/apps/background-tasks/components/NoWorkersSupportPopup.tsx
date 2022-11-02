@@ -33,7 +33,8 @@ export default function NoWorkersSupportPopup() {
       <p>
         <Link
           to="https://www.sonarqube.org/trial-request/enterprise-edition/?referrer=sonarqube-background-tasks"
-          target="_blank">
+          target="_blank"
+        >
           {translate('learn_more')}
         </Link>
       </p>

@@ -38,9 +38,9 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
 
   const isApp = project.qualifier === ComponentQualifier.Application;
   const eventTypes = isApp ? APPLICATION_EVENT_TYPES : EVENT_TYPES;
-  const options = eventTypes.map(category => ({
+  const options = eventTypes.map((category) => ({
     label: translate('event.category', category),
-    value: category
+    value: category,
   }));
 
   const handleCategoryChange = React.useCallback(
@@ -66,7 +66,7 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
             isSearchable={false}
             onChange={handleCategoryChange}
             options={options}
-            value={options.filter(o => o.value === category)}
+            value={options.filter((o) => o.value === category)}
           />
         </div>
       )}

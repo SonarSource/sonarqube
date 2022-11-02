@@ -27,7 +27,7 @@ import { queryToSearch } from '../../../helpers/urls';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
-  BitbucketRepository
+  BitbucketRepository,
 } from '../../../types/alm-integration';
 import BitbucketRepositories from './BitbucketRepositories';
 import BitbucketSearchResults from './BitbucketSearchResults';
@@ -51,7 +51,7 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
     projectRepositories = {},
     searchResults,
     searching,
-    selectedRepository
+    selectedRepository,
   } = props;
 
   if (projects.length === 0) {
@@ -65,11 +65,12 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
               <Link
                 to={{
                   pathname: '/projects/create',
-                  search: queryToSearch({ mode: CreateProjectModes.BitbucketServer, resetPat: 1 })
-                }}>
+                  search: queryToSearch({ mode: CreateProjectModes.BitbucketServer, resetPat: 1 }),
+                }}
+              >
                 {translate('onboarding.create_project.update_your_token')}
               </Link>
-            )
+            ),
           }}
         />
       </Alert>

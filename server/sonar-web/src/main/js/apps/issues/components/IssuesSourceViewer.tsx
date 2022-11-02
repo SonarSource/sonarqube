@@ -72,12 +72,12 @@ export default class IssuesSourceViewer extends React.PureComponent<IssuesSource
       this.selectedSecondaryLocationRef.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
-        inline: 'nearest'
+        inline: 'nearest',
       });
     } else if (this.primaryLocationRef) {
       this.primaryLocationRef.scrollIntoView({
         block: 'center',
-        inline: 'nearest'
+        inline: 'nearest',
       });
     }
   }
@@ -89,7 +89,7 @@ export default class IssuesSourceViewer extends React.PureComponent<IssuesSource
       selectedLocationIndex,
       locationsNavigator,
       branchLike,
-      issues
+      issues,
     } = this.props;
 
     const locations = getLocations(openIssue, selectedFlowIndex).map((loc, index) => {
@@ -112,8 +112,9 @@ export default class IssuesSourceViewer extends React.PureComponent<IssuesSource
       <IssueSourceViewerScrollContext.Provider
         value={{
           registerPrimaryLocationRef: this.registerPrimaryLocationRef,
-          registerSelectedSecondaryLocationRef: this.registerSelectedSecondaryLocationRef
-        }}>
+          registerSelectedSecondaryLocationRef: this.registerSelectedSecondaryLocationRef,
+        }}
+      >
         <CrossComponentSourceViewer
           branchLike={branchLike}
           highlightedLocationMessage={highlightedLocationMessage}

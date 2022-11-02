@@ -90,7 +90,7 @@ export class ClipboardBase extends React.PureComponent<Props, State> {
   render() {
     return this.props.children({
       setCopyButton: this.setCopyButton,
-      copySuccess: this.state.copySuccess
+      copySuccess: this.state.copySuccess,
     });
   }
 }
@@ -106,7 +106,7 @@ export function ClipboardButton({
   className,
   children,
   copyValue,
-  'aria-label': ariaLabel
+  'aria-label': ariaLabel,
 }: ClipboardButtonProps) {
   return (
     <ClipboardBase>
@@ -116,7 +116,8 @@ export function ClipboardButton({
             className={classNames('no-select', className)}
             data-clipboard-text={copyValue}
             innerRef={setCopyButton}
-            aria-label={ariaLabel ?? translate('copy_to_clipboard')}>
+            aria-label={ariaLabel ?? translate('copy_to_clipboard')}
+          >
             {children || (
               <>
                 <CopyIcon className="little-spacer-right" />
@@ -148,7 +149,8 @@ export function ClipboardIconButton(props: ClipboardIconButtonProps) {
             data-clipboard-text={copyValue}
             innerRef={setCopyButton}
             tooltip={translate(copySuccess ? 'copied_action' : 'copy_to_clipboard')}
-            tooltipProps={copySuccess ? { visible: copySuccess } : undefined}>
+            tooltipProps={copySuccess ? { visible: copySuccess } : undefined}
+          >
             <CopyIcon />
           </ButtonIcon>
         );

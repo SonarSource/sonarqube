@@ -30,7 +30,7 @@ import { ComponentContext } from '../../componentContext/ComponentContext';
 import ProjectPageExtension, { ProjectPageExtensionProps } from '../ProjectPageExtension';
 
 jest.mock('../../../../helpers/extensions', () => ({
-  getExtensionStart: jest.fn().mockResolvedValue(jest.fn())
+  getExtensionStart: jest.fn().mockResolvedValue(jest.fn()),
 }));
 
 it('should not render when no component is passed', () => {

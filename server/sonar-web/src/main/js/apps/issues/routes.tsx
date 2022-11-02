@@ -46,9 +46,9 @@ function IssuesNavigate() {
                 id: searchParams.get('id'),
                 branch: searchParams.get('branch'),
                 pullRequest: searchParams.get('pullRequest'),
-                assignedToMe: 'false'
+                assignedToMe: 'false',
               })
-            ).toString()
+            ).toString(),
           },
           { replace: true }
         );

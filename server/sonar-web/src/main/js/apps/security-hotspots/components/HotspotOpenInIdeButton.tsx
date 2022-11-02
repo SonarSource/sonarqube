@@ -43,7 +43,7 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
 
   state = {
     loading: false,
-    ides: []
+    ides: [],
   };
 
   componentDidMount() {
@@ -97,7 +97,8 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
           <DropdownOverlay>
             <HotspotOpenInIdeOverlay ides={this.state.ides} onIdeSelected={this.openHotspot} />
           </DropdownOverlay>
-        }>
+        }
+      >
         <Button onClick={this.handleOnClick}>
           {translate('hotspots.open_in_ide.open')}
           <DeferredSpinner loading={this.state.loading} className="spacer-left" />

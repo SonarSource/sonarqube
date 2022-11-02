@@ -22,14 +22,14 @@ import { Ide } from '../../../types/sonarlint';
 
 export const HotspotOpenInIdeOverlay = ({
   ides,
-  onIdeSelected
+  onIdeSelected,
 }: {
   ides: Array<Ide>;
   onIdeSelected: (ide: Ide) => Promise<void>;
 }) =>
   ides.length > 1 ? (
     <ul className="menu">
-      {ides.map(ide => {
+      {ides.map((ide) => {
         const { ideName, description } = ide;
         const label = ideName + (description ? ` - ${description}` : '');
         return (

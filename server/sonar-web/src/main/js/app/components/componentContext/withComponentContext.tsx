@@ -33,7 +33,7 @@ export default function withComponentContext<P extends Partial<ComponentContextS
     render() {
       return (
         <ComponentContext.Consumer>
-          {componentContext => <WrappedComponent {...componentContext} {...(this.props as P)} />}
+          {(componentContext) => <WrappedComponent {...componentContext} {...(this.props as P)} />}
         </ComponentContext.Consumer>
       );
     }

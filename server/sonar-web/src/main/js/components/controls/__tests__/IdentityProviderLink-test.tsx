@@ -25,7 +25,7 @@ const identityProvider = {
   backgroundColor: '#000',
   iconPath: '/some/path',
   key: 'foo',
-  name: 'Foo'
+  name: 'Foo',
 };
 
 it('should render correctly', () => {
@@ -35,7 +35,8 @@ it('should render correctly', () => {
         backgroundColor={identityProvider.backgroundColor}
         iconPath={identityProvider.iconPath}
         name={identityProvider.name}
-        url="/url/foo/bar">
+        url="/url/foo/bar"
+      >
         Link text
       </IdentityProviderLink>
     )

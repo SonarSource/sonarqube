@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockQualityProfile } from '../../../helpers/testMocks';
 import ProjectQualityProfilesAppRenderer, {
-  ProjectQualityProfilesAppRendererProps
+  ProjectQualityProfilesAppRendererProps,
 } from '../ProjectQualityProfilesAppRenderer';
 
 it('should render correctly', () => {
@@ -32,8 +32,8 @@ it('should render correctly', () => {
     shallowRender({
       showProjectProfileInModal: {
         profile: mockQualityProfile({ key: 'foo', language: 'js' }),
-        selected: false
-      }
+        selected: false,
+      },
     })
   ).toMatchSnapshot('open profile');
   expect(shallowRender({ showAddLanguageModal: true })).toMatchSnapshot('add language');
@@ -45,7 +45,7 @@ function shallowRender(props: Partial<ProjectQualityProfilesAppRendererProps> = 
       allProfiles={[
         mockQualityProfile({ key: 'foo', language: 'js' }),
         mockQualityProfile({ key: 'bar', language: 'css' }),
-        mockQualityProfile({ key: 'baz', language: 'html' })
+        mockQualityProfile({ key: 'baz', language: 'html' }),
       ]}
       component={mockComponent()}
       loading={false}
@@ -61,9 +61,9 @@ function shallowRender(props: Partial<ProjectQualityProfilesAppRendererProps> = 
             name: 'Foo',
             isDefault: true,
             language: 'js',
-            languageName: 'JS'
+            languageName: 'JS',
           }),
-          selected: false
+          selected: false,
         },
         {
           profile: mockQualityProfile({
@@ -71,19 +71,19 @@ function shallowRender(props: Partial<ProjectQualityProfilesAppRendererProps> = 
             name: 'Bar',
             isDefault: true,
             language: 'css',
-            languageName: 'CSS'
+            languageName: 'CSS',
           }),
-          selected: false
+          selected: false,
         },
         {
           profile: mockQualityProfile({
             key: 'baz',
             name: 'Baz',
             language: 'html',
-            languageName: 'HTML'
+            languageName: 'HTML',
           }),
-          selected: true
-        }
+          selected: true,
+        },
       ]}
       {...props}
     />

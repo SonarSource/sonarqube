@@ -65,7 +65,8 @@ export class PageTracker extends React.Component<Props, State> {
       <Helmet
         defaultTitle={getInstance()}
         defer={false}
-        onChangeClientState={appState.webAnalyticsJsPath ? this.trackPage : undefined}>
+        onChangeClientState={appState.webAnalyticsJsPath ? this.trackPage : undefined}
+      >
         {this.props.children}
       </Helmet>
     );

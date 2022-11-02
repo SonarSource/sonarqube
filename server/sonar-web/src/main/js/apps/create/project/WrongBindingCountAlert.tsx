@@ -46,7 +46,7 @@ export default function WrongBindingCountAlert(props: WrongBindingCountAlertProp
               <Link to={getGlobalSettingsUrl(ALM_INTEGRATION_CATEGORY)}>
                 {translate('settings.page')}
               </Link>
-            )
+            ),
           }}
         />
       ) : (
@@ -54,7 +54,7 @@ export default function WrongBindingCountAlert(props: WrongBindingCountAlertProp
           defaultMessage={translate('onboarding.create_project.wrong_binding_count')}
           id="onboarding.create_project.wrong_binding_count"
           values={{
-            alm: translate('onboarding.alm', alm)
+            alm: translate('onboarding.alm', alm),
           }}
         />
       )}

@@ -26,7 +26,7 @@ jest.mock('d3-scale', () => {
   const d3 = jest.requireActual('d3-scale');
   return {
     ...d3,
-    scaleBand: jest.fn(d3.scaleBand)
+    scaleBand: jest.fn(d3.scaleBand),
   };
 });
 
@@ -43,7 +43,7 @@ it('renders correctly', () => {
     shallowRender({
       yTicks: ['a', 'b', 'c'],
       yTooltips: ['a - 100', 'b - 75', 'c - 150'],
-      yValues: ['100.0', '75.0', '150.0']
+      yValues: ['100.0', '75.0', '150.0'],
     })
   ).toMatchSnapshot('with yValues, yTicks and yTooltips');
 });
@@ -53,7 +53,7 @@ it('correctly handles yScale() returning undefined', () => {
   yScale.bandwidth = () => 1;
 
   (scaleBand as jest.Mock).mockReturnValueOnce({
-    domain: () => ({ rangeRound: () => yScale })
+    domain: () => ({ rangeRound: () => yScale }),
   });
 
   expect(

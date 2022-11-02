@@ -43,7 +43,8 @@ export default class ReloadButton extends React.PureComponent<Props> {
         <a
           className={classNames('link-no-underline', this.props.className)}
           href="#"
-          onClick={this.handleClick}>
+          onClick={this.handleClick}
+        >
           {
             <svg height="24" viewBox="0 0 18 24" width="18">
               <path

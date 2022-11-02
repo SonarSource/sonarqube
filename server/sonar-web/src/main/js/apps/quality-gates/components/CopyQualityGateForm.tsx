@@ -52,7 +52,7 @@ export class CopyQualityGateForm extends React.PureComponent<Props, State> {
     const { qualityGate } = this.props;
     const { name } = this.state;
 
-    return copyQualityGate({ id: qualityGate.id, name }).then(newQualityGate => {
+    return copyQualityGate({ id: qualityGate.id, name }).then((newQualityGate) => {
       this.props.onCopy();
       this.props.router.push(getQualityGateUrl(String(newQualityGate.id)));
     });
@@ -70,7 +70,8 @@ export class CopyQualityGateForm extends React.PureComponent<Props, State> {
         header={translate('quality_gates.copy')}
         onClose={this.props.onClose}
         onConfirm={this.handleCopy}
-        size="small">
+        size="small"
+      >
         <MandatoryFieldsExplanation className="modal-field" />
         <div className="modal-field">
           <label htmlFor="quality-gate-form-name">

@@ -38,23 +38,26 @@ export default function ColorRatingsLegend(props: ColorRatingsLegendProps) {
   const { className, filters } = props;
   return (
     <ul className={classNames('color-box-legend', className)}>
-      {RATINGS.map(rating => (
+      {RATINGS.map((rating) => (
         <li key={rating}>
           <Tooltip
             overlay={translateWithParameters(
               'component_measures.legend.help_x',
               formatMeasure(rating, 'RATING')
-            )}>
+            )}
+          >
             <Checkbox
               className="display-flex-center"
               checked={!filters[rating]}
-              onCheck={() => props.onRatingClick(rating)}>
+              onCheck={() => props.onRatingClick(rating)}
+            >
               <span
                 className="color-box-legend-rating little-spacer-left"
                 style={{
                   borderColor: RATING_COLORS[rating - 1].stroke,
-                  backgroundColor: RATING_COLORS[rating - 1].fillTransparent
-                }}>
+                  backgroundColor: RATING_COLORS[rating - 1].fillTransparent,
+                }}
+              >
                 {formatMeasure(rating, 'RATING')}
               </span>
             </Checkbox>

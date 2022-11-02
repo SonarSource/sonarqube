@@ -46,7 +46,7 @@ export default class ScannerContext extends React.PureComponent<Props, State> {
   }
 
   loadScannerContext() {
-    getTask(this.props.task.id, ['scannerContext']).then(task => {
+    getTask(this.props.task.id, ['scannerContext']).then((task) => {
       if (this.mounted) {
         this.setState({ scannerContext: task.scannerContext });
       }

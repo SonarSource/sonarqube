@@ -35,7 +35,7 @@ import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import {
   enhanceMeasuresWithMetrics,
   formatMeasure,
-  getDisplayMetrics
+  getDisplayMetrics,
 } from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
@@ -94,19 +94,19 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
   };
 
   fetchMeasures = () => {
-    return getAllMetrics().then(metrics => {
-      const metricKeys = getDisplayMetrics(metrics).map(metric => metric.key);
+    return getAllMetrics().then((metrics) => {
+      const metricKeys = getDisplayMetrics(metrics).map((metric) => metric.key);
 
       // eslint-disable-next-line promise/no-nesting
       return getMeasures({
         component: this.props.sourceViewerFile.key,
         metricKeys: metricKeys.join(),
-        ...getBranchLikeQuery(this.props.branchLike)
-      }).then(measures => {
+        ...getBranchLikeQuery(this.props.branchLike),
+      }).then((measures) => {
         const withMetrics = enhanceMeasuresWithMetrics(measures, metrics).filter(
-          measure => measure.metric
+          (measure) => measure.metric
         );
-        return keyBy(withMetrics, measure => measure.metric.key);
+        return keyBy(withMetrics, (measure) => measure.metric.key);
       });
     });
   };
@@ -116,17 +116,17 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
       {
         componentKeys: this.props.sourceViewerFile.key,
         resolved: 'false',
-        ...getBranchLikeQuery(this.props.branchLike)
+        ...getBranchLikeQuery(this.props.branchLike),
       },
       ['types', 'severities', 'tags']
     ).then(({ facets }) => {
-      const severitiesFacet = facets.find(f => f.property === 'severities');
-      const tagsFacet = facets.find(f => f.property === 'tags');
-      const typesFacet = facets.find(f => f.property === 'types');
+      const severitiesFacet = facets.find((f) => f.property === 'severities');
+      const tagsFacet = facets.find((f) => f.property === 'tags');
+      const typesFacet = facets.find((f) => f.property === 'types');
       return {
         severitiesFacet: severitiesFacet && severitiesFacet.values,
         tagsFacet: tagsFacet && tagsFacet.values,
-        typesFacet: typesFacet && (typesFacet.values as FacetValue<IssueType>[])
+        typesFacet: typesFacet && (typesFacet.values as FacetValue<IssueType>[]),
       };
     });
   };
@@ -192,20 +192,22 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
             <>
               {typesFacet && (
                 <div className="measures">
-                  {sortBy(typesFacet, f => ISSUE_TYPES.indexOf(f.val as IssueTypeEnum)).map(f => (
-                    <div className="measure measure-one-line" key={f.val}>
-                      <span className="measure-name">
-                        <IssueTypeIcon className="little-spacer-right" query={f.val} />
-                        {translate('issue.type', f.val)}
-                      </span>
-                      <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
-                    </div>
-                  ))}
+                  {sortBy(typesFacet, (f) => ISSUE_TYPES.indexOf(f.val as IssueTypeEnum)).map(
+                    (f) => (
+                      <div className="measure measure-one-line" key={f.val}>
+                        <span className="measure-name">
+                          <IssueTypeIcon className="little-spacer-right" query={f.val} />
+                          {translate('issue.type', f.val)}
+                        </span>
+                        <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
+                      </div>
+                    )
+                  )}
                 </div>
               )}
               {severitiesFacet && (
                 <div className="measures">
-                  {sortBy(severitiesFacet, f => SEVERITIES.indexOf(f.val)).map(f => (
+                  {sortBy(severitiesFacet, (f) => SEVERITIES.indexOf(f.val)).map((f) => (
                     <div className="measure measure-one-line" key={f.val}>
                       <span className="measure-name">
                         <SeverityHelper severity={f.val} />
@@ -217,7 +219,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
               )}
               {tagsFacet && (
                 <div className="measures">
-                  {tagsFacet.map(f => (
+                  {tagsFacet.map((f) => (
                     <div className="measure measure-one-line" key={f.val}>
                       <span className="measure-name">
                         <TagsIcon className="little-spacer-right" />
@@ -337,26 +339,26 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
             <span className="measure-name">{translate('metric_domain', domain)}</span>
           </div>
           {sortBy(
-            measures.filter(measure => measure.value !== undefined),
-            measure => getLocalizedMetricName(measure.metric)
-          ).map(measure => this.renderMeasure(measure))}
+            measures.filter((measure) => measure.value !== undefined),
+            (measure) => getLocalizedMetricName(measure.metric)
+          ).map((measure) => this.renderMeasure(measure))}
         </div>
       </div>
     );
   };
 
   renderAllMeasures = () => {
-    const domains = groupBy(Object.values(this.state.measures), measure => measure.metric.domain);
+    const domains = groupBy(Object.values(this.state.measures), (measure) => measure.metric.domain);
     const domainKeys = Object.keys(domains);
     const odd = domainKeys.filter((_, index) => index % 2 === 1);
     const even = domainKeys.filter((_, index) => index % 2 === 0);
     return (
       <div className="measures-viewer measures-viewer-secondary">
         <div className="measures-viewer-section">
-          {odd.map(domain => this.renderDomain(domain, domains[domain]))}
+          {odd.map((domain) => this.renderDomain(domain, domains[domain]))}
         </div>
         <div className="measures-viewer-section">
-          {even.map(domain => this.renderDomain(domain, domains[domain]))}
+          {even.map((domain) => this.renderDomain(domain, domains[domain]))}
         </div>
       </div>
     );

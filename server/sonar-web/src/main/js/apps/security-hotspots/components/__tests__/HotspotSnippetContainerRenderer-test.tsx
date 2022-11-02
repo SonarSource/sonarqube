@@ -28,15 +28,15 @@ import SnippetViewer from '../../../issues/crossComponentSourceViewer/SnippetVie
 import HotspotSnippetContainerRenderer, {
   animateExpansion,
   getScrollHandler,
-  HotspotSnippetContainerRendererProps
+  HotspotSnippetContainerRendererProps,
 } from '../HotspotSnippetContainerRenderer';
 
 jest.mock('../../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn()
+  scrollToElement: jest.fn(),
 }));
 
 beforeEach(() => {
-  jest.spyOn(React, 'useMemo').mockImplementationOnce(f => f());
+  jest.spyOn(React, 'useMemo').mockImplementationOnce((f) => f());
 });
 
 it('should render correctly', () => {
@@ -47,7 +47,7 @@ it('should render correctly', () => {
 it('should render a HotspotPrimaryLocationBox', () => {
   const wrapper = shallowRender({
     hotspot: mockHotspot({ line: 42 }),
-    sourceLines: [mockSourceLine()]
+    sourceLines: [mockSourceLine()],
   });
 
   const { renderAdditionalChildInLine } = wrapper.find(SnippetViewer).props();
@@ -58,7 +58,7 @@ it('should render a HotspotPrimaryLocationBox', () => {
 
 it('should render correctly when secondary location is selected', () => {
   const wrapper = shallowRender({
-    selectedHotspotLocation: 1
+    selectedHotspotLocation: 1,
   });
   expect(wrapper).toMatchSnapshot('with selected hotspot location');
 });
@@ -78,7 +78,7 @@ describe('scrolling', () => {
 
   it('should scroll to element if parent is defined', () => {
     const ref: RefObject<HTMLDivElement> = {
-      current: document.createElement('div')
+      current: document.createElement('div'),
     };
 
     const scrollHandler = getScrollHandler(ref);
@@ -93,7 +93,7 @@ describe('scrolling', () => {
 
   it('should not scroll if parent is undefined', () => {
     const ref: RefObject<HTMLDivElement> = {
-      current: null
+      current: null,
     };
 
     const scrollHandler = getScrollHandler(ref);
@@ -115,7 +115,7 @@ describe('expand', () => {
     const scrollableNode = document.createElement('div');
     scrollableNode.scrollTo = jest.fn();
     const ref: RefObject<HTMLDivElement> = {
-      current: scrollableNode
+      current: scrollableNode,
     };
 
     jest.spyOn(React, 'useRef').mockReturnValue(ref);

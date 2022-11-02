@@ -28,7 +28,7 @@ it('should render correctly', () => {
 
 it('should render correctly with no organization name', () => {
   const wrapper = shallowRender({
-    plugin: { key: 'test', name: 'test', organizationName: undefined }
+    plugin: { key: 'test', name: 'test', organizationName: undefined },
   });
   expect(wrapper.type()).toBeNull();
 });

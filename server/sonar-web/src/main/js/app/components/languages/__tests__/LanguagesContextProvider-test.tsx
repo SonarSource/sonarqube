@@ -24,7 +24,7 @@ import { waitAndUpdate } from '../../../../helpers/testUtils';
 import LanguagesContextProvider from '../LanguagesContextProvider';
 
 jest.mock('../../../../api/languages', () => ({
-  getLanguages: jest.fn().mockResolvedValue({})
+  getLanguages: jest.fn().mockResolvedValue({}),
 }));
 
 it('should call language', async () => {

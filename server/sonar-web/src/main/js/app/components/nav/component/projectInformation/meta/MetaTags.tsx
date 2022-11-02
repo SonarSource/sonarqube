@@ -45,7 +45,7 @@ export default class MetaTags extends React.PureComponent<Props> {
 
   getPopupPos = (eltPos: ClientRect, containerPos: ClientRect) => ({
     top: eltPos.height,
-    right: containerPos.width - eltPos.width
+    right: containerPos.width - eltPos.width,
   });
 
   setTags = (values: string[]) => {
@@ -54,12 +54,12 @@ export default class MetaTags extends React.PureComponent<Props> {
     if (component.qualifier === ComponentQualifier.Application) {
       return setApplicationTags({
         application: component.key,
-        tags: values.join(',')
+        tags: values.join(','),
       });
     } else {
       return setProjectTags({
         project: component.key,
-        tags: values.join(',')
+        tags: values.join(','),
       });
     }
   };
@@ -76,15 +76,16 @@ export default class MetaTags extends React.PureComponent<Props> {
 
     if (this.canUpdateTags()) {
       return (
-        <div className="big-spacer-top project-info-tags" ref={card => (this.card = card)}>
+        <div className="big-spacer-top project-info-tags" ref={(card) => (this.card = card)}>
           <Dropdown
             closeOnClick={false}
             closeOnClickOutside={true}
             overlay={
               <MetaTagsSelector selectedTags={tags} setProjectTags={this.handleSetProjectTags} />
             }
-            overlayPlacement={PopupPlacement.BottomLeft}>
-            <ButtonLink innerRef={tagsList => (this.tagsList = tagsList)} stopPropagation={true}>
+            overlayPlacement={PopupPlacement.BottomLeft}
+          >
+            <ButtonLink innerRef={(tagsList) => (this.tagsList = tagsList)} stopPropagation={true}>
               <TagsList allowUpdate={true} tags={tags.length ? tags : [translate('no_tags')]} />
             </ButtonLink>
           </Dropdown>

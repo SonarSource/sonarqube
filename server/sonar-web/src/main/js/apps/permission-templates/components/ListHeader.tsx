@@ -43,7 +43,7 @@ export default class ListHeader extends React.PureComponent<Props> {
   }
 
   render() {
-    const cells = this.props.permissions.map(permission => (
+    const cells = this.props.permissions.map((permission) => (
       <th className="permission-column little-padded-left little-padded-right" key={permission.key}>
         <div className="permission-column-inner">
           <span className="text-middle">{translate('projects_role', permission.key)}</span>

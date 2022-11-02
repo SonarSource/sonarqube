@@ -37,7 +37,7 @@ function shallowRender(props: Partial<GithubFormProps> = {}) {
         clientSecret: '',
         privateKey: '',
         url: '',
-        webhookSecret: ''
+        webhookSecret: '',
       }}
       onFieldChange={jest.fn()}
       {...props}

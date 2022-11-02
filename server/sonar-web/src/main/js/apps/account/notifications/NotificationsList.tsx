@@ -35,7 +35,7 @@ interface Props {
 export default class NotificationsList extends React.PureComponent<Props> {
   isEnabled(type: string, channel: string) {
     return !!this.props.notifications.find(
-      notification => notification.type === type && notification.channel === channel
+      (notification) => notification.type === type && notification.channel === channel
     );
   }
 
@@ -61,15 +61,15 @@ export default class NotificationsList extends React.PureComponent<Props> {
 
     return (
       <tbody>
-        {types.map(type => (
+        {types.map((type) => (
           <tr key={type}>
             <td>{this.getDispatcherLabel(type)}</td>
-            {channels.map(channel => (
+            {channels.map((channel) => (
               <td className="text-center" key={channel}>
                 <Checkbox
                   checked={this.isEnabled(type, channel)}
                   id={checkboxId(type, channel)}
-                  onCheck={checked => this.handleCheck(type, channel, checked)}
+                  onCheck={(checked) => this.handleCheck(type, channel, checked)}
                 />
               </td>
             ))}

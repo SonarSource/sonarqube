@@ -26,7 +26,7 @@ import ChangeParentForm from '../ChangeParentForm';
 beforeEach(() => jest.clearAllMocks());
 
 jest.mock('../../../../api/quality-profiles', () => ({
-  changeProfileParent: jest.fn().mockResolvedValue({})
+  changeProfileParent: jest.fn().mockResolvedValue({}),
 }));
 
 it('should render correctly', () => {
@@ -61,7 +61,7 @@ function shallowRender(props?: Partial<ChangeParentForm['props']>) {
         mockQualityProfile(),
         mockQualityProfile(),
         mockQualityProfile(),
-        mockQualityProfile()
+        mockQualityProfile(),
       ]}
       {...props}
     />

@@ -51,7 +51,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
     analyses: [],
     loading: true,
     range: 30,
-    scroll: 0
+    scroll: 0,
   };
 
   constructor(props: Props) {
@@ -83,21 +83,21 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
     return getProjectActivity({
       branch,
       project: component,
-      from: range ? toShortNotSoISOString(subDays(new Date(), range)) : undefined
+      from: range ? toShortNotSoISOString(subDays(new Date(), range)) : undefined,
     }).then((result: { analyses: Analysis[] }) => {
       // If the selected analysis wasn't found in the default 30 days range, redo the search
-      if (initial && analysis && !result.analyses.find(a => a.key === analysis)) {
+      if (initial && analysis && !result.analyses.find((a) => a.key === analysis)) {
         this.handleRangeChange({ value: 0 });
         return;
       }
 
       this.setState(
         {
-          analyses: result.analyses.map(analysis => ({
+          analyses: result.analyses.map((analysis) => ({
             ...analysis,
-            date: parseDate(analysis.date)
+            date: parseDate(analysis.date),
           })) as ParsedAnalysis[],
-          loading: false
+          loading: false,
         },
         () => {
           this.scrollToSelected();
@@ -150,7 +150,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
         onSelectAnalysis={onSelectAnalysis}
         range={range}
         registerBadgeNode={this.registerBadgeNode}
-        registerScrollableNode={el => {
+        registerScrollableNode={(el) => {
           this.scrollableNode = el;
         }}
         selectedAnalysisKey={analysis}

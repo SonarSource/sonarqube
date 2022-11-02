@@ -36,7 +36,7 @@ export default function SetTypePopup({ issue, onSelect }: Props) {
   return (
     <DropdownOverlay>
       <SelectList currentItem={issue.type} items={TYPES} onSelect={onSelect}>
-        {TYPES.map(type => (
+        {TYPES.map((type) => (
           <SelectListItem className="display-flex-center" item={type} key={type}>
             <IssueTypeIcon className="little-spacer-right" query={type} />
             {translate('issue.type', type)}

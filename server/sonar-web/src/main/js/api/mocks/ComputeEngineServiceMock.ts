@@ -29,7 +29,7 @@ import {
   getStatus,
   getTypes,
   getWorkers,
-  setWorkerCount
+  setWorkerCount,
 } from '../ce';
 
 const RANDOM_RADIX = 36;
@@ -45,13 +45,13 @@ const TASK_TYPES = [
   TaskTypes.AppRefresh,
   TaskTypes.ProjectImport,
   TaskTypes.ViewRefresh,
-  TaskTypes.ReportSubmit
+  TaskTypes.ReportSubmit,
 ];
 
 const DEFAULT_TASKS: Task[] = [mockTask()];
 const DEFAULT_WORKERS = {
   canSetWorkerCount: true,
-  value: 2
+  value: 2,
 };
 
 const CANCELABLE_TASK_STATUSES = [TaskStatuses.Pending];
@@ -73,7 +73,7 @@ export default class ComputeEngineServiceMock {
   }
 
   handleCancelAllTasks = () => {
-    this.tasks.forEach(t => {
+    this.tasks.forEach((t) => {
       if (CANCELABLE_TASK_STATUSES.includes(t.status)) {
         t.status = TaskStatuses.Canceled;
       }
@@ -83,7 +83,7 @@ export default class ComputeEngineServiceMock {
   };
 
   handleCancelTask = (id: string) => {
-    const task = this.tasks.find(t => t.id === id);
+    const task = this.tasks.find((t) => t.id === id);
 
     if (task && CANCELABLE_TASK_STATUSES.includes(task.status)) {
       task.status = TaskStatuses.Canceled;
@@ -96,7 +96,7 @@ export default class ComputeEngineServiceMock {
   handleGetActivity = (data: ActivityRequestParameters) => {
     let results = cloneDeep(this.tasks);
 
-    results = results.filter(task => {
+    results = results.filter((task) => {
       return !(
         (data.component && task.componentKey !== data.component) ||
         (data.status && !data.status.split(',').includes(task.status)) ||
@@ -117,8 +117,8 @@ export default class ComputeEngineServiceMock {
       /*
        *  This is more complex in real life, but it's a good enough approximation to suit tests
        */
-      results = Object.values(groupBy(results, t => t.componentKey)).map(
-        tasks => sortBy(tasks, t => t.executedAt).pop()!
+      results = Object.values(groupBy(results, (t) => t.componentKey)).map(
+        (tasks) => sortBy(tasks, (t) => t.executedAt).pop()!
       );
     }
 
@@ -130,15 +130,15 @@ export default class ComputeEngineServiceMock {
       paging: {
         pageIndex: page,
         pageSize: PAGE_SIZE,
-        total: results.length
-      }
+        total: results.length,
+      },
     });
   };
 
   handleGetStatus = (component?: string) => {
     return Promise.resolve(
       this.tasks
-        .filter(task => !component || task.componentKey === component)
+        .filter((task) => !component || task.componentKey === component)
         .reduce(
           (stats, task) => {
             switch (task.status) {
@@ -187,14 +187,12 @@ export default class ComputeEngineServiceMock {
   };
 
   addTask = (overrides: Partial<Task> = {}) => {
-    const id = Math.random()
-      .toString(RANDOM_RADIX)
-      .slice(RANDOM_PREFIX);
+    const id = Math.random().toString(RANDOM_RADIX).slice(RANDOM_PREFIX);
 
     this.tasks.push(
       mockTask({
         id,
-        ...overrides
+        ...overrides,
       })
     );
   };

@@ -36,7 +36,7 @@ export function ProfileContainer(props: QualityProfilesContextProps) {
   // try to find a quality profile with the given key
   // if managed to find one, redirect to a new version
   // otherwise show not found page
-  const profileForKey = key && profiles.find(p => p.key === location.query.key);
+  const profileForKey = key && profiles.find((p) => p.key === location.query.key);
 
   React.useEffect(() => {
     if (profileForKey) {
@@ -48,7 +48,7 @@ export function ProfileContainer(props: QualityProfilesContextProps) {
     return profileForKey ? null : <ProfileNotFound />;
   }
 
-  const profile = profiles.find(p => p.language === language && p.name === name);
+  const profile = profiles.find((p) => p.language === language && p.name === name);
 
   if (!profile) {
     return <ProfileNotFound />;
@@ -56,7 +56,7 @@ export function ProfileContainer(props: QualityProfilesContextProps) {
 
   const context: QualityProfilesContextProps = {
     profile,
-    ...props
+    ...props,
   };
 
   return (

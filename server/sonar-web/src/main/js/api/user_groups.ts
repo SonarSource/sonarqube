@@ -50,7 +50,7 @@ export function removeUserFromGroup(data: { id?: string; name?: string; login?: 
 }
 
 export function createGroup(data: { description?: string; name: string }): Promise<Group> {
-  return postJSON('/api/user_groups/create', data).then(r => r.group, throwGlobalError);
+  return postJSON('/api/user_groups/create', data).then((r) => r.group, throwGlobalError);
 }
 
 export function updateGroup(data: { description?: string; id: number; name?: string }) {

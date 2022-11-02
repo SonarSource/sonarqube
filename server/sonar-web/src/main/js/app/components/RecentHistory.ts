@@ -54,7 +54,7 @@ export default class RecentHistory {
   static add(componentKey: string, componentName: string, icon: string) {
     const sonarHistory = RecentHistory.get();
     const newEntry = { key: componentKey, name: componentName, icon };
-    let newHistory = sonarHistory.filter(entry => entry.key !== newEntry.key);
+    let newHistory = sonarHistory.filter((entry) => entry.key !== newEntry.key);
     newHistory.unshift(newEntry);
     newHistory = newHistory.slice(0, HISTORY_LIMIT);
     RecentHistory.set(newHistory);
@@ -62,7 +62,7 @@ export default class RecentHistory {
 
   static remove(componentKey: string) {
     const history = RecentHistory.get();
-    const newHistory = history.filter(entry => entry.key !== componentKey);
+    const newHistory = history.filter((entry) => entry.key !== componentKey);
     RecentHistory.set(newHistory);
   }
 }

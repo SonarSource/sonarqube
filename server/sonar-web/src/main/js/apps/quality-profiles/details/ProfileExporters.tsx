@@ -38,7 +38,7 @@ export default class ProfileExporters extends React.PureComponent<Props> {
 
   render() {
     const { exporters, profile } = this.props;
-    const exportersForLanguage = exporters.filter(e => e.languages.includes(profile.language));
+    const exportersForLanguage = exporters.filter((e) => e.languages.includes(profile.language));
 
     if (exportersForLanguage.length === 0) {
       return null;
@@ -56,7 +56,8 @@ export default class ProfileExporters extends React.PureComponent<Props> {
               <li
                 className={index > 0 ? 'spacer-top' : undefined}
                 data-key={exporter.key}
-                key={exporter.key}>
+                key={exporter.key}
+              >
                 <Link to={this.getExportUrl(exporter)} target="_blank">
                   {exporter.name}
                 </Link>

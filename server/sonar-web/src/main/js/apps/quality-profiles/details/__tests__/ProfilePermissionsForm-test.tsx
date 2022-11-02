@@ -29,7 +29,7 @@ jest.mock('../../../../api/quality-profiles', () => ({
   addUser: jest.fn().mockResolvedValue(null),
   addGroup: jest.fn().mockResolvedValue(null),
   searchGroups: jest.fn().mockResolvedValue({ groups: [] }),
-  searchUsers: jest.fn().mockResolvedValue({ users: [] })
+  searchUsers: jest.fn().mockResolvedValue({ users: [] }),
 }));
 
 const PROFILE = { language: 'js', name: 'Sonar way' };
@@ -53,7 +53,7 @@ it('correctly adds users', async () => {
     expect.objectContaining({
       language: PROFILE.language,
       qualityProfile: PROFILE.name,
-      login: user.login
+      login: user.login,
     })
   );
 
@@ -75,7 +75,7 @@ it('correctly adds groups', async () => {
     expect.objectContaining({
       language: PROFILE.language,
       qualityProfile: PROFILE.name,
-      group: group.name
+      group: group.name,
     })
   );
 

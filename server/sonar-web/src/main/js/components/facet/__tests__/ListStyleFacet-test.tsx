@@ -74,7 +74,7 @@ it('should clear', () => {
 it('should search', async () => {
   const onSearch = jest.fn().mockResolvedValue({
     results: ['d', 'e'],
-    paging: { pageIndex: 1, pageSize: 2, total: 3 }
+    paging: { pageIndex: 1, pageSize: 2, total: 3 },
   });
   const loadSearchResultCount = jest.fn().mockResolvedValue({ d: 7, e: 3 });
   const wrapper = shallowRender({ loadSearchResultCount, onSearch });
@@ -89,7 +89,7 @@ it('should search', async () => {
   // load more results
   onSearch.mockResolvedValue({
     results: ['f'],
-    paging: { pageIndex: 2, pageSize: 2, total: 3 }
+    paging: { pageIndex: 2, pageSize: 2, total: 3 },
   });
   loadSearchResultCount.mockResolvedValue({ f: 5 });
   wrapper.find('ListFooter').prop<Function>('loadMore')();
@@ -149,7 +149,7 @@ it('should reset state when closes', () => {
     query: 'foobar',
     searchResults: ['foo', 'bar'],
     searching: true,
-    showFullList: true
+    showFullList: true,
   });
 
   wrapper.setProps({ open: false });
@@ -175,7 +175,7 @@ it('should display all selected items', () => {
   const wrapper = shallowRender({
     maxInitialItems: 2,
     stats: { a: 10, b: 5, c: 3 },
-    values: ['a', 'b', 'c']
+    values: ['a', 'b', 'c'],
   });
   expect(wrapper).toMatchSnapshot();
 });

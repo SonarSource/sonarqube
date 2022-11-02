@@ -27,7 +27,7 @@ import HotspotSimpleList, { HotspotSimpleListProps } from '../HotspotSimpleList'
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
-  removeSideBarClass: jest.fn()
+  removeSideBarClass: jest.fn(),
 }));
 
 it('should render correctly', () => {
@@ -70,17 +70,17 @@ function shallowRender(props: Partial<HotspotSimpleListProps> = {}) {
         cwe: { 327: { title: 'Use of a Broken or Risky Cryptographic Algorithm' } },
         owaspTop10: {
           a1: { title: 'A1 - SQL Injection' },
-          a3: { title: 'A3 - Sensitive Data Exposure' }
+          a3: { title: 'A3 - Sensitive Data Exposure' },
         },
         'owaspTop10-2021': {
           a1: { title: 'A1 - SQL Injection' },
-          a3: { title: 'A3 - Sensitive Data Exposure' }
+          a3: { title: 'A3 - Sensitive Data Exposure' },
         },
         sansTop25: {},
         sonarsourceSecurity: {},
         'pciDss-3.2': {},
         'pciDss-4.0': {},
-        'owaspAsvs-4.0': {}
+        'owaspAsvs-4.0': {},
       }}
       {...props}
     />

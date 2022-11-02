@@ -30,7 +30,7 @@ import { ComponentNavBgTaskNotif } from '../ComponentNavBgTaskNotif';
 
 jest.mock('../../../../../helpers/l10n', () => ({
   ...jest.requireActual('../../../../../helpers/l10n'),
-  hasMessage: jest.fn().mockReturnValue(true)
+  hasMessage: jest.fn().mockReturnValue(true),
 }));
 
 const UNKNOWN_TASK_TYPE: TaskTypes = 'UNKOWN' as TaskTypes;
@@ -42,8 +42,8 @@ it('renders correctly', () => {
       currentTask: mockTask({
         status: TaskStatuses.Failed,
         errorType: 'LICENSING',
-        errorMessage: 'Foo'
-      })
+        errorMessage: 'Foo',
+      }),
     })
   ).toMatchSnapshot('license issue');
   expect(shallowRender({ currentTask: undefined }).type()).toBeNull(); // No task.
@@ -58,7 +58,7 @@ it.each([
     false,
     false,
     false,
-    false
+    false,
   ],
   [
     'component_navigation.status.failed_X',
@@ -67,7 +67,7 @@ it.each([
     false,
     false,
     false,
-    false
+    false,
   ],
   [
     'component_navigation.status.failed.admin.link',
@@ -76,7 +76,7 @@ it.each([
     false,
     false,
     true,
-    false
+    false,
   ],
   [
     'component_navigation.status.failed_X.admin.link',
@@ -85,7 +85,7 @@ it.each([
     false,
     false,
     true,
-    false
+    false,
   ],
   [
     'component_navigation.status.failed.admin.help',
@@ -94,7 +94,7 @@ it.each([
     false,
     false,
     true,
-    true
+    true,
   ],
   [
     'component_navigation.status.failed_X.admin.help',
@@ -103,7 +103,7 @@ it.each([
     false,
     false,
     true,
-    true
+    true,
   ],
   // failed_branch
   [
@@ -113,7 +113,7 @@ it.each([
     false,
     false,
     false,
-    false
+    false,
   ],
   [
     'component_navigation.status.failed_branch_X',
@@ -122,7 +122,7 @@ it.each([
     false,
     false,
     false,
-    false
+    false,
   ],
   [
     'component_navigation.status.failed_branch.admin.link',
@@ -131,7 +131,7 @@ it.each([
     false,
     false,
     true,
-    false
+    false,
   ],
   [
     'component_navigation.status.failed_branch_X.admin.link',
@@ -140,7 +140,7 @@ it.each([
     false,
     false,
     true,
-    false
+    false,
   ],
   [
     'component_navigation.status.failed_branch.admin.help',
@@ -149,7 +149,7 @@ it.each([
     false,
     false,
     true,
-    true
+    true,
   ],
   [
     'component_navigation.status.failed_branch_X.admin.help',
@@ -158,7 +158,7 @@ it.each([
     false,
     false,
     true,
-    true
+    true,
   ],
   // pending
   [
@@ -168,7 +168,7 @@ it.each([
     true,
     false,
     false,
-    false
+    false,
   ],
   ['component_navigation.status.pending_X', 'info', mockTask(), true, false, false, false],
   [
@@ -178,7 +178,7 @@ it.each([
     true,
     false,
     true,
-    false
+    false,
   ],
   [
     'component_navigation.status.pending_X.admin.link',
@@ -187,7 +187,7 @@ it.each([
     true,
     false,
     true,
-    false
+    false,
   ],
   [
     'component_navigation.status.pending.admin.help',
@@ -196,7 +196,7 @@ it.each([
     true,
     false,
     true,
-    true
+    true,
   ],
   [
     'component_navigation.status.pending_X.admin.help',
@@ -205,7 +205,7 @@ it.each([
     true,
     false,
     true,
-    true
+    true,
   ],
   // in_progress
   [
@@ -215,7 +215,7 @@ it.each([
     true,
     true,
     false,
-    false
+    false,
   ],
   ['component_navigation.status.in_progress_X', 'info', mockTask(), true, true, false, false],
   [
@@ -225,7 +225,7 @@ it.each([
     true,
     true,
     true,
-    false
+    false,
   ],
   [
     'component_navigation.status.in_progress_X.admin.link',
@@ -234,7 +234,7 @@ it.each([
     true,
     true,
     true,
-    false
+    false,
   ],
   [
     'component_navigation.status.in_progress.admin.help',
@@ -243,7 +243,7 @@ it.each([
     true,
     true,
     true,
-    true
+    true,
   ],
   [
     'component_navigation.status.in_progress_X.admin.help',
@@ -252,8 +252,8 @@ it.each([
     true,
     true,
     true,
-    true
-  ]
+    true,
+  ],
 ])(
   'should render the expected message=%p',
   (
@@ -276,8 +276,8 @@ it.each([
       isPending,
       isInProgress,
       location: mockLocation({
-        pathname: onBackgroudTaskPage ? '/project/background_tasks' : '/foo/bar'
-      })
+        pathname: onBackgroudTaskPage ? '/project/background_tasks' : '/foo/bar',
+      }),
     });
     const messageProps = wrapper.find<FormattedMessage>(FormattedMessage).props();
 

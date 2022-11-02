@@ -39,7 +39,8 @@ export default function RemoveEventForm(props: RemoveEventFormProps) {
       header={header}
       isDestructive={true}
       onClose={props.onClose}
-      onConfirm={() => props.onConfirm(analysisKey, event.key)}>
+      onConfirm={() => props.onConfirm(analysisKey, event.key)}
+    >
       {removeEventQuestion}
     </ConfirmModal>
   );

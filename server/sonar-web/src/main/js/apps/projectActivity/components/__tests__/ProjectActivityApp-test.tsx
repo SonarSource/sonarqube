@@ -29,7 +29,7 @@ import { MetricKey } from '../../../../types/metrics';
 import { ProjectActivityApp } from '../ProjectActivityApp';
 
 jest.mock('../../../../helpers/dates', () => ({
-  parseDate: jest.fn(date => `PARSED:${date}`)
+  parseDate: jest.fn((date) => `PARSED:${date}`),
 }));
 
 jest.mock('../../../../api/time-machine', () => {
@@ -39,18 +39,18 @@ jest.mock('../../../../api/time-machine', () => {
       measures: [
         {
           metric: 'bugs',
-          history: [{ date: '2022-01-01', value: '10' }]
-        }
+          history: [{ date: '2022-01-01', value: '10' }],
+        },
       ],
-      paging: mockPaging({ total: 1 })
-    })
+      paging: mockPaging({ total: 1 }),
+    }),
   };
 });
 
 jest.mock('../../../../api/metrics', () => {
   const { mockMetric } = jest.requireActual('../../../../helpers/testMocks');
   return {
-    getAllMetrics: jest.fn().mockResolvedValue([mockMetric()])
+    getAllMetrics: jest.fn().mockResolvedValue([mockMetric()]),
   };
 });
 
@@ -63,8 +63,8 @@ jest.mock('../../../../api/projectActivity', () => {
     changeEvent: jest.fn(),
     getProjectActivity: jest.fn().mockResolvedValue({
       analyses: [mockAnalysis({ key: 'foo' })],
-      paging: mockPaging({ total: 1 })
-    })
+      paging: mockPaging({ total: 1 }),
+    }),
   };
 });
 
@@ -78,14 +78,14 @@ it('should filter metric correctly', () => {
     .instance()
     .filterMetrics(mockComponent({ qualifier: ComponentQualifier.Project }), [
       mockMetric({ key: MetricKey.bugs }),
-      mockMetric({ key: MetricKey.security_review_rating })
+      mockMetric({ key: MetricKey.security_review_rating }),
     ]);
   expect(metrics).toHaveLength(1);
   metrics = wrapper
     .instance()
     .filterMetrics(mockComponent({ qualifier: ComponentQualifier.Portfolio }), [
       mockMetric({ key: MetricKey.bugs }),
-      mockMetric({ key: MetricKey.security_hotspots_reviewed })
+      mockMetric({ key: MetricKey.security_hotspots_reviewed }),
     ]);
   expect(metrics).toHaveLength(1);
 });
@@ -99,7 +99,7 @@ it('should correctly create and update custom events', async () => {
   (changeEvent as jest.Mock).mockResolvedValueOnce({
     analysis: analysisKey,
     ...event,
-    name: newName
+    name: newName,
   });
 
   const wrapper = shallowRender();

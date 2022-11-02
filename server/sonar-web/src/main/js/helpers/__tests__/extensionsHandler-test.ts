@@ -21,7 +21,7 @@ import {
   getExtensionFromCache,
   getWebAnalyticsPageHandlerFromCache,
   installExtensionsHandler,
-  installWebAnalyticsHandler
+  installWebAnalyticsHandler,
 } from '../extensionsHandler';
 
 describe('installExtensionsHandler & extensions.getExtensionFromCache', () => {

@@ -26,7 +26,7 @@ import { ComponentQualifier, Visibility } from '../../../../types/component';
 import CreateApplicationForm from '../CreateApplicationForm';
 
 jest.mock('../../../../api/application', () => ({
-  createApplication: jest.fn().mockResolvedValue({ application: { key: 'foo' } })
+  createApplication: jest.fn().mockResolvedValue({ application: { key: 'foo' } }),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -47,17 +47,14 @@ it('should correctly create application on form submit', async () => {
   instance.handleNameChange(mockEvent({ currentTarget: { value: 'name' } }));
   instance.handleVisibilityChange(Visibility.Private);
 
-  wrapper
-    .find(SimpleModal)
-    .props()
-    .onSubmit();
+  wrapper.find(SimpleModal).props().onSubmit();
   expect(createApplication).toHaveBeenCalledWith('name', 'description', 'key', Visibility.Private);
   await waitAndUpdate(wrapper);
 
   expect(onCreate).toHaveBeenCalledWith(
     expect.objectContaining({
       key: 'foo',
-      qualifier: ComponentQualifier.Application
+      qualifier: ComponentQualifier.Application,
     })
   );
 

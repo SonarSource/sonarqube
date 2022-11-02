@@ -26,7 +26,7 @@ import { SettingsKey } from '../../../../types/settings';
 import { LifetimeInformation } from '../LifetimeInformation';
 
 jest.mock('../../../../api/settings', () => ({
-  getValue: jest.fn().mockResolvedValue({ value: '45' })
+  getValue: jest.fn().mockResolvedValue({ value: '45' }),
 }));
 
 it('should render correctly', async () => {
@@ -36,7 +36,7 @@ it('should render correctly', async () => {
   await waitAndUpdate(wrapper);
 
   expect(getValue).toHaveBeenCalledWith({
-    key: SettingsKey.DaysBeforeDeletingInactiveBranchesAndPRs
+    key: SettingsKey.DaysBeforeDeletingInactiveBranchesAndPRs,
   });
   expect(wrapper).toMatchSnapshot('after_fetching_data');
 });

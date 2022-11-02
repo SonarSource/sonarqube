@@ -22,7 +22,7 @@ import * as React from 'react';
 import ContextNavBar from '../../../../components/ui/ContextNavBar';
 import {
   ProjectAlmBindingConfigurationErrors,
-  ProjectAlmBindingResponse
+  ProjectAlmBindingResponse,
 } from '../../../../types/alm-settings';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
@@ -67,7 +67,7 @@ export default function ComponentNav(props: ComponentNavProps) {
     isPending,
     projectBinding,
     projectBindingErrors,
-    warnings
+    warnings,
   } = props;
   const { contextNavHeightRaw, globalNavHeightRaw } = rawSizes;
 
@@ -81,7 +81,7 @@ export default function ComponentNav(props: ComponentNavProps) {
         ComponentQualifier.Project,
         ComponentQualifier.Portfolio,
         ComponentQualifier.Application,
-        ComponentQualifier.Developper
+        ComponentQualifier.Developper,
       ].includes(qualifier as ComponentQualifier)
     ) {
       RecentHistory.add(key, name, qualifier.toLowerCase());
@@ -123,12 +123,14 @@ export default function ComponentNav(props: ComponentNavProps) {
           {bgTaskNotifComponent}
           {prDecoNotifComponent}
         </>
-      }>
+      }
+    >
       <div
         className={classNames('display-flex-center display-flex-space-between', {
           'padded-bottom little-padded-top': warnings.length === 0,
-          'little-padded-bottom': warnings.length > 0
-        })}>
+          'little-padded-bottom': warnings.length > 0,
+        })}
+      >
         <Header
           branchLikes={branchLikes}
           component={component}
@@ -154,7 +156,8 @@ export default function ComponentNav(props: ComponentNavProps) {
       <InfoDrawer
         displayed={displayProjectInfo}
         onClose={() => setDisplayProjectInfo(false)}
-        top={globalNavHeightRaw + contextNavHeight}>
+        top={globalNavHeightRaw + contextNavHeight}
+      >
         <ProjectInformation
           branchLike={currentBranchLike}
           component={component}

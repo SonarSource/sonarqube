@@ -22,7 +22,7 @@ import { Helmet } from 'react-helmet-async';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {
-  WithAvailableFeaturesProps
+  WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
@@ -63,7 +63,7 @@ const PROJECT_MODE_FOR_ALM_KEY = {
   [AlmKeys.BitbucketCloud]: CreateProjectModes.BitbucketCloud,
   [AlmKeys.BitbucketServer]: CreateProjectModes.BitbucketServer,
   [AlmKeys.GitHub]: CreateProjectModes.GitHub,
-  [AlmKeys.GitLab]: CreateProjectModes.GitLab
+  [AlmKeys.GitLab]: CreateProjectModes.GitLab,
 };
 
 export class CreateProjectPage extends React.PureComponent<Props, State> {
@@ -74,7 +74,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     bitbucketCloudSettings: [],
     githubSettings: [],
     gitlabSettings: [],
-    loading: true
+    loading: true,
   };
 
   componentDidMount() {
@@ -89,15 +89,15 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   fetchAlmBindings = () => {
     this.setState({ loading: true });
     return getAlmSettings()
-      .then(almSettings => {
+      .then((almSettings) => {
         if (this.mounted) {
           this.setState({
-            azureSettings: almSettings.filter(s => s.alm === AlmKeys.Azure),
-            bitbucketSettings: almSettings.filter(s => s.alm === AlmKeys.BitbucketServer),
-            bitbucketCloudSettings: almSettings.filter(s => s.alm === AlmKeys.BitbucketCloud),
-            githubSettings: almSettings.filter(s => s.alm === AlmKeys.GitHub),
-            gitlabSettings: almSettings.filter(s => s.alm === AlmKeys.GitLab),
-            loading: false
+            azureSettings: almSettings.filter((s) => s.alm === AlmKeys.Azure),
+            bitbucketSettings: almSettings.filter((s) => s.alm === AlmKeys.BitbucketServer),
+            bitbucketCloudSettings: almSettings.filter((s) => s.alm === AlmKeys.BitbucketCloud),
+            githubSettings: almSettings.filter((s) => s.alm === AlmKeys.GitHub),
+            gitlabSettings: almSettings.filter((s) => s.alm === AlmKeys.GitLab),
+            loading: false,
           });
         }
       })
@@ -112,7 +112,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     const { router, location } = this.props;
     router.push({
       pathname: location.pathname,
-      query: { mode }
+      query: { mode },
     });
   };
 
@@ -150,7 +150,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     const {
       appState: { canAdmin },
       location,
-      router
+      router,
     } = this.props;
     const {
       azureSettings,
@@ -158,7 +158,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
       bitbucketCloudSettings,
       githubSettings,
       gitlabSettings,
-      loading
+      loading,
     } = this.state;
     const branchSupportEnabled = this.props.hasFeature(Feature.BranchSupport);
 
@@ -237,7 +237,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
           [AlmKeys.BitbucketServer]: bitbucketSettings.length,
           [AlmKeys.BitbucketCloud]: bitbucketCloudSettings.length,
           [AlmKeys.GitHub]: githubSettings.length,
-          [AlmKeys.GitLab]: gitlabSettings.length
+          [AlmKeys.GitLab]: gitlabSettings.length,
         };
         return (
           <CreateProjectModeSelection

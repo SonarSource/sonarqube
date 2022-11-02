@@ -43,7 +43,7 @@ it('should display properly with advanced features', async () => {
     elementsTotalCount: 125,
     pageSize: 10,
     readOnly: true,
-    withPaging: true
+    withPaging: true,
   });
   await waitAndUpdate(wrapper);
 
@@ -73,7 +73,7 @@ it('should cancel filter selection when search is active', async () => {
     query: '',
     filter: SelectListFilter.Unselected,
     page: undefined,
-    pageSize: undefined
+    pageSize: undefined,
   });
   expect(wrapper).toMatchSnapshot();
 
@@ -83,7 +83,7 @@ it('should cancel filter selection when search is active', async () => {
     query,
     filter: SelectListFilter.All,
     page: undefined,
-    pageSize: undefined
+    pageSize: undefined,
   });
 
   await waitAndUpdate(wrapper);
@@ -94,7 +94,7 @@ it('should cancel filter selection when search is active', async () => {
     query: '',
     filter: SelectListFilter.Unselected,
     page: undefined,
-    pageSize: undefined
+    pageSize: undefined,
   });
 
   await waitAndUpdate(wrapper);
@@ -109,7 +109,7 @@ it('should display pagination element properly and call search method with corre
     query: '',
     filter: SelectListFilter.Selected,
     page: 1,
-    pageSize: 100
+    pageSize: 100,
   }); // Basic default call
 
   wrapper.instance().onLoadMore();
@@ -117,7 +117,7 @@ it('should display pagination element properly and call search method with corre
     query: '',
     filter: SelectListFilter.Selected,
     page: 2,
-    pageSize: 100
+    pageSize: 100,
   }); // Load more call
 
   wrapper.instance().onReload();
@@ -125,7 +125,7 @@ it('should display pagination element properly and call search method with corre
     query: '',
     filter: SelectListFilter.Selected,
     page: 1,
-    pageSize: 100
+    pageSize: 100,
   }); // Reload call
 
   wrapper.setProps({ needToReload: true });

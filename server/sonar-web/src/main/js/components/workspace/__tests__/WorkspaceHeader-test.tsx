@@ -40,7 +40,8 @@ function shallowRender(props?: Partial<Props>) {
       onMaximize={jest.fn()}
       onMinimize={jest.fn()}
       onResize={jest.fn()}
-      {...props}>
+      {...props}
+    >
       <div id="workspace-header-children" />
     </WorkspaceHeader>
   );

@@ -29,7 +29,7 @@ export function queriesEqual(a: RawQuery, b: RawQuery): boolean {
     return false;
   }
 
-  return keysA.every(key => isEqual(a[key], b[key]));
+  return keysA.every((key) => isEqual(a[key], b[key]));
 }
 
 export function cleanQuery(query: RawQuery): RawQuery {

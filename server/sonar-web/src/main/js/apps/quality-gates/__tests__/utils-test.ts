@@ -24,7 +24,7 @@ const METRICS = {
   bugs: mockMetric({ key: 'bugs', name: 'Bugs' }),
   existing_metric: mockMetric(),
   new_maintainability_rating: mockMetric(),
-  sqale_rating: mockMetric({ key: 'sqale_rating', name: 'Maintainability Rating' })
+  sqale_rating: mockMetric({ key: 'sqale_rating', name: 'Maintainability Rating' }),
 };
 
 describe('getLocalizedMetricNameNoDiffMetric', () => {

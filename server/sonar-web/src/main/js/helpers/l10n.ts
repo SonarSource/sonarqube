@@ -42,7 +42,7 @@ export function translateWithParameters(
   const message = getMessages()[messageKey];
   if (message) {
     return parameters
-      .map(parameter => String(parameter))
+      .map((parameter) => String(parameter))
       .reduce((acc, parameter, index) => acc.replace(`{${index}}`, () => parameter), message);
   }
   if (process.env.NODE_ENV === 'development') {
@@ -88,7 +88,7 @@ export function getShortMonthName(index: number) {
     'Sep',
     'Oct',
     'Nov',
-    'Dec'
+    'Dec',
   ];
   return translate(months[index]);
 }

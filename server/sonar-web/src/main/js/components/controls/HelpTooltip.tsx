@@ -49,12 +49,14 @@ export default function HelpTooltip({
       className={classNames('help-tooltip', props.className)}
       aria-labelledby={ariaLabelledby}
       aria-label={ariaLabel}
-      role={role}>
+      role={role}
+    >
       <Tooltip
         mouseLeaveDelay={0.25}
         onShow={props.onShow}
         overlay={props.overlay}
-        placement={props.placement}>
+        placement={props.placement}
+      >
         <span className="display-inline-flex-center">
           {props.children || <HelpIcon fill={colors.gray60} size={size} />}
         </span>

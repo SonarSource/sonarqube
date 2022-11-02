@@ -25,8 +25,8 @@ jest.mock('../../app/components/extensions/exposeLibraries', () => jest.fn());
 
 beforeEach(() => {
   jest.clearAllMocks();
-  document.body.childNodes.forEach(node => document.body.removeChild(node));
-  document.head.childNodes.forEach(node => document.head.removeChild(node));
+  document.body.childNodes.forEach((node) => document.body.removeChild(node));
+  document.head.childNodes.forEach((node) => document.head.removeChild(node));
 });
 
 describe('installScript', () => {
@@ -52,17 +52,14 @@ describe('getExtensionStart', () => {
   beforeEach(() => {
     Object.defineProperty(document, 'createElement', {
       writable: true,
-      value: jest
-        .fn()
-        .mockReturnValueOnce(scriptTag)
-        .mockReturnValueOnce(linkTag)
+      value: jest.fn().mockReturnValueOnce(scriptTag).mockReturnValueOnce(linkTag),
     });
   });
 
   afterEach(() => {
     Object.defineProperty(document, 'createElement', {
       writable: true,
-      value: originalCreateElement
+      value: originalCreateElement,
     });
   });
 

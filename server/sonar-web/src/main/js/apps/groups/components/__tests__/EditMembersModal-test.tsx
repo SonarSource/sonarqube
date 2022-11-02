@@ -33,12 +33,12 @@ jest.mock('../../../../api/user_groups', () => ({
       {
         login: 'foo',
         name: 'bar',
-        selected: true
-      }
-    ]
+        selected: true,
+      },
+    ],
   }),
   addUserToGroup: jest.fn().mockResolvedValue({}),
-  removeUserFromGroup: jest.fn().mockResolvedValue({})
+  removeUserFromGroup: jest.fn().mockResolvedValue({}),
 }));
 
 beforeEach(() => {
@@ -47,15 +47,12 @@ beforeEach(() => {
 
 it('should render modal properly', async () => {
   const wrapper = shallowRender();
-  wrapper
-    .find(SelectList)
-    .props()
-    .onSearch({
-      query: '',
-      filter: SelectListFilter.Selected,
-      page: 1,
-      pageSize: 100
-    });
+  wrapper.find(SelectList).props().onSearch({
+    query: '',
+    filter: SelectListFilter.Selected,
+    page: 1,
+    pageSize: 100,
+  });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().needToReload).toBe(false);
 
@@ -70,7 +67,7 @@ it('should render modal properly', async () => {
       p: 1,
       ps: 100,
       q: undefined,
-      selected: SelectListFilter.Selected
+      selected: SelectListFilter.Selected,
     })
   );
 
@@ -86,7 +83,7 @@ it('should handle selection properly', async () => {
   expect(addUserToGroup).toHaveBeenCalledWith(
     expect.objectContaining({
       name: group.name,
-      login: 'toto'
+      login: 'toto',
     })
   );
   expect(wrapper.state().needToReload).toBe(true);
@@ -100,7 +97,7 @@ it('should handle deselection properly', async () => {
   expect(removeUserFromGroup).toHaveBeenCalledWith(
     expect.objectContaining({
       name: group.name,
-      login: 'tata'
+      login: 'tata',
     })
   );
   expect(wrapper.state().needToReload).toBe(true);

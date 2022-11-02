@@ -32,8 +32,8 @@ it('should render correctly', () => {
     shallowRender({
       repositories: [
         mockAzureRepository(),
-        mockAzureRepository({ sqProjectKey: 'sq-key', sqProjectName: 'SQ Name' })
-      ]
+        mockAzureRepository({ sqProjectKey: 'sq-key', sqProjectName: 'SQ Name' }),
+      ],
     })
   ).toMatchSnapshot('with repositories');
   expect(shallowRender({ importing: true, repositories: [mockAzureRepository()] })).toMatchSnapshot(
@@ -46,10 +46,10 @@ it('should render correctly', () => {
         mockAzureRepository({
           name: 'This is a repo with class',
           sqProjectKey: 'sq-key',
-          sqProjectName: 'SQ Name'
-        })
+          sqProjectName: 'SQ Name',
+        }),
       ],
-      searchQuery: 'repo'
+      searchQuery: 'repo',
     })
   ).toMatchSnapshot('search results');
 });
@@ -60,28 +60,15 @@ it('should open when clicked', () => {
   const wrapper = shallowRender({
     onOpen,
     repositories: [mockAzureRepository()],
-    startsOpen: false
+    startsOpen: false,
   });
-  expect(
-    wrapper
-      .find(BoxedGroupAccordion)
-      .children()
-      .exists()
-  ).toBe(false);
+  expect(wrapper.find(BoxedGroupAccordion).children().exists()).toBe(false);
 
-  wrapper
-    .find(BoxedGroupAccordion)
-    .props()
-    .onClick();
+  wrapper.find(BoxedGroupAccordion).props().onClick();
 
   expect(onOpen).toHaveBeenCalled();
 
-  expect(
-    wrapper
-      .find(BoxedGroupAccordion)
-      .children()
-      .exists()
-  ).toBe(true);
+  expect(wrapper.find(BoxedGroupAccordion).children().exists()).toBe(true);
 });
 
 it('should close when clicked', () => {
@@ -89,29 +76,16 @@ it('should close when clicked', () => {
 
   const wrapper = shallowRender({
     onOpen,
-    repositories: [mockAzureRepository()]
+    repositories: [mockAzureRepository()],
   });
 
-  expect(
-    wrapper
-      .find(BoxedGroupAccordion)
-      .children()
-      .exists()
-  ).toBe(true);
+  expect(wrapper.find(BoxedGroupAccordion).children().exists()).toBe(true);
 
-  wrapper
-    .find(BoxedGroupAccordion)
-    .props()
-    .onClick();
+  wrapper.find(BoxedGroupAccordion).props().onClick();
 
   expect(onOpen).not.toHaveBeenCalled();
 
-  expect(
-    wrapper
-      .find(BoxedGroupAccordion)
-      .children()
-      .exists()
-  ).toBe(false);
+  expect(wrapper.find(BoxedGroupAccordion).children().exists()).toBe(false);
 });
 
 it('should trigger selection when repo is clicked', () => {
@@ -119,10 +93,7 @@ it('should trigger selection when repo is clicked', () => {
   const repo = mockAzureRepository();
   const wrapper = shallowRender({ onSelectRepository, repositories: [repo] });
 
-  wrapper
-    .find(Radio)
-    .props()
-    .onCheck(mockEvent());
+  wrapper.find(Radio).props().onCheck(mockEvent());
 
   expect(onSelectRepository).toHaveBeenCalledWith(repo);
 });

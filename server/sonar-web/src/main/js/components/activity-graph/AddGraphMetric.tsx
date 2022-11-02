@@ -45,14 +45,12 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
   state: State = {
     metrics: [],
     query: '',
-    selectedMetrics: []
+    selectedMetrics: [],
   };
 
   filterSelected = (query: string, selectedElements: string[]) => {
-    return selectedElements.filter(element =>
-      this.getLocalizedMetricNameFromKey(element)
-        .toLowerCase()
-        .includes(query.toLowerCase())
+    return selectedElements.filter((element) =>
+      this.getLocalizedMetricNameFromKey(element).toLowerCase().includes(query.toLowerCase())
     );
   };
 
@@ -61,15 +59,13 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
     query: string
   ) => {
     return metrics
-      .filter(metric => {
+      .filter((metric) => {
         if (
           metric.hidden ||
           isDiffMetric(metric.key) ||
           ['DATA', 'DISTRIB'].includes(metric.type) ||
           selectedMetrics.includes(metric.key) ||
-          !getLocalizedMetricName(metric)
-            .toLowerCase()
-            .includes(query.toLowerCase())
+          !getLocalizedMetricName(metric).toLowerCase().includes(query.toLowerCase())
         ) {
           return false;
         }
@@ -78,12 +74,12 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
         }
         return true;
       })
-      .map(metric => metric.key);
+      .map((metric) => metric.key);
   };
 
   getSelectedMetricsElements = (metrics: Metric[], selectedMetrics?: string[]) => {
     const selected = selectedMetrics || this.props.selectedMetrics;
-    return metrics.filter(metric => selected.includes(metric.key)).map(metric => metric.key);
+    return metrics.filter((metric) => selected.includes(metric.key)).map((metric) => metric.key);
   };
 
   getLocalizedMetricNameFromKey = (key: string) => {
@@ -98,20 +94,20 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
 
   onSelect = (metric: string) => {
     this.props.addMetric(metric);
-    this.setState(state => {
+    this.setState((state) => {
       return {
         selectedMetrics: sortBy([...state.selectedMetrics, metric]),
-        metrics: this.filterMetricsElements(this.props, state.query)
+        metrics: this.filterMetricsElements(this.props, state.query),
       };
     });
   };
 
   onUnselect = (metric: string) => {
     this.props.removeMetric(metric);
-    this.setState(state => {
+    this.setState((state) => {
       return {
         metrics: sortBy([...state.metrics, metric]),
-        selectedMetrics: state.selectedMetrics.filter(selected => selected !== metric)
+        selectedMetrics: state.selectedMetrics.filter((selected) => selected !== metric),
       };
     });
   };
@@ -136,10 +132,11 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
             onSearch={this.onSearch}
             onSelect={this.onSelect}
             onUnselect={this.onUnselect}
-            renderLabel={element => this.getLocalizedMetricNameFromKey(element)}
+            renderLabel={(element) => this.getLocalizedMetricNameFromKey(element)}
             selectedElements={selectedMetrics}
           />
-        }>
+        }
+      >
         <Button className="spacer-left">
           <span className="text-ellipsis text-middle">
             {translate('project_activity.graphs.custom.add')}

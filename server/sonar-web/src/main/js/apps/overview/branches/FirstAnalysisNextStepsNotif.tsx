@@ -39,13 +39,8 @@ export interface FirstAnalysisNextStepsNotifProps {
 }
 
 export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifProps) {
-  const {
-    component,
-    currentUser,
-    branchesEnabled,
-    detectedCIOnLastAnalysis,
-    projectBinding
-  } = props;
+  const { component, currentUser, branchesEnabled, detectedCIOnLastAnalysis, projectBinding } =
+    props;
 
   if (!isLoggedIn(currentUser) || component.qualifier !== ComponentQualifier.Project) {
     return null;
@@ -67,8 +62,9 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
     <Link
       to={{
         pathname: '/tutorials',
-        search: queryToSearch({ id: component.key })
-      }}>
+        search: queryToSearch({ id: component.key }),
+      }}
+    >
       {translate('overview.project.next_steps.links.set_up_ci')}
     </Link>
   );
@@ -78,9 +74,10 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
         pathname: '/project/settings',
         search: queryToSearch({
           id: component.key,
-          category: PULL_REQUEST_DECORATION_BINDING_CATEGORY
-        })
-      }}>
+          category: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
+        }),
+      }}
+    >
       {translate('overview.project.next_steps.links.project_settings')}
     </Link>
   );
@@ -92,7 +89,7 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
           defaultMessage={translate('overview.project.next_steps.set_up_ci')}
           id="overview.project.next_steps.set_up_ci"
           values={{
-            link: tutorialsLink
+            link: tutorialsLink,
           }}
         />
       )}
@@ -103,7 +100,7 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
             defaultMessage={translate('overview.project.next_steps.set_up_pr_deco.admin')}
             id="overview.project.next_steps.set_up_pr_deco.admin"
             values={{
-              link_project_settings: projectSettingsLink
+              link_project_settings: projectSettingsLink,
             }}
           />
         ) : (
@@ -117,7 +114,7 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
             id="overview.project.next_steps.set_up_pr_deco_and_ci.admin"
             values={{
               link_ci: tutorialsLink,
-              link_project_settings: projectSettingsLink
+              link_project_settings: projectSettingsLink,
             }}
           />
         ) : (

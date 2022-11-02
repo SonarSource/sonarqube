@@ -28,7 +28,7 @@ import {
   parseAsString,
   serializeDate,
   serializeString,
-  serializeStringArray
+  serializeStringArray,
 } from '../../helpers/query';
 import { GraphType, ParsedAnalysis } from '../../types/project-activity';
 import { Dict, RawQuery } from '../../types/types';
@@ -78,7 +78,7 @@ export function getAnalysesByVersionByDay(
 ) {
   return analyses.reduce<AnalysesByDay[]>((acc, analysis) => {
     let currentVersion = acc[acc.length - 1];
-    const versionEvent = analysis.events.find(event => event.category === 'VERSION');
+    const versionEvent = analysis.events.find((event) => event.category === 'VERSION');
     if (versionEvent) {
       const newVersion = { version: versionEvent.name, key: versionEvent.key, byDay: {} };
       if (!currentVersion || Object.keys(currentVersion.byDay).length > 0) {
@@ -93,16 +93,15 @@ export function getAnalysesByVersionByDay(
       acc.push(currentVersion);
     }
 
-    const day = startOfDay(parseDate(analysis.date))
-      .getTime()
-      .toString();
+    const day = startOfDay(parseDate(analysis.date)).getTime().toString();
 
     let matchFilters = true;
     if (query.category || query.from || query.to) {
       const isAfterFrom = !query.from || analysis.date >= query.from;
       const isBeforeTo = !query.to || analysis.date <= query.to;
       const hasSelectedCategoryEvents =
-        !query.category || analysis.events.find(event => event.category === query.category) != null;
+        !query.category ||
+        analysis.events.find((event) => event.category === query.category) != null;
       matchFilters = isAfterFrom && isBeforeTo && hasSelectedCategoryEvents;
     }
 
@@ -124,7 +123,7 @@ export function parseQuery(urlQuery: RawQuery): Query {
     graph: parseGraph(urlQuery['graph']),
     project: parseAsString(urlQuery['id']),
     to: parseAsDate(urlQuery['to']),
-    selectedDate: parseAsDate(urlQuery['selected_date'])
+    selectedDate: parseAsDate(urlQuery['selected_date']),
   };
 }
 
@@ -133,7 +132,7 @@ export function serializeQuery(query: Query): RawQuery {
     category: serializeString(query.category),
     from: serializeDate(query.from),
     project: serializeString(query.project),
-    to: serializeDate(query.to)
+    to: serializeDate(query.to),
   });
 }
 
@@ -145,7 +144,7 @@ export function serializeUrlQuery(query: Query): RawQuery {
     graph: serializeGraph(query.graph),
     id: serializeString(query.project),
     to: serializeDate(query.to),
-    selected_date: serializeDate(query.selectedDate)
+    selected_date: serializeDate(query.selectedDate),
   });
 }
 

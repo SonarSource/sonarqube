@@ -54,12 +54,14 @@ export class DeleteQualityGateForm extends React.PureComponent<Props> {
           qualityGate.name
         )}
         modalHeader={translate('quality_gates.delete')}
-        onConfirm={this.onDelete}>
+        onConfirm={this.onDelete}
+      >
         {({ onClick }) => (
           <Button
             className="little-spacer-left button-red"
             id="quality-gate-delete"
-            onClick={onClick}>
+            onClick={onClick}
+          >
             {translate('delete')}
           </Button>
         )}

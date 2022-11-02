@@ -27,8 +27,8 @@ import { MetaQualityProfiles } from '../MetaQualityProfiles';
 jest.mock('../../../../../../../api/rules', () => {
   return {
     searchRules: jest.fn().mockResolvedValue({
-      total: 10
-    })
+      total: 10,
+    }),
   };
 });
 
@@ -51,8 +51,8 @@ function shallowRender(props: Partial<MetaQualityProfiles['props']> = {}) {
         { ...mockQualityProfile({ key: 'js' }), deleted: true },
         {
           ...mockQualityProfile({ key: 'css', language: 'css', languageName: 'CSS' }),
-          deleted: false
-        }
+          deleted: false,
+        },
       ]}
       {...props}
     />

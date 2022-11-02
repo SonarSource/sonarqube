@@ -38,7 +38,7 @@ export function MarketplaceAppContainer(props: MarketplaceAppContainerProps) {
     location,
     updateCenterActive: appState.settings[GlobalSettingKeys.UpdatecenterActivated] === 'true',
     currentEdition: appState.edition as EditionKey,
-    standaloneMode: appState.standalone
+    standaloneMode: appState.standalone,
   };
 
   return (

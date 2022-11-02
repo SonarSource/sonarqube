@@ -44,11 +44,11 @@ function shallowRender(props = {}) {
             key: 'lines_to_cover',
             type: 'INT',
             name: 'Lines to Cover',
-            domain: 'Coverage'
+            domain: 'Coverage',
           },
           value: '431',
           period: { index: 1, value: '70' },
-          leak: '70'
+          leak: '70',
         },
         {
           metric: {
@@ -56,11 +56,11 @@ function shallowRender(props = {}) {
             key: 'coverage',
             type: 'PERCENT',
             name: 'Coverage',
-            domain: 'Coverage'
+            domain: 'Coverage',
           },
           value: '99.3',
           period: { index: 1, value: '0.0999999999999943' },
-          leak: '0.0999999999999943'
+          leak: '0.0999999999999943',
         },
         {
           metric: {
@@ -68,12 +68,12 @@ function shallowRender(props = {}) {
             key: 'duplicated_lines_density',
             type: 'PERCENT',
             name: 'Duplicated Lines (%)',
-            domain: 'Duplications'
+            domain: 'Duplications',
           },
           value: '3.2',
           period: { index: 1, value: '0.0' },
-          leak: '0.0'
-        }
+          leak: '0.0',
+        },
       ]}
       selectedMetric="duplicated_lines_density"
       showFullMeasures={true}

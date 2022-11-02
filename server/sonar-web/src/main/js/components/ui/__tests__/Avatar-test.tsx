@@ -31,8 +31,8 @@ it('should be able to render with hash only', () => {
       appState={mockAppState({
         settings: {
           [GlobalSettingKeys.EnableGravatar]: 'true',
-          [GlobalSettingKeys.GravatarServerUrl]: gravatarServerUrl
-        }
+          [GlobalSettingKeys.GravatarServerUrl]: gravatarServerUrl,
+        },
       })}
       hash="7daf6c79d4802916d83f6266e24850af"
       name="Foo"

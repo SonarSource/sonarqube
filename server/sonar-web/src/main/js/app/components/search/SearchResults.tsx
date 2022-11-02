@@ -38,7 +38,7 @@ export default function SearchResults(props: Props): React.ReactElement<Props> {
   const qualifiers = Object.keys(props.results);
   const renderedComponents: React.ReactNode[] = [];
 
-  sortQualifiers(qualifiers).forEach(qualifier => {
+  sortQualifiers(qualifiers).forEach((qualifier) => {
     const components = props.results[qualifier];
 
     if (components.length > 0) {
@@ -49,7 +49,7 @@ export default function SearchResults(props: Props): React.ReactElement<Props> {
           <li className="menu-header" role="presentation">
             {translate('qualifiers', qualifier)}
           </li>
-          {components.map(component => props.renderResult(component))}
+          {components.map((component) => props.renderResult(component))}
           {more !== undefined && more > 0 && (
             <SearchShowMore
               allowMore={props.allowMore}

@@ -34,7 +34,7 @@ interface State {
 export default class BranchStatusContextProvider extends React.PureComponent<{}, State> {
   mounted = false;
   state: State = {
-    branchStatusByComponent: {}
+    branchStatusByComponent: {},
   };
 
   componentDidMount() {
@@ -48,7 +48,7 @@ export default class BranchStatusContextProvider extends React.PureComponent<{},
   fetchBranchStatus = async (branchLike: BranchLike, projectKey: string) => {
     const projectStatus = await getQualityGateProjectStatus({
       projectKey,
-      ...getBranchLikeQuery(branchLike)
+      ...getBranchLikeQuery(branchLike),
     }).catch(() => undefined);
 
     if (!this.mounted || projectStatus === undefined) {
@@ -78,10 +78,10 @@ export default class BranchStatusContextProvider extends React.PureComponent<{},
           [branchLikeKey]: {
             conditions,
             ignoredConditions,
-            status
-          }
-        }
-      }
+            status,
+          },
+        },
+      },
     }));
   };
 
@@ -91,8 +91,9 @@ export default class BranchStatusContextProvider extends React.PureComponent<{},
         value={{
           branchStatusByComponent: this.state.branchStatusByComponent,
           fetchBranchStatus: this.fetchBranchStatus,
-          updateBranchStatus: this.updateBranchStatus
-        }}>
+          updateBranchStatus: this.updateBranchStatus,
+        }}
+      >
         {this.props.children}
       </BranchStatusContext.Provider>
     );

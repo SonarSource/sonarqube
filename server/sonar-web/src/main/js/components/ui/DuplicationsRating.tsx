@@ -38,7 +38,7 @@ export default function DuplicationsRating({ muted = false, size = 'normal', val
     'duplications-rating-B': inRange(value || 0, 3, 5),
     'duplications-rating-C': inRange(value || 0, 5, 10),
     'duplications-rating-D': inRange(value || 0, 10, 20),
-    'duplications-rating-E': (value || 0) >= 20
+    'duplications-rating-E': (value || 0) >= 20,
   });
 
   return <div className={className} />;

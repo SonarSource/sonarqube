@@ -53,12 +53,14 @@ export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps)
         'display-flex-space-between display-flex-center padded-top padded-bottom big-padded-left big-padded-right',
         `hotspot-risk-exposure-${hotspot.rule.vulnerabilityProbability}`
       )}
-      ref={locationRef}>
+      ref={locationRef}
+    >
       <div className="text-bold">{hotspot.message}</div>
       {isLoggedIn(currentUser) && (
         <ButtonLink
           className="nowrap big-spacer-left it__hs-add-comment"
-          onClick={props.onCommentClick}>
+          onClick={props.onCommentClick}
+        >
           {translate('hotspots.comment.open')}
         </ButtonLink>
       )}

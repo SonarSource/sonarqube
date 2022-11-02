@@ -31,12 +31,12 @@ import { ProjectActivityAnalysis, ProjectActivityAnalysisProps } from '../Projec
 jest.mock('../../../../helpers/dates', () => ({
   parseDate: () => ({
     valueOf: () => 1546333200000,
-    toISOString: () => '2019-01-01T09:00:00.000Z'
-  })
+    toISOString: () => '2019-01-01T09:00:00.000Z',
+  }),
 }));
 
 jest.mock('../../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn()
+  scrollToElement: jest.fn(),
 }));
 
 it('should render correctly', () => {
@@ -52,13 +52,11 @@ it('should render correctly', () => {
     shallowRender({
       canAdmin: true,
       canCreateVersion: true,
-      canDeleteAnalyses: true
+      canDeleteAnalyses: true,
     })
   ).toMatchSnapshot('with admin options');
 
-  const timeFormatter = shallowRender()
-    .find(TimeFormatter)
-    .prop('children');
+  const timeFormatter = shallowRender().find(TimeFormatter).prop('children');
   expect(timeFormatter!('formatted_time')).toMatchSnapshot('formatted time');
 });
 
@@ -66,7 +64,7 @@ it('should show the correct admin options', () => {
   const wrapper = shallowRender({
     canAdmin: true,
     canCreateVersion: true,
-    canDeleteAnalyses: true
+    canDeleteAnalyses: true,
   });
 
   expect(wrapper.find('.js-add-version').exists()).toBe(true);
@@ -97,7 +95,7 @@ it('should not allow the first item to be deleted', () => {
       canAdmin: true,
       canCreateVersion: true,
       canDeleteAnalyses: true,
-      isFirst: true
+      isFirst: true,
     })
       .find('.js-delete-analysis')
       .exists()

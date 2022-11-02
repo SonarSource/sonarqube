@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBitbucketCloudRepository } from '../../../../helpers/mocks/alm-integrations';
 import BitbucketCloudSearchForm, {
-  BitbucketCloudSearchFormProps
+  BitbucketCloudSearchFormProps,
 } from '../BitbucketCloudSearchForm';
 
 it('Should render correctly', () => {
@@ -30,29 +30,29 @@ it('Should render correctly', () => {
     shallowRender({
       repositories: [
         mockBitbucketCloudRepository(),
-        mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' })
+        mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' }),
       ],
-      isLastPage: false
+      isLastPage: false,
     })
   ).toMatchSnapshot('Show more');
   expect(
     shallowRender({
       repositories: [mockBitbucketCloudRepository()],
-      isLastPage: true
+      isLastPage: true,
     })
   ).toMatchSnapshot('Show no more');
   expect(
     shallowRender({
       repositories: [mockBitbucketCloudRepository()],
       isLastPage: false,
-      loadingMore: true
+      loadingMore: true,
     })
   ).toMatchSnapshot('Loading more');
   expect(
     shallowRender({
       repositories: [],
       isLastPage: false,
-      searching: true
+      searching: true,
     })
   ).toMatchSnapshot('Searching');
   expect(
@@ -60,9 +60,9 @@ it('Should render correctly', () => {
       importingSlug: 'import-slug',
       repositories: [
         mockBitbucketCloudRepository({ slug: 'import-slug' }),
-        mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' })
+        mockBitbucketCloudRepository({ sqProjectKey: 'sq-key' }),
       ],
-      isLastPage: false
+      isLastPage: false,
     })
   ).toMatchSnapshot('Importing');
 });

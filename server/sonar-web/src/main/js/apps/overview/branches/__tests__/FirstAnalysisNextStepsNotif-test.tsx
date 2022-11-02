@@ -25,14 +25,14 @@ import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks
 import { ComponentQualifier } from '../../../../types/component';
 import {
   FirstAnalysisNextStepsNotif,
-  FirstAnalysisNextStepsNotifProps
+  FirstAnalysisNextStepsNotifProps,
 } from '../FirstAnalysisNextStepsNotif';
 
 it('should render correctly', () => {
   expect(shallowRender({ currentUser: mockCurrentUser() }).type()).toBeNull();
   expect(
     shallowRender({
-      component: mockComponent({ qualifier: ComponentQualifier.Application })
+      component: mockComponent({ qualifier: ComponentQualifier.Application }),
     }).type()
   ).toBeNull();
   expect(shallowRender({ detectedCIOnLastAnalysis: false })).toMatchSnapshot(
@@ -40,26 +40,26 @@ it('should render correctly', () => {
   );
   expect(
     shallowRender({
-      projectBinding: undefined
+      projectBinding: undefined,
     })
   ).toMatchSnapshot('show prompt to configure PR decoration, regular user');
   expect(
     shallowRender({
       component: mockComponent({ configuration: { showSettings: true } }),
-      projectBinding: undefined
+      projectBinding: undefined,
     })
   ).toMatchSnapshot('show prompt to configure PR decoration, project admin');
   expect(
     shallowRender({
       projectBinding: undefined,
-      detectedCIOnLastAnalysis: false
+      detectedCIOnLastAnalysis: false,
     })
   ).toMatchSnapshot('show prompt to configure PR decoration + CI, regular user');
   expect(
     shallowRender({
       component: mockComponent({ configuration: { showSettings: true } }),
       projectBinding: undefined,
-      detectedCIOnLastAnalysis: false
+      detectedCIOnLastAnalysis: false,
     })
   ).toMatchSnapshot('show prompt to configure PR decoration + CI, project admin');
 });

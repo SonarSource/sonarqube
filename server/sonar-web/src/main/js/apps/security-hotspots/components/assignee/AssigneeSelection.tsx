@@ -50,7 +50,7 @@ export default class AssigneeSelection extends React.PureComponent<Props, State>
       loading: false,
       suggestedUsers: props.allowCurrentUserSelection
         ? [props.loggedInUser, UNASSIGNED]
-        : [UNASSIGNED]
+        : [UNASSIGNED],
     };
 
     this.handleSearch = debounce(this.handleSearch, 250);
@@ -80,19 +80,19 @@ export default class AssigneeSelection extends React.PureComponent<Props, State>
     this.setState({
       loading: false,
       query,
-      suggestedUsers: allowCurrentUserSelection ? [loggedInUser, UNASSIGNED] : [UNASSIGNED]
+      suggestedUsers: allowCurrentUserSelection ? [loggedInUser, UNASSIGNED] : [UNASSIGNED],
     });
   };
 
   handleActualSearch = (query: string) => {
     this.setState({ loading: true, query });
     searchUsers({ q: query })
-      .then(result => {
+      .then((result) => {
         if (this.mounted) {
           this.setState({
             loading: false,
             query,
-            suggestedUsers: (result.users.filter(isUserActive) as UserActive[]).concat(UNASSIGNED)
+            suggestedUsers: (result.users.filter(isUserActive) as UserActive[]).concat(UNASSIGNED),
           });
         }
       })
@@ -126,7 +126,7 @@ export default class AssigneeSelection extends React.PureComponent<Props, State>
     const { highlighted, suggestedUsers } = this.state;
 
     return highlighted
-      ? suggestedUsers.findIndex(suggestion => suggestion.login === highlighted.login)
+      ? suggestedUsers.findIndex((suggestion) => suggestion.login === highlighted.login)
       : -1;
   };
 

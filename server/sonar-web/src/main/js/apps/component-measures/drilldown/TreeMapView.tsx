@@ -50,7 +50,7 @@ const LEVEL_COLORS = [
   colors.error500,
   colors.orange,
   colors.success500,
-  colors.disabledQualityGate
+  colors.disabledQualityGate,
 ];
 const NA_GRADIENT = `linear-gradient(-45deg, ${colors.gray71} 25%, ${colors.gray60} 25%, ${colors.gray60} 50%, ${colors.gray71} 50%, ${colors.gray71} 75%, ${colors.gray60} 75%, ${colors.gray60} 100%)`;
 
@@ -71,9 +71,11 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
   getTreemapComponents = ({ components, metric }: Props) => {
     const colorScale = this.getColorScale(metric);
     return components
-      .map(component => {
-        const colorMeasure = component.measures.find(measure => measure.metric.key === metric.key);
-        const sizeMeasure = component.measures.find(measure => measure.metric.key !== metric.key);
+      .map((component) => {
+        const colorMeasure = component.measures.find(
+          (measure) => measure.metric.key === metric.key
+        );
+        const sizeMeasure = component.measures.find((measure) => measure.metric.key !== metric.key);
         if (!sizeMeasure) {
           return undefined;
         }
@@ -95,7 +97,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
           gradient: !colorValue ? NA_GRADIENT : undefined,
           icon: <QualifierIcon fill={colors.baseFontColor} qualifier={component.qualifier} />,
           key: getComponentMeasureUniqueKey(component) ?? '',
-          label: [component.name, component.branch].filter(s => !!s).join(' / '),
+          label: [component.name, component.branch].filter((s) => !!s).join(' / '),
           size: sizeValue,
           measureValue: colorValue,
           metric,
@@ -104,18 +106,16 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
             colorValue,
             component,
             sizeMetric: sizeMeasure.metric,
-            sizeValue
+            sizeValue,
           }),
-          component
+          component,
         };
       })
       .filter(isDefined);
   };
 
   getLevelColorScale = () =>
-    scaleOrdinal<string, string>()
-      .domain(['ERROR', 'WARN', 'OK', 'NONE'])
-      .range(LEVEL_COLORS);
+    scaleOrdinal<string, string>().domain(['ERROR', 'WARN', 'OK', 'NONE']).range(LEVEL_COLORS);
 
   getPercentColorScale = (metric: Metric) => {
     const color = scaleLinear<string, string>().domain([0, 25, 50, 75, 100]);
@@ -123,10 +123,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     return color;
   };
 
-  getRatingColorScale = () =>
-    scaleLinear<string, string>()
-      .domain([1, 2, 3, 4, 5])
-      .range(COLORS);
+  getRatingColorScale = () => scaleLinear<string, string>().domain([1, 2, 3, 4, 5]).range(COLORS);
 
   getColorScale = (metric: Metric) => {
     if (metric.type === 'LEVEL') {
@@ -143,7 +140,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     colorValue,
     component,
     sizeMetric,
-    sizeValue
+    sizeValue,
   }: {
     colorMetric: Metric;
     colorValue?: string;
@@ -155,7 +152,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
       colorMetric && colorValue !== undefined ? formatMeasure(colorValue, colorMetric.type) : '—';
     return (
       <div className="text-left">
-        {[component.name, component.branch].filter(s => !!s).join(' / ')}
+        {[component.name, component.branch].filter((s) => !!s).join(' / ')}
         <br />
         {`${getLocalizedMetricName(sizeMetric)}: ${formatMeasure(sizeValue, sizeMetric.type)}`}
         <br />
@@ -195,7 +192,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     const { components, metric } = this.props;
     const sizeMeasure =
       components.length > 0
-        ? components[0].measures.find(measure => measure.metric.key !== metric.key)
+        ? components[0].measures.find((measure) => measure.metric.key !== metric.key)
         : null;
     return (
       <div className="measure-details-treemap">

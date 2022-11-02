@@ -63,7 +63,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
     this.setState({ loading: true });
     searchRules({
       f: 'name,severity,params',
-      template_key: this.props.ruleDetails.key
+      template_key: this.props.ruleDetails.key,
     }).then(
       ({ rules }) => {
         if (this.mounted) {
@@ -81,7 +81,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
   handleRuleCreate = (newRuleDetails: RuleDetails) => {
     if (this.mounted) {
       this.setState(({ rules = [] }: State) => ({
-        rules: [...rules, newRuleDetails]
+        rules: [...rules, newRuleDetails],
       }));
     }
   };
@@ -90,7 +90,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
     return deleteRule({ key: ruleKey }).then(() => {
       if (this.mounted) {
         this.setState(({ rules = [] }) => ({
-          rules: rules.filter(rule => rule.key !== ruleKey)
+          rules: rules.filter((rule) => rule.key !== ruleKey),
         }));
       }
     });
@@ -109,8 +109,8 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
       <td className="coding-rules-detail-list-parameters">
         {rule.params &&
           rule.params
-            .filter(param => param.defaultValue)
-            .map(param => (
+            .filter((param) => param.defaultValue)
+            .map((param) => (
               <div className="coding-rules-detail-list-parameter" key={param.key}>
                 <span className="key">{param.key}</span>
                 <span className="sep">:&nbsp;</span>
@@ -129,7 +129,8 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
             isDestructive={true}
             modalBody={translateWithParameters('coding_rules.delete.custom.confirm', rule.name)}
             modalHeader={translate('coding_rules.delete_rule')}
-            onConfirm={this.handleRuleDelete}>
+            onConfirm={this.handleRuleDelete}
+          >
             {({ onClick }) => (
               <Button className="button-red js-delete-custom-rule" onClick={onClick}>
                 {translate('delete')}
@@ -162,7 +163,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
           <DeferredSpinner className="spacer-left" loading={loading}>
             {rules.length > 0 && (
               <table className="coding-rules-detail-list" id="coding-rules-detail-custom-rules">
-                <tbody>{sortBy(rules, rule => rule.name).map(this.renderRule)}</tbody>
+                <tbody>{sortBy(rules, (rule) => rule.name).map(this.renderRule)}</tbody>
               </table>
             )}
           </DeferredSpinner>
