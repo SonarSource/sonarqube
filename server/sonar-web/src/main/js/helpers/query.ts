@@ -57,7 +57,14 @@ export function parseAsOptionalBoolean(value: string | undefined): boolean | und
 
 export function parseAsDate(value?: string): Date | undefined {
   if (value) {
-    const date = parseDate(value);
+    // We atttemp to parse date that does not have time.
+    // Otherwise date will create a date at midnight UTC
+    // and it does not play well when we get the local day.
+    let date = parseDate(value + ' 00:00:00');
+    if (isValidDate(date)) {
+      return date;
+    }
+    date = parseDate(value);
     if (isValidDate(date)) {
       return date;
     }
