@@ -104,29 +104,6 @@ export function getShortType(type: string): string {
   return type;
 }
 
-/*
- * Conditional decimal count for QualityGate-impacting measures
- * (e.g. Coverage %)
- * Increase the number of decimals if the value is close to the threshold
- * We count the precision (number of 0's, i.e. log10 and round down) needed to show the difference
- * E.g. threshold 85, value 84.9993 -> delta = 0.0007, we need 4 decimals to see the difference
- * otherwise rounding will make it look like they are equal.
- */
-const DEFAULT_DECIMALS = 1;
-export function getMinDecimalsCountToBeDistinctFromThreshold(
-  value: number,
-  threshold: number | undefined
-): number {
-  if (!threshold) {
-    return DEFAULT_DECIMALS;
-  }
-  const delta = Math.abs(threshold - value);
-  if (delta < 0.1 && delta > 0) {
-    return -Math.floor(Math.log10(delta));
-  }
-  return DEFAULT_DECIMALS;
-}
-
 function useFormatter(
   value: string | number | undefined,
   formatter: Formatter,
