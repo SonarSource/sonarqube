@@ -170,7 +170,7 @@ yarn_lint_task:
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 5
-    memory: 6Gb
+    memory: 8Gb
   script:
     - ./private/cirrus/cirrus-yarn-lint-report.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -182,7 +182,7 @@ yarn_check_task:
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 5
-    memory: 6Gb
+    memory: 8Gb
   script: |
     ./private/cirrus/cirrus-env.sh YARN
     gradle yarn_check-ci --profile
