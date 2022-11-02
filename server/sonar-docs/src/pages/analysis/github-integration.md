@@ -129,7 +129,7 @@ Click the scanner you're using below to expand the example configuration:
 | on:
 |   push:
 |     branches:
-|       - master # or the name of your main branch
+|       - main # or the name of your main branch
 |   pull_request:
 |     types: [opened, synchronize, reopened]
 | jobs:
@@ -184,7 +184,7 @@ Click the scanner you're using below to expand the example configuration:
 | on:
 |   push:
 |     branches:
-|       - master # or the name of your main branch
+|       - main # or the name of your main branch
 |   pull_request:
 |     types: [opened, synchronize, reopened]
 | jobs:
@@ -230,7 +230,7 @@ Click the scanner you're using below to expand the example configuration:
 | on:
 |   push:
 |     branches:
-|       - master # or the name of your main branch
+|       - main # or the name of your main branch
 |   pull_request:
 |     types: [opened, synchronize, reopened]
 | jobs:
