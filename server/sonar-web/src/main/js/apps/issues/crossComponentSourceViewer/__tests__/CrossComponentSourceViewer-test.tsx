@@ -28,6 +28,7 @@ import {
 } from '../../../../helpers/mocks/sources';
 import { mockFlowLocation, mockIssue } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { IssueStatus } from '../../../../types/issues';
 import ComponentSourceSnippetGroupViewer from '../ComponentSourceSnippetGroupViewer';
 import CrossComponentSourceViewer from '../CrossComponentSourceViewer';
 
@@ -72,6 +73,13 @@ it('Should fetch data', async () => {
   (getIssueFlowSnippets as jest.Mock).mockClear();
   wrapper.setProps({ issue: mockIssue(true, { key: 'foo' }) });
   expect(getIssueFlowSnippets).toHaveBeenCalledWith('foo');
+});
+
+it('Should handle a closed issue', async () => {
+  const wrapper = shallowRender({ issue: mockIssue(true, { status: IssueStatus.Closed }) });
+  wrapper.instance().fetchIssueFlowSnippets();
+  await waitAndUpdate(wrapper);
+  expect(getIssueFlowSnippets).not.toHaveBeenCalled();
 });
 
 it('Should handle no access rights', async () => {

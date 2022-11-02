@@ -41,6 +41,7 @@ import { translate } from '../../../helpers/l10n';
 import { HttpStatus } from '../../../helpers/request';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
+import { IssueStatus } from '../../../types/issues';
 import {
   Dict,
   DuplicatedFile,
@@ -122,7 +123,8 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
     this.setState({ loading: true });
 
     try {
-      const components = await getIssueFlowSnippets(issue.key);
+      const components =
+        issue.status === IssueStatus.Closed ? {} : await getIssueFlowSnippets(issue.key);
       if (components[issue.component] === undefined) {
         const issueComponent = await getComponentForSourceViewer({
           component: issue.component,
@@ -139,6 +141,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
           components[issue.component].sources = sources;
         }
       }
+
       if (this.mounted) {
         this.setState({
           components,

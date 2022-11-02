@@ -32,6 +32,14 @@ export enum IssueScope {
   Test = 'TEST',
 }
 
+export enum IssueStatus {
+  Open = 'OPEN',
+  Confirmed = 'CONFIRMED',
+  Reopened = 'REOPENED',
+  Resolved = 'RESOLVED',
+  Closed = 'CLOSED',
+}
+
 interface Comment {
   createdAt: string;
   htmlText: string;

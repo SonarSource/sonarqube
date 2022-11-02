@@ -36,6 +36,7 @@ import './IssueSourceViewerHeader.css';
 
 export interface Props {
   branchLike: BranchLike | undefined;
+  className?: string;
   expandable?: boolean;
   displayProjectName?: boolean;
   linkToProject?: boolean;
@@ -47,6 +48,7 @@ export interface Props {
 export default function IssueSourceViewerHeader(props: Props) {
   const {
     branchLike,
+    className,
     expandable,
     displayProjectName = true,
     linkToProject = true,
@@ -66,7 +68,10 @@ export default function IssueSourceViewerHeader(props: Props) {
 
   return (
     <div
-      className="issue-source-viewer-header display-flex-row display-flex-space-between"
+      className={classNames(
+        'issue-source-viewer-header display-flex-row display-flex-space-between',
+        className
+      )}
       role="separator"
       aria-label={sourceViewerFile.path}
     >

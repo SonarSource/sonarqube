@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import { range, times } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { getSources } from '../../../../api/components';
 import IssueMessageBox from '../../../../components/issue/IssueMessageBox';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
@@ -30,6 +31,8 @@ import {
 } from '../../../../helpers/mocks/sources';
 import { mockFlowLocation, mockIssue } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { ComponentQualifier } from '../../../../types/component';
+import { IssueStatus } from '../../../../types/issues';
 import { SnippetGroup } from '../../../../types/types';
 import ComponentSourceSnippetGroupViewer from '../ComponentSourceSnippetGroupViewer';
 import SnippetViewer from '../SnippetViewer';
@@ -146,6 +149,36 @@ it('should render file-level issue correctly', () => {
 
   expect(wrapper.find('ContextConsumer').dive().find(IssueMessageBox).exists()).toBe(true);
 });
+
+it.each([
+  ['file-level', ComponentQualifier.File, 'issue.closed.file_level'],
+  ['project-level', ComponentQualifier.Project, 'issue.closed.project_level'],
+])(
+  'should render a closed %s issue correctly',
+  async (_level, componentQualifier, expectedLabel) => {
+    // issue with secondary locations and no primary location
+    const issue = mockIssue(true, {
+      component: 'project:main.js',
+      componentQualifier,
+      flows: [],
+      textRange: undefined,
+      status: IssueStatus.Closed,
+    });
+
+    const wrapper = shallowRender({
+      issue,
+      snippetGroup: {
+        locations: [],
+        ...mockSnippetsByComponent('main.js', 'project', range(1, 10)),
+      },
+    });
+
+    await waitAndUpdate(wrapper);
+
+    expect(wrapper.find<FormattedMessage>(FormattedMessage).prop('id')).toEqual(expectedLabel);
+    expect(wrapper.find('ContextConsumer').exists()).toBe(false);
+  }
+);
 
 it('should expand block', async () => {
   (getSources as jest.Mock).mockResolvedValueOnce(

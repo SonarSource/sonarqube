@@ -18,13 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { getSources } from '../../../api/components';
 import IssueMessageBox from '../../../components/issue/IssueMessageBox';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
+import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
-import { isFile } from '../../../types/component';
+import { ComponentQualifier, isFile } from '../../../types/component';
+import { IssueStatus } from '../../../types/issues';
 import {
   Dict,
   Duplication,
@@ -265,28 +269,55 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     const isFlow = issue.secondaryLocations.length === 0;
     const includeIssueLocation = isFlow ? isLastOccurenceOfPrimaryComponent : true;
 
+    const issueIsClosed = issue.status === IssueStatus.Closed;
+    const issueIsFileLevel = issue.componentQualifier === ComponentQualifier.File;
+    const closedIssueMessageKey = issueIsFileLevel
+      ? 'issue.closed.file_level'
+      : 'issue.closed.project_level';
+
     return (
       <>
+        {issueIsClosed && (
+          <Alert variant="success">
+            <FormattedMessage
+              id={closedIssueMessageKey}
+              defaultMessage={translate(closedIssueMessageKey)}
+              values={{
+                status: (
+                  <strong>
+                    {translate('issue.status', issue.status)} (
+                    {issue.resolution ? translate('issue.resolution', issue.resolution) : '-'})
+                  </strong>
+                ),
+              }}
+            />
+          </Alert>
+        )}
+
         <IssueSourceViewerHeader
           branchLike={branchLike}
+          className={issueIsClosed && !issueIsFileLevel ? 'null-spacer-bottom' : ''}
           expandable={!fullyShown && isFile(snippetGroup.component.q)}
           loading={loading}
           onExpand={this.expandComponent}
           sourceViewerFile={snippetGroup.component}
         />
 
-        {issue.component === snippetGroup.component.key && issue.textRange === undefined && (
-          <IssueSourceViewerScrollContext.Consumer>
-            {(ctx) => (
-              <IssueMessageBox
-                selected={true}
-                issue={issue}
-                onClick={this.props.onIssueSelect}
-                ref={ctx?.registerPrimaryLocationRef}
-              />
-            )}
-          </IssueSourceViewerScrollContext.Consumer>
-        )}
+        {issue.component === snippetGroup.component.key &&
+          issue.textRange === undefined &&
+          !issueIsClosed && (
+            <IssueSourceViewerScrollContext.Consumer>
+              {(ctx) => (
+                <IssueMessageBox
+                  selected={true}
+                  issue={issue}
+                  onClick={this.props.onIssueSelect}
+                  ref={ctx?.registerPrimaryLocationRef}
+                />
+              )}
+            </IssueSourceViewerScrollContext.Consumer>
+          )}
+
         {snippetLines.map((snippet, index) => (
           <SnippetViewer
             key={snippets[index].index}
