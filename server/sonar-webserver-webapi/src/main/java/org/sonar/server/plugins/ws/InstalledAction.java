@@ -84,6 +84,7 @@ public class InstalledAction implements PluginsWsAction {
         "Requires authentication.")
       .setSince("5.2")
       .setChangelog(
+        new Change("9.8", "The 'documentationPath' field is deprecated"),
         new Change("9.7", "Authentication check added"),
         new Change("8.0", "The 'documentationPath' field is added"),
         new Change("7.0", "The fields 'compressedHash' and 'compressedFilename' are added"),

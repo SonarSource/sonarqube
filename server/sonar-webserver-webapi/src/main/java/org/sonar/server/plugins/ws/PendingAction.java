@@ -71,7 +71,10 @@ public class PendingAction implements PluginsWsAction {
       .setDescription("Get the list of plugins which will either be installed or removed at the next startup of the SonarQube instance, sorted by plugin name.<br/>" +
         "Require 'Administer System' permission.")
       .setSince("5.2")
-      .setChangelog(new Change("8.0", "The 'documentationPath' field is added"))
+      .setChangelog(
+        new Change("9.8", "The 'documentationPath' field is deprecated"),
+        new Change("8.0", "The 'documentationPath' field is added")
+      )
       .setHandler(this)
       .setResponseExample(this.getClass().getResource("example-pending_plugins.json"));
   }
