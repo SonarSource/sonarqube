@@ -131,6 +131,10 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
       ([tree, measures]) => {
         if (this.mounted) {
           const metric = tree.metrics.find((m) => m.key === requestedMetric.key);
+          if (metric !== undefined) {
+            metric.direction = requestedMetric.direction;
+          }
+
           const components = tree.components.map((component) =>
             enhanceComponent(component, metric, metrics)
           );

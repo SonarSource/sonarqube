@@ -84,6 +84,7 @@ exports[`should render correctly for a file 1`] = `
       measureValue="12"
       metric={
         Object {
+          "direction": 1,
           "domain": "Reliability",
           "id": "1",
           "key": "bugs",
@@ -178,6 +179,7 @@ exports[`should render correctly for a project 1`] = `
                       "bestValue": "0",
                       "custom": false,
                       "description": "Bugs",
+                      "direction": 1,
                       "domain": "Reliability",
                       "hidden": false,
                       "higherValuesAreBetter": false,
@@ -225,6 +227,7 @@ exports[`should render correctly for a project 1`] = `
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
+          "direction": 1,
           "domain": "Reliability",
           "hidden": false,
           "higherValuesAreBetter": false,
@@ -272,6 +275,7 @@ exports[`should render correctly for a project 1`] = `
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
+          "direction": 1,
           "domain": "Reliability",
           "hidden": false,
           "higherValuesAreBetter": false,
@@ -389,6 +393,7 @@ exports[`should render correctly when asc prop is defined 1`] = `
                       "bestValue": "0",
                       "custom": false,
                       "description": "Bugs",
+                      "direction": 1,
                       "domain": "Reliability",
                       "hidden": false,
                       "higherValuesAreBetter": false,
@@ -436,6 +441,7 @@ exports[`should render correctly when asc prop is defined 1`] = `
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
+          "direction": 1,
           "domain": "Reliability",
           "hidden": false,
           "higherValuesAreBetter": false,
@@ -483,6 +489,7 @@ exports[`should render correctly when asc prop is defined 1`] = `
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
+          "direction": 1,
           "domain": "Reliability",
           "hidden": false,
           "higherValuesAreBetter": false,
@@ -600,6 +607,7 @@ exports[`should render correctly when view prop is tree 1`] = `
                       "bestValue": "0",
                       "custom": false,
                       "description": "Bugs",
+                      "direction": 1,
                       "domain": "Reliability",
                       "hidden": false,
                       "higherValuesAreBetter": false,
@@ -647,6 +655,7 @@ exports[`should render correctly when view prop is tree 1`] = `
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
+          "direction": 1,
           "domain": "Reliability",
           "hidden": false,
           "higherValuesAreBetter": false,
@@ -694,6 +703,7 @@ exports[`should render correctly when view prop is tree 1`] = `
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
+          "direction": 1,
           "domain": "Reliability",
           "hidden": false,
           "higherValuesAreBetter": false,
@@ -808,6 +818,7 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
                   handleViewChange={[Function]}
                   metric={
                     Object {
+                      "direction": 1,
                       "domain": "Reliability",
                       "id": "1",
                       "key": "bugs",
@@ -850,6 +861,7 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
       measureValue="12"
       metric={
         Object {
+          "direction": 1,
           "domain": "Reliability",
           "id": "1",
           "key": "bugs",
@@ -867,6 +879,7 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
       loadingMore={true}
       metric={
         Object {
+          "direction": 1,
           "domain": "Reliability",
           "id": "1",
           "key": "bugs",
@@ -877,6 +890,7 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
       metrics={
         Object {
           "bugs": Object {
+            "direction": 1,
             "domain": "Reliability",
             "id": "1",
             "key": "bugs",
