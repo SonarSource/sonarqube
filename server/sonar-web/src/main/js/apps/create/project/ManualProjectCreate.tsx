@@ -281,9 +281,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                     )}
                     values={{
                       learn_more: (
-                        <DocLink to="/project-administration/project-existence">
-                          {translate('learn_more')}
-                        </DocLink>
+                        <DocLink to="/branches/overview">{translate('learn_more')}</DocLink>
                       ),
                     }}
                   />
