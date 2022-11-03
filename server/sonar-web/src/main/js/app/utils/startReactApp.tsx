@@ -159,6 +159,11 @@ function renderRedirects() {
       {renderRedirect({ from: '/users', to: '/admin/users' })}
       {renderRedirect({ from: '/onboarding', to: '/projects/create' })}
       {renderRedirect({ from: '/markdown/help', to: '/formatting/help' })}
+
+      {/*
+       * This redirect enables analyzers and PDFs to link to the correct version of the
+       * documentation without having to compute the direct links themselves (DRYer).
+       */}
       <Route path="/documentation/*" element={<DocumentationRedirect />} />
     </>
   );
