@@ -21,6 +21,7 @@ exports[`should render correctly for createdInLast month 1`] = `
       className="search-navigator-date-facet-selection"
     >
       <DateRangeInput
+        alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
           Object {
@@ -95,6 +96,7 @@ exports[`should render correctly for createdInLast week 1`] = `
       className="search-navigator-date-facet-selection"
     >
       <DateRangeInput
+        alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
           Object {
@@ -169,6 +171,7 @@ exports[`should render correctly for createdInLast year 1`] = `
       className="search-navigator-date-facet-selection"
     >
       <DateRangeInput
+        alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
           Object {
@@ -239,6 +242,7 @@ exports[`should render correctly: clear 1`] = `
       className="search-navigator-date-facet-selection"
     >
       <DateRangeInput
+        alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
           Object {
@@ -418,6 +422,7 @@ exports[`should render correctly: portfolio 1`] = `
       className="search-navigator-date-facet-selection"
     >
       <DateRangeInput
+        alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
           Object {
@@ -488,6 +493,7 @@ exports[`should render correctly: project 1`] = `
       className="search-navigator-date-facet-selection"
     >
       <DateRangeInput
+        alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
           Object {

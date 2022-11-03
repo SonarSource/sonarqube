@@ -65,6 +65,11 @@
   box-shadow: var(--defaultShadow);
 }
 
+.date-input-calendar.align-right {
+  left: initial;
+  right: 0;
+}
+
 .date-input-calendar-nav {
   display: flex;
   justify-content: space-between;

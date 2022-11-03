@@ -208,6 +208,7 @@ export class CreationDateFacet extends React.PureComponent<Props & WrappedCompon
     return (
       <div className="search-navigator-date-facet-selection">
         <DateRangeInput
+          alignEndDateCalandarRight={true}
           onChange={this.handlePeriodChange}
           value={{ from: createdAfter, to: createdBefore }}
         />

@@ -31,6 +31,7 @@ interface Props {
   minDate?: Date;
   onChange: (date: DateRange) => void;
   value?: DateRange;
+  alignEndDateCalandarRight?: boolean;
 }
 
 export default class DateRangeInput extends React.PureComponent<Props> {
@@ -60,7 +61,7 @@ export default class DateRangeInput extends React.PureComponent<Props> {
   };
 
   render() {
-    const { minDate, maxDate } = this.props;
+    const { alignEndDateCalandarRight, minDate, maxDate } = this.props;
 
     return (
       <div className={classNames('display-flex-end', this.props.className)}>
@@ -88,6 +89,7 @@ export default class DateRangeInput extends React.PureComponent<Props> {
             {translate('end_date')}
           </label>
           <DateInput
+            alignRight={alignEndDateCalandarRight}
             currentMonth={this.from}
             data-test="to"
             id="date-to"
