@@ -14,6 +14,7 @@ dependencies {
     testCompile 'junit:junit'
     testCompile 'org.assertj:assertj-core'
     testCompile 'org.mockito:mockito-core'
+    testCompile 'org.awaitility:awaitility'
     testCompile testFixtures(project(':server:sonar-webserver-ws'))
     testCompile testFixtures(project(':server:sonar-db-dao'))
 
