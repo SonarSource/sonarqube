@@ -188,7 +188,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void add_analysis_warning_if_scanner_defines_reference_when_branch_setting_also_defines_reference() {
+  public void scanner_overrides_branch_new_code_reference_branch() {
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
     setupRoot(branch);
 
@@ -216,7 +216,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void scanner_overrides_new_code_reference_branch() {
+  public void scanner_overrides_project_new_code_reference_branch() {
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
     setupRoot(branch);
 
@@ -227,7 +227,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
     assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, newCodeReferenceBranch, null);
-    verify(ceTaskMessages).add(any(CeTaskMessages.Message.class));
+    verifyNoInteractions(ceTaskMessages);
   }
 
   @Test

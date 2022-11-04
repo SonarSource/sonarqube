@@ -93,36 +93,26 @@ public class LoadPeriodsStep implements ComputationStep {
       .orElse(null);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<NewCodePeriodDto> specificSetting = firstPresent(Arrays.asList(
-        () -> getBranchSetting(dbSession, projectUuid, branchUuid),
-        () -> getProjectSetting(dbSession, projectUuid)
-      ));
+      Optional<NewCodePeriodDto> branchSpecificSetting = getBranchSetting(dbSession, projectUuid, branchUuid);
 
       if (newCodePeriod == null) {
-        newCodePeriod = specificSetting.or(() -> getGlobalSetting(dbSession)).orElse(NewCodePeriodDto.defaultInstance());
+        newCodePeriod = branchSpecificSetting
+          .or(() -> getProjectSetting(dbSession, projectUuid))
+          .or(() -> getGlobalSetting(dbSession))
+          .orElse(NewCodePeriodDto.defaultInstance());
 
         if (analysisMetadataHolder.isFirstAnalysis() && newCodePeriod.getType() != REFERENCE_BRANCH) {
           periodsHolder.setPeriod(null);
           return;
         }
-      } else if (specificSetting.isPresent()) {
-        ceTaskMessages.add(new Message("A scanner parameter is defining a new code reference branch but one is already defined in the New Code Period settings."
-          + " Please check your configuration to make sure it is expected.", system2.now()));
+      } else if (branchSpecificSetting.isPresent()) {
+        ceTaskMessages.add(new Message("A scanner parameter is defining a new code reference branch, but this conflicts with the New Code Period"
+          + " setting of your branch. Please check your project configuration. You should use either one or the other but not both.", system2.now()));
       }
 
       Period period = resolver.resolve(dbSession, branchUuid, newCodePeriod, projectVersion);
       periodsHolder.setPeriod(period);
     }
-  }
-
-  private static <T> Optional<T> firstPresent(Collection<Supplier<Optional<T>>> suppliers) {
-    for (Supplier<Optional<T>> supplier : suppliers) {
-      Optional<T> result = supplier.get();
-      if (result.isPresent()) {
-        return result;
-      }
-    }
-    return Optional.empty();
   }
 
   private Optional<NewCodePeriodDto> getBranchSetting(DbSession dbSession, String projectUuid, String branchUuid) {
