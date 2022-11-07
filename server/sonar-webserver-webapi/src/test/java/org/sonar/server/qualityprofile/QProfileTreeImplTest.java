@@ -184,6 +184,42 @@ public class QProfileTreeImplTest {
   }
 
   @Test
+  public void change_parent_keep_overridden_rules() {
+    RuleDto parentRule = createJavaRule();
+    RuleDto childRule = createJavaRule();
+
+    QProfileDto parentProfile1 = createProfile(parentRule);
+    List<ActiveRuleChange> changes = activate(parentProfile1, RuleActivation.create(parentRule.getUuid()));
+    assertThat(changes).hasSize(1);
+
+    QProfileDto childProfile = createProfile(childRule);
+    changes = activate(childProfile, RuleActivation.create(childRule.getUuid()));
+    assertThat(changes).hasSize(1);
+
+    changes = underTest.setParentAndCommit(db.getSession(), childProfile, parentProfile1);
+    assertThat(changes).hasSize(1);
+    assertThatRuleIsActivated(childProfile, parentRule, changes, parentRule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(childProfile, childRule, null, childRule.getSeverityString(), null, emptyMap());
+    verify(qualityProfileChangeEventService, times(2)).distributeRuleChangeEvent(any(), any(), eq(childProfile.getLanguage()));
+
+    RuleActivation activation = RuleActivation.create(parentRule.getUuid(), BLOCKER, null);
+    changes = activate(childProfile, activation);
+    assertThat(changes).hasSize(1);
+    assertThatRuleIsUpdated(childProfile, parentRule, BLOCKER, ActiveRuleInheritance.OVERRIDES, emptyMap());
+    assertThatRuleIsActivated(childProfile, childRule, null, childRule.getSeverityString(), null, emptyMap());
+
+    QProfileDto parentProfile2 = createProfile(parentRule);
+    changes = activate(parentProfile2, RuleActivation.create(parentRule.getUuid()));
+    assertThat(changes).hasSize(1);
+
+    changes = underTest.setParentAndCommit(db.getSession(), childProfile, parentProfile2);
+    assertThat(changes).isEmpty();
+    assertThatRuleIsUpdated(childProfile, parentRule, BLOCKER, ActiveRuleInheritance.OVERRIDES, emptyMap());
+    assertThatRuleIsActivated(childProfile, childRule, null, childRule.getSeverityString(), null, emptyMap());
+    verify(qualityProfileChangeEventService, times(4)).distributeRuleChangeEvent(any(), any(), eq(childProfile.getLanguage()));
+  }
+
+  @Test
   public void activation_errors_are_ignored_when_setting_a_parent() {
     RuleDto rule1 = createJavaRule();
     RuleDto rule2 = createJavaRule();
