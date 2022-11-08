@@ -24,6 +24,7 @@ dependencies {
   compile project(':sonar-plugin-api-impl')
 
   compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnly 'com.google.code.gson:gson'
 
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'junit:junit'
