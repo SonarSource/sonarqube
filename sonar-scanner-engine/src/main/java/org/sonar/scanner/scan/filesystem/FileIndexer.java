@@ -120,9 +120,8 @@ public class FileIndexer {
       return;
     }
 
-    long maxFileSize = properties.fileSizeLimit();
-    if (Files.size(realAbsoluteFile) > maxFileSize * 1024L * 1024L) {
-      LOG.warn("File '{}' is bigger than {}MB and as consequence is removed from the analysis scope.", realAbsoluteFile.toAbsolutePath(), maxFileSize);
+    if (Files.exists(realAbsoluteFile) && isFileSizeBiggerThanLimit(realAbsoluteFile)) {
+      LOG.warn("File '{}' is bigger than {}MB and as consequence is removed from the analysis scope.", realAbsoluteFile.toAbsolutePath(), properties.fileSizeLimit());
       return;
     }
 
@@ -281,5 +280,9 @@ public class FileIndexer {
 
   private static String pluralizeFiles(int count) {
     return count == 1 ? "file" : "files";
+  }
+
+  private boolean isFileSizeBiggerThanLimit(Path filePath) throws IOException {
+    return Files.size(filePath) > properties.fileSizeLimit() * 1024L * 1024L;
   }
 }

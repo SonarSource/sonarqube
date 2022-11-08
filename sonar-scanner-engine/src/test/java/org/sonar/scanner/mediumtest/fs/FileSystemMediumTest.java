@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Random;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -436,6 +437,24 @@ public class FileSystemMediumTest {
     assertThat(result.inputFiles()).hasSize(1);
     assertThat(logTester.logs())
       .contains(format("File '%s' is bigger than 1MB and as consequence is removed from the analysis scope.", fileGreaterThanLimit.getAbsolutePath()));
+  }
+
+  @Test
+  public void analysisFailsIfFileDoesNotExist() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File target = writeFile(srcDir, "target.xoo", 1024 * 1024 + 1);
+    Path link = Paths.get(srcDir.getPath(), "target_link.xoo");
+    Files.createSymbolicLink(link, target.toPath());
+    Files.delete(target.toPath());
+
+    AnalysisBuilder analysis = tester.newAnalysis()
+      .properties(builder.build());
+
+    assertThatThrownBy(analysis::execute)
+      .isExactlyInstanceOf(IllegalStateException.class)
+      .hasMessageEndingWith(format("Unable to read file %s", link));
   }
 
   @Test
