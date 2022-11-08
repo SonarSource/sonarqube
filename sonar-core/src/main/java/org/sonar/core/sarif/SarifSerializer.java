@@ -1,49 +1,29 @@
 /*
- * Copyright (C) 2017-2022 SonarSource SA
- * All rights reserved
+ * SonarQube
+ * Copyright (C) 2009-2022 SonarSource SA
  * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.sonar.core.sarif;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.gson.Gson;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.Base64;
-import java.util.zip.GZIPOutputStream;
-import javax.inject.Inject;
-import org.sonar.api.ce.ComputeEngineSide;
+import java.nio.file.Path;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+public interface SarifSerializer {
 
-@ComputeEngineSide
-public class SarifSerializer {
-  private final Gson gson;
+  String serialize(Sarif210 sarif210);
 
-  @Inject
-  public SarifSerializer() {
-    this(new Gson());
-  }
-
-  @VisibleForTesting
-  SarifSerializer(Gson gson) {
-    this.gson = gson;
-  }
-
-  public String serializeAndEncode(Sarif210 sarif210) {
-    String serializedSarif = gson.toJson(sarif210);
-    return compressToGzipAndEncodeBase64(serializedSarif);
-  }
-
-  private static String compressToGzipAndEncodeBase64(String input) {
-    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      GZIPOutputStream gzipStream = new GZIPOutputStream(outputStream)) {
-      gzipStream.write(input.getBytes(UTF_8));
-      gzipStream.finish();
-      return Base64.getEncoder().encodeToString(outputStream.toByteArray());
-    } catch (IOException e) {
-      throw new UncheckedIOException(String.format("Failed to compress and encode the input: %s", input), e);
-    }
-  }
+  Sarif210 deserialize(Path sarifPath);
 }

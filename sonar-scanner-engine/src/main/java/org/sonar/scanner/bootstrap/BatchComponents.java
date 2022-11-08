@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.sarif.SarifSerializerImpl;
 import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.externalissue.ExternalIssuesImportSensor;
@@ -53,6 +54,7 @@ public class BatchComponents {
     // External issues
     components.add(ExternalIssuesImportSensor.class);
     components.add(ExternalIssuesImportSensor.properties());
+    components.add(SarifSerializerImpl.class);
 
     return components;
   }
