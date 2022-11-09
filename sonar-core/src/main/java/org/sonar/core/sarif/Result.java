@@ -37,14 +37,17 @@ public class Result {
   private final PartialFingerprints partialFingerprints;
   @SerializedName("codeFlows")
   private final List<CodeFlow> codeFlows;
+  @SerializedName("level")
+  private final String level;
 
   private Result(String ruleId, String message, LinkedHashSet<Location> locations,
-    @Nullable String primaryLocationLineHash, @Nullable List<CodeFlow> codeFlows) {
+    @Nullable String primaryLocationLineHash, @Nullable List<CodeFlow> codeFlows, @Nullable String level) {
     this.ruleId = ruleId;
     this.message = WrappedText.of(message);
     this.locations = locations;
     this.partialFingerprints = primaryLocationLineHash == null ? null : new PartialFingerprints(primaryLocationLineHash);
     this.codeFlows = codeFlows == null ? null : List.copyOf(codeFlows);
+    this.level = level;
   }
 
   public String getRuleId() {
@@ -69,6 +72,10 @@ public class Result {
     return codeFlows;
   }
 
+  public String getLevel() {
+    return level;
+  }
+
   public static ResultBuilder builder() {
     return new ResultBuilder();
   }
@@ -79,6 +86,7 @@ public class Result {
     private LinkedHashSet<Location> locations;
     private String hash;
     private List<CodeFlow> codeFlows;
+    private String level;
 
     private ResultBuilder() {
     }
@@ -90,6 +98,11 @@ public class Result {
 
     public ResultBuilder message(String message) {
       this.message = message;
+      return this;
+    }
+
+    public ResultBuilder level(String level) {
+      this.level = level;
       return this;
     }
 
@@ -109,7 +122,7 @@ public class Result {
     }
 
     public Result build() {
-      return new Result(ruleId, message, locations, hash, codeFlows);
+      return new Result(ruleId, message, locations, hash, codeFlows, level);
     }
   }
 }

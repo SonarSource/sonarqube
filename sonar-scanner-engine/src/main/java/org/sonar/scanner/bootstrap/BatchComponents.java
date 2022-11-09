@@ -28,6 +28,12 @@ import org.sonar.core.sarif.SarifSerializerImpl;
 import org.sonar.scanner.cpd.JavaCpdBlockIndexerSensor;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.externalissue.ExternalIssuesImportSensor;
+import org.sonar.scanner.externalissue.sarif.DefaultSarif210Importer;
+import org.sonar.scanner.externalissue.sarif.LocationMapper;
+import org.sonar.scanner.externalissue.sarif.RegionMapper;
+import org.sonar.scanner.externalissue.sarif.ResultMapper;
+import org.sonar.scanner.externalissue.sarif.RunMapper;
+import org.sonar.scanner.externalissue.sarif.SarifIssuesImportSensor;
 import org.sonar.scanner.genericcoverage.GenericCoverageSensor;
 import org.sonar.scanner.genericcoverage.GenericTestExecutionSensor;
 import org.sonar.scanner.source.ZeroCoverageSensor;
@@ -55,6 +61,15 @@ public class BatchComponents {
     components.add(ExternalIssuesImportSensor.class);
     components.add(ExternalIssuesImportSensor.properties());
     components.add(SarifSerializerImpl.class);
+
+    // Sarif issues
+    components.add(SarifIssuesImportSensor.class);
+    components.add(SarifIssuesImportSensor.properties());
+    components.add(DefaultSarif210Importer.class);
+    components.add(RunMapper.class);
+    components.add(ResultMapper.class);
+    components.add(LocationMapper.class);
+    components.add(RegionMapper.class);
 
     return components;
   }

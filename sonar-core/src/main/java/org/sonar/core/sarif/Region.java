@@ -20,18 +20,20 @@
 package org.sonar.core.sarif;
 
 import com.google.gson.annotations.SerializedName;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class Region {
   @SerializedName("startLine")
-  private final int startLine;
+  private final Integer startLine;
   @SerializedName("endLine")
-  private final int endLine;
+  private final Integer endLine;
   @SerializedName("startColumn")
-  private final int startColumn;
+  private final Integer startColumn;
   @SerializedName("endColumn")
-  private final int endColumn;
+  private final Integer endColumn;
 
-  private Region(int startLine, int endLine, int startColumn, int endColumn) {
+  private Region(Integer startLine, @Nullable Integer endLine, @Nullable Integer startColumn, @Nullable Integer endColumn) {
     this.startLine = startLine;
     this.endLine = endLine;
     this.startColumn = startColumn;
@@ -42,19 +44,22 @@ public class Region {
     return new RegionBuilder();
   }
 
-  public int getStartLine() {
+  public Integer getStartLine() {
     return startLine;
   }
 
-  public int getEndLine() {
+  @CheckForNull
+  public Integer getEndLine() {
     return endLine;
   }
 
-  public int getStartColumn() {
+  @CheckForNull
+  public Integer getStartColumn() {
     return startColumn;
   }
 
-  public int getEndColumn() {
+  @CheckForNull
+  public Integer getEndColumn() {
     return endColumn;
   }
 
