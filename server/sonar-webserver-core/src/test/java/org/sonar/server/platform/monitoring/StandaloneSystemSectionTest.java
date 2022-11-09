@@ -27,6 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
@@ -42,6 +44,10 @@ import org.sonar.server.user.SecurityRealmFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.SonarEdition.COMMUNITY;
+import static org.sonar.api.SonarEdition.DATACENTER;
+import static org.sonar.api.SonarEdition.DEVELOPER;
+import static org.sonar.api.SonarEdition.ENTERPRISE;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
@@ -58,12 +64,15 @@ public class StandaloneSystemSectionTest {
   private OfficialDistribution officialDistribution = mock(OfficialDistribution.class);
   private DockerSupport dockerSupport = mock(DockerSupport.class);
 
+  private SonarRuntime sonarRuntime = mock(SonarRuntime.class);
+
   private StandaloneSystemSection underTest = new StandaloneSystemSection(settings.asConfig(), securityRealmFactory, identityProviderRepository, server,
-    serverLogging, officialDistribution, dockerSupport);
+    serverLogging, officialDistribution, dockerSupport, sonarRuntime);
 
   @Before
   public void setUp() {
     when(serverLogging.getRootLoggerLevel()).thenReturn(LoggerLevel.DEBUG);
+    when(sonarRuntime.getEdition()).thenReturn(COMMUNITY);
   }
 
   @Test
@@ -179,11 +188,29 @@ public class StandaloneSystemSectionTest {
     assertThat(attribute(protobuf, "Docker").getBooleanValue()).isEqualTo(flag);
   }
 
+  @Test
+  @UseDataProvider("editions")
+  public void get_edition(SonarEdition sonarEdition, String editionLabel) {
+    when(sonarRuntime.getEdition()).thenReturn(sonarEdition);
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Edition", editionLabel);
+  }
+
   @DataProvider
   public static Object[][] trueOrFalse() {
     return new Object[][] {
       {true},
       {false}
+    };
+  }
+
+  @DataProvider
+  public static Object[][] editions() {
+    return new Object[][] {
+      {COMMUNITY, COMMUNITY.getLabel()},
+      {DEVELOPER, DEVELOPER.getLabel()},
+      {ENTERPRISE, ENTERPRISE.getLabel()},
+      {DATACENTER, DATACENTER.getLabel()},
     };
   }
 }

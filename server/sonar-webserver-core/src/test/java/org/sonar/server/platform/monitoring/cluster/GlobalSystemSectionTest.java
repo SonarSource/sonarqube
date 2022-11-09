@@ -22,10 +22,12 @@ package org.sonar.server.platform.monitoring.cluster;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
@@ -38,6 +40,7 @@ import org.sonar.server.user.SecurityRealmFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.SonarEdition.COMMUNITY;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
@@ -52,8 +55,15 @@ public class GlobalSystemSectionTest {
   private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
 
   private DockerSupport dockerSupport = mock(DockerSupport.class);
+
+  private SonarRuntime sonarRuntime = mock(SonarRuntime.class);
   private GlobalSystemSection underTest = new GlobalSystemSection(settings.asConfig(),
-    server, securityRealmFactory, identityProviderRepository, dockerSupport);
+    server, securityRealmFactory, identityProviderRepository, dockerSupport, sonarRuntime);
+
+  @Before
+  public void setUp() {
+    when(sonarRuntime.getEdition()).thenReturn(COMMUNITY);
+  }
 
   @Test
   public void name_is_not_empty() {
@@ -139,6 +149,12 @@ public class GlobalSystemSectionTest {
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "Docker", flag);
+  }
+
+  @Test
+  public void get_edition() {
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "Edition", COMMUNITY.getLabel());
   }
 
   @DataProvider

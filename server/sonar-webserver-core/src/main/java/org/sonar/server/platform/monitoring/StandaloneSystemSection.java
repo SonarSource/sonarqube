@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
@@ -55,9 +56,11 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
   private final OfficialDistribution officialDistribution;
   private final DockerSupport dockerSupport;
 
+  private final SonarRuntime sonarRuntime;
+
   public StandaloneSystemSection(Configuration config, SecurityRealmFactory securityRealmFactory,
     IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
-    OfficialDistribution officialDistribution, DockerSupport dockerSupport) {
+    OfficialDistribution officialDistribution, DockerSupport dockerSupport, SonarRuntime sonarRuntime) {
     this.config = config;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
@@ -65,6 +68,7 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
     this.serverLogging = serverLogging;
     this.officialDistribution = officialDistribution;
     this.dockerSupport = dockerSupport;
+    this.sonarRuntime = sonarRuntime;
   }
 
   @Override
@@ -122,6 +126,7 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
 
     setAttribute(protobuf, "Server ID", server.getId());
     setAttribute(protobuf, "Version", getVersion());
+    setAttribute(protobuf, "Edition", sonarRuntime.getEdition().getLabel());
     setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
     setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());

@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
@@ -50,13 +51,16 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
   private final IdentityProviderRepository identityProviderRepository;
   private final DockerSupport dockerSupport;
 
+  private final SonarRuntime sonarRuntime;
+
   public GlobalSystemSection(Configuration config, Server server, SecurityRealmFactory securityRealmFactory,
-    IdentityProviderRepository identityProviderRepository, DockerSupport dockerSupport) {
+    IdentityProviderRepository identityProviderRepository, DockerSupport dockerSupport, SonarRuntime sonarRuntime) {
     this.config = config;
     this.server = server;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
     this.dockerSupport = dockerSupport;
+    this.sonarRuntime = sonarRuntime;
   }
 
   @Override
@@ -65,6 +69,7 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
     protobuf.setName("System");
 
     setAttribute(protobuf, "Server ID", server.getId());
+    setAttribute(protobuf, "Edition", sonarRuntime.getEdition().getLabel());
     setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
     setAttribute(protobuf, "High Availability", true);
     setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
