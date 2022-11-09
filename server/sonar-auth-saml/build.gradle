@@ -4,15 +4,10 @@ configurations {
     testImplementation.extendsFrom compileOnly
 }
 
-ext {
-    oneLoginVersion = '2.9.0'
-}
-
 dependencies {
     // please keep the list ordered
 
-    compile "com.onelogin:java-saml:${oneLoginVersion}"
-    compile "com.onelogin:java-saml-core:${oneLoginVersion}"
+    compile "com.onelogin:java-saml"
 
     compileOnly 'com.google.code.findbugs:jsr305'
     compileOnly 'com.squareup.okhttp3:okhttp'
