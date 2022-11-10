@@ -22,7 +22,9 @@ package org.sonar.scanner.externalissue.sarif;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.CoreProperties;
@@ -73,19 +75,32 @@ public class SarifIssuesImportSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     Set<String> reportPaths = loadReportPaths();
+    Map<String, SarifImportResults> filePathToImportResults = new HashMap<>();
+
     for (String reportPath : reportPaths) {
       try {
-        LOG.debug("Importing SARIF issues from '{}'", reportPath);
-        Path reportFilePath = context.fileSystem().resolvePath(reportPath).toPath();
-        Sarif210 sarifReport = sarifSerializer.deserialize(reportFilePath);
-        sarifImporter.importSarif(sarifReport);
+        SarifImportResults sarifImportResults = processReport(context, reportPath);
+        filePathToImportResults.put(reportPath, sarifImportResults);
       } catch (Exception exception) {
-        LOG.warn("Failed to process SARIF report from file '{}', error '{}'", reportPath, exception.getMessage());
+        LOG.warn("Failed to process SARIF report from file '{}', error: '{}'", reportPath, exception.getMessage());
       }
     }
+    filePathToImportResults.forEach(SarifIssuesImportSensor::displayResults);
   }
 
   private Set<String> loadReportPaths() {
     return Arrays.stream(config.getStringArray(SARIF_REPORT_PATHS_PROPERTY_KEY)).collect(Collectors.toSet());
+  }
+
+  private SarifImportResults processReport(SensorContext context, String reportPath) {
+    LOG.debug("Importing SARIF issues from '{}'", reportPath);
+    Path reportFilePath = context.fileSystem().resolvePath(reportPath).toPath();
+    Sarif210 sarifReport = sarifSerializer.deserialize(reportFilePath);
+    return sarifImporter.importSarif(sarifReport);
+  }
+
+  private static void displayResults(String filePath, SarifImportResults sarifImportResults) {
+    LOG.info("File {}: successfully imported {} vulnerabilities spread in {} runs. {} failed run(s).",
+      filePath, sarifImportResults.getSuccessFullyImportedIssues(), sarifImportResults.getSuccessFullyImportedRuns(), sarifImportResults.getFailedRuns());
   }
 }

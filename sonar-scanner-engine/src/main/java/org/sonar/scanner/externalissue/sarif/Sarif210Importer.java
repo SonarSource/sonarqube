@@ -22,5 +22,11 @@ package org.sonar.scanner.externalissue.sarif;
 import org.sonar.core.sarif.Sarif210;
 
 public interface Sarif210Importer {
-  void importSarif(Sarif210 sarif210);
+
+  /**
+   *
+   * @param sarif210 the deserialized sarif report
+   * @return the number of issues imported
+   */
+  SarifImportResults importSarif(Sarif210 sarif210);
 }

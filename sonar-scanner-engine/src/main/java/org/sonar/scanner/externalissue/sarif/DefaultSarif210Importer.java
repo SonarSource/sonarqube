@@ -19,9 +19,7 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
@@ -44,13 +42,27 @@ public class DefaultSarif210Importer implements Sarif210Importer {
   }
 
   @Override
-  public void importSarif(Sarif210 sarif210) {
+  public SarifImportResults importSarif(Sarif210 sarif210) {
+    int successFullyImportedIssues = 0;
+    int successFullyImportedRuns = 0;
+    int failedRuns = 0;
+
     Set<Run> runs = requireNonNull(sarif210.getRuns(), "The runs section of the Sarif report is null");
-    runs.stream()
-      .map(this::toNewExternalIssues)
-      .filter(Objects::nonNull)
-      .flatMap(Collection::stream)
-      .forEach(NewExternalIssue::save);
+    for (Run run : runs) {
+      List<NewExternalIssue> newExternalIssues = toNewExternalIssues(run);
+      if (newExternalIssues == null) {
+        failedRuns += 1;
+      } else {
+        successFullyImportedRuns += 1;
+        successFullyImportedIssues += newExternalIssues.size();
+        newExternalIssues.forEach(NewExternalIssue::save);
+      }
+    }
+    return SarifImportResults.builder()
+      .successFullyImportedIssues(successFullyImportedIssues)
+      .successFullyImportedRuns(successFullyImportedRuns)
+      .failedRuns(failedRuns)
+      .build();
   }
 
   @CheckForNull

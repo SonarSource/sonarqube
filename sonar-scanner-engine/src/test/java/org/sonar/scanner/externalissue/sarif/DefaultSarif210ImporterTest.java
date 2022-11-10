@@ -67,8 +67,11 @@ public class DefaultSarif210ImporterTest extends TestCase {
     when(runMapper.mapRun(run1)).thenReturn(List.of(issue1run1, issue2run1));
     when(runMapper.mapRun(run2)).thenReturn(List.of(issue1run2));
 
-    sarif210Importer.importSarif(sarif210);
+    SarifImportResults sarifImportResults = sarif210Importer.importSarif(sarif210);
 
+    assertThat(sarifImportResults.getSuccessFullyImportedIssues()).isEqualTo(3);
+    assertThat(sarifImportResults.getSuccessFullyImportedRuns()).isEqualTo(2);
+    assertThat(sarifImportResults.getFailedRuns()).isZero();
     verify(issue1run1).save();
     verify(issue2run1).save();
     verify(issue1run2).save();
@@ -87,8 +90,11 @@ public class DefaultSarif210ImporterTest extends TestCase {
     NewExternalIssue issue1run2 = mock(NewExternalIssue.class);
     when(runMapper.mapRun(run2)).thenReturn(List.of(issue1run2));
 
-    sarif210Importer.importSarif(sarif210);
+    SarifImportResults sarifImportResults = sarif210Importer.importSarif(sarif210);
 
+    assertThat(sarifImportResults.getSuccessFullyImportedIssues()).isOne();
+    assertThat(sarifImportResults.getSuccessFullyImportedRuns()).isOne();
+    assertThat(sarifImportResults.getFailedRuns()).isOne();
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Failed to import a sarif run, error: " + testException.getMessage());
     verify(issue1run2).save();
   }
