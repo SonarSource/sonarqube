@@ -60,11 +60,15 @@ public class SarifSerializerImpl implements SarifSerializer {
   @Override
   public Sarif210 deserialize(Path reportPath) {
     try (Reader reader = newBufferedReader(reportPath, UTF_8)) {
-      return gson.fromJson(reader, Sarif210.class);
+      Sarif210 sarif = gson.fromJson(reader, Sarif210.class);
+      SarifVersionValidator.validateSarifVersion(sarif.getVersion());
+      return sarif;
     } catch (JsonIOException | IOException e) {
       throw new IllegalStateException(format(SARIF_REPORT_ERROR, reportPath), e);
     } catch (JsonSyntaxException e) {
       throw new IllegalStateException(format(SARIF_JSON_SYNTAX_ERROR, reportPath), e);
+    } catch (IllegalStateException e) {
+      throw new IllegalStateException(e.getMessage(), e);
     }
   }
 }

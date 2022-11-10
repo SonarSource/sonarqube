@@ -19,13 +19,11 @@
  */
 package org.sonar.core.sarif;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.annotations.SerializedName;
 import java.util.Set;
 
 public class Sarif210 {
 
-  @VisibleForTesting
   public static final String SARIF_VERSION = "2.1.0";
 
   @SerializedName("version")

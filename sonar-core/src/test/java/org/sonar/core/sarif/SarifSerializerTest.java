@@ -28,10 +28,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.sonar.core.sarif.SarifVersionValidator.UNSUPPORTED_VERSION_MESSAGE_TEMPLATE;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SarifSerializerTest {
@@ -67,7 +69,7 @@ public class SarifSerializerTest {
 
     assertThatThrownBy(() -> serializer.deserialize(sarif))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage(String.format("Failed to read SARIF report at '%s'", file));
+      .hasMessage(format("Failed to read SARIF report at '%s'", file));
   }
 
   @Test
@@ -77,7 +79,17 @@ public class SarifSerializerTest {
 
     assertThatThrownBy(() -> serializer.deserialize(sarif))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage(String.format("Failed to read SARIF report at '%s': invalid JSON syntax", sarif));
+      .hasMessage(format("Failed to read SARIF report at '%s': invalid JSON syntax", sarif));
+  }
+
+  @Test
+  public void deserialize_shouldFail_whenSarifVersionIsNotSupported() throws URISyntaxException {
+    URL sarifResource = requireNonNull(getClass().getResource("unsupported-sarif-version-abc.json"));
+    Path sarif = Paths.get(sarifResource.toURI());
+
+    assertThatThrownBy(() -> serializer.deserialize(sarif))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(format(UNSUPPORTED_VERSION_MESSAGE_TEMPLATE, "A.B.C"));
   }
 
   private void verifySarif(Sarif210 deserializationResult) {

@@ -33,8 +33,8 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.sarif.Sarif210;
 import org.sonar.core.sarif.SarifSerializer;
 
-import static org.mockito.Mockito.doThrow;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -61,7 +61,7 @@ public class SarifIssuesImportSensorTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private SensorContextTester sensorContext = SensorContextTester.create(Path.of("."));
+  private final SensorContextTester sensorContext = SensorContextTester.create(Path.of("."));
 
   @Test
   public void execute_single_files() {

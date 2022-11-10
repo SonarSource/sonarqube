@@ -1,0 +1,107 @@
+{
+  "version": "A.B.C",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "SonarQube",
+          "organization": "SonarSource",
+          "semanticVersion": "9.6",
+          "rules": [
+            {
+              "id": "java:S5132",
+              "name": "java:S5132",
+              "shortDescription": {
+                "text": "Make this final static field too."
+              },
+              "fullDescription": {
+                "text": "Make this final static field too."
+              },
+              "help": {
+                "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam hendrerit nisi sed sollicitudin pellentesque. Nunc posuere purus rhoncus pulvinar aliquam. Ut aliquet tristique nisl vitae volutpat. Nulla aliquet porttitor venenatis. Donec a dui et dui fringilla consectetur id nec massa. Aliquam erat volutpat. Sed ut dui ut lacus dictum fermentum vel tincidunt neque. Sed sed lacinia lectus. Duis sit amet sodales felis. Duis nunc eros, mattis at dui ac, convallis semper risus. In adipiscing ultrices tellus, in suscipit massa vehicula eu."
+              },
+              "properties": {
+                "tags": [
+                  "tag1",
+                  "tag2"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "java:S5132",
+          "message": {
+            "text": "this is the message"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "www.google.com",
+                  "uriBaseId": "%SRCROOT"
+                },
+                "region": {
+                  "startLine": 11,
+                  "endLine": 222,
+                  "startColumn": 54,
+                  "endColumn": 4
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "thisISTHEHAS"
+          },
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "www.google.com",
+                            "uriBaseId": "%SRCROOT"
+                          },
+                          "region": {
+                            "startLine": 11,
+                            "endLine": 222,
+                            "startColumn": 54,
+                            "endColumn": 4
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "www.google.com",
+                            "uriBaseId": "%SRCROOT"
+                          },
+                          "region": {
+                            "startLine": 22,
+                            "endLine": 4323,
+                            "startColumn": 545,
+                            "endColumn": 4324
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "language": "en-us",
+      "columnKind": "utf16CodeUnits"
+    }
+  ]
+}
