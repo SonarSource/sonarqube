@@ -563,7 +563,7 @@ sql_postgres_task:
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 # this is the oldest compatible version of PostgreSQL
-sql_postgres96_task:
+sql_postgres11_task:
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
@@ -573,7 +573,7 @@ sql_postgres96_task:
     memory: 5Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
-        image: postgres:9.6
+        image: postgres:11
   script:
     - ./private/cirrus/cirrus-db-unit-test.sh postgres
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
