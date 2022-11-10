@@ -230,11 +230,11 @@ public class SearchAction implements HotspotsWsAction {
         + "For applications, it also requires 'Browse' permission on its child projects. <br>"
         + "When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("8.1")
-      .setInternal(true)
       .setChangelog(
         new Change("9.6", "Added parameters 'pciDss-3.2' and 'pciDss-4.0"),
         new Change("9.7", "Hotspot flows in the response may contain a description and a type"),
-        new Change("9.7", "Hotspot in the response contain the corresponding ruleKey"));
+        new Change("9.7", "Hotspot in the response contain the corresponding ruleKey"),
+        new Change("9.8", "Endpoint visibility change from internal to public"));
 
     action.addPagingParams(100);
     action.createParam(PARAM_PROJECT_KEY)

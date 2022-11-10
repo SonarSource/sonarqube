@@ -171,7 +171,7 @@ public class SearchActionTest {
     WebService.Param sonarsourceSecurityParam = actionTester.getDef().param(PARAM_SONARSOURCE_SECURITY);
     WebService.Param filesParam = actionTester.getDef().param(PARAM_FILES);
 
-    assertThat(actionTester.getDef().isInternal()).isTrue();
+    assertThat(actionTester.getDef().isInternal()).isFalse();
     assertThat(onlyMineParam).isNotNull();
     assertThat(onlyMineParam.isRequired()).isFalse();
     assertThat(actionTester.getDef().param(PARAM_ONLY_MINE).possibleValues())
