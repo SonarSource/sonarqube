@@ -1,4 +1,4 @@
-sonarqube {
+sonar {
     properties {
         property 'sonar.projectName', "${projectTitle} :: Java UT Monitoring"
     }
@@ -14,6 +14,6 @@ dependencies {
     compileOnly 'org.aspectj:aspectjtools'
 }
 
-sonarqube {
+sonar {
     skipProject = true
 }

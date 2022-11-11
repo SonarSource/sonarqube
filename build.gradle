@@ -10,7 +10,7 @@ plugins {
   id "de.undercouch.download" version "5.0.1" apply false
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id "org.cyclonedx.bom" version "1.6.1" apply false
-  id 'org.sonarqube' version '3.4.0.2513'
+  id 'org.sonarqube' version '3.5.0.2730'
 }
 
 if (!JavaVersion.current().java11Compatible) {
@@ -123,7 +123,7 @@ allprojects {
 }
 
 apply plugin: 'org.sonarqube'
-sonarqube {
+sonar {
     properties {
         property 'sonar.projectName', projectTitle
         property 'sonar.projectVersion', "${versionInSources}-SNAPSHOT"
@@ -158,7 +158,7 @@ subprojects {
     protobufVersion = '3.21.7'
   }
 
-  sonarqube {
+  sonar {
     properties {
       property 'sonar.moduleKey', project.group + ':' + project.name
     }

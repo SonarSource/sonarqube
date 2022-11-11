@@ -8,7 +8,7 @@ Pattern PLUGIN_NAME_PATTERN = Pattern.compile("(sonar-.*-plugin)(.*)")
  * This module is building the zip file containing the static web site
  */
 
-sonarqube {
+sonar {
   skipProject = true
 }
 

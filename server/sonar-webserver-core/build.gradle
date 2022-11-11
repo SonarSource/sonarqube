@@ -1,6 +1,6 @@
 description = 'SonarQube WebServer-only code'
 
-sonarqube {
+sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Web Server :: Core"
   }

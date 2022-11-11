@@ -31,7 +31,7 @@ export function buildGradleSnippet(key: string) {
   id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
 }
 
-sonarqube {
+sonar {
   properties {
     property "sonar.projectKey", "${key}"
   }

@@ -1,6 +1,6 @@
 description = 'Compute Engine JVM application'
 
-sonarqube {
+sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Compute Engine"
   }

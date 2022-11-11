@@ -11,9 +11,9 @@ url: /analysis/scan/sonarscanner-for-gradle/
 | See the [online documentation](https://redirect.sonarsource.com/doc/download-scanner-gradle.html) to get more details on the latest version of the scanner and how to download it.
 <!-- /embedded -->
 
-The SonarScanner for Gradle provides an easy way to start SonarQube analysis of a Gradle project.
+The SonarScanner for Gradle provides an easy way to start the scan of a Gradle project.
 
-The ability to execute the SonarQube analysis via a regular Gradle task makes it available anywhere Gradle is available (developer build, CI server, etc.), without the need to manually download, setup, and maintain a SonarQube Runner installation. The Gradle build already has much of the information needed for SonarQube to successfully analyze a project. By preconfiguring the analysis based on that information, the need for manual configuration is reduced significantly. 
+The ability to execute the SonarScanner analysis via a regular Gradle task makes it available anywhere Gradle is available (developer build, CI server, etc.), without the need to manually download, setup, and maintain a SonarScanner CLI installation. The Gradle build already has much of the information needed for the SonarScanner to successfully analyze a project. By preconfiguring the analysis based on that information, the need for manual configuration is reduced significantly. 
 
 ## Prerequisites
 * Gradle versions 5+
@@ -42,14 +42,14 @@ Ensure that you declare the plugins in the correct sequence required by Gradle, 
 
 Assuming a local SonarQube server with out-of-the-box settings is up and running, no further configuration is required.
 
-You need to pass an [authentication token](/user-guide/user-token/) using the `sonar.login` property in your command line or you configure it as part of your `gradle.properties` file. Execute `gradle sonarqube -Dsonar.login=yourAuthenticationToken` and wait until the build has completed, then open the web page indicated at the bottom of the console output. You should now be able to browse the analysis results. 
+You need to pass an [authentication token](/user-guide/user-token/) using the `sonar.login` property in your command line or you configure it as part of your `gradle.properties` file. Execute `gradle sonar -Dsonar.login=yourAuthenticationToken` and wait until the build has completed, then open the web page indicated at the bottom of the console output. You should now be able to browse the analysis results. 
 
 ## Analyzing Multi-Project Builds
-To analyze a project hierarchy, apply the SonarQube plugin to the root project of the hierarchy. Typically (but not necessarily) this will be the root project of the Gradle build. Information pertaining to the analysis as a whole has to be configured in the sonarqube block of this project. Any properties set on the command line also apply to this project.
+To analyze a project hierarchy, apply the SonarQube plugin to the root project of the hierarchy. Typically (but not necessarily) this will be the root project of the Gradle build. Information pertaining to the analysis as a whole has to be configured in the sonar block of this project. Any properties set on the command line also apply to this project.
 
 ```
 // build.gradle
-sonarqube {
+sonar {
     properties {
         property "sonar.sourceEncoding", "UTF-8"
     }
@@ -60,7 +60,7 @@ Configuration shared between subprojects can be configured in a subprojects bloc
 ```
 // build.gradle
 subprojects {
-    sonarqube {
+    sonar {
         properties {
             property "sonar.sources", "src"
         }
@@ -68,35 +68,35 @@ subprojects {
 }
 ```
 
-Project-specific information is configured in the `sonarqube` block of the corresponding project.
+Project-specific information is configured in the `sonar` block of the corresponding project.
 ```
 // build.gradle
 project(":project1") {
-    sonarqube {
+    sonar {
         properties {
             property "sonar.branch", "Foo"
         }
     }}
 ```
 
-To skip SonarQube analysis for a particular subproject, set sonarqube.skipProject to true.
+To skip SonarScanner analysis for a particular subproject, set sonar.skipProject to true.
 ```
 // build.gradle
 project(":project2") {
-    sonarqube {
+    sonar {
         skipProject = true
     }
 }
 ```
 
 ## Task dependencies
-All tasks that produce output that should be included in the SonarQube analysis need to be executed before the `sonarqube` task runs. Typically, these are compile tasks, test tasks, and [code coverage](/analysis/coverage/) tasks. 
+All tasks that produce output that should be included in the SonarScanner analysis need to be executed before the `sonar` task runs. Typically, these are compile tasks, test tasks, and [code coverage](/analysis/coverage/) tasks. 
 
 Starting with v3.0 of the SonarScanner for Gradle, task dependencies are no longer added automatically. Instead, the SonarScanner plugin enforces the correct order of tasks with `mustRunAfter`. You need to be either manually run the tasks that produce output before `sonarqube`, or you can add a dependency to the build script: 
 
 ```
 // build.gradle
-project.tasks["sonarqube"].dependsOn "anotherTask"
+project.tasks["sonar"].dependsOn "anotherTask"
 ```
 
 ## Sample project
@@ -107,7 +107,7 @@ https://github.com/SonarSource/sonar-scanning-examples/tree/master/sonarqube-sca
 ## Analysis property defaults
 The SonarScanner for Gradle uses information contained in Gradle's object model to provide smart defaults for most of the standard [analysis parameters](/analysis/analysis-parameters/), as listed below.
 
-Gradle defaults for standard SonarQube properties: 
+Gradle defaults for standard Sonar properties: 
 
 Property|Gradle default
 ---|---
@@ -152,7 +152,7 @@ By default the first variant of type "debug" will be used to configure the analy
  
 ```
 build.gradle
-sonarqube {
+sonar {
     androidVariant 'fullDebug'
 }
 ```
@@ -168,23 +168,23 @@ Property|	Gradle default
 
 
 ## Passing manual properties / overriding defaults
-The SonarScanner for Gradle adds a SonarQubeExtension extension to project and its subprojects, which allows you to configure/override the analysis properties.
+The SonarScanner for Gradle adds a SonarExtension extension to project and its subprojects, which allows you to configure/override the analysis properties.
 ```
 // in build.gradle
-sonarqube {
+sonar {
     properties {
         property "sonar.exclusions", "**/*Generated.java"
     }
 }
 ```
-SonarQube properties can also be set from the command line, or by setting a system property named exactly like the SonarQube property in question. This can be useful when dealing with sensitive information (e.g. credentials), environment information, or for ad-hoc configuration.
+Sonar properties can also be set from the command line, or by setting a system property named exactly like the Sonar property in question. This can be useful when dealing with sensitive information (e.g. credentials), environment information, or for ad-hoc configuration.
  
 ```
-gradle sonarqube -Dsonar.host.url=http://sonar.mycompany.com -Dsonar.verbose=true
+gradle sonar -Dsonar.host.url=http://sonar.mycompany.com -Dsonar.verbose=true
 ```
 
 While certainly useful at times, we recommend keeping the bulk of the configuration in a (versioned) build script, readily available to everyone.
-A SonarQube property value set via a system property overrides any value set in a build script (for the same property). When analyzing a project hierarchy, values set via system properties apply to the root project of the analyzed hierarchy. Each system property starting with `sonar.` will be taken into account.
+A Sonar property value set via a system property overrides any value set in a build script (for the same property). When analyzing a project hierarchy, values set via system properties apply to the root project of the analyzed hierarchy. Each system property starting with `sonar.` will be taken into account.
 
 
 
@@ -193,7 +193,7 @@ By default, the SonarScanner for Gradle passes on the project's main source set 
 
 ```
 // build.gradle
-sonarqube {
+sonar {
     properties {
         properties["sonar.sources"] += sourceSets.custom.allSource.srcDirs
         properties["sonar.tests"] += sourceSets.integTest.allSource.srcDirs
@@ -202,8 +202,8 @@ sonarqube {
 ```
 
 ## Advanced topics
-### More on configuring SonarQube properties
-Let's take a closer look at the `sonarqube.properties` `{}` block. As we have already seen in the examples, the `property()` method allows you to set new properties or override existing ones. Furthermore, all properties that have been configured up to this point, including all properties preconfigured by Gradle, are available via the properties accessor.
+### More on configuring Sonar properties
+Let's take a closer look at the `sonar.properties` `{}` block. As we have already seen in the examples, the `property()` method allows you to set new properties or override existing ones. Furthermore, all properties that have been configured up to this point, including all properties preconfigured by Gradle, are available via the properties accessor.
 
 Entries in the properties map can be read and written with the usual Groovy syntax. To facilitate their manipulation, values still have their “idiomatic” type (File, List, etc.). After the sonarProperties block has been evaluated, values are converted to Strings as follows: Collection values are (recursively) converted to comma-separated Strings, and all other values are converted by calling their `toString()` methods.
 

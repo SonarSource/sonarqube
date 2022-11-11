@@ -1,4 +1,4 @@
-sonarqube {
+sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Web Service"
     property 'sonar.exclusions', 'src/main/java/org/sonarqube/ws/client/*/*.java'

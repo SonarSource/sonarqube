@@ -1,6 +1,6 @@
 description = 'SonarQube WebServer executable and Tomcat directly related code'
 
-sonarqube {
+sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: WebServer"
   }

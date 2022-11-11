@@ -1,6 +1,6 @@
 description = 'Definition of a Compute Engine task and utility "framework" and classes to code one'
 
-sonarqube {
+sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Compute Engine :: Task"
   }

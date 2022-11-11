@@ -9,7 +9,7 @@ plugins {
   id "org.cyclonedx.bom"
 }
 
-sonarqube {
+sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Application"
   }

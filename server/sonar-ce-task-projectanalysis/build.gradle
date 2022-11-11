@@ -1,6 +1,6 @@
 description = 'Code of the Compute Engine task processing project analysis reports'
 
-sonarqube {
+sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Compute Engine :: Task :: Project Analysis"
   }

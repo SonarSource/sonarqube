@@ -49,7 +49,7 @@ const gradleSnippet = (key: string) => `plugins {
   id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
 }
 
-sonarqube {
+sonar {
   properties {
     property "sonar.projectKey", "${key}"
     property "sonar.qualitygate.wait", true 

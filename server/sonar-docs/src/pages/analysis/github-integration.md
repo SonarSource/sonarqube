@@ -216,7 +216,7 @@ Click the scanner you're using below to expand the example configuration:
 |           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
 |           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 |           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-|         run: ./gradlew build sonarqube --info 
+|         run: ./gradlew build sonar --info 
 | ```
 
 
@@ -415,5 +415,4 @@ Initially, all issues marked **Open** on SonarQube are marked **Open** on GitHub
 |Dismiss: False positive|Resolve (False Positive)|
 |Dismiss: Used in tests|Resolve (Won't Fix)|
 |Dismiss: Won't fix|Resolve (Won't Fix)|
-	
 	

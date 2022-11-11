@@ -1,4 +1,4 @@
-sonarqube {
+sonar {
   skipProject = true
 }
 

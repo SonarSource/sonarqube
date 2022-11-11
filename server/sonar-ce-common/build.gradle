@@ -1,6 +1,6 @@
 description = 'Code relating to the Compute Engine shared between the Compute Engine and the Web Server'
 
-sonarqube {
+sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Compute Engine :: Common"
   }

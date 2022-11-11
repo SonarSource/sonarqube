@@ -1,6 +1,6 @@
 description = 'WebServer "API" to write Web Services'
 
-sonarqube {
+sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: WebServer :: WS"
   }

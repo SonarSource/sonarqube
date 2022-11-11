@@ -104,7 +104,7 @@ Click the scanner you're using below to expand the example configuration:
 |           - gradle
 |           - sonar
 |         script:
-|           - bash ./gradlew sonarqube
+|           - bash ./gradlew sonar
 |   caches:
 |     sonar: ~/.sonar
 |
