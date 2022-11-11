@@ -22,7 +22,7 @@ env:
   BUDDY_WORKS_TOKEN: ENCRYPTED[9ba648f3167b6f0c0befbba2f816bfffd53260fef06fb0fe8bba0a19ae4808c8b1567c5dcee2a2ee5299a5969058f495]
   ELASTIC_PWD: ENCRYPTED[78c127034b9f06bc1b5ad7a520de2da094f3eaf1dcb35f12b0f178fa90ce2fd157bd6f9feece9bf3a54b4e3805bc39fb]
   CIRRUS_LOG_TIMESTAMP: true
-  # No need to clone the full history.
+  # This applies to the tasks not relying on the custom clone script, there is no need to clone the full history.
   # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
   # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
   CIRRUS_CLONE_DEPTH: 50
@@ -144,7 +144,17 @@ junit_report_cache_template: &JUNIT_REPORT_CACHE_TEMPLATE
       - "**/test-results/test"
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
+custom_clone_script_template: &CUSTOM_CLONE_SCRIPT_TEMPLATE
+  clone_script: |
+    git init
+    git remote add origin https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git
+    git fetch origin $CIRRUS_CHANGE_IN_REPO $FETCH_DEPTH
+    git reset --hard $CIRRUS_CHANGE_IN_REPO
+  env:
+    FETCH_DEPTH: --depth=1
+
 build_task:
+  <<: *CUSTOM_CLONE_SCRIPT_TEMPLATE
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
@@ -163,6 +173,7 @@ build_task:
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 yarn_lint_task:
+  <<: *CUSTOM_CLONE_SCRIPT_TEMPLATE
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
@@ -176,6 +187,7 @@ yarn_lint_task:
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 yarn_check_task:
+  <<: *CUSTOM_CLONE_SCRIPT_TEMPLATE
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
@@ -189,6 +201,7 @@ yarn_check_task:
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 yarn_validate_task:
+  <<: *CUSTOM_CLONE_SCRIPT_TEMPLATE
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
@@ -202,6 +215,7 @@ yarn_validate_task:
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 junit_task:
+  <<: *CUSTOM_CLONE_SCRIPT_TEMPLATE
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
@@ -214,6 +228,7 @@ junit_task:
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 sq_analysis_task:
+  <<: *CUSTOM_CLONE_SCRIPT_TEMPLATE
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
@@ -231,12 +246,13 @@ sq_analysis_task:
     memory: 28Gb
   env:
     # For the analysis, we need the full history.
-    CIRRUS_CLONE_DEPTH: 0
+    FETCH_DEPTH: ""
   script:
     - ./private/cirrus/cirrus-sq-analysis.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 qa_task:
+  <<: *CUSTOM_CLONE_SCRIPT_TEMPLATE
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
@@ -474,6 +490,7 @@ qa_ldap_task:
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 promote_task:
+  <<: *CUSTOM_CLONE_SCRIPT_TEMPLATE
   <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   depends_on:
@@ -484,6 +501,7 @@ promote_task:
     - qa_ldap
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
+    memory: 1G
   stateful: true
   script:
     - ./private/cirrus/cirrus-promote.sh
