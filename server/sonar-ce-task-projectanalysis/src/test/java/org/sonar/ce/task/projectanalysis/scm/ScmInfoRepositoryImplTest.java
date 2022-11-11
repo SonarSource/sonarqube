@@ -147,6 +147,25 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
+  public void read_from_DB_with_missing_lines_if_no_report_and_file_unchanged() {
+    createDbScmInfoWithMissingLine();
+    when(fileStatuses.isUnchanged(FILE_SAME)).thenReturn(true);
+
+    // should clear revision and author
+    ScmInfo scmInfo = underTest.getScmInfo(FILE_SAME).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(2);
+    assertChangeset(scmInfo.getChangesetForLine(1), null, null, 10L);
+    assertThat(scmInfo.hasChangesetForLine(2)).isFalse();
+
+    verify(fileStatuses).isUnchanged(FILE_SAME);
+    verify(dbLoader).getScmInfo(FILE_SAME);
+
+    verifyNoMoreInteractions(dbLoader);
+    verifyNoMoreInteractions(fileStatuses);
+    verifyNoInteractions(diff);
+  }
+
+  @Test
   public void read_from_DB_if_no_report_and_file_unchanged_and_copyFromPrevious_is_true() {
     createDbScmInfoWithOneLine();
     when(fileStatuses.isUnchanged(FILE_SAME)).thenReturn(true);
@@ -217,6 +236,21 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
+  public void generate_scm_info_for_db_changesets_without_date_when_report_is_empty() {
+    // changeset for line 1 will have no date, so won't be loaded
+    createDbScmInfoWithOneLineWithoutDate();
+    when(diff.computeMatchingLines(FILE)).thenReturn(new int[] {1, 0, 0});
+    addFileSourceInReport(3);
+    ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(3);
+
+    // a date will be generated for line 1
+    assertChangeset(scmInfo.getChangesetForLine(1), null, null, analysisDate.getTime());
+    assertChangeset(scmInfo.getChangesetForLine(2), null, null, analysisDate.getTime());
+    assertChangeset(scmInfo.getChangesetForLine(3), null, null, analysisDate.getTime());
+  }
+
+  @Test
   public void fail_with_NPE_when_component_is_null() {
     assertThatThrownBy(() -> underTest.getScmInfo(null))
       .isInstanceOf(NullPointerException.class)
@@ -283,6 +317,32 @@ public class ScmInfoRepositoryImplTest {
       .setScmDate(10L)
       .build();
     DbScmInfo scmInfo = DbScmInfo.create(Collections.singletonList(line1), 1, "hash1").get();
+    when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.of(scmInfo));
+    return scmInfo;
+  }
+
+  private DbScmInfo createDbScmInfoWithOneLineWithoutDate() {
+    Line line1 = Line.newBuilder().setLine(1)
+      .setScmRevision("rev1")
+      .setScmAuthor("author1")
+      .build();
+    Line line2 = Line.newBuilder().setLine(2)
+      .setScmRevision("rev1")
+      .setScmAuthor("author1")
+      .setScmDate(10L)
+      .build();
+    DbScmInfo scmInfo = DbScmInfo.create(List.of(line1, line2), 2, "hash1").get();
+    when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.of(scmInfo));
+    return scmInfo;
+  }
+
+  private DbScmInfo createDbScmInfoWithMissingLine() {
+    Line line1 = Line.newBuilder().setLine(1)
+      .setScmRevision("rev1")
+      .setScmAuthor("author1")
+      .setScmDate(10L)
+      .build();
+    DbScmInfo scmInfo = DbScmInfo.create(Collections.singletonList(line1), 2, "hash1").get();
     when(dbLoader.getScmInfo(FILE)).thenReturn(Optional.of(scmInfo));
     return scmInfo;
   }

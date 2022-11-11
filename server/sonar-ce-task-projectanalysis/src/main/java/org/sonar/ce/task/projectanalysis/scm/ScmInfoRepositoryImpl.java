@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -100,7 +102,12 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     return new ScmInfoImpl(changesets);
   }
 
-  private static Changeset removeAuthorAndRevision(Changeset changeset) {
+  @CheckForNull
+  private static Changeset removeAuthorAndRevision(@Nullable Changeset changeset) {
+    // some changesets might be null if they are missing in the DB or if they contained no date
+    if (changeset == null) {
+      return null;
+    }
     return Changeset.newChangesetBuilder().setDate(changeset.getDate()).build();
   }
 

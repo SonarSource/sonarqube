@@ -51,7 +51,8 @@ public class GeneratedScmInfo {
     Changeset[] changesets = new Changeset[matches.length];
 
     for (int i = 0; i < matches.length; i++) {
-      if (matches[i] > 0) {
+      // db changeset can be null if it contains no date
+      if (matches[i] > 0 && dbChangesets[matches[i] - 1] != null) {
         changesets[i] = dbChangesets[matches[i] - 1];
       } else {
         changesets[i] = changeset;
