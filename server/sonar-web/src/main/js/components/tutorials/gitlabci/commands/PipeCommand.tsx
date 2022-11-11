@@ -30,7 +30,7 @@ export interface PipeCommandProps {
 }
 
 const BUILD_TOOL_SPECIFIC = {
-  [BuildTools.Gradle]: { image: 'gradle:jre11-slim', script: () => 'gradle sonarqube' },
+  [BuildTools.Gradle]: { image: 'gradle:jre11-slim', script: () => 'gradle sonar' },
   [BuildTools.Maven]: {
     image: 'maven:3.6.3-jdk-11',
     script: (projectKey: string) => `

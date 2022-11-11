@@ -40,7 +40,7 @@ export default function JavaGradle(props: JavaGradleProps) {
 }`;
 
   const command = [
-    './gradlew sonarqube',
+    './gradlew sonar',
     `-Dsonar.projectKey=${component.key}`,
     `-Dsonar.host.url=${baseUrl}`,
     `-Dsonar.login=${token}`,

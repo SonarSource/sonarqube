@@ -58,7 +58,7 @@ const GRADLE_YAML_STEPS = `
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-        run: ./gradlew build sonarqube --info`;
+        run: ./gradlew build sonar --info`;
 
 export default function Gradle(props: GradleProps) {
   const { component, branchesEnabled, mainBranchName } = props;

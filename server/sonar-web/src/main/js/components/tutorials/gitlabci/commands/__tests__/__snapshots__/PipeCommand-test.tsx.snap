@@ -148,7 +148,7 @@ exports[`should render correctly for gradle: branches enabled 1`] = `
     key: \\"\${CI_JOB_NAME}\\"
     paths:
       - .sonar/cache
-  script: gradle sonarqube
+  script: gradle sonar
   allow_failure: true
   only:
     - merge_requests
@@ -171,7 +171,7 @@ exports[`should render correctly for gradle: branches not enabled 1`] = `
     key: \\"\${CI_JOB_NAME}\\"
     paths:
       - .sonar/cache
-  script: gradle sonarqube
+  script: gradle sonar
   allow_failure: true
   only:
     - merge_requests

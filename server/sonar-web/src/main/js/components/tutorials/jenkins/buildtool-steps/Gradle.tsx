@@ -31,7 +31,7 @@ const JENKINSFILE_SNIPPET = `node {
   }
   stage('SonarQube Analysis') {
     withSonarQubeEnv() {
-      sh "./gradlew sonarqube"
+      sh "./gradlew sonar"
     }
   }
 }`;

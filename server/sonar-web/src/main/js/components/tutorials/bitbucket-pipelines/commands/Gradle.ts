@@ -28,7 +28,7 @@ definitions:
           - gradle
           - sonar
         script:
-          - bash ./gradlew sonarqube
+          - bash ./gradlew sonar
   caches:
     sonar: ~/.sonar
 
