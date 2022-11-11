@@ -38,6 +38,7 @@ import {
   AlmSettingsBindingStatusType,
 } from '../../../../types/alm-settings';
 import { EditionKey } from '../../../../types/editions';
+import { ALLOWED_MULTIPLE_CONFIGS } from '../../../create/project/constants';
 
 export interface AlmBindingDefinitionBoxProps {
   alm: AlmKeys;
@@ -110,7 +111,7 @@ function getImportFeatureStatus(
   multipleDefinitions: boolean,
   type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure
 ) {
-  if (multipleDefinitions) {
+  if (multipleDefinitions && !ALLOWED_MULTIPLE_CONFIGS.includes(alm)) {
     return (
       <div className="display-inline-flex-center">
         <strong className="spacer-left">

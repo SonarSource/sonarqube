@@ -129,19 +129,11 @@ exports[`should render correctly: when there are configuration errors (admin use
       <div
         className="settings-definition-right"
       >
-        <Select
-          className="abs-width-400 big-spacer-top it__configuration-name-select"
-          components={
-            Object {
-              "Option": [Function],
-              "SingleValue": [Function],
-            }
-          }
+        <AlmSettingsInstanceSelector
+          classNames="abs-width-400 big-spacer-top it__configuration-name-select"
+          initialValue="i1"
           inputId="name"
-          isClearable={false}
-          isSearchable={false}
-          onChange={[Function]}
-          options={
+          instances={
             Array [
               Object {
                 "alm": "github",
@@ -164,15 +156,7 @@ exports[`should render correctly: when there are configuration errors (admin use
               },
             ]
           }
-          value={
-            Array [
-              Object {
-                "alm": "github",
-                "key": "i1",
-                "url": "http://github.enterprise.com",
-              },
-            ]
-          }
+          onChange={[Function]}
         />
       </div>
     </div>
@@ -329,19 +313,11 @@ exports[`should render correctly: when there are configuration errors (admin use
       <div
         className="settings-definition-right"
       >
-        <Select
-          className="abs-width-400 big-spacer-top it__configuration-name-select"
-          components={
-            Object {
-              "Option": [Function],
-              "SingleValue": [Function],
-            }
-          }
+        <AlmSettingsInstanceSelector
+          classNames="abs-width-400 big-spacer-top it__configuration-name-select"
+          initialValue=""
           inputId="name"
-          isClearable={false}
-          isSearchable={false}
-          onChange={[Function]}
-          options={
+          instances={
             Array [
               Object {
                 "alm": "github",
@@ -364,7 +340,7 @@ exports[`should render correctly: when there are configuration errors (admin use
               },
             ]
           }
-          value={Array []}
+          onChange={[Function]}
         />
       </div>
     </div>
@@ -467,19 +443,11 @@ exports[`should render correctly: when there are configuration errors (non-admin
       <div
         className="settings-definition-right"
       >
-        <Select
-          className="abs-width-400 big-spacer-top it__configuration-name-select"
-          components={
-            Object {
-              "Option": [Function],
-              "SingleValue": [Function],
-            }
-          }
+        <AlmSettingsInstanceSelector
+          classNames="abs-width-400 big-spacer-top it__configuration-name-select"
+          initialValue=""
           inputId="name"
-          isClearable={false}
-          isSearchable={false}
-          onChange={[Function]}
-          options={
+          instances={
             Array [
               Object {
                 "alm": "github",
@@ -502,7 +470,7 @@ exports[`should render correctly: when there are configuration errors (non-admin
               },
             ]
           }
-          value={Array []}
+          onChange={[Function]}
         />
       </div>
     </div>
@@ -608,19 +576,11 @@ exports[`should render correctly: with a single ALM instance 1`] = `
       <div
         className="settings-definition-right"
       >
-        <Select
-          className="abs-width-400 big-spacer-top it__configuration-name-select"
-          components={
-            Object {
-              "Option": [Function],
-              "SingleValue": [Function],
-            }
-          }
+        <AlmSettingsInstanceSelector
+          classNames="abs-width-400 big-spacer-top it__configuration-name-select"
+          initialValue=""
           inputId="name"
-          isClearable={false}
-          isSearchable={false}
-          onChange={[Function]}
-          options={
+          instances={
             Array [
               Object {
                 "alm": "github",
@@ -629,7 +589,7 @@ exports[`should render correctly: with a single ALM instance 1`] = `
               },
             ]
           }
-          value={Array []}
+          onChange={[Function]}
         />
       </div>
     </div>
@@ -686,19 +646,11 @@ exports[`should render correctly: with a valid and saved form 1`] = `
       <div
         className="settings-definition-right"
       >
-        <Select
-          className="abs-width-400 big-spacer-top it__configuration-name-select"
-          components={
-            Object {
-              "Option": [Function],
-              "SingleValue": [Function],
-            }
-          }
+        <AlmSettingsInstanceSelector
+          classNames="abs-width-400 big-spacer-top it__configuration-name-select"
+          initialValue="i1"
           inputId="name"
-          isClearable={false}
-          isSearchable={false}
-          onChange={[Function]}
-          options={
+          instances={
             Array [
               Object {
                 "alm": "github",
@@ -721,15 +673,7 @@ exports[`should render correctly: with a valid and saved form 1`] = `
               },
             ]
           }
-          value={
-            Array [
-              Object {
-                "alm": "github",
-                "key": "i1",
-                "url": "http://github.enterprise.com",
-              },
-            ]
-          }
+          onChange={[Function]}
         />
       </div>
     </div>
@@ -848,19 +792,11 @@ exports[`should render correctly: with an empty form 1`] = `
       <div
         className="settings-definition-right"
       >
-        <Select
-          className="abs-width-400 big-spacer-top it__configuration-name-select"
-          components={
-            Object {
-              "Option": [Function],
-              "SingleValue": [Function],
-            }
-          }
+        <AlmSettingsInstanceSelector
+          classNames="abs-width-400 big-spacer-top it__configuration-name-select"
+          initialValue=""
           inputId="name"
-          isClearable={false}
-          isSearchable={false}
-          onChange={[Function]}
-          options={
+          instances={
             Array [
               Object {
                 "alm": "github",
@@ -883,7 +819,7 @@ exports[`should render correctly: with an empty form 1`] = `
               },
             ]
           }
-          value={Array []}
+          onChange={[Function]}
         />
       </div>
     </div>

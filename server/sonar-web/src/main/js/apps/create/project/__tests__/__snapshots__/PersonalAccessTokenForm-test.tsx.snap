@@ -29,7 +29,7 @@ exports[`should render correctly: bitbucket 1`] = `
       <input
         autoFocus={true}
         className="input-super-large is-invalid"
-        id="personal_access_token"
+        id="personal_access_token_validation"
         minLength={1}
         onChange={[Function]}
         type="text"
@@ -180,7 +180,7 @@ exports[`should render correctly: bitbucket cloud 1`] = `
       <input
         autoFocus={false}
         className="input-super-large is-invalid"
-        id="personal_access_token"
+        id="personal_access_token_validation"
         minLength={1}
         onChange={[Function]}
         type="text"
@@ -321,7 +321,7 @@ exports[`should render correctly: gitlab 1`] = `
       <input
         autoFocus={true}
         className="input-super-large is-invalid"
-        id="personal_access_token"
+        id="personal_access_token_validation"
         minLength={1}
         onChange={[Function]}
         type="text"
@@ -431,7 +431,7 @@ exports[`should render correctly: gitlab with non-standard api path 1`] = `
       <input
         autoFocus={true}
         className="input-super-large is-invalid"
-        id="personal_access_token"
+        id="personal_access_token_validation"
         minLength={1}
         onChange={[Function]}
         type="text"
@@ -566,7 +566,7 @@ exports[`should show error when issue: issue submitting token 1`] = `
       <input
         autoFocus={false}
         className="input-super-large is-invalid"
-        id="personal_access_token"
+        id="personal_access_token_validation"
         minLength={1}
         onChange={[Function]}
         type="text"

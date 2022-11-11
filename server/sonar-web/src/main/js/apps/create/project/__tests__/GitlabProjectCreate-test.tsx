@@ -154,7 +154,7 @@ it('should import', async () => {
 });
 
 it('should do nothing with missing settings', async () => {
-  const wrapper = shallowRender({ settings: [] });
+  const wrapper = shallowRender({ almInstances: [] });
 
   await wrapper.instance().handleLoadMore();
   await wrapper.instance().handleSearch('whatever');
@@ -204,7 +204,7 @@ function shallowRender(props: Partial<GitlabProjectCreate['props']> = {}) {
       location={mockLocation()}
       onProjectCreate={jest.fn()}
       router={mockRouter()}
-      settings={[mockAlmSettingsInstance({ alm: AlmKeys.GitLab, key: almSettingKey })]}
+      almInstances={[mockAlmSettingsInstance({ alm: AlmKeys.GitLab, key: almSettingKey })]}
       {...props}
     />
   );

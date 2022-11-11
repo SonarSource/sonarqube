@@ -27,8 +27,8 @@ import GitlabProjectCreateRenderer, {
 
 it('should render correctly', () => {
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
-  expect(shallowRender({ settings: undefined })).toMatchSnapshot('invalid settings');
-  expect(shallowRender({ canAdmin: true, settings: undefined })).toMatchSnapshot(
+  expect(shallowRender({ almInstances: undefined })).toMatchSnapshot('invalid settings');
+  expect(shallowRender({ almInstances: undefined })).toMatchSnapshot(
     'invalid settings, admin user'
   );
   expect(shallowRender()).toMatchSnapshot('pat form');
@@ -47,13 +47,19 @@ function shallowRender(props: Partial<GitlabProjectCreateRendererProps> = {}) {
       onLoadMore={jest.fn()}
       onPersonalAccessTokenCreated={jest.fn()}
       onSearch={jest.fn()}
+      onChangeConfig={jest.fn()}
       projects={undefined}
       projectsPaging={{ pageIndex: 1, pageSize: 30, total: 0 }}
       searching={false}
       searchQuery=""
       resetPat={false}
       showPersonalAccessTokenForm={true}
-      settings={mockAlmSettingsInstance({ alm: AlmKeys.GitLab })}
+      almInstances={[
+        mockAlmSettingsInstance({ alm: AlmKeys.GitLab }),
+        mockAlmSettingsInstance({ alm: AlmKeys.GitLab }),
+        mockAlmSettingsInstance({ alm: AlmKeys.GitHub }),
+      ]}
+      selectedAlmInstance={mockAlmSettingsInstance({ alm: AlmKeys.GitLab })}
       {...props}
     />
   );

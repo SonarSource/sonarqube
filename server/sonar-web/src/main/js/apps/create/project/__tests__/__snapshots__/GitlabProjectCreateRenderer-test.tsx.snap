@@ -17,9 +17,15 @@ exports[`should render correctly: invalid settings 1`] = `
       </span>
     }
   />
-  <WrongBindingCountAlert
-    alm="gitlab"
-    canAdmin={false}
+  <PersonalAccessTokenForm
+    almSetting={
+      Object {
+        "alm": "gitlab",
+        "key": "key",
+      }
+    }
+    onPersonalAccessTokenCreated={[MockFunction]}
+    resetPat={false}
   />
 </Fragment>
 `;
@@ -41,9 +47,15 @@ exports[`should render correctly: invalid settings, admin user 1`] = `
       </span>
     }
   />
-  <WrongBindingCountAlert
-    alm="gitlab"
-    canAdmin={true}
+  <PersonalAccessTokenForm
+    almSetting={
+      Object {
+        "alm": "gitlab",
+        "key": "key",
+      }
+    }
+    onPersonalAccessTokenCreated={[MockFunction]}
+    resetPat={false}
   />
 </Fragment>
 `;
@@ -65,6 +77,38 @@ exports[`should render correctly: loading 1`] = `
       </span>
     }
   />
+  <div
+    className="display-flex-column huge-spacer-bottom"
+  >
+    <label
+      className="spacer-bottom"
+      htmlFor="alm-config-selector"
+    >
+      alm.configuration.selector.label
+    </label>
+    <AlmSettingsInstanceSelector
+      classNames="abs-width-400"
+      initialValue="key"
+      inputId="alm-config-selector"
+      instances={
+        Array [
+          Object {
+            "alm": "gitlab",
+            "key": "key",
+          },
+          Object {
+            "alm": "gitlab",
+            "key": "key",
+          },
+          Object {
+            "alm": "github",
+            "key": "key",
+          },
+        ]
+      }
+      onChange={[MockFunction]}
+    />
+  </div>
   <i
     className="spinner"
   />
@@ -88,6 +132,38 @@ exports[`should render correctly: pat form 1`] = `
       </span>
     }
   />
+  <div
+    className="display-flex-column huge-spacer-bottom"
+  >
+    <label
+      className="spacer-bottom"
+      htmlFor="alm-config-selector"
+    >
+      alm.configuration.selector.label
+    </label>
+    <AlmSettingsInstanceSelector
+      classNames="abs-width-400"
+      initialValue="key"
+      inputId="alm-config-selector"
+      instances={
+        Array [
+          Object {
+            "alm": "gitlab",
+            "key": "key",
+          },
+          Object {
+            "alm": "gitlab",
+            "key": "key",
+          },
+          Object {
+            "alm": "github",
+            "key": "key",
+          },
+        ]
+      }
+      onChange={[MockFunction]}
+    />
+  </div>
   <PersonalAccessTokenForm
     almSetting={
       Object {
@@ -118,6 +194,38 @@ exports[`should render correctly: project selection form 1`] = `
       </span>
     }
   />
+  <div
+    className="display-flex-column huge-spacer-bottom"
+  >
+    <label
+      className="spacer-bottom"
+      htmlFor="alm-config-selector"
+    >
+      alm.configuration.selector.label
+    </label>
+    <AlmSettingsInstanceSelector
+      classNames="abs-width-400"
+      initialValue="key"
+      inputId="alm-config-selector"
+      instances={
+        Array [
+          Object {
+            "alm": "gitlab",
+            "key": "key",
+          },
+          Object {
+            "alm": "gitlab",
+            "key": "key",
+          },
+          Object {
+            "alm": "github",
+            "key": "key",
+          },
+        ]
+      }
+      onChange={[MockFunction]}
+    />
+  </div>
   <GitlabProjectSelectionForm
     loadingMore={false}
     onImport={[MockFunction]}

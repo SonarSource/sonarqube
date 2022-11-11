@@ -19,10 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { components, OptionProps, SingleValueProps } from 'react-select';
 import Link from '../../../../components/common/Link';
 import { Button, SubmitButton } from '../../../../components/controls/buttons';
-import Select from '../../../../components/controls/Select';
+import AlmSettingsInstanceSelector from '../../../../components/devops-platform/AlmSettingsInstanceSelector';
 import AlertSuccessIcon from '../../../../components/icons/AlertSuccessIcon';
 import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
@@ -55,25 +54,6 @@ export interface PRDecorationBindingRendererProps {
   checkingConfiguration: boolean;
   configurationErrors?: ProjectAlmBindingConfigurationErrors;
   isSysAdmin: boolean;
-}
-
-function optionRenderer(props: OptionProps<AlmSettingsInstance, false>) {
-  return <components.Option {...props}>{customOptions(props.data)}</components.Option>;
-}
-
-function singleValueRenderer(props: SingleValueProps<AlmSettingsInstance>) {
-  return <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>;
-}
-
-function customOptions(instance: AlmSettingsInstance) {
-  return instance.url ? (
-    <>
-      <span>{instance.key} — </span>
-      <span className="text-muted">{instance.url}</span>
-    </>
-  ) : (
-    <span>{instance.key}</span>
-  );
 }
 
 export default function PRDecorationBindingRenderer(props: PRDecorationBindingRendererProps) {
@@ -151,18 +131,12 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
             </div>
           </div>
           <div className="settings-definition-right">
-            <Select
-              inputId="name"
-              className="abs-width-400 big-spacer-top it__configuration-name-select"
-              isClearable={false}
-              isSearchable={false}
-              options={instances}
+            <AlmSettingsInstanceSelector
+              instances={instances}
               onChange={(instance: AlmSettingsInstance) => props.onFieldChange('key', instance.key)}
-              components={{
-                Option: optionRenderer,
-                SingleValue: singleValueRenderer,
-              }}
-              value={instances.filter((instance) => instance.key === formData.key)}
+              initialValue={formData.key}
+              classNames="abs-width-400 big-spacer-top it__configuration-name-select"
+              inputId="name"
             />
           </div>
         </div>

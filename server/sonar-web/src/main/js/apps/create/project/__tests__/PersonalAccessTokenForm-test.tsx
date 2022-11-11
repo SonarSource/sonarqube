@@ -97,7 +97,7 @@ it('should correctly handle form for bitbucket interactions', async () => {
   // Submit button disabled by default.
   expect(wrapper.find(SubmitButton).prop('disabled')).toBe(true);
 
-  change(wrapper.find('#personal_access_token'), 'token');
+  change(wrapper.find('input#personal_access_token_validation'), 'token');
   expect(wrapper.find(SubmitButton).prop('disabled')).toBe(true);
 
   // Submit button enabled if there's a value.
@@ -120,7 +120,7 @@ it('should show error when issue', async () => {
 
   (checkPersonalAccessTokenIsValid as jest.Mock).mockRejectedValueOnce({});
 
-  change(wrapper.find('#personal_access_token'), 'token');
+  change(wrapper.find('input#personal_access_token_validation'), 'token');
   change(wrapper.find('#username'), 'username');
 
   // Expect correct calls to be made when submitting.

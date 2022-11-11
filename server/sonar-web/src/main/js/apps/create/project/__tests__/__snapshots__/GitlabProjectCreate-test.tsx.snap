@@ -2,9 +2,18 @@
 
 exports[`should render correctly 1`] = `
 <GitlabProjectCreateRenderer
+  almInstances={
+    Array [
+      Object {
+        "alm": "gitlab",
+        "key": "gitlab-setting",
+      },
+    ]
+  }
   canAdmin={false}
   loading={false}
   loadingMore={false}
+  onChangeConfig={[Function]}
   onImport={[Function]}
   onLoadMore={[Function]}
   onPersonalAccessTokenCreated={[Function]}
@@ -19,7 +28,7 @@ exports[`should render correctly 1`] = `
   resetPat={false}
   searchQuery=""
   searching={false}
-  settings={
+  selectedAlmInstance={
     Object {
       "alm": "gitlab",
       "key": "gitlab-setting",

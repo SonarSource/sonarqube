@@ -75,12 +75,26 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.mounted = true;
+    this.checkPATAndUpdateView();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.almSetting !== prevProps.almSetting) {
+      this.checkPATAndUpdateView();
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  checkPATAndUpdateView = async () => {
     const {
       almSetting: { key },
       resetPat,
     } = this.props;
-    this.mounted = true;
 
     // We don't need to check PAT if we want to reset
     if (!resetPat) {
@@ -106,11 +120,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
         }
       }
     }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  };
 
   handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
@@ -379,7 +389,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
               className={classNames('input-super-large', {
                 'is-invalid': isInvalid,
               })}
-              id="personal_access_token"
+              id="personal_access_token_validation"
               minLength={1}
               value={password}
               onChange={this.handlePasswordChange}

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import AlmSettingsInstanceSelector from '../../../components/devops-platform/AlmSettingsInstanceSelector';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { GitlabProject } from '../../../types/alm-integration';
@@ -42,8 +43,10 @@ export interface GitlabProjectCreateRendererProps {
   resetPat: boolean;
   searching: boolean;
   searchQuery: string;
-  settings?: AlmSettingsInstance;
+  almInstances?: AlmSettingsInstance[];
+  selectedAlmInstance?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
+  onChangeConfig: (instance: AlmSettingsInstance) => void;
 }
 
 export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRendererProps) {
@@ -57,7 +60,8 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
     resetPat,
     searching,
     searchQuery,
-    settings,
+    selectedAlmInstance,
+    almInstances,
     showPersonalAccessTokenForm,
   } = props;
 
@@ -77,17 +81,32 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
         }
       />
 
+      {almInstances && almInstances.length > 1 && (
+        <div className="display-flex-column huge-spacer-bottom">
+          <label htmlFor="alm-config-selector" className="spacer-bottom">
+            {translate('alm.configuration.selector.label')}
+          </label>
+          <AlmSettingsInstanceSelector
+            instances={almInstances}
+            onChange={props.onChangeConfig}
+            initialValue={selectedAlmInstance ? selectedAlmInstance.key : undefined}
+            classNames="abs-width-400"
+            inputId="alm-config-selector"
+          />
+        </div>
+      )}
+
       {loading && <i className="spinner" />}
 
-      {!loading && !settings && (
+      {!loading && !selectedAlmInstance && (
         <WrongBindingCountAlert alm={AlmKeys.GitLab} canAdmin={!!canAdmin} />
       )}
 
       {!loading &&
-        settings &&
+        selectedAlmInstance &&
         (showPersonalAccessTokenForm ? (
           <PersonalAccessTokenForm
-            almSetting={settings}
+            almSetting={selectedAlmInstance}
             resetPat={resetPat}
             onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}
           />

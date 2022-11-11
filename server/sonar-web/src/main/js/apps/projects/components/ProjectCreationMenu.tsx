@@ -31,6 +31,7 @@ import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Permissions } from '../../../types/permissions';
 import { LoggedInUser } from '../../../types/users';
+import { ALLOWED_MULTIPLE_CONFIGS } from '../../create/project/constants';
 import ProjectCreationMenuItem from './ProjectCreationMenuItem';
 
 interface Props {
@@ -90,7 +91,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
         currentAlmSettings = almSettings.filter((s) => s.alm === key);
       }
       return (
-        currentAlmSettings.length === 1 &&
+        this.configLengthChecker(key, currentAlmSettings.length) &&
         key === currentAlmSettings[0].alm &&
         this.almSettingIsValid(currentAlmSettings[0])
       );
@@ -101,6 +102,10 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
         boundAlms,
       });
     }
+  };
+
+  configLengthChecker = (key: AlmKeys, length: number) => {
+    return ALLOWED_MULTIPLE_CONFIGS.includes(key) ? length > 0 : length === 1;
   };
 
   render() {

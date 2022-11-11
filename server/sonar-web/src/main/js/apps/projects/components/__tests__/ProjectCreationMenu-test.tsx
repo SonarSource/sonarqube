@@ -121,7 +121,7 @@ it('should filter alm bindings appropriately', async () => {
 
   wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper.state().boundAlms).toEqual([]);
+  expect(wrapper.state().boundAlms).toEqual([AlmKeys.GitLab]);
 });
 
 function shallowRender(overrides: Partial<ProjectCreationMenu['props']> = {}) {

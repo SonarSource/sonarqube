@@ -1,5 +1,3 @@
-import { AlmKeys } from '../../../types/alm-settings';
-
 /*
  * SonarQube
  * Copyright (C) 2009-2022 SonarSource SA
@@ -19,8 +17,28 @@ import { AlmKeys } from '../../../types/alm-settings';
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const PROJECT_NAME_MAX_LEN = 255;
+import { cloneDeep } from 'lodash';
+import { mockAlmSettingsInstance } from '../../helpers/mocks/alm-settings';
+import { AlmKeys, AlmSettingsInstance } from '../../types/alm-settings';
+import { getAlmSettings } from '../alm-settings';
 
-export const DEFAULT_BBS_PAGE_SIZE = 25;
+export default class AlmSettingsServiceMock {
+  almSettings: AlmSettingsInstance[];
+  defaultSetting: AlmSettingsInstance[] = [
+    mockAlmSettingsInstance({ key: 'conf-final-1', alm: AlmKeys.GitLab }),
+    mockAlmSettingsInstance({ key: 'conf-final-2', alm: AlmKeys.GitLab }),
+  ];
 
-export const ALLOWED_MULTIPLE_CONFIGS = [AlmKeys.GitLab];
+  constructor() {
+    this.almSettings = cloneDeep(this.defaultSetting);
+    (getAlmSettings as jest.Mock).mockImplementation(this.getAlmSettingsHandler);
+  }
+
+  getAlmSettingsHandler = () => {
+    return Promise.resolve(this.almSettings);
+  };
+
+  reset = () => {
+    this.almSettings = cloneDeep(this.defaultSetting);
+  };
+}

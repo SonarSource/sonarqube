@@ -29,7 +29,7 @@ interface Props {
   canAdmin: boolean;
   loadingBindings: boolean;
   onProjectCreate: (projectKey: string) => void;
-  settings: AlmSettingsInstance[];
+  almInstances: AlmSettingsInstance[];
   location: Location;
   router: Router;
 }
@@ -43,7 +43,7 @@ interface State {
   resetPat: boolean;
   searching: boolean;
   searchQuery: string;
-  settings?: AlmSettingsInstance;
+  selectedAlmInstance: AlmSettingsInstance;
   showPersonalAccessTokenForm: boolean;
 }
 
@@ -63,7 +63,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       showPersonalAccessTokenForm: true,
       searching: false,
       searchQuery: '',
-      settings: props.settings.length === 1 ? props.settings[0] : undefined,
+      selectedAlmInstance: props.almInstances[0],
     };
   }
 
@@ -72,11 +72,9 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.settings.length === 0 && this.props.settings.length > 0) {
-      this.setState(
-        { settings: this.props.settings.length === 1 ? this.props.settings[0] : undefined },
-        () => this.fetchInitialData()
-      );
+    const { almInstances } = this.props;
+    if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
+      this.setState({ selectedAlmInstance: almInstances[0] }, () => this.fetchInitialData());
     }
   }
 
@@ -115,14 +113,14 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
   };
 
   fetchProjects = async (pageIndex = 1, query?: string) => {
-    const { settings } = this.state;
-    if (!settings) {
+    const { selectedAlmInstance } = this.state;
+    if (!selectedAlmInstance) {
       return Promise.resolve(undefined);
     }
 
     try {
       return await getGitlabProjects({
-        almSetting: settings.key,
+        almSetting: selectedAlmInstance.key,
         page: pageIndex,
         pageSize: GITLAB_PROJECTS_PAGESIZE,
         query,
@@ -133,15 +131,15 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
   };
 
   doImport = async (gitlabProjectId: string) => {
-    const { settings } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!settings) {
+    if (!selectedAlmInstance) {
       return Promise.resolve(undefined);
     }
 
     try {
       return await importGitlabProject({
-        almSetting: settings.key,
+        almSetting: selectedAlmInstance.key,
         gitlabProjectId,
       });
     } catch (_) {
@@ -172,7 +170,6 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     } = this.state;
 
     const result = await this.fetchProjects(pageIndex + 1, searchQuery);
-
     if (this.mounted) {
       this.setState(({ projects = [], projectsPaging }) => ({
         loadingMore: false,
@@ -186,7 +183,6 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     this.setState({ searching: true, searchQuery });
 
     const result = await this.fetchProjects(1, searchQuery);
-
     if (this.mounted) {
       this.setState(({ projects, projectsPaging }) => ({
         searching: false,
@@ -208,8 +204,17 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     await this.fetchInitialData();
   };
 
+  onChangeConfig = (instance: AlmSettingsInstance) => {
+    this.setState({
+      selectedAlmInstance: instance,
+      showPersonalAccessTokenForm: true,
+      projects: undefined,
+      resetPat: false,
+    });
+  };
+
   render() {
-    const { canAdmin, loadingBindings, location } = this.props;
+    const { loadingBindings, location, almInstances, canAdmin } = this.props;
     const {
       importingGitlabProjectId,
       loading,
@@ -219,14 +224,15 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       resetPat,
       searching,
       searchQuery,
-      settings,
+      selectedAlmInstance,
       showPersonalAccessTokenForm,
     } = this.state;
 
     return (
       <GitlabProjectCreateRenderer
-        settings={settings}
         canAdmin={canAdmin}
+        almInstances={almInstances}
+        selectedAlmInstance={selectedAlmInstance}
         importingGitlabProjectId={importingGitlabProjectId}
         loading={loading || loadingBindings}
         loadingMore={loadingMore}
@@ -242,6 +248,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
         showPersonalAccessTokenForm={
           showPersonalAccessTokenForm || Boolean(location.query.resetPat)
         }
+        onChangeConfig={this.onChangeConfig}
       />
     );
   }

@@ -28,6 +28,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
+import { ALLOWED_MULTIPLE_CONFIGS } from './constants';
 import { CreateProjectModes } from './types';
 
 export interface CreateProjectModeSelectionProps {
@@ -41,6 +42,32 @@ export interface CreateProjectModeSelectionProps {
 }
 
 const DEFAULT_ICON_SIZE = 50;
+
+function getErrorMessage(
+  hasTooManyConfig: boolean,
+  hasConfig: boolean,
+  canAdmin: boolean | undefined,
+  alm: AlmKeys
+) {
+  if (hasTooManyConfig) {
+    return translateWithParameters(
+      'onboarding.create_project.too_many_alm_instances_X',
+      translate('alm', alm)
+    );
+  } else if (!hasConfig) {
+    return canAdmin
+      ? translate('onboarding.create_project.alm_not_configured.admin')
+      : translate('onboarding.create_project.alm_not_configured');
+  }
+}
+
+function getMode(
+  isBitbucketOption: boolean,
+  hasBitbucketCloudConf: boolean,
+  mode: CreateProjectModes
+) {
+  return isBitbucketOption && hasBitbucketCloudConf ? CreateProjectModes.BitbucketCloud : mode;
+}
 
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
@@ -61,7 +88,7 @@ function renderAlmOption(
     ? almCounts[AlmKeys.BitbucketServer] + almCounts[AlmKeys.BitbucketCloud]
     : almCounts[alm];
   const hasConfig = count > 0;
-  const hasTooManyConfig = count > 1;
+  const hasTooManyConfig = count > 1 && !ALLOWED_MULTIPLE_CONFIGS.includes(alm);
   const disabled = loadingBindings || hasTooManyConfig || (!hasConfig && !canAdmin);
 
   const onClick = () => {
@@ -73,23 +100,10 @@ function renderAlmOption(
       return props.onConfigMode(alm);
     }
 
-    return props.onSelectMode(
-      isBitbucketOption && hasBitbucketCloudConf ? CreateProjectModes.BitbucketCloud : mode
-    );
+    return props.onSelectMode(getMode(isBitbucketOption, hasBitbucketCloudConf, mode));
   };
 
-  let errorMessage = '';
-
-  if (hasTooManyConfig) {
-    errorMessage = translateWithParameters(
-      'onboarding.create_project.too_many_alm_instances_X',
-      translate('alm', alm)
-    );
-  } else if (!hasConfig) {
-    errorMessage = canAdmin
-      ? translate('onboarding.create_project.alm_not_configured.admin')
-      : translate('onboarding.create_project.alm_not_configured');
-  }
+  const errorMessage = getErrorMessage(hasTooManyConfig, hasConfig, canAdmin, alm);
 
   return (
     <div className="display-flex-column">
