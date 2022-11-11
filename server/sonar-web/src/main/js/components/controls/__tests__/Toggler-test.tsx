@@ -36,6 +36,8 @@ const ui = {
   outButton: byRole('button', { name: 'out' }),
   overlayButton: byRole('button', { name: 'overlay' }),
   nextOverlayButton: byRole('button', { name: 'next overlay' }),
+  overlayTextarea: byRole('textbox'),
+  overlayLatButton: byRole('button', { name: 'last' }),
 };
 
 async function openToggler(user: UserEvent) {
@@ -55,24 +57,39 @@ function focusOut() {
 
 it('should handle key up/down', async () => {
   const user = userEvent.setup({ delay: null });
-  const rerender = renderToggler();
+  const rerender = renderToggler(
+    {},
+    <>
+      <textarea name="test-area" />
+      <button type="button">last</button>
+    </>
+  );
 
   await openToggler(user);
   await user.keyboard('{ArrowUp}');
-  expect(ui.nextOverlayButton.get()).toHaveFocus();
-
-  await user.keyboard('{ArrowDown}');
-  expect(ui.overlayButton.get()).toHaveFocus();
-
-  await user.keyboard('{ArrowDown}');
-  expect(ui.nextOverlayButton.get()).toHaveFocus();
+  expect(ui.overlayLatButton.get()).toHaveFocus();
 
   await user.keyboard('{ArrowUp}');
-  expect(ui.overlayButton.get()).toHaveFocus();
+  expect(ui.overlayTextarea.get()).toHaveFocus();
+
+  // Focus does not escape multiline input
+  await user.keyboard('{ArrowDown}');
+  expect(ui.overlayTextarea.get()).toHaveFocus();
+  await user.keyboard('{ArrowUp}');
+  expect(ui.overlayTextarea.get()).toHaveFocus();
+
+  // Escapt textarea
+  await user.keyboard('{Tab}');
 
   // No focus change when using shortcut
   await user.keyboard('{Control>}{ArrowUp}{/Control}');
+  expect(ui.overlayLatButton.get()).toHaveFocus();
+
+  await user.keyboard('{ArrowDown}');
   expect(ui.overlayButton.get()).toHaveFocus();
+
+  await user.keyboard('{ArrowDown}');
+  expect(ui.nextOverlayButton.get()).toHaveFocus();
 
   rerender();
   await openToggler(user);
@@ -202,7 +219,7 @@ it('should open/close correctly when default props is applied', async () => {
   expect(ui.overlayButton.query()).not.toBeInTheDocument();
 });
 
-function renderToggler(override?: Partial<Toggler['props']>) {
+function renderToggler(override?: Partial<Toggler['props']>, additionalOverlay?: React.ReactNode) {
   function App(props: Partial<Toggler['props']>) {
     const [open, setOpen] = React.useState(false);
 
@@ -215,6 +232,7 @@ function renderToggler(override?: Partial<Toggler['props']>) {
             <div className="popup">
               <button type="button">overlay</button>
               <button type="button">next overlay</button>
+              {additionalOverlay}
             </div>
           }
           {...props}

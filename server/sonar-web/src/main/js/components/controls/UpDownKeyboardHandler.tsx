@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { isShortcut } from '../../helpers/keyboardEventHelpers';
+import { isShortcut, isTextarea } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 
 interface Props {
@@ -47,7 +47,7 @@ export default class UpDownKeyboardHanlder extends React.PureComponent<
   }
 
   handleKeyboard = (event: KeyboardEvent) => {
-    if (isShortcut(event)) {
+    if (isShortcut(event) || isTextarea(event)) {
       return true;
     }
     switch (event.key) {
@@ -67,7 +67,7 @@ export default class UpDownKeyboardHanlder extends React.PureComponent<
 
   getFocusableElement() {
     const { containerClass = 'popup' } = this.props;
-    const focussableElements = `.${containerClass} a,.${containerClass} button,.${containerClass} input[type=text]`;
+    const focussableElements = `.${containerClass} a,.${containerClass} button,.${containerClass} input[type=text],.${containerClass} textarea`;
     return document.querySelectorAll<HTMLElement>(focussableElements);
   }
 

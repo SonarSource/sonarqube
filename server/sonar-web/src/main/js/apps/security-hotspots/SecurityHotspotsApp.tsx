@@ -27,6 +27,7 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
+import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { getStandards } from '../../helpers/security-standard';
 import { BranchLike } from '../../types/branch-like';
@@ -147,6 +148,9 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 
   handleKeyDown = (event: KeyboardEvent) => {
+    if (isInput(event)) {
+      return;
+    }
     if (event.key === KeyboardKeys.Alt) {
       event.preventDefault();
       return;

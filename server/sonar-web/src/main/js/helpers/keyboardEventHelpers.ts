@@ -21,6 +21,10 @@
 export function isShortcut(event: KeyboardEvent): boolean {
   return event.ctrlKey || event.metaKey;
 }
+export function isTextarea(event: KeyboardEvent): boolean {
+  const { tagName } = event.target as HTMLElement;
+  return ['TEXTAREA'].includes(tagName);
+}
 
 export function isInput(event: KeyboardEvent): boolean {
   const { tagName } = event.target as HTMLElement;
