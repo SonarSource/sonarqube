@@ -19,10 +19,12 @@
  */
 package org.sonar.api.batch.fs.internal.predicates;
 
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Before;
@@ -146,8 +148,14 @@ public class DefaultFilePredicatesTest {
 
   @Test
   public void is_file() throws Exception {
+
+    Files.createParentDirs(javaFile.file());
+    Files.touch(javaFile.file());
+
     // relative file
-    assertThat(predicates.is(new File(javaFile.relativePath())).apply(javaFile)).isTrue();
+    Path workingDir = Paths.get(System.getProperty("user.dir"));
+    Path relativePath = workingDir.relativize(javaFile.path());
+    assertThat(predicates.is(relativePath.toFile()).apply(javaFile)).isTrue();
 
     // absolute file
     assertThat(predicates.is(javaFile.file()).apply(javaFile)).isTrue();

@@ -19,13 +19,17 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
+import java.io.File;
 import java.net.URI;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.core.sarif.ArtifactLocation;
 import org.sonar.core.sarif.Location;
 import org.sonar.core.sarif.PhysicalLocation;
 import org.sonar.core.sarif.Result;
@@ -72,18 +76,26 @@ public class LocationMapper {
 
   private static String getFileUriOrThrow(Location location) {
     PhysicalLocation physicalLocation = location.getPhysicalLocation();
-    checkArgument(physicalLocation != null
-        && physicalLocation.getArtifactLocation() != null
-        && physicalLocation.getArtifactLocation().getUri() != null,
-      "The field location.physicalLocation.artifactLocation.uri is not set.");
+    checkArgument(hasUriFieldPopulated(physicalLocation), "The field location.physicalLocation.artifactLocation.uri is not set.");
     return physicalLocation.getArtifactLocation().getUri();
+  }
+
+  private static boolean hasUriFieldPopulated(@Nullable PhysicalLocation location) {
+    return Optional.ofNullable(location).map(PhysicalLocation::getArtifactLocation).map(ArtifactLocation::getUri).isPresent();
   }
 
   @CheckForNull
   private static InputFile findFile(SensorContext context, String filePath) {
     FilePredicates predicates = context.fileSystem().predicates();
-    return context.fileSystem().inputFile(predicates.or(
-      predicates.hasURI(URI.create(filePath)), predicates.hasPath(filePath)
-    ));
+    return context.fileSystem().inputFile(predicates.is(getFileFromAbsoluteUriOrPath(filePath)));
+  }
+
+  private static File getFileFromAbsoluteUriOrPath(String filePath) {
+    URI uri = URI.create(filePath);
+    if (uri.isAbsolute()) {
+      return new File(uri);
+    } else {
+      return new File(filePath);
+    }
   }
 }

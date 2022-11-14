@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
-import java.net.URI;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,9 +85,7 @@ public class LocationMapperTest {
 
     FilePredicate filePredicate = mock(FilePredicate.class);
     FilePredicates predicates = sensorContext.fileSystem().predicates();
-    when(predicates.or(
-      predicates.hasURI(URI.create(URI_TEST)), predicates.hasPath(URI_TEST)
-    )).thenReturn(filePredicate);
+    when(predicates.is(any())).thenReturn(filePredicate);
 
     when(sensorContext.fileSystem().inputFile(filePredicate)).thenReturn(inputFile);
 
