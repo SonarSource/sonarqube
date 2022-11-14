@@ -192,8 +192,8 @@ yarn_lint_task:
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 5
-    memory: 8Gb
+    cpu: 2
+    memory: 4Gb
   script:
     - ./private/cirrus/cirrus-yarn-lint-report.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -205,8 +205,8 @@ yarn_check_task:
   <<: *YARN_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 5
-    memory: 8Gb
+    cpu: 3
+    memory: 4Gb
   script: |
     ./private/cirrus/cirrus-env.sh YARN
     gradle yarn_check-ci --profile
@@ -220,8 +220,8 @@ yarn_validate_task:
   <<: *JEST_REPORT_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 7.5
-    memory: 20Gb
+    cpu: 3
+    memory: 10Gb
   script:
     - ./private/cirrus/cirrus-yarn-validate-ci.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -234,7 +234,7 @@ junit_task:
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 7.5
-    memory: 20Gb
+    memory: 10Gb
   script:
     - ./private/cirrus/cirrus-junit.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -255,7 +255,7 @@ sq_analysis_task:
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 7.5
-    memory: 28Gb
+    memory: 15Gb
   env:
     # For the analysis, we need the full history.
     FETCH_DEPTH: ""
@@ -270,8 +270,8 @@ qa_task:
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 3
-    memory: 7Gb
+    cpu: 2
+    memory: 6Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
@@ -282,12 +282,25 @@ qa_task:
       - QA_CATEGORY: Cat4
       - QA_CATEGORY: Cat5
       - QA_CATEGORY: Cat6
-      - QA_CATEGORY: Cat7
+      - QA_CATEGORY: Analysis
+      - QA_CATEGORY: Authorization
       - QA_CATEGORY: Authentication
+      - QA_CATEGORY: Branch1
+      - QA_CATEGORY: Branch2
+      - QA_CATEGORY: CommunityEdition
+      - QA_CATEGORY: CommunityEditionWithPlugins
+      - QA_CATEGORY: ComputeEngine
+      - QA_CATEGORY: Dev1
+      - QA_CATEGORY: Dev2
       - QA_CATEGORY: Enterprise
-      - QA_CATEGORY: Dev
-      - QA_CATEGORY: License
-      - QA_CATEGORY: Branch
+      - QA_CATEGORY: EnterprisePortfolio
+      - QA_CATEGORY: Issues1
+      - QA_CATEGORY: Issues2
+      - QA_CATEGORY: License1
+      - QA_CATEGORY: License2
+      - QA_CATEGORY: Plugins
+      - QA_CATEGORY: Project
+      - QA_CATEGORY: QualityProfile
       - QA_CATEGORY: Upgrade
   script:
     - ./private/cirrus/cirrus-qa.sh postgres
@@ -514,7 +527,7 @@ promote_task:
     - publish
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    memory: 1G
+    memory: 512M
   stateful: true
   script:
     - ./private/cirrus/cirrus-promote.sh
