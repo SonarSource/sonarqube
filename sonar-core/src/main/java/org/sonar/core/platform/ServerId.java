@@ -109,8 +109,8 @@ public final class ServerId {
 
   public static ServerId of(@Nullable String databaseId, String datasetId) {
     if (databaseId != null) {
-    int databaseIdLength = databaseId.length();
-    checkArgument(databaseIdLength == DATABASE_ID_LENGTH, "Illegal databaseId length (%s)", databaseIdLength);
+      int databaseIdLength = databaseId.length();
+      checkArgument(databaseIdLength == DATABASE_ID_LENGTH, "Illegal databaseId length (%s)", databaseIdLength);
     }
     int datasetIdLength = datasetId.length();
     checkArgument(datasetIdLength == DEPRECATED_SERVER_ID_LENGTH

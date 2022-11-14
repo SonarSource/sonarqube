@@ -19,10 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Optional;
-import java.util.function.Supplier;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.log.CeTaskMessages.Message;

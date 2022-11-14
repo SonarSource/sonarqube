@@ -22,7 +22,6 @@ package org.sonar.server.measure.live;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
@@ -36,7 +35,6 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.server.measure.DebtRatingGrid;
 import org.sonar.server.measure.Rating;
 
-import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
