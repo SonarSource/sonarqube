@@ -220,8 +220,12 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
 
     const isFlow = issue.secondaryLocations.length === 0;
     const includeIssueLocation = isFlow ? isLastOccurenceOfPrimaryComponent : true;
-    const issuesForLine = issuesByLine[line.line] || [];
     const issueLocations = includeIssueLocation ? locations[line.line] : [];
+    const issuesForLine = (issuesByLine[line.line] || []).filter(
+      (issueForline) =>
+        issue.key !== issueForline.key ||
+        (issue.key === issueForline.key && issueLocations.length > 0)
+    );
 
     return (
       issuesForLine.length > 0 && (
@@ -232,7 +236,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
               <IssueSourceViewerScrollContext.Consumer key={issueToDisplay.key}>
                 {(ctx) => (
                   <IssueMessageBox
-                    selected={!!(isSelectedIssue && issueLocations.length > 0)}
+                    selected={isSelectedIssue}
                     issue={issueToDisplay}
                     onClick={this.props.onIssueSelect}
                     ref={isSelectedIssue ? ctx?.registerPrimaryLocationRef : undefined}
