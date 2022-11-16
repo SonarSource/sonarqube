@@ -92,7 +92,7 @@ public class ReindexActionTest {
 
   @Test
   public void fail_if_parameter_not_present() {
-    userSession.anonymous();
+    userSession.logIn().setSystemAdministrator();
     TestRequest testRequest = tester.newRequest();
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)

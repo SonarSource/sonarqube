@@ -22,7 +22,6 @@ package org.sonar.server.issue.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -55,11 +54,7 @@ public class ReindexAction implements IssuesWsAction {
       .createAction(ACTION)
       .setPost(true)
       .setDescription("Reindex issues for a project.<br> " +
-        "Requires one of the following permissions: " +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified project</li>" +
-        "</ul>")
+        "Require 'Administer System' permission.")
       .setSince("9.8")
       .setHandler(this);
 
@@ -72,12 +67,12 @@ public class ReindexAction implements IssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String projectKey = request.mandatoryParam(PARAM_PROJECT);
+    userSession.checkIsSystemAdministrator();
 
+    String projectKey = request.mandatoryParam(PARAM_PROJECT);
     ProjectDto projectDto;
     try (DbSession dbSession = dbClient.openSession(false)) {
       projectDto = dbClient.projectDao().selectProjectByKey(dbSession, projectKey).orElseThrow(() -> new NotFoundException("project not found"));
-      userSession.checkProjectPermission(UserRole.ADMIN, projectDto);
     }
 
     issueIndexer.indexProject(projectDto.getUuid());
