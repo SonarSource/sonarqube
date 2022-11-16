@@ -41,6 +41,7 @@ import org.sonar.scanner.bootstrap.ScannerProperties;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
@@ -70,12 +71,14 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void should_not_fail_if_sources_are_missing_in_intermediate_module() {
-    loadProjectDefinition("multi-module-pom-in-root");
+    assertThatNoException()
+      .isThrownBy(() -> loadProjectDefinition("multi-module-pom-in-root"));
   }
 
   @Test
   public void shouldNotFailIfBlankSourceDirectory() {
-    loadProjectDefinition("simple-project-with-blank-source-dir");
+    assertThatNoException()
+      .isThrownBy(() -> loadProjectDefinition("simple-project-with-blank-source-dir"));
   }
 
   @Test
@@ -127,8 +130,8 @@ public class ProjectReactorBuilderTest {
     assertThat(rootProject.getName()).isEqualTo("Foo Project");
     assertThat(rootProject.getVersion()).isEqualTo("1.0-SNAPSHOT");
     assertThat(rootProject.getDescription()).isEqualTo("Description of Foo Project");
-    assertThat(rootProject.sources().contains("sources")).isTrue();
-    assertThat(rootProject.tests().contains("tests")).isTrue();
+    assertThat(rootProject.sources()).contains("sources");
+    assertThat(rootProject.tests()).contains("tests");
     // and module properties must have been cleaned
     assertThat(rootProject.properties().get("module1.sonar.projectKey")).isNull();
     assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
@@ -138,7 +141,7 @@ public class ProjectReactorBuilderTest {
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
-    assertThat(modules.size()).isEqualTo(2);
+    assertThat(modules).hasSize(2);
 
     // Module 1
     ProjectDefinition module1 = modules.get(0);
@@ -189,7 +192,7 @@ public class ProjectReactorBuilderTest {
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
-    assertThat(modules.size()).isEqualTo(2);
+    assertThat(modules).hasSize(2);
 
     // Module 2
     ProjectDefinition module2 = modules.get(1);
@@ -208,7 +211,7 @@ public class ProjectReactorBuilderTest {
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
-    assertThat(modules.size()).isEqualTo(2);
+    assertThat(modules).hasSize(2);
 
     // Module 1
     ProjectDefinition module1 = modules.get(0);
@@ -265,6 +268,20 @@ public class ProjectReactorBuilderTest {
       .isInstanceOf(MessageException.class)
       .hasMessage("The folder 'tests' does not exist for 'module1' (base directory = "
         + getResource(this.getClass(), "multi-module-with-explicit-unexisting-test-dir").getAbsolutePath() + File.separator + "module1)");
+  }
+
+  @Test
+  public void should_fail_with_asterisks_in_sources() {
+    assertThatThrownBy(() -> loadProjectDefinition("simple-project-with-asterisks-in-sources"))
+      .isInstanceOf(MessageException.class)
+      .hasMessage(ProjectReactorBuilder.WILDCARDS_NOT_SUPPORTED);
+  }
+
+  @Test
+  public void should_fail_with_asterisks_in_tests() {
+    assertThatThrownBy(() -> loadProjectDefinition("simple-project-with-asterisks-in-tests"))
+      .isInstanceOf(MessageException.class)
+      .hasMessage(ProjectReactorBuilder.WILDCARDS_NOT_SUPPORTED);
   }
 
   @Test
@@ -530,8 +547,8 @@ public class ProjectReactorBuilderTest {
     assertThat(rootProject.getName()).isEqualTo("Foo Project");
     assertThat(rootProject.getVersion()).isEqualTo("1.0-SNAPSHOT");
     assertThat(rootProject.getDescription()).isEqualTo("Description of Foo Project");
-    assertThat(rootProject.sources().contains("sources")).isTrue();
-    assertThat(rootProject.tests().contains("tests")).isTrue();
+    assertThat(rootProject.sources()).contains("sources");
+    assertThat(rootProject.tests()).contains("tests");
     // Module properties must have been cleaned
     assertThat(rootProject.properties().get("module1.sonar.projectKey")).isNull();
     assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
@@ -543,7 +560,7 @@ public class ProjectReactorBuilderTest {
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
-    assertThat(modules.size()).isEqualTo(2);
+    assertThat(modules).hasSize(2);
 
     // Module 1
     ProjectDefinition module1 = modules.get(0);

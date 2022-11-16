@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scan;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,7 +61,14 @@ public class ProjectReactorBuilder {
 
   private static final String INVALID_VALUE_OF_X_FOR_Y = "Invalid value of {0} for {1}";
 
+
   private static final Logger LOG = Loggers.get(ProjectReactorBuilder.class);
+
+  @VisibleForTesting
+  static final String WILDCARDS_NOT_SUPPORTED = "Wildcards ** and * are not supported in \"sonar.sources\" and \"sonar.tests\" properties. " +
+    "\"sonar.sources\" and \"sonar.tests\" properties support only comma separated list of directories. " +
+    "Use \"sonar.exclusions/sonar.inclusions\" and \"sonar.test.exclusions/sonar.test.inclusions\" " +
+    "to further filter files in \"sonar.sources\" and \"sonar.tests\" respectively. Please refer to SonarQube documentation for more details.";
 
   /**
    * @since 4.1 but not yet exposed in {@link CoreProperties}
@@ -274,9 +282,7 @@ public class ProjectReactorBuilder {
         childProps.put(MODULE_KEY_PROPERTY, parentKey + ":" + childKey);
       }
     }
-    if (!childProps.containsKey(CoreProperties.PROJECT_NAME_PROPERTY)) {
-      childProps.put(CoreProperties.PROJECT_NAME_PROPERTY, moduleId);
-    }
+    childProps.putIfAbsent(CoreProperties.PROJECT_NAME_PROPERTY, moduleId);
     // For backward compatibility with ProjectDefinition
     childProps.put(CoreProperties.PROJECT_KEY_PROPERTY, childProps.get(MODULE_KEY_PROPERTY));
   }
@@ -318,7 +324,7 @@ public class ProjectReactorBuilder {
 
       // Check sonar.tests
       String[] testPaths = getListFromProperty(props, PROPERTY_TESTS);
-      checkExistenceOfPaths(projectId, baseDir, testPaths, PROPERTY_TESTS);
+      checkExistenceAndValidateSourcePaths(projectId, baseDir, testPaths, PROPERTY_TESTS);
     }
   }
 
@@ -357,7 +363,7 @@ public class ProjectReactorBuilder {
 
     // We need to check the existence of source directories
     String[] sourcePaths = getListFromProperty(properties, PROPERTY_SOURCES);
-    checkExistenceOfPaths(project.getKey(), project.getBaseDir(), sourcePaths, PROPERTY_SOURCES);
+    checkExistenceAndValidateSourcePaths(project.getKey(), project.getBaseDir(), sourcePaths, PROPERTY_SOURCES);
   }
 
   protected static void mergeParentProperties(Map<String, String> childProps, Map<String, String> parentProps) {
@@ -370,14 +376,22 @@ public class ProjectReactorBuilder {
     }
   }
 
-  protected static void checkExistenceOfPaths(String moduleRef, File baseDir, String[] paths, String propName) {
+  protected static void checkExistenceAndValidateSourcePaths(String moduleRef, File baseDir, String[] paths, String propName) {
     for (String path : paths) {
+      validateNoAsterisksInSourcePath(path, propName, moduleRef);
       File sourceFolder = resolvePath(baseDir, path);
       if (!sourceFolder.exists()) {
         LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef));
         throw MessageException.of("The folder '" + path + "' does not exist for '" + moduleRef +
           "' (base directory = " + baseDir.getAbsolutePath() + ")");
       }
+    }
+  }
+
+  private static void validateNoAsterisksInSourcePath(String path, String propName, String moduleRef) {
+    if (path.contains("*")) {
+      LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef));
+      throw MessageException.of(WILDCARDS_NOT_SUPPORTED);
     }
   }
 
