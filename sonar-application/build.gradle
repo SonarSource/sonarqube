@@ -116,37 +116,41 @@ downloadLicenses {
   dependencyConfiguration = 'appLicenses'
 }
 
-task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadLicenses, downloadElasticSearch, verifyElasticSearchDownload]) {
+task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElasticSearch, verifyElasticSearchDownload]) {
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   def archiveDir = "sonarqube-$project.version"
 
-  into("${archiveDir}/") {
-    from(tasks.downloadLicenses.outputs) {
-      include 'dependency-license.json'
-      eachFile { jsonFile ->
-        def json = new JsonSlurper().parse(jsonFile.file)
-        json.dependencies.each { dependency ->
-          if (dependency.licenses.size() > 1) {
-            def idx = dependency.licenses.findIndexOf { it.name == "Elastic License 2.0" }
-            if (idx >= 0) {
-              dependency.licenses = [dependency.licenses[idx]]
+  if(release) {
+    dependsOn tasks.downloadLicenses
+    into("${archiveDir}/") {
+      from(tasks.downloadLicenses.outputs) {
+        include 'dependency-license.json'
+        eachFile { jsonFile ->
+          def json = new JsonSlurper().parse(jsonFile.file)
+          json.dependencies.each { dependency ->
+            if (dependency.licenses.size() > 1) {
+              def idx = dependency.licenses.findIndexOf { it.name == "Elastic License 2.0" }
+              if (idx >= 0) {
+                dependency.licenses = [dependency.licenses[idx]]
+              }
             }
           }
+          json.dependencies.sort { it.name }
+          def jsonText = JsonOutput.toJson(json)
+          jsonFile.file.text = JsonOutput.prettyPrint(jsonText)
         }
-        json.dependencies.sort { it.name }
-        def jsonText = JsonOutput.toJson(json)
-        jsonFile.file.text = JsonOutput.prettyPrint(jsonText)
+      }
+      from(file('src/main/assembly')) {
+        exclude 'conf/sonar.properties'
+        exclude 'bin/windows-x86-64/lib/SonarServiceWrapperTemplate.xml'
+        exclude 'bin/windows-x86-64/StartSonar.bat'
+        exclude 'elasticsearch-patch'
+        exclude 'bin/linux-x86-64/sonar.sh'
+        exclude 'bin/macosx-universal-64/sonar.sh'
       }
     }
-    from(file('src/main/assembly')) {
-      exclude 'conf/sonar.properties'
-      exclude 'bin/windows-x86-64/lib/SonarServiceWrapperTemplate.xml'
-      exclude 'bin/windows-x86-64/StartSonar.bat'
-      exclude 'elasticsearch-patch'
-      exclude 'bin/linux-x86-64/sonar.sh'
-      exclude 'bin/macosx-universal-64/sonar.sh'
-    }
   }
+
 
   from(tarTree(downloadElasticSearch.dest)) {
     eachFile { fcd ->
