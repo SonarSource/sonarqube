@@ -37,8 +37,9 @@ public class LdapRealmTest {
   @Test
   public void normal() {
     MapSettings settings = new MapSettings()
-      .setProperty("ldap.url", server.getUrl());
-    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
+      .setProperty("ldap.url", server.getUrl())
+      .setProperty("ldap.user.baseDn", "cn=users");
+    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig()));
     realm.init();
     assertThat(realm.doGetAuthenticator()).isInstanceOf(DefaultLdapAuthenticator.class);
     assertThat(realm.getUsersProvider()).isInstanceOf(LdapUsersProvider.class).isInstanceOf(DefaultLdapUsersProvider.class);
@@ -51,7 +52,7 @@ public class LdapRealmTest {
       .setProperty("ldap.url", "ldap://no-such-host")
       .setProperty("ldap.group.baseDn", "cn=groups,dc=example,dc=org")
       .setProperty("ldap.user.baseDn", "cn=users,dc=example,dc=org");
-    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
+    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig()));
     assertThatThrownBy(realm::init).isInstanceOf(LdapException.class).hasMessage("Unable to open LDAP connection");
 
     assertThat(realm.doGetAuthenticator()).isInstanceOf(DefaultLdapAuthenticator.class);

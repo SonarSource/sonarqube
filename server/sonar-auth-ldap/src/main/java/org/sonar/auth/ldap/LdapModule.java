@@ -27,8 +27,7 @@ public class LdapModule extends Module {
   protected void configureModule() {
     add(
       LdapRealm.class,
-      LdapSettingsManager.class,
-      LdapAutodiscovery.class);
+      LdapSettingsManager.class);
   }
 
 }

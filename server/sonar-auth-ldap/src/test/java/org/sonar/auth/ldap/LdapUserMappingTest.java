@@ -20,22 +20,25 @@
 package org.sonar.auth.ldap;
 
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LdapUserMappingTest {
 
   @Test
   public void defaults() {
-    LdapUserMapping userMapping = new LdapUserMapping(new MapSettings().asConfig(), "ldap");
-    assertThat(userMapping.getBaseDn()).isNull();
+    MapSettings mapSettings = new MapSettings().setProperty("ldap.user.baseDn", "cn=users");
+    LdapUserMapping userMapping = new LdapUserMapping(mapSettings.asConfig(), "ldap");
+    assertThat(userMapping.getBaseDn()).isEqualTo("cn=users");
     assertThat(userMapping.getRequest()).isEqualTo("(&(objectClass=inetOrgPerson)(uid={0}))");
     assertThat(userMapping.getRealNameAttribute()).isEqualTo("cn");
     assertThat(userMapping.getEmailAttribute()).isEqualTo("mail");
 
     assertThat(userMapping).hasToString("LdapUserMapping{" +
-      "baseDn=null," +
+      "baseDn=cn=users," +
       " request=(&(objectClass=inetOrgPerson)(uid={0}))," +
       " realNameAttribute=cn," +
       " emailAttribute=mail}");
@@ -62,14 +65,16 @@ public class LdapUserMappingTest {
   }
 
   @Test
-  public void realm() {
-    MapSettings settings = new MapSettings()
+  public void ldapUserMapping_shouldThrowException_whenUserBaseDnIsNotSet() {
+    Configuration config = new MapSettings()
       .setProperty("ldap.realm", "example.org")
       .setProperty("ldap.userObjectClass", "user")
-      .setProperty("ldap.loginAttribute", "sAMAccountName");
+      .setProperty("ldap.loginAttribute", "sAMAccountName")
+      .asConfig();
 
-    LdapUserMapping userMapping = new LdapUserMapping(settings.asConfig(), "ldap");
-    assertThat(userMapping.getBaseDn()).isEqualTo("dc=example,dc=org");
+    assertThatThrownBy(() -> new LdapUserMapping(config, "ldap"))
+      .isInstanceOf(LdapException.class)
+      .hasMessage("The property 'ldap.user.baseDn' property is empty while it is mandatory.");
   }
 
 }

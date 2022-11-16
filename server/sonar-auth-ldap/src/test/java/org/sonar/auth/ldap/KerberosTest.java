@@ -46,7 +46,7 @@ public class KerberosTest {
   @Before
   public void before() {
     MapSettings settings = configure();
-    ldapRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
+    ldapRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig()));
     ldapRealm.init();
 
     authenticator = ldapRealm.doGetAuthenticator();
@@ -86,7 +86,7 @@ public class KerberosTest {
   public void wrong_bind_password() {
     MapSettings settings = configure()
       .setProperty("ldap.bindPassword", "wrong_bind_password");
-    LdapRealm wrongPasswordRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
+    LdapRealm wrongPasswordRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig()));
 
     assertThatThrownBy(wrongPasswordRealm::init)
       .isInstanceOf(LdapException.class)

@@ -46,7 +46,7 @@ public class DefaultLdapUsersProviderTest {
   @Test
   public void test_user_from_first_server() {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
-    LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
+    LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig());
     DefaultLdapUsersProvider usersProvider = new DefaultLdapUsersProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     LdapUserDetails details = usersProvider.doGetUserDetails(createContext("example", "godin"));
@@ -57,7 +57,7 @@ public class DefaultLdapUsersProviderTest {
   @Test
   public void test_user_from_second_server() {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
-    LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
+    LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig());
     DefaultLdapUsersProvider usersProvider = new DefaultLdapUsersProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     LdapUserDetails details = usersProvider.doGetUserDetails(createContext("infosupport", "robby"));
@@ -69,7 +69,7 @@ public class DefaultLdapUsersProviderTest {
   @Test
   public void test_user_on_multiple_servers() {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
-    LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
+    LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig());
     DefaultLdapUsersProvider usersProvider = new DefaultLdapUsersProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     LdapUserDetails detailsExample = usersProvider.doGetUserDetails(createContext("example", "tester"));
@@ -84,7 +84,7 @@ public class DefaultLdapUsersProviderTest {
   @Test
   public void test_user_doesnt_exist() {
     MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
-    LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
+    LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig());
     DefaultLdapUsersProvider usersProvider = new DefaultLdapUsersProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     LdapUserDetails details = usersProvider.doGetUserDetails(createContext("example", "notfound"));

@@ -64,6 +64,6 @@ public class LdapReferralsTest {
     if (propertyKey != null) {
       settings.setProperty(propertyKey, propertyValue);
     }
-    return new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()).getContextFactories();
+    return new LdapSettingsManager(settings.asConfig()).getContextFactories();
   }
 }

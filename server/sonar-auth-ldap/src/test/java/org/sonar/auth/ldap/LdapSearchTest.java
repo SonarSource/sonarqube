@@ -41,7 +41,7 @@ public class LdapSearchTest {
 
   @BeforeClass
   public static void init() {
-    contextFactories = new LdapSettingsManager(LdapSettingsFactory.generateSimpleAnonymousAccessSettings(server, null).asConfig(), new LdapAutodiscovery()).getContextFactories();
+    contextFactories = new LdapSettingsManager(LdapSettingsFactory.generateSimpleAnonymousAccessSettings(server, null).asConfig()).getContextFactories();
   }
 
   @Test
@@ -57,7 +57,7 @@ public class LdapSearchTest {
     assertThat(search.getRequest()).isEqualTo("(objectClass={0})");
     assertThat(search.getParameters()).isEqualTo(new String[] {"inetOrgPerson"});
     assertThat(search.getReturningAttributes()).isEqualTo(new String[] {"objectClass"});
-    assertThat(search.toString()).isEqualTo("LdapSearch{baseDn=dc=example,dc=org, scope=subtree, request=(objectClass={0}), parameters=[inetOrgPerson], attributes=[objectClass]}");
+    assertThat(search).hasToString("LdapSearch{baseDn=dc=example,dc=org, scope=subtree, request=(objectClass={0}), parameters=[inetOrgPerson], attributes=[objectClass]}");
     assertThat(enumerationToArrayList(search.find()))
       .extracting(SearchResult::getName)
       .containsExactlyInAnyOrder(
@@ -70,7 +70,7 @@ public class LdapSearchTest {
 
     assertThatThrownBy(search::findUnique)
       .isInstanceOf(NamingException.class)
-      .hasMessage("Non unique result for " + search.toString());
+      .hasMessage("Non unique result for " + search);
   }
 
   @Test
@@ -88,7 +88,7 @@ public class LdapSearchTest {
     assertThat(search.getParameters()).isEqualTo(new String[] {"inetOrgPerson"});
     assertThat(search.getReturningAttributes()).isEqualTo(new String[] {"cn"});
     assertThat(search).hasToString("LdapSearch{baseDn=dc=example,dc=org, scope=onelevel, request=(objectClass={0}), parameters=[inetOrgPerson], attributes=[cn]}");
-    assertThat(enumerationToArrayList(search.find()).size()).isZero();
+    assertThat(enumerationToArrayList(search.find())).isEmpty();
     assertThat(search.findUnique()).isNull();
   }
 

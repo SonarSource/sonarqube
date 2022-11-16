@@ -21,15 +21,13 @@ package org.sonar.auth.ldap;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+
+import static org.sonar.auth.ldap.LdapSettingsManager.MANDATORY_LDAP_PROPERTY_ERROR;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class LdapUserMapping {
-
-  private static final Logger LOG = Loggers.get(LdapUserMapping.class);
 
   private static final String DEFAULT_NAME_ATTRIBUTE = "cn";
   private static final String DEFAULT_EMAIL_ATTRIBUTE = "mail";
@@ -44,17 +42,8 @@ public class LdapUserMapping {
    * Constructs mapping from Sonar settings.
    */
   public LdapUserMapping(Configuration config, String settingsPrefix) {
-    String usesrBaseDnSettingKey = settingsPrefix + ".user.baseDn";
-    String usersBaseDn = config.get(usesrBaseDnSettingKey).orElse(null);
-    if (usersBaseDn == null) {
-      String realm = config.get(settingsPrefix + ".realm").orElse(null);
-      if (realm != null) {
-        LOG.warn("Auto-discovery feature is deprecated, please use '{}' to specify user search dn", usesrBaseDnSettingKey);
-        usersBaseDn = LdapAutodiscovery.getDnsDomainDn(realm);
-      }
-    }
-
-    this.baseDn = usersBaseDn;
+    String userBaseDnSettingKey = settingsPrefix + ".user.baseDn";
+    this.baseDn = config.get(userBaseDnSettingKey).orElseThrow(() -> new LdapException(String.format(MANDATORY_LDAP_PROPERTY_ERROR, userBaseDnSettingKey)));
     this.realNameAttribute = StringUtils.defaultString(config.get(settingsPrefix + ".user.realNameAttribute").orElse(null), DEFAULT_NAME_ATTRIBUTE);
     this.emailAttribute = StringUtils.defaultString(config.get(settingsPrefix + ".user.emailAttribute").orElse(null), DEFAULT_EMAIL_ATTRIBUTE);
 

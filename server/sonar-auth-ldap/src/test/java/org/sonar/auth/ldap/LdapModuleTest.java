@@ -30,7 +30,7 @@ public class LdapModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new LdapModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(3);
+    assertThat(container.getAddedObjects()).hasSize(2);
   }
 
 }
