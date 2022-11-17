@@ -42,7 +42,7 @@ import ManualProjectCreate from './ManualProjectCreate';
 import './style.css';
 import { CreateProjectModes } from './types';
 
-interface Props extends WithAvailableFeaturesProps {
+export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
   appState: AppState;
   location: Location;
   router: Router;
@@ -66,7 +66,7 @@ const PROJECT_MODE_FOR_ALM_KEY = {
   [AlmKeys.GitLab]: CreateProjectModes.GitLab,
 };
 
-export class CreateProjectPage extends React.PureComponent<Props, State> {
+export class CreateProjectPage extends React.PureComponent<CreateProjectPageProps, State> {
   mounted = false;
   state: State = {
     azureSettings: [],
@@ -207,7 +207,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
             location={location}
             onProjectCreate={this.handleProjectCreate}
             router={router}
-            settings={githubSettings}
+            almInstances={githubSettings}
           />
         );
       }

@@ -58,7 +58,7 @@ export interface AzureProjectCreateRendererProps {
   showPersonalAccessTokenForm?: boolean;
   submittingToken?: boolean;
   tokenValidationFailed: boolean;
-  onChangeConfig: (instance: AlmSettingsInstance) => void;
+  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
 }
 
 export default function AzureProjectCreateRenderer(props: AzureProjectCreateRendererProps) {
@@ -118,7 +118,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
       <AlmSettingsInstanceDropdown
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
-        onChangeConfig={props.onChangeConfig}
+        onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
       {loading && <i className="spinner" />}

@@ -22,6 +22,8 @@ import { mockGitlabProject } from '../../helpers/mocks/alm-integrations';
 import { GitlabProject } from '../../types/alm-integration';
 import {
   checkPersonalAccessTokenIsValid,
+  getGithubClientId,
+  getGithubOrganizations,
   getGitlabProjects,
   setAlmPersonalAccessToken,
 } from '../alm-integrations';
@@ -32,6 +34,8 @@ export default class AlmIntegrationsServiceMock {
   defaultAlmInstancePATMap: { [key: string]: boolean } = {
     'conf-final-1': false,
     'conf-final-2': true,
+    'conf-github-1': false,
+    'conf-github-2': true,
   };
 
   defaultGitlabProjects: GitlabProject[] = [
@@ -45,6 +49,20 @@ export default class AlmIntegrationsServiceMock {
     mockGitlabProject({ name: 'Gitlab project 3', id: '3' }),
   ];
 
+  defaultOrganizations = {
+    paging: {
+      pageIndex: 1,
+      pageSize: 100,
+      total: 1,
+    },
+    organizations: [
+      {
+        key: 'org-1',
+        name: 'org-1',
+      },
+    ],
+  };
+
   constructor() {
     this.almInstancePATMap = cloneDeep(this.defaultAlmInstancePATMap);
     this.gitlabProjects = cloneDeep(this.defaultGitlabProjects);
@@ -53,6 +71,8 @@ export default class AlmIntegrationsServiceMock {
     );
     (setAlmPersonalAccessToken as jest.Mock).mockImplementation(this.setAlmPersonalAccessToken);
     (getGitlabProjects as jest.Mock).mockImplementation(this.getGitlabProjects);
+    (getGithubClientId as jest.Mock).mockImplementation(this.getGithubClientId);
+    (getGithubOrganizations as jest.Mock).mockImplementation(this.getGithubOrganizations);
   }
 
   checkPersonalAccessTokenIsValid = (conf: string) => {
@@ -78,6 +98,14 @@ export default class AlmIntegrationsServiceMock {
   setGitlabProjects(gitlabProjects: GitlabProject[]) {
     this.gitlabProjects = gitlabProjects;
   }
+
+  getGithubClientId = () => {
+    return Promise.resolve({ clientId: 'clientId' });
+  };
+
+  getGithubOrganizations = () => {
+    return Promise.resolve(this.defaultOrganizations);
+  };
 
   reset = () => {
     this.almInstancePATMap = cloneDeep(this.defaultAlmInstancePATMap);

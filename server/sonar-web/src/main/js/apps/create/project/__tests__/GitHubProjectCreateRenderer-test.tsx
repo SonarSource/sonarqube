@@ -23,6 +23,7 @@ import Radio from '../../../../components/controls/Radio';
 import SearchBox from '../../../../components/controls/SearchBox';
 import Select from '../../../../components/controls/Select';
 import { mockGitHubRepository } from '../../../../helpers/mocks/alm-integrations';
+import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { GithubOrganization } from '../../../../types/alm-integration';
 import GitHubProjectCreateRenderer, {
   GitHubProjectCreateRendererProps,
@@ -116,6 +117,8 @@ function shallowRender(props: Partial<GitHubProjectCreateRendererProps> = {}) {
       onSearch={jest.fn()}
       onSelectOrganization={jest.fn()}
       onSelectRepository={jest.fn()}
+      onSelectedAlmInstanceChange={jest.fn()}
+      almInstances={[mockAlmSettingsInstance(), mockAlmSettingsInstance()]}
       organizations={[]}
       repositoryPaging={{ total: 0, pageIndex: 1, pageSize: 30 }}
       searchQuery=""

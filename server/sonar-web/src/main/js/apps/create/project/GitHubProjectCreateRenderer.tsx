@@ -37,8 +37,10 @@ import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { getProjectUrl } from '../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../types/alm-integration';
+import { AlmSettingsInstance } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { Paging } from '../../../types/types';
+import AlmSettingsInstanceDropdown from './AlmSettingsInstanceDropdown';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 
 export interface GitHubProjectCreateRendererProps {
@@ -59,6 +61,9 @@ export interface GitHubProjectCreateRendererProps {
   searchQuery: string;
   selectedOrganization?: GithubOrganization;
   selectedRepository?: GithubRepository;
+  almInstances: AlmSettingsInstance[];
+  selectedAlmInstance?: AlmSettingsInstance;
+  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
 }
 
 function orgToOption({ key, name }: GithubOrganization) {
@@ -176,6 +181,8 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
     organizations,
     selectedOrganization,
     selectedRepository,
+    almInstances,
+    selectedAlmInstance,
   } = props;
 
   if (loadingBindings) {
@@ -212,7 +219,13 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
         }
       />
 
-      {error ? (
+      <AlmSettingsInstanceDropdown
+        almInstances={almInstances}
+        selectedAlmInstance={selectedAlmInstance}
+        onChangeConfig={props.onSelectedAlmInstanceChange}
+      />
+
+      {error && selectedAlmInstance && (
         <div className="display-flex-justify-center">
           <div className="boxed-group padded width-50 huge-spacer-top">
             <h2 className="big-spacer-bottom">
@@ -239,7 +252,9 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
             </Alert>
           </div>
         </div>
-      ) : (
+      )}
+
+      {!error && (
         <DeferredSpinner loading={loadingOrganizations}>
           <div className="form-field">
             <label>{translate('onboarding.create_project.github.choose_organization')}</label>

@@ -83,7 +83,7 @@ function shallowRender(overrides: Partial<AzureProjectCreateRendererProps> = {})
       ]}
       showPersonalAccessTokenForm={false}
       submittingToken={false}
-      onChangeConfig={jest.fn()}
+      onSelectedAlmInstanceChange={jest.fn()}
       {...overrides}
     />
   );

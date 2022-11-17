@@ -13,11 +13,11 @@ exports[`should render correctly 1`] = `
   canAdmin={false}
   loading={false}
   loadingMore={false}
-  onChangeConfig={[Function]}
   onImport={[Function]}
   onLoadMore={[Function]}
   onPersonalAccessTokenCreated={[Function]}
   onSearch={[Function]}
+  onSelectedAlmInstanceChange={[Function]}
   projectsPaging={
     Object {
       "pageIndex": 1,

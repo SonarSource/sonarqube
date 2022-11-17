@@ -204,7 +204,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     await this.fetchInitialData();
   };
 
-  onChangeConfig = (instance: AlmSettingsInstance) => {
+  onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
     this.setState({
       selectedAlmInstance: instance,
       showPersonalAccessTokenForm: true,
@@ -248,7 +248,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
         showPersonalAccessTokenForm={
           showPersonalAccessTokenForm || Boolean(location.query.resetPat)
         }
-        onChangeConfig={this.onChangeConfig}
+        onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
       />
     );
   }

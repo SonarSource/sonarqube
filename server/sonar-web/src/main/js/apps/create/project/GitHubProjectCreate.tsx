@@ -36,7 +36,7 @@ interface Props {
   canAdmin: boolean;
   loadingBindings: boolean;
   onProjectCreate: (projectKey: string) => void;
-  settings: AlmSettingsInstance[];
+  almInstances: AlmSettingsInstance[];
   location: Location;
   router: Router;
 }
@@ -52,7 +52,7 @@ interface State {
   searchQuery: string;
   selectedOrganization?: GithubOrganization;
   selectedRepository?: GithubRepository;
-  settings?: AlmSettingsInstance;
+  selectedAlmInstance?: AlmSettingsInstance;
 }
 
 const REPOSITORY_PAGE_SIZE = 30;
@@ -72,7 +72,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       repositories: [],
       repositoryPaging: { pageSize: REPOSITORY_PAGE_SIZE, total: 0, pageIndex: 1 },
       searchQuery: '',
-      settings: props.settings[0],
+      selectedAlmInstance: this.getInitialSelectedAlmInstance(),
     };
 
     this.triggerSearch = debounce(this.triggerSearch, 250);
@@ -80,13 +80,14 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-
     this.initialize();
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.settings.length === 0 && this.props.settings.length > 0) {
-      this.setState({ settings: this.props.settings[0] }, () => this.initialize());
+    if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
+      this.setState({ selectedAlmInstance: this.getInitialSelectedAlmInstance() }, () =>
+        this.initialize()
+      );
     }
   }
 
@@ -94,26 +95,39 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     this.mounted = false;
   }
 
+  getInitialSelectedAlmInstance() {
+    const {
+      location: {
+        query: { almInstance: selectedAlmInstanceKey },
+      },
+      almInstances,
+    } = this.props;
+    const selectedAlmInstance = almInstances.find(
+      (instance) => instance.key === selectedAlmInstanceKey
+    );
+    if (selectedAlmInstance) {
+      return selectedAlmInstance;
+    }
+    return this.props.almInstances.length > 1 ? undefined : this.props.almInstances[0];
+  }
+
   async initialize() {
     const { location, router } = this.props;
-    const { settings } = this.state;
-
-    if (!settings || !settings.url) {
+    const { selectedAlmInstance } = this.state;
+    if (!selectedAlmInstance || !selectedAlmInstance.url) {
       this.setState({ error: true });
       return;
-    } else {
-      this.setState({ error: false });
     }
+    this.setState({ error: false });
 
     const code = location.query?.code;
-
     try {
       if (!code) {
-        await this.redirectToGithub(settings);
+        await this.redirectToGithub(selectedAlmInstance);
       } else {
         delete location.query.code;
         router.replace(location);
-        await this.fetchOrganizations(settings, code);
+        await this.fetchOrganizations(selectedAlmInstance, code);
       }
     } catch (e) {
       if (this.mounted) {
@@ -122,33 +136,39 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     }
   }
 
-  async redirectToGithub(settings: AlmSettingsInstance) {
-    if (!settings.url) {
+  async redirectToGithub(selectedAlmInstance: AlmSettingsInstance) {
+    if (!selectedAlmInstance.url) {
       return;
     }
 
-    const { clientId } = await getGithubClientId(settings.key);
+    const { clientId } = await getGithubClientId(selectedAlmInstance.key);
 
     if (!clientId) {
       this.setState({ error: true });
       return;
     }
-
     const queryParams = [
       { param: 'client_id', value: clientId },
-      { param: 'redirect_uri', value: `${getHostUrl()}/projects/create?mode=${AlmKeys.GitHub}` },
+      {
+        param: 'redirect_uri',
+        value: encodeURIComponent(
+          `${getHostUrl()}/projects/create?mode=${AlmKeys.GitHub}&almInstance=${
+            selectedAlmInstance.key
+          }`
+        ),
+      },
     ]
       .map(({ param, value }) => `${param}=${value}`)
       .join('&');
 
     let instanceRootUrl;
     // Strip the api section from the url, since we're not hitting the api here.
-    if (settings.url.includes('/api/v3')) {
+    if (selectedAlmInstance.url.includes('/api/v3')) {
       // GitHub Enterprise
-      instanceRootUrl = settings.url.replace('/api/v3', '');
+      instanceRootUrl = selectedAlmInstance.url.replace('/api/v3', '');
     } else {
       // github.com
-      instanceRootUrl = settings.url.replace('api.', '');
+      instanceRootUrl = selectedAlmInstance.url.replace('api.', '');
     }
 
     // strip the trailing /
@@ -156,8 +176,8 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     window.location.replace(`${instanceRootUrl}/login/oauth/authorize?${queryParams}`);
   }
 
-  async fetchOrganizations(settings: AlmSettingsInstance, token: string) {
-    const { organizations } = await getGithubOrganizations(settings.key, token);
+  async fetchOrganizations(selectedAlmInstance: AlmSettingsInstance, token: string) {
+    const { organizations } = await getGithubOrganizations(selectedAlmInstance.key, token);
 
     if (this.mounted) {
       this.setState({ loadingOrganizations: false, organizations });
@@ -166,9 +186,9 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
 
   async fetchRepositories(params: { organizationKey: string; page?: number; query?: string }) {
     const { organizationKey, page = 1, query } = params;
-    const { settings } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!settings) {
+    if (!selectedAlmInstance) {
       this.setState({ error: true });
       return;
     }
@@ -177,7 +197,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
 
     try {
       const data = await getGithubRepositories({
-        almSetting: settings.key,
+        almSetting: selectedAlmInstance.key,
         organization: organizationKey,
         pageSize: REPOSITORY_PAGE_SIZE,
         page,
@@ -243,14 +263,14 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
   };
 
   handleImportRepository = async () => {
-    const { selectedOrganization, selectedRepository, settings } = this.state;
+    const { selectedOrganization, selectedRepository, selectedAlmInstance } = this.state;
 
-    if (settings && selectedOrganization && selectedRepository) {
+    if (selectedAlmInstance && selectedOrganization && selectedRepository) {
       this.setState({ importing: true });
 
       try {
         const { project } = await importGithubRepository(
-          settings.key,
+          selectedAlmInstance.key,
           selectedOrganization.key,
           selectedRepository.key
         );
@@ -264,8 +284,12 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     }
   };
 
+  onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
+    this.setState({ selectedAlmInstance: instance }, () => this.initialize());
+  };
+
   render() {
-    const { canAdmin, loadingBindings } = this.props;
+    const { canAdmin, loadingBindings, almInstances } = this.props;
     const {
       error,
       importing,
@@ -277,6 +301,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       searchQuery,
       selectedOrganization,
       selectedRepository,
+      selectedAlmInstance,
     } = this.state;
 
     return (
@@ -298,6 +323,9 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
         repositories={repositories}
         selectedOrganization={selectedOrganization}
         selectedRepository={selectedRepository}
+        almInstances={almInstances}
+        selectedAlmInstance={selectedAlmInstance}
+        onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
       />
     );
   }

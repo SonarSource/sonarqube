@@ -189,8 +189,8 @@ exports[`should render correctly: invalid configs, admin 1`] = `
       className="display-flex-column"
     >
       <button
-        className="button button-huge display-flex-column create-project-mode-type-alm disabled big-spacer-right"
-        disabled={true}
+        className="button button-huge display-flex-column create-project-mode-type-alm big-spacer-right"
+        disabled={false}
         onClick={[Function]}
         type="button"
       >
@@ -204,16 +204,6 @@ exports[`should render correctly: invalid configs, admin 1`] = `
         >
           onboarding.create_project.select_method.github
         </div>
-        <p
-          className="text-muted small spacer-top"
-          style={
-            Object {
-              "lineHeight": 1.5,
-            }
-          }
-        >
-          onboarding.create_project.too_many_alm_instances_X.alm.github
-        </p>
       </button>
     </div>
     <div
@@ -329,8 +319,8 @@ exports[`should render correctly: invalid configs, admin 2`] = `
       className="display-flex-column"
     >
       <button
-        className="button button-huge display-flex-column create-project-mode-type-alm disabled big-spacer-right"
-        disabled={true}
+        className="button button-huge display-flex-column create-project-mode-type-alm big-spacer-right"
+        disabled={false}
         onClick={[Function]}
         type="button"
       >
@@ -344,16 +334,6 @@ exports[`should render correctly: invalid configs, admin 2`] = `
         >
           onboarding.create_project.select_method.github
         </div>
-        <p
-          className="text-muted small spacer-top"
-          style={
-            Object {
-              "lineHeight": 1.5,
-            }
-          }
-        >
-          onboarding.create_project.too_many_alm_instances_X.alm.github
-        </p>
       </button>
     </div>
     <div
@@ -469,8 +449,8 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
       className="display-flex-column"
     >
       <button
-        className="button button-huge display-flex-column create-project-mode-type-alm disabled big-spacer-right"
-        disabled={true}
+        className="button button-huge display-flex-column create-project-mode-type-alm big-spacer-right"
+        disabled={false}
         onClick={[Function]}
         type="button"
       >
@@ -484,16 +464,6 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
         >
           onboarding.create_project.select_method.github
         </div>
-        <p
-          className="text-muted small spacer-top"
-          style={
-            Object {
-              "lineHeight": 1.5,
-            }
-          }
-        >
-          onboarding.create_project.too_many_alm_instances_X.alm.github
-        </p>
       </button>
     </div>
     <div

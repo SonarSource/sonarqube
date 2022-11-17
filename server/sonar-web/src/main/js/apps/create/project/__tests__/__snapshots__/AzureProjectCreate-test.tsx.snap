@@ -14,12 +14,12 @@ exports[`should render correctly 1`] = `
   importing={false}
   loading={true}
   loadingRepositories={Object {}}
-  onChangeConfig={[Function]}
   onImportRepository={[Function]}
   onOpenProject={[Function]}
   onPersonalAccessTokenCreate={[Function]}
   onSearch={[Function]}
   onSelectRepository={[Function]}
+  onSelectedAlmInstanceChange={[Function]}
   repositories={Object {}}
   selectedAlmInstance={
     Object {

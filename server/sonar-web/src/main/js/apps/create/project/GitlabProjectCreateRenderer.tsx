@@ -46,7 +46,7 @@ export interface GitlabProjectCreateRendererProps {
   almInstances?: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
-  onChangeConfig: (instance: AlmSettingsInstance) => void;
+  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
 }
 
 export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRendererProps) {
@@ -84,7 +84,7 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
       <AlmSettingsInstanceDropdown
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
-        onChangeConfig={props.onChangeConfig}
+        onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
       {loading && <i className="spinner" />}

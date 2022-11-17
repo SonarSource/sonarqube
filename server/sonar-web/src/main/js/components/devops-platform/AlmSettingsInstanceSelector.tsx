@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { components, OptionProps, SingleValueProps } from 'react-select';
+import { translate } from '../../helpers/l10n';
 import { AlmSettingsInstance } from '../../types/alm-settings';
 import Select from '../controls/Select';
 
@@ -68,6 +69,7 @@ export default function AlmSettingsInstanceSelector(props: Props) {
         Option: optionRenderer,
         SingleValue: singleValueRenderer,
       }}
+      placeholder={translate('alm.configuration.selector.placeholder')}
       getOptionValue={(opt) => opt.key}
       value={instances.find((inst) => inst.key === initialValue)}
     />

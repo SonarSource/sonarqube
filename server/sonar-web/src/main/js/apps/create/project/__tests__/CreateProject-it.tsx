@@ -25,16 +25,19 @@ import { byLabelText, byRole, byText } from 'testing-library-selector';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
-import CreateProjectPage from '../CreateProjectPage';
+import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
 
 jest.mock('../../../../api/alm-integrations');
 jest.mock('../../../../api/alm-settings');
+
+const original = window.location;
 
 let almIntegrationHandler: AlmIntegrationsServiceMock;
 let almSettingsHandler: AlmSettingsServiceMock;
 
 const ui = {
   gitlabCreateProjectButton: byText('onboarding.create_project.select_method.gitlab'),
+  githubCreateProjectButton: byText('onboarding.create_project.select_method.github'),
   personalAccessTokenInput: byRole('textbox', {
     name: 'onboarding.create_project.enter_pat field_required',
   }),
@@ -42,6 +45,10 @@ const ui = {
 };
 
 beforeAll(() => {
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    value: { replace: jest.fn() },
+  });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   almSettingsHandler = new AlmSettingsServiceMock();
 });
@@ -49,6 +56,10 @@ beforeAll(() => {
 afterEach(() => {
   almIntegrationHandler.reset();
   almSettingsHandler.reset();
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'location', { configurable: true, value: original });
 });
 
 describe('Gitlab onboarding page', () => {
@@ -100,6 +111,28 @@ describe('Gitlab onboarding page', () => {
   });
 });
 
-function renderCreateProject() {
-  renderApp('project/create', <CreateProjectPage />);
+describe('Github onboarding page', () => {
+  it('should redirect to github authorization page when not already authorized', async () => {
+    const user = userEvent.setup();
+    renderCreateProject();
+    expect(ui.githubCreateProjectButton.get()).toBeInTheDocument();
+
+    await user.click(ui.githubCreateProjectButton.get());
+    expect(screen.getByText('onboarding.create_project.github.title')).toBeInTheDocument();
+    expect(screen.getByText('alm.configuration.selector.placeholder')).toBeInTheDocument();
+    expect(screen.getByText('alm.configuration.selector.label')).toBeInTheDocument();
+
+    await selectEvent.select(screen.getByLabelText('alm.configuration.selector.label'), [
+      /conf-github-1/,
+    ]);
+
+    expect(window.location.replace).toHaveBeenCalled();
+    expect(
+      screen.getByText('onboarding.create_project.github.choose_organization')
+    ).toBeInTheDocument();
+  });
+});
+
+function renderCreateProject(props: Partial<CreateProjectPageProps> = {}) {
+  renderApp('project/create', <CreateProjectPage {...props} />);
 }

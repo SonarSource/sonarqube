@@ -63,7 +63,7 @@ beforeEach(() => {
 });
 
 it('should handle no settings', async () => {
-  const wrapper = shallowRender({ settings: [] });
+  const wrapper = shallowRender({ almInstances: [] });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().error).toBe(true);
 });
@@ -78,13 +78,13 @@ it('should redirect when no code', async () => {
 
 it('should redirect when no code - github.com', async () => {
   const wrapper = shallowRender({
-    settings: [mockAlmSettingsInstance({ key: 'a', url: 'api.github.com' })],
+    almInstances: [mockAlmSettingsInstance({ key: 'a', url: 'api.github.com' })],
   });
   await waitAndUpdate(wrapper);
 
   expect(getGithubClientId).toHaveBeenCalled();
   expect(window.location.replace).toHaveBeenCalledWith(
-    'github.com/login/oauth/authorize?client_id=client-id-124&redirect_uri=http://localhost/projects/create?mode=github'
+    'github.com/login/oauth/authorize?client_id=client-id-124&redirect_uri=http%3A%2F%2Flocalhost%2Fprojects%2Fcreate%3Fmode%3Dgithub%26almInstance%3Da'
   );
 });
 
@@ -239,7 +239,7 @@ function shallowRender(props: Partial<GitHubProjectCreate['props']> = {}) {
       location={mockLocation()}
       onProjectCreate={jest.fn()}
       router={mockRouter()}
-      settings={[mockAlmSettingsInstance({ key: 'a', url: 'geh.company.com/api/v3' })]}
+      almInstances={[mockAlmSettingsInstance({ key: 'a', url: 'geh.company.com/api/v3' })]}
       {...props}
     />
   );

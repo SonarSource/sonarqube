@@ -17,6 +17,21 @@ exports[`should render correctly: default 1`] = `
       </span>
     }
   />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+  />
   <DeferredSpinner
     loading={false}
   >
@@ -54,24 +69,21 @@ exports[`should render correctly: error 1`] = `
       </span>
     }
   />
-  <div
-    className="display-flex-justify-center"
-  >
-    <div
-      className="boxed-group padded width-50 huge-spacer-top"
-    >
-      <h2
-        className="big-spacer-bottom"
-      >
-        onboarding.create_project.github.warning.title
-      </h2>
-      <Alert
-        variant="warning"
-      >
-        onboarding.create_project.github.warning.message
-      </Alert>
-    </div>
-  </div>
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+  />
 </div>
 `;
 
@@ -92,36 +104,21 @@ exports[`should render correctly: error for admin 1`] = `
       </span>
     }
   />
-  <div
-    className="display-flex-justify-center"
-  >
-    <div
-      className="boxed-group padded width-50 huge-spacer-top"
-    >
-      <h2
-        className="big-spacer-bottom"
-      >
-        onboarding.create_project.github.warning.title
-      </h2>
-      <Alert
-        variant="warning"
-      >
-        <FormattedMessage
-          defaultMessage="onboarding.create_project.github.warning.message_admin"
-          id="onboarding.create_project.github.warning.message_admin"
-          values={
-            Object {
-              "link": <ForwardRef(Link)
-                to="/admin/settings?category=almintegration"
-              >
-                onboarding.create_project.github.warning.message_admin.link
-              </ForwardRef(Link)>,
-            }
-          }
-        />
-      </Alert>
-    </div>
-  </div>
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+  />
 </div>
 `;
 
@@ -160,6 +157,21 @@ exports[`should render correctly: no repositories 1`] = `
         onboarding.create_project.github.title
       </span>
     }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
   />
   <DeferredSpinner
     loading={false}
@@ -213,6 +225,21 @@ exports[`should render correctly: organizations 1`] = `
         onboarding.create_project.github.title
       </span>
     }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
   />
   <DeferredSpinner
     loading={false}
@@ -278,6 +305,21 @@ exports[`should render correctly: repositories 1`] = `
         onboarding.create_project.github.title
       </span>
     }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+        Object {
+          "alm": "github",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
   />
   <DeferredSpinner
     loading={false}

@@ -27,6 +27,8 @@ export default class AlmSettingsServiceMock {
   defaultSetting: AlmSettingsInstance[] = [
     mockAlmSettingsInstance({ key: 'conf-final-1', alm: AlmKeys.GitLab }),
     mockAlmSettingsInstance({ key: 'conf-final-2', alm: AlmKeys.GitLab }),
+    mockAlmSettingsInstance({ key: 'conf-github-1', alm: AlmKeys.GitHub, url: 'url' }),
+    mockAlmSettingsInstance({ key: 'conf-github-2', alm: AlmKeys.GitHub, url: 'url' }),
   ];
 
   constructor() {

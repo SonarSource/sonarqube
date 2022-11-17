@@ -273,7 +273,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     }
   };
 
-  onChangeConfig = (instance: AlmSettingsInstance) => {
+  onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
     this.setState({ selectedAlmInstance: instance }, () => this.fetchData());
   };
 
@@ -317,7 +317,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
         showPersonalAccessTokenForm={!patIsValid || Boolean(location.query.resetPat)}
         submittingToken={submittingToken}
         tokenValidationFailed={tokenValidationFailed}
-        onChangeConfig={this.onChangeConfig}
+        onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
       />
     );
   }
