@@ -184,11 +184,75 @@ Nginx configuration will vary based on your own application's requirements and t
 
 Note that you may need to increase the max URL length since SonarQube requests can have URLs longer than 2048.
 
-### Using IIS
+### Using IIS on Windows
 
-Please see: [http://blog.jessehouwing.nl/2016/02/configure-ssl-for-sonarqube-on-windows.html](http://blog.jessehouwing.nl/2016/02/configure-ssl-for-sonarqube-on-windows.html)
+Using IIS on Windows, you can create a website that acts as a reverse proxy and access your SonarQube instance over SSL.
 
-Note that the setup described in this blog post is not appropriate for SAML through IIS.
+[[info]]
+Info: The setup described here is not appropriate for SAML through IIS.
+
+#### Prerequisites
+
+Internet Information Services (IIS) enabled. In the following example, IIS is enabled on the same machine as the SonarQube instance.
+The [Url Rewrite extension for IIS](https://www.iis.net/downloads/microsoft/url-rewrite)
+The [Application Based Routing extension for IIS](https://www.iis.net/downloads/microsoft/application-request-routing)
+[A self-signed SSL certificate, or a real one](https://learn.microsoft.com/en-us/iis/manage/configuring-security/how-to-set-up-ssl-on-iis#obtain-a-certificate)
+
+[[info]]
+To make sure the extensions are enabled, restart your IIS Manager after you install them.
+
+#### Creating an IIS website
+
+1. In the IIS Manager, select *Your machine* > **Sites** > **Add Website…**.
+2. Under **Site name**, enter a name for your website.
+3. Under **Content Directory** > **Physical path**, select a physical path for your website’s folder. Based on the default IIS website, we recommend creating a `%SystemDrive%\inetpub\wwwroot_sonarqube` folder and using it as physical path.
+4. In **Binding**, select **Type** > **https**.
+5. Under **SSL certificate**, select an SSL certificate.
+6. Click **OK**.
+
+#### Using your IIS website as a reverse proxy
+
+Once you’ve created your website using the IIS Manager, you can use the URL Rewrite extension to use that website as a reverse proxy.
+
+1. From the IIS Manager home page, select your website and open **URL Rewrite**.
+2. Click **Add Rule(s)** to create a new rule.
+3. Select **Reverse Proxy** from the list of templates.
+4. Enter the destination server URL. It can be http://localhost:9000 or a remote server. 
+5. click **OK** to create the rule.
+
+The URL Rewrite page now displays a reverse proxy inbound rule.
+
+#### Adding the X_FORWARDED_PROTO server variable 
+
+Using the URL Rewrite module, you can create a server variable to handle the `X-Forwarded-Proto` header and pass it to SonarQube. See the HTTPS Configuration section on this page for more information on that server variable.
+
+From the URL Rewrite page:
+
+1. Click **View Server Variables**. This opens the **Allowed Server Variables** page. 
+2. To add a server variable, click **Add...**, enter `X_FORWARDED_PROTO` in the field and click **OK**. The server variable is now displayed on the **Allowed Server Variables** page. 
+3. Click **Back to Rules** to go to the URL Rewrite rules list.
+4. Select the reverse proxy inbound rule for your website. Under **Inbound Rules**, click **Edit**.
+5. Expand the **Server variables** section of the rule definition.
+6. Add the `X_FORWARDED_PROTO` server variable and give it the value **https**.
+7. Apply the changes. 
+
+SonarQube can now be accessed over SSL. 
+
+#### Check that the connection is enabled 
+
+With your SonarQube instance and your IIS website running, open the IIS Manager and click the link under **Your website** > **Browse Website** > **Browse**, or enter the website’s URL in a browser. You should see the log-in or home page of your SonarQube instance. 
+
+#### Next steps
+
+You can configure your SonarQube instance to only accept traffic from your reverse proxy, by adding the following line to the  `sonar.properties` file: 
+
+`sonar.web.host=127.0.0.1`
+
+Another option is to use the Windows Firewall to only accept traffic from localhost.
+
+#### Resources
+
+The setup described here is inspired by this [Configure SSL for SonarQube on Windows](https://jessehouwing.net/sonarqube-configure-ssl-on-windows/) blog post.
 
 ### HTTPS Configuration
 
