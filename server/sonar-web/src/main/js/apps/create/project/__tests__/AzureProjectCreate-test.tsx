@@ -195,8 +195,8 @@ it('should select and import a repository', async () => {
   expect(wrapper.state().importing).toBe(false);
 });
 
-it('should handle no settings', () => {
-  const wrapper = shallowRender({ settings: [] });
+it('should handle no almInstances', () => {
+  const wrapper = shallowRender({ almInstances: [] });
 
   wrapper.instance().fetchAzureProjects();
   wrapper.instance().fetchAzureRepositories('whatever');
@@ -221,7 +221,7 @@ function shallowRender(overrides: Partial<AzureProjectCreate['props']> = {}) {
       location={mockLocation()}
       onProjectCreate={jest.fn()}
       router={mockRouter()}
-      settings={[mockAlmSettingsInstance({ alm: AlmKeys.Azure, key: 'foo' })]}
+      almInstances={[mockAlmSettingsInstance({ alm: AlmKeys.Azure, key: 'foo' })]}
       {...overrides}
     />
   );

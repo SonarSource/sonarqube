@@ -36,7 +36,7 @@ interface Props {
   canAdmin: boolean;
   loadingBindings: boolean;
   onProjectCreate: (projectKey: string) => void;
-  settings: AlmSettingsInstance[];
+  almInstances: AlmSettingsInstance[];
   location: Location;
   router: Router;
 }
@@ -52,7 +52,7 @@ interface State {
   searchResults?: AzureRepository[];
   searchQuery?: string;
   selectedRepository?: AzureRepository;
-  settings?: AlmSettingsInstance;
+  selectedAlmInstance?: AlmSettingsInstance;
   submittingToken?: boolean;
   tokenValidationFailed: boolean;
 }
@@ -65,7 +65,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     this.state = {
       // For now, we only handle a single instance. So we always use the first
       // one from the list.
-      settings: props.settings[0],
+      selectedAlmInstance: props.almInstances[0],
       importing: false,
       loading: false,
       loadingRepositories: {},
@@ -76,15 +76,12 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchInitialData();
+    this.fetchData();
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.settings.length === 0 && this.props.settings.length > 0) {
-      this.setState(
-        { settings: this.props.settings.length === 1 ? this.props.settings[0] : undefined },
-        () => this.fetchInitialData()
-      );
+    if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
+      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () => this.fetchData());
     }
   }
 
@@ -92,7 +89,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     this.mounted = false;
   }
 
-  fetchInitialData = async () => {
+  fetchData = async () => {
     this.setState({ loading: true });
 
     const patIsValid = await this.checkPersonalAccessToken().catch(() => false);
@@ -135,23 +132,23 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   };
 
   fetchAzureProjects = (): Promise<AzureProject[] | undefined> => {
-    const { settings } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!settings) {
+    if (!selectedAlmInstance) {
       return Promise.resolve(undefined);
     }
 
-    return getAzureProjects(settings.key).then(({ projects }) => projects);
+    return getAzureProjects(selectedAlmInstance.key).then(({ projects }) => projects);
   };
 
   fetchAzureRepositories = (projectName: string): Promise<AzureRepository[]> => {
-    const { settings } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!settings) {
+    if (!selectedAlmInstance) {
       return Promise.resolve([]);
     }
 
-    return getAzureRepositories(settings.key, projectName)
+    return getAzureRepositories(selectedAlmInstance.key, projectName)
       .then(({ repositories }) => repositories)
       .catch(() => []);
   };
@@ -180,9 +177,9 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   };
 
   handleSearchRepositories = async (searchQuery: string) => {
-    const { settings } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!settings) {
+    if (!selectedAlmInstance) {
       return;
     }
 
@@ -194,7 +191,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     this.setState({ searching: true });
 
     const searchResults: AzureRepository[] = await searchAzureRepositories(
-      settings.key,
+      selectedAlmInstance.key,
       searchQuery
     )
       .then(({ repositories }) => repositories)
@@ -210,16 +207,16 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   };
 
   handleImportRepository = async () => {
-    const { selectedRepository, settings } = this.state;
+    const { selectedRepository, selectedAlmInstance } = this.state;
 
-    if (!settings || !selectedRepository) {
+    if (!selectedAlmInstance || !selectedRepository) {
       return;
     }
 
     this.setState({ importing: true });
 
     const createdProject = await importAzureRepository(
-      settings.key,
+      selectedAlmInstance.key,
       selectedRepository.projectName,
       selectedRepository.name
     )
@@ -239,26 +236,26 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   };
 
   checkPersonalAccessToken = () => {
-    const { settings } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!settings) {
+    if (!selectedAlmInstance) {
       return Promise.resolve(false);
     }
 
-    return checkPersonalAccessTokenIsValid(settings.key).then(({ status }) => status);
+    return checkPersonalAccessTokenIsValid(selectedAlmInstance.key).then(({ status }) => status);
   };
 
   handlePersonalAccessTokenCreate = async (token: string) => {
-    const { settings } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!settings || token.length < 1) {
+    if (!selectedAlmInstance || token.length < 1) {
       return;
     }
 
     this.setState({ submittingToken: true, tokenValidationFailed: false });
 
     try {
-      await setAlmPersonalAccessToken(settings.key, token);
+      await setAlmPersonalAccessToken(selectedAlmInstance.key, token);
       const patIsValid = await this.checkPersonalAccessToken();
 
       if (this.mounted) {
@@ -266,7 +263,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
 
         if (patIsValid) {
           this.cleanUrl();
-          this.fetchInitialData();
+          this.fetchData();
         }
       }
     } catch (e) {
@@ -276,8 +273,12 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     }
   };
 
+  onChangeConfig = (instance: AlmSettingsInstance) => {
+    this.setState({ selectedAlmInstance: instance }, () => this.fetchData());
+  };
+
   render() {
-    const { canAdmin, loadingBindings, location } = this.props;
+    const { canAdmin, loadingBindings, location, almInstances } = this.props;
     const {
       importing,
       loading,
@@ -289,7 +290,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       searchResults,
       searchQuery,
       selectedRepository,
-      settings,
+      selectedAlmInstance,
       submittingToken,
       tokenValidationFailed,
     } = this.state;
@@ -311,10 +312,12 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
         searchResults={searchResults}
         searchQuery={searchQuery}
         selectedRepository={selectedRepository}
-        settings={settings}
+        almInstances={almInstances}
+        selectedAlmInstance={selectedAlmInstance}
         showPersonalAccessTokenForm={!patIsValid || Boolean(location.query.resetPat)}
         submittingToken={submittingToken}
         tokenValidationFailed={tokenValidationFailed}
+        onChangeConfig={this.onChangeConfig}
       />
     );
   }

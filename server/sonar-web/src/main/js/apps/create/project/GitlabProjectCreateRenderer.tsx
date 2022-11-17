@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import AlmSettingsInstanceSelector from '../../../components/devops-platform/AlmSettingsInstanceSelector';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { GitlabProject } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Paging } from '../../../types/types';
+import AlmSettingsInstanceDropdown from './AlmSettingsInstanceDropdown';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import GitlabProjectSelectionForm from './GitlabProjectSelectionForm';
 import PersonalAccessTokenForm from './PersonalAccessTokenForm';
@@ -81,20 +81,11 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
         }
       />
 
-      {almInstances && almInstances.length > 1 && (
-        <div className="display-flex-column huge-spacer-bottom">
-          <label htmlFor="alm-config-selector" className="spacer-bottom">
-            {translate('alm.configuration.selector.label')}
-          </label>
-          <AlmSettingsInstanceSelector
-            instances={almInstances}
-            onChange={props.onChangeConfig}
-            initialValue={selectedAlmInstance ? selectedAlmInstance.key : undefined}
-            classNames="abs-width-400"
-            inputId="alm-config-selector"
-          />
-        </div>
-      )}
+      <AlmSettingsInstanceDropdown
+        almInstances={almInstances}
+        selectedAlmInstance={selectedAlmInstance}
+        onChangeConfig={props.onChangeConfig}
+      />
 
       {loading && <i className="spinner" />}
 

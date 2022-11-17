@@ -171,7 +171,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
             location={location}
             onProjectCreate={this.handleProjectCreate}
             router={router}
-            settings={azureSettings}
+            almInstances={azureSettings}
           />
         );
       }

@@ -3,23 +3,6 @@
 exports[`should render correctly: loading 1`] = `
 <Fragment>
   <CreateProjectPageHeader
-    additionalActions={
-      <div
-        className="display-flex-center pull-right"
-      >
-        <DeferredSpinner
-          className="spacer-right"
-          loading={false}
-        />
-        <Button
-          className="button-large button-primary"
-          disabled={true}
-          onClick={[MockFunction]}
-        >
-          onboarding.create_project.import_selected_repo
-        </Button>
-      </div>
-    }
     title={
       <span
         className="text-middle"
@@ -33,6 +16,18 @@ exports[`should render correctly: loading 1`] = `
         onboarding.create_project.azure.title
       </span>
     }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "azure",
+          "key": "key",
+          "url": "https://azure.company.com",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
   />
   <i
     className="spinner"
@@ -56,6 +51,9 @@ exports[`should render correctly: no settings 1`] = `
         onboarding.create_project.azure.title
       </span>
     }
+  />
+  <AlmSettingsInstanceDropdown
+    onChangeConfig={[MockFunction]}
   />
   <WrongBindingCountAlert
     alm="azure"
@@ -96,6 +94,30 @@ exports[`should render correctly: project list 1`] = `
         />
         onboarding.create_project.azure.title
       </span>
+    }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "azure",
+          "key": "key",
+          "url": "https://azure.company.com",
+        },
+        Object {
+          "alm": "azure",
+          "key": "key2",
+          "url": "https://azure.company.com",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+    selectedAlmInstance={
+      Object {
+        "alm": "azure",
+        "key": "key",
+        "url": "https://azure.company.com",
+      }
     }
   />
   <div
@@ -155,29 +177,17 @@ exports[`should render correctly: setting missing url, admin 1`] = `
       </span>
     }
   />
-  <Alert
-    variant="error"
-  >
-    <FormattedMessage
-      defaultMessage="onboarding.create_project.azure.no_url.admin"
-      id="onboarding.create_project.azure.no_url.admin"
-      values={
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
         Object {
-          "alm": "onboarding.alm.azure",
-          "url": <ForwardRef(Link)
-            to={
-              Object {
-                "pathname": "/admin/settings",
-                "search": "?category=almintegration",
-              }
-            }
-          >
-            settings.page
-          </ForwardRef(Link)>,
-        }
-      }
-    />
-  </Alert>
+          "alm": "azure",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+  />
 </Fragment>
 `;
 
@@ -198,11 +208,17 @@ exports[`should render correctly: setting missing url, not admin 1`] = `
       </span>
     }
   />
-  <Alert
-    variant="error"
-  >
-    onboarding.create_project.azure.no_url
-  </Alert>
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "azure",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+  />
 </Fragment>
 `;
 
@@ -224,21 +240,17 @@ exports[`should render correctly: token form 1`] = `
       </span>
     }
   />
-  <div
-    className="display-flex-justify-center"
-  >
-    <AzurePersonalAccessTokenForm
-      almSetting={
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
         Object {
           "alm": "azure",
           "key": "key",
           "url": "https://azure.company.com",
-        }
-      }
-      onPersonalAccessTokenCreate={[MockFunction]}
-      submitting={false}
-      validationFailed={false}
-    />
-  </div>
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+  />
 </Fragment>
 `;

@@ -31,6 +31,7 @@ import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Dict } from '../../../types/types';
 import { ALM_INTEGRATION_CATEGORY } from '../../settings/constants';
+import AlmSettingsInstanceDropdown from './AlmSettingsInstanceDropdown';
 import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';
 import AzureProjectsList from './AzureProjectsList';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
@@ -52,10 +53,12 @@ export interface AzureProjectCreateRendererProps {
   searchResults?: AzureRepository[];
   searchQuery?: string;
   selectedRepository?: AzureRepository;
-  settings?: AlmSettingsInstance;
+  almInstances?: AlmSettingsInstance[];
+  selectedAlmInstance?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
   submittingToken?: boolean;
   tokenValidationFailed: boolean;
+  onChangeConfig: (instance: AlmSettingsInstance) => void;
 }
 
 export default function AzureProjectCreateRenderer(props: AzureProjectCreateRendererProps) {
@@ -70,15 +73,16 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
     searchResults,
     searchQuery,
     selectedRepository,
-    settings,
+    almInstances,
     showPersonalAccessTokenForm,
     submittingToken,
     tokenValidationFailed,
+    selectedAlmInstance,
   } = props;
 
-  const settingIsValid = settings && settings.url;
-  const showCountError = !loading && !settings;
-  const showUrlError = !loading && settings && !settings.url;
+  const showCountError = !loading && (!almInstances || almInstances?.length === 0);
+  const settingIsValid = selectedAlmInstance && selectedAlmInstance.url;
+  const showUrlError = !loading && selectedAlmInstance && !selectedAlmInstance.url;
 
   return (
     <>
@@ -111,6 +115,12 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
         }
       />
 
+      <AlmSettingsInstanceDropdown
+        almInstances={almInstances}
+        selectedAlmInstance={selectedAlmInstance}
+        onChangeConfig={props.onChangeConfig}
+      />
+
       {loading && <i className="spinner" />}
 
       {showUrlError && (
@@ -137,12 +147,12 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
       {showCountError && <WrongBindingCountAlert alm={AlmKeys.Azure} canAdmin={!!canAdmin} />}
 
       {!loading &&
-        settings &&
-        settings.url &&
+        selectedAlmInstance &&
+        selectedAlmInstance.url &&
         (showPersonalAccessTokenForm ? (
-          <div className="display-flex-justify-center">
+          <div>
             <AzurePersonalAccessTokenForm
-              almSetting={settings}
+              almSetting={selectedAlmInstance}
               onPersonalAccessTokenCreate={props.onPersonalAccessTokenCreate}
               submitting={submittingToken}
               validationFailed={tokenValidationFailed}

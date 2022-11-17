@@ -92,6 +92,7 @@ exports[`should render correctly for azure mode 1`] = `
     id="create-project"
   >
     <AzureProjectCreate
+      almInstances={Array []}
       canAdmin={false}
       loadingBindings={true}
       location={
@@ -120,7 +121,6 @@ exports[`should render correctly for azure mode 1`] = `
           "setRouteLeaveHook": [MockFunction],
         }
       }
-      settings={Array []}
     />
   </div>
 </Fragment>

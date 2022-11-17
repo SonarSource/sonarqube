@@ -102,7 +102,7 @@ it('should call the proper click handler', () => {
   const onSelectMode = jest.fn();
   const onConfigMode = jest.fn();
 
-  let wrapper = shallowRender({ onSelectMode, onConfigMode }, { [AlmKeys.Azure]: 2 });
+  let wrapper = shallowRender({ onSelectMode, onConfigMode }, { [AlmKeys.Azure]: 0 });
 
   click(wrapper.find(almButton).at(0));
   expect(onConfigMode).not.toHaveBeenCalled();

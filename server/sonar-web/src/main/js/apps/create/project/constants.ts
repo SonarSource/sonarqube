@@ -23,4 +23,4 @@ export const PROJECT_NAME_MAX_LEN = 255;
 
 export const DEFAULT_BBS_PAGE_SIZE = 25;
 
-export const ALLOWED_MULTIPLE_CONFIGS = [AlmKeys.GitLab];
+export const ALLOWED_MULTIPLE_CONFIGS = [AlmKeys.GitLab, AlmKeys.Azure];

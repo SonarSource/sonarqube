@@ -2,17 +2,26 @@
 
 exports[`should render correctly 1`] = `
 <AzureProjectCreateRenderer
+  almInstances={
+    Array [
+      Object {
+        "alm": "azure",
+        "key": "foo",
+      },
+    ]
+  }
   canAdmin={true}
   importing={false}
   loading={true}
   loadingRepositories={Object {}}
+  onChangeConfig={[Function]}
   onImportRepository={[Function]}
   onOpenProject={[Function]}
   onPersonalAccessTokenCreate={[Function]}
   onSearch={[Function]}
   onSelectRepository={[Function]}
   repositories={Object {}}
-  settings={
+  selectedAlmInstance={
     Object {
       "alm": "azure",
       "key": "foo",
