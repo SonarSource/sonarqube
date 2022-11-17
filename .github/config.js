@@ -6,7 +6,8 @@ module.exports = {
     onboarding: false,
     includeForks: false,
     branchPrefix: "renovate/",
-    gitAuthor: "sonarqubetech-sonarenterprise <78919706+sonarqubetech-sonarenterprise@users.noreply.github.com>",
+    gitAuthor: "renovate bot <111297361+hashicorp-vault-sonar-prod[bot]@users.noreply.github.com>",
+    username: "hashicorp-vault-sonar-prod[bot]",
     baseBranches: ["master"],
     repositories: [
       "SonarSource/sonar-enterprise",
