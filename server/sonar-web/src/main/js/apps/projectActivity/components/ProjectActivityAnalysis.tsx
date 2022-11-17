@@ -29,7 +29,6 @@ import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { ParsedAnalysis } from '../../../types/project-activity';
 import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
@@ -47,7 +46,6 @@ export interface ProjectActivityAnalysisProps {
   deleteEvent: (analysis: string, event: string) => Promise<void>;
   isBaseline: boolean;
   isFirst: boolean;
-  parentScrollContainer?: HTMLElement | null;
   selected: boolean;
   updateSelectedDate: (date: Date) => void;
 }
@@ -55,25 +53,11 @@ export interface ProjectActivityAnalysisProps {
 export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
   let node: HTMLLIElement | null = null;
 
-  const {
-    analysis,
-    isBaseline,
-    isFirst,
-    canAdmin,
-    canCreateVersion,
-    parentScrollContainer,
-    selected,
-  } = props;
+  const { analysis, isBaseline, isFirst, canAdmin, canCreateVersion, selected } = props;
 
   React.useEffect(() => {
-    if (node && parentScrollContainer && selected) {
-      const { height } = node.getBoundingClientRect();
-      scrollToElement(node, {
-        bottomOffset: height + 20,
-        topOffset: 60,
-        parent: parentScrollContainer,
-        smooth: false,
-      });
+    if (node && selected) {
+      node.scrollIntoView({ behavior: 'smooth' });
     }
   });
 

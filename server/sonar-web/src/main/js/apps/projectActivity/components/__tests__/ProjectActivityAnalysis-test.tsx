@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { IntlProvider } from 'react-intl';
 import TimeFormatter from '../../../../components/intl/TimeFormatter';
 import { mockAnalysisEvent, mockParsedAnalysis } from '../../../../helpers/mocks/project-activity';
-import { scrollToElement } from '../../../../helpers/scrolling';
 import { click } from '../../../../helpers/testUtils';
 import AddEventForm from '../forms/AddEventForm';
 import RemoveAnalysisForm from '../forms/RemoveAnalysisForm';
@@ -33,10 +31,6 @@ jest.mock('../../../../helpers/dates', () => ({
     valueOf: () => 1546333200000,
     toISOString: () => '2019-01-01T09:00:00.000Z',
   }),
-}));
-
-jest.mock('../../../../helpers/scrolling', () => ({
-  scrollToElement: jest.fn(),
 }));
 
 it('should render correctly', () => {
@@ -110,17 +104,8 @@ it('should be clickable', () => {
   expect(updateSelectedDate).toHaveBeenCalledWith(date);
 });
 
-it('should trigger a scroll to itself if selected', () => {
-  mountRender({ parentScrollContainer: document.createElement('ul'), selected: true });
-  expect(scrollToElement).toHaveBeenCalled();
-});
-
 function shallowRender(props: Partial<ProjectActivityAnalysisProps> = {}) {
   return shallow(createComponent(props));
-}
-
-function mountRender(props: Partial<ProjectActivityAnalysisProps> = {}) {
-  return mount(<IntlProvider locale="en">{createComponent(props)}</IntlProvider>);
 }
 
 function createComponent(props: Partial<ProjectActivityAnalysisProps> = {}) {

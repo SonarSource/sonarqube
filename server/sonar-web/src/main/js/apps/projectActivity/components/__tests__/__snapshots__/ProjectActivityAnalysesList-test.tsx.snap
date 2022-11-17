@@ -6,7 +6,7 @@ exports[`should correctly filter analyses by category 1`] = `
   onScroll={[Function]}
   style={
     Object {
-      "paddingTop": 52,
+      "marginTop": 36,
     }
   }
 >
@@ -85,7 +85,7 @@ exports[`should correctly filter analyses by date range 1`] = `
   onScroll={[Function]}
   style={
     Object {
-      "paddingTop": 52,
+      "marginTop": 36,
     }
   }
 >
@@ -164,7 +164,7 @@ exports[`should render correctly: application 1`] = `
   onScroll={[Function]}
   style={
     Object {
-      "paddingTop": undefined,
+      "marginTop": undefined,
     }
   }
 >
@@ -380,7 +380,7 @@ exports[`should render correctly: default 1`] = `
   onScroll={[Function]}
   style={
     Object {
-      "paddingTop": 52,
+      "marginTop": 36,
     }
   }
 >

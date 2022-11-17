@@ -47,6 +47,8 @@ interface Props {
   updateQuery: (changes: Partial<Query>) => void;
 }
 
+const LIST_MARGIN_TOP = 36;
+
 export default class ProjectActivityAnalysesList extends React.PureComponent<Props> {
   analyses?: HTMLCollectionOf<HTMLElement>;
   badges?: HTMLCollectionOf<HTMLElement>;
@@ -153,7 +155,6 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
         isBaseline={this.shouldRenderBaselineMarker(analysis)}
         isFirst={analysis.key === firstAnalysisKey}
         key={analysis.key}
-        parentScrollContainer={this.scrollContainer}
         selected={analysis.date.valueOf() === selectedDate}
         updateSelectedDate={this.updateSelectedDate}
       />
@@ -185,7 +186,10 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
         onScroll={this.handleScroll}
         ref={(element) => (this.scrollContainer = element)}
         style={{
-          paddingTop: this.props.project.qualifier === ComponentQualifier.Project ? 52 : undefined,
+          marginTop:
+            this.props.project.qualifier === ComponentQualifier.Project
+              ? LIST_MARGIN_TOP
+              : undefined,
         }}
       >
         {byVersionByDay.map((version, idx) => {
