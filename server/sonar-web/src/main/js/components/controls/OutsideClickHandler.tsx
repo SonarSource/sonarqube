@@ -41,11 +41,11 @@ export default class OutsideClickHandler extends React.Component<Props> {
   }
 
   addClickHandler = () => {
-    window.addEventListener('click', this.handleWindowClick);
+    window.addEventListener('mousedown', this.handleWindowClick);
   };
 
   removeClickHandler = () => {
-    window.removeEventListener('click', this.handleWindowClick);
+    window.removeEventListener('mousedown', this.handleWindowClick);
   };
 
   handleWindowClick = (event: MouseEvent) => {
