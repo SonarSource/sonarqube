@@ -85,6 +85,7 @@ public class AppAction implements ComponentsWsAction {
 
   @Override
   public void handle(Request request, Response response) {
+    int a = 100;
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(session, request);
       userSession.checkComponentPermission(UserRole.USER, component);
@@ -96,7 +97,7 @@ public class AppAction implements ComponentsWsAction {
     String branch = request.param(PARAM_BRANCH);
     String pullRequest = request.param(PARAM_PULL_REQUEST);
     String componentKey = request.mandatoryParam(PARAM_COMPONENT);
-
+int a = 9;
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 

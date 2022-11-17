@@ -28,7 +28,7 @@ import org.sonar.server.health.Health;
 public abstract class AbstractSystemInfoWriter implements SystemInfoWriter {
   private static final String[] ORDERED_SECTION_NAMES = {
     // standalone
-    "System", "Database", "Bundled", "Plugins",
+    "System", "Statistics", "Database", "Bundled", "Plugins",
 
     // cluster
     "Web JVM State", "Web Database Connection", "Web Logging", "Web JVM Properties",

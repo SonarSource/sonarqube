@@ -17,33 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.platform.monitoring;
 
 import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.measure.SumNclocDbQuery;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 
-public class SystemInfoWriterModuleTest {
-  private final WebServer webServer = mock(WebServer.class);
-  private final SystemInfoWriterModule underTest = new SystemInfoWriterModule(webServer);
 
-  @Test
-  public void verify_system_info_configuration_in_cluster_mode() {
-    when(webServer.isStandalone()).thenReturn(false);
-    ListContainer container = new ListContainer();
-    underTest.configure(container);
-    assertThat(container.getAddedObjects()).hasSize(21);
-  }
+public class StatisticsSystemSectionTest {
+
+  private DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
+
+  private final StatisticsSystemSection statisticsSystemSection = new StatisticsSystemSection(dbClient);
 
   @Test
-  public void verify_system_info_configuration_in_standalone_mode() {
-    when(webServer.isStandalone()).thenReturn(true);
+  public void shouldWriteProtobuf() {
 
-    ListContainer container = new ListContainer();
-    underTest.configure(container);
-    assertThat(container.getAddedObjects()).hasSize(15);
+    when(dbClient.liveMeasureDao().sumNclocOfBiggestBranch(any(DbSession.class), any(SumNclocDbQuery.class))).thenReturn(1800999L);
+
+    ProtobufSystemInfo.Section protobuf = statisticsSystemSection.toProtobuf();
+    long value = attribute(protobuf, "loc").getLongValue();
+
+    assertThat(value).isEqualTo(1800999L);
+
   }
+
+
 }
