@@ -4,23 +4,22 @@ gcp_credentials: ENCRYPTED[!e5f7207bd8d02d383733bef47e18296ac32e3b7d22eb480354e8
 env:
   GRADLE_OPTS: -Dorg.gradle.jvmargs="-XX:+PrintFlagsFinal -XshowSettings:vm -XX:+HeapDumpOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF8 -Duser.language=en -Duser.country=US"
   # to be replaced by other credentials
-  ARTIFACTORY_PRIVATE_USERNAME: repox-private-reader-sq-ef42e7
-  ARTIFACTORY_PRIVATE_PASSWORD: ENCRYPTED[!bdffdd216a1b768605552475d16e8a5cedd97acbf8ca0aeb7256eaf98a2bc54f752c6c1be5391531742ebfee0cbd2ccf!]
-  ARTIFACTORY_DEPLOY_USERNAME: repox-qa-deployer-sq-ef42e7
-  ARTIFACTORY_DEPLOY_PASSWORD: ENCRYPTED[!d8838c939fe77f3b0a0510774c3b270832646e06cab8e477b35ff776933042105d211e7a0fb8ddcf826ce9f53258c519!]
-  ARTIFACTORY_API_KEY: ENCRYPTED[!bdffdd216a1b768605552475d16e8a5cedd97acbf8ca0aeb7256eaf98a2bc54f752c6c1be5391531742ebfee0cbd2ccf!]
-  ARTIFACTORY_PROMOTE_API_KEY: ENCRYPTED[!495d4e94f0847d36d1e54695c204500110da458c3be2c3f16c1e6c6fd8165bac6e8046e0d13c3869348990b34a149027!]
+  ARTIFACTORY_PRIVATE_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader
+  ARTIFACTORY_PRIVATE_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
+  ARTIFACTORY_DEPLOY_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer
+  ARTIFACTORY_DEPLOY_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+  ARTIFACTORY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
+  ARTIFACTORY_PROMOTE_API_KEY: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promoter access_token]
   # download licenses for testing commercial editions
-  GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
+  GITHUB_TOKEN: VAULT[development/github/token/licenses-ro token]
   # notifications to burgr
-  BURGR_URL: ENCRYPTED[24fba83587c1e9ed372b6cfdf12e4739ebe3b6e5b5082f1a2a742e840dd2e4b61fd5e281bf2632b22b3ad346c650c05c]
-  BURGR_USERNAME: ENCRYPTED[cf7bfb936025fb763013bbfef0ab5723c0d9b53f135d79af36f9defa933f4b5fc72842bd83a97ce9b614503c1b77e6da]
-  BURGR_PASSWORD: ENCRYPTED[bc554fc6a06c9f14cc9924cefad0a69e962a905b6d1609fc9357d458b45fc52ac74c960ad9c7382a0691433fa9dcd483]
+  BURGR_URL: VAULT[development/kv/data/burgr data.url]
+  BURGR_USERNAME: VAULT[development/kv/data/burgr data.cirrus_username]
+  BURGR_PASSWORD: VAULT[development/kv/data/burgr data.cirrus_password]
   # analysis on next.sonarqube.com
-  SONARQUBE_NEXT_TOKEN: ENCRYPTED[!0d599f9fb1613db33388821ca04af23f090729902b4421ad0a53cea8393d1e9039f2e47d65a246781b0e2c3718c172a1!]
+  SONARQUBE_NEXT_TOKEN: VAULT[development/kv/data/next data.token]
   # to trigger docs deployment
-  BUDDY_WORKS_TOKEN: ENCRYPTED[9ba648f3167b6f0c0befbba2f816bfffd53260fef06fb0fe8bba0a19ae4808c8b1567c5dcee2a2ee5299a5969058f495]
-  ELASTIC_PWD: ENCRYPTED[78c127034b9f06bc1b5ad7a520de2da094f3eaf1dcb35f12b0f178fa90ce2fd157bd6f9feece9bf3a54b4e3805bc39fb]
+  ELASTIC_PWD: VAULT[development/team/sonarqube/kv/data/elasticsearch-cloud data.password]
   CIRRUS_LOG_TIMESTAMP: true
   BRANCH_MAIN: 'master'
   BRANCH_NIGHTLY: 'branch-nightly-build'
@@ -179,9 +178,9 @@ publish_task:
     cpu: 4
     memory: 4Gb
   env:
-    ORG_GRADLE_PROJECT_signingKey: ENCRYPTED[!cc216dfe592f79db8006f2a591f8f98b40aa2b078e92025623594976fd32f6864c1e6b6ba74b50647f608e2418e6c336!]
-    ORG_GRADLE_PROJECT_signingPassword: ENCRYPTED[!314a8fc344f45e462dd5e8dccd741d7562283a825e78ebca27d4ae9db8e65ce618e7f6aece386b2782a5abe5171467bd!]
-    ORG_GRADLE_PROJECT_signingKeyId: 0x7DCD4258
+    ORG_GRADLE_PROJECT_signingKey: VAULT[development/kv/data/sign data.key]
+    ORG_GRADLE_PROJECT_signingPassword: VAULT[development/kv/data/sign data.passphrase]
+    ORG_GRADLE_PROJECT_signingKeyId: VAULT[development/kv/data/sign data.key_id]
   script:
     - ./private/cirrus/cirrus-publish.sh
 
@@ -337,10 +336,10 @@ qa_bb_cloud_task:
     memory: 5Gb
   env:
     QA_CATEGORY: BITBUCKET_CLOUD
-    BBC_CLIENT_ID: ENCRYPTED[f1c2c57d5f02885345b3db5776a3b28f5dbcc89723809f73ad05ada903ece9584f1dfe61b026c10eabd72c75d1258bac]
-    BBC_CLIENT_SECRET: ENCRYPTED[39cc89ce4695c243fd688e687879bd473a60882fd30ba8613d6697e5d2b04e2017c68cae3a9a7ed9704f69c52bf229ee]
-    BBC_READ_REPOS_APP_PASSWORD: ENCRYPTED[35e0b64a4abbff0a061d58d0ad892bbaf5a6912784ac18167df788ee5c8188e98b98dd1b76e31fba090092b8b36d5317]
-    BBC_USERNAME: ENCRYPTED[75707b0448dabae3f028533a412df424da16bf9fe239474a6678f4f0af9ec9cd9571f6d37fa44dadfd99a76c5584b70c]
+    BBC_CLIENT_ID: VAULT[development/team/sonarqube/kv/data/bitbucket-cloud data.client_id]
+    BBC_CLIENT_SECRET: VAULT[development/team/sonarqube/kv/data/bitbucket-cloud data.client_secret]
+    BBC_USERNAME: VAULT[development/kv/data/bitbucket/sonarqube-its data.username]
+    BBC_READ_REPOS_APP_PASSWORD: VAULT[development/kv/data/bitbucket/sonarqube-its data.password]
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -426,10 +425,10 @@ qa_gitlab_cloud_task:
     use_in_memory_disk: true
   env:
     QA_CATEGORY: GITLAB_CLOUD
-    GITLAB_API_TOKEN: ENCRYPTED[a64a349d6185822adb17480cf507583fea6ba13b53edd4be6fb0eae76cf573bf7e68d560b7e57e1cc304cc719845c223]
-    GITLAB_READ_ONLY_TOKEN: ENCRYPTED[29eb9c8643123f871329f0a88b540af401eb7f3f6f70447e0c80a955002f7998867faf2007bbb1b11880473f69384af9]
-    GITLAB_ADMIN_USERNAME: ENCRYPTED[9bce572f769cb5432a691418879d7ab9bd74727bb9c16abe31af1b1beffabdce1720b9d8c888c37a3ce589473b44d5be]
-    GITLAB_ADMIN_PASSWORD: ENCRYPTED[78e94b179d425e87d8f8b9ccaa1d117d8ffaec71eaee8ca7a3e36d1a885b85a61695f55031ab786af04d2181e3eadeb2]
+    GITLAB_API_TOKEN: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.api_token]
+    GITLAB_READ_ONLY_TOKEN: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.api_token_ro]
+    GITLAB_ADMIN_USERNAME: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.username]
+    GITLAB_ADMIN_PASSWORD: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.password]
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -447,9 +446,9 @@ qa_azure_task:
     memory: 5Gb
   env:
     QA_CATEGORY: AZURE
-    AZURE_USERNAME_LOGIN: ENCRYPTED[dcdf19769c1501408ebc22670c76d5e375cd739de2df5dfa3f215aa795296dfb257dbbcbe9bdfd33135feb04421fea1f]
-    AZURE_CODE_READ_AND_WRITE_TOKEN: ENCRYPTED[eddc3448b40e72310f24f21241bdc1243860139d1a5aad593b016baedf03e4bba3f9e3d8d9f6329fe3b587966a8112d2]
-    AZURE_FULL_ACCESS_TOKEN: ENCRYPTED[58779d6588e2e10d1b6f98fcc58a46957f8ef3a18e29d79abc6aa8d69ea55c23d8708e1f1af626464d309b1c7c087985]
+    AZURE_USERNAME_LOGIN: VAULT[development/team/sonarqube/kv/data/azure-instance data.username]
+    AZURE_CODE_READ_AND_WRITE_TOKEN: VAULT[development/team/sonarqube/kv/data/azure-instance data.token_code_read_write]
+    AZURE_FULL_ACCESS_TOKEN: VAULT[development/team/sonarqube/kv/data/azure-instance data.token_full_access]
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -677,10 +676,10 @@ ws_scan_task:
     cpu: 2
     memory: 4Gb
   env:
-    WS_APIKEY: ENCRYPTED[308f809a4051b3225bed52131b32fb52895bc5a12c23e901f35b1d1e9d80bcaf75a1023c0dd171994bdbe790b4055e66]
-    WS_WSS_URL: "https://saas-eu.whitesourcesoftware.com/agent"
-    WS_USERKEY: ENCRYPTED[747f9c9006cf9859fd5f02bad85a044c5c0f32d12190deb624d480ad6d86b2f114da136e068645281e9e83e2f0727ab2]
-    SLACK_WEBHOOK_SQ: ENCRYPTED[dec8e4350cbea3b94d63098558bcb3ae9e79b71c2b6286fcfb9eb80c0953b6448b10f7271b07b5e75e52f362c25d7a8f]
+    WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
+    WS_WSS_URL: VAULT[development/kv/data/mend data.url]
+    WS_USERKEY: VAULT[development/kv/data/mend data.userKey]
+    SLACK_WEBHOOK_SQ: VAULT[development/kv/data/slack webhook]
   whitesource_script:
     - ./private/cirrus/cirrus-whitesource-scan.sh
   allow_failures: "true"
