@@ -27,8 +27,6 @@ public interface AuditMapper {
 
   void insert(@Param("dto") AuditDto auditDto);
 
-  void delete(@Param("uuids") List<String> uuids);
-
   List<AuditDto> selectByPeriodPaginated(@Param("start")long start, @Param("end") long end, @Param("pagination") Pagination pagination);
 
   List<AuditDto> selectOlderThan(@Param("beforeTimestamp") long beforeTimestamp);

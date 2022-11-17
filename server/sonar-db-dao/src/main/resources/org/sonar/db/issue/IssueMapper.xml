@@ -359,66 +359,6 @@
     i.issue_type &lt;&gt; 4
   </select>
 
-  <select id="selectBranchHotspotsCount" resultType="org.sonar.db.issue.HotspotGroupDto" parameterType="map">
-    select i.status as status, count(i.status) as "count",
-    <if test="leakPeriodBeginningDate &gt;= 0">
-      (i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT}) as inLeak
-    </if>
-    <if test="leakPeriodBeginningDate &lt; 0">
-      CASE WHEN n.uuid is null THEN false ELSE true END as inLeak
-    </if>
-    from issues i
-    <if test="leakPeriodBeginningDate &lt; 0">
-      left join new_code_reference_issues n on n.issue_key = i.kee
-    </if>
-    where i.project_uuid = #{rootUuid,jdbcType=VARCHAR}
-    and i.status !='CLOSED'
-    and i.issue_type = 4
-    group by i.status, inLeak
-  </select>
-
-  <select id="selectBranchHotspotsCount" resultType="org.sonar.db.issue.HotspotGroupDto" parameterType="map" databaseId="oracle">
-    select i2.status as status, count(i2.status) as "count", i2.inLeak as inLeak
-    from (
-      select i.status,
-      <if test="leakPeriodBeginningDate &gt;= 0">
-       case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
-      </if>
-      <if test="leakPeriodBeginningDate &lt; 0">
-        case when n.uuid is null then 0 else 1 end as inLeak
-      </if>
-      from issues i
-      <if test="leakPeriodBeginningDate &lt; 0">
-        left join new_code_reference_issues n on n.issue_key = i.kee
-      </if>
-      where i.project_uuid = #{rootUuid,jdbcType=VARCHAR}
-      and i.status !='CLOSED'
-      and i.issue_type = 4
-    ) i2
-    group by i2.status, i2.inLeak
-  </select>
-
-  <select id="selectBranchHotspotsCount" resultType="org.sonar.db.issue.HotspotGroupDto" parameterType="map" databaseId="mssql">
-    select i2.status as status, count(i2.status) as "count", i2.inLeak as inLeak
-    from (
-      select i.status,
-      <if test="leakPeriodBeginningDate &gt;= 0">
-        case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
-      </if>
-      <if test="leakPeriodBeginningDate &lt; 0">
-        case when n.uuid is null then 0 else 1 end as inLeak
-      </if>
-      from issues i
-      <if test="leakPeriodBeginningDate &lt; 0">
-        left join new_code_reference_issues n on n.issue_key = i.kee
-      </if>
-      where i.project_uuid = #{rootUuid,jdbcType=VARCHAR}
-      and i.status !='CLOSED'
-      and i.issue_type = 4
-    ) i2
-    group by i2.status, i2.inLeak
-  </select>
-
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map">
     select i.issue_type as ruleType, i.severity as severity, i.resolution as resolution, i.status as status, sum(i.effort) as effort, count(i.issue_type) as "count",
     <if test="leakPeriodBeginningDate &gt;= 0">

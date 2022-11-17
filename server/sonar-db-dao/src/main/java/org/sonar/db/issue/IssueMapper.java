@@ -76,8 +76,6 @@ public interface IssueMapper {
 
   List<IssueDto> selectNonClosedByModuleOrProject(@Param("projectUuid") String projectUuid, @Param("likeModuleUuidPath") String likeModuleUuidPath);
 
-  Collection<HotspotGroupDto> selectBranchHotspotsCount(@Param("rootUuid") String rootUuid, @Param("leakPeriodBeginningDate") long leakPeriodBeginningDate);
-
   Collection<IssueGroupDto> selectIssueGroupsByComponent(@Param("component") ComponentDto component, @Param("leakPeriodBeginningDate") long leakPeriodBeginningDate);
 
   List<IssueDto> selectByBranch(@Param("keys") Set<String> keys, @Nullable @Param("changedSince") Long changedSince);

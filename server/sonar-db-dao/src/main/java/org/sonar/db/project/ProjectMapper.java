@@ -47,8 +47,6 @@ public interface ProjectMapper {
 
   List<ProjectDto> selectAll();
 
-  void updateKey(@Param("uuid") String uuid, @Param("newKey") String newKey, @Param("updatedAt") long updatedAt);
-
   void updateTags(ProjectDto project);
 
   void update(ProjectDto project);

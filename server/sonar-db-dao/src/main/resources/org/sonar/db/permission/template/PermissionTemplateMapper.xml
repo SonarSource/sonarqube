@@ -25,29 +25,11 @@
     WHERE uuid = #{uuid}
   </delete>
 
-  <delete id="deleteByUuids" parameterType="String">
-    delete from
-      permission_templates
-    where
-      uuid in <foreach collection="templateUuids" open="(" close=")" item="uuid" separator=",">
-        #{uuid,jdbcType=BIGINT}
-      </foreach>
-  </delete>
-
   <delete id="deleteUserPermissionsByTemplateUuid" parameterType="string">
     delete from
       perm_templates_users
     where
       template_uuid = #{templateUuid,jdbcType=VARCHAR}
-  </delete>
-
-  <delete id="deleteUserPermissionsByTemplateUuids">
-    delete from
-      perm_templates_users
-    where
-      template_uuid in <foreach collection="templateUuids" open="(" close=")" item="templateUuid" separator=",">
-        #{templateUuid,jdbcType=BIGINT}
-      </foreach>
   </delete>
 
   <delete id="deleteUserPermission" parameterType="PermissionTemplateUser">
@@ -68,15 +50,6 @@
       perm_templates_groups
     where
       template_uuid = #{templateUuid,jdbcType=VARCHAR}
-  </delete>
-
-  <delete id="deleteGroupPermissionsByTemplateUuids">
-    delete from
-      perm_templates_groups
-    where
-      template_uuid in <foreach collection="templateUuids" open="(" close=")" item="templateUuid" separator=",">
-        #{templateUuid,jdbcType=VARCHAR}
-      </foreach>
   </delete>
 
   <delete id="deleteGroupPermission" parameterType="PermissionTemplateGroup">
@@ -387,13 +360,6 @@
     <if test="groupUuid != null">
       ptg.group_uuid = #{groupUuid}
     </if>
-  </select>
-
-  <select id="selectTemplateUuidsn" resultType="String">
-    select
-      uuid
-    from
-      permission_templates
   </select>
 
   <select id="selectAllGroupPermissionTemplatesByGroupUuid" parameterType="string" resultType="PermissionTemplateGroup">

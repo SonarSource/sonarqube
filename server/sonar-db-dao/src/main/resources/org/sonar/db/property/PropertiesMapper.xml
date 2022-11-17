@@ -94,18 +94,6 @@
       and p.user_uuid is null
   </select>
 
-  <select id="selectProjectProperties" parameterType="String" resultType="ScrapProperty">
-    select
-      <include refid="columnsToScrapPropertyDto"/>
-    from
-      properties p,
-      components r
-    where
-      p.component_uuid=r.uuid
-      and p.user_uuid is null
-      and r.kee=#{resourceKey,jdbcType=VARCHAR}
-  </select>
-
   <select id="selectByKey" parameterType="map" resultType="ScrapProperty">
     select
       <include refid="columnsToScrapPropertyDto"/>

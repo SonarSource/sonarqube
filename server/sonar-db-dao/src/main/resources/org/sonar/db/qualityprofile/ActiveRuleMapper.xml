@@ -102,20 +102,6 @@
     and r.plugin_name = #{repository, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByKeys" parameterType="map" resultType="ActiveRule">
-    select
-    <include refid="activeRuleColumns"/>
-    from active_rules a
-    <include refid="activeRuleKeyJoin"/>
-    where
-    <foreach collection="keys" item="key" open="(" separator=" or " close=")">
-      (rp.uuid = #{key.ruleProfileUuid, jdbcType=VARCHAR}
-      AND r.plugin_rule_key = #{key.ruleKey.rule, jdbcType=VARCHAR}
-      AND r.plugin_name = #{key.ruleKey.repository, jdbcType=VARCHAR}
-      )
-    </foreach>
-  </select>
-
   <select id="selectByProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
     select
     <include refid="orgActiveRuleColumns"/>

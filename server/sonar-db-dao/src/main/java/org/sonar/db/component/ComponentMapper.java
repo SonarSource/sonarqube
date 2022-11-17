@@ -132,8 +132,6 @@ public interface ComponentMapper {
 
   void setPrivateForRootComponentUuid(@Param("branchUuid") String branchUuid, @Param("isPrivate") boolean isPrivate);
 
-  void delete(String componentUuid);
-
   List<KeyWithUuidDto> selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(@Param("referenceBranchUuid") String referenceBranchUuid,
     @Param("currentBranchUuid") String currentBranchUuid);
 

@@ -34,5 +34,4 @@ public interface PluginMapper {
 
   void update(PluginDto dto);
 
-  void delete(@Param("uuid") String uuid);
 }

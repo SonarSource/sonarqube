@@ -61,8 +61,6 @@ public interface ApplicationProjectsMapper {
 
   int countApplicationProjects(@Param("applicationUuid") String applicationUuid);
 
-  void updateApplicationBranchName(@Param("uuid") String uuid, @Param("newName") String newName);
-
   Set<ProjectDto> selectApplicationsFromProjectBranch(@Param("projectUuid") String projectUuid, @Param("branchKey") String branchKey);
 
   Set<ProjectDto> selectApplicationsFromProjects(@Param("projectUuids") Collection<String> projectUuids);

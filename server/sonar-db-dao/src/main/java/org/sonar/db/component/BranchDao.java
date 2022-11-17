@@ -165,10 +165,6 @@ public class BranchDao implements Dao {
     return mapper(dbSession).updateNeedIssueSync(branchUuid, needIssueSync, now);
   }
 
-  public void deleteBranch(DbSession dbSession, String projectUuid, String branchKey) {
-    mapper(dbSession).deleteBranch(projectUuid, branchKey);
-  }
-
   public boolean doAnyOfComponentsNeedIssueSync(DbSession session, List<String> components) {
     if (!components.isEmpty()) {
       List<Boolean> result = new LinkedList<>();

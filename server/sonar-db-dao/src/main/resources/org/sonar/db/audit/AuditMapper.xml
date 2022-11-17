@@ -110,15 +110,4 @@
     where uuid in (select a.uuid from audits a where a.created_at &lt; #{threshold,jdbcType=BIGINT}
       order by a.created_at fetch first 100000 rows only)
   </delete>
-
-  <delete id="deleteByUuids" parameterType="string">
-    delete
-      from audits
-    where
-      uuid in
-      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
-        #{uuid,jdbcType=VARCHAR}
-      </foreach>
-  </delete>
-
 </mapper>

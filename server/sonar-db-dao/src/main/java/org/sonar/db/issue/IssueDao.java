@@ -71,11 +71,6 @@ public class IssueDao implements Dao {
       languages, Pagination.forPage(page).andSize(BIG_PAGE_SIZE));
   }
 
-  public Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(DbSession session, String componentUuid, long changedSince, int page) {
-    return selectIssueKeysByComponentUuidAndChangedSinceDate(session, componentUuid, changedSince, emptyList(), emptyList(),
-      emptyList(), page);
-  }
-
   public Set<String> selectIssueKeysByComponentUuidAndChangedSinceDate(DbSession session, String componentUuid, long changedSince,
     List<String> includingRepositories, List<String> excludingRepositories,
     List<String> languages, int page) {
@@ -106,10 +101,6 @@ public class IssueDao implements Dao {
 
   public List<PrIssueDto> selectOpenByComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
     return executeLargeInputs(componentUuids, mapper(dbSession)::selectOpenByComponentUuids);
-  }
-
-  public Collection<HotspotGroupDto> selectBranchHotspotsCount(DbSession dbSession, String branchUuid, long leakPeriodBeginningDate) {
-    return mapper(dbSession).selectBranchHotspotsCount(branchUuid, leakPeriodBeginningDate);
   }
 
   public Collection<IssueGroupDto> selectIssueGroupsByComponent(DbSession dbSession, ComponentDto component, long leakPeriodBeginningDate) {

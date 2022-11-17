@@ -192,20 +192,6 @@ public class IssueDaoTest {
   }
 
   @Test
-  public void selectIssueKeysByComponentUuidAndChangedSince() {
-    long t1 = 1_340_000_000_000L;
-    long t2 = 1_400_000_000_000L;
-    // contains I1 and I2
-    prepareTables();
-    // Insert I3, I4, where t1 < t2
-    IntStream.range(3, 5).forEach(i -> underTest.insert(db.getSession(), newIssueDto("I" + i).setUpdatedAt(t1)));
-
-    Set<String> issues = underTest.selectIssueKeysByComponentUuidAndChangedSinceDate(db.getSession(), PROJECT_UUID, t2, 1);
-
-    assertThat(issues).contains("I1");
-  }
-
-  @Test
   public void selectIssueKeysByComponentUuidAndChangedSinceFiltersAccordingly() {
     long t1 = 1_340_000_000_000L;
     long t2 = 1_400_000_000_000L;
@@ -422,16 +408,6 @@ public class IssueDaoTest {
   }
 
   @Test
-  public void test_selectBranchHotspotsCount_on_component_without_issues() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-
-    Collection<HotspotGroupDto> groups = underTest.selectBranchHotspotsCount(db.getSession(), project.uuid(), 1_000L);
-
-    assertThat(groups).isEmpty();
-  }
-
-  @Test
   public void selectByKey_givenOneIssueWithQuickFix_selectOneIssueWithQuickFix() {
     prepareIssuesComponent();
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
@@ -548,74 +524,6 @@ public class IssueDaoTest {
 
     assertThat(result.stream().filter(IssueGroupDto::isInLeak).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
     assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isOne();
-  }
-
-  @Test
-  public void selectBranchHotspotsCount_on_project() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDto rule = db.rules().insert();
-    IssueDto i1 = db.issues().insert(rule, project, file,
-      i -> i.setStatus("REVIEWED").setResolution("SAFE").setSeverity("CRITICAL").setType(RuleType.SECURITY_HOTSPOT).setIssueCreationTime(1_500L));
-    IssueDto i2 = db.issues().insert(rule, project, file,
-      i -> i.setStatus("TO_REVIEW").setResolution(null).setSeverity("CRITICAL").setType(RuleType.SECURITY_HOTSPOT).setIssueCreationTime(1_600L));
-    IssueDto i3 = db.issues().insert(rule, project, file,
-      i -> i.setStatus("TO_REVIEW").setResolution(null).setSeverity("CRITICAL").setType(RuleType.SECURITY_HOTSPOT).setIssueCreationTime(1_700L));
-
-    // closed issues or other types are ignored
-    IssueDto closed = db.issues().insert(rule, project, file,
-      i -> i.setStatus("CLOSED").setResolution("REMOVED").setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_700L));
-    IssueDto bug = db.issues().insert(rule, project, file,
-      i -> i.setStatus("OPEN").setResolution(null).setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_700L));
-
-    Collection<HotspotGroupDto> result = underTest.selectBranchHotspotsCount(db.getSession(), project.uuid(), 1_000L);
-
-    assertThat(result.stream().mapToLong(HotspotGroupDto::getCount).sum()).isEqualTo(3);
-
-    assertThat(result.stream().filter(g -> g.getStatus().equals("TO_REVIEW")).mapToLong(HotspotGroupDto::getCount).sum()).isEqualTo(2);
-    assertThat(result.stream().filter(g -> g.getStatus().equals("REVIEWED")).mapToLong(HotspotGroupDto::getCount).sum()).isOne();
-    assertThat(result.stream().filter(g -> g.getStatus().equals("CLOSED")).mapToLong(HotspotGroupDto::getCount).sum()).isZero();
-
-    assertThat(result.stream().filter(HotspotGroupDto::isInLeak).mapToLong(HotspotGroupDto::getCount).sum()).isEqualTo(3);
-    assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(HotspotGroupDto::getCount).sum()).isZero();
-
-    // test leak
-    result = underTest.selectBranchHotspotsCount(db.getSession(), project.uuid(), 999_999_999L);
-    assertThat(result.stream().filter(HotspotGroupDto::isInLeak).mapToLong(HotspotGroupDto::getCount).sum()).isZero();
-    assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(HotspotGroupDto::getCount).sum()).isEqualTo(3);
-  }
-
-  @Test
-  public void selectBranchHotspotsCount_on_project_with_reference_branch() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDto rule = db.rules().insert();
-    IssueDto i1 = db.issues().insert(rule, project, file,
-      i -> i.setStatus("REVIEWED").setResolution("SAFE").setSeverity("CRITICAL").setType(RuleType.SECURITY_HOTSPOT).setIssueCreationTime(1_500L));
-    IssueDto i2 = db.issues().insert(rule, project, file,
-      i -> i.setStatus("TO_REVIEW").setResolution(null).setSeverity("CRITICAL").setType(RuleType.SECURITY_HOTSPOT).setIssueCreationTime(1_600L));
-    IssueDto i3 = db.issues().insert(rule, project, file,
-      i -> i.setStatus("TO_REVIEW").setResolution(null).setSeverity("CRITICAL").setType(RuleType.SECURITY_HOTSPOT).setIssueCreationTime(1_700L));
-
-    // closed issues or other types are ignored
-    IssueDto closed = db.issues().insert(rule, project, file,
-      i -> i.setStatus("CLOSED").setResolution("REMOVED").setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_700L));
-    IssueDto bug = db.issues().insert(rule, project, file,
-      i -> i.setStatus("OPEN").setResolution(null).setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_700L));
-
-    db.issues().insertNewCodeReferenceIssue(i1);
-    db.issues().insertNewCodeReferenceIssue(bug);
-
-    Collection<HotspotGroupDto> result = underTest.selectBranchHotspotsCount(db.getSession(), project.uuid(), -1);
-
-    assertThat(result.stream().mapToLong(HotspotGroupDto::getCount).sum()).isEqualTo(3);
-
-    assertThat(result.stream().filter(g -> g.getStatus().equals("TO_REVIEW")).mapToLong(HotspotGroupDto::getCount).sum()).isEqualTo(2);
-    assertThat(result.stream().filter(g -> g.getStatus().equals("REVIEWED")).mapToLong(HotspotGroupDto::getCount).sum()).isOne();
-    assertThat(result.stream().filter(g -> g.getStatus().equals("CLOSED")).mapToLong(HotspotGroupDto::getCount).sum()).isZero();
-
-    assertThat(result.stream().filter(HotspotGroupDto::isInLeak).mapToLong(HotspotGroupDto::getCount).sum()).isEqualTo(1);
-    assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(HotspotGroupDto::getCount).sum()).isEqualTo(2);
   }
 
   @Test

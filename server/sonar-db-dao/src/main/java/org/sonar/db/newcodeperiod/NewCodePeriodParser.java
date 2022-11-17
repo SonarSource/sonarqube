@@ -26,10 +26,6 @@ public class NewCodePeriodParser {
     // static only
   }
 
-  public static LocalDate parseDate(String value) {
-    return LocalDate.parse(value);
-  }
-
   public static int parseDays(String value) {
     return Integer.parseInt(value);
   }

@@ -34,8 +34,6 @@ public interface PropertiesMapper {
 
   List<PropertyDto> selectGlobalProperties();
 
-  List<PropertyDto> selectProjectProperties(String resourceKey);
-
   PropertyDto selectByKey(PropertyDto key);
 
   List<PropertyDto> selectByKeys(@Param("keys") List<String> keys);

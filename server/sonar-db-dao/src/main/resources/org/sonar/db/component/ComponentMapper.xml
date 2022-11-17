@@ -782,10 +782,6 @@
       and private &lt;&gt; #{isPrivate,jdbcType=BOOLEAN}
   </update>
 
-  <delete id="delete" parameterType="String">
-    DELETE FROM components WHERE uuid=#{componentUuid,jdbcType=VARCHAR}
-  </delete>
-
   <select id="selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues" resultType="KeyWithUuid">
     SELECT DISTINCT p.kee as kee, p.uuid as uuid FROM components p
     JOIN issues i

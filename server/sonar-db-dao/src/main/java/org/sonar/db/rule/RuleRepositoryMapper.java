@@ -34,9 +34,6 @@ public interface RuleRepositoryMapper {
 
   List<RuleRepositoryDto> selectByQueryAndLanguage(@Param("query") String query,@Param("language") @Nullable String language);
 
-  @CheckForNull
-  RuleRepositoryDto selectByKey(@Param("key") String key);
-
   void insert(@Param("repository") RuleRepositoryDto repository, @Param("now") long now);
 
   void update(@Param("repository") RuleRepositoryDto repository);

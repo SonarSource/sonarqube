@@ -113,10 +113,6 @@ public class LiveMeasureDao implements Dao {
     mapper(dbSession).insert(dto, Uuids.create(), system2.now());
   }
 
-  public void update(DbSession dbSession, LiveMeasureDto dto) {
-    mapper(dbSession).update(dto, system2.now());
-  }
-
   public void insertOrUpdate(DbSession dbSession, LiveMeasureDto dto) {
     LiveMeasureMapper mapper = mapper(dbSession);
     long now = system2.now();

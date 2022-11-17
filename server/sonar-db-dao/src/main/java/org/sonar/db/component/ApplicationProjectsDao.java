@@ -102,10 +102,6 @@ public class ApplicationProjectsDao implements Dao {
     return session.getMapper(ApplicationProjectsMapper.class);
   }
 
-  public void updateApplicationBranchName(DbSession dbSession, String applicationBranchUuid, String newName) {
-    getMapper(dbSession).updateApplicationBranchName(applicationBranchUuid, newName);
-  }
-
   public void removeAllProjectBranchesOfAppBranch(DbSession dbSession, String applicationBranchUuid) {
     getMapper(dbSession).removeAllProjectBranchesOfAppBranch(applicationBranchUuid);
   }

@@ -36,8 +36,6 @@ public interface GroupMembershipMapper {
 
   List<GroupUserCount> countUsersByGroup(@Param("groupUuids") List<String> groupUuids);
 
-  List<LoginGroupCount> countGroupsByUsers(@Param("logins") List<String> logins);
-
   List<LoginGroup> selectGroupsByLogins(@Param("logins") List<String> logins);
 
   List<String> selectGroupUuidsByUserUuid(@Param("userUuid") String userUuid);

@@ -158,15 +158,6 @@
     ap.application_uuid = #{applicationUuid,jdbcType=VARCHAR}
   </select>
 
-  <update id="updateApplicationBranchName" parameterType="String">
-    UPDATE
-      project_branches
-    SET
-      kee = #{newName,jdbcType=VARCHAR}
-    WHERE
-      uuid = #{uuid,jdbcType=VARCHAR}
-  </update>
-
   <select id="selectApplicationsFromProjectBranch" parameterType="String" resultType="Project">
     SELECT
       <include refid="projectColumns"/>

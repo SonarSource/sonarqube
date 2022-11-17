@@ -70,15 +70,6 @@ public class GroupMembershipDao implements Dao {
     return result;
   }
 
-  public Map<String, Integer> countGroupsByUsers(DbSession dbSession, List<String> logins) {
-    List<LoginGroupCount> loginGroupCount = mapper(dbSession).countGroupsByUsers(logins);
-    Map<String, Integer> map = new HashMap<>();
-    for (LoginGroupCount l : loginGroupCount) {
-      map.put(l.login(), l.groupCount());
-    }
-    return map;
-  }
-
   public List<String> selectGroupUuidsByUserUuid(DbSession dbSession, String userUuid) {
     return mapper(dbSession).selectGroupUuidsByUserUuid(userUuid);
   }

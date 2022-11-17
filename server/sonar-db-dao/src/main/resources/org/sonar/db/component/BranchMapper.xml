@@ -48,13 +48,6 @@
       uuid = #{projectUuid, jdbcType=VARCHAR}
   </update>
 
-  <delete id="deleteBranch" parameterType="string">
-    delete from project_branches
-    where
-      project_uuid = #{projectUuid, jdbcType=VARCHAR},
-      kee = #{branchKey, jdbcType=VARCHAR}
-  </delete>
-
   <update id="updateExcludeFromPurge">
     update project_branches
     set

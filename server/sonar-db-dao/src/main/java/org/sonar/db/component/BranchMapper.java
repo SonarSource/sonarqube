@@ -34,8 +34,6 @@ public interface BranchMapper {
 
   int updateMainBranchName(@Param("projectUuid") String projectUuid, @Param("newBranchName") String newBranchName, @Param("now") long now);
 
-  int updateManualBaseline(@Param("uuid") String uuid, @Nullable @Param("analysisUuid") String analysisUuid, @Param("now") long now);
-
   int updateExcludeFromPurge(@Param("uuid") String uuid, @Param("excludeFromPurge") boolean excludeFromPurge,
     @Param("now") long now);
 
@@ -75,5 +73,4 @@ public interface BranchMapper {
 
   short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components);
 
-  void deleteBranch(@Param("projectUuid") String projectUuid, @Param("branchKey") String branchKey);
 }

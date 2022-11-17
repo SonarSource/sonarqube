@@ -43,8 +43,6 @@ public interface ActiveRuleMapper {
   @CheckForNull
   ActiveRuleDto selectByKey(@Param("ruleProfileUuid") String ruleProfileUuid, @Param("repository") String repository, @Param("rule") String rule);
 
-  List<ActiveRuleDto> selectByKeys(@Param("keys") List<ActiveRuleKey> keys);
-
   List<OrgActiveRuleDto> selectOrgByRuleUuid(@Param("ruleUuid") String ruleUuid);
 
   List<ActiveRuleDto> selectByRuleUuid(String ruleUuid);
@@ -86,5 +84,4 @@ public interface ActiveRuleMapper {
 
   void scrollByRuleProfileUuidForIndexing(@Param("ruleProfileUuid") String ruleProfileUuid, ResultHandler<IndexedActiveRuleDto> handler);
 
-  List<OrgActiveRuleDto> selectByQualityProfileUuid(@Param("qualityProfileUuid") String qualityProfileUuid);
 }
