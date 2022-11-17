@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.server.issue.workflow.IsUnResolved;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.core.issue.DefaultIssue;
@@ -43,7 +42,6 @@ public abstract class AbstractChangeTagsAction extends Action {
   protected AbstractChangeTagsAction(String key, IssueFieldsSetter issueUpdater) {
     super(key);
     this.issueUpdater = issueUpdater;
-    super.setConditions(new IsUnResolved());
   }
 
   @Override

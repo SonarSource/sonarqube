@@ -76,8 +76,8 @@ import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableMap.of;
 import static java.lang.String.format;
+import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -393,9 +393,9 @@ public class BulkChangeAction implements IssuesWsAction {
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(MoreCollectors.toSet())).stream()
-        .collect(uniqueIndex(ComponentDto::uuid, identity()));
+          .collect(uniqueIndex(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
-          issues.stream().map(DefaultIssue::ruleKey).collect(MoreCollectors.toSet())).stream()
+        issues.stream().map(DefaultIssue::ruleKey).collect(MoreCollectors.toSet())).stream()
         .collect(uniqueIndex(RuleDto::getKey, identity()));
 
       this.availableActions = actions.stream()

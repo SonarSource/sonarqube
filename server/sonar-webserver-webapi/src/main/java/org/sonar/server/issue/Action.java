@@ -43,7 +43,7 @@ public abstract class Action {
   private final String key;
   private final List<Condition> conditions;
 
-  public Action(String key) {
+  protected Action(String key) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Action key must be set");
     this.key = key;
     this.conditions = newArrayList();

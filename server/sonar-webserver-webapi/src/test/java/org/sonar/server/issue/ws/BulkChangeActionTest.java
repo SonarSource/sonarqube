@@ -81,10 +81,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
+import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
@@ -210,6 +212,29 @@ public class BulkChangeActionTest {
     // no need to refresh measures
     verifyPostProcessorNotCalled();
     verifyNoInteractions(issueChangeEventService);
+  }
+
+  @Test
+  public void add_tags_when_issue_is_resolved_is_accepted() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
+    RuleDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setTags(asList("tag1", "tag2"))
+      .setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE));
+
+    BulkChangeWsResponse response = call(builder()
+      .setIssues(singletonList(issue.getKey()))
+      .setAddTags(singletonList("tag3"))
+      .build());
+
+    checkResponse(response, 1, 1, 0, 0);
+    IssueDto reloaded = getIssueByKeys(issue.getKey()).get(0);
+    assertThat(reloaded.getTags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(reloaded.getResolution()).isEqualTo("FALSE-POSITIVE");
   }
 
   @Test
