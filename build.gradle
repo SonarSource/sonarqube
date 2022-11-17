@@ -4,7 +4,7 @@ plugins {
   // Ordered alphabetically
   id 'com.github.hierynomus.license' version '0.15.0'
   id "com.github.hierynomus.license-report" version "0.15.0" apply false
-  id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
+  id 'com.github.johnrengelman.shadow' version '6.1.0' apply false
   id 'com.google.protobuf' version '0.8.19' apply false
   id 'com.jfrog.artifactory' version '4.24.23'
   id "de.undercouch.download" version "5.0.1" apply false
