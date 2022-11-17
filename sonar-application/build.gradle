@@ -140,14 +140,17 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
           jsonFile.file.text = JsonOutput.prettyPrint(jsonText)
         }
       }
-      from(file('src/main/assembly')) {
-        exclude 'conf/sonar.properties'
-        exclude 'bin/windows-x86-64/lib/SonarServiceWrapperTemplate.xml'
-        exclude 'bin/windows-x86-64/StartSonar.bat'
-        exclude 'elasticsearch-patch'
-        exclude 'bin/linux-x86-64/sonar.sh'
-        exclude 'bin/macosx-universal-64/sonar.sh'
-      }
+    }
+  }
+
+  into("${archiveDir}/") {
+    from(file('src/main/assembly')) {
+      exclude 'conf/sonar.properties'
+      exclude 'bin/windows-x86-64/lib/SonarServiceWrapperTemplate.xml'
+      exclude 'bin/windows-x86-64/StartSonar.bat'
+      exclude 'elasticsearch-patch'
+      exclude 'bin/linux-x86-64/sonar.sh'
+      exclude 'bin/macosx-universal-64/sonar.sh'
     }
   }
 
