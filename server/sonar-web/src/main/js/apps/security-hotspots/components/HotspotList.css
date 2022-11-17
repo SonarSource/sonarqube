@@ -49,7 +49,7 @@
 }
 
 .hotspot-category.HIGH .hotspot-category-header {
-  border-left-color: var(--error500);
+  border-left-color: var(--error400);
 }
 
 .hotspot-category.MEDIUM .hotspot-category-header {
@@ -95,16 +95,14 @@
   text-transform: uppercase;
   display: inline-block;
   text-align: center;
-  min-width: 48px;
-  padding: 0 var(--gridSize);
+  padding: 0 calc(var(--gridSize) / 2);
   font-weight: bold;
-  border-radius: 2px;
-  border: 1px solid var(--blacka38);
+  border-radius: 3px;
 }
 
 .hotspot-risk-badge.HIGH {
-  color: var(--white);
-  background-color: var(--error500);
+  color: var(--blacka87);
+  background-color: var(--error400);
 }
 .hotspot-risk-badge.MEDIUM {
   color: var(--blacka87);

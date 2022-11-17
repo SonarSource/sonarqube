@@ -26,13 +26,13 @@
 }
 
 .hotspot-primary-location.hotspot-risk-exposure-HIGH {
-  border-left-color: var(--red);
+  border-left-color: var(--error400);
 }
 
 .hotspot-primary-location.hotspot-risk-exposure-MEDIUM {
-  border-left-color: var(--orange);
+  border-left-color: var(--warningAccent);
 }
 
 .hotspot-primary-location.hotspot-risk-exposure-LOW {
-  border-left-color: var(--yellow);
+  border-left-color: var(--warningVariant);
 }
