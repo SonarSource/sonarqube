@@ -1,6 +1,5 @@
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.sonar.build.LicenseReader
 
 plugins {
   id "com.github.hierynomus.license-report"
@@ -133,20 +132,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
     into("${archiveDir}/") {
       from(tasks.downloadLicenses.outputs) {
         include 'dependency-license.json'
-        eachFile { jsonFile ->
-          def json = new JsonSlurper().parse(jsonFile.file)
-          json.dependencies.each { dependency ->
-            if (dependency.licenses.size() > 1) {
-              def idx = dependency.licenses.findIndexOf { it.name == "Elastic License 2.0" }
-              if (idx >= 0) {
-                dependency.licenses = [dependency.licenses[idx]]
-              }
-            }
-          }
-          json.dependencies.sort { it.name }
-          def jsonText = JsonOutput.toJson(json)
-          jsonFile.file.text = JsonOutput.prettyPrint(jsonText)
-        }
+        filter(LicenseReader)
       }
     }
   }
@@ -275,7 +261,11 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
   }
   // Create the empty dir (plugins) required by elasticsearch
   into("${archiveDir}/elasticsearch/") {
-    from "$buildDir/elasticsearch"
+    // Create the empty dir required by elasticsearch
+    from {
+      new File(buildDir, 'elasticsearch/plugins').mkdirs()
+      "$buildDir/elasticsearch"
+    }
   }
   into("${archiveDir}/lib/extensions/") {
     from configurations.bundledPlugin
@@ -315,10 +305,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
     from configurations.shutdowner
   }
 }
-// Create the empty dir required by elasticsearch
-zip.doFirst {
-  new File(buildDir, 'elasticsearch/plugins').mkdirs()
-}
+
 // Check the size of the archive
 zip.doLast {
   def minLength = 320000000
