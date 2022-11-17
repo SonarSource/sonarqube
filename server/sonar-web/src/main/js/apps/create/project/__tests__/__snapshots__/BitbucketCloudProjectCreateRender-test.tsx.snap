@@ -17,6 +17,23 @@ exports[`Should render correctly 1`] = `
       </span>
     }
   />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucketcloud",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+    selectedAlmInstance={
+      Object {
+        "alm": "bitbucketcloud",
+        "key": "key",
+      }
+    }
+  />
   <BitbucketCloudSearchForm
     isLastPage={true}
     loadingMore={false}
@@ -46,6 +63,23 @@ exports[`Should render correctly: Loading... 1`] = `
       </span>
     }
   />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucketcloud",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+    selectedAlmInstance={
+      Object {
+        "alm": "bitbucketcloud",
+        "key": "key",
+      }
+    }
+  />
   <i
     className="spinner"
   />
@@ -67,6 +101,23 @@ exports[`Should render correctly: Need App password 1`] = `
         />
         onboarding.create_project.bitbucketcloud.title
       </span>
+    }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucketcloud",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+    selectedAlmInstance={
+      Object {
+        "alm": "bitbucketcloud",
+        "key": "key",
+      }
     }
   />
   <PersonalAccessTokenForm
@@ -98,6 +149,17 @@ exports[`Should render correctly: Wrong config 1`] = `
         onboarding.create_project.bitbucketcloud.title
       </span>
     }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucketcloud",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
   />
   <WrongBindingCountAlert
     alm="bitbucketcloud"

@@ -28,13 +28,15 @@ import {
   BitbucketRepository,
 } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import AlmSettingsInstanceDropdown from './AlmSettingsInstanceDropdown';
 import BitbucketImportRepositoryForm from './BitbucketImportRepositoryForm';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import PersonalAccessTokenForm from './PersonalAccessTokenForm';
 import WrongBindingCountAlert from './WrongBindingCountAlert';
 
 export interface BitbucketProjectCreateRendererProps {
-  bitbucketSetting?: AlmSettingsInstance;
+  selectedAlmInstance?: AlmSettingsInstance;
+  almInstances: AlmSettingsInstance[];
   canAdmin?: boolean;
   importing: boolean;
   loading: boolean;
@@ -42,6 +44,7 @@ export interface BitbucketProjectCreateRendererProps {
   onSearch: (query: string) => void;
   onSelectRepository: (repo: BitbucketRepository) => void;
   onPersonalAccessTokenCreated: () => void;
+  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
   projects?: BitbucketProject[];
   projectRepositories?: BitbucketProjectRepositories;
   resetPat: boolean;
@@ -53,7 +56,8 @@ export interface BitbucketProjectCreateRendererProps {
 
 export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCreateRendererProps) {
   const {
-    bitbucketSetting,
+    almInstances,
+    selectedAlmInstance,
     canAdmin,
     importing,
     loading,
@@ -96,17 +100,23 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
         }
       />
 
+      <AlmSettingsInstanceDropdown
+        almInstances={almInstances}
+        selectedAlmInstance={selectedAlmInstance}
+        onChangeConfig={props.onSelectedAlmInstanceChange}
+      />
+
       {loading && <i className="spinner" />}
 
-      {!loading && !bitbucketSetting && (
+      {!loading && !selectedAlmInstance && (
         <WrongBindingCountAlert alm={AlmKeys.BitbucketServer} canAdmin={!!canAdmin} />
       )}
 
       {!loading &&
-        bitbucketSetting &&
+        selectedAlmInstance &&
         (showPersonalAccessTokenForm ? (
           <PersonalAccessTokenForm
-            almSetting={bitbucketSetting}
+            almSetting={selectedAlmInstance}
             onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}
             resetPat={resetPat}
           />

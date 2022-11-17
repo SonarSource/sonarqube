@@ -107,7 +107,6 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
               branchesEnabled={branchesEnabled}
               definition={def}
               key={def.key}
-              multipleDefinitions={definitions.length > 1}
               onCheck={props.onCheck}
               onDelete={props.onDelete}
               onEdit={props.onEdit}

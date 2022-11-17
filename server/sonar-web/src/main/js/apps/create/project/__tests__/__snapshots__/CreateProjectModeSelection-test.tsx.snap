@@ -67,6 +67,27 @@ exports[`should render correctly: default 1`] = `
         <img
           alt=""
           height={50}
+          src="/images/alm/bitbucket.svg"
+        />
+        <div
+          className="medium big-spacer-top abs-height-50 display-flex-center"
+        >
+          onboarding.create_project.select_method.bitbucketcloud
+        </div>
+      </button>
+    </div>
+    <div
+      className="display-flex-column"
+    >
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-alm big-spacer-right"
+        disabled={false}
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={50}
           src="/images/alm/github.svg"
         />
         <div
@@ -197,6 +218,27 @@ exports[`should render correctly: invalid configs, admin 1`] = `
         <img
           alt=""
           height={50}
+          src="/images/alm/bitbucket.svg"
+        />
+        <div
+          className="medium big-spacer-top abs-height-50 display-flex-center"
+        >
+          onboarding.create_project.select_method.bitbucketcloud
+        </div>
+      </button>
+    </div>
+    <div
+      className="display-flex-column"
+    >
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-alm big-spacer-right"
+        disabled={false}
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={50}
           src="/images/alm/github.svg"
         />
         <div
@@ -302,6 +344,37 @@ exports[`should render correctly: invalid configs, admin 2`] = `
           className="medium big-spacer-top abs-height-50 display-flex-center"
         >
           onboarding.create_project.select_method.bitbucket
+        </div>
+        <p
+          className="text-muted small spacer-top"
+          style={
+            Object {
+              "lineHeight": 1.5,
+            }
+          }
+        >
+          onboarding.create_project.alm_not_configured.admin
+        </p>
+      </button>
+    </div>
+    <div
+      className="display-flex-column"
+    >
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-alm big-spacer-right"
+        disabled={false}
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={50}
+          src="/images/alm/bitbucket.svg"
+        />
+        <div
+          className="medium big-spacer-top abs-height-50 display-flex-center"
+        >
+          onboarding.create_project.select_method.bitbucketcloud
         </div>
         <p
           className="text-muted small spacer-top"
@@ -457,6 +530,27 @@ exports[`should render correctly: invalid configs, not admin 1`] = `
         <img
           alt=""
           height={50}
+          src="/images/alm/bitbucket.svg"
+        />
+        <div
+          className="medium big-spacer-top abs-height-50 display-flex-center"
+        >
+          onboarding.create_project.select_method.bitbucketcloud
+        </div>
+      </button>
+    </div>
+    <div
+      className="display-flex-column"
+    >
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-alm big-spacer-right"
+        disabled={false}
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={50}
           src="/images/alm/github.svg"
         />
         <div
@@ -568,6 +662,33 @@ exports[`should render correctly: loading instances 1`] = `
           className="medium big-spacer-top abs-height-50 display-flex-center"
         >
           onboarding.create_project.select_method.bitbucket
+        </div>
+        <span>
+          onboarding.create_project.check_alm_supported
+          <i
+            className="little-spacer-left spinner"
+          />
+        </span>
+      </button>
+    </div>
+    <div
+      className="display-flex-column"
+    >
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-alm disabled big-spacer-right"
+        disabled={true}
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={50}
+          src="/images/alm/bitbucket.svg"
+        />
+        <div
+          className="medium big-spacer-top abs-height-50 display-flex-center"
+        >
+          onboarding.create_project.select_method.bitbucketcloud
         </div>
         <span>
           onboarding.create_project.check_alm_supported
@@ -721,6 +842,37 @@ exports[`should render correctly: no alm conf yet, admin 1`] = `
           className="medium big-spacer-top abs-height-50 display-flex-center"
         >
           onboarding.create_project.select_method.bitbucket
+        </div>
+        <p
+          className="text-muted small spacer-top"
+          style={
+            Object {
+              "lineHeight": 1.5,
+            }
+          }
+        >
+          onboarding.create_project.alm_not_configured.admin
+        </p>
+      </button>
+    </div>
+    <div
+      className="display-flex-column"
+    >
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-alm big-spacer-right"
+        disabled={false}
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={50}
+          src="/images/alm/bitbucket.svg"
+        />
+        <div
+          className="medium big-spacer-top abs-height-50 display-flex-center"
+        >
+          onboarding.create_project.select_method.bitbucketcloud
         </div>
         <p
           className="text-muted small spacer-top"

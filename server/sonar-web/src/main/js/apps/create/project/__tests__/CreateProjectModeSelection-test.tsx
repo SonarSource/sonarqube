@@ -79,10 +79,14 @@ it('should correctly pass the selected mode up', () => {
   onSelectMode.mockClear();
 
   click(wrapper.find(almButton).at(2));
-  expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.GitHub);
+  expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.BitbucketCloud);
   onSelectMode.mockClear();
 
   click(wrapper.find(almButton).at(3));
+  expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.GitHub);
+  onSelectMode.mockClear();
+
+  click(wrapper.find(almButton).at(4));
   expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.GitLab);
   onSelectMode.mockClear();
 
@@ -91,7 +95,7 @@ it('should correctly pass the selected mode up', () => {
     { [AlmKeys.BitbucketCloud]: 1, [AlmKeys.BitbucketServer]: 0 }
   );
 
-  click(wrapper.find(almButton).at(1));
+  click(wrapper.find(almButton).at(2));
   expect(onSelectMode).toHaveBeenCalledWith(CreateProjectModes.BitbucketCloud);
   onSelectMode.mockClear();
 });
@@ -136,7 +140,7 @@ function shallowRender(
 ) {
   const almCounts = {
     [AlmKeys.Azure]: 1,
-    [AlmKeys.BitbucketCloud]: 0,
+    [AlmKeys.BitbucketCloud]: 1,
     [AlmKeys.BitbucketServer]: 1,
     [AlmKeys.GitHub]: 1,
     [AlmKeys.GitLab]: 1,

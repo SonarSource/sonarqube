@@ -22,6 +22,7 @@ import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { BitbucketCloudRepository } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import AlmSettingsInstanceDropdown from './AlmSettingsInstanceDropdown';
 import BitbucketCloudSearchForm from './BitbucketCloudSearchForm';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import PersonalAccessTokenForm from './PersonalAccessTokenForm';
@@ -37,21 +38,24 @@ export interface BitbucketCloudProjectCreateRendererProps {
   onLoadMore: () => void;
   onPersonalAccessTokenCreated: () => void;
   onSearch: (searchQuery: string) => void;
+  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
   repositories?: BitbucketCloudRepository[];
   resetPat: boolean;
   searching: boolean;
   searchQuery: string;
   showPersonalAccessTokenForm: boolean;
-  settings?: AlmSettingsInstance;
+  almInstances: AlmSettingsInstance[];
+  selectedAlmInstance?: AlmSettingsInstance;
 }
 
 export default function BitbucketCloudProjectCreateRenderer(
   props: BitbucketCloudProjectCreateRendererProps
 ) {
   const {
+    almInstances,
     importingSlug,
     isLastPage,
-    settings,
+    selectedAlmInstance,
     canAdmin,
     loading,
     loadingMore,
@@ -77,17 +81,24 @@ export default function BitbucketCloudProjectCreateRenderer(
           </span>
         }
       />
+
+      <AlmSettingsInstanceDropdown
+        almInstances={almInstances}
+        selectedAlmInstance={selectedAlmInstance}
+        onChangeConfig={props.onSelectedAlmInstanceChange}
+      />
+
       {loading && <i className="spinner" />}
 
-      {!loading && !settings && (
+      {!loading && !selectedAlmInstance && (
         <WrongBindingCountAlert alm={AlmKeys.BitbucketCloud} canAdmin={!!canAdmin} />
       )}
 
       {!loading &&
-        settings &&
+        selectedAlmInstance &&
         (showPersonalAccessTokenForm ? (
           <PersonalAccessTokenForm
-            almSetting={settings}
+            almSetting={selectedAlmInstance}
             resetPat={resetPat}
             onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}
           />

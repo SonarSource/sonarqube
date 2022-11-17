@@ -24,11 +24,10 @@ import classNames from 'classnames';
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import ChevronsIcon from '../../../components/icons/ChevronsIcon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import { AlmKeys } from '../../../types/alm-settings';
+import { AlmKeys, AlmKeysUnion } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
-import { ALLOWED_MULTIPLE_CONFIGS } from './constants';
 import { CreateProjectModes } from './types';
 
 export interface CreateProjectModeSelectionProps {
@@ -43,35 +42,18 @@ export interface CreateProjectModeSelectionProps {
 
 const DEFAULT_ICON_SIZE = 50;
 
-function getErrorMessage(
-  hasTooManyConfig: boolean,
-  hasConfig: boolean,
-  canAdmin: boolean | undefined,
-  alm: AlmKeys
-) {
-  if (hasTooManyConfig) {
-    return translateWithParameters(
-      'onboarding.create_project.too_many_alm_instances_X',
-      translate('alm', alm)
-    );
-  } else if (!hasConfig) {
+function getErrorMessage(hasConfig: boolean, canAdmin: boolean | undefined) {
+  if (!hasConfig) {
     return canAdmin
       ? translate('onboarding.create_project.alm_not_configured.admin')
       : translate('onboarding.create_project.alm_not_configured');
   }
-}
-
-function getMode(
-  isBitbucketOption: boolean,
-  hasBitbucketCloudConf: boolean,
-  mode: CreateProjectModes
-) {
-  return isBitbucketOption && hasBitbucketCloudConf ? CreateProjectModes.BitbucketCloud : mode;
+  return undefined;
 }
 
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
-  alm: AlmKeys.Azure | AlmKeys.BitbucketServer | AlmKeys.GitHub | AlmKeys.GitLab,
+  alm: AlmKeysUnion,
   mode: CreateProjectModes,
   last = false
 ) {
@@ -80,30 +62,26 @@ function renderAlmOption(
     appState: { canAdmin },
     loadingBindings,
   } = props;
-
-  const hasBitbucketCloudConf = almCounts[AlmKeys.BitbucketCloud] > 0;
-  const isBitbucketOption = alm === AlmKeys.BitbucketServer;
-
-  const count = isBitbucketOption
-    ? almCounts[AlmKeys.BitbucketServer] + almCounts[AlmKeys.BitbucketCloud]
-    : almCounts[alm];
+  const count = almCounts[alm];
   const hasConfig = count > 0;
-  const hasTooManyConfig = count > 1 && !ALLOWED_MULTIPLE_CONFIGS.includes(alm);
-  const disabled = loadingBindings || hasTooManyConfig || (!hasConfig && !canAdmin);
+  const disabled = loadingBindings || (!hasConfig && !canAdmin);
 
   const onClick = () => {
-    if (hasTooManyConfig || (!hasConfig && !canAdmin)) {
+    if (!hasConfig && !canAdmin) {
       return null;
     }
 
     if (!hasConfig && canAdmin) {
-      return props.onConfigMode(alm);
+      const configMode = alm === AlmKeys.BitbucketCloud ? AlmKeys.BitbucketServer : alm;
+      return props.onConfigMode(configMode);
     }
 
-    return props.onSelectMode(getMode(isBitbucketOption, hasBitbucketCloudConf, mode));
+    return props.onSelectMode(mode);
   };
 
-  const errorMessage = getErrorMessage(hasTooManyConfig, hasConfig, canAdmin, alm);
+  const errorMessage = getErrorMessage(hasConfig, canAdmin);
+
+  const svgFileName = alm === AlmKeys.BitbucketCloud ? AlmKeys.BitbucketServer : alm;
 
   return (
     <div className="display-flex-column">
@@ -119,7 +97,7 @@ function renderAlmOption(
         <img
           alt="" // Should be ignored by screen readers
           height={DEFAULT_ICON_SIZE}
-          src={`${getBaseUrl()}/images/alm/${alm}.svg`}
+          src={`${getBaseUrl()}/images/alm/${svgFileName}.svg`}
         />
         <div className="medium big-spacer-top abs-height-50 display-flex-center">
           {translate('onboarding.create_project.select_method', alm)}
@@ -164,6 +142,7 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
       <div className="big-spacer-top huge-spacer-bottom display-flex-center">
         {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
         {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
+        {renderAlmOption(props, AlmKeys.BitbucketCloud, CreateProjectModes.BitbucketCloud)}
         {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
         {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab, true)}
       </div>

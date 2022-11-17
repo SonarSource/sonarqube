@@ -38,13 +38,11 @@ import {
   AlmSettingsBindingStatusType,
 } from '../../../../types/alm-settings';
 import { EditionKey } from '../../../../types/editions';
-import { ALLOWED_MULTIPLE_CONFIGS } from '../../../create/project/constants';
 
 export interface AlmBindingDefinitionBoxProps {
   alm: AlmKeys;
   branchesEnabled: boolean;
   definition: AlmBindingDefinitionBase;
-  multipleDefinitions: boolean;
   onCheck: (definitionKey: string) => void;
   onDelete: (definitionKey: string) => void;
   onEdit: (definitionKey: string) => void;
@@ -108,23 +106,8 @@ function getPRDecorationFeatureStatus(
 function getImportFeatureStatus(
   alm: AlmKeys,
   definition: AlmBindingDefinitionBase,
-  multipleDefinitions: boolean,
   type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure
 ) {
-  if (multipleDefinitions && !ALLOWED_MULTIPLE_CONFIGS.includes(alm)) {
-    return (
-      <div className="display-inline-flex-center">
-        <strong className="spacer-left">
-          {translate('settings.almintegration.feature.alm_repo_import.disabled')}
-        </strong>
-        <HelpTooltip
-          className="little-spacer-left"
-          overlay={translate('settings.almintegration.feature.alm_repo_import.disabled.multiple')}
-        />
-      </div>
-    );
-  }
-
   if (!definition.url && alm !== AlmKeys.BitbucketCloud) {
     return (
       <div className="display-inline-flex-center">
@@ -156,7 +139,7 @@ function getPrDecoFeatureDescription(alm: AlmKeys) {
 }
 
 export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxProps) {
-  const { alm, branchesEnabled, definition, multipleDefinitions, status = DEFAULT_STATUS } = props;
+  const { alm, branchesEnabled, definition, status = DEFAULT_STATUS } = props;
 
   return (
     <div className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition">
@@ -202,7 +185,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
                       {translate('settings.almintegration.feature.alm_repo_import.title')}
                     </span>
                   </Tooltip>
-                  {getImportFeatureStatus(alm, definition, multipleDefinitions, status.type)}
+                  {getImportFeatureStatus(alm, definition, status.type)}
                 </div>
               )}
             </div>

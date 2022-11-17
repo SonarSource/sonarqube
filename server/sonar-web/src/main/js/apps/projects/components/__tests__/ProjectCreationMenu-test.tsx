@@ -117,11 +117,22 @@ it('should filter alm bindings appropriately', async () => {
 
   wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper.state().boundAlms).toEqual([AlmKeys.Azure, AlmKeys.GitHub, AlmKeys.GitLab]);
+  expect(wrapper.state().boundAlms).toEqual([
+    AlmKeys.Azure,
+    AlmKeys.BitbucketServer,
+    AlmKeys.BitbucketCloud,
+    AlmKeys.GitHub,
+    AlmKeys.GitLab,
+  ]);
 
   wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper.state().boundAlms).toEqual([AlmKeys.Azure, AlmKeys.GitHub, AlmKeys.GitLab]);
+  expect(wrapper.state().boundAlms).toEqual([
+    AlmKeys.Azure,
+    AlmKeys.BitbucketServer,
+    AlmKeys.GitHub,
+    AlmKeys.GitLab,
+  ]);
 });
 
 function shallowRender(overrides: Partial<ProjectCreationMenu['props']> = {}) {

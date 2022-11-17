@@ -34,6 +34,23 @@ exports[`should render correctly: default 1`] = `
       </span>
     }
   />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucket",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+    selectedAlmInstance={
+      Object {
+        "alm": "bitbucket",
+        "key": "key",
+      }
+    }
+  />
   <BitbucketImportRepositoryForm
     disableRepositories={false}
     onSearch={[MockFunction]}
@@ -99,6 +116,23 @@ exports[`should render correctly: importing 1`] = `
         />
         onboarding.create_project.from_bbs
       </span>
+    }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucket",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+    selectedAlmInstance={
+      Object {
+        "alm": "bitbucket",
+        "key": "key",
+      }
     }
   />
   <BitbucketImportRepositoryForm
@@ -168,6 +202,17 @@ exports[`should render correctly: invalid config, admin user 1`] = `
       </span>
     }
   />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucket",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+  />
   <WrongBindingCountAlert
     alm="bitbucket"
     canAdmin={true}
@@ -208,6 +253,17 @@ exports[`should render correctly: invalid config, regular user 1`] = `
         onboarding.create_project.from_bbs
       </span>
     }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucket",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
   />
   <WrongBindingCountAlert
     alm="bitbucket"
@@ -250,6 +306,23 @@ exports[`should render correctly: loading 1`] = `
       </span>
     }
   />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucket",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+    selectedAlmInstance={
+      Object {
+        "alm": "bitbucket",
+        "key": "key",
+      }
+    }
+  />
   <i
     className="spinner"
   />
@@ -272,6 +345,23 @@ exports[`should render correctly: pat form 1`] = `
         />
         onboarding.create_project.from_bbs
       </span>
+    }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucket",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+    selectedAlmInstance={
+      Object {
+        "alm": "bitbucket",
+        "key": "key",
+      }
     }
   />
   <PersonalAccessTokenForm
@@ -319,6 +409,23 @@ exports[`should render correctly: selected repo 1`] = `
         />
         onboarding.create_project.from_bbs
       </span>
+    }
+  />
+  <AlmSettingsInstanceDropdown
+    almInstances={
+      Array [
+        Object {
+          "alm": "bitbucket",
+          "key": "key",
+        },
+      ]
+    }
+    onChangeConfig={[MockFunction]}
+    selectedAlmInstance={
+      Object {
+        "alm": "bitbucket",
+        "key": "key",
+      }
     }
   />
   <BitbucketImportRepositoryForm

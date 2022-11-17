@@ -143,7 +143,7 @@ exports[`should render correctly for bitbucket mode 1`] = `
     id="create-project"
   >
     <BitbucketProjectCreate
-      bitbucketSettings={Array []}
+      almInstances={Array []}
       canAdmin={false}
       loadingBindings={true}
       location={
@@ -194,6 +194,7 @@ exports[`should render correctly for bitbucketcloud mode 1`] = `
     id="create-project"
   >
     <BitbucketCloudProjectCreate
+      almInstances={Array []}
       canAdmin={false}
       loadingBindings={true}
       location={
@@ -222,7 +223,6 @@ exports[`should render correctly for bitbucketcloud mode 1`] = `
           "setRouteLeaveHook": [MockFunction],
         }
       }
-      settings={Array []}
     />
   </div>
 </Fragment>

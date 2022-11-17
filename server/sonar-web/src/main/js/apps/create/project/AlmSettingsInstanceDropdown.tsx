@@ -28,24 +28,25 @@ export interface AlmSettingsInstanceDropdownProps {
   onChangeConfig: (instance: AlmSettingsInstance) => void;
 }
 
+const MIN_SIZE_INSTANCES = 2;
+
 export default function AlmSettingsInstanceDropdown(props: AlmSettingsInstanceDropdownProps) {
   const { almInstances, selectedAlmInstance } = props;
+  if (!almInstances || almInstances.length < MIN_SIZE_INSTANCES) {
+    return null;
+  }
   return (
-    <>
-      {almInstances && almInstances.length > 1 ? (
-        <div className="display-flex-column huge-spacer-bottom">
-          <label htmlFor="alm-config-selector" className="spacer-bottom">
-            {translate('alm.configuration.selector.label')}
-          </label>
-          <AlmSettingsInstanceSelector
-            instances={almInstances}
-            onChange={props.onChangeConfig}
-            initialValue={selectedAlmInstance ? selectedAlmInstance.key : undefined}
-            classNames="abs-width-400"
-            inputId="alm-config-selector"
-          />
-        </div>
-      ) : null}
-    </>
+    <div className="display-flex-column huge-spacer-bottom">
+      <label htmlFor="alm-config-selector" className="spacer-bottom">
+        {translate('alm.configuration.selector.label')}
+      </label>
+      <AlmSettingsInstanceSelector
+        instances={almInstances}
+        onChange={props.onChangeConfig}
+        initialValue={selectedAlmInstance ? selectedAlmInstance.key : undefined}
+        classNames="abs-width-400"
+        inputId="alm-config-selector"
+      />
+    </div>
   );
 }

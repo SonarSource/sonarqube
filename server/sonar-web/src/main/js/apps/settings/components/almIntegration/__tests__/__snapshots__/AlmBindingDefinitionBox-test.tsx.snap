@@ -164,48 +164,6 @@ exports[`should render correctly: error 1`] = `
 </div>
 `;
 
-exports[`should render correctly: multiple definitions 1`] = `
-<div
-  className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition"
->
-  <div
-    className="actions pull-right"
-  >
-    <Button
-      onClick={[Function]}
-    >
-      <EditIcon
-        className="spacer-right"
-      />
-      edit
-    </Button>
-    <Button
-      className="button-red spacer-left"
-      onClick={[Function]}
-    >
-      <DeleteIcon
-        className="spacer-right"
-      />
-      delete
-    </Button>
-  </div>
-  <div
-    className="big-spacer-bottom"
-  >
-    <h3>
-      key
-    </h3>
-    <span>
-      http://github.enterprise.com
-    </span>
-  </div>
-  <i
-    className="spinner spacer-right"
-  />
-  settings.almintegration.checking_configuration
-</div>
-`;
-
 exports[`should render correctly: success 1`] = `
 <div
   className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition"

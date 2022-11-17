@@ -1,5 +1,3 @@
-import { AlmKeys } from '../../../types/alm-settings';
-
 /*
  * SonarQube
  * Copyright (C) 2009-2022 SonarSource SA
@@ -22,5 +20,3 @@ import { AlmKeys } from '../../../types/alm-settings';
 export const PROJECT_NAME_MAX_LEN = 255;
 
 export const DEFAULT_BBS_PAGE_SIZE = 25;
-
-export const ALLOWED_MULTIPLE_CONFIGS = [AlmKeys.GitLab, AlmKeys.Azure, AlmKeys.GitHub];

@@ -66,7 +66,7 @@ beforeEach(jest.clearAllMocks);
 
 it('should render correctly', async () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ bitbucketSettings: [] })).toMatchSnapshot('No setting');
+  expect(shallowRender({ almInstances: [] })).toMatchSnapshot('No setting');
 
   const wrapper = shallowRender();
   (getBitbucketServerRepositories as jest.Mock).mockRejectedValueOnce({});
@@ -130,7 +130,7 @@ it('should correctly handle search', async () => {
 });
 
 it('should behave correctly when no setting', async () => {
-  const wrapper = shallowRender({ bitbucketSettings: [] });
+  const wrapper = shallowRender({ almInstances: [] });
   await wrapper.instance().handleSearch('');
   await wrapper.instance().handleImportRepository();
   await wrapper.instance().fetchBitbucketRepositories([mockBitbucketProject()]);
@@ -144,7 +144,7 @@ function shallowRender(props: Partial<BitbucketProjectCreate['props']> = {}) {
   return shallow<BitbucketProjectCreate>(
     <BitbucketProjectCreate
       canAdmin={false}
-      bitbucketSettings={[mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer, key: 'foo' })]}
+      almInstances={[mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer, key: 'foo' })]}
       loadingBindings={false}
       location={mockLocation()}
       router={mockRouter()}

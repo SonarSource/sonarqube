@@ -26,7 +26,7 @@ import BitbucketCloudProjectCreateRenderer, {
 
 it('Should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ settings: undefined })).toMatchSnapshot('Wrong config');
+  expect(shallowRender({ selectedAlmInstance: undefined })).toMatchSnapshot('Wrong config');
   expect(shallowRender({ loading: true })).toMatchSnapshot('Loading...');
   expect(
     shallowRender({
@@ -48,7 +48,9 @@ function shallowRender(props?: Partial<BitbucketCloudProjectCreateRendererProps>
       resetPat={false}
       searching={false}
       searchQuery=""
-      settings={mockBitbucketCloudAlmSettingsInstance()}
+      selectedAlmInstance={mockBitbucketCloudAlmSettingsInstance()}
+      almInstances={[mockBitbucketCloudAlmSettingsInstance()]}
+      onSelectedAlmInstanceChange={jest.fn()}
       showPersonalAccessTokenForm={false}
       {...props}
     />

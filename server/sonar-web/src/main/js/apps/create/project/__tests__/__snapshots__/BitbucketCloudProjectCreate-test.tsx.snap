@@ -2,6 +2,7 @@
 
 exports[`Should render correctly 1`] = `
 <BitbucketCloudProjectCreateRenderer
+  almInstances={Array []}
   canAdmin={true}
   isLastPage={true}
   loading={false}
@@ -10,6 +11,7 @@ exports[`Should render correctly 1`] = `
   onLoadMore={[Function]}
   onPersonalAccessTokenCreated={[Function]}
   onSearch={[Function]}
+  onSelectedAlmInstanceChange={[Function]}
   repositories={Array []}
   resetPat={false}
   searchQuery=""
@@ -20,6 +22,14 @@ exports[`Should render correctly 1`] = `
 
 exports[`Should render correctly: Setting changeds 1`] = `
 <BitbucketCloudProjectCreateRenderer
+  almInstances={
+    Array [
+      Object {
+        "alm": "bitbucketcloud",
+        "key": "key",
+      },
+    ]
+  }
   canAdmin={true}
   isLastPage={true}
   loading={false}
@@ -28,11 +38,12 @@ exports[`Should render correctly: Setting changeds 1`] = `
   onLoadMore={[Function]}
   onPersonalAccessTokenCreated={[Function]}
   onSearch={[Function]}
+  onSelectedAlmInstanceChange={[Function]}
   repositories={Array []}
   resetPat={false}
   searchQuery=""
   searching={false}
-  settings={
+  selectedAlmInstance={
     Object {
       "alm": "bitbucketcloud",
       "key": "key",

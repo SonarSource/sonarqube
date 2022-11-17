@@ -30,7 +30,7 @@ import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRe
 
 interface Props {
   canAdmin: boolean;
-  settings: AlmSettingsInstance[];
+  almInstances: AlmSettingsInstance[];
   loadingBindings: boolean;
   onProjectCreate: (projectKey: string) => void;
   location: Location;
@@ -47,7 +47,7 @@ interface State {
   repositories: BitbucketCloudRepository[];
   searching: boolean;
   searchQuery: string;
-  settings: AlmSettingsInstance;
+  selectedAlmInstance: AlmSettingsInstance;
   showPersonalAccessTokenForm: boolean;
 }
 
@@ -67,7 +67,7 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
       repositories: [],
       searching: false,
       searchQuery: '',
-      settings: props.settings[0],
+      selectedAlmInstance: props.almInstances[0],
       showPersonalAccessTokenForm: true,
     };
   }
@@ -77,8 +77,8 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.settings.length === 0 && this.props.settings.length > 0) {
-      this.setState({ settings: this.props.settings[0] }, () => this.fetchData());
+    if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
+      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () => this.fetchData());
     }
   }
 
@@ -98,14 +98,14 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
 
   async fetchData(more = false) {
     const {
-      settings,
+      selectedAlmInstance,
       searchQuery,
       projectsPaging: { pageIndex, pageSize },
       showPersonalAccessTokenForm,
     } = this.state;
-    if (settings && !showPersonalAccessTokenForm) {
+    if (selectedAlmInstance && !showPersonalAccessTokenForm) {
       const { isLastPage, repositories } = await searchForBitbucketCloudRepositories(
-        settings.key,
+        selectedAlmInstance.key,
         searchQuery,
         pageSize,
         pageIndex
@@ -174,17 +174,18 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
   };
 
   handleImport = async (repositorySlug: string) => {
-    const { settings } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!settings) {
+    if (!selectedAlmInstance) {
       return;
     }
 
     this.setState({ importingSlug: repositorySlug });
 
-    const result = await importBitbucketCloudRepository(settings.key, repositorySlug).catch(
-      () => undefined
-    );
+    const result = await importBitbucketCloudRepository(
+      selectedAlmInstance.key,
+      repositorySlug
+    ).catch(() => undefined);
 
     if (this.mounted) {
       this.setState({ importingSlug: undefined });
@@ -195,12 +196,23 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
     }
   };
 
+  onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
+    this.setState({
+      selectedAlmInstance: instance,
+      showPersonalAccessTokenForm: true,
+      resetPat: false,
+      searching: false,
+      searchQuery: '',
+      projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
+    });
+  };
+
   render() {
-    const { canAdmin, loadingBindings, location } = this.props;
+    const { canAdmin, loadingBindings, location, almInstances } = this.props;
     const {
       importingSlug,
       isLastPage = true,
-      settings,
+      selectedAlmInstance,
       loading,
       loadingMore,
       repositories,
@@ -213,7 +225,8 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
       <BitbucketCloudProjectCreateRenderer
         importingSlug={importingSlug}
         isLastPage={isLastPage}
-        settings={settings}
+        selectedAlmInstance={selectedAlmInstance}
+        almInstances={almInstances}
         canAdmin={canAdmin}
         loadingMore={loadingMore}
         loading={loading || loadingBindings}
@@ -221,6 +234,7 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
         onLoadMore={this.handleLoadMore}
         onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
         onSearch={this.handleSearch}
+        onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
         repositories={repositories}
         searching={searching}
         searchQuery={searchQuery}

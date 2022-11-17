@@ -179,7 +179,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
         return (
           <BitbucketProjectCreate
             canAdmin={!!canAdmin}
-            bitbucketSettings={bitbucketSettings}
+            almInstances={bitbucketSettings}
             loadingBindings={loading}
             location={location}
             onProjectCreate={this.handleProjectCreate}
@@ -195,7 +195,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
             location={location}
             onProjectCreate={this.handleProjectCreate}
             router={router}
-            settings={bitbucketCloudSettings}
+            almInstances={bitbucketCloudSettings}
           />
         );
       }

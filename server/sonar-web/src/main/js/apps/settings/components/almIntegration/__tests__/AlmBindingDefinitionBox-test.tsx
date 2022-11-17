@@ -31,7 +31,6 @@ import AlmBindingDefinitionBox, { AlmBindingDefinitionBoxProps } from '../AlmBin
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ multipleDefinitions: true })).toMatchSnapshot('multiple definitions');
   expect(
     shallowRender({
       status: mockAlmSettingsBindingStatus({
@@ -106,7 +105,6 @@ function shallowRender(props: Partial<AlmBindingDefinitionBoxProps> = {}) {
       alm={AlmKeys.GitHub}
       branchesEnabled={true}
       definition={mockGithubBindingDefinition()}
-      multipleDefinitions={false}
       onCheck={jest.fn()}
       onDelete={jest.fn()}
       onEdit={jest.fn()}

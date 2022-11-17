@@ -46,10 +46,10 @@ jest.mock('../../../../api/alm-integrations', () => {
 });
 
 it('Should render correctly', async () => {
-  const wrapper = shallowRender({ settings: [] });
+  const wrapper = shallowRender({ almInstances: [] });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  wrapper.setProps({ settings: [mockBitbucketCloudAlmSettingsInstance()] });
+  wrapper.setProps({ almInstances: [mockBitbucketCloudAlmSettingsInstance()] });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('Setting changeds');
 });
@@ -174,7 +174,7 @@ function shallowRender(props?: Partial<BitbucketCloudProjectCreate['props']>) {
       location={mockLocation()}
       canAdmin={true}
       router={mockRouter()}
-      settings={[mockBitbucketCloudAlmSettingsInstance()]}
+      almInstances={[mockBitbucketCloudAlmSettingsInstance()]}
       {...props}
     />
   );

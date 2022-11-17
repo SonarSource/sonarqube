@@ -39,7 +39,6 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
           }
         }
         key="key"
-        multipleDefinitions={false}
         onCheck={[MockFunction]}
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
@@ -88,7 +87,6 @@ exports[`should render correctly for multi-ALM binding: loaded 1`] = `
           }
         }
         key="key"
-        multipleDefinitions={false}
         onCheck={[MockFunction]}
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
@@ -137,7 +135,6 @@ exports[`should render correctly for multi-ALM binding: loading ALM definitions 
           }
         }
         key="key"
-        multipleDefinitions={false}
         onCheck={[MockFunction]}
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
@@ -186,7 +183,6 @@ exports[`should render correctly for multi-ALM binding: loading project count 1`
           }
         }
         key="key"
-        multipleDefinitions={false}
         onCheck={[MockFunction]}
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
@@ -235,7 +231,6 @@ exports[`should render correctly for single-ALM binding 1`] = `
           }
         }
         key="key"
-        multipleDefinitions={false}
         onCheck={[MockFunction]}
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
@@ -284,7 +279,6 @@ exports[`should render correctly for single-ALM binding 2`] = `
           }
         }
         key="key"
-        multipleDefinitions={false}
         onCheck={[MockFunction]}
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
@@ -333,7 +327,6 @@ exports[`should render correctly for single-ALM binding 3`] = `
           }
         }
         key="key"
-        multipleDefinitions={false}
         onCheck={[MockFunction]}
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
@@ -426,7 +419,6 @@ exports[`should render correctly with validation: create a second 1`] = `
           }
         }
         key="key"
-        multipleDefinitions={false}
         onCheck={[MockFunction]}
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
@@ -480,7 +472,6 @@ exports[`should render correctly with validation: default 1`] = `
           }
         }
         key="key"
-        multipleDefinitions={false}
         onCheck={[MockFunction]}
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
@@ -570,7 +561,6 @@ exports[`should render correctly with validation: pass the correct key for bitbu
           }
         }
         key="key"
-        multipleDefinitions={false}
         onCheck={[MockFunction]}
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}

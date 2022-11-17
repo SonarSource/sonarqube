@@ -31,7 +31,6 @@ import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Permissions } from '../../../types/permissions';
 import { LoggedInUser } from '../../../types/users';
-import { ALLOWED_MULTIPLE_CONFIGS } from '../../create/project/constants';
 import ProjectCreationMenuItem from './ProjectCreationMenuItem';
 
 interface Props {
@@ -80,18 +79,10 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
 
     const almSettings: AlmSettingsInstance[] = await getAlmSettings().catch(() => []);
 
-    // Import is only available if exactly one binding is configured
     const boundAlms = IMPORT_COMPATIBLE_ALMS.filter((key) => {
-      let currentAlmSettings: AlmSettingsInstance[];
-      if (key === AlmKeys.BitbucketServer || key === AlmKeys.BitbucketCloud) {
-        currentAlmSettings = almSettings.filter(
-          (s) => s.alm === AlmKeys.BitbucketCloud || s.alm === AlmKeys.BitbucketServer
-        );
-      } else {
-        currentAlmSettings = almSettings.filter((s) => s.alm === key);
-      }
+      const currentAlmSettings = almSettings.filter((s) => s.alm === key);
       return (
-        this.configLengthChecker(key, currentAlmSettings.length) &&
+        currentAlmSettings.length > 0 &&
         key === currentAlmSettings[0].alm &&
         this.almSettingIsValid(currentAlmSettings[0])
       );
@@ -102,10 +93,6 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
         boundAlms,
       });
     }
-  };
-
-  configLengthChecker = (key: AlmKeys, length: number) => {
-    return ALLOWED_MULTIPLE_CONFIGS.includes(key) ? length > 0 : length === 1;
   };
 
   render() {

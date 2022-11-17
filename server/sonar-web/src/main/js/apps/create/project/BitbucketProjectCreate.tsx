@@ -36,7 +36,7 @@ import { DEFAULT_BBS_PAGE_SIZE } from './constants';
 
 interface Props {
   canAdmin: boolean;
-  bitbucketSettings: AlmSettingsInstance[];
+  almInstances: AlmSettingsInstance[];
   loadingBindings: boolean;
   onProjectCreate: (projectKey: string) => void;
   location: Location;
@@ -44,7 +44,7 @@ interface Props {
 }
 
 interface State {
-  bitbucketSetting?: AlmSettingsInstance;
+  selectedAlmInstance?: AlmSettingsInstance;
   importing: boolean;
   loading: boolean;
   projects?: BitbucketProject[];
@@ -63,7 +63,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     this.state = {
       // For now, we only handle a single instance. So we always use the first
       // one from the list.
-      bitbucketSetting: props.bitbucketSettings[0],
+      selectedAlmInstance: props.almInstances[0],
       importing: false,
       loading: false,
       searching: false,
@@ -76,8 +76,8 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.bitbucketSettings.length === 0 && this.props.bitbucketSettings.length > 0) {
-      this.setState({ bitbucketSetting: this.props.bitbucketSettings[0] }, () =>
+    if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
+      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () =>
         this.fetchInitialData()
       );
     }
@@ -112,27 +112,27 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
   };
 
   fetchBitbucketProjects = (): Promise<BitbucketProject[] | undefined> => {
-    const { bitbucketSetting } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!bitbucketSetting) {
+    if (!selectedAlmInstance) {
       return Promise.resolve(undefined);
     }
 
-    return getBitbucketServerProjects(bitbucketSetting.key).then(({ projects }) => projects);
+    return getBitbucketServerProjects(selectedAlmInstance.key).then(({ projects }) => projects);
   };
 
   fetchBitbucketRepositories = (
     projects: BitbucketProject[]
   ): Promise<BitbucketProjectRepositories | undefined> => {
-    const { bitbucketSetting } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!bitbucketSetting) {
+    if (!selectedAlmInstance) {
       return Promise.resolve(undefined);
     }
 
     return Promise.all(
       projects.map((p) => {
-        return getBitbucketServerRepositories(bitbucketSetting.key, p.name).then(
+        return getBitbucketServerRepositories(selectedAlmInstance.key, p.name).then(
           ({ isLastPage, repositories }) => {
             // Because the WS uses the project name rather than its key to find
             // repositories, we can match more repositories than we expect. For
@@ -183,15 +183,15 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
   };
 
   handleImportRepository = () => {
-    const { bitbucketSetting, selectedRepository } = this.state;
+    const { selectedAlmInstance, selectedRepository } = this.state;
 
-    if (!bitbucketSetting || !selectedRepository) {
+    if (!selectedAlmInstance || !selectedRepository) {
       return;
     }
 
     this.setState({ importing: true });
     importBitbucketServerProject(
-      bitbucketSetting.key,
+      selectedAlmInstance.key,
       selectedRepository.projectKey,
       selectedRepository.slug
     )
@@ -209,9 +209,9 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
   };
 
   handleSearch = (query: string) => {
-    const { bitbucketSetting } = this.state;
+    const { selectedAlmInstance } = this.state;
 
-    if (!bitbucketSetting) {
+    if (!selectedAlmInstance) {
       return;
     }
 
@@ -221,7 +221,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     }
 
     this.setState({ searching: true, selectedRepository: undefined });
-    searchForBitbucketServerRepositories(bitbucketSetting.key, query)
+    searchForBitbucketServerRepositories(selectedAlmInstance.key, query)
       .then(({ repositories }) => {
         if (this.mounted) {
           this.setState({ searching: false, searchResults: repositories });
@@ -238,10 +238,19 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     this.setState({ selectedRepository });
   };
 
+  onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
+    this.setState({
+      selectedAlmInstance: instance,
+      showPersonalAccessTokenForm: true,
+      searching: false,
+      searchResults: undefined,
+    });
+  };
+
   render() {
-    const { canAdmin, loadingBindings, location } = this.props;
+    const { canAdmin, loadingBindings, location, almInstances } = this.props;
     const {
-      bitbucketSetting,
+      selectedAlmInstance,
       importing,
       loading,
       projectRepositories,
@@ -254,7 +263,8 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
 
     return (
       <BitbucketCreateProjectRenderer
-        bitbucketSetting={bitbucketSetting}
+        selectedAlmInstance={selectedAlmInstance}
+        almInstances={almInstances}
         canAdmin={canAdmin}
         importing={importing}
         loading={loading || loadingBindings}
@@ -262,6 +272,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
         onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
         onSearch={this.handleSearch}
         onSelectRepository={this.handleSelectRepository}
+        onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
         projectRepositories={projectRepositories}
         projects={projects}
         resetPat={Boolean(location.query.resetPat)}

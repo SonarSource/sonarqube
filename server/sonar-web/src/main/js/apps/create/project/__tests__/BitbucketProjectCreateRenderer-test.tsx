@@ -37,10 +37,10 @@ it('should render correctly', () => {
   expect(shallowRender({ selectedRepository: mockBitbucketRepository() })).toMatchSnapshot(
     'selected repo'
   );
-  expect(shallowRender({ bitbucketSetting: undefined })).toMatchSnapshot(
+  expect(shallowRender({ selectedAlmInstance: undefined })).toMatchSnapshot(
     'invalid config, regular user'
   );
-  expect(shallowRender({ bitbucketSetting: undefined, canAdmin: true })).toMatchSnapshot(
+  expect(shallowRender({ selectedAlmInstance: undefined, canAdmin: true })).toMatchSnapshot(
     'invalid config, admin user'
   );
 });
@@ -48,7 +48,9 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<BitbucketProjectCreateRendererProps> = {}) {
   return shallow<BitbucketProjectCreateRendererProps>(
     <BitbucketProjectCreateRenderer
-      bitbucketSetting={mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer })}
+      selectedAlmInstance={mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer })}
+      almInstances={[mockAlmSettingsInstance({ alm: AlmKeys.BitbucketServer })]}
+      onSelectedAlmInstanceChange={jest.fn()}
       importing={false}
       loading={false}
       onImportRepository={jest.fn()}
