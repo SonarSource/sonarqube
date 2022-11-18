@@ -29,9 +29,9 @@ exports[`should render correctly: all on x=0 1`] = `
         <span
           className="spacer-right"
         >
-          component_measures.legend.color_x.Security_rating
+          component_measures.legend.color_x.security_rating
         </span>
-        component_measures.legend.size_x.Vulnerabilities
+        component_measures.legend.size_x.vulnerabilities
       </span>
       <ColorRatingsLegend
         className="spacer-top"
@@ -79,7 +79,7 @@ exports[`should render correctly: all on x=0 1`] = `
                   "metric": Object {
                     "id": "ncloc",
                     "key": "ncloc",
-                    "name": "Ncloc",
+                    "name": "ncloc",
                     "type": "INT",
                   },
                   "period": Object {
@@ -95,7 +95,7 @@ exports[`should render correctly: all on x=0 1`] = `
                   "metric": Object {
                     "id": "security_remediation_effort",
                     "key": "security_remediation_effort",
-                    "name": "Security_remediation_effort",
+                    "name": "security_remediation_effort",
                     "type": "DATA",
                   },
                   "period": Object {
@@ -111,7 +111,7 @@ exports[`should render correctly: all on x=0 1`] = `
                   "metric": Object {
                     "id": "vulnerabilities",
                     "key": "vulnerabilities",
-                    "name": "Vulnerabilities",
+                    "name": "vulnerabilities",
                     "type": "INT",
                   },
                   "period": Object {
@@ -127,7 +127,7 @@ exports[`should render correctly: all on x=0 1`] = `
                   "metric": Object {
                     "id": "security_rating",
                     "key": "security_rating",
-                    "name": "Security_rating",
+                    "name": "security_rating",
                     "type": "RATING",
                   },
                   "period": Object {
@@ -152,19 +152,19 @@ exports[`should render correctly: all on x=0 1`] = `
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Ncloc: 0
+                ncloc: 0
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Security_remediation_effort: 0
+                security_remediation_effort: 0
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Vulnerabilities: 0
+                vulnerabilities: 0
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Security_rating: \`
+                security_rating: \`
               </React.Fragment>
             </div>,
             "x": 0,
@@ -198,12 +198,12 @@ exports[`should render correctly: all on x=0 1`] = `
   <div
     className="measure-overview-bubble-chart-axis x"
   >
-    Ncloc
+    ncloc
   </div>
   <div
     className="measure-overview-bubble-chart-axis y"
   >
-    Security_remediation_effort
+    security_remediation_effort
   </div>
 </div>
 `;
@@ -237,9 +237,9 @@ exports[`should render correctly: default 1`] = `
         <span
           className="spacer-right"
         >
-          component_measures.legend.color_x.Security_rating
+          component_measures.legend.color_x.security_rating
         </span>
-        component_measures.legend.size_x.Vulnerabilities
+        component_measures.legend.size_x.vulnerabilities
       </span>
       <ColorRatingsLegend
         className="spacer-top"
@@ -291,7 +291,7 @@ exports[`should render correctly: default 1`] = `
                   "metric": Object {
                     "id": "ncloc",
                     "key": "ncloc",
-                    "name": "Ncloc",
+                    "name": "ncloc",
                     "type": "INT",
                   },
                   "period": Object {
@@ -307,7 +307,7 @@ exports[`should render correctly: default 1`] = `
                   "metric": Object {
                     "id": "security_remediation_effort",
                     "key": "security_remediation_effort",
-                    "name": "Security_remediation_effort",
+                    "name": "security_remediation_effort",
                     "type": "DATA",
                   },
                   "period": Object {
@@ -323,7 +323,7 @@ exports[`should render correctly: default 1`] = `
                   "metric": Object {
                     "id": "vulnerabilities",
                     "key": "vulnerabilities",
-                    "name": "Vulnerabilities",
+                    "name": "vulnerabilities",
                     "type": "INT",
                   },
                   "period": Object {
@@ -339,7 +339,7 @@ exports[`should render correctly: default 1`] = `
                   "metric": Object {
                     "id": "security_rating",
                     "key": "security_rating",
-                    "name": "Security_rating",
+                    "name": "security_rating",
                     "type": "RATING",
                   },
                   "period": Object {
@@ -364,19 +364,19 @@ exports[`should render correctly: default 1`] = `
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Ncloc: 236
+                ncloc: 236
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Security_remediation_effort: 10
+                security_remediation_effort: 10
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Vulnerabilities: 3
+                vulnerabilities: 3
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Security_rating: B
+                security_rating: B
               </React.Fragment>
             </div>,
             "x": 236,
@@ -404,12 +404,12 @@ exports[`should render correctly: default 1`] = `
   <div
     className="measure-overview-bubble-chart-axis x"
   >
-    Ncloc
+    ncloc
   </div>
   <div
     className="measure-overview-bubble-chart-axis y"
   >
-    Security_remediation_effort
+    security_remediation_effort
   </div>
 </div>
 `;
@@ -450,9 +450,9 @@ exports[`should render correctly: only showing first 500 files 1`] = `
         <span
           className="spacer-right"
         >
-          component_measures.legend.color_x.Security_rating
+          component_measures.legend.color_x.security_rating
         </span>
-        component_measures.legend.size_x.Vulnerabilities
+        component_measures.legend.size_x.vulnerabilities
       </span>
       <ColorRatingsLegend
         className="spacer-top"
@@ -504,7 +504,7 @@ exports[`should render correctly: only showing first 500 files 1`] = `
                   "metric": Object {
                     "id": "ncloc",
                     "key": "ncloc",
-                    "name": "Ncloc",
+                    "name": "ncloc",
                     "type": "INT",
                   },
                   "period": Object {
@@ -520,7 +520,7 @@ exports[`should render correctly: only showing first 500 files 1`] = `
                   "metric": Object {
                     "id": "security_remediation_effort",
                     "key": "security_remediation_effort",
-                    "name": "Security_remediation_effort",
+                    "name": "security_remediation_effort",
                     "type": "DATA",
                   },
                   "period": Object {
@@ -536,7 +536,7 @@ exports[`should render correctly: only showing first 500 files 1`] = `
                   "metric": Object {
                     "id": "vulnerabilities",
                     "key": "vulnerabilities",
-                    "name": "Vulnerabilities",
+                    "name": "vulnerabilities",
                     "type": "INT",
                   },
                   "period": Object {
@@ -552,7 +552,7 @@ exports[`should render correctly: only showing first 500 files 1`] = `
                   "metric": Object {
                     "id": "security_rating",
                     "key": "security_rating",
-                    "name": "Security_rating",
+                    "name": "security_rating",
                     "type": "RATING",
                   },
                   "period": Object {
@@ -577,19 +577,19 @@ exports[`should render correctly: only showing first 500 files 1`] = `
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Ncloc: 236
+                ncloc: 236
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Security_remediation_effort: 10
+                security_remediation_effort: 10
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Vulnerabilities: 3
+                vulnerabilities: 3
                 <br />
               </React.Fragment>
               <React.Fragment>
-                Security_rating: B
+                security_rating: B
               </React.Fragment>
             </div>,
             "x": 236,
@@ -617,12 +617,12 @@ exports[`should render correctly: only showing first 500 files 1`] = `
   <div
     className="measure-overview-bubble-chart-axis x"
   >
-    Ncloc
+    ncloc
   </div>
   <div
     className="measure-overview-bubble-chart-axis y"
   >
-    Security_remediation_effort
+    security_remediation_effort
   </div>
 </div>
 `;

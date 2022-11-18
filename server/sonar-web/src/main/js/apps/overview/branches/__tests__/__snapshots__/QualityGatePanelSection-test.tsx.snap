@@ -23,7 +23,7 @@ exports[`should render correctly 1`] = `
               "metric": Object {
                 "id": "coverage",
                 "key": "coverage",
-                "name": "Coverage",
+                "name": "coverage",
                 "type": "PERCENT",
               },
               "period": Object {
@@ -46,7 +46,7 @@ exports[`should render correctly 1`] = `
               "metric": Object {
                 "id": "coverage",
                 "key": "coverage",
-                "name": "Coverage",
+                "name": "coverage",
                 "type": "PERCENT",
               },
               "period": Object {
@@ -78,7 +78,7 @@ exports[`should render correctly 1`] = `
             "metric": Object {
               "id": "coverage",
               "key": "coverage",
-              "name": "Coverage",
+              "name": "coverage",
               "type": "PERCENT",
             },
             "period": Object {
@@ -113,7 +113,7 @@ exports[`should render correctly 1`] = `
               "metric": Object {
                 "id": "coverage",
                 "key": "coverage",
-                "name": "Coverage",
+                "name": "coverage",
                 "type": "PERCENT",
               },
               "period": Object {
@@ -136,7 +136,7 @@ exports[`should render correctly 1`] = `
               "metric": Object {
                 "id": "coverage",
                 "key": "coverage",
-                "name": "Coverage",
+                "name": "coverage",
                 "type": "PERCENT",
               },
               "period": Object {
@@ -168,7 +168,7 @@ exports[`should render correctly 1`] = `
             "metric": Object {
               "id": "coverage",
               "key": "coverage",
-              "name": "Coverage",
+              "name": "coverage",
               "type": "PERCENT",
             },
             "period": Object {
@@ -215,7 +215,7 @@ exports[`should render correctly 2`] = `
               "metric": Object {
                 "id": "coverage",
                 "key": "coverage",
-                "name": "Coverage",
+                "name": "coverage",
                 "type": "PERCENT",
               },
               "period": Object {
@@ -238,7 +238,7 @@ exports[`should render correctly 2`] = `
               "metric": Object {
                 "id": "coverage",
                 "key": "coverage",
-                "name": "Coverage",
+                "name": "coverage",
                 "type": "PERCENT",
               },
               "period": Object {
@@ -270,7 +270,7 @@ exports[`should render correctly 2`] = `
             "metric": Object {
               "id": "coverage",
               "key": "coverage",
-              "name": "Coverage",
+              "name": "coverage",
               "type": "PERCENT",
             },
             "period": Object {
@@ -305,7 +305,7 @@ exports[`should render correctly 2`] = `
               "metric": Object {
                 "id": "coverage",
                 "key": "coverage",
-                "name": "Coverage",
+                "name": "coverage",
                 "type": "PERCENT",
               },
               "period": Object {
@@ -328,7 +328,7 @@ exports[`should render correctly 2`] = `
               "metric": Object {
                 "id": "coverage",
                 "key": "coverage",
-                "name": "Coverage",
+                "name": "coverage",
                 "type": "PERCENT",
               },
               "period": Object {
@@ -360,7 +360,7 @@ exports[`should render correctly 2`] = `
             "metric": Object {
               "id": "coverage",
               "key": "coverage",
-              "name": "Coverage",
+              "name": "coverage",
               "type": "PERCENT",
             },
             "period": Object {

@@ -29,7 +29,7 @@ exports[`should render correctly 1`] = `
                 Object {
                   "id": "bugs",
                   "key": "bugs",
-                  "name": "Bugs",
+                  "name": "bugs",
                   "type": "PERCENT",
                 },
               ]
@@ -52,7 +52,7 @@ exports[`should render correctly 1`] = `
                       },
                     ],
                     "name": "bugs",
-                    "translatedName": "Bugs",
+                    "translatedName": "bugs",
                     "type": "PERCENT",
                   },
                 ],
@@ -89,7 +89,7 @@ exports[`should render correctly 1`] = `
                     },
                   ],
                   "name": "bugs",
-                  "translatedName": "Bugs",
+                  "translatedName": "bugs",
                   "type": "PERCENT",
                 },
               ]
@@ -199,7 +199,7 @@ exports[`should render correctly 2`] = `
                 Object {
                   "id": "bugs",
                   "key": "bugs",
-                  "name": "Bugs",
+                  "name": "bugs",
                   "type": "PERCENT",
                 },
               ]
@@ -222,7 +222,7 @@ exports[`should render correctly 2`] = `
                       },
                     ],
                     "name": "bugs",
-                    "translatedName": "Bugs",
+                    "translatedName": "bugs",
                     "type": "PERCENT",
                   },
                 ],
@@ -259,7 +259,7 @@ exports[`should render correctly 2`] = `
                     },
                   ],
                   "name": "bugs",
-                  "translatedName": "Bugs",
+                  "translatedName": "bugs",
                   "type": "PERCENT",
                 },
               ]

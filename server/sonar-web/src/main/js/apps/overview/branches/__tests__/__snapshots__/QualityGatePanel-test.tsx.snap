@@ -82,7 +82,7 @@ exports[`should render correctly for applications 1`] = `
                   "metric": Object {
                     "id": "coverage",
                     "key": "coverage",
-                    "name": "Coverage",
+                    "name": "coverage",
                     "type": "PERCENT",
                   },
                   "period": Object {
@@ -140,7 +140,7 @@ exports[`should render correctly for applications 1`] = `
                   "metric": Object {
                     "id": "coverage",
                     "key": "coverage",
-                    "name": "Coverage",
+                    "name": "coverage",
                     "type": "PERCENT",
                   },
                   "period": Object {
@@ -163,7 +163,7 @@ exports[`should render correctly for applications 1`] = `
                   "metric": Object {
                     "id": "new_code_smells",
                     "key": "new_code_smells",
-                    "name": "New_code_smells",
+                    "name": "new_code_smells",
                     "type": "PERCENT",
                   },
                   "period": Object {
@@ -199,7 +199,7 @@ exports[`should render correctly for applications 1`] = `
             "metric": Object {
               "id": "coverage",
               "key": "coverage",
-              "name": "Coverage",
+              "name": "coverage",
               "type": "PERCENT",
             },
             "period": Object {
@@ -222,7 +222,7 @@ exports[`should render correctly for applications 1`] = `
             "metric": Object {
               "id": "coverage",
               "key": "coverage",
-              "name": "Coverage",
+              "name": "coverage",
               "type": "PERCENT",
             },
             "period": Object {
@@ -245,7 +245,7 @@ exports[`should render correctly for applications 1`] = `
             "metric": Object {
               "id": "new_code_smells",
               "key": "new_code_smells",
-              "name": "New_code_smells",
+              "name": "new_code_smells",
               "type": "PERCENT",
             },
             "period": Object {
@@ -346,7 +346,7 @@ exports[`should render correctly for applications 2`] = `
                   "metric": Object {
                     "id": "coverage",
                     "key": "coverage",
-                    "name": "Coverage",
+                    "name": "coverage",
                     "type": "PERCENT",
                   },
                   "period": Object {
@@ -416,7 +416,7 @@ exports[`should render correctly for applications 2`] = `
             "metric": Object {
               "id": "coverage",
               "key": "coverage",
-              "name": "Coverage",
+              "name": "coverage",
               "type": "PERCENT",
             },
             "period": Object {
@@ -517,7 +517,7 @@ exports[`should render correctly for projects 1`] = `
                   "metric": Object {
                     "id": "coverage",
                     "key": "coverage",
-                    "name": "Coverage",
+                    "name": "coverage",
                     "type": "PERCENT",
                   },
                   "period": Object {
@@ -553,7 +553,7 @@ exports[`should render correctly for projects 1`] = `
             "metric": Object {
               "id": "coverage",
               "key": "coverage",
-              "name": "Coverage",
+              "name": "coverage",
               "type": "PERCENT",
             },
             "period": Object {
@@ -718,7 +718,7 @@ exports[`should render correctly for projects 3`] = `
                   "metric": Object {
                     "id": "coverage",
                     "key": "coverage",
-                    "name": "Coverage",
+                    "name": "coverage",
                     "type": "PERCENT",
                   },
                   "period": Object {
@@ -754,7 +754,7 @@ exports[`should render correctly for projects 3`] = `
             "metric": Object {
               "id": "coverage",
               "key": "coverage",
-              "name": "Coverage",
+              "name": "coverage",
               "type": "PERCENT",
             },
             "period": Object {

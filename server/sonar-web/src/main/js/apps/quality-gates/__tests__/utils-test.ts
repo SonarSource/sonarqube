@@ -29,7 +29,7 @@ const METRICS = {
 
 describe('getLocalizedMetricNameNoDiffMetric', () => {
   it('should return the correct corresponding metric', () => {
-    expect(getLocalizedMetricNameNoDiffMetric(mockMetric(), {})).toBe('Coverage');
+    expect(getLocalizedMetricNameNoDiffMetric(mockMetric(), {})).toBe('coverage');
     expect(getLocalizedMetricNameNoDiffMetric(mockMetric({ key: 'new_bugs' }), METRICS)).toBe(
       'Bugs'
     );

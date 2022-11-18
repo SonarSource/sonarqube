@@ -113,7 +113,7 @@ exports[`should render correctly: default 1`] = `
                     "metric": Object {
                       "id": "coverage",
                       "key": "coverage",
-                      "name": "Coverage",
+                      "name": "coverage",
                       "type": "PERCENT",
                     },
                     "period": Object {
@@ -245,7 +245,7 @@ exports[`should render correctly: empty project 1`] = `
               "metric": Object {
                 "id": "coverage",
                 "key": "coverage",
-                "name": "Coverage",
+                "name": "coverage",
                 "type": "PERCENT",
               },
               "period": Object {
@@ -376,7 +376,7 @@ exports[`should render correctly: loading 1`] = `
                     "metric": Object {
                       "id": "coverage",
                       "key": "coverage",
-                      "name": "Coverage",
+                      "name": "coverage",
                       "type": "PERCENT",
                     },
                     "period": Object {

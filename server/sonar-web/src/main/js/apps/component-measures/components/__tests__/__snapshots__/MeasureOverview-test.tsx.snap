@@ -78,25 +78,25 @@ exports[`should render correctly: default 1`] = `
           "bugs": Object {
             "id": "bugs",
             "key": "bugs",
-            "name": "Bugs",
+            "name": "bugs",
             "type": "INT",
           },
           "ncloc": Object {
             "id": "ncloc",
             "key": "ncloc",
-            "name": "Ncloc",
+            "name": "ncloc",
             "type": "INT",
           },
           "reliability_rating": Object {
             "id": "reliability_rating",
             "key": "reliability_rating",
-            "name": "Reliability_rating",
+            "name": "reliability_rating",
             "type": "DATA",
           },
           "reliability_remediation_effort": Object {
             "id": "reliability_remediation_effort",
             "key": "reliability_remediation_effort",
-            "name": "Reliability_remediation_effort",
+            "name": "reliability_remediation_effort",
             "type": "INT",
           },
         }
@@ -226,25 +226,25 @@ exports[`should render correctly: has leak period 1`] = `
           "bugs": Object {
             "id": "bugs",
             "key": "bugs",
-            "name": "Bugs",
+            "name": "bugs",
             "type": "INT",
           },
           "ncloc": Object {
             "id": "ncloc",
             "key": "ncloc",
-            "name": "Ncloc",
+            "name": "ncloc",
             "type": "INT",
           },
           "reliability_rating": Object {
             "id": "reliability_rating",
             "key": "reliability_rating",
-            "name": "Reliability_rating",
+            "name": "reliability_rating",
             "type": "DATA",
           },
           "reliability_remediation_effort": Object {
             "id": "reliability_remediation_effort",
             "key": "reliability_remediation_effort",
-            "name": "Reliability_remediation_effort",
+            "name": "reliability_remediation_effort",
             "type": "INT",
           },
         }

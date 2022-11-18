@@ -370,7 +370,7 @@ export function mockLocation(overrides: Partial<Location> = {}): Location {
 
 export function mockMetric(overrides: Partial<Pick<Metric, 'key' | 'name' | 'type'>> = {}): Metric {
   const key = overrides.key || 'coverage';
-  const name = overrides.name || key[0].toUpperCase() + key.substr(1);
+  const name = overrides.name || key;
   const type = overrides.type || 'PERCENT';
   return {
     id: key,
