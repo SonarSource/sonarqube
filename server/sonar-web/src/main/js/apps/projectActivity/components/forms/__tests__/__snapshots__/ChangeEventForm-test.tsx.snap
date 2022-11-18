@@ -12,11 +12,14 @@ exports[`should render correctly 1`] = `
   <div
     className="modal-field"
   >
-    <label>
+    <label
+      htmlFor="name"
+    >
       name
     </label>
     <input
       autoFocus={true}
+      id="name"
       onChange={[Function]}
       type="text"
       value="1.0"

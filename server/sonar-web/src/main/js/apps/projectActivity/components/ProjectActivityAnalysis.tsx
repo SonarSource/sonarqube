@@ -19,12 +19,15 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { injectIntl, WrappedComponentProps } from 'react-intl';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
+import { ButtonPlain } from '../../../components/controls/buttons';
 import ClickEventBoundary from '../../../components/controls/ClickEventBoundary';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
+import { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { parseDate } from '../../../helpers/dates';
@@ -34,7 +37,7 @@ import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 
-export interface ProjectActivityAnalysisProps {
+export interface ProjectActivityAnalysisProps extends WrappedComponentProps {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
   addVersion: (analysis: string, version: string) => Promise<void>;
   analysis: ParsedAnalysis;
@@ -53,7 +56,15 @@ export interface ProjectActivityAnalysisProps {
 export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
   let node: HTMLLIElement | null = null;
 
-  const { analysis, isBaseline, isFirst, canAdmin, canCreateVersion, selected } = props;
+  const {
+    analysis,
+    isBaseline,
+    isFirst,
+    canAdmin,
+    canCreateVersion,
+    selected,
+    intl: { formatDate },
+  } = props;
 
   React.useEffect(() => {
     if (node && selected) {
@@ -85,9 +96,18 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
         <div className="project-activity-time">
           <TimeFormatter date={parsedDate} long={false}>
             {(formattedTime) => (
-              <time className="text-middle" dateTime={parsedDate.toISOString()}>
-                {formattedTime}
-              </time>
+              <ButtonPlain
+                aria-current={selected}
+                aria-label={translateWithParameters(
+                  'project_activity.show_analysis_X_on_graph',
+                  analysis.buildString || formatDate(parsedDate, formatterOption)
+                )}
+                onClick={() => props.updateSelectedDate(analysis.date)}
+              >
+                <time className="text-middle" dateTime={parsedDate.toISOString()}>
+                  {formattedTime}
+                </time>
+              </ButtonPlain>
             )}
           </TimeFormatter>
         </div>
@@ -105,6 +125,10 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
           <ClickEventBoundary>
             <div className="project-activity-analysis-actions big-spacer-left">
               <ActionsDropdown
+                ariaLabel={translateWithParameters(
+                  'project_activity.analysis_X_actions',
+                  analysis.buildString || formatDate(parsedDate, formatterOption)
+                )}
                 overlayPlacement={PopupPlacement.BottomRight}
                 small={true}
                 toggleClassName="js-analysis-actions"
@@ -196,4 +220,4 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
   );
 }
 
-export default React.memo(ProjectActivityAnalysis);
+export default injectIntl(ProjectActivityAnalysis);

@@ -55,8 +55,9 @@ export default class AddEventForm extends React.PureComponent<Props, State> {
         size="small"
       >
         <div className="modal-field">
-          <label>{translate('name')}</label>
+          <label htmlFor="name">{translate('name')}</label>
           <input
+            id="name"
             autoFocus={true}
             onChange={this.handleNameChange}
             type="text"

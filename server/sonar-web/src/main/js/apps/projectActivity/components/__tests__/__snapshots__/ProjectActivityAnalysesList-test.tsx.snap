@@ -44,7 +44,7 @@ exports[`should correctly filter analyses by category 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <Memo(ProjectActivityAnalysis)
+          <injectIntl(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -123,7 +123,7 @@ exports[`should correctly filter analyses by date range 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <Memo(ProjectActivityAnalysis)
+          <injectIntl(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -202,7 +202,7 @@ exports[`should render correctly: application 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <Memo(ProjectActivityAnalysis)
+          <injectIntl(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -230,7 +230,7 @@ exports[`should render correctly: application 1`] = `
             selected={false}
             updateSelectedDate={[Function]}
           />
-          <Memo(ProjectActivityAnalysis)
+          <injectIntl(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -290,7 +290,7 @@ exports[`should render correctly: application 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <Memo(ProjectActivityAnalysis)
+          <injectIntl(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -339,7 +339,7 @@ exports[`should render correctly: application 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <Memo(ProjectActivityAnalysis)
+          <injectIntl(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -418,7 +418,7 @@ exports[`should render correctly: default 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <Memo(ProjectActivityAnalysis)
+          <injectIntl(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -446,7 +446,7 @@ exports[`should render correctly: default 1`] = `
             selected={false}
             updateSelectedDate={[Function]}
           />
-          <Memo(ProjectActivityAnalysis)
+          <injectIntl(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -506,7 +506,7 @@ exports[`should render correctly: default 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <Memo(ProjectActivityAnalysis)
+          <injectIntl(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
@@ -555,7 +555,7 @@ exports[`should render correctly: default 1`] = `
         <ul
           className="project-activity-analyses-list"
         >
-          <Memo(ProjectActivityAnalysis)
+          <injectIntl(ProjectActivityAnalysis)
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={

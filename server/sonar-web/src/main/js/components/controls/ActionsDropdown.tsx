@@ -28,6 +28,7 @@ import { Button } from './buttons';
 import Dropdown from './Dropdown';
 
 export interface ActionsDropdownProps {
+  ariaLabel?: string;
   className?: string;
   children: React.ReactNode;
   onOpen?: () => void;
@@ -37,7 +38,7 @@ export interface ActionsDropdownProps {
 }
 
 export default function ActionsDropdown(props: ActionsDropdownProps) {
-  const { children, className, overlayPlacement, small, toggleClassName } = props;
+  const { ariaLabel, children, className, overlayPlacement, small, toggleClassName } = props;
   return (
     <Dropdown
       className={className}
@@ -46,6 +47,7 @@ export default function ActionsDropdown(props: ActionsDropdownProps) {
       overlayPlacement={overlayPlacement}
     >
       <Button
+        aria-label={ariaLabel}
         className={classNames('dropdown-toggle', toggleClassName, {
           'button-small': small,
         })}

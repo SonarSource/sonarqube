@@ -87,7 +87,7 @@ export default function ProjectActivityAppRenderer(props: Props) {
               props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
             }
             project={props.project}
-            query={props.query}
+            query={query}
             updateQuery={props.updateQuery}
           />
         </div>

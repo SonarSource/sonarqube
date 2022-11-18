@@ -59,8 +59,8 @@ export default class ChangeEventForm extends React.PureComponent<Props, State> {
         size="small"
       >
         <div className="modal-field">
-          <label>{translate('name')}</label>
-          <input autoFocus={true} onChange={this.changeInput} type="text" value={name} />
+          <label htmlFor="name">{translate('name')}</label>
+          <input id="name" autoFocus={true} onChange={this.changeInput} type="text" value={name} />
         </div>
       </ConfirmModal>
     );

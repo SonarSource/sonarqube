@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { getAllMetrics } from '../../../api/metrics';
 import {
   changeEvent,
   createEvent,
@@ -30,6 +29,7 @@ import {
 } from '../../../api/projectActivity';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
+import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import {
   DEFAULT_GRAPH,
   getActivityGraph,
@@ -41,9 +41,10 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { parseDate } from '../../../helpers/dates';
 import { serializeStringArray } from '../../../helpers/query';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
-import { Component, Metric, Paging, RawQuery } from '../../../types/types';
+import { Component, Dict, Metric, Paging, RawQuery } from '../../../types/types';
 import * as actions from '../actions';
 import {
   customMetricsChanged,
@@ -58,6 +59,7 @@ interface Props {
   branchLike?: BranchLike;
   component: Component;
   location: Location;
+  metrics: Dict<Metric>;
   router: Router;
 }
 
@@ -66,7 +68,6 @@ export interface State {
   analysesLoading: boolean;
   graphLoading: boolean;
   initialized: boolean;
-  metrics: Metric[];
   measuresHistory: MeasureHistory[];
   query: Query;
 }
@@ -87,7 +88,6 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
       graphLoading: true,
       initialized: false,
       measuresHistory: [],
-      metrics: [],
       query: parseQuery(props.location.query),
     };
   }
@@ -251,18 +251,35 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
     let current = component.breadcrumbs.length - 1;
     while (
       current > 0 &&
-      !['TRK', 'VW', 'APP'].includes(component.breadcrumbs[current].qualifier)
+      !(
+        [
+          ComponentQualifier.Project,
+          ComponentQualifier.Portfolio,
+          ComponentQualifier.Application,
+        ] as string[]
+      ).includes(component.breadcrumbs[current].qualifier)
     ) {
       current--;
     }
     return component.breadcrumbs[current].key;
   };
 
-  filterMetrics({ qualifier }: Component, metrics: Metric[]) {
-    return ['VW', 'SVW'].includes(qualifier)
-      ? metrics.filter((metric) => metric.key !== MetricKey.security_hotspots_reviewed)
-      : metrics.filter((metric) => metric.key !== MetricKey.security_review_rating);
-  }
+  filterMetrics = () => {
+    const {
+      component: { qualifier },
+      metrics,
+    } = this.props;
+
+    if (isPortfolioLike(qualifier)) {
+      return Object.values(metrics).filter(
+        (metric) => metric.key !== MetricKey.security_hotspots_reviewed
+      );
+    }
+
+    return Object.values(metrics).filter(
+      (metric) => metric.key !== MetricKey.security_review_rating
+    );
+  };
 
   firstLoadData(query: Query, component: Component) {
     const graphMetrics = getHistoryMetrics(query.graph || DEFAULT_GRAPH, query.customMetrics);
@@ -278,17 +295,15 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
         ACTIVITY_PAGE_SIZE_FIRST_BATCH,
         serializeQuery(query)
       ),
-      getAllMetrics(),
       this.fetchMeasuresHistory(graphMetrics),
     ]).then(
-      ([{ analyses }, metrics, measuresHistory]) => {
+      ([{ analyses }, measuresHistory]) => {
         if (this.mounted) {
           this.setState({
             analyses,
             graphLoading: false,
             initialized: true,
             measuresHistory,
-            metrics: this.filterMetrics(component, metrics),
           });
 
           this.fetchAllActivities(topLevelComponent);
@@ -335,6 +350,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const metrics = this.filterMetrics();
     return (
       <ProjectActivityAppRenderer
         addCustomEvent={this.addCustomEvent}
@@ -347,7 +363,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
         graphLoading={!this.state.initialized || this.state.graphLoading}
         initializing={!this.state.initialized}
         measuresHistory={this.state.measuresHistory}
-        metrics={this.state.metrics}
+        metrics={metrics}
         project={this.props.component}
         query={this.state.query}
         updateQuery={this.updateQuery}
@@ -393,4 +409,4 @@ function RedirectWrapper(props: Props) {
   return shouldRedirect ? null : <ProjectActivityApp {...props} />;
 }
 
-export default withComponentContext(withRouter(RedirectWrapper));
+export default withComponentContext(withRouter(withMetricsContext(RedirectWrapper)));
