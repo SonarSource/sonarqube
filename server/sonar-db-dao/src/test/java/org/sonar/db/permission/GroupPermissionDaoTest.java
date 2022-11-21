@@ -438,6 +438,65 @@ public class GroupPermissionDaoTest {
   }
 
   @Test
+  public void selectProjectKeysWithAnyonePermissions_on_public_project_none_found() {
+    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project2 = db.components().insertPublicProject();
+    GroupDto group = db.users().insertGroup();
+    db.users().insertProjectPermissionOnGroup(group, "perm1", project1);
+    db.users().insertProjectPermissionOnGroup(group, "perm1", project2);
+    assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 3)).isEmpty();
+  }
+
+  @Test
+  public void selectProjectKeysWithAnyonePermissions_on_public_project_ordered_by_kee() {
+    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project2 = db.components().insertPublicProject();
+    ComponentDto project3 = db.components().insertPublicProject();
+    db.users().insertProjectPermissionOnAnyone("perm1", project1);
+    db.users().insertProjectPermissionOnAnyone("perm1", project2);
+    db.users().insertProjectPermissionOnAnyone("perm1", project3);
+    assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 3))
+      .containsExactly(project1.getKey(), project2.getKey(), project3.getKey());
+  }
+
+  @Test
+  public void selectProjectKeysWithAnyonePermissions_on_public_project_ordered_by_kee_max_5() {
+    IntStream.rangeClosed(1, 9).forEach(i -> {
+      ComponentDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i));
+      db.users().insertProjectPermissionOnAnyone("perm-" + i, project);
+    });
+
+    assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 5))
+      .containsExactly("key-1", "key-2", "key-3", "key-4", "key-5");
+  }
+
+  @Test
+  public void selectProjectKeysWithAnyonePermissions_on_public_projects_omit_blanket_anyone_group_permissions() {
+    // Although saved in the same table (group_roles), this should not be included in the result as not assigned to single project.
+    db.users().insertPermissionOnAnyone("perm-anyone");
+
+    IntStream.rangeClosed(1, 9).forEach(i -> {
+      ComponentDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i));
+      db.users().insertProjectPermissionOnAnyone("perm-" + i, project);
+    });
+
+    assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 5))
+      .containsExactly("key-1", "key-2", "key-3", "key-4", "key-5");
+  }
+
+  @Test
+  public void countProjectsWithAnyonePermissions() {
+    GroupDto group = db.users().insertGroup();
+    IntStream.rangeClosed(1, 5).forEach(i -> {
+      ComponentDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i));
+      db.users().insertProjectPermissionOnAnyone("perm-" + i, project);
+      db.users().insertProjectPermissionOnGroup(group, "perm-", project);
+    });
+
+    assertThat(underTest.countProjectsWithAnyonePermissions(dbSession)).isEqualTo(5);
+  }
+
+  @Test
   public void selectProjectPermissionsOfGroup_on_private_project() {
     GroupDto group1 = db.users().insertGroup("group1");
     ComponentDto project1 = db.components().insertPrivateProject();

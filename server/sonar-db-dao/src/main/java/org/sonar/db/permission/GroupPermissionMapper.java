@@ -37,6 +37,10 @@ public interface GroupPermissionMapper {
 
   void groupsCountByProjectUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountPerProjectPermission> resultHandler);
 
+  List<String> selectProjectKeysWithAnyonePermissions(int max);
+
+  int countProjectsWithAnyonePermissions();
+
   void insert(GroupPermissionDto dto);
 
   int delete(@Param("permission") String permission, @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("rootComponentUuid") String rootComponentUuid);

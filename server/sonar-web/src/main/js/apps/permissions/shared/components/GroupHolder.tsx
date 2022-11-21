@@ -19,6 +19,7 @@
  */
 import { without } from 'lodash';
 import * as React from 'react';
+import { translate } from '../../../../helpers/l10n';
 import GroupIcon from '../../../../components/icons/GroupIcon';
 import { PermissionDefinitions, PermissionGroup } from '../../../../types/types';
 import { isPermissionDefinitionGroup } from '../../utils';
@@ -34,6 +35,8 @@ interface Props {
 interface State {
   loading: string[];
 }
+
+const ANYONE = 'Anyone';
 
 export default class GroupHolder extends React.PureComponent<Props, State> {
   mounted = false;
@@ -74,9 +77,14 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
             <div className="max-width-100">
               <div className="max-width-100 text-ellipsis">
                 <strong>{group.name}</strong>
+                {group.name === ANYONE && (
+                  <span className="spacer-left badge badge-error">{translate('deprecated')}</span>
+                )}
               </div>
               <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
-                {group.description}
+                {group.name === ANYONE
+                  ? translate('user_groups.anyone.description')
+                  : group.description}
               </div>
             </div>
           </div>

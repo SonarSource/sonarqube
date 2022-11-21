@@ -19,18 +19,22 @@
  */
 package org.sonar.server.platform.db.migration.version.v98;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.Upsert;
 
-public class DbVersion98 implements DbVersion {
+public class UpsertSonarUsersDescription extends DataChange {
+
+  public UpsertSonarUsersDescription(Database db) {
+    super(db);
+  }
+
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6700, "Move live measure variations to values", MoveLiveMeasureVariationToValue.class)
-      .add(6701, "Drop live measure variation column", DropLiveMeasureVariationColumn.class)
-      .add(6702, "Move project measure variations to values", MoveProjectMeasureVariationToValue.class)
-      .add(6703, "Drop project measure variation column", DropProjectMeasureVariationColumn.class)
-      .add(6704, "Update sonar-users group description", UpsertSonarUsersDescription.class)
-      ;
+  protected void execute(Context context) throws SQLException {
+    Upsert upsert = context.prepareUpsert("update groups set description = ? where name = 'sonar-users'");
+    upsert.setString(1, "Every authenticated user automatically belongs to this group");
+    upsert.execute();
+    upsert.commit();
   }
 }

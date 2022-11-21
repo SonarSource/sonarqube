@@ -50,6 +50,7 @@ export default function List(props: Props) {
             <tr className="js-anyone" key="anyone">
               <td className="width-20">
                 <strong className="js-group-name">{translate('groups.anyone')}</strong>
+                <span className="spacer-left badge badge-error">{translate('deprecated')}</span>
               </td>
               <td className="width-10" colSpan={2} />
               <td className="width-40" colSpan={2}>

@@ -85,7 +85,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   @Test
   public void template_groups_of_json_example() {
     GroupDto adminGroup = insertGroup("sonar-administrators", "System administrators");
-    GroupDto userGroup = insertGroup("sonar-users", "Any new users created will automatically join this group");
+    GroupDto userGroup = insertGroup("sonar-users", "Every authenticated user automatically belongs to this group");
 
     PermissionTemplateDto template = addTemplate();
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getUuid(), adminGroup.getUuid()), template.getName());

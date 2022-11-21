@@ -169,7 +169,7 @@ public class PopulateInitialSchema extends DataChange {
     upsert
       .setString(1, uuidFactory.create())
       .setString(2, USERS_GROUP)
-      .setString(3, "Any new users created will automatically join this group")
+      .setString(3, "Every authenticated user automatically belongs to this group")
       .setDate(4, now)
       .setDate(5, now)
       .addBatch();
@@ -235,7 +235,7 @@ public class PopulateInitialSchema extends DataChange {
     for (String anyoneRole : Arrays.asList("scan", "provisioning")) {
       upsert
         .setString(1, uuidFactory.create())
-        .setString(2, null)
+        .setString(2, groups.getUserGroupUuid())
         .setString(3, anyoneRole)
         .addBatch();
     }

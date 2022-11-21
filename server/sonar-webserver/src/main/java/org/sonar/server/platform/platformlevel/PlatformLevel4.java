@@ -155,6 +155,7 @@ import org.sonar.server.platform.ClusterVerification;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
+import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
 import org.sonar.server.platform.web.SonarLintConnectionFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
 import org.sonar.server.platform.web.WebServiceReroutingFilter;
@@ -412,6 +413,7 @@ public class PlatformLevel4 extends PlatformLevel {
       PermissionUpdater.class,
       UserPermissionChanger.class,
       GroupPermissionChanger.class,
+      CheckAnyonePermissionsAtStartup.class,
 
       // components
       new BranchWsModule(),
@@ -631,7 +633,6 @@ public class PlatformLevel4 extends PlatformLevel {
       MainCollector.class,
 
       PluginsRiskConsentFilter.class
-
     );
 
     // system info

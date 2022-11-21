@@ -38,6 +38,11 @@ exports[`should render 1`] = `
           >
             groups.anyone
           </strong>
+          <span
+            className="spacer-left badge badge-error"
+          >
+            deprecated
+          </span>
         </td>
         <td
           className="width-10"

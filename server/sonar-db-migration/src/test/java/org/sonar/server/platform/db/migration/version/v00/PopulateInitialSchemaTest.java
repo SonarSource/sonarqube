@@ -67,7 +67,7 @@ public class PopulateInitialSchemaTest {
     underTest.execute();
 
     verifyAdminUser();
-    verifyGroup("sonar-users", "Any new users created will automatically join this group");
+    verifyGroup("sonar-users", "Every authenticated user automatically belongs to this group");
     verifyGroup("sonar-administrators", "System administrators");
     String qualityGateUuid = verifyQualityGate();
     verifyInternalProperties();
@@ -204,7 +204,7 @@ public class PopulateInitialSchemaTest {
   }
 
   private void verifyRolesOfUsersGroup() {
-    assertThat(selectRoles("sonar-users")).isEmpty();
+    assertThat(selectRoles("sonar-users")).containsOnly("provisioning", "scan");
   }
 
   private void verifyRolesOfAnyone() {
@@ -212,7 +212,7 @@ public class PopulateInitialSchemaTest {
       "from group_roles gr where gr.group_uuid is null");
     Stream<String> roles = rows.stream()
       .map(row -> (String) row.get("role"));
-    assertThat(roles).containsOnly("provisioning", "scan");
+    assertThat(roles).isEmpty();
   }
 
   private Stream<String> selectRoles(String groupName) {

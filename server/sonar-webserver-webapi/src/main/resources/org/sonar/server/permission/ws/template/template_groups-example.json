@@ -21,7 +21,7 @@
     },
     {
       "name": "sonar-users",
-      "description": "Any new users created will automatically join this group",
+      "description": "Every authenticated user automatically belongs to this group",
       "permissions": [
         "issueadmin"
       ]
