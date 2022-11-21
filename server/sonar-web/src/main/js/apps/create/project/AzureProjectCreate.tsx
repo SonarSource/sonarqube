@@ -274,7 +274,10 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   };
 
   onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
-    this.setState({ selectedAlmInstance: instance }, () => this.fetchData());
+    this.setState(
+      { selectedAlmInstance: instance, searchResults: undefined, searchQuery: '' },
+      () => this.fetchData()
+    );
   };
 
   render() {
