@@ -285,7 +285,10 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
   };
 
   onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
-    this.setState({ selectedAlmInstance: instance }, () => this.initialize());
+    this.setState(
+      { selectedAlmInstance: instance, searchQuery: '', organizations: [], repositories: [] },
+      () => this.initialize()
+    );
   };
 
   render() {
