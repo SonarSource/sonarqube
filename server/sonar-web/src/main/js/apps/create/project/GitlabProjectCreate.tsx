@@ -210,6 +210,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       showPersonalAccessTokenForm: true,
       projects: undefined,
       resetPat: false,
+      searchQuery: '',
     });
   };
 
