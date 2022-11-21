@@ -346,3 +346,7 @@ SonarQube can also report your Quality Gate status to Azure DevOps pull requests
 
 If you add a Windows Build Agent and install a non-oracle Java version on it, the agent will fail to detect a needed capability for the SonarQube Azure DevOps plugin. If you are sure that the `java` executable is available in the `PATH` environment variable, you can add the missing capability manually by going to **your build agent > capabilities > user capabilities > add capability**. Here, you can add the key, value pair java, and null which should allow the SonarQube plugin to be scheduled on that build agent.	
 This Bug has been reported to the Microsoft Team with [azure-pipelines-agent#2046](https://github.com/microsoft/azure-pipelines-agent/issues/2046) but is currently not followed up upon.
+
+### Interaction details between SonarQube and Azure
+
+When you run a Sonar analysis for a pull request, each Sonar issue will be a comment on the Azure DevOps pull request. If the Azure DevOps instance is configured correctly and you set an issue in SonarQube to 'resolved', the Azure DevOps pull request comment will automatically be resolved. Likewise, when you fix an issue in the code and run the analysis build another time, the issue will be resolved in Sonar and deleted in Azure DevOps.
