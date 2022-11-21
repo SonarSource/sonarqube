@@ -125,7 +125,7 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
           <ClickEventBoundary>
             <div className="project-activity-analysis-actions big-spacer-left">
               <ActionsDropdown
-                ariaLabel={translateWithParameters(
+                label={translateWithParameters(
                   'project_activity.analysis_X_actions',
                   analysis.buildString || formatDate(parsedDate, formatterOption)
                 )}

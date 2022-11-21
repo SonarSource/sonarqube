@@ -33,7 +33,7 @@ import ActionsDropdown, {
 } from '../../../components/controls/ActionsDropdown';
 import Tooltip from '../../../components/controls/Tooltip';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Profile, ProfileActionModals } from '../types';
@@ -190,7 +190,14 @@ export class ProfileActions extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <ActionsDropdown className={this.props.className}>
+        <ActionsDropdown
+          className={this.props.className}
+          label={translateWithParameters(
+            'quality_profiles.actions',
+            profile.name,
+            profile.languageName
+          )}
+        >
           {actions.edit && (
             <ActionsDropdownItem
               className="it__quality-profiles__activate-more-rules"
@@ -220,17 +227,24 @@ export class ProfileActions extends React.PureComponent<Props, State> {
           {actions.copy && (
             <>
               <ActionsDropdownItem
-                className="it__quality-profiles__copy"
-                onClick={this.handleCopyClick}
-              >
-                {translate('copy')}
-              </ActionsDropdownItem>
-
-              <ActionsDropdownItem
+                tooltipPlacement="left"
+                tooltipOverlay={translateWithParameters(
+                  'quality_profiles.extend_help',
+                  profile.name
+                )}
                 className="it__quality-profiles__extend"
                 onClick={this.handleExtendClick}
               >
                 {translate('extend')}
+              </ActionsDropdownItem>
+
+              <ActionsDropdownItem
+                tooltipPlacement="left"
+                tooltipOverlay={translateWithParameters('quality_profiles.copy_help', profile.name)}
+                className="it__quality-profiles__copy"
+                onClick={this.handleCopyClick}
+              >
+                {translate('copy')}
               </ActionsDropdownItem>
             </>
           )}
@@ -280,8 +294,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
 
         {openModal === ProfileActionModals.Copy && (
           <ProfileModalForm
-            btnLabelKey="copy"
-            headerKey="quality_profiles.copy_x_title"
+            action={openModal}
             loading={loading}
             onClose={this.handleCloseModal}
             onSubmit={this.handleProfileCopy}
@@ -291,8 +304,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
 
         {openModal === ProfileActionModals.Extend && (
           <ProfileModalForm
-            btnLabelKey="extend"
-            headerKey="quality_profiles.extend_x_title"
+            action={openModal}
             loading={loading}
             onClose={this.handleCloseModal}
             onSubmit={this.handleProfileExtend}
@@ -302,8 +314,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
 
         {openModal === ProfileActionModals.Rename && (
           <ProfileModalForm
-            btnLabelKey="rename"
-            headerKey="quality_profiles.rename_x_title"
+            action={openModal}
             loading={loading}
             onClose={this.handleCloseModal}
             onSubmit={this.handleProfileRename}

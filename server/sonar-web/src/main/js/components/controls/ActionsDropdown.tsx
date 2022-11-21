@@ -24,13 +24,14 @@ import Link from '../common/Link';
 import DropdownIcon from '../icons/DropdownIcon';
 import SettingsIcon from '../icons/SettingsIcon';
 import { PopupPlacement } from '../ui/popups';
-import { Button } from './buttons';
+import { Button, ButtonPlain } from './buttons';
 import Dropdown from './Dropdown';
+import Tooltip, { Placement } from './Tooltip';
 
 export interface ActionsDropdownProps {
-  ariaLabel?: string;
   className?: string;
   children: React.ReactNode;
+  label?: string;
   onOpen?: () => void;
   overlayPlacement?: PopupPlacement;
   small?: boolean;
@@ -38,7 +39,7 @@ export interface ActionsDropdownProps {
 }
 
 export default function ActionsDropdown(props: ActionsDropdownProps) {
-  const { ariaLabel, children, className, overlayPlacement, small, toggleClassName } = props;
+  const { children, className, label, overlayPlacement, small, toggleClassName } = props;
   return (
     <Dropdown
       className={className}
@@ -47,7 +48,7 @@ export default function ActionsDropdown(props: ActionsDropdownProps) {
       overlayPlacement={overlayPlacement}
     >
       <Button
-        aria-label={ariaLabel}
+        aria-label={label}
         className={classNames('dropdown-toggle', toggleClassName, {
           'button-small': small,
         })}
@@ -63,6 +64,8 @@ interface ItemProps {
   className?: string;
   children: React.ReactNode;
   destructive?: boolean;
+  tooltipOverlay?: React.ReactNode;
+  tooltipPlacement?: Placement;
   /** used to pass a name of downloaded file */
   download?: string;
   id?: string;
@@ -71,9 +74,11 @@ interface ItemProps {
 }
 
 export class ActionsDropdownItem extends React.PureComponent<ItemProps> {
-  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleClick = (event?: React.SyntheticEvent<HTMLAnchorElement>) => {
+    if (event) {
+      event.preventDefault();
+      event.currentTarget.blur();
+    }
     if (this.props.onClick) {
       this.props.onClick();
     }
@@ -81,39 +86,48 @@ export class ActionsDropdownItem extends React.PureComponent<ItemProps> {
 
   render() {
     const className = classNames(this.props.className, { 'text-danger': this.props.destructive });
+    let { children } = this.props;
+    const { tooltipOverlay, tooltipPlacement } = this.props;
 
     if (this.props.download && typeof this.props.to === 'string') {
-      return (
-        <li>
-          <a
-            className={className}
-            download={this.props.download}
-            href={this.props.to}
-            id={this.props.id}
-          >
-            {this.props.children}
-          </a>
-        </li>
-      );
-    }
-
-    if (this.props.to) {
-      return (
-        <li>
-          <Link className={className} id={this.props.id} to={this.props.to}>
-            {this.props.children}
-          </Link>
-        </li>
-      );
-    }
-
-    return (
-      <li>
-        <a className={className} href="#" id={this.props.id} onClick={this.handleClick}>
-          {this.props.children}
+      children = (
+        <a
+          className={className}
+          download={this.props.download}
+          href={this.props.to}
+          id={this.props.id}
+        >
+          {children}
         </a>
-      </li>
-    );
+      );
+    } else if (this.props.to) {
+      children = (
+        <Link className={className} id={this.props.id} to={this.props.to}>
+          {children}
+        </Link>
+      );
+    } else {
+      children = (
+        <ButtonPlain
+          className={className}
+          preventDefault={true}
+          id={this.props.id}
+          onClick={this.handleClick}
+        >
+          {children}
+        </ButtonPlain>
+      );
+    }
+
+    if (tooltipOverlay !== undefined) {
+      return (
+        <Tooltip overlay={tooltipOverlay} placement={tooltipPlacement}>
+          <li>{children}</li>
+        </Tooltip>
+      );
+    }
+
+    return <li>{children}</li>;
   }
 }
 

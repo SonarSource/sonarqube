@@ -23,23 +23,30 @@ import Modal from '../../../components/controls/Modal';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Profile } from '../types';
+import { Dict } from '../../../types/types';
+import { Profile, ProfileActionModals } from '../types';
 
 export interface ProfileModalFormProps {
-  btnLabelKey: string;
-  headerKey: string;
+  action: ProfileActionModals.Copy | ProfileActionModals.Extend | ProfileActionModals.Rename;
   loading: boolean;
   onClose: () => void;
   onSubmit: (name: string) => void;
   profile: Profile;
 }
 
+const LABELS_FOR_ACTION: Dict<{ button: string; header: string }> = {
+  [ProfileActionModals.Copy]: { button: 'copy', header: 'quality_profiles.copy_x_title' },
+  [ProfileActionModals.Rename]: { button: 'rename', header: 'quality_profiles.rename_x_title' },
+  [ProfileActionModals.Extend]: { button: 'extend', header: 'quality_profiles.extend_x_title' },
+};
+
 export default function ProfileModalForm(props: ProfileModalFormProps) {
-  const { btnLabelKey, headerKey, loading, profile } = props;
+  const { action, loading, profile } = props;
   const [name, setName] = React.useState<string | undefined>(undefined);
 
   const submitDisabled = loading || !name || name === profile.name;
-  const header = translateWithParameters(headerKey, profile.name, profile.languageName);
+  const labels = LABELS_FOR_ACTION[action];
+  const header = translateWithParameters(labels.header, profile.name, profile.languageName);
 
   return (
     <Modal contentLabel={header} onRequestClose={props.onClose} size="small">
@@ -55,6 +62,17 @@ export default function ProfileModalForm(props: ProfileModalFormProps) {
           <h2>{header}</h2>
         </div>
         <div className="modal-body">
+          {action === ProfileActionModals.Copy && (
+            <p className="spacer-bottom">
+              {translateWithParameters('quality_profiles.copy_help', profile.name)}
+            </p>
+          )}
+          {action === ProfileActionModals.Extend && (
+            <p className="spacer-bottom">
+              {translateWithParameters('quality_profiles.extend_help', profile.name)}
+            </p>
+          )}
+
           <MandatoryFieldsExplanation className="modal-field" />
           <div className="modal-field">
             <label htmlFor="profile-name">
@@ -78,7 +96,7 @@ export default function ProfileModalForm(props: ProfileModalFormProps) {
         </div>
         <div className="modal-foot">
           {loading && <i className="spinner spacer-right" />}
-          <SubmitButton disabled={submitDisabled}>{translate(btnLabelKey)}</SubmitButton>
+          <SubmitButton disabled={submitDisabled}>{translate(labels.button)}</SubmitButton>
           <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
         </div>
       </form>

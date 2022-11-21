@@ -18,11 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { NavLink } from 'react-router-dom';
 import Link from '../../../components/common/Link';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { getQualityProfileUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
 import ProfileLink from '../components/ProfileLink';
@@ -88,6 +91,31 @@ export default class ProfileHeader extends React.PureComponent<Props> {
         {profile.isBuiltIn && (
           <div className="page-description">
             {translate('quality_profiles.built_in.description')}
+          </div>
+        )}
+
+        {profile.parentKey && profile.parentName && (
+          <div className="page-description">
+            <FormattedMessage
+              defaultMessage={translate('quality_profiles.extend_description')}
+              id="quality_profiles.extend_description"
+              values={{
+                link: (
+                  <>
+                    <Link to={getQualityProfileUrl(profile.parentName, profile.language)}>
+                      {profile.parentName}
+                    </Link>
+                    <HelpTooltip
+                      className="little-spacer-left"
+                      overlay={translateWithParameters(
+                        'quality_profiles.extend_description_help',
+                        profile.parentName
+                      )}
+                    />
+                  </>
+                ),
+              }}
+            />
           </div>
         )}
       </div>

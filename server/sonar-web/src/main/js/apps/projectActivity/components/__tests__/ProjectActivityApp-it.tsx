@@ -82,9 +82,9 @@ const ui = {
   cogBtn: (id: string) => byRole('button', { name: `project_activity.analysis_X_actions.${id}` }),
   seeDetailsBtn: (time: string) =>
     byRole('button', { name: `project_activity.show_analysis_X_on_graph.${time}` }),
-  addCustomEventBtn: byRole('link', { name: 'project_activity.add_custom_event' }),
-  addVersionEvenBtn: byRole('link', { name: 'project_activity.add_version' }),
-  deleteAnalysisBtn: byRole('link', { name: 'project_activity.delete_analysis' }),
+  addCustomEventBtn: byRole('button', { name: 'project_activity.add_custom_event' }),
+  addVersionEvenBtn: byRole('button', { name: 'project_activity.add_version' }),
+  deleteAnalysisBtn: byRole('button', { name: 'project_activity.delete_analysis' }),
   editEventBtn: byRole('button', { name: 'project_activity.events.tooltip.edit' }),
   deleteEventBtn: byRole('button', { name: 'project_activity.events.tooltip.delete' }),
 

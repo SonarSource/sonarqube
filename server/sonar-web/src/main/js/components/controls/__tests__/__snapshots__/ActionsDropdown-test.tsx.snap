@@ -64,15 +64,15 @@ exports[`ActionsDropdownDivider should render correctly 1`] = `
 
 exports[`ActionsDropdownItem should render correctly 1`] = `
 <li>
-  <a
+  <ButtonPlain
     className="foo"
-    href="#"
     onClick={[Function]}
+    preventDefault={true}
   >
     <span>
       Hello world
     </span>
-  </a>
+  </ButtonPlain>
 </li>
 `;
 

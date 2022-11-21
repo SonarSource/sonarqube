@@ -2,7 +2,9 @@
 
 exports[`renders correctly: all permissions 1`] = `
 <Fragment>
-  <ActionsDropdown>
+  <ActionsDropdown
+    label="quality_profiles.actions.name.JavaScript"
+  >
     <ActionsDropdownItem
       className="it__quality-profiles__activate-more-rules"
       to={
@@ -33,16 +35,20 @@ exports[`renders correctly: all permissions 1`] = `
       compare
     </ActionsDropdownItem>
     <ActionsDropdownItem
-      className="it__quality-profiles__copy"
-      onClick={[Function]}
-    >
-      copy
-    </ActionsDropdownItem>
-    <ActionsDropdownItem
       className="it__quality-profiles__extend"
       onClick={[Function]}
+      tooltipOverlay="quality_profiles.extend_help.name"
+      tooltipPlacement="left"
     >
       extend
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="it__quality-profiles__copy"
+      onClick={[Function]}
+      tooltipOverlay="quality_profiles.copy_help.name"
+      tooltipPlacement="left"
+    >
+      copy
     </ActionsDropdownItem>
     <ActionsDropdownItem
       className="it__quality-profiles__rename"
@@ -70,7 +76,9 @@ exports[`renders correctly: all permissions 1`] = `
 
 exports[`renders correctly: copy modal 1`] = `
 <Fragment>
-  <ActionsDropdown>
+  <ActionsDropdown
+    label="quality_profiles.actions.name.JavaScript"
+  >
     <ActionsDropdownItem
       className="it__quality-profiles__backup"
       download="key.xml"
@@ -91,8 +99,7 @@ exports[`renders correctly: copy modal 1`] = `
     </ActionsDropdownItem>
   </ActionsDropdown>
   <ProfileModalForm
-    btnLabelKey="copy"
-    headerKey="quality_profiles.copy_x_title"
+    action="COPY"
     loading={false}
     onClose={[Function]}
     onSubmit={[Function]}
@@ -119,7 +126,9 @@ exports[`renders correctly: copy modal 1`] = `
 
 exports[`renders correctly: delete modal 1`] = `
 <Fragment>
-  <ActionsDropdown>
+  <ActionsDropdown
+    label="quality_profiles.actions.name.JavaScript"
+  >
     <ActionsDropdownItem
       className="it__quality-profiles__backup"
       download="key.xml"
@@ -166,7 +175,9 @@ exports[`renders correctly: delete modal 1`] = `
 
 exports[`renders correctly: edit only 1`] = `
 <Fragment>
-  <ActionsDropdown>
+  <ActionsDropdown
+    label="quality_profiles.actions.name.JavaScript"
+  >
     <ActionsDropdownItem
       className="it__quality-profiles__activate-more-rules"
       to={
@@ -208,7 +219,9 @@ exports[`renders correctly: edit only 1`] = `
 
 exports[`renders correctly: extend modal 1`] = `
 <Fragment>
-  <ActionsDropdown>
+  <ActionsDropdown
+    label="quality_profiles.actions.name.JavaScript"
+  >
     <ActionsDropdownItem
       className="it__quality-profiles__backup"
       download="key.xml"
@@ -229,8 +242,7 @@ exports[`renders correctly: extend modal 1`] = `
     </ActionsDropdownItem>
   </ActionsDropdown>
   <ProfileModalForm
-    btnLabelKey="extend"
-    headerKey="quality_profiles.extend_x_title"
+    action="EXTEND"
     loading={false}
     onClose={[Function]}
     onSubmit={[Function]}
@@ -257,7 +269,9 @@ exports[`renders correctly: extend modal 1`] = `
 
 exports[`renders correctly: no permissions 1`] = `
 <Fragment>
-  <ActionsDropdown>
+  <ActionsDropdown
+    label="quality_profiles.actions.name.JavaScript"
+  >
     <ActionsDropdownItem
       className="it__quality-profiles__backup"
       download="key.xml"
@@ -282,7 +296,9 @@ exports[`renders correctly: no permissions 1`] = `
 
 exports[`renders correctly: rename modal 1`] = `
 <Fragment>
-  <ActionsDropdown>
+  <ActionsDropdown
+    label="quality_profiles.actions.name.JavaScript"
+  >
     <ActionsDropdownItem
       className="it__quality-profiles__backup"
       download="key.xml"
@@ -303,8 +319,7 @@ exports[`renders correctly: rename modal 1`] = `
     </ActionsDropdownItem>
   </ActionsDropdown>
   <ProfileModalForm
-    btnLabelKey="rename"
-    headerKey="quality_profiles.rename_x_title"
+    action="RENAME"
     loading={false}
     onClose={[Function]}
     onSubmit={[Function]}
@@ -331,7 +346,9 @@ exports[`renders correctly: rename modal 1`] = `
 
 exports[`should not allow to set a profile as the default if the profile has no active rules 1`] = `
 <Fragment>
-  <ActionsDropdown>
+  <ActionsDropdown
+    label="quality_profiles.actions.name.JavaScript"
+  >
     <ActionsDropdownItem
       className="it__quality-profiles__backup"
       download="key.xml"

@@ -105,3 +105,30 @@
   max-width: 270px;
   word-break: break-word;
 }
+
+#create-profile-form .radio-card {
+  width: 245px;
+  background-color: var(--neutral50);
+  border: 1px solid var(--neutral200);
+}
+
+#create-profile-form .radio-card.selected {
+  background-color: var(--info50);
+  border: 1px solid var(--info500);
+}
+
+#create-profile-form .radio-card:hover:not(.selected) {
+  border: 1px solid var(--info500);
+}
+
+#create-profile-form fieldset > div {
+  justify-content: space-between;
+}
+
+#create-profile-form .radio-card-header {
+  justify-content: space-around;
+}
+
+#create-profile-form .radio-card-body {
+  justify-content: flex-start;
+}

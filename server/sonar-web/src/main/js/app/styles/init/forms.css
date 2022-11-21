@@ -213,6 +213,7 @@ em.mandatory {
 .form-field input[type='password'],
 .form-field textarea,
 .form-field select,
+.form-field .react-select,
 .form-field .Select {
   width: 250px;
 }

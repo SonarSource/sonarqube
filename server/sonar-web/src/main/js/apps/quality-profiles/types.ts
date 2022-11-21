@@ -41,8 +41,8 @@ export interface ProfileChangelogEvent {
 }
 
 export enum ProfileActionModals {
-  Copy,
-  Extend,
-  Rename,
-  Delete,
+  Copy = 'COPY',
+  Extend = 'EXTEND',
+  Rename = 'RENAME',
+  Delete = 'DELETE',
 }

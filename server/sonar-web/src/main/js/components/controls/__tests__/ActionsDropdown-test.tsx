@@ -26,6 +26,7 @@ import ActionsDropdown, {
   ActionsDropdownItem,
   ActionsDropdownProps,
 } from '../ActionsDropdown';
+import { ButtonPlain } from '../buttons';
 
 describe('ActionsDropdown', () => {
   it('should render correctly', () => {
@@ -59,7 +60,8 @@ describe('ActionsDropdownItem', () => {
   it('should trigger click', () => {
     const onClick = jest.fn();
     const wrapper = shallowRender({ onClick });
-    click(wrapper.find('a'));
+
+    click(wrapper.find(ButtonPlain));
     expect(onClick).toHaveBeenCalled();
   });
 

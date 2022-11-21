@@ -30,6 +30,7 @@ export interface RadioCardProps {
   disabled?: boolean;
   onClick?: () => void;
   selected?: boolean;
+  noRadio?: boolean;
 }
 
 interface Props extends RadioCardProps {
@@ -49,6 +50,7 @@ export default function RadioCard(props: Props) {
     selected,
     titleInfo,
     vertical = false,
+    noRadio = false,
   } = props;
   const isActionable = Boolean(onClick);
   return (
@@ -70,7 +72,7 @@ export default function RadioCard(props: Props) {
     >
       <h2 className="radio-card-header big-spacer-bottom">
         <span className="display-flex-center link-radio">
-          {isActionable && (
+          {isActionable && !noRadio && (
             <i className={classNames('icon-radio', 'spacer-right', { 'is-checked': selected })} />
           )}
           {props.title}

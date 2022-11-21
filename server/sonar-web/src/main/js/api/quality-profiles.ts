@@ -125,8 +125,8 @@ export function renameProfile(key: string, name: string) {
   return post('/api/qualityprofiles/rename', { key, name }).catch(throwGlobalError);
 }
 
-export function copyProfile(fromKey: string, toName: string): Promise<any> {
-  return postJSON('/api/qualityprofiles/copy', { fromKey, toName }).catch(throwGlobalError);
+export function copyProfile(fromKey: string, name: string): Promise<Profile> {
+  return postJSON('/api/qualityprofiles/copy', { fromKey, toName: name }).catch(throwGlobalError);
 }
 
 export function deleteProfile({ language, name: qualityProfile }: Profile) {
