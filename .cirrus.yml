@@ -29,6 +29,9 @@ env:
 
 auto_cancellation: $CIRRUS_BRANCH != $BRANCH_MAIN && $CIRRUS_BRANCH !=~ $BRANCH_PATTERN_MAINTENANCE
 
+skip_public_branches_template: &SKIP_PUBLIC_BRANCHES_TEMPLATE
+  skip: $CIRRUS_BRANCH =~ $BRANCH_PATTERN_PUBLIC
+
 build_dependant_task_template: &BUILD_DEPENDANT_TASK_TEMPLATE
   depends_on: build
 
@@ -143,7 +146,7 @@ junit_report_cache_template: &JUNIT_REPORT_CACHE_TEMPLATE
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
 default_template: &DEFAULT_TEMPLATE
-  skip: $CIRRUS_BRANCH =~ $BRANCH_PATTERN_PUBLIC
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   clone_script: |
     git init
     git remote add origin https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git
@@ -234,7 +237,7 @@ junit_task:
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 sq_analysis_task:
-  <<: *DEFAULT_TEMPLATE
+  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
   <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
@@ -249,9 +252,6 @@ sq_analysis_task:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 15Gb
-  env:
-    # For the analysis, we need the full history.
-    FETCH_DEPTH: ""
   script:
     - ./private/cirrus/cirrus-sq-analysis.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
