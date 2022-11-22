@@ -27,19 +27,23 @@ import { SuggestionsContext } from '../SuggestionsContext';
 it('should render with no suggestions', () => {
   renderEmbedDocsPopup();
 
-  expect(screen.getAllByRole('link')).toHaveLength(5);
+  expect(screen.queryByText(suggestions[0].text)).not.toBeInTheDocument();
   expect(screen.getByText('docs.documentation')).toHaveFocus();
 });
 
 it('should render with suggestions', () => {
-  renderEmbedDocsPopup([
-    { link: '/docs/awesome-doc', text: 'mindblowing' },
-    { link: '/docs/whocares', text: 'boring' },
-  ]);
+  renderEmbedDocsPopup(suggestions);
 
-  expect(screen.getAllByRole('link')).toHaveLength(7);
-  expect(screen.getByText('mindblowing')).toHaveFocus();
+  suggestions.forEach((suggestion) => {
+    expect(screen.getByText(suggestion.text)).toBeInTheDocument();
+  });
+  expect(screen.getByText(suggestions[0].text)).toHaveFocus();
 });
+
+const suggestions = [
+  { link: '/docs/awesome-doc', text: 'mindblowing' },
+  { link: '/docs/whocares', text: 'boring' },
+];
 
 function renderEmbedDocsPopup(suggestions: SuggestionLink[] = []) {
   return renderComponent(

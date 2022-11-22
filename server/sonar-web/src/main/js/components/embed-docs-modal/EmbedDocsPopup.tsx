@@ -129,6 +129,13 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
           </li>
           <li>
             {this.renderIconLink(
+              'https://www.sonarqube.org/roadmap/?referrer=sonarqube',
+              'embed-doc/sq-icon.svg',
+              translate('docs.roadmap')
+            )}
+          </li>
+          <li>
+            {this.renderIconLink(
               'https://twitter.com/SonarQube',
               'embed-doc/twitter-icon.svg',
               'Twitter'
