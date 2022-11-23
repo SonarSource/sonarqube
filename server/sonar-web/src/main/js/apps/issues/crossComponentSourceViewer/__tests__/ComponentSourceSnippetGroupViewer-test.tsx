@@ -151,15 +151,17 @@ it('should render file-level issue correctly', () => {
 });
 
 it.each([
-  ['file-level', ComponentQualifier.File, 'issue.closed.file_level'],
-  ['project-level', ComponentQualifier.Project, 'issue.closed.project_level'],
+  ['file-level', ComponentQualifier.File, true, 'issue.closed.file_level'],
+  ['file-level', ComponentQualifier.File, false, 'issue.closed.project_level'],
+  ['project-level', ComponentQualifier.Project, false, 'issue.closed.project_level'],
 ])(
   'should render a closed %s issue correctly',
-  async (_level, componentQualifier, expectedLabel) => {
+  async (_level, componentQualifier, componentEnabled, expectedLabel) => {
     // issue with secondary locations and no primary location
     const issue = mockIssue(true, {
       component: 'project:main.js',
       componentQualifier,
+      componentEnabled,
       flows: [],
       textRange: undefined,
       status: IssueStatus.Closed,

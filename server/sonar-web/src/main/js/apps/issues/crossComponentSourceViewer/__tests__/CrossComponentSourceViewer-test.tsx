@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { getDuplications } from '../../../../api/components';
+import { getComponentForSourceViewer, getDuplications } from '../../../../api/components';
 import { getIssueFlowSnippets } from '../../../../api/issues';
 import {
   mockSnippetsByComponent,
@@ -75,11 +75,17 @@ it('Should fetch data', async () => {
   expect(getIssueFlowSnippets).toHaveBeenCalledWith('foo');
 });
 
-it('Should handle a closed issue', async () => {
-  const wrapper = shallowRender({ issue: mockIssue(true, { status: IssueStatus.Closed }) });
+it.each([
+  ['on a deleted file', false, { component: 'myproject' }],
+  ['', true, { component: 'main.js' }],
+])('Should handle a closed issue %s', async (_, componentEnabled, expected) => {
+  const wrapper = shallowRender({
+    issue: mockIssue(true, { componentEnabled, status: IssueStatus.Closed }),
+  });
   wrapper.instance().fetchIssueFlowSnippets();
   await waitAndUpdate(wrapper);
   expect(getIssueFlowSnippets).not.toHaveBeenCalled();
+  expect(getComponentForSourceViewer).toHaveBeenCalledWith(expect.objectContaining(expected));
 });
 
 it('Should handle no access rights', async () => {

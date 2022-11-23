@@ -74,8 +74,22 @@ function mockReferenceComponent(override?: Partial<ReferencedComponent>) {
     key: 'component1',
     name: 'Component1',
     uuid: 'id1',
+    enabled: true,
     ...override,
   };
+}
+
+function generateReferenceComponentsForIssues(issueData: IssueData[]) {
+  return issueData
+    .reduce((componentKeys, response) => {
+      const componentKey = response.issue.component;
+      if (!componentKeys.includes(componentKey)) {
+        return [...componentKeys, componentKey];
+      }
+
+      return componentKeys;
+    }, [] as string[])
+    .map((key) => mockReferenceComponent({ key, enabled: true }));
 }
 
 interface IssueData {
@@ -483,7 +497,7 @@ export default class IssuesServiceMock {
       };
     });
     return this.reply({
-      components: [mockReferenceComponent()],
+      components: generateReferenceComponentsForIssues(this.list),
       effortTotal: 199629,
       facets,
       issues: this.list.map((line) => line.issue),

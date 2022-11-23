@@ -25,6 +25,7 @@ exports[`should render correctly: default 1`] = `
             Object {
               "actions": Array [],
               "component": "main.js",
+              "componentEnabled": true,
               "componentLongName": "main.js",
               "componentQualifier": "FIL",
               "componentUuid": "foo1234",
@@ -115,6 +116,7 @@ exports[`should render correctly: with filter 1`] = `
             Object {
               "actions": Array [],
               "component": "main.js",
+              "componentEnabled": true,
               "componentLongName": "main.js",
               "componentQualifier": "FIL",
               "componentUuid": "foo1234",
@@ -184,6 +186,7 @@ exports[`should render correctly: with filter 1`] = `
             Object {
               "actions": Array [],
               "component": "main.js",
+              "componentEnabled": true,
               "componentLongName": "main.js",
               "componentQualifier": "FIL",
               "componentUuid": "foo1234",
@@ -245,6 +248,7 @@ exports[`should render correctly: with multi locations 1`] = `
             Object {
               "actions": Array [],
               "component": "main.js",
+              "componentEnabled": true,
               "componentLongName": "main.js",
               "componentQualifier": "FIL",
               "componentUuid": "foo1234",
@@ -413,6 +417,7 @@ exports[`should render correctly: with multi locations and link 1`] = `
             Object {
               "actions": Array [],
               "component": "main.js",
+              "componentEnabled": true,
               "componentLongName": "main.js",
               "componentQualifier": "FIL",
               "componentUuid": "foo1234",

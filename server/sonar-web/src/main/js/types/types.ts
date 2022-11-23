@@ -238,6 +238,7 @@ export interface Issue {
   branch?: string;
   comments?: IssueComment[];
   component: string;
+  componentEnabled?: boolean;
   componentLongName: string;
   componentQualifier: string;
   componentUuid: string;

@@ -110,6 +110,8 @@ export interface ReferencedComponent {
   key: string;
   name: string;
   path?: string;
+  enabled?: boolean;
+  longName?: string;
   uuid: string;
 }
 

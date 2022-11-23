@@ -78,6 +78,7 @@ exports[`should render correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -112,6 +113,7 @@ exports[`should render correctly 1`] = `
             Object {
               "actions": Array [],
               "component": "main.js",
+              "componentEnabled": true,
               "componentLongName": "main.js",
               "componentQualifier": "FIL",
               "componentUuid": "foo1234",

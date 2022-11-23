@@ -318,6 +318,7 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
   const issue: Issue = {
     actions: [],
     component: 'main.js',
+    componentEnabled: true,
     componentLongName: 'main.js',
     componentQualifier: 'FIL',
     componentUuid: 'foo1234',

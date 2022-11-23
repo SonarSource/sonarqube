@@ -127,7 +127,8 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
         issue.status === IssueStatus.Closed ? {} : await getIssueFlowSnippets(issue.key);
       if (components[issue.component] === undefined) {
         const issueComponent = await getComponentForSourceViewer({
-          component: issue.component,
+          // If the issue's component doesn't exist anymore (typically a deleted file), use the project
+          component: issue.componentEnabled ? issue.component : issue.project,
           ...getBranchLikeQuery(branchLike),
         });
         components[issue.component] = { component: issueComponent, sources: [] };

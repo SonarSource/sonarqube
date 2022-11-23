@@ -19,6 +19,7 @@ exports[`should render commentable correctly 1`] = `
               "comment",
             ],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -62,6 +63,7 @@ exports[`should render commentable correctly 1`] = `
               "comment",
             ],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -105,6 +107,7 @@ exports[`should render commentable correctly 1`] = `
               "comment",
             ],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -148,6 +151,7 @@ exports[`should render commentable correctly 1`] = `
               "comment",
             ],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -203,6 +207,7 @@ exports[`should render commentable correctly 1`] = `
               "comment",
             ],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -255,6 +260,7 @@ exports[`should render effort correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -297,6 +303,7 @@ exports[`should render effort correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -339,6 +346,7 @@ exports[`should render effort correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -381,6 +389,7 @@ exports[`should render effort correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -436,6 +445,7 @@ exports[`should render effort correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -489,6 +499,7 @@ exports[`should render issue correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -530,6 +541,7 @@ exports[`should render issue correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -571,6 +583,7 @@ exports[`should render issue correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -612,6 +625,7 @@ exports[`should render issue correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -657,6 +671,7 @@ exports[`should render issue correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -709,6 +724,7 @@ exports[`should render security hotspot correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -750,6 +766,7 @@ exports[`should render security hotspot correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -791,6 +808,7 @@ exports[`should render security hotspot correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",
@@ -836,6 +854,7 @@ exports[`should render security hotspot correctly 1`] = `
           Object {
             "actions": Array [],
             "component": "main.js",
+            "componentEnabled": true,
             "componentLongName": "main.js",
             "componentQualifier": "FIL",
             "componentUuid": "foo1234",

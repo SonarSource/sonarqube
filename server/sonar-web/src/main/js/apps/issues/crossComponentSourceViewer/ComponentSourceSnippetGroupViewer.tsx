@@ -254,27 +254,15 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     const { branchLike, isLastOccurenceOfPrimaryComponent, issue, lastSnippetGroup, snippetGroup } =
       this.props;
     const { additionalLines, loading, snippets } = this.state;
-    const locations =
-      issue.component === snippetGroup.component.key && issue.textRange !== undefined
-        ? locationsByLine([issue])
-        : {};
-
-    const fullyShown =
-      snippets.length === 1 &&
-      snippetGroup.component.measures &&
-      snippets[0].end - snippets[0].start ===
-        parseInt(snippetGroup.component.measures.lines || '', 10);
 
     const snippetLines = linesForSnippets(snippets, {
       ...snippetGroup.sources,
       ...additionalLines,
     });
 
-    const isFlow = issue.secondaryLocations.length === 0;
-    const includeIssueLocation = isFlow ? isLastOccurenceOfPrimaryComponent : true;
-
     const issueIsClosed = issue.status === IssueStatus.Closed;
-    const issueIsFileLevel = issue.componentQualifier === ComponentQualifier.File;
+    const issueIsFileLevel =
+      issue.componentQualifier === ComponentQualifier.File && issue.componentEnabled;
     const closedIssueMessageKey = issueIsFileLevel
       ? 'issue.closed.file_level'
       : 'issue.closed.project_level';
@@ -301,7 +289,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         <IssueSourceViewerHeader
           branchLike={branchLike}
           className={issueIsClosed && !issueIsFileLevel ? 'null-spacer-bottom' : ''}
-          expandable={!fullyShown && isFile(snippetGroup.component.q)}
+          expandable={isExpandable(snippets, snippetGroup)}
           loading={loading}
           onExpand={this.expandComponent}
           sourceViewerFile={snippetGroup.component}
@@ -338,7 +326,11 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             lastSnippetOfLastGroup={lastSnippetGroup && index === snippets.length - 1}
             loadDuplications={this.loadDuplications}
             locations={this.props.locations}
-            locationsByLine={includeIssueLocation ? locations : {}}
+            locationsByLine={getLocationsByLine(
+              issue,
+              snippetGroup,
+              isLastOccurenceOfPrimaryComponent
+            )}
             onLocationSelect={this.props.onLocationSelect}
             renderDuplicationPopup={this.renderDuplicationPopup}
             snippet={snippet}
@@ -347,4 +339,29 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       </>
     );
   }
+}
+
+function getLocationsByLine(
+  issue: TypeIssue,
+  snippetGroup: SnippetGroup,
+  isLastOccurenceOfPrimaryComponent: boolean
+) {
+  const isFlow = issue.secondaryLocations.length === 0;
+  const includeIssueLocation = isFlow ? isLastOccurenceOfPrimaryComponent : true;
+
+  return includeIssueLocation &&
+    issue.component === snippetGroup.component.key &&
+    issue.textRange !== undefined
+    ? locationsByLine([issue])
+    : {};
+}
+
+function isExpandable(snippets: Snippet[], snippetGroup: SnippetGroup) {
+  const fullyShown =
+    snippets.length === 1 &&
+    snippetGroup.component.measures &&
+    snippets[0].end - snippets[0].start ===
+      parseInt(snippetGroup.component.measures.lines || '', 10);
+
+  return !fullyShown && isFile(snippetGroup.component.q);
 }

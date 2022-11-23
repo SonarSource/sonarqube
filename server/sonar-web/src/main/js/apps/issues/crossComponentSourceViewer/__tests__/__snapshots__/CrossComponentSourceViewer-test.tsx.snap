@@ -41,6 +41,7 @@ exports[`should render correctly 2`] = `
         Object {
           "actions": Array [],
           "component": "project:main.js",
+          "componentEnabled": true,
           "componentLongName": "main.js",
           "componentQualifier": "FIL",
           "componentUuid": "foo1234",
@@ -198,6 +199,7 @@ exports[`should render correctly: no component found 1`] = `
         Object {
           "actions": Array [],
           "component": "test.js",
+          "componentEnabled": true,
           "componentLongName": "main.js",
           "componentQualifier": "FIL",
           "componentUuid": "foo1234",
@@ -326,6 +328,7 @@ exports[`should render correctly: no component found 1`] = `
         Object {
           "actions": Array [],
           "component": "test.js",
+          "componentEnabled": true,
           "componentLongName": "main.js",
           "componentQualifier": "FIL",
           "componentUuid": "foo1234",
