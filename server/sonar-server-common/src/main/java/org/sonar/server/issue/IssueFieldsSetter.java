@@ -288,10 +288,48 @@ public class IssueFieldsSetter {
     return false;
   }
 
-  public boolean setPastMessage(DefaultIssue issue, @Nullable String previousMessage, IssueChangeContext context) {
+  public boolean setMessageFormattings(DefaultIssue issue, @Nullable Object issueMessageFormattings, IssueChangeContext context) {
+    if (!messageFormattingsEqualsIgnoreHashes(issueMessageFormattings, issue.getMessageFormattings())) {
+      issue.setMessageFormattings(issueMessageFormattings);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean messageFormattingsEqualsIgnoreHashes(@Nullable Object l1, @Nullable DbIssues.MessageFormattings l2) {
+    if (l1 == null && l2 == null) {
+      return true;
+    }
+
+    if (l2 == null || !(l1 instanceof DbIssues.MessageFormattings)) {
+      return false;
+    }
+
+    DbIssues.MessageFormattings l1c = (DbIssues.MessageFormattings) l1;
+
+    if (!Objects.equals(l1c.getMessageFormattingCount(), l2.getMessageFormattingCount())) {
+      return false;
+    }
+
+    for (int i = 0; i < l1c.getMessageFormattingCount(); i++) {
+      if (l1c.getMessageFormatting(i).getStart() != l2.getMessageFormatting(i).getStart()
+        || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
+        || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public boolean setPastMessage(DefaultIssue issue, @Nullable String previousMessage, @Nullable Object previousMessageFormattings, IssueChangeContext context) {
     String currentMessage = issue.message();
+    DbIssues.MessageFormattings currentMessageFormattings = issue.getMessageFormattings();
     issue.setMessage(previousMessage);
-    return setMessage(issue, currentMessage, context);
+    issue.setMessageFormattings(previousMessageFormattings);
+    boolean changed = setMessage(issue, currentMessage, context);
+    return setMessageFormattings(issue, currentMessageFormattings, context)  || changed;
   }
 
   public void addComment(DefaultIssue issue, String text, IssueChangeContext context) {

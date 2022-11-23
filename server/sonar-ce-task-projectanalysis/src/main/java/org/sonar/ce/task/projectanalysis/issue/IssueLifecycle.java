@@ -62,7 +62,8 @@ public class IssueLifecycle {
     this(analysisMetadataHolder, issueChangeContextByScanBuilder(new Date(analysisMetadataHolder.getAnalysisDate())).build(), workflow, updater, debtCalculator, ruleRepository);
   }
 
-  @VisibleForTesting IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueChangeContext changeContext, IssueWorkflow workflow, IssueFieldsSetter updater,
+  @VisibleForTesting
+  IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueChangeContext changeContext, IssueWorkflow workflow, IssueFieldsSetter updater,
     DebtCalculator debtCalculator, RuleRepository ruleRepository) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.workflow = workflow;
@@ -198,7 +199,7 @@ public class IssueLifecycle {
     updater.setPastLine(raw, base.getLine());
     updater.setPastLocations(raw, base.getLocations());
     updater.setRuleDescriptionContextKey(raw, base.getRuleDescriptionContextKey().orElse(null));
-    updater.setPastMessage(raw, base.getMessage(), changeContext);
+    updater.setPastMessage(raw, base.getMessage(), base.getMessageFormattings(), changeContext);
     updater.setPastGap(raw, base.gap(), changeContext);
     updater.setPastEffort(raw, base.effort(), changeContext);
   }

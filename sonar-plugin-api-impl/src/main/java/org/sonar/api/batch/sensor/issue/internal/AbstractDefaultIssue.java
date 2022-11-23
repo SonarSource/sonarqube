@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
@@ -34,8 +35,10 @@ import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.batch.sensor.issue.NewMessageFormatting;
 import org.sonar.api.utils.PathUtils;
 
 import static org.sonar.api.utils.Preconditions.checkArgument;
@@ -107,14 +110,31 @@ public abstract class AbstractDefaultIssue<T extends AbstractDefaultIssue> exten
       DefaultIssueLocation fixedLocation = new DefaultIssueLocation();
       fixedLocation.on(project);
       StringBuilder fullMessage = new StringBuilder();
+      String prefixMessage;
       if (path != null && !path.isEmpty()) {
-        fullMessage.append("[").append(path).append("] ");
+        prefixMessage = "[" + path + "] ";
+      } else {
+        prefixMessage = "";
       }
+
+      fullMessage.append(prefixMessage);
       fullMessage.append(location.message());
-      fixedLocation.message(fullMessage.toString());
+
+      List<NewMessageFormatting> paddedFormattings = location.messageFormattings().stream()
+        .map(m -> padMessageFormatting(m, prefixMessage.length()))
+        .collect(Collectors.toList());
+
+      fixedLocation.message(fullMessage.toString(), paddedFormattings);
+
       return fixedLocation;
     } else {
       return location;
     }
+  }
+
+  private static NewMessageFormatting padMessageFormatting(MessageFormatting messageFormatting, int length) {
+    return new DefaultMessageFormatting().type(messageFormatting.type())
+      .start(messageFormatting.start() + length)
+      .end(messageFormatting.end() + length);
   }
 }

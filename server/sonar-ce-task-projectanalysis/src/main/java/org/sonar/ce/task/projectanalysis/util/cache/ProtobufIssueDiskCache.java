@@ -106,6 +106,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setSeverity(next.hasSeverity() ? next.getSeverity() : null);
     defaultIssue.setManualSeverity(next.getManualSeverity());
     defaultIssue.setMessage(next.hasMessage() ? next.getMessage() : null);
+    defaultIssue.setMessageFormattings(next.hasMessageFormattings() ? next.getMessageFormattings() : null);
     defaultIssue.setLine(next.hasLine() ? next.getLine() : null);
     defaultIssue.setGap(next.hasGap() ? next.getGap() : null);
     defaultIssue.setEffort(next.hasEffort() ? Duration.create(next.getEffort()) : null);
@@ -157,6 +158,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     ofNullable(defaultIssue.severity()).ifPresent(builder::setSeverity);
     builder.setManualSeverity(defaultIssue.manualSeverity());
     ofNullable(defaultIssue.message()).ifPresent(builder::setMessage);
+    ofNullable(defaultIssue.getMessageFormattings()).ifPresent(m -> builder.setMessageFormattings((DbIssues.MessageFormattings) m));
     ofNullable(defaultIssue.line()).ifPresent(builder::setLine);
     ofNullable(defaultIssue.gap()).ifPresent(builder::setGap);
     ofNullable(defaultIssue.effort()).map(Duration::toMinutes).ifPresent(builder::setEffort);

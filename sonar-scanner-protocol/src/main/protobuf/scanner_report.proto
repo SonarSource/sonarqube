@@ -198,6 +198,7 @@ message Issue {
   repeated Flow flow = 7;
   bool quickFixAvailable = 8;
   optional string ruleDescriptionContextKey = 9;
+  repeated MessageFormatting msgFormatting = 10;
 }
 
 message ExternalIssue {
@@ -209,6 +210,7 @@ message ExternalIssue {
   TextRange text_range = 6;
   repeated Flow flow = 7;
   IssueType type = 8;
+  repeated MessageFormatting msgFormatting = 9;
 }
 
 message AdHocRule {
@@ -233,6 +235,17 @@ message IssueLocation {
   // Only when component is a file. Can be empty for a file if this is an issue global to the file.
   TextRange text_range = 2;
   string msg = 3;
+  repeated MessageFormatting msgFormatting = 4;
+}
+
+message MessageFormatting {
+  int32 start = 1;
+  int32 end = 2;
+  MessageFormattingType type = 3;
+}
+
+enum MessageFormattingType {
+  CODE = 0;
 }
 
 message Flow {

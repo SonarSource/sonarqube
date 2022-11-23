@@ -115,7 +115,7 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
-      .setMessageFormattings((byte[]) null)
+      .setMessageFormattings((DbIssues.MessageFormattings) issue.getMessageFormattings())
       .setGap(issue.gap())
       .setEffort(issue.effortInMinutes())
       .setResolution(issue.resolution())
@@ -142,7 +142,6 @@ public final class IssueDto implements Serializable {
       .setQuickFixAvailable(issue.isQuickFixAvailable())
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
 
-
       // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now);
@@ -165,7 +164,7 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
-      .setMessageFormattings((byte[]) null)
+      .setMessageFormattings((DbIssues.MessageFormattings) issue.getMessageFormattings())
       .setGap(issue.gap())
       .setEffort(issue.effortInMinutes())
       .setResolution(issue.resolution())
@@ -265,7 +264,11 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public IssueDto setMessageFormattings(@Nullable byte[] messageFormattings) {
+  public byte[] getMessageFormattings() {
+    return messageFormattings;
+  }
+
+  public IssueDto setMessageFormattings(byte[] messageFormattings) {
     this.messageFormattings = messageFormattings;
     return this;
   }
@@ -280,8 +283,15 @@ public final class IssueDto implements Serializable {
   }
 
   @CheckForNull
-  public byte[] getMessageFormattings() {
-    return messageFormattings;
+  public DbIssues.MessageFormattings parseMessageFormattings() {
+    if (messageFormattings != null) {
+      try {
+        return DbIssues.MessageFormattings.parseFrom(messageFormattings);
+      } catch (InvalidProtocolBufferException e) {
+        throw new IllegalStateException(String.format("Fail to read ISSUES.MESSAGE_FORMATTINGS [KEE=%s]", kee), e);
+      }
+    }
+    return null;
   }
 
   @CheckForNull
@@ -744,6 +754,7 @@ public final class IssueDto implements Serializable {
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setMessage(message);
+    issue.setMessageFormattings(parseMessageFormattings());
     issue.setGap(gap);
     issue.setEffort(effort != null ? Duration.create(effort) : null);
     issue.setLine(line);

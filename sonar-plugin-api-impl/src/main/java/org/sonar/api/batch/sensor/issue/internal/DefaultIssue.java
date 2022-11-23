@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
@@ -27,6 +28,8 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.fix.NewQuickFix;
+import org.sonar.api.batch.sensor.issue.fix.QuickFix;
 import org.sonar.api.rule.RuleKey;
 
 import static java.lang.String.format;
@@ -78,6 +81,16 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   }
 
   @Override
+  public NewQuickFix newQuickFix() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public NewIssue addQuickFix(NewQuickFix newQuickFix) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public DefaultIssue setRuleDescriptionContextKey(@Nullable String ruleDescriptionContextKey) {
     this.ruleDescriptionContextKey = ruleDescriptionContextKey;
     return this;
@@ -91,6 +104,11 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   @Override
   public Optional<String> ruleDescriptionContextKey() {
     return Optional.ofNullable(ruleDescriptionContextKey);
+  }
+
+  @Override
+  public List<QuickFix> quickFixes() {
+    throw new UnsupportedOperationException();
   }
 
   @Override

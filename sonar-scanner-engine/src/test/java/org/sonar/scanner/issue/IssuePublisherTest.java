@@ -41,6 +41,7 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
+import org.sonar.api.batch.sensor.issue.internal.DefaultMessageFormatting;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -57,6 +58,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.batch.sensor.issue.MessageFormatting.Type.CODE;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssuePublisherTest {
@@ -143,10 +145,12 @@ public class IssuePublisherTest {
   public void add_issue_flows_to_cache() {
     initModuleIssues();
 
+    DefaultMessageFormatting messageFormatting = new DefaultMessageFormatting().start(0).end(4).type(CODE);
     DefaultIssue issue = new DefaultIssue(project)
       .at(new DefaultIssueLocation().on(file))
       // Flow without type
-      .addFlow(List.of(new DefaultIssueLocation().on(file).at(file.selectLine(1)).message("Foo1"), new DefaultIssueLocation().on(file).at(file.selectLine(2)).message("Foo2")))
+      .addFlow(List.of(new DefaultIssueLocation().on(file).at(file.selectLine(1)).message("Foo1", List.of(messageFormatting)),
+        new DefaultIssueLocation().on(file).at(file.selectLine(2)).message("Foo2")))
       // Flow with type and description
       .addFlow(List.of(new DefaultIssueLocation().on(file)), NewIssue.FlowType.DATA, "description")
       // Flow with execution type and no description
@@ -169,6 +173,7 @@ public class IssuePublisherTest {
       ScannerReport.IssueLocation.newBuilder()
         .setComponentRef(file.scannerId())
         .setMsg("Foo1")
+        .addMsgFormatting(ScannerReport.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(ScannerReport.MessageFormattingType.CODE).build())
         .setTextRange(ScannerReport.TextRange.newBuilder().setStartLine(1).setEndLine(1).setEndOffset(3).build())
         .build(),
       ScannerReport.IssueLocation.newBuilder()

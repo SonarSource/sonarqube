@@ -43,7 +43,8 @@ public class IssueDtoTest {
 
   private static final DbIssues.MessageFormattings EXAMPLE_MESSAGE_FORMATTINGS = DbIssues.MessageFormattings.newBuilder()
     .addMessageFormatting(DbIssues.MessageFormatting.newBuilder().setStart(0).setEnd(1).setType(DbIssues.MessageFormattingType.CODE)
-      .build()).build();
+      .build())
+    .build();
 
   @Test
   public void toDefaultIssue_set_issue_fields() {
@@ -95,7 +96,7 @@ public class IssueDtoTest {
     assertThat(issue.line()).isEqualTo(6);
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.message()).isEqualTo("message");
-    //assertThat(issue.getMessageFormatting()).isEqualTo(EXAMPLE_MESSAGE_FORMATTING); //TODO fix later SONAR-17592
+    assertThat((DbIssues.MessageFormattings) issue.getMessageFormattings()).isEqualTo(EXAMPLE_MESSAGE_FORMATTINGS);
     assertThat(issue.manualSeverity()).isTrue();
     assertThat(issue.assignee()).isEqualTo("perceval");
     assertThat(issue.authorLogin()).isEqualTo("pierre");
@@ -153,24 +154,23 @@ public class IssueDtoTest {
 
     IssueDto issueDto = IssueDto.toDtoForComputationInsert(defaultIssue, "ruleUuid", now);
 
-    assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).
-      containsExactly("key", RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
+    assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).containsExactly("key", RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
 
     assertThat(issueDto).extracting(IssueDto::getIssueCreationDate, IssueDto::getIssueCloseDate,
-        IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt, IssueDto::getCreatedAt)
+      IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt, IssueDto::getCreatedAt)
       .containsExactly(dateNow, dateNow, dateNow, dateNow.getTime(), now, now);
 
     assertThat(issueDto).extracting(IssueDto::getLine, IssueDto::getMessage,
-        IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
+      IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
       .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
 
     assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getAuthorLogin)
       .containsExactly(Set.of("todo"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
-        IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
-        IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey,
-        IssueDto::getRuleUuid)
+      IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
+      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey,
+      IssueDto::getRuleUuid)
       .containsExactly(true, "123", "123", true, "123", "componentKey",
         "path/to/module/uuid", "123", "projectKey", "ruleUuid");
 
@@ -187,23 +187,22 @@ public class IssueDtoTest {
 
     IssueDto issueDto = IssueDto.toDtoForUpdate(defaultIssue, now);
 
-    assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).
-      containsExactly("key", RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
+    assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).containsExactly("key", RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
 
     assertThat(issueDto).extracting(IssueDto::getIssueCreationDate, IssueDto::getIssueCloseDate,
-        IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt)
+      IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt)
       .containsExactly(dateNow, dateNow, dateNow, dateNow.getTime(), now);
 
     assertThat(issueDto).extracting(IssueDto::getLine, IssueDto::getMessage,
-        IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
+      IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
       .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
 
     assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getAuthorLogin)
       .containsExactly(Set.of("todo"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
-        IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
-        IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey)
+      IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
+      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey)
       .containsExactly(true, "123", "123", true, "123", "componentKey",
         "path/to/module/uuid", "123", "projectKey");
 

@@ -62,6 +62,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
+import static org.sonar.scanner.protocol.output.ScannerReport.MessageFormattingType.CODE;
 
 @RunWith(DataProviderRunner.class)
 public class TrackerRawInputFactoryTest {
@@ -128,6 +129,7 @@ public class TrackerRawInputFactoryTest {
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
+      .addMsgFormatting(ScannerReport.MessageFormatting.newBuilder().setStart(0).setEnd(3).setType(CODE).build())
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
       .setSeverity(Constants.Severity.BLOCKER)
@@ -149,6 +151,13 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.message()).isEqualTo("the message");
     assertThat(issue.isQuickFixAvailable()).isTrue();
 
+    // Check message formatting
+    DbIssues.MessageFormattings messageFormattings = Iterators.getOnlyElement(issues.iterator()).getMessageFormattings();
+    assertThat(messageFormattings.getMessageFormattingCount()).isEqualTo(1);
+    assertThat(messageFormattings.getMessageFormatting(0).getStart()).isZero();
+    assertThat(messageFormattings.getMessageFormatting(0).getEnd()).isEqualTo(3);
+    assertThat(messageFormattings.getMessageFormatting(0).getType()).isEqualTo(DbIssues.MessageFormattingType.CODE);
+
     // fields set by compute engine
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
     assertThat(issue.tags()).isEmpty();
@@ -162,6 +171,7 @@ public class TrackerRawInputFactoryTest {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
 
+    ScannerReport.MessageFormatting messageFormatting = ScannerReport.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(CODE).build();
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository(ruleKey.repository())
@@ -169,7 +179,7 @@ public class TrackerRawInputFactoryTest {
       .addFlow(ScannerReport.Flow.newBuilder()
         .setType(FlowType.DATA)
         .setDescription("flow1")
-        .addLocation(ScannerReport.IssueLocation.newBuilder().setMsg("loc1").setComponentRef(1).build())
+        .addLocation(ScannerReport.IssueLocation.newBuilder().setMsg("loc1").addMsgFormatting(messageFormatting).setComponentRef(1).build())
         .addLocation(ScannerReport.IssueLocation.newBuilder().setMsg("loc2").setComponentRef(1).build()))
       .addFlow(ScannerReport.Flow.newBuilder()
         .setType(FlowType.EXECUTION)
@@ -186,6 +196,11 @@ public class TrackerRawInputFactoryTest {
     assertThat(locations.getFlow(0).getDescription()).isEqualTo("flow1");
     assertThat(locations.getFlow(0).getType()).isEqualTo(DbIssues.FlowType.DATA);
     assertThat(locations.getFlow(0).getLocationList()).hasSize(2);
+
+    assertThat(locations.getFlow(0).getLocation(0).getMsg()).isEqualTo("loc1");
+    assertThat(locations.getFlow(0).getLocation(0).getMsgFormattingCount()).isEqualTo(1);
+    assertThat(locations.getFlow(0).getLocation(0).getMsgFormatting(0)).extracting(m -> m.getStart(), m -> m.getEnd(), m -> m.getType())
+      .containsExactly(0, 4, DbIssues.MessageFormattingType.CODE);
 
     assertThat(locations.getFlow(1).hasDescription()).isFalse();
     assertThat(locations.getFlow(1).getType()).isEqualTo(DbIssues.FlowType.EXECUTION);
@@ -293,6 +308,7 @@ public class TrackerRawInputFactoryTest {
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
+      .addMsgFormatting(ScannerReport.MessageFormatting.newBuilder().setStart(0).setEnd(3).build())
       .setEngineId("eslint")
       .setRuleId("S001")
       .setSeverity(Constants.Severity.BLOCKER)
@@ -313,14 +329,20 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.line()).isEqualTo(2);
     assertThat(issue.effort()).isEqualTo(Duration.create(20L));
     assertThat(issue.message()).isEqualTo("the message");
+
+    // Check message formatting
+    DbIssues.MessageFormattings messageFormattings = Iterators.getOnlyElement(issues.iterator()).getMessageFormattings();
+    assertThat(messageFormattings.getMessageFormattingCount()).isEqualTo(1);
+    assertThat(messageFormattings.getMessageFormatting(0).getStart()).isZero();
+    assertThat(messageFormattings.getMessageFormatting(0).getEnd()).isEqualTo(3);
+    assertThat(messageFormattings.getMessageFormatting(0).getType()).isEqualTo(DbIssues.MessageFormattingType.CODE);
+
     assertThat(issue.type()).isEqualTo(expectedRuleType);
 
     DbIssues.Locations locations = Iterators.getOnlyElement(issues.iterator()).getLocations();
     assertThat(locations.getFlowCount()).isEqualTo(1);
     assertThat(locations.getFlow(0).getType()).isEqualTo(DbIssues.FlowType.DATA);
     assertThat(locations.getFlow(0).getLocationList()).hasSize(1);
-
-
 
     // fields set by compute engine
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));

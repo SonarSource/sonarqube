@@ -67,6 +67,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private String severity = null;
   private boolean manualSeverity = false;
   private String message = null;
+  private Object messageFormattings = null;
   private Integer line = null;
   private Double gap = null;
   private Duration effort = null;
@@ -261,7 +262,18 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   public DefaultIssue setMessage(@Nullable String s) {
+    //TODO trim messageFormattings?
     this.message = StringUtils.abbreviate(StringUtils.trim(s), MESSAGE_MAX_SIZE);
+    return this;
+  }
+
+  @CheckForNull
+  public <T> T getMessageFormattings() {
+    return (T) messageFormattings;
+  }
+
+  public DefaultIssue setMessageFormattings(@Nullable Object messageFormattings) {
+    this.messageFormattings = messageFormattings;
     return this;
   }
 

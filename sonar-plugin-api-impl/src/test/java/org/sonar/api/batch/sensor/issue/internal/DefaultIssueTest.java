@@ -37,10 +37,10 @@ import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
-import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
+import org.sonar.api.batch.sensor.issue.fix.NewQuickFix;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +59,8 @@ public class DefaultIssueTest {
     .initMetadata("Foo\nBar\n")
     .build();
   private DefaultInputProject project;
+
+  private final NewQuickFix quickFix = mock(NewQuickFix.class);
 
   @Before
   public void prepare() throws IOException {
@@ -164,16 +166,19 @@ public class DefaultIssueTest {
     DefaultIssue issue = new DefaultIssue(project, storage)
       .at(new DefaultIssueLocation()
         .on(subModule)
-        .message("Wrong way!"))
+        .message("Wrong way! with code snippet", List.of(new DefaultMessageFormatting().start(16).end(27).type(MessageFormatting.Type.CODE))))
       .forRule(RULE_KEY)
       .overrideSeverity(Severity.BLOCKER);
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(project);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.primaryLocation().textRange()).isNull();
-    assertThat(issue.primaryLocation().message()).isEqualTo("[bar] Wrong way!");
+    assertThat(issue.primaryLocation().message()).isEqualTo("[bar] Wrong way! with code snippet");
     assertThat(issue.overriddenSeverity()).isEqualTo(Severity.BLOCKER);
-
+    assertThat(issue.primaryLocation().messageFormattings().get(0)).extracting(MessageFormatting::start,
+      MessageFormatting::end, MessageFormatting::type)
+      .as("Formatting ranges are padded with the new message")
+      .containsExactly(22, 33, MessageFormatting.Type.CODE);
     issue.save();
 
     verify(storage).store(issue);
@@ -227,4 +232,14 @@ public class DefaultIssueTest {
     assertThat(issue.isQuickFixAvailable()).isTrue();
   }
 
+  @Test
+  public void quickfix_not_supported_for_now() {
+    DefaultIssue issue = new DefaultIssue(project);
+    assertThatThrownBy(() -> issue.addQuickFix(quickFix))
+      .isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(issue::newQuickFix)
+      .isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(issue::quickFixes)
+      .isInstanceOf(UnsupportedOperationException.class);
+  }
 }

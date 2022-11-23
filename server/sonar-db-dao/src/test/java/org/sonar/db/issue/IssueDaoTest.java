@@ -37,6 +37,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ComponentUpdateDto;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
@@ -62,6 +63,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
+import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 
 public class IssueDaoTest {
 
@@ -77,6 +79,13 @@ public class IssueDaoTest {
   private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOT = Stream.of(RuleType.values())
     .filter(r -> r != RuleType.SECURITY_HOTSPOT)
     .toArray(RuleType[]::new);
+  private static final DbIssues.MessageFormattings MESSAGE_FORMATTING = DbIssues.MessageFormattings.newBuilder()
+    .addMessageFormatting(DbIssues.MessageFormatting.newBuilder()
+      .setStart(0)
+      .setEnd(4)
+      .setType(CODE)
+      .build())
+    .build();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -97,6 +106,7 @@ public class IssueDaoTest {
     assertThat(issue.getType()).isEqualTo(2);
     assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.getMessage()).isEqualTo("the message");
+    assertThat(issue.parseMessageFormattings()).isEqualTo(MESSAGE_FORMATTING);
     assertThat(issue.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
     assertThat(issue.getLine()).isEqualTo(500);
     assertThat(issue.getEffort()).isEqualTo(10L);
@@ -221,7 +231,6 @@ public class IssueDaoTest {
     assertThat(issues).contains("I1");
   }
 
-
   @Test
   public void selectByBranch() {
     long updatedAt = 1_340_000_000_000L;
@@ -250,8 +259,11 @@ public class IssueDaoTest {
       .containsExactlyInAnyOrder(
         tuple("issueA0", STATUS_OPEN),
         tuple("issueA1", STATUS_REVIEWED),
-        tuple("issueA3", STATUS_RESOLVED)
-      );
+        tuple("issueA3", STATUS_RESOLVED));
+
+    assertThat(branchAIssuesA1.get(0))
+      .extracting(IssueDto::getMessage, IssueDto::parseMessageFormattings)
+      .containsOnly("message", MESSAGE_FORMATTING);
 
     List<IssueDto> branchAIssuesA2 = underTest.selectByBranch(db.getSession(), Set.of("issueA0", "issueA1", "issueA3"),
       buildSelectByBranchQuery(branchA, "java", true, changedSince));
@@ -268,8 +280,7 @@ public class IssueDaoTest {
       .extracting(IssueDto::getKey, IssueDto::getStatus)
       .containsExactlyInAnyOrder(
         tuple("issueB0", STATUS_OPEN),
-        tuple("issueB1", STATUS_RESOLVED)
-      );
+        tuple("issueB1", STATUS_RESOLVED));
 
     List<IssueDto> branchBIssuesB2 = underTest.selectByBranch(db.getSession(), Set.of("issueB0", "issueB1"), buildSelectByBranchQuery(branchB, "java", true, changedSince));
 
@@ -307,11 +318,11 @@ public class IssueDaoTest {
 
     assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), file.uuid()))
       .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[]{openIssue1OnFile, openIssue2OnFile}).map(IssueDto::getKey).toArray(String[]::new));
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile}).map(IssueDto::getKey).toArray(String[]::new));
 
     assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), project.uuid()))
       .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[]{openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
 
     assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), "does_not_exist")).isEmpty();
   }
@@ -339,11 +350,11 @@ public class IssueDaoTest {
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), project))
       .extracting(IssueDto::getKey)
       .containsExactlyInAnyOrder(
-        Arrays.stream(new IssueDto[]{openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
+        Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
 
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), module))
       .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[]{openIssue1OnFile, openIssue2OnFile, openIssueOnModule}).map(IssueDto::getKey).toArray(String[]::new));
+      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule}).map(IssueDto::getKey).toArray(String[]::new));
 
     ComponentDto notPersisted = ComponentTesting.newPrivateProjectDto();
     assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), notPersisted)).isEmpty();
@@ -511,7 +522,7 @@ public class IssueDaoTest {
     db.issues().insert(rule, project, file,
       i -> i.setStatus("OPEN").setResolution(null).setSeverity("CRITICAL").setType(RuleType.BUG));
 
-    //two issues part of new code period on reference branch
+    // two issues part of new code period on reference branch
     db.issues().insertNewCodeReferenceIssue(fpBug);
     db.issues().insertNewCodeReferenceIssue(criticalBug1);
     db.issues().insertNewCodeReferenceIssue(criticalBug2);
@@ -733,8 +744,7 @@ public class IssueDaoTest {
   public void selectByKey_givenOneIssueWithoutRuleDescriptionContextKey_returnsEmptyOptional() {
     prepareIssuesComponent();
     underTest.insert(db.getSession(), createIssueWithKey(ISSUE_KEY1)
-      .setRuleDescriptionContextKey(null)
-    );
+      .setRuleDescriptionContextKey(null));
     IssueDto issue1 = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
 
     assertThat(issue1.getOptionalRuleDescriptionContextKey()).isEmpty();
@@ -744,8 +754,7 @@ public class IssueDaoTest {
   public void selectByKey_givenOneIssueWithRuleDescriptionContextKey_returnsContextKey() {
     prepareIssuesComponent();
     underTest.insert(db.getSession(), createIssueWithKey(ISSUE_KEY1)
-      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
-    );
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY));
 
     IssueDto issue1 = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
 
@@ -823,6 +832,7 @@ public class IssueDaoTest {
     dto.setAssigneeUuid("karadoc");
     dto.setChecksum("123456789");
     dto.setMessage("the message");
+    dto.setMessageFormattings(MESSAGE_FORMATTING);
     dto.setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
     dto.setCreatedAt(1_440_000_000_000L);
     dto.setUpdatedAt(1_440_000_000_000L);
@@ -858,7 +868,9 @@ public class IssueDaoTest {
   }
 
   private void insertBranchIssue(ComponentDto branch, ComponentDto file, RuleDto rule, String id, String status, Long updateAt) {
-    db.issues().insert(rule, branch, file, i -> i.setKee("issue" + id).setStatus(status).setUpdatedAt(updateAt).setType(randomRuleTypeExceptHotspot()));
+    db.issues().insert(rule, branch, file, i -> i.setKee("issue" + id).setStatus(status).setUpdatedAt(updateAt).setType(randomRuleTypeExceptHotspot())
+      .setMessage("message")
+      .setMessageFormattings(MESSAGE_FORMATTING));
   }
 
   private static IssueQueryParams buildSelectByBranchQuery(ComponentDto branch, String language, boolean resolvedOnly, Long changedSince) {

@@ -20,7 +20,9 @@
 package org.sonar.scanner.issue;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +34,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
+import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
 import org.sonar.scanner.protocol.Constants.Severity;
@@ -112,7 +115,9 @@ public class IssuePublisher {
     builder.setRuleRepository(issue.ruleKey().repository());
     builder.setRuleKey(issue.ruleKey().rule());
     builder.setMsg(primaryMessage);
+    builder.addAllMsgFormatting(toProtobufMessageFormattings(issue.primaryLocation().messageFormattings()));
     locationBuilder.setMsg(primaryMessage);
+    locationBuilder.addAllMsgFormatting(toProtobufMessageFormattings(issue.primaryLocation().messageFormattings()));
 
     locationBuilder.setComponentRef(componentRef);
     TextRange primaryTextRange = issue.primaryLocation().textRange();
@@ -127,6 +132,16 @@ public class IssuePublisher {
     builder.setQuickFixAvailable(issue.isQuickFixAvailable());
     issue.ruleDescriptionContextKey().ifPresent(builder::setRuleDescriptionContextKey);
     return builder.build();
+  }
+
+  private static List<ScannerReport.MessageFormatting> toProtobufMessageFormattings(List<MessageFormatting> messageFormattings) {
+    return messageFormattings.stream()
+      .map(m -> ScannerReport.MessageFormatting.newBuilder()
+        .setStart(m.start())
+        .setEnd(m.end())
+        .setType(ScannerReport.MessageFormattingType.valueOf(m.type().name()))
+        .build())
+      .collect(Collectors.toList());
   }
 
   private static ScannerReport.ExternalIssue createReportExternalIssue(ExternalIssue issue, int componentRef) {
@@ -144,8 +159,9 @@ public class IssuePublisher {
     builder.setEngineId(issue.engineId());
     builder.setRuleId(issue.ruleId());
     builder.setMsg(primaryMessage);
+    builder.addAllMsgFormatting(toProtobufMessageFormattings(issue.primaryLocation().messageFormattings()));
     locationBuilder.setMsg(primaryMessage);
-
+    locationBuilder.addAllMsgFormatting(toProtobufMessageFormattings(issue.primaryLocation().messageFormattings()));
     locationBuilder.setComponentRef(componentRef);
     TextRange primaryTextRange = issue.primaryLocation().textRange();
     if (primaryTextRange != null) {
@@ -175,6 +191,7 @@ public class IssuePublisher {
         String message = location.message();
         if (message != null) {
           locationBuilder.setMsg(message);
+          locationBuilder.addAllMsgFormatting(toProtobufMessageFormattings(location.messageFormattings()));
         }
         TextRange textRange = location.textRange();
         if (textRange != null) {

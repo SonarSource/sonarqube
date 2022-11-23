@@ -19,12 +19,16 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.sensor.issue.IssueLocation;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.api.batch.sensor.issue.MessageFormatting;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.batch.sensor.issue.NewMessageFormatting;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.abbreviate;
@@ -37,6 +41,7 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   private InputComponent component;
   private TextRange textRange;
   private String message;
+  private final List<MessageFormatting> messageFormattings = new ArrayList<>();
 
   @Override
   public DefaultIssueLocation on(InputComponent component) {
@@ -58,12 +63,40 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
 
   @Override
   public DefaultIssueLocation message(String message) {
+    validateMessage(message);
+    this.message = abbreviate(trim(message), MESSAGE_MAX_SIZE);
+    return this;
+  }
+
+  @Override
+  public NewIssueLocation message(String message, List<NewMessageFormatting> newMessageFormattings) {
+    validateMessage(message);
+    validateFormattings(newMessageFormattings, message);
+    this.message = abbreviate(trim(message), MESSAGE_MAX_SIZE);
+
+    for (NewMessageFormatting newMessageFormatting : newMessageFormattings) {
+      messageFormattings.add((MessageFormatting) newMessageFormatting);
+    }
+    return this;
+  }
+
+  private static void validateFormattings(List<NewMessageFormatting> newMessageFormattings, String message) {
+    checkArgument(newMessageFormattings != null, "messageFormattings can't be null");
+    newMessageFormattings.stream()
+      .map(DefaultMessageFormatting.class::cast)
+      .forEach(e -> e.validate(message));
+  }
+
+  private void validateMessage(String message) {
     requireNonNull(message, "Message can't be null");
     if (message.contains("\u0000")) {
       throw new IllegalArgumentException(unsupportedCharacterError(message, component));
     }
-    this.message = abbreviate(trim(message), MESSAGE_MAX_SIZE);
-    return this;
+  }
+
+  @Override
+  public NewMessageFormatting newMessageFormatting() {
+    return new DefaultMessageFormatting();
   }
 
   private static String unsupportedCharacterError(String message, @Nullable InputComponent component) {
@@ -87,6 +120,11 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   @Override
   public String message() {
     return this.message;
+  }
+
+  @Override
+  public List<MessageFormatting> messageFormattings() {
+    return this.messageFormattings;
   }
 
 }

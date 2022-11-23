@@ -23,6 +23,7 @@ import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
 public class DbVersion93 implements DbVersion {
+
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry

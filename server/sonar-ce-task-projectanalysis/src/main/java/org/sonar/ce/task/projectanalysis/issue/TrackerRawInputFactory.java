@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
@@ -172,6 +173,9 @@ public class TrackerRawInputFactory {
       }
       if (isNotEmpty(reportIssue.getMsg())) {
         issue.setMessage(reportIssue.getMsg());
+        if (!reportIssue.getMsgFormattingList().isEmpty()) {
+          issue.setMessageFormattings(convertMessageFormattings(reportIssue.getMsgFormattingList()));
+        }
       } else {
         Rule rule = ruleRepository.getByKey(ruleKey);
         issue.setMessage(rule.getName());
@@ -227,6 +231,9 @@ public class TrackerRawInputFactory {
       }
       if (isNotEmpty(reportExternalIssue.getMsg())) {
         issue.setMessage(reportExternalIssue.getMsg());
+        if (!reportExternalIssue.getMsgFormattingList().isEmpty()) {
+          issue.setMessageFormattings(convertMessageFormattings(reportExternalIssue.getMsgFormattingList()));
+        }
       }
       if (reportExternalIssue.getSeverity() != Severity.UNSET_SEVERITY) {
         issue.setSeverity(reportExternalIssue.getSeverity().name());
@@ -308,6 +315,8 @@ public class TrackerRawInputFactory {
       }
       if (isNotEmpty(source.getMsg())) {
         target.setMsg(source.getMsg());
+        source.getMsgFormattingList()
+          .forEach(m -> target.addMsgFormatting(convertMessageFormatting(m)));
       }
       if (source.hasTextRange()) {
         ScannerReport.TextRange sourceRange = source.getTextRange();
@@ -326,4 +335,21 @@ public class TrackerRawInputFactory {
       return targetRange;
     }
   }
+
+  private static DbIssues.MessageFormattings convertMessageFormattings(List<ScannerReport.MessageFormatting> msgFormattings) {
+    DbIssues.MessageFormattings.Builder builder = DbIssues.MessageFormattings.newBuilder();
+    msgFormattings.stream()
+      .forEach(m -> builder.addMessageFormatting(TrackerRawInputFactory.convertMessageFormatting(m)));
+    return builder.build();
+  }
+
+  @NotNull
+  private static DbIssues.MessageFormatting convertMessageFormatting(ScannerReport.MessageFormatting m) {
+    DbIssues.MessageFormatting.Builder msgFormattingBuilder = DbIssues.MessageFormatting.newBuilder();
+    return msgFormattingBuilder
+      .setStart(m.getStart())
+      .setEnd(m.getEnd())
+      .setType(DbIssues.MessageFormattingType.valueOf(m.getType().name())).build();
+  }
+
 }

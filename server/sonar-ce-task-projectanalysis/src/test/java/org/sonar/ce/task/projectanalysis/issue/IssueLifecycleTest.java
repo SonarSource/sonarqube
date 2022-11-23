@@ -363,6 +363,16 @@ public class IssueLifecycleTest {
         .setEndLine(12)
         .build())
       .build();
+
+    DbIssues.MessageFormattings messageFormattings = DbIssues.MessageFormattings.newBuilder()
+      .addMessageFormatting(DbIssues.MessageFormatting
+        .newBuilder()
+        .setStart(13)
+        .setEnd(17)
+        .setType(DbIssues.MessageFormattingType.CODE)
+        .build())
+      .build();
+
     DefaultIssue base = new DefaultIssue()
       .setKey("BASE_KEY")
       .setCreationDate(parseDate("2015-01-01"))
@@ -376,7 +386,8 @@ public class IssueLifecycleTest {
       .setOnDisabledRule(true)
       .setSelectedAt(1000L)
       .setLine(10)
-      .setMessage("message")
+      .setMessage("message with code")
+      .setMessageFormattings(messageFormattings)
       .setGap(15d)
       .setRuleDescriptionContextKey("hibernate")
       .setEffort(Duration.create(15L))
@@ -411,7 +422,7 @@ public class IssueLifecycleTest {
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);
     verify(updater).setRuleDescriptionContextKey(raw, "hibernate");
-    verify(updater).setPastMessage(raw, "message", issueChangeContext);
+    verify(updater).setPastMessage(raw, "message with code", messageFormattings, issueChangeContext);
     verify(updater).setPastEffort(raw, Duration.create(15L), issueChangeContext);
     verify(updater).setPastLocations(raw, issueLocations);
   }

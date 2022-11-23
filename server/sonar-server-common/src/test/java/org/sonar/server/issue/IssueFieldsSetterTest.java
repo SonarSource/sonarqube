@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
@@ -30,11 +31,13 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.protobuf.DbIssues.MessageFormattingType;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
+import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueFieldsSetter.ASSIGNEE;
 import static org.sonar.server.issue.IssueFieldsSetter.RESOLUTION;
@@ -500,13 +503,80 @@ public class IssueFieldsSetterTest {
   @Test
   public void set_past_message() {
     issue.setMessage("new message");
-    boolean updated = underTest.setPastMessage(issue, "past message", context);
+    boolean updated = underTest.setPastMessage(issue, "past message", null, context);
     assertThat(updated).isTrue();
     assertThat(issue.message()).isEqualTo("new message");
 
     // do not save change
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void set_past_message_formatting() {
+    issue.setMessage("past message");
+    DbIssues.MessageFormattings newFormatting = formattings(formatting(0, 3, CODE));
+    DbIssues.MessageFormattings pastFormatting = formattings(formatting(0, 7, CODE));
+    issue.setMessageFormattings(newFormatting);
+    boolean updated = underTest.setPastMessage(issue, "past message", pastFormatting, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.message()).isEqualTo("past message");
+    assertThat((DbIssues.MessageFormattings) issue.getMessageFormattings()).isEqualTo(newFormatting);
+
+    // do not save change
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void set_past_message_formatting_no_changes() {
+    issue.setMessage("past message");
+    DbIssues.MessageFormattings sameFormatting = formattings(formatting(0, 3, CODE));
+    issue.setMessageFormattings(sameFormatting);
+    boolean updated = underTest.setPastMessage(issue, "past message", sameFormatting, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.message()).isEqualTo("past message");
+    assertThat((DbIssues.MessageFormattings) issue.getMessageFormattings()).isEqualTo(sameFormatting);
+
+    // do not save change
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void message_formatting_different_size_is_changed(){
+    issue.setMessageFormattings(formattings(formatting(0,3,CODE)));
+    boolean updated = underTest.setLocations(issue, formattings(formatting(0,3,CODE), formatting(4,6,CODE)));
+    assertThat(updated).isTrue();
+  }
+
+  @Test
+  public void message_formatting_different_start_is_changed(){
+    issue.setMessageFormattings(formattings(formatting(0,3,CODE)));
+    boolean updated = underTest.setLocations(issue, formattings(formatting(1,3,CODE)));
+    assertThat(updated).isTrue();
+  }
+
+  @Test
+  public void message_formatting_different_end_is_changed(){
+    issue.setMessageFormattings(formattings(formatting(0,3,CODE)));
+    boolean updated = underTest.setLocations(issue, formattings(formatting(0,4,CODE)));
+    assertThat(updated).isTrue();
+  }
+
+  private static DbIssues.MessageFormatting formatting(int start, int end, MessageFormattingType type) {
+    return DbIssues.MessageFormatting
+        .newBuilder()
+        .setStart(start)
+        .setEnd(end)
+        .setType(type)
+        .build();
+  }
+
+  private static DbIssues.MessageFormattings formattings(DbIssues.MessageFormatting... messageFormatting) {
+    return DbIssues.MessageFormattings.newBuilder()
+      .addAllMessageFormatting(List.of(messageFormatting))
+      .build();
   }
 
   @Test
