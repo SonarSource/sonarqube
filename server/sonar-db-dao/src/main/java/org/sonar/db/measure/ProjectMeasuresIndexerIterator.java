@@ -93,17 +93,16 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     "AND (pm.value IS NOT NULL OR pm.text_value IS NOT NULL) " +
     "AND m.enabled = ? ";
 
-  private static final String SQL_PROJECT_BRANCHES = "SELECT uuid FROM project_branches pb " +
-    "WHERE pb.project_uuid = ? ";
-
   private static final String SQL_BIGGEST_NCLOC_VALUE = "SELECT max(lm.value) FROM metrics m " +
     "INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid " +
-    "WHERE lm.component_uuid IN ({projectBranches}) " +
+    "INNER JOIN project_branches pb ON lm.component_uuid = pb.uuid " +
+    "WHERE pb.project_uuid = ? " +
     "AND m.name = ? AND lm.value IS NOT NULL AND m.enabled = ? ";
 
-  private static final String SQL_BIGGEST_BRANCH = "SELECT lm.component_uuid FROM metrics m " +
+  private static final String SQL_BRANCH_BY_NCLOC = "SELECT lm.component_uuid FROM metrics m " +
     "INNER JOIN live_measures lm ON m.uuid = lm.metric_uuid " +
-    "WHERE lm.component_uuid IN ({projectBranches}) " +
+    "INNER JOIN project_branches pb ON lm.component_uuid = pb.uuid " +
+    "WHERE pb.project_uuid = ? " +
     "AND m.name = ? AND lm.value = ? AND m.enabled = ? ";
 
   private static final boolean ENABLED = true;
@@ -130,7 +129,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private static List<Project> selectProjects(DbSession session, @Nullable String projectUuid) {
     List<Project> projects = new ArrayList<>();
     try (PreparedStatement stmt = createProjectsStatement(session, projectUuid);
-      ResultSet rs = stmt.executeQuery()) {
+         ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
         String uuid = rs.getString(1);
         String key = rs.getString(2);
@@ -199,16 +198,14 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
         }
       }
 
-      List<String> projectBranches = selectProjectBranches(dbSession, projectUuid);
+      String biggestBranch = selectProjectBiggestNcloc(dbSession, projectUuid)
+        .flatMap(ncloc -> selectProjectBranchForNcloc(dbSession, projectUuid, ncloc))
+        .orElse("");
 
-      if (!projectBranches.isEmpty()) {
-        long biggestNcloc = selectProjectBiggestNcloc(dbSession, projectBranches);
-        String biggestBranch = selectProjectBiggestBranch(dbSession, projectBranches, biggestNcloc);
-        try (PreparedStatement prepareNclocByLanguageStatement = prepareNclocByLanguageStatement(dbSession, biggestBranch)) {
-          try (ResultSet rs = prepareNclocByLanguageStatement.executeQuery()) {
-            if (rs.next()) {
-              readMeasure(rs, measures);
-            }
+      try (PreparedStatement prepareNclocByLanguageStatement = prepareNclocByLanguageStatement(dbSession, biggestBranch)) {
+        try (ResultSet rs = prepareNclocByLanguageStatement.executeQuery()) {
+          if (rs.next()) {
+            readMeasure(rs, measures);
           }
         }
       }
@@ -242,69 +239,42 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
   }
 
-  private static List<String> selectProjectBranches(DbSession session, String projectUuid) {
-    List<String> projectBranches = new ArrayList<>();
-    try (PreparedStatement stmt = session.getConnection().prepareStatement(SQL_PROJECT_BRANCHES)) {
+  private static Optional<Long> selectProjectBiggestNcloc(DbSession session, String projectUuid) {
+    try (PreparedStatement nclocStatement = session.getConnection().prepareStatement(SQL_BIGGEST_NCLOC_VALUE)) {
       AtomicInteger index = new AtomicInteger(1);
-      stmt.setString(index.getAndIncrement(), projectUuid);
-
-      try (ResultSet rs = stmt.executeQuery()) {
-        while (rs.next()) {
-          String uuid = rs.getString(1);
-          projectBranches.add(uuid);
-        }
-      }
-      return projectBranches;
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to execute request to select all project branches", e);
-    }
-  }
-
-  private static long selectProjectBiggestNcloc(DbSession session, List<String> projectBranches) {
-    try (PreparedStatement nclocStatement = getPreparedStatement(projectBranches, SQL_BIGGEST_NCLOC_VALUE, session)) {
-      AtomicInteger index = new AtomicInteger(1);
-      projectBranches.forEach(DatabaseUtils.setStrings(nclocStatement, index::getAndIncrement));
-
+      nclocStatement.setString(index.getAndIncrement(), projectUuid);
       nclocStatement.setString(index.getAndIncrement(), CoreMetrics.NCLOC_KEY);
       nclocStatement.setBoolean(index.getAndIncrement(), ENABLED);
 
       try (ResultSet rs = nclocStatement.executeQuery()) {
-        long ncloc = 0;
         if (rs.next()) {
-          ncloc = rs.getLong(1);
+          return Optional.of(rs.getLong(1));
         }
-        return ncloc;
+        return Optional.empty();
       }
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute request to select the project biggest ncloc", e);
     }
   }
 
-  private static String selectProjectBiggestBranch(DbSession session, List<String> projectBranches, long ncloc) {
-    try (PreparedStatement nclocStatement = getPreparedStatement(projectBranches, SQL_BIGGEST_BRANCH, session)) {
+  private static Optional<String> selectProjectBranchForNcloc(DbSession session, String projectUuid, long ncloc) {
+    try (PreparedStatement nclocStatement = session.getConnection().prepareStatement(SQL_BRANCH_BY_NCLOC)) {
       AtomicInteger index = new AtomicInteger(1);
-      projectBranches.forEach(DatabaseUtils.setStrings(nclocStatement, index::getAndIncrement));
 
+      nclocStatement.setString(index.getAndIncrement(), projectUuid);
       nclocStatement.setString(index.getAndIncrement(), CoreMetrics.NCLOC_KEY);
       nclocStatement.setLong(index.getAndIncrement(), ncloc);
       nclocStatement.setBoolean(index.getAndIncrement(), ENABLED);
 
-      String biggestBranchUuid = "";
       try (ResultSet rs = nclocStatement.executeQuery()) {
         if (rs.next()) {
-          biggestBranchUuid = rs.getString(1);
+          return Optional.of(rs.getString(1));
         }
       }
-      return biggestBranchUuid;
+      return Optional.empty();
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute request to select the project biggest branch", e);
     }
-  }
-
-  private static PreparedStatement getPreparedStatement(List<String> projectBranches, String replacement, DbSession session) throws SQLException {
-    String projectBranchesQuestionMarks = projectBranches.stream().map(x -> "?").collect(Collectors.joining(","));
-    String sql = StringUtils.replace(replacement, "{projectBranches}", projectBranchesQuestionMarks);
-    return session.getConnection().prepareStatement(sql);
   }
 
   private static void readMeasure(ResultSet rs, Measures measures) throws SQLException {
