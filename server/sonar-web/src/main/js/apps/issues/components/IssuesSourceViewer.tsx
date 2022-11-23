@@ -76,6 +76,7 @@ export default class IssuesSourceViewer extends React.PureComponent<IssuesSource
       });
     } else if (this.primaryLocationRef) {
       this.primaryLocationRef.scrollIntoView({
+        behavior: 'smooth',
         block: 'center',
         inline: 'nearest',
       });

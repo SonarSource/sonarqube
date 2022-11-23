@@ -387,8 +387,7 @@ export class App extends React.PureComponent<Props, State> {
       if (path.query.open && path.query.open === this.state.openIssue.key) {
         this.setState({
           locationsNavigator: false,
-          selectedFlowIndex: undefined,
-          selectedLocationIndex: undefined,
+          selectedLocationIndex: -1,
         });
       } else {
         this.props.router.replace(path);
