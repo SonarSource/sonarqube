@@ -31,6 +31,7 @@ public class DbVersion98 implements DbVersion {
       .add(6702, "Move project measure variations to values", MoveProjectMeasureVariationToValue.class)
       .add(6703, "Drop project measure variation column", DropProjectMeasureVariationColumn.class)
       .add(6704, "Update sonar-users group description", UpsertSonarUsersDescription.class)
+      .add(6705, "Add message_formattings column to issue table", AddMessageFormattingsColumnToIssueTable.class)
       ;
   }
 }

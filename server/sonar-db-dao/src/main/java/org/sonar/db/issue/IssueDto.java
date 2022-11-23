@@ -60,6 +60,7 @@ public final class IssueDto implements Serializable {
   private String severity;
   private boolean manualSeverity;
   private String message;
+  private byte[] messageFormattings;
   private Integer line;
   private Double gap;
   private Long effort;
@@ -114,6 +115,7 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
+      .setMessageFormattings((byte[]) null)
       .setGap(issue.gap())
       .setEffort(issue.effortInMinutes())
       .setResolution(issue.resolution())
@@ -163,6 +165,7 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
+      .setMessageFormattings((byte[]) null)
       .setGap(issue.gap())
       .setEffort(issue.effortInMinutes())
       .setResolution(issue.resolution())
@@ -260,6 +263,25 @@ public final class IssueDto implements Serializable {
     checkArgument(s == null || s.length() <= 4000, "Value is too long for issue message: %s", s);
     this.message = s;
     return this;
+  }
+
+  public IssueDto setMessageFormattings(@Nullable byte[] messageFormattings) {
+    this.messageFormattings = messageFormattings;
+    return this;
+  }
+
+  public IssueDto setMessageFormattings(@Nullable DbIssues.MessageFormattings messageFormattings) {
+    if (messageFormattings == null) {
+      this.messageFormattings = null;
+    } else {
+      this.messageFormattings = messageFormattings.toByteArray();
+    }
+    return this;
+  }
+
+  @CheckForNull
+  public byte[] getMessageFormattings() {
+    return messageFormattings;
   }
 
   @CheckForNull

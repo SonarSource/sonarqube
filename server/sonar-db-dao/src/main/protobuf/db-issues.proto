@@ -54,4 +54,18 @@ message Location {
   optional sonarqube.db.commons.TextRange text_range = 2;
   optional string msg = 3;
   optional string checksum = 4;
+  repeated MessageFormatting msgFormattings = 5;
+}
+message MessageFormattings {
+  repeated MessageFormatting messageFormatting = 1;
+}
+
+message MessageFormatting {
+  required int32 start = 1;
+  required int32 end = 2;
+  required MessageFormattingType type = 3;
+}
+
+enum MessageFormattingType {
+  CODE = 0;
 }
