@@ -17,34 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.user.ws;
+package org.sonar.db.scim;
 
-import org.sonar.core.platform.Module;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
-public class UsersWsModule extends Module {
+public interface ScimUserMapper {
 
-  @Override
-  protected void configureModule() {
-    add(
-      UsersWs.class,
-      AnonymizeAction.class,
-      CreateAction.class,
-      UpdateAction.class,
-      UpdateLoginAction.class,
-      DeactivateAction.class,
-      UserDeactivator.class,
-      DismissSonarlintAdAction.class,
-      ChangePasswordAction.class,
-      CurrentAction.class,
-      SearchAction.class,
-      GroupsAction.class,
-      IdentityProvidersAction.class,
-      UserJsonWriter.class,
-      SetHomepageAction.class,
-      HomepageTypesImpl.class,
-      UserAnonymizer.class,
-      UpdateIdentityProviderAction.class,
-      DismissNoticeAction.class);
+  List<ScimUserDto> findAll();
 
-  }
+  @CheckForNull
+  ScimUserDto findByScimUuid(@Param("scimUserUuid") String scimUserUuid);
+
+  @CheckForNull
+  ScimUserDto findByUserUuid(@Param("userUuid") String userUuid);
+
+  void insert(@Param("scimUserDto") ScimUserDto scimUserDto);
+
+  List<ScimUserDto> findScimUsers(@Param("query") ScimUserQuery scimUserQuery, RowBounds rowBounds);
+
+  int countScimUsers(@Param("query") ScimUserQuery scimUserQuery);
+
+  void deleteByUserUuid(@Param("userUuid") String userUuid);
 }

@@ -32,6 +32,7 @@ public class DbVersion98 implements DbVersion {
       .add(6703, "Drop project measure variation column", DropProjectMeasureVariationColumn.class)
       .add(6704, "Update sonar-users group description", UpsertSonarUsersDescription.class)
       .add(6705, "Add message_formattings column to issue table", AddMessageFormattingsColumnToIssueTable.class)
-      ;
+      .add(6706, "Create scim_users table", CreateScimUsersTable.class)
+      .add(6707, "Create unique index on scim_users.user_uuid", CreateUniqueIndexForScimUserUuid.class);
   }
 }

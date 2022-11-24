@@ -17,34 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.user.ws;
+package org.sonar.db.scim;
 
-import org.sonar.core.platform.Module;
+public class ScimUserDto {
 
-public class UsersWsModule extends Module {
+  private final String scimUserUuid;
+  private final String userUuid;
 
-  @Override
-  protected void configureModule() {
-    add(
-      UsersWs.class,
-      AnonymizeAction.class,
-      CreateAction.class,
-      UpdateAction.class,
-      UpdateLoginAction.class,
-      DeactivateAction.class,
-      UserDeactivator.class,
-      DismissSonarlintAdAction.class,
-      ChangePasswordAction.class,
-      CurrentAction.class,
-      SearchAction.class,
-      GroupsAction.class,
-      IdentityProvidersAction.class,
-      UserJsonWriter.class,
-      SetHomepageAction.class,
-      HomepageTypesImpl.class,
-      UserAnonymizer.class,
-      UpdateIdentityProviderAction.class,
-      DismissNoticeAction.class);
-
+  public ScimUserDto(String scimUserUuid, String userUuid) {
+    this.scimUserUuid = scimUserUuid;
+    this.userUuid = userUuid;
   }
+
+  public String getScimUserUuid() {
+    return scimUserUuid;
+  }
+
+
+  public String getUserUuid() {
+    return userUuid;
+  }
+
 }

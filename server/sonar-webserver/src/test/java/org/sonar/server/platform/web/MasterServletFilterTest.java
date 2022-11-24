@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.ServletFilter;
@@ -41,13 +43,13 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MasterServletFilterTest {
-
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -108,22 +110,39 @@ public class MasterServletFilterTest {
   }
 
   @Test
-  public void should_keep_filter_ordering() throws Exception {
-    TrueFilter filter1 = new TrueFilter();
-    TrueFilter filter2 = new TrueFilter();
-
-    MasterServletFilter filters = new MasterServletFilter();
-    filters.init(mock(FilterConfig.class), asList(filter1, filter2));
-
+  public void should_add_scim_filter_first_for_scim_request() throws Exception {
+    String scimPath = "/api/scim/v2/Groups";
     HttpServletRequest request = mock(HttpServletRequest.class);
-    when(request.getRequestURI()).thenReturn("/foo/bar");
+    when(request.getRequestURI()).thenReturn(scimPath);
     when(request.getContextPath()).thenReturn("");
     ServletResponse response = mock(HttpServletResponse.class);
     FilterChain chain = mock(FilterChain.class);
+
+    ServletFilter filter1 = mockFilter(ServletFilter.class, request, response);
+    ServletFilter filter2 = mockFilter(ServletFilter.class, request, response);
+    ServletFilter filter3 = mockFilter(WebServiceFilter.class, request, response);
+    when(filter3.doGetPattern()).thenReturn(UrlPattern.builder().includes(scimPath).build());
+
+    MasterServletFilter filters = new MasterServletFilter();
+    filters.init(mock(FilterConfig.class), asList(filter3, filter1, filter2));
+
     filters.doFilter(request, response, chain);
 
-    assertThat(filter1.count).isOne();
-    assertThat(filter2.count).isEqualTo(2);
+    InOrder inOrder = Mockito.inOrder(filter1, filter2, filter3);
+    inOrder.verify(filter3).doFilter(any(), any(), any());
+    inOrder.verify(filter1).doFilter(any(), any(), any());
+    inOrder.verify(filter2).doFilter(any(), any(), any());
+  }
+
+  private ServletFilter mockFilter(Class<? extends ServletFilter> filterClazz, HttpServletRequest request, ServletResponse response) throws IOException, ServletException {
+    ServletFilter filter = mock(filterClazz);
+    when(filter.doGetPattern()).thenReturn(UrlPattern.builder().build());
+    doAnswer(invocation -> {
+      FilterChain argument = invocation.getArgument(2, FilterChain.class);
+      argument.doFilter(request, response);
+      return null;
+    }).when(filter).doFilter(any(), any(), any());
+    return filter;
   }
 
   @Test
@@ -141,26 +160,6 @@ public class MasterServletFilterTest {
     ServletFilter filter = mock(ServletFilter.class);
     when(filter.doGetPattern()).thenReturn(UrlPattern.builder().build());
     return filter;
-  }
-
-  private static final class TrueFilter extends ServletFilter {
-    private static int globalCount = 0;
-    private int count = 0;
-
-    @Override
-    public void init(FilterConfig filterConfig) {
-    }
-
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-      globalCount++;
-      count = globalCount;
-      filterChain.doFilter(servletRequest, servletResponse);
-    }
-
-    @Override
-    public void destroy() {
-    }
   }
 
   private static class PatternFilter extends ServletFilter {

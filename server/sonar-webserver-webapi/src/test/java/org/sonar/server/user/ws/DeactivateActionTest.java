@@ -62,10 +62,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
@@ -91,7 +87,8 @@ public class DeactivateActionTest {
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final DbSession dbSession = db.getSession();
   private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient(), () -> "anonymized");
-  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userIndexer, userSession, new UserJsonWriter(userSession), userAnonymizer));
+  private final UserDeactivator userDeactivator = new UserDeactivator(dbClient, userIndexer, userSession, userAnonymizer);
+  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userSession, new UserJsonWriter(userSession), userDeactivator));
 
   @Test
   public void deactivate_user_and_delete_their_related_data() {
@@ -439,6 +436,19 @@ public class DeactivateActionTest {
     String json = deactivate(user.getLogin()).getInput();
 
     assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void anonymizeUser_whenSamlAndScimUser_shouldDeleteScimMapping() {
+    createAdminUser();
+    logInAsSystemAdministrator();
+    UserDto user = db.users().insertUser();
+    db.getDbClient().scimUserDao().enableScimForUser(dbSession, user.getUuid());
+    db.commit();
+
+    deactivate(user.getLogin(), true);
+
+    assertThat(db.getDbClient().scimUserDao().findByUserUuid(dbSession, user.getUuid())).isEmpty();
   }
 
   private void logInAsSystemAdministrator() {

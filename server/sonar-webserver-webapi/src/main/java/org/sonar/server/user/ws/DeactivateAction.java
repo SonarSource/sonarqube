@@ -28,14 +28,10 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserIndexer;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
@@ -45,17 +41,16 @@ public class DeactivateAction implements UsersWsAction {
   private static final String PARAM_ANONYMIZE = "anonymize";
 
   private final DbClient dbClient;
-  private final UserIndexer userIndexer;
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
-  private final UserAnonymizer userAnonymizer;
+  private final UserDeactivator userDeactivator;
 
-  public DeactivateAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession, UserJsonWriter userWriter, UserAnonymizer userAnonymizer) {
+  public DeactivateAction(DbClient dbClient, UserSession userSession, UserJsonWriter userWriter,
+    UserDeactivator userDeactivator) {
     this.dbClient = dbClient;
-    this.userIndexer = userIndexer;
     this.userSession = userSession;
     this.userWriter = userWriter;
-    this.userAnonymizer = userAnonymizer;
+    this.userDeactivator = userDeactivator;
   }
 
   @Override
@@ -89,33 +84,11 @@ public class DeactivateAction implements UsersWsAction {
     checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
-      checkFound(user, "User '%s' doesn't exist", login);
-
-      ensureNotLastAdministrator(dbSession, user);
-
-      String userUuid = user.getUuid();
-      dbClient.userTokenDao().deleteByUser(dbSession, user);
-      dbClient.propertiesDao().deleteByKeyAndValue(dbSession, DEFAULT_ISSUE_ASSIGNEE, user.getLogin());
-      dbClient.propertiesDao().deleteByQuery(dbSession, PropertyQuery.builder().setUserUuid(userUuid).build());
-      dbClient.userGroupDao().deleteByUserUuid(dbSession, user);
-      dbClient.userPermissionDao().deleteByUserUuid(dbSession, user);
-      dbClient.permissionTemplateDao().deleteUserPermissionsByUserUuid(dbSession, userUuid, user.getLogin());
-      dbClient.qProfileEditUsersDao().deleteByUser(dbSession, user);
-      dbClient.almPatDao().deleteByUser(dbSession, user);
-      dbClient.sessionTokensDao().deleteByUser(dbSession, user);
-      dbClient.userDismissedMessagesDao().deleteByUser(dbSession, user);
-      dbClient.qualityGateUserPermissionDao().deleteByUser(dbSession, user);
-
-      if (request.mandatoryParamAsBoolean(PARAM_ANONYMIZE)) {
-        userAnonymizer.anonymize(dbSession, user);
-        dbClient.userDao().update(dbSession, user);
-      }
-
-      dbClient.userDao().deactivateUser(dbSession, user);
-
-      userIndexer.commitAndIndex(dbSession, user);
-      writeResponse(response, user.getLogin());
+      boolean shouldAnonymize = request.mandatoryParamAsBoolean(PARAM_ANONYMIZE);
+      UserDto userDto = shouldAnonymize
+        ? userDeactivator.deactivateUserWithAnonymization(dbSession, login)
+        : userDeactivator.deactivateUser(dbSession, login);
+      writeResponse(response, userDto.getLogin());
     }
   }
 
@@ -136,9 +109,6 @@ public class DeactivateAction implements UsersWsAction {
     }
   }
 
-  private void ensureNotLastAdministrator(DbSession dbSession, UserDto user) {
-    boolean isLastAdmin = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession, ADMINISTER.getKey(), user.getUuid()) == 0;
-    checkRequest(!isLastAdmin, "User is last administrator, and cannot be deactivated");
-  }
+
 
 }

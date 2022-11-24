@@ -21,8 +21,8 @@ package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +44,7 @@ import org.sonar.server.platform.PlatformImpl;
  */
 public class MasterServletFilter implements Filter {
 
+  private static final String SCIM_FILTER_PATH = "/api/scim/v2/";
   private static volatile MasterServletFilter instance;
   private ServletFilter[] filters;
   private FilterConfig config;
@@ -78,17 +79,29 @@ public class MasterServletFilter implements Filter {
   }
 
   public void initFilters(List<ServletFilter> filterExtensions) {
-    List<ServletFilter> filterList = Lists.newArrayList();
+    LinkedList<ServletFilter> filterList = new LinkedList<>();
     for (ServletFilter extension : filterExtensions) {
       try {
         Loggers.get(MasterServletFilter.class).info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern().label()));
         extension.init(config);
-        filterList.add(extension);
+        // As for scim we need to intercept traffic to URLs with path parameters
+        // and that use is not properly handled when dealing with inclusions/exclusions of the WebServiceFilter,
+        // we need to make sure the Scim filters are invoked before the WebserviceFilter
+        if (isScimFilter(extension)) {
+          filterList.addFirst(extension);
+        } else {
+          filterList.addLast(extension);
+        }
       } catch (Exception e) {
         throw new IllegalStateException("Fail to initialize servlet filter: " + extension + ". Message: " + e.getMessage(), e);
       }
     }
-    filters = filterList.toArray(new ServletFilter[filterList.size()]);
+    filters = filterList.toArray(new ServletFilter[0]);
+  }
+
+  private static boolean isScimFilter(ServletFilter extension) {
+    return extension.doGetPattern().getInclusions().stream()
+      .anyMatch(s -> s.startsWith(SCIM_FILTER_PATH));
   }
 
   @Override
@@ -99,14 +112,15 @@ public class MasterServletFilter implements Filter {
     } else {
       String path = hsr.getRequestURI().replaceFirst(hsr.getContextPath(), "");
       GodFilterChain godChain = new GodFilterChain(chain);
-
-      for (ServletFilter filter : filters) {
-        if (filter.doGetPattern().matches(path)) {
-          godChain.addFilter(filter);
-        }
-      }
+      buildGodchain(path, godChain);
       godChain.doFilter(hsr, response);
     }
+  }
+
+  private void buildGodchain(String path, GodFilterChain godChain) {
+    Arrays.stream(filters)
+      .filter(filter -> filter.doGetPattern().matches(path))
+      .forEachOrdered(godChain::addFilter);
   }
 
   @Override

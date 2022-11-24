@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.scim.ScimUserMapper">
+
+  <sql id="scimUsersColumns">
+      scim_uuid as scimUserUuid,
+      user_uuid as userUuid
+  </sql>
+
+  <select id="findAll" resultType="org.sonar.db.scim.ScimUserDto">
+    select
+    <include refid="scimUsersColumns"/>
+      from scim_users
+  </select>
+
+  <select id="findByScimUuid" parameterType="String" resultType="org.sonar.db.scim.ScimUserDto">
+    select
+    <include refid="scimUsersColumns"/>
+      from scim_users
+    where
+      scim_uuid = #{scimUserUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="findByUserUuid" parameterType="String" resultType="org.sonar.db.scim.ScimUserDto">
+    select
+    <include refid="scimUsersColumns"/>
+      from scim_users
+    where
+      user_uuid = #{userUuid,jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    insert into scim_users (
+      scim_uuid,
+      user_uuid
+    ) values (
+      #{scimUserDto.scimUserUuid,jdbcType=VARCHAR},
+      #{scimUserDto.userUuid,jdbcType=VARCHAR}
+    )
+  </insert>
+
+  <select id="findScimUsers" resultType="org.sonar.db.scim.ScimUserDto">
+    select
+    <include refid="scimUsersColumns"/>
+    <include refid="sqlSelectByQuery"/>
+    order by s.scim_uuid asc
+  </select>
+
+  <select id="countScimUsers" resultType="int">
+    select count(1)
+    <include refid="sqlSelectByQuery"/>
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    from scim_users s
+    <if test="query.userName != null">
+      inner join users u on u.uuid=s.user_uuid
+        where lower(u.external_id) like lower(#{query.userName,jdbcType=VARCHAR}) escape '/'
+    </if>
+  </sql>
+
+  <delete id="deleteByUserUuid" parameterType="String">
+    delete from scim_users where user_uuid = #{userUuid, jdbcType=VARCHAR}
+  </delete>
+
+</mapper>
+

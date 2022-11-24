@@ -144,6 +144,7 @@ import org.sonar.db.rule.RuleRepositoryMapper;
 import org.sonar.db.scannercache.ScannerAnalysisCacheMapper;
 import org.sonar.db.schemamigration.SchemaMigrationDto;
 import org.sonar.db.schemamigration.SchemaMigrationMapper;
+import org.sonar.db.scim.ScimUserMapper;
 import org.sonar.db.source.FileSourceMapper;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMapper;
@@ -314,6 +315,7 @@ public class MyBatis {
       SamlMessageIdMapper.class,
       ScannerAnalysisCacheMapper.class,
       SchemaMigrationMapper.class,
+      ScimUserMapper.class,
       SessionTokenMapper.class,
       SnapshotMapper.class,
       UserDismissedMessagesMapper.class,
