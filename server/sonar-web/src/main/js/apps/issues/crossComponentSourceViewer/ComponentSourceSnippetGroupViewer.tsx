@@ -106,13 +106,17 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   createSnippetsFromProps() {
     const { issue, snippetGroup } = this.props;
 
+    const locations = [...snippetGroup.locations];
+
+    // Add primary location if the component matches
+    if (issue.component === snippetGroup.component.key) {
+      locations.unshift(getPrimaryLocation(issue));
+    }
+
     const snippets = createSnippets({
       component: snippetGroup.component.key,
       issue,
-      locations:
-        snippetGroup.locations.length === 0
-          ? [getPrimaryLocation(issue)]
-          : [getPrimaryLocation(issue), ...snippetGroup.locations],
+      locations,
     });
 
     this.setState({ snippets });

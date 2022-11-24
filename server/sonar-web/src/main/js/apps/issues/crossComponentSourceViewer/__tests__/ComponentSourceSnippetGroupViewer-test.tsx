@@ -244,10 +244,7 @@ it('should expand full component', async () => {
 
 it('should get the right branch when expanding', async () => {
   (getSources as jest.Mock).mockResolvedValueOnce(
-    Object.values(
-      mockSnippetsByComponent('a', 'project', [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
-        .sources
-    )
+    Object.values(mockSnippetsByComponent('a', 'project', range(8, 67)).sources)
   );
   const snippetGroup: SnippetGroup = {
     locations: [mockFlowLocation()],
@@ -262,7 +259,7 @@ it('should get the right branch when expanding', async () => {
   wrapper.instance().expandBlock(0, 'down');
   await waitAndUpdate(wrapper);
 
-  expect(getSources).toHaveBeenCalledWith({ branch: 'asdf', from: 36, key: 'project:a', to: 95 });
+  expect(getSources).toHaveBeenCalledWith({ branch: 'asdf', from: 8, key: 'project:a', to: 67 });
 });
 
 it('should handle symbol highlighting', () => {
