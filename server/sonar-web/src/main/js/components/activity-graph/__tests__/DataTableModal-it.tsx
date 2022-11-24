@@ -22,13 +22,18 @@ import { screen } from '@testing-library/react';
 import { times } from 'lodash';
 import * as React from 'react';
 import { parseDate } from '../../../helpers/dates';
-import { mockHistoryItem, mockMeasureHistory } from '../../../helpers/mocks/project-activity';
+import {
+  mockAnalysisEvent,
+  mockHistoryItem,
+  mockMeasureHistory,
+  mockParsedAnalysis,
+} from '../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { Metric } from '../../../types/types';
-import DataTableModal, { DataTableModalProps } from '../DataTableModal';
+import DataTableModal, { DataTableModalProps, MAX_DATA_TABLE_ROWS } from '../DataTableModal';
 import { generateSeries, getDisplayedHistoryMetrics } from '../utils';
 
 it('should render correctly if there are no series', () => {
@@ -38,10 +43,22 @@ it('should render correctly if there are no series', () => {
   ).toBeInTheDocument();
 });
 
+it('should render correctly if there are events', () => {
+  renderDataTableModal({
+    analyses: [
+      mockParsedAnalysis({
+        date: parseDate('2016-01-01T00:00:00+0200'),
+        events: [mockAnalysisEvent({ key: '1', category: 'QUALITY_GATE' })],
+      }),
+    ],
+  });
+  expect(screen.getByText('event.category.QUALITY_GATE', { exact: false })).toBeInTheDocument();
+});
+
 it('should render correctly if there is too much data', () => {
-  renderDataTableModal({ series: mockSeries(101) });
+  renderDataTableModal({ series: mockSeries(MAX_DATA_TABLE_ROWS + 1) });
   expect(
-    screen.getByText('project_activity.graphs.data_table.max_lines_warning.100')
+    screen.getByText(`project_activity.graphs.data_table.max_lines_warning.${MAX_DATA_TABLE_ROWS}`)
   ).toBeInTheDocument();
 });
 

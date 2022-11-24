@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
+import { MetricKey } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
 
 export interface GraphsTooltipsContentDuplicationProps {
@@ -28,13 +29,12 @@ export interface GraphsTooltipsContentDuplicationProps {
   tooltipIdx: number;
 }
 
-export default function GraphsTooltipsContentDuplication({
-  addSeparator,
-  measuresHistory,
-  tooltipIdx,
-}: GraphsTooltipsContentDuplicationProps) {
+export default function GraphsTooltipsContentDuplication(
+  props: GraphsTooltipsContentDuplicationProps
+) {
+  const { addSeparator, measuresHistory, tooltipIdx } = props;
   const duplicationDensity = measuresHistory.find(
-    (measure) => measure.metric === 'duplicated_lines_density'
+    (measure) => measure.metric === MetricKey.duplicated_lines_density
   );
   if (!duplicationDensity || !duplicationDensity.history[tooltipIdx]) {
     return null;

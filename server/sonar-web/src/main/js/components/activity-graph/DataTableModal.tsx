@@ -41,7 +41,7 @@ export interface DataTableModalProps {
 
 type DataTableEntry = { date: Date } & { [x: string]: string | undefined };
 
-const MAX_DATA_TABLE_ROWS = 100;
+export const MAX_DATA_TABLE_ROWS = 100;
 
 export default function DataTableModal(props: DataTableModalProps) {
   const { analyses, series, graphEndDate, graphStartDate } = props;

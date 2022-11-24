@@ -32,36 +32,34 @@ export interface GraphsLegendCustomProps {
 export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
   const { series } = props;
   return (
-    <div className="activity-graph-legends display-flex-center">
-      <div className="flex-1">
-        {series.map((serie, idx) => {
-          const hasData = hasDataValues(serie);
-          const legendItem = (
-            <GraphsLegendItem
-              index={idx}
-              metric={serie.name}
-              name={serie.translatedName}
-              removeMetric={props.removeMetric}
-              showWarning={!hasData}
-            />
-          );
-          if (!hasData) {
-            return (
-              <Tooltip
-                key={serie.name}
-                overlay={translate('project_activity.graphs.custom.metric_no_history')}
-              >
-                <span className="spacer-left spacer-right">{legendItem}</span>
-              </Tooltip>
-            );
-          }
+    <ul className="activity-graph-legends">
+      {series.map((serie, idx) => {
+        const hasData = hasDataValues(serie);
+        const legendItem = (
+          <GraphsLegendItem
+            index={idx}
+            metric={serie.name}
+            name={serie.translatedName}
+            removeMetric={props.removeMetric}
+            showWarning={!hasData}
+          />
+        );
+        if (!hasData) {
           return (
-            <span className="spacer-left spacer-right" key={serie.name}>
-              {legendItem}
-            </span>
+            <Tooltip
+              key={serie.name}
+              overlay={translate('project_activity.graphs.custom.metric_no_history')}
+            >
+              <li className="spacer-left spacer-right">{legendItem}</li>
+            </Tooltip>
           );
-        })}
-      </div>
-    </div>
+        }
+        return (
+          <li className="spacer-left spacer-right" key={serie.name}>
+            {legendItem}
+          </li>
+        );
+      })}
+    </ul>
   );
 }

@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
+import { MetricKey } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
 
 export interface GraphsTooltipsContentCoverageProps {
@@ -28,13 +29,10 @@ export interface GraphsTooltipsContentCoverageProps {
   tooltipIdx: number;
 }
 
-export default function GraphsTooltipsContentCoverage({
-  addSeparator,
-  measuresHistory,
-  tooltipIdx,
-}: GraphsTooltipsContentCoverageProps) {
-  const uncovered = measuresHistory.find((measure) => measure.metric === 'uncovered_lines');
-  const coverage = measuresHistory.find((measure) => measure.metric === 'coverage');
+export default function GraphsTooltipsContentCoverage(props: GraphsTooltipsContentCoverageProps) {
+  const { addSeparator, measuresHistory, tooltipIdx } = props;
+  const uncovered = measuresHistory.find((measure) => measure.metric === MetricKey.uncovered_lines);
+  const coverage = measuresHistory.find((measure) => measure.metric === MetricKey.coverage);
   if (!uncovered || !uncovered.history[tooltipIdx] || !coverage || !coverage.history[tooltipIdx]) {
     return null;
   }

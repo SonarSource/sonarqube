@@ -54,9 +54,9 @@
 }
 
 .activity-graph-legends {
-  flex-grow: 0;
+  display: flex;
+  justify-content: center;
   padding-bottom: calc(2 * var(--gridSize));
-  text-align: center;
 }
 
 .activity-graph-legend-actionable {

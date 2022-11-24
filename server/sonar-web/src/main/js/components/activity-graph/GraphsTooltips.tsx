@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Popup, PopupPlacement } from '../../components/ui/popups';
 import { isDefined } from '../../helpers/types';
-import { AnalysisEvent, MeasureHistory, Serie } from '../../types/project-activity';
+import { AnalysisEvent, GraphType, MeasureHistory, Serie } from '../../types/project-activity';
 import DateTimeFormatter from '../intl/DateTimeFormatter';
 import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
@@ -42,53 +42,60 @@ interface Props {
 }
 
 const TOOLTIP_WIDTH = 250;
+const TOOLTIP_LEFT_MARGIN = 60;
+const TOOLTIP_LEFT_FLIP_THRESHOLD = 50;
 
 export default class GraphsTooltips extends React.PureComponent<Props> {
   renderContent() {
-    const { tooltipIdx } = this.props;
+    const { tooltipIdx, series, graph, measuresHistory } = this.props;
 
-    return this.props.series.map((serie, idx) => {
+    return series.map((serie, idx) => {
       const point = serie.data[tooltipIdx];
       if (!point || (!point.y && point.y !== 0)) {
         return null;
       }
-      if (this.props.graph === DEFAULT_GRAPH) {
+
+      if (graph === DEFAULT_GRAPH) {
         return (
           <GraphsTooltipsContentIssues
             index={idx}
             key={serie.name}
-            measuresHistory={this.props.measuresHistory}
+            measuresHistory={measuresHistory}
             name={serie.name}
             tooltipIdx={tooltipIdx}
             translatedName={serie.translatedName}
             value={this.props.formatValue(point.y)}
           />
         );
-      } else {
-        return (
-          <GraphsTooltipsContent
-            index={idx}
-            key={serie.name}
-            name={serie.name}
-            translatedName={serie.translatedName}
-            value={this.props.formatValue(point.y)}
-          />
-        );
       }
+
+      return (
+        <GraphsTooltipsContent
+          index={idx}
+          key={serie.name}
+          name={serie.name}
+          translatedName={serie.translatedName}
+          value={this.props.formatValue(point.y)}
+        />
+      );
     });
   }
 
   render() {
-    const { events, measuresHistory, tooltipIdx } = this.props;
+    const { events, measuresHistory, tooltipIdx, tooltipPos, graph, graphWidth, selectedDate } =
+      this.props;
+
     const top = 30;
-    let left = this.props.tooltipPos + 60;
+    let left = tooltipPos + TOOLTIP_LEFT_MARGIN;
     let placement = PopupPlacement.RightTop;
-    if (left > this.props.graphWidth - TOOLTIP_WIDTH - 50) {
+    if (left > graphWidth - TOOLTIP_WIDTH - TOOLTIP_LEFT_FLIP_THRESHOLD) {
       left -= TOOLTIP_WIDTH;
       placement = PopupPlacement.LeftTop;
     }
+
     const tooltipContent = this.renderContent().filter(isDefined);
     const addSeparator = tooltipContent.length > 0;
+
     return (
       <Popup
         className="disabled-pointer-events"
@@ -97,21 +104,21 @@ export default class GraphsTooltips extends React.PureComponent<Props> {
       >
         <div className="activity-graph-tooltip">
           <div className="activity-graph-tooltip-title spacer-bottom">
-            <DateTimeFormatter date={this.props.selectedDate} />
+            <DateTimeFormatter date={selectedDate} />
           </div>
           <table className="width-100">
-            {events && events.length > 0 && (
+            {events?.length > 0 && (
               <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
             )}
             <tbody>{tooltipContent}</tbody>
-            {this.props.graph === 'coverage' && (
+            {graph === GraphType.coverage && (
               <GraphsTooltipsContentCoverage
                 addSeparator={addSeparator}
                 measuresHistory={measuresHistory}
                 tooltipIdx={tooltipIdx}
               />
             )}
-            {this.props.graph === 'duplications' && (
+            {graph === GraphType.duplications && (
               <GraphsTooltipsContentDuplication
                 addSeparator={addSeparator}
                 measuresHistory={measuresHistory}

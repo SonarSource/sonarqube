@@ -20,6 +20,7 @@
 import * as React from 'react';
 import ChartLegendIcon from '../../components/icons/ChartLegendIcon';
 import Rating from '../../components/ui/Rating';
+import { MetricKey } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
 import { Dict } from '../../types/types';
 
@@ -33,29 +34,28 @@ export interface GraphsTooltipsContentIssuesProps {
 }
 
 const METRIC_RATING: Dict<string> = {
-  bugs: 'reliability_rating',
-  vulnerabilities: 'security_rating',
-  code_smells: 'sqale_rating',
+  [MetricKey.bugs]: MetricKey.reliability_rating,
+  [MetricKey.vulnerabilities]: MetricKey.security_rating,
+  [MetricKey.code_smells]: MetricKey.sqale_rating,
 };
 
 export default function GraphsTooltipsContentIssues(props: GraphsTooltipsContentIssuesProps) {
-  const rating = props.measuresHistory.find(
-    (measure) => measure.metric === METRIC_RATING[props.name]
-  );
-  if (!rating || !rating.history[props.tooltipIdx]) {
+  const { index, measuresHistory, name, tooltipIdx, translatedName, value } = props;
+  const rating = measuresHistory.find((measure) => measure.metric === METRIC_RATING[name]);
+  if (!rating || !rating.history[tooltipIdx]) {
     return null;
   }
-  const ratingValue = rating.history[props.tooltipIdx].value;
+  const ratingValue = rating.history[tooltipIdx].value;
   return (
-    <tr className="activity-graph-tooltip-issues-line" key={props.name}>
+    <tr className="activity-graph-tooltip-issues-line" key={name}>
       <td className="thin">
-        <ChartLegendIcon className="spacer-right" index={props.index} />
+        <ChartLegendIcon className="spacer-right" index={index} />
       </td>
       <td className="text-right spacer-right">
-        <span className="activity-graph-tooltip-value">{props.value}</span>
+        <span className="activity-graph-tooltip-value">{value}</span>
         {ratingValue && <Rating className="spacer-left" small={true} value={ratingValue} />}
       </td>
-      <td>{props.translatedName}</td>
+      <td>{translatedName}</td>
     </tr>
   );
 }

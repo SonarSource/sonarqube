@@ -272,7 +272,7 @@
  */
 
 .overview-panel .activity-graph-legends {
-  text-align: right;
+  justify-content: right;
   margin-top: -30px;
 }
 

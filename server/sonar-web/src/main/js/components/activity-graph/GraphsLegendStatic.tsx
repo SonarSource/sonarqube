@@ -27,16 +27,17 @@ export interface GraphsLegendStaticProps {
 
 export default function GraphsLegendStatic({ series }: GraphsLegendStaticProps) {
   return (
-    <div className="activity-graph-legends">
+    <ul className="activity-graph-legends">
       {series.map((serie, idx) => (
-        <GraphsLegendItem
-          className="big-spacer-left big-spacer-right"
-          index={idx}
-          key={serie.name}
-          metric={serie.name}
-          name={serie.translatedName}
-        />
+        <li key={serie.name}>
+          <GraphsLegendItem
+            className="big-spacer-left big-spacer-right"
+            index={idx}
+            metric={serie.name}
+            name={serie.translatedName}
+          />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
