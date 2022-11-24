@@ -22,6 +22,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import selectEvent from 'react-select-event';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
+import { TabKeys } from '../../../components/rules/RuleTabViewer';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
 import { mockCurrentUser } from '../../../helpers/testMocks';
 import { renderApp, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
@@ -534,15 +535,17 @@ it('should show code tabs when any secondary location is selected', async () => 
     screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' })
   );
   expect(
-    screen.queryByRole('row', {
-      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;',
+    screen.queryByRole('tab', {
+      name: `issue.tabs.${TabKeys.Code}`,
+      selected: true,
     })
   ).not.toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: '1 location 1' }));
   expect(
-    screen.getByRole('row', {
-      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;',
+    screen.getByRole('tab', {
+      name: `issue.tabs.${TabKeys.Code}`,
+      selected: true,
     })
   ).toBeInTheDocument();
 
@@ -551,15 +554,17 @@ it('should show code tabs when any secondary location is selected', async () => 
     screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' })
   );
   expect(
-    screen.queryByRole('row', {
-      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;',
+    screen.queryByRole('tab', {
+      name: `issue.tabs.${TabKeys.Code}`,
+      selected: true,
     })
   ).not.toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: '1 location 1' }));
   expect(
-    screen.getByRole('row', {
-      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;',
+    screen.getByRole('tab', {
+      name: `issue.tabs.${TabKeys.Code}`,
+      selected: true,
     })
   ).toBeInTheDocument();
 });

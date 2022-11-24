@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import { cloneDeep, debounce, groupBy } from 'lodash';
 import * as React from 'react';
 import { dismissNotice } from '../../api/users';
@@ -293,8 +294,6 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
       return null;
     }
 
-    const tabContent = tabs.find((t) => t.key === selectedTab.key)?.content;
-
     return (
       <>
         <div>
@@ -317,10 +316,19 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
               aria-labelledby={getTabId(selectedTab.key)}
               id={getTabPanelId(selectedTab.key)}
             >
-              {/* Adding a key to force re-rendering of the tab container, so that it resets the scroll position */}
-              <div className="overflow-y-auto spacer" key={selectedTab.key}>
-                {tabContent}
-              </div>
+              {
+                // Preserve tabs state by always rendering all of them. Only hide them when not selected
+                tabs.map((tab) => (
+                  <div
+                    className={classNames('overflow-y-auto spacer', {
+                      hidden: tab.key !== selectedTab.key,
+                    })}
+                    key={tab.key}
+                  >
+                    {tab.content}
+                  </div>
+                ))
+              }
             </div>
           )}
         </ScreenPositionHelper>
