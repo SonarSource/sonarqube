@@ -25,27 +25,56 @@ import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { DefaultSpecializedInputProps } from '../../../utils';
 import InputForFormattedText from '../InputForFormattedText';
 
-it('renders correctly with no value for login message', () => {
+it('should render correctly with no value for login message', () => {
   renderInputForFormattedText();
   expect(screen.getByRole('textbox')).toBeInTheDocument();
 });
 
-it('renders correctly with a value for login message', async () => {
-  const user = userEvent.setup();
+it('should render correctly with a value for login message', () => {
   renderInputForFormattedText({
     setting: mockSetting({ values: ['*text*', 'text'], hasValue: true }),
   });
   expect(screen.getByRole('button', { name: 'edit' })).toBeInTheDocument();
   expect(screen.getByText('text')).toBeInTheDocument();
+});
 
-  await user.click(screen.getByRole('button', { name: 'edit' }));
+it('should render correctly with a value for login message if hasValue is set', () => {
+  renderInputForFormattedText({
+    setting: mockSetting({ hasValue: true }),
+  });
+  expect(screen.getByRole('button', { name: 'edit' })).toBeInTheDocument();
+});
+
+it('should render editMode when value is empty', () => {
+  renderInputForFormattedText({
+    value: '',
+  });
   expect(screen.getByRole('textbox')).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'edit' })).not.toBeInTheDocument();
+});
+
+it('should render correctly if in editMode', async () => {
+  const user = userEvent.setup();
+  const onChange = jest.fn();
+
+  renderInputForFormattedText({
+    setting: mockSetting({ values: ['*text*', 'text'], hasValue: true }),
+    isEditing: true,
+    onChange,
+  });
+  expect(screen.getByRole('textbox')).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'edit' })).not.toBeInTheDocument();
+
+  await user.click(screen.getByRole('textbox'));
+  await user.keyboard('N');
+  expect(onChange).toHaveBeenCalledTimes(1);
 });
 
 function renderInputForFormattedText(props: Partial<DefaultSpecializedInputProps> = {}) {
   renderComponent(
     <InputForFormattedText
+      onEditing={jest.fn()}
+      isEditing={false}
       isDefault={true}
       name="name"
       onChange={jest.fn()}

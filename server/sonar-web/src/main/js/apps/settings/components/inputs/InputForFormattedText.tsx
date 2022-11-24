@@ -25,78 +25,43 @@ import { translate } from '../../../../helpers/l10n';
 import { sanitizeString } from '../../../../helpers/sanitize';
 import { DefaultSpecializedInputProps } from '../../utils';
 
-interface State {
-  editMessage: boolean;
-}
+export default function InputForFormattedText(props: DefaultSpecializedInputProps) {
+  const { isEditing, setting, name, value } = props;
+  const { values, hasValue } = setting;
+  const editMode = !hasValue || isEditing;
+  // 0th value of the values array is markdown and 1st is the formatted text
+  const formattedValue = values ? values[1] : undefined;
 
-export default class InputForFormattedText extends React.PureComponent<
-  DefaultSpecializedInputProps,
-  State
-> {
-  constructor(props: DefaultSpecializedInputProps) {
-    super(props);
-    this.state = {
-      editMessage: !this.props.setting.hasValue,
-    };
+  function handleInputChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+    props.onChange(event.target.value);
   }
 
-  componentDidUpdate(prevProps: DefaultSpecializedInputProps) {
-    /*
-     * Reset `editMessage` if:
-     *  - the value is reset (valueChanged -> !valueChanged)
-     *     or
-     *  - the value changes from outside the input (i.e. store update/reset/cancel)
-     */
-    if (
-      (prevProps.hasValueChanged || this.props.setting.value !== prevProps.setting.value) &&
-      !this.props.hasValueChanged
-    ) {
-      this.setState({ editMessage: !this.props.setting.hasValue });
-    }
-  }
-
-  handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    this.props.onChange(event.target.value);
-  };
-
-  toggleEditMessage = () => {
-    const { editMessage } = this.state;
-    this.setState({ editMessage: !editMessage });
-  };
-
-  render() {
-    const { editMessage } = this.state;
-    const { values } = this.props.setting;
-    // 0th value of the values array is markdown and 1st is the formatted text
-    const formattedValue = values ? values[1] : undefined;
-
-    return (
-      <div>
-        {editMessage ? (
-          <div className="display-flex-row">
-            <textarea
-              className="settings-large-input text-top spacer-right"
-              name={this.props.name}
-              onChange={this.handleInputChange}
-              rows={5}
-              value={this.props.value || ''}
-            />
-            <FormattingTipsWithLink className="abs-width-100" />
-          </div>
-        ) : (
-          <>
-            <div
-              className="markdown-preview markdown"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitizeString(formattedValue ?? '') }}
-            />
-            <Button className="spacer-top" onClick={this.toggleEditMessage}>
-              <EditIcon className="spacer-right" />
-              {translate('edit')}
-            </Button>
-          </>
-        )}
-      </div>
-    );
-  }
+  return (
+    <div>
+      {editMode ? (
+        <div className="display-flex-row">
+          <textarea
+            className="settings-large-input text-top spacer-right"
+            name={name}
+            onChange={handleInputChange}
+            rows={5}
+            value={value || ''}
+          />
+          <FormattingTipsWithLink className="abs-width-100" />
+        </div>
+      ) : (
+        <>
+          <div
+            className="markdown-preview markdown"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: sanitizeString(formattedValue ?? '') }}
+          />
+          <Button className="spacer-top" onClick={props.onEditing}>
+            <EditIcon className="spacer-right" />
+            {translate('edit')}
+          </Button>
+        </>
+      )}
+    </div>
+  );
 }

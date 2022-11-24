@@ -43,10 +43,12 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<DefinitionRendererProps> = {}) {
   return shallow<DefinitionRendererProps>(
     <DefinitionRenderer
+      isEditing={false}
       definition={mockDefinition()}
       loading={false}
       onCancel={jest.fn()}
       onChange={jest.fn()}
+      onEditing={jest.fn()}
       onReset={jest.fn()}
       onSave={jest.fn()}
       success={false}

@@ -73,6 +73,7 @@ it('displays reset button when empty and not default', () => {
 function shallowRender(changedValue: string, hasError: boolean, isDefault: boolean) {
   return shallow(
     <DefinitionActions
+      isEditing={false}
       changedValue={changedValue}
       hasError={hasError}
       hasValueChanged={changedValue !== ''}

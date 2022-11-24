@@ -42,8 +42,10 @@ export interface DefinitionRendererProps {
   success: boolean;
   validationMessage?: string;
   settingValue?: SettingValue;
+  isEditing: boolean;
   onCancel: () => void;
   onChange: (value: any) => void;
+  onEditing: () => void;
   onSave: () => void;
   onReset: () => void;
 }
@@ -51,7 +53,8 @@ export interface DefinitionRendererProps {
 const formNoop = (e: React.FormEvent<HTMLFormElement>) => e.preventDefault();
 
 export default function DefinitionRenderer(props: DefinitionRendererProps) {
-  const { changedValue, loading, validationMessage, settingValue, success, definition } = props;
+  const { changedValue, loading, validationMessage, settingValue, success, definition, isEditing } =
+    props;
 
   const propertyName = getPropertyName(definition);
   const hasError = validationMessage != null;
@@ -120,6 +123,8 @@ export default function DefinitionRenderer(props: DefinitionRendererProps) {
             onCancel={props.onCancel}
             onChange={props.onChange}
             onSave={props.onSave}
+            onEditing={props.onEditing}
+            isEditing={isEditing}
             setting={settingDefinitionAndValue}
             value={effectiveValue}
           />
@@ -128,6 +133,7 @@ export default function DefinitionRenderer(props: DefinitionRendererProps) {
             hasError={hasError}
             hasValueChanged={hasValueChanged}
             isDefault={isDefault}
+            isEditing={isEditing}
             onCancel={props.onCancel}
             onReset={props.onReset}
             onSave={props.onSave}

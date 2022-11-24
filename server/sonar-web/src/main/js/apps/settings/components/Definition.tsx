@@ -34,6 +34,7 @@ interface Props {
 
 interface State {
   changedValue?: string;
+  isEditing: boolean;
   loading: boolean;
   success: boolean;
   validationMessage?: string;
@@ -50,6 +51,7 @@ export default class Definition extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
+      isEditing: false,
       loading: false,
       success: false,
       settingValue: props.initialSettingValue,
@@ -99,7 +101,7 @@ export default class Definition extends React.PureComponent<Props, State> {
   };
 
   handleCancel = () => {
-    this.setState({ changedValue: undefined, validationMessage: undefined });
+    this.setState({ changedValue: undefined, validationMessage: undefined, isEditing: false });
   };
 
   handleCheck = () => {
@@ -146,6 +148,10 @@ export default class Definition extends React.PureComponent<Props, State> {
     return true;
   };
 
+  handleEditing = () => {
+    this.setState({ isEditing: true });
+  };
+
   handleSave = async () => {
     const { component, definition } = this.props;
     const { changedValue } = this.state;
@@ -167,6 +173,7 @@ export default class Definition extends React.PureComponent<Props, State> {
 
         this.setState({
           changedValue: undefined,
+          isEditing: false,
           loading: false,
           success: true,
           settingValue,
@@ -190,6 +197,7 @@ export default class Definition extends React.PureComponent<Props, State> {
         definition={definition}
         onCancel={this.handleCancel}
         onChange={this.handleChange}
+        onEditing={this.handleEditing}
         onReset={this.handleReset}
         onSave={this.handleSave}
         {...this.state}

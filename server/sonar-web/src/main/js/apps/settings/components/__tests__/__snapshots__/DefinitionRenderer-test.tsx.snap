@@ -43,8 +43,10 @@ exports[`should render correctly: changed value 1`] = `
     >
       <Input
         hasValueChanged={true}
+        isEditing={false}
         onCancel={[MockFunction]}
         onChange={[MockFunction]}
+        onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
           Object {
@@ -66,6 +68,7 @@ exports[`should render correctly: changed value 1`] = `
         hasError={false}
         hasValueChanged={true}
         isDefault={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onReset={[MockFunction]}
         onSave={[MockFunction]}
@@ -142,8 +145,10 @@ exports[`should render correctly: in error 1`] = `
     >
       <Input
         hasValueChanged={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onChange={[MockFunction]}
+        onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
           Object {
@@ -163,6 +168,7 @@ exports[`should render correctly: in error 1`] = `
         hasError={true}
         hasValueChanged={false}
         isDefault={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onReset={[MockFunction]}
         onSave={[MockFunction]}
@@ -237,8 +243,10 @@ exports[`should render correctly: loading 1`] = `
     >
       <Input
         hasValueChanged={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onChange={[MockFunction]}
+        onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
           Object {
@@ -258,6 +266,7 @@ exports[`should render correctly: loading 1`] = `
         hasError={false}
         hasValueChanged={false}
         isDefault={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onReset={[MockFunction]}
         onSave={[MockFunction]}
@@ -323,8 +332,10 @@ exports[`should render correctly: original value 1`] = `
     >
       <Input
         hasValueChanged={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onChange={[MockFunction]}
+        onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
           Object {
@@ -346,6 +357,7 @@ exports[`should render correctly: original value 1`] = `
         hasError={false}
         hasValueChanged={false}
         isDefault={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onReset={[MockFunction]}
         onSave={[MockFunction]}
@@ -421,8 +433,10 @@ exports[`should render correctly: success 1`] = `
     >
       <Input
         hasValueChanged={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onChange={[MockFunction]}
+        onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
           Object {
@@ -442,6 +456,7 @@ exports[`should render correctly: success 1`] = `
         hasError={false}
         hasValueChanged={false}
         isDefault={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onReset={[MockFunction]}
         onSave={[MockFunction]}
@@ -507,8 +522,10 @@ exports[`should render correctly: with description 1`] = `
     >
       <Input
         hasValueChanged={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onChange={[MockFunction]}
+        onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
           Object {
@@ -529,6 +546,7 @@ exports[`should render correctly: with description 1`] = `
         hasError={false}
         hasValueChanged={false}
         isDefault={false}
+        isEditing={false}
         onCancel={[MockFunction]}
         onReset={[MockFunction]}
         onSave={[MockFunction]}

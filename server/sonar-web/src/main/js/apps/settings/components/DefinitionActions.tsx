@@ -29,6 +29,7 @@ type Props = {
   hasError: boolean;
   hasValueChanged: boolean;
   isDefault: boolean;
+  isEditing: boolean;
   onCancel: () => void;
   onReset: () => void;
   onSave: () => void;
@@ -74,10 +75,11 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
   }
 
   render() {
-    const { setting, changedValue, isDefault, hasValueChanged } = this.props;
+    const { setting, changedValue, isDefault, isEditing, hasValueChanged } = this.props;
     const hasBeenChangedToEmptyValue =
       changedValue !== undefined && isEmptyValue(setting.definition, changedValue);
     const showReset = hasBeenChangedToEmptyValue || (!isDefault && setting.hasValue);
+    const showCancel = hasValueChanged || isEditing;
 
     return (
       <>
@@ -103,7 +105,7 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
             </Button>
           )}
 
-          {hasValueChanged && (
+          {showCancel && (
             <ResetButtonLink className="spacer-right" onClick={this.props.onCancel}>
               {translate('cancel')}
             </ResetButtonLink>

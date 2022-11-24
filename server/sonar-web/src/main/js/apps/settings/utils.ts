@@ -44,9 +44,11 @@ export type DefaultSpecializedInputProps = DefaultInputProps & {
 
 export interface DefaultInputProps {
   autoFocus?: boolean;
+  isEditing?: boolean;
   hasValueChanged?: boolean;
   onCancel?: () => void;
   onChange: (value: any) => void;
+  onEditing?: () => void;
   onSave?: () => void;
   setting: Setting;
   value: any;
