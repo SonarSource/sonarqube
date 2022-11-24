@@ -22,22 +22,14 @@ import { cloneDeep } from 'lodash';
 import {
   AddRemoveNotificationParameters,
   Notification,
+  NotificationGlobalType,
+  NotificationProjectType,
   NotificationsResponse,
 } from '../../types/notifications';
 import { addNotification, getNotifications, removeNotification } from '../notifications';
 
 /* Constants */
 const channels = ['EmailNotificationChannel'];
-const globalTypes = ['CeReportTaskFailure', 'ChangesOnMyIssue', 'NewAlerts', 'SQ-MyNewIssues'];
-const perProjectTypes = [
-  'CeReportTaskFailure',
-  'ChangesOnMyIssue',
-  'NewAlerts',
-  'NewFalsePositiveIssue',
-  'NewIssues',
-  'SQ-MyNewIssues',
-];
-
 const defaultNotifications: Notification[] = [
   { channel: 'EmailNotificationChannel', type: 'ChangesOnMyIssue' },
 ];
@@ -56,9 +48,9 @@ export default class NotificationsMock {
   handleGetNotifications: () => Promise<NotificationsResponse> = () => {
     return Promise.resolve({
       channels: [...channels],
-      globalTypes: [...globalTypes],
+      globalTypes: Object.values(NotificationGlobalType),
       notifications: cloneDeep(this.notifications),
-      perProjectTypes: [...perProjectTypes],
+      perProjectTypes: Object.values(NotificationProjectType),
     });
   };
 

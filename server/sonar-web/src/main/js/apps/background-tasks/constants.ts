@@ -49,3 +49,5 @@ export const DEFAULT_FILTERS: Query = {
 export const DATE_FORMAT = 'YYYY-MM-DD';
 
 export const DEBOUNCE_DELAY = 250;
+
+export const PAGE_SIZE = 100;

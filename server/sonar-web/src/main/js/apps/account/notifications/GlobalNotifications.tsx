@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { Notification } from '../../../types/notifications';
+import { Notification, NotificationGlobalType } from '../../../types/notifications';
 import NotificationsList from './NotificationsList';
 
 interface Props {
@@ -27,7 +27,7 @@ interface Props {
   channels: string[];
   notifications: Notification[];
   removeNotification: (n: Notification) => void;
-  types: string[];
+  types: NotificationGlobalType[];
 }
 
 export default function GlobalNotifications(props: Props) {

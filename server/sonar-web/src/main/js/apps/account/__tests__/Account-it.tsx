@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup';
 import selectEvent from 'react-select-event';
+import { byLabelText, byRole, byText } from 'testing-library-selector';
 import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
@@ -28,6 +29,7 @@ import { mockUserToken } from '../../../helpers/mocks/token';
 import { setKeyboardShortcutEnabled } from '../../../helpers/preferences';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
+import { NotificationGlobalType, NotificationProjectType } from '../../../types/notifications';
 import { Permissions } from '../../../types/permissions';
 import { TokenType } from '../../../types/token';
 import { CurrentUser } from '../../../types/users';
@@ -463,6 +465,27 @@ describe('security page', () => {
 });
 
 describe('notifications page', () => {
+  const projectUI = {
+    title: byRole('button', { name: 'my_profile.per_project_notifications.add' }),
+    addButton: byRole('button', { name: 'my_profile.per_project_notifications.add' }),
+    addModalButton: byRole('button', { name: 'add_verb' }),
+    searchInput: byLabelText('search_verb', { selector: 'input' }),
+    sonarQubeProject: byRole('heading', { name: 'SonarQube' }),
+    checkbox: (type: NotificationProjectType) =>
+      byRole('checkbox', {
+        name: `notification.dispatcher.descrption_x.notification.dispatcher.${type}.project`,
+      }),
+  };
+
+  const globalUI = {
+    title: byRole('heading', { name: 'my_profile.overall_notifications.title' }),
+    noNotificationForProject: byText('my_account.no_project_notifications'),
+    checkbox: (type: NotificationGlobalType) =>
+      byRole('checkbox', {
+        name: `notification.dispatcher.descrption_x.notification.dispatcher.${type}`,
+      }),
+  };
+
   let notificationsMock: NotificationsMock;
   beforeAll(() => {
     notificationsMock = new NotificationsMock();
@@ -475,43 +498,28 @@ describe('notifications page', () => {
   const notificationsPagePath = 'account/notifications';
 
   it('should display global notifications status and allow edits', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
 
     renderAccountApp(mockLoggedInUser(), notificationsPagePath);
 
-    expect(
-      await screen.findByRole('heading', { name: 'my_profile.overall_notifications.title' })
-    ).toBeInTheDocument();
-
-    expect(screen.getAllByRole('row')).toHaveLength(5); // 4 + header
+    expect(await globalUI.title.find()).toBeInTheDocument();
 
     /*
      * Verify Checkbox statuses
      */
-    expect(getCheckboxByRowName('notification.dispatcher.ChangesOnMyIssue')).toBeChecked();
-
-    // first row is the header: skip it!
-    const otherRows = screen
-      .getAllByRole('row', {
-        name: (n: string) => n !== 'notification.dispatcher.ChangesOnMyIssue',
-      })
-      .slice(1);
-
-    otherRows.forEach((row) => {
-      expect(within(row).getByRole('checkbox')).not.toBeChecked();
-    });
-
-    // Make sure the second block is empty
-    expect(screen.getByText('my_account.no_project_notifications')).toBeInTheDocument();
+    expect(globalUI.checkbox(NotificationGlobalType.ChangesOnMyIssue).get()).toBeChecked();
+    expect(globalUI.checkbox(NotificationGlobalType.CeReportTaskFailure).get()).not.toBeChecked();
+    expect(globalUI.checkbox(NotificationGlobalType.NewAlerts).get()).not.toBeChecked();
+    expect(globalUI.checkbox(NotificationGlobalType.MyNewIssues).get()).not.toBeChecked();
 
     /*
      * Update notifications
      */
-    await user.click(getCheckboxByRowName('notification.dispatcher.ChangesOnMyIssue'));
-    expect(getCheckboxByRowName('notification.dispatcher.ChangesOnMyIssue')).not.toBeChecked();
+    await user.click(globalUI.checkbox(NotificationGlobalType.ChangesOnMyIssue).get());
+    expect(globalUI.checkbox(NotificationGlobalType.ChangesOnMyIssue).get()).not.toBeChecked();
 
-    await user.click(getCheckboxByRowName('notification.dispatcher.NewAlerts'));
-    expect(getCheckboxByRowName('notification.dispatcher.NewAlerts')).toBeChecked();
+    await user.click(globalUI.checkbox(NotificationGlobalType.NewAlerts).get());
+    expect(globalUI.checkbox(NotificationGlobalType.NewAlerts).get()).toBeChecked();
   });
 
   it('should allow adding notifications for a project', async () => {
@@ -519,35 +527,23 @@ describe('notifications page', () => {
 
     renderAccountApp(mockLoggedInUser(), notificationsPagePath);
 
-    await user.click(
-      await screen.findByRole('button', { name: 'my_profile.per_project_notifications.add' })
-    );
-
-    expect(await screen.findByLabelText('search_verb', { selector: 'input' })).toBeInTheDocument();
-
-    expect(screen.getByRole('button', { name: 'add_verb' })).toBeDisabled();
-
-    await user.keyboard('sonar');
+    await user.click(await projectUI.addButton.find());
+    expect(projectUI.addModalButton.get()).toBeDisabled();
+    await user.type(projectUI.searchInput.get(), 'sonar');
     // navigate within the two results, choose the first:
     await user.keyboard('[ArrowDown][ArrowDown][ArrowUp][Enter]');
+    await user.click(projectUI.addModalButton.get());
 
-    const addButton = screen.getByRole('button', { name: 'add_verb' });
-    expect(addButton).toBeEnabled();
-
-    await user.click(addButton);
-
-    expect(screen.getByRole('heading', { name: 'SonarQube' })).toBeInTheDocument();
+    expect(projectUI.sonarQubeProject.get()).toBeInTheDocument();
     expect(
-      getCheckboxByRowName('notification.dispatcher.NewFalsePositiveIssue.project')
+      projectUI.checkbox(NotificationProjectType.NewFalsePositiveIssue).get()
     ).toBeInTheDocument();
 
-    await user.click(getCheckboxByRowName('notification.dispatcher.NewAlerts.project'));
-    expect(getCheckboxByRowName('notification.dispatcher.NewAlerts.project')).toBeChecked();
+    await user.click(projectUI.checkbox(NotificationProjectType.NewAlerts).get());
+    expect(projectUI.checkbox(NotificationProjectType.NewAlerts).get()).toBeChecked();
 
-    expect(screen.getAllByRole('checkbox', { checked: true })).toHaveLength(2);
-
-    await user.click(getCheckboxByRowName('notification.dispatcher.NewAlerts.project'));
-    expect(getCheckboxByRowName('notification.dispatcher.NewAlerts.project')).not.toBeChecked();
+    await user.click(projectUI.checkbox(NotificationProjectType.NewAlerts).get());
+    expect(projectUI.checkbox(NotificationProjectType.NewAlerts).get()).not.toBeChecked();
   });
 
   it('should allow searching for projects', async () => {
@@ -571,9 +567,7 @@ describe('notifications page', () => {
     await user.click(screen.getByRole('searchbox'));
     await user.keyboard('bla');
 
-    await waitFor(() => {
-      expect(screen.queryByRole('heading', { name: 'SonarQube' })).not.toBeInTheDocument();
-    });
+    expect(screen.queryByRole('heading', { name: 'SonarQube' })).not.toBeInTheDocument();
 
     await user.keyboard('[Backspace>3/]');
 
@@ -665,10 +659,6 @@ function getProjectBlock(projectName: string) {
   }
 
   return result;
-}
-
-function getCheckboxByRowName(name: string) {
-  return within(screen.getByRole('row', { name })).getByRole('checkbox');
 }
 
 function renderAccountApp(currentUser: CurrentUser, navigateTo?: string) {

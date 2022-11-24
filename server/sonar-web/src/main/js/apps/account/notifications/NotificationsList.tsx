@@ -19,8 +19,12 @@
  */
 import * as React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
-import { hasMessage, translate } from '../../../helpers/l10n';
-import { Notification } from '../../../types/notifications';
+import { hasMessage, translate, translateWithParameters } from '../../../helpers/l10n';
+import {
+  Notification,
+  NotificationGlobalType,
+  NotificationProjectType,
+} from '../../../types/notifications';
 
 interface Props {
   onAdd: (n: Notification) => void;
@@ -28,7 +32,7 @@ interface Props {
   channels: string[];
   checkboxId: (type: string, channel: string) => string;
   project?: boolean;
-  types: string[];
+  types: (NotificationGlobalType | NotificationProjectType)[];
   notifications: Notification[];
 }
 
@@ -67,6 +71,10 @@ export default class NotificationsList extends React.PureComponent<Props> {
             {channels.map((channel) => (
               <td className="text-center" key={channel}>
                 <Checkbox
+                  label={translateWithParameters(
+                    'notification.dispatcher.descrption_x',
+                    this.getDispatcherLabel(type)
+                  )}
                   checked={this.isEnabled(type, channel)}
                   id={checkboxId(type, channel)}
                   onCheck={(checked) => this.handleCheck(type, channel, checked)}

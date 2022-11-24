@@ -20,6 +20,10 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../../../../helpers/mocks/component';
+import {
+  NotificationGlobalType,
+  NotificationProjectType,
+} from '../../../../../../../types/notifications';
 import { ProjectNotifications } from '../ProjectNotifications';
 
 jest.mock('react', () => {
@@ -65,7 +69,7 @@ function shallowRender(props = {}) {
       addNotification={jest.fn()}
       channels={['channel1', 'channel2']}
       component={mockComponent({ key: 'foo' })}
-      globalTypes={['type-global', 'type-common']}
+      globalTypes={[NotificationGlobalType.CeReportTaskFailure, NotificationGlobalType.NewAlerts]}
       loading={false}
       notifications={[
         {
@@ -87,7 +91,7 @@ function shallowRender(props = {}) {
           projectName: 'Qux',
         },
       ]}
-      perProjectTypes={['type-common']}
+      perProjectTypes={[NotificationProjectType.CeReportTaskFailure]}
       removeNotification={jest.fn()}
       {...props}
     />

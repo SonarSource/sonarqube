@@ -19,6 +19,7 @@
  */
 import { differenceInMilliseconds, isAfter, isBefore } from 'date-fns';
 import { cloneDeep, groupBy, sortBy } from 'lodash';
+import { PAGE_SIZE } from '../../apps/background-tasks/constants';
 import { parseDate } from '../../helpers/dates';
 import { mockTask } from '../../helpers/mocks/tasks';
 import { ActivityRequestParameters, Task, TaskStatuses, TaskTypes } from '../../types/tasks';
@@ -34,8 +35,6 @@ import {
 
 const RANDOM_RADIX = 36;
 const RANDOM_PREFIX = 2;
-
-const PAGE_SIZE = 100;
 
 const TASK_TYPES = [
   TaskTypes.Report,

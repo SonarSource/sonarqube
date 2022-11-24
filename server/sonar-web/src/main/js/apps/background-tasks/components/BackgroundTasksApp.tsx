@@ -37,7 +37,7 @@ import { parseAsDate } from '../../../helpers/query';
 import { Task, TaskStatuses } from '../../../types/tasks';
 import { Component, Paging, RawQuery } from '../../../types/types';
 import '../background-tasks.css';
-import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
+import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS, PAGE_SIZE } from '../constants';
 import { mapFiltersToParameters, Query, updateTask } from '../utils';
 import Header from './Header';
 import Search from './Search';
@@ -59,8 +59,6 @@ interface State {
   tasks: Task[];
   types?: string[];
 }
-
-const PAGE_SIZE = 100;
 
 export class BackgroundTasksApp extends React.PureComponent<Props, State> {
   loadTasksDebounced: () => void;

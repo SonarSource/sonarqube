@@ -22,7 +22,11 @@ import * as React from 'react';
 import { Button } from '../../../components/controls/buttons';
 import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
-import { Notification, NotificationProject } from '../../../types/notifications';
+import {
+  Notification,
+  NotificationProject,
+  NotificationProjectType,
+} from '../../../types/notifications';
 import ProjectModal from './ProjectModal';
 import ProjectNotifications from './ProjectNotifications';
 
@@ -31,7 +35,7 @@ export interface Props {
   channels: string[];
   notifications: Notification[];
   removeNotification: (n: Notification) => void;
-  types: string[];
+  types: NotificationProjectType[];
 }
 
 const THRESHOLD_COLLAPSED = 3;

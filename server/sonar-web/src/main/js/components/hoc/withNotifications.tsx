@@ -20,24 +20,28 @@
 import { uniqWith } from 'lodash';
 import * as React from 'react';
 import { addNotification, getNotifications, removeNotification } from '../../api/notifications';
-import { Notification } from '../../types/notifications';
+import {
+  Notification,
+  NotificationGlobalType,
+  NotificationProjectType,
+} from '../../types/notifications';
 import { getWrappedDisplayName } from './utils';
 
 interface State {
   channels: string[];
-  globalTypes: string[];
+  globalTypes: NotificationGlobalType[];
   loading: boolean;
   notifications: Notification[];
-  perProjectTypes: string[];
+  perProjectTypes: NotificationProjectType[];
 }
 
 export interface WithNotificationsProps {
   addNotification: (added: Notification) => void;
   channels: string[];
-  globalTypes: string[];
+  globalTypes: NotificationGlobalType[];
   loading: boolean;
   notifications: Notification[];
-  perProjectTypes: string[];
+  perProjectTypes: NotificationProjectType[];
   removeNotification: (removed: Notification) => void;
 }
 

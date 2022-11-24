@@ -28,6 +28,12 @@ import routes from '../routes';
 
 jest.mock('../../../api/ce');
 
+jest.mock('../constants', () => {
+  const contants = jest.requireActual('../constants');
+
+  return { ...contants, PAGE_SIZE: 9 };
+});
+
 let computeEngineServiceMock: ComputeEngineServiceMock;
 
 beforeAll(() => {
@@ -139,7 +145,7 @@ describe('The Global background task page', () => {
     const user = userEvent.setup();
 
     computeEngineServiceMock.clearTasks();
-    computeEngineServiceMock.createTasks(101);
+    computeEngineServiceMock.createTasks(10);
 
     renderGlobalBackgroundTasksApp();
 
@@ -147,12 +153,12 @@ describe('The Global background task page', () => {
       await screen.findByRole('heading', { name: 'background_tasks.page' })
     ).toBeInTheDocument();
 
-    expect(screen.getAllByRole('row')).toHaveLength(101); // including header
+    expect(screen.getAllByRole('row')).toHaveLength(10); // including header
 
     user.click(screen.getByRole('button', { name: 'show_more' }));
 
     await waitFor(() => {
-      expect(screen.getAllByRole('row')).toHaveLength(102); // including header
+      expect(screen.getAllByRole('row')).toHaveLength(11); // including header
     });
   });
 

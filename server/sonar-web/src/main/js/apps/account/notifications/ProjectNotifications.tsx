@@ -20,7 +20,11 @@
 import * as React from 'react';
 import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
 import { translate } from '../../../helpers/l10n';
-import { Notification, NotificationProject } from '../../../types/notifications';
+import {
+  Notification,
+  NotificationProject,
+  NotificationProjectType,
+} from '../../../types/notifications';
 import NotificationsList from './NotificationsList';
 
 interface Props {
@@ -30,7 +34,7 @@ interface Props {
   notifications: Notification[];
   project: NotificationProject;
   removeNotification: (n: Notification) => void;
-  types: string[];
+  types: NotificationProjectType[];
 }
 
 export default function ProjectNotifications(props: Props) {

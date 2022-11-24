@@ -17,6 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+export enum NotificationGlobalType {
+  CeReportTaskFailure = 'CeReportTaskFailure',
+  ChangesOnMyIssue = 'ChangesOnMyIssue',
+  NewAlerts = 'NewAlerts',
+  MyNewIssues = 'SQ-MyNewIssues',
+}
+
+export enum NotificationProjectType {
+  CeReportTaskFailure = 'CeReportTaskFailure',
+  ChangesOnMyIssue = 'ChangesOnMyIssue',
+  NewAlerts = 'NewAlerts',
+  NewFalsePositiveIssue = 'NewFalsePositiveIssue',
+  NewIssues = 'NewIssues',
+  MyNewIssues = 'SQ-MyNewIssues',
+}
+
 export interface Notification {
   channel: string;
   project?: string;
@@ -31,9 +48,9 @@ export interface NotificationProject {
 
 export interface NotificationsResponse {
   channels: string[];
-  globalTypes: string[];
+  globalTypes: NotificationGlobalType[];
   notifications: Notification[];
-  perProjectTypes: string[];
+  perProjectTypes: NotificationProjectType[];
 }
 
 export interface AddRemoveNotificationParameters {
