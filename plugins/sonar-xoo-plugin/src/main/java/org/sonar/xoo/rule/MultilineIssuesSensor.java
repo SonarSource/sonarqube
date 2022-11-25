@@ -40,9 +40,11 @@ import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.batch.sensor.issue.NewMessageFormatting;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
 
@@ -68,10 +70,7 @@ public class MultilineIssuesSensor implements Sensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor
-      .name("Multiline Issues")
-      .onlyOnLanguages(Xoo.KEY)
-      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY);
+    descriptor.name("Multiline Issues").onlyOnLanguages(Xoo.KEY).createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY);
   }
 
   @Override
@@ -97,19 +96,25 @@ public class MultilineIssuesSensor implements Sensor {
 
     for (ParsedIssue parsedIssue : parsedIssues) {
       NewIssue newIssue = context.newIssue().forRule(ruleKey);
-      NewIssueLocation primaryLocation = newIssue.newLocation()
-        .on(file)
-        .at(file.newRange(parsedIssue.start, parsedIssue.end));
-      newIssue.at(primaryLocation.message("Primary location"));
+      NewIssueLocation primaryLocation = newIssue.newLocation();
+      String message = "Primary location of the issue in xoo code";
+      List<NewMessageFormatting> newMessageFormattings = formatIssueMessage(message, primaryLocation.newMessageFormatting());
+      newIssue.at(primaryLocation.on(file)
+        .at(file.newRange(parsedIssue.start, parsedIssue.end))
+        .message(message, newMessageFormattings));
 
       for (ParsedFlow flow : flowIndex.getFlows(parsedIssue.issueId)) {
         List<NewIssueLocation> flowLocations = new LinkedList<>();
 
         for (ParsedFlowLocation flowLocation : flow.getLocations()) {
-          flowLocations.add(newIssue.newLocation()
+          String locationMessage = "Xoo code, flow step #" + flowLocation.flowLocationId;
+          NewIssueLocation newIssueLocation = newIssue.newLocation();
+          List<NewMessageFormatting> locationMessageFormattings = formatIssueMessage(locationMessage, newIssueLocation.newMessageFormatting());
+          newIssueLocation
             .on(file)
             .at(file.newRange(flowLocation.start, flowLocation.end))
-            .message("Flow step #" + flowLocation.flowLocationId));
+            .message(locationMessage, locationMessageFormattings);
+          flowLocations.add(newIssueLocation);
         }
 
         if (flow.getType() != null) {
@@ -120,6 +125,15 @@ public class MultilineIssuesSensor implements Sensor {
       }
       newIssue.save();
     }
+  }
+
+  private static List<NewMessageFormatting> formatIssueMessage(String message, NewMessageFormatting newMessageFormatting) {
+    int startIndex = message.toLowerCase().indexOf("xoo");
+    if(startIndex == -1) {
+      return List.of();
+    }
+    int endIndex = startIndex + "xoo".length();
+    return List.of(newMessageFormatting.start(startIndex).end(endIndex).type(MessageFormatting.Type.CODE));
   }
 
   private static Collection<ParsedIssue> parseIssues(InputFile file) {

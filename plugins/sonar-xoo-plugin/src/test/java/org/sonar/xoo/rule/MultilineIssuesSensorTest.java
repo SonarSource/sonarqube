@@ -35,7 +35,7 @@ import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
 import org.sonar.api.internal.apachecommons.io.IOUtils;
@@ -61,7 +61,7 @@ public class MultilineIssuesSensorTest {
   }
 
   @Test
-  public void execute_dataAndExecutionFlowsAreDetected() throws IOException {
+  public void execute_dataAndExecutionFlowsAreDetectedAndMessageIsFormatted() throws IOException {
     DefaultInputFile inputFile = newTestFile(IOUtils.toString(getClass().getResource("dataflow.xoo"), StandardCharsets.UTF_8));
 
     DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder());
@@ -73,12 +73,17 @@ public class MultilineIssuesSensorTest {
 
     assertThat(sensorContextTester.allIssues()).hasSize(1);
 
-    List<Issue.Flow> flows = sensorContextTester.allIssues().iterator().next().flows();
+    Issue issue = sensorContextTester.allIssues().iterator().next();
+    assertThat(issue.primaryLocation().messageFormattings()).isNotEmpty();
+
+    List<Issue.Flow> flows = issue.flows();
     assertThat(flows).hasSize(2);
 
     List<DefaultIssueFlow> defaultIssueFlows = flows.stream().map(DefaultIssueFlow.class::cast).collect(Collectors.toList());
-
     assertThat(defaultIssueFlows).extracting(DefaultIssueFlow::type).containsExactlyInAnyOrder(FlowType.DATA, FlowType.EXECUTION);
+
+    assertThat(flows.get(0).locations()).extracting(IssueLocation::messageFormattings).isNotEmpty();
+    assertThat(flows.get(1).locations()).extracting(IssueLocation::messageFormattings).isNotEmpty();
   }
 
   private DefaultInputFile newTestFile(String content) {

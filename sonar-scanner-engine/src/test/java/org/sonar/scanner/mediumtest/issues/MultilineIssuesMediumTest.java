@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
-import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Flow;
 import org.sonar.scanner.protocol.output.ScannerReport.FlowType;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
@@ -69,7 +68,7 @@ public class MultilineIssuesMediumTest {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Single.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
-    assertThat(issue.getMsg()).isEqualTo("Primary location");
+    assertThat(issue.getMsg()).isEqualTo("Primary location of the issue in xoo code");
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(6);
     assertThat(issue.getTextRange().getStartOffset()).isEqualTo(23);
     assertThat(issue.getTextRange().getEndLine()).isEqualTo(6);
@@ -81,7 +80,7 @@ public class MultilineIssuesMediumTest {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Multiline.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
-    assertThat(issue.getMsg()).isEqualTo("Primary location");
+    assertThat(issue.getMsg()).isEqualTo("Primary location of the issue in xoo code");
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(6);
     assertThat(issue.getTextRange().getStartOffset()).isEqualTo(23);
     assertThat(issue.getTextRange().getEndLine()).isEqualTo(7);
@@ -93,7 +92,7 @@ public class MultilineIssuesMediumTest {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Multiple.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
-    assertThat(issue.getMsg()).isEqualTo("Primary location");
+    assertThat(issue.getMsg()).isEqualTo("Primary location of the issue in xoo code");
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(6);
     assertThat(issue.getTextRange().getStartOffset()).isEqualTo(23);
     assertThat(issue.getTextRange().getEndLine()).isEqualTo(6);
@@ -103,7 +102,7 @@ public class MultilineIssuesMediumTest {
     Flow flow = issue.getFlow(0);
     assertThat(flow.getLocationList()).hasSize(1);
     IssueLocation additionalLocation = flow.getLocation(0);
-    assertThat(additionalLocation.getMsg()).isEqualTo("Flow step #1");
+    assertThat(additionalLocation.getMsg()).isEqualTo("Xoo code, flow step #1");
     assertThat(additionalLocation.getTextRange().getStartLine()).isEqualTo(7);
     assertThat(additionalLocation.getTextRange().getStartOffset()).isEqualTo(26);
     assertThat(additionalLocation.getTextRange().getEndLine()).isEqualTo(7);
