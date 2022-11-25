@@ -1,9 +1,0 @@
-{
-  "extends": "sonarqube",
-
-  "rules": {
-    // some dependencies are implictly provided by gatsby
-    "import/no-extraneous-dependencies": "off",
-    "testing-library/render-result-naming-convention": "warn"
-  }
-}

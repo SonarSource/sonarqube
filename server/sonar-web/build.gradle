@@ -14,7 +14,7 @@ sonar {
 def webappDir = "${buildDir}/webapp"
 
 task yarn_run(type: Exec) {
-  ['config', 'public', 'scripts', 'src', '../sonar-docs/src'].each {
+  ['config', 'public', 'scripts', 'src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
   ['package.json', 'tsconfig.json', 'yarn.lock'].each {

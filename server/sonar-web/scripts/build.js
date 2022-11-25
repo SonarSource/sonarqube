@@ -48,7 +48,6 @@ async function build() {
 
 function copyAssets() {
   fs.copySync(paths.appPublic, paths.appBuild);
-  fs.copySync(paths.docImages, paths.appBuild + '/images/embed-doc/images');
 }
 
 (async () => {

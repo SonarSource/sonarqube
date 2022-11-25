@@ -48,7 +48,6 @@
   "labels": [
     "dependencies"
   ],
-  "ignorePaths": ["**/server/sonar-docs/**"],
   "packageRules": [
     {
       "matchManagers": "maven",

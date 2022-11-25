@@ -102,7 +102,7 @@ yarn_cache_template: &YARN_CACHE_TEMPLATE
     fingerprint_script: |
       cat \
         server/sonar-web/yarn.lock \
-        server/sonar-docs/yarn.lock \
+        private/core-extension-developer-server/yarn.lock \
         private/core-extension-enterprise-server/yarn.lock \
         private/core-extension-license/yarn.lock \
         private/core-extension-securityreport/yarn.lock

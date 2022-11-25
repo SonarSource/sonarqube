@@ -21,24 +21,22 @@ const autoprefixer = require('autoprefixer');
 const postCssPlugin = require('esbuild-plugin-postcss2').default;
 const postCssCalc = require('postcss-calc');
 const postCssCustomProperties = require('postcss-custom-properties');
-const documentationPlugin = require('./esbuild-documentation-plugin');
 const htmlPlugin = require('./esbuild-html-plugin');
 const htmlTemplate = require('./indexHtmlTemplate');
 const { getCustomProperties, TARGET_BROWSERS } = require('./utils');
 
-module.exports = release => {
+module.exports = (release) => {
   const plugins = [
     postCssPlugin({
       plugins: [
         autoprefixer,
         postCssCustomProperties({
           importFrom: { customProperties: getCustomProperties() },
-          preserve: false
+          preserve: false,
         }),
-        postCssCalc
-      ]
+        postCssCalc,
+      ],
     }),
-    documentationPlugin()
   ];
 
   if (release) {
@@ -53,10 +51,10 @@ module.exports = release => {
     external: ['/images/*'],
     loader: {
       '.png': 'dataurl',
-      '.md': 'text'
+      '.md': 'text',
     },
     define: {
-      'process.cwd': 'dummy_process_cwd'
+      'process.cwd': 'dummy_process_cwd',
     },
     inject: ['config/process-shim.js'],
     bundle: true,
@@ -66,6 +64,6 @@ module.exports = release => {
     target: TARGET_BROWSERS,
     outdir: 'build/webapp/js',
     entryNames: release ? 'out[hash]' : 'out',
-    plugins
+    plugins,
   };
 };
