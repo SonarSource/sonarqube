@@ -679,7 +679,7 @@ ws_scan_task:
     WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
     WS_WSS_URL: VAULT[development/kv/data/mend data.url]
     WS_USERKEY: VAULT[development/kv/data/mend data.userKey]
-    SLACK_WEBHOOK_SQ: VAULT[development/kv/data/slack webhook]
+    SLACK_WEBHOOK_SQ: VAULT[development/kv/data/slack data.webhook]
   whitesource_script:
     - ./private/cirrus/cirrus-whitesource-scan.sh
   allow_failures: "true"
