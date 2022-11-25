@@ -1,20 +1,20 @@
 configurations {
-  testImplementation.extendsFrom(compileOnly)
+  testImplementation.extendsFrom(compileOnlyApi)
 }
 
 dependencies {
-  compile 'com.google.guava:guava'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'org.apache.commons:commons-csv'
+  api 'com.google.guava:guava'
+  api 'commons-io:commons-io'
+  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-csv'
 
-  compileOnly 'com.google.code.findbugs:jsr305'
-  compileOnly 'org.sonarsource.api.plugin:sonar-plugin-api'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.mockito:mockito-core'
-  testCompile project(':sonar-plugin-api-impl')
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation project(':sonar-plugin-api-impl')
 }
 
 jar {

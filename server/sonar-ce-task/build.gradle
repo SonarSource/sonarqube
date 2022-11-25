@@ -17,28 +17,28 @@ sourceSets {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile 'org.slf4j:jul-to-slf4j'
-  compile 'org.slf4j:slf4j-api'
+  api 'com.google.guava:guava'
+  api 'org.slf4j:jul-to-slf4j'
+  api 'org.slf4j:slf4j-api'
 
-  compile project(':server:sonar-server-common')
-  compile project(':sonar-core')
+  api project(':server:sonar-server-common')
+  api project(':sonar-core')
 
-  compileOnly 'com.google.code.findbugs:jsr305'
-  compileOnly 'org.sonarsource.api.plugin:sonar-plugin-api'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-  testCompile 'ch.qos.logback:logback-access'
-  testCompile 'ch.qos.logback:logback-classic'
-  testCompile 'ch.qos.logback:logback-core'
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
-  testCompile 'org.apache.logging.log4j:log4j-api'
-  testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.reflections:reflections'
-  testCompile testFixtures(project(':server:sonar-db-dao'))
+  testImplementation 'ch.qos.logback:logback-access'
+  testImplementation 'ch.qos.logback:logback-classic'
+  testImplementation 'ch.qos.logback:logback-core'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'junit:junit'
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.reflections:reflections'
+  testImplementation testFixtures(project(':server:sonar-db-dao'))
 
   testFixturesApi 'org.assertj:assertj-core'
 

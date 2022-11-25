@@ -7,30 +7,30 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'ch.qos.logback:logback-classic'
-  compile 'ch.qos.logback:logback-core'
-  compile 'commons-codec:commons-codec'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'com.google.code.gson:gson'
-  compile 'com.google.guava:guava'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'com.hazelcast:hazelcast'
-  compile 'com.hazelcast:hazelcast-kubernetes'
-  compile 'org.slf4j:jul-to-slf4j'
-  compile 'org.slf4j:slf4j-api'
-  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
-  compile project(':sonar-core')
+  api 'ch.qos.logback:logback-classic'
+  api 'ch.qos.logback:logback-core'
+  api 'commons-codec:commons-codec'
+  api 'commons-io:commons-io'
+  api 'commons-lang:commons-lang'
+  api 'com.google.code.gson:gson'
+  api 'com.google.guava:guava'
+  api 'com.google.protobuf:protobuf-java'
+  api 'com.hazelcast:hazelcast'
+  api 'com.hazelcast:hazelcast-kubernetes'
+  api 'org.slf4j:jul-to-slf4j'
+  api 'org.slf4j:slf4j-api'
+  api 'org.sonarsource.api.plugin:sonar-plugin-api'
+  api project(':sonar-core')
 
-  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.google.protobuf:protobuf-java'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.hamcrest:hamcrest-core'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.awaitility:awaitility'
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.google.protobuf:protobuf-java'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.hamcrest:hamcrest-core'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.awaitility:awaitility'
+  testImplementation project(':sonar-testing-harness')
 }

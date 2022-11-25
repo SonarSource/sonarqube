@@ -7,15 +7,15 @@ sonar {
 dependencies {
   // please keep list ordered
 
-  compile 'org.codehaus.sonar:sonar-channel'
-  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
+  api 'org.codehaus.sonar:sonar-channel'
+  api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
 
-  testCompile 'ch.qos.logback:logback-classic'
-  testCompile 'commons-io:commons-io'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.hamcrest:hamcrest-core'
-  testCompile 'org.mockito:mockito-core'
+  testImplementation 'ch.qos.logback:logback-classic'
+  testImplementation 'commons-io:commons-io'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.hamcrest:hamcrest-core'
+  testImplementation 'org.mockito:mockito-core'
 }

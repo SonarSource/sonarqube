@@ -139,7 +139,7 @@ subprojects {
   apply plugin: 'com.github.hierynomus.license'
   apply plugin: 'io.spring.dependency-management'
   apply plugin: 'jacoco'
-  apply plugin: 'java'
+  apply plugin: 'java-library'
   apply plugin: 'idea'
   apply plugin: 'signing'
 
@@ -539,7 +539,7 @@ subprojects {
       }
 
       dependencies {
-        testCompile project(":ut-monitoring")
+        testImplementation project(":ut-monitoring")
 
         utMonitoring 'org.aspectj:aspectjweaver:1.9.9.1'
       }

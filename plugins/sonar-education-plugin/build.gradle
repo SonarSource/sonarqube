@@ -1,14 +1,14 @@
 configurations {
-    testImplementation.extendsFrom(compileOnly)
+    testImplementation.extendsFrom(compileOnlyApi)
 }
 
 dependencies {
-    compileOnly 'org.sonarsource.api.plugin:sonar-plugin-api'
+    compileOnlyApi 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-    testCompile 'junit:junit'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.mockito:mockito-core'
-    testCompile project(':sonar-plugin-api-impl')
+    testImplementation 'junit:junit'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation project(':sonar-plugin-api-impl')
 }
 
 jar {

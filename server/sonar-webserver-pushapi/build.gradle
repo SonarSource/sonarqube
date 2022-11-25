@@ -5,18 +5,18 @@ sonar {
 }
 dependencies {
 
-    compile 'javax.servlet:javax.servlet-api'
-    compile 'org.json:json'
+    api 'javax.servlet:javax.servlet-api'
+    api 'org.json:json'
 
-    compile project(':server:sonar-webserver-ws')
-    compile project(':server:sonar-webserver-auth')
+    api project(':server:sonar-webserver-ws')
+    api project(':server:sonar-webserver-auth')
 
-    testCompile 'junit:junit'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.mockito:mockito-core'
-    testCompile 'org.awaitility:awaitility'
-    testCompile testFixtures(project(':server:sonar-webserver-ws'))
-    testCompile testFixtures(project(':server:sonar-db-dao'))
+    testImplementation 'junit:junit'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.awaitility:awaitility'
+    testImplementation testFixtures(project(':server:sonar-webserver-ws'))
+    testImplementation testFixtures(project(':server:sonar-db-dao'))
 
     testFixturesApi project(':sonar-testing-harness')
     testFixturesCompileOnly testFixtures(project(':server:sonar-webserver-ws'))

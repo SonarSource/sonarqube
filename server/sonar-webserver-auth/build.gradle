@@ -7,34 +7,34 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.code.gson:gson'
-  compile 'com.google.guava:guava'
-  compile 'io.jsonwebtoken:jjwt-api'
-  compile 'io.jsonwebtoken:jjwt-impl'
-  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
-  compile project(':sonar-core')
-  compile project(':server:sonar-process')
-  compile project(':server:sonar-server-common')
-  compile project(':server:sonar-webserver-api')
-  compile project(':sonar-plugin-api-impl')
-  compile project(':server:sonar-auth-ldap')
-  compile 'org.mindrot:jbcrypt'
+  api 'com.google.code.gson:gson'
+  api 'com.google.guava:guava'
+  api 'io.jsonwebtoken:jjwt-api'
+  api 'io.jsonwebtoken:jjwt-impl'
+  api 'org.sonarsource.api.plugin:sonar-plugin-api'
+  api project(':sonar-core')
+  api project(':server:sonar-process')
+  api project(':server:sonar-server-common')
+  api project(':server:sonar-webserver-api')
+  api project(':sonar-plugin-api-impl')
+  api project(':server:sonar-auth-ldap')
+  api 'org.mindrot:jbcrypt'
 
-  compileOnly 'com.google.code.findbugs:jsr305'
-  compileOnly 'javax.servlet:javax.servlet-api'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'javax.servlet:javax.servlet-api'
 
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'javax.servlet:javax.servlet-api'
-  testCompile 'org.apache.logging.log4j:log4j-api'
-  testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'org.mockito:mockito-core'
-  testCompile testFixtures(project(':server:sonar-server-common'))
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation testFixtures(project(':server:sonar-server-common'))
+  testImplementation project(':sonar-testing-harness')
 
   testCompileOnly  'com.google.code.findbugs:jsr305'
 
-  runtime 'io.jsonwebtoken:jjwt-jackson'
+  runtimeOnly 'io.jsonwebtoken:jjwt-jackson'
 
   testFixturesApi 'junit:junit'
 

@@ -7,22 +7,22 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
-  compile project(':server:sonar-server-common')
-  compile project(':server:sonar-webserver-auth')
+  api 'com.google.guava:guava'
+  api 'org.sonarsource.api.plugin:sonar-plugin-api'
+  api project(':server:sonar-server-common')
+  api project(':server:sonar-webserver-auth')
 
-  compileOnly 'com.google.code.findbugs:jsr305'
-  compileOnly 'javax.servlet:javax.servlet-api'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'javax.servlet:javax.servlet-api'
 
-  testCompile 'org.apache.logging.log4j:log4j-api'
-  testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'org.mockito:mockito-core'
-  testCompile testFixtures(project(':server:sonar-webserver-auth'))
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation testFixtures(project(':server:sonar-webserver-auth'))
+  testImplementation project(':sonar-testing-harness')
     
   testFixturesApi testFixtures(project(':server:sonar-server-common'))
 }

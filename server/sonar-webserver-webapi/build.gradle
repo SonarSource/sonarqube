@@ -7,42 +7,42 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile 'com.github.everit-org.json-schema:org.everit.json.schema'
+  api 'com.google.guava:guava'
+  api 'com.github.everit-org.json-schema:org.everit.json.schema'
 
-  compile 'io.prometheus:simpleclient_common'
-  compile 'io.prometheus:simpleclient_servlet'
+  api 'io.prometheus:simpleclient_common'
+  api 'io.prometheus:simpleclient_servlet'
 
-  compile project(':server:sonar-ce-common')
-  compile project(':server:sonar-ce-task')
-  compile project(':server:sonar-db-dao')
-  compile project(':server:sonar-process')
-  compile project(':server:sonar-webserver-auth')
-  compile project(':server:sonar-webserver-es')
-  compile project(':server:sonar-webserver-ws')
-  compile project(':server:sonar-webserver-pushapi')
-  compile project(':server:sonar-alm-client')
-  compile (project(':server:sonar-auth-saml')) {
+  api project(':server:sonar-ce-common')
+  api project(':server:sonar-ce-task')
+  api project(':server:sonar-db-dao')
+  api project(':server:sonar-process')
+  api project(':server:sonar-webserver-auth')
+  api project(':server:sonar-webserver-es')
+  api project(':server:sonar-webserver-ws')
+  api project(':server:sonar-webserver-pushapi')
+  api project(':server:sonar-alm-client')
+  api (project(':server:sonar-auth-saml')) {
     exclude group:'org.apache.santuario'
   }
-  compile project(':sonar-scanner-protocol')
+  api project(':sonar-scanner-protocol')
 
-  compileOnly 'com.google.code.findbugs:jsr305'
-  compileOnly 'javax.servlet:javax.servlet-api'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'javax.servlet:javax.servlet-api'
 
-  testCompile 'org.apache.logging.log4j:log4j-api'
-  testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'com.squareup.okhttp3:mockwebserver'
-  testCompile 'javax.servlet:javax.servlet-api'
-  testCompile 'org.mockito:mockito-core'
-  testCompile testFixtures(project(':server:sonar-server-common'))
-  testCompile testFixtures(project(':server:sonar-webserver-auth'))
-  testCompile testFixtures(project(':server:sonar-webserver-es'))
-  testCompile testFixtures(project(':server:sonar-webserver-ws'))
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'com.squareup.okhttp3:mockwebserver'
+  testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation testFixtures(project(':server:sonar-server-common'))
+  testImplementation testFixtures(project(':server:sonar-webserver-auth'))
+  testImplementation testFixtures(project(':server:sonar-webserver-es'))
+  testImplementation testFixtures(project(':server:sonar-webserver-ws'))
+  testImplementation project(':sonar-testing-harness')
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 }
 

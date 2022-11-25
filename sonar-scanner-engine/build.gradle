@@ -10,54 +10,54 @@ sourceSets.test.resources {
 }
 
 configurations {
-  testImplementation.extendsFrom(compileOnly)
+  testImplementation.extendsFrom(compileOnlyApi)
 }
 
 dependencies {
   // please keep the list ordered
 
-  compile 'ch.qos.logback:logback-classic'
-  compile 'ch.qos.logback:logback-core'
-  compile 'commons-codec:commons-codec'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'com.google.code.gson:gson'
-  compile 'org.apache.commons:commons-csv'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'com.squareup.okhttp3:okhttp'
-  compile 'com.fasterxml.staxmate:staxmate'
-  compile 'javax.annotation:javax.annotation-api'
-  compile 'org.eclipse.jgit:org.eclipse.jgit'
-  compile 'org.tmatesoft.svnkit:svnkit'
-  compile 'org.slf4j:jcl-over-slf4j'
-  compile 'org.slf4j:jul-to-slf4j'
-  compile 'org.slf4j:log4j-over-slf4j'
-  compile 'org.slf4j:slf4j-api'
-  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
-  compile 'org.sonarsource.update-center:sonar-update-center-common'
-  compile 'org.springframework:spring-context'
+  api 'ch.qos.logback:logback-classic'
+  api 'ch.qos.logback:logback-core'
+  api 'commons-codec:commons-codec'
+  api 'commons-io:commons-io'
+  api 'commons-lang:commons-lang'
+  api 'com.google.code.gson:gson'
+  api 'org.apache.commons:commons-csv'
+  api 'com.google.protobuf:protobuf-java'
+  api 'com.squareup.okhttp3:okhttp'
+  api 'com.fasterxml.staxmate:staxmate'
+  api 'javax.annotation:javax.annotation-api'
+  api 'org.eclipse.jgit:org.eclipse.jgit'
+  api 'org.tmatesoft.svnkit:svnkit'
+  api 'org.slf4j:jcl-over-slf4j'
+  api 'org.slf4j:jul-to-slf4j'
+  api 'org.slf4j:log4j-over-slf4j'
+  api 'org.slf4j:slf4j-api'
+  api 'org.sonarsource.api.plugin:sonar-plugin-api'
+  api 'org.sonarsource.update-center:sonar-update-center-common'
+  api 'org.springframework:spring-context'
 
 
-  compile project(':sonar-core')
-  compile project(':sonar-scanner-protocol')
-  compile project(':sonar-ws')
-  compile project(':sonar-duplications')
-  compile project(':sonar-plugin-api-impl')
+  api project(':sonar-core')
+  api project(':sonar-scanner-protocol')
+  api project(':sonar-ws')
+  api project(':sonar-duplications')
+  api project(':sonar-plugin-api-impl')
 
-  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.squareup.okhttp3:mockwebserver'
-  testCompile 'com.squareup.okhttp3:okhttp'
-  testCompile 'com.squareup.okio:okio'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'commons-io:commons-io'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'com.fasterxml.staxmate:staxmate'
-  testCompile 'org.hamcrest:hamcrest-core'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.mockito:mockito-inline'
-  testCompile project(':plugins:sonar-xoo-plugin')
+  testImplementation 'com.squareup.okhttp3:mockwebserver'
+  testImplementation 'com.squareup.okhttp3:okhttp'
+  testImplementation 'com.squareup.okio:okio'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'commons-io:commons-io'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'com.fasterxml.staxmate:staxmate'
+  testImplementation 'org.hamcrest:hamcrest-core'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.mockito:mockito-inline'
+  testImplementation project(':plugins:sonar-xoo-plugin')
 }
 
 license {

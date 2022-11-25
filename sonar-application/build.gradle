@@ -36,7 +36,7 @@ configurations {
     extendsFrom bundledPlugin
     transitive = true
   }
-  appLicenses.extendsFrom(compile, web, scanner, jdbc_mssql, jdbc_postgresql, jdbc_h2, bundledPlugin_deps)
+  appLicenses.extendsFrom(api, web, scanner, jdbc_mssql, jdbc_postgresql, jdbc_h2, bundledPlugin_deps)
   cyclonedx
 }
 
@@ -52,18 +52,18 @@ shadowJar {
 
 dependencies {
     // please keep list ordered
-    compile 'org.slf4j:slf4j-api'
+    api 'org.slf4j:slf4j-api'
 
-    compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
-    compile 'org.sonarsource.api.plugin:sonar-plugin-api'
-    compile project(':server:sonar-ce')
-    compile project(':server:sonar-main')
-    compile project(':server:sonar-process')
-    compile project(':server:sonar-webserver')
-    compile project(':sonar-core')
-    compile project(':sonar-plugin-api-impl')
+    api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
+    api 'org.sonarsource.api.plugin:sonar-plugin-api'
+    api project(':server:sonar-ce')
+    api project(':server:sonar-main')
+    api project(':server:sonar-process')
+    api project(':server:sonar-webserver')
+    api project(':sonar-core')
+    api project(':sonar-plugin-api-impl')
 
-    compileOnly 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.google.code.findbugs:jsr305'
 
     scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
     cyclonedx project(path: ':sonar-scanner-engine-shaded')

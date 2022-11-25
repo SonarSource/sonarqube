@@ -1,25 +1,25 @@
 description = 'SonarQube :: Authentication :: GitLab'
 
 configurations {
-    testImplementation.extendsFrom compileOnly
+    testImplementation.extendsFrom compileOnlyApi
 }
 
 dependencies {
     // please keep the list ordered
 
-    compile 'com.github.scribejava:scribejava-apis'
-    compile 'com.github.scribejava:scribejava-core'
-    compile 'com.google.code.gson:gson'
-    compile project(':server:sonar-auth-common')
+    api 'com.github.scribejava:scribejava-apis'
+    api 'com.github.scribejava:scribejava-core'
+    api 'com.google.code.gson:gson'
+    api project(':server:sonar-auth-common')
 
-    compileOnly 'com.google.code.findbugs:jsr305'
-    compileOnly 'com.squareup.okhttp3:okhttp'
-    compileOnly 'javax.servlet:javax.servlet-api'
-    compileOnly project(':sonar-core')
+    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.squareup.okhttp3:okhttp'
+    compileOnlyApi 'javax.servlet:javax.servlet-api'
+    compileOnlyApi project(':sonar-core')
 
-    testCompile 'com.squareup.okhttp3:mockwebserver'
-    testCompile 'com.squareup.okhttp3:okhttp'
-    testCompile 'junit:junit'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.mockito:mockito-core'
+    testImplementation 'com.squareup.okhttp3:mockwebserver'
+    testImplementation 'com.squareup.okhttp3:okhttp'
+    testImplementation 'junit:junit'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
 }

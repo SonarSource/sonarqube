@@ -17,26 +17,26 @@ sourceSets {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile 'io.jsonwebtoken:jjwt-api'
-  compile 'io.jsonwebtoken:jjwt-impl'
-  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
-  compile project(':sonar-core')
-  compile project(':server:sonar-process')
-  compile project(':server:sonar-server-common')
-  compile project(':sonar-plugin-api-impl')
-  compile 'org.mindrot:jbcrypt'
+  api 'com.google.guava:guava'
+  api 'io.jsonwebtoken:jjwt-api'
+  api 'io.jsonwebtoken:jjwt-impl'
+  api 'org.sonarsource.api.plugin:sonar-plugin-api'
+  api project(':sonar-core')
+  api project(':server:sonar-process')
+  api project(':server:sonar-server-common')
+  api project(':sonar-plugin-api-impl')
+  api 'org.mindrot:jbcrypt'
 
-  compileOnly 'com.google.code.findbugs:jsr305'
-  compileOnly 'javax.servlet:javax.servlet-api'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'javax.servlet:javax.servlet-api'
 
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'javax.servlet:javax.servlet-api'
-  testCompile 'org.mockito:mockito-core'
-  testCompile testFixtures(project(':server:sonar-server-common'))
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation testFixtures(project(':server:sonar-server-common'))
+  testImplementation project(':sonar-testing-harness')
 
   testFixturesApi 'junit:junit'
 

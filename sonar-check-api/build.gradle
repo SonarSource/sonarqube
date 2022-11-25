@@ -5,6 +5,6 @@ sonar {
 }
 
 dependencies {
-  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
 
 }

@@ -7,33 +7,33 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'ch.qos.logback:logback-classic'
-  compile 'ch.qos.logback:logback-core'
+  api 'ch.qos.logback:logback-classic'
+  api 'ch.qos.logback:logback-core'
 
   // Required by our usage of Guava for clustering : CeWorkerFactoryImpl.getClusteredWorkerUUIDs()
-  compile 'com.google.guava:guava'
-  compile 'com.hazelcast:hazelcast'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'org.apache.logging.log4j:log4j-to-slf4j'
-  compile 'org.apache.logging.log4j:log4j-api'
-  compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
-  compile 'org.elasticsearch:elasticsearch'
-  compile 'org.slf4j:slf4j-api'
-  compile 'org.yaml:snakeyaml'
+  api 'com.google.guava:guava'
+  api 'com.hazelcast:hazelcast'
+  api 'commons-io:commons-io'
+  api 'commons-lang:commons-lang'
+  api 'org.apache.logging.log4j:log4j-to-slf4j'
+  api 'org.apache.logging.log4j:log4j-api'
+  api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
+  api 'org.elasticsearch:elasticsearch'
+  api 'org.slf4j:slf4j-api'
+  api 'org.yaml:snakeyaml'
   
-  compile project(':server:sonar-process')
-  compile project(':sonar-core')
+  api project(':server:sonar-process')
+  api project(':sonar-core')
 
-  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.awaitility:awaitility'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'com.squareup.okhttp3:mockwebserver'
-  testCompile 'commons-logging:commons-logging:1.2'
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.awaitility:awaitility'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'com.squareup.okhttp3:mockwebserver'
+  testImplementation 'commons-logging:commons-logging:1.2'
+  testImplementation project(':sonar-testing-harness')
 }

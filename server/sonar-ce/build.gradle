@@ -8,33 +8,33 @@ sonar {
 
 dependencies {
   // please keep the list grouped by configuration and ordered by name
-  compile 'com.google.guava:guava'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'com.hazelcast:hazelcast'
-  compile 'com.hazelcast:hazelcast-kubernetes'
-  compile 'commons-io:commons-io'
-  compile 'com.zaxxer:HikariCP'
-  compile 'org.sonarsource.api.plugin:sonar-plugin-api'
-  compile project(':server:sonar-ce-common')
-  compile project(':server:sonar-ce-task')
-  compile project(':server:sonar-ce-task-projectanalysis')
-  compile project(':server:sonar-process')
-  compile project(':server:sonar-ce-task')
-  compile project(':server:sonar-server-common')
-  compile project(':sonar-core')
-  compile project(':sonar-plugin-api-impl')
-  compile project(':sonar-ws')
+  api 'com.google.guava:guava'
+  api 'com.google.protobuf:protobuf-java'
+  api 'com.hazelcast:hazelcast'
+  api 'com.hazelcast:hazelcast-kubernetes'
+  api 'commons-io:commons-io'
+  api 'com.zaxxer:HikariCP'
+  api 'org.sonarsource.api.plugin:sonar-plugin-api'
+  api project(':server:sonar-ce-common')
+  api project(':server:sonar-ce-task')
+  api project(':server:sonar-ce-task-projectanalysis')
+  api project(':server:sonar-process')
+  api project(':server:sonar-ce-task')
+  api project(':server:sonar-server-common')
+  api project(':sonar-core')
+  api project(':sonar-plugin-api-impl')
+  api project(':sonar-ws')
   
-  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.awaitility:awaitility'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.slf4j:slf4j-api'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.awaitility:awaitility'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.slf4j:slf4j-api'
 
-  testCompile testFixtures(project(':server:sonar-db-dao'))
+  testImplementation testFixtures(project(':server:sonar-db-dao'))
 
 }

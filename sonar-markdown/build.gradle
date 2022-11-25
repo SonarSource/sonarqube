@@ -7,12 +7,12 @@ sonar {
 dependencies {
   // please keep list ordered
 
-  compile 'commons-lang:commons-lang'
-  compile 'org.codehaus.sonar:sonar-channel'
+  api 'commons-lang:commons-lang'
+  api 'org.codehaus.sonar:sonar-channel'
 
-  testCompile 'ch.qos.logback:logback-classic'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
+  testImplementation 'ch.qos.logback:logback-classic'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
 }
 
 artifactoryPublish.skip = false

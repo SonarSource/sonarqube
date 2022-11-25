@@ -7,11 +7,11 @@ sonar {
 dependencies {
     // please keep the list grouped by configuration and ordered by name
 
-    compile 'com.google.code.gson:gson'
-    compile 'junit:junit'
-    compile 'org.sonarsource.api.plugin:sonar-plugin-api'
+    api 'com.google.code.gson:gson'
+    api 'junit:junit'
+    api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-    compileOnly 'org.aspectj:aspectjtools'
+    compileOnlyApi 'org.aspectj:aspectjtools'
 }
 
 sonar {

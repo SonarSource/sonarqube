@@ -7,17 +7,17 @@ sonar {
 
 dependencies {
   // please keep the list ordered
-  compile 'com.google.code.gson:gson'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile project(':sonar-core')
+  api 'com.google.code.gson:gson'
+  api 'com.google.protobuf:protobuf-java'
+  api 'commons-io:commons-io'
+  api 'commons-lang:commons-lang'
+  api project(':sonar-core')
 
-  compileOnly 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.google.guava:guava'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
+  testImplementation 'com.google.guava:guava'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
 }
 
 //create a single Jar with all dependencies
@@ -26,7 +26,7 @@ task fatJar(type: Jar) {
     attributes 'Main-Class': 'org.sonar.scanner.protocol.viewer.ScannerReportViewerApp'
   }
   archiveBaseName = project.name + '-all'
-  from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+  from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
   with jar
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

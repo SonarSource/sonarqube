@@ -1,24 +1,24 @@
 description = 'SonarQube :: Authentication :: SAML'
 
 configurations {
-    testImplementation.extendsFrom compileOnly
+    testImplementation.extendsFrom compileOnlyApi
 }
 
 dependencies {
     // please keep the list ordered
 
-    compile "com.onelogin:java-saml"
+    api "com.onelogin:java-saml"
 
-    compileOnly 'com.google.code.findbugs:jsr305'
-    compileOnly 'com.squareup.okhttp3:okhttp'
-    compileOnly 'javax.servlet:javax.servlet-api'
-    compileOnly 'org.json:json'
-    compileOnly project(':server:sonar-db-dao')
-    compileOnly project(':sonar-core')
+    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.squareup.okhttp3:okhttp'
+    compileOnlyApi 'javax.servlet:javax.servlet-api'
+    compileOnlyApi 'org.json:json'
+    compileOnlyApi project(':server:sonar-db-dao')
+    compileOnlyApi project(':sonar-core')
 
-    testCompile 'com.tngtech.java:junit-dataprovider'
-    testCompile 'junit:junit'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.mockito:mockito-core'
-    testCompile testFixtures(project(':server:sonar-db-dao'))
+    testImplementation 'com.tngtech.java:junit-dataprovider'
+    testImplementation 'junit:junit'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation testFixtures(project(':server:sonar-db-dao'))
 }
