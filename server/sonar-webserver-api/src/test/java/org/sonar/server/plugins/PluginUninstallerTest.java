@@ -162,7 +162,7 @@ public class PluginUninstallerTest {
 
   private static ServerPlugin newPlugin(ServerPluginInfo pluginInfo) {
     return new ServerPlugin(pluginInfo, pluginInfo.getType(), mock(Plugin.class),
-      mock(PluginFilesAndMd5.FileAndMd5.class), mock(PluginFilesAndMd5.FileAndMd5.class), mock(ClassLoader.class));
+      mock(PluginFilesAndMd5.FileAndMd5.class), mock(ClassLoader.class));
   }
 
   private File copyTestPluginTo(String testPluginName, File toDir) throws IOException {

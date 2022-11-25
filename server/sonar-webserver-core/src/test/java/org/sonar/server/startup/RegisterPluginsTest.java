@@ -210,7 +210,7 @@ public class RegisterPluginsTest {
     PluginInfo info = new PluginInfo(key)
       .setBasePlugin(basePlugin)
       .setJarFile(file);
-    ServerPlugin serverPlugin = new ServerPlugin(info, type, null, jar, null, null);
+    ServerPlugin serverPlugin = new ServerPlugin(info, type, null, jar, null);
     serverPluginRepository.addPlugin(serverPlugin);
     return serverPlugin;
   }

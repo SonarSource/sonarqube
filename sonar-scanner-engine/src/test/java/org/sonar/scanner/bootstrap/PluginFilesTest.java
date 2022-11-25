@@ -19,26 +19,15 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Pack200;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 import okio.Buffer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -107,29 +96,11 @@ public class PluginFilesTest {
     verifySameContent(result, tempJar);
     HttpUrl requestedUrl = server.takeRequest().getRequestUrl();
     assertThat(requestedUrl.encodedPath()).isEqualTo("/api/plugins/download");
-    assertThat(requestedUrl.encodedQuery()).isEqualTo("plugin=foo&acceptCompressions=pack200");
+    assertThat(requestedUrl.encodedQuery()).isEqualTo("plugin=foo");
 
     // get from cache on second call
     result = underTest.get(plugin).get();
     verifySameContent(result, tempJar);
-    assertThat(server.getRequestCount()).isOne();
-  }
-
-  @Test
-  public void download_compressed_and_add_uncompressed_to_cache_if_missing() throws Exception {
-    FileAndMd5 jar = new FileAndMd5();
-    enqueueCompressedDownload(jar, true);
-
-    InstalledPlugin plugin = newInstalledPlugin("foo", jar.md5);
-    File result = underTest.get(plugin).get();
-
-    verifySameContentAfterCompression(jar.file, result);
-    RecordedRequest recordedRequest = server.takeRequest();
-    assertThat(recordedRequest.getRequestUrl().queryParameter("acceptCompressions")).isEqualTo("pack200");
-
-    // get from cache on second call
-    result = underTest.get(plugin).get();
-    verifySameContentAfterCompression(jar.file, result);
     assertThat(server.getRequestCount()).isOne();
   }
 
@@ -154,35 +125,12 @@ public class PluginFilesTest {
   }
 
   @Test
-  public void fail_if_integrity_of_compressed_download_is_not_valid() throws Exception {
-    FileAndMd5 jar = new FileAndMd5();
-    enqueueCompressedDownload(jar, false);
-
-    InstalledPlugin plugin = newInstalledPlugin("foo", jar.md5);
-
-    expectISE("foo", "was expected to have checksum invalid_hash but had ", () -> underTest.get(plugin).get());
-  }
-
-  @Test
   public void fail_if_md5_header_is_missing_from_response() throws IOException {
     File tempJar = temp.newFile();
     enqueueDownload(tempJar, null);
     InstalledPlugin plugin = newInstalledPlugin("foo", "abc");
 
     expectISE("foo", "did not return header Sonar-MD5", () -> underTest.get(plugin));
-  }
-
-  @Test
-  public void fail_if_compressed_download_cannot_be_uncompressed() {
-    MockResponse response = new MockResponse().setBody("not binary");
-    response.setHeader("Sonar-MD5", DigestUtils.md5Hex("not binary"));
-    response.setHeader("Sonar-UncompressedMD5", "abc");
-    response.setHeader("Sonar-Compression", "pack200");
-    server.enqueue(response);
-
-    InstalledPlugin plugin = newInstalledPlugin("foo", "abc");
-
-    expectISE("foo", "Pack200 error", () -> underTest.get(plugin).get());
   }
 
   @Test
@@ -260,26 +208,6 @@ public class PluginFilesTest {
     server.enqueue(response);
   }
 
-  /**
-   * Enqueue download of file with a MD5 that may not be returned (null) or not valid
-   */
-  private void enqueueCompressedDownload(FileAndMd5 jar, boolean validMd5) throws IOException {
-    Buffer body = new Buffer();
-
-    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    try (JarInputStream in = new JarInputStream(new BufferedInputStream(Files.newInputStream(jar.file.toPath())));
-         OutputStream output = new GZIPOutputStream(new BufferedOutputStream(bytes))) {
-      Pack200.newPacker().pack(in, output);
-    }
-    body.write(bytes.toByteArray());
-
-    MockResponse response = new MockResponse().setBody(body);
-    response.setHeader("Sonar-MD5", validMd5 ? DigestUtils.md5Hex(bytes.toByteArray()) : "invalid_hash");
-    response.setHeader("Sonar-UncompressedMD5", jar.md5);
-    response.setHeader("Sonar-Compression", "pack200");
-    server.enqueue(response);
-  }
-
   private static InstalledPlugin newInstalledPlugin(String pluginKey, String fileChecksum) {
     InstalledPlugin plugin = new InstalledPlugin();
     plugin.key = pluginKey;
@@ -291,33 +219,6 @@ public class PluginFilesTest {
     assertThat(file1).isFile().exists();
     assertThat(file2.file).isFile().exists();
     assertThat(file1).hasSameContentAs(file2.file);
-  }
-
-  /**
-   * Packing and unpacking a JAR generates a different file.
-   */
-  private void verifySameContentAfterCompression(File file1, File file2) throws IOException {
-    assertThat(file1).isFile().exists();
-    assertThat(file2).isFile().exists();
-    assertThat(packAndUnpackJar(file1)).hasSameContentAs(packAndUnpackJar(file2));
-  }
-
-  private File packAndUnpackJar(File source) throws IOException {
-    File packed = temp.newFile();
-    try (JarInputStream in = new JarInputStream(new BufferedInputStream(Files.newInputStream(source.toPath())));
-         OutputStream out = new GZIPOutputStream(new BufferedOutputStream(Files.newOutputStream(packed.toPath())))) {
-      Pack200.newPacker().pack(in, out);
-    }
-
-    File to = temp.newFile();
-    try (InputStream input = new GZIPInputStream(new BufferedInputStream(Files.newInputStream(packed.toPath())));
-         JarOutputStream output = new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(to.toPath())))) {
-      Pack200.newUnpacker().unpack(input, output);
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
-
-    return to;
   }
 
   private void expectISE(String pluginKey, String message, ThrowingCallable shouldRaiseThrowable) {

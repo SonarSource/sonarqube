@@ -211,13 +211,7 @@ public class InstalledActionTest {
 
   private ServerPlugin newInstalledPlugin(PluginInfo plugin, PluginType type) throws IOException {
     FileAndMd5 jar = new FileAndMd5(temp.newFile());
-    return new ServerPlugin(plugin, type, null, jar, null, null);
-  }
-
-  private ServerPlugin newInstalledPluginWithCompression(PluginInfo plugin) throws IOException {
-    FileAndMd5 jar = new FileAndMd5(temp.newFile());
-    FileAndMd5 compressedJar = new FileAndMd5(temp.newFile());
-    return new ServerPlugin(plugin, PluginType.BUNDLED, null, jar, compressedJar, null);
+    return new ServerPlugin(plugin, type, null, jar, null);
   }
 
   @Test
@@ -259,56 +253,6 @@ public class InstalledActionTest {
         "      \"issueTrackerUrl\": \"issueTracker_url\"," +
         "      \"implementationBuild\": \"sou_rev_sha1\"," +
         "      \"sonarLintSupported\": true," +
-        "      \"filename\": \"" + plugin.getJar().getFile().getName() + "\"," +
-        "      \"hash\": \"" + plugin.getJar().getMd5() + "\"," +
-        "      \"updatedAt\": 100" +
-        "    }" +
-        "  ]" +
-        "}");
-  }
-
-  @Test
-  public void return_compression_fields_if_available() throws Exception {
-    ServerPlugin plugin = newInstalledPluginWithCompression(new PluginInfo("foo")
-      .setName("plugName")
-      .setDescription("desc_it")
-      .setVersion(Version.create("1.0"))
-      .setLicense("license_hey")
-      .setOrganizationName("org_name")
-      .setOrganizationUrl("org_url")
-      .setHomepageUrl("homepage_url")
-      .setIssueTrackerUrl("issueTracker_url")
-      .setImplementationBuild("sou_rev_sha1")
-      .setDocumentationPath("static/documentation.md")
-      .setSonarLintSupported(true));
-    when(serverPluginRepository.getPlugins()).thenReturn(singletonList(plugin));
-
-    db.pluginDbTester().insertPlugin(
-      p -> p.setKee(plugin.getPluginInfo().getKey()),
-      p -> p.setType(Type.EXTERNAL),
-      p -> p.setUpdatedAt(100L));
-
-    String response = tester.newRequest().execute().getInput();
-
-    verifyNoInteractions(updateCenterMatrixFactory);
-    assertJson(response).isSimilarTo(
-      "{" +
-        "  \"plugins\":" +
-        "  [" +
-        "    {" +
-        "      \"key\": \"foo\"," +
-        "      \"name\": \"plugName\"," +
-        "      \"description\": \"desc_it\"," +
-        "      \"version\": \"1.0\"," +
-        "      \"license\": \"license_hey\"," +
-        "      \"organizationName\": \"org_name\"," +
-        "      \"organizationUrl\": \"org_url\",\n" +
-        "      \"editionBundled\": false," +
-        "      \"homepageUrl\": \"homepage_url\"," +
-        "      \"issueTrackerUrl\": \"issueTracker_url\"," +
-        "      \"implementationBuild\": \"sou_rev_sha1\"," +
-        "      \"sonarLintSupported\": true," +
-        "      \"documentationPath\": \"static/documentation.md\"," +
         "      \"filename\": \"" + plugin.getJar().getFile().getName() + "\"," +
         "      \"hash\": \"" + plugin.getJar().getMd5() + "\"," +
         "      \"updatedAt\": 100" +
@@ -433,7 +377,7 @@ public class InstalledActionTest {
         .setImplementationBuild("sou_rev_sha1"),
         PluginType.BUNDLED,
         null,
-        new FileAndMd5(jar), new FileAndMd5(jar), null)));
+        new FileAndMd5(jar), null)));
     db.pluginDbTester().insertPlugin(
       p -> p.setKee(pluginKey),
       p -> p.setType(Type.BUNDLED),
@@ -506,7 +450,7 @@ public class InstalledActionTest {
       .setName(name)
       .setVersion(Version.create("1.0"));
     info.setJarFile(file);
-    return new ServerPlugin(info, PluginType.BUNDLED, null, new FileAndMd5(file), null, null);
+    return new ServerPlugin(info, PluginType.BUNDLED, null, new FileAndMd5(file), null);
   }
 
 }

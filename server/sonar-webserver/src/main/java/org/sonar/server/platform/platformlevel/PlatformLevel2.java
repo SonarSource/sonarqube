@@ -39,7 +39,6 @@ import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.web.WebPagesCache;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
-import org.sonar.server.plugins.PluginCompressor;
 import org.sonar.server.plugins.PluginJarLoader;
 import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginManager;
@@ -75,7 +74,6 @@ public class PlatformLevel2 extends PlatformLevel {
       ServerPluginManager.class,
       ServerPluginJarExploder.class,
       PluginClassLoader.class,
-      PluginCompressor.class,
       PluginClassloaderFactory.class,
       InstalledPluginReferentialFactory.class,
       WebServerExtensionInstaller.class,

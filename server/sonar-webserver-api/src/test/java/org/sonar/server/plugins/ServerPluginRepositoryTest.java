@@ -133,6 +133,6 @@ public class ServerPluginRepositoryTest {
   }
 
   private ServerPlugin newPlugin(String key, PluginType type) {
-    return new ServerPlugin(newPluginInfo(key), type, mock(Plugin.class), mock(FileAndMd5.class), mock(FileAndMd5.class), mock(ClassLoader.class));
+    return new ServerPlugin(newPluginInfo(key), type, mock(Plugin.class), mock(FileAndMd5.class), mock(ClassLoader.class));
   }
 }

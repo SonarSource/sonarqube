@@ -86,6 +86,6 @@ public class GeneratePluginIndexTest {
   private ServerPlugin newInstalledPlugin(String key, boolean supportSonarLint) throws IOException {
     FileAndMd5 jar = new FileAndMd5(temp.newFile());
     PluginInfo pluginInfo = new PluginInfo(key).setJarFile(jar.getFile()).setSonarLintSupported(supportSonarLint);
-    return new ServerPlugin(pluginInfo, BUNDLED, null, jar, null, null);
+    return new ServerPlugin(pluginInfo, BUNDLED, null, jar, null);
   }
 }

@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.exceptions.NotFoundException;
@@ -61,7 +63,10 @@ public class DownloadActionTest {
     assertThat(def.since()).isEqualTo("7.2");
     assertThat(def.params())
       .extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("plugin", "acceptCompressions");
+      .containsExactlyInAnyOrder("plugin");
+    assertThat(def.changelog())
+      .extracting(Change::getVersion, Change::getDescription)
+      .containsExactlyInAnyOrder(new Tuple("9.8", "Parameter 'acceptCompressions' removed"));
   }
 
   @Test
@@ -88,65 +93,9 @@ public class DownloadActionTest {
     verifySameContent(response, plugin.getJar().getFile());
   }
 
-  @Test
-  public void return_uncompressed_jar_if_client_does_not_accept_compression() throws Exception {
-    ServerPlugin plugin = newCompressedPlugin();
-    when(serverPluginRepository.findPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
-
-    TestResponse response = tester.newRequest()
-      .setParam("plugin", plugin.getPluginInfo().getKey())
-      .execute();
-
-    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getJar().getMd5());
-    assertThat(response.getHeader("Sonar-Compression")).isNull();
-    assertThat(response.getHeader("Sonar-UncompressedMD5")).isNull();
-    assertThat(response.getMediaType()).isEqualTo("application/java-archive");
-    verifySameContent(response, plugin.getJar().getFile());
-  }
-
-  @Test
-  public void return_uncompressed_jar_if_client_requests_unsupported_compression() throws Exception {
-    ServerPlugin plugin = newCompressedPlugin();
-    when(serverPluginRepository.findPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
-
-    TestResponse response = tester.newRequest()
-      .setParam("plugin", plugin.getPluginInfo().getKey())
-      .setParam("acceptCompressions", "zip")
-      .execute();
-
-    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getJar().getMd5());
-    assertThat(response.getHeader("Sonar-Compression")).isNull();
-    assertThat(response.getHeader("Sonar-UncompressedMD5")).isNull();
-    assertThat(response.getMediaType()).isEqualTo("application/java-archive");
-    verifySameContent(response, plugin.getJar().getFile());
-  }
-
-  @Test
-  public void return_compressed_jar_if_client_accepts_pack200() throws Exception {
-    ServerPlugin plugin = newCompressedPlugin();
-    when(serverPluginRepository.findPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
-
-    TestResponse response = tester.newRequest()
-      .setParam("plugin", plugin.getPluginInfo().getKey())
-      .setParam("acceptCompressions", "pack200")
-      .execute();
-
-    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getCompressed().getMd5());
-    assertThat(response.getHeader("Sonar-UncompressedMD5")).isEqualTo(plugin.getJar().getMd5());
-    assertThat(response.getHeader("Sonar-Compression")).isEqualTo("pack200");
-    assertThat(response.getMediaType()).isEqualTo("application/octet-stream");
-    verifySameContent(response, plugin.getCompressed().getFile());
-  }
-
   private ServerPlugin newPlugin() throws IOException {
     FileAndMd5 jar = new FileAndMd5(temp.newFile());
-    return new ServerPlugin(new PluginInfo("foo"), PluginType.BUNDLED, null, jar, null, null);
-  }
-
-  private ServerPlugin newCompressedPlugin() throws IOException {
-    FileAndMd5 jar = new FileAndMd5(temp.newFile());
-    FileAndMd5 compressedJar = new FileAndMd5(temp.newFile());
-    return new ServerPlugin(new PluginInfo("foo"), PluginType.BUNDLED, null, jar, compressedJar, null);
+    return new ServerPlugin(new PluginInfo("foo"), PluginType.BUNDLED, null, jar, null);
   }
 
   private static void verifySameContent(TestResponse response, File file) throws IOException {

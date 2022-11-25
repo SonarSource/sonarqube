@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,9 +33,6 @@ import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
 
 public class DownloadAction implements PluginsWsAction {
-
-  private static final String PACK200 = "pack200";
-  private static final String ACCEPT_COMPRESSIONS_PARAM = "acceptCompressions";
   private static final String PLUGIN_PARAM = "plugin";
 
   private final ServerPluginRepository pluginRepository;
@@ -57,8 +55,7 @@ public class DownloadAction implements PluginsWsAction {
       .setDescription("The key identifying the plugin to download")
       .setExampleValue("cobol");
 
-    action.createParam(ACCEPT_COMPRESSIONS_PARAM)
-      .setExampleValue(PACK200);
+    action.setChangelog(new Change("9.8", "Parameter 'acceptCompressions' removed"));
   }
 
   @Override
@@ -71,17 +68,10 @@ public class DownloadAction implements PluginsWsAction {
     }
 
     FileAndMd5 downloadedFile;
-    FileAndMd5 compressedJar = file.get().getCompressed();
-    if (compressedJar != null && PACK200.equals(request.param(ACCEPT_COMPRESSIONS_PARAM))) {
-      response.stream().setMediaType("application/octet-stream");
 
-      response.setHeader("Sonar-Compression", PACK200);
-      response.setHeader("Sonar-UncompressedMD5", file.get().getJar().getMd5());
-      downloadedFile = compressedJar;
-    } else {
-      response.stream().setMediaType("application/java-archive");
-      downloadedFile = file.get().getJar();
-    }
+    response.stream().setMediaType("application/java-archive");
+    downloadedFile = file.get().getJar();
+
     response.setHeader("Sonar-MD5", downloadedFile.getMd5());
     try (InputStream input = FileUtils.openInputStream(downloadedFile.getFile())) {
       IOUtils.copyLarge(input, response.stream().output());

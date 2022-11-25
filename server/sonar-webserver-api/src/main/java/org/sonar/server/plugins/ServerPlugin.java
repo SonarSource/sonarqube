@@ -19,8 +19,6 @@
  */
 package org.sonar.server.plugins;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.plugin.PluginType;
@@ -31,19 +29,17 @@ public class ServerPlugin {
   private final PluginType type;
   private final Plugin instance;
   private final FileAndMd5 jar;
-  private final FileAndMd5 compressed;
   private final ClassLoader classloader;
 
-  public ServerPlugin(PluginInfo pluginInfo, PluginType type, Plugin instance, FileAndMd5 jar, @Nullable FileAndMd5 compressed) {
-    this(pluginInfo, type, instance, jar, compressed, instance.getClass().getClassLoader());
+  public ServerPlugin(PluginInfo pluginInfo, PluginType type, Plugin instance, FileAndMd5 jar) {
+    this(pluginInfo, type, instance, jar, instance.getClass().getClassLoader());
   }
 
-  public ServerPlugin(PluginInfo pluginInfo, PluginType type, Plugin instance, FileAndMd5 jar, @Nullable FileAndMd5 compressed, ClassLoader classloader) {
+  public ServerPlugin(PluginInfo pluginInfo, PluginType type, Plugin instance, FileAndMd5 jar, ClassLoader classloader) {
     this.pluginInfo = pluginInfo;
     this.type = type;
     this.instance = instance;
     this.jar = jar;
-    this.compressed = compressed;
     this.classloader = classloader;
   }
 
@@ -61,11 +57,6 @@ public class ServerPlugin {
 
   public FileAndMd5 getJar() {
     return jar;
-  }
-
-  @CheckForNull
-  public FileAndMd5 getCompressed() {
-    return compressed;
   }
 
   public ClassLoader getClassloader() {

@@ -48,15 +48,13 @@ public class ServerPluginManager implements Startable {
   private final PluginJarLoader pluginJarLoader;
   private final PluginJarExploder pluginJarExploder;
   private final PluginClassLoader pluginClassLoader;
-  private final PluginCompressor pluginCompressor;
   private final ServerPluginRepository pluginRepository;
 
   public ServerPluginManager(PluginClassLoader pluginClassLoader, PluginJarExploder pluginJarExploder,
-    PluginJarLoader pluginJarLoader, PluginCompressor pluginCompressor, ServerPluginRepository pluginRepository) {
+    PluginJarLoader pluginJarLoader, ServerPluginRepository pluginRepository) {
     this.pluginClassLoader = pluginClassLoader;
     this.pluginJarExploder = pluginJarExploder;
     this.pluginJarLoader = pluginJarLoader;
-    this.pluginCompressor = pluginCompressor;
     this.pluginRepository = pluginRepository;
   }
 
@@ -67,7 +65,7 @@ public class ServerPluginManager implements Startable {
     Collection<ExplodedPlugin> explodedPlugins = extractPlugins(loadedPlugins);
     Map<String, Plugin> instancesByKey = pluginClassLoader.load(explodedPlugins);
     Map<String, PluginType> typesByKey = getTypesByKey(loadedPlugins);
-    List<ServerPlugin> plugins = compressAndCreateServerPlugins(explodedPlugins, instancesByKey, typesByKey);
+    List<ServerPlugin> plugins = createServerPlugins(explodedPlugins, instancesByKey, typesByKey);
     pluginRepository.addPlugins(plugins);
   }
 
@@ -88,12 +86,11 @@ public class ServerPluginManager implements Startable {
     return plugins.stream().map(pluginJarExploder::explode).collect(Collectors.toList());
   }
 
-  private List<ServerPlugin> compressAndCreateServerPlugins(Collection<ExplodedPlugin> explodedPlugins, Map<String, Plugin> instancesByKey, Map<String, PluginType> typseByKey) {
+  private static List<ServerPlugin> createServerPlugins(Collection<ExplodedPlugin> explodedPlugins, Map<String, Plugin> instancesByKey, Map<String, PluginType> typesByKey) {
     List<ServerPlugin> plugins = new ArrayList<>();
     for (ExplodedPlugin p : explodedPlugins) {
-      PluginFilesAndMd5 installedPlugin = pluginCompressor.compress(p.getKey(), p.getPluginInfo().getNonNullJarFile(), p.getMain());
-      plugins.add(new ServerPlugin(p.getPluginInfo(), typseByKey.get(p.getKey()), instancesByKey.get(p.getKey()),
-        installedPlugin.getLoadedJar(), installedPlugin.getCompressedJar()));
+      plugins.add(new ServerPlugin(p.getPluginInfo(), typesByKey.get(p.getKey()), instancesByKey.get(p.getKey()),
+        new PluginFilesAndMd5.FileAndMd5(p.getPluginInfo().getNonNullJarFile())));
     }
     return plugins;
   }

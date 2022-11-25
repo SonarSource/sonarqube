@@ -29,21 +29,7 @@ import javax.annotation.Generated;
  */
 @Generated("sonar-ws-generator")
 public class DownloadRequest {
-
-  private String acceptCompressions;
   private String plugin;
-
-  /**
-   * Example value: "pack200"
-   */
-  public DownloadRequest setAcceptCompressions(String acceptCompressions) {
-    this.acceptCompressions = acceptCompressions;
-    return this;
-  }
-
-  public String getAcceptCompressions() {
-    return acceptCompressions;
-  }
 
   /**
    * This is a mandatory parameter.
