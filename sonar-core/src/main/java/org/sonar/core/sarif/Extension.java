@@ -22,21 +22,22 @@ package org.sonar.core.sarif;
 import com.google.gson.annotations.SerializedName;
 import java.util.Set;
 
-public class Tool {
-  @SerializedName("driver")
-  private final Driver driver;
-  @SerializedName("extensions")
-  private Set<Extension> extensions;
+public class Extension {
+  @SerializedName("rules")
+  private Set<Rule> rules;
+  @SerializedName("name")
+  private String name;
 
-  public Tool(Driver driver) {
-    this.driver = driver;
+  public Extension() {
+    // even if empty constructor is not required for Gson, it is strongly recommended:
+    // http://stackoverflow.com/a/18645370/229031
   }
 
-  public Driver getDriver() {
-    return driver;
+  public Set<Rule> getRules() {
+    return rules;
   }
 
-  public Set<Extension> getExtensions() {
-    return extensions;
+  public String getName() {
+    return name;
   }
 }

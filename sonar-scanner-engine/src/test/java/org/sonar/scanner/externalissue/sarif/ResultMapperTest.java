@@ -44,10 +44,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_SEVERITY;
 
 @RunWith(DataProviderRunner.class)
 public class ResultMapperTest {
 
+  private static final String WARNING = "warning";
+  private static final String ERROR = "error";
   private static final String RULE_ID = "test_rules_id";
   private static final String DRIVER_NAME = "driverName";
 
@@ -81,11 +84,11 @@ public class ResultMapperTest {
 
   @Test
   public void mapResult_mapsSimpleFieldsCorrectly() {
-    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, result);
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, result);
 
     verify(newExternalIssue).type(RuleType.VULNERABILITY);
     verify(newExternalIssue).engineId(DRIVER_NAME);
-    verify(newExternalIssue).severity(ResultMapper.DEFAULT_SEVERITY);
+    verify(newExternalIssue).severity(DEFAULT_SEVERITY);
     verify(newExternalIssue).ruleId(RULE_ID);
   }
 
@@ -93,7 +96,7 @@ public class ResultMapperTest {
   public void mapResult_ifRuleIdMissing_fails() {
     when(result.getRuleId()).thenReturn(null);
     assertThatNullPointerException()
-      .isThrownBy(() -> resultMapper.mapResult(DRIVER_NAME, result))
+      .isThrownBy(() -> resultMapper.mapResult(DRIVER_NAME, WARNING, result))
       .withMessage("No ruleId found for issue thrown by driver driverName");
   }
 
@@ -102,7 +105,7 @@ public class ResultMapperTest {
     Location location = mock(Location.class);
     when(result.getLocations()).thenReturn(Set.of(location));
 
-    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, result);
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, result);
 
     verify(locationMapper).fillIssueInFileLocation(result, newExternalIssueLocation, location);
     verifyNoMoreInteractions(locationMapper);
@@ -117,7 +120,7 @@ public class ResultMapperTest {
     when(result.getLocations()).thenReturn(Set.of(location));
     when(locationMapper.fillIssueInFileLocation(any(), any(), any())).thenReturn(null);
 
-    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, result);
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, result);
 
     verify(locationMapper).fillIssueInProjectLocation(result, newExternalIssueLocation);
     verify(newExternalIssue).at(newExternalIssueLocation);
@@ -127,7 +130,7 @@ public class ResultMapperTest {
 
   @Test
   public void mapResult_whenLocationNotFound_createsProjectLocation() {
-    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, result);
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, WARNING, result);
 
     verify(locationMapper).fillIssueInProjectLocation(result, newExternalIssueLocation);
     verifyNoMoreInteractions(locationMapper);
@@ -138,28 +141,27 @@ public class ResultMapperTest {
 
   @Test
   public void mapResult_mapsErrorLevel_toCriticalSeverity() {
-    when(result.getLevel()).thenReturn("error");
-    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, result);
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, ERROR, result);
     verify(newExternalIssue).severity(Severity.CRITICAL);
   }
 
   @DataProvider
-  public static Object[][] level_severity_mapping() {
+  public static Object[][] rule_severity_to_sonarqube_severity_mapping() {
     return new Object[][] {
       {"error", Severity.CRITICAL},
       {"warning", Severity.MAJOR},
       {"note", Severity.MINOR},
       {"none", Severity.INFO},
-      {"anything else", ResultMapper.DEFAULT_SEVERITY},
+      {"anything else", DEFAULT_SEVERITY},
+      {null, DEFAULT_SEVERITY},
     };
   }
 
   @Test
-  @UseDataProvider("level_severity_mapping")
-  public void mapResult_mapsCorrectlyLevelToSeverity(String level, Severity severity) {
-    when(result.getLevel()).thenReturn(level);
-    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, result);
-    verify(newExternalIssue).severity(severity);
+  @UseDataProvider("rule_severity_to_sonarqube_severity_mapping")
+  public void mapResult_mapsCorrectlyLevelToSeverity(String ruleSeverity, Severity sonarQubeSeverity) {
+    NewExternalIssue newExternalIssue = resultMapper.mapResult(DRIVER_NAME, ruleSeverity, result);
+    verify(newExternalIssue).severity(sonarQubeSeverity);
   }
 
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +36,7 @@ import static java.util.Objects.requireNonNull;
 
 @ScannerSide
 public class ResultMapper {
+  public static final Severity DEFAULT_SEVERITY = Severity.MAJOR;
 
   private static final Map<String, Severity> SEVERITY_MAPPING = ImmutableMap.<String, Severity>builder()
     .put("error", Severity.CRITICAL)
@@ -45,8 +45,6 @@ public class ResultMapper {
     .put("none", Severity.INFO)
     .build();
 
-  @VisibleForTesting
-  static final Severity DEFAULT_SEVERITY = Severity.MAJOR;
   private static final RuleType DEFAULT_TYPE = RuleType.VULNERABILITY;
 
   private final SensorContext sensorContext;
@@ -57,19 +55,19 @@ public class ResultMapper {
     this.locationMapper = locationMapper;
   }
 
-  NewExternalIssue mapResult(String driverName, Result result) {
+  NewExternalIssue mapResult(String driverName, @Nullable String ruleSeverity, Result result) {
     NewExternalIssue newExternalIssue = sensorContext.newExternalIssue();
     newExternalIssue.type(DEFAULT_TYPE);
     newExternalIssue.engineId(driverName);
-    newExternalIssue.severity(toSonarQubeSeverity(result.getLevel()));
+    newExternalIssue.severity(toSonarQubeSeverity(ruleSeverity));
     newExternalIssue.ruleId(requireNonNull(result.getRuleId(), "No ruleId found for issue thrown by driver " + driverName));
 
     mapLocations(result, newExternalIssue);
     return newExternalIssue;
   }
 
-  private static Severity toSonarQubeSeverity(@Nullable String level) {
-    return SEVERITY_MAPPING.getOrDefault(level, DEFAULT_SEVERITY);
+  private static Severity toSonarQubeSeverity(@Nullable String ruleSeverity) {
+    return SEVERITY_MAPPING.getOrDefault(ruleSeverity, DEFAULT_SEVERITY);
   }
 
   private void mapLocations(Result result, NewExternalIssue newExternalIssue) {

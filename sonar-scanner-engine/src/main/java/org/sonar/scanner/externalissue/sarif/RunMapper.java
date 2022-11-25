@@ -20,13 +20,17 @@
 package org.sonar.scanner.externalissue.sarif;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.sarif.Driver;
 import org.sonar.core.sarif.Result;
 import org.sonar.core.sarif.Run;
+import org.sonar.core.sarif.Tool;
 
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.Preconditions.checkArgument;
@@ -42,29 +46,36 @@ public class RunMapper {
   }
 
   List<NewExternalIssue> mapRun(Run run) {
-    String driverName = getToolDriverNameOrThrow(run);
-    return run.getResults().stream()
-      .map(result -> toNewExternalIssue(driverName, result))
+    String driverName = getToolDriverName(run);
+    Map<String, String> ruleSeveritiesByRuleId = RulesSeverityDetector.detectRulesSeverities(run, driverName);
+
+    return run.getResults()
+      .stream()
+      .map(result -> toNewExternalIssue(driverName, ruleSeveritiesByRuleId.get(result.getRuleId()), result))
       .filter(Optional::isPresent)
       .map(Optional::get)
       .collect(toList());
   }
 
-  private static String getToolDriverNameOrThrow(Run run) {
-    checkArgument(run.getTool() != null
-        && run.getTool().getDriver() != null
-        && run.getTool().getDriver().getName() != null,
-      "The run does not have a tool driver name defined.");
+  private static String getToolDriverName(Run run) throws IllegalArgumentException {
+    checkArgument(hasToolDriverNameDefined(run), "The run does not have a tool driver name defined.");
     return run.getTool().getDriver().getName();
   }
 
-  private Optional<NewExternalIssue> toNewExternalIssue(String driverName, Result result) {
+  private Optional<NewExternalIssue> toNewExternalIssue(String driverName, @Nullable String ruleSeverity, Result result) {
     try {
-      return Optional.of(resultMapper.mapResult(driverName, result));
+      return Optional.of(resultMapper.mapResult(driverName, ruleSeverity, result));
     } catch (Exception exception) {
       LOG.warn("Failed to import an issue raised by tool {}, error: {}", driverName, exception.getMessage());
       return Optional.empty();
     }
   }
 
+  private static boolean hasToolDriverNameDefined(Run run) {
+    return Optional.ofNullable(run)
+      .map(Run::getTool)
+      .map(Tool::getDriver)
+      .map(Driver::getName)
+      .isPresent();
+  }
 }

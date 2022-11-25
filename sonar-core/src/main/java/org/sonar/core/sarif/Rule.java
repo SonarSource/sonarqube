@@ -35,6 +35,8 @@ public class Rule {
   private final WrappedText help;
   @SerializedName("properties")
   private final PropertiesBag properties;
+  @SerializedName("defaultConfiguration")
+  private DefaultConfiguration defaultConfiguration;
 
   private Rule(String id, String name, WrappedText shortDescription, WrappedText fullDescription, WrappedText help, PropertiesBag properties) {
     this.id = id;
@@ -67,6 +69,10 @@ public class Rule {
 
   public PropertiesBag getProperties() {
     return properties;
+  }
+
+  public DefaultConfiguration getDefaultConfiguration() {
+    return defaultConfiguration;
   }
 
   @Override

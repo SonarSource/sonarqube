@@ -20,23 +20,14 @@
 package org.sonar.core.sarif;
 
 import com.google.gson.annotations.SerializedName;
-import java.util.Set;
 
-public class Tool {
-  @SerializedName("driver")
-  private final Driver driver;
-  @SerializedName("extensions")
-  private Set<Extension> extensions;
+public class DefaultConfiguration {
+  @SerializedName("level")
+  private String level;
 
-  public Tool(Driver driver) {
-    this.driver = driver;
-  }
+  DefaultConfiguration() {}
 
-  public Driver getDriver() {
-    return driver;
-  }
-
-  public Set<Extension> getExtensions() {
-    return extensions;
+  public String getLevel() {
+    return level;
   }
 }
