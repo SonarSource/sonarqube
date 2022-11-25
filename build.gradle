@@ -2,13 +2,13 @@ import groovy.json.JsonOutput
 
 plugins {
   // Ordered alphabetically
-  id 'com.github.hierynomus.license' version '0.15.0'
-  id "com.github.hierynomus.license-report" version "0.15.0" apply false
-  id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
+  id 'com.github.hierynomus.license' version '0.16.1'
+  id "com.github.hierynomus.license-report" version "0.16.1" apply false
+  id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
   id 'com.google.protobuf' version '0.8.19' apply false
-  id 'com.jfrog.artifactory' version '4.24.23'
-  id "de.undercouch.download" version "5.0.1" apply false
-  id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+  id 'com.jfrog.artifactory' version '4.29.3'
+  id "de.undercouch.download" version "5.3.0" apply false
+  id 'io.spring.dependency-management' version '1.1.0'
   id "org.cyclonedx.bom" version "1.6.1" apply false
   id 'org.sonarqube' version '3.5.0.2730'
 }
