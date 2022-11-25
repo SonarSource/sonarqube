@@ -95,7 +95,7 @@ exports[`should render correctly 1`] = `
   </Dropdown>
   <a
     className="button spacer-left"
-    download="sonarqube-support-info-filesuffix(MyServerId).json"
+    download="sonarqube-system-info-filesuffix(MyServerId).json"
     href="/api/system/info"
     id="download-link"
     onClick={[Function]}
@@ -205,7 +205,7 @@ exports[`should render without log download 1`] = `
   </span>
   <a
     className="button spacer-left"
-    download="sonarqube-support-info-filesuffix().json"
+    download="sonarqube-system-info-filesuffix().json"
     href="/api/system/info"
     id="download-link"
     onClick={[Function]}

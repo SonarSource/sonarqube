@@ -151,7 +151,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
         )}
         <a
           className="button spacer-left"
-          download={`sonarqube-support-info-${getFileNameSuffix(this.props.serverId)}.json`}
+          download={`sonarqube-system-info-${getFileNameSuffix(this.props.serverId)}.json`}
           href={infoUrl}
           id="download-link"
           onClick={this.removeElementFocus}
