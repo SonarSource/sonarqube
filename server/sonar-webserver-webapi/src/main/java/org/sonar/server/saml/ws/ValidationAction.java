@@ -21,6 +21,8 @@
 package org.sonar.server.saml.ws;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -40,9 +42,12 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.ws.ServletFilterHandler;
 
+import static org.sonar.server.saml.ws.SamlValidationWs.SAML_VALIDATION_CONTROLLER;
+
 public class ValidationAction extends ServletFilter implements SamlAction {
 
   static final String VALIDATION_CALLBACK_KEY = SamlValidationRedirectionFilter.SAML_VALIDATION_KEY;
+  private static final String URL_DELIMITER = "/";
   private final ThreadLocalUserSession userSession;
   private final SamlAuthenticator samlAuthenticator;
   private final OAuth2ContextFactory oAuth2ContextFactory;
@@ -60,7 +65,7 @@ public class ValidationAction extends ServletFilter implements SamlAction {
 
   @Override
   public UrlPattern doGetPattern() {
-    return UrlPattern.create("/" + SamlValidationWs.SAML_VALIDATION_CONTROLLER + "/" + VALIDATION_CALLBACK_KEY);
+    return UrlPattern.create(composeUrlPattern(SAML_VALIDATION_CONTROLLER, VALIDATION_CALLBACK_KEY));
   }
 
   @Override
@@ -104,5 +109,12 @@ public class ValidationAction extends ServletFilter implements SamlAction {
     action.createParam("SAMLResponse")
       .setDescription("SAML assertion value")
       .setRequired(true);
+  }
+
+  private static String composeUrlPattern(String... parameters) {
+    return Arrays
+      .stream(parameters)
+      .map(URL_DELIMITER::concat)
+      .collect(Collectors.joining());
   }
 }

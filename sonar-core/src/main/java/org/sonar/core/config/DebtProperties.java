@@ -19,7 +19,6 @@
  */
 package org.sonar.core.config;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
@@ -33,7 +32,7 @@ class DebtProperties {
   }
 
   static List<PropertyDefinition> all() {
-    return ImmutableList.of(
+    return List.of(
       PropertyDefinition.builder(CoreProperties.DEVELOPMENT_COST)
         .defaultValue("" + CoreProperties.DEVELOPMENT_COST_DEF_VALUE)
         .name("Development cost")
