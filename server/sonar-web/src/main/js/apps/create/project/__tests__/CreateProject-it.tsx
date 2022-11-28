@@ -41,7 +41,7 @@ const ui = {
   personalAccessTokenInput: byRole('textbox', {
     name: 'onboarding.create_project.enter_pat field_required',
   }),
-  instanceSelector: byLabelText('alm.configuration.selector.label'),
+  instanceSelector: byLabelText(/alm.configuration.selector.label/),
 };
 
 beforeAll(() => {
@@ -70,7 +70,7 @@ describe('Gitlab onboarding page', () => {
 
     await user.click(ui.gitlabCreateProjectButton.get());
     expect(screen.getByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
-    expect(screen.getByText('alm.configuration.selector.label')).toBeInTheDocument();
+    expect(ui.instanceSelector.get()).toBeInTheDocument();
 
     expect(screen.getByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
     expect(screen.getByText('onboarding.create_project.pat_help.title')).toBeInTheDocument();
@@ -120,11 +120,9 @@ describe('Github onboarding page', () => {
     await user.click(ui.githubCreateProjectButton.get());
     expect(screen.getByText('onboarding.create_project.github.title')).toBeInTheDocument();
     expect(screen.getByText('alm.configuration.selector.placeholder')).toBeInTheDocument();
-    expect(screen.getByText('alm.configuration.selector.label')).toBeInTheDocument();
+    expect(ui.instanceSelector.get()).toBeInTheDocument();
 
-    await selectEvent.select(screen.getByLabelText('alm.configuration.selector.label'), [
-      /conf-github-1/,
-    ]);
+    await selectEvent.select(ui.instanceSelector.get(), [/conf-github-1/]);
 
     expect(window.location.replace).toHaveBeenCalled();
     expect(

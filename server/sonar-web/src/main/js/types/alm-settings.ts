@@ -25,13 +25,6 @@ export const enum AlmKeys {
   GitLab = 'gitlab',
 }
 
-export type AlmKeysUnion =
-  | AlmKeys.Azure
-  | AlmKeys.BitbucketServer
-  | AlmKeys.BitbucketCloud
-  | AlmKeys.GitHub
-  | AlmKeys.GitLab;
-
 export type AlmBindingDefinition =
   | AzureBindingDefinition
   | GithubBindingDefinition

@@ -82,6 +82,7 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
       />
 
       <AlmSettingsInstanceDropdown
+        almKey={AlmKeys.GitLab}
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
         onChangeConfig={props.onSelectedAlmInstanceChange}

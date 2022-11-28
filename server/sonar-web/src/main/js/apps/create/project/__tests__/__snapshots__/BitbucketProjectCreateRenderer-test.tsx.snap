@@ -43,6 +43,7 @@ exports[`should render correctly: default 1`] = `
         },
       ]
     }
+    almKey="bitbucket"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -127,6 +128,7 @@ exports[`should render correctly: importing 1`] = `
         },
       ]
     }
+    almKey="bitbucket"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -211,6 +213,7 @@ exports[`should render correctly: invalid config, admin user 1`] = `
         },
       ]
     }
+    almKey="bitbucket"
     onChangeConfig={[MockFunction]}
   />
   <WrongBindingCountAlert
@@ -263,6 +266,7 @@ exports[`should render correctly: invalid config, regular user 1`] = `
         },
       ]
     }
+    almKey="bitbucket"
     onChangeConfig={[MockFunction]}
   />
   <WrongBindingCountAlert
@@ -315,6 +319,7 @@ exports[`should render correctly: loading 1`] = `
         },
       ]
     }
+    almKey="bitbucket"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -356,6 +361,7 @@ exports[`should render correctly: pat form 1`] = `
         },
       ]
     }
+    almKey="bitbucket"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -420,6 +426,7 @@ exports[`should render correctly: selected repo 1`] = `
         },
       ]
     }
+    almKey="bitbucket"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {

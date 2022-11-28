@@ -26,6 +26,7 @@ exports[`Should render correctly 1`] = `
         },
       ]
     }
+    almKey="bitbucketcloud"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -72,6 +73,7 @@ exports[`Should render correctly: Loading... 1`] = `
         },
       ]
     }
+    almKey="bitbucketcloud"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -112,6 +114,7 @@ exports[`Should render correctly: Need App password 1`] = `
         },
       ]
     }
+    almKey="bitbucketcloud"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -159,6 +162,7 @@ exports[`Should render correctly: Wrong config 1`] = `
         },
       ]
     }
+    almKey="bitbucketcloud"
     onChangeConfig={[MockFunction]}
   />
   <WrongBindingCountAlert

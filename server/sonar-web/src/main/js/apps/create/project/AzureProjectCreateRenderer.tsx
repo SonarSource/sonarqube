@@ -116,6 +116,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
       />
 
       <AlmSettingsInstanceDropdown
+        almKey={AlmKeys.Azure}
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
         onChangeConfig={props.onSelectedAlmInstanceChange}

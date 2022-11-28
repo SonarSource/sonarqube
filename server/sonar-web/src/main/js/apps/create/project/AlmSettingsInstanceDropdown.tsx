@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import AlmSettingsInstanceSelector from '../../../components/devops-platform/AlmSettingsInstanceSelector';
-import { translate } from '../../../helpers/l10n';
-import { AlmSettingsInstance } from '../../../types/alm-settings';
+import { hasMessage, translate, translateWithParameters } from '../../../helpers/l10n';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 
 export interface AlmSettingsInstanceDropdownProps {
+  almKey: AlmKeys;
   almInstances?: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
   onChangeConfig: (instance: AlmSettingsInstance) => void;
@@ -31,14 +32,19 @@ export interface AlmSettingsInstanceDropdownProps {
 const MIN_SIZE_INSTANCES = 2;
 
 export default function AlmSettingsInstanceDropdown(props: AlmSettingsInstanceDropdownProps) {
-  const { almInstances, selectedAlmInstance } = props;
+  const { almKey, almInstances, selectedAlmInstance } = props;
   if (!almInstances || almInstances.length < MIN_SIZE_INSTANCES) {
     return null;
   }
+
+  const almKeyTranslation = hasMessage(`alm.${almKey}.long`)
+    ? `alm.${almKey}.long`
+    : `alm.${almKey}`;
+
   return (
     <div className="display-flex-column huge-spacer-bottom">
       <label htmlFor="alm-config-selector" className="spacer-bottom">
-        {translate('alm.configuration.selector.label')}
+        {translateWithParameters('alm.configuration.selector.label', translate(almKeyTranslation))}
       </label>
       <AlmSettingsInstanceSelector
         instances={almInstances}

@@ -83,6 +83,7 @@ export default function BitbucketCloudProjectCreateRenderer(
       />
 
       <AlmSettingsInstanceDropdown
+        almKey={AlmKeys.BitbucketCloud}
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
         onChangeConfig={props.onSelectedAlmInstanceChange}

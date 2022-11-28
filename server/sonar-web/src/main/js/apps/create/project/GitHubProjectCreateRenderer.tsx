@@ -37,7 +37,7 @@ import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { getProjectUrl } from '../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../types/alm-integration';
-import { AlmSettingsInstance } from '../../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { Paging } from '../../../types/types';
 import AlmSettingsInstanceDropdown from './AlmSettingsInstanceDropdown';
@@ -220,6 +220,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
       />
 
       <AlmSettingsInstanceDropdown
+        almKey={AlmKeys.GitHub}
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
         onChangeConfig={props.onSelectedAlmInstanceChange}

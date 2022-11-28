@@ -18,6 +18,7 @@ exports[`should render correctly: invalid settings 1`] = `
     }
   />
   <AlmSettingsInstanceDropdown
+    almKey="gitlab"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -57,6 +58,7 @@ exports[`should render correctly: invalid settings, admin user 1`] = `
     }
   />
   <AlmSettingsInstanceDropdown
+    almKey="gitlab"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -112,6 +114,7 @@ exports[`should render correctly: loading 1`] = `
         },
       ]
     }
+    almKey="gitlab"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -160,6 +163,7 @@ exports[`should render correctly: pat form 1`] = `
         },
       ]
     }
+    almKey="gitlab"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {
@@ -215,6 +219,7 @@ exports[`should render correctly: project selection form 1`] = `
         },
       ]
     }
+    almKey="gitlab"
     onChangeConfig={[MockFunction]}
     selectedAlmInstance={
       Object {

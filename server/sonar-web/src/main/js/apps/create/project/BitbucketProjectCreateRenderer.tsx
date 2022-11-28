@@ -101,6 +101,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
       />
 
       <AlmSettingsInstanceDropdown
+        almKey={AlmKeys.BitbucketServer}
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
         onChangeConfig={props.onSelectedAlmInstanceChange}

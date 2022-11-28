@@ -26,7 +26,7 @@ import withAppStateContext from '../../../app/components/app-state/withAppStateC
 import ChevronsIcon from '../../../components/icons/ChevronsIcon';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import { AlmKeys, AlmKeysUnion } from '../../../types/alm-settings';
+import { AlmKeys } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
 import { CreateProjectModes } from './types';
 
@@ -53,7 +53,7 @@ function getErrorMessage(hasConfig: boolean, canAdmin: boolean | undefined) {
 
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
-  alm: AlmKeysUnion,
+  alm: AlmKeys,
   mode: CreateProjectModes,
   last = false
 ) {
