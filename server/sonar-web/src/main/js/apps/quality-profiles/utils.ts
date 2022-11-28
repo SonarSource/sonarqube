@@ -22,6 +22,7 @@ import { sortBy } from 'lodash';
 import { Profile as BaseProfile } from '../../api/quality-profiles';
 import { isValidDate, parseDate } from '../../helpers/dates';
 import { queryToSearch } from '../../helpers/urls';
+import { PROFILE_COMPARE_PATH, PROFILE_PATH } from './constants';
 import { Profile } from './types';
 
 export function sortProfiles(profiles: BaseProfile[]): Profile[] {
@@ -65,8 +66,6 @@ export function isStagnant(profile: Profile): boolean {
   return false;
 }
 
-export const PROFILE_PATH = '/profiles';
-
 export const getProfilesForLanguagePath = (language: string) => ({
   pathname: PROFILE_PATH,
   search: queryToSearch({ language }),
@@ -83,7 +82,7 @@ export const getProfileComparePath = (name: string, language: string, withKey?: 
     Object.assign(query, { withKey });
   }
   return {
-    pathname: `${PROFILE_PATH}/compare`,
+    pathname: PROFILE_COMPARE_PATH,
     search: queryToSearch(query),
   };
 };
@@ -106,4 +105,8 @@ export const getProfileChangelogPath = (
     pathname: `${PROFILE_PATH}/changelog`,
     search: queryToSearch(query),
   };
+};
+
+export const isProfileComparePath = (pathname: string): boolean => {
+  return pathname === PROFILE_COMPARE_PATH;
 };

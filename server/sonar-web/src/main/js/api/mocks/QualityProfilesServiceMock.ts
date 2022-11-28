@@ -19,11 +19,14 @@
  */
 import { cloneDeep } from 'lodash';
 import { RequestData } from '../../helpers/request';
-import { mockQualityProfile } from '../../helpers/testMocks';
+import { mockCompareResult, mockQualityProfile, mockRuleDetails } from '../../helpers/testMocks';
 import { SearchRulesResponse } from '../../types/coding-rules';
-import { Dict, Paging, ProfileInheritanceDetails } from '../../types/types';
+import { Dict, Paging, ProfileInheritanceDetails, RuleDetails } from '../../types/types';
 import {
+  activateRule,
   changeProfileParent,
+  compareProfiles,
+  CompareResponse,
   copyProfile,
   createQualityProfile,
   getImporters,
@@ -35,18 +38,20 @@ import {
   SearchQualityProfilesParameters,
   SearchQualityProfilesResponse,
 } from '../quality-profiles';
-import { searchRules } from '../rules';
+import { getRuleDetails, searchRules } from '../rules';
 
 export default class QualityProfilesServiceMock {
   isAdmin = false;
   listQualityProfile: Profile[] = [];
-
   languageMapping: Dict<Partial<Profile>> = {
     c: { language: 'c', languageName: 'C' },
   };
 
+  comparisonResult: CompareResponse = mockCompareResult();
+
   constructor() {
     this.resetQualityProfile();
+    this.resetComparisonResult();
 
     (searchQualityProfiles as jest.Mock).mockImplementation(this.handleSearchQualityProfiles);
     (createQualityProfile as jest.Mock).mockImplementation(this.handleCreateQualityProfile);
@@ -56,6 +61,9 @@ export default class QualityProfilesServiceMock {
     (copyProfile as jest.Mock).mockImplementation(this.handleCopyProfile);
     (getImporters as jest.Mock).mockImplementation(this.handleGetImporters);
     (searchRules as jest.Mock).mockImplementation(this.handleSearchRules);
+    (compareProfiles as jest.Mock).mockImplementation(this.handleCompareQualityProfiles);
+    (activateRule as jest.Mock).mockImplementation(this.handleActivateRule);
+    (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
   }
 
   resetQualityProfile() {
@@ -70,10 +78,25 @@ export default class QualityProfilesServiceMock {
       mockQualityProfile({
         key: 'java-qp',
         language: 'java',
+        languageName: 'Java',
         name: 'java quality profile',
         activeDeprecatedRuleCount: 0,
       }),
+      mockQualityProfile({
+        key: 'java-qp-1',
+        language: 'java',
+        languageName: 'Java',
+        name: 'java quality profile #2',
+        activeDeprecatedRuleCount: 1,
+        actions: {
+          edit: true,
+        },
+      }),
     ];
+  }
+
+  resetComparisonResult() {
+    this.comparisonResult = mockCompareResult();
   }
 
   handleGetImporters = () => {
@@ -201,12 +224,52 @@ export default class QualityProfilesServiceMock {
       profiles = profiles.filter((p) => p.language === language);
     }
     if (this.isAdmin) {
-      profiles = profiles.map((p) => ({ ...p, actions: { copy: true } }));
+      profiles = profiles.map((p) => ({ ...p, actions: { ...p.actions, copy: true } }));
     }
 
     return this.reply({
       actions: { create: this.isAdmin },
       profiles,
+    });
+  };
+
+  handleActivateRule = (data: {
+    key: string;
+    params?: Dict<string>;
+    reset?: boolean;
+    rule: string;
+    severity?: string;
+  }): Promise<undefined> => {
+    const profile = this.listQualityProfile.find((profile) => profile.key === data.key) as Profile;
+    const keyFilter = profile.name === this.comparisonResult.left.name ? 'inRight' : 'inLeft';
+
+    this.comparisonResult[keyFilter] = this.comparisonResult[keyFilter].filter(
+      ({ key }) => key !== data.rule
+    );
+
+    return this.reply(undefined);
+  };
+
+  handleCompareQualityProfiles = (leftKey: string, rightKey: string): Promise<CompareResponse> => {
+    const comparedProfiles = this.listQualityProfile.reduce((profiles, profile) => {
+      if (profile.key === leftKey || profile.key === rightKey) {
+        profiles.push(profile);
+      }
+      return profiles;
+    }, [] as Profile[]);
+    const [leftName, rightName] = comparedProfiles.map((profile) => profile.name);
+
+    this.comparisonResult.left = { name: leftName };
+    this.comparisonResult.right = { name: rightName };
+
+    return this.reply(this.comparisonResult);
+  };
+
+  handleGetRuleDetails = (params: { key: string }): Promise<{ rule: RuleDetails }> => {
+    return this.reply({
+      rule: mockRuleDetails({
+        key: params.key,
+      }),
     });
   };
 
@@ -217,6 +280,7 @@ export default class QualityProfilesServiceMock {
   reset() {
     this.isAdmin = false;
     this.resetQualityProfile();
+    this.resetComparisonResult();
   }
 
   reply<T>(response: T): Promise<T> {

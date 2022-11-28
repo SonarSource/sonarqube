@@ -30,8 +30,8 @@ import {
 import { mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 import { queryToSearch } from '../../../../helpers/urls';
+import { PROFILE_PATH } from '../../constants';
 import { ProfileActionModals } from '../../types';
-import { PROFILE_PATH } from '../../utils';
 import DeleteProfileForm from '../DeleteProfileForm';
 import { ProfileActions } from '../ProfileActions';
 import ProfileModalForm from '../ProfileModalForm';
@@ -331,6 +331,12 @@ it('should not allow to set a profile as the default if the profile has no activ
 function shallowRender(props: Partial<ProfileActions['props']> = {}) {
   const router = mockRouter();
   return shallow<ProfileActions>(
-    <ProfileActions profile={PROFILE} router={router} updateProfiles={jest.fn()} {...props} />
+    <ProfileActions
+      isComparable={true}
+      profile={PROFILE}
+      router={router}
+      updateProfiles={jest.fn()}
+      {...props}
+    />
   );
 }

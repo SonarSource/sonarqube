@@ -21,7 +21,8 @@ import * as React from 'react';
 import Select from '../../../components/controls/Select';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
-import { getProfilesForLanguagePath, PROFILE_PATH } from '../utils';
+import { PROFILE_PATH } from '../constants';
+import { getProfilesForLanguagePath } from '../utils';
 
 interface Props {
   currentFilter?: string;

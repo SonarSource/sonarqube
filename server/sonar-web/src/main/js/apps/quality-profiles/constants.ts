@@ -17,20 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockQualityProfile } from '../../../../helpers/testMocks';
-import ProfileHeader from '../ProfileHeader';
-
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ profile: mockQualityProfile({ isDefault: true }) })).toMatchSnapshot(
-    'for default profile'
-  );
-});
-
-function shallowRender(props: Partial<ProfileHeader['props']> = {}) {
-  return shallow(
-    <ProfileHeader profile={mockQualityProfile()} updateProfiles={jest.fn()} {...props} />
-  );
-}
+export const PROFILE_PATH = '/profiles';
+export const PROFILE_COMPARE_PATH = `${PROFILE_PATH}/compare`;

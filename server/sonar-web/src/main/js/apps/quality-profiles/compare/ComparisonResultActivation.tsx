@@ -21,8 +21,9 @@ import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails } from '../../../api/rules';
 import { Button } from '../../../components/controls/buttons';
+import Tooltip from '../../../components/controls/Tooltip';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RuleDetails } from '../../../types/types';
 import ActivationFormModal from '../../coding-rules/components/ActivationFormModal';
 
@@ -83,9 +84,24 @@ export default class ComparisonResultActivation extends React.PureComponent<Prop
 
     return (
       <DeferredSpinner loading={this.state.state === 'opening'}>
-        <Button disabled={this.state.state !== 'closed'} onClick={this.handleButtonClick}>
-          {this.props.children}
-        </Button>
+        <Tooltip
+          placement="bottom"
+          overlay={translateWithParameters(
+            'quality_profiles.comparison.activate_rule',
+            profile.name
+          )}
+        >
+          <Button
+            disabled={this.state.state !== 'closed'}
+            aria-label={translateWithParameters(
+              'quality_profiles.comparison.activate_rule',
+              profile.name
+            )}
+            onClick={this.handleButtonClick}
+          >
+            {this.props.children}
+          </Button>
+        </Tooltip>
 
         {this.isOpen(this.state) && (
           <ActivationFormModal

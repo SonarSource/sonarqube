@@ -48,7 +48,8 @@ export function ProfileContainer(props: QualityProfilesContextProps) {
     return profileForKey ? null : <ProfileNotFound />;
   }
 
-  const profile = profiles.find((p) => p.language === language && p.name === name);
+  const filteredProfiles = profiles.filter((p) => p.language === language);
+  const profile = filteredProfiles.find((p) => p.name === name);
 
   if (!profile) {
     return <ProfileNotFound />;
@@ -62,7 +63,11 @@ export function ProfileContainer(props: QualityProfilesContextProps) {
   return (
     <div id="quality-profile">
       <Helmet defer={false} title={profile.name} />
-      <ProfileHeader profile={profile} updateProfiles={props.updateProfiles} />
+      <ProfileHeader
+        profile={profile}
+        isComparable={filteredProfiles.length > 1}
+        updateProfiles={props.updateProfiles}
+      />
       <Outlet context={context} />
     </div>
   );

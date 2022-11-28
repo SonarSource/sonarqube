@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import { translate } from '../../../helpers/l10n';
-import { PROFILE_PATH } from '../utils';
+import { PROFILE_PATH } from '../constants';
 
 export default function ProfileNotFound() {
   return (

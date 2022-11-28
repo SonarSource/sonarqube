@@ -23,48 +23,55 @@ import { NavLink } from 'react-router-dom';
 import Link from '../../../components/common/Link';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
+import { useLocation } from '../../../components/hoc/withRouter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
 import ProfileLink from '../components/ProfileLink';
+import { PROFILE_PATH } from '../constants';
 import { Profile } from '../types';
-import { getProfileChangelogPath, getProfilesForLanguagePath, PROFILE_PATH } from '../utils';
+import {
+  getProfileChangelogPath,
+  getProfilesForLanguagePath,
+  isProfileComparePath,
+} from '../utils';
 
 interface Props {
   profile: Profile;
+  isComparable: boolean;
   updateProfiles: () => Promise<void>;
 }
 
-export default class ProfileHeader extends React.PureComponent<Props> {
-  render() {
-    const { profile } = this.props;
+export default function ProfileHeader(props: Props) {
+  const { profile, isComparable, updateProfiles } = props;
+  const location = useLocation();
 
-    return (
-      <div className="page-header quality-profile-header">
-        <div className="note spacer-bottom">
-          <NavLink end={true} to={PROFILE_PATH}>
-            {translate('quality_profiles.page')}
-          </NavLink>
-          {' / '}
-          <Link to={getProfilesForLanguagePath(profile.language)}>{profile.languageName}</Link>
-        </div>
+  return (
+    <div className="page-header quality-profile-header">
+      <div className="note spacer-bottom">
+        <NavLink end={true} to={PROFILE_PATH}>
+          {translate('quality_profiles.page')}
+        </NavLink>
+        {' / '}
+        <Link to={getProfilesForLanguagePath(profile.language)}>{profile.languageName}</Link>
+      </div>
 
-        <h1 className="page-title">
-          <ProfileLink language={profile.language} name={profile.name}>
-            <span>{profile.name}</span>
-          </ProfileLink>
-          {profile.isDefault && (
-            <Tooltip overlay={translate('quality_profiles.list.default.help')}>
-              <span className=" spacer-left badge">{translate('default')}</span>
-            </Tooltip>
-          )}
-          {profile.isBuiltIn && (
-            <BuiltInQualityProfileBadge className="spacer-left" tooltip={false} />
-          )}
-        </h1>
-
+      <h1 className="page-title">
+        <ProfileLink language={profile.language} name={profile.name}>
+          <span>{profile.name}</span>
+        </ProfileLink>
+        {profile.isDefault && (
+          <Tooltip overlay={translate('quality_profiles.list.default.help')}>
+            <span className=" spacer-left badge">{translate('default')}</span>
+          </Tooltip>
+        )}
+        {profile.isBuiltIn && (
+          <BuiltInQualityProfileBadge className="spacer-left" tooltip={false} />
+        )}
+      </h1>
+      {!isProfileComparePath(location.pathname) && (
         <div className="pull-right">
           <ul className="list-inline" style={{ lineHeight: '24px' }}>
             <li className="small spacer-right">
@@ -78,47 +85,47 @@ export default class ProfileHeader extends React.PureComponent<Props> {
                 {translate('changelog')}
               </Link>
             </li>
+
             <li>
               <ProfileActions
                 className="pull-left"
                 profile={profile}
-                updateProfiles={this.props.updateProfiles}
+                isComparable={isComparable}
+                updateProfiles={updateProfiles}
               />
             </li>
           </ul>
         </div>
+      )}
 
-        {profile.isBuiltIn && (
-          <div className="page-description">
-            {translate('quality_profiles.built_in.description')}
-          </div>
-        )}
+      {profile.isBuiltIn && (
+        <div className="page-description">{translate('quality_profiles.built_in.description')}</div>
+      )}
 
-        {profile.parentKey && profile.parentName && (
-          <div className="page-description">
-            <FormattedMessage
-              defaultMessage={translate('quality_profiles.extend_description')}
-              id="quality_profiles.extend_description"
-              values={{
-                link: (
-                  <>
-                    <Link to={getQualityProfileUrl(profile.parentName, profile.language)}>
-                      {profile.parentName}
-                    </Link>
-                    <HelpTooltip
-                      className="little-spacer-left"
-                      overlay={translateWithParameters(
-                        'quality_profiles.extend_description_help',
-                        profile.parentName
-                      )}
-                    />
-                  </>
-                ),
-              }}
-            />
-          </div>
-        )}
-      </div>
-    );
-  }
+      {profile.parentKey && profile.parentName && (
+        <div className="page-description">
+          <FormattedMessage
+            defaultMessage={translate('quality_profiles.extend_description')}
+            id="quality_profiles.extend_description"
+            values={{
+              link: (
+                <>
+                  <Link to={getQualityProfileUrl(profile.parentName, profile.language)}>
+                    {profile.parentName}
+                  </Link>
+                  <HelpTooltip
+                    className="little-spacer-left"
+                    overlay={translateWithParameters(
+                      'quality_profiles.extend_description_help',
+                      profile.parentName
+                    )}
+                  />
+                </>
+              ),
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
 }

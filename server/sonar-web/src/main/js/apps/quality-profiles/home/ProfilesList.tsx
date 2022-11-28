@@ -42,6 +42,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
         key={profile.key}
         profile={profile}
         updateProfiles={this.props.updateProfiles}
+        isComparable={profiles.length > 1}
       />
     ));
   }

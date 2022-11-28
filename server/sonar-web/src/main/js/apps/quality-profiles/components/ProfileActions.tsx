@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
+import { some } from 'lodash';
 import * as React from 'react';
 import {
   changeProfileParent,
@@ -36,8 +38,9 @@ import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { getRulesUrl } from '../../../helpers/urls';
+import { PROFILE_PATH } from '../constants';
 import { Profile, ProfileActionModals } from '../types';
-import { getProfileComparePath, getProfilePath, PROFILE_PATH } from '../utils';
+import { getProfileComparePath, getProfilePath } from '../utils';
 import DeleteProfileForm from './DeleteProfileForm';
 import ProfileModalForm from './ProfileModalForm';
 
@@ -45,6 +48,7 @@ interface Props {
   className?: string;
   profile: Profile;
   router: Router;
+  isComparable: boolean;
   updateProfiles: () => Promise<void>;
 }
 
@@ -175,7 +179,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { profile } = this.props;
+    const { profile, isComparable } = this.props;
     const { loading, openModal } = this.state;
     const { actions = {} } = profile;
 
@@ -187,11 +191,12 @@ export class ProfileActions extends React.PureComponent<Props, State> {
     });
 
     const hasNoActiveRules = profile.activeRuleCount === 0;
+    const hasAnyAction = some([...Object.values(actions), !profile.isBuiltIn, isComparable]);
 
     return (
       <>
         <ActionsDropdown
-          className={this.props.className}
+          className={classNames(this.props.className, { invisible: !hasAnyAction })}
           label={translateWithParameters(
             'quality_profiles.actions',
             profile.name,
@@ -217,12 +222,14 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             </ActionsDropdownItem>
           )}
 
-          <ActionsDropdownItem
-            className="it__quality-profiles__compare"
-            to={getProfileComparePath(profile.name, profile.language)}
-          >
-            {translate('compare')}
-          </ActionsDropdownItem>
+          {isComparable && (
+            <ActionsDropdownItem
+              className="it__quality-profiles__compare"
+              to={getProfileComparePath(profile.name, profile.language)}
+            >
+              {translate('compare')}
+            </ActionsDropdownItem>
+          )}
 
           {actions.copy && (
             <>

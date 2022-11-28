@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { To } from 'react-router-dom';
+import { CompareResponse } from '../api/quality-profiles';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
 import { Location, Router } from '../components/hoc/withRouter';
@@ -433,6 +434,36 @@ export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
     languageName: 'JavaScript',
     name: 'name',
     projectCount: 3,
+    ...overrides,
+  };
+}
+
+export function mockCompareResult(overrides: Partial<CompareResponse> = {}): CompareResponse {
+  return {
+    left: { name: 'Profile A' },
+    right: { name: 'Profile B' },
+    inLeft: [
+      {
+        key: 'java:S4604',
+        name: 'Rule in left',
+        severity: 'MINOR',
+      },
+    ],
+    inRight: [
+      {
+        key: 'java:S5128',
+        name: 'Rule in right',
+        severity: 'MAJOR',
+      },
+    ],
+    modified: [
+      {
+        key: 'java:S1698',
+        name: '== and != should not be used when equals is overridden',
+        left: { params: {}, severity: 'MINOR' },
+        right: { params: {}, severity: 'CRITICAL' },
+      },
+    ],
     ...overrides,
   };
 }

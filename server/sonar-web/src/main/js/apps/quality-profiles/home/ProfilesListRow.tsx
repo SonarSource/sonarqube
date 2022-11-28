@@ -31,10 +31,11 @@ import { Profile } from '../types';
 export interface ProfilesListRowProps {
   profile: Profile;
   updateProfiles: () => Promise<void>;
+  isComparable: boolean;
 }
 
 export function ProfilesListRow(props: ProfilesListRowProps) {
-  const { profile } = props;
+  const { profile, isComparable } = props;
 
   const offset = 25 * (profile.depth - 1);
   const activeRulesUrl = getRulesUrl({
@@ -99,7 +100,11 @@ export function ProfilesListRow(props: ProfilesListRowProps) {
       </td>
 
       <td className="quality-profiles-table-actions thin nowrap text-middle text-right">
-        <ProfileActions profile={profile} updateProfiles={props.updateProfiles} />
+        <ProfileActions
+          isComparable={isComparable}
+          profile={profile}
+          updateProfiles={props.updateProfiles}
+        />
       </td>
     </tr>
   );
