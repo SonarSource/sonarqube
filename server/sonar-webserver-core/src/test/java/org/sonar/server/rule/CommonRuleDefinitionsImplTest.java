@@ -57,6 +57,8 @@ public class CommonRuleDefinitionsImplTest {
       createLanguage("js"),
       createLanguage("terraform"),
       createLanguage("cloudformation"),
+      createLanguage("kubernetes"),
+      createLanguage("docker"),
       createLanguage("web"),
       createLanguage("css"),
       createLanguage("xml"),
