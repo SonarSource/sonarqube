@@ -75,6 +75,7 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -101,6 +102,7 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
+import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 import static org.sonar.db.rule.RuleTesting.XOO_X2;
@@ -126,6 +128,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 
 public class SearchActionTest {
 
+  public static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder()
+    .setStart(0).setEnd(11).setType(CODE).build();
   private final UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
   @Rule
   public UserSessionRule userSession = standalone();
@@ -168,6 +172,7 @@ public class SearchActionTest {
       .setLine(42)
       .setChecksum("a227e508d6646b55a086ee11d63b21e9")
       .setMessage("the message")
+      .setMessageFormattings(DbIssues.MessageFormattings.newBuilder().addMessageFormatting(MESSAGE_FORMATTING).build())
       .setStatus(STATUS_RESOLVED)
       .setResolution(RESOLUTION_FIXED)
       .setSeverity("MAJOR")
@@ -184,11 +189,12 @@ public class SearchActionTest {
 
     assertThat(response.getIssuesList())
       .extracting(
-        Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage, Issue::getEffort,
-        Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList, Issue::getCreationDate, Issue::getUpdateDate,
+        Issue::getKey, Issue::getRule, Issue::getSeverity, Issue::getComponent, Issue::getResolution, Issue::getStatus, Issue::getMessage, Issue::getMessageFormattingsList,
+        Issue::getEffort, Issue::getAssignee, Issue::getAuthor, Issue::getLine, Issue::getHash, Issue::getTagsList, Issue::getCreationDate, Issue::getUpdateDate,
         Issue::getQuickFixAvailable)
       .containsExactlyInAnyOrder(
-        tuple(issue.getKey(), rule.getKey().toString(), Severity.MAJOR, file.getKey(), RESOLUTION_FIXED, STATUS_RESOLVED, "the message", "10min",
+        tuple(issue.getKey(), rule.getKey().toString(), Severity.MAJOR, file.getKey(), RESOLUTION_FIXED, STATUS_RESOLVED, "the message",
+          MessageFormattingUtils.dbMessageFormattingListToWs(List.of(MESSAGE_FORMATTING)), "10min",
           simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"), formatDateTime(issue.getIssueCreationDate()),
           formatDateTime(issue.getIssueUpdateDate()), false));
   }
@@ -309,6 +315,7 @@ public class SearchActionTest {
       DbIssues.Location.newBuilder()
         .setComponentId(anotherFile.uuid())
         .setMsg("ANOTHER FLOW MESSAGE")
+        .addMsgFormatting(DbIssues.MessageFormatting.newBuilder().setStart(0).setEnd(20).setType(CODE).build())
         .setTextRange(DbCommons.TextRange.newBuilder()
           .setStartLine(1)
           .setEndLine(1)
@@ -333,11 +340,12 @@ public class SearchActionTest {
     SearchWsResponse result = ws.newRequest().executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesCount()).isOne();
-    assertThat(result.getIssues(0).getFlows(0).getLocationsList()).extracting(Common.Location::getComponent, Common.Location::getMsg)
+    assertThat(result.getIssues(0).getFlows(0).getLocationsList()).extracting(Common.Location::getComponent, Common.Location::getMsg, Common.Location::getMsgFormattingsList)
       .containsExactlyInAnyOrder(
-        tuple(file.getKey(), "FLOW MESSAGE"),
-        tuple(anotherFile.getKey(), "ANOTHER FLOW MESSAGE"),
-        tuple(file.getKey(), "FLOW MESSAGE WITHOUT FILE UUID"));
+        tuple(file.getKey(), "FLOW MESSAGE", List.of()),
+        tuple(anotherFile.getKey(), "ANOTHER FLOW MESSAGE", List.of(Common.MessageFormatting.newBuilder()
+          .setStart(0).setEnd(20).setType(Common.MessageFormattingType.CODE).build())),
+        tuple(file.getKey(), "FLOW MESSAGE WITHOUT FILE UUID", List.of()));
   }
 
   @Test
@@ -903,7 +911,7 @@ public class SearchActionTest {
     assertThat(ws.newRequest()
       .setMultiParam("author", singletonList("unknown"))
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .isEmpty();
+        .isEmpty();
   }
 
   @Test
@@ -1773,7 +1781,8 @@ public class SearchActionTest {
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
       "additionalFields", "asc", "assigned", "assignees", "author", "componentKeys", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
-      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0", "owaspAsvsLevel", "owaspTop10",
+      "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
+      "owaspAsvsLevel", "owaspTop10",
       "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod");
 
     WebService.Param branch = def.param(PARAM_BRANCH);

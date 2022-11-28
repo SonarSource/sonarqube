@@ -49,6 +49,7 @@ message SearchWsResponse {
     optional sonarqube.ws.commons.TextRange textRange = 14;
     repeated sonarqube.ws.commons.Flow flows = 15;
     optional string ruleKey = 16;
+    repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 17;
   }
 }
 
@@ -73,6 +74,7 @@ message ShowWsResponse {
   repeated sonarqube.ws.commons.User users = 16;
   optional bool canChangeStatus = 17;
   repeated sonarqube.ws.commons.Flow flows = 19;
+  repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 20;
 }
 
 message Component {

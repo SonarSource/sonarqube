@@ -65,6 +65,7 @@ import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
@@ -234,7 +235,8 @@ public class SearchAction implements HotspotsWsAction {
         new Change("9.6", "Added parameters 'pciDss-3.2' and 'pciDss-4.0"),
         new Change("9.7", "Hotspot flows in the response may contain a description and a type"),
         new Change("9.7", "Hotspot in the response contain the corresponding ruleKey"),
-        new Change("9.8", "Endpoint visibility change from internal to public"));
+        new Change("9.8", "Endpoint visibility change from internal to public"),
+        new Change("9.8", "Add message formatting to issue and locations response"));
 
     action.addPagingParams(100);
     action.createParam(PARAM_PROJECT_KEY)
@@ -608,6 +610,7 @@ public class SearchAction implements HotspotsWsAction {
       ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
       ofNullable(hotspot.getLine()).ifPresent(builder::setLine);
       builder.setMessage(nullToEmpty(hotspot.getMessage()));
+      builder.addAllMessageFormattings(MessageFormattingUtils.dbMessageFormattingToWs(hotspot.parseMessageFormattings()));
       ofNullable(hotspot.getAssigneeUuid()).ifPresent(builder::setAssignee);
       builder.setAuthor(nullToEmpty(hotspot.getAuthorLogin()));
       builder.setCreationDate(formatDateTime(hotspot.getIssueCreationDate()));
@@ -666,7 +669,7 @@ public class SearchAction implements HotspotsWsAction {
     private final Set<String> sonarsourceSecurity;
     private final Set<String> cwe;
     private final Set<String> files;
-    
+
     private WsRequest(int page, int index,
       @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest, Set<String> hotspotKeys,
       @Nullable String status, @Nullable String resolution, @Nullable Boolean inNewCodePeriod, @Nullable Boolean onlyMine,

@@ -102,6 +102,7 @@ import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSe
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.RESOURCES_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ROOT_CAUSE_SECTION_KEY;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.db.rule.RuleDto.Format.HTML;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
@@ -109,6 +110,7 @@ import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 @RunWith(DataProviderRunner.class)
 public class ShowActionTest {
   private static final Random RANDOM = new Random();
+  public static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(CODE).build();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -215,6 +217,7 @@ public class ShowActionTest {
           DbIssues.Location.newBuilder()
             .setComponentId(file.uuid())
             .setMsg("FLOW MESSAGE")
+            .addMsgFormatting(MESSAGE_FORMATTING)
             .setTextRange(textRange(1, 1, 0, 12)).build(),
           DbIssues.Location.newBuilder()
             .setComponentId(anotherFile.uuid())
@@ -247,11 +250,12 @@ public class ShowActionTest {
     assertThat(response.getFlows(0).getDescription()).isEqualTo("FLOW DESCRIPTION");
     assertThat(response.getFlows(0).getType()).isEqualTo(Common.FlowType.DATA);
     assertThat(response.getFlows(0).getLocationsList())
-      .extracting(Location::getMsg, Location::getComponent)
+      .extracting(Location::getMsg, Location::getMsgFormattingsList, Location::getComponent)
       .containsExactlyInAnyOrder(
-        tuple("FLOW MESSAGE", file.getKey()),
-        tuple("ANOTHER FLOW MESSAGE", anotherFile.getKey()),
-        tuple("FLOW MESSAGE WITHOUT FILE UUID", file.getKey()));
+        tuple("FLOW MESSAGE", List.of(Common.MessageFormatting.newBuilder()
+          .setStart(0).setEnd(4).setType(Common.MessageFormattingType.CODE).build()), file.getKey()),
+        tuple("ANOTHER FLOW MESSAGE", List.of(), anotherFile.getKey()),
+        tuple("FLOW MESSAGE WITHOUT FILE UUID", List.of(), file.getKey()));
 
     assertThat(response.getFlows(1).getDescription()).isEmpty();
     assertThat(response.getFlows(1).hasType()).isFalse();
@@ -1036,8 +1040,8 @@ public class ShowActionTest {
       .extracting(User::getLogin, User::getName, User::getActive)
       .containsExactlyInAnyOrder(
         Stream.concat(
-            Stream.of(author, assignee),
-            changeLogAndCommentsUsers.stream())
+          Stream.of(author, assignee),
+          changeLogAndCommentsUsers.stream())
           .map(t -> tuple(t.getLogin(), t.getName(), t.isActive()))
           .toArray(Tuple[]::new));
   }
@@ -1090,6 +1094,7 @@ public class ShowActionTest {
       .setAssigneeUuid("assignee-uuid")
       .setAuthorLogin("joe")
       .setMessage("message")
+      .setMessageFormattings(DbIssues.MessageFormattings.newBuilder().addMessageFormatting(MESSAGE_FORMATTING).build())
       .setLine(10)
       .setChecksum("a227e508d6646b55a086ee11d63b21e9")
       .setIssueCreationTime(time)

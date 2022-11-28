@@ -14,6 +14,13 @@
       "resolution": "WONTFIX",
       "severity": "MAJOR",
       "message": "Remove this unused private \"getKee\" method.",
+      "messageFormattings": [
+        {
+          "start": 0,
+          "end": 4,
+          "type": "CODE"
+        }
+      ],
       "line": 81,
       "hash": "a227e508d6646b55a086ee11d63b21e9",
       "author": "Developer 1",
@@ -59,7 +66,14 @@
                 "startOffset": 0,
                 "endOffset": 30
               },
-              "msg": "Expected position: 5"
+              "msg": "Expected position: 5",
+              "msgFormattings": [
+                {
+                  "start": 0,
+                  "end": 4,
+                  "type": "CODE"
+                }
+              ]
             }
           ]
         },
@@ -72,7 +86,8 @@
                 "startOffset": 0,
                 "endOffset": 37
               },
-              "msg": "Expected position: 6"
+              "msg": "Expected position: 6",
+              "msgFormattings": []
             }
           ]
         }

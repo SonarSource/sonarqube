@@ -48,6 +48,7 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.index.IssueScope;
 import org.sonar.server.issue.workflow.Transition;
+import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.Comment;
 import org.sonarqube.ws.Common.User;
@@ -179,6 +180,7 @@ public class SearchResponseFormat {
     ofNullable(emptyToNull(dto.getResolution())).ifPresent(issueBuilder::setResolution);
     issueBuilder.setStatus(dto.getStatus());
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
+    issueBuilder.addAllMessageFormattings(MessageFormattingUtils.dbMessageFormattingToWs(dto.parseMessageFormattings()));
     issueBuilder.addAllTags(dto.getTags());
     Long effort = dto.getEffort();
     if (effort != null) {

@@ -56,6 +56,7 @@ import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.ShowWsResponse;
@@ -106,9 +107,11 @@ public class ShowAction implements HotspotsWsAction {
       .setHandler(this)
       .setDescription("Provides the details of a Security Hotspot.")
       .setSince("8.1")
-      .setChangelog(new Change("9.5", "The fields rule.riskDescription, rule.fixRecommendations, rule.vulnerabilityDescription of the response are deprecated."
+      .setChangelog(
+        new Change("9.5", "The fields rule.riskDescription, rule.fixRecommendations, rule.vulnerabilityDescription of the response are deprecated."
           + " /api/rules/show endpoint should be used to fetch rule descriptions."),
-        new Change("9.7", "Hotspot flows in the response may contain a description and a type"));
+        new Change("9.7", "Hotspot flows in the response may contain a description and a type"),
+        new Change("9.8", "Add message formatting to issue and locations response"));
 
     action.createParam(PARAM_HOTSPOT_KEY)
       .setDescription("Key of the Security Hotspot")
@@ -163,6 +166,7 @@ public class ShowAction implements HotspotsWsAction {
     ofNullable(hotspot.getLine()).ifPresent(builder::setLine);
     ofNullable(emptyToNull(hotspot.getChecksum())).ifPresent(builder::setHash);
     builder.setMessage(nullToEmpty(hotspot.getMessage()));
+    builder.addAllMessageFormattings(MessageFormattingUtils.dbMessageFormattingToWs(hotspot.parseMessageFormattings()));
     builder.setCreationDate(formatDateTime(hotspot.getIssueCreationDate()));
     builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
     users.getAssignee().map(UserDto::getLogin).ifPresent(builder::setAssignee);
@@ -243,7 +247,7 @@ public class ShowAction implements HotspotsWsAction {
 
   private Map<String, ComponentDto> loadComponents(DbSession dbSession, Set<String> componentUuids) {
     Map<String, ComponentDto> componentsByUuids = dbClient.componentDao().selectSubProjectsByComponentUuids(dbSession,
-        componentUuids)
+      componentUuids)
       .stream()
       .collect(toMap(ComponentDto::uuid, Function.identity(), (componentDto, componentDto2) -> componentDto2));
 
@@ -275,10 +279,10 @@ public class ShowAction implements HotspotsWsAction {
   private void formatUsers(ShowWsResponse.Builder responseBuilder, Users users, FormattingContext formattingContext) {
     Common.User.Builder userBuilder = Common.User.newBuilder();
     Stream.concat(
-        Stream.of(users.getAssignee(), users.getAuthor())
-          .filter(Optional::isPresent)
-          .map(Optional::get),
-        formattingContext.getUsers().stream())
+      Stream.of(users.getAssignee(), users.getAuthor())
+        .filter(Optional::isPresent)
+        .map(Optional::get),
+      formattingContext.getUsers().stream())
       .distinct()
       .map(user -> userFormatter.formatUser(userBuilder, user))
       .forEach(responseBuilder::addUsers);
@@ -300,7 +304,7 @@ public class ShowAction implements HotspotsWsAction {
     boolean hotspotOnProject = Objects.equals(project.uuid(), componentUuid);
     ComponentDto component = hotspotOnProject ? project
       : dbClient.componentDao().selectByUuid(dbSession, componentUuid)
-      .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
+        .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
 
     return new Components(project, component, branch);
   }

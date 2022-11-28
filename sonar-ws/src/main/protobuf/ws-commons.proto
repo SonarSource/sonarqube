@@ -111,6 +111,7 @@ message Location {
   // Only when component is a file. Can be empty for a file if this is an issue global to the file.
   optional sonarqube.ws.commons.TextRange textRange = 2;
   optional string msg = 3;
+  repeated MessageFormatting msgFormattings = 5;
 }
 
 message User {
@@ -182,4 +183,14 @@ enum BranchType {
   UNKNOWN_BRANCH_TYPE = 0;
   PULL_REQUEST = 3;
   BRANCH = 4;
+}
+
+message MessageFormatting {
+  required int32 start = 1;
+  required int32 end = 2;
+  required MessageFormattingType type = 3;
+}
+
+enum MessageFormattingType {
+  CODE = 0;
 }

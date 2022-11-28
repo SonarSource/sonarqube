@@ -46,6 +46,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.ws.pull.PullTaintActionProtobufObjectGenerator;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -60,12 +61,14 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 
 public class PullTaintActionTest {
   private static final long NOW = 10_000_000_000L;
   private static final long PAST = 1_000_000_000L;
 
   private static final String DEFAULT_BRANCH = DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+  public static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(CODE).build();
 
   @Rule
   public DbTester dbTester = DbTester.create();
@@ -225,6 +228,7 @@ public class PullTaintActionTest {
       .setAssigneeUuid(userSession.getUuid())
       .setManualSeverity(true)
       .setMessage("message")
+      .setMessageFormattings(DbIssues.MessageFormattings.newBuilder().addMessageFormatting(MESSAGE_FORMATTING).build())
       .setCreatedAt(NOW)
       .setStatus(Issue.STATUS_OPEN)
       .setLocations(mainLocation.build())
@@ -250,6 +254,7 @@ public class PullTaintActionTest {
 
     Issues.Location location = taintLite.getMainLocation();
     assertThat(location.getMessage()).isEqualTo(issueDto.getMessage());
+    assertThat(location.getMessageFormattingsList()).isEqualTo(MessageFormattingUtils.dbMessageFormattingListToWs(List.of(MESSAGE_FORMATTING)));
 
     Issues.TextRange locationTextRange = location.getTextRange();
     assertThat(locationTextRange.getStartLine()).isEqualTo(1);

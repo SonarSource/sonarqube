@@ -33,6 +33,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 
@@ -71,6 +72,7 @@ public class PullTaintActionProtobufObjectGenerator implements ProtobufObjectGen
     Issues.Location.Builder locationBuilder = Issues.Location.newBuilder();
     if (issueDto.getMessage() != null) {
       locationBuilder.setMessage(issueDto.getMessage());
+      locationBuilder.addAllMessageFormattings(MessageFormattingUtils.dbMessageFormattingToWs(issueDto.parseMessageFormattings()));
     }
     if (issueDto.getFilePath() != null) {
       locationBuilder.setFilePath(issueDto.getFilePath());

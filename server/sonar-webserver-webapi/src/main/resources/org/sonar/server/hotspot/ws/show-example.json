@@ -23,6 +23,13 @@
   "line": 10,
   "hash": "a227e508d6646b55a086ee11d63b21e9",
   "message": "message",
+  "messageFormattings": [
+    {
+      "start": 0,
+      "end": 4,
+      "type": "CODE"
+    }
+  ],
   "assignee": "joe",
   "author": "joe",
   "creationDate": "2020-01-02T15:43:10+0100",

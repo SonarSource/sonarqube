@@ -28,6 +28,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
 
 import static java.util.Optional.ofNullable;
@@ -82,6 +83,7 @@ public class TextRangeResponseFormatter {
     Common.Location.Builder target = Common.Location.newBuilder();
     if (source.hasMsg()) {
       target.setMsg(source.getMsg());
+      target.addAllMsgFormattings(MessageFormattingUtils.dbMessageFormattingListToWs(source.getMsgFormattingList()));
     }
     if (source.hasTextRange()) {
       DbCommons.TextRange sourceRange = source.getTextRange();

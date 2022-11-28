@@ -159,6 +159,8 @@ message Issue {
 
   optional bool quickFixAvailable = 36;
   optional string ruleDescriptionContextKey = 37;
+
+  repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 38;
 }
 
 message Transitions {
@@ -253,6 +255,7 @@ message Location {
   optional string filePath = 1;
   optional string message = 2;
   optional TextRange textRange = 3;
+  repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 4;
 }
 
 message IssueLite {
