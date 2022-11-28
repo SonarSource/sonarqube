@@ -217,8 +217,8 @@ yarn_validate_task:
   <<: *JEST_REPORT_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 3
-    memory: 10Gb
+    cpu: 7.5
+    memory: 20Gb
   script:
     - ./private/cirrus/cirrus-yarn-validate-ci.sh
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
