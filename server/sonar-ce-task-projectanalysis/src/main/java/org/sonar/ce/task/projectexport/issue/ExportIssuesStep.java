@@ -19,14 +19,17 @@
  */
 package org.sonar.ce.task.projectexport.issue;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
@@ -58,7 +61,7 @@ public class ExportIssuesStep implements ComputationStep {
     " i.resolution, i.severity, i.manual_severity, i.gap, effort," +
     " i.assignee, i.author_login, i.tags, i.issue_creation_date," +
     " i.issue_update_date, i.issue_close_date, i.locations, i.project_uuid," +
-    " i.rule_description_context_key " +
+    " i.rule_description_context_key, i.message_formattings " +
     " from issues i" +
     " join rules r on r.uuid = i.rule_uuid and r.status <> ?" +
     " join components p on p.uuid = i.project_uuid" +
@@ -148,6 +151,7 @@ public class ExportIssuesStep implements ComputationStep {
       .setProjectUuid(rs.getString(23));
     Optional.ofNullable(rs.getString(24)).ifPresent(builder::setRuleDescriptionContextKey);
     setLocations(builder, rs, issueUuid);
+    setMessageFormattings(builder, rs, issueUuid);
     return builder.build();
   }
 
@@ -169,6 +173,31 @@ public class ExportIssuesStep implements ComputationStep {
     } catch (InvalidProtocolBufferException e) {
       throw new IllegalStateException(format("Fail to read locations from DB for issue %s", issueUuid), e);
     }
+  }
+
+  private static void setMessageFormattings(ProjectDump.Issue.Builder builder, ResultSet rs, String issueUuid) throws SQLException {
+    try {
+      byte[] bytes = rs.getBytes(25);
+      if (bytes != null) {
+        // fail fast, ensure we can read data from DB
+        DbIssues.MessageFormattings messageFormattings = DbIssues.MessageFormattings.parseFrom(bytes);
+        if (messageFormattings != null) {
+          builder.addAllMessageFormattings(dbToDumpMessageFormatting(messageFormattings.getMessageFormattingList()));
+        }
+      }
+    } catch (InvalidProtocolBufferException e) {
+      throw new IllegalStateException(format("Fail to read message formattings from DB for issue %s", issueUuid), e);
+    }
+  }
+
+  @VisibleForTesting
+  static List<ProjectDump.MessageFormatting> dbToDumpMessageFormatting(List<DbIssues.MessageFormatting> messageFormattingList) {
+    return messageFormattingList.stream()
+      .map(e -> ProjectDump.MessageFormatting.newBuilder()
+        .setStart(e.getStart())
+        .setEnd(e.getEnd())
+        .setType(ProjectDump.MessageFormattingType.valueOf(e.getType().name())).build())
+      .collect(Collectors.toList());
   }
 
   private static class RuleRegistrar {

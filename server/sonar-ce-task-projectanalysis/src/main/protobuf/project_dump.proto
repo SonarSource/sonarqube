@@ -123,6 +123,8 @@ message Issue {
   string rule_ref = 23;
 
   optional string ruleDescriptionContextKey = 24;
+
+  repeated MessageFormatting messageFormattings = 25;
 }
 
 // Stream of issues changelog stored in file issues_changelog.pb
@@ -217,4 +219,14 @@ message NewCodePeriod {
   string value = 5;
   int64 created_at = 6;
   int64 updated_at = 7;
+}
+
+message MessageFormatting {
+  int32 start = 1;
+  int32 end = 2;
+  MessageFormattingType type = 3;
+}
+
+enum MessageFormattingType {
+  CODE = 0;
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectexport.issue;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -58,6 +59,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.Locations;
+import org.sonar.db.protobuf.DbIssues.MessageFormattingType;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
 
@@ -77,6 +79,7 @@ public class ExportIssuesStepTest {
   private static final String PROJECT_KEY = "projectkey";
   private static final String SOME_REPO = "rule repo";
   private static final String READY_RULE_KEY = "rule key 1";
+  public static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(MessageFormattingType.CODE).build();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -200,15 +203,17 @@ public class ExportIssuesStepTest {
   }
 
   @Test
-  public void verify_field_by_field_mapping() {
+  public void verify_field_by_field_mapping() throws InvalidProtocolBufferException {
     String componentUuid = "component uuid";
     long componentRef = 5454;
     componentRepository.register(componentRef, componentUuid, false);
+    DbIssues.MessageFormattings messageFormattings = DbIssues.MessageFormattings.newBuilder().addMessageFormatting(MESSAGE_FORMATTING).build();
     IssueDto issueDto = new IssueDto()
       .setKee("issue uuid")
       .setComponentUuid(componentUuid)
       .setType(988)
       .setMessage("msg")
+      .setMessageFormattings(messageFormattings)
       .setLine(10)
       .setChecksum("checksum")
       .setResolution("resolution")
@@ -257,6 +262,8 @@ public class ExportIssuesStepTest {
     assertThat(issue.getIssueUpdatedAt()).isEqualTo(issueDto.getIssueUpdateTime());
     assertThat(issue.getIssueClosedAt()).isEqualTo(issueDto.getIssueCloseTime());
     assertThat(issue.getLocations()).isNotEmpty();
+    assertThat(issue.getMessageFormattingsList())
+      .isEqualTo(ExportIssuesStep.dbToDumpMessageFormatting(messageFormattings.getMessageFormattingList()));
   }
 
   @Test
@@ -295,6 +302,15 @@ public class ExportIssuesStepTest {
     underTest.execute(new TestComputationStepContext());
 
     assertThat(getWrittenIssue().getLocations()).isEmpty();
+  }
+
+  @Test
+  public void message_formattings_is_empty_in_protobuf_if_null_in_DB() {
+    insertIssue(readyRuleDto, SOME_PROJECT_UUID, STATUS_OPEN);
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(getWrittenIssue().getMessageFormattingsList()).isEmpty();
   }
 
   @Test
@@ -337,14 +353,14 @@ public class ExportIssuesStepTest {
     return dumpWriter.getWrittenMessagesOf(DumpElement.ISSUES).get(0);
   }
 
-//  private void expectExportFailure() {
-//    expectExportFailure(0);
-//  }
+  // private void expectExportFailure() {
+  // expectExportFailure(0);
+  // }
 
-//  private void expectExportFailure(int i) {
-//    expectedException.expect(IllegalStateException.class);
-//    expectedException.expectMessage("Issue export failed after processing " + i + " issues successfully");
-//  }
+  // private void expectExportFailure(int i) {
+  // expectedException.expect(IllegalStateException.class);
+  // expectedException.expectMessage("Issue export failed after processing " + i + " issues successfully");
+  // }
 
   private int issueUuidGenerator = 1;
 
