@@ -52,100 +52,141 @@ public class CheckAnyonePermissionsAtStartupTest {
   }
 
   @Test
-  public void test_logs_present_when_exactly_3_projects_contain_anyone_permissions_and_force_authentication_false() {
-    int expectedProjectCount = 3;
+  public void force_auth_false_anyone_global_permissions() {
     setForceAuthentication(false);
-    execute(expectedProjectCount);
-    assertAnyonePermissionWarningInLogs(expectedProjectCount, "key-1", "key-2", "key-3");
-  }
-
-  @Test
-  public void test_logs_present_when_less_than_3_projects_contain_anyone_permissions_and_force_authentication_false() {
-    int expectedProjectCount = 1;
-    setForceAuthentication(false);
-    execute(expectedProjectCount);
-    assertAnyonePermissionWarningInLogs(expectedProjectCount, "key-1");
-  }
-
-  @Test
-  public void test_logs_present_when_more_than_3_projects_contain_anyone_permissions_and_force_authentication_false() {
-    int expectedProjectCount = 8;
-    setForceAuthentication(false);
-    execute(expectedProjectCount);
-    assertAnyonePermissionWarningInLogs(expectedProjectCount, "key-1", "key-2", "key-3");
-  }
-
-  @Test
-  public void test_logs_not_present_when_no_projects_contain_anyone_permissions_and_force_authentication_false() {
-    setForceAuthentication(false);
-    generatePublicProjectsWithGroupPermissions();
-    assertAnyonePermissionWarningNotInLogs();
-  }
-
-  @Test
-  public void test_logs_present_when_1_projects_contain_anyone_permissions_and_full_anyone_group_permission_and_force_authentication_false() {
-    // Although saved in the same table (group_roles), this should not be included in the logs as not assigned to single project.
     dbTester.users().insertPermissionOnAnyone("perm-anyone");
+    createPublicProjects(3, false);
+    assertGlobalLevelAnyonePermissionWarningInLogs();
+    assertProjectLevelAnyonePermissionWarningNotInLogs();
+  }
 
-    int expectedProjectCount = 1;
+  @Test
+  public void force_auth_false_project_level_anyone_permissions_exactly_three() {
     setForceAuthentication(false);
-    execute(expectedProjectCount);
-    assertAnyonePermissionWarningInLogs(expectedProjectCount, "key-1");
+    createPublicProjects(3, true);
+    assertGlobalLevelAnyonePermissionWarningNotInLogs();
+    assertProjectLevelAnyonePermissionWarningInLogs(3, "key-1", "key-2", "key-3");
   }
 
   @Test
-  public void test_logs_not_present_when_some_projects_contain_anyone_permissions_and_force_authentication_true() {
+  public void force_auth_false_project_level_anyone_permissions_less_than_three() {
+    setForceAuthentication(false);
+    createPublicProjects(1, true);
+    assertGlobalLevelAnyonePermissionWarningNotInLogs();
+    assertProjectLevelAnyonePermissionWarningInLogs(1, "key-1");
+  }
+
+  @Test
+  public void force_auth_false_project_level_anyone_permissions_more_than_three() {
+    setForceAuthentication(false);
+    createPublicProjects(9, true);
+    assertGlobalLevelAnyonePermissionWarningNotInLogs();
+    assertProjectLevelAnyonePermissionWarningInLogs(9, "key-1", "key-2", "key-3");
+  }
+
+  @Test
+  public void force_auth_false_no_projects() {
+    setForceAuthentication(false);
+    assertGlobalLevelAnyonePermissionWarningNotInLogs();
+    assertProjectLevelAnyonePermissionWarningNotInLogs();
+  }
+
+  @Test
+  public void force_auth_false_no_anyone_permissions() {
+    setForceAuthentication(false);
+    createPublicProjectsWithNonAnyoneGroupPermissions();
+    assertGlobalLevelAnyonePermissionWarningNotInLogs();
+    assertProjectLevelAnyonePermissionWarningNotInLogs();
+  }
+
+  @Test
+  public void force_auth_false_project_and_global_level_anyone_permissions() {
+    setForceAuthentication(false);
+    dbTester.users().insertPermissionOnAnyone("perm-anyone");
+    createPublicProjects(3, true);
+    assertGlobalLevelAnyonePermissionWarningInLogs();
+    assertProjectLevelAnyonePermissionWarningInLogs(3, "key-1", "key-2", "key-3");
+  }
+
+  @Test
+  public void force_auth_true_anyone_global_level_permissions() {
     setForceAuthentication(true);
-    execute(3);
-    assertAnyonePermissionWarningNotInLogs();
+    dbTester.users().insertPermissionOnAnyone("perm-anyone");
+    createPublicProjects(3, false);
+    assertGlobalLevelAnyonePermissionWarningNotInLogs();
+    assertProjectLevelAnyonePermissionWarningNotInLogs();
   }
 
   @Test
-  public void test_logs_not_present_when_no_projects_contain_anyone_permissions_and_force_authentication_true() {
+  public void force_auth_true_project_level_anyone_permissions() {
     setForceAuthentication(true);
-    generatePublicProjectsWithGroupPermissions();
-    assertAnyonePermissionWarningNotInLogs();
+    createPublicProjects(3, true);
+    assertGlobalLevelAnyonePermissionWarningNotInLogs();
+    assertProjectLevelAnyonePermissionWarningNotInLogs();
   }
 
   @Test
-  public void test_logs_not_present_when_projects_contain_anyone_permissions_and_force_authentication_default() {
-    settings.clear();
-    execute(3);
-    assertAnyonePermissionWarningNotInLogs();
+  public void force_auth_true_no_anyone_permissions() {
+    setForceAuthentication(true);
+    createPublicProjectsWithNonAnyoneGroupPermissions();
+    assertGlobalLevelAnyonePermissionWarningNotInLogs();
+    assertProjectLevelAnyonePermissionWarningNotInLogs();
   }
 
-  private void generatePublicProjectsWithGroupPermissions() {
-    GroupDto group = dbTester.users().insertGroup();
-    IntStream.rangeClosed(1, 3).forEach(i -> {
-      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i));
-      dbTester.users().insertProjectPermissionOnGroup(group, "perm-" + i, project);
-    });
-    underTest.start();
-  }
-
-  private void execute(int projectCount) {
-    IntStream.rangeClosed(1, projectCount).forEach(i -> {
-      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i));
-      dbTester.users().insertProjectPermissionOnAnyone("perm-" + i, project);
-    });
-    underTest.start();
+  @Test
+  public void force_auth_true_project_and_global_anyone_permissions() {
+    setForceAuthentication(true);
+    dbTester.users().insertPermissionOnAnyone("perm-anyone");
+    createPublicProjects(3, true);
+    assertGlobalLevelAnyonePermissionWarningNotInLogs();
+    assertProjectLevelAnyonePermissionWarningNotInLogs();
   }
 
   private void setForceAuthentication(Boolean isForceAuthentication) {
     settings.setProperty("sonar.forceAuthentication", isForceAuthentication.toString());
   }
 
-  private void assertAnyonePermissionWarningNotInLogs() {
-    boolean noneMatch = logTester.logs().stream()
-      .noneMatch(s -> s.matches(".*A total of [0-9]+ public project\\(s\\) are found to have enabled 'Anyone' group permissions, including: %s. " +
-        "Make sure your project permissions are set as intended.*"));
+  private void createPublicProjectsWithNonAnyoneGroupPermissions() {
+    GroupDto group = dbTester.users().insertGroup();
+    IntStream.rangeClosed(1, 3).forEach(i -> {
+      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i));
+      dbTester.users().insertProjectPermissionOnGroup(group, "perm-" + i, project);
+    });
+  }
+
+  private void createPublicProjects(int projectCount, boolean includeAnyonePerm) {
+    IntStream.rangeClosed(1, projectCount).forEach(i -> {
+      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i));
+      if (includeAnyonePerm) {
+        dbTester.users().insertProjectPermissionOnAnyone("perm-" + i, project);
+      }
+    });
+    underTest.start();
+  }
+
+  private void assertProjectLevelAnyonePermissionWarningNotInLogs() {
+    boolean noneMatch = logTester.logs(LoggerLevel.WARN).stream()
+      .noneMatch(s -> s.startsWith("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose"));
     assertThat(noneMatch).isTrue();
   }
 
-  private void assertAnyonePermissionWarningInLogs(int expectedProjectCountString, String... expectedListedProjects) {
-    String expected = String.format("A total of %d public project(s) are found to have enabled 'Anyone' group permissions, including: %s. " +
-        "Make sure your project permissions are set as intended.",
-      expectedProjectCountString, String.join(", ", expectedListedProjects));
+  private void assertProjectLevelAnyonePermissionWarningInLogs(int expectedProjectCount, String... expectedListedProjects) {
+    String expected = String.format("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose %d " +
+      "public project(s) to security risks, including: %s. Unauthenticated visitors have permissions on these project(s).",
+      expectedProjectCount, String.join(", ", expectedListedProjects));
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains(expected);
+  }
+
+  private void assertGlobalLevelAnyonePermissionWarningNotInLogs() {
+    boolean noneMatch = !logTester.logs(LoggerLevel.WARN).contains(
+      "Authentication is not enforced, and permissions assigned to the 'Anyone' group globally expose the " +
+        "instance to security risks. Unauthenticated visitors may unintentionally have permissions on projects.");
+    assertThat(noneMatch).isTrue();
+  }
+
+  private void assertGlobalLevelAnyonePermissionWarningInLogs() {
+    String expected = "Authentication is not enforced, and permissions assigned to the 'Anyone' group globally " +
+      "expose the instance to security risks. Unauthenticated visitors may unintentionally have permissions on projects.";
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(expected);
   }
 

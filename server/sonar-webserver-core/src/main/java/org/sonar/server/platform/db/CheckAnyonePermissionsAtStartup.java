@@ -52,16 +52,21 @@ public class CheckAnyonePermissionsAtStartup implements Startable {
       return;
     }
 
-    logWarningIfProjectsWithAnyonePermissionsExist();
+    logWarningsIfAnyonePermissionsExist();
   }
 
-  private void logWarningIfProjectsWithAnyonePermissionsExist() {
+  private void logWarningsIfAnyonePermissionsExist() {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      if (!dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, null).isEmpty()) {
+        LOG.warn("Authentication is not enforced, and permissions assigned to the 'Anyone' group globally expose the " +
+          "instance to security risks. Unauthenticated visitors may unintentionally have permissions on projects.");
+      }
+
       int total = dbClient.groupPermissionDao().countProjectsWithAnyonePermissions(dbSession);
       if (total > 0) {
         List<String> list = dbClient.groupPermissionDao().selectProjectKeysWithAnyonePermissions(dbSession, 3);
-        LOG.warn("A total of {} public project(s) are found to have enabled 'Anyone' group permissions, including: {}. " +
-            "Make sure your project permissions are set as intended.",
+        LOG.warn("Authentication is not enforced, and project permissions assigned to the 'Anyone' group expose {} " +
+            "public project(s) to security risks, including: {}. Unauthenticated visitors have permissions on these project(s).",
           total, String.join(", ", list));
       }
     }
