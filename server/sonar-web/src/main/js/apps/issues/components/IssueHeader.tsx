@@ -25,6 +25,7 @@ import { updateIssue } from '../../../components/issue/actions';
 import IssueActionsBar from '../../../components/issue/components/IssueActionsBar';
 import IssueChangelog from '../../../components/issue/components/IssueChangelog';
 import IssueMessageTags from '../../../components/issue/components/IssueMessageTags';
+import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
@@ -136,7 +137,12 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
       <>
         <div className="display-flex-center display-flex-space-between big-padded-top">
           <h1 className="text-bold spacer-right">
-            <span className="spacer-right">{issue.message}</span>
+            <span className="spacer-right issue-header" aria-label={issue.message}>
+              <IssueMessageHighlighting
+                message={issue.message}
+                messageFormattings={issue.messageFormattings}
+              />
+            </span>
             <IssueMessageTags
               engine={issue.externalRuleEngine}
               quickFixAvailable={quickFixAvailable}

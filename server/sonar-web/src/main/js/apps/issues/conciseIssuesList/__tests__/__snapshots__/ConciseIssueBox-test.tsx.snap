@@ -11,7 +11,9 @@ exports[`should render correctly 1`] = `
     innerRef={[Function]}
     onClick={[Function]}
   >
-    Reduce the number of conditional operators (4) used in the expression
+    <IssueMessageHighlighting
+      message="Reduce the number of conditional operators (4) used in the expression"
+    />
   </ButtonPlain>
   <div
     className="concise-issue-box-attributes"
@@ -70,7 +72,9 @@ exports[`should render correctly 2`] = `
     innerRef={[Function]}
     onClick={[Function]}
   >
-    Reduce the number of conditional operators (4) used in the expression
+    <IssueMessageHighlighting
+      message="Reduce the number of conditional operators (4) used in the expression"
+    />
   </ButtonPlain>
   <div
     className="concise-issue-box-attributes"

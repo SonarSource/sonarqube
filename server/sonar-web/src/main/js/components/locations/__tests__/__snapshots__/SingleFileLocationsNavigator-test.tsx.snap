@@ -12,7 +12,11 @@ exports[`should render correctly: index 1 1`] = `
   <LocationIndex>
     1
   </LocationIndex>
-  <LocationMessage />
+  <LocationMessage>
+    <IssueMessageHighlighting
+      message=""
+    />
+  </LocationMessage>
 </ButtonPlain>
 `;
 
@@ -28,6 +32,10 @@ exports[`should render correctly: index 2 1`] = `
   <LocationIndex>
     2
   </LocationIndex>
-  <LocationMessage />
+  <LocationMessage>
+    <IssueMessageHighlighting
+      message=""
+    />
+  </LocationMessage>
 </ButtonPlain>
 `;

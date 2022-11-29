@@ -51,6 +51,7 @@ export function getSecondaryIssueLocationsForLine(
             startLine: location.textRange.startLine,
             index: location.index,
             text: location.msg,
+            textFormatting: location.msgFormattings,
           }))
       : [];
     return [...locations, ...linearLocations];

@@ -181,8 +181,11 @@ module.exports = {
     neutral800: '#333333',
 
     white: '#FFFFFF',
+    whitea18: 'rgba(255, 255, 255, 0.18)',
+    whitea60: 'rgba(255, 255, 255, 0.60)',
 
     black: '#000000',
+    blacka06: 'rgba(0, 0, 0, 0.06)',
     blacka38: 'rgba(0, 0, 0, 0.38)',
     blacka60: 'rgba(0, 0, 0, 0.60)',
     blacka75: 'rgba(0, 0, 0, 0.75)',

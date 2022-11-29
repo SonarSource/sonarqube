@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlowLocation, Issue, Paging, TextRange } from './types';
+import { Issue, Paging, TextRange } from './types';
 import { UserBase } from './users';
 
 export enum IssueType {
@@ -49,6 +49,24 @@ interface Comment {
   updatable: boolean;
 }
 
+export interface MessageFormatting {
+  start: number;
+  end: number;
+  type: MessageFormattingType;
+}
+
+export enum MessageFormattingType {
+  CODE = 'CODE',
+}
+
+export interface RawFlowLocation {
+  component: string;
+  index?: number;
+  msg?: string;
+  msgFormattings?: MessageFormatting[];
+  textRange: TextRange;
+}
+
 export interface RawIssue {
   actions: string[];
   transitions?: string[];
@@ -60,10 +78,11 @@ export interface RawIssue {
   flows?: Array<{
     type?: string;
     description?: string;
-    locations?: Array<Omit<FlowLocation, 'componentName'>>;
+    locations?: RawFlowLocation[];
   }>;
   key: string;
   line?: number;
+  messageFormattings?: MessageFormatting[];
   project: string;
   rule: string;
   resolution?: string;

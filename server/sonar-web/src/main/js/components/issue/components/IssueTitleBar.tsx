@@ -80,6 +80,7 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
         quickFixAvailable={issue.quickFixAvailable}
         displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
         message={issue.message}
+        messageFormattings={issue.messageFormattings}
         ruleKey={issue.rule}
         ruleStatus={issue.ruleStatus as RuleStatus | undefined}
       />

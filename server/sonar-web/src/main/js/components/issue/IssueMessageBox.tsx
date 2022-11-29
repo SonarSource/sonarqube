@@ -23,6 +23,7 @@ import { colors } from '../../app/theme';
 import { Issue } from '../../types/types';
 import IssueTypeIcon from '../icons/IssueTypeIcon';
 import './Issue.css';
+import { IssueMessageHighlighting } from './IssueMessageHighlighting';
 
 export interface IssueMessageBoxProps {
   selected: boolean;
@@ -50,7 +51,10 @@ export function IssueMessageBox(props: IssueMessageBoxProps, ref: React.Forwarde
         fill={colors.baseFontColor}
         query={issue.type}
       />
-      {issue.message}
+      <IssueMessageHighlighting
+        message={issue.message}
+        messageFormattings={issue.messageFormattings}
+      />
     </div>
   );
 }

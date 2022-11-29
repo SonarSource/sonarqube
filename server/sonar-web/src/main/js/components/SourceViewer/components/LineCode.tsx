@@ -20,9 +20,11 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { IssueSourceViewerScrollContext } from '../../../apps/issues/components/IssueSourceViewerScrollContext';
+import { MessageFormatting } from '../../../types/issues';
 import { LinearIssueLocation, SourceLine } from '../../../types/types';
 import LocationIndex from '../../common/LocationIndex';
 import Tooltip from '../../controls/Tooltip';
+import { IssueMessageHighlighting } from '../../issue/IssueMessageHighlighting';
 import {
   highlightIssueLocations,
   highlightSymbol,
@@ -95,8 +97,11 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
           const selected =
             highlightedLocationMessage !== undefined && highlightedLocationMessage.index === marker;
           const loc = secondaryIssueLocations.find((loc) => loc.index === marker);
-          const message = loc && loc.text;
-          renderedTokens.push(this.renderMarker(marker, message, selected, leadingMarker));
+          const message = loc?.text;
+          const messageFormattings = loc?.textFormatting;
+          renderedTokens.push(
+            this.renderMarker(marker, message, messageFormattings, selected, leadingMarker)
+          );
         });
       }
       renderedTokens.push(
@@ -112,12 +117,24 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
     return renderedTokens;
   }
 
-  renderMarker(index: number, message: string | undefined, selected: boolean, leading: boolean) {
+  renderMarker(
+    index: number,
+    message: string | undefined,
+    messageFormattings: MessageFormatting[] | undefined,
+    selected: boolean,
+    leading: boolean
+  ) {
     const { onLocationSelect } = this.props;
     const onClick = onLocationSelect ? () => onLocationSelect(index) : undefined;
 
     return (
-      <Tooltip key={`marker-${index}`} overlay={message} placement="top">
+      <Tooltip
+        key={`marker-${index}`}
+        overlay={
+          <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+        }
+        placement="top"
+      >
         <LocationIndex
           leading={leading}
           onClick={onClick}

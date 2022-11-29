@@ -52,13 +52,14 @@ export default class LocationsList extends React.PureComponent<Props> {
       );
     }
     return (
-      <ul className="spacer-top ">
+      <ul className="spacer-top">
         {locations.map((location, index) => (
           // eslint-disable-next-line react/no-array-index-key
           <li className="display-flex-column" key={index}>
             <SingleFileLocationNavigator
               index={index}
               message={location.msg}
+              messageFormattings={location.msgFormattings}
               onClick={this.props.onLocationSelect}
               selected={index === selectedLocationIndex}
             />

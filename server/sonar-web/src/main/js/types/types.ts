@@ -20,6 +20,7 @@
 
 import { RuleDescriptionSection } from '../apps/coding-rules/rule';
 import { ComponentQualifier } from './component';
+import { MessageFormatting } from './issues';
 import { UserActive, UserBase } from './users';
 
 export type Dict<T> = { [key: string]: T };
@@ -206,6 +207,7 @@ export interface FlowLocation {
   componentName?: string;
   index?: number;
   msg?: string;
+  msgFormattings?: MessageFormatting[];
   textRange: TextRange;
 }
 
@@ -252,6 +254,7 @@ export interface Issue {
   flowsWithType: Flow[];
   line?: number;
   message: string;
+  messageFormattings?: MessageFormatting[];
   project: string;
   projectName: string;
   projectKey: string;
@@ -324,6 +327,7 @@ export interface LinearIssueLocation {
   line: number;
   startLine?: number;
   text?: string;
+  textFormatting?: MessageFormatting[];
   to: number;
 }
 

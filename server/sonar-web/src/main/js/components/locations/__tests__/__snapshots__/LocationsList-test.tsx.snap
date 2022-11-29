@@ -2,7 +2,7 @@
 
 exports[`should render locations in the same file 1`] = `
 <ul
-  className="spacer-top "
+  className="spacer-top"
 >
   <li
     className="display-flex-column"

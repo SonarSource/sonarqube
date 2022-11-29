@@ -74,6 +74,7 @@ export default function FlowsList(props: Props) {
                   <SingleFileLocationNavigator
                     index={locIndex}
                     message={location.msg}
+                    messageFormattings={location.msgFormattings}
                     onClick={props.onLocationSelect}
                     selected={locIndex === selectedLocationIndex}
                   />

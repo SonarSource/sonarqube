@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translateWithParameters } from '../../helpers/l10n';
 import { collapsePath } from '../../helpers/path';
+import { MessageFormatting } from '../../types/issues';
 import { FlowLocation } from '../../types/types';
 import './CrossFileLocationNavigator.css';
 import SingleFileLocationNavigator from './SingleFileLocationNavigator';
@@ -105,12 +106,17 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
     return groups;
   };
 
-  renderLocation = (index: number, message: string | undefined) => {
+  renderLocation = (
+    index: number,
+    message: string | undefined,
+    messageFormattings: MessageFormatting[] | undefined
+  ) => {
     return (
       <SingleFileLocationNavigator
         index={index}
         key={index}
         message={message}
+        messageFormattings={messageFormattings}
         onClick={this.props.onLocationSelect}
         selected={index === this.props.selectedLocationIndex}
       />
@@ -132,18 +138,28 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
         </div>
         {group.locations.length > 0 && (
           <div className="location-file-locations">
-            {onlyFirst && this.renderLocation(firstLocationIndex, group.locations[0].msg)}
+            {onlyFirst &&
+              this.renderLocation(
+                firstLocationIndex,
+                group.locations[0].msg,
+                group.locations[0].msgFormattings
+              )}
 
             {onlyLast &&
               this.renderLocation(
                 firstLocationIndex + lastLocationIndex,
-                group.locations[lastLocationIndex].msg
+                group.locations[lastLocationIndex].msg,
+                group.locations[lastLocationIndex].msgFormattings
               )}
 
             {!onlyFirst &&
               !onlyLast &&
               group.locations.map((location, index) =>
-                this.renderLocation(firstLocationIndex + index, location.msg)
+                this.renderLocation(
+                  firstLocationIndex + index,
+                  location.msg,
+                  location.msgFormattings
+                )
               )}
           </div>
         )}

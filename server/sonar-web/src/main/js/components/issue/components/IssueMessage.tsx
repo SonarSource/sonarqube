@@ -20,8 +20,10 @@
 import * as React from 'react';
 import { ButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
+import { MessageFormatting } from '../../../types/issues';
 import { RuleStatus } from '../../../types/rules';
 import { WorkspaceContext } from '../../workspace/context';
+import { IssueMessageHighlighting } from '../IssueMessageHighlighting';
 import IssueMessageTags from './IssueMessageTags';
 
 export interface IssueMessageProps {
@@ -29,20 +31,30 @@ export interface IssueMessageProps {
   quickFixAvailable?: boolean;
   displayWhyIsThisAnIssue?: boolean;
   message: string;
+  messageFormattings?: MessageFormatting[];
   ruleKey: string;
   ruleStatus?: RuleStatus;
 }
 
 export default function IssueMessage(props: IssueMessageProps) {
-  const { engine, quickFixAvailable, message, ruleKey, ruleStatus, displayWhyIsThisAnIssue } =
-    props;
+  const {
+    engine,
+    quickFixAvailable,
+    message,
+    messageFormattings,
+    ruleKey,
+    ruleStatus,
+    displayWhyIsThisAnIssue,
+  } = props;
 
   const { openRule } = React.useContext(WorkspaceContext);
 
   return (
     <>
       <div className="display-inline-flex-center issue-message break-word">
-        <span className="spacer-right">{message}</span>
+        <span className="spacer-right">
+          <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+        </span>
         <IssueMessageTags
           engine={engine}
           quickFixAvailable={quickFixAvailable}

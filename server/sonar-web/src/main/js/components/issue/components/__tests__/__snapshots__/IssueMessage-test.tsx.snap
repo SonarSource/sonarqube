@@ -8,7 +8,9 @@ exports[`should render correctly: default 1`] = `
     <span
       className="spacer-right"
     >
-      Reduce the number of conditional operators (4) used in the expression
+      <IssueMessageHighlighting
+        message="Reduce the number of conditional operators (4) used in the expression"
+      />
     </span>
     <IssueMessageTags />
   </div>
@@ -30,7 +32,9 @@ exports[`should render correctly: hide why is it an issue 1`] = `
     <span
       className="spacer-right"
     >
-      Reduce the number of conditional operators (4) used in the expression
+      <IssueMessageHighlighting
+        message="Reduce the number of conditional operators (4) used in the expression"
+      />
     </span>
     <IssueMessageTags />
   </div>
@@ -45,7 +49,9 @@ exports[`should render correctly: is deprecated rule 1`] = `
     <span
       className="spacer-right"
     >
-      Reduce the number of conditional operators (4) used in the expression
+      <IssueMessageHighlighting
+        message="Reduce the number of conditional operators (4) used in the expression"
+      />
     </span>
     <IssueMessageTags
       ruleStatus="DEPRECATED"
@@ -69,7 +75,9 @@ exports[`should render correctly: is removed rule 1`] = `
     <span
       className="spacer-right"
     >
-      Reduce the number of conditional operators (4) used in the expression
+      <IssueMessageHighlighting
+        message="Reduce the number of conditional operators (4) used in the expression"
+      />
     </span>
     <IssueMessageTags
       ruleStatus="REMOVED"
@@ -93,7 +101,9 @@ exports[`should render correctly: with engine info 1`] = `
     <span
       className="spacer-right"
     >
-      Reduce the number of conditional operators (4) used in the expression
+      <IssueMessageHighlighting
+        message="Reduce the number of conditional operators (4) used in the expression"
+      />
     </span>
     <IssueMessageTags
       engine="js"
@@ -117,7 +127,9 @@ exports[`should render correctly: with quick fix 1`] = `
     <span
       className="spacer-right"
     >
-      Reduce the number of conditional operators (4) used in the expression
+      <IssueMessageHighlighting
+        message="Reduce the number of conditional operators (4) used in the expression"
+      />
     </span>
     <IssueMessageTags
       quickFixAvailable={true}

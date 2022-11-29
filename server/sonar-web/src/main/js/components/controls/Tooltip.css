@@ -120,6 +120,10 @@
   pointer-events: none;
 }
 
+.tooltip .issue-message-highlight-CODE {
+  background-color: var(--whitea18);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

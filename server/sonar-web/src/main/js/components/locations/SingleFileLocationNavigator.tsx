@@ -19,14 +19,17 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { MessageFormatting } from '../../types/issues';
 import LocationIndex from '../common/LocationIndex';
 import LocationMessage from '../common/LocationMessage';
 import { ButtonPlain } from '../controls/buttons';
+import { IssueMessageHighlighting } from '../issue/IssueMessageHighlighting';
 import './SingleFileLocationNavigator.css';
 
 interface Props {
   index: number;
   message: string | undefined;
+  messageFormattings?: MessageFormatting[];
   onClick: (index: number) => void;
   selected: boolean;
 }
@@ -59,7 +62,7 @@ export default class SingleFileLocationNavigator extends React.PureComponent<Pro
   };
 
   render() {
-    const { index, message, selected } = this.props;
+    const { index, message, messageFormattings, selected } = this.props;
 
     return (
       <ButtonPlain
@@ -73,7 +76,9 @@ export default class SingleFileLocationNavigator extends React.PureComponent<Pro
         onClick={this.handleClick}
       >
         <LocationIndex>{index + 1}</LocationIndex>
-        <LocationMessage>{message}</LocationMessage>
+        <LocationMessage>
+          {<IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />}
+        </LocationMessage>
       </ButtonPlain>
     );
   }

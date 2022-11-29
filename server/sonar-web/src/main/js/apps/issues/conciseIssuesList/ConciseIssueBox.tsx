@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { ButtonPlain } from '../../../components/controls/buttons';
+import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import FlowsList from '../../../components/locations/FlowsList';
 import LocationsList from '../../../components/locations/LocationsList';
 import TypeHelper from '../../../components/shared/TypeHelper';
@@ -82,7 +83,10 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
           innerRef={(node) => (this.messageElement = node)}
           onClick={this.handleClick}
         >
-          {issue.message}
+          <IssueMessageHighlighting
+            message={issue.message}
+            messageFormattings={issue.messageFormattings}
+          />
         </ButtonPlain>
         <div className="concise-issue-box-attributes">
           <TypeHelper className="display-block little-spacer-right" type={issue.type} />
