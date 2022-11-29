@@ -19,13 +19,17 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.issue.MessageFormatting;
+import org.sonar.api.batch.sensor.issue.NewMessageFormatting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
 public class DefaultIssueLocationTest {
 
@@ -56,11 +60,51 @@ public class DefaultIssueLocationTest {
   public void prevent_too_long_messages() {
     assertThat(new DefaultIssueLocation()
       .on(inputFile)
-      .message(StringUtils.repeat("a", 4000)).message()).hasSize(4000);
+      .message(StringUtils.repeat("a", 1333)).message()).hasSize(1333);
 
     assertThat(new DefaultIssueLocation()
       .on(inputFile)
-      .message(StringUtils.repeat("a", 4001)).message()).hasSize(4000);
+      .message(StringUtils.repeat("a", 1334)).message()).hasSize(1333);
+  }
+
+  @Test
+  public void should_ignore_messageFormatting_if_message_is_trimmed() {
+    DefaultMessageFormatting messageFormatting = new DefaultMessageFormatting()
+      .start(1500)
+      .end(1501)
+      .type(MessageFormatting.Type.CODE);
+
+    DefaultIssueLocation location = new DefaultIssueLocation()
+      .message(StringUtils.repeat("a", 2000), List.of(messageFormatting));
+
+    assertThat(location.messageFormattings()).isEmpty();
+  }
+
+  @Test
+  public void should_truncate_messageFormatting_if_necessary() {
+    DefaultMessageFormatting messageFormatting = new DefaultMessageFormatting()
+      .start(1300)
+      .end(1501)
+      .type(MessageFormatting.Type.CODE);
+
+    DefaultIssueLocation location = new DefaultIssueLocation()
+      .message(StringUtils.repeat("a", 2000), List.of(messageFormatting));
+
+    assertThat(location.messageFormattings())
+      .extracting(MessageFormatting::start, MessageFormatting::end)
+      .containsOnly(tuple(1300, 1333));
+  }
+
+  @Test
+  public void should_validate_message_formatting() {
+    List<NewMessageFormatting> messageFormattings = List.of(new DefaultMessageFormatting()
+      .start(1)
+      .end(3)
+      .type(MessageFormatting.Type.CODE));
+    DefaultIssueLocation location = new DefaultIssueLocation();
+
+    assertThatThrownBy(() -> location.message("aa", messageFormattings))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

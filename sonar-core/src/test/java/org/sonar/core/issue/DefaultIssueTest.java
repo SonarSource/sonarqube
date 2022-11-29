@@ -148,12 +148,6 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void message_should_be_trimmed() {
-    issue.setMessage("    foo     ");
-    assertThat(issue.message()).isEqualTo("foo");
-  }
-
-  @Test
   public void message_could_be_null() {
     issue.setMessage(null);
     assertThat(issue.message()).isNull();

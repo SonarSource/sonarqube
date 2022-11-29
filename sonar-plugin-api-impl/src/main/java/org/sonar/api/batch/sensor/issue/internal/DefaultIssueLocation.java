@@ -29,10 +29,10 @@ import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.sensor.issue.NewMessageFormatting;
+import org.sonar.api.issue.Issue;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.abbreviate;
-import static org.apache.commons.lang.StringUtils.trim;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.api.utils.Preconditions.checkState;
 
@@ -64,18 +64,28 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   @Override
   public DefaultIssueLocation message(String message) {
     validateMessage(message);
-    this.message = abbreviate(trim(message), MESSAGE_MAX_SIZE);
+    this.message = abbreviate(message, Issue.MESSAGE_MAX_SIZE);
     return this;
   }
 
   @Override
-  public NewIssueLocation message(String message, List<NewMessageFormatting> newMessageFormattings) {
+  public DefaultIssueLocation message(String message, List<NewMessageFormatting> newMessageFormattings) {
     validateMessage(message);
     validateFormattings(newMessageFormattings, message);
-    this.message = abbreviate(trim(message), MESSAGE_MAX_SIZE);
+    this.message = abbreviate(message,  Issue.MESSAGE_MAX_SIZE);
 
     for (NewMessageFormatting newMessageFormatting : newMessageFormattings) {
-      messageFormattings.add((MessageFormatting) newMessageFormatting);
+      DefaultMessageFormatting messageFormatting = (DefaultMessageFormatting) newMessageFormatting;
+      if (messageFormatting.start() >  Issue.MESSAGE_MAX_SIZE) {
+        continue;
+      }
+      if (messageFormatting.end() > Issue.MESSAGE_MAX_SIZE) {
+        messageFormatting = new DefaultMessageFormatting()
+          .start(messageFormatting.start())
+          .end( Issue.MESSAGE_MAX_SIZE)
+          .type(messageFormatting.type());
+      }
+      messageFormattings.add(messageFormatting);
     }
     return this;
   }

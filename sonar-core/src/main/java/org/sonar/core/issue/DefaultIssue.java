@@ -262,8 +262,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   public DefaultIssue setMessage(@Nullable String s) {
-    //TODO trim messageFormattings?
-    this.message = StringUtils.abbreviate(StringUtils.trim(s), MESSAGE_MAX_SIZE);
+    this.message = StringUtils.abbreviate(s, MESSAGE_MAX_SIZE);
     return this;
   }
 
