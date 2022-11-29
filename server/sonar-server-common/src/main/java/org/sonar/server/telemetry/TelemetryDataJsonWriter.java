@@ -19,6 +19,7 @@
  */
 package org.sonar.server.telemetry;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -31,7 +32,9 @@ import static org.sonar.api.utils.DateUtils.DATETIME_FORMAT;
 
 public class TelemetryDataJsonWriter {
 
-  public static final String LANGUAGE_PROP = "language";
+  @VisibleForTesting
+  static final String SCIM_PROPERTY = "scim";
+  private static final String LANGUAGE_PROPERTY = "language";
 
   public void writeTelemetryData(JsonWriter json, TelemetryData statistics) {
     json.beginObject();
@@ -68,6 +71,8 @@ public class TelemetryDataJsonWriter {
       json.prop("installationVersion", statistics.getInstallationVersion());
     }
     json.prop("docker", statistics.isInDocker());
+
+    json.prop(SCIM_PROPERTY, statistics.isScimEnabled());
 
     writeUserData(json, statistics);
     writeProjectData(json, statistics);
@@ -109,7 +114,7 @@ public class TelemetryDataJsonWriter {
         if (project.getLastAnalysis() != null) {
           json.prop("lastAnalysis", toUtc(project.getLastAnalysis()));
         }
-        json.prop(LANGUAGE_PROP, project.getLanguage());
+        json.prop(LANGUAGE_PROPERTY, project.getLanguage());
         json.prop("loc", project.getLoc());
         json.endObject();
       });

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -40,9 +41,11 @@ import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.user.UserTelemetryDto;
 
+import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.telemetry.TelemetryDataJsonWriter.SCIM_PROPERTY;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(DataProviderRunner.class)
@@ -210,23 +213,35 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void write_docker_flag() {
-    boolean inDocker = random.nextBoolean();
+  @UseDataProvider("getFeatureFlagEnabledStates")
+  public void write_docker_flag(boolean isInDocker) {
     TelemetryData data = telemetryBuilder()
-      .setInDocker(inDocker)
+      .setInDocker(isInDocker)
       .build();
 
     String json = writeTelemetryData(data);
 
     assertJson(json).isSimilarTo("{" +
-      "  \"docker\":" + inDocker +
+      "  \"docker\":" + isInDocker +
       "}");
+  }
+
+  @Test
+  @UseDataProvider("getFeatureFlagEnabledStates")
+  public void write_scim_feature_flag(boolean isScimEnabled) {
+    TelemetryData data = telemetryBuilder()
+      .setIsScimEnabled(isScimEnabled)
+      .build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{" + format("  \"%s\":", SCIM_PROPERTY) + isScimEnabled + "}");
   }
 
   @Test
   public void writes_security_custom_config() {
     TelemetryData data = telemetryBuilder()
-      .setCustomSecurityConfigs(Arrays.asList("php", "java"))
+      .setCustomSecurityConfigs(Set.of("php", "java"))
       .build();
 
     String json = writeTelemetryData(data);
@@ -395,5 +410,10 @@ public class TelemetryDataJsonWriterTest {
       underTest.writeTelemetryData(json, data);
     }
     return jsonString.toString();
+  }
+
+  @DataProvider
+  public static Set<Boolean> getFeatureFlagEnabledStates() {
+    return Set.of(true, false);
   }
 }

@@ -19,17 +19,19 @@
  */
 package org.sonar.server.telemetry;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.db.user.UserTelemetryDto;
 
-import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElse;
 
 public class TelemetryData {
   private final String serverId;
@@ -41,10 +43,11 @@ public class TelemetryData {
   private final Long installationDate;
   private final String installationVersion;
   private final boolean inDocker;
-  private final List<String> customSecurityConfigs;
+  private final boolean isScimEnabled;
   private final List<UserTelemetryDto> users;
   private final List<Project> projects;
   private final List<ProjectStatistics> projectStatistics;
+  private final Set<String> customSecurityConfigs;
 
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
@@ -56,10 +59,11 @@ public class TelemetryData {
     installationDate = builder.installationDate;
     installationVersion = builder.installationVersion;
     inDocker = builder.inDocker;
-    customSecurityConfigs = builder.customSecurityConfigs == null ? emptyList() : builder.customSecurityConfigs;
+    isScimEnabled = builder.isScimEnabled;
     users = builder.users;
     projects = builder.projects;
     projectStatistics = builder.projectStatistics;
+    customSecurityConfigs = requireNonNullElse(builder.customSecurityConfigs, Set.of());
   }
 
   public String getServerId() {
@@ -98,7 +102,11 @@ public class TelemetryData {
     return inDocker;
   }
 
-  public List<String> getCustomSecurityConfigs() {
+  public boolean isScimEnabled() {
+    return isScimEnabled;
+  }
+
+  public Set<String> getCustomSecurityConfigs() {
     return customSecurityConfigs;
   }
 
@@ -128,7 +136,8 @@ public class TelemetryData {
     private Long installationDate;
     private String installationVersion;
     private boolean inDocker = false;
-    private List<String> customSecurityConfigs;
+    private boolean isScimEnabled;
+    private Set<String> customSecurityConfigs;
     private List<UserTelemetryDto> users;
     private List<Project> projects;
     private List<ProjectStatistics> projectStatistics;
@@ -182,7 +191,7 @@ public class TelemetryData {
       return this;
     }
 
-    Builder setCustomSecurityConfigs(List<String> customSecurityConfigs) {
+    Builder setCustomSecurityConfigs(Set<String> customSecurityConfigs) {
       this.customSecurityConfigs = customSecurityConfigs;
       return this;
     }
@@ -197,18 +206,23 @@ public class TelemetryData {
       return this;
     }
 
-    TelemetryData build() {
-      requireNonNull(serverId);
-      requireNonNull(version);
-      requireNonNull(plugins);
-      requireNonNull(database);
+    public Builder setIsScimEnabled(boolean isEnabled) {
+      this.isScimEnabled = isEnabled;
+      return this;
+    }
 
+    TelemetryData build() {
+      requireNonNullValues(serverId, version, plugins, database);
       return new TelemetryData(this);
     }
 
     Builder setProjectStatistics(List<ProjectStatistics> projectStatistics) {
       this.projectStatistics = projectStatistics;
       return this;
+    }
+
+    private static void requireNonNullValues(Object... values) {
+      Arrays.stream(values).forEach(Objects::requireNonNull);
     }
   }
 

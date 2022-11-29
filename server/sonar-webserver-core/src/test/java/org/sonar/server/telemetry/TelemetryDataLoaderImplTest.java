@@ -19,14 +19,21 @@
  */
 package org.sonar.server.telemetry;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -39,6 +46,7 @@ import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTelemetryDto;
 import org.sonar.server.platform.DockerSupport;
@@ -67,7 +75,9 @@ import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
+import static org.sonar.server.telemetry.TelemetryDataLoaderImpl.SCIM_PROPERTY_ENABLED;
 
+@RunWith(DataProviderRunner.class)
 public class TelemetryDataLoaderImplTest {
   private final static Long NOW = 100_000_000L;
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
@@ -101,10 +111,7 @@ public class TelemetryDataLoaderImplTest {
     when(pluginRepository.getPluginInfos()).thenReturn(plugins);
     when(editionProvider.get()).thenReturn(Optional.of(DEVELOPER));
 
-    int activeUserCount = 3;
-    List<UserDto> activeUsers = IntStream.range(0, activeUserCount).mapToObj(i -> db.users().insertUser(
-      u -> u.setExternalIdentityProvider("provider" + i).setLastSonarlintConnectionDate(i * 2L)))
-      .collect(Collectors.toList());
+    List<UserDto> activeUsers = composeActiveUsers(3);
 
     // update last connection
     activeUsers.forEach(u -> db.users().updateLastConnectionDate(u, 5L));
@@ -176,6 +183,17 @@ public class TelemetryDataLoaderImplTest {
       .containsExactlyInAnyOrder(
         tuple(1L, 0L, "scm-1", "ci-1", "azure_devops_cloud"),
         tuple(1L, 0L, "scm-2", "ci-2", "github_cloud"));
+  }
+
+  private List<UserDto> composeActiveUsers(int count) {
+    UserDbTester userDbTester = db.users();
+    Function<Integer, Consumer<UserDto>> userConfigurator = index -> user -> user.setExternalIdentityProvider("provider" + index).setLastSonarlintConnectionDate(index * 2L);
+
+    return IntStream
+      .rangeClosed(1, count)
+      .mapToObj(userConfigurator::apply)
+      .map(userDbTester::insertUser)
+      .collect(Collectors.toList());
   }
 
   private void assertDatabaseMetadata(TelemetryData.Database database) {
@@ -378,6 +396,17 @@ public class TelemetryDataLoaderImplTest {
       .containsExactlyInAnyOrder(tuple("undetected", "undetected", "undetected"));
   }
 
+  @Test
+  @UseDataProvider("getScimFeatureStatues")
+  public void detect_scim_feature_status(boolean isEnabled) {
+    db.components().insertPublicProject();
+    when(configuration.getBoolean(SCIM_PROPERTY_ENABLED)).thenReturn(Optional.of(isEnabled));
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.isScimEnabled()).isEqualTo(isEnabled);
+  }
+
   private PluginInfo newPlugin(String key, String version) {
     return new PluginInfo(key)
       .setVersion(Version.create(version));
@@ -392,4 +421,8 @@ public class TelemetryDataLoaderImplTest {
       .setCreatedAt(1L));
   }
 
+  @DataProvider
+  public static Set<Boolean> getScimFeatureStatues() {
+    return Set.of(true, false);
+  }
 }

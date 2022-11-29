@@ -19,13 +19,14 @@
  */
 package org.sonar.server.telemetry;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -61,7 +62,16 @@ import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
 
 @ServerSide
 public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
-  public static final String UNDETECTED = "undetected";
+  @VisibleForTesting
+  static final String SCIM_PROPERTY_ENABLED = "sonar.scim.enabled";
+  private static final String UNDETECTED = "undetected";
+
+  private static final Map<String, String> LANGUAGES_BY_SECURITY_JSON_PROPERTY_MAP = Map.of(
+    "sonar.security.config.javasecurity", "java",
+    "sonar.security.config.phpsecurity", "php",
+    "sonar.security.config.pythonsecurity", "python",
+    "sonar.security.config.roslyn.sonaranalyzer.security.cs", "csharp");
+
   private final Server server;
   private final DbClient dbClient;
   private final PluginRepository pluginRepository;
@@ -71,6 +81,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final DockerSupport dockerSupport;
   @CheckForNull
   private final LicenseReader licenseReader;
+
 
   @Inject
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository,
@@ -121,9 +132,12 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Optional<String> installationDateProperty = internalProperties.read(InternalProperties.INSTALLATION_DATE);
     installationDateProperty.ifPresent(s -> data.setInstallationDate(Long.valueOf(s)));
     Optional<String> installationVersionProperty = internalProperties.read(InternalProperties.INSTALLATION_VERSION);
-    data.setInstallationVersion(installationVersionProperty.orElse(null));
-    data.setInDocker(dockerSupport.isRunningInDocker());
-    return data.build();
+
+    return data
+      .setInstallationVersion(installationVersionProperty.orElse(null))
+      .setInDocker(dockerSupport.isRunningInDocker())
+      .setIsScimEnabled(isScimEnabled())
+      .build();
   }
 
   private void resolveProjectStatistics(TelemetryData.Builder data, DbSession dbSession) {
@@ -185,18 +199,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private void setSecurityCustomConfigIfPresent(TelemetryData.Builder data) {
     editionProvider.get()
       .filter(edition -> asList(ENTERPRISE, DATACENTER).contains(edition))
-      .ifPresent(edition -> {
-        List<String> customSecurityConfigs = new LinkedList<>();
-        configuration.get("sonar.security.config.javasecurity")
-          .ifPresent(s -> customSecurityConfigs.add("java"));
-        configuration.get("sonar.security.config.phpsecurity")
-          .ifPresent(s -> customSecurityConfigs.add("php"));
-        configuration.get("sonar.security.config.pythonsecurity")
-          .ifPresent(s -> customSecurityConfigs.add("python"));
-        configuration.get("sonar.security.config.roslyn.sonaranalyzer.security.cs")
-          .ifPresent(s -> customSecurityConfigs.add("csharp"));
-        data.setCustomSecurityConfigs(customSecurityConfigs);
-      });
+      .ifPresent(edition -> data.setCustomSecurityConfigs(getCustomerSecurityConfigurations()));
   }
 
   private Map<String, String> getAnalysisPropertyByProject(DbSession dbSession, String analysisPropertyKey) {
@@ -214,13 +217,20 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private static String getAlmName(String alm, String url) {
     if (checkIfCloudAlm(alm, ALM.GITHUB.getId(), url, "https://api.github.com")) {
       return "github_cloud";
-    } else if (checkIfCloudAlm(alm, ALM.GITLAB.getId(), url, "https://gitlab.com/api/v4")) {
+    }
+
+    if (checkIfCloudAlm(alm, ALM.GITLAB.getId(), url, "https://gitlab.com/api/v4")) {
       return "gitlab_cloud";
-    } else if (checkIfCloudAlm(alm, ALM.AZURE_DEVOPS.getId(), url, "https://dev.azure.com")) {
+    }
+
+    if (checkIfCloudAlm(alm, ALM.AZURE_DEVOPS.getId(), url, "https://dev.azure.com")) {
       return "azure_devops_cloud";
-    } else if (ALM.BITBUCKET_CLOUD.getId().equals(alm)) {
+    }
+
+    if (ALM.BITBUCKET_CLOUD.getId().equals(alm)) {
       return alm;
     }
+
     return alm + "_server";
   }
 
@@ -231,5 +241,20 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   @Override
   public String loadServerId() {
     return server.getId();
+  }
+
+  private Set<String> getCustomerSecurityConfigurations() {
+    return LANGUAGES_BY_SECURITY_JSON_PROPERTY_MAP.keySet().stream()
+      .filter(this::isPropertyPresentInConfiguration)
+      .map(LANGUAGES_BY_SECURITY_JSON_PROPERTY_MAP::get)
+      .collect(Collectors.toSet());
+  }
+
+  private boolean isPropertyPresentInConfiguration(String property) {
+    return configuration.get(property).isPresent();
+  }
+
+  private boolean isScimEnabled() {
+    return this.configuration.getBoolean(SCIM_PROPERTY_ENABLED).orElse(false);
   }
 }
