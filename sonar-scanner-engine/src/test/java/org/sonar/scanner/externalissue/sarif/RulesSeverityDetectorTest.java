@@ -51,6 +51,14 @@ public class RulesSeverityDetectorTest {
   @org.junit.Rule
   public LogTester logTester = new LogTester().setLevel(LoggerLevel.TRACE);
 
+  private final Run run = mock(Run.class);
+  private final Rule rule = mock(Rule.class);
+  private final Tool tool = mock(Tool.class);
+  private final Result result = mock(Result.class);
+  private final Driver driver = mock(Driver.class);
+  private final Extension extension = mock(Extension.class);
+  private final DefaultConfiguration defaultConfiguration = mock(DefaultConfiguration.class);
+
   @Test
   public void detectRulesSeverities_detectsCorrectlyResultDefinedRuleSeverities() {
     Run run = mockResultDefinedRuleSeverities();
@@ -92,9 +100,6 @@ public class RulesSeverityDetectorTest {
   }
 
   private Run mockResultDefinedRuleSeverities() {
-    Run run = mock(Run.class);
-    Result result = mock(Result.class);
-
     when(run.getResults()).thenReturn(Set.of(result));
     when(result.getLevel()).thenReturn(WARNING);
     when(result.getRuleId()).thenReturn(RULE_ID);
@@ -103,12 +108,6 @@ public class RulesSeverityDetectorTest {
   }
 
   private Run mockDriverDefinedRuleSeverities() {
-    Run run = mock(Run.class);
-    Tool tool = mock(Tool.class);
-    Driver driver = mock(Driver.class);
-    Rule rule = mock(Rule.class);
-    DefaultConfiguration defaultConfiguration = mock(DefaultConfiguration.class);
-
     when(run.getTool()).thenReturn(tool);
     when(tool.getDriver()).thenReturn(driver);
     when(driver.getRules()).thenReturn(Set.of(rule));
@@ -120,13 +119,6 @@ public class RulesSeverityDetectorTest {
   }
 
   private Run mockExtensionsDefinedRuleSeverities() {
-    Run run = mock(Run.class);
-    Tool tool = mock(Tool.class);
-    Driver driver = mock(Driver.class);
-    Extension extension = mock(Extension.class);
-    Rule rule = mock(Rule.class);
-    DefaultConfiguration defaultConfiguration = mock(DefaultConfiguration.class);
-
     when(run.getTool()).thenReturn(tool);
     when(tool.getDriver()).thenReturn(driver);
     when(driver.getRules()).thenReturn(Set.of());
@@ -140,11 +132,6 @@ public class RulesSeverityDetectorTest {
   }
 
   private Run mockUnsupportedRuleSeveritiesDefinition() {
-    Run run = mock(Run.class);
-    Tool tool = mock(Tool.class);
-    Driver driver = mock(Driver.class);
-    Extension extension = mock(Extension.class);
-
     when(run.getTool()).thenReturn(tool);
     when(tool.getDriver()).thenReturn(driver);
     when(driver.getRules()).thenReturn(Set.of());
