@@ -8,15 +8,8 @@
   "prHourlyLimit": 0,
   "separateMinorPatch": false,
   "separateMajorMinor": false,
-  "ignoreDeps": [    
-    "io.spring.dependency-management",
-    "com.jfrog.artifactory",
+  "ignoreDeps": [
     "org.ajoberstar.grgit",
-    "com.bmuschko.docker-remote-api",
-    "com.github.hierynomus.license",
-    "com.github.hierynomus.license-report",
-    "de.undercouch.download",
-    "com.github.johnrengelman.shadow",
     "com.bmuschko.docker-remote-api",
     
     "com.sonarsource.abap:sonar-abap-plugin",
