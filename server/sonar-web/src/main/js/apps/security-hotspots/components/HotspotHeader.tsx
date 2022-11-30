@@ -20,6 +20,7 @@
 
 import React from 'react';
 import Link from '../../../components/common/Link';
+import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { translate } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
@@ -33,11 +34,13 @@ export interface HotspotHeaderProps {
 
 export function HotspotHeader(props: HotspotHeaderProps) {
   const { hotspot } = props;
-  const { message, rule } = hotspot;
+  const { message, messageFormattings, rule } = hotspot;
   return (
-    <div className="huge-spacer-bottom">
+    <div className="huge-spacer-bottom hotspot-header">
       <div className="display-flex-column big-spacer-bottom">
-        <div className="big text-bold">{message}</div>
+        <div className="big text-bold">
+          <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+        </div>
         <div className="spacer-top">
           <span className="note padded-right">{rule.name}</span>
           <Link className="small" to={getRuleUrl(rule.key)} target="_blank">

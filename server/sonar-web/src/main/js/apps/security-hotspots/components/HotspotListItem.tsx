@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { ButtonPlain } from '../../../components/controls/buttons';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
+import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import LocationsList from '../../../components/locations/LocationsList';
 import { ComponentQualifier } from '../../../types/component';
 import { RawHotspot } from '../../../types/security-hotspots';
@@ -51,7 +52,10 @@ export default function HotspotListItem(props: HotspotListItemProps) {
         className={classNames('little-spacer-left text-bold', { 'cursor-pointer': selected })}
         onClick={selected ? () => props.onLocationClick() : undefined}
       >
-        {hotspot.message}
+        <IssueMessageHighlighting
+          message={hotspot.message}
+          messageFormattings={hotspot.messageFormattings}
+        />
       </div>
       <div className="display-flex-center big-spacer-top">
         <QualifierIcon qualifier={ComponentQualifier.File} />

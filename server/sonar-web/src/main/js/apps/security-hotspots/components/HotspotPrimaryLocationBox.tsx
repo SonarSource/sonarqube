@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { ButtonLink } from '../../../components/controls/buttons';
+import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { translate } from '../../../helpers/l10n';
 import { Hotspot } from '../../../types/security-hotspots';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
@@ -55,7 +56,12 @@ export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps)
       )}
       ref={locationRef}
     >
-      <div className="text-bold">{hotspot.message}</div>
+      <div className="text-bold">
+        <IssueMessageHighlighting
+          message={hotspot.message}
+          messageFormattings={hotspot.messageFormattings}
+        />
+      </div>
       {isLoggedIn(currentUser) && (
         <ButtonLink
           className="nowrap big-spacer-left it__hs-add-comment"

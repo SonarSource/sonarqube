@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <div
-  className="huge-spacer-bottom"
+  className="huge-spacer-bottom hotspot-header"
 >
   <div
     className="display-flex-column big-spacer-bottom"
@@ -10,7 +10,9 @@ exports[`should render correctly 1`] = `
     <div
       className="big text-bold"
     >
-      '3' is a magic number.
+      <IssueMessageHighlighting
+        message="'3' is a magic number."
+      />
     </div>
     <div
       className="spacer-top"

@@ -7,7 +7,9 @@ exports[`should render correctly: User logged in 1`] = `
   <div
     className="text-bold"
   >
-    '3' is a magic number.
+    <IssueMessageHighlighting
+      message="'3' is a magic number."
+    />
   </div>
   <ButtonLink
     className="nowrap big-spacer-left it__hs-add-comment"
@@ -25,7 +27,9 @@ exports[`should render correctly: User not logged in  1`] = `
   <div
     className="text-bold"
   >
-    '3' is a magic number.
+    <IssueMessageHighlighting
+      message="'3' is a magic number."
+    />
   </div>
 </div>
 `;

@@ -116,3 +116,12 @@
 .hotspot-box-filename {
   direction: rtl;
 }
+
+.hotspot-header .issue-message-highlight-CODE {
+  background-color: var(--blacka06);
+  border-radius: 5px;
+}
+
+.hotspot-item .issue-message-highlight-CODE {
+  background-color: var(--blacka06);
+}

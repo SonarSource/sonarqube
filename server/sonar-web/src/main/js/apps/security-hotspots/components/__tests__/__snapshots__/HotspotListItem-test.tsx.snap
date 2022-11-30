@@ -9,7 +9,9 @@ exports[`should render correctly 1`] = `
   <div
     className="little-spacer-left text-bold"
   >
-    '3' is a magic number.
+    <IssueMessageHighlighting
+      message="'3' is a magic number."
+    />
   </div>
   <div
     className="display-flex-center big-spacer-top"
@@ -39,7 +41,9 @@ exports[`should render correctly 2`] = `
     className="little-spacer-left text-bold cursor-pointer"
     onClick={[Function]}
   >
-    '3' is a magic number.
+    <IssueMessageHighlighting
+      message="'3' is a magic number."
+    />
   </div>
   <div
     className="display-flex-center big-spacer-top"

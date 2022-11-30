@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from './component';
+import { MessageFormatting } from './issues';
 import { FlowLocation, IssueChangelog, IssueChangelogDiff, Paging, TextRange } from './types';
 import { UserBase } from './users';
 
@@ -66,6 +67,7 @@ export interface RawHotspot {
   key: string;
   line?: number;
   message: string;
+  messageFormattings?: MessageFormatting[];
   project: string;
   resolution?: HotspotResolution;
   rule: string;
@@ -92,6 +94,7 @@ export interface Hotspot {
   key: string;
   line?: number;
   message: string;
+  messageFormattings?: MessageFormatting[];
   project: HotspotComponent;
   resolution?: HotspotResolution;
   rule: HotspotRule;
