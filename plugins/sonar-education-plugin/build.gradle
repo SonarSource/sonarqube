@@ -23,9 +23,6 @@ jar {
                 'Plugin-Name': 'Education'
         )
     }
-    into('META-INF/lib') {
-        from configurations.compileClasspath
-    }
 }
 
 artifactoryPublish.skip = false

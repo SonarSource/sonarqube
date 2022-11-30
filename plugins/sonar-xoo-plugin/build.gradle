@@ -1,6 +1,3 @@
-configurations {
-  testImplementation.extendsFrom(compileOnlyApi)
-}
 
 dependencies {
   api 'com.google.guava:guava'
@@ -30,7 +27,7 @@ jar {
     )
   }
   into('META-INF/lib') {
-    from configurations.compileClasspath
+    from configurations.runtimeClasspath
   }
 }
 
