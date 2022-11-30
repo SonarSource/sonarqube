@@ -7,7 +7,7 @@ branches:
   except:
     - /^dogfood\/.*$/
     - public_master
-    
+
 matrix:
   fast_finish: true
 
@@ -23,24 +23,10 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
   - rm -fr $HOME/.gradle/caches/*/fileHashes/
   - rm -fr $HOME/.gradle/caches/*/scripts/
-  
-# We remove outdated OpenJDK 11.0.2 which is hardcoded here https://github.com/travis-ci/travis-cookbooks/blob/master/cookbooks/travis_jdk/files/install-jdk.sh#L200
-# And we install openjdk-11-jdk-headless Ubuntu package. This way we are not stuck at 11.0.2 version.
-# For more context please visit:
-# - https://travis-ci.community/t/old-java-version-in-bionic/4726
-# - https://travis-ci.community/t/use-latest-java-point-versions-from-ubuntu-packages-instead-of-hard-coding-old-fix-versions-from-java-net-in-install-jdk-sh/8518
-# - https://github.com/apache/fineract/pull/846/commits/3997f54cfd7e635938e21877c9b0ff757134a8ee
+
 before_install:
-  - echo $JAVA_HOME
-  - which java
-  - sudo rm -rf /usr/local/lib/jvm/
-  - sudo apt-get install -y openjdk-11-jdk-headless
-  - export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
-  - which java
-  - java -version
-  - $JAVA_HOME/bin/java -version
-  - nvm install 14
-  - nvm use 14
+  - nvm install 16
+  - nvm use 16
 
 notifications:
   email: false
