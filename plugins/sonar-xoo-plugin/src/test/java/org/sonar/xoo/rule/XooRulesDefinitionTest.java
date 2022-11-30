@@ -119,7 +119,7 @@ public class XooRulesDefinitionTest {
     assertThat(repo).isNotNull();
     assertThat(repo.name()).isEqualTo("Xoo");
     assertThat(repo.language()).isEqualTo("xoo");
-    assertThat(repo.rules()).hasSize(25);
+    assertThat(repo.rules()).hasSize(26);
     return repo;
   }
 }

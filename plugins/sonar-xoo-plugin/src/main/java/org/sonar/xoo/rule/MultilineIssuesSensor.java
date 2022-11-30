@@ -82,6 +82,10 @@ public class MultilineIssuesSensor implements Sensor {
     }
   }
 
+  public String getRuleKey() {
+    return RULE_KEY;
+  }
+
   private void createIssues(InputFile file, SensorContext context) {
     Collection<ParsedIssue> issues = parseIssues(file);
     FlowIndex flowIndex = new FlowIndex();
@@ -91,8 +95,8 @@ public class MultilineIssuesSensor implements Sensor {
     createIssues(file, context, issues, flowIndex);
   }
 
-  private static void createIssues(InputFile file, SensorContext context, Collection<ParsedIssue> parsedIssues, FlowIndex flowIndex) {
-    RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
+  private void createIssues(InputFile file, SensorContext context, Collection<ParsedIssue> parsedIssues, FlowIndex flowIndex) {
+    RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, getRuleKey());
 
     for (ParsedIssue parsedIssue : parsedIssues) {
       NewIssue newIssue = context.newIssue().forRule(ruleKey);

@@ -186,6 +186,12 @@ public class XooRulesDefinition implements RulesDefinition {
     NewRule issueWithRangeAndMultipleLocations = repo.createRule(MultilineIssuesSensor.RULE_KEY).setName("Creates issues with ranges/multiple locations");
     addAllDescriptionSections(issueWithRangeAndMultipleLocations, "Issue with range and multiple locations");
 
+    NewRule hotspotWithRangeAndMultipleLocations = repo.createRule(MultilineHotspotSensor.RULE_KEY)
+      .setName("Creates hotspots with ranges/multiple locations")
+      .setType(RuleType.SECURITY_HOTSPOT);
+    addAllDescriptionSections(hotspotWithRangeAndMultipleLocations, "Hotspot with range and multiple locations");
+
+
     NewRule issueOnEachFileWithExtUnknown = repo.createRule(OneIssuePerUnknownFileSensor.RULE_KEY).setName("Creates issues on each file with extension 'unknown'");
     addAllDescriptionSections(issueOnEachFileWithExtUnknown, "This issue is generated on each file with extenstion 'unknown'");
 
