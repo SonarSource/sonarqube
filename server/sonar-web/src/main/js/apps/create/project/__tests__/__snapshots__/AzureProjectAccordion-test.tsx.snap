@@ -39,6 +39,7 @@ exports[`should render correctly: importing 1`] = `
         key="Azure repo 1"
       >
         <Radio
+          alignLabel={true}
           checked={false}
           className="overflow-hidden"
           disabled={true}
@@ -46,7 +47,6 @@ exports[`should render correctly: importing 1`] = `
           value="Azure repo 1"
         >
           <span
-            className="text-ellipsis"
             title="Azure repo 1"
           >
             Azure repo 1
@@ -115,6 +115,7 @@ exports[`should render correctly: search results 1`] = `
         key="this repo is the best"
       >
         <Radio
+          alignLabel={true}
           checked={false}
           className="overflow-hidden"
           disabled={false}
@@ -122,7 +123,6 @@ exports[`should render correctly: search results 1`] = `
           value="this repo is the best"
         >
           <span
-            className="text-ellipsis"
             title="this repo is the best"
           >
             this 
@@ -201,6 +201,7 @@ exports[`should render correctly: with repositories 1`] = `
         key="Azure repo 1"
       >
         <Radio
+          alignLabel={true}
           checked={false}
           className="overflow-hidden"
           disabled={false}
@@ -208,7 +209,6 @@ exports[`should render correctly: with repositories 1`] = `
           value="Azure repo 1"
         >
           <span
-            className="text-ellipsis"
             title="Azure repo 1"
           >
             Azure repo 1
