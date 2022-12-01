@@ -29,6 +29,8 @@ export default class AlmSettingsServiceMock {
     mockAlmSettingsInstance({ key: 'conf-final-2', alm: AlmKeys.GitLab }),
     mockAlmSettingsInstance({ key: 'conf-github-1', alm: AlmKeys.GitHub, url: 'url' }),
     mockAlmSettingsInstance({ key: 'conf-github-2', alm: AlmKeys.GitHub, url: 'url' }),
+    mockAlmSettingsInstance({ key: 'conf-azure-1', alm: AlmKeys.Azure, url: 'url' }),
+    mockAlmSettingsInstance({ key: 'conf-azure-2', alm: AlmKeys.Azure, url: 'url' }),
   ];
 
   constructor() {

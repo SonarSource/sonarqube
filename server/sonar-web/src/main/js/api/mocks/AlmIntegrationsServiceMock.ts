@@ -18,24 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { mockGitlabProject } from '../../helpers/mocks/alm-integrations';
-import { GitlabProject } from '../../types/alm-integration';
+import {
+  mockAzureProject,
+  mockAzureRepository,
+  mockGitlabProject,
+} from '../../helpers/mocks/alm-integrations';
+import { AzureProject, AzureRepository, GitlabProject } from '../../types/alm-integration';
 import {
   checkPersonalAccessTokenIsValid,
+  getAzureProjects,
+  getAzureRepositories,
   getGithubClientId,
   getGithubOrganizations,
   getGitlabProjects,
+  importAzureRepository,
+  searchAzureRepositories,
   setAlmPersonalAccessToken,
 } from '../alm-integrations';
+import { ProjectBase } from '../components';
 
 export default class AlmIntegrationsServiceMock {
   almInstancePATMap: { [key: string]: boolean } = {};
   gitlabProjects: GitlabProject[];
+  azureProjects: AzureProject[];
+  azureRepositories: AzureRepository[];
   defaultAlmInstancePATMap: { [key: string]: boolean } = {
     'conf-final-1': false,
     'conf-final-2': true,
     'conf-github-1': false,
     'conf-github-2': true,
+    'conf-azure-1': false,
+    'conf-azure-2': true,
+    'config-reject': false,
   };
 
   defaultGitlabProjects: GitlabProject[] = [
@@ -47,6 +61,16 @@ export default class AlmIntegrationsServiceMock {
     }),
     mockGitlabProject({ name: 'Gitlab project 2', id: '2' }),
     mockGitlabProject({ name: 'Gitlab project 3', id: '3' }),
+  ];
+
+  defaultAzureProjects: AzureProject[] = [
+    mockAzureProject({ name: 'Azure project', description: 'Description project 1' }),
+    mockAzureProject({ name: 'Azure project 2', description: 'Description project 2' }),
+  ];
+
+  defaultAzureRepositories: AzureRepository[] = [
+    mockAzureRepository({ sqProjectKey: 'random' }),
+    mockAzureRepository({ name: 'Azure repo 2' }),
   ];
 
   defaultOrganizations = {
@@ -66,6 +90,8 @@ export default class AlmIntegrationsServiceMock {
   constructor() {
     this.almInstancePATMap = cloneDeep(this.defaultAlmInstancePATMap);
     this.gitlabProjects = cloneDeep(this.defaultGitlabProjects);
+    this.azureProjects = cloneDeep(this.defaultAzureProjects);
+    this.azureRepositories = cloneDeep(this.defaultAzureRepositories);
     (checkPersonalAccessTokenIsValid as jest.Mock).mockImplementation(
       this.checkPersonalAccessTokenIsValid
     );
@@ -73,6 +99,10 @@ export default class AlmIntegrationsServiceMock {
     (getGitlabProjects as jest.Mock).mockImplementation(this.getGitlabProjects);
     (getGithubClientId as jest.Mock).mockImplementation(this.getGithubClientId);
     (getGithubOrganizations as jest.Mock).mockImplementation(this.getGithubOrganizations);
+    (getAzureProjects as jest.Mock).mockImplementation(this.getAzureProjects);
+    (getAzureRepositories as jest.Mock).mockImplementation(this.getAzureRepositories);
+    (searchAzureRepositories as jest.Mock).mockImplementation(this.searchAzureRepositories);
+    (importAzureRepository as jest.Mock).mockImplementation(this.importAzureRepository);
   }
 
   checkPersonalAccessTokenIsValid = (conf: string) => {
@@ -84,13 +114,48 @@ export default class AlmIntegrationsServiceMock {
     return Promise.resolve();
   };
 
+  getAzureProjects = (): Promise<{ projects: AzureProject[] }> => {
+    return Promise.resolve({ projects: this.azureProjects });
+  };
+
+  getAzureRepositories = (): Promise<{ repositories: AzureRepository[] }> => {
+    return Promise.resolve({
+      repositories: this.azureRepositories,
+    });
+  };
+
+  searchAzureRepositories = (): Promise<{ repositories: AzureRepository[] }> => {
+    return Promise.resolve({
+      repositories: this.azureRepositories,
+    });
+  };
+
+  setSearchAzureRepositories = (azureRepositories: AzureRepository[]) => {
+    this.azureRepositories = azureRepositories;
+  };
+
+  importAzureRepository = (): Promise<{ project: ProjectBase }> => {
+    return Promise.resolve({
+      project: {
+        key: 'key',
+        name: 'name',
+        qualifier: 'qualifier',
+        visibility: 'private',
+      },
+    });
+  };
+
+  setAzureProjects = (azureProjects: AzureProject[]) => {
+    this.azureProjects = azureProjects;
+  };
+
   getGitlabProjects = () => {
     return Promise.resolve({
       projects: this.gitlabProjects,
       projectsPaging: {
         pageIndex: 1,
         pageSize: 30,
-        total: 3,
+        total: this.gitlabProjects.length,
       },
     });
   };
@@ -110,5 +175,6 @@ export default class AlmIntegrationsServiceMock {
   reset = () => {
     this.almInstancePATMap = cloneDeep(this.defaultAlmInstancePATMap);
     this.gitlabProjects = cloneDeep(this.defaultGitlabProjects);
+    this.azureRepositories = cloneDeep(this.defaultAzureRepositories);
   };
 }
