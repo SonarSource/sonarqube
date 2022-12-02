@@ -3,7 +3,7 @@ SonarQube [![Build Status](https://app.travis-ci.com/SonarSource/sonarqube.svg?b
 
 Continuous Inspection
 ---------------------
-SonarQube provides the capability to not only show health of an application but also to highlight issues newly introduced. With a Quality Gate in place, you can [Clean As You Code](https://blog.sonarsource.com/clean-as-you-code) and therefore improve code quality systematically.
+SonarQube provides the capability to not only show health of an application but also to highlight issues newly introduced. With a Quality Gate in place, you can [Clean As You Code](https://blog.sonarsource.com/clean-as-you-code) and therefore improve code quality systematically.With Support to 29 programming languages
 
 Links
 -----
