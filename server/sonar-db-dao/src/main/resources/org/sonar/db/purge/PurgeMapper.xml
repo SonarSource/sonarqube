@@ -59,6 +59,7 @@
         pb.project_uuid=#{projectUuid,jdbcType=VARCHAR}
         and (pb.branch_type = 'PULL_REQUEST' or pb.exclude_from_purge = ${_false})
         and (s.created_at is null or s.created_at &lt; #{toDate})
+        and (pb.created_at &lt; #{toDate})
 
   </select>
 

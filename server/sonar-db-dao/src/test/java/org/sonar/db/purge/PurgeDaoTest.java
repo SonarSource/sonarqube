@@ -139,8 +139,27 @@ public class PurgeDaoTest {
     assertThat(uuidsOfAnalysesOfRoot(project)).containsOnly(pastAnalysis.getUuid(), lastAnalysis.getUuid());
   }
 
+  /**
+   * SONAR-17720
+   */
+  @Test
+  public void purge_inactive_branches_should_not_purge_newly_created_branches() {
+    when(system2.now()).thenReturn(new Date().getTime());
+    ComponentDto project = db.components().insertPublicProject();
+
+    // new branch without a snapshot (analysis not processed yet)
+    ComponentDto pr1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    dbSession.commit();
+
+    // pr not purged
+    assertThat(uuidsIn("components")).containsOnly(project.uuid(), pr1.uuid());
+    assertThat(uuidsIn("project_branches")).containsOnly(project.uuid(), pr1.uuid());
+  }
+
   @Test
   public void purge_inactive_branches() {
+    Date date31DaysAgo = DateUtils.addDays(new Date(), -31);
     when(system2.now()).thenReturn(new Date().getTime());
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
@@ -161,7 +180,7 @@ public class PurgeDaoTest {
 
     // branch last analysed 31 days ago but protected from purge
     ComponentDto branch5 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setExcludeFromPurge(true));
-    db.components().insertSnapshot(branch5, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
+    db.components().insertSnapshot(branch5, dto -> dto.setCreatedAt(date31DaysAgo.getTime()));
 
     // pull request last analysed 100 days ago
     ComponentDto pr2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setExcludeFromPurge(false));
@@ -171,12 +190,21 @@ public class PurgeDaoTest {
     ComponentDto pr3 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setExcludeFromPurge(true));
     addComponentsSnapshotsAndIssuesToBranch(pr3, rule, 100);
 
+    updateBranchCreationDate(date31DaysAgo, branch1.uuid(), branch2.uuid(), branch3.uuid(), branch4.uuid(), branch5.uuid(), pr1.uuid(), pr2.uuid(), pr3.uuid());
+
     underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     assertThat(uuidsIn("components")).containsOnly(
       project.uuid(), branch1.uuid(), branch2.uuid(), branch5.uuid(), pr1.uuid());
     assertThat(uuidsIn("projects")).containsOnly(project.uuid());
+  }
+
+  private void updateBranchCreationDate(Date date, String... branchUuids) {
+    for (String branchUuid : branchUuids) {
+      db.executeUpdateSql("update project_branches set created_at = '" + date.getTime() + "' where uuid = '" + branchUuid + "'");
+    }
+    db.getSession().commit();
   }
 
   @Test
@@ -1409,7 +1437,7 @@ public class PurgeDaoTest {
     dbClient.scannerAnalysisCacheDao().insert(dbSession, branch.getUuid(), IOUtils.toInputStream("test1", UTF_8));
     dbClient.scannerAnalysisCacheDao().insert(dbSession, project.getUuid(), IOUtils.toInputStream("test2", UTF_8));
 
-    underTest.deleteProject(dbSession,project.getUuid(), Qualifiers.PROJECT, "project", "project");
+    underTest.deleteProject(dbSession, project.getUuid(), Qualifiers.PROJECT, "project", "project");
 
     assertThat(dbClient.scannerAnalysisCacheDao().selectData(dbSession, project.getUuid())).isNull();
     assertThat(dbClient.scannerAnalysisCacheDao().selectData(dbSession, branch.getUuid())).isNull();
@@ -1742,17 +1770,17 @@ public class PurgeDaoTest {
 
   private void insertPropertyFor(ComponentDto... components) {
     Stream.of(components).forEach(componentDto -> db.properties().insertProperty(new PropertyDto()
-      .setKey(randomAlphabetic(3))
-      .setValue(randomAlphabetic(3))
-      .setComponentUuid(componentDto.uuid()),
+        .setKey(randomAlphabetic(3))
+        .setValue(randomAlphabetic(3))
+        .setComponentUuid(componentDto.uuid()),
       componentDto.getKey(), componentDto.name(), componentDto.qualifier(), null));
   }
 
   private void insertPropertyFor(Collection<BranchDto> branches) {
     branches.stream().forEach(branchDto -> db.properties().insertProperty(new PropertyDto()
-      .setKey(randomAlphabetic(3))
-      .setValue(randomAlphabetic(3))
-      .setComponentUuid(branchDto.getUuid()),
+        .setKey(randomAlphabetic(3))
+        .setValue(randomAlphabetic(3))
+        .setComponentUuid(branchDto.getUuid()),
       null, branchDto.getKey(), null, null));
   }
 
