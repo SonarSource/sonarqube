@@ -110,7 +110,6 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
-import org.sonar.scanner.scan.branch.ProjectPullRequestsProvider;
 import org.sonar.scanner.scan.filesystem.DefaultProjectFileSystem;
 import org.sonar.scanner.scan.filesystem.FileIndexer;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -171,7 +170,6 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       new RulesProvider(),
       new BranchConfigurationProvider(),
       new ProjectBranchesProvider(),
-      new ProjectPullRequestsProvider(),
       ProjectRepositoriesProvider.class,
       new ProjectServerSettingsProvider(),
       AnalysisCacheEnabled.class,

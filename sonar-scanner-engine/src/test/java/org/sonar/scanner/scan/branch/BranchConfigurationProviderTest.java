@@ -39,7 +39,6 @@ public class BranchConfigurationProviderTest {
   private BranchConfigurationLoader loader = mock(BranchConfigurationLoader.class);
   private BranchConfiguration config = mock(BranchConfiguration.class);
   private ProjectBranches branches = mock(ProjectBranches.class);
-  private ProjectPullRequests pullRequests = mock(ProjectPullRequests.class);
   private ProjectReactor reactor = mock(ProjectReactor.class);
   private Map<String, String> projectSettings = new HashMap<>();
   private ProjectDefinition root = mock(ProjectDefinition.class);
@@ -53,16 +52,16 @@ public class BranchConfigurationProviderTest {
 
   @Test
   public void should_use_loader() {
-    when(loader.load(eq(projectSettings), eq(branches), eq(pullRequests))).thenReturn(config);
+    when(loader.load(eq(projectSettings), eq(branches))).thenReturn(config);
 
-    BranchConfiguration result = provider.provide(loader, projectConfiguration, branches, pullRequests);
+    BranchConfiguration result = provider.provide(loader, projectConfiguration, branches);
 
     assertThat(result).isSameAs(config);
   }
 
   @Test
   public void should_return_default_if_no_loader() {
-    BranchConfiguration result = provider.provide(null, projectConfiguration, branches, pullRequests);
+    BranchConfiguration result = provider.provide(null, projectConfiguration, branches);
 
     assertThat(result.targetBranchName()).isNull();
     assertThat(result.branchType()).isEqualTo(BranchType.BRANCH);

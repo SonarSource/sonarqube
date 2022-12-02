@@ -32,13 +32,12 @@ public class BranchConfigurationProvider {
   private static final String LOG_MSG = "Load branch configuration";
 
   @Bean("BranchConfiguration")
-  public BranchConfiguration provide(@Nullable BranchConfigurationLoader loader, ProjectConfiguration projectConfiguration,
-    ProjectBranches branches, ProjectPullRequests pullRequests) {
+  public BranchConfiguration provide(@Nullable BranchConfigurationLoader loader, ProjectConfiguration projectConfiguration, ProjectBranches branches) {
     if (loader == null) {
       return new DefaultBranchConfiguration();
     } else {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      BranchConfiguration branchConfiguration = loader.load(projectConfiguration.getProperties(), branches, pullRequests);
+      BranchConfiguration branchConfiguration = loader.load(projectConfiguration.getProperties(), branches);
       profiler.stopInfo();
       return branchConfiguration;
     }

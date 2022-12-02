@@ -46,7 +46,6 @@ import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.rule.LoadedActiveRule;
-import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -60,8 +59,6 @@ import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.cache.AnalysisCacheLoader;
-import org.sonar.scanner.cache.AnalysisCacheMemoryStorage;
-import org.sonar.scanner.cache.ReadCacheImpl;
 import org.sonar.scanner.protocol.internal.ScannerInternal;
 import org.sonar.scanner.report.CeTaskReportDataHolder;
 import org.sonar.scanner.repository.FileData;
@@ -81,11 +78,9 @@ import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranches;
-import org.sonar.scanner.scan.branch.ProjectPullRequests;
 import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
-import org.springframework.context.annotation.Bean;
 
 import static java.util.Collections.emptySet;
 
@@ -502,7 +497,7 @@ public class ScannerMediumTester extends ExternalResource {
   @Priority(1)
   private class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
     @Override
-    public BranchConfiguration load(Map<String, String> projectSettings, ProjectBranches branches, ProjectPullRequests pullRequests) {
+    public BranchConfiguration load(Map<String, String> projectSettings, ProjectBranches branches) {
       return branchConfiguration;
     }
   }

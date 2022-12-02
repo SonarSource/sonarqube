@@ -24,5 +24,5 @@ import org.sonar.api.scanner.ScannerSide;
 
 @ScannerSide
 public interface BranchConfigurationLoader {
-  BranchConfiguration load(Map<String, String> projectSettings, ProjectBranches branches, ProjectPullRequests pullRequests);
+  BranchConfiguration load(Map<String, String> projectSettings, ProjectBranches branches);
 }
