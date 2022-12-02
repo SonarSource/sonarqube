@@ -20,6 +20,9 @@
 
 package org.sonar.server.authentication;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.FilterChain;
@@ -29,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.platform.Server;
 
@@ -41,6 +45,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class SamlValidationRedirectionFilterTest {
 
   SamlValidationRedirectionFilter underTest;
@@ -62,14 +67,14 @@ public class SamlValidationRedirectionFilterTest {
   }
 
   @Test
-  public void do_filter_validation_relay_state() throws ServletException, IOException {
+  public void do_filter_validation_relay_state_with_csrfToken() throws ServletException, IOException {
     HttpServletRequest servletRequest = mock(HttpServletRequest.class);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
 
     String validSample = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     when(servletRequest.getParameter(matches("SAMLResponse"))).thenReturn(validSample);
-    when(servletRequest.getParameter(matches("RelayState"))).thenReturn("validation-query");
+    when(servletRequest.getParameter(matches("RelayState"))).thenReturn("validation-query/CSRF_TOKEN");
     PrintWriter pw = mock(PrintWriter.class);
     when(servletResponse.getWriter()).thenReturn(pw);
 
@@ -79,6 +84,33 @@ public class SamlValidationRedirectionFilterTest {
     ArgumentCaptor<String> htmlProduced = ArgumentCaptor.forClass(String.class);
     verify(pw).print(htmlProduced.capture());
     assertThat(htmlProduced.getValue()).contains(validSample);
+    assertThat(htmlProduced.getValue()).contains("action=\"/saml/validation\"");
+    assertThat(htmlProduced.getValue()).contains("value=\"CSRF_TOKEN\"");
+  }
+
+  @Test
+  public void do_filter_validation_relay_state_with_malicious_csrfToken() throws ServletException, IOException {
+    HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    FilterChain filterChain = mock(FilterChain.class);
+
+    String validSample = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    when(servletRequest.getParameter(matches("SAMLResponse"))).thenReturn(validSample);
+
+    String maliciousToken = "test\"</input><script>*Malicious Token*</script><input value=\"";
+
+    when(servletRequest.getParameter(matches("RelayState"))).thenReturn("validation-query/" + maliciousToken);
+    PrintWriter pw = mock(PrintWriter.class);
+    when(servletResponse.getWriter()).thenReturn(pw);
+
+    underTest.doFilter(servletRequest, servletResponse, filterChain);
+
+    verify(servletResponse).setContentType("text/html");
+    ArgumentCaptor<String> htmlProduced = ArgumentCaptor.forClass(String.class);
+    verify(pw).print(htmlProduced.capture());
+    assertThat(htmlProduced.getValue()).contains(validSample);
+    assertThat(htmlProduced.getValue()).doesNotContain("<script>/*Malicious Token*/</script>");
+
   }
 
   @Test
@@ -90,7 +122,7 @@ public class SamlValidationRedirectionFilterTest {
     String maliciousSaml = "test\"</input><script>/*hack website*/</script><input value=\"";
 
     when(servletRequest.getParameter(matches("SAMLResponse"))).thenReturn(maliciousSaml);
-    when(servletRequest.getParameter(matches("RelayState"))).thenReturn("validation-query");
+    when(servletRequest.getParameter(matches("RelayState"))).thenReturn("validation-query/CSRF_TOKEN");
     PrintWriter pw = mock(PrintWriter.class);
     when(servletResponse.getWriter()).thenReturn(pw);
 
@@ -104,12 +136,13 @@ public class SamlValidationRedirectionFilterTest {
   }
 
   @Test
-  public void do_filter_no_validation_relay_state() throws ServletException, IOException {
+  @UseDataProvider("invalidRelayStateValues")
+  public void do_filter_invalid_relayState_values(String relayStateValue) throws ServletException, IOException {
     HttpServletRequest servletRequest = mock(HttpServletRequest.class);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
 
-    doReturn("random_query").when(servletRequest).getParameter("RelayState");
+    doReturn(relayStateValue).when(servletRequest).getParameter("RelayState");
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
     verifyNoInteractions(servletResponse);
@@ -119,4 +152,10 @@ public class SamlValidationRedirectionFilterTest {
   public void extract_nonexistant_template() {
     assertThrows(IllegalStateException.class, () -> underTest.extractTemplate("not-there"));
   }
+
+  @DataProvider
+  public static Object[] invalidRelayStateValues() {
+    return new Object[]{"random_query", "validation-query", null};
+  }
+
 }

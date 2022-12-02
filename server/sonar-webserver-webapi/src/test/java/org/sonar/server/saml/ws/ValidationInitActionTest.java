@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.server.authentication.OAuth2ContextFactory;
+import org.sonar.server.authentication.OAuthCsrfVerifier;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,12 +49,14 @@ public class ValidationInitActionTest {
   private ValidationInitAction underTest;
   private SamlAuthenticator samlAuthenticator;
   private OAuth2ContextFactory oAuth2ContextFactory;
+  private OAuthCsrfVerifier oAuthCsrfVerifier;
 
   @Before
   public void setUp() throws Exception {
     samlAuthenticator = mock(SamlAuthenticator.class);
     oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
-    underTest = new ValidationInitAction(samlAuthenticator, oAuth2ContextFactory, userSession);
+    oAuthCsrfVerifier = mock(OAuthCsrfVerifier.class);
+    underTest = new ValidationInitAction(samlAuthenticator, oAuthCsrfVerifier, oAuth2ContextFactory, userSession);
   }
 
   @Test
@@ -71,8 +74,9 @@ public class ValidationInitActionTest {
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
     String callbackUrl = "http://localhost:9000/api/validation_test";
-    when(oAuth2ContextFactory.generateCallbackUrl(anyString()))
-      .thenReturn(callbackUrl);
+
+    mockCsrfTokenGeneration(servletRequest, servletResponse);
+    when(oAuth2ContextFactory.generateCallbackUrl(anyString())).thenReturn(callbackUrl);
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
@@ -91,6 +95,7 @@ public class ValidationInitActionTest {
     when(oAuth2ContextFactory.generateCallbackUrl(anyString()))
       .thenReturn(callbackUrl);
 
+    mockCsrfTokenGeneration(servletRequest, servletResponse);
     doThrow(new IllegalStateException()).when(samlAuthenticator).initLogin(any(), any(), any(), any());
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
@@ -142,5 +147,9 @@ public class ValidationInitActionTest {
     assertThat(validationInitAction).isNotNull();
     assertThat(validationInitAction.description()).isNotEmpty();
     assertThat(validationInitAction.handler()).isNotNull();
+  }
+
+  private void mockCsrfTokenGeneration(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+    when(oAuthCsrfVerifier.generateState(servletRequest, servletResponse)).thenReturn("CSRF_TOKEN");
   }
 }

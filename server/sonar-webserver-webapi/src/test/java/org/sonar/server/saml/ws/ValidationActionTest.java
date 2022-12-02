@@ -31,12 +31,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.auth.saml.SamlAuthenticator;
+import org.sonar.auth.saml.SamlIdentityProvider;
 import org.sonar.server.authentication.OAuth2ContextFactory;
+import org.sonar.server.authentication.OAuthCsrfVerifier;
+import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -48,12 +53,18 @@ public class ValidationActionTest {
   private SamlAuthenticator samlAuthenticator;
   private ThreadLocalUserSession userSession;
 
+  private OAuthCsrfVerifier oAuthCsrfVerifier;
+
+  private SamlIdentityProvider samlIdentityProvider;
+
   @Before
   public void setup() {
     samlAuthenticator = mock(SamlAuthenticator.class);
     userSession = mock(ThreadLocalUserSession.class);
+    oAuthCsrfVerifier = mock(OAuthCsrfVerifier.class);
+    samlIdentityProvider = mock(SamlIdentityProvider.class);
     var oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
-    underTest = new ValidationAction(userSession, samlAuthenticator, oAuth2ContextFactory);
+    underTest = new ValidationAction(userSession, samlAuthenticator, oAuth2ContextFactory, samlIdentityProvider, oAuthCsrfVerifier);
   }
 
   @Test
@@ -92,6 +103,27 @@ public class ValidationActionTest {
 
     doReturn(true).when(userSession).hasSession();
     doReturn(false).when(userSession).isSystemAdministrator();
+
+    underTest.doFilter(servletRequest, servletResponse, filterChain);
+
+    verifyNoInteractions(samlAuthenticator);
+  }
+
+  @Test
+  public void do_filter_failed_csrf_verification() throws ServletException, IOException {
+    HttpServletRequest servletRequest = spy(HttpServletRequest.class);
+    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    StringWriter stringWriter = new StringWriter();
+    doReturn(new PrintWriter(stringWriter)).when(servletResponse).getWriter();
+    FilterChain filterChain = mock(FilterChain.class);
+
+    doReturn("IdentityProviderName").when(samlIdentityProvider).getName();
+    doThrow(AuthenticationException.newBuilder()
+      .setSource(AuthenticationEvent.Source.oauth2(samlIdentityProvider))
+      .setMessage("Cookie is missing").build()).when(oAuthCsrfVerifier).verifyState(any(),any(),any(), any());
+
+    doReturn(true).when(userSession).hasSession();
+    doReturn(true).when(userSession).isSystemAdministrator();
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 

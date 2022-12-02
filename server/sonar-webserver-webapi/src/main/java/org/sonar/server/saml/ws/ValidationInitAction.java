@@ -32,6 +32,7 @@ import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.auth.saml.SamlIdentityProvider;
 import org.sonar.server.authentication.AuthenticationError;
 import org.sonar.server.authentication.OAuth2ContextFactory;
+import org.sonar.server.authentication.OAuthCsrfVerifier;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.ServletFilterHandler;
@@ -44,12 +45,13 @@ public class ValidationInitAction extends ServletFilter implements SamlAction {
   public static final String VALIDATION_RELAY_STATE = "validation-query";
   public static final String VALIDATION_INIT_KEY = "validation_init";
   private final SamlAuthenticator samlAuthenticator;
-
+  private final OAuthCsrfVerifier oAuthCsrfVerifier;
   private final OAuth2ContextFactory oAuth2ContextFactory;
   private final UserSession userSession;
 
-  public ValidationInitAction(SamlAuthenticator samlAuthenticator, OAuth2ContextFactory oAuth2ContextFactory, UserSession userSession) {
+  public ValidationInitAction(SamlAuthenticator samlAuthenticator, OAuthCsrfVerifier oAuthCsrfVerifier, OAuth2ContextFactory oAuth2ContextFactory, UserSession userSession) {
     this.samlAuthenticator = samlAuthenticator;
+    this.oAuthCsrfVerifier = oAuthCsrfVerifier;
     this.oAuth2ContextFactory = oAuth2ContextFactory;
     this.userSession = userSession;
   }
@@ -82,9 +84,11 @@ public class ValidationInitAction extends ServletFilter implements SamlAction {
       return;
     }
 
+    String csrfState = oAuthCsrfVerifier.generateState(request,response);
+
     try {
       samlAuthenticator.initLogin(oAuth2ContextFactory.generateCallbackUrl(SamlIdentityProvider.KEY),
-        VALIDATION_RELAY_STATE, request, response);
+        VALIDATION_RELAY_STATE + "/" + csrfState, request, response);
     } catch (IllegalStateException e) {
       response.sendRedirect("/" + SAML_VALIDATION_CONTROLLER_CONTEXT + "/" + SAML_VALIDATION_KEY);
     }

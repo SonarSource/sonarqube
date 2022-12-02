@@ -10,6 +10,7 @@
     <h1>SAML Authentication Validation</h1>
     <form id="saml_validate" action="%VALIDATION_URL%" method="POST">
         <input name="SAMLResponse" value="%SAML_RESPONSE%" type="hidden"/>
+        <input name="CSRFToken" value="%CSRF_TOKEN%" type="hidden"/>
         <button>Click Here to See Result</button>
     </form>
 </body>

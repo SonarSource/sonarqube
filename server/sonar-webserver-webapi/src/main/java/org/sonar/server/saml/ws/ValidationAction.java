@@ -34,7 +34,9 @@ import org.sonar.auth.saml.SamlAuthenticator;
 import org.sonar.auth.saml.SamlIdentityProvider;
 import org.sonar.server.authentication.AuthenticationError;
 import org.sonar.server.authentication.OAuth2ContextFactory;
+import org.sonar.server.authentication.OAuthCsrfVerifier;
 import org.sonar.server.authentication.SamlValidationRedirectionFilter;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.ws.ServletFilterHandler;
 
@@ -44,11 +46,16 @@ public class ValidationAction extends ServletFilter implements SamlAction {
   private final ThreadLocalUserSession userSession;
   private final SamlAuthenticator samlAuthenticator;
   private final OAuth2ContextFactory oAuth2ContextFactory;
+  private final SamlIdentityProvider samlIdentityProvider;
+  private final OAuthCsrfVerifier oAuthCsrfVerifier;
 
-  public ValidationAction(ThreadLocalUserSession userSession, SamlAuthenticator samlAuthenticator, OAuth2ContextFactory oAuth2ContextFactory) {
+  public ValidationAction(ThreadLocalUserSession userSession, SamlAuthenticator samlAuthenticator, OAuth2ContextFactory oAuth2ContextFactory,
+    SamlIdentityProvider samlIdentityProvider, OAuthCsrfVerifier oAuthCsrfVerifier) {
     this.samlAuthenticator = samlAuthenticator;
     this.userSession = userSession;
     this.oAuth2ContextFactory = oAuth2ContextFactory;
+    this.samlIdentityProvider = samlIdentityProvider;
+    this.oAuthCsrfVerifier = oAuthCsrfVerifier;
   }
 
   @Override
@@ -60,6 +67,14 @@ public class ValidationAction extends ServletFilter implements SamlAction {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletResponse httpResponse = (HttpServletResponse) response;
     HttpServletRequest httpRequest = (HttpServletRequest) request;
+
+    try {
+      oAuthCsrfVerifier.verifyState(httpRequest, httpResponse, samlIdentityProvider, "CSRFToken");
+    } catch (AuthenticationException exception) {
+      AuthenticationError.handleError(httpRequest, httpResponse, exception.getMessage());
+      return;
+    }
+
     if (!userSession.hasSession() || !userSession.isSystemAdministrator()) {
       AuthenticationError.handleError(httpRequest, httpResponse, "User needs to be logged in as system administrator to access this page.");
       return;

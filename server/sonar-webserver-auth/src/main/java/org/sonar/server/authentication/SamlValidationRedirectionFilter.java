@@ -25,12 +25,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import javax.annotation.Nullable;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.internal.apachecommons.lang.StringEscapeUtils;
@@ -44,6 +44,8 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
   public static final String VALIDATION_RELAY_STATE = "validation-query";
   public static final String SAML_VALIDATION_CONTROLLER_CONTEXT = "saml";
   public static final String SAML_VALIDATION_KEY = "validation";
+  private static final String RELAY_STATE_PARAMETER = "RelayState";
+  private static final String SAML_RESPONSE_PARAMETER = "SAMLResponse";
   private String redirectionPageTemplate;
   private final Server server;
 
@@ -73,18 +75,20 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
-    if (isSamlValidation(httpRequest)) {
+    String relayState = request.getParameter(RELAY_STATE_PARAMETER);
+
+    if (isSamlValidation(relayState)) {
       HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-      String samlResponse = StringEscapeUtils.escapeHtml(request.getParameter("SAMLResponse"));
       URI redirectionEndpointUrl = URI.create(server.getContextPath() + "/")
         .resolve(SAML_VALIDATION_CONTROLLER_CONTEXT + "/")
         .resolve(SAML_VALIDATION_KEY);
+      String samlResponse = StringEscapeUtils.escapeHtml(request.getParameter(SAML_RESPONSE_PARAMETER));
+      String csrfToken = getCsrfTokenFromRelayState(relayState);
 
       String template = StringUtils.replaceEachRepeatedly(redirectionPageTemplate,
-        new String[]{"%VALIDATION_URL%", "%SAML_RESPONSE%"},
-        new String[]{redirectionEndpointUrl.toString(), samlResponse});
+        new String[]{"%VALIDATION_URL%", "%SAML_RESPONSE%", "%CSRF_TOKEN%"},
+        new String[]{redirectionEndpointUrl.toString(), samlResponse, csrfToken});
 
       httpResponse.setContentType("text/html");
       httpResponse.getWriter().print(template);
@@ -93,7 +97,17 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
     chain.doFilter(request, response);
   }
 
-  private static boolean isSamlValidation(HttpServletRequest request) {
-    return VALIDATION_RELAY_STATE.equals(request.getParameter("RelayState"));
+  private static boolean isSamlValidation(@Nullable String relayState) {
+    if (relayState != null) {
+      return VALIDATION_RELAY_STATE.equals(relayState.split("/")[0]) && !getCsrfTokenFromRelayState(relayState).isEmpty();
+    }
+    return false;
+  }
+
+  private static String getCsrfTokenFromRelayState(@Nullable String relayState) {
+    if (relayState != null && relayState.contains("/")) {
+      return StringEscapeUtils.escapeHtml(relayState.split("/")[1]);
+    }
+    return "";
   }
 }
