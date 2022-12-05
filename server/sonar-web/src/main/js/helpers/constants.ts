@@ -72,9 +72,4 @@ export const IMPORT_COMPATIBLE_ALMS = [
   AlmKeys.GitLab,
 ];
 
-// Count both Bitbuckets as a single ALM.
-export const IMPORT_COMPATIBLE_ALM_COUNT = IMPORT_COMPATIBLE_ALMS.filter(
-  (a) => a !== AlmKeys.BitbucketCloud
-).length;
-
 export const GRADLE_SCANNER_VERSION = '3.5.0.2730';

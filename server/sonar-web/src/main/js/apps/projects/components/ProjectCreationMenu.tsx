@@ -25,7 +25,7 @@ import { Button } from '../../../components/controls/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import EllipsisIcon from '../../../components/icons/EllipsisIcon';
-import { IMPORT_COMPATIBLE_ALMS, IMPORT_COMPATIBLE_ALM_COUNT } from '../../../helpers/constants';
+import { IMPORT_COMPATIBLE_ALMS } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
@@ -116,7 +116,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
                 <ProjectCreationMenuItem alm={alm} />
               </li>
             ))}
-            {boundAlms.length < IMPORT_COMPATIBLE_ALM_COUNT && (
+            {boundAlms.length < IMPORT_COMPATIBLE_ALMS.length && (
               <li className="bordered-top little-padded-top">
                 <Link className="display-flex-center" to={{ pathname: '/projects/create' }}>
                   <EllipsisIcon className="spacer-right" size={16} />
