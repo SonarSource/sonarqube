@@ -108,7 +108,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                 >
                   <CheckIcon className="spacer-right" fill={colors.green} size={14} />
                   <div className="overflow-hidden">
-                    <div className="little-spacer-bottom text-ellipsis">
+                    <div className="little-spacer-bottom">
                       <strong title={repo.name}>
                         <Link to={getProjectUrl(repo.sqProjectKey)}>{repo.name}</Link>
                       </strong>
@@ -129,9 +129,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                   onCheck={() => props.onSelectRepository(repo)}
                   value={String(repo.id)}
                 >
-                  <strong className="text-ellipsis" title={repo.name}>
-                    {repo.name}
-                  </strong>
+                  <strong title={repo.name}>{repo.name}</strong>
                 </Radio>
               )
             )}

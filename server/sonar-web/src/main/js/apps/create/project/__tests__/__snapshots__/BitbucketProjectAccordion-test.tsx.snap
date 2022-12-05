@@ -35,7 +35,6 @@ exports[`should render correctly: default 1`] = `
       value="1"
     >
       <strong
-        className="text-ellipsis"
         title="Repo"
       >
         Repo
@@ -54,7 +53,7 @@ exports[`should render correctly: default 1`] = `
         className="overflow-hidden"
       >
         <div
-          className="little-spacer-bottom text-ellipsis"
+          className="little-spacer-bottom"
         >
           <strong
             title="Bar"
@@ -102,7 +101,6 @@ exports[`should render correctly: disable options 1`] = `
       value="1"
     >
       <strong
-        className="text-ellipsis"
         title="Repo"
       >
         Repo
@@ -121,7 +119,7 @@ exports[`should render correctly: disable options 1`] = `
         className="overflow-hidden"
       >
         <div
-          className="little-spacer-bottom text-ellipsis"
+          className="little-spacer-bottom"
         >
           <strong
             title="Bar"
@@ -169,7 +167,6 @@ exports[`should render correctly: no click handler 1`] = `
       value="1"
     >
       <strong
-        className="text-ellipsis"
         title="Repo"
       >
         Repo
@@ -188,7 +185,7 @@ exports[`should render correctly: no click handler 1`] = `
         className="overflow-hidden"
       >
         <div
-          className="little-spacer-bottom text-ellipsis"
+          className="little-spacer-bottom"
         >
           <strong
             title="Bar"
@@ -236,7 +233,6 @@ exports[`should render correctly: no project info 1`] = `
       value="1"
     >
       <strong
-        className="text-ellipsis"
         title="Repo"
       >
         Repo
@@ -255,7 +251,7 @@ exports[`should render correctly: no project info 1`] = `
         className="overflow-hidden"
       >
         <div
-          className="little-spacer-bottom text-ellipsis"
+          className="little-spacer-bottom"
         >
           <strong
             title="Bar"
@@ -343,7 +339,6 @@ exports[`should render correctly: not showing all repos 1`] = `
       value="1"
     >
       <strong
-        className="text-ellipsis"
         title="Repo"
       >
         Repo
@@ -362,7 +357,7 @@ exports[`should render correctly: not showing all repos 1`] = `
         className="overflow-hidden"
       >
         <div
-          className="little-spacer-bottom text-ellipsis"
+          className="little-spacer-bottom"
         >
           <strong
             title="Bar"
@@ -415,7 +410,6 @@ exports[`should render correctly: selected repo 1`] = `
       value="1"
     >
       <strong
-        className="text-ellipsis"
         title="Repo"
       >
         Repo
@@ -434,7 +428,7 @@ exports[`should render correctly: selected repo 1`] = `
         className="overflow-hidden"
       >
         <div
-          className="little-spacer-bottom text-ellipsis"
+          className="little-spacer-bottom"
         >
           <strong
             title="Bar"
