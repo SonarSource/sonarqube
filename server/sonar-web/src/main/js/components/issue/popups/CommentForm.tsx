@@ -30,11 +30,10 @@ export interface CommentFormProps {
   placeholder?: string;
   showFormatHelp: boolean;
   autoTriggered?: boolean;
-  showCancelButton: boolean;
 }
 
 export default function CommentForm(props: CommentFormProps) {
-  const { comment, placeholder, showFormatHelp, autoTriggered, showCancelButton } = props;
+  const { comment, placeholder, showFormatHelp, autoTriggered } = props;
   const [editComment, setEditComment] = React.useState(comment || '');
 
   return (
@@ -73,21 +72,19 @@ export default function CommentForm(props: CommentFormProps) {
               setEditComment('');
             }}
           >
-            {comment ? translate('save') : translate('issue.comment.submit')}
+            {comment ? translate('save') : translate('issue.comment.formlink')}
           </Button>
-          {showCancelButton && (
-            <ResetButtonLink
-              className="js-issue-comment-cancel little-spacer-left"
-              aria-label={
-                comment
-                  ? translate('issue.comment.edit.cancel')
-                  : translate('issue.comment.add_comment.cancel')
-              }
-              onClick={() => props.onCancel()}
-            >
-              {autoTriggered ? translate('skip') : translate('cancel')}
-            </ResetButtonLink>
-          )}
+          <ResetButtonLink
+            className="js-issue-comment-cancel little-spacer-left"
+            aria-label={
+              comment
+                ? translate('issue.comment.edit.cancel')
+                : translate('issue.comment.add_comment.cancel')
+            }
+            onClick={props.onCancel}
+          >
+            {autoTriggered ? translate('skip') : translate('cancel')}
+          </ResetButtonLink>
         </div>
       </div>
     </>

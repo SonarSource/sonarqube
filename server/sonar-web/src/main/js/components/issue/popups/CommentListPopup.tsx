@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { DropdownOverlay } from '../../../components/controls/Dropdown';
-import { PopupPlacement } from '../../../components/ui/popups';
 import { IssueComment } from '../../../types/types';
+import { DropdownOverlay } from '../../controls/Dropdown';
+import { PopupPlacement } from '../../ui/popups';
 import CommentForm from './CommentForm';
 import CommentList from './CommentList';
 
@@ -64,7 +64,6 @@ export default class CommentListPopup extends React.PureComponent<Props, {}> {
           />
           {canComment && (
             <CommentForm
-              showCancelButton={false}
               autoTriggered={autoTriggered}
               placeholder={placeholder}
               onCancel={this.handleCancelClick}

@@ -24,8 +24,8 @@ import Toggler from '../../../components/controls/Toggler';
 import { translate } from '../../../helpers/l10n';
 import { Issue, IssueComment } from '../../../types/types';
 import { updateIssue } from '../actions';
+import CommentListPopup from '../popups/CommentListPopup';
 import CommentPopup from '../popups/CommentPopup';
-import CommentListPopup from '../popups/CommentsListPopup';
 
 interface Props {
   canComment: boolean;
@@ -69,7 +69,7 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
     return (
       <div className="issue-meta dropdown">
         <Toggler
-          closeOnClickOutside={!!showCommentsInPopup}
+          closeOnClickOutside={false}
           onRequestClose={this.handleClose}
           open={this.props.currentPopup === 'comment'}
           overlay={
@@ -103,7 +103,12 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
             <span className="issue-meta-label">
               {showCommentsInPopup && comments && (
                 <span>
-                  {comments.length} {translate('issue.comment.formlink.plural')}
+                  {comments.length}{' '}
+                  {translate(
+                    comments.length === 1
+                      ? 'issue.comment.formlink.total'
+                      : 'issue.comment.formlink.total.plural'
+                  )}
                 </span>
               )}
               {!showCommentsInPopup && translate('issue.comment.formlink')}

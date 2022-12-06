@@ -336,9 +336,9 @@ it('should be able to perform action on issues', async () => {
   await user.click(screen.getByText('issue.status.CONFIRMED'));
   await user.click(screen.getByText('issue.transition.wontfix'));
   // Comment should open and close
-  expect(screen.getByRole('button', { name: 'issue.comment.submit' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'issue.comment.formlink' })).toBeInTheDocument();
   await user.keyboard('test');
-  await user.click(screen.getByRole('button', { name: 'issue.comment.submit' }));
+  await user.click(screen.getByRole('button', { name: 'issue.comment.formlink' }));
   expect(screen.queryByRole('button', { name: 'issue.comment.submit' })).not.toBeInTheDocument();
 
   // assigning issue to a different user
@@ -373,9 +373,9 @@ it('should be able to perform action on issues', async () => {
       name: `issue.comment.add_comment`,
     })
   );
-  expect(screen.getByText('issue.comment.submit')).toBeInTheDocument();
+  expect(screen.getByText('issue.comment.formlink')).toBeInTheDocument();
   await user.keyboard('comment');
-  await user.click(screen.getByText('issue.comment.submit'));
+  await user.click(screen.getByText('issue.comment.formlink'));
   expect(screen.getByText('comment')).toBeInTheDocument();
 
   // Cancel editing the comment
@@ -486,7 +486,7 @@ it('should open the actions popup using keyboard shortcut', async () => {
 
   // open comment popup on key press 'c'
   await user.keyboard('c');
-  expect(screen.getByText('issue.comment.submit')).toBeInTheDocument();
+  expect(screen.getByText('issue.comment.formlink')).toBeInTheDocument();
   await user.keyboard('{Escape}');
 
   // open tags popup on key press 't'
