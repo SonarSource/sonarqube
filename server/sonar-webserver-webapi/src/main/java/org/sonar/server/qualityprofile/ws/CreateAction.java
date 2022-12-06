@@ -20,9 +20,12 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -87,6 +90,7 @@ public class CreateAction implements QProfileWsAction {
       .setResponseExample(getClass().getResource("create-example.json"))
       .setSince("5.2")
       .setHandler(this);
+    List<Change> changelog = new ArrayList<>();
 
     create.createParam(PARAM_NAME)
       .setRequired(true)
@@ -101,9 +105,14 @@ public class CreateAction implements QProfileWsAction {
       .setPossibleValues(getOrderedLanguageKeys(languages));
 
     for (ProfileImporter importer : importers) {
-      create.createParam(getBackupParamName(importer.getKey()))
-        .setDescription(String.format("A configuration file for %s.", importer.getName()));
+      String backupParamName = getBackupParamName(importer.getKey());
+      create.createParam(backupParamName)
+        .setDescription(String.format("A configuration file for %s.", importer.getName()))
+        .setDeprecatedSince("9.8");
+      changelog.add(new Change("9.8", String.format("'%s' parameter is deprecated", backupParamName)));
     }
+
+    create.setChangelog(changelog.toArray(new Change[0]));
   }
 
   @Override
