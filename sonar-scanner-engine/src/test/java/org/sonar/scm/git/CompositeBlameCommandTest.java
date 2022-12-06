@@ -184,11 +184,6 @@ public class CompositeBlameCommandTest {
     // register warning with default wrapper
     BlameCommand.BlameOutput output = mock(BlameCommand.BlameOutput.class);
     blameCommand.blame(input, output);
-
-    assertThat(logTester.logs()).first()
-      .matches(s -> s.contains("Shallow clone detected, no blame information will be provided."));
-    verifyNoInteractions(output);
-
     verify(analysisWarnings).addUnique(startsWith("Shallow clone detected"));
   }
 
