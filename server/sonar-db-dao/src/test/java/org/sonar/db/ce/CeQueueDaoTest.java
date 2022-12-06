@@ -39,7 +39,6 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
@@ -52,6 +51,8 @@ import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
 import static org.sonar.db.ce.CeQueueTesting.reset;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 
 public class CeQueueDaoTest {
   private static final long INIT_TIME = 1_450_000_000_000L;
@@ -59,6 +60,7 @@ public class CeQueueDaoTest {
   private static final String TASK_UUID_2 = "TASK_2";
   private static final String MAIN_COMPONENT_UUID_1 = "PROJECT_1";
   private static final String MAIN_COMPONENT_UUID_2 = "PROJECT_2";
+  private static final String COMPONENT_UUID_1 = "BRANCH_1";
   private static final String TASK_UUID_3 = "TASK_3";
   private static final String SELECT_QUEUE_UUID_AND_STATUS_QUERY = "select uuid,status from ce_queue";
   private static final String SUBMITTER_LOGIN = "submitter uuid";
@@ -392,69 +394,6 @@ public class CeQueueDaoTest {
   }
 
   @Test
-  public void peek_none_if_no_pendings() {
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false)).isNotPresent();
-
-    // not pending, but in progress
-    makeInProgress(WORKER_UUID_1, 2_232_222L, insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1));
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false)).isNotPresent();
-  }
-
-  @Test
-  public void peek_oldest_pending() {
-    insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1);
-    system2.setNow(INIT_TIME + 3_000_000);
-    insertPending(TASK_UUID_2, MAIN_COMPONENT_UUID_2);
-
-    assertThat(db.countRowsOfTable("ce_queue")).isEqualTo(2);
-    verifyCeQueueStatuses(TASK_UUID_1, PENDING, TASK_UUID_2, PENDING);
-
-    // peek first one
-    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, false);
-    assertThat(peek).isPresent();
-    assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
-    assertThat(peek.get().getStatus()).isEqualTo(IN_PROGRESS);
-    assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_1);
-    verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, PENDING);
-
-    // peek second one
-    peek = underTest.peek(db.getSession(), WORKER_UUID_2, false, false);
-    assertThat(peek).isPresent();
-    assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_2);
-    assertThat(peek.get().getStatus()).isEqualTo(IN_PROGRESS);
-    assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_2);
-    verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, IN_PROGRESS);
-
-    // no more pendings
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false)).isNotPresent();
-  }
-
-  @Test
-  public void do_not_peek_multiple_tasks_on_same_main_component_at_the_same_time() {
-    // two pending tasks on the same project
-    insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1);
-    system2.setNow(INIT_TIME + 3_000_000);
-    insertPending(TASK_UUID_2, MAIN_COMPONENT_UUID_1);
-
-    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, false);
-    assertThat(peek).isPresent();
-    assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
-    assertThat(peek.get().getMainComponentUuid()).isEqualTo(MAIN_COMPONENT_UUID_1);
-    assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_1);
-    verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, PENDING);
-
-    // do not peek second task as long as the first one is in progress
-    peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, false);
-    assertThat(peek).isEmpty();
-
-    // first one is finished
-    underTest.deleteByUuid(db.getSession(), TASK_UUID_1);
-    peek = underTest.peek(db.getSession(), WORKER_UUID_2, false, false);
-    assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_2);
-    assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_2);
-  }
-
-  @Test
   public void select_by_query() {
     // task status not in query
     insertPending(newCeQueueDto(TASK_UUID_1)
@@ -632,48 +571,6 @@ public class CeQueueDaoTest {
   }
 
   @Test
-  public void exclude_portfolios_computation_when_indexing_issues() {
-    insertBranch(MAIN_COMPONENT_UUID_1);
-    insertPending(newCeQueueDto(TASK_UUID_1)
-      .setComponentUuid(MAIN_COMPONENT_UUID_1)
-      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
-      .setStatus(PENDING)
-      .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
-      .setCreatedAt(100_000L));
-
-    String view_uuid = "view_uuid";
-    insertView(view_uuid);
-    insertPending(newCeQueueDto(TASK_UUID_2)
-      .setComponentUuid(view_uuid)
-      .setMainComponentUuid(view_uuid)
-      .setStatus(PENDING)
-      .setTaskType(CeTaskTypes.REPORT)
-      .setCreatedAt(100_000L));
-
-    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, true);
-    assertThat(peek).isPresent();
-    assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
-
-    Optional<CeQueueDto> peek2 = underTest.peek(db.getSession(), WORKER_UUID_1, false, false);
-    assertThat(peek2).isPresent();
-    assertThat(peek2.get().getUuid()).isEqualTo(TASK_UUID_2);
-  }
-
-  @Test
-  public void excluding_view_pick_up_orphan_branches() {
-    insertPending(newCeQueueDto(TASK_UUID_1)
-      .setComponentUuid(MAIN_COMPONENT_UUID_1)
-      .setMainComponentUuid("non-existing-uuid")
-      .setStatus(PENDING)
-      .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
-      .setCreatedAt(100_000L));
-
-    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, true);
-    assertThat(peek).isPresent();
-    assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
-  }
-
-  @Test
   public void hasAnyIssueSyncTaskPendingOrInProgress_PENDING() {
     assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isFalse();
 
@@ -699,30 +596,109 @@ public class CeQueueDaoTest {
     assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isTrue();
   }
 
-  private void insertView(String view_uuid) {
-    ComponentDto view = new ComponentDto();
-    view.setQualifier("VW");
-    view.setKey(view_uuid + "_key");
-    view.setUuid(view_uuid);
-    view.setPrivate(false);
-    view.setRootUuid(view_uuid);
-    view.setUuidPath("uuid_path");
-    view.setBranchUuid(view_uuid);
-    db.components().insertPortfolioAndSnapshot(view);
-    db.commit();
+  @Test
+  public void selectOldestPendingPrOrBranch_returns_oldest_100_pr_or_branch_tasks() {
+    for (int i = 1; i < 110; i++) {
+      insertPending(newCeQueueDto("task" + i)
+        .setComponentUuid(MAIN_COMPONENT_UUID_1).setStatus(PENDING).setTaskType(CeTaskTypes.REPORT).setCreatedAt(i));
+    }
+    for (int i = 1; i < 10; i++) {
+      insertPending(newCeQueueDto("progress" + i)
+        .setComponentUuid(MAIN_COMPONENT_UUID_1).setStatus(IN_PROGRESS).setTaskType(CeTaskTypes.REPORT).setCreatedAt(i));
+      insertPending(newCeQueueDto("sync" + i)
+        .setComponentUuid(MAIN_COMPONENT_UUID_1).setStatus(PENDING).setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC).setCreatedAt(i));
+    }
+
+    List<PrOrBranchTask> prOrBranchTasks = underTest.selectOldestPendingPrOrBranch(db.getSession());
+    assertThat(prOrBranchTasks).hasSize(100)
+      .allMatch(t -> t.getCeTaskUuid().startsWith("task"), "uuid starts with task")
+      .allMatch(t -> t.getCreatedAt() <= 100, "creation date older or equal than 100");
   }
 
-  private void insertBranch(String uuid) {
-    ComponentDto branch = new ComponentDto();
-    branch.setQualifier("TRK");
-    branch.setKey(uuid + "_key");
-    branch.setUuid(uuid);
-    branch.setPrivate(false);
-    branch.setRootUuid(uuid);
-    branch.setUuidPath("uuid_path");
-    branch.setBranchUuid(uuid);
-    db.components().insertComponent(branch);
-    db.commit();
+  @Test
+  public void selectOldestPendingPrOrBranch_returns_branch_branch_type_if_no_characteristics() {
+    insertPending(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setStatus(PENDING)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(123L));
+    List<PrOrBranchTask> prOrBranchTasks = underTest.selectOldestPendingPrOrBranch(db.getSession());
+
+    assertThat(prOrBranchTasks).hasSize(1);
+    assertThat(prOrBranchTasks.get(0))
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getMainComponentUuid, PrOrBranchTask::getTaskType)
+      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, MAIN_COMPONENT_UUID_1, CeTaskTypes.REPORT);
+  }
+
+  @Test
+  public void selectOldestPendingPrOrBranch_returns_branch_branch_type_if_unrelated_characteristics() {
+    insertPending(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setStatus(PENDING)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(123L));
+    List<PrOrBranchTask> prOrBranchTasks = underTest.selectOldestPendingPrOrBranch(db.getSession());
+    insertCharacteristic(BRANCH_KEY, "123", "c1", TASK_UUID_1);
+
+    assertThat(prOrBranchTasks).hasSize(1);
+    assertThat(prOrBranchTasks.get(0))
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getMainComponentUuid, PrOrBranchTask::getTaskType)
+      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, MAIN_COMPONENT_UUID_1, CeTaskTypes.REPORT);
+  }
+
+  @Test
+  public void selectOldestPendingPrOrBranch_returns_all_fields() {
+    insertPending(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setStatus(PENDING)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(123L));
+    insertCharacteristic(PULL_REQUEST, "1", "c1", TASK_UUID_1);
+
+    List<PrOrBranchTask> prOrBranchTasks = underTest.selectOldestPendingPrOrBranch(db.getSession());
+
+    assertThat(prOrBranchTasks).hasSize(1);
+    assertThat(prOrBranchTasks.get(0))
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getMainComponentUuid, PrOrBranchTask::getTaskType)
+      .containsExactly(PULL_REQUEST, COMPONENT_UUID_1, MAIN_COMPONENT_UUID_1, CeTaskTypes.REPORT);
+  }
+
+  @Test
+  public void selectInProgressWithCharacteristics_returns_all_fields() {
+    insertPending(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setStatus(IN_PROGRESS)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(123L));
+    insertCharacteristic(PULL_REQUEST, "1", "c1", TASK_UUID_1);
+
+    List<PrOrBranchTask> prOrBranchTasks = underTest.selectInProgressWithCharacteristics(db.getSession());
+
+    assertThat(prOrBranchTasks).hasSize(1);
+    assertThat(prOrBranchTasks.get(0))
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getMainComponentUuid, PrOrBranchTask::getTaskType)
+      .containsExactly(PULL_REQUEST, COMPONENT_UUID_1, MAIN_COMPONENT_UUID_1, CeTaskTypes.REPORT);
+  }
+
+  @Test
+  public void selectInProgressWithCharacteristics_returns_branch_branch_type_if_no_characteristics() {
+    insertPending(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setStatus(IN_PROGRESS)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(123L));
+
+    List<PrOrBranchTask> prOrBranchTasks = underTest.selectInProgressWithCharacteristics(db.getSession());
+
+    assertThat(prOrBranchTasks).hasSize(1);
+    assertThat(prOrBranchTasks.get(0))
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getMainComponentUuid, PrOrBranchTask::getTaskType)
+      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, MAIN_COMPONENT_UUID_1, CeTaskTypes.REPORT);
   }
 
   private void insertPending(CeQueueDto dto) {
@@ -769,6 +745,15 @@ public class CeQueueDaoTest {
     return underTest.selectByUuid(db.getSession(), uuid).get();
   }
 
+  private void insertCharacteristic(String key, String value, String uuid, String taskUuid) {
+    CeTaskCharacteristicDto dto1 = new CeTaskCharacteristicDto()
+      .setKey(key)
+      .setValue(value)
+      .setUuid(uuid)
+      .setTaskUuid(taskUuid);
+    db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), dto1);
+  }
+
   private static Iterable<Map<String, Object>> upperizeKeys(List<Map<String, Object>> select) {
     return select.stream().map(new Function<Map<String, Object>, Map<String, Object>>() {
       @Nullable
@@ -781,10 +766,6 @@ public class CeQueueDaoTest {
         return res;
       }
     }).collect(Collectors.toList());
-  }
-
-  private void verifyCeQueueStatuses(String taskUuid1, CeQueueDto.Status taskStatus1, String taskUuid2, CeQueueDto.Status taskStatus2) {
-    verifyCeQueueStatuses(new String[] {taskUuid1, taskUuid2}, new CeQueueDto.Status[] {taskStatus1, taskStatus2});
   }
 
   private void verifyCeQueueStatuses(String[] taskUuids, CeQueueDto.Status[] statuses) {

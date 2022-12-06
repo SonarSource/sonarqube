@@ -62,13 +62,15 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   private final DbClient dbClient;
   private final CEQueueStatus queueStatus;
   private final ComputeEngineStatus computeEngineStatus;
+  private final NextPendingTaskPicker nextPendingTaskPicker;
 
   public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, CEQueueStatus queueStatus,
-    ComputeEngineStatus computeEngineStatus) {
+    ComputeEngineStatus computeEngineStatus, NextPendingTaskPicker nextPendingTaskPicker) {
     super(system2, dbClient, uuidFactory);
     this.dbClient = dbClient;
     this.queueStatus = queueStatus;
     this.computeEngineStatus = computeEngineStatus;
+    this.nextPendingTaskPicker = nextPendingTaskPicker;
   }
 
   @Override
@@ -85,8 +87,8 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         dbSession.commit();
         LOG.debug("{} in progress tasks reset for worker uuid {}", i, workerUuid);
       }
-      Optional<CeQueueDto> opt = findPendingTask(workerUuid, dbSession, ceQueueDao, excludeIndexationJob);
-      if (!opt.isPresent()) {
+      Optional<CeQueueDto> opt = nextPendingTaskPicker.findPendingTask(workerUuid, dbSession, excludeIndexationJob);
+      if (opt.isEmpty()) {
         return Optional.empty();
       }
       CeQueueDto taskDto = opt.get();
@@ -100,17 +102,6 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       queueStatus.addInProgress();
       return Optional.of(task);
     }
-  }
-
-  private static Optional<CeQueueDto> findPendingTask(String workerUuid, DbSession dbSession, CeQueueDao ceQueueDao, boolean excludeIndexationJob) {
-    // try to find tasks including indexation job & excluding app/portfolio
-    // and if no match, try the opposite
-    // when excludeIndexationJob is false, search first excluding indexation jobs and including app/portfolio, then the opposite
-    Optional<CeQueueDto> opt = ceQueueDao.peek(dbSession, workerUuid, excludeIndexationJob, !excludeIndexationJob);
-    if (!opt.isPresent()) {
-      opt = ceQueueDao.peek(dbSession, workerUuid, !excludeIndexationJob, excludeIndexationJob);
-    }
-    return opt;
   }
 
   @Override

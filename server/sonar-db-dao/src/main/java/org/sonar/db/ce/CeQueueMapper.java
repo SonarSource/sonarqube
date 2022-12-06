@@ -20,6 +20,7 @@
 package org.sonar.db.ce;
 
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -36,7 +37,7 @@ public interface CeQueueMapper {
 
   int countByQuery(@Param("query") CeTaskQuery query);
 
-  List<String> selectEligibleForPeek(@Param("pagination") Pagination pagination,
+  Optional<CeTaskDtoLight> selectEligibleForPeek(@Param("pagination") Pagination pagination,
                                      @Param("excludeIndexationJob") boolean excludeIndexationJob,
                                      @Param("excludeViewRefresh") boolean excludeViewRefresh);
 
@@ -47,6 +48,8 @@ public interface CeQueueMapper {
    * Select all pending tasks
    */
   List<CeQueueDto> selectPending();
+
+  List<PrOrBranchTask> selectInProgressWithCharacteristics();
 
   /**
    * Select all pending tasks which have already been started.
@@ -87,4 +90,5 @@ public interface CeQueueMapper {
 
   boolean hasAnyIssueSyncTaskPendingOrInProgress();
 
+  List<PrOrBranchTask> selectOldestPendingPrOrBranch();
 }

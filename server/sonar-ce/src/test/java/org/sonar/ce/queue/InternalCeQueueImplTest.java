@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.container.ComputeEngineStatus;
@@ -53,6 +54,7 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -77,10 +79,14 @@ public class InternalCeQueueImplTest {
   private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
   private CEQueueStatus queueStatus = new CEQueueStatusImpl(db.getDbClient(), mock(System2.class));
   private ComputeEngineStatus computeEngineStatus = mock(ComputeEngineStatus.class);
-  private InternalCeQueue underTest = new InternalCeQueueImpl(system2, db.getDbClient(), uuidFactory, queueStatus, computeEngineStatus);
+  private Configuration config = mock(Configuration.class);
+  private NextPendingTaskPicker nextPendingTaskPicker = new NextPendingTaskPicker(config, db.getDbClient());
+  private InternalCeQueue underTest = new InternalCeQueueImpl(system2, db.getDbClient(), uuidFactory, queueStatus,
+    computeEngineStatus, nextPendingTaskPicker);
 
   @Before
   public void setUp() {
+    when(config.getBoolean(any())).thenReturn(Optional.of(false));
     when(computeEngineStatus.getStatus()).thenReturn(STARTED);
   }
 
@@ -242,7 +248,7 @@ public class InternalCeQueueImplTest {
     db.getDbClient().ceQueueDao().deleteByUuid(db.getSession(), task.getUuid());
     db.commit();
 
-    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatus, null);
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatus, null, null);
 
     try {
       underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null);
@@ -259,7 +265,7 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
     db.getDbClient().ceQueueDao().deleteByUuid(db.getSession(), task.getUuid());
     db.commit();
-    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null);
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null);
 
     try {
       underTest.remove(task, CeActivityDto.Status.FAILED, null, null);
@@ -276,7 +282,7 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
     db.executeUpdateSql("update ce_queue set status = 'PENDING', started_at = 123 where uuid = '" + task.getUuid() + "'");
     db.commit();
-    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null);
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null);
 
     underTest.cancelWornOuts();
 

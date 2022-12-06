@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce;
+package org.sonar.db.ce;
 
-import org.sonar.ce.monitoring.CeTasksMBeanImpl;
-import org.sonar.ce.queue.CeQueueInitializer;
-import org.sonar.ce.queue.InternalCeQueueImpl;
-import org.sonar.ce.queue.NextPendingTaskPicker;
-import org.sonar.core.platform.Module;
+public class PrOrBranchTask extends CeTaskDtoLight {
+  private String mainComponentUuid;
+  private String taskType;
+  private String branchType;
+  private String componentUuid;
 
-public class CeQueueModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      InternalCeQueueImpl.class,
-      NextPendingTaskPicker.class,
-
-      // queue monitoring
-      CeTasksMBeanImpl.class,
-
-      // init queue state and queue processing
-      CeQueueInitializer.class);
+  public String getMainComponentUuid() {
+    return mainComponentUuid;
   }
+
+  public String getBranchType() {
+    return branchType;
+  }
+
+  public String getComponentUuid() {
+    return componentUuid;
+  }
+
+  public String getTaskType() {
+    return taskType;
+  }
+
 }

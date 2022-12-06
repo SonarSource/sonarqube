@@ -134,7 +134,7 @@ public class CeQueueDao implements Dao {
   }
 
   /**
-   * Update all tasks for the specified worker uuid which are not PENDING to:
+   * Updates all tasks for the specified worker uuid which are not PENDING to:
    * STATUS='PENDING', STARTED_AT=NULL, UPDATED_AT={now}.
    */
   public int resetToPendingForWorker(DbSession session, String workerUuid) {
@@ -173,17 +173,7 @@ public class CeQueueDao implements Dao {
     return builder.build();
   }
 
-  public Optional<CeQueueDto> peek(DbSession session, String workerUuid, boolean excludeIndexationJob, boolean excludeViewRefresh) {
-    List<String> eligibles = mapper(session).selectEligibleForPeek(ONE_RESULT_PAGINATION, excludeIndexationJob, excludeViewRefresh);
-    if (eligibles.isEmpty()) {
-      return Optional.empty();
-    }
-
-    String eligible = eligibles.get(0);
-    return tryToPeek(session, eligible, workerUuid);
-  }
-
-  private Optional<CeQueueDto> tryToPeek(DbSession session, String eligibleTaskUuid, String workerUuid) {
+  public Optional<CeQueueDto> tryToPeek(DbSession session, String eligibleTaskUuid, String workerUuid) {
     long now = system2.now();
     int touchedRows = mapper(session).updateIf(eligibleTaskUuid,
       new UpdateIf.NewProperties(IN_PROGRESS, workerUuid, now, now),
@@ -203,5 +193,20 @@ public class CeQueueDao implements Dao {
 
   private static CeQueueMapper mapper(DbSession session) {
     return session.getMapper(CeQueueMapper.class);
+  }
+
+  /**
+   * Only returns tasks for projects that currently have no other tasks running
+   */
+  public Optional<CeTaskDtoLight> selectEligibleForPeek(DbSession session, boolean excludeIndexationJob, boolean excludeView) {
+    return mapper(session).selectEligibleForPeek(ONE_RESULT_PAGINATION, excludeIndexationJob, excludeView);
+  }
+
+  public List<PrOrBranchTask> selectOldestPendingPrOrBranch(DbSession session) {
+    return mapper(session).selectOldestPendingPrOrBranch();
+  }
+
+  public List<PrOrBranchTask> selectInProgressWithCharacteristics(DbSession session) {
+    return mapper(session).selectInProgressWithCharacteristics();
   }
 }

@@ -139,15 +139,15 @@
     </where>
   </sql>
 
-  <select id="selectEligibleForPeek" parameterType="map" resultType="String">
-    select cq.uuid
+  <select id="selectEligibleForPeek" parameterType="map" resultType="org.sonar.db.ce.CeTaskDtoLight">
+    select cq.uuid as ceTaskUuid, cq.created_at as createdAt
     <include refid="sqlSelectEligibleForPeek"/>
     <include refid="orderBySelectEligibleForPeek"/>
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
-  <select id="selectEligibleForPeek" parameterType="map" resultType="String" databaseId="mssql">
-    select query.uuid from (
+  <select id="selectEligibleForPeek" parameterType="map" resultType="org.sonar.db.ce.CeTaskDtoLight" databaseId="mssql">
+    select query.uuid as ceTaskUuid, query.created_at as createdAt from (
       select
         row_number() over(<include refid="orderBySelectEligibleForPeek"/>) as number,
         <include refid="columnsSelectEligibleForPeek"/>
@@ -158,12 +158,12 @@
     order by number asc
   </select>
 
-  <select id="selectEligibleForPeek" parameterType="map" resultType="String" databaseId="oracle">
-    select taskuuid from (
-      select rownum as rn, t."uuid" as taskuuid from (
+  <select id="selectEligibleForPeek" parameterType="map" resultType="org.sonar.db.ce.CeTaskDtoLight" databaseId="oracle">
+    select taskuuid as ceTaskUuid, createdat as createdAt from (
+      select rownum as rn, t."uuid" as taskuuid, t."created_at" as createdat from (
         select
           <include refid="columnsSelectEligibleForPeek"/>
-          <include refid="sqlSelectEligibleForPeek" />
+          <include refid="sqlSelectEligibleForPeek"/>
           <include refid="orderBySelectEligibleForPeek"/>
       ) t
     ) t
@@ -338,6 +338,49 @@
   <select id="hasAnyIssueSyncTaskPendingOrInProgress" parameterType="map" resultType="boolean" databaseId="oracle">
     <include refid="hasAnyIssueSyncTaskPendingOrInProgressSql"/>
     from dual
+  </select>
+
+  <select id="selectOldestPendingPrOrBranch" resultType="org.sonar.db.ce.PrOrBranchTask">
+    select <include refid="oldestPendingPrOrBranch"/> limit 100
+  </select>
+
+  <select id="selectOldestPendingPrOrBranch" resultType="org.sonar.db.ce.PrOrBranchTask" databaseId="mssql">
+    select top (100)  <include refid="oldestPendingPrOrBranch"/>
+  </select>
+
+  <select id="selectOldestPendingPrOrBranch" resultType="org.sonar.db.ce.PrOrBranchTask" databaseId="oracle">
+    select * from (select <include refid="oldestPendingPrOrBranch"/>) where rownum &lt;= 100
+  </select>
+
+  <sql id="oldestPendingPrOrBranch">
+    cq.uuid as ceTaskUuid,
+      cq.main_component_uuid as mainComponentUuid,
+      cq.component_uuid as componentUuid,
+      cq.created_at as createdAt,
+      cq.task_type as taskType,
+      coalesce(ctc.kee, 'branch') as branchType
+    from
+      ce_queue cq
+      left join ce_task_characteristics ctc on cq.uuid = ctc.task_uuid and (ctc.kee = 'branch' or ctc.kee = 'pullRequest')
+    where
+      cq.status = 'PENDING'
+      and cq.task_type = 'REPORT'
+    order by
+      cq.created_at, cq.uuid
+  </sql>
+
+  <select id="selectInProgressWithCharacteristics" resultType="org.sonar.db.ce.PrOrBranchTask">
+    select
+      cq.uuid as ceTaskUuid,
+      cq.main_component_uuid as mainComponentUuid,
+      cq.created_at as createdAt,
+      coalesce(ctc.kee, 'branch') as branchType,
+      cq.task_type as taskType,
+      cq.component_uuid as componentUuid
+    from
+      ce_queue cq left join ce_task_characteristics ctc on cq.uuid = ctc.task_uuid and (ctc.kee = 'branch' or ctc.kee = 'pullRequest')
+    where
+      cq.status = 'IN_PROGRESS'
   </select>
 
 </mapper>
