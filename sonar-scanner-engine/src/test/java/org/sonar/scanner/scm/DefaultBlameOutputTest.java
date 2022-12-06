@@ -50,7 +50,7 @@ public class DefaultBlameOutputTest {
     new DefaultBlameOutput(null, analysisWarnings, singletonList(file)).finish(true);
     assertThat(analysisWarnings.warnings()).extracting(DefaultAnalysisWarnings.Message::getText)
       .containsOnly("Missing blame information for 1 file. This may lead to some features not working correctly. " +
-        "Please check the analysis logs and refer to <a href=\"/documentation/analysis/scm-integration/\" target=\"_blank\">the documentation</a>.");
+        "Please check the analysis logs and refer to <a href=\"/documentation/analyzing-source-code/scm-integration/\" target=\"_blank\">the documentation</a>.");
   }
 
   @Test

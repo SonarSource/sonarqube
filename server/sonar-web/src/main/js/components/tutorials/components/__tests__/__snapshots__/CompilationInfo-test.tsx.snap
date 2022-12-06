@@ -14,7 +14,7 @@ exports[`should render correctly 1`] = `
       values={
         Object {
           "link": <withAppStateContext(DocLink)
-            to="/analysis/languages/cfamily/"
+            to="/analyzing-source-code/languages/c-family/"
           >
             onboarding.tutorial.cfamilly.compilation_database_info.link
           </withAppStateContext(DocLink)>,
@@ -29,7 +29,7 @@ exports[`should render correctly 1`] = `
       values={
         Object {
           "link": <withAppStateContext(DocLink)
-            to="/analysis/languages/cfamily/#analysis-cache"
+            to="/analyzing-source-code/languages/c-family/#analysis-cache"
           >
             onboarding.tutorial.cfamilly.speed_caching.link
           </withAppStateContext(DocLink)>,

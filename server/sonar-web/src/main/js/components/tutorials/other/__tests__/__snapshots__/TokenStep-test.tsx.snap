@@ -50,7 +50,7 @@ exports[`generates token 1`] = `
                     links={
                       Array [
                         Object {
-                          "href": "/user-guide/user-token/",
+                          "href": "/user-guide/user-account/generating-and-using-tokens/",
                           "label": "learn_more",
                         },
                       ]
@@ -210,7 +210,7 @@ exports[`generates token 2`] = `
                     links={
                       Array [
                         Object {
-                          "href": "/user-guide/user-token/",
+                          "href": "/user-guide/user-account/generating-and-using-tokens/",
                           "label": "learn_more",
                         },
                       ]
@@ -582,7 +582,7 @@ exports[`revokes token 3`] = `
                     links={
                       Array [
                         Object {
-                          "href": "/user-guide/user-token/",
+                          "href": "/user-guide/user-account/generating-and-using-tokens/",
                           "label": "learn_more",
                         },
                       ]

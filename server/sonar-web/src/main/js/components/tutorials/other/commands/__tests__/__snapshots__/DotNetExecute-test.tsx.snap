@@ -29,7 +29,7 @@ exports[`should render correctly 1`] = `
       values={
         Object {
           "link": <withAppStateContext(DocLink)
-            to="/analysis/scan/sonarscanner-for-msbuild/"
+            to="/analyzing-source-code/scanners/sonarscanner-for-dotnet/"
           >
             onboarding.analysis.msbuild.docs_link
           </withAppStateContext(DocLink)>,

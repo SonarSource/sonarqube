@@ -95,7 +95,7 @@ public class GitScmProvider extends ScmProvider {
     this.analysisWarnings = analysisWarnings;
     this.gitIgnoreCommand = gitIgnoreCommand;
     this.system2 = system2;
-    this.documentationLink = "/documentation/analysis/scm-integration/";
+    this.documentationLink = "/documentation/analyzing-source-code/scm-integration/";
   }
 
   @Override

@@ -37,7 +37,7 @@ exports[`should render correctly 1`] = `
         values={
           Object {
             "doc_link": <withAppStateContext(DocLink)
-              to="/analysis/bitbucket-integration/"
+              to="/devops-platform-integration/bitbucket-integration/bitbucket-server-integration/"
             >
               learn_more
             </withAppStateContext(DocLink)>,

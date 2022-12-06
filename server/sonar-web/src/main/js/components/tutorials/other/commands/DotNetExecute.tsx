@@ -50,7 +50,7 @@ export default function DotNetExecute({ commands, component }: DotNetExecuteProp
           id="onboarding.analysis.docs"
           values={{
             link: (
-              <DocLink to="/analysis/scan/sonarscanner-for-msbuild/">
+              <DocLink to="/analyzing-source-code/scanners/sonarscanner-for-dotnet/">
                 {translate('onboarding.analysis.msbuild.docs_link')}
               </DocLink>
             ),

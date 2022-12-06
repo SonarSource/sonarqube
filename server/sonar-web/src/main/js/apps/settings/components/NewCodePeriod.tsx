@@ -154,7 +154,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                       id="settings.new_code_period.description"
                       values={{
                         link: (
-                          <DocLink to="/project-administration/new-code-period/">
+                          <DocLink to="/project-administration/defining-new-code/">
                             {translate('learn_more')}
                           </DocLink>
                         ),

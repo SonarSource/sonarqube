@@ -281,11 +281,11 @@ exports[`projects should render correctly when there is only one branchlike 1`] 
     links={
       Array [
         Object {
-          "href": "/branches/overview/",
+          "href": "/analyzing-source-code/branches/branch-analysis/",
           "label": "branch_like_navigation.only_one_branch.documentation",
         },
         Object {
-          "href": "/analysis/pull-request/",
+          "href": "/analyzing-source-code/pull-request-analysis",
           "label": "branch_like_navigation.only_one_branch.pr_analysis",
         },
         Object {

@@ -481,7 +481,7 @@ exports[`should render correctly: success with alert 1`] = `
         values={
           Object {
             "link": <withAppStateContext(DocLink)
-              to="/analysis/github-integration/"
+              to="/devops-platform-integration/github-integration/"
             >
               learn_more
             </withAppStateContext(DocLink)>,
@@ -607,7 +607,7 @@ exports[`should render correctly: success with branches disabled 1`] = `
         values={
           Object {
             "link": <withAppStateContext(DocLink)
-              to="/analysis/github-integration/"
+              to="/devops-platform-integration/github-integration/"
             >
               learn_more
             </withAppStateContext(DocLink)>,

@@ -803,7 +803,7 @@ exports[`should render the monorepo field when the feature is supported 1`] = `
           values={
             Object {
               "doc_link": <withAppStateContext(DocLink)
-                to="/analysis/azuredevops-integration/"
+                to="/devops-platform-integration/azure-devops-integration/"
               >
                 learn_more
               </withAppStateContext(DocLink)>,

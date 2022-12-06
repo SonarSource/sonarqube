@@ -46,7 +46,7 @@ exports[`should render correctly: default 1`] = `
       values={
         Object {
           "doc_link": <withAppStateContext(DocLink)
-            to="/analysis/bitbucket-cloud-integration/"
+            to="/devops-platform-integration/bitbucket-integration/bitbucket-cloud-integration/"
           >
             learn_more
           </withAppStateContext(DocLink)>,
@@ -131,7 +131,7 @@ exports[`should render correctly: invalid workspace ID 1`] = `
       values={
         Object {
           "doc_link": <withAppStateContext(DocLink)
-            to="/analysis/bitbucket-cloud-integration/"
+            to="/devops-platform-integration/bitbucket-integration/bitbucket-cloud-integration/"
           >
             learn_more
           </withAppStateContext(DocLink)>,

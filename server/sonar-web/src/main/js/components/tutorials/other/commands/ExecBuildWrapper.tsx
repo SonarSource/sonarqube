@@ -56,7 +56,7 @@ export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
           id="onboarding.analysis.build_wrapper.docs"
           values={{
             link: (
-              <DocLink to="/analysis/languages/cfamily/">
+              <DocLink to="/analyzing-source-code/languages/c-family/">
                 {translate('onboarding.analysis.build_wrapper.docs_link')}
               </DocLink>
             ),

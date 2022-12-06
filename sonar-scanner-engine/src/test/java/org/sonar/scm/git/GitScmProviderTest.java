@@ -648,7 +648,7 @@ public class GitScmProviderTest {
 
     String warning = refNotFound
       + ". You may see unexpected issues and changes. Please make sure to fetch this ref before pull request analysis"
-      + " and refer to <a href=\"/documentation/analysis/scm-integration/\" target=\"_blank\">the documentation</a>.";
+      + " and refer to <a href=\"/documentation/analyzing-source-code/scm-integration/\" target=\"_blank\">the documentation</a>.";
     verify(analysisWarnings).addUnique(warning);
   }
 

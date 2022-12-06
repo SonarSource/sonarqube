@@ -74,7 +74,7 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
           content={translate('rules.status', ruleStatus, 'help')}
           links={[
             {
-              href: '/user-guide/rules/',
+              href: '/user-guide/rules/overview/',
               label: translateWithParameters('see_x', translate('rules')),
             },
           ]}

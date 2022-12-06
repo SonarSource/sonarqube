@@ -37,7 +37,7 @@ export default function Header(props: Props) {
       )}
       <p className="page-description">
         {translate('background_tasks.page.description')}
-        <DocLink className="spacer-left" to="/analysis/background-tasks/">
+        <DocLink className="spacer-left" to="/analyzing-source-code/background-tasks/">
           {translate('learn_more')}
         </DocLink>
       </p>

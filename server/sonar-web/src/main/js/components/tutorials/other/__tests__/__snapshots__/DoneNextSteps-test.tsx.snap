@@ -26,12 +26,12 @@ exports[`should render correctly: default 1`] = `
       values={
         Object {
           "link_branches": <withAppStateContext(DocLink)
-            to="/branches/overview/"
+            to="/analyzing-source-code/branches/branch-analysis/"
           >
             onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches
           </withAppStateContext(DocLink)>,
           "link_pr_analysis": <withAppStateContext(DocLink)
-            to="/analysis/pull-request/"
+            to="/analyzing-source-code/pull-request-analysis"
           >
             onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis
           </withAppStateContext(DocLink)>,
@@ -68,12 +68,12 @@ exports[`should render correctly: project admin 1`] = `
       values={
         Object {
           "link_branches": <withAppStateContext(DocLink)
-            to="/branches/overview/"
+            to="/analyzing-source-code/branches/branch-analysis/"
           >
             onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches
           </withAppStateContext(DocLink)>,
           "link_pr_analysis": <withAppStateContext(DocLink)
-            to="/analysis/pull-request/"
+            to="/analyzing-source-code/pull-request-analysis"
           >
             onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis
           </withAppStateContext(DocLink)>,

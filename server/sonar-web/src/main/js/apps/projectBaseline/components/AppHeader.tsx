@@ -39,7 +39,7 @@ export default function AppHeader(props: AppHeaderProps) {
           id="project_baseline.page.description"
           values={{
             link: (
-              <DocLink to="/project-administration/new-code-period/">
+              <DocLink to="/project-administration/defining-new-code/">
                 {translate('project_baseline.page.description.link')}
               </DocLink>
             ),

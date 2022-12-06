@@ -33,7 +33,7 @@ exports[`renders correctly 1`] = `
       values={
         Object {
           "link": <withAppStateContext(DocLink)
-            to="/analysis/scan/sonarscanner-for-maven/"
+            to="/analyzing-source-code/scanners/sonarscanner-for-maven/"
           >
             onboarding.analysis.java.maven.docs_link
           </withAppStateContext(DocLink)>,

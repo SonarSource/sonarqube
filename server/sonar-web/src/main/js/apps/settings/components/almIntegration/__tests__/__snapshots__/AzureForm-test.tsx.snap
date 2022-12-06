@@ -42,7 +42,7 @@ exports[`should render correctly: create 1`] = `
         values={
           Object {
             "doc_link": <withAppStateContext(DocLink)
-              to="/analysis/azuredevops-integration/"
+              to="/devops-platform-integration/azure-devops-integration/"
             >
               learn_more
             </withAppStateContext(DocLink)>,
@@ -113,7 +113,7 @@ exports[`should render correctly: edit 1`] = `
         values={
           Object {
             "doc_link": <withAppStateContext(DocLink)
-              to="/analysis/azuredevops-integration/"
+              to="/devops-platform-integration/azure-devops-integration/"
             >
               learn_more
             </withAppStateContext(DocLink)>,

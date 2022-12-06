@@ -29,7 +29,7 @@ exports[`renders correctly 1`] = `
         values={
           Object {
             "link": <withAppStateContext(DocLink)
-              to="/analysis/scan/sonarscanner-for-gradle/"
+              to="/analyzing-source-code/scanners/sonarscanner-for-gradle/"
             >
               here
             </withAppStateContext(DocLink)>,
@@ -62,7 +62,7 @@ exports[`renders correctly 1`] = `
       values={
         Object {
           "link": <withAppStateContext(DocLink)
-            to="/analysis/scan/sonarscanner-for-gradle/"
+            to="/analyzing-source-code/scanners/sonarscanner-for-gradle/"
           >
             onboarding.analysis.java.gradle.docs_link
           </withAppStateContext(DocLink)>,

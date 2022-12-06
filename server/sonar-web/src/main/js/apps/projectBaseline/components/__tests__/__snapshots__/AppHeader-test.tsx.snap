@@ -18,7 +18,7 @@ exports[`should render correctly: can admin 1`] = `
       values={
         Object {
           "link": <withAppStateContext(DocLink)
-            to="/project-administration/new-code-period/"
+            to="/project-administration/defining-new-code/"
           >
             project_baseline.page.description.link
           </withAppStateContext(DocLink)>,
@@ -61,7 +61,7 @@ exports[`should render correctly: cannot admin 1`] = `
       values={
         Object {
           "link": <withAppStateContext(DocLink)
-            to="/project-administration/new-code-period/"
+            to="/project-administration/defining-new-code/"
           >
             project_baseline.page.description.link
           </withAppStateContext(DocLink)>,

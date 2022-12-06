@@ -122,11 +122,11 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
             data-test="only-one-branch-like"
             links={[
               {
-                href: '/branches/overview/',
+                href: '/analyzing-source-code/branches/branch-analysis/',
                 label: translate('branch_like_navigation.only_one_branch.documentation'),
               },
               {
-                href: '/analysis/pull-request/',
+                href: '/analyzing-source-code/pull-request-analysis',
                 label: translate('branch_like_navigation.only_one_branch.pr_analysis'),
               },
               {

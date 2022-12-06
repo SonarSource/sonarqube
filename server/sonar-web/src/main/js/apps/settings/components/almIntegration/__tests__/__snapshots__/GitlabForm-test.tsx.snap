@@ -35,7 +35,7 @@ exports[`should render correctly 1`] = `
         values={
           Object {
             "doc_link": <withAppStateContext(DocLink)
-              to="/analysis/gitlab-integration/"
+              to="/devops-platform-integration/gitlab-integration/"
             >
               learn_more
             </withAppStateContext(DocLink)>,
@@ -102,7 +102,7 @@ exports[`should render correctly 2`] = `
         values={
           Object {
             "doc_link": <withAppStateContext(DocLink)
-              to="/analysis/gitlab-integration/"
+              to="/devops-platform-integration/gitlab-integration/"
             >
               learn_more
             </withAppStateContext(DocLink)>,

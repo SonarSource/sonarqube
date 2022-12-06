@@ -65,7 +65,7 @@ export default function ExecScanner(props: ExecScannerProps) {
           id="onboarding.analysis.sq_scanner.docs"
           values={{
             link: (
-              <DocLink to="/analysis/scan/sonarscanner/">
+              <DocLink to="/analyzing-source-code/scanners/sonarscanner/">
                 {translate('onboarding.analysis.sq_scanner.docs_link')}
               </DocLink>
             ),
