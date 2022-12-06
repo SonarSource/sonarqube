@@ -20,7 +20,7 @@
 package org.sonar.education;
 
 import java.nio.charset.StandardCharsets;
-import org.sonar.api.internal.apachecommons.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.education.sensors.EducationPrinciplesSensor;

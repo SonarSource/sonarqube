@@ -4,6 +4,7 @@ configurations {
 
 dependencies {
     compileOnlyApi 'org.sonarsource.api.plugin:sonar-plugin-api'
+    implementation 'commons-io:commons-io'
 
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
@@ -22,6 +23,9 @@ jar {
                 'SonarLint-Supported': 'true',
                 'Plugin-Name': 'Education'
         )
+    }
+    into('META-INF/lib') {
+        from configurations.runtimeClasspath
     }
 }
 
