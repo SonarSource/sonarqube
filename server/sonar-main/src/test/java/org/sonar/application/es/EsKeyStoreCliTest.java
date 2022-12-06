@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,7 +80,7 @@ public class EsKeyStoreCliTest {
       "-Des.distribution.type=tar");
 
     verify(process.getOutputStream()).write(argThat(new ArrayContainsMatcher("value1\nvalue2\nvalue3\n")), eq(0), eq(21));
-    verify(process.getOutputStream()).flush();
+    verify(process.getOutputStream(), atLeastOnce()).flush();
     verify(process.getMock()).waitFor(1L, TimeUnit.MINUTES);
   }
 

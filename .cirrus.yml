@@ -298,6 +298,32 @@ qa_task:
     - ./private/cirrus/cirrus-qa.sh postgres
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
+qa_java11_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *JAR_CACHE_TEMPLATE
+  gke_container:
+    dockerfile: private/docker/Dockerfile-build-java11
+    builder_image_project: sonarqube-team
+    builder_image_name: family/docker-builder
+    cluster_name: cirrus-ci-cluster
+    zone: us-central1-a
+    namespace: default
+    cpu: 2
+    memory: 6Gb
+    additional_containers:
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+  env:
+    matrix:
+      - QA_CATEGORY: Cat1
+      - QA_CATEGORY: CommunityEditionWithPlugins
+      - QA_CATEGORY: ComputeEngine
+      - QA_CATEGORY: Upgrade
+  script:
+    - ./private/cirrus/cirrus-qa.sh postgres
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
 task: #bitbucket
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE

@@ -146,6 +146,9 @@ subprojects {
   // do not deploy to Artifactory by default
   artifactoryPublish.skip = true
 
+  // Produce Java 11 bytecode while making sure the code does not use any APIs from Java 17
+  compileJava.options.release = 11
+
   compileJava.options.encoding = "UTF-8"
   compileTestJava.options.encoding = "UTF-8"
 
