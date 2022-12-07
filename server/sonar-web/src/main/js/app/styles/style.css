@@ -114,8 +114,8 @@
 }
 
 .rule-desc h2 {
-  font-size: 20px;
-  font-weight: 400;
+  font-size: 22px;
+  font-weight: 500;
   border-bottom: 1px solid #e6e6e6;
   line-height: 2rem;
   margin-top: 32px;
@@ -128,11 +128,11 @@
 
 .rule-desc h3 {
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 700;
 }
 .rule-desc h4 {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .rule-desc h5,
