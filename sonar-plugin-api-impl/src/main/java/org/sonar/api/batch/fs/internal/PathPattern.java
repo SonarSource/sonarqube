@@ -20,6 +20,7 @@
 package org.sonar.api.batch.fs.internal;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -58,11 +59,7 @@ public abstract class PathPattern {
   }
 
   public static PathPattern[] create(String[] s) {
-    PathPattern[] result = new PathPattern[s.length];
-    for (int i = 0; i < s.length; i++) {
-      result[i] = create(s[i]);
-    }
-    return result;
+    return Arrays.stream(s).map(PathPattern::create).toArray(PathPattern[]::new);
   }
 
   /**

@@ -45,7 +45,7 @@ public abstract class AbstractExclusionFilters {
   private PathPattern[] testInclusionsPattern;
   private PathPattern[] testExclusionsPattern;
 
-  public AbstractExclusionFilters(Function<String, String[]> configProvider) {
+  protected AbstractExclusionFilters(Function<String, String[]> configProvider) {
     this.sourceInclusions = inclusions(configProvider, CoreProperties.PROJECT_INCLUSIONS_PROPERTY);
     this.testInclusions = inclusions(configProvider, CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY);
     this.sourceExclusions = exclusions(configProvider, CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY, CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
@@ -138,10 +138,6 @@ public abstract class AbstractExclusionFilters {
   public boolean isExcluded(Path absolutePath, Path relativePath, InputFile.Type type) {
     PathPattern[] exclusionPatterns = InputFile.Type.MAIN == type ? mainExclusionsPattern : testExclusionsPattern;
 
-    if (exclusionPatterns.length == 0) {
-      return false;
-    }
-
     for (PathPattern pattern : exclusionPatterns) {
       if (pattern.match(absolutePath, relativePath)) {
         return true;
@@ -149,5 +145,26 @@ public abstract class AbstractExclusionFilters {
     }
 
     return false;
+  }
+
+  /**
+   * <p>Checks if the file should be excluded as a parent directory of excluded files and subdirectories.</p>
+   * 
+   * @param absolutePath The full path of the file.
+   * @param relativePath The relative path of the file.
+   * @param baseDir The base directory of the project.
+   * @param type The file type.
+   * @return True if the file should be excluded, false otherwise.
+   */
+  public boolean isExcludedAsParentDirectoryOfExcludedChildren(Path absolutePath, Path relativePath, Path baseDir, InputFile.Type type) {
+    PathPattern[] exclusionPatterns = InputFile.Type.MAIN == type ? mainExclusionsPattern : testExclusionsPattern;
+
+    return Stream.of(exclusionPatterns)
+      .map(PathPattern::toString)
+      .filter(ps -> ps.endsWith("/**/*"))
+      .map(ps -> ps.substring(0, ps.length() - 5))
+      .map(baseDir::resolve)
+      .anyMatch(exclusionRootPath -> absolutePath.startsWith(exclusionRootPath)
+        || PathPattern.create(exclusionRootPath.toString()).match(absolutePath, relativePath));
   }
 }

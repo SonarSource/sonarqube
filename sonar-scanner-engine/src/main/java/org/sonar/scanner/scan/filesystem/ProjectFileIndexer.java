@@ -20,6 +20,7 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystemLoopException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -38,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.scm.IgnoreCommand;
@@ -216,6 +218,27 @@ public class ProjectFileIndexer {
       new IndexFileVisitor(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, type, exclusionCounter));
   }
 
+
+  /**
+   * <p>Checks if the path is a directory that is excluded.</p>
+   *
+   * <p>Exclusions patterns are checked both at project and module level.</p>
+   *
+   * @param moduleExclusionFilters The exclusion filters.
+   * @param realAbsoluteFile The path to be checked.
+   * @param projectBaseDir The project base directory.
+   * @param moduleBaseDir The module base directory.
+   * @param type The input file type.
+   * @return True if path is an excluded directory, false otherwise.
+   */
+  private static boolean isExcludedDirectory(ModuleExclusionFilters moduleExclusionFilters, Path realAbsoluteFile, Path projectBaseDir, Path moduleBaseDir,
+    InputFile.Type type) {
+    Path projectRelativePath = projectBaseDir.relativize(realAbsoluteFile);
+    Path moduleRelativePath = moduleBaseDir.relativize(realAbsoluteFile);
+    return moduleExclusionFilters.isExcludedAsParentDirectoryOfExcludedChildren(realAbsoluteFile, projectRelativePath, projectBaseDir, type)
+      || moduleExclusionFilters.isExcludedAsParentDirectoryOfExcludedChildren(realAbsoluteFile, moduleRelativePath, moduleBaseDir, type);
+  }
+
   private class IndexFileVisitor implements FileVisitor<Path> {
     private final DefaultInputModule module;
     private final ModuleExclusionFilters moduleExclusionFilters;
@@ -249,14 +272,43 @@ public class ProjectFileIndexer {
       return FileVisitResult.CONTINUE;
     }
 
+    /**
+     * <p>Overridden method to handle exceptions while visiting files in the analysis.</p>
+     *
+     * <p>
+     *   <ul>
+     *     <li>FileSystemLoopException - We show a warning that a symlink loop exists and we skip the file.</li>
+     *     <li>AccessDeniedException for excluded files/directories - We skip the file, as files excluded from the analysis, shouldn't throw access exceptions.</li>
+     *   </ul>
+     * </p>
+     *
+     * @param file a reference to the file
+     * @param exc the I/O exception that prevented the file from being visited
+     *
+     * @throws IOException
+     */
     @Override
     public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
       if (exc instanceof FileSystemLoopException) {
         LOG.warn("Not indexing due to symlink loop: {}", file.toFile());
         return FileVisitResult.CONTINUE;
+      } else if (exc instanceof AccessDeniedException && isExcluded(file)) {
+        return FileVisitResult.CONTINUE;
       }
-
       throw exc;
+    }
+
+    /**
+     * <p>Checks if the directory is excluded in the analysis or not. Only the exclusions are checked.</p>
+     *
+     * <p>The inclusions cannot be checked for directories, since the current implementation of pattern matching is intended only for files.</p>
+     *
+     * @param path The file or directory.
+     * @return True if file/directory is excluded from the analysis, false otherwise.
+     */
+    private boolean isExcluded(Path path) throws IOException {
+      Path realAbsoluteFile = path.toRealPath(LinkOption.NOFOLLOW_LINKS).toAbsolutePath().normalize();
+      return isExcludedDirectory(moduleExclusionFilters, realAbsoluteFile, inputModuleHierarchy.root().getBaseDir(), module.getBaseDir(), type);
     }
 
     @Override
