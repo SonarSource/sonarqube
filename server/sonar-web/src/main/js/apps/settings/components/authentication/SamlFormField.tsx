@@ -76,10 +76,9 @@ export default function SamlFormField(props: SamlToggleFieldProps) {
             <input
               className="width-100"
               id={definition.key}
-              maxLength={100}
+              maxLength={4000}
               name={definition.key}
               onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
-              size={50}
               type="text"
               value={settingValue?.value ?? ''}
               aria-label={definition.key}

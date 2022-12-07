@@ -20,6 +20,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { byRole, byText } from 'testing-library-selector';
 import AuthenticationServiceMock from '../../../../../api/mocks/AuthenticationServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { mockDefinition } from '../../../../../helpers/mocks/settings';
@@ -71,6 +72,15 @@ beforeEach(() => {
 
 afterEach(() => handler.resetValues());
 
+const ui = {
+  saveButton: byRole('button', { name: 'settings.authentication.saml.form.save' }),
+  customMessageInformation: byText('settings.authentication.custom_message_information'),
+  enabledToggle: byRole('button', { name: 'off' }),
+  testButton: byText('settings.authentication.saml.form.test'),
+  textbox1: byRole('textbox', { name: 'test1' }),
+  textbox2: byRole('textbox', { name: 'test2' }),
+};
+
 it('should render tabs and allow navigation', async () => {
   const user = userEvent.setup();
   renderAuthentication([]);
@@ -118,13 +128,11 @@ describe('SAML tab', () => {
     await user.click(screen.getByRole('textbox', { name: 'Certificate' }));
     await user.keyboard('new certificate');
 
-    expect(screen.getByText('settings.authentication.saml.form.test')).toHaveClass('disabled');
+    expect(ui.testButton.get()).toHaveClass('disabled');
 
-    await user.click(
-      screen.getByRole('button', { name: 'settings.authentication.saml.form.save' })
-    );
+    await user.click(ui.saveButton.get());
 
-    expect(screen.getByText('settings.authentication.saml.form.test')).not.toHaveClass('disabled');
+    expect(ui.testButton.get()).not.toHaveClass('disabled');
   });
 
   it('should allow user to edit fields and save configuration', async () => {
@@ -132,27 +140,25 @@ describe('SAML tab', () => {
     const definitions = mockDefinitionFields;
     renderAuthentication(definitions);
 
-    expect(screen.getByRole('button', { name: 'off' })).toHaveAttribute('aria-disabled', 'true');
+    expect(ui.enabledToggle.get()).toHaveAttribute('aria-disabled', 'true');
     // update fields
-    await user.click(screen.getByRole('textbox', { name: 'test1' }));
+    await user.click(ui.textbox1.get());
     await user.keyboard('new test1');
 
-    await user.click(screen.getByRole('textbox', { name: 'test2' }));
+    await user.click(ui.textbox2.get());
     await user.keyboard('new test2');
     // check if enable is allowed after updating
-    expect(screen.getByRole('button', { name: 'off' })).toHaveAttribute('aria-disabled', 'false');
+    expect(ui.enabledToggle.get()).toHaveAttribute('aria-disabled', 'false');
 
     // reset value
-    await user.click(screen.getByRole('textbox', { name: 'test2' }));
+    await user.click(ui.textbox2.get());
     await user.keyboard('{Control>}a{/Control}{Backspace}');
-    await user.click(
-      screen.getByRole('button', { name: 'settings.authentication.saml.form.save' })
-    );
-    expect(screen.getByRole('button', { name: 'off' })).toHaveAttribute('aria-disabled', 'true');
+    await user.click(ui.saveButton.get());
+    expect(ui.enabledToggle.get()).toHaveAttribute('aria-disabled', 'true');
 
-    await user.click(screen.getByRole('textbox', { name: 'test2' }));
+    await user.click(ui.textbox2.get());
     await user.keyboard('new test2');
-    expect(screen.getByRole('button', { name: 'off' })).toHaveAttribute('aria-disabled', 'false');
+    expect(ui.enabledToggle.get()).toHaveAttribute('aria-disabled', 'false');
 
     expect(
       screen.getByRole('button', { name: 'settings.almintegration.form.secret.update_field' })
@@ -165,12 +171,10 @@ describe('SAML tab', () => {
     await user.click(screen.getByRole('textbox', { name: 'Certificate' }));
     await user.keyboard('new certificate');
     // enable the configuration
-    await user.click(screen.getByRole('button', { name: 'off' }));
+    await user.click(ui.enabledToggle.get());
     expect(screen.getByRole('button', { name: 'on' })).toBeInTheDocument();
 
-    await user.click(
-      screen.getByRole('button', { name: 'settings.authentication.saml.form.save' })
-    );
+    await user.click(ui.saveButton.get());
     expect(screen.getByText('settings.authentication.saml.form.save_success')).toBeInTheDocument();
     // check after switching tab that the flag is still enabled
     await user.click(screen.getByRole('tab', { name: 'github GitHub' }));
@@ -184,30 +188,24 @@ describe('SAML tab', () => {
     const definitions = mockDefinitionFields;
     renderAuthentication(definitions);
 
-    await user.click(screen.getByRole('textbox', { name: 'test1' }));
+    await user.click(ui.textbox1.get());
     await user.keyboard('value');
-    await user.click(screen.getByRole('textbox', { name: 'test2' }));
+    await user.click(ui.textbox2.get());
     await user.keyboard('{Control>}a{/Control}error');
-    await user.click(
-      screen.getByRole('button', { name: 'settings.authentication.saml.form.save' })
-    );
+    await user.click(ui.saveButton.get());
     expect(screen.getByText('settings.authentication.saml.form.save_partial')).toBeInTheDocument();
   });
 
   it('should not display the login message feature info box', () => {
     renderAuthentication([]);
 
-    expect(
-      screen.queryByText('settings.authentication.custom_message_information')
-    ).not.toBeInTheDocument();
+    expect(ui.customMessageInformation.query()).not.toBeInTheDocument();
   });
 
   it('should display the login message feature info box', () => {
     renderAuthentication([], [Feature.LoginMessage]);
 
-    expect(
-      screen.getByText('settings.authentication.custom_message_information')
-    ).toBeInTheDocument();
+    expect(ui.customMessageInformation.get()).toBeInTheDocument();
   });
 });
 
