@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
@@ -123,5 +124,15 @@ public class DefaultIssueLocationTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageStartingWith("Character \\u0000 is not supported in issue message")
       .hasMessageEndingWith(", on component: src/Foo.php");
+  }
+
+  @Test
+  public void should_trim_on_default_message_method(){
+    assertThat(new DefaultIssueLocation().message(" message ").message()).isEqualTo("message");
+  }
+
+  @Test
+  public void should_not_trim_on_messageFormattings_message_method(){
+    assertThat(new DefaultIssueLocation().message(" message ", Collections.emptyList()).message()).isEqualTo(" message ");
   }
 }

@@ -33,6 +33,7 @@ import org.sonar.api.issue.Issue;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.abbreviate;
+import static org.apache.commons.lang.StringUtils.trim;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.api.utils.Preconditions.checkState;
 
@@ -64,7 +65,7 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   @Override
   public DefaultIssueLocation message(String message) {
     validateMessage(message);
-    this.message = abbreviate(message, Issue.MESSAGE_MAX_SIZE);
+    this.message = abbreviate(trim(message), Issue.MESSAGE_MAX_SIZE);
     return this;
   }
 
