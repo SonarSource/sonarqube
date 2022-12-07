@@ -4,9 +4,9 @@ exports[`should render correctly: autofocus 1`] = `
 <ValidationInput
   className="form-field"
   description="onboarding.create_project.project_key.description"
-  id="project-key"
   isInvalid={false}
   isValid={false}
+  labelHtmlFor="project-key"
   required={false}
 >
   <input
@@ -25,9 +25,9 @@ exports[`should render correctly: default 1`] = `
 <ValidationInput
   className="form-field"
   description="onboarding.create_project.project_key.description"
-  id="project-key"
   isInvalid={false}
   isValid={false}
+  labelHtmlFor="project-key"
   required={false}
 >
   <input
@@ -47,9 +47,9 @@ exports[`should render correctly: invalid 1`] = `
   className="form-field"
   description="onboarding.create_project.project_key.description"
   error="bar.baz"
-  id="project-key"
   isInvalid={true}
   isValid={false}
+  labelHtmlFor="project-key"
   required={false}
 >
   <input
@@ -68,9 +68,9 @@ exports[`should render correctly: valid 1`] = `
 <ValidationInput
   className="form-field"
   description="onboarding.create_project.project_key.description"
-  id="project-key"
   isInvalid={false}
   isValid={true}
+  labelHtmlFor="project-key"
   required={false}
 >
   <input
@@ -89,9 +89,9 @@ exports[`should render correctly: validating 1`] = `
 <ValidationInput
   className="form-field"
   description="onboarding.create_project.project_key.description"
-  id="project-key"
   isInvalid={false}
   isValid={false}
+  labelHtmlFor="project-key"
   required={false}
 >
   <input
@@ -111,10 +111,10 @@ exports[`should render correctly: with label, help, and placeholder 1`] = `
   className="form-field"
   description="onboarding.create_project.project_key.description"
   help="foo.help"
-  id="project-key"
   isInvalid={false}
   isValid={false}
   label="foo.label"
+  labelHtmlFor="project-key"
   required={true}
 >
   <input
@@ -134,9 +134,9 @@ exports[`should render correctly: with value 1`] = `
 <ValidationInput
   className="form-field"
   description="onboarding.create_project.project_key.description"
-  id="project-key"
   isInvalid={false}
   isValid={false}
+  labelHtmlFor="project-key"
   required={false}
 >
   <input

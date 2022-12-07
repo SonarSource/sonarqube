@@ -31,11 +31,31 @@ export default class AlmSettingsServiceMock {
     mockAlmSettingsInstance({ key: 'conf-github-2', alm: AlmKeys.GitHub, url: 'url' }),
     mockAlmSettingsInstance({ key: 'conf-azure-1', alm: AlmKeys.Azure, url: 'url' }),
     mockAlmSettingsInstance({ key: 'conf-azure-2', alm: AlmKeys.Azure, url: 'url' }),
+    mockAlmSettingsInstance({
+      key: 'conf-bitbucketcloud-1',
+      alm: AlmKeys.BitbucketCloud,
+      url: 'url',
+    }),
+    mockAlmSettingsInstance({
+      key: 'conf-bitbucketcloud-2',
+      alm: AlmKeys.BitbucketCloud,
+      url: 'url',
+    }),
+    mockAlmSettingsInstance({
+      key: 'conf-bitbucketserver-1',
+      alm: AlmKeys.BitbucketServer,
+      url: 'url',
+    }),
+    mockAlmSettingsInstance({
+      key: 'conf-bitbucketserver-2',
+      alm: AlmKeys.BitbucketServer,
+      url: 'url',
+    }),
   ];
 
   constructor() {
     this.almSettings = cloneDeep(this.defaultSetting);
-    (getAlmSettings as jest.Mock).mockImplementation(this.getAlmSettingsHandler);
+    jest.mocked(getAlmSettings).mockImplementation(this.getAlmSettingsHandler);
   }
 
   getAlmSettingsHandler = () => {

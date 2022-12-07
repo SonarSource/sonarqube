@@ -56,7 +56,7 @@ export default function ProjectKeyInput(props: ProjectKeyInputProps) {
       description={translate('onboarding.create_project.project_key.description')}
       error={error}
       help={help}
-      id="project-key"
+      labelHtmlFor="project-key"
       isInvalid={isInvalid}
       isValid={isValid}
       label={label}

@@ -242,7 +242,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 className="form-field"
                 description={translate('onboarding.create_project.display_name.description')}
                 error={projectNameError}
-                id="project-name"
+                labelHtmlFor="project-name"
                 isInvalid={projectNameIsInvalid}
                 isValid={projectNameIsValid}
                 label={translate('onboarding.create_project.display_name')}
@@ -287,7 +287,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                   />
                 }
                 error={mainBranchNameError}
-                id="main-branch-name"
+                labelHtmlFor="main-branch-name"
                 isInvalid={mainBranchNameIsInvalid}
                 isValid={mainBranchNameIsValid}
                 label={translate('onboarding.create_project.main_branch_name')}

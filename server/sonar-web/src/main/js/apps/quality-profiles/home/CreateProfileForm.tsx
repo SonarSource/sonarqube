@@ -255,7 +255,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
 
               <ValidationInput
                 className="form-field"
-                id="create-profile-language-input"
+                labelHtmlFor="create-profile-language-input"
                 label={translate('language')}
                 required={true}
                 isInvalid={isValidLanguage !== undefined && !isValidLanguage}
@@ -275,7 +275,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
               {action !== undefined && (
                 <ValidationInput
                   className="form-field"
-                  id="create-profile-parent-input"
+                  labelHtmlFor="create-profile-parent-input"
                   label={translate(
                     action === ProfileActionModals.Copy
                       ? 'quality_profiles.creation.choose_copy_quality_profile'
@@ -299,7 +299,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
               )}
               <ValidationInput
                 className="form-field"
-                id="create-profile-name"
+                labelHtmlFor="create-profile-name"
                 label={translate('name')}
                 error={translate('quality_profiles.name_invalid')}
                 required={true}

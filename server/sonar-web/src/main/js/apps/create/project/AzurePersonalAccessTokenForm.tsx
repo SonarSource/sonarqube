@@ -95,7 +95,7 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
         >
           <ValidationInput
             error={errorMessage}
-            id="personal_access_token"
+            labelHtmlFor="personal_access_token"
             isInvalid={isInvalid}
             isValid={false}
             label={translate('onboarding.create_project.enter_pat')}

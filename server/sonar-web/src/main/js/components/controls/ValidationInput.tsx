@@ -31,7 +31,7 @@ export interface ValidationInputProps {
   error?: string;
   errorPlacement?: ValidationInputErrorPlacement;
   help?: string;
-  id?: string;
+  labelHtmlFor?: string;
   isInvalid: boolean;
   isValid: boolean;
   label?: React.ReactNode;
@@ -51,7 +51,7 @@ export default function ValidationInput(props: ValidationInputProps) {
     error,
     errorPlacement = ValidationInputErrorPlacement.Right,
     help,
-    id,
+    labelHtmlFor,
     isInvalid,
     isValid,
     label,
@@ -94,8 +94,8 @@ export default function ValidationInput(props: ValidationInputProps) {
 
   return (
     <div className={className}>
-      {id && label && (
-        <label htmlFor={id}>
+      {labelHtmlFor && label && (
+        <label htmlFor={labelHtmlFor}>
           <span className="text-middle">
             <strong>{label}</strong>
             {required && <MandatoryFieldMarker />}

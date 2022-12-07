@@ -355,7 +355,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
           {alm === AlmKeys.BitbucketCloud && (
             <ValidationInput
               error={undefined}
-              id="enter_username_validation"
+              labelHtmlFor="enter_username_validation"
               isInvalid={false}
               isValid={false}
               label={translate('onboarding.create_project.enter_username')}
@@ -366,7 +366,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
                 className={classNames('input-super-large', {
                   'is-invalid': isInvalid,
                 })}
-                id="username"
+                id="enter_username_validation"
                 minLength={1}
                 name="username"
                 value={username}
@@ -378,7 +378,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
 
           <ValidationInput
             error={errorMessage}
-            id="personal_access_token_validation"
+            labelHtmlFor="personal_access_token_validation"
             isInvalid={false}
             isValid={false}
             label={translate(`onboarding.create_project.enter_pat${suffixTranslationKey}`)}
@@ -399,7 +399,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
 
           <ValidationInput
             error={errorMessage}
-            id="personal_access_token_submit"
+            labelHtmlFor="personal_access_token_submit"
             isInvalid={isInvalid}
             isValid={false}
             label={null}

@@ -13,10 +13,10 @@ exports[`should render correctly 1`] = `
   </p>
   <MandatoryFieldsExplanation />
   <ValidationInput
-    id="baseline_number_of_days"
     isInvalid={false}
     isValid={false}
     label="baseline.specify_days"
+    labelHtmlFor="baseline_number_of_days"
     required={true}
   >
     <input
@@ -41,10 +41,10 @@ exports[`should render correctly 2`] = `
   </p>
   <MandatoryFieldsExplanation />
   <ValidationInput
-    id="baseline_number_of_days"
     isInvalid={false}
     isValid={true}
     label="baseline.specify_days"
+    labelHtmlFor="baseline_number_of_days"
     required={true}
   >
     <input
@@ -69,10 +69,10 @@ exports[`should render correctly 3`] = `
   </p>
   <MandatoryFieldsExplanation />
   <ValidationInput
-    id="baseline_number_of_days"
     isInvalid={true}
     isValid={false}
     label="baseline.specify_days"
+    labelHtmlFor="baseline_number_of_days"
     required={true}
   >
     <input

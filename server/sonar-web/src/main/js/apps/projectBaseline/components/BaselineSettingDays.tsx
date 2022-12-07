@@ -53,7 +53,7 @@ export default function BaselineSettingDays(props: Props) {
 
             <ValidationInput
               error={undefined}
-              id="baseline_number_of_days"
+              labelHtmlFor="baseline_number_of_days"
               isInvalid={isChanged && !isValid}
               isValid={isChanged && isValid}
               label={translate('baseline.specify_days')}

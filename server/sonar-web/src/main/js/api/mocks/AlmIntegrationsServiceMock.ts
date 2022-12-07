@@ -17,31 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep } from 'lodash';
+import { cloneDeep, uniqueId } from 'lodash';
 import {
   mockAzureProject,
   mockAzureRepository,
+  mockBitbucketCloudRepository,
+  mockBitbucketProject,
+  mockBitbucketRepository,
   mockGitlabProject,
 } from '../../helpers/mocks/alm-integrations';
-import { AzureProject, AzureRepository, GitlabProject } from '../../types/alm-integration';
+import {
+  AzureProject,
+  AzureRepository,
+  BitbucketCloudRepository,
+  BitbucketProject,
+  BitbucketRepository,
+  GitlabProject,
+} from '../../types/alm-integration';
+import { Visibility } from '../../types/component';
 import {
   checkPersonalAccessTokenIsValid,
   getAzureProjects,
   getAzureRepositories,
+  getBitbucketServerProjects,
+  getBitbucketServerRepositories,
   getGithubClientId,
   getGithubOrganizations,
   getGitlabProjects,
   importAzureRepository,
+  importBitbucketCloudRepository,
+  importBitbucketServerProject,
+  importGitlabProject,
   searchAzureRepositories,
+  searchForBitbucketCloudRepositories,
+  searchForBitbucketServerRepositories,
   setAlmPersonalAccessToken,
 } from '../alm-integrations';
-import { ProjectBase } from '../components';
 
 export default class AlmIntegrationsServiceMock {
   almInstancePATMap: { [key: string]: boolean } = {};
   gitlabProjects: GitlabProject[];
   azureProjects: AzureProject[];
   azureRepositories: AzureRepository[];
+  gitlabPagination;
+  bitbucketCloudRepositories: BitbucketCloudRepository[];
+  bitbucketIsLastPage: boolean;
+  bitbucketRepositories: BitbucketRepository[];
+  bitbucketProjects: BitbucketProject[];
   defaultAlmInstancePATMap: { [key: string]: boolean } = {
     'conf-final-1': false,
     'conf-final-2': true,
@@ -49,7 +71,10 @@ export default class AlmIntegrationsServiceMock {
     'conf-github-2': true,
     'conf-azure-1': false,
     'conf-azure-2': true,
-    'config-reject': false,
+    'conf-bitbucketcloud-1': false,
+    'conf-bitbucketcloud-2': true,
+    'conf-bitbucketserver-1': false,
+    'conf-bitbucketserver-2': true,
   };
 
   defaultGitlabProjects: GitlabProject[] = [
@@ -63,9 +88,49 @@ export default class AlmIntegrationsServiceMock {
     mockGitlabProject({ name: 'Gitlab project 3', id: '3' }),
   ];
 
+  defaultGitlabPagination = {
+    pageIndex: 1,
+    pageSize: 30,
+    total: this.defaultGitlabProjects.length,
+  };
+
   defaultAzureProjects: AzureProject[] = [
     mockAzureProject({ name: 'Azure project', description: 'Description project 1' }),
     mockAzureProject({ name: 'Azure project 2', description: 'Description project 2' }),
+  ];
+
+  defaultBitbucketCloudRepositories: BitbucketCloudRepository[] = [
+    mockBitbucketCloudRepository({
+      uuid: 1000,
+      name: 'BitbucketCloud Repo 1',
+      slug: 'bitbucketcloud_repo_1',
+      sqProjectKey: 'key',
+    }),
+    mockBitbucketCloudRepository({
+      uuid: 10001,
+      name: 'BitbucketCloud Repo 2',
+      slug: 'bitbucketcloud_repo_2',
+    }),
+  ];
+
+  defaultBitbucketRepositories: BitbucketRepository[] = [
+    mockBitbucketRepository({
+      name: 'Bitbucket Repo 1',
+      slug: 'bitbucket_repo_1',
+      projectKey: 'bitbucket_project_1',
+      sqProjectKey: 'key',
+    }),
+    mockBitbucketRepository({
+      id: 2,
+      name: 'Bitbucket Repo 2',
+      slug: 'bitbucket_repo_2',
+      projectKey: 'bitbucket_project_1',
+    }),
+  ];
+
+  defaultBitbucketProjects: BitbucketProject[] = [
+    mockBitbucketProject({ name: 'Bitbucket Project 1', key: 'bitbucket_project_1' }),
+    mockBitbucketProject({ name: 'Bitbucket Project 2', key: 'bitbucket_project_2' }),
   ];
 
   defaultAzureRepositories: AzureRepository[] = [
@@ -89,20 +154,38 @@ export default class AlmIntegrationsServiceMock {
 
   constructor() {
     this.almInstancePATMap = cloneDeep(this.defaultAlmInstancePATMap);
-    this.gitlabProjects = cloneDeep(this.defaultGitlabProjects);
     this.azureProjects = cloneDeep(this.defaultAzureProjects);
     this.azureRepositories = cloneDeep(this.defaultAzureRepositories);
-    (checkPersonalAccessTokenIsValid as jest.Mock).mockImplementation(
-      this.checkPersonalAccessTokenIsValid
-    );
-    (setAlmPersonalAccessToken as jest.Mock).mockImplementation(this.setAlmPersonalAccessToken);
-    (getGitlabProjects as jest.Mock).mockImplementation(this.getGitlabProjects);
-    (getGithubClientId as jest.Mock).mockImplementation(this.getGithubClientId);
-    (getGithubOrganizations as jest.Mock).mockImplementation(this.getGithubOrganizations);
-    (getAzureProjects as jest.Mock).mockImplementation(this.getAzureProjects);
-    (getAzureRepositories as jest.Mock).mockImplementation(this.getAzureRepositories);
-    (searchAzureRepositories as jest.Mock).mockImplementation(this.searchAzureRepositories);
-    (importAzureRepository as jest.Mock).mockImplementation(this.importAzureRepository);
+    this.bitbucketCloudRepositories = cloneDeep(this.defaultBitbucketCloudRepositories);
+    this.gitlabProjects = cloneDeep(this.defaultGitlabProjects);
+    this.gitlabPagination = cloneDeep(this.defaultGitlabPagination);
+    this.bitbucketRepositories = cloneDeep(this.defaultBitbucketRepositories);
+    this.bitbucketProjects = cloneDeep(this.defaultBitbucketProjects);
+    this.bitbucketIsLastPage = true;
+    jest
+      .mocked(checkPersonalAccessTokenIsValid)
+      .mockImplementation(this.checkPersonalAccessTokenIsValid);
+    jest.mocked(setAlmPersonalAccessToken).mockImplementation(this.setAlmPersonalAccessToken);
+    jest.mocked(getGitlabProjects).mockImplementation(this.getGitlabProjects);
+    jest.mocked(importGitlabProject).mockImplementation(this.importProject);
+    jest.mocked(importBitbucketCloudRepository).mockImplementation(this.importProject);
+    jest.mocked(getGithubClientId).mockImplementation(this.getGithubClientId);
+    jest.mocked(getGithubOrganizations).mockImplementation(this.getGithubOrganizations);
+    jest.mocked(getAzureProjects).mockImplementation(this.getAzureProjects);
+    jest.mocked(getAzureRepositories).mockImplementation(this.getAzureRepositories);
+    jest.mocked(searchAzureRepositories).mockImplementation(this.searchAzureRepositories);
+    jest.mocked(importAzureRepository).mockImplementation(this.importAzureRepository);
+    jest
+      .mocked(searchForBitbucketCloudRepositories)
+      .mockImplementation(this.searchForBitbucketCloudRepositories);
+    jest.mocked(getBitbucketServerProjects).mockImplementation(this.getBitbucketServerProjects);
+    jest
+      .mocked(getBitbucketServerRepositories)
+      .mockImplementation(this.getBitbucketServerRepositories);
+    jest.mocked(importBitbucketServerProject).mockImplementation(this.importBitbucketServerProject);
+    jest
+      .mocked(searchForBitbucketServerRepositories)
+      .mockImplementation(this.searchForBitbucketServerRepositories);
   }
 
   checkPersonalAccessTokenIsValid = (conf: string) => {
@@ -114,17 +197,17 @@ export default class AlmIntegrationsServiceMock {
     return Promise.resolve();
   };
 
-  getAzureProjects = (): Promise<{ projects: AzureProject[] }> => {
+  getAzureProjects = () => {
     return Promise.resolve({ projects: this.azureProjects });
   };
 
-  getAzureRepositories = (): Promise<{ repositories: AzureRepository[] }> => {
+  getAzureRepositories = () => {
     return Promise.resolve({
       repositories: this.azureRepositories,
     });
   };
 
-  searchAzureRepositories = (): Promise<{ repositories: AzureRepository[] }> => {
+  searchAzureRepositories = () => {
     return Promise.resolve({
       repositories: this.azureRepositories,
     });
@@ -134,31 +217,65 @@ export default class AlmIntegrationsServiceMock {
     this.azureRepositories = azureRepositories;
   };
 
-  importAzureRepository = (): Promise<{ project: ProjectBase }> => {
+  importAzureRepository = () => {
     return Promise.resolve({
       project: {
         key: 'key',
         name: 'name',
         qualifier: 'qualifier',
-        visibility: 'private',
+        visibility: Visibility.Private,
       },
     });
   };
 
-  setAzureProjects = (azureProjects: AzureProject[]) => {
-    this.azureProjects = azureProjects;
+  searchForBitbucketCloudRepositories = () => {
+    return Promise.resolve({
+      isLastPage: this.bitbucketIsLastPage,
+      repositories: this.bitbucketCloudRepositories,
+    });
   };
+
+  setBitbucketCloudRepositories(bitbucketCloudRepositories: BitbucketCloudRepository[]) {
+    this.bitbucketCloudRepositories = bitbucketCloudRepositories;
+  }
 
   getGitlabProjects = () => {
     return Promise.resolve({
       projects: this.gitlabProjects,
-      projectsPaging: {
-        pageIndex: 1,
-        pageSize: 30,
-        total: this.gitlabProjects.length,
+      projectsPaging: this.gitlabPagination,
+    });
+  };
+
+  importProject = () => {
+    return Promise.resolve({
+      project: {
+        key: 'key',
+        name: 'name',
+        qualifier: 'qualifier',
+        visibility: Visibility.Private,
       },
     });
   };
+
+  createRandomGitlabProjectsWithLoadMore(quantity: number, total: number) {
+    const generatedProjects = Array.from(Array(quantity).keys()).map((index) => {
+      return mockGitlabProject({ name: `Gitlab project ${index}`, id: uniqueId() });
+    });
+    this.gitlabProjects = generatedProjects;
+    this.gitlabPagination = { ...this.defaultGitlabPagination, total };
+  }
+
+  createRandomBitbucketCloudProjectsWithLoadMore(quantity: number, total: number) {
+    const generatedRepositories = Array.from(Array(quantity).keys()).map((index) => {
+      return mockBitbucketCloudRepository({
+        name: `Gitlab project ${index}`,
+        uuid: Math.floor(Math.random() * 100000),
+      });
+    });
+
+    this.bitbucketCloudRepositories = generatedRepositories;
+    this.bitbucketIsLastPage = quantity >= total;
+  }
 
   setGitlabProjects(gitlabProjects: GitlabProject[]) {
     this.gitlabProjects = gitlabProjects;
@@ -172,9 +289,47 @@ export default class AlmIntegrationsServiceMock {
     return Promise.resolve(this.defaultOrganizations);
   };
 
+  getBitbucketServerProjects = () => {
+    return Promise.resolve({ projects: this.bitbucketProjects });
+  };
+
+  getBitbucketServerRepositories = () => {
+    return Promise.resolve({
+      isLastPage: this.bitbucketIsLastPage,
+      repositories: this.bitbucketRepositories,
+    });
+  };
+
+  setBitbucketServerProjects = (bitbucketProjects: BitbucketProject[]) => {
+    this.bitbucketProjects = bitbucketProjects;
+  };
+
+  importBitbucketServerProject = () => {
+    return Promise.resolve({
+      project: {
+        key: 'key',
+        name: 'name',
+        qualifier: 'qualifier',
+        visibility: Visibility.Private,
+      },
+    });
+  };
+
+  searchForBitbucketServerRepositories = () => {
+    return Promise.resolve({
+      isLastPage: this.bitbucketIsLastPage,
+      repositories: this.bitbucketRepositories,
+    });
+  };
+
   reset = () => {
     this.almInstancePATMap = cloneDeep(this.defaultAlmInstancePATMap);
     this.gitlabProjects = cloneDeep(this.defaultGitlabProjects);
     this.azureRepositories = cloneDeep(this.defaultAzureRepositories);
+    this.gitlabPagination = cloneDeep(this.defaultGitlabPagination);
+    this.bitbucketCloudRepositories = cloneDeep(this.defaultBitbucketCloudRepositories);
+    this.bitbucketRepositories = cloneDeep(this.defaultBitbucketRepositories);
+    this.bitbucketProjects = cloneDeep(this.defaultBitbucketProjects);
+    this.bitbucketIsLastPage = true;
   };
 }

@@ -44,7 +44,7 @@ it('should render correctly', () => {
       isValid: false,
     })
   ).toMatchSnapshot('error under the input');
-  expect(shallowRender({ id: undefined, label: undefined })).toMatchSnapshot('no label');
+  expect(shallowRender({ labelHtmlFor: undefined, label: undefined })).toMatchSnapshot('no label');
 });
 
 function shallowRender(props: Partial<ValidationInputProps> = {}) {
@@ -52,7 +52,7 @@ function shallowRender(props: Partial<ValidationInputProps> = {}) {
     <ValidationInput
       description="My description"
       error={undefined}
-      id="field-id"
+      labelHtmlFor="field-id"
       isInvalid={false}
       isValid={true}
       label="Field label"
