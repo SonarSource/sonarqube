@@ -37,12 +37,16 @@ public class RegionMapper {
     int startLine = Objects.requireNonNull(region.getStartLine(), "No start line defined for the region.");
     Integer endLine = region.getEndLine();
     if (endLine != null) {
-      int startColumn = Optional.ofNullable(region.getStartColumn()).orElse(1);
-      int endColumn = Optional.ofNullable(region.getEndColumn())
+      int startColumn = Optional.ofNullable(region.getStartColumn()).map(RegionMapper::adjustSarifColumnIndexToSqIndex).orElse(0);
+      int endColumn = Optional.ofNullable(region.getEndColumn()).map(RegionMapper::adjustSarifColumnIndexToSqIndex)
         .orElseGet(() -> file.selectLine(endLine).end().lineOffset());
       return Optional.of(file.newRange(startLine, startColumn, endLine, endColumn));
     } else {
       return Optional.of(file.selectLine(startLine));
     }
+  }
+
+  private static int adjustSarifColumnIndexToSqIndex(int index) {
+    return index - 1;
   }
 }
