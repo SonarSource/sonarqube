@@ -35,8 +35,6 @@ interface SamlToggleFieldProps {
   error: { [key: string]: string };
 }
 
-const SAML_SIGNATURE_FIELD = 'sonar.auth.saml.signature.enabled';
-
 export default function SamlFormField(props: SamlToggleFieldProps) {
   const { mandatory = false, definition, settingValue, showSecuredTextArea = true, error } = props;
 
@@ -65,7 +63,7 @@ export default function SamlFormField(props: SamlToggleFieldProps) {
             definition={definition}
             settingValue={settingValue}
             toggleDisabled={false}
-            onChange={(val) => props.onFieldChange(SAML_SIGNATURE_FIELD, val)}
+            onChange={(value) => props.onFieldChange(definition.key, value)}
           />
         )}
         {definition.type === undefined && (

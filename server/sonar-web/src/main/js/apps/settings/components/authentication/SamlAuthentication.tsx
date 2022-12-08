@@ -59,6 +59,7 @@ const OPTIONAL_FIELDS = [
   'sonar.auth.saml.signature.enabled',
   'sonar.auth.saml.user.email',
   'sonar.auth.saml.group.name',
+  'sonar.scim.enabled',
 ];
 
 class SamlAuthentication extends React.PureComponent<
