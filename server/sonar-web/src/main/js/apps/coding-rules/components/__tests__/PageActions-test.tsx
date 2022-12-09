@@ -24,10 +24,9 @@ import PageActions, { PageActionsProps } from '../PageActions';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
   expect(shallowRender({ paging: { total: 100 } as Paging })).toMatchSnapshot('with paging');
 });
 
 function shallowRender(props: Partial<PageActionsProps> = {}) {
-  return shallow<PageActionsProps>(<PageActions loading={false} onReload={jest.fn()} {...props} />);
+  return shallow<PageActionsProps>(<PageActions {...props} />);
 }

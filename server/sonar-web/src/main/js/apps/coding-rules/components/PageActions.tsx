@@ -19,15 +19,11 @@
  */
 import * as React from 'react';
 import PageCounter from '../../../components/common/PageCounter';
-import ReloadButton from '../../../components/controls/ReloadButton';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
 import { translate } from '../../../helpers/l10n';
 import { Paging } from '../../../types/types';
 
 export interface PageActionsProps {
-  loading: boolean;
-  onReload: () => void;
   paging?: Paging;
   selectedIndex?: number;
 }
@@ -40,10 +36,6 @@ export default function PageActions(props: PageActionsProps) {
         leftAndRightLabel={translate('issues.to_navigate')}
         upAndDownLabel={translate('coding_rules.to_select_rules')}
       />
-
-      <DeferredSpinner loading={props.loading}>
-        <ReloadButton onClick={props.onReload} />
-      </DeferredSpinner>
 
       {props.paging && (
         <PageCounter

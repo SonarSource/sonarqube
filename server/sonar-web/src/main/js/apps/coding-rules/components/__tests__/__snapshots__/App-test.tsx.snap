@@ -252,8 +252,6 @@ exports[`should render correctly: loaded 1`] = `
                 total={0}
               />
               <PageActions
-                loading={false}
-                onReload={[Function]}
                 paging={
                   Object {
                     "pageIndex": 0,
@@ -383,10 +381,7 @@ exports[`should render correctly: loading 1`] = `
               className="display-flex-space-between"
             >
               <div />
-              <PageActions
-                loading={true}
-                onReload={[Function]}
-              />
+              <PageActions />
             </div>
           </div>
         </div>

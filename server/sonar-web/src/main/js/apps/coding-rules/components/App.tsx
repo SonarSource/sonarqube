@@ -624,12 +624,7 @@ export class App extends React.PureComponent<Props, State> {
                       this.renderBulkButton()
                     )}
                     {!usingPermalink && (
-                      <PageActions
-                        loading={this.state.loading}
-                        onReload={this.handleReload}
-                        paging={paging}
-                        selectedIndex={selectedIndex}
-                      />
+                      <PageActions paging={paging} selectedIndex={selectedIndex} />
                     )}
                   </div>
                 </div>
