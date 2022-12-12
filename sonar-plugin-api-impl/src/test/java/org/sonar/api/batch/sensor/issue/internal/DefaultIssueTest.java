@@ -233,13 +233,14 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void quickfix_not_supported_for_now() {
+  public void quickfix_only_sets_flag_to_true() {
     DefaultIssue issue = new DefaultIssue(project);
-    assertThatThrownBy(() -> issue.addQuickFix(quickFix))
-      .isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(issue::newQuickFix)
-      .isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(issue::quickFixes)
-      .isInstanceOf(UnsupportedOperationException.class);
+
+    NewQuickFix newQuickFix = issue.newQuickFix();
+    assertThat(newQuickFix).isInstanceOf(NoOpNewQuickFix.class);
+
+    assertThat(issue.isQuickFixAvailable()).isFalse();
+    issue.addQuickFix(newQuickFix);
+    assertThat(issue.isQuickFixAvailable()).isTrue();
   }
 }

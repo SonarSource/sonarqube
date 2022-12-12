@@ -82,12 +82,13 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
 
   @Override
   public NewQuickFix newQuickFix() {
-    throw new UnsupportedOperationException();
+    return new NoOpNewQuickFix();
   }
 
   @Override
   public NewIssue addQuickFix(NewQuickFix newQuickFix) {
-    throw new UnsupportedOperationException();
+    this.quickFixAvailable = true;
+    return this;
   }
 
   @Override
