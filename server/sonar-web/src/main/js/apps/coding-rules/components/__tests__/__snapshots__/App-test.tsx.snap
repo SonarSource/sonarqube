@@ -267,9 +267,7 @@ exports[`should render correctly: loaded 1`] = `
       <div
         className="layout-page-main-inner"
       >
-        <div
-          role="tab"
-        >
+        <section>
           <RuleListItem
             isLoggedIn={true}
             key="javascript:S1067"
@@ -324,7 +322,7 @@ exports[`should render correctly: loaded 1`] = `
             }
             selected={false}
           />
-        </div>
+        </section>
         <ListFooter
           count={2}
           loadMore={[Function]}
@@ -389,9 +387,7 @@ exports[`should render correctly: loading 1`] = `
       <div
         className="layout-page-main-inner"
       >
-        <div
-          role="tab"
-        />
+        <section />
       </div>
     </div>
   </div>
