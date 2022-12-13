@@ -42,7 +42,7 @@ export default function ButtonToggle(props: ButtonToggleProps) {
   const { disabled, label, options, value } = props;
 
   return (
-    <ul aria-label={label} role="group" className="button-toggle">
+    <ul aria-label={label} className="button-toggle">
       {options.map((option) => (
         <li key={option.value.toString()}>
           <Button
