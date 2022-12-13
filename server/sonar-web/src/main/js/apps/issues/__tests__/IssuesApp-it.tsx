@@ -23,10 +23,13 @@ import React from 'react';
 import selectEvent from 'react-select-event';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
 import { mockCurrentUser } from '../../../helpers/testMocks';
-import { renderApp, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
+import { renderApp, renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
+import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
+import { Component } from '../../../types/types';
 import { CurrentUser } from '../../../types/users';
 import IssuesApp from '../components/IssuesApp';
 import { projectIssuesRoutes } from '../routes';
@@ -88,6 +91,19 @@ it('should be able to bulk change', async () => {
       name: 'issue.type.type_x_click_to_change.issue.type.BUG',
     })
   ).toBeInTheDocument();
+});
+
+it('should show warning when not all issues are accessible', async () => {
+  const user = userEvent.setup();
+  renderProjectIssuesApp('project/issues?id=myproject', {
+    canBrowseAllChildProjects: false,
+    qualifier: ComponentQualifier.Portfolio,
+  });
+  expect(await screen.findByRole('alert', { name: 'alert.tooltip.warning' })).toBeInTheDocument();
+
+  await user.keyboard('{ArrowRight}');
+
+  expect(await screen.findByRole('alert', { name: 'alert.tooltip.warning' })).toBeInTheDocument();
 });
 
 it('should interact with flows and locations', async () => {
@@ -606,6 +622,11 @@ function renderIssueApp(currentUser?: CurrentUser) {
   renderApp('project/issues', <IssuesApp />, { currentUser: mockCurrentUser(currentUser) });
 }
 
-function renderProjectIssuesApp(navigateTo?: string) {
-  renderAppRoutes('project/issues', projectIssuesRoutes, { navigateTo });
+function renderProjectIssuesApp(navigateTo?: string, overrides?: Partial<Component>) {
+  renderAppWithComponentContext(
+    'project/issues',
+    projectIssuesRoutes,
+    { navigateTo },
+    { component: mockComponent(overrides) }
+  );
 }

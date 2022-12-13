@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { Issue } from '../../../types/types';
 import ConciseIssue from './ConciseIssue';
 
@@ -32,20 +31,18 @@ export interface ConciseIssuesListProps {
   selectedLocationIndex: number | undefined;
 }
 
-const DEFAULT_BOTTOM_OFFSET = 100;
-
 export default function ConciseIssuesList(props: ConciseIssuesListProps) {
   const { issues, selected, selectedFlowIndex, selectedLocationIndex } = props;
 
-  const handleScroll = React.useCallback(
-    (element: Element, bottomOffset = DEFAULT_BOTTOM_OFFSET) => {
-      const scrollableElement = document.querySelector('.layout-page-side');
-      if (element && scrollableElement) {
-        scrollToElement(element, { topOffset: 150, bottomOffset, parent: scrollableElement });
-      }
-    },
-    []
-  );
+  const handleScroll = React.useCallback((element: Element) => {
+    if (element) {
+      element.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth',
+        inline: 'center',
+      });
+    }
+  }, []);
 
   return (
     <ul>

@@ -976,19 +976,22 @@ export class App extends React.PureComponent<Props, State> {
                 weight={10}
               />
               {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
-                <Alert
-                  className="big-spacer-top big-spacer-right big-spacer-left it__portfolio_warning"
-                  variant="warning"
+                <div
+                  className={classNames('not-all-issue-warning', {
+                    'open-issue-list': openIssue,
+                  })}
                 >
-                  <AlertContent>
-                    {translate('issues.not_all_issue_show')}
-                    <HelpTooltip
-                      className="spacer-left"
-                      ariaLabel={translate('issues.not_all_issue_show_why')}
-                      overlay={translate('issues.not_all_issue_show_why')}
-                    />
-                  </AlertContent>
-                </Alert>
+                  <Alert className={classNames('it__portfolio_warning')} variant="warning">
+                    <AlertContent>
+                      {translate('issues.not_all_issue_show')}
+                      <HelpTooltip
+                        className="spacer-left"
+                        ariaLabel={translate('issues.not_all_issue_show_why')}
+                        overlay={translate('issues.not_all_issue_show_why')}
+                      />
+                    </AlertContent>
+                  </Alert>
+                </div>
               )}
 
               {openIssue ? this.renderConciseIssuesList() : this.renderFacets()}

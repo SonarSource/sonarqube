@@ -34,13 +34,11 @@ interface Props {
   onClick: (issueKey: string) => void;
   onFlowSelect: (index?: number) => void;
   onLocationSelect: (index: number) => void;
-  scroll: (element: Element, bottomOffset?: number) => void;
+  scroll: (element: Element) => void;
   selected: boolean;
   selectedFlowIndex: number | undefined;
   selectedLocationIndex: number | undefined;
 }
-
-const SCROLL_TOP_OFFSET = 250;
 
 export default class ConciseIssueBox extends React.PureComponent<Props> {
   messageElement?: HTMLElement | null;
@@ -63,7 +61,7 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
 
   handleScroll = () => {
     if (this.messageElement) {
-      this.props.scroll(this.messageElement, window.innerHeight - SCROLL_TOP_OFFSET);
+      this.props.scroll(this.messageElement);
     }
   };
 

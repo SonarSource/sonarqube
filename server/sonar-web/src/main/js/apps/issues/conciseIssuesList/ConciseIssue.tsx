@@ -28,7 +28,7 @@ export interface ConciseIssueProps {
   onLocationSelect: (index: number) => void;
   onSelect: (issueKey: string) => void;
   previousIssue: Issue | undefined;
-  scroll: (element: Element, bottomOffset?: number) => void;
+  scroll: (element: Element) => void;
   selected: boolean;
   selectedFlowIndex: number | undefined;
   selectedLocationIndex: number | undefined;

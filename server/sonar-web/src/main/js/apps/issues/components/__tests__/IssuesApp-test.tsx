@@ -40,7 +40,6 @@ import {
   mockRouter,
 } from '../../../../helpers/testMocks';
 import { keydown, mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
-import { ComponentQualifier } from '../../../../types/component';
 import { ReferencedComponent } from '../../../../types/issues';
 import { Issue, Paging } from '../../../../types/types';
 import {
@@ -114,17 +113,6 @@ beforeEach(() => {
 
 afterEach(() => {
   (searchIssues as jest.Mock).mockReset();
-});
-
-it('should show warnning when not all projects are accessible', () => {
-  const wrapper = shallowRender({
-    component: mockComponent({
-      canBrowseAllChildProjects: false,
-      qualifier: ComponentQualifier.Portfolio,
-    }),
-  });
-  const rootNode = shallow(wrapper.instance().renderSide(undefined));
-  expect(rootNode).toMatchSnapshot();
 });
 
 it('should render a list of issue', async () => {
