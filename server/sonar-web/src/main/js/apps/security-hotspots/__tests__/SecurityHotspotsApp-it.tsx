@@ -21,7 +21,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { byRole, byTestId } from 'testing-library-selector';
+import { byRole, byTestId, byText } from 'testing-library-selector';
 import SecurityHotspotServiceMock from '../../../api/mocks/SecurityHotspotServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
@@ -37,6 +37,12 @@ const ui = {
   selectStatusButton: byRole('button', {
     name: 'hotspots.status.select_status',
   }),
+  editAssigneeButton: byRole('button', {
+    name: 'hotspots.assignee.change_user',
+  }),
+  activeAssignee: byTestId('assignee-name'),
+  successGlobalMessage: byRole('status'),
+  currentUserSelectionItem: byText('foo'),
   panel: byTestId('security-hotspot-test'),
 };
 
@@ -48,6 +54,19 @@ beforeEach(() => {
 
 afterEach(() => {
   handler.reset();
+});
+
+it('should self-assign hotspot', async () => {
+  const user = userEvent.setup();
+  renderSecurityHotspotsApp();
+
+  expect(await ui.activeAssignee.find()).toHaveTextContent('John Doe');
+
+  await user.click(await ui.editAssigneeButton.find());
+  await user.click(ui.currentUserSelectionItem.get());
+
+  expect(ui.successGlobalMessage.get()).toHaveTextContent(`hotspots.assign.success.foo`);
+  expect(ui.activeAssignee.get()).toHaveTextContent('foo');
 });
 
 it('should remember the comment when toggling change status panel for the same security hotspot', async () => {

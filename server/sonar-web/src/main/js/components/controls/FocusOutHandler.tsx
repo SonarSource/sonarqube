@@ -19,12 +19,13 @@
  */
 import * as React from 'react';
 
-interface Props {
+interface Props extends React.BaseHTMLAttributes<HTMLDivElement> {
   onFocusOut: () => void;
+  innerRef?: (instance: HTMLDivElement) => void;
 }
 
 export default class FocusOutHandler extends React.PureComponent<React.PropsWithChildren<Props>> {
-  ref = React.createRef<HTMLDivElement>();
+  ref?: HTMLDivElement;
 
   componentDidMount() {
     setTimeout(() => {
@@ -36,13 +37,24 @@ export default class FocusOutHandler extends React.PureComponent<React.PropsWith
     document.removeEventListener('focusin', this.handleFocusOut);
   }
 
+  nodeRef = (node: HTMLDivElement) => {
+    const { innerRef } = this.props;
+    this.ref = node;
+    innerRef?.(node);
+  };
+
   handleFocusOut = () => {
-    if (this.ref.current && this.ref.current.querySelector(':focus') === null) {
+    if (this.ref?.querySelector(':focus') === null) {
       this.props.onFocusOut();
     }
   };
 
   render() {
-    return <div ref={this.ref}>{this.props.children}</div>;
+    const { onFocusOut, innerRef, children, ...props } = this.props;
+    return (
+      <div ref={this.nodeRef} {...props}>
+        {children}
+      </div>
+    );
   }
 }

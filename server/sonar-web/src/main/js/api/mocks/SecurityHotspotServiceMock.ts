@@ -22,31 +22,38 @@ import { mockHotspot, mockRawHotspot } from '../../helpers/mocks/security-hotspo
 import { mockSourceLine } from '../../helpers/mocks/sources';
 import { mockRuleDetails } from '../../helpers/testMocks';
 import { BranchParameters } from '../../types/branch-like';
-import { Hotspot, HotspotResolution, HotspotStatus } from '../../types/security-hotspots';
+import {
+  Hotspot,
+  HotspotAssignRequest,
+  HotspotResolution,
+  HotspotStatus,
+} from '../../types/security-hotspots';
 import { getSources } from '../components';
 import { getMeasures } from '../measures';
 import { getRuleDetails } from '../rules';
-import { getSecurityHotspotDetails, getSecurityHotspots } from '../security-hotspots';
+import {
+  assignSecurityHotspot,
+  getSecurityHotspotDetails,
+  getSecurityHotspots,
+} from '../security-hotspots';
 
 const NUMBER_OF_LINES = 20;
 const MAX_END_RANGE = 10;
 
 export default class SecurityHotspotServiceMock {
-  hotspots: Hotspot[];
-  rawHotspotKey: string[];
+  hotspots: Hotspot[] = [];
+  rawHotspotKey: string[] = [];
+  nextAssignee: string | undefined;
 
   constructor() {
-    this.rawHotspotKey = Object.keys(mockRawHotspot());
-    this.hotspots = [
-      mockHotspot({ key: '1', status: HotspotStatus.TO_REVIEW }),
-      mockHotspot({ key: '2', status: HotspotStatus.TO_REVIEW }),
-    ];
+    this.reset();
 
     (getMeasures as jest.Mock).mockImplementation(this.handleGetMeasures);
     (getSecurityHotspots as jest.Mock).mockImplementation(this.handleGetSecurityHotspots);
     (getSecurityHotspotDetails as jest.Mock).mockImplementation(
       this.handleGetSecurityHotspotDetails
     );
+    (assignSecurityHotspot as jest.Mock).mockImplementation(this.handleAssignSecurityHotspot);
     (getRuleDetails as jest.Mock).mockResolvedValue({ rule: mockRuleDetails() });
     (getSources as jest.Mock).mockResolvedValue(
       times(NUMBER_OF_LINES, (n) =>
@@ -105,6 +112,15 @@ export default class SecurityHotspotServiceMock {
       });
     }
 
+    if (this.nextAssignee !== undefined) {
+      hotspot.assigneeUser = {
+        ...hotspot.assigneeUser,
+        login: this.nextAssignee,
+        name: this.nextAssignee,
+      };
+      this.nextAssignee = undefined;
+    }
+
     return this.reply(hotspot);
   };
 
@@ -119,6 +135,11 @@ export default class SecurityHotspotServiceMock {
         },
       },
     ]);
+  };
+
+  handleAssignSecurityHotspot = (_: string, data: HotspotAssignRequest) => {
+    this.nextAssignee = data.assignee;
+    return this.reply({});
   };
 
   reply<T>(response: T): Promise<T> {

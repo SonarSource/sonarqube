@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { first, last } from 'lodash';
 import * as React from 'react';
 import HelpTooltip from '../../components/controls/HelpTooltip';
+import { KeyboardKeys } from '../../helpers/keycodes';
 import DocLink from './DocLink';
 import Link from './Link';
 
@@ -31,11 +33,47 @@ export interface DocumentationTooltipProps {
 }
 
 export default function DocumentationTooltip(props: DocumentationTooltipProps) {
-  const { className, content, links, title } = props;
+  const nextSelectableNode = React.useRef<HTMLElement | undefined | null>();
+  const linksRef = React.useRef<(HTMLAnchorElement | null)[]>([]);
+  const helpRef = React.useRef<HTMLElement>(null);
+  const { className, children, content, links, title } = props;
+
+  function handleShowTooltip() {
+    document.addEventListener('keydown', handleTabPress);
+  }
+
+  function handleHideTooltip() {
+    document.removeEventListener('keydown', handleTabPress);
+    nextSelectableNode.current = undefined;
+  }
+
+  function handleTabPress(event: KeyboardEvent) {
+    if (event.code === KeyboardKeys.Tab) {
+      if (event.shiftKey === true) {
+        if (event.target === first(linksRef.current)) {
+          helpRef.current?.focus();
+        }
+        return;
+      }
+      if (event.target === last(linksRef.current)) {
+        nextSelectableNode.current?.focus();
+        return;
+      }
+      if (nextSelectableNode.current === undefined) {
+        nextSelectableNode.current = event.target as HTMLElement;
+        event.preventDefault();
+        linksRef.current[0]?.focus();
+      }
+    }
+  }
 
   return (
     <HelpTooltip
       className={className}
+      onShow={handleShowTooltip}
+      onHide={handleHideTooltip}
+      isInteractive={true}
+      innerRef={helpRef}
       overlay={
         <div className="big-padded-top big-padded-bottom">
           {title && (
@@ -50,20 +88,18 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
             <>
               <hr className="big-spacer-top big-spacer-bottom" />
 
-              {links.map(({ href, label, inPlace, doc = true }) => (
-                <div
-                  className="little-spacer-bottom"
-                  key={label}
-                  // a11y: tooltips with interactive content are not supported by screen readers.
-                  // To prevent the screen reader from reading out the links for no reason (as
-                  // they won't be "clickable"), we hide the whole links section.
-                  // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
-                  aria-hidden={true}
-                >
+              {links.map(({ href, label, inPlace, doc = true }, index) => (
+                <div className="little-spacer-bottom" key={label}>
                   {doc ? (
-                    <DocLink to={href}>{label}</DocLink>
+                    <DocLink to={href} innerRef={(ref) => (linksRef.current[index] = ref)}>
+                      {label}
+                    </DocLink>
                   ) : (
-                    <Link to={href} target={inPlace ? undefined : '_blank'}>
+                    <Link
+                      to={href}
+                      ref={(ref) => (linksRef.current[index] = ref)}
+                      target={inPlace ? undefined : '_blank'}
+                    >
                       {label}
                     </Link>
                   )}
@@ -74,7 +110,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
         </div>
       }
     >
-      {props.children}
+      {children}
     </HelpTooltip>
   );
 }

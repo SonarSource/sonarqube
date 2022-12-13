@@ -30,6 +30,7 @@ exports[`should render properly: default 1`] = `
   >
     <span
       className="display-inline-flex-center"
+      data-testid="help-tooltip-activator"
     >
       <HelpIcon
         fill="#888"

@@ -22,6 +22,7 @@ import * as React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
 import { rawSizes } from '../../app/theme';
 import EscKeydownHandler from './EscKeydownHandler';
+import FocusOutHandler from './FocusOutHandler';
 import ScreenPositionFixer from './ScreenPositionFixer';
 import './Tooltip.css';
 
@@ -37,6 +38,10 @@ export interface TooltipProps {
   overlay: React.ReactNode;
   placement?: Placement;
   visible?: boolean;
+  // If tooltip overlay has interactive content (links for instance) we may set this to true to stop
+  // default behavior of tabbing (other changes should be done outside of this component to make it work)
+  // See example DocumentationTooltip
+  isInteractive?: boolean;
 }
 
 interface Measurements {
@@ -286,6 +291,12 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   };
 
   handleBlur = () => {
+    if (!this.props.isInteractive) {
+      this.closeTooltip();
+    }
+  };
+
+  closeTooltip = () => {
     if (this.mounted) {
       this.setState({ visible: false });
       if (this.props.onHide) {
@@ -362,11 +373,12 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
       : undefined;
 
     return (
-      <div
+      <FocusOutHandler
+        onFocusOut={this.closeTooltip}
         className={`${classNameSpace} ${currentPlacement}`}
         onPointerEnter={this.handleOverlayMouseEnter}
         onPointerLeave={this.handleOverlayMouseLeave}
-        ref={this.tooltipNodeRef}
+        innerRef={this.tooltipNodeRef}
         style={style}
       >
         <div className={`${classNameSpace}-inner`} id={this.id}>
@@ -380,7 +392,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
               : undefined
           }
         />
-      </div>
+      </FocusOutHandler>
     );
   };
 
@@ -402,7 +414,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           'aria-labelledby': isVisible ? this.id : undefined,
         })}
         {isVisible && (
-          <EscKeydownHandler onKeydown={this.handleBlur}>
+          <EscKeydownHandler onKeydown={this.closeTooltip}>
             <TooltipPortal>
               <ScreenPositionFixer ready={isMeasured(this.state)}>
                 {this.renderActual}

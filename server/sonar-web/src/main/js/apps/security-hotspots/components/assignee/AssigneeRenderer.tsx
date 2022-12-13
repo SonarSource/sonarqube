@@ -46,7 +46,7 @@ export default function AssigneeRenderer(props: AssigneeRendererProps) {
     <DeferredSpinner loading={loading}>
       {!editing && (
         <div className="display-flex-center">
-          <strong className="nowrap">
+          <strong className="nowrap" data-testid="assignee-name">
             {assignee &&
               (assignee.active
                 ? assignee.name ?? assignee.login

@@ -29,10 +29,13 @@ interface Props extends Pick<IconProps, 'size'> {
   className?: string;
   children?: React.ReactNode;
   onShow?: () => void;
+  onHide?: () => void;
   overlay: React.ReactNode;
   placement?: Placement;
   ariaLabel?: string;
   ariaLabelledby?: string;
+  isInteractive?: boolean;
+  innerRef?: React.Ref<HTMLSpanElement>;
 }
 
 const DEFAULT_SIZE = 12;
@@ -54,10 +57,16 @@ export default function HelpTooltip({
       <Tooltip
         mouseLeaveDelay={0.25}
         onShow={props.onShow}
+        onHide={props.onHide}
         overlay={props.overlay}
         placement={props.placement}
+        isInteractive={props.isInteractive}
       >
-        <span className="display-inline-flex-center">
+        <span
+          className="display-inline-flex-center"
+          data-testid="help-tooltip-activator"
+          ref={props.innerRef}
+        >
           {props.children || <HelpIcon fill={colors.gray60} size={size} />}
         </span>
       </Tooltip>
