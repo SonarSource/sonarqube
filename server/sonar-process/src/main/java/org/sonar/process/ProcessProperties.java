@@ -57,6 +57,11 @@ public class ProcessProperties {
     JDBC_MAX_ACTIVE("sonar.jdbc.maxActive", "60"),
     JDBC_MIN_IDLE("sonar.jdbc.minIdle", "10"),
     JDBC_MAX_WAIT("sonar.jdbc.maxWait", "8000"),
+    JDBC_MAX_IDLE_TIMEOUT("sonar.jdbc.idleTimeout", "600000"),
+    JDBC_MAX_KEEP_ALIVE_TIME("sonar.jdbc.keepaliveTime", "300000"),
+    JDBC_MAX_LIFETIME("sonar.jdbc.maxLifetime", "1800000"),
+    JDBC_VALIDATION_TIMEOUT("sonar.jdbc.validationTimeout", "5000"),
+
     JDBC_EMBEDDED_PORT("sonar.embeddedDatabase.port"),
 
     PATH_DATA("sonar.path.data", "data"),

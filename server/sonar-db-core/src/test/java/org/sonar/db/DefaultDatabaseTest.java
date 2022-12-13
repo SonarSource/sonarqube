@@ -62,15 +62,39 @@ public class DefaultDatabaseTest {
     Properties props = new Properties();
     props.setProperty("sonar.jdbc.driverClassName", "my.Driver");
     props.setProperty("sonar.jdbc.username", "me");
-    props.setProperty("sonar.jdbc.maximumPoolSize", "5");
-    props.setProperty("sonar.jdbc.connectionTimeout", "5000");
+    props.setProperty("sonar.jdbc.dataSource.password", "my_password");
+    props.setProperty("sonar.jdbc.dataSource.portNumber", "9999");
+    props.setProperty("sonar.jdbc.connectionTimeout", "8000");
+    props.setProperty("sonar.jdbc.maximumPoolSize", "80");
+    props.setProperty("sonar.jdbc.minimumIdle", "10");
+    props.setProperty("sonar.jdbc.schema", "db-schema");
+    props.setProperty("sonar.jdbc.validationTimeout", "5000");
+    props.setProperty("sonar.jdbc.catalog", "db-catalog");
+    props.setProperty("sonar.jdbc.initializationFailTimeout", "5000");
+    props.setProperty("sonar.jdbc.maxLifetime", "1800000");
+    props.setProperty("sonar.jdbc.leakDetectionThreshold", "0");
+    props.setProperty("sonar.jdbc.keepaliveTime", "30000");
+    props.setProperty("sonar.jdbc.idleTimeout", "600000");
 
     Properties hikariProps = DefaultDatabase.extractCommonsHikariProperties(props);
 
-    assertThat(hikariProps.getProperty("dataSource.user")).isEqualTo("me");
+    assertThat(hikariProps).hasSize(15);
     assertThat(hikariProps.getProperty("driverClassName")).isEqualTo("my.Driver");
-    assertThat(hikariProps.getProperty("maximumPoolSize")).isEqualTo("5");
-    assertThat(hikariProps.getProperty("connectionTimeout")).isEqualTo("5000");
+    assertThat(hikariProps.getProperty("dataSource.user")).isEqualTo("me");
+    assertThat(hikariProps.getProperty("dataSource.password")).isEqualTo("my_password");
+    assertThat(hikariProps.getProperty("dataSource.portNumber")).isEqualTo("9999");
+    assertThat(hikariProps.getProperty("connectionTimeout")).isEqualTo("8000");
+    assertThat(hikariProps.getProperty("maximumPoolSize")).isEqualTo("80");
+    assertThat(hikariProps.getProperty("minimumIdle")).isEqualTo("10");
+    assertThat(hikariProps.getProperty("schema")).isEqualTo("db-schema");
+    assertThat(hikariProps.getProperty("validationTimeout")).isEqualTo("5000");
+    assertThat(hikariProps.getProperty("catalog")).isEqualTo("db-catalog");
+    assertThat(hikariProps.getProperty("initializationFailTimeout")).isEqualTo("5000");
+    assertThat(hikariProps.getProperty("maxLifetime")).isEqualTo("1800000");
+    assertThat(hikariProps.getProperty("leakDetectionThreshold")).isEqualTo("0");
+    assertThat(hikariProps.getProperty("keepaliveTime")).isEqualTo("30000");
+    assertThat(hikariProps.getProperty("idleTimeout")).isEqualTo("600000");
+
   }
 
   @Test
@@ -91,7 +115,7 @@ public class DefaultDatabaseTest {
   }
 
   @Test
-  @UseDataProvider("sonarJdbcAndDbcpProperties")
+  @UseDataProvider("sonarJdbcAndHikariProperties")
   public void shouldExtractCommonsDbcpPropertiesIfDuplicatedPropertiesWithSameValue(String jdbcProperty, String dbcpProperty) {
     Properties props = new Properties();
     props.setProperty(jdbcProperty, "100");
@@ -103,7 +127,7 @@ public class DefaultDatabaseTest {
   }
 
   @Test
-  @UseDataProvider("sonarJdbcAndDbcpProperties")
+  @UseDataProvider("sonarJdbcAndHikariProperties")
   public void shouldThrowISEIfDuplicatedResolvedPropertiesWithDifferentValue(String jdbcProperty, String hikariProperty) {
     Properties props = new Properties();
     props.setProperty(jdbcProperty, "100");
@@ -171,7 +195,7 @@ public class DefaultDatabaseTest {
   }
 
   @DataProvider
-  public static Object[][] sonarJdbcAndDbcpProperties() {
+  public static Object[][] sonarJdbcAndHikariProperties() {
     return new Object[][] {
       {"sonar.jdbc.maxWait", "sonar.jdbc.connectionTimeout"},
       {"sonar.jdbc.maxActive", "sonar.jdbc.maximumPoolSize"}

@@ -44,10 +44,14 @@ import org.sonar.process.logging.LogbackHelper;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.sonar.process.ProcessProperties.Property.JDBC_EMBEDDED_PORT;
+import static org.sonar.process.ProcessProperties.Property.JDBC_MAX_IDLE_TIMEOUT;
+import static org.sonar.process.ProcessProperties.Property.JDBC_MAX_KEEP_ALIVE_TIME;
+import static org.sonar.process.ProcessProperties.Property.JDBC_MAX_LIFETIME;
 import static org.sonar.process.ProcessProperties.Property.JDBC_MIN_IDLE;
 import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
+import static org.sonar.process.ProcessProperties.Property.JDBC_VALIDATION_TIMEOUT;
 
 /**
  * @since 2.12
@@ -76,6 +80,7 @@ public class DefaultDatabase implements Database {
     SONAR_JDBC_MAX_WAIT,
     SONAR_JDBC_MAX_ACTIVE,
     // allowed hikari cp direct properties
+    // see: https://github.com/brettwooldridge/HikariCP#frequently-used
     SONAR_JDBC_DRIVER,
     "sonar.jdbc.dataSource.user",
     "sonar.jdbc.dataSource.password",
@@ -83,7 +88,16 @@ public class DefaultDatabase implements Database {
     "sonar.jdbc.jdbcUrl",
     "sonar.jdbc.connectionTimeout",
     "sonar.jdbc.maximumPoolSize",
-    "sonar.jdbc.minimumIdle");
+    "sonar.jdbc.minimumIdle",
+    "sonar.jdbc.schema",
+    JDBC_VALIDATION_TIMEOUT.getKey(),
+    "sonar.jdbc.catalog",
+    "sonar.jdbc.initializationFailTimeout",
+    JDBC_MAX_LIFETIME.getKey(),
+    "sonar.jdbc.leakDetectionThreshold",
+    JDBC_MAX_KEEP_ALIVE_TIME.getKey(),
+    JDBC_MAX_IDLE_TIMEOUT.getKey()
+  );
 
   private static final Map<String, String> SONAR_JDBC_TO_HIKARI_PROPERTY_MAPPINGS = Map.of(
     JDBC_USERNAME.getKey(), "dataSource.user",
