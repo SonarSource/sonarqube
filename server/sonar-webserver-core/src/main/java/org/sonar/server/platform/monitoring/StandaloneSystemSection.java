@@ -36,9 +36,11 @@ import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.platform.OfficialDistribution;
+import org.sonar.server.platform.StatisticsSupport;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
+import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
@@ -55,12 +57,13 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
   private final ServerLogging serverLogging;
   private final OfficialDistribution officialDistribution;
   private final DockerSupport dockerSupport;
+  private final StatisticsSupport statisticsSupport;
 
   private final SonarRuntime sonarRuntime;
 
   public StandaloneSystemSection(Configuration config, SecurityRealmFactory securityRealmFactory,
     IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
-    OfficialDistribution officialDistribution, DockerSupport dockerSupport, SonarRuntime sonarRuntime) {
+    OfficialDistribution officialDistribution, DockerSupport dockerSupport, StatisticsSupport statisticsSupport, SonarRuntime sonarRuntime) {
     this.config = config;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
@@ -68,6 +71,7 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
     this.serverLogging = serverLogging;
     this.officialDistribution = officialDistribution;
     this.dockerSupport = dockerSupport;
+    this.statisticsSupport = statisticsSupport;
     this.sonarRuntime = sonarRuntime;
   }
 
@@ -127,6 +131,7 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
     setAttribute(protobuf, "Server ID", server.getId());
     setAttribute(protobuf, "Version", getVersion());
     setAttribute(protobuf, "Edition", sonarRuntime.getEdition().getLabel());
+    setAttribute(protobuf, NCLOC.getName(), statisticsSupport.getLinesOfCode());
     setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
     setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());

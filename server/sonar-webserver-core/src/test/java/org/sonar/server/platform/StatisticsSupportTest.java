@@ -17,39 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.server.platform;
 
 import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.SumNclocDbQuery;
-import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 
+public class StatisticsSupportTest {
 
-public class StatisticsSystemSectionTest {
-
-  private DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
-
-  private final StatisticsSystemSection statisticsSystemSection = new StatisticsSystemSection(dbClient);
+  private final DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
+  private final StatisticsSupport statisticsSupport = new StatisticsSupport(dbClient);
 
   @Test
-  public void shouldWriteProtobuf() {
-
+  public void should_return_metric_from_liveMeasureDao() {
     when(dbClient.liveMeasureDao().sumNclocOfBiggestBranch(any(DbSession.class), any(SumNclocDbQuery.class))).thenReturn(1800999L);
 
-    ProtobufSystemInfo.Section protobuf = statisticsSystemSection.toProtobuf();
-    long value = attribute(protobuf, "loc").getLongValue();
+    long linesOfCode = statisticsSupport.getLinesOfCode();
 
-    assertThat(value).isEqualTo(1800999L);
-
+    assertThat(linesOfCode).isEqualTo(1800999L);
   }
-
 
 }

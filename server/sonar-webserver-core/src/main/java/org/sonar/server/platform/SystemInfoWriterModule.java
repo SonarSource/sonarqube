@@ -32,7 +32,6 @@ import org.sonar.server.platform.monitoring.LoggingSection;
 import org.sonar.server.platform.monitoring.PluginsSection;
 import org.sonar.server.platform.monitoring.SettingsSection;
 import org.sonar.server.platform.monitoring.StandaloneSystemSection;
-import org.sonar.server.platform.monitoring.StatisticsSystemSection;
 import org.sonar.server.platform.monitoring.cluster.AppNodesInfoLoaderImpl;
 import org.sonar.server.platform.monitoring.cluster.CeQueueGlobalSection;
 import org.sonar.server.platform.monitoring.cluster.EsClusterStateSection;
@@ -66,8 +65,7 @@ public class SystemInfoWriterModule extends Module {
       AlmConfigurationSection.class,
       ServerPushSection.class,
       BundledSection.class,
-      StatisticsSystemSection.class
-
+      StatisticsSupport.class
       );
     if (standalone) {
       add(

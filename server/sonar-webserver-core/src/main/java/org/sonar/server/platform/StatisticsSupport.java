@@ -17,35 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.server.platform;
 
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.SumNclocDbQuery;
-import org.sonar.process.systeminfo.SystemInfoSection;
-import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
-
-public class StatisticsSystemSection implements SystemInfoSection {
+public class StatisticsSupport {
 
   private final DbClient dbClient;
 
-  public StatisticsSystemSection(DbClient dbClient) {
+  public StatisticsSupport(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
-  @Override
-  public ProtobufSystemInfo.Section toProtobuf() {
-    ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
-
-    protobuf.setName("Statistics");
-    setAttribute(protobuf, "loc", getLoc());
-
-    return protobuf.build();
-  }
-
-  private long getLoc(){
+  public long getLinesOfCode(){
     try (DbSession dbSession = dbClient.openSession(false)) {
       SumNclocDbQuery query = SumNclocDbQuery.builder()
         .setOnlyPrivateProjects(false)
@@ -53,5 +39,4 @@ public class StatisticsSystemSection implements SystemInfoSection {
       return dbClient.liveMeasureDao().sumNclocOfBiggestBranch(dbSession, query);
     }
   }
-
 }

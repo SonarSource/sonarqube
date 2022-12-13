@@ -36,9 +36,11 @@ import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.platform.DockerSupport;
+import org.sonar.server.platform.StatisticsSupport;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
+import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
@@ -50,16 +52,18 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
   private final SecurityRealmFactory securityRealmFactory;
   private final IdentityProviderRepository identityProviderRepository;
   private final DockerSupport dockerSupport;
+  private final StatisticsSupport statisticsSupport;
 
   private final SonarRuntime sonarRuntime;
 
   public GlobalSystemSection(Configuration config, Server server, SecurityRealmFactory securityRealmFactory,
-    IdentityProviderRepository identityProviderRepository, DockerSupport dockerSupport, SonarRuntime sonarRuntime) {
+    IdentityProviderRepository identityProviderRepository, DockerSupport dockerSupport, StatisticsSupport statisticsSupport, SonarRuntime sonarRuntime) {
     this.config = config;
     this.server = server;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
     this.dockerSupport = dockerSupport;
+    this.statisticsSupport = statisticsSupport;
     this.sonarRuntime = sonarRuntime;
   }
 
@@ -70,6 +74,7 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
 
     setAttribute(protobuf, "Server ID", server.getId());
     setAttribute(protobuf, "Edition", sonarRuntime.getEdition().getLabel());
+    setAttribute(protobuf, NCLOC.getName() ,statisticsSupport.getLinesOfCode());
     setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
     setAttribute(protobuf, "High Availability", true);
     setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());

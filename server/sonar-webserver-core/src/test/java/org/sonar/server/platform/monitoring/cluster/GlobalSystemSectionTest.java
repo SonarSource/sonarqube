@@ -35,6 +35,7 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepositoryRule;
 import org.sonar.server.authentication.TestIdentityProvider;
 import org.sonar.server.platform.DockerSupport;
+import org.sonar.server.platform.StatisticsSupport;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,10 +56,12 @@ public class GlobalSystemSectionTest {
   private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
 
   private DockerSupport dockerSupport = mock(DockerSupport.class);
+  private StatisticsSupport statisticsSupport = mock(StatisticsSupport.class);
 
   private SonarRuntime sonarRuntime = mock(SonarRuntime.class);
+
   private GlobalSystemSection underTest = new GlobalSystemSection(settings.asConfig(),
-    server, securityRealmFactory, identityProviderRepository, dockerSupport, sonarRuntime);
+    server, securityRealmFactory, identityProviderRepository, dockerSupport, statisticsSupport, sonarRuntime);
 
   @Before
   public void setUp() {
@@ -140,6 +143,13 @@ public class GlobalSystemSectionTest {
     settings.setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, false);
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "Force authentication", false);
+  }
+
+  @Test
+  public void return_Lines_of_Codes_from_StatisticsSupport(){
+    when(statisticsSupport.getLinesOfCode()).thenReturn(17752L);
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf,"Lines of Code", 17752L);
   }
 
   @Test
