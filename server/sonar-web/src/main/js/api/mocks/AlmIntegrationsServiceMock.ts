@@ -24,6 +24,7 @@ import {
   mockBitbucketCloudRepository,
   mockBitbucketProject,
   mockBitbucketRepository,
+  mockGitHubRepository,
   mockGitlabProject,
 } from '../../helpers/mocks/alm-integrations';
 import {
@@ -32,9 +33,11 @@ import {
   BitbucketCloudRepository,
   BitbucketProject,
   BitbucketRepository,
+  GithubRepository,
   GitlabProject,
 } from '../../types/alm-integration';
 import { Visibility } from '../../types/component';
+import { Paging } from '../../types/types';
 import {
   checkPersonalAccessTokenIsValid,
   getAzureProjects,
@@ -43,10 +46,12 @@ import {
   getBitbucketServerRepositories,
   getGithubClientId,
   getGithubOrganizations,
+  getGithubRepositories,
   getGitlabProjects,
   importAzureRepository,
   importBitbucketCloudRepository,
   importBitbucketServerProject,
+  importGithubRepository,
   importGitlabProject,
   searchAzureRepositories,
   searchForBitbucketCloudRepositories,
@@ -59,7 +64,8 @@ export default class AlmIntegrationsServiceMock {
   gitlabProjects: GitlabProject[];
   azureProjects: AzureProject[];
   azureRepositories: AzureRepository[];
-  gitlabPagination;
+  githubRepositories: GithubRepository[];
+  pagination: Paging;
   bitbucketCloudRepositories: BitbucketCloudRepository[];
   bitbucketIsLastPage: boolean;
   bitbucketRepositories: BitbucketRepository[];
@@ -88,10 +94,10 @@ export default class AlmIntegrationsServiceMock {
     mockGitlabProject({ name: 'Gitlab project 3', id: '3' }),
   ];
 
-  defaultGitlabPagination = {
+  defaultPagination = {
     pageIndex: 1,
     pageSize: 30,
-    total: this.defaultGitlabProjects.length,
+    total: 30,
   };
 
   defaultAzureProjects: AzureProject[] = [
@@ -138,6 +144,15 @@ export default class AlmIntegrationsServiceMock {
     mockAzureRepository({ name: 'Azure repo 2' }),
   ];
 
+  defaultGithubRepositories: GithubRepository[] = [
+    mockGitHubRepository({ name: 'Github repo 1', sqProjectKey: 'key123' }),
+    mockGitHubRepository({
+      name: 'Github repo 2',
+      id: 'id1231',
+      key: 'key1231',
+    }),
+  ];
+
   defaultOrganizations = {
     paging: {
       pageIndex: 1,
@@ -158,7 +173,8 @@ export default class AlmIntegrationsServiceMock {
     this.azureRepositories = cloneDeep(this.defaultAzureRepositories);
     this.bitbucketCloudRepositories = cloneDeep(this.defaultBitbucketCloudRepositories);
     this.gitlabProjects = cloneDeep(this.defaultGitlabProjects);
-    this.gitlabPagination = cloneDeep(this.defaultGitlabPagination);
+    this.pagination = cloneDeep(this.defaultPagination);
+    this.githubRepositories = cloneDeep(this.defaultGithubRepositories);
     this.bitbucketRepositories = cloneDeep(this.defaultBitbucketRepositories);
     this.bitbucketProjects = cloneDeep(this.defaultBitbucketProjects);
     this.bitbucketIsLastPage = true;
@@ -173,8 +189,10 @@ export default class AlmIntegrationsServiceMock {
     jest.mocked(getGithubOrganizations).mockImplementation(this.getGithubOrganizations);
     jest.mocked(getAzureProjects).mockImplementation(this.getAzureProjects);
     jest.mocked(getAzureRepositories).mockImplementation(this.getAzureRepositories);
+    jest.mocked(getGithubRepositories).mockImplementation(this.getGithubRepositories);
     jest.mocked(searchAzureRepositories).mockImplementation(this.searchAzureRepositories);
     jest.mocked(importAzureRepository).mockImplementation(this.importAzureRepository);
+    jest.mocked(importGithubRepository).mockImplementation(this.importGithubRepository);
     jest
       .mocked(searchForBitbucketCloudRepositories)
       .mockImplementation(this.searchForBitbucketCloudRepositories);
@@ -242,7 +260,7 @@ export default class AlmIntegrationsServiceMock {
   getGitlabProjects = () => {
     return Promise.resolve({
       projects: this.gitlabProjects,
-      projectsPaging: this.gitlabPagination,
+      projectsPaging: this.pagination,
     });
   };
 
@@ -262,7 +280,7 @@ export default class AlmIntegrationsServiceMock {
       return mockGitlabProject({ name: `Gitlab project ${index}`, id: uniqueId() });
     });
     this.gitlabProjects = generatedProjects;
-    this.gitlabPagination = { ...this.defaultGitlabPagination, total };
+    this.pagination = { ...this.defaultPagination, total };
   }
 
   createRandomBitbucketCloudProjectsWithLoadMore(quantity: number, total: number) {
@@ -275,6 +293,41 @@ export default class AlmIntegrationsServiceMock {
 
     this.bitbucketCloudRepositories = generatedRepositories;
     this.bitbucketIsLastPage = quantity >= total;
+  }
+
+  createRandomGithubRepositoriessWithLoadMore(quantity: number, total: number) {
+    const generatedProjects = Array.from(Array(quantity).keys()).map(() => {
+      const id = uniqueId();
+      return mockGitHubRepository({
+        name: `Github repo ${id}`,
+        key: `key_${id}`,
+        id,
+      });
+    });
+    this.githubRepositories = generatedProjects;
+    this.pagination = { ...this.defaultPagination, total };
+  }
+
+  importGithubRepository = () => {
+    return Promise.resolve({
+      project: {
+        key: 'key',
+        name: 'name',
+        qualifier: 'qualifier',
+        visibility: Visibility.Private,
+      },
+    });
+  };
+
+  getGithubRepositories = () => {
+    return Promise.resolve({
+      repositories: this.githubRepositories,
+      paging: this.pagination,
+    });
+  };
+
+  setGithubRepositories(githubProjects: GithubRepository[]) {
+    this.githubRepositories = githubProjects;
   }
 
   setGitlabProjects(gitlabProjects: GitlabProject[]) {
@@ -326,7 +379,7 @@ export default class AlmIntegrationsServiceMock {
     this.almInstancePATMap = cloneDeep(this.defaultAlmInstancePATMap);
     this.gitlabProjects = cloneDeep(this.defaultGitlabProjects);
     this.azureRepositories = cloneDeep(this.defaultAzureRepositories);
-    this.gitlabPagination = cloneDeep(this.defaultGitlabPagination);
+    this.pagination = cloneDeep(this.defaultPagination);
     this.bitbucketCloudRepositories = cloneDeep(this.defaultBitbucketCloudRepositories);
     this.bitbucketRepositories = cloneDeep(this.defaultBitbucketRepositories);
     this.bitbucketProjects = cloneDeep(this.defaultBitbucketProjects);

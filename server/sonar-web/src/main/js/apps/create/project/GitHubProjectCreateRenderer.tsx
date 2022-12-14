@@ -258,9 +258,12 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
       {!error && (
         <DeferredSpinner loading={loadingOrganizations}>
           <div className="form-field">
-            <label>{translate('onboarding.create_project.github.choose_organization')}</label>
+            <label htmlFor="github-choose-organization">
+              {translate('onboarding.create_project.github.choose_organization')}
+            </label>
             {organizations.length > 0 ? (
               <Select
+                inputId="github-choose-organization"
                 className="input-super-large"
                 options={organizations.map(orgToOption)}
                 onChange={({ value }: BasicSelectOption) => props.onSelectOrganization(value)}
