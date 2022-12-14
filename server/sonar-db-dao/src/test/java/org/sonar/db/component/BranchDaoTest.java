@@ -106,7 +106,7 @@ public class BranchDaoTest {
     dto2.setKey("branch");
     underTest.insert(dbSession, dto2);
 
-    underTest.updateMainBranchName(dbSession, "U1", "master");
+    underTest.updateBranchName(dbSession, "U1", "master");
     BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "master").get();
     assertThat(loaded.getMergeBranchUuid()).isNull();
     assertThat(loaded.getProjectUuid()).isEqualTo("U1");

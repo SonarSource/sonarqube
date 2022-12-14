@@ -168,7 +168,7 @@ public class ListActionTest {
   @Test
   public void main_branch_with_specified_name() {
     ComponentDto project = db.components().insertPrivateProject();
-    db.getDbClient().branchDao().updateMainBranchName(db.getSession(), project.uuid(), "head");
+    db.getDbClient().branchDao().updateBranchName(db.getSession(), project.uuid(), "head");
     db.commit();
     userSession.logIn().addProjectPermission(USER, project);
 

@@ -32,7 +32,7 @@ public interface BranchMapper {
 
   int update(@Param("dto") BranchDto dto, @Param("now") long now);
 
-  int updateMainBranchName(@Param("projectUuid") String projectUuid, @Param("newBranchName") String newBranchName, @Param("now") long now);
+  int updateBranchName(@Param("branchUuid") String branchUuid, @Param("newBranchName") String newBranchName, @Param("now") long now);
 
   int updateExcludeFromPurge(@Param("uuid") String uuid, @Param("excludeFromPurge") boolean excludeFromPurge,
     @Param("now") long now);

@@ -81,7 +81,7 @@ public class RenameAction implements BranchWsAction {
       checkArgument(!existingBranch.filter(b -> !b.isMain()).isPresent(),
         "Impossible to update branch name: a branch with name \"%s\" already exists in the project.", newBranchName);
 
-      dbClient.branchDao().updateMainBranchName(dbSession, project.getUuid(), newBranchName);
+      dbClient.branchDao().updateBranchName(dbSession, project.getUuid(), newBranchName);
       dbSession.commit();
       response.noContent();
     }

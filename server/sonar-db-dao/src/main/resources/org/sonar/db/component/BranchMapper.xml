@@ -39,13 +39,13 @@
     )
   </insert>
 
-  <update id="updateMainBranchName" parameterType="map">
+  <update id="updateBranchName" parameterType="map">
     update project_branches
     set
       kee = #{newBranchName, jdbcType=VARCHAR},
       updated_at = #{now, jdbcType=BIGINT}
     where
-      uuid = #{projectUuid, jdbcType=VARCHAR}
+      uuid = #{branchUuid, jdbcType=VARCHAR}
   </update>
 
   <update id="updateExcludeFromPurge">
