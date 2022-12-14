@@ -45,7 +45,7 @@ message PullRequest {
 
 message Status {
   optional string qualityGateStatus = 1;
-  optional int64 bugs = 2;
-  optional int64 vulnerabilities = 3;
-  optional int64 codeSmells = 4;
+  reserved 2; // drop bugs field
+  reserved 3; // drop vulnerabilities field
+  reserved 4; // drop codeSmells field
 }

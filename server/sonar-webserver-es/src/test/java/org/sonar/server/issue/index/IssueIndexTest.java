@@ -23,10 +23,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
-import org.assertj.core.groups.Tuple;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
@@ -43,11 +41,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
-import static org.sonar.api.rules.RuleType.BUG;
-import static org.sonar.api.rules.RuleType.CODE_SMELL;
-import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -88,7 +81,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
       String key = "I" + i;
       issues.add(newDoc(key, file));
     }
-    indexIssues(issues.toArray(new IssueDoc[]{}));
+    indexIssues(issues.toArray(new IssueDoc[] {}));
 
     IssueQuery.Builder query = IssueQuery.builder();
     SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
@@ -105,7 +98,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
       String key = "I" + i;
       issues.add(newDoc(key, file));
     }
-    indexIssues(issues.toArray(new IssueDoc[]{}));
+    indexIssues(issues.toArray(new IssueDoc[] {}));
 
     IssueQuery.Builder query = IssueQuery.builder();
     SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
@@ -119,12 +112,12 @@ public class IssueIndexTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
     List<IssueDoc> issues = new ArrayList<>();
-    //we are adding issues in reverse order to see if the sort is actually doing anything
+    // we are adding issues in reverse order to see if the sort is actually doing anything
     for (int i = 9; i >= 1; i--) {
       String key = "I" + i;
       issues.add(newDoc(key, file));
     }
-    indexIssues(issues.toArray(new IssueDoc[]{}));
+    indexIssues(issues.toArray(new IssueDoc[] {}));
     IssueQuery.Builder query = IssueQuery.builder().asc(true);
 
     SearchResponse result = underTest.search(query.sort(IssueQuery.SORT_BY_CREATION_DATE).build(), new SearchOptions());
@@ -140,12 +133,12 @@ public class IssueIndexTest extends IssueIndexTestCommon {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
     List<IssueDoc> issues = new ArrayList<>();
-    //we are adding issues in reverse order to see if the sort is actually doing anything
+    // we are adding issues in reverse order to see if the sort is actually doing anything
     for (int i = 9; i >= 1; i--) {
       String key = "I" + i;
       issues.add(newDoc(key, file));
     }
-    indexIssues(issues.toArray(new IssueDoc[]{}));
+    indexIssues(issues.toArray(new IssueDoc[] {}));
     IssueQuery.Builder query = IssueQuery.builder().asc(true);
 
     SearchResponse result = underTest.search(query.sort(IssueQuery.SORT_BY_CREATION_DATE).build(), new SearchOptions());
@@ -292,63 +285,6 @@ public class IssueIndexTest extends IssueIndexTestCommon {
     assertThat(underTest.countTags(projectQuery(project.uuid()), 5)).containsOnly(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
     assertThat(underTest.countTags(projectQuery(project.uuid()), 2)).contains(entry("convention", 3L), entry("bug", 2L)).doesNotContainEntry("java8", 1L);
     assertThat(underTest.countTags(projectQuery("other"), 10)).isEmpty();
-  }
-
-  @Test
-  public void searchBranchStatistics() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch1 = db.components().insertProjectBranch(project);
-    ComponentDto branch2 = db.components().insertProjectBranch(project);
-    ComponentDto branch3 = db.components().insertProjectBranch(project);
-    ComponentDto fileOnBranch3 = db.components().insertComponent(newFileDto(branch3));
-    indexIssues(newDoc(project),
-      newDoc(branch1).setType(BUG).setResolution(null), newDoc(branch1).setType(VULNERABILITY).setResolution(null), newDoc(branch1).setType(CODE_SMELL).setResolution(null),
-      newDoc(branch1).setType(CODE_SMELL).setResolution(RESOLUTION_FIXED),
-      newDoc(branch3).setType(CODE_SMELL).setResolution(null), newDoc(branch3).setType(CODE_SMELL).setResolution(null),
-      newDoc(fileOnBranch3).setType(CODE_SMELL).setResolution(null), newDoc(fileOnBranch3).setType(CODE_SMELL).setResolution(RESOLUTION_FIXED));
-
-    List<PrStatistics> prStatistics = underTest.searchBranchStatistics(project.uuid(), asList(branch1.uuid(), branch2.uuid(), branch3.uuid()));
-
-    assertThat(prStatistics).extracting(PrStatistics::getBranchUuid, PrStatistics::getBugs, PrStatistics::getVulnerabilities, PrStatistics::getCodeSmells)
-      .containsExactlyInAnyOrder(
-        tuple(branch1.uuid(), 1L, 1L, 1L),
-        tuple(branch3.uuid(), 0L, 0L, 3L));
-  }
-
-  @Test
-  public void searchBranchStatistics_on_many_branches() {
-    ComponentDto project = db.components().insertPublicProject();
-    List<String> branchUuids = new ArrayList<>();
-    List<Tuple> expectedResult = new ArrayList<>();
-    IntStream.range(0, 15).forEach(i -> {
-      ComponentDto branch = db.components().insertProjectBranch(project);
-      addIssues(branch, 1 + i, 2 + i, 3 + i);
-      expectedResult.add(tuple(branch.uuid(), 1L + i, 2L + i, 3L + i));
-      branchUuids.add(branch.uuid());
-    });
-
-    List<PrStatistics> prStatistics = underTest.searchBranchStatistics(project.uuid(), branchUuids);
-
-    assertThat(prStatistics)
-      .extracting(PrStatistics::getBranchUuid, PrStatistics::getBugs, PrStatistics::getVulnerabilities, PrStatistics::getCodeSmells)
-      .hasSize(15)
-      .containsAll(expectedResult);
-  }
-
-  @Test
-  public void searchBranchStatistics_on_empty_list() {
-    ComponentDto project = db.components().insertPublicProject();
-
-    assertThat(underTest.searchBranchStatistics(project.uuid(), emptyList())).isEmpty();
-    assertThat(underTest.searchBranchStatistics(project.uuid(), singletonList("unknown"))).isEmpty();
-  }
-
-  private void addIssues(ComponentDto component, int bugs, int vulnerabilities, int codeSmelles) {
-    List<IssueDoc> issues = new ArrayList<>();
-    IntStream.range(0, bugs).forEach(b -> issues.add(newDoc(component).setType(BUG).setResolution(null)));
-    IntStream.range(0, vulnerabilities).forEach(v -> issues.add(newDoc(component).setType(VULNERABILITY).setResolution(null)));
-    IntStream.range(0, codeSmelles).forEach(c -> issues.add(newDoc(component).setType(CODE_SMELL).setResolution(null)));
-    indexIssues(issues.toArray(new IssueDoc[0]));
   }
 
   private IssueQuery projectQuery(String projectUuid) {
