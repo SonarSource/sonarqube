@@ -173,6 +173,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       ProjectRepositoriesProvider.class,
       new ProjectServerSettingsProvider(),
       AnalysisCacheEnabled.class,
+      DeprecatedPropertiesWarningGenerator.class,
 
       // temp
       new AnalysisTempFolderProvider(),
@@ -353,6 +354,9 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
     } else if (branchConfig.branchName() != null) {
       LOG.info("Branch name: {}", branchConfig.branchName());
     }
+
+    getComponentByType(DeprecatedPropertiesWarningGenerator.class).execute();
+
 
     getComponentByType(ProjectFileIndexer.class).index();
 
