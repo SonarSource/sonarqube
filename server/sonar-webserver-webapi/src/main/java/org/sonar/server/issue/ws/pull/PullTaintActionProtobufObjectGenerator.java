@@ -96,6 +96,7 @@ public class PullTaintActionProtobufObjectGenerator implements ProtobufObjectGen
     taintBuilder.setType(Common.RuleType.forNumber(issueDto.getType()));
     taintBuilder.setClosed(false);
     taintBuilder.setMainLocation(locationBuilder.build());
+    issueDto.getOptionalRuleDescriptionContextKey().ifPresent(taintBuilder::setRuleDescriptionContextKey);
 
     return taintBuilder.build();
   }

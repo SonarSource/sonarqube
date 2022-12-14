@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.pushevent;
 
+import com.google.gson.Gson;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import org.junit.Before;
@@ -39,19 +41,24 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.issue.TaintChecker;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PushEventFactoryTest {
 
+  private static final Gson gson = new Gson();
+  private static final String BRANCH_NAME = "develop";
+
   private final TaintChecker taintChecker = mock(TaintChecker.class);
   @Rule
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setBranch(new TestBranch("develop"));
+    .setBranch(new TestBranch(BRANCH_NAME));
 
   private final FlowGenerator flowGenerator = new FlowGenerator(treeRootHolder);
   private final PushEventFactory underTest = new PushEventFactory(treeRootHolder, analysisMetadataHolder, taintChecker, flowGenerator);
@@ -67,17 +74,33 @@ public class PushEventFactoryTest {
   @Test
   public void raise_event_to_repository_if_taint_vulnerability_is_new() {
     DefaultIssue defaultIssue = createDefaultIssue()
-      .setNew(true);
+      .setNew(true)
+      .setRuleDescriptionContextKey(randomAlphabetic(6));
 
     assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue))
       .isNotEmpty()
       .hasValueSatisfying(pushEventDto -> {
         assertThat(pushEventDto.getName()).isEqualTo("TaintVulnerabilityRaised");
-        assertThat(pushEventDto.getPayload()).isNotNull();
+        verifyPayload(pushEventDto.getPayload(), defaultIssue);
         assertThat(pushEventDto.getLanguage()).isEqualTo("java");
         assertThat(pushEventDto.getProjectUuid()).isEqualTo("some-project-uuid");
       });
 
+  }
+
+  private static void verifyPayload(byte[] payload, DefaultIssue defaultIssue) {
+    assertThat(payload).isNotNull();
+
+    TaintVulnerabilityRaised taintVulnerabilityRaised = gson.fromJson(new String(payload, StandardCharsets.UTF_8), TaintVulnerabilityRaised.class);
+    assertThat(taintVulnerabilityRaised.getProjectKey()).isEqualTo(defaultIssue.projectKey());
+    assertThat(taintVulnerabilityRaised.getCreationDate()).isEqualTo(defaultIssue.creationDate().getTime());
+    assertThat(taintVulnerabilityRaised.getKey()).isEqualTo(defaultIssue.key());
+    assertThat(taintVulnerabilityRaised.getSeverity()).isEqualTo(defaultIssue.severity());
+    assertThat(taintVulnerabilityRaised.getRuleKey()).isEqualTo(defaultIssue.ruleKey().toString());
+    assertThat(taintVulnerabilityRaised.getType()).isEqualTo(defaultIssue.type().name());
+    assertThat(taintVulnerabilityRaised.getBranch()).isEqualTo(BRANCH_NAME);
+    String ruleDescriptionContextKey = taintVulnerabilityRaised.getRuleDescriptionContextKey().orElseGet(() -> fail("No rule description context key"));
+    assertThat(ruleDescriptionContextKey).isEqualTo(defaultIssue.getRuleDescriptionContextKey().orElse(null));
   }
 
   @Test

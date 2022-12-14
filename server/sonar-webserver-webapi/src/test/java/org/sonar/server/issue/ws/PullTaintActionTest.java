@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,6 +55,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -387,6 +389,7 @@ public class PullTaintActionTest {
     RuleDto javaRule = db.rules().insert(r -> r.setRepositoryKey("javasecurity"));
     RuleDto javaScriptRule = db.rules().insert(r -> r.setRepositoryKey("javascript"));
 
+    String ruledescriptionContextKey = randomAlphabetic(6);
     IssueDto issueDto = issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
       .setManualSeverity(true)
       .setMessage("openIssue")
@@ -395,7 +398,8 @@ public class PullTaintActionTest {
       .setStatus(Issue.STATUS_OPEN)
       .setProject(correctProject)
       .setComponent(correctFile)
-      .setType(2));
+      .setType(2)
+      .setRuleDescriptionContextKey(ruledescriptionContextKey));
 
     //this one should not be returned - it is a normal issue, no taint
     issueDbTester.insertIssue(p -> p.setSeverity("MINOR")
@@ -416,7 +420,9 @@ public class PullTaintActionTest {
     List<Issues.TaintVulnerabilityLite> taints = readAllTaint(response);
 
     assertThat(taints).hasSize(1);
-    assertThat(taints.get(0).getKey()).isEqualTo(issueDto.getKey());
+    Issues.TaintVulnerabilityLite taintVulnerabilityLite = taints.get(0);
+    assertThat(taintVulnerabilityLite.getKey()).isEqualTo(issueDto.getKey());
+    assertThat(taintVulnerabilityLite.getRuleDescriptionContextKey()).isEqualTo(ruledescriptionContextKey);
   }
 
   @Test

@@ -702,7 +702,8 @@
     i.issue_type as type,
     i.locations as locations,
     i.component_uuid as component_uuid,
-    i.assignee as assigneeUuid
+    i.assignee as assigneeUuid,
+    i.rule_description_context_key as ruleDescriptionContextKey
   </sql>
 
   <select id="selectByBranch" parameterType="map" resultType="Issue">

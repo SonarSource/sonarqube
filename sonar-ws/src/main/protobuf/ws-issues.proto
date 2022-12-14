@@ -286,6 +286,7 @@ message TaintVulnerabilityLite {
   optional bool closed = 8;
   repeated Flow flows = 9;
   optional bool assignedToSubscribedUser = 10;
+  optional string ruleDescriptionContextKey = 11;
 }
 
 message Flow {

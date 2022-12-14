@@ -86,7 +86,7 @@ public abstract class BasePullAction implements IssuesWsAction {
       .setInternal(true)
       .setResponseExample(getClass().getResource(resourceExample))
       .setDescription(format("This endpoint fetches and returns all (unless filtered by optional params) the %s for a given branch. " +
-        "The %s returned are not paginated, so the response size can be big.", issueType, issueType))
+        "The %s returned are not paginated, so the response size can be big. Requires project 'Browse' permission.", issueType, issueType))
       .setSince(sinceVersion);
 
     action.createParam(PROJECT_KEY_PARAM)

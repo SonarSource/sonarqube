@@ -99,22 +99,22 @@ public class PushEventFactory {
     event.setSeverity(issue.severity());
     event.setRuleKey(issue.getRuleKey().toString());
     event.setType(issue.type().name());
-
     event.setBranch(analysisMetadataHolder.getBranch().getName());
+    event.setMainLocation(prepareMainLocation(component, issue));
+    event.setFlows(flowGenerator.convertFlows(component.getName(), requireNonNull(issue.getLocations())));
+    issue.getRuleDescriptionContextKey().ifPresent(event::setRuleDescriptionContextKey);
+    return event;
+  }
 
+  private static Location prepareMainLocation(Component component, DefaultIssue issue) {
     DbIssues.Locations issueLocations = requireNonNull(issue.getLocations());
+    TextRange mainLocationTextRange = getTextRange(issueLocations.getTextRange(), issueLocations.getChecksum());
 
     Location mainLocation = new Location();
-    mainLocation.setMessage(issue.getMessage());
-
+    Optional.ofNullable(issue.getMessage()).ifPresent(mainLocation::setMessage);
     mainLocation.setFilePath(component.getName());
-
-    TextRange mainLocationTextRange = getTextRange(issueLocations.getTextRange(), issueLocations.getChecksum());
     mainLocation.setTextRange(mainLocationTextRange);
-    event.setMainLocation(mainLocation);
-
-    event.setFlows(flowGenerator.convertFlows(component.getName(), issueLocations));
-    return event;
+    return mainLocation;
   }
 
   private static PushEventDto raiseTaintVulnerabilityClosedEvent(String projectUuid, DefaultIssue issue) {
