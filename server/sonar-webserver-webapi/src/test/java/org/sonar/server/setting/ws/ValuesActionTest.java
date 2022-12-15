@@ -124,7 +124,7 @@ public class ValuesActionTest {
     assertThat(value.getKey()).isEqualTo(propertyKey);
     assertThat(value.getValues().getValuesList())
       .hasSize(2)
-      .containsExactly("[link](https://link.com)", "<a href=\"https://link.com\" target=\"_blank\">link</a>");
+      .containsExactly("[link](https://link.com)", "<a href=\"https://link.com\" target=\"_blank\" rel=\"noopener noreferrer\">link</a>");
   }
 
   @Test

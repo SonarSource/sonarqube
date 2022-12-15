@@ -28,13 +28,13 @@ public class MarkdownTest {
   @Test
   public void shouldDecorateUrl() {
     assertThat(Markdown.convertToHtml("http://google.com"))
-        .isEqualTo("<a href=\"http://google.com\" target=\"_blank\">http://google.com</a>");
+        .isEqualTo("<a href=\"http://google.com\" target=\"_blank\" rel=\"noopener noreferrer\">http://google.com</a>");
   }
 
   @Test
   public void shouldDecorateDocumentedLink() {
     assertThat(Markdown.convertToHtml("For more details, please [check online documentation](http://docs.sonarqube.org/display/SONAR)."))
-        .isEqualTo("For more details, please <a href=\"http://docs.sonarqube.org/display/SONAR\" target=\"_blank\">check online documentation</a>.");
+        .isEqualTo("For more details, please <a href=\"http://docs.sonarqube.org/display/SONAR\" target=\"_blank\" rel=\"noopener noreferrer\">check online documentation</a>.");
   }
 
 

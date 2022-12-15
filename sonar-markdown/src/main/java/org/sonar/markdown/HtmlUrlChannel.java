@@ -33,6 +33,10 @@ class HtmlUrlChannel extends RegexChannel<MarkdownOutput> {
 
   @Override
   protected void consume(CharSequence token, MarkdownOutput output) {
-    output.append("<a href=\"" + token + "\" target=\"_blank\">" + token + "</a>");
+    output.append("<a href=\"");
+    output.append(token);
+    output.append("\" target=\"_blank\" rel=\"noopener noreferrer\">");
+    output.append(token);
+    output.append("</a>");
   }
 }

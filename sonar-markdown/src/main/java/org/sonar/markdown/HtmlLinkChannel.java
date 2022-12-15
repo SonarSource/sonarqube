@@ -49,7 +49,7 @@ class HtmlLinkChannel extends RegexChannel<MarkdownOutput> {
     String url = matcher.group(2);
     output.append("<a href=\"");
     output.append(url);
-    output.append("\" target=\"_blank\">");
+    output.append("\" target=\"_blank\" rel=\"noopener noreferrer\">");
     output.append(content);
     output.append("</a>");
   }
