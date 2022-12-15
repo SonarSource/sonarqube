@@ -52,7 +52,8 @@ public class RestartAction implements SystemWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("restart")
-      .setDescription("Restart server. Require 'Administer System' permission. Perform a full restart of the Web, Search and Compute Engine Servers processes.")
+      .setDescription("Restarts server. Requires 'Administer System' permission. Performs a full restart of the Web, Search and Compute Engine Servers processes."
+         + " Does not reload sonar.properties.")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);

@@ -10,8 +10,13 @@ exports[`should render correctly 1`] = `
       >
         system.are_you_sure_to_restart
       </p>
-      <p>
+      <p
+        className="spacer-bottom"
+      >
         system.forcing_shutdown_not_recommended
+      </p>
+      <p>
+        system.restart_does_not_reload_sonar_properties
       </p>
     </React.Fragment>
   }

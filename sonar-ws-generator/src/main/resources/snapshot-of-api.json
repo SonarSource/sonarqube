@@ -8961,7 +8961,7 @@
         },
         {
           "key": "restart",
-          "description": "Restart server. Require 'Administer System' permission. Perform a full restart of the Web, Search and Compute Engine Servers processes.",
+          "description": "Restarts server. Requires 'Administer System' permission. Performs a full restart of the Web, Search and Compute Engine Servers processes. Does not reload sonar.properties.",
           "since": "4.3",
           "internal": false,
           "post": true,

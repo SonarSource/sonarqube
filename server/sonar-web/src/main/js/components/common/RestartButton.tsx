@@ -32,9 +32,7 @@ interface Props {
 }
 
 export default class RestartButton extends React.PureComponent<Props> {
-  handleConfirm = () => {
-    return restart().then(this.props.fetchSystemStatus);
-  };
+  handleConfirm = () => restart().then(this.props.fetchSystemStatus);
 
   render() {
     const { className, systemStatus } = this.props;
@@ -46,7 +44,8 @@ export default class RestartButton extends React.PureComponent<Props> {
             <p className="spacer-top spacer-bottom">
               {translate('system.are_you_sure_to_restart')}
             </p>
-            <p>{translate('system.forcing_shutdown_not_recommended')}</p>
+            <p className="spacer-bottom">{translate('system.forcing_shutdown_not_recommended')}</p>
+            <p>{translate('system.restart_does_not_reload_sonar_properties')}</p>
           </>
         }
         modalHeader={translate('system.restart_server')}
