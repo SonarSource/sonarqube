@@ -402,7 +402,7 @@ docker_gitlab_container_build_task:
   env:
     matrix:
       - GITLAB_TAG: latest
-      - GITLAB_TAG: 11.7.0-ce.0
+      - GITLAB_TAG: 15.6.2-ce.0
   build_script:
     - docker pull "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" || true
     - docker build --build-arg "GITLAB_TAG=${GITLAB_TAG}" --cache-from "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" -t "us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_TAG}" private/docker/gitlab/
@@ -431,7 +431,7 @@ qa_gitlab_task:
         memory: 5Gb
         matrix:
           - image: us.gcr.io/sonarqube-team/sq-gitlab:latest
-          - image: us.gcr.io/sonarqube-team/sq-gitlab:11.7.0-ce.0
+          - image: us.gcr.io/sonarqube-team/sq-gitlab:15.6.2-ce.0
   env:
     QA_CATEGORY: GITLAB
   script:
