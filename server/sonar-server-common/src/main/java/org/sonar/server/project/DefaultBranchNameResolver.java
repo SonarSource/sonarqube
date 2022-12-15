@@ -22,7 +22,7 @@ package org.sonar.server.project;
 import org.sonar.api.config.Configuration;
 
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_PROJECTCREATION_MAINBRANCHNAME;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 
 public class DefaultBranchNameResolver {
 
@@ -33,6 +33,6 @@ public class DefaultBranchNameResolver {
   }
 
   public String getEffectiveMainBranchName() {
-    return configuration.get(SONAR_PROJECTCREATION_MAINBRANCHNAME).orElse(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    return configuration.get(SONAR_PROJECTCREATION_MAINBRANCHNAME).orElse(DEFAULT_MAIN_BRANCH_NAME);
   }
 }

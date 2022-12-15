@@ -67,7 +67,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
@@ -101,7 +101,7 @@ public class ReportSubmitterTest {
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
-    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test

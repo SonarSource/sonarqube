@@ -32,10 +32,10 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 
 public class ComponentUuidFactoryWithMigrationTest {
-  private final Branch mainBranch = new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+  private final Branch mainBranch = new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME);
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   private Function<String, String> pathToKey = path -> path != null ? "project:" + path : "project";

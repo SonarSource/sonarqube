@@ -127,7 +127,7 @@ public class ExportBranchesStepTest {
     assertThat(branches).hasSize(3);
     ProjectDump.Branch mainBranch = branches.get(PROJECT_UUID);
     assertThat(mainBranch).isNotNull();
-    assertThat(mainBranch.getKee()).isEqualTo(BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    assertThat(mainBranch.getKee()).isEqualTo(BranchDto.DEFAULT_MAIN_BRANCH_NAME);
     assertThat(mainBranch.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(mainBranch.getMergeBranchUuid()).isEmpty();
     assertThat(mainBranch.getBranchType()).isEqualTo("BRANCH");

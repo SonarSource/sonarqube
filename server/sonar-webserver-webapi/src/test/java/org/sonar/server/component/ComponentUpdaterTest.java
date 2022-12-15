@@ -52,8 +52,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.VIEW;
-import static org.sonar.db.component.BranchDto.DEFAULT_APPLICATION_MAIN_BRANCH_NAME;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 
 public class ComponentUpdaterTest {
 
@@ -78,7 +77,7 @@ public class ComponentUpdaterTest {
 
   @Before
   public void before() {
-    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test
@@ -108,7 +107,7 @@ public class ComponentUpdaterTest {
 
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
     assertThat(branch).isPresent();
-    assertThat(branch.get().getKey()).isEqualTo(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    assertThat(branch.get().getKey()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.get().getMergeBranchUuid()).isNull();
     assertThat(branch.get().getBranchType()).isEqualTo(BranchType.BRANCH);
     assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
@@ -205,7 +204,7 @@ public class ComponentUpdaterTest {
     assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.uuid());
     assertThat(branch).isPresent();
-    assertThat(branch.get().getKey()).isEqualTo(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    assertThat(branch.get().getKey()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
     assertThat(branch.get().getMergeBranchUuid()).isNull();
     assertThat(branch.get().getBranchType()).isEqualTo(BranchType.BRANCH);
     assertThat(branch.get().getUuid()).isEqualTo(returned.uuid());
@@ -345,6 +344,6 @@ public class ComponentUpdaterTest {
 
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), app.branchUuid());
     assertThat(branch).isPresent();
-    assertThat(branch.get().getBranchKey()).isEqualTo(DEFAULT_APPLICATION_MAIN_BRANCH_NAME);
+    assertThat(branch.get().getBranchKey()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
   }
 }

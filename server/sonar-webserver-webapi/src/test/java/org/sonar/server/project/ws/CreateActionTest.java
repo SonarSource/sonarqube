@@ -57,7 +57,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -96,7 +96,7 @@ public class CreateActionTest {
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
-    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test

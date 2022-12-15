@@ -561,7 +561,7 @@ public class ComponentTreeActionTest {
 
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_BRANCH, BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME)
+      .setParam(PARAM_BRANCH, BranchDto.DEFAULT_MAIN_BRANCH_NAME)
       .setParam(PARAM_METRIC_KEYS, complexity.getKey())
       .executeProtobuf(ComponentTreeWsResponse.class);
 

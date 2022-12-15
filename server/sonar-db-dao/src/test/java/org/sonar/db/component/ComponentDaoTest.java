@@ -82,7 +82,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.parseDate;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newApplication;
@@ -235,7 +235,7 @@ public class ComponentDaoTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch").setBranchType(BRANCH));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
-    assertThat(underTest.selectByKeyAndBranch(dbSession, project.getKey(), DEFAULT_PROJECT_MAIN_BRANCH_NAME).get().uuid()).isEqualTo(project.uuid());
+    assertThat(underTest.selectByKeyAndBranch(dbSession, project.getKey(), DEFAULT_MAIN_BRANCH_NAME).get().uuid()).isEqualTo(project.uuid());
     assertThat(underTest.selectByKeyAndBranch(dbSession, branch.getKey(), "my_branch").get().uuid()).isEqualTo(branch.uuid());
     assertThat(underTest.selectByKeyAndBranch(dbSession, file.getKey(), "my_branch").get().uuid()).isEqualTo(file.uuid());
     assertThat(underTest.selectByKeyAndBranch(dbSession, "unknown", "my_branch")).isNotPresent();

@@ -52,7 +52,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
@@ -117,7 +117,7 @@ public class SetBaselineActionTest {
     ComponentDto project = tester.insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(project);
 
-    assertThatThrownBy(() -> call(project.getKey(), DEFAULT_PROJECT_MAIN_BRANCH_NAME, analysis.getUuid()))
+    assertThatThrownBy(() -> call(project.getKey(), DEFAULT_MAIN_BRANCH_NAME, analysis.getUuid()))
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }

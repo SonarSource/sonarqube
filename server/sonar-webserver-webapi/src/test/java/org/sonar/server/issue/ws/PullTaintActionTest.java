@@ -61,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 
@@ -69,7 +69,7 @@ public class PullTaintActionTest {
   private static final long NOW = 10_000_000_000L;
   private static final long PAST = 1_000_000_000L;
 
-  private static final String DEFAULT_BRANCH = DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+  private static final String DEFAULT_BRANCH = DEFAULT_MAIN_BRANCH_NAME;
   public static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(CODE).build();
 
   @Rule

@@ -57,7 +57,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.github.ImportGithubProjectAction.PARAM_ORGANIZATION;
 import static org.sonar.server.almintegration.ws.github.ImportGithubProjectAction.PARAM_REPOSITORY_KEY;
@@ -90,7 +90,7 @@ public class ImportGithubProjectActionTest {
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
-    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test

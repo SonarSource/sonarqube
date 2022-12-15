@@ -56,7 +56,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ViewAttributes.Type.APPLICATION;
 import static org.sonar.ce.task.projectanalysis.component.ViewAttributes.Type.PORTFOLIO;
 import static org.sonar.ce.task.projectanalysis.component.ViewsComponent.builder;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
@@ -97,7 +97,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
-    analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME));
+    analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME));
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);
     underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister);

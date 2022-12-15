@@ -55,7 +55,7 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTO
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -622,7 +622,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   private ComponentDto prepareProject(Consumer<ComponentDto> populators) {
     ComponentDto dto = db.components().insertPrivateProject(populators);
     analysisMetadataHolder.setProject(Project.from(dto));
-    analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME));
+    analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME));
     return dto;
   }
 

@@ -98,7 +98,7 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.step.SendIssueNotificationsStep.NOTIF_TYPES;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newBranchComponent;
@@ -128,7 +128,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     .setRoot(PROJECT);
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setBranch(new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME))
+    .setBranch(new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME))
     .setAnalysisDate(new Date(ANALYSE_DATE));
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

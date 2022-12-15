@@ -57,7 +57,7 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -162,7 +162,7 @@ public class ListActionTest {
 
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getIsMain, Branch::getType)
-      .containsExactlyInAnyOrder(tuple(DEFAULT_PROJECT_MAIN_BRANCH_NAME, true, BranchType.BRANCH));
+      .containsExactlyInAnyOrder(tuple(DEFAULT_MAIN_BRANCH_NAME, true, BranchType.BRANCH));
   }
 
   @Test
@@ -195,7 +195,7 @@ public class ListActionTest {
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getType)
       .containsExactlyInAnyOrder(
-        tuple(DEFAULT_PROJECT_MAIN_BRANCH_NAME, BranchType.BRANCH),
+        tuple(DEFAULT_MAIN_BRANCH_NAME, BranchType.BRANCH),
         tuple("feature/foo", BranchType.BRANCH),
         tuple("feature/bar", BranchType.BRANCH));
   }
@@ -259,7 +259,7 @@ public class ListActionTest {
     assertThat(response.getBranchesList())
       .extracting(Branch::getName, Branch::getType)
       .containsExactlyInAnyOrder(
-        tuple("master", BranchType.BRANCH),
+        tuple("main", BranchType.BRANCH),
         tuple("feature/foo", BranchType.BRANCH),
         tuple("feature/bar", BranchType.BRANCH));
   }

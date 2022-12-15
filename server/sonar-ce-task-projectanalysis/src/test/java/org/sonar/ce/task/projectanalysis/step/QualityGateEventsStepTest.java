@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 
 public class QualityGateEventsStepTest {
   private static final String PROJECT_VERSION = randomAlphabetic(19);
@@ -251,7 +251,7 @@ public class QualityGateEventsStepTest {
 
   @Test
   public void verify_branch_name_is_not_set_in_notification_when_main() {
-    analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_PROJECT_MAIN_BRANCH_NAME));
+    analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME));
 
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
       .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));

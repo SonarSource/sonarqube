@@ -71,7 +71,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
@@ -110,7 +110,7 @@ public class ImportBitbucketServerProjectActionTest {
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
     when(projectKeyGenerator.generateUniqueProjectKey(any(), any())).thenReturn(GENERATED_PROJECT_KEY);
-    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test
@@ -274,7 +274,7 @@ public class ImportBitbucketServerProjectActionTest {
     Collection<BranchDto> branchDtos = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get());
     List<BranchDto> collect = branchDtos.stream().filter(BranchDto::isMain).collect(Collectors.toList());
     String mainBranchName = collect.iterator().next().getKey();
-    assertThat(mainBranchName).isEqualTo(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    assertThat(mainBranchName).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test

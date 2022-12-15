@@ -106,7 +106,7 @@ public class ComponentUpdater {
   public ComponentDto createApplicationOrPortfolio(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid,
     @Nullable String userLogin) {
     ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userUuid, userLogin,
-      BranchDto.DEFAULT_APPLICATION_MAIN_BRANCH_NAME, c -> {});
+      defaultBranchNameResolver.getEffectiveMainBranchName(), c -> {});
     commitAndIndex(dbSession, componentDto);
     return componentDto;
   }

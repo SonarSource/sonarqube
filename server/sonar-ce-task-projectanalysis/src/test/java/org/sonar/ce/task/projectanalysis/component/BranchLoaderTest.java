@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 
 public class BranchLoaderTest {
 
@@ -56,7 +56,7 @@ public class BranchLoaderTest {
     ScannerReport.Metadata metadata = ScannerReport.Metadata.newBuilder()
       .build();
     DefaultBranchNameResolver branchNameResolver = mock(DefaultBranchNameResolver.class);
-    when(branchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    when(branchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_MAIN_BRANCH_NAME);
 
     new BranchLoader(metadataHolder, branchNameResolver).load(metadata);
 
@@ -64,7 +64,7 @@ public class BranchLoaderTest {
 
     Branch branch = metadataHolder.getBranch();
     assertThat(branch.isMain()).isTrue();
-    assertThat(branch.getName()).isEqualTo(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    assertThat(branch.getName()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test

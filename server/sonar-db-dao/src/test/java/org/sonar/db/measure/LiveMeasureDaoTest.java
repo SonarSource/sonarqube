@@ -44,7 +44,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.measures.Metric.ValueType.INT;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
@@ -333,11 +333,11 @@ public class LiveMeasureDaoTest {
     List<LargestBranchNclocDto> results = underTest.getLargestBranchNclocPerProject(db.getSession());
 
     assertThat(results).hasSize(5);
-    assertLocForProject(results.get(0), "projectWithTieOnBranchSize", DEFAULT_PROJECT_MAIN_BRANCH_NAME, 250);
+    assertLocForProject(results.get(0), "projectWithTieOnBranchSize", DEFAULT_MAIN_BRANCH_NAME, 250);
     assertLocForProject(results.get(1), "projectWithTieOnOtherBranches", "tieBranch1", 230);
     assertLocForProject(results.get(2), "projectWithBranchBiggerThanMaster", "notMasterBranch", 200);
-    assertLocForProject(results.get(3), "simpleProject", DEFAULT_PROJECT_MAIN_BRANCH_NAME, 10);
-    assertLocForProject(results.get(4), "projectWithLinesButNoLoc", DEFAULT_PROJECT_MAIN_BRANCH_NAME, 0);
+    assertLocForProject(results.get(3), "simpleProject", DEFAULT_MAIN_BRANCH_NAME, 10);
+    assertLocForProject(results.get(4), "projectWithLinesButNoLoc", DEFAULT_MAIN_BRANCH_NAME, 0);
   }
 
   @Test

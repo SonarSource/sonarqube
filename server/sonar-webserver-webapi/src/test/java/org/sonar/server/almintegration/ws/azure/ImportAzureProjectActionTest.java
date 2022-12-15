@@ -64,7 +64,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
@@ -99,7 +99,7 @@ public class ImportAzureProjectActionTest {
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
     when(projectKeyGenerator.generateUniqueProjectKey(any(), any())).thenReturn(GENERATED_PROJECT_KEY);
-    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test
@@ -178,7 +178,7 @@ public class ImportAzureProjectActionTest {
       .findFirst();
 
     assertThat(mainBranch).isPresent();
-    assertThat(mainBranch.get().getKey()).hasToString(DEFAULT_PROJECT_MAIN_BRANCH_NAME);
+    assertThat(mainBranch.get().getKey()).hasToString(DEFAULT_MAIN_BRANCH_NAME);
   }
 
   @Test

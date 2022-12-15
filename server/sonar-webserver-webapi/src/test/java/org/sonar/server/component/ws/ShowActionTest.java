@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -292,7 +292,7 @@ public class ShowActionTest {
 
     ShowWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_BRANCH, DEFAULT_PROJECT_MAIN_BRANCH_NAME)
+      .setParam(PARAM_BRANCH, DEFAULT_MAIN_BRANCH_NAME)
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getComponent())

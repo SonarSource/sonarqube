@@ -61,7 +61,7 @@ import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
-import static org.sonar.db.component.BranchDto.DEFAULT_PROJECT_MAIN_BRANCH_NAME;
+import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newChildComponent;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -385,7 +385,7 @@ public class TreeActionTest {
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_BRANCH, DEFAULT_PROJECT_MAIN_BRANCH_NAME)
+      .setParam(PARAM_BRANCH, DEFAULT_MAIN_BRANCH_NAME)
       .executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getBaseComponent()).extracting(Component::getKey, Component::getBranch)
