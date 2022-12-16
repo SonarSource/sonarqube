@@ -27,6 +27,7 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import ListFooter from '../../components/controls/ListFooter';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { toShortNotSoISOString } from '../../helpers/dates';
+import { throwGlobalError } from '../../helpers/error';
 import { translate } from '../../helpers/l10n';
 import { hasGlobalPermission } from '../../helpers/users';
 import { Permissions } from '../../types/permissions';
@@ -116,15 +117,17 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
       qualifiers: this.state.qualifiers,
       visibility: this.state.visibility,
     };
-    return getComponents(parameters).then((r) => {
-      if (this.mounted) {
-        let projects: Project[] = r.components;
-        if (this.state.page > 1) {
-          projects = [...this.state.projects, ...projects];
+    getComponents(parameters)
+      .then((r) => {
+        if (this.mounted) {
+          let projects: Project[] = r.components;
+          if (this.state.page > 1) {
+            projects = [...this.state.projects, ...projects];
+          }
+          this.setState({ ready: true, projects, selection: [], total: r.paging.total });
         }
-        this.setState({ ready: true, projects, selection: [], total: r.paging.total });
-      }
-    });
+      })
+      .catch(throwGlobalError);
   };
 
   loadMore = () => {

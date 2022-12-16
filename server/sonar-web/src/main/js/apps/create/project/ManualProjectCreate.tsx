@@ -57,6 +57,8 @@ interface State {
   submitting: boolean;
 }
 
+const DEBOUNCE_DELAY = 250;
+
 type ValidState = State & Required<Pick<State, 'projectKey' | 'projectName'>>;
 
 export default class ManualProjectCreate extends React.PureComponent<Props, State> {
@@ -74,7 +76,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       mainBranchNameTouched: false,
       validatingProjectKey: false,
     };
-    this.checkFreeKey = debounce(this.checkFreeKey, 250);
+    this.checkFreeKey = debounce(this.checkFreeKey, DEBOUNCE_DELAY);
   }
 
   componentDidMount() {
@@ -97,7 +99,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   checkFreeKey = (key: string) => {
     this.setState({ validatingProjectKey: true });
 
-    return doesComponentExists({ component: key })
+    doesComponentExists({ component: key })
       .then((alreadyExist) => {
         if (this.mounted && key === this.state.projectKey) {
           this.setState({

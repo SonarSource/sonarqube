@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { debounce } from 'lodash';
 import * as React from 'react';
 import { getSuggestions } from '../../../api/components';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
@@ -51,7 +50,6 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {};
-    this.handleSearch = debounce(this.handleSearch, 250);
   }
 
   componentDidMount() {
@@ -124,11 +122,11 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
 
     if (query.length < 2) {
       this.setState({ open: false, query });
-      return Promise.resolve([]);
+      return;
     }
 
     this.setState({ loading: true, query });
-    return getSuggestions(query).then(
+    getSuggestions(query).then(
       (r) => {
         if (this.mounted) {
           let suggestions = undefined;
