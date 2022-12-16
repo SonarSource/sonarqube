@@ -47,9 +47,10 @@ class HtmlLinkChannel extends RegexChannel<MarkdownOutput> {
     matcher.matches();
     String content = matcher.group(1);
     String url = matcher.group(2);
+    boolean isRelativeUrl = !url.contains("://");
     output.append("<a href=\"");
     output.append(url);
-    output.append("\" target=\"_blank\" rel=\"noopener noreferrer\">");
+    output.append(isRelativeUrl ? "\">" : "\" target=\"_blank\" rel=\"noopener noreferrer\">");
     output.append(content);
     output.append("</a>");
   }

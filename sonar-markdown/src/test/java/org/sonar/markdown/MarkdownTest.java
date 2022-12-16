@@ -26,9 +26,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MarkdownTest {
 
   @Test
-  public void shouldDecorateUrl() {
+  public void shouldDecorateAbsoluteUrl() {
     assertThat(Markdown.convertToHtml("http://google.com"))
         .isEqualTo("<a href=\"http://google.com\" target=\"_blank\" rel=\"noopener noreferrer\">http://google.com</a>");
+  }
+
+  @Test
+  public void shouldDecorateRelativeUrl() {
+    assertThat(Markdown.convertToHtml("[Google](/google/com)"))
+      .isEqualTo("<a href=\"/google/com\">Google</a>");
   }
 
   @Test

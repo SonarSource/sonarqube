@@ -33,10 +33,12 @@ class HtmlUrlChannel extends RegexChannel<MarkdownOutput> {
 
   @Override
   protected void consume(CharSequence token, MarkdownOutput output) {
+    String url = token.toString();
+    boolean isRelativeUrl = !url.contains("://");
     output.append("<a href=\"");
-    output.append(token);
-    output.append("\" target=\"_blank\" rel=\"noopener noreferrer\">");
-    output.append(token);
+    output.append(url);
+    output.append(isRelativeUrl ? "\">" : "\" target=\"_blank\" rel=\"noopener noreferrer\">");
+    output.append(url);
     output.append("</a>");
   }
 }
