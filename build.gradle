@@ -316,7 +316,7 @@ subprojects {
         entry 'jetty-servlet'
       }
       // "elasticsearchDownloadUrlFile" and "elasticsearchDownloadSha512" must also be updated in gradle.properties
-      dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.6') {
+      dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.8') {
         exclude 'org.apache.logging.log4j:log4j-core'
       }
       dependency 'org.elasticsearch.plugin:transport-netty4-client:7.17.6'
