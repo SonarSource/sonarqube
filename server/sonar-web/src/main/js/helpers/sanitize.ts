@@ -29,3 +29,29 @@ export function sanitizeStringRestricted(html: string) {
 export function sanitizeString(html: string) {
   return sanitize(html, { USE_PROFILES: { html: true } });
 }
+
+export function sanitizeUserInput(html: string) {
+  return sanitize(html, {
+    ALLOWED_TAGS: [
+      'b',
+      'br',
+      'code',
+      'i',
+      'li',
+      'p',
+      'strong',
+      'ul',
+      'ol',
+      'a',
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+      'blockquote',
+      'pre',
+    ],
+    ALLOWED_ATTR: ['target', 'href'],
+  });
+}

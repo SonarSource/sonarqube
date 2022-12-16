@@ -22,7 +22,7 @@ import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeString } from '../../../helpers/sanitize';
+import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { IssueComment } from '../../../types/types';
 import DateFromNow from '../../intl/DateFromNow';
 import Avatar from '../../ui/Avatar';
@@ -98,7 +98,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
         <div
           className="issue-comment-text markdown"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: sanitizeString(comment.htmlText) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeUserInput(comment.htmlText) }}
         />
         <div className="issue-comment-age">
           <span className="a11y-hidden">{translate('issue.comment.posted_on')}</span>

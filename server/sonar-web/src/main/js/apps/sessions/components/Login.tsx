@@ -22,7 +22,7 @@ import { Location } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { sanitizeString } from '../../../helpers/sanitize';
+import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';
 import './Login.css';
@@ -62,7 +62,7 @@ export default function Login(props: LoginProps) {
             <div
               className="login-message markdown big-padded spacer-top huge-spacer-bottom"
               // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitizeString(message) }}
+              dangerouslySetInnerHTML={{ __html: sanitizeUserInput(message) }}
             />
           )}
 

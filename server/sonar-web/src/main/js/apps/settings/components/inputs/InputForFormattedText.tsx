@@ -22,7 +22,7 @@ import FormattingTipsWithLink from '../../../../components/common/FormattingTips
 import { Button } from '../../../../components/controls/buttons';
 import EditIcon from '../../../../components/icons/EditIcon';
 import { translate } from '../../../../helpers/l10n';
-import { sanitizeString } from '../../../../helpers/sanitize';
+import { sanitizeUserInput } from '../../../../helpers/sanitize';
 import { DefaultSpecializedInputProps } from '../../utils';
 
 export default function InputForFormattedText(props: DefaultSpecializedInputProps) {
@@ -54,7 +54,7 @@ export default function InputForFormattedText(props: DefaultSpecializedInputProp
           <div
             className="markdown-preview markdown"
             // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeString(formattedValue ?? '') }}
+            dangerouslySetInnerHTML={{ __html: sanitizeUserInput(formattedValue ?? '') }}
           />
           <Button className="spacer-top" onClick={props.onEditing}>
             <EditIcon className="spacer-right" />

@@ -27,7 +27,7 @@ import IssueChangelogDiff from '../../../components/issue/components/IssueChange
 import Avatar from '../../../components/ui/Avatar';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeString } from '../../../helpers/sanitize';
+import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { Hotspot, ReviewHistoryType } from '../../../types/security-hotspots';
 import { getHotspotReviewHistory } from '../utils';
 import HotspotCommentPopup from './HotspotCommentPopup';
@@ -106,7 +106,7 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
                   <div
                     className="markdown"
                     // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{ __html: sanitizeString(html) }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeUserInput(html) }}
                   />
                   {updatable && (
                     <div>
