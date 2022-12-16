@@ -19,6 +19,7 @@
  */
 import { debounce } from 'lodash';
 import * as React from 'react';
+import { isWebUri } from 'valid-url';
 import {
   getGithubClientId,
   getGithubOrganizations,
@@ -173,7 +174,11 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
 
     // strip the trailing /
     instanceRootUrl = instanceRootUrl.replace(/\/$/, '');
-    window.location.replace(`${instanceRootUrl}/login/oauth/authorize?${queryParams}`);
+    if (!isWebUri(instanceRootUrl)) {
+      this.setState({ error: true });
+    } else {
+      window.location.replace(`${instanceRootUrl}/login/oauth/authorize?${queryParams}`);
+    }
   }
 
   async fetchOrganizations(selectedAlmInstance: AlmSettingsInstance, token: string) {

@@ -81,6 +81,22 @@ it('should redirect to github authorization page when not already authorized', a
   ).toBeInTheDocument();
 });
 
+it('should not redirect to github when url is malformated', async () => {
+  const user = userEvent.setup();
+  renderCreateProject();
+
+  expect(ui.githubCreateProjectButton.get()).toBeInTheDocument();
+
+  await user.click(ui.githubCreateProjectButton.get());
+  expect(screen.getByText('onboarding.create_project.github.title')).toBeInTheDocument();
+  expect(screen.getByText('alm.configuration.selector.placeholder')).toBeInTheDocument();
+  expect(ui.instanceSelector.get()).toBeInTheDocument();
+
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-github-3/]);
+
+  expect(window.location.replace).not.toHaveBeenCalled();
+});
+
 it('should show import project feature when the authentication is successfull', async () => {
   const user = userEvent.setup();
   let repoItem;
