@@ -656,7 +656,7 @@ upgd_mssql_task:
     memory: 6Gb
     additional_containers:
       - name: mssql
-        image: mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
+        image: mcr.microsoft.com/mssql/server:2022-latest
         port: 1433
         cpu: 2
         memory: 5Gb
