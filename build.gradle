@@ -224,7 +224,7 @@ subprojects {
       dependency 'commons-lang:commons-lang:2.6'
       imports { mavenBom 'com.fasterxml.jackson:jackson-bom:2.14.1' }
       dependency 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-      dependencySet(group: 'com.github.scribejava', version: '8.3.1') {
+      dependencySet(group: 'com.github.scribejava', version: '8.3.2') {
         entry 'scribejava-apis'
         entry 'scribejava-core'
       }
