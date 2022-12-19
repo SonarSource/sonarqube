@@ -267,7 +267,7 @@ subprojects {
       }
       dependency 'org.json:json:20220924'
       dependency 'com.tngtech.java:junit-dataprovider:1.13.1'
-      dependencySet(group: 'io.jsonwebtoken', version: '0.11.2') {
+      dependencySet(group: 'io.jsonwebtoken', version: '0.11.5') {
         entry 'jjwt-api'
         entry 'jjwt-impl'
         entry 'jjwt-jackson'
