@@ -36,10 +36,10 @@ import static java.util.Objects.requireNonNullElse;
 public class TelemetryData {
   private final String serverId;
   private final String version;
+  private final Long messageSequenceNumber;
   private final Map<String, String> plugins;
   private final Database database;
   private final EditionProvider.Edition edition;
-  private final String licenseType;
   private final Long installationDate;
   private final String installationVersion;
   private final boolean inDocker;
@@ -52,10 +52,10 @@ public class TelemetryData {
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
     version = builder.version;
+    messageSequenceNumber = builder.messageSequenceNumber;
     plugins = builder.plugins;
     database = builder.database;
     edition = builder.edition;
-    licenseType = builder.licenseType;
     installationDate = builder.installationDate;
     installationVersion = builder.installationVersion;
     inDocker = builder.inDocker;
@@ -74,6 +74,10 @@ public class TelemetryData {
     return version;
   }
 
+  public Long getMessageSequenceNumber() {
+    return messageSequenceNumber;
+  }
+
   public Map<String, String> getPlugins() {
     return plugins;
   }
@@ -84,10 +88,6 @@ public class TelemetryData {
 
   public Optional<EditionProvider.Edition> getEdition() {
     return Optional.ofNullable(edition);
-  }
-
-  public Optional<String> getLicenseType() {
-    return Optional.ofNullable(licenseType);
   }
 
   public Long getInstallationDate() {
@@ -129,10 +129,10 @@ public class TelemetryData {
   static class Builder {
     private String serverId;
     private String version;
+    private Long messageSequenceNumber;
     private Map<String, String> plugins;
     private Database database;
     private Edition edition;
-    private String licenseType;
     private Long installationDate;
     private String installationVersion;
     private boolean inDocker = false;
@@ -156,6 +156,11 @@ public class TelemetryData {
       return this;
     }
 
+    Builder setMessageSequenceNumber(@Nullable Long messageSequenceNumber) {
+      this.messageSequenceNumber = messageSequenceNumber;
+      return this;
+    }
+
     Builder setPlugins(Map<String, String> plugins) {
       this.plugins = plugins;
       return this;
@@ -168,11 +173,6 @@ public class TelemetryData {
 
     Builder setEdition(@Nullable Edition edition) {
       this.edition = edition;
-      return this;
-    }
-
-    Builder setLicenseType(@Nullable String licenseType) {
-      this.licenseType = licenseType;
       return this;
     }
 
@@ -212,7 +212,7 @@ public class TelemetryData {
     }
 
     TelemetryData build() {
-      requireNonNullValues(serverId, version, plugins, database);
+      requireNonNullValues(serverId, version, plugins, database, messageSequenceNumber);
       return new TelemetryData(this);
     }
 
@@ -224,6 +224,7 @@ public class TelemetryData {
     private static void requireNonNullValues(Object... values) {
       Arrays.stream(values).forEach(Objects::requireNonNull);
     }
+
   }
 
   static class Database {

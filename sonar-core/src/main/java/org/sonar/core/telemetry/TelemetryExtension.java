@@ -17,17 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.telemetry;
+package org.sonar.core.telemetry;
 
-import java.util.Optional;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.text.JsonWriter;
 
-@ServerSide
-public interface LicenseReader {
-  Optional<License> read();
-
-  interface License {
-    String getType();
-    Boolean isValidLicense();
-  }
+public interface TelemetryExtension {
+  void write(JsonWriter json);
 }

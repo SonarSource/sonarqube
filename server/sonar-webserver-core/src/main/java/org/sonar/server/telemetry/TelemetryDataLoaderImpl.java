@@ -29,8 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
@@ -59,6 +57,7 @@ import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETEC
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 import static org.sonar.core.platform.EditionProvider.Edition.DATACENTER;
 import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
+import static org.sonar.server.telemetry.TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE;
 
 @ServerSide
 public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
@@ -79,14 +78,11 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final Configuration configuration;
   private final InternalProperties internalProperties;
   private final DockerSupport dockerSupport;
-  @CheckForNull
-  private final LicenseReader licenseReader;
-
 
   @Inject
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository,
     PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
-    DockerSupport dockerSupport, @Nullable LicenseReader licenseReader) {
+    DockerSupport dockerSupport) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -94,7 +90,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.internalProperties = internalProperties;
     this.configuration = configuration;
     this.dockerSupport = dockerSupport;
-    this.licenseReader = licenseReader;
   }
 
   private static Database loadDatabaseMetadata(DbSession dbSession) {
@@ -110,12 +105,10 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   public TelemetryData load() {
     TelemetryData.Builder data = TelemetryData.builder();
 
+    data.setMessageSequenceNumber(retrieveCurrentMessageSequenceNumber() + 1);
     data.setServerId(server.getId());
     data.setVersion(server.getVersion());
     data.setEdition(editionProvider.get().orElse(null));
-    ofNullable(licenseReader)
-      .flatMap(reader -> licenseReader.read())
-      .ifPresent(license -> data.setLicenseType(license.getType()));
     Function<PluginInfo, String> getVersion = plugin -> plugin.getVersion() == null ? "undefined" : plugin.getVersion().getName();
     Map<String, String> plugins = pluginRepository.getPluginInfos().stream().collect(MoreCollectors.uniqueIndex(PluginInfo::getKey, getVersion));
     data.setPlugins(plugins);
@@ -138,6 +131,10 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       .setInDocker(dockerSupport.isRunningInDocker())
       .setIsScimEnabled(isScimEnabled())
       .build();
+  }
+
+  private Long retrieveCurrentMessageSequenceNumber() {
+    return internalProperties.read(I_PROP_MESSAGE_SEQUENCE).map(Long::parseLong).orElse(0L);
   }
 
   private void resolveProjectStatistics(TelemetryData.Builder data, DbSession dbSession) {

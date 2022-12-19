@@ -62,6 +62,7 @@ public class TelemetryDaemonTest {
   private static final TelemetryData SOME_TELEMETRY_DATA = TelemetryData.builder()
     .setServerId("foo")
     .setVersion("bar")
+    .setMessageSequenceNumber(1L)
     .setPlugins(Collections.emptyMap())
     .setDatabase(new TelemetryData.Database("H2", "11"))
     .build();
@@ -153,6 +154,7 @@ public class TelemetryDaemonTest {
     long oneDayAgo = today - ONE_DAY - ONE_HOUR;
     internalProperties.write("telemetry.lastPing", String.valueOf(oneDayAgo));
     reset(internalProperties);
+    when(dataLoader.load()).thenReturn(SOME_TELEMETRY_DATA);
     mockDataJsonWriterDoingSomething();
 
     underTest.start();
@@ -175,6 +177,36 @@ public class TelemetryDaemonTest {
     verify(client, after(2_000).never()).upload(anyString());
     verify(client, timeout(2_000).times(1)).optOut(anyString());
     assertThat(logger.logs(LoggerLevel.INFO)).contains("Sharing of SonarQube statistics is disabled.");
+  }
+
+  @Test
+  public void write_sequence_as_one_if_not_previously_present() {
+    initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
+    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
+    mockDataJsonWriterDoingSomething();
+
+    underTest.start();
+
+    verify(internalProperties, timeout(4_000)).write("telemetry.messageSeq", "1");
+  }
+
+  @Test
+  public void write_sequence_correctly_incremented() {
+    initTelemetrySettingsToDefaultValues();
+    when(lockManager.tryLock(any(), anyInt())).thenReturn(true);
+    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
+    internalProperties.write("telemetry.messageSeq", "10");
+    mockDataJsonWriterDoingSomething();
+
+    underTest.start();
+
+    verify(internalProperties, timeout(4_000)).write("telemetry.messageSeq", "10");
+
+    // force another ping
+    internalProperties.write("telemetry.lastPing", String.valueOf(system2.now() - ONE_DAY));
+
+    verify(internalProperties, timeout(4_000)).write("telemetry.messageSeq", "11");
   }
 
   private void initTelemetrySettingsToDefaultValues() {

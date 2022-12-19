@@ -36,8 +36,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.telemetry.TelemetryExtension;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.user.UserTelemetryDto;
 
@@ -45,6 +47,8 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.server.telemetry.TelemetryDataJsonWriter.SCIM_PROPERTY;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -53,17 +57,22 @@ public class TelemetryDataJsonWriterTest {
 
   private final Random random = new Random();
 
-  private final TelemetryDataJsonWriter underTest = new TelemetryDataJsonWriter();
+  private final TelemetryExtension extension = mock(TelemetryExtension.class);
+
+  private final System2 system2 = mock(System2.class);
+
+  private final TelemetryDataJsonWriter underTest = new TelemetryDataJsonWriter(List.of(extension), system2);
 
   @Test
-  public void write_server_id_and_version() {
+  public void write_server_id_version_and_sequence() {
     TelemetryData data = telemetryBuilder().build();
 
     String json = writeTelemetryData(data);
 
     assertJson(json).isSimilarTo("{" +
       "  \"id\": \"" + data.getServerId() + "\"," +
-      "  \"version\": \"" + data.getVersion() + "\"" +
+      "  \"version\": \"" + data.getVersion() + "\"," +
+      "  \"messageSequenceNumber\": " + data.getMessageSequenceNumber() +
       "}");
   }
 
@@ -87,29 +96,6 @@ public class TelemetryDataJsonWriterTest {
 
     assertJson(json).isSimilarTo("{" +
       "  \"edition\": \"" + edition.name().toLowerCase(Locale.ENGLISH) + "\"" +
-      "}");
-  }
-
-  @Test
-  public void does_not_write_license_type_if_null() {
-    TelemetryData data = telemetryBuilder().build();
-
-    String json = writeTelemetryData(data);
-
-    assertThat(json).doesNotContain("licenseType");
-  }
-
-  @Test
-  public void writes_licenseType_if_non_null() {
-    String expected = randomAlphabetic(12);
-    TelemetryData data = telemetryBuilder()
-      .setLicenseType(expected)
-      .build();
-
-    String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"licenseType\": \"" + expected + "\"" +
       "}");
   }
 
@@ -252,6 +238,18 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
+  public void writes_local_timestamp() {
+    when(system2.now()).thenReturn(1000L);
+
+    TelemetryData data = telemetryBuilder().build();
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"localTimestamp\": \"1970-01-01T00:00:01+0000\"" +
+      "}");
+  }
+
+  @Test
   public void writes_all_users_with_anonymous_md5_uuids() {
     TelemetryData data = telemetryBuilder()
       .setUsers(attachUsers())
@@ -376,6 +374,7 @@ public class TelemetryDataJsonWriterTest {
     return TelemetryData.builder()
       .setServerId("foo")
       .setVersion("bar")
+      .setMessageSequenceNumber(1L)
       .setPlugins(Collections.emptyMap())
       .setDatabase(new TelemetryData.Database("H2", "11"));
   }

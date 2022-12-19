@@ -55,7 +55,6 @@ import org.sonar.server.property.MapInternalProperties;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -91,12 +90,11 @@ public class TelemetryDataLoaderImplTest {
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final DockerSupport dockerSupport = mock(DockerSupport.class);
   private final InternalProperties internalProperties = spy(new MapInternalProperties());
-  private final LicenseReader licenseReader = mock(LicenseReader.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-      internalProperties, configuration, dockerSupport, null);
+      internalProperties, configuration, dockerSupport);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-      internalProperties, configuration, dockerSupport, licenseReader);
+      internalProperties, configuration, dockerSupport);
 
   @Test
   public void send_telemetry_data() {
@@ -157,6 +155,7 @@ public class TelemetryDataLoaderImplTest {
     assertThat(data.getServerId()).isEqualTo(serverId);
     assertThat(data.getVersion()).isEqualTo(version);
     assertThat(data.getEdition()).contains(DEVELOPER);
+    assertThat(data.getMessageSequenceNumber()).isOne();
     assertDatabaseMetadata(data.getDatabase());
     assertThat(data.getPlugins()).containsOnly(
       entry("java", "4.12.0.11033"), entry("scmgit", "1.2"), entry("other", "undefined"));
@@ -247,22 +246,6 @@ public class TelemetryDataLoaderImplTest {
   }
 
   @Test
-  public void data_contains_no_license_type_on_community_edition() {
-    TelemetryData data = communityUnderTest.load();
-
-    assertThat(data.getLicenseType()).isEmpty();
-  }
-
-  @Test
-  public void data_contains_no_license_type_on_commercial_edition_if_no_license() {
-    when(licenseReader.read()).thenReturn(Optional.empty());
-
-    TelemetryData data = commercialUnderTest.load();
-
-    assertThat(data.getLicenseType()).isEmpty();
-  }
-
-  @Test
   public void data_contains_weekly_count_sonarlint_users() {
     db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 100_000L));
     db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW));
@@ -273,18 +256,6 @@ public class TelemetryDataLoaderImplTest {
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getUserTelemetries())
       .hasSize(4);
-  }
-
-  @Test
-  public void data_has_license_type_on_commercial_edition_if_no_license() {
-    String licenseType = randomAlphabetic(12);
-    LicenseReader.License license = mock(LicenseReader.License.class);
-    when(license.getType()).thenReturn(licenseType);
-    when(licenseReader.read()).thenReturn(Optional.of(license));
-
-    TelemetryData data = commercialUnderTest.load();
-
-    assertThat(data.getLicenseType()).contains(licenseType);
   }
 
   @Test
@@ -314,6 +285,13 @@ public class TelemetryDataLoaderImplTest {
 
     assertThat(data.getInstallationDate()).isEqualTo(installationDate);
     assertThat(data.getInstallationVersion()).isEqualTo(installationVersion);
+  }
+
+  @Test
+  public void send_correct_sequence_number() {
+    internalProperties.write(TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE, "10");
+    TelemetryData data = communityUnderTest.load();
+    assertThat(data.getMessageSequenceNumber()).isEqualTo(11L);
   }
 
   @Test

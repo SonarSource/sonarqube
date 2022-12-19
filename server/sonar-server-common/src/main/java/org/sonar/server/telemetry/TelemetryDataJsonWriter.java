@@ -23,14 +23,26 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.telemetry.TelemetryExtension;
 
 import static org.sonar.api.utils.DateUtils.DATETIME_FORMAT;
 
 public class TelemetryDataJsonWriter {
+
+  private final List<TelemetryExtension> extensions;
+
+  private final System2 system2;
+
+  public TelemetryDataJsonWriter(List<TelemetryExtension> extensions, System2 system2) {
+    this.extensions = extensions;
+    this.system2 = system2;
+  }
 
   @VisibleForTesting
   static final String SCIM_PROPERTY = "scim";
@@ -40,8 +52,9 @@ public class TelemetryDataJsonWriter {
     json.beginObject();
     json.prop("id", statistics.getServerId());
     json.prop("version", statistics.getVersion());
+    json.prop("messageSequenceNumber", statistics.getMessageSequenceNumber());
+    json.prop("localTimestamp", toUtc(system2.now()));
     statistics.getEdition().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
-    statistics.getLicenseType().ifPresent(e -> json.prop("licenseType", e));
     json.name("database");
     json.beginObject();
     json.prop("name", statistics.getDatabase().getName());
@@ -77,6 +90,8 @@ public class TelemetryDataJsonWriter {
     writeUserData(json, statistics);
     writeProjectData(json, statistics);
     writeProjectStatsData(json, statistics);
+
+    extensions.forEach(e -> e.write(json));
 
     json.endObject();
   }

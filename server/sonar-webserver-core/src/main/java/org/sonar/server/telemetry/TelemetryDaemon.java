@@ -50,6 +50,7 @@ public class TelemetryDaemon implements Startable {
   private static final String LOCK_NAME = "TelemetryStat";
   private static final Logger LOG = Loggers.get(TelemetryDaemon.class);
   private static final String LOCK_DELAY_SEC = "sonar.telemetry.lock.delay";
+  static final String I_PROP_MESSAGE_SEQUENCE = "telemetry.messageSeq";
 
   private final TelemetryDataLoader dataLoader;
   private final TelemetryDataJsonWriter dataJsonWriter;
@@ -125,13 +126,26 @@ public class TelemetryDaemon implements Startable {
         long now = system2.now();
         if (shouldUploadStatistics(now)) {
           uploadStatistics();
-          internalProperties.write(I_PROP_LAST_PING, String.valueOf(now));
+          updateTelemetryProps(now);
         }
       } catch (Exception e) {
         LOG.debug("Error while checking SonarQube statistics: {}", e);
       }
       // do not check at start up to exclude test instance which are not up for a long time
     };
+  }
+
+  private void updateTelemetryProps(long now) {
+    internalProperties.write(I_PROP_LAST_PING, String.valueOf(now));
+
+    Optional<String> currentSequence = internalProperties.read(I_PROP_MESSAGE_SEQUENCE);
+    if (currentSequence.isEmpty()) {
+      internalProperties.write(I_PROP_MESSAGE_SEQUENCE, String.valueOf(1));
+      return;
+    }
+
+    long current = Long.parseLong(currentSequence.get());
+    internalProperties.write(I_PROP_MESSAGE_SEQUENCE, String.valueOf(current + 1));
   }
 
   private void optOut() {
@@ -155,7 +169,7 @@ public class TelemetryDaemon implements Startable {
 
   private boolean shouldUploadStatistics(long now) {
     Optional<Long> lastPing = internalProperties.read(I_PROP_LAST_PING).map(Long::valueOf);
-    return !lastPing.isPresent() || now - lastPing.get() >= ONE_DAY;
+    return lastPing.isEmpty() || now - lastPing.get() >= ONE_DAY;
   }
 
   private int frequency() {
