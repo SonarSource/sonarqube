@@ -23,6 +23,7 @@ public enum TokenType {
 
   USER_TOKEN("u"),
   GLOBAL_ANALYSIS_TOKEN("a"),
+  PROJECT_BADGE_TOKEN("b"),
   PROJECT_ANALYSIS_TOKEN("p");
 
   private final String identifier;

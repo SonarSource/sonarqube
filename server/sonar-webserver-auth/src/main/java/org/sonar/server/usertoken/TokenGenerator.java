@@ -39,8 +39,6 @@ public interface TokenGenerator {
    */
   String generate(TokenType tokenType);
 
-  String generateProjectBadgeToken();
-
   /**
    * Hash a token.<br/>
    * Underlying algorithm, format and max length are

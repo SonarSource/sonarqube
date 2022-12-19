@@ -62,9 +62,9 @@ public class TokenGeneratorImplTest {
 
   @Test
   public void generateProjectBadgeToken_nullToken_shouldNotHavePrefix() {
-    String token = underTest.generateProjectBadgeToken();
+    String token = underTest.generate(TokenType.PROJECT_BADGE_TOKEN);
 
-    assertThat(token).matches(".{40}");
+    assertThat(token).matches("sqb_.{40}");
   }
 
   @Test
