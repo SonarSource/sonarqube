@@ -2054,12 +2054,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:16.9.16":
-  version: 16.9.16
-  resolution: "@types/react-dom@npm:16.9.16"
+"@types/react-dom@npm:16.9.17":
+  version: 16.9.17
+  resolution: "@types/react-dom@npm:16.9.17"
   dependencies:
     "@types/react": ^16
-  checksum: ff65a2a36d493ed6a9032f8a96f06074d940ca63c82d400e21e6ba16d25762b4f5c8cd352b93eb3b7aa820e158b7a6b16e5daffec2a512fa6327b00036cde0a8
+  checksum: c9246eb4d35993463608de61111f2bdae5afbd22556c8b9918081516b67eafd1a9ef141c3ed459dd4c753dd7ea037b6a375a856e677c2586396c23732772831d
   languageName: node
   linkType: hard
 
@@ -2112,14 +2112,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:16.14.28":
-  version: 16.14.28
-  resolution: "@types/react@npm:16.14.28"
+"@types/react@npm:16.14.34":
+  version: 16.14.34
+  resolution: "@types/react@npm:16.14.34"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: c3ef0c479e0c53f62057cae6dfe89785c855e697ea106e7c71da18210307a8d90a7f6bd285ca1370ee1ce859b1c241e173f4c6d0fab73c35e1d321d30b4dc4cc
+  checksum: a1a105c131bd7fd5cae693c641b3a05eb03c079875fe8e780e616afc54d86e3fa1e8c6433e7a30d2a7f8a1a7681cf1a4f652e9eb48b6abe1f80f7cafe858ebf2
   languageName: node
   linkType: hard
 
@@ -2506,9 +2506,9 @@ __metadata:
     postcss-calc: 7.0.5
     postcss-custom-properties: 9.1.1
     prettier: 2.7.1
-    react: 16.13.0
+    react: 16.14.0
     react-day-picker: 7.4.10
-    react-dom: 16.13.0
+    react-dom: 16.14.0
     react-draggable: 4.4.5
     react-helmet-async: 1.3.0
     react-intl: 3.12.1
@@ -8904,17 +8904,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:16.13.0":
-  version: 16.13.0
-  resolution: "react-dom@npm:16.13.0"
+"react-dom@npm:16.14.0":
+  version: 16.14.0
+  resolution: "react-dom@npm:16.14.0"
   dependencies:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
     prop-types: ^15.6.2
-    scheduler: ^0.19.0
+    scheduler: ^0.19.1
   peerDependencies:
-    react: ^16.0.0
-  checksum: c678fcf48a653b8c67f8519248747bcf596876b912a52d8f7626247efe3bdf52d45c06bce1368735f79e036fc3d68638e185eccc8f4113bf77a3a62360a20580
+    react: ^16.14.0
+  checksum: 5a5c49da0f106b2655a69f96c622c347febcd10532db391c262b26aec225b235357d9da1834103457683482ab1b229af7a50f6927a6b70e53150275e31785544
   languageName: node
   linkType: hard
 
@@ -9141,14 +9141,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:16.13.0":
-  version: 16.13.0
-  resolution: "react@npm:16.13.0"
+"react@npm:16.14.0":
+  version: 16.14.0
+  resolution: "react@npm:16.14.0"
   dependencies:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
     prop-types: ^15.6.2
-  checksum: 56685a8c755c53ce9657856abb0a9a64592362569e89eeff4ad6eed5a18ac3d58ca587d32b990efa1cbc4f167a82375fd9f9bfd357f785726f3c16733b089943
+  checksum: 8484f3ecb13414526f2a7412190575fc134da785c02695eb92bb6028c930bfe1c238d7be2a125088fec663cc7cda0a3623373c46807cf2c281f49c34b79881ac
   languageName: node
   linkType: hard
 
@@ -9547,13 +9547,13 @@ resolve@^1.3.2:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.19.0":
-  version: 0.19.0
-  resolution: "scheduler@npm:0.19.0"
+"scheduler@npm:^0.19.1":
+  version: 0.19.1
+  resolution: "scheduler@npm:0.19.1"
   dependencies:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
-  checksum: d92668c4aa28a0e30beb27bd89a19fe092f7292cd3f9b3a2ded6db84fbe75a3be378bf8cb3c68c790f448a894f112147528cf6d3e4eebf76ab9dd44676c75515
+  checksum: 73e185a59e2ff5aa3609f5b9cb97ddd376f89e1610579d29939d952411ca6eb7a24907a4ea4556569dacb931467a1a4a56d94fe809ef713aa76748642cd96a6c
   languageName: node
   linkType: hard
 
