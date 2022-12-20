@@ -20,9 +20,15 @@
 package org.sonar.auth.ldap;
 
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static org.sonar.auth.ldap.LdapSettingsManager.DEFAULT_LDAP_SERVER_KEY;
+import static org.sonar.process.ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE;
+import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
 
 /**
  * @author Evgeny Mandrikov
@@ -32,44 +38,71 @@ public class LdapRealm {
 
   public static final String LDAP_SECURITY_REALM = "LDAP";
   public static final String DEFAULT_LDAP_IDENTITY_PROVIDER_ID = LDAP_SECURITY_REALM + "_" + DEFAULT_LDAP_SERVER_KEY;
-  private LdapUsersProvider usersProvider;
-  private LdapGroupsProvider groupsProvider;
-  private LdapAuthenticator authenticator;
-  private final LdapSettingsManager settingsManager;
+  private static final Logger LOG = Loggers.get(LdapRealm.class);
 
-  public LdapRealm(LdapSettingsManager settingsManager) {
-    this.settingsManager = settingsManager;
+  private final boolean isLdapAuthActivated;
+  private final LdapUsersProvider usersProvider;
+  private final LdapGroupsProvider groupsProvider;
+  private final LdapAuthenticator authenticator;
+
+  public LdapRealm(LdapSettingsManager settingsManager, Configuration configuration) {
+    String realmName = configuration.get(SONAR_SECURITY_REALM.getKey()).orElse(null);
+    this.isLdapAuthActivated = LDAP_SECURITY_REALM.equals(realmName);
+    boolean ignoreStartupFailure = configuration.getBoolean(SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE.getKey()).orElse(false);
+    if (!isLdapAuthActivated) {
+      this.usersProvider = null;
+      this.groupsProvider = null;
+      this.authenticator = null;
+    } else {
+      Map<String, LdapContextFactory> contextFactories = settingsManager.getContextFactories();
+      Map<String, LdapUserMapping> userMappings = settingsManager.getUserMappings();
+      this.usersProvider = new DefaultLdapUsersProvider(contextFactories, userMappings);
+      this.authenticator = new DefaultLdapAuthenticator(contextFactories, userMappings);
+      this.groupsProvider = createGroupsProvider(contextFactories, userMappings, settingsManager);
+      testConnections(contextFactories, ignoreStartupFailure);
+    }
   }
 
-  /**
-   * Initializes LDAP realm and tests connection.
-   *
-   * @throws LdapException if a NamingException was thrown during test
-   */
-  public void init() {
-    Map<String, LdapContextFactory> contextFactories = settingsManager.getContextFactories();
-    Map<String, LdapUserMapping> userMappings = settingsManager.getUserMappings();
-    usersProvider = new DefaultLdapUsersProvider(contextFactories, userMappings);
-    authenticator = new DefaultLdapAuthenticator(contextFactories, userMappings);
+  private static LdapGroupsProvider createGroupsProvider(Map<String, LdapContextFactory> contextFactories, Map<String, LdapUserMapping> userMappings,
+    LdapSettingsManager settingsManager) {
     Map<String, LdapGroupMapping> groupMappings = settingsManager.getGroupMappings();
     if (!groupMappings.isEmpty()) {
-      groupsProvider = new DefaultLdapGroupsProvider(contextFactories, userMappings, groupMappings);
-    }
-    for (LdapContextFactory contextFactory : contextFactories.values()) {
-      contextFactory.testConnection();
+      return new DefaultLdapGroupsProvider(contextFactories, userMappings, groupMappings);
+    } else {
+      return null;
     }
   }
 
-  public LdapAuthenticator doGetAuthenticator() {
+  private static void testConnections(Map<String, LdapContextFactory> contextFactories, boolean ignoreStartupFailure) {
+    try {
+      for (LdapContextFactory contextFactory : contextFactories.values()) {
+        contextFactory.testConnection();
+      }
+    } catch (RuntimeException e) {
+      if (ignoreStartupFailure) {
+        LOG.error("IGNORED - LDAP realm failed to start: " + e.getMessage());
+      } else {
+        throw new LdapException("LDAP realm failed to start: " + e.getMessage(), e);
+      }
+    }
+  }
+
+  @CheckForNull
+  public LdapAuthenticator getAuthenticator() {
     return authenticator;
   }
 
+  @CheckForNull
   public LdapUsersProvider getUsersProvider() {
     return usersProvider;
   }
 
+  @CheckForNull
   public LdapGroupsProvider getGroupsProvider() {
     return groupsProvider;
   }
 
+  public boolean isLdapAuthActivated() {
+    return isLdapAuthActivated;
+  }
 }

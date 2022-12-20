@@ -103,18 +103,21 @@ public class LdapCredentialsAuthenticationTest {
   @Before
   public void setUp() throws Exception {
     settings.setProperty(ProcessProperties.Property.SONAR_SECURITY_REALM.getKey(), "LDAP");
-    when(ldapRealm.doGetAuthenticator()).thenReturn(ldapAuthenticator);
+    settings.setProperty(ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE.getKey(), "true");
+    when(ldapRealm.getAuthenticator()).thenReturn(ldapAuthenticator);
     when(ldapRealm.getUsersProvider()).thenReturn(ldapUsersProvider);
     when(ldapRealm.getGroupsProvider()).thenReturn(ldapGroupsProvider);
+    when(ldapRealm.isLdapAuthActivated()).thenReturn(true);
     underTest = new LdapCredentialsAuthentication(settings.asConfig(), userRegistrar, authenticationEvent, ldapRealm);
   }
 
   @Test
   public void authenticate_with_null_group_provider() {
     reset(ldapRealm);
-    when(ldapRealm.doGetAuthenticator()).thenReturn(ldapAuthenticator);
+    when(ldapRealm.getAuthenticator()).thenReturn(ldapAuthenticator);
     when(ldapRealm.getUsersProvider()).thenReturn(ldapUsersProvider);
     when(ldapRealm.getGroupsProvider()).thenReturn(null);
+    when(ldapRealm.isLdapAuthActivated()).thenReturn(true);
     underTest = new LdapCredentialsAuthentication(settings.asConfig(), userRegistrar, authenticationEvent, ldapRealm);
 
     LdapAuthenticator.Context authenticationContext = new LdapAuthenticator.Context(LOGIN, PASSWORD, request);
@@ -134,7 +137,6 @@ public class LdapCredentialsAuthenticationTest {
     assertThat(identity.shouldSyncGroups()).isFalse();
 
     verify(authenticationEvent).loginSuccess(request, LOGIN, Source.realm(BASIC, LDAP_SECURITY_REALM_NAME));
-    verify(ldapRealm).init();
   }
 
   @Test
@@ -148,7 +150,6 @@ public class LdapCredentialsAuthenticationTest {
     assertThat(provider.getDisplay()).isNull();
     assertThat(provider.isEnabled()).isTrue();
     verify(authenticationEvent).loginSuccess(request, LOGIN, Source.realm(BASIC, LDAP_SECURITY_REALM_NAME));
-    verify(ldapRealm).init();
   }
 
   @Test
@@ -265,12 +266,11 @@ public class LdapCredentialsAuthenticationTest {
   @Test
   public void return_empty_user_when_ldap_not_activated() {
     reset(ldapRealm);
-    settings.clear();
+    when(ldapRealm.isLdapAuthActivated()).thenReturn(false);
     underTest = new LdapCredentialsAuthentication(settings.asConfig(), userRegistrar, authenticationEvent, ldapRealm);
 
     assertThat(underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC)).isEmpty();
     verifyNoInteractions(authenticationEvent);
-    verifyNoInteractions(ldapRealm);
   }
 
   private void executeAuthenticate(@Nullable LdapUserDetails userDetails) {

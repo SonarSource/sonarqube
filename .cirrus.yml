@@ -50,6 +50,11 @@ saml_nightly_task_template: &SAML_NIGHTLY_TASK_TEMPLATE
     $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('server/sonar-auth-saml/src/main/java/**/*.java', 'server/sonar-auth-saml/src/main/resources/**/*', 'server/sonar-db-dao/src/main/**/SAML*.java', 'private/it-core/src/test/java/org/sonarqube/tests/saml/*.java', 'server/sonar-webserver-webapi/src/main/java/org/sonar/server/saml/**/*.java')
 
+ldap_nightly_task_template: &LDAP_NIGHTLY_TASK_TEMPLATE
+  only_if: >-
+    $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
+    changesInclude('server/sonar-auth-ldap/src/main/java/**/*.java', 'server/sonar-webserver-auth/src/main/java/org/sonar/server/authentication/LdapCredentialsAuthentication.java', 'private/it-core/src/test/java/org/sonarqube/tests/ldap/*.java')
+
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
   builder_image_project: sonarqube-team
@@ -528,7 +533,7 @@ qa_saml_task:
 qa_ldap_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *NIGHTLY_TASK_TEMPLATE
+  <<: *LDAP_NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:

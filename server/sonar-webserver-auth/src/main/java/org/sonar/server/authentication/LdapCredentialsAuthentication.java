@@ -37,7 +37,6 @@ import org.sonar.auth.ldap.LdapRealm;
 import org.sonar.auth.ldap.LdapUserDetails;
 import org.sonar.auth.ldap.LdapUsersProvider;
 import org.sonar.db.user.UserDto;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
@@ -46,8 +45,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public class LdapCredentialsAuthentication {
-
-  private static final String LDAP_SECURITY_REALM = "LDAP";
 
   private static final Logger LOG = Loggers.get(LdapCredentialsAuthentication.class);
 
@@ -66,19 +63,10 @@ public class LdapCredentialsAuthentication {
     this.userRegistrar = userRegistrar;
     this.authenticationEvent = authenticationEvent;
 
-    String realmName = configuration.get(ProcessProperties.Property.SONAR_SECURITY_REALM.getKey()).orElse(null);
-    this.isLdapAuthActivated = LDAP_SECURITY_REALM.equals(realmName);
-
-    if (isLdapAuthActivated) {
-      ldapRealm.init();
-      this.ldapAuthenticator = ldapRealm.doGetAuthenticator();
-      this.ldapUsersProvider = ldapRealm.getUsersProvider();
-      this.ldapGroupsProvider = ldapRealm.getGroupsProvider();
-    } else {
-      this.ldapAuthenticator = null;
-      this.ldapUsersProvider = null;
-      this.ldapGroupsProvider = null;
-    }
+    this.isLdapAuthActivated = ldapRealm.isLdapAuthActivated();
+    this.ldapAuthenticator = ldapRealm.getAuthenticator();
+    this.ldapUsersProvider = ldapRealm.getUsersProvider();
+    this.ldapGroupsProvider = ldapRealm.getGroupsProvider();
   }
 
   public Optional<UserDto> authenticate(Credentials credentials, HttpServletRequest request, AuthenticationEvent.Method method) {
@@ -160,7 +148,7 @@ public class LdapCredentialsAuthentication {
     private final String key;
 
     private LdapIdentityProvider(String ldapServerKey) {
-      this.key = LDAP_SECURITY_REALM + "_" + ldapServerKey;
+      this.key = LdapRealm.LDAP_SECURITY_REALM + "_" + ldapServerKey;
     }
 
     @Override

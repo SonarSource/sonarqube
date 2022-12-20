@@ -25,11 +25,13 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
 
 public class KerberosTest {
 
@@ -46,10 +48,8 @@ public class KerberosTest {
   @Before
   public void before() {
     MapSettings settings = configure();
-    ldapRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig()));
-    ldapRealm.init();
-
-    authenticator = ldapRealm.doGetAuthenticator();
+    ldapRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig()), settings.asConfig());
+    authenticator = ldapRealm.getAuthenticator();
   }
 
   @Test
@@ -86,11 +86,12 @@ public class KerberosTest {
   public void wrong_bind_password() {
     MapSettings settings = configure()
       .setProperty("ldap.bindPassword", "wrong_bind_password");
-    LdapRealm wrongPasswordRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig()));
 
-    assertThatThrownBy(wrongPasswordRealm::init)
+    Configuration config = settings.asConfig();
+    LdapSettingsManager settingsManager = new LdapSettingsManager(config);
+    assertThatThrownBy(() -> new LdapRealm(settingsManager, config))
       .isInstanceOf(LdapException.class)
-      .hasMessage("Unable to open LDAP connection");
+      .hasMessage("LDAP realm failed to start: Unable to open LDAP connection");
 
   }
 
@@ -102,7 +103,8 @@ public class KerberosTest {
       .setProperty("ldap.bindPassword", "bind_password")
       .setProperty("ldap.user.baseDn", "ou=users,dc=example,dc=org")
       .setProperty("ldap.group.baseDn", "ou=groups,dc=example,dc=org")
-      .setProperty("ldap.group.request", "(&(objectClass=groupOfUniqueNames)(uniqueMember={dn}))");
+      .setProperty("ldap.group.request", "(&(objectClass=groupOfUniqueNames)(uniqueMember={dn}))")
+      .setProperty(SONAR_SECURITY_REALM.getKey(), LdapRealm.LDAP_SECURITY_REALM);
   }
 
 }

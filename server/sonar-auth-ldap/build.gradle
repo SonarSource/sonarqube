@@ -11,6 +11,7 @@ dependencies {
 
     compileOnlyApi 'com.google.code.findbugs:jsr305'
     compileOnlyApi 'javax.servlet:javax.servlet-api'
+    compileOnlyApi project(':server:sonar-process')
     compileOnlyApi project(':sonar-core')
 
     testImplementation 'com.tngtech.java:junit-dataprovider'
