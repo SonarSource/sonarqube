@@ -745,15 +745,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.7.6":
-  version: 7.18.3
-  resolution: "@babel/runtime@npm:7.18.3"
-  dependencies:
-    regenerator-runtime: ^0.13.4
-  checksum: db8526226aa02cfa35a5a7ac1a34b5f303c62a1f000c7db48cb06c6290e616483e5036ab3c4e7a84d0f3be6d4e2148d5fe5cec9564bf955f505c3e764b83d7f1
-  languageName: node
-  linkType: hard
-
 "@babel/template@npm:^7.16.7":
   version: 7.16.7
   resolution: "@babel/template@npm:7.16.7"
@@ -1848,6 +1839,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@remix-run/router@npm:1.0.5":
+  version: 1.0.5
+  resolution: "@remix-run/router@npm:1.0.5"
+  checksum: 5d66750b7defc10c80d9748fa003fcfe2af9ef82de3c06be88c926ede36a15b9e971ed2222981db843494e2f77c3de14470efe6dc877530cea774dc31162ec6f
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.24.1":
   version: 0.24.51
   resolution: "@sinclair/typebox@npm:0.24.51"
@@ -2282,12 +2280,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dompurify@npm:2.3.4":
-  version: 2.3.4
-  resolution: "@types/dompurify@npm:2.3.4"
+"@types/dompurify@npm:2.4.0":
+  version: 2.4.0
+  resolution: "@types/dompurify@npm:2.4.0"
   dependencies:
     "@types/trusted-types": "*"
-  checksum: ea55678bc9fd32fcdae904ca191f2b8cc5b475277937e5e4c024690b0c3b9c73accfb7391f56d26d0f53fcff496a013773293e189a07a79afdd2b2ed4efacd5f
+  checksum: b48cd81e997794ebc390c7c5bef1a67ec14a6f2f0521973e07e06af186c7583abe114d94d24868c0632b9573f5bd77131a4b76f3fffdf089ba99a4e53dd46c39
   languageName: node
   linkType: hard
 
@@ -2874,7 +2872,7 @@ __metadata:
     "@types/d3-shape": 3.1.0
     "@types/d3-zoom": 3.0.1
     "@types/diff": 5.0.2
-    "@types/dompurify": 2.3.4
+    "@types/dompurify": 2.4.0
     "@types/enzyme": 3.10.12
     "@types/jest": 29.2.4
     "@types/lodash": 4.14.191
@@ -2892,7 +2890,7 @@ __metadata:
     chalk: 4.1.2
     classnames: 2.3.2
     clipboard: 2.0.11
-    core-js: 3.25.5
+    core-js: 3.26.1
     d3-array: 3.2.1
     d3-hierarchy: 3.1.2
     d3-scale: 4.0.2
@@ -2932,15 +2930,15 @@ __metadata:
     path-browserify: 1.0.1
     postcss-calc: 8.2.4
     postcss-custom-properties: 12.1.11
-    prettier: 2.7.1
+    prettier: 2.8.1
     react: 16.14.0
     react-day-picker: 7.4.10
     react-dom: 16.14.0
     react-draggable: 4.4.5
     react-helmet-async: 1.3.0
     react-intl: 3.12.1
-    react-modal: 3.15.1
-    react-router-dom: 6.3.0
+    react-modal: 3.16.1
+    react-router-dom: 6.4.5
     react-select: 4.3.1
     react-select-event: 5.5.1
     react-virtualized: 9.22.3
@@ -3981,10 +3979,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.25.5":
-  version: 3.25.5
-  resolution: "core-js@npm:3.25.5"
-  checksum: 208b308c49bc022f90d4349d4c99802a73c9d55053976b3c529f10014c1e37845926defad8c519f2c7f71ea0acf18d2b323ab6aaee34dc85b4c4b3ced0623f3f
+"core-js@npm:3.26.1":
+  version: 3.26.1
+  resolution: "core-js@npm:3.26.1"
+  checksum: 0a01149f51ff1e9f41d1ea49cc4c9222047949ea597189ede7c4cf8cde3b097766b9c7615acc77c86fe65b4002f20b638a133dfba7b41dba830d707aeeed45ad
   languageName: node
   linkType: hard
 
@@ -6181,15 +6179,6 @@ __metadata:
   dependencies:
     function-bind: ^1.1.1
   checksum: b9ad53d53be4af90ce5d1c38331e712522417d017d5ef1ebd0507e07c2fbad8686fffb8e12ddecd4c39ca9b9b47431afbb975b8abf7f3c3b82c98e9aad052792
-  languageName: node
-  linkType: hard
-
-"history@npm:^5.2.0":
-  version: 5.3.0
-  resolution: "history@npm:5.3.0"
-  dependencies:
-    "@babel/runtime": ^7.7.6
-  checksum: d73c35df49d19ac172f9547d30a21a26793e83f16a78386d99583b5bf1429cc980799fcf1827eb215d31816a6600684fba9686ce78104e23bd89ec239e7c726f
   languageName: node
   linkType: hard
 
@@ -8891,12 +8880,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:2.7.1":
-  version: 2.7.1
-  resolution: "prettier@npm:2.7.1"
+"prettier@npm:2.8.1":
+  version: 2.8.1
+  resolution: "prettier@npm:2.8.1"
   bin:
     prettier: bin-prettier.js
-  checksum: 55a4409182260866ab31284d929b3cb961e5fdb91fe0d2e099dac92eaecec890f36e524b4c19e6ceae839c99c6d7195817579cdffc8e2c80da0cb794463a748b
+  checksum: 4f21a0f1269f76fb36f54e9a8a1ea4c11e27478958bf860661fb4b6d7ac69aac1581f8724fa98ea3585e56d42a2ea317a17ff6e3324f40cb11ff9e20b73785cc
   languageName: node
   linkType: hard
 
@@ -9197,9 +9186,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-modal@npm:3.15.1":
-  version: 3.15.1
-  resolution: "react-modal@npm:3.15.1"
+"react-modal@npm:3.16.1":
+  version: 3.16.1
+  resolution: "react-modal@npm:3.16.1"
   dependencies:
     exenv: ^1.2.0
     prop-types: ^15.7.2
@@ -9208,31 +9197,31 @@ __metadata:
   peerDependencies:
     react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
     react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
-  checksum: ee99ca312c35bcec9ef0868babf970ce03c52801731e29be336bb6bdc867a1ecf00a73e1fb5bc3b1b1ef66ceb0c9b4a0199fadb85b1b9829f731409951b018f0
+  checksum: 978936e9320fad839c039b9ee4de55d40888156cb40e093615d6fbc2ff07139d5db06f14782cb7767f780bd5fb57956778669426c535ebc0068a7a03882c7e75
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:6.3.0":
-  version: 6.3.0
-  resolution: "react-router-dom@npm:6.3.0"
+"react-router-dom@npm:6.4.5":
+  version: 6.4.5
+  resolution: "react-router-dom@npm:6.4.5"
   dependencies:
-    history: ^5.2.0
-    react-router: 6.3.0
+    "@remix-run/router": 1.0.5
+    react-router: 6.4.5
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: 77603a654f8a8dc7f65535a2e5917a65f8d9ffcb06546d28dd297e52adcc4b8a84377e0115f48dca330b080af2da3e78f29d590c89307094d36927d2b1751ec3
+  checksum: 09d7841dd52efd2c60947171f95d9d1860cabd7540ac74dede86a6c36a2dd26a645e4928cbc8aa4e1c9d1f906f2ef144ba6da5ac69243590df855a6df8cfe1aa
   languageName: node
   linkType: hard
 
-"react-router@npm:6.3.0":
-  version: 6.3.0
-  resolution: "react-router@npm:6.3.0"
+"react-router@npm:6.4.5":
+  version: 6.4.5
+  resolution: "react-router@npm:6.4.5"
   dependencies:
-    history: ^5.2.0
+    "@remix-run/router": 1.0.5
   peerDependencies:
     react: ">=16.8"
-  checksum: 7be673f5e72104be01e6ab274516bdb932efd93305243170690f6560e3bd1035dd1df3d3c9ce1e0f452638a2529f43a1e77dcf0934fc8031c4783da657be13ca
+  checksum: 0d471df39f0487224240f9910c2f2939519f3e9909a7b19f72767aeea2caf1c9fa4e8ea9a51b17c20051ec252db0fcc34a7a0b3068b338dd9d8eb656ffd489c1
   languageName: node
   linkType: hard
 

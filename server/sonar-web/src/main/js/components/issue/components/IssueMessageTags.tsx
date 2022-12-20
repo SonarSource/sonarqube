@@ -68,22 +68,23 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
           />
         </Tooltip>
       )}
-      {ruleStatus && (ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) && (
-        <DocumentationTooltip
-          className="spacer-left"
-          content={translate('rules.status', ruleStatus, 'help')}
-          links={[
-            {
-              href: '/user-guide/rules/overview/',
-              label: translateWithParameters('see_x', translate('rules')),
-            },
-          ]}
-        >
-          <span className="spacer-right badge badge-error">
-            {translate('issue.resolution.badge', ruleStatus)}
-          </span>
-        </DocumentationTooltip>
-      )}
+      {ruleStatus &&
+        (ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) && (
+          <DocumentationTooltip
+            className="spacer-left"
+            content={translate('rules.status', ruleStatus, 'help')}
+            links={[
+              {
+                href: '/user-guide/rules/overview/',
+                label: translateWithParameters('see_x', translate('rules')),
+              },
+            ]}
+          >
+            <span className="spacer-right badge badge-error">
+              {translate('issue.resolution.badge', ruleStatus)}
+            </span>
+          </DocumentationTooltip>
+        )}
       {ruleEngine && (
         <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
           <div className="badge spacer-right text-baseline">{ruleEngine}</div>
