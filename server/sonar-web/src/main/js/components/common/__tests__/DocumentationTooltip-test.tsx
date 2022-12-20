@@ -53,6 +53,9 @@ it('should correctly navigate through TAB', async () => {
   await user.tab({ shift: true });
   expect(await ui.afterLink.find()).toHaveFocus();
   await user.tab({ shift: true });
+  expect(ui.helpIcon.get()).toHaveFocus();
+  await user.tab();
+  await user.tab();
   await user.tab();
   await user.tab({ shift: true });
   expect(await ui.afterLink.find()).toHaveFocus();

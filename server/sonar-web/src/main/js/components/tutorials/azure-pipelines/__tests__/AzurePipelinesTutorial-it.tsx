@@ -19,7 +19,7 @@
  */
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { UserEvent } from '@testing-library/user-event/dist/types/setup';
+import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import * as React from 'react';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -96,10 +96,14 @@ it('should render correctly and allow navigating between the different steps', a
   await clickButton(user, 'onboarding.build.cfamily');
 
   // OS's
-  [OSs.Linux, OSs.Windows, OSs.MacOS].forEach(async (os) => {
-    await clickButton(user, `onboarding.build.other.os.${os}`);
-    assertCFamilyStepIsCorrectlyRendered(os);
-  });
+  await clickButton(user, `onboarding.build.other.os.${OSs.Linux}`);
+  assertCFamilyStepIsCorrectlyRendered(OSs.Linux);
+
+  await clickButton(user, `onboarding.build.other.os.${OSs.Windows}`);
+  assertCFamilyStepIsCorrectlyRendered(OSs.Windows);
+
+  await clickButton(user, `onboarding.build.other.os.${OSs.MacOS}`);
+  assertCFamilyStepIsCorrectlyRendered(OSs.MacOS);
 
   //// Analysis step: Other
   await clickButton(user, 'onboarding.build.other');

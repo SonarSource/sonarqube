@@ -20,7 +20,7 @@
 
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { UserEvent } from '@testing-library/user-event/dist/types/setup';
+import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
 import { renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
