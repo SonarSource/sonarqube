@@ -19,7 +19,7 @@ exports[`renders 1`] = `
     <ForwardRef(Link)
       className="link-no-underline"
       to={
-        Object {
+        {
           "pathname": "/dashboard",
           "search": "?id=project",
         }
@@ -75,12 +75,12 @@ exports[`renders 1`] = `
   >
     <ProjectRowActions
       currentUser={
-        Object {
+        {
           "login": "foo",
         }
       }
       project={
-        Object {
+        {
           "key": "project",
           "name": "Project",
           "qualifier": "TRK",
@@ -111,7 +111,7 @@ exports[`renders: portfolio 1`] = `
     <ForwardRef(Link)
       className="link-no-underline"
       to={
-        Object {
+        {
           "pathname": "/portfolio",
           "search": "?id=project",
         }
@@ -167,12 +167,12 @@ exports[`renders: portfolio 1`] = `
   >
     <ProjectRowActions
       currentUser={
-        Object {
+        {
           "login": "foo",
         }
       }
       project={
-        Object {
+        {
           "key": "project",
           "name": "Project",
           "qualifier": "VW",
@@ -203,7 +203,7 @@ exports[`renders: with lastAnalysisDate 1`] = `
     <ForwardRef(Link)
       className="link-no-underline"
       to={
-        Object {
+        {
           "pathname": "/dashboard",
           "search": "?id=project",
         }
@@ -257,12 +257,12 @@ exports[`renders: with lastAnalysisDate 1`] = `
   >
     <ProjectRowActions
       currentUser={
-        Object {
+        {
           "login": "foo",
         }
       }
       project={
-        Object {
+        {
           "key": "project",
           "lastAnalysisDate": "2017-04-08T00:00:00.000Z",
           "name": "Project",

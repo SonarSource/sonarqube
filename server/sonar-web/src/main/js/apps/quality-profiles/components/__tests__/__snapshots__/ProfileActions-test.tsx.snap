@@ -9,7 +9,7 @@ exports[`renders correctly: all permissions 1`] = `
     <ActionsDropdownItem
       className="it__quality-profiles__activate-more-rules"
       to={
-        Object {
+        {
           "pathname": "/coding_rules",
           "search": "?qprofile=key&activation=false",
         }
@@ -27,7 +27,7 @@ exports[`renders correctly: all permissions 1`] = `
     <ActionsDropdownItem
       className="it__quality-profiles__compare"
       to={
-        Object {
+        {
           "pathname": "/profiles/compare",
           "search": "?language=js&name=name",
         }
@@ -91,7 +91,7 @@ exports[`renders correctly: copy modal 1`] = `
     <ActionsDropdownItem
       className="it__quality-profiles__compare"
       to={
-        Object {
+        {
           "pathname": "/profiles/compare",
           "search": "?language=js&name=name",
         }
@@ -106,7 +106,7 @@ exports[`renders correctly: copy modal 1`] = `
     onClose={[Function]}
     onSubmit={[Function]}
     profile={
-      Object {
+      {
         "activeDeprecatedRuleCount": 0,
         "activeRuleCount": 68,
         "childrenCount": 0,
@@ -142,7 +142,7 @@ exports[`renders correctly: delete modal 1`] = `
     <ActionsDropdownItem
       className="it__quality-profiles__compare"
       to={
-        Object {
+        {
           "pathname": "/profiles/compare",
           "search": "?language=js&name=name",
         }
@@ -156,7 +156,7 @@ exports[`renders correctly: delete modal 1`] = `
     onClose={[Function]}
     onDelete={[Function]}
     profile={
-      Object {
+      {
         "activeDeprecatedRuleCount": 0,
         "activeRuleCount": 68,
         "childrenCount": 0,
@@ -185,7 +185,7 @@ exports[`renders correctly: edit only 1`] = `
     <ActionsDropdownItem
       className="it__quality-profiles__activate-more-rules"
       to={
-        Object {
+        {
           "pathname": "/coding_rules",
           "search": "?qprofile=key&activation=false",
         }
@@ -203,7 +203,7 @@ exports[`renders correctly: edit only 1`] = `
     <ActionsDropdownItem
       className="it__quality-profiles__compare"
       to={
-        Object {
+        {
           "pathname": "/profiles/compare",
           "search": "?language=js&name=name",
         }
@@ -237,7 +237,7 @@ exports[`renders correctly: extend modal 1`] = `
     <ActionsDropdownItem
       className="it__quality-profiles__compare"
       to={
-        Object {
+        {
           "pathname": "/profiles/compare",
           "search": "?language=js&name=name",
         }
@@ -252,7 +252,7 @@ exports[`renders correctly: extend modal 1`] = `
     onClose={[Function]}
     onSubmit={[Function]}
     profile={
-      Object {
+      {
         "activeDeprecatedRuleCount": 0,
         "activeRuleCount": 68,
         "childrenCount": 0,
@@ -288,7 +288,7 @@ exports[`renders correctly: no permissions 1`] = `
     <ActionsDropdownItem
       className="it__quality-profiles__compare"
       to={
-        Object {
+        {
           "pathname": "/profiles/compare",
           "search": "?language=js&name=name",
         }
@@ -316,7 +316,7 @@ exports[`renders correctly: rename modal 1`] = `
     <ActionsDropdownItem
       className="it__quality-profiles__compare"
       to={
-        Object {
+        {
           "pathname": "/profiles/compare",
           "search": "?language=js&name=name",
         }
@@ -331,7 +331,7 @@ exports[`renders correctly: rename modal 1`] = `
     onClose={[Function]}
     onSubmit={[Function]}
     profile={
-      Object {
+      {
         "activeDeprecatedRuleCount": 0,
         "activeRuleCount": 68,
         "childrenCount": 0,
@@ -367,7 +367,7 @@ exports[`should not allow to set a profile as the default if the profile has no 
     <ActionsDropdownItem
       className="it__quality-profiles__compare"
       to={
-        Object {
+        {
           "pathname": "/profiles/compare",
           "search": "?language=js&name=name",
         }

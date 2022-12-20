@@ -11,7 +11,7 @@ exports[`should also render domains with an actions description matching the que
       className="list-group-item"
       key="bar"
       to={
-        Object {
+        {
           "pathname": "/web_api/bar",
           "search": "?query=Bar",
         }
@@ -27,7 +27,7 @@ exports[`should also render domains with an actions description matching the que
       className="list-group-item"
       key="baz"
       to={
-        Object {
+        {
           "pathname": "/web_api/baz",
           "search": "?query=Bar",
         }
@@ -54,7 +54,7 @@ exports[`should not render deprecated domains 1`] = `
       className="list-group-item"
       key="foo"
       to={
-        Object {
+        {
           "pathname": "/web_api/foo",
           "search": "?",
         }
@@ -81,7 +81,7 @@ exports[`should not render internal domains 1`] = `
       className="list-group-item"
       key="foo"
       to={
-        Object {
+        {
           "pathname": "/web_api/foo",
           "search": "?",
         }
@@ -108,7 +108,7 @@ exports[`should render deprecated domains 1`] = `
       className="list-group-item"
       key="foo"
       to={
-        Object {
+        {
           "pathname": "/web_api/foo",
           "search": "?deprecated=true",
         }
@@ -124,7 +124,7 @@ exports[`should render deprecated domains 1`] = `
       className="list-group-item"
       key="bar"
       to={
-        Object {
+        {
           "pathname": "/web_api/bar",
           "search": "?deprecated=true",
         }
@@ -154,7 +154,7 @@ exports[`should render internal domains 1`] = `
       className="list-group-item"
       key="foo"
       to={
-        Object {
+        {
           "pathname": "/web_api/foo",
           "search": "?internal=true",
         }
@@ -170,7 +170,7 @@ exports[`should render internal domains 1`] = `
       className="list-group-item"
       key="bar"
       to={
-        Object {
+        {
           "pathname": "/web_api/bar",
           "search": "?internal=true",
         }
@@ -198,7 +198,7 @@ exports[`should render only domains with an action matching the query 1`] = `
       className="list-group-item"
       key="foo"
       to={
-        Object {
+        {
           "pathname": "/web_api/foo",
           "search": "?query=Foo",
         }

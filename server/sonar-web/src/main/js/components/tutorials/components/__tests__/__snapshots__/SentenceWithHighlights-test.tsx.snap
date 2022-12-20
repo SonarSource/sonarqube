@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   defaultMessage="foo.sentence"
   id="foo.sentence"
   values={
-    Object {
+    {
       "hello": <strong>
         foo.sentence.hello
       </strong>,

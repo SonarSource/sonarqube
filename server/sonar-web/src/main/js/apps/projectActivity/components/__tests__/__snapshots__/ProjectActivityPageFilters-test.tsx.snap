@@ -20,26 +20,26 @@ exports[`should render correctly the list of series 1`] = `
       isSearchable={false}
       onChange={[Function]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "event.category.VERSION",
             "value": "VERSION",
           },
-          Object {
+          {
             "label": "event.category.QUALITY_GATE",
             "value": "QUALITY_GATE",
           },
-          Object {
+          {
             "label": "event.category.QUALITY_PROFILE",
             "value": "QUALITY_PROFILE",
           },
-          Object {
+          {
             "label": "event.category.OTHER",
             "value": "OTHER",
           },
         ]
       }
-      value={Array []}
+      value={[]}
     />
   </div>
   <ProjectActivityDateInput

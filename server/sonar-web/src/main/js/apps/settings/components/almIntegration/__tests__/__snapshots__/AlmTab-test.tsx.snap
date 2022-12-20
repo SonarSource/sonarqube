@@ -5,10 +5,10 @@ exports[`should render correctly 1`] = `
   afterSubmit={[Function]}
   almTab="azure"
   branchesEnabled={true}
-  definitionStatus={Object {}}
+  definitionStatus={{}}
   definitions={
-    Array [
-      Object {
+    [
+      {
         "key": "key",
         "personalAccessToken": "asdf1234",
       },

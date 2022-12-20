@@ -12,7 +12,7 @@ exports[`should be disabled 1`] = `
     name="facet header"
     onClear={[Function]}
     open={false}
-    values={Array []}
+    values={[]}
   />
 </FacetBox>
 `;
@@ -29,7 +29,7 @@ exports[`should display all selected items 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "a",
         "b",
         "c",
@@ -110,7 +110,7 @@ exports[`should render 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <SearchBox
     autoFocus={false}
@@ -179,7 +179,7 @@ exports[`should search 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <SearchBox
     autoFocus={false}
@@ -239,7 +239,7 @@ exports[`should search 2`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <SearchBox
     autoFocus={false}
@@ -310,7 +310,7 @@ exports[`should search 3`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <SearchBox
     autoFocus={false}
@@ -379,7 +379,7 @@ exports[`should search 4`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <SearchBox
     autoFocus={false}
@@ -413,7 +413,7 @@ exports[`should search 5`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <SearchBox
     autoFocus={false}

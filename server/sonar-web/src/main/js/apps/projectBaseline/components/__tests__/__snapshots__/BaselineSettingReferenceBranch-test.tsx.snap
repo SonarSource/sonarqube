@@ -3,7 +3,7 @@
 exports[`renderOption should render correctly: branch 1`] = `
 <Option
   data={
-    Object {
+    {
       "isMain": false,
       "label": "branch-7.4",
       "value": "branch-7.4",
@@ -21,7 +21,7 @@ exports[`renderOption should render correctly: branch 1`] = `
 exports[`renderOption should render correctly: branch doesn't exist 1`] = `
 <Option
   data={
-    Object {
+    {
       "isInvalid": true,
       "isMain": false,
       "value": "branch-nope",
@@ -43,7 +43,7 @@ exports[`renderOption should render correctly: branch doesn't exist 1`] = `
 exports[`renderOption should render correctly: disabled 1`] = `
 <Option
   data={
-    Object {
+    {
       "isDisabled": true,
       "isMain": false,
       "label": "disabled",
@@ -64,7 +64,7 @@ exports[`renderOption should render correctly: disabled 1`] = `
 exports[`renderOption should render correctly: main 1`] = `
 <Option
   data={
-    Object {
+    {
       "isMain": true,
       "label": "master",
       "value": "master",
@@ -111,14 +111,14 @@ exports[`should render correctly: Branch level - no other branches 1`] = `
     <Select
       className="little-spacer-top spacer-bottom"
       components={
-        Object {
+        {
           "Option": [Function],
         }
       }
       onChange={[Function]}
       options={
-        Array [
-          Object {
+        [
+          {
             "isMain": true,
             "label": "master",
             "value": "master",
@@ -126,7 +126,7 @@ exports[`should render correctly: Branch level - no other branches 1`] = `
         ]
       }
       value={
-        Object {
+        {
           "isMain": true,
           "label": "master",
           "value": "master",
@@ -164,19 +164,19 @@ exports[`should render correctly: Branch level 1`] = `
     <Select
       className="little-spacer-top spacer-bottom"
       components={
-        Object {
+        {
           "Option": [Function],
         }
       }
       onChange={[Function]}
       options={
-        Array [
-          Object {
+        [
+          {
             "isMain": true,
             "label": "master",
             "value": "master",
           },
-          Object {
+          {
             "isMain": false,
             "label": "branch-7.9",
             "value": "branch-7.9",
@@ -184,7 +184,7 @@ exports[`should render correctly: Branch level 1`] = `
         ]
       }
       value={
-        Object {
+        {
           "isMain": true,
           "label": "master",
           "value": "master",
@@ -227,19 +227,19 @@ exports[`should render correctly: Project level 1`] = `
     <Select
       className="little-spacer-top spacer-bottom"
       components={
-        Object {
+        {
           "Option": [Function],
         }
       }
       onChange={[Function]}
       options={
-        Array [
-          Object {
+        [
+          {
             "isMain": true,
             "label": "master",
             "value": "master",
           },
-          Object {
+          {
             "isMain": false,
             "label": "branch-7.9",
             "value": "branch-7.9",
@@ -247,7 +247,7 @@ exports[`should render correctly: Project level 1`] = `
         ]
       }
       value={
-        Object {
+        {
           "isMain": true,
           "label": "master",
           "value": "master",

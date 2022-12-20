@@ -3,7 +3,7 @@
 exports[`should render the languages facet with the selected languages 1`] = `
 <Filter
   facet={
-    Object {
+    {
       "cs": 4,
       "java": 39,
       "js": 1,
@@ -13,16 +13,16 @@ exports[`should render the languages facet with the selected languages 1`] = `
     <SearchableFilterFooter
       onQueryChange={[MockFunction]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "Flex",
             "value": "flex",
           },
-          Object {
+          {
             "label": "PHP",
             "value": "php",
           },
-          Object {
+          {
             "label": "Python",
             "value": "py",
           },
@@ -30,8 +30,8 @@ exports[`should render the languages facet with the selected languages 1`] = `
       }
       property="languages"
       query={
-        Object {
-          "languages": Array [
+        {
+          "languages": [
             "java",
             "cs",
           ],
@@ -46,7 +46,7 @@ exports[`should render the languages facet with the selected languages 1`] = `
   }
   onQueryChange={[MockFunction]}
   options={
-    Array [
+    [
       "java",
       "cs",
       "js",
@@ -56,7 +56,7 @@ exports[`should render the languages facet with the selected languages 1`] = `
   renderAccessibleLabel={[Function]}
   renderOption={[Function]}
   value={
-    Array [
+    [
       "java",
       "cs",
     ]
@@ -94,7 +94,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
         >
           <SearchableFilterOption
             option={
-              Object {
+              {
                 "key": "java",
                 "name": "Java",
               }
@@ -128,7 +128,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
         >
           <SearchableFilterOption
             option={
-              Object {
+              {
                 "key": "cs",
                 "name": "C#",
               }
@@ -162,7 +162,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
         >
           <SearchableFilterOption
             option={
-              Object {
+              {
                 "key": "js",
                 "name": "JavaScript",
               }
@@ -181,16 +181,16 @@ exports[`should render the languages facet with the selected languages 2`] = `
   <SearchableFilterFooter
     onQueryChange={[MockFunction]}
     options={
-      Array [
-        Object {
+      [
+        {
           "label": "Flex",
           "value": "flex",
         },
-        Object {
+        {
           "label": "PHP",
           "value": "php",
         },
-        Object {
+        {
           "label": "Python",
           "value": "py",
         },
@@ -198,8 +198,8 @@ exports[`should render the languages facet with the selected languages 2`] = `
     }
     property="languages"
     query={
-      Object {
-        "languages": Array [
+      {
+        "languages": [
           "java",
           "cs",
         ],
@@ -212,7 +212,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
 exports[`should render the languages without the ones in the facet 1`] = `
 <Filter
   facet={
-    Object {
+    {
       "cs": 4,
       "java": 39,
       "js": 1,
@@ -222,16 +222,16 @@ exports[`should render the languages without the ones in the facet 1`] = `
     <SearchableFilterFooter
       onQueryChange={[MockFunction]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "Flex",
             "value": "flex",
           },
-          Object {
+          {
             "label": "PHP",
             "value": "php",
           },
-          Object {
+          {
             "label": "Python",
             "value": "py",
           },
@@ -239,7 +239,7 @@ exports[`should render the languages without the ones in the facet 1`] = `
       }
       property="languages"
       query={
-        Object {
+        {
           "languages": null,
         }
       }
@@ -252,7 +252,7 @@ exports[`should render the languages without the ones in the facet 1`] = `
   }
   onQueryChange={[MockFunction]}
   options={
-    Array [
+    [
       "java",
       "cs",
       "js",

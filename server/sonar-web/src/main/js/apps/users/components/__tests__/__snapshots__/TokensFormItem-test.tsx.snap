@@ -109,7 +109,7 @@ exports[`should render correctly 2`] = `
           defaultMessage="users.tokens.sure_X"
           id="users.tokens.sure_X"
           values={
-            Object {
+            {
               "token": <strong>
                 foo
               </strong>,

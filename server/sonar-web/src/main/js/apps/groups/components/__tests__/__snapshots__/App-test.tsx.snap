@@ -58,15 +58,15 @@ exports[`should render correctly 2`] = `
     />
     <List
       groups={
-        Array [
-          Object {
+        [
+          {
             "default": false,
             "description": "Owners of organization foo",
             "id": 1,
             "membersCount": 1,
             "name": "Owners",
           },
-          Object {
+          {
             "default": true,
             "description": "Members of organization foo",
             "id": 2,

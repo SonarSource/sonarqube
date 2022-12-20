@@ -75,7 +75,7 @@ exports[`should show a button to activate more rules for admins 1`] = `
 <ForwardRef(Link)
   className="button js-activate-rules"
   to={
-    Object {
+    {
       "pathname": "/coding_rules",
       "search": "?qprofile=key&activation=false",
     }

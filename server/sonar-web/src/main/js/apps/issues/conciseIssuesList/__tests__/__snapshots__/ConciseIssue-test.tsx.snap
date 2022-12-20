@@ -10,15 +10,15 @@ exports[`should render 1`] = `
   <li>
     <ConciseIssueBox
       issue={
-        Object {
-          "actions": Array [],
+        {
+          "actions": [],
           "component": "",
           "componentLongName": "src/file.js",
           "componentQualifier": "",
           "componentUuid": "",
           "creationDate": "",
-          "flows": Array [],
-          "flowsWithType": Array [],
+          "flows": [],
+          "flowsWithType": [],
           "key": "",
           "message": "",
           "project": "",
@@ -26,10 +26,10 @@ exports[`should render 1`] = `
           "projectName": "",
           "rule": "",
           "ruleName": "",
-          "secondaryLocations": Array [],
+          "secondaryLocations": [],
           "severity": "",
           "status": "",
-          "transitions": Array [],
+          "transitions": [],
           "type": "BUG",
         }
       }

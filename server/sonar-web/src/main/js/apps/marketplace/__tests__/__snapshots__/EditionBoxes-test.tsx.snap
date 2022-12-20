@@ -7,7 +7,7 @@ exports[`should display the available edition boxes correctly 1`] = `
   <EditionBox
     currentEdition="community"
     edition={
-      Object {
+      {
         "downloadProperty": "downloadDeveloperUrl",
         "homeUrl": "https://redirect.sonarsource.com/editions/developer.html",
         "key": "developer",
@@ -19,7 +19,7 @@ exports[`should display the available edition boxes correctly 1`] = `
   <EditionBox
     currentEdition="community"
     edition={
-      Object {
+      {
         "downloadProperty": "downloadEnterpriseUrl",
         "homeUrl": "https://redirect.sonarsource.com/editions/enterprise.html",
         "key": "enterprise",
@@ -31,7 +31,7 @@ exports[`should display the available edition boxes correctly 1`] = `
   <EditionBox
     currentEdition="community"
     edition={
-      Object {
+      {
         "downloadProperty": "downloadDatacenterUrl",
         "homeUrl": "https://redirect.sonarsource.com/editions/datacenter.html",
         "key": "datacenter",
@@ -50,7 +50,7 @@ exports[`should display the datacenter edition box only 1`] = `
   <EditionBox
     currentEdition="enterprise"
     edition={
-      Object {
+      {
         "downloadProperty": "downloadDatacenterUrl",
         "homeUrl": "https://redirect.sonarsource.com/editions/datacenter.html",
         "key": "datacenter",
@@ -69,7 +69,7 @@ exports[`should display the enterprise and datacenter edition boxes 1`] = `
   <EditionBox
     currentEdition="developer"
     edition={
-      Object {
+      {
         "downloadProperty": "downloadEnterpriseUrl",
         "homeUrl": "https://redirect.sonarsource.com/editions/enterprise.html",
         "key": "enterprise",
@@ -81,7 +81,7 @@ exports[`should display the enterprise and datacenter edition boxes 1`] = `
   <EditionBox
     currentEdition="developer"
     edition={
-      Object {
+      {
         "downloadProperty": "downloadDatacenterUrl",
         "homeUrl": "https://redirect.sonarsource.com/editions/datacenter.html",
         "key": "datacenter",

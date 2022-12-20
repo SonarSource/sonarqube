@@ -15,11 +15,11 @@ exports[`should render correctly: full 1`] = `
   />
   <Outlet
     context={
-      Object {
-        "actions": Object {},
-        "exporters": Array [],
-        "languages": Array [],
-        "profiles": Array [],
+      {
+        "actions": {},
+        "exporters": [],
+        "languages": [],
+        "profiles": [],
         "updateProfiles": [Function],
       }
     }

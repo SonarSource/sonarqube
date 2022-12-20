@@ -5,7 +5,7 @@ exports[`should correctly filter analyses by category 1`] = `
   className="project-activity-versions-list"
   onScroll={[Function]}
   style={
-    Object {
+    {
       "marginTop": 36,
     }
   }
@@ -48,10 +48,10 @@ exports[`should correctly filter analyses by category 1`] = `
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
-              Object {
+              {
                 "date": 2016-10-24T16:33:50.000Z,
-                "events": Array [
-                  Object {
+                "events": [
+                  {
                     "category": "QUALITY_GATE",
                     "key": "E1",
                     "name": "Quality gate changed to red...",
@@ -84,7 +84,7 @@ exports[`should correctly filter analyses by date range 1`] = `
   className="project-activity-versions-list"
   onScroll={[Function]}
   style={
-    Object {
+    {
       "marginTop": 36,
     }
   }
@@ -127,10 +127,10 @@ exports[`should correctly filter analyses by date range 1`] = `
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
-              Object {
+              {
                 "date": 2016-10-27T16:33:50.000Z,
-                "events": Array [
-                  Object {
+                "events": [
+                  {
                     "category": "VERSION",
                     "key": "E1",
                     "name": "6.5-SNAPSHOT",
@@ -163,7 +163,7 @@ exports[`should render correctly: application 1`] = `
   className="project-activity-versions-list"
   onScroll={[Function]}
   style={
-    Object {
+    {
       "marginTop": undefined,
     }
   }
@@ -206,10 +206,10 @@ exports[`should render correctly: application 1`] = `
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
-              Object {
+              {
                 "date": 2016-10-27T16:33:50.000Z,
-                "events": Array [
-                  Object {
+                "events": [
+                  {
                     "category": "VERSION",
                     "key": "E1",
                     "name": "6.5-SNAPSHOT",
@@ -234,9 +234,9 @@ exports[`should render correctly: application 1`] = `
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
-              Object {
+              {
                 "date": 2016-10-27T12:21:15.000Z,
-                "events": Array [],
+                "events": [],
                 "key": "A2",
                 "projectVersion": "1.0",
               }
@@ -294,15 +294,15 @@ exports[`should render correctly: application 1`] = `
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
-              Object {
+              {
                 "date": 2016-10-26T12:17:29.000Z,
-                "events": Array [
-                  Object {
+                "events": [
+                  {
                     "category": "VERSION",
                     "key": "E2",
                     "name": "6.4",
                   },
-                  Object {
+                  {
                     "category": "OTHER",
                     "key": "E3",
                     "name": "foo",
@@ -343,10 +343,10 @@ exports[`should render correctly: application 1`] = `
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
-              Object {
+              {
                 "date": 2016-10-24T16:33:50.000Z,
-                "events": Array [
-                  Object {
+                "events": [
+                  {
                     "category": "QUALITY_GATE",
                     "key": "E1",
                     "name": "Quality gate changed to red...",
@@ -379,7 +379,7 @@ exports[`should render correctly: default 1`] = `
   className="project-activity-versions-list"
   onScroll={[Function]}
   style={
-    Object {
+    {
       "marginTop": 36,
     }
   }
@@ -422,10 +422,10 @@ exports[`should render correctly: default 1`] = `
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
-              Object {
+              {
                 "date": 2016-10-27T16:33:50.000Z,
-                "events": Array [
-                  Object {
+                "events": [
+                  {
                     "category": "VERSION",
                     "key": "E1",
                     "name": "6.5-SNAPSHOT",
@@ -450,9 +450,9 @@ exports[`should render correctly: default 1`] = `
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
-              Object {
+              {
                 "date": 2016-10-27T12:21:15.000Z,
-                "events": Array [],
+                "events": [],
                 "key": "A2",
                 "projectVersion": "1.0",
               }
@@ -510,15 +510,15 @@ exports[`should render correctly: default 1`] = `
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
-              Object {
+              {
                 "date": 2016-10-26T12:17:29.000Z,
-                "events": Array [
-                  Object {
+                "events": [
+                  {
                     "category": "VERSION",
                     "key": "E2",
                     "name": "6.4",
                   },
-                  Object {
+                  {
                     "category": "OTHER",
                     "key": "E3",
                     "name": "foo",
@@ -559,10 +559,10 @@ exports[`should render correctly: default 1`] = `
             addCustomEvent={[MockFunction]}
             addVersion={[MockFunction]}
             analysis={
-              Object {
+              {
                 "date": 2016-10-24T16:33:50.000Z,
-                "events": Array [
-                  Object {
+                "events": [
+                  {
                     "category": "QUALITY_GATE",
                     "key": "E1",
                     "name": "Quality gate changed to red...",

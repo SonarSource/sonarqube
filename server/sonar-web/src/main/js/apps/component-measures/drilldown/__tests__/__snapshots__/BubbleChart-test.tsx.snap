@@ -35,7 +35,7 @@ exports[`should render correctly: all on x=0 1`] = `
       </span>
       <ColorRatingsLegend
         className="spacer-top"
-        filters={Object {}}
+        filters={{}}
         onRatingClick={[Function]}
       />
     </span>
@@ -48,7 +48,7 @@ exports[`should render correctly: all on x=0 1`] = `
     >
       <ForwardRef(Link)
         to={
-          Object {
+          {
             "pathname": "/component_measures",
             "search": "?id=foo&metric=vulnerabilities&view=list",
           }
@@ -66,71 +66,71 @@ exports[`should render correctly: all on x=0 1`] = `
       formatYTick={[Function]}
       height={500}
       items={
-        Array [
-          Object {
+        [
+          {
             "color": undefined,
-            "data": Object {
+            "data": {
               "key": "foo:src/index.tsx",
               "leak": "1.0",
-              "measures": Array [
-                Object {
+              "measures": [
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "ncloc",
                     "key": "ncloc",
                     "name": "ncloc",
                     "type": "INT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
                   },
                   "value": "0",
                 },
-                Object {
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "security_remediation_effort",
                     "key": "security_remediation_effort",
                     "name": "security_remediation_effort",
                     "type": "DATA",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
                   },
                   "value": "0",
                 },
-                Object {
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "vulnerabilities",
                     "key": "vulnerabilities",
                     "name": "vulnerabilities",
                     "type": "INT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
                   },
                   "value": "0",
                 },
-                Object {
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "security_rating",
                     "key": "security_rating",
                     "name": "security_rating",
                     "type": "RATING",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -174,7 +174,7 @@ exports[`should render correctly: all on x=0 1`] = `
       }
       onBubbleClick={[Function]}
       padding={
-        Array [
+        [
           25,
           60,
           50,
@@ -182,13 +182,13 @@ exports[`should render correctly: all on x=0 1`] = `
         ]
       }
       sizeRange={
-        Array [
+        [
           5,
           45,
         ]
       }
       xDomain={
-        Array [
+        [
           0,
           100,
         ]
@@ -243,7 +243,7 @@ exports[`should render correctly: default 1`] = `
       </span>
       <ColorRatingsLegend
         className="spacer-top"
-        filters={Object {}}
+        filters={{}}
         onRatingClick={[Function]}
       />
     </span>
@@ -256,7 +256,7 @@ exports[`should render correctly: default 1`] = `
     >
       <ForwardRef(Link)
         to={
-          Object {
+          {
             "pathname": "/component_measures",
             "search": "?id=foo&metric=vulnerabilities&view=list",
           }
@@ -274,75 +274,75 @@ exports[`should render correctly: default 1`] = `
       formatYTick={[Function]}
       height={500}
       items={
-        Array [
-          Object {
-            "color": Object {
+        [
+          {
+            "color": {
               "fill": "#C6E056",
               "fillTransparent": "rgba(198, 224, 86, 0.2)",
               "stroke": "#809E00",
             },
-            "data": Object {
+            "data": {
               "key": "foo:src/index.tsx",
               "leak": "1.0",
-              "measures": Array [
-                Object {
+              "measures": [
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "ncloc",
                     "key": "ncloc",
                     "name": "ncloc",
                     "type": "INT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
                   },
                   "value": "236",
                 },
-                Object {
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "security_remediation_effort",
                     "key": "security_remediation_effort",
                     "name": "security_remediation_effort",
                     "type": "DATA",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
                   },
                   "value": "10",
                 },
-                Object {
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "vulnerabilities",
                     "key": "vulnerabilities",
                     "name": "vulnerabilities",
                     "type": "INT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
                   },
                   "value": "3",
                 },
-                Object {
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "security_rating",
                     "key": "security_rating",
                     "name": "security_rating",
                     "type": "RATING",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -386,7 +386,7 @@ exports[`should render correctly: default 1`] = `
       }
       onBubbleClick={[Function]}
       padding={
-        Array [
+        [
           25,
           60,
           50,
@@ -394,7 +394,7 @@ exports[`should render correctly: default 1`] = `
         ]
       }
       sizeRange={
-        Array [
+        [
           5,
           45,
         ]
@@ -456,7 +456,7 @@ exports[`should render correctly: only showing first 500 files 1`] = `
       </span>
       <ColorRatingsLegend
         className="spacer-top"
-        filters={Object {}}
+        filters={{}}
         onRatingClick={[Function]}
       />
     </span>
@@ -469,7 +469,7 @@ exports[`should render correctly: only showing first 500 files 1`] = `
     >
       <ForwardRef(Link)
         to={
-          Object {
+          {
             "pathname": "/component_measures",
             "search": "?id=foo&metric=vulnerabilities&view=list",
           }
@@ -487,75 +487,75 @@ exports[`should render correctly: only showing first 500 files 1`] = `
       formatYTick={[Function]}
       height={500}
       items={
-        Array [
-          Object {
-            "color": Object {
+        [
+          {
+            "color": {
               "fill": "#C6E056",
               "fillTransparent": "rgba(198, 224, 86, 0.2)",
               "stroke": "#809E00",
             },
-            "data": Object {
+            "data": {
               "key": "foo:src/index.tsx",
               "leak": "1.0",
-              "measures": Array [
-                Object {
+              "measures": [
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "ncloc",
                     "key": "ncloc",
                     "name": "ncloc",
                     "type": "INT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
                   },
                   "value": "236",
                 },
-                Object {
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "security_remediation_effort",
                     "key": "security_remediation_effort",
                     "name": "security_remediation_effort",
                     "type": "DATA",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
                   },
                   "value": "10",
                 },
-                Object {
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "vulnerabilities",
                     "key": "vulnerabilities",
                     "name": "vulnerabilities",
                     "type": "INT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
                   },
                   "value": "3",
                 },
-                Object {
+                {
                   "bestValue": true,
                   "leak": "1.0",
-                  "metric": Object {
+                  "metric": {
                     "id": "security_rating",
                     "key": "security_rating",
                     "name": "security_rating",
                     "type": "RATING",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -599,7 +599,7 @@ exports[`should render correctly: only showing first 500 files 1`] = `
       }
       onBubbleClick={[Function]}
       padding={
-        Array [
+        [
           25,
           60,
           50,
@@ -607,7 +607,7 @@ exports[`should render correctly: only showing first 500 files 1`] = `
         ]
       }
       sizeRange={
-        Array [
+        [
           5,
           45,
         ]

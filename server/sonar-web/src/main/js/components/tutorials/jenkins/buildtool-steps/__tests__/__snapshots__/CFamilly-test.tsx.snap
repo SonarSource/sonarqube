@@ -4,25 +4,25 @@ exports[`should render correctly for 1`] = `
 <Fragment>
   <DefaultProjectKey
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -35,7 +35,7 @@ exports[`should render correctly for 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
-        Array [
+        [
           "linux",
           "win",
           "mac",
@@ -50,25 +50,25 @@ exports[`should render correctly for linux: linux 1`] = `
 <Fragment>
   <DefaultProjectKey
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -82,7 +82,7 @@ exports[`should render correctly for linux: linux 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
-        Array [
+        [
           "linux",
           "win",
           "mac",
@@ -102,17 +102,17 @@ exports[`should render correctly for linux: linux 1`] = `
     checkout scm
   }
   stage('Download Build Wrapper') {
-    sh \\"mkdir -p .sonar\\"
-    sh \\"curl -sSLo build-wrapper-linux-x86.zip nice_url_sample/static/cpp/build-wrapper-linux-x86.zip\\"
-    sh \\"unzip -o build-wrapper-linux-x86.zip -d .sonar\\"
+    sh "mkdir -p .sonar"
+    sh "curl -sSLo build-wrapper-linux-x86.zip nice_url_sample/static/cpp/build-wrapper-linux-x86.zip"
+    sh "unzip -o build-wrapper-linux-x86.zip -d .sonar"
   }
   stage('Build') {
-    sh \\".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>\\"
+    sh ".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>"
   }
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh \\"\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output\\"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
     }
   }
 }"
@@ -129,25 +129,25 @@ exports[`should render correctly for mac: mac 1`] = `
 <Fragment>
   <DefaultProjectKey
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -161,7 +161,7 @@ exports[`should render correctly for mac: mac 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
-        Array [
+        [
           "linux",
           "win",
           "mac",
@@ -195,7 +195,7 @@ exports[`should render correctly for mac: mac 1`] = `
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh \\"\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output\\"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
     }
   }
 }"
@@ -212,25 +212,25 @@ exports[`should render correctly for win: win 1`] = `
 <Fragment>
   <DefaultProjectKey
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -244,7 +244,7 @@ exports[`should render correctly for win: win 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
-        Array [
+        [
           "linux",
           "win",
           "mac",
@@ -265,26 +265,26 @@ exports[`should render correctly for win: win 1`] = `
   }
   stage('Download Build Wrapper') {
     powershell '''
-      $path = \\"$HOME/.sonar/build-wrapper-win-x86.zip\\"
+      $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
       rm build-wrapper-win-x86 -Recurse -Force -ErrorAction SilentlyContinue
       rm $path -Force -ErrorAction SilentlyContinue
       mkdir $HOME/.sonar
       [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-      (New-Object System.Net.WebClient).DownloadFile(nice_url_sample/static/cpp/build-wrapper-win-x86.zip\\", $path)
+      (New-Object System.Net.WebClient).DownloadFile(nice_url_sample/static/cpp/build-wrapper-win-x86.zip", $path)
       Add-Type -AssemblyName System.IO.Compression.FileSystem
-      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, \\"$HOME/.sonar\\")
+      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
     '''
   }
   stage('Build') {
     powershell '''
-      $env:Path += \\";$HOME/.sonar/build-wrapper-win-x86\\"
+      $env:Path += ";$HOME/.sonar/build-wrapper-win-x86"
       build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
     '''
   }
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      powershell \\"\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output\\"
+      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
     }
   }
 }"

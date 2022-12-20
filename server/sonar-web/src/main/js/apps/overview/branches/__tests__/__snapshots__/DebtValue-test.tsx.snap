@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   <DrilldownLink
     ariaLabel="overview.see_more_details_on_x_of_y.work_duration.x_minutes.1.sqale_index"
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -31,7 +31,7 @@ exports[`should render correctly 2`] = `
   <DrilldownLink
     ariaLabel="overview.see_more_details_on_x_of_y.work_duration.x_minutes.1.new_technical_debt"
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,

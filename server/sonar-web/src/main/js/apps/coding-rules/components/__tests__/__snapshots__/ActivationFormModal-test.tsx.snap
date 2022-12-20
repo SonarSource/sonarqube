@@ -39,7 +39,7 @@ exports[`should render correctly: custom rule 1`] = `
           isClearable={false}
           isDisabled={false}
           onChange={[Function]}
-          options={Array []}
+          options={[]}
         />
       </div>
       <div
@@ -125,7 +125,7 @@ exports[`should render correctly: default 1`] = `
           isClearable={false}
           isDisabled={false}
           onChange={[Function]}
-          options={Array []}
+          options={[]}
         />
       </div>
       <div
@@ -163,7 +163,7 @@ exports[`should render correctly: default 1`] = `
         <div
           className="note"
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "description",
             }
           }
@@ -246,7 +246,7 @@ exports[`should render correctly: submitting 1`] = `
           isClearable={false}
           isDisabled={true}
           onChange={[Function]}
-          options={Array []}
+          options={[]}
         />
       </div>
       <div
@@ -284,7 +284,7 @@ exports[`should render correctly: submitting 1`] = `
         <div
           className="note"
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "description",
             }
           }
@@ -365,7 +365,7 @@ exports[`should render correctly: update mode 1`] = `
           isClearable={false}
           isDisabled={false}
           onChange={[Function]}
-          options={Array []}
+          options={[]}
         />
       </div>
       <div
@@ -403,7 +403,7 @@ exports[`should render correctly: update mode 1`] = `
         <div
           className="note"
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "description",
             }
           }
@@ -482,9 +482,9 @@ exports[`should render correctly: with deep profiles 1`] = `
           isDisabled={true}
           onChange={[Function]}
           options={
-            Array [
-              Object {
-                "actions": Object {
+            [
+              {
+                "actions": {
                   "edit": true,
                 },
                 "activeDeprecatedRuleCount": 2,
@@ -503,8 +503,8 @@ exports[`should render correctly: with deep profiles 1`] = `
             ]
           }
           value={
-            Object {
-              "actions": Object {
+            {
+              "actions": {
                 "edit": true,
               },
               "activeDeprecatedRuleCount": 2,
@@ -558,7 +558,7 @@ exports[`should render correctly: with deep profiles 1`] = `
         <div
           className="note"
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "description",
             }
           }

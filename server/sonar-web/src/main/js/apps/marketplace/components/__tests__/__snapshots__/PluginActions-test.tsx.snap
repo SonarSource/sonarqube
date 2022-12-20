@@ -67,8 +67,8 @@ exports[`should render installed plugin correctly 1`] = `
     key="0"
     onClick={[Function]}
     update={
-      Object {
-        "requires": Array [],
+      {
+        "requires": [],
         "status": "COMPATIBLE",
       }
     }
@@ -105,8 +105,8 @@ exports[`should render installed plugin correctly 2`] = `
       key="0"
       onClick={[Function]}
       update={
-        Object {
-          "requires": Array [],
+        {
+          "requires": [],
           "status": "COMPATIBLE",
         }
       }

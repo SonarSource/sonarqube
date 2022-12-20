@@ -24,7 +24,7 @@ exports[`should render correctly: default 1`] = `
         <div
           className="little-spacer-top"
           style={
-            Object {
+            {
               "whiteSpace": "normal",
             }
           }
@@ -34,18 +34,18 @@ exports[`should render correctly: default 1`] = `
   </td>
   <PermissionCell
     key="admin"
-    loading={Array []}
+    loading={[]}
     onCheck={[Function]}
     permission={
-      Object {
+      {
         "category": "admin",
-        "permissions": Array [
-          Object {
+        "permissions": [
+          {
             "description": "",
             "key": "foo",
             "name": "Foo",
           },
-          Object {
+          {
             "description": "",
             "key": "bar",
             "name": "Bar",
@@ -54,10 +54,10 @@ exports[`should render correctly: default 1`] = `
       }
     }
     permissionItem={
-      Object {
+      {
         "id": "foobar",
         "name": "sonar-admins",
-        "permissions": Array [
+        "permissions": [
           "provisioning",
         ],
       }
@@ -66,20 +66,20 @@ exports[`should render correctly: default 1`] = `
   />
   <PermissionCell
     key="baz"
-    loading={Array []}
+    loading={[]}
     onCheck={[Function]}
     permission={
-      Object {
+      {
         "description": "",
         "key": "baz",
         "name": "Baz",
       }
     }
     permissionItem={
-      Object {
+      {
         "id": "foobar",
         "name": "sonar-admins",
-        "permissions": Array [
+        "permissions": [
           "provisioning",
         ],
       }

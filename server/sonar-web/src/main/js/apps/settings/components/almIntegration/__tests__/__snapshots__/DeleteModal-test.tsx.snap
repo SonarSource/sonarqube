@@ -16,7 +16,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="settings.almintegration.delete.message"
       id="settings.almintegration.delete.message"
       values={
-        Object {
+        {
           "id": <b>
             1
           </b>,
@@ -47,7 +47,7 @@ exports[`should render correctly 2`] = `
       defaultMessage="settings.almintegration.delete.message"
       id="settings.almintegration.delete.message"
       values={
-        Object {
+        {
           "id": <b>
             1
           </b>,

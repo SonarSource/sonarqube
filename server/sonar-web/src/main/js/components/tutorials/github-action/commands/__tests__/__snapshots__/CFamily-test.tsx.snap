@@ -4,25 +4,25 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <DefaultProjectKey
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -37,7 +37,7 @@ exports[`should render correctly 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
-        Array [
+        [
           "linux",
           "win",
           "mac",
@@ -52,25 +52,25 @@ exports[`should render correctly for linux: branches disabled 1`] = `
 <Fragment>
   <DefaultProjectKey
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -86,7 +86,7 @@ exports[`should render correctly for linux: branches disabled 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
-        Array [
+        [
           "linux",
           "win",
           "mac",
@@ -132,7 +132,7 @@ jobs:
         run: |
           curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${{ env.SONAR_SCANNER_VERSION }}-linux.zip
           unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          echo \\"$HOME/.sonar/sonar-scanner-\${{ env.SONAR_SCANNER_VERSION }}-linux/bin\\" >> $GITHUB_PATH
+          echo "$HOME/.sonar/sonar-scanner-\${{ env.SONAR_SCANNER_VERSION }}-linux/bin" >> $GITHUB_PATH
 
       - name: SonarQube analysis
         run: |
@@ -154,25 +154,25 @@ exports[`should render correctly for mac: branches enabled 1`] = `
 <Fragment>
   <DefaultProjectKey
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -188,7 +188,7 @@ exports[`should render correctly for mac: branches enabled 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
-        Array [
+        [
           "linux",
           "win",
           "mac",
@@ -255,25 +255,25 @@ exports[`should render correctly for win: branches enabled 1`] = `
 <Fragment>
   <DefaultProjectKey
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -289,7 +289,7 @@ exports[`should render correctly for win: branches enabled 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build.other.os"
       options={
-        Array [
+        [
           "linux",
           "win",
           "mac",
@@ -324,30 +324,30 @@ jobs:
       - name: Download and install the build wrapper
         shell: powershell
         run: |
-          $path = \\"$HOME/.sonar/build-wrapper-win-x86.zip\\"
+          $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
           mkdir $HOME/.sonar
           [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          (New-Object System.Net.WebClient).DownloadFile(\\"\${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-win-x86.zip\\", $path)
+          (New-Object System.Net.WebClient).DownloadFile("\${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-win-x86.zip", $path)
           Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($path, \\"$HOME/.sonar\\")
+          [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
         env:
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
 
       - name: Download and install the SonarScanner
         shell: powershell
         run: |
-          $path = \\"$HOME/.sonar/sonar-scanner-cli-4.6.2.2472-windows.zip\\"
+          $path = "$HOME/.sonar/sonar-scanner-cli-4.6.2.2472-windows.zip"
           [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          (New-Object System.Net.WebClient).DownloadFile(\\"https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-windows.zip\\", $path)
+          (New-Object System.Net.WebClient).DownloadFile("https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-windows.zip", $path)
           Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($path, \\"$HOME/.sonar\\")
+          [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
 
       - name: Build and analyse the project
         shell: powershell
         run: |
-          $env:Path += \\";$HOME/.sonar/build-wrapper-win-x86;$HOME/.sonar/sonar-scanner-4.6.2.2472-windows/bin\\"
+          $env:Path += ";$HOME/.sonar/build-wrapper-win-x86;$HOME/.sonar/sonar-scanner-4.6.2.2472-windows/bin"
           build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
-          sonar-scanner.bat \\"-Dsonar.cfamily.build-wrapper-output=bw-output\\"
+          sonar-scanner.bat "-Dsonar.cfamily.build-wrapper-output=bw-output"
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}"

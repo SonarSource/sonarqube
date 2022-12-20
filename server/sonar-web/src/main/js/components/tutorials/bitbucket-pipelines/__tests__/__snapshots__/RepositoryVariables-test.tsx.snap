@@ -11,7 +11,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="onboarding.tutorial.with.bitbucket_pipelines.variables.intro"
       id="onboarding.tutorial.with.bitbucket_pipelines.variables.intro"
       values={
-        Object {
+        {
           "repository_variables": <strong>
             onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link
           </strong>,
@@ -25,7 +25,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "name",
           ]
         }
@@ -42,44 +42,44 @@ exports[`should render correctly 1`] = `
     </li>
     <TokenStepGenerator
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
       currentUser={
-        Object {
-          "dismissedNotices": Object {
+        {
+          "dismissedNotices": {
             "educationPrinciples": false,
           },
-          "groups": Array [],
+          "groups": [],
           "isLoggedIn": true,
           "login": "luke",
           "name": "Skywalker",
-          "scmAccounts": Array [],
+          "scmAccounts": [],
         }
       }
     />
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "secured",
           ]
         }
@@ -89,7 +89,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "add",
           ]
         }
@@ -106,7 +106,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "name",
           ]
         }
@@ -128,7 +128,7 @@ exports[`should render correctly 1`] = `
         defaultMessage="onboarding.tutorial.env_variables"
         id="onboarding.tutorial.env_variables"
         values={
-          Object {
+          {
             "extra": <ClipboardIconButton
               copyValue="test"
             />,
@@ -147,7 +147,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "add",
           ]
         }

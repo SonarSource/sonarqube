@@ -13,29 +13,29 @@ exports[`should render correctly 1`] = `
   >
     <Breadcrumb
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
       currentBranchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
@@ -51,26 +51,26 @@ exports[`should render correctly 1`] = `
     />
     <withAvailableFeaturesContext(Component)
       branchLikes={
-        Array [
-          Object {
+        [
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
             "name": "branch-11",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
             "name": "branch-1",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -78,13 +78,13 @@ exports[`should render correctly 1`] = `
             "target": "master",
             "title": "PR-1",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
             "name": "branch-12",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -92,19 +92,19 @@ exports[`should render correctly 1`] = `
             "target": "master",
             "title": "PR-2",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
             "name": "branch-3",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
             "name": "branch-2",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -116,29 +116,29 @@ exports[`should render correctly 1`] = `
         ]
       }
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
       currentBranchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
@@ -148,7 +148,7 @@ exports[`should render correctly 1`] = `
     />
     <Memo(CurrentBranchLikeMergeInformation)
       currentBranchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,

@@ -11,7 +11,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="project_branch_pull_request.lifetime_information"
       id="project_branch_pull_request.lifetime_information"
       values={
-        Object {
+        {
           "days": "30",
         }
       }
@@ -37,7 +37,7 @@ exports[`should render correctly when user is admin 1`] = `
       defaultMessage="project_branch_pull_request.lifetime_information"
       id="project_branch_pull_request.lifetime_information"
       values={
-        Object {
+        {
           "days": "30",
         }
       }
@@ -46,7 +46,7 @@ exports[`should render correctly when user is admin 1`] = `
       defaultMessage="project_branch_pull_request.lifetime_information.admin"
       id="project_branch_pull_request.lifetime_information.admin"
       values={
-        Object {
+        {
           "settings": <ForwardRef(Link)
             to="/admin/settings"
           >

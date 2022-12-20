@@ -22,7 +22,7 @@ exports[`should render correctly 1`] = `
     <SelectList
       currentItem="luke"
       items={
-        Array [
+        [
           "luke",
           "",
         ]
@@ -41,7 +41,7 @@ exports[`should render correctly 1`] = `
         <span
           className="text-middle"
           style={
-            Object {
+            {
               "marginLeft": 24,
             }
           }
@@ -56,7 +56,7 @@ exports[`should render correctly 1`] = `
         <span
           className="text-middle"
           style={
-            Object {
+            {
               "marginLeft": undefined,
             }
           }

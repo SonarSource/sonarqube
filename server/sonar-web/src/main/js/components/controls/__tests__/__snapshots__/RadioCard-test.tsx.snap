@@ -35,23 +35,23 @@ exports[`should be actionable 2`] = `
   className="radio-card radio-card-actionable selected"
   onClick={
     [MockFunction] {
-      "calls": Array [
-        Array [
-          Object {
-            "currentTarget": Object {
+      "calls": [
+        [
+          {
+            "currentTarget": {
               "blur": [Function],
             },
             "preventDefault": [Function],
             "stopImmediatePropagation": [Function],
             "stopPropagation": [Function],
-            "target": Object {
+            "target": {
               "blur": [Function],
             },
           },
         ],
       ],
-      "results": Array [
-        Object {
+      "results": [
+        {
           "type": "return",
           "value": undefined,
         },
@@ -117,7 +117,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="Recommended for you"
       id="Recommended for you"
       values={
-        Object {
+        {
           "recommended": <strong>
             recommended
           </strong>,
@@ -161,7 +161,7 @@ exports[`should render correctly 2`] = `
       defaultMessage="Recommended for you"
       id="Recommended for you"
       values={
-        Object {
+        {
           "recommended": <strong>
             recommended
           </strong>,

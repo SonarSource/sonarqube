@@ -20,7 +20,7 @@ exports[`should render correctly: default 1`] = `
         <ForwardRef(Link)
           className="display-flex-center"
           to={
-            Object {
+            {
               "pathname": "/projects/create",
             }
           }

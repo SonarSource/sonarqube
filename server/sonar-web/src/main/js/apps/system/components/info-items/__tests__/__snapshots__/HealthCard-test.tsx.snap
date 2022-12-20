@@ -30,7 +30,7 @@ exports[`should show a main section and multiple sub sections 1`] = `
 >
   <Section
     items={
-      Object {
+      {
         "Name": "foo",
         "bar": "Bar",
       }
@@ -38,7 +38,7 @@ exports[`should show a main section and multiple sub sections 1`] = `
   />
   <Section
     items={
-      Object {
+      {
         "db": "test",
       }
     }
@@ -47,7 +47,7 @@ exports[`should show a main section and multiple sub sections 1`] = `
   />
   <Section
     items={
-      Object {
+      {
         "Elastic": "search",
       }
     }

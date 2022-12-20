@@ -4,7 +4,7 @@ exports[`Select should render clearIndicator correctly 1`] = `
 <ClearButton
   className="button-tiny spacer-left spacer-right text-middle"
   iconProps={
-    Object {
+    {
       "size": 12,
     }
   }
@@ -16,7 +16,7 @@ exports[`Select should render complex select component: other props 1`] = `
   className="react-select"
   classNamePrefix="react-select"
   components={
-    Object {
+    {
       "ClearIndicator": [Function],
       "DropdownIndicator": [Function],
       "Input": [Function],
@@ -29,7 +29,7 @@ exports[`Select should render complex select component: other props 1`] = `
   isClearable={true}
   isLoading={true}
   styles={
-    Object {
+    {
       "container": [Function],
       "control": [Function],
       "indicatorsContainer": [Function],
@@ -55,7 +55,7 @@ exports[`Select should render correctly: default 1`] = `
   className="react-select"
   classNamePrefix="react-select"
   components={
-    Object {
+    {
       "ClearIndicator": [Function],
       "DropdownIndicator": [Function],
       "MultiValueRemove": [Function],
@@ -65,7 +65,7 @@ exports[`Select should render correctly: default 1`] = `
   defaultMenuIsOpen={false}
   defaultValue={null}
   styles={
-    Object {
+    {
       "container": [Function],
       "control": [Function],
       "indicatorsContainer": [Function],
@@ -105,7 +105,7 @@ exports[`should render CreatableSelect correctly 1`] = `
   allowCreateWhileLoading={false}
   cacheOptions={false}
   components={
-    Object {
+    {
       "ClearIndicator": [Function],
       "DropdownIndicator": [Function],
       "LoadingIndicator": [Function],
@@ -127,9 +127,9 @@ exports[`should render CreatableSelect correctly 1`] = `
   onInputChange={[Function]}
   onMenuClose={[Function]}
   onMenuOpen={[Function]}
-  options={Array []}
+  options={[]}
   styles={
-    Object {
+    {
       "container": [Function],
       "control": [Function],
       "indicatorsContainer": [Function],
@@ -163,7 +163,7 @@ exports[`should render SearchSelect correctly 1`] = `
   closeMenuOnScroll={false}
   closeMenuOnSelect={true}
   components={
-    Object {
+    {
       "ClearIndicator": [Function],
       "DropdownIndicator": [Function],
       "LoadingIndicator": [Function],
@@ -199,12 +199,12 @@ exports[`should render SearchSelect correctly 1`] = `
   onMenuOpen={[Function]}
   openMenuOnClick={true}
   openMenuOnFocus={false}
-  options={Array []}
+  options={[]}
   pageSize={5}
   placeholder="Select..."
   screenReaderStatus={[Function]}
   styles={
-    Object {
+    {
       "container": [Function],
       "control": [Function],
       "indicatorsContainer": [Function],

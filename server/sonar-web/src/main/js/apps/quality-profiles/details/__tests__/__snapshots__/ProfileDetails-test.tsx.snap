@@ -10,7 +10,7 @@ exports[`should render correctly: default 1`] = `
     >
       <ProfileRules
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 10,
             "childrenCount": 0,
@@ -27,9 +27,9 @@ exports[`should render correctly: default 1`] = `
         }
       />
       <ProfileExporters
-        exporters={Array []}
+        exporters={[]}
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 10,
             "childrenCount": 0,
@@ -51,7 +51,7 @@ exports[`should render correctly: default 1`] = `
     >
       <ProfileInheritance
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 10,
             "childrenCount": 0,
@@ -66,12 +66,12 @@ exports[`should render correctly: default 1`] = `
             "projectCount": 3,
           }
         }
-        profiles={Array []}
+        profiles={[]}
         updateProfiles={[MockFunction]}
       />
       <ProfileProjects
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 10,
             "childrenCount": 0,
@@ -102,8 +102,8 @@ exports[`should render correctly: edit permissions 1`] = `
     >
       <ProfileRules
         profile={
-          Object {
-            "actions": Object {
+          {
+            "actions": {
               "edit": true,
             },
             "activeDeprecatedRuleCount": 2,
@@ -122,10 +122,10 @@ exports[`should render correctly: edit permissions 1`] = `
         }
       />
       <ProfileExporters
-        exporters={Array []}
+        exporters={[]}
         profile={
-          Object {
-            "actions": Object {
+          {
+            "actions": {
               "edit": true,
             },
             "activeDeprecatedRuleCount": 2,
@@ -145,8 +145,8 @@ exports[`should render correctly: edit permissions 1`] = `
       />
       <ProfilePermissions
         profile={
-          Object {
-            "actions": Object {
+          {
+            "actions": {
               "edit": true,
             },
             "activeDeprecatedRuleCount": 2,
@@ -170,8 +170,8 @@ exports[`should render correctly: edit permissions 1`] = `
     >
       <ProfileInheritance
         profile={
-          Object {
-            "actions": Object {
+          {
+            "actions": {
               "edit": true,
             },
             "activeDeprecatedRuleCount": 2,
@@ -188,13 +188,13 @@ exports[`should render correctly: edit permissions 1`] = `
             "projectCount": 3,
           }
         }
-        profiles={Array []}
+        profiles={[]}
         updateProfiles={[MockFunction]}
       />
       <ProfileProjects
         profile={
-          Object {
-            "actions": Object {
+          {
+            "actions": {
               "edit": true,
             },
             "activeDeprecatedRuleCount": 2,
@@ -227,7 +227,7 @@ exports[`should render correctly: is default profile, no active rules 1`] = `
     >
       <ProfileRules
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -244,9 +244,9 @@ exports[`should render correctly: is default profile, no active rules 1`] = `
         }
       />
       <ProfileExporters
-        exporters={Array []}
+        exporters={[]}
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -274,7 +274,7 @@ exports[`should render correctly: is default profile, no active rules 1`] = `
       </Alert>
       <ProfileInheritance
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -289,12 +289,12 @@ exports[`should render correctly: is default profile, no active rules 1`] = `
             "projectCount": 0,
           }
         }
-        profiles={Array []}
+        profiles={[]}
         updateProfiles={[MockFunction]}
       />
       <ProfileProjects
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -325,7 +325,7 @@ exports[`should render correctly: no active rules (same as default) 1`] = `
     >
       <ProfileRules
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -342,9 +342,9 @@ exports[`should render correctly: no active rules (same as default) 1`] = `
         }
       />
       <ProfileExporters
-        exporters={Array []}
+        exporters={[]}
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -366,7 +366,7 @@ exports[`should render correctly: no active rules (same as default) 1`] = `
     >
       <ProfileInheritance
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -381,12 +381,12 @@ exports[`should render correctly: no active rules (same as default) 1`] = `
             "projectCount": 0,
           }
         }
-        profiles={Array []}
+        profiles={[]}
         updateProfiles={[MockFunction]}
       />
       <ProfileProjects
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -417,7 +417,7 @@ exports[`should render correctly: projects associated, no active rules 1`] = `
     >
       <ProfileRules
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -434,9 +434,9 @@ exports[`should render correctly: projects associated, no active rules 1`] = `
         }
       />
       <ProfileExporters
-        exporters={Array []}
+        exporters={[]}
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -464,7 +464,7 @@ exports[`should render correctly: projects associated, no active rules 1`] = `
       </Alert>
       <ProfileInheritance
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,
@@ -479,12 +479,12 @@ exports[`should render correctly: projects associated, no active rules 1`] = `
             "projectCount": 10,
           }
         }
-        profiles={Array []}
+        profiles={[]}
         updateProfiles={[MockFunction]}
       />
       <ProfileProjects
         profile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 0,
             "childrenCount": 0,

@@ -18,19 +18,19 @@ exports[`should create link 1`] = `
   >
     <Table
       links={
-        Array [
-          Object {
+        [
+          {
             "id": "1",
             "type": "homepage",
             "url": "http://example.com",
           },
-          Object {
+          {
             "id": "2",
             "name": "foo",
             "type": "foo",
             "url": "http://example.com/foo",
           },
-          Object {
+          {
             "id": "3",
             "name": "bar",
             "type": "bar",
@@ -62,13 +62,13 @@ exports[`should delete link 1`] = `
   >
     <Table
       links={
-        Array [
-          Object {
+        [
+          {
             "id": "1",
             "type": "homepage",
             "url": "http://example.com",
           },
-          Object {
+          {
             "id": "2",
             "name": "foo",
             "type": "foo",
@@ -100,13 +100,13 @@ exports[`should fetch links and render 1`] = `
   >
     <Table
       links={
-        Array [
-          Object {
+        [
+          {
             "id": "1",
             "type": "homepage",
             "url": "http://example.com",
           },
-          Object {
+          {
             "id": "2",
             "name": "foo",
             "type": "foo",

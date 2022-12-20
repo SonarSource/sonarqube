@@ -801,7 +801,7 @@ exports[`should render the monorepo field when the feature is supported 1`] = `
           defaultMessage="settings.pr_decoration.binding.form.monorepo.help"
           id="settings.pr_decoration.binding.form.monorepo.help"
           values={
-            Object {
+            {
               "doc_link": <withAppStateContext(DocLink)
                 to="/devops-platform-integration/azure-devops-integration/"
               >

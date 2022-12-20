@@ -14,7 +14,7 @@ exports[`should render correctly 1`] = `
         defaultMessage="users.user_X_tokens"
         id="users.user_X_tokens"
         values={
-          Object {
+          {
             "user": <em>
               John Doe
             </em>,

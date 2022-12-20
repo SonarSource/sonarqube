@@ -9,8 +9,8 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
     displayOptions={true}
     firstLineNumber={1}
     line={
-      Object {
-        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+      {
+        "code": "<span class="k">import</span> java.util.<span class="sym-9 sym">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
         "duplicated": false,
@@ -24,8 +24,8 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
   />
   <Memo(LineSCM)
     line={
-      Object {
-        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+      {
+        "code": "<span class="k">import</span> java.util.<span class="sym-9 sym">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
         "duplicated": false,
@@ -42,10 +42,10 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
   />
   <LineCode
     displayLocationMarkers={false}
-    issueLocations={Array []}
+    issueLocations={[]}
     line={
-      Object {
-        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+      {
+        "code": "<span class="k">import</span> java.util.<span class="sym-9 sym">ArrayList</span>;",
         "coverageStatus": "covered",
         "coveredConditions": 2,
         "duplicated": false,
@@ -58,7 +58,7 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
     }
     onLocationSelect={[MockFunction]}
     onSymbolClick={[MockFunction]}
-    secondaryIssueLocations={Array []}
+    secondaryIssueLocations={[]}
   />
 </tr>
 `;

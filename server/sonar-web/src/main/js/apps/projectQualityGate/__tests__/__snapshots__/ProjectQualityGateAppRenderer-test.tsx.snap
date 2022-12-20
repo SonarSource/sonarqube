@@ -111,7 +111,7 @@ exports[`should render correctly: always use system default 1`] = `
               <Select
                 className="abs-width-300 it__project-quality-gate-select"
                 components={
-                  Object {
+                  {
                     "Option": [Function],
                   }
                 }
@@ -119,18 +119,18 @@ exports[`should render correctly: always use system default 1`] = `
                 isDisabled={true}
                 onChange={[Function]}
                 options={
-                  Array [
-                    Object {
+                  [
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
@@ -265,7 +265,7 @@ exports[`should render correctly: default 1`] = `
               <Select
                 className="abs-width-300 it__project-quality-gate-select"
                 components={
-                  Object {
+                  {
                     "Option": [Function],
                   }
                 }
@@ -273,18 +273,18 @@ exports[`should render correctly: default 1`] = `
                 isDisabled={false}
                 onChange={[Function]}
                 options={
-                  Array [
-                    Object {
+                  [
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
@@ -292,7 +292,7 @@ exports[`should render correctly: default 1`] = `
                   ]
                 }
                 value={
-                  Object {
+                  {
                     "isDisabled": false,
                     "label": "qualitygate",
                     "value": "1",
@@ -432,7 +432,7 @@ exports[`should render correctly: show new code warning 1`] = `
               <Select
                 className="abs-width-300 it__project-quality-gate-select"
                 components={
-                  Object {
+                  {
                     "Option": [Function],
                   }
                 }
@@ -440,18 +440,18 @@ exports[`should render correctly: show new code warning 1`] = `
                 isDisabled={false}
                 onChange={[Function]}
                 options={
-                  Array [
-                    Object {
+                  [
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
@@ -459,7 +459,7 @@ exports[`should render correctly: show new code warning 1`] = `
                   ]
                 }
                 value={
-                  Object {
+                  {
                     "isDisabled": false,
                     "label": "qualitygate",
                     "value": "3",
@@ -477,10 +477,10 @@ exports[`should render correctly: show new code warning 1`] = `
             defaultMessage="project_quality_gate.no_condition_on_new_code"
             id="project_quality_gate.no_condition_on_new_code"
             values={
-              Object {
+              {
                 "link": <ForwardRef(Link)
                   to={
-                    Object {
+                    {
                       "pathname": "/quality_gates/show/3",
                     }
                   }
@@ -621,7 +621,7 @@ exports[`should render correctly: show warning 1`] = `
               <Select
                 className="abs-width-300 it__project-quality-gate-select"
                 components={
-                  Object {
+                  {
                     "Option": [Function],
                   }
                 }
@@ -629,18 +629,18 @@ exports[`should render correctly: show warning 1`] = `
                 isDisabled={false}
                 onChange={[Function]}
                 options={
-                  Array [
-                    Object {
+                  [
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
@@ -781,7 +781,7 @@ exports[`should render correctly: show warning if not using default 1`] = `
               <Select
                 className="abs-width-300 it__project-quality-gate-select"
                 components={
-                  Object {
+                  {
                     "Option": [Function],
                   }
                 }
@@ -789,18 +789,18 @@ exports[`should render correctly: show warning if not using default 1`] = `
                 isDisabled={true}
                 onChange={[Function]}
                 options={
-                  Array [
-                    Object {
+                  [
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
@@ -941,7 +941,7 @@ exports[`should render correctly: submitting 1`] = `
               <Select
                 className="abs-width-300 it__project-quality-gate-select"
                 components={
-                  Object {
+                  {
                     "Option": [Function],
                   }
                 }
@@ -949,18 +949,18 @@ exports[`should render correctly: submitting 1`] = `
                 isDisabled={true}
                 onChange={[Function]}
                 options={
-                  Array [
-                    Object {
+                  [
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
-                    Object {
+                    {
                       "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
@@ -968,7 +968,7 @@ exports[`should render correctly: submitting 1`] = `
                   ]
                 }
                 value={
-                  Object {
+                  {
                     "isDisabled": false,
                     "label": "qualitygate",
                     "value": "1",
@@ -997,7 +997,7 @@ exports[`should render correctly: submitting 1`] = `
 exports[`should render select options correctly: default 1`] = `
 <Option
   data={
-    Object {
+    {
       "label": "Gate 1",
       "value": "1",
     }
@@ -1009,7 +1009,7 @@ exports[`should render select options correctly: default 1`] = `
       disableTooltipOverlay={[Function]}
       disabledReason="project_quality_gate.no_condition.reason"
       option={
-        Object {
+        {
           "label": "Gate 1",
           "value": "1",
         }

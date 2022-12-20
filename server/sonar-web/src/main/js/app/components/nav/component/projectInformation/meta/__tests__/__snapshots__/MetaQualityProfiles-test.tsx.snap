@@ -44,7 +44,7 @@ exports[`should render correctly 1`] = `
         </span>
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/profiles/show",
               "search": "?name=name&language=css",
             }
@@ -110,7 +110,7 @@ exports[`should render correctly 2`] = `
           </span>
           <ForwardRef(Link)
             to={
-              Object {
+              {
                 "pathname": "/profiles/show",
                 "search": "?name=name&language=css",
               }

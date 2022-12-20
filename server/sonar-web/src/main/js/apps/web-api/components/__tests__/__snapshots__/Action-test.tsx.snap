@@ -3,8 +3,8 @@
 exports[`should display the changelog 1`] = `
 <ActionChangelog
   changelog={
-    Array [
-      Object {
+    [
+      {
         "description": "Changelog desc",
         "version": "5.0",
       },
@@ -16,8 +16,8 @@ exports[`should display the changelog 1`] = `
 exports[`should display the params 1`] = `
 <Params
   params={
-    Array [
-      Object {
+    [
+      {
         "description": "Param desc",
         "internal": true,
         "key": "param",
@@ -33,9 +33,9 @@ exports[`should display the params 1`] = `
 exports[`should display the response example 1`] = `
 <ResponseExample
   action={
-    Object {
-      "changelog": Array [
-        Object {
+    {
+      "changelog": [
+        {
           "description": "Changelog desc",
           "version": "5.0",
         },
@@ -44,8 +44,8 @@ exports[`should display the response example 1`] = `
       "hasResponseExample": true,
       "internal": false,
       "key": "foo",
-      "params": Array [
-        Object {
+      "params": [
+        {
           "description": "Param desc",
           "internal": true,
           "key": "param",
@@ -56,11 +56,11 @@ exports[`should display the response example 1`] = `
     }
   }
   domain={
-    Object {
-      "actions": Array [
-        Object {
-          "changelog": Array [
-            Object {
+    {
+      "actions": [
+        {
+          "changelog": [
+            {
               "description": "Changelog desc",
               "version": "5.0",
             },
@@ -69,8 +69,8 @@ exports[`should display the response example 1`] = `
           "hasResponseExample": true,
           "internal": false,
           "key": "foo",
-          "params": Array [
-            Object {
+          "params": [
+            {
               "description": "Param desc",
               "internal": true,
               "key": "param",
@@ -100,7 +100,7 @@ exports[`should render correctly 1`] = `
     <ForwardRef(Link)
       className="spacer-right link-no-underline"
       to={
-        Object {
+        {
           "pathname": "/web_api/foo/foo",
           "search": "?",
         }
@@ -122,7 +122,7 @@ exports[`should render correctly 1`] = `
     <div
       className="web-api-action-description markdown"
       dangerouslySetInnerHTML={
-        Object {
+        {
           "__html": "Foo Desc",
         }
       }

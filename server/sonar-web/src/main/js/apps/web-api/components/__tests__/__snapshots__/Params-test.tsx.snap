@@ -22,7 +22,7 @@ exports[`should render deprecated and internal parameters 1`] = `
         <td
           className="markdown"
           style={
-            Object {
+            {
               "width": 180,
             }
           }
@@ -47,7 +47,7 @@ exports[`should render deprecated and internal parameters 1`] = `
           <div
             className="markdown"
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "Foo desc",
               }
             }
@@ -55,7 +55,7 @@ exports[`should render deprecated and internal parameters 1`] = `
         </td>
         <td
           style={
-            Object {
+            {
               "width": 250,
             }
           }
@@ -67,7 +67,7 @@ exports[`should render deprecated and internal parameters 1`] = `
         <td
           className="markdown"
           style={
-            Object {
+            {
               "width": 180,
             }
           }
@@ -97,7 +97,7 @@ exports[`should render deprecated and internal parameters 1`] = `
           <div
             className="markdown"
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "Foo desc",
               }
             }
@@ -105,7 +105,7 @@ exports[`should render deprecated and internal parameters 1`] = `
         </td>
         <td
           style={
-            Object {
+            {
               "width": 250,
             }
           }
@@ -128,7 +128,7 @@ exports[`should render deprecated key 1`] = `
         <td
           className="markdown"
           style={
-            Object {
+            {
               "width": 180,
             }
           }
@@ -166,7 +166,7 @@ exports[`should render deprecated key 1`] = `
           <div
             className="markdown"
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "Foo desc",
               }
             }
@@ -174,7 +174,7 @@ exports[`should render deprecated key 1`] = `
         </td>
         <td
           style={
-            Object {
+            {
               "width": 250,
             }
           }
@@ -197,7 +197,7 @@ exports[`should render different value constraints 1`] = `
         <td
           className="markdown"
           style={
-            Object {
+            {
               "width": 180,
             }
           }
@@ -215,7 +215,7 @@ exports[`should render different value constraints 1`] = `
           <div
             className="markdown"
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "Foo desc",
               }
             }
@@ -223,7 +223,7 @@ exports[`should render different value constraints 1`] = `
         </td>
         <td
           style={
-            Object {
+            {
               "width": 250,
             }
           }

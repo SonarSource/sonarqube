@@ -33,7 +33,7 @@ exports[`should correctly render the webhooks 1`] = `
       onDelete={[MockFunction]}
       onUpdate={[MockFunction]}
       webhook={
-        Object {
+        {
           "key": "2",
           "name": "jenkins webhook",
           "url": "http://jenkins.target",
@@ -45,7 +45,7 @@ exports[`should correctly render the webhooks 1`] = `
       onDelete={[MockFunction]}
       onUpdate={[MockFunction]}
       webhook={
-        Object {
+        {
           "key": "1",
           "name": "my webhook",
           "url": "http://webhook.target",

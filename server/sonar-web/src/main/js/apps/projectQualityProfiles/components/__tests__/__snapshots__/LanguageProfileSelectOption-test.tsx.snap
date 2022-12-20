@@ -3,7 +3,7 @@
 exports[`should render correctly: default 1`] = `
 <Option
   data={
-    Object {
+    {
       "isDisabled": false,
       "label": "Profile 1",
       "language": "Java",
@@ -16,7 +16,7 @@ exports[`should render correctly: default 1`] = `
       disableTooltipOverlay={[Function]}
       disabledReason="project_quality_profile.add_language_modal.no_active_rules"
       option={
-        Object {
+        {
           "isDisabled": false,
           "label": "Profile 1",
           "language": "Java",
@@ -35,7 +35,7 @@ exports[`tooltip should render correctly: default 1`] = `
   </p>
   <ForwardRef(Link)
     to={
-      Object {
+      {
         "pathname": "/profiles/show",
         "search": "?name=Profile+1&language=Java",
       }

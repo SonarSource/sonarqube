@@ -3,7 +3,7 @@
 exports[`should render correctly if system is starting 1`] = `
 <Navigate
   to={
-    Object {
+    {
       "pathname": "/maintenance",
       "search": "return_to=%2Fprojects%3Fquery%3Dtoto%23hash",
     }

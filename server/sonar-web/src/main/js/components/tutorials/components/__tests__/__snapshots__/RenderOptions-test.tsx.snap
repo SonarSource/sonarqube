@@ -8,12 +8,12 @@ exports[`should render correctly: default 1`] = `
     label="test-label"
     onCheck={[MockFunction]}
     options={
-      Array [
-        Object {
+      [
+        {
           "label": "foo.bar.foo",
           "value": "foo",
         },
-        Object {
+        {
           "label": "foo.bar.baz",
           "value": "baz",
         },
@@ -31,12 +31,12 @@ exports[`should render correctly: option checked 1`] = `
     label="test-label"
     onCheck={[MockFunction]}
     options={
-      Array [
-        Object {
+      [
+        {
           "label": "foo.bar.foo",
           "value": "foo",
         },
-        Object {
+        {
           "label": "foo.bar.baz",
           "value": "baz",
         },
@@ -60,12 +60,12 @@ exports[`should render correctly: with title 1`] = `
     label="test-label"
     onCheck={[MockFunction]}
     options={
-      Array [
-        Object {
+      [
+        {
           "label": "foo.bar.foo",
           "value": "foo",
         },
-        Object {
+        {
           "label": "foo.bar.baz",
           "value": "baz",
         },

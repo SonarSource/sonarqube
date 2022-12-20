@@ -6,7 +6,7 @@ exports[`should render correctly: create 1`] = `
   alreadyHaveInstanceConfigured={false}
   canSubmit={false}
   formData={
-    Object {
+    {
       "appId": "",
       "clientId": "",
       "clientSecret": "",
@@ -31,7 +31,7 @@ exports[`should render correctly: edit 1`] = `
   alreadyHaveInstanceConfigured={false}
   canSubmit={false}
   formData={
-    Object {
+    {
       "appId": "123456",
       "clientId": "client1",
       "clientSecret": "**clientsecret**",

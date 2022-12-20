@@ -26,7 +26,7 @@ exports[`should render correctly: content 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "new_item",
             "type",
           ]
@@ -37,7 +37,7 @@ exports[`should render correctly: content 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
             "option",
           ]
@@ -48,7 +48,7 @@ exports[`should render correctly: content 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
           ]
         }
@@ -65,7 +65,7 @@ exports[`should render correctly: content 1`] = `
         <li>
           <SentenceWithHighlights
             highlightKeys={
-              Array [
+              [
                 "label",
                 "branches_to_build",
               ]
@@ -83,7 +83,7 @@ exports[`should render correctly: content 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "save",
           ]
         }
@@ -118,7 +118,7 @@ exports[`should render correctly: gitlab content 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "new_item",
             "type",
           ]
@@ -130,7 +130,7 @@ exports[`should render correctly: gitlab content 1`] = `
       <React.Fragment>
         <SentenceWithHighlights
           highlightKeys={
-            Array [
+            [
               "tab",
               "option",
             ]
@@ -143,7 +143,7 @@ exports[`should render correctly: gitlab content 1`] = `
           <li>
             <SentenceWithHighlights
               highlightKeys={
-                Array [
+                [
                   "triggers",
                   "push_events",
                 ]
@@ -154,7 +154,7 @@ exports[`should render correctly: gitlab content 1`] = `
           <li>
             <SentenceWithHighlights
               highlightKeys={
-                Array [
+                [
                   "advanced",
                 ]
               }
@@ -164,7 +164,7 @@ exports[`should render correctly: gitlab content 1`] = `
           <li>
             <SentenceWithHighlights
               highlightKeys={
-                Array [
+                [
                   "secret_token",
                   "generate",
                 ]
@@ -178,7 +178,7 @@ exports[`should render correctly: gitlab content 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
           ]
         }
@@ -195,7 +195,7 @@ exports[`should render correctly: gitlab content 1`] = `
         <li>
           <SentenceWithHighlights
             highlightKeys={
-              Array [
+              [
                 "label",
                 "branches_to_build",
               ]
@@ -213,7 +213,7 @@ exports[`should render correctly: gitlab content 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "save",
           ]
         }

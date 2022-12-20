@@ -5,10 +5,10 @@ exports[`should render correctly 1`] = `
   className="quality-profiles-evolution"
 >
   <EvolutionDeprecated
-    profiles={Array []}
+    profiles={[]}
   />
   <EvolutionStagnant
-    profiles={Array []}
+    profiles={[]}
   />
   <EvolutionRules />
 </div>

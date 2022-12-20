@@ -15,19 +15,19 @@ exports[`should render almintegration correctly 1`] = `
   />
   <PageHeader
     definitions={
-      Array [
-        Object {
+      [
+        {
           "category": "foo category",
-          "fields": Array [],
+          "fields": [],
           "key": "foo",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
-        Object {
+        {
           "category": "general",
-          "fields": Array [],
+          "fields": [],
           "key": "bar",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
       ]
@@ -53,25 +53,25 @@ exports[`should render almintegration correctly 1`] = `
         >
           <withRouter(withAvailableFeaturesContext(AlmIntegration))
             categories={
-              Array [
+              [
                 "foo category",
                 "general",
               ]
             }
             definitions={
-              Array [
-                Object {
+              [
+                {
                   "category": "foo category",
-                  "fields": Array [],
+                  "fields": [],
                   "key": "foo",
-                  "options": Array [],
+                  "options": [],
                   "subCategory": "foo subCat",
                 },
-                Object {
+                {
                   "category": "general",
-                  "fields": Array [],
+                  "fields": [],
                   "key": "bar",
-                  "options": Array [],
+                  "options": [],
                   "subCategory": "foo subCat",
                 },
               ]
@@ -100,19 +100,19 @@ exports[`should render default view correctly 1`] = `
   />
   <PageHeader
     definitions={
-      Array [
-        Object {
+      [
+        {
           "category": "foo category",
-          "fields": Array [],
+          "fields": [],
           "key": "foo",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
-        Object {
+        {
           "category": "general",
-          "fields": Array [],
+          "fields": [],
           "key": "bar",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
       ]
@@ -139,19 +139,19 @@ exports[`should render default view correctly 1`] = `
           <CategoryDefinitionsList
             category="general"
             definitions={
-              Array [
-                Object {
+              [
+                {
                   "category": "foo category",
-                  "fields": Array [],
+                  "fields": [],
                   "key": "foo",
-                  "options": Array [],
+                  "options": [],
                   "subCategory": "foo subCat",
                 },
-                Object {
+                {
                   "category": "general",
-                  "fields": Array [],
+                  "fields": [],
                   "key": "bar",
-                  "options": Array [],
+                  "options": [],
                   "subCategory": "foo subCat",
                 },
               ]
@@ -171,7 +171,7 @@ exports[`should render default view correctly: All Categories List 1`] = `
   <div
     className="layout-page-side"
     style={
-      Object {
+      {
         "top": 0,
       }
     }
@@ -181,7 +181,7 @@ exports[`should render default view correctly: All Categories List 1`] = `
     >
       <withAvailableFeaturesContext(CategoriesList)
         categories={
-          Array [
+          [
             "foo category",
             "general",
           ]
@@ -209,19 +209,19 @@ exports[`should render exclusions correctly 1`] = `
   />
   <PageHeader
     definitions={
-      Array [
-        Object {
+      [
+        {
           "category": "foo category",
-          "fields": Array [],
+          "fields": [],
           "key": "foo",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
-        Object {
+        {
           "category": "general",
-          "fields": Array [],
+          "fields": [],
           "key": "bar",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
       ]
@@ -247,25 +247,25 @@ exports[`should render exclusions correctly 1`] = `
         >
           <AnalysisScope
             categories={
-              Array [
+              [
                 "foo category",
                 "general",
               ]
             }
             definitions={
-              Array [
-                Object {
+              [
+                {
                   "category": "foo category",
-                  "fields": Array [],
+                  "fields": [],
                   "key": "foo",
-                  "options": Array [],
+                  "options": [],
                   "subCategory": "foo subCat",
                 },
-                Object {
+                {
                   "category": "general",
-                  "fields": Array [],
+                  "fields": [],
                   "key": "bar",
-                  "options": Array [],
+                  "options": [],
                   "subCategory": "foo subCat",
                 },
               ]
@@ -294,19 +294,19 @@ exports[`should render languages correctly 1`] = `
   />
   <PageHeader
     definitions={
-      Array [
-        Object {
+      [
+        {
           "category": "foo category",
-          "fields": Array [],
+          "fields": [],
           "key": "foo",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
-        Object {
+        {
           "category": "general",
-          "fields": Array [],
+          "fields": [],
           "key": "bar",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
       ]
@@ -332,25 +332,25 @@ exports[`should render languages correctly 1`] = `
         >
           <withRouter(Languages)
             categories={
-              Array [
+              [
                 "foo category",
                 "general",
               ]
             }
             definitions={
-              Array [
-                Object {
+              [
+                {
                   "category": "foo category",
-                  "fields": Array [],
+                  "fields": [],
                   "key": "foo",
-                  "options": Array [],
+                  "options": [],
                   "subCategory": "foo subCat",
                 },
-                Object {
+                {
                   "category": "general",
-                  "fields": Array [],
+                  "fields": [],
                   "key": "bar",
-                  "options": Array [],
+                  "options": [],
                   "subCategory": "foo subCat",
                 },
               ]
@@ -379,19 +379,19 @@ exports[`should render new_code_period correctly 1`] = `
   />
   <PageHeader
     definitions={
-      Array [
-        Object {
+      [
+        {
           "category": "foo category",
-          "fields": Array [],
+          "fields": [],
           "key": "foo",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
-        Object {
+        {
           "category": "general",
-          "fields": Array [],
+          "fields": [],
           "key": "bar",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
       ]
@@ -438,19 +438,19 @@ exports[`should render pull_request_decoration_binding correctly 1`] = `
   />
   <PageHeader
     definitions={
-      Array [
-        Object {
+      [
+        {
           "category": "foo category",
-          "fields": Array [],
+          "fields": [],
           "key": "foo",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
-        Object {
+        {
           "category": "general",
-          "fields": Array [],
+          "fields": [],
           "key": "bar",
-          "options": Array [],
+          "options": [],
           "subCategory": "foo subCat",
         },
       ]
@@ -477,19 +477,19 @@ exports[`should render pull_request_decoration_binding correctly 1`] = `
           <CategoryDefinitionsList
             category="pull_request_decoration_binding"
             definitions={
-              Array [
-                Object {
+              [
+                {
                   "category": "foo category",
-                  "fields": Array [],
+                  "fields": [],
                   "key": "foo",
-                  "options": Array [],
+                  "options": [],
                   "subCategory": "foo subCat",
                 },
-                Object {
+                {
                   "category": "general",
-                  "fields": Array [],
+                  "fields": [],
                   "key": "bar",
-                  "options": Array [],
+                  "options": [],
                   "subCategory": "foo subCat",
                 },
               ]

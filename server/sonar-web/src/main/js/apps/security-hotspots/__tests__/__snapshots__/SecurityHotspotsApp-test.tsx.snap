@@ -3,7 +3,7 @@
 exports[`should render correctly 1`] = `
 <SecurityHotspotsAppRenderer
   branchLike={
-    Object {
+    {
       "analysisDate": "2018-01-01",
       "excludedFromPurge": true,
       "isMain": false,
@@ -11,35 +11,35 @@ exports[`should render correctly 1`] = `
     }
   }
   component={
-    Object {
-      "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   filters={
-    Object {
+    {
       "assignedToMe": false,
       "inNewCodePeriod": false,
       "status": "TO_REVIEW",
     }
   }
-  hotspots={Array []}
+  hotspots={[]}
   hotspotsTotal={0}
   isStaticListOfHotspots={false}
   loading={true}
@@ -52,17 +52,17 @@ exports[`should render correctly 1`] = `
   onShowAllHotspots={[Function]}
   onSwitchStatusFilter={[Function]}
   onUpdateHotspot={[Function]}
-  securityCategories={Object {}}
+  securityCategories={{}}
   standards={
-    Object {
-      "cwe": Object {},
-      "owaspAsvs-4.0": Object {},
-      "owaspTop10": Object {},
-      "owaspTop10-2021": Object {},
-      "pciDss-3.2": Object {},
-      "pciDss-4.0": Object {},
-      "sansTop25": Object {},
-      "sonarsourceSecurity": Object {},
+    {
+      "cwe": {},
+      "owaspAsvs-4.0": {},
+      "owaspTop10": {},
+      "owaspTop10-2021": {},
+      "pciDss-3.2": {},
+      "pciDss-4.0": {},
+      "sansTop25": {},
+      "sonarsourceSecurity": {},
     }
   }
 />

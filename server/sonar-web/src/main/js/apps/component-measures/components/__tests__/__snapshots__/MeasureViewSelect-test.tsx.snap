@@ -5,7 +5,7 @@ exports[`should render correctly: has no list 1`] = `
   aria-labelledby="measures-view-selection-label"
   blurInputOnSelect={true}
   components={
-    Object {
+    {
       "Option": [Function],
       "SingleValue": [Function],
     }
@@ -13,13 +13,13 @@ exports[`should render correctly: has no list 1`] = `
   isSearchable={false}
   onChange={[Function]}
   options={
-    Array [
-      Object {
+    [
+      {
         "icon": <TreeIcon />,
         "label": "component_measures.tab.tree",
         "value": "tree",
       },
-      Object {
+      {
         "icon": <TreemapIcon />,
         "label": "component_measures.tab.treemap",
         "value": "treemap",
@@ -34,7 +34,7 @@ exports[`should render correctly: has no tree 1`] = `
   aria-labelledby="measures-view-selection-label"
   blurInputOnSelect={true}
   components={
-    Object {
+    {
       "Option": [Function],
       "SingleValue": [Function],
     }
@@ -42,8 +42,8 @@ exports[`should render correctly: has no tree 1`] = `
   isSearchable={false}
   onChange={[Function]}
   options={
-    Array [
-      Object {
+    [
+      {
         "icon": <ListIcon />,
         "label": "component_measures.tab.list",
         "value": "list",
@@ -51,7 +51,7 @@ exports[`should render correctly: has no tree 1`] = `
     ]
   }
   value={
-    Object {
+    {
       "icon": <ListIcon />,
       "label": "component_measures.tab.list",
       "value": "list",
@@ -65,7 +65,7 @@ exports[`should render correctly: has no treemap 1`] = `
   aria-labelledby="measures-view-selection-label"
   blurInputOnSelect={true}
   components={
-    Object {
+    {
       "Option": [Function],
       "SingleValue": [Function],
     }
@@ -73,18 +73,18 @@ exports[`should render correctly: has no treemap 1`] = `
   isSearchable={false}
   onChange={[Function]}
   options={
-    Array [
-      Object {
+    [
+      {
         "icon": <TreeIcon />,
         "label": "component_measures.tab.tree",
         "value": "tree",
       },
-      Object {
+      {
         "icon": <ListIcon />,
         "label": "component_measures.tab.list",
         "value": "list",
       },
-      Object {
+      {
         "icon": <TreemapIcon />,
         "label": "component_measures.tab.treemap",
         "value": "treemap",
@@ -92,7 +92,7 @@ exports[`should render correctly: has no treemap 1`] = `
     ]
   }
   value={
-    Object {
+    {
       "icon": <ListIcon />,
       "label": "component_measures.tab.list",
       "value": "list",

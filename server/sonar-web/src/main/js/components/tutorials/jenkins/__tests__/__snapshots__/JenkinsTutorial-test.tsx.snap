@@ -34,7 +34,7 @@ exports[`should render correctly: branches not enabled 1`] = `
     onOpen={[Function]}
     open={false}
     projectBinding={
-      Object {
+      {
         "alm": "bitbucket",
         "key": "foo",
         "monorepo": true,
@@ -46,25 +46,25 @@ exports[`should render correctly: branches not enabled 1`] = `
   <withCLanguageFeature(JenkinsfileStep)
     baseUrl=""
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     finished={false}
@@ -107,7 +107,7 @@ exports[`should render correctly: default 1`] = `
     onOpen={[Function]}
     open={false}
     projectBinding={
-      Object {
+      {
         "alm": "bitbucket",
         "key": "foo",
         "monorepo": true,
@@ -124,7 +124,7 @@ exports[`should render correctly: default 1`] = `
     onOpen={[Function]}
     open={false}
     projectBinding={
-      Object {
+      {
         "alm": "bitbucket",
         "key": "foo",
         "monorepo": true,
@@ -136,25 +136,25 @@ exports[`should render correctly: default 1`] = `
   <withCLanguageFeature(JenkinsfileStep)
     baseUrl=""
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     finished={false}

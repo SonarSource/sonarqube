@@ -37,7 +37,7 @@ exports[`should render correctly: default 1`] = `
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?id=org.sonarsource.xml%3Axml",
             }
@@ -136,7 +136,7 @@ exports[`should render correctly: no active rules, but associated projects 1`] =
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?id=org.sonarsource.xml%3Axml",
             }
@@ -220,7 +220,7 @@ exports[`should render correctly: no rights 1`] = `
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?id=org.sonarsource.xml%3Axml",
             }

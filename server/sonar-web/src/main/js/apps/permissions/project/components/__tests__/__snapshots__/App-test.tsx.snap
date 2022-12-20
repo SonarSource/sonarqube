@@ -13,25 +13,25 @@ exports[`should render correctly 1`] = `
   />
   <PageHeader
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     loadHolders={[Function]}
@@ -45,31 +45,31 @@ exports[`should render correctly 1`] = `
   </div>
   <AllHoldersList
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     filter="all"
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}
-    groups={Array []}
+    groups={[]}
     onFilterChange={[Function]}
     onLoadMore={[Function]}
     onPermissionSelect={[Function]}
@@ -77,7 +77,7 @@ exports[`should render correctly 1`] = `
     query=""
     revokePermissionFromGroup={[Function]}
     revokePermissionFromUser={[Function]}
-    users={Array []}
+    users={[]}
   />
 </div>
 `;
@@ -95,25 +95,25 @@ exports[`should render correctly 2`] = `
   />
   <PageHeader
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     loadHolders={[Function]}
@@ -127,50 +127,50 @@ exports[`should render correctly 2`] = `
   </div>
   <AllHoldersList
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     filter="all"
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}
     groups={
-      Array [
-        Object {
+      [
+        {
           "name": "Anyone",
-          "permissions": Array [
+          "permissions": [
             "admin",
             "codeviewer",
             "issueadmin",
           ],
         },
-        Object {
+        {
           "description": "SonarSource team",
           "id": "1",
           "name": "SonarSource",
-          "permissions": Array [],
+          "permissions": [],
         },
       ]
     }
     groupsPaging={
-      Object {
+      {
         "pageIndex": 1,
         "pageSize": 100,
         "total": 2,
@@ -184,34 +184,34 @@ exports[`should render correctly 2`] = `
     revokePermissionFromGroup={[Function]}
     revokePermissionFromUser={[Function]}
     users={
-      Array [
-        Object {
+      [
+        {
           "avatar": "admin-avatar",
           "email": "admin@gmail.com",
           "login": "admin",
           "name": "Admin Admin",
-          "permissions": Array [
+          "permissions": [
             "admin",
           ],
         },
-        Object {
+        {
           "avatar": "user-avatar-1",
           "email": "user1@gmail.com",
           "login": "user1",
           "name": "User Number 1",
-          "permissions": Array [],
+          "permissions": [],
         },
-        Object {
+        {
           "avatar": "user-avatar-2",
           "email": "user2@gmail.com",
           "login": "user2",
           "name": "User Number 2",
-          "permissions": Array [],
+          "permissions": [],
         },
       ]
     }
     usersPaging={
-      Object {
+      {
         "pageIndex": 1,
         "pageSize": 100,
         "total": 3,

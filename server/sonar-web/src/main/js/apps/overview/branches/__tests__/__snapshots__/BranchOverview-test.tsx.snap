@@ -3,49 +3,49 @@
 exports[`application overview should fetch correctly other branch 1`] = `
 <Memo(BranchOverviewRenderer)
   analyses={
-    Array [
-      Object {
+    [
+      {
         "date": "2017-03-01T09:36:01+0100",
         "detectedCI": "Cirrus CI",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
     ]
   }
   appLeak={
-    Object {
+    {
       "date": "2017-01-05",
       "project": "foo",
       "projectName": "Foo",
     }
   }
   branch={
-    Object {
+    {
       "analysisDate": "2018-01-01",
       "excludedFromPurge": true,
       "isMain": false,
@@ -53,46 +53,46 @@ exports[`application overview should fetch correctly other branch 1`] = `
     }
   }
   component={
-    Object {
-      "breadcrumbs": Array [
-        Object {
-          "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [
+        {
+          "breadcrumbs": [],
           "key": "foo",
           "name": "MyProject",
           "qualifier": "APP",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         },
       ],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "APP",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   detectedCIOnLastAnalysis={true}
@@ -100,10 +100,10 @@ exports[`application overview should fetch correctly other branch 1`] = `
   loadingHistory={false}
   loadingStatus={false}
   measures={
-    Array [
-      Object {
+    [
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "alert_status",
           "key": "alert_status",
           "name": "alert_status",
@@ -112,9 +112,9 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "quality_gate_details",
           "key": "quality_gate_details",
           "name": "quality_gate_details",
@@ -123,9 +123,9 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "bugs",
           "key": "bugs",
           "name": "bugs",
@@ -134,25 +134,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_bugs",
           "key": "new_bugs",
           "name": "new_bugs",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "reliability_rating",
           "key": "reliability_rating",
           "name": "reliability_rating",
@@ -161,25 +161,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_reliability_rating",
           "key": "new_reliability_rating",
           "name": "new_reliability_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "vulnerabilities",
           "key": "vulnerabilities",
           "name": "vulnerabilities",
@@ -188,25 +188,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_vulnerabilities",
           "key": "new_vulnerabilities",
           "name": "new_vulnerabilities",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_rating",
           "key": "security_rating",
           "name": "security_rating",
@@ -215,25 +215,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_rating",
           "key": "new_security_rating",
           "name": "new_security_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_hotspots",
           "key": "security_hotspots",
           "name": "security_hotspots",
@@ -242,25 +242,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_hotspots",
           "key": "new_security_hotspots",
           "name": "new_security_hotspots",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_hotspots_reviewed",
           "key": "security_hotspots_reviewed",
           "name": "security_hotspots_reviewed",
@@ -269,25 +269,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_hotspots_reviewed",
           "key": "new_security_hotspots_reviewed",
           "name": "new_security_hotspots_reviewed",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_review_rating",
           "key": "security_review_rating",
           "name": "security_review_rating",
@@ -296,25 +296,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_review_rating",
           "key": "new_security_review_rating",
           "name": "new_security_review_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "code_smells",
           "key": "code_smells",
           "name": "code_smells",
@@ -323,25 +323,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_code_smells",
           "key": "new_code_smells",
           "name": "new_code_smells",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "sqale_rating",
           "key": "sqale_rating",
           "name": "sqale_rating",
@@ -350,25 +350,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_maintainability_rating",
           "key": "new_maintainability_rating",
           "name": "new_maintainability_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "sqale_index",
           "key": "sqale_index",
           "name": "sqale_index",
@@ -377,25 +377,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_technical_debt",
           "key": "new_technical_debt",
           "name": "new_technical_debt",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "coverage",
           "key": "coverage",
           "name": "coverage",
@@ -404,25 +404,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_coverage",
           "key": "new_coverage",
           "name": "new_coverage",
           "type": "PERCENT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "lines_to_cover",
           "key": "lines_to_cover",
           "name": "lines_to_cover",
@@ -431,25 +431,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_lines_to_cover",
           "key": "new_lines_to_cover",
           "name": "new_lines_to_cover",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "tests",
           "key": "tests",
           "name": "tests",
@@ -458,9 +458,9 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "duplicated_lines_density",
           "key": "duplicated_lines_density",
           "name": "duplicated_lines_density",
@@ -469,25 +469,25 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_duplicated_lines_density",
           "key": "new_duplicated_lines_density",
           "name": "new_duplicated_lines_density",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "duplicated_blocks",
           "key": "duplicated_blocks",
           "name": "duplicated_blocks",
@@ -496,9 +496,9 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "ncloc",
           "key": "ncloc",
           "name": "ncloc",
@@ -507,9 +507,9 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "ncloc_language_distribution",
           "key": "ncloc_language_distribution",
           "name": "ncloc_language_distribution",
@@ -518,9 +518,9 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "projects",
           "key": "projects",
           "name": "projects",
@@ -529,9 +529,9 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "lines",
           "key": "lines",
           "name": "lines",
@@ -540,16 +540,16 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_lines",
           "key": "new_lines",
           "name": "new_lines",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
@@ -559,55 +559,55 @@ exports[`application overview should fetch correctly other branch 1`] = `
     ]
   }
   measuresHistory={
-    Array [
-      Object {
-        "history": Array [
-          Object {
+    [
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-05",
             "value": "2.0",
           },
         ],
         "metric": "bugs",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-05",
             "value": "0",
           },
         ],
         "metric": "vulnerabilities",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-01",
             "value": "1.0",
           },
         ],
         "metric": "sqale_index",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-02",
             "value": "1.0",
           },
         ],
         "metric": "duplicated_lines_density",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-03",
             "value": "10000",
           },
         ],
         "metric": "ncloc",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-04",
             "value": "95.5",
           },
@@ -617,212 +617,212 @@ exports[`application overview should fetch correctly other branch 1`] = `
     ]
   }
   metrics={
-    Array [
-      Object {
+    [
+      {
         "id": "alert_status",
         "key": "alert_status",
         "name": "alert_status",
         "type": "INT",
       },
-      Object {
+      {
         "id": "quality_gate_details",
         "key": "quality_gate_details",
         "name": "quality_gate_details",
         "type": "INT",
       },
-      Object {
+      {
         "id": "bugs",
         "key": "bugs",
         "name": "bugs",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_bugs",
         "key": "new_bugs",
         "name": "new_bugs",
         "type": "INT",
       },
-      Object {
+      {
         "id": "reliability_rating",
         "key": "reliability_rating",
         "name": "reliability_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_reliability_rating",
         "key": "new_reliability_rating",
         "name": "new_reliability_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "vulnerabilities",
         "key": "vulnerabilities",
         "name": "vulnerabilities",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_vulnerabilities",
         "key": "new_vulnerabilities",
         "name": "new_vulnerabilities",
         "type": "INT",
       },
-      Object {
+      {
         "id": "security_rating",
         "key": "security_rating",
         "name": "security_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_security_rating",
         "key": "new_security_rating",
         "name": "new_security_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "security_hotspots",
         "key": "security_hotspots",
         "name": "security_hotspots",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_security_hotspots",
         "key": "new_security_hotspots",
         "name": "new_security_hotspots",
         "type": "INT",
       },
-      Object {
+      {
         "id": "security_hotspots_reviewed",
         "key": "security_hotspots_reviewed",
         "name": "security_hotspots_reviewed",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_security_hotspots_reviewed",
         "key": "new_security_hotspots_reviewed",
         "name": "new_security_hotspots_reviewed",
         "type": "INT",
       },
-      Object {
+      {
         "id": "security_review_rating",
         "key": "security_review_rating",
         "name": "security_review_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_security_review_rating",
         "key": "new_security_review_rating",
         "name": "new_security_review_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "code_smells",
         "key": "code_smells",
         "name": "code_smells",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_code_smells",
         "key": "new_code_smells",
         "name": "new_code_smells",
         "type": "INT",
       },
-      Object {
+      {
         "id": "sqale_rating",
         "key": "sqale_rating",
         "name": "sqale_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_maintainability_rating",
         "key": "new_maintainability_rating",
         "name": "new_maintainability_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "sqale_index",
         "key": "sqale_index",
         "name": "sqale_index",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_technical_debt",
         "key": "new_technical_debt",
         "name": "new_technical_debt",
         "type": "INT",
       },
-      Object {
+      {
         "id": "coverage",
         "key": "coverage",
         "name": "coverage",
         "type": "PERCENT",
       },
-      Object {
+      {
         "id": "new_coverage",
         "key": "new_coverage",
         "name": "new_coverage",
         "type": "PERCENT",
       },
-      Object {
+      {
         "id": "lines_to_cover",
         "key": "lines_to_cover",
         "name": "lines_to_cover",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_lines_to_cover",
         "key": "new_lines_to_cover",
         "name": "new_lines_to_cover",
         "type": "INT",
       },
-      Object {
+      {
         "id": "tests",
         "key": "tests",
         "name": "tests",
         "type": "INT",
       },
-      Object {
+      {
         "id": "duplicated_lines_density",
         "key": "duplicated_lines_density",
         "name": "duplicated_lines_density",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_duplicated_lines_density",
         "key": "new_duplicated_lines_density",
         "name": "new_duplicated_lines_density",
         "type": "INT",
       },
-      Object {
+      {
         "id": "duplicated_blocks",
         "key": "duplicated_blocks",
         "name": "duplicated_blocks",
         "type": "INT",
       },
-      Object {
+      {
         "id": "ncloc",
         "key": "ncloc",
         "name": "ncloc",
         "type": "INT",
       },
-      Object {
+      {
         "id": "ncloc_language_distribution",
         "key": "ncloc_language_distribution",
         "name": "ncloc_language_distribution",
         "type": "INT",
       },
-      Object {
+      {
         "id": "projects",
         "key": "projects",
         "name": "projects",
         "type": "INT",
       },
-      Object {
+      {
         "id": "lines",
         "key": "lines",
         "name": "lines",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_lines",
         "key": "new_lines",
         "name": "new_lines",
@@ -833,17 +833,17 @@ exports[`application overview should fetch correctly other branch 1`] = `
   onGraphChange={[Function]}
   projectIsEmpty={false}
   qgStatuses={
-    Array [
-      Object {
+    [
+      {
         "branchLike": undefined,
-        "failedConditions": Array [
-          Object {
+        "failedConditions": [
+          {
             "actual": "10",
             "error": "1.0",
             "level": "ERROR",
-            "measure": Object {
+            "measure": {
               "bestValue": true,
-              "metric": Object {
+              "metric": {
                 "id": "coverage",
                 "key": "coverage",
                 "name": "coverage",
@@ -856,20 +856,20 @@ exports[`application overview should fetch correctly other branch 1`] = `
             "op": "GT",
             "period": undefined,
           },
-          Object {
+          {
             "actual": "5",
             "error": "1.0",
             "level": "ERROR",
-            "measure": Object {
+            "measure": {
               "bestValue": true,
               "leak": "1",
-              "metric": Object {
+              "metric": {
                 "id": "new_bugs",
                 "key": "new_bugs",
                 "name": "new_bugs",
                 "type": "INT",
               },
-              "period": Object {
+              "period": {
                 "bestValue": true,
                 "index": 1,
                 "value": "1.0",
@@ -885,23 +885,23 @@ exports[`application overview should fetch correctly other branch 1`] = `
         "name": "Foo",
         "status": "ERROR",
       },
-      Object {
+      {
         "branchLike": undefined,
-        "failedConditions": Array [
-          Object {
+        "failedConditions": [
+          {
             "actual": "15",
             "error": "5.0",
             "level": "ERROR",
-            "measure": Object {
+            "measure": {
               "bestValue": true,
               "leak": "1",
-              "metric": Object {
+              "metric": {
                 "id": "new_bugs",
                 "key": "new_bugs",
                 "name": "new_bugs",
                 "type": "INT",
               },
-              "period": Object {
+              "period": {
                 "bestValue": true,
                 "index": 1,
                 "value": "1.0",
@@ -925,49 +925,49 @@ exports[`application overview should fetch correctly other branch 1`] = `
 exports[`application overview should render correctly 1`] = `
 <Memo(BranchOverviewRenderer)
   analyses={
-    Array [
-      Object {
+    [
+      {
         "date": "2017-03-01T09:36:01+0100",
         "detectedCI": "Cirrus CI",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
     ]
   }
   appLeak={
-    Object {
+    {
       "date": "2017-01-05",
       "project": "foo",
       "projectName": "Foo",
     }
   }
   branch={
-    Object {
+    {
       "analysisDate": "2018-01-01",
       "excludedFromPurge": true,
       "isMain": true,
@@ -975,46 +975,46 @@ exports[`application overview should render correctly 1`] = `
     }
   }
   component={
-    Object {
-      "breadcrumbs": Array [
-        Object {
-          "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [
+        {
+          "breadcrumbs": [],
           "key": "foo",
           "name": "MyProject",
           "qualifier": "APP",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         },
       ],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "APP",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   detectedCIOnLastAnalysis={true}
@@ -1022,10 +1022,10 @@ exports[`application overview should render correctly 1`] = `
   loadingHistory={false}
   loadingStatus={false}
   measures={
-    Array [
-      Object {
+    [
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "alert_status",
           "key": "alert_status",
           "name": "alert_status",
@@ -1034,9 +1034,9 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "quality_gate_details",
           "key": "quality_gate_details",
           "name": "quality_gate_details",
@@ -1045,9 +1045,9 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "bugs",
           "key": "bugs",
           "name": "bugs",
@@ -1056,25 +1056,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_bugs",
           "key": "new_bugs",
           "name": "new_bugs",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "reliability_rating",
           "key": "reliability_rating",
           "name": "reliability_rating",
@@ -1083,25 +1083,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_reliability_rating",
           "key": "new_reliability_rating",
           "name": "new_reliability_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "vulnerabilities",
           "key": "vulnerabilities",
           "name": "vulnerabilities",
@@ -1110,25 +1110,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_vulnerabilities",
           "key": "new_vulnerabilities",
           "name": "new_vulnerabilities",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_rating",
           "key": "security_rating",
           "name": "security_rating",
@@ -1137,25 +1137,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_rating",
           "key": "new_security_rating",
           "name": "new_security_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_hotspots",
           "key": "security_hotspots",
           "name": "security_hotspots",
@@ -1164,25 +1164,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_hotspots",
           "key": "new_security_hotspots",
           "name": "new_security_hotspots",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_hotspots_reviewed",
           "key": "security_hotspots_reviewed",
           "name": "security_hotspots_reviewed",
@@ -1191,25 +1191,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_hotspots_reviewed",
           "key": "new_security_hotspots_reviewed",
           "name": "new_security_hotspots_reviewed",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_review_rating",
           "key": "security_review_rating",
           "name": "security_review_rating",
@@ -1218,25 +1218,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_review_rating",
           "key": "new_security_review_rating",
           "name": "new_security_review_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "code_smells",
           "key": "code_smells",
           "name": "code_smells",
@@ -1245,25 +1245,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_code_smells",
           "key": "new_code_smells",
           "name": "new_code_smells",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "sqale_rating",
           "key": "sqale_rating",
           "name": "sqale_rating",
@@ -1272,25 +1272,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_maintainability_rating",
           "key": "new_maintainability_rating",
           "name": "new_maintainability_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "sqale_index",
           "key": "sqale_index",
           "name": "sqale_index",
@@ -1299,25 +1299,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_technical_debt",
           "key": "new_technical_debt",
           "name": "new_technical_debt",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "coverage",
           "key": "coverage",
           "name": "coverage",
@@ -1326,25 +1326,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_coverage",
           "key": "new_coverage",
           "name": "new_coverage",
           "type": "PERCENT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "lines_to_cover",
           "key": "lines_to_cover",
           "name": "lines_to_cover",
@@ -1353,25 +1353,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_lines_to_cover",
           "key": "new_lines_to_cover",
           "name": "new_lines_to_cover",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "tests",
           "key": "tests",
           "name": "tests",
@@ -1380,9 +1380,9 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "duplicated_lines_density",
           "key": "duplicated_lines_density",
           "name": "duplicated_lines_density",
@@ -1391,25 +1391,25 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_duplicated_lines_density",
           "key": "new_duplicated_lines_density",
           "name": "new_duplicated_lines_density",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "duplicated_blocks",
           "key": "duplicated_blocks",
           "name": "duplicated_blocks",
@@ -1418,9 +1418,9 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "ncloc",
           "key": "ncloc",
           "name": "ncloc",
@@ -1429,9 +1429,9 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "ncloc_language_distribution",
           "key": "ncloc_language_distribution",
           "name": "ncloc_language_distribution",
@@ -1440,9 +1440,9 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "projects",
           "key": "projects",
           "name": "projects",
@@ -1451,9 +1451,9 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "lines",
           "key": "lines",
           "name": "lines",
@@ -1462,16 +1462,16 @@ exports[`application overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_lines",
           "key": "new_lines",
           "name": "new_lines",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
@@ -1481,55 +1481,55 @@ exports[`application overview should render correctly 1`] = `
     ]
   }
   measuresHistory={
-    Array [
-      Object {
-        "history": Array [
-          Object {
+    [
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-05",
             "value": "2.0",
           },
         ],
         "metric": "bugs",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-05",
             "value": "0",
           },
         ],
         "metric": "vulnerabilities",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-01",
             "value": "1.0",
           },
         ],
         "metric": "sqale_index",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-02",
             "value": "1.0",
           },
         ],
         "metric": "duplicated_lines_density",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-03",
             "value": "10000",
           },
         ],
         "metric": "ncloc",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-04",
             "value": "95.5",
           },
@@ -1539,212 +1539,212 @@ exports[`application overview should render correctly 1`] = `
     ]
   }
   metrics={
-    Array [
-      Object {
+    [
+      {
         "id": "alert_status",
         "key": "alert_status",
         "name": "alert_status",
         "type": "INT",
       },
-      Object {
+      {
         "id": "quality_gate_details",
         "key": "quality_gate_details",
         "name": "quality_gate_details",
         "type": "INT",
       },
-      Object {
+      {
         "id": "bugs",
         "key": "bugs",
         "name": "bugs",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_bugs",
         "key": "new_bugs",
         "name": "new_bugs",
         "type": "INT",
       },
-      Object {
+      {
         "id": "reliability_rating",
         "key": "reliability_rating",
         "name": "reliability_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_reliability_rating",
         "key": "new_reliability_rating",
         "name": "new_reliability_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "vulnerabilities",
         "key": "vulnerabilities",
         "name": "vulnerabilities",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_vulnerabilities",
         "key": "new_vulnerabilities",
         "name": "new_vulnerabilities",
         "type": "INT",
       },
-      Object {
+      {
         "id": "security_rating",
         "key": "security_rating",
         "name": "security_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_security_rating",
         "key": "new_security_rating",
         "name": "new_security_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "security_hotspots",
         "key": "security_hotspots",
         "name": "security_hotspots",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_security_hotspots",
         "key": "new_security_hotspots",
         "name": "new_security_hotspots",
         "type": "INT",
       },
-      Object {
+      {
         "id": "security_hotspots_reviewed",
         "key": "security_hotspots_reviewed",
         "name": "security_hotspots_reviewed",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_security_hotspots_reviewed",
         "key": "new_security_hotspots_reviewed",
         "name": "new_security_hotspots_reviewed",
         "type": "INT",
       },
-      Object {
+      {
         "id": "security_review_rating",
         "key": "security_review_rating",
         "name": "security_review_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_security_review_rating",
         "key": "new_security_review_rating",
         "name": "new_security_review_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "code_smells",
         "key": "code_smells",
         "name": "code_smells",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_code_smells",
         "key": "new_code_smells",
         "name": "new_code_smells",
         "type": "INT",
       },
-      Object {
+      {
         "id": "sqale_rating",
         "key": "sqale_rating",
         "name": "sqale_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_maintainability_rating",
         "key": "new_maintainability_rating",
         "name": "new_maintainability_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "sqale_index",
         "key": "sqale_index",
         "name": "sqale_index",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_technical_debt",
         "key": "new_technical_debt",
         "name": "new_technical_debt",
         "type": "INT",
       },
-      Object {
+      {
         "id": "coverage",
         "key": "coverage",
         "name": "coverage",
         "type": "PERCENT",
       },
-      Object {
+      {
         "id": "new_coverage",
         "key": "new_coverage",
         "name": "new_coverage",
         "type": "PERCENT",
       },
-      Object {
+      {
         "id": "lines_to_cover",
         "key": "lines_to_cover",
         "name": "lines_to_cover",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_lines_to_cover",
         "key": "new_lines_to_cover",
         "name": "new_lines_to_cover",
         "type": "INT",
       },
-      Object {
+      {
         "id": "tests",
         "key": "tests",
         "name": "tests",
         "type": "INT",
       },
-      Object {
+      {
         "id": "duplicated_lines_density",
         "key": "duplicated_lines_density",
         "name": "duplicated_lines_density",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_duplicated_lines_density",
         "key": "new_duplicated_lines_density",
         "name": "new_duplicated_lines_density",
         "type": "INT",
       },
-      Object {
+      {
         "id": "duplicated_blocks",
         "key": "duplicated_blocks",
         "name": "duplicated_blocks",
         "type": "INT",
       },
-      Object {
+      {
         "id": "ncloc",
         "key": "ncloc",
         "name": "ncloc",
         "type": "INT",
       },
-      Object {
+      {
         "id": "ncloc_language_distribution",
         "key": "ncloc_language_distribution",
         "name": "ncloc_language_distribution",
         "type": "INT",
       },
-      Object {
+      {
         "id": "projects",
         "key": "projects",
         "name": "projects",
         "type": "INT",
       },
-      Object {
+      {
         "id": "lines",
         "key": "lines",
         "name": "lines",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_lines",
         "key": "new_lines",
         "name": "new_lines",
@@ -1755,17 +1755,17 @@ exports[`application overview should render correctly 1`] = `
   onGraphChange={[Function]}
   projectIsEmpty={false}
   qgStatuses={
-    Array [
-      Object {
+    [
+      {
         "branchLike": undefined,
-        "failedConditions": Array [
-          Object {
+        "failedConditions": [
+          {
             "actual": "10",
             "error": "1.0",
             "level": "ERROR",
-            "measure": Object {
+            "measure": {
               "bestValue": true,
-              "metric": Object {
+              "metric": {
                 "id": "coverage",
                 "key": "coverage",
                 "name": "coverage",
@@ -1778,20 +1778,20 @@ exports[`application overview should render correctly 1`] = `
             "op": "GT",
             "period": undefined,
           },
-          Object {
+          {
             "actual": "5",
             "error": "1.0",
             "level": "ERROR",
-            "measure": Object {
+            "measure": {
               "bestValue": true,
               "leak": "1",
-              "metric": Object {
+              "metric": {
                 "id": "new_bugs",
                 "key": "new_bugs",
                 "name": "new_bugs",
                 "type": "INT",
               },
-              "period": Object {
+              "period": {
                 "bestValue": true,
                 "index": 1,
                 "value": "1.0",
@@ -1807,23 +1807,23 @@ exports[`application overview should render correctly 1`] = `
         "name": "Foo",
         "status": "ERROR",
       },
-      Object {
+      {
         "branchLike": undefined,
-        "failedConditions": Array [
-          Object {
+        "failedConditions": [
+          {
             "actual": "15",
             "error": "5.0",
             "level": "ERROR",
-            "measure": Object {
+            "measure": {
               "bestValue": true,
               "leak": "1",
-              "metric": Object {
+              "metric": {
                 "id": "new_bugs",
                 "key": "new_bugs",
                 "name": "new_bugs",
                 "type": "INT",
               },
-              "period": Object {
+              "period": {
                 "bestValue": true,
                 "index": 1,
                 "value": "1.0",
@@ -1847,42 +1847,42 @@ exports[`application overview should render correctly 1`] = `
 exports[`project overview should render correctly 1`] = `
 <Memo(BranchOverviewRenderer)
   analyses={
-    Array [
-      Object {
+    [
+      {
         "date": "2017-03-01T09:36:01+0100",
         "detectedCI": "Cirrus CI",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
-      Object {
+      {
         "date": "2017-03-01T09:36:01+0100",
-        "events": Array [],
+        "events": [],
         "key": "foo",
         "projectVersion": "1.0",
       },
     ]
   }
   branch={
-    Object {
+    {
       "analysisDate": "2018-01-01",
       "excludedFromPurge": true,
       "isMain": true,
@@ -1890,46 +1890,46 @@ exports[`project overview should render correctly 1`] = `
     }
   }
   component={
-    Object {
-      "breadcrumbs": Array [
-        Object {
-          "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [
+        {
+          "breadcrumbs": [],
           "key": "foo",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         },
       ],
       "key": "foo",
       "name": "Foo",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   detectedCIOnLastAnalysis={true}
@@ -1937,10 +1937,10 @@ exports[`project overview should render correctly 1`] = `
   loadingHistory={false}
   loadingStatus={false}
   measures={
-    Array [
-      Object {
+    [
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "alert_status",
           "key": "alert_status",
           "name": "alert_status",
@@ -1949,9 +1949,9 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "quality_gate_details",
           "key": "quality_gate_details",
           "name": "quality_gate_details",
@@ -1960,9 +1960,9 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "bugs",
           "key": "bugs",
           "name": "bugs",
@@ -1971,25 +1971,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_bugs",
           "key": "new_bugs",
           "name": "new_bugs",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "reliability_rating",
           "key": "reliability_rating",
           "name": "reliability_rating",
@@ -1998,25 +1998,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_reliability_rating",
           "key": "new_reliability_rating",
           "name": "new_reliability_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "vulnerabilities",
           "key": "vulnerabilities",
           "name": "vulnerabilities",
@@ -2025,25 +2025,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_vulnerabilities",
           "key": "new_vulnerabilities",
           "name": "new_vulnerabilities",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_rating",
           "key": "security_rating",
           "name": "security_rating",
@@ -2052,25 +2052,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_rating",
           "key": "new_security_rating",
           "name": "new_security_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_hotspots",
           "key": "security_hotspots",
           "name": "security_hotspots",
@@ -2079,25 +2079,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_hotspots",
           "key": "new_security_hotspots",
           "name": "new_security_hotspots",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_hotspots_reviewed",
           "key": "security_hotspots_reviewed",
           "name": "security_hotspots_reviewed",
@@ -2106,25 +2106,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_hotspots_reviewed",
           "key": "new_security_hotspots_reviewed",
           "name": "new_security_hotspots_reviewed",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "security_review_rating",
           "key": "security_review_rating",
           "name": "security_review_rating",
@@ -2133,25 +2133,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_security_review_rating",
           "key": "new_security_review_rating",
           "name": "new_security_review_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "code_smells",
           "key": "code_smells",
           "name": "code_smells",
@@ -2160,25 +2160,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_code_smells",
           "key": "new_code_smells",
           "name": "new_code_smells",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "sqale_rating",
           "key": "sqale_rating",
           "name": "sqale_rating",
@@ -2187,25 +2187,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_maintainability_rating",
           "key": "new_maintainability_rating",
           "name": "new_maintainability_rating",
           "type": "RATING",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "sqale_index",
           "key": "sqale_index",
           "name": "sqale_index",
@@ -2214,25 +2214,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_technical_debt",
           "key": "new_technical_debt",
           "name": "new_technical_debt",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "coverage",
           "key": "coverage",
           "name": "coverage",
@@ -2241,25 +2241,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_coverage",
           "key": "new_coverage",
           "name": "new_coverage",
           "type": "PERCENT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "lines_to_cover",
           "key": "lines_to_cover",
           "name": "lines_to_cover",
@@ -2268,25 +2268,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_lines_to_cover",
           "key": "new_lines_to_cover",
           "name": "new_lines_to_cover",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "tests",
           "key": "tests",
           "name": "tests",
@@ -2295,9 +2295,9 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "duplicated_lines_density",
           "key": "duplicated_lines_density",
           "name": "duplicated_lines_density",
@@ -2306,25 +2306,25 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_duplicated_lines_density",
           "key": "new_duplicated_lines_density",
           "name": "new_duplicated_lines_density",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
         },
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "duplicated_blocks",
           "key": "duplicated_blocks",
           "name": "duplicated_blocks",
@@ -2333,9 +2333,9 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "ncloc",
           "key": "ncloc",
           "name": "ncloc",
@@ -2344,9 +2344,9 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "ncloc_language_distribution",
           "key": "ncloc_language_distribution",
           "name": "ncloc_language_distribution",
@@ -2355,9 +2355,9 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "projects",
           "key": "projects",
           "name": "projects",
@@ -2366,9 +2366,9 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
-        "metric": Object {
+        "metric": {
           "id": "lines",
           "key": "lines",
           "name": "lines",
@@ -2377,16 +2377,16 @@ exports[`project overview should render correctly 1`] = `
         "period": undefined,
         "value": "1.0",
       },
-      Object {
+      {
         "bestValue": true,
         "leak": "1",
-        "metric": Object {
+        "metric": {
           "id": "new_lines",
           "key": "new_lines",
           "name": "new_lines",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "bestValue": true,
           "index": 1,
           "value": "1.0",
@@ -2396,55 +2396,55 @@ exports[`project overview should render correctly 1`] = `
     ]
   }
   measuresHistory={
-    Array [
-      Object {
-        "history": Array [
-          Object {
+    [
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-05",
             "value": "2.0",
           },
         ],
         "metric": "bugs",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-05",
             "value": "0",
           },
         ],
         "metric": "vulnerabilities",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-01",
             "value": "1.0",
           },
         ],
         "metric": "sqale_index",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-02",
             "value": "1.0",
           },
         ],
         "metric": "duplicated_lines_density",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-03",
             "value": "10000",
           },
         ],
         "metric": "ncloc",
       },
-      Object {
-        "history": Array [
-          Object {
+      {
+        "history": [
+          {
             "date": "PARSED:2019-01-04",
             "value": "95.5",
           },
@@ -2454,212 +2454,212 @@ exports[`project overview should render correctly 1`] = `
     ]
   }
   metrics={
-    Array [
-      Object {
+    [
+      {
         "id": "alert_status",
         "key": "alert_status",
         "name": "alert_status",
         "type": "INT",
       },
-      Object {
+      {
         "id": "quality_gate_details",
         "key": "quality_gate_details",
         "name": "quality_gate_details",
         "type": "INT",
       },
-      Object {
+      {
         "id": "bugs",
         "key": "bugs",
         "name": "bugs",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_bugs",
         "key": "new_bugs",
         "name": "new_bugs",
         "type": "INT",
       },
-      Object {
+      {
         "id": "reliability_rating",
         "key": "reliability_rating",
         "name": "reliability_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_reliability_rating",
         "key": "new_reliability_rating",
         "name": "new_reliability_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "vulnerabilities",
         "key": "vulnerabilities",
         "name": "vulnerabilities",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_vulnerabilities",
         "key": "new_vulnerabilities",
         "name": "new_vulnerabilities",
         "type": "INT",
       },
-      Object {
+      {
         "id": "security_rating",
         "key": "security_rating",
         "name": "security_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_security_rating",
         "key": "new_security_rating",
         "name": "new_security_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "security_hotspots",
         "key": "security_hotspots",
         "name": "security_hotspots",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_security_hotspots",
         "key": "new_security_hotspots",
         "name": "new_security_hotspots",
         "type": "INT",
       },
-      Object {
+      {
         "id": "security_hotspots_reviewed",
         "key": "security_hotspots_reviewed",
         "name": "security_hotspots_reviewed",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_security_hotspots_reviewed",
         "key": "new_security_hotspots_reviewed",
         "name": "new_security_hotspots_reviewed",
         "type": "INT",
       },
-      Object {
+      {
         "id": "security_review_rating",
         "key": "security_review_rating",
         "name": "security_review_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_security_review_rating",
         "key": "new_security_review_rating",
         "name": "new_security_review_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "code_smells",
         "key": "code_smells",
         "name": "code_smells",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_code_smells",
         "key": "new_code_smells",
         "name": "new_code_smells",
         "type": "INT",
       },
-      Object {
+      {
         "id": "sqale_rating",
         "key": "sqale_rating",
         "name": "sqale_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "new_maintainability_rating",
         "key": "new_maintainability_rating",
         "name": "new_maintainability_rating",
         "type": "RATING",
       },
-      Object {
+      {
         "id": "sqale_index",
         "key": "sqale_index",
         "name": "sqale_index",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_technical_debt",
         "key": "new_technical_debt",
         "name": "new_technical_debt",
         "type": "INT",
       },
-      Object {
+      {
         "id": "coverage",
         "key": "coverage",
         "name": "coverage",
         "type": "PERCENT",
       },
-      Object {
+      {
         "id": "new_coverage",
         "key": "new_coverage",
         "name": "new_coverage",
         "type": "PERCENT",
       },
-      Object {
+      {
         "id": "lines_to_cover",
         "key": "lines_to_cover",
         "name": "lines_to_cover",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_lines_to_cover",
         "key": "new_lines_to_cover",
         "name": "new_lines_to_cover",
         "type": "INT",
       },
-      Object {
+      {
         "id": "tests",
         "key": "tests",
         "name": "tests",
         "type": "INT",
       },
-      Object {
+      {
         "id": "duplicated_lines_density",
         "key": "duplicated_lines_density",
         "name": "duplicated_lines_density",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_duplicated_lines_density",
         "key": "new_duplicated_lines_density",
         "name": "new_duplicated_lines_density",
         "type": "INT",
       },
-      Object {
+      {
         "id": "duplicated_blocks",
         "key": "duplicated_blocks",
         "name": "duplicated_blocks",
         "type": "INT",
       },
-      Object {
+      {
         "id": "ncloc",
         "key": "ncloc",
         "name": "ncloc",
         "type": "INT",
       },
-      Object {
+      {
         "id": "ncloc_language_distribution",
         "key": "ncloc_language_distribution",
         "name": "ncloc_language_distribution",
         "type": "INT",
       },
-      Object {
+      {
         "id": "projects",
         "key": "projects",
         "name": "projects",
         "type": "INT",
       },
-      Object {
+      {
         "id": "lines",
         "key": "lines",
         "name": "lines",
         "type": "INT",
       },
-      Object {
+      {
         "id": "new_lines",
         "key": "new_lines",
         "name": "new_lines",
@@ -2670,29 +2670,29 @@ exports[`project overview should render correctly 1`] = `
   onGraphChange={[Function]}
   projectIsEmpty={false}
   qgStatuses={
-    Array [
-      Object {
-        "branchLike": Object {
+    [
+      {
+        "branchLike": {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": true,
           "name": "master",
         },
-        "failedConditions": Array [
-          Object {
+        "failedConditions": [
+          {
             "actual": "2",
             "error": "1.0",
             "level": "ERROR",
-            "measure": Object {
+            "measure": {
               "bestValue": true,
               "leak": "1",
-              "metric": Object {
+              "metric": {
                 "id": "new_bugs",
                 "key": "new_bugs",
                 "name": "new_bugs",
                 "type": "INT",
               },
-              "period": Object {
+              "period": {
                 "bestValue": true,
                 "index": 1,
                 "value": "1.0",
@@ -2703,13 +2703,13 @@ exports[`project overview should render correctly 1`] = `
             "op": "GT",
             "period": 1,
           },
-          Object {
+          {
             "actual": "5",
             "error": "2.0",
             "level": "ERROR",
-            "measure": Object {
+            "measure": {
               "bestValue": true,
-              "metric": Object {
+              "metric": {
                 "id": "bugs",
                 "key": "bugs",
                 "name": "bugs",

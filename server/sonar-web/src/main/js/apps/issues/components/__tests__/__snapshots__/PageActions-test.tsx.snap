@@ -18,7 +18,7 @@ exports[`should render 1`] = `
   <withCurrentUserContext(HomePageSelect)
     className="huge-spacer-left"
     currentPage={
-      Object {
+      {
         "type": "ISSUES",
       }
     }

@@ -5,25 +5,25 @@ exports[`should render correctly for cfamily 1`] = `
   <PreambuleYaml
     buildTool="cfamily"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -42,7 +42,7 @@ definitions:
           - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
           - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux.zip
           - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          - export PATH=\\"$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin\\"
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin"
           - <any step required before running your build, like ./configure>
           - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
           - sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output  
@@ -69,25 +69,25 @@ exports[`should render correctly for cfamily: with branch enabled 1`] = `
   <PreambuleYaml
     buildTool="cfamily"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -106,7 +106,7 @@ definitions:
           - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
           - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux.zip
           - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          - export PATH=\\"$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin\\"
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin"
           - <any step required before running your build, like ./configure>
           - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
           - sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output  
@@ -136,25 +136,25 @@ exports[`should render correctly for dotnet 1`] = `
   <PreambuleYaml
     buildTool="dotnet"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -173,10 +173,10 @@ definitions:
           - apt-get update
           - apt-get install --yes openjdk-11-jre
           - dotnet tool install --global dotnet-sonarscanner
-          - export PATH=\\"$PATH:/root/.dotnet/tools\\"
-          - dotnet sonarscanner begin /k:\\"my-project\\" /d:\\"sonar.login=\${SONAR_TOKEN}\\"  /d:\\"sonar.host.url=\${SONAR_HOST_URL}\\"
+          - export PATH="$PATH:/root/.dotnet/tools"
+          - dotnet sonarscanner begin /k:"my-project" /d:"sonar.login=\${SONAR_TOKEN}"  /d:"sonar.host.url=\${SONAR_HOST_URL}"
           - dotnet build 
-          - dotnet sonarscanner end /d:\\"sonar.login=\${SONAR_TOKEN}\\"
+          - dotnet sonarscanner end /d:"sonar.login=\${SONAR_TOKEN}"
   caches:
     sonar: ~/.sonar
 
@@ -194,25 +194,25 @@ exports[`should render correctly for dotnet: with branch enabled 1`] = `
   <PreambuleYaml
     buildTool="dotnet"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -231,10 +231,10 @@ definitions:
           - apt-get update
           - apt-get install --yes openjdk-11-jre
           - dotnet tool install --global dotnet-sonarscanner
-          - export PATH=\\"$PATH:/root/.dotnet/tools\\"
-          - dotnet sonarscanner begin /k:\\"my-project\\" /d:\\"sonar.login=\${SONAR_TOKEN}\\"  /d:\\"sonar.host.url=\${SONAR_HOST_URL}\\"
+          - export PATH="$PATH:/root/.dotnet/tools"
+          - dotnet sonarscanner begin /k:"my-project" /d:"sonar.login=\${SONAR_TOKEN}"  /d:"sonar.host.url=\${SONAR_HOST_URL}"
           - dotnet build 
-          - dotnet sonarscanner end /d:\\"sonar.login=\${SONAR_TOKEN}\\"
+          - dotnet sonarscanner end /d:"sonar.login=\${SONAR_TOKEN}"
   caches:
     sonar: ~/.sonar
 
@@ -255,25 +255,25 @@ exports[`should render correctly for gradle 1`] = `
   <PreambuleYaml
     buildTool="gradle"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -310,25 +310,25 @@ exports[`should render correctly for gradle: with branch enabled 1`] = `
   <PreambuleYaml
     buildTool="gradle"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -368,25 +368,25 @@ exports[`should render correctly for maven 1`] = `
   <PreambuleYaml
     buildTool="maven"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -423,25 +423,25 @@ exports[`should render correctly for maven: with branch enabled 1`] = `
   <PreambuleYaml
     buildTool="maven"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -481,25 +481,25 @@ exports[`should render correctly for other 1`] = `
   <PreambuleYaml
     buildTool="other"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -536,25 +536,25 @@ exports[`should render correctly for other: with branch enabled 1`] = `
   <PreambuleYaml
     buildTool="other"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />

@@ -4,12 +4,12 @@ exports[`should render correctly 1`] = `
 <PRDecorationBindingRenderer
   checkingConfiguration={false}
   formData={
-    Object {
+    {
       "key": "",
       "monorepo": false,
     }
   }
-  instances={Array []}
+  instances={[]}
   isChanged={false}
   isConfigured={false}
   isSysAdmin={false}

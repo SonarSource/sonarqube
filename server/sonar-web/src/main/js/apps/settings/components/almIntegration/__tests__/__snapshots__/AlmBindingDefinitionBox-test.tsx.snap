@@ -479,7 +479,7 @@ exports[`should render correctly: success with alert 1`] = `
         defaultMessage="settings.almintegration.github.additional_permission"
         id="settings.almintegration.github.additional_permission"
         values={
-          Object {
+          {
             "link": <withAppStateContext(DocLink)
               to="/devops-platform-integration/github-integration/"
             >
@@ -562,7 +562,7 @@ exports[`should render correctly: success with branches disabled 1`] = `
               defaultMessage="settings.almintegration.feature.pr_decoration.disabled.no_branches"
               id="settings.almintegration.feature.pr_decoration.disabled.no_branches"
               values={
-                Object {
+                {
                   "link": <a
                     href="https://redirect.sonarsource.com/editions/developer.html?sourceEdition=community"
                     rel="noopener noreferrer"
@@ -605,7 +605,7 @@ exports[`should render correctly: success with branches disabled 1`] = `
         defaultMessage="settings.almintegration.github.additional_permission"
         id="settings.almintegration.github.additional_permission"
         values={
-          Object {
+          {
             "link": <withAppStateContext(DocLink)
               to="/devops-platform-integration/github-integration/"
             >

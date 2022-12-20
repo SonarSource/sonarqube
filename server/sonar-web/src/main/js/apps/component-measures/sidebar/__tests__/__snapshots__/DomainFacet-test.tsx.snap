@@ -9,7 +9,7 @@ exports[`should display facet item list 1`] = `
     name="Reliability"
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <FacetItemsList>
     <FacetItem
@@ -61,16 +61,16 @@ exports[`should display facet item list 1`] = `
         <FacetMeasureValue
           displayLeak={true}
           measure={
-            Object {
+            {
               "leak": "5",
-              "metric": Object {
+              "metric": {
                 "domain": "Reliability",
                 "id": "2",
                 "key": "new_bugs",
                 "name": "New Bugs",
                 "type": "INT",
               },
-              "period": Object {
+              "period": {
                 "index": 1,
                 "value": "5",
               },
@@ -109,16 +109,16 @@ exports[`should display facet item list 1`] = `
         <FacetMeasureValue
           displayLeak={true}
           measure={
-            Object {
+            {
               "leak": "5",
-              "metric": Object {
+              "metric": {
                 "domain": "Reliability",
                 "id": "1",
                 "key": "bugs",
                 "name": "Bugs",
                 "type": "INT",
               },
-              "period": Object {
+              "period": {
                 "index": 1,
                 "value": "5",
               },
@@ -144,7 +144,7 @@ exports[`should display facet item list with bugs selected 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "Bugs",
       ]
     }
@@ -199,16 +199,16 @@ exports[`should display facet item list with bugs selected 1`] = `
         <FacetMeasureValue
           displayLeak={true}
           measure={
-            Object {
+            {
               "leak": "5",
-              "metric": Object {
+              "metric": {
                 "domain": "Reliability",
                 "id": "2",
                 "key": "new_bugs",
                 "name": "New Bugs",
                 "type": "INT",
               },
-              "period": Object {
+              "period": {
                 "index": 1,
                 "value": "5",
               },
@@ -247,16 +247,16 @@ exports[`should display facet item list with bugs selected 1`] = `
         <FacetMeasureValue
           displayLeak={true}
           measure={
-            Object {
+            {
               "leak": "5",
-              "metric": Object {
+              "metric": {
                 "domain": "Reliability",
                 "id": "1",
                 "key": "bugs",
                 "name": "Bugs",
                 "type": "INT",
               },
-              "period": Object {
+              "period": {
                 "index": 1,
                 "value": "5",
               },
@@ -281,7 +281,7 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
     name="Reliability"
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <FacetItemsList>
     <FacetItem
@@ -333,8 +333,8 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
         <FacetMeasureValue
           displayLeak={true}
           measure={
-            Object {
-              "metric": Object {
+            {
+              "metric": {
                 "domain": "Reliability",
                 "id": "1",
                 "key": "bugs",
@@ -362,7 +362,7 @@ exports[`should not display subtitles of new measures if there is none, even on 
     name="Reliability"
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <FacetItemsList>
     <FacetItem
@@ -414,8 +414,8 @@ exports[`should not display subtitles of new measures if there is none, even on 
         <FacetMeasureValue
           displayLeak={true}
           measure={
-            Object {
-              "metric": Object {
+            {
+              "metric": {
                 "domain": "Reliability",
                 "id": "2",
                 "key": "new_bugs",

@@ -42,13 +42,13 @@ exports[`changes visibility 2`] = `
     key="public"
     onCheck={
       [MockFunction] {
-        "calls": Array [
-          Array [
+        "calls": [
+          [
             "private",
           ],
         ],
-        "results": Array [
-          Object {
+        "results": [
+          {
             "type": "return",
             "value": undefined,
           },
@@ -68,13 +68,13 @@ exports[`changes visibility 2`] = `
     key="private"
     onCheck={
       [MockFunction] {
-        "calls": Array [
-          Array [
+        "calls": [
+          [
             "private",
           ],
         ],
-        "results": Array [
-          Object {
+        "results": [
+          {
             "type": "return",
             "value": undefined,
           },

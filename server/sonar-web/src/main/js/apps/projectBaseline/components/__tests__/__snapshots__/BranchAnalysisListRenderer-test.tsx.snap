@@ -18,20 +18,20 @@ exports[`should render correctly: Analyses 1`] = `
       isSearchable={false}
       onChange={[MockFunction]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "baseline.branch_analyses.ranges.30days",
             "value": 30,
           },
-          Object {
+          {
             "label": "baseline.branch_analyses.ranges.allTime",
             "value": 0,
           },
         ]
       }
       value={
-        Array [
-          Object {
+        [
+          {
             "label": "baseline.branch_analyses.ranges.30days",
             "value": 30,
           },
@@ -114,20 +114,20 @@ exports[`should render correctly: Analyses 1`] = `
                   <Memo(Events)
                     analysisKey="3"
                     events={
-                      Array [
-                        Object {
+                      [
+                        {
                           "category": "QUALITY_GATE",
                           "description": "Lorem ipsum dolor sit amet",
                           "key": "E11",
                           "name": "Lorem ipsum",
-                          "qualityGate": Object {
-                            "failing": Array [
-                              Object {
+                          "qualityGate": {
+                            "failing": [
+                              {
                                 "branch": "master",
                                 "key": "foo",
                                 "name": "Foo",
                               },
-                              Object {
+                              {
                                 "branch": "feature/bar",
                                 "key": "bar",
                                 "name": "Bar",
@@ -210,20 +210,20 @@ exports[`should render correctly: Analyses 1`] = `
                   <Memo(Events)
                     analysisKey="2"
                     events={
-                      Array [
-                        Object {
+                      [
+                        {
                           "category": "QUALITY_GATE",
                           "description": "Lorem ipsum dolor sit amet",
                           "key": "E11",
                           "name": "Lorem ipsum",
-                          "qualityGate": Object {
-                            "failing": Array [
-                              Object {
+                          "qualityGate": {
+                            "failing": [
+                              {
                                 "branch": "master",
                                 "key": "foo",
                                 "name": "Foo",
                               },
-                              Object {
+                              {
                                 "branch": "feature/bar",
                                 "key": "bar",
                                 "name": "Bar",
@@ -233,7 +233,7 @@ exports[`should render correctly: Analyses 1`] = `
                             "stillFailing": true,
                           },
                         },
-                        Object {
+                        {
                           "category": "VERSION",
                           "description": "Lorem ipsum dolor sit amet",
                           "key": "E11",
@@ -326,20 +326,20 @@ exports[`should render correctly: empty 1`] = `
       isSearchable={false}
       onChange={[MockFunction]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "baseline.branch_analyses.ranges.30days",
             "value": 30,
           },
-          Object {
+          {
             "label": "baseline.branch_analyses.ranges.allTime",
             "value": 0,
           },
         ]
       }
       value={
-        Array [
-          Object {
+        [
+          {
             "label": "baseline.branch_analyses.ranges.30days",
             "value": 30,
           },
@@ -382,20 +382,20 @@ exports[`should render correctly: loading 1`] = `
       isSearchable={false}
       onChange={[MockFunction]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "baseline.branch_analyses.ranges.30days",
             "value": 30,
           },
-          Object {
+          {
             "label": "baseline.branch_analyses.ranges.allTime",
             "value": 0,
           },
         ]
       }
       value={
-        Array [
-          Object {
+        [
+          {
             "label": "baseline.branch_analyses.ranges.30days",
             "value": 30,
           },

@@ -21,63 +21,63 @@ exports[`should render correctly 1`] = `
   >
     <Memo(MenuItemList)
       branchLikeTree={
-        Object {
-          "branchTree": Array [
-            Object {
-              "branch": Object {
+        {
+          "branchTree": [
+            {
+              "branch": {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-1",
               },
-              "pullRequests": Array [],
+              "pullRequests": [],
             },
-            Object {
-              "branch": Object {
+            {
+              "branch": {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-11",
               },
-              "pullRequests": Array [],
+              "pullRequests": [],
             },
-            Object {
-              "branch": Object {
+            {
+              "branch": {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-12",
               },
-              "pullRequests": Array [],
+              "pullRequests": [],
             },
-            Object {
-              "branch": Object {
+            {
+              "branch": {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-2",
               },
-              "pullRequests": Array [],
+              "pullRequests": [],
             },
-            Object {
-              "branch": Object {
+            {
+              "branch": {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-3",
               },
-              "pullRequests": Array [],
+              "pullRequests": [],
             },
           ],
-          "mainBranchTree": Object {
-            "branch": Object {
+          "mainBranchTree": {
+            "branch": {
               "analysisDate": "2018-01-01",
               "excludedFromPurge": true,
               "isMain": true,
               "name": "master",
             },
-            "pullRequests": Array [
-              Object {
+            "pullRequests": [
+              {
                 "analysisDate": "2018-01-01",
                 "base": "master",
                 "branch": "feature/foo/bar",
@@ -85,7 +85,7 @@ exports[`should render correctly 1`] = `
                 "target": "master",
                 "title": "PR-2",
               },
-              Object {
+              {
                 "analysisDate": "2018-01-01",
                 "base": "master",
                 "branch": "feature/foo/bar",
@@ -95,8 +95,8 @@ exports[`should render correctly 1`] = `
               },
             ],
           },
-          "orphanPullRequests": Array [
-            Object {
+          "orphanPullRequests": [
+            {
               "analysisDate": "2018-01-01",
               "base": "master",
               "branch": "feature/foo/bar",
@@ -106,35 +106,35 @@ exports[`should render correctly 1`] = `
               "title": "PR-2",
             },
           ],
-          "parentlessPullRequests": Array [],
+          "parentlessPullRequests": [],
         }
       }
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
       hasResults={true}
       onSelect={[Function]}
       selectedBranchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": true,
@@ -149,7 +149,7 @@ exports[`should render correctly 1`] = `
     <ForwardRef(Link)
       onClick={[Function]}
       to={
-        Object {
+        {
           "pathname": "/project/branches",
           "search": "?id=my-project",
         }
@@ -182,63 +182,63 @@ exports[`should render correctly with no current branch like 1`] = `
   >
     <Memo(MenuItemList)
       branchLikeTree={
-        Object {
-          "branchTree": Array [
-            Object {
-              "branch": Object {
+        {
+          "branchTree": [
+            {
+              "branch": {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-1",
               },
-              "pullRequests": Array [],
+              "pullRequests": [],
             },
-            Object {
-              "branch": Object {
+            {
+              "branch": {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-11",
               },
-              "pullRequests": Array [],
+              "pullRequests": [],
             },
-            Object {
-              "branch": Object {
+            {
+              "branch": {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-12",
               },
-              "pullRequests": Array [],
+              "pullRequests": [],
             },
-            Object {
-              "branch": Object {
+            {
+              "branch": {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-2",
               },
-              "pullRequests": Array [],
+              "pullRequests": [],
             },
-            Object {
-              "branch": Object {
+            {
+              "branch": {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": false,
                 "name": "branch-3",
               },
-              "pullRequests": Array [],
+              "pullRequests": [],
             },
           ],
-          "mainBranchTree": Object {
-            "branch": Object {
+          "mainBranchTree": {
+            "branch": {
               "analysisDate": "2018-01-01",
               "excludedFromPurge": true,
               "isMain": true,
               "name": "master",
             },
-            "pullRequests": Array [
-              Object {
+            "pullRequests": [
+              {
                 "analysisDate": "2018-01-01",
                 "base": "master",
                 "branch": "feature/foo/bar",
@@ -246,7 +246,7 @@ exports[`should render correctly with no current branch like 1`] = `
                 "target": "master",
                 "title": "PR-2",
               },
-              Object {
+              {
                 "analysisDate": "2018-01-01",
                 "base": "master",
                 "branch": "feature/foo/bar",
@@ -256,8 +256,8 @@ exports[`should render correctly with no current branch like 1`] = `
               },
             ],
           },
-          "orphanPullRequests": Array [
-            Object {
+          "orphanPullRequests": [
+            {
               "analysisDate": "2018-01-01",
               "base": "master",
               "branch": "feature/foo/bar",
@@ -267,35 +267,35 @@ exports[`should render correctly with no current branch like 1`] = `
               "title": "PR-2",
             },
           ],
-          "parentlessPullRequests": Array [],
+          "parentlessPullRequests": [],
         }
       }
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
       hasResults={true}
       onSelect={[Function]}
       selectedBranchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
@@ -310,7 +310,7 @@ exports[`should render correctly with no current branch like 1`] = `
     <ForwardRef(Link)
       onClick={[Function]}
       to={
-        Object {
+        {
           "pathname": "/project/branches",
           "search": "?id=my-project",
         }

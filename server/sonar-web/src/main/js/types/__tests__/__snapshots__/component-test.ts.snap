@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`[Function isApplication] should work properly 1`] = `
-Object {
+{
   "APP": true,
   "DEV": false,
   "DIR": false,
@@ -14,7 +14,7 @@ Object {
 `;
 
 exports[`[Function isFile] should work properly 1`] = `
-Object {
+{
   "APP": false,
   "DEV": false,
   "DIR": false,
@@ -27,7 +27,7 @@ Object {
 `;
 
 exports[`[Function isPortfolioLike] should work properly 1`] = `
-Object {
+{
   "APP": false,
   "DEV": false,
   "DIR": false,
@@ -40,7 +40,7 @@ Object {
 `;
 
 exports[`[Function isProject] should work properly 1`] = `
-Object {
+{
   "APP": false,
   "DEV": false,
   "DIR": false,
@@ -53,7 +53,7 @@ Object {
 `;
 
 exports[`[Function isView] should work properly 1`] = `
-Object {
+{
   "APP": true,
   "DEV": false,
   "DIR": false,

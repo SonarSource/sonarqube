@@ -12,7 +12,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="onboarding.tutorial.cfamilly.compilation_database_info"
       id="onboarding.tutorial.cfamilly.compilation_database_info"
       values={
-        Object {
+        {
           "link": <withAppStateContext(DocLink)
             to="/analyzing-source-code/languages/c-family/"
           >
@@ -27,7 +27,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="onboarding.tutorial.cfamilly.speed_caching"
       id="onboarding.tutorial.cfamilly.speed_caching"
       values={
-        Object {
+        {
           "link": <withAppStateContext(DocLink)
             to="/analyzing-source-code/languages/c-family/#analysis-cache"
           >

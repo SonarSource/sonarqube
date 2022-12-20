@@ -27,14 +27,14 @@ exports[`should handle missing quality profiles and quality gates 1`] = `
       </div>
       <MetaTags
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
             "qualityGate": undefined,
             "qualityProfiles": undefined,
-            "tags": Array [],
+            "tags": [],
           }
         }
         onComponentChange={[MockFunction]}
@@ -45,29 +45,29 @@ exports[`should handle missing quality profiles and quality gates 1`] = `
     >
       <MetaSize
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
             "qualityGate": undefined,
             "qualityProfiles": undefined,
-            "tags": Array [],
+            "tags": [],
           }
         }
-        measures={Array []}
+        measures={[]}
       />
     </div>
     <MetaLinks
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
           "qualityGate": undefined,
           "qualityProfiles": undefined,
-          "tags": Array [],
+          "tags": [],
         }
       }
     />
@@ -139,25 +139,25 @@ exports[`should render a private project correctly 1`] = `
       </div>
       <MetaTags
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "private",
           }
         }
@@ -169,29 +169,29 @@ exports[`should render a private project correctly 1`] = `
     >
       <MetaSize
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "private",
           }
         }
-        measures={Array []}
+        measures={[]}
       />
     </div>
     <div
@@ -199,7 +199,7 @@ exports[`should render a private project correctly 1`] = `
     >
       <MetaQualityGate
         qualityGate={
-          Object {
+          {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
@@ -209,8 +209,8 @@ exports[`should render a private project correctly 1`] = `
       <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
-          Array [
-            Object {
+          [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
@@ -222,25 +222,25 @@ exports[`should render a private project correctly 1`] = `
     </div>
     <MetaLinks
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
           "visibility": "private",
         }
       }
@@ -309,25 +309,25 @@ exports[`should render an app correctly: default 1`] = `
       </div>
       <MetaTags
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "APP",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
         onComponentChange={[MockFunction]}
@@ -338,28 +338,28 @@ exports[`should render an app correctly: default 1`] = `
     >
       <MetaSize
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "APP",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
-        measures={Array []}
+        measures={[]}
       />
     </div>
     <div
@@ -421,25 +421,25 @@ exports[`should render app correctly when regulatoryReport feature is not enable
       </div>
       <MetaTags
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "public",
           }
         }
@@ -451,29 +451,29 @@ exports[`should render app correctly when regulatoryReport feature is not enable
     >
       <MetaSize
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "public",
           }
         }
-        measures={Array []}
+        measures={[]}
       />
     </div>
     <div
@@ -481,7 +481,7 @@ exports[`should render app correctly when regulatoryReport feature is not enable
     >
       <MetaQualityGate
         qualityGate={
-          Object {
+          {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
@@ -491,8 +491,8 @@ exports[`should render app correctly when regulatoryReport feature is not enable
       <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
-          Array [
-            Object {
+          [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
@@ -504,25 +504,25 @@ exports[`should render app correctly when regulatoryReport feature is not enable
     </div>
     <MetaLinks
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
           "visibility": "public",
         }
       }
@@ -586,25 +586,25 @@ exports[`should render correctly: default 1`] = `
       </div>
       <MetaTags
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "public",
           }
         }
@@ -616,29 +616,29 @@ exports[`should render correctly: default 1`] = `
     >
       <MetaSize
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "public",
           }
         }
-        measures={Array []}
+        measures={[]}
       />
     </div>
     <div
@@ -646,7 +646,7 @@ exports[`should render correctly: default 1`] = `
     >
       <MetaQualityGate
         qualityGate={
-          Object {
+          {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
@@ -656,8 +656,8 @@ exports[`should render correctly: default 1`] = `
       <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
-          Array [
-            Object {
+          [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
@@ -669,25 +669,25 @@ exports[`should render correctly: default 1`] = `
     </div>
     <MetaLinks
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
           "visibility": "public",
         }
       }
@@ -760,25 +760,25 @@ exports[`should render correctly: no badges 1`] = `
       </div>
       <MetaTags
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "public",
           }
         }
@@ -790,29 +790,29 @@ exports[`should render correctly: no badges 1`] = `
     >
       <MetaSize
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "public",
           }
         }
-        measures={Array []}
+        measures={[]}
       />
     </div>
     <div
@@ -820,7 +820,7 @@ exports[`should render correctly: no badges 1`] = `
     >
       <MetaQualityGate
         qualityGate={
-          Object {
+          {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
@@ -830,8 +830,8 @@ exports[`should render correctly: no badges 1`] = `
       <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
-          Array [
-            Object {
+          [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
@@ -843,25 +843,25 @@ exports[`should render correctly: no badges 1`] = `
     </div>
     <MetaLinks
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
           "visibility": "public",
         }
       }
@@ -927,25 +927,25 @@ exports[`should render correctly: no badges, no notifications 1`] = `
       </div>
       <MetaTags
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "public",
           }
         }
@@ -957,29 +957,29 @@ exports[`should render correctly: no badges, no notifications 1`] = `
     >
       <MetaSize
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "public",
           }
         }
-        measures={Array []}
+        measures={[]}
       />
     </div>
     <div
@@ -987,7 +987,7 @@ exports[`should render correctly: no badges, no notifications 1`] = `
     >
       <MetaQualityGate
         qualityGate={
-          Object {
+          {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
@@ -997,8 +997,8 @@ exports[`should render correctly: no badges, no notifications 1`] = `
       <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
-          Array [
-            Object {
+          [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
@@ -1010,25 +1010,25 @@ exports[`should render correctly: no badges, no notifications 1`] = `
     </div>
     <MetaLinks
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
           "visibility": "public",
         }
       }
@@ -1087,25 +1087,25 @@ exports[`should render correctly: with notifications 1`] = `
       </div>
       <MetaTags
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "public",
           }
         }
@@ -1117,29 +1117,29 @@ exports[`should render correctly: with notifications 1`] = `
     >
       <MetaSize
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
             "visibility": "public",
           }
         }
-        measures={Array []}
+        measures={[]}
       />
     </div>
     <div
@@ -1147,7 +1147,7 @@ exports[`should render correctly: with notifications 1`] = `
     >
       <MetaQualityGate
         qualityGate={
-          Object {
+          {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
@@ -1157,8 +1157,8 @@ exports[`should render correctly: with notifications 1`] = `
       <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
-          Array [
-            Object {
+          [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
@@ -1170,25 +1170,25 @@ exports[`should render correctly: with notifications 1`] = `
     </div>
     <MetaLinks
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
           "visibility": "public",
         }
       }
@@ -1255,26 +1255,26 @@ exports[`should render with description 1`] = `
       </p>
       <MetaTags
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "description": "Lorem ipsum",
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
         onComponentChange={[MockFunction]}
@@ -1285,29 +1285,29 @@ exports[`should render with description 1`] = `
     >
       <MetaSize
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "description": "Lorem ipsum",
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
-        measures={Array []}
+        measures={[]}
       />
     </div>
     <div
@@ -1315,7 +1315,7 @@ exports[`should render with description 1`] = `
     >
       <MetaQualityGate
         qualityGate={
-          Object {
+          {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
@@ -1325,8 +1325,8 @@ exports[`should render with description 1`] = `
       <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
-          Array [
-            Object {
+          [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
@@ -1338,26 +1338,26 @@ exports[`should render with description 1`] = `
     </div>
     <MetaLinks
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "description": "Lorem ipsum",
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
     />

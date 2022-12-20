@@ -4,7 +4,7 @@ exports[`renders 1`] = `
 <ForwardRef(Link)
   className="measures-link"
   to={
-    Object {
+    {
       "pathname": "/component_measures",
       "search": "?id=foo&metric=security_rating",
     }
@@ -24,7 +24,7 @@ exports[`renders 2`] = `
 <ForwardRef(Link)
   className="measures-link"
   to={
-    Object {
+    {
       "pathname": "/component_measures",
       "search": "?id=foo&metric=security_rating",
     }
@@ -44,7 +44,7 @@ exports[`renders 3`] = `
 <ForwardRef(Link)
   className="measures-link"
   to={
-    Object {
+    {
       "pathname": "/component_measures",
       "search": "?id=foo&metric=security_rating",
     }

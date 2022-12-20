@@ -3,43 +3,43 @@
 exports[`should render React extensions correctly 1`] = `
 <Extension
   appState={
-    Object {
+    {
       "edition": "community",
       "productionDatabase": true,
-      "qualifiers": Array [
+      "qualifiers": [
         "TRK",
       ],
-      "settings": Object {},
+      "settings": {},
       "version": "1.0",
     }
   }
   currentUser={
-    Object {
-      "dismissedNotices": Object {
+    {
+      "dismissedNotices": {
         "educationPrinciples": false,
       },
       "isLoggedIn": false,
     }
   }
   extension={
-    Object {
+    {
       "key": "foo",
       "name": "Foo",
     }
   }
-  intl={Object {}}
+  intl={{}}
   location={
-    Object {
+    {
       "hash": "",
       "key": "key",
       "pathname": "/path",
-      "query": Object {},
+      "query": {},
       "search": "",
-      "state": Object {},
+      "state": {},
     }
   }
   router={
-    Object {
+    {
       "createHref": [MockFunction],
       "createPath": [MockFunction],
       "go": [MockFunction],
@@ -65,43 +65,43 @@ exports[`should render React extensions correctly 1`] = `
 exports[`should render React extensions correctly 2`] = `
 <Extension
   appState={
-    Object {
+    {
       "edition": "community",
       "productionDatabase": true,
-      "qualifiers": Array [
+      "qualifiers": [
         "TRK",
       ],
-      "settings": Object {},
+      "settings": {},
       "version": "1.0",
     }
   }
   currentUser={
-    Object {
-      "dismissedNotices": Object {
+    {
+      "dismissedNotices": {
         "educationPrinciples": false,
       },
       "isLoggedIn": false,
     }
   }
   extension={
-    Object {
+    {
       "key": "foo",
       "name": "Foo",
     }
   }
-  intl={Object {}}
+  intl={{}}
   location={
-    Object {
+    {
       "hash": "",
       "key": "key",
       "pathname": "/path",
-      "query": Object {},
+      "query": {},
       "search": "",
-      "state": Object {},
+      "state": {},
     }
   }
   router={
-    Object {
+    {
       "createHref": [MockFunction],
       "createPath": [MockFunction],
       "go": [MockFunction],

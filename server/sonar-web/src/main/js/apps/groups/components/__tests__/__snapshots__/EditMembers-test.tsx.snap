@@ -25,7 +25,7 @@ exports[`should edit members 2`] = `
   </ButtonIcon>
   <EditMembersModal
     group={
-      Object {
+      {
         "id": 3,
         "membersCount": 5,
         "name": "Foo",

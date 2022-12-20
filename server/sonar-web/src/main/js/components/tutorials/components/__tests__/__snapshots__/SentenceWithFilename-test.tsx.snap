@@ -8,7 +8,7 @@ exports[`should render correctly 1`] = `
     defaultMessage="bar.sentence"
     id="bar.sentence"
     values={
-      Object {
+      {
         "file": <code>
           foo.txt
         </code>,

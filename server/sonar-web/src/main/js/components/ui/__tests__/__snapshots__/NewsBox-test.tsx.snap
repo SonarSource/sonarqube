@@ -23,7 +23,7 @@ exports[`should render correctly 1`] = `
     <ClearButton
       className="button-tiny"
       iconProps={
-        Object {
+        {
           "size": 12,
           "thin": true,
         }

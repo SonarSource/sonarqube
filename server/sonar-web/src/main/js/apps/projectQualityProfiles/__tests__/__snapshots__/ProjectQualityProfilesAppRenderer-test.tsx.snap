@@ -101,7 +101,7 @@ exports[`should render correctly: add language 1`] = `
             >
               <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/coding_rules",
                     "search": "?activation=true&qprofile=bar",
                   }
@@ -143,7 +143,7 @@ exports[`should render correctly: add language 1`] = `
             >
               <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/coding_rules",
                     "search": "?activation=true&qprofile=baz",
                   }
@@ -187,7 +187,7 @@ exports[`should render correctly: add language 1`] = `
             >
               <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/coding_rules",
                     "search": "?activation=true&qprofile=foo",
                   }
@@ -236,9 +236,9 @@ exports[`should render correctly: add language 1`] = `
         onClose={[MockFunction]}
         onSubmit={[MockFunction]}
         profilesByLanguage={
-          Object {
-            "css": Array [
-              Object {
+          {
+            "css": [
+              {
                 "activeDeprecatedRuleCount": 2,
                 "activeRuleCount": 10,
                 "childrenCount": 0,
@@ -253,8 +253,8 @@ exports[`should render correctly: add language 1`] = `
                 "projectCount": 3,
               },
             ],
-            "html": Array [
-              Object {
+            "html": [
+              {
                 "activeDeprecatedRuleCount": 2,
                 "activeRuleCount": 10,
                 "childrenCount": 0,
@@ -269,8 +269,8 @@ exports[`should render correctly: add language 1`] = `
                 "projectCount": 3,
               },
             ],
-            "js": Array [
-              Object {
+            "js": [
+              {
                 "activeDeprecatedRuleCount": 2,
                 "activeRuleCount": 10,
                 "childrenCount": 0,
@@ -288,7 +288,7 @@ exports[`should render correctly: add language 1`] = `
           }
         }
         unavailableLanguages={
-          Array [
+          [
             "js",
             "css",
             "html",
@@ -401,7 +401,7 @@ exports[`should render correctly: default 1`] = `
             >
               <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/coding_rules",
                     "search": "?activation=true&qprofile=bar",
                   }
@@ -443,7 +443,7 @@ exports[`should render correctly: default 1`] = `
             >
               <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/coding_rules",
                     "search": "?activation=true&qprofile=baz",
                   }
@@ -487,7 +487,7 @@ exports[`should render correctly: default 1`] = `
             >
               <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/coding_rules",
                     "search": "?activation=true&qprofile=foo",
                   }
@@ -722,7 +722,7 @@ exports[`should render correctly: open profile 1`] = `
             >
               <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/coding_rules",
                     "search": "?activation=true&qprofile=bar",
                   }
@@ -764,7 +764,7 @@ exports[`should render correctly: open profile 1`] = `
             >
               <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/coding_rules",
                     "search": "?activation=true&qprofile=baz",
                   }
@@ -808,7 +808,7 @@ exports[`should render correctly: open profile 1`] = `
             >
               <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/coding_rules",
                     "search": "?activation=true&qprofile=foo",
                   }
@@ -855,8 +855,8 @@ exports[`should render correctly: open profile 1`] = `
       </div>
       <SetQualityProfileModal
         availableProfiles={
-          Array [
-            Object {
+          [
+            {
               "activeDeprecatedRuleCount": 2,
               "activeRuleCount": 10,
               "childrenCount": 0,
@@ -873,29 +873,29 @@ exports[`should render correctly: open profile 1`] = `
           ]
         }
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
         currentProfile={
-          Object {
+          {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 10,
             "childrenCount": 0,

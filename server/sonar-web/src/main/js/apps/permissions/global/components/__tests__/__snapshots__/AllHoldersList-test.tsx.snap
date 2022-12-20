@@ -5,10 +5,10 @@ exports[`should render correctly: applications available 1`] = `
   <HoldersList
     filter=""
     groups={
-      Array [
-        Object {
+      [
+        {
           "name": "sonar-admins",
-          "permissions": Array [
+          "permissions": [
             "provisioning",
           ],
         },
@@ -17,41 +17,41 @@ exports[`should render correctly: applications available 1`] = `
     onToggleGroup={[Function]}
     onToggleUser={[Function]}
     permissions={
-      Array [
-        Object {
+      [
+        {
           "description": "global_permissions.admin.desc",
           "key": "admin",
           "name": "global_permissions.admin",
         },
-        Object {
+        {
           "category": "administer",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "global_permissions.gateadmin.desc",
               "key": "gateadmin",
               "name": "global_permissions.gateadmin",
             },
-            Object {
+            {
               "description": "global_permissions.profileadmin.desc",
               "key": "profileadmin",
               "name": "global_permissions.profileadmin",
             },
           ],
         },
-        Object {
+        {
           "description": "global_permissions.scan.desc",
           "key": "scan",
           "name": "global_permissions.scan",
         },
-        Object {
+        {
           "category": "creator",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "global_permissions.provisioning.desc",
               "key": "provisioning",
               "name": "global_permissions.provisioning",
             },
-            Object {
+            {
               "description": "global_permissions.applicationcreator.desc",
               "key": "applicationcreator",
               "name": "global_permissions.applicationcreator",
@@ -62,13 +62,13 @@ exports[`should render correctly: applications available 1`] = `
     }
     query=""
     users={
-      Array [
-        Object {
+      [
+        {
           "active": true,
           "local": true,
           "login": "john.doe",
           "name": "johndoe",
-          "permissions": Array [
+          "permissions": [
             "provisioning",
           ],
         },
@@ -95,10 +95,10 @@ exports[`should render correctly: default 1`] = `
   <HoldersList
     filter=""
     groups={
-      Array [
-        Object {
+      [
+        {
           "name": "sonar-admins",
-          "permissions": Array [
+          "permissions": [
             "provisioning",
           ],
         },
@@ -107,36 +107,36 @@ exports[`should render correctly: default 1`] = `
     onToggleGroup={[Function]}
     onToggleUser={[Function]}
     permissions={
-      Array [
-        Object {
+      [
+        {
           "description": "global_permissions.admin.desc",
           "key": "admin",
           "name": "global_permissions.admin",
         },
-        Object {
+        {
           "category": "administer",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "global_permissions.gateadmin.desc",
               "key": "gateadmin",
               "name": "global_permissions.gateadmin",
             },
-            Object {
+            {
               "description": "global_permissions.profileadmin.desc",
               "key": "profileadmin",
               "name": "global_permissions.profileadmin",
             },
           ],
         },
-        Object {
+        {
           "description": "global_permissions.scan.desc",
           "key": "scan",
           "name": "global_permissions.scan",
         },
-        Object {
+        {
           "category": "creator",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "global_permissions.provisioning.desc",
               "key": "provisioning",
               "name": "global_permissions.provisioning",
@@ -147,13 +147,13 @@ exports[`should render correctly: default 1`] = `
     }
     query=""
     users={
-      Array [
-        Object {
+      [
+        {
           "active": true,
           "local": true,
           "login": "john.doe",
           "name": "johndoe",
-          "permissions": Array [
+          "permissions": [
             "provisioning",
           ],
         },
@@ -180,10 +180,10 @@ exports[`should render correctly: filter groups 1`] = `
   <HoldersList
     filter="groups"
     groups={
-      Array [
-        Object {
+      [
+        {
           "name": "sonar-admins",
-          "permissions": Array [
+          "permissions": [
             "provisioning",
           ],
         },
@@ -192,36 +192,36 @@ exports[`should render correctly: filter groups 1`] = `
     onToggleGroup={[Function]}
     onToggleUser={[Function]}
     permissions={
-      Array [
-        Object {
+      [
+        {
           "description": "global_permissions.admin.desc",
           "key": "admin",
           "name": "global_permissions.admin",
         },
-        Object {
+        {
           "category": "administer",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "global_permissions.gateadmin.desc",
               "key": "gateadmin",
               "name": "global_permissions.gateadmin",
             },
-            Object {
+            {
               "description": "global_permissions.profileadmin.desc",
               "key": "profileadmin",
               "name": "global_permissions.profileadmin",
             },
           ],
         },
-        Object {
+        {
           "description": "global_permissions.scan.desc",
           "key": "scan",
           "name": "global_permissions.scan",
         },
-        Object {
+        {
           "category": "creator",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "global_permissions.provisioning.desc",
               "key": "provisioning",
               "name": "global_permissions.provisioning",
@@ -232,13 +232,13 @@ exports[`should render correctly: filter groups 1`] = `
     }
     query=""
     users={
-      Array [
-        Object {
+      [
+        {
           "active": true,
           "local": true,
           "login": "john.doe",
           "name": "johndoe",
-          "permissions": Array [
+          "permissions": [
             "provisioning",
           ],
         },
@@ -265,10 +265,10 @@ exports[`should render correctly: filter users 1`] = `
   <HoldersList
     filter="users"
     groups={
-      Array [
-        Object {
+      [
+        {
           "name": "sonar-admins",
-          "permissions": Array [
+          "permissions": [
             "provisioning",
           ],
         },
@@ -277,36 +277,36 @@ exports[`should render correctly: filter users 1`] = `
     onToggleGroup={[Function]}
     onToggleUser={[Function]}
     permissions={
-      Array [
-        Object {
+      [
+        {
           "description": "global_permissions.admin.desc",
           "key": "admin",
           "name": "global_permissions.admin",
         },
-        Object {
+        {
           "category": "administer",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "global_permissions.gateadmin.desc",
               "key": "gateadmin",
               "name": "global_permissions.gateadmin",
             },
-            Object {
+            {
               "description": "global_permissions.profileadmin.desc",
               "key": "profileadmin",
               "name": "global_permissions.profileadmin",
             },
           ],
         },
-        Object {
+        {
           "description": "global_permissions.scan.desc",
           "key": "scan",
           "name": "global_permissions.scan",
         },
-        Object {
+        {
           "category": "creator",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "global_permissions.provisioning.desc",
               "key": "provisioning",
               "name": "global_permissions.provisioning",
@@ -317,13 +317,13 @@ exports[`should render correctly: filter users 1`] = `
     }
     query=""
     users={
-      Array [
-        Object {
+      [
+        {
           "active": true,
           "local": true,
           "login": "john.doe",
           "name": "johndoe",
-          "permissions": Array [
+          "permissions": [
             "provisioning",
           ],
         },
@@ -350,10 +350,10 @@ exports[`should render correctly: portfolios available 1`] = `
   <HoldersList
     filter=""
     groups={
-      Array [
-        Object {
+      [
+        {
           "name": "sonar-admins",
-          "permissions": Array [
+          "permissions": [
             "provisioning",
           ],
         },
@@ -362,41 +362,41 @@ exports[`should render correctly: portfolios available 1`] = `
     onToggleGroup={[Function]}
     onToggleUser={[Function]}
     permissions={
-      Array [
-        Object {
+      [
+        {
           "description": "global_permissions.admin.desc",
           "key": "admin",
           "name": "global_permissions.admin",
         },
-        Object {
+        {
           "category": "administer",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "global_permissions.gateadmin.desc",
               "key": "gateadmin",
               "name": "global_permissions.gateadmin",
             },
-            Object {
+            {
               "description": "global_permissions.profileadmin.desc",
               "key": "profileadmin",
               "name": "global_permissions.profileadmin",
             },
           ],
         },
-        Object {
+        {
           "description": "global_permissions.scan.desc",
           "key": "scan",
           "name": "global_permissions.scan",
         },
-        Object {
+        {
           "category": "creator",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "global_permissions.provisioning.desc",
               "key": "provisioning",
               "name": "global_permissions.provisioning",
             },
-            Object {
+            {
               "description": "global_permissions.portfoliocreator.desc",
               "key": "portfoliocreator",
               "name": "global_permissions.portfoliocreator",
@@ -407,13 +407,13 @@ exports[`should render correctly: portfolios available 1`] = `
     }
     query=""
     users={
-      Array [
-        Object {
+      [
+        {
           "active": true,
           "local": true,
           "login": "john.doe",
           "name": "johndoe",
-          "permissions": Array [
+          "permissions": [
             "provisioning",
           ],
         },

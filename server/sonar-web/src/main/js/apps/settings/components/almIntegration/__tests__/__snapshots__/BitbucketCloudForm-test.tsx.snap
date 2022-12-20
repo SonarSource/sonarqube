@@ -17,7 +17,7 @@ exports[`should render correctly: default 1`] = `
         defaultMessage="settings.almintegration.form.workspace.bitbucketcloud.help"
         id="settings.almintegration.form.workspace.bitbucketcloud.help"
         values={
-          Object {
+          {
             "example": <React.Fragment>
               https://bitbucket.org/
               <strong>
@@ -44,7 +44,7 @@ exports[`should render correctly: default 1`] = `
       defaultMessage="settings.almintegration.bitbucketcloud.info"
       id="settings.almintegration.bitbucketcloud.info"
       values={
-        Object {
+        {
           "doc_link": <withAppStateContext(DocLink)
             to="/devops-platform-integration/bitbucket-integration/bitbucket-cloud-integration/"
           >
@@ -102,7 +102,7 @@ exports[`should render correctly: invalid workspace ID 1`] = `
         defaultMessage="settings.almintegration.form.workspace.bitbucketcloud.help"
         id="settings.almintegration.form.workspace.bitbucketcloud.help"
         values={
-          Object {
+          {
             "example": <React.Fragment>
               https://bitbucket.org/
               <strong>
@@ -129,7 +129,7 @@ exports[`should render correctly: invalid workspace ID 1`] = `
       defaultMessage="settings.almintegration.bitbucketcloud.info"
       id="settings.almintegration.bitbucketcloud.info"
       values={
-        Object {
+        {
           "doc_link": <withAppStateContext(DocLink)
             to="/devops-platform-integration/bitbucket-integration/bitbucket-cloud-integration/"
           >

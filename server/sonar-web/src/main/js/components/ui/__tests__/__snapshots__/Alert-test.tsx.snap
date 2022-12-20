@@ -112,7 +112,7 @@ exports[`should render properly 1`] = `
   isInline={false}
   role="alert"
   variantInfo={
-    Object {
+    {
       "backGroundColor": "#f2dede",
       "borderColor": "#f4b1b0",
       "color": "#862422",
@@ -129,7 +129,7 @@ exports[`should render properly 1`] = `
     <Styled(div)
       isBanner={false}
       variantInfo={
-        Object {
+        {
           "backGroundColor": "#f2dede",
           "borderColor": "#f4b1b0",
           "color": "#862422",
@@ -154,7 +154,7 @@ exports[`should render properly 1`] = `
 `;
 
 exports[`verification of all variants of alert 1`] = `
-Object {
+{
   "backGroundColor": "#f2dede",
   "borderColor": "#f4b1b0",
   "color": "#862422",
@@ -166,7 +166,7 @@ Object {
 `;
 
 exports[`verification of all variants of alert 2`] = `
-Object {
+{
   "backGroundColor": "#fcf8e3",
   "borderColor": "#faebcc",
   "color": "#6f4f17",
@@ -178,7 +178,7 @@ Object {
 `;
 
 exports[`verification of all variants of alert 3`] = `
-Object {
+{
   "backGroundColor": "#dff0d8",
   "borderColor": "#d6e9c6",
   "color": "#215821",
@@ -190,7 +190,7 @@ Object {
 `;
 
 exports[`verification of all variants of alert 4`] = `
-Object {
+{
   "backGroundColor": "#d9edf7",
   "borderColor": "#b1dff3",
   "color": "#0e516f",
@@ -202,7 +202,7 @@ Object {
 `;
 
 exports[`verification of all variants of alert 5`] = `
-Object {
+{
   "backGroundColor": "#d9edf7",
   "borderColor": "#b1dff3",
   "color": "#0e516f",

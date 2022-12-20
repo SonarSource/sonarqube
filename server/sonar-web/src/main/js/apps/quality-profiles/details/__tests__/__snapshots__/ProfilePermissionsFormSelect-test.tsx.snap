@@ -11,7 +11,7 @@ exports[`should render correctly 1`] = `
   autoFocus={true}
   className="width-100"
   components={
-    Object {
+    {
       "Control": [Function],
       "Option": [Function],
       "SingleValue": [Function],
@@ -32,7 +32,7 @@ exports[`should render correctly 1`] = `
 exports[`should render option correctly: option renderer 1`] = `
 <Option
   data={
-    Object {
+    {
       "name": "name",
       "value": "test",
     }
@@ -56,7 +56,7 @@ exports[`should render option correctly: option renderer 1`] = `
 exports[`should render value correctly: value renderer 1`] = `
 <SingleValue
   data={
-    Object {
+    {
       "name": "name",
       "value": "test",
     }

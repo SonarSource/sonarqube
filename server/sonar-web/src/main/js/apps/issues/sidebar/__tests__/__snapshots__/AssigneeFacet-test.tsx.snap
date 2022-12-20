@@ -19,12 +19,12 @@ exports[`should render 1`] = `
   onToggle={[MockFunction]}
   open={true}
   property="assignees"
-  query={Object {}}
+  query={{}}
   renderFacetItem={[Function]}
   renderSearchResult={[Function]}
   searchPlaceholder="search.search_for_users"
   stats={
-    Object {
+    {
       "": 5,
       "bar": 7,
       "baz": 6,
@@ -32,7 +32,7 @@ exports[`should render 1`] = `
     }
   }
   values={
-    Array [
+    [
       "foo",
     ]
   }

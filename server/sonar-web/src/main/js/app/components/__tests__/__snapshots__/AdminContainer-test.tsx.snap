@@ -10,27 +10,27 @@ exports[`should render correctly 1`] = `
     titleTemplate="%s - layout.settings"
   />
   <WithLocation
-    extensions={Array []}
+    extensions={[]}
     fetchPendingPlugins={[Function]}
     fetchSystemStatus={[Function]}
     pendingPlugins={
-      Object {
-        "installing": Array [],
-        "removing": Array [],
-        "updating": Array [],
+      {
+        "installing": [],
+        "removing": [],
+        "updating": [],
       }
     }
     systemStatus="UP"
   />
   <ContextProvider
     value={
-      Object {
+      {
         "fetchPendingPlugins": [Function],
         "fetchSystemStatus": [Function],
-        "pendingPlugins": Object {
-          "installing": Array [],
-          "removing": Array [],
-          "updating": Array [],
+        "pendingPlugins": {
+          "installing": [],
+          "removing": [],
+          "updating": [],
         },
         "systemStatus": "UP",
       }
@@ -38,8 +38,8 @@ exports[`should render correctly 1`] = `
   >
     <Outlet
       context={
-        Object {
-          "adminPages": Array [],
+        {
+          "adminPages": [],
         }
       }
     />

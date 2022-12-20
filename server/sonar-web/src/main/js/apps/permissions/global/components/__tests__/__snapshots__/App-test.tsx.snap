@@ -20,7 +20,7 @@ exports[`should render correctly 1`] = `
     filter="all"
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}
-    groups={Array []}
+    groups={[]}
     loading={true}
     onFilter={[Function]}
     onLoadMore={[Function]}
@@ -28,7 +28,7 @@ exports[`should render correctly 1`] = `
     query=""
     revokePermissionFromGroup={[Function]}
     revokePermissionFromUser={[Function]}
-    users={Array []}
+    users={[]}
   />
 </div>
 `;
@@ -54,25 +54,25 @@ exports[`should render correctly 2`] = `
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}
     groups={
-      Array [
-        Object {
+      [
+        {
           "name": "Anyone",
-          "permissions": Array [
+          "permissions": [
             "admin",
             "codeviewer",
             "issueadmin",
           ],
         },
-        Object {
+        {
           "description": "SonarSource team",
           "id": "1",
           "name": "SonarSource",
-          "permissions": Array [],
+          "permissions": [],
         },
       ]
     }
     groupsPaging={
-      Object {
+      {
         "pageIndex": 1,
         "pageSize": 100,
         "total": 2,
@@ -86,34 +86,34 @@ exports[`should render correctly 2`] = `
     revokePermissionFromGroup={[Function]}
     revokePermissionFromUser={[Function]}
     users={
-      Array [
-        Object {
+      [
+        {
           "avatar": "admin-avatar",
           "email": "admin@gmail.com",
           "login": "admin",
           "name": "Admin Admin",
-          "permissions": Array [
+          "permissions": [
             "admin",
           ],
         },
-        Object {
+        {
           "avatar": "user-avatar-1",
           "email": "user1@gmail.com",
           "login": "user1",
           "name": "User Number 1",
-          "permissions": Array [],
+          "permissions": [],
         },
-        Object {
+        {
           "avatar": "user-avatar-2",
           "email": "user2@gmail.com",
           "login": "user2",
           "name": "User Number 2",
-          "permissions": Array [],
+          "permissions": [],
         },
       ]
     }
     usersPaging={
-      Object {
+      {
         "pageIndex": 1,
         "pageSize": 100,
         "total": 3,

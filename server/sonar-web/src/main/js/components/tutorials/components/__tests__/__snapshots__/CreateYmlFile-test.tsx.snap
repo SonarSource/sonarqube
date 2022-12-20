@@ -8,7 +8,7 @@ exports[`should render correctly 1`] = `
     defaultMessage="onboarding.tutorial.with.github_action.yaml.create_yml"
     id="onboarding.tutorial.with.github_action.yaml.create_yml"
     values={
-      Object {
+      {
         "file": <React.Fragment>
           <code
             className="rule"

@@ -61,7 +61,7 @@ exports[`should render 1`] = `
       </tr>
       <ListItem
         group={
-          Object {
+          {
             "default": false,
             "description": "barbar",
             "id": 3,
@@ -76,7 +76,7 @@ exports[`should render 1`] = `
       />
       <ListItem
         group={
-          Object {
+          {
             "default": false,
             "description": "foobar",
             "id": 2,
@@ -91,7 +91,7 @@ exports[`should render 1`] = `
       />
       <ListItem
         group={
-          Object {
+          {
             "default": true,
             "description": "",
             "id": 1,

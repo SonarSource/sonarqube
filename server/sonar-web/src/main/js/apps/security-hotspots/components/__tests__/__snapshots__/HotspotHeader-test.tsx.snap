@@ -26,7 +26,7 @@ exports[`should render correctly 1`] = `
         className="small"
         target="_blank"
         to={
-          Object {
+          {
             "pathname": "/coding_rules",
             "search": "?open=squid%3AS2077&rule_key=squid%3AS2077",
           }
@@ -41,25 +41,25 @@ exports[`should render correctly 1`] = `
   >
     <withCurrentUserContext(Status)
       hotspot={
-        Object {
+        {
           "assignee": "assignee",
-          "assigneeUser": Object {
+          "assigneeUser": {
             "active": true,
             "local": true,
             "login": "assignee",
             "name": "John Doe",
           },
           "author": "author",
-          "authorUser": Object {
+          "authorUser": {
             "active": true,
             "local": true,
             "login": "author",
             "name": "John Doe",
           },
           "canChangeStatus": true,
-          "changelog": Array [],
-          "comment": Array [],
-          "component": Object {
+          "changelog": [],
+          "comment": [],
+          "component": {
             "key": "hotspot-component",
             "longName": "Hotspot component long name",
             "name": "Hotspot Component",
@@ -67,12 +67,12 @@ exports[`should render correctly 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
-          "flows": Array [
-            Object {
-              "locations": Array [
-                Object {
+          "flows": [
+            {
+              "locations": [
+                {
                   "component": "main.js",
-                  "textRange": Object {
+                  "textRange": {
                     "endLine": 2,
                     "endOffset": 2,
                     "startLine": 1,
@@ -85,7 +85,7 @@ exports[`should render correctly 1`] = `
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
-          "project": Object {
+          "project": {
             "key": "hotspot-component",
             "longName": "Hotspot component long name",
             "name": "Hotspot Component",
@@ -93,28 +93,28 @@ exports[`should render correctly 1`] = `
             "qualifier": "TRK",
           },
           "resolution": "FIXED",
-          "rule": Object {
+          "rule": {
             "key": "squid:S2077",
             "name": "That rule",
             "securityCategory": "sql-injection",
             "vulnerabilityProbability": "HIGH",
           },
           "status": "REVIEWED",
-          "textRange": Object {
+          "textRange": {
             "endLine": 142,
             "endOffset": 83,
             "startLine": 142,
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
-          "users": Array [
-            Object {
+          "users": [
+            {
               "active": true,
               "local": true,
               "login": "assignee",
               "name": "John Doe",
             },
-            Object {
+            {
               "active": true,
               "local": true,
               "login": "author",
@@ -138,25 +138,25 @@ exports[`should render correctly 1`] = `
         </div>
         <withCurrentUserContext(Assignee)
           hotspot={
-            Object {
+            {
               "assignee": "assignee",
-              "assigneeUser": Object {
+              "assigneeUser": {
                 "active": true,
                 "local": true,
                 "login": "assignee",
                 "name": "John Doe",
               },
               "author": "author",
-              "authorUser": Object {
+              "authorUser": {
                 "active": true,
                 "local": true,
                 "login": "author",
                 "name": "John Doe",
               },
               "canChangeStatus": true,
-              "changelog": Array [],
-              "comment": Array [],
-              "component": Object {
+              "changelog": [],
+              "comment": [],
+              "component": {
                 "key": "hotspot-component",
                 "longName": "Hotspot component long name",
                 "name": "Hotspot Component",
@@ -164,12 +164,12 @@ exports[`should render correctly 1`] = `
                 "qualifier": "FIL",
               },
               "creationDate": "2013-05-13T17:55:41+0200",
-              "flows": Array [
-                Object {
-                  "locations": Array [
-                    Object {
+              "flows": [
+                {
+                  "locations": [
+                    {
                       "component": "main.js",
-                      "textRange": Object {
+                      "textRange": {
                         "endLine": 2,
                         "endOffset": 2,
                         "startLine": 1,
@@ -182,7 +182,7 @@ exports[`should render correctly 1`] = `
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
-              "project": Object {
+              "project": {
                 "key": "hotspot-component",
                 "longName": "Hotspot component long name",
                 "name": "Hotspot Component",
@@ -190,28 +190,28 @@ exports[`should render correctly 1`] = `
                 "qualifier": "TRK",
               },
               "resolution": "FIXED",
-              "rule": Object {
+              "rule": {
                 "key": "squid:S2077",
                 "name": "That rule",
                 "securityCategory": "sql-injection",
                 "vulnerabilityProbability": "HIGH",
               },
               "status": "REVIEWED",
-              "textRange": Object {
+              "textRange": {
                 "endLine": 142,
                 "endOffset": 83,
                 "startLine": 142,
                 "startOffset": 26,
               },
               "updateDate": "2013-05-13T17:55:42+0200",
-              "users": Array [
-                Object {
+              "users": [
+                {
                   "active": true,
                   "local": true,
                   "login": "assignee",
                   "name": "John Doe",
                 },
-                Object {
+                {
                   "active": true,
                   "local": true,
                   "login": "author",

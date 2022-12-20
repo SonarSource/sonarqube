@@ -47,45 +47,45 @@ exports[`should render correctly for applications 1`] = `
     >
       <Memo(QualityGatePanelSection)
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "APP",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
         key="foo"
         qgStatus={
-          Object {
-            "failedConditions": Array [
-              Object {
+          {
+            "failedConditions": [
+              {
                 "actual": "10",
                 "error": "0",
                 "level": "ERROR",
-                "measure": Object {
+                "measure": {
                   "bestValue": true,
                   "leak": "1",
-                  "metric": Object {
+                  "metric": {
                     "id": "coverage",
                     "key": "coverage",
                     "name": "coverage",
                     "type": "PERCENT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -105,45 +105,45 @@ exports[`should render correctly for applications 1`] = `
       />
       <Memo(QualityGatePanelSection)
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "APP",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
         key="foo"
         qgStatus={
-          Object {
-            "failedConditions": Array [
-              Object {
+          {
+            "failedConditions": [
+              {
                 "actual": "10",
                 "error": "0",
                 "level": "ERROR",
-                "measure": Object {
+                "measure": {
                   "bestValue": true,
                   "leak": "1",
-                  "metric": Object {
+                  "metric": {
                     "id": "coverage",
                     "key": "coverage",
                     "name": "coverage",
                     "type": "PERCENT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -153,20 +153,20 @@ exports[`should render correctly for applications 1`] = `
                 "metric": "foo",
                 "op": "GT",
               },
-              Object {
+              {
                 "actual": "10",
                 "error": "0",
                 "level": "ERROR",
-                "measure": Object {
+                "measure": {
                   "bestValue": true,
                   "leak": "1",
-                  "metric": Object {
+                  "metric": {
                     "id": "new_code_smells",
                     "key": "new_code_smells",
                     "name": "new_code_smells",
                     "type": "PERCENT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -188,21 +188,21 @@ exports[`should render correctly for applications 1`] = `
   </div>
   <withCurrentUserContext(SonarLintPromotion)
     qgConditions={
-      Array [
-        Object {
+      [
+        {
           "actual": "10",
           "error": "0",
           "level": "ERROR",
-          "measure": Object {
+          "measure": {
             "bestValue": true,
             "leak": "1",
-            "metric": Object {
+            "metric": {
               "id": "coverage",
               "key": "coverage",
               "name": "coverage",
               "type": "PERCENT",
             },
-            "period": Object {
+            "period": {
               "bestValue": true,
               "index": 1,
               "value": "1.0",
@@ -212,20 +212,20 @@ exports[`should render correctly for applications 1`] = `
           "metric": "foo",
           "op": "GT",
         },
-        Object {
+        {
           "actual": "10",
           "error": "0",
           "level": "ERROR",
-          "measure": Object {
+          "measure": {
             "bestValue": true,
             "leak": "1",
-            "metric": Object {
+            "metric": {
               "id": "coverage",
               "key": "coverage",
               "name": "coverage",
               "type": "PERCENT",
             },
-            "period": Object {
+            "period": {
               "bestValue": true,
               "index": 1,
               "value": "1.0",
@@ -235,20 +235,20 @@ exports[`should render correctly for applications 1`] = `
           "metric": "foo",
           "op": "GT",
         },
-        Object {
+        {
           "actual": "10",
           "error": "0",
           "level": "ERROR",
-          "measure": Object {
+          "measure": {
             "bestValue": true,
             "leak": "1",
-            "metric": Object {
+            "metric": {
               "id": "new_code_smells",
               "key": "new_code_smells",
               "name": "new_code_smells",
               "type": "PERCENT",
             },
-            "period": Object {
+            "period": {
               "bestValue": true,
               "index": 1,
               "value": "1.0",
@@ -311,45 +311,45 @@ exports[`should render correctly for applications 2`] = `
     >
       <Memo(QualityGatePanelSection)
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "APP",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
         key="foo"
         qgStatus={
-          Object {
-            "failedConditions": Array [
-              Object {
+          {
+            "failedConditions": [
+              {
                 "actual": "10",
                 "error": "0",
                 "level": "ERROR",
-                "measure": Object {
+                "measure": {
                   "bestValue": true,
                   "leak": "1",
-                  "metric": Object {
+                  "metric": {
                     "id": "coverage",
                     "key": "coverage",
                     "name": "coverage",
                     "type": "PERCENT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -369,31 +369,31 @@ exports[`should render correctly for applications 2`] = `
       />
       <Memo(QualityGatePanelSection)
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "APP",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
         key="foo"
         qgStatus={
-          Object {
-            "failedConditions": Array [],
+          {
+            "failedConditions": [],
             "ignoredConditions": false,
             "key": "foo",
             "name": "Foo",
@@ -405,21 +405,21 @@ exports[`should render correctly for applications 2`] = `
   </div>
   <withCurrentUserContext(SonarLintPromotion)
     qgConditions={
-      Array [
-        Object {
+      [
+        {
           "actual": "10",
           "error": "0",
           "level": "ERROR",
-          "measure": Object {
+          "measure": {
             "bestValue": true,
             "leak": "1",
-            "metric": Object {
+            "metric": {
               "id": "coverage",
               "key": "coverage",
               "name": "coverage",
               "type": "PERCENT",
             },
-            "period": Object {
+            "period": {
               "bestValue": true,
               "index": 1,
               "value": "1.0",
@@ -482,45 +482,45 @@ exports[`should render correctly for projects 1`] = `
     >
       <Memo(QualityGatePanelSection)
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
         key="foo"
         qgStatus={
-          Object {
-            "failedConditions": Array [
-              Object {
+          {
+            "failedConditions": [
+              {
                 "actual": "10",
                 "error": "0",
                 "level": "ERROR",
-                "measure": Object {
+                "measure": {
                   "bestValue": true,
                   "leak": "1",
-                  "metric": Object {
+                  "metric": {
                     "id": "coverage",
                     "key": "coverage",
                     "name": "coverage",
                     "type": "PERCENT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -542,21 +542,21 @@ exports[`should render correctly for projects 1`] = `
   </div>
   <withCurrentUserContext(SonarLintPromotion)
     qgConditions={
-      Array [
-        Object {
+      [
+        {
           "actual": "10",
           "error": "0",
           "level": "ERROR",
-          "measure": Object {
+          "measure": {
             "bestValue": true,
             "leak": "1",
-            "metric": Object {
+            "metric": {
               "id": "coverage",
               "key": "coverage",
               "name": "coverage",
               "type": "PERCENT",
             },
-            "period": Object {
+            "period": {
               "bestValue": true,
               "index": 1,
               "value": "1.0",
@@ -616,7 +616,7 @@ exports[`should render correctly for projects 2`] = `
     </div>
   </div>
   <withCurrentUserContext(SonarLintPromotion)
-    qgConditions={Array []}
+    qgConditions={[]}
   />
 </div>
 `;
@@ -683,45 +683,45 @@ exports[`should render correctly for projects 3`] = `
     >
       <Memo(QualityGatePanelSection)
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
         key="foo"
         qgStatus={
-          Object {
-            "failedConditions": Array [
-              Object {
+          {
+            "failedConditions": [
+              {
                 "actual": "10",
                 "error": "0",
                 "level": "ERROR",
-                "measure": Object {
+                "measure": {
                   "bestValue": true,
                   "leak": "1",
-                  "metric": Object {
+                  "metric": {
                     "id": "coverage",
                     "key": "coverage",
                     "name": "coverage",
                     "type": "PERCENT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -743,21 +743,21 @@ exports[`should render correctly for projects 3`] = `
   </div>
   <withCurrentUserContext(SonarLintPromotion)
     qgConditions={
-      Array [
-        Object {
+      [
+        {
           "actual": "10",
           "error": "0",
           "level": "ERROR",
-          "measure": Object {
+          "measure": {
             "bestValue": true,
             "leak": "1",
-            "metric": Object {
+            "metric": {
               "id": "coverage",
               "key": "coverage",
               "name": "coverage",
               "type": "PERCENT",
             },
-            "period": Object {
+            "period": {
               "bestValue": true,
               "index": 1,
               "value": "1.0",

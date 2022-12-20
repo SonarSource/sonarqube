@@ -30,33 +30,33 @@ exports[`should render correctly for a failed QG 1`] = `
         </h2>
         <Memo(LargeQualityGateBadge)
           component={
-            Object {
-              "breadcrumbs": Array [],
+            {
+              "breadcrumbs": [],
               "key": "my-project",
               "name": "MyProject",
               "qualifier": "TRK",
-              "qualityGate": Object {
+              "qualityGate": {
                 "isDefault": true,
                 "key": "30",
                 "name": "Sonar way",
               },
-              "qualityProfiles": Array [
-                Object {
+              "qualityProfiles": [
+                {
                   "deleted": false,
                   "key": "my-qp",
                   "language": "ts",
                   "name": "Sonar way",
                 },
               ],
-              "tags": Array [],
+              "tags": [],
             }
           }
           level="ERROR"
         />
         <withCurrentUserContext(SonarLintPromotion)
           qgConditions={
-            Array [
-              Object {
+            [
+              {
                 "actual": "10",
                 "error": "1.0",
                 "level": "OK",
@@ -64,7 +64,7 @@ exports[`should render correctly for a failed QG 1`] = `
                 "op": "GT",
                 "period": 1,
               },
-              Object {
+              {
                 "actual": "10",
                 "error": "1.0",
                 "level": "ERROR",
@@ -86,7 +86,7 @@ exports[`should render correctly for a failed QG 1`] = `
         </h2>
         <Memo(QualityGateConditions)
           branchLike={
-            Object {
+            {
               "analysisDate": "2018-01-01",
               "base": "master",
               "branch": "feature/foo/bar",
@@ -97,42 +97,42 @@ exports[`should render correctly for a failed QG 1`] = `
           }
           collapsible={true}
           component={
-            Object {
-              "breadcrumbs": Array [],
+            {
+              "breadcrumbs": [],
               "key": "my-project",
               "name": "MyProject",
               "qualifier": "TRK",
-              "qualityGate": Object {
+              "qualityGate": {
                 "isDefault": true,
                 "key": "30",
                 "name": "Sonar way",
               },
-              "qualityProfiles": Array [
-                Object {
+              "qualityProfiles": [
+                {
                   "deleted": false,
                   "key": "my-qp",
                   "language": "ts",
                   "name": "Sonar way",
                 },
               ],
-              "tags": Array [],
+              "tags": [],
             }
           }
           failedConditions={
-            Array [
-              Object {
+            [
+              {
                 "actual": "10",
                 "error": "1.0",
                 "level": "ERROR",
-                "measure": Object {
+                "measure": {
                   "bestValue": true,
-                  "metric": Object {
+                  "metric": {
                     "id": "new_code_smells",
                     "key": "new_code_smells",
                     "name": "new_code_smells",
                     "type": "PERCENT",
                   },
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -167,7 +167,7 @@ exports[`should render correctly for a failed QG 1`] = `
             >
               <Memo(IssueLabel)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -177,83 +177,83 @@ exports[`should render correctly for a failed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -271,7 +271,7 @@ exports[`should render correctly for a failed QG 1`] = `
             >
               <Memo(IssueRating)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -281,83 +281,83 @@ exports[`should render correctly for a failed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -380,7 +380,7 @@ exports[`should render correctly for a failed QG 1`] = `
             >
               <Memo(IssueLabel)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -390,83 +390,83 @@ exports[`should render correctly for a failed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -484,7 +484,7 @@ exports[`should render correctly for a failed QG 1`] = `
             >
               <Memo(IssueRating)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -494,83 +494,83 @@ exports[`should render correctly for a failed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -593,7 +593,7 @@ exports[`should render correctly for a failed QG 1`] = `
             >
               <Memo(IssueLabel)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -603,83 +603,83 @@ exports[`should render correctly for a failed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -697,7 +697,7 @@ exports[`should render correctly for a failed QG 1`] = `
             >
               <Memo(IssueRating)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -707,83 +707,83 @@ exports[`should render correctly for a failed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -806,7 +806,7 @@ exports[`should render correctly for a failed QG 1`] = `
             >
               <Memo(IssueLabel)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -816,83 +816,83 @@ exports[`should render correctly for a failed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -910,7 +910,7 @@ exports[`should render correctly for a failed QG 1`] = `
             >
               <Memo(IssueRating)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -920,83 +920,83 @@ exports[`should render correctly for a failed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -1019,7 +1019,7 @@ exports[`should render correctly for a failed QG 1`] = `
             >
               <MeasurementLabel
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -1029,83 +1029,83 @@ exports[`should render correctly for a failed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -1121,61 +1121,61 @@ exports[`should render correctly for a failed QG 1`] = `
             <Memo(AfterMergeEstimate)
               className="overview-panel-big-padded overview-measures-aside text-right overview-measures-emphasis"
               measures={
-                Array [
-                  Object {
+                [
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_bugs",
                       "key": "new_bugs",
                       "name": "new_bugs",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_vulnerabilities",
                       "key": "new_vulnerabilities",
                       "name": "new_vulnerabilities",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_code_smells",
                       "key": "new_code_smells",
                       "name": "new_code_smells",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_security_hotspots",
                       "key": "new_security_hotspots",
                       "name": "new_security_hotspots",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
@@ -1196,7 +1196,7 @@ exports[`should render correctly for a failed QG 1`] = `
             >
               <MeasurementLabel
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -1206,83 +1206,83 @@ exports[`should render correctly for a failed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -1298,61 +1298,61 @@ exports[`should render correctly for a failed QG 1`] = `
             <Memo(AfterMergeEstimate)
               className="overview-panel-big-padded overview-measures-aside text-right overview-measures-emphasis"
               measures={
-                Array [
-                  Object {
+                [
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_bugs",
                       "key": "new_bugs",
                       "name": "new_bugs",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_vulnerabilities",
                       "key": "new_vulnerabilities",
                       "name": "new_vulnerabilities",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_code_smells",
                       "key": "new_code_smells",
                       "name": "new_code_smells",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_security_hotspots",
                       "key": "new_security_hotspots",
                       "name": "new_security_hotspots",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
@@ -1401,31 +1401,31 @@ exports[`should render correctly for a passed QG 1`] = `
         </h2>
         <Memo(LargeQualityGateBadge)
           component={
-            Object {
-              "breadcrumbs": Array [],
+            {
+              "breadcrumbs": [],
               "key": "my-project",
               "name": "MyProject",
               "qualifier": "TRK",
-              "qualityGate": Object {
+              "qualityGate": {
                 "isDefault": true,
                 "key": "30",
                 "name": "Sonar way",
               },
-              "qualityProfiles": Array [
-                Object {
+              "qualityProfiles": [
+                {
                   "deleted": false,
                   "key": "my-qp",
                   "language": "ts",
                   "name": "Sonar way",
                 },
               ],
-              "tags": Array [],
+              "tags": [],
             }
           }
           level="OK"
         />
         <withCurrentUserContext(SonarLintPromotion)
-          qgConditions={Array []}
+          qgConditions={[]}
         />
       </div>
       <div
@@ -1448,7 +1448,7 @@ exports[`should render correctly for a passed QG 1`] = `
             >
               <Memo(IssueLabel)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -1458,83 +1458,83 @@ exports[`should render correctly for a passed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -1552,7 +1552,7 @@ exports[`should render correctly for a passed QG 1`] = `
             >
               <Memo(IssueRating)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -1562,83 +1562,83 @@ exports[`should render correctly for a passed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -1661,7 +1661,7 @@ exports[`should render correctly for a passed QG 1`] = `
             >
               <Memo(IssueLabel)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -1671,83 +1671,83 @@ exports[`should render correctly for a passed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -1765,7 +1765,7 @@ exports[`should render correctly for a passed QG 1`] = `
             >
               <Memo(IssueRating)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -1775,83 +1775,83 @@ exports[`should render correctly for a passed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -1874,7 +1874,7 @@ exports[`should render correctly for a passed QG 1`] = `
             >
               <Memo(IssueLabel)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -1884,83 +1884,83 @@ exports[`should render correctly for a passed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -1978,7 +1978,7 @@ exports[`should render correctly for a passed QG 1`] = `
             >
               <Memo(IssueRating)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -1988,83 +1988,83 @@ exports[`should render correctly for a passed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -2087,7 +2087,7 @@ exports[`should render correctly for a passed QG 1`] = `
             >
               <Memo(IssueLabel)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -2097,83 +2097,83 @@ exports[`should render correctly for a passed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -2191,7 +2191,7 @@ exports[`should render correctly for a passed QG 1`] = `
             >
               <Memo(IssueRating)
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -2201,83 +2201,83 @@ exports[`should render correctly for a passed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -2300,7 +2300,7 @@ exports[`should render correctly for a passed QG 1`] = `
             >
               <MeasurementLabel
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -2310,83 +2310,83 @@ exports[`should render correctly for a passed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -2402,61 +2402,61 @@ exports[`should render correctly for a passed QG 1`] = `
             <Memo(AfterMergeEstimate)
               className="overview-panel-big-padded overview-measures-aside text-right overview-measures-emphasis"
               measures={
-                Array [
-                  Object {
+                [
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_bugs",
                       "key": "new_bugs",
                       "name": "new_bugs",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_vulnerabilities",
                       "key": "new_vulnerabilities",
                       "name": "new_vulnerabilities",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_code_smells",
                       "key": "new_code_smells",
                       "name": "new_code_smells",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_security_hotspots",
                       "key": "new_security_hotspots",
                       "name": "new_security_hotspots",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
@@ -2477,7 +2477,7 @@ exports[`should render correctly for a passed QG 1`] = `
             >
               <MeasurementLabel
                 branchLike={
-                  Object {
+                  {
                     "analysisDate": "2018-01-01",
                     "base": "master",
                     "branch": "feature/foo/bar",
@@ -2487,83 +2487,83 @@ exports[`should render correctly for a passed QG 1`] = `
                   }
                 }
                 component={
-                  Object {
-                    "breadcrumbs": Array [],
+                  {
+                    "breadcrumbs": [],
                     "key": "my-project",
                     "name": "MyProject",
                     "qualifier": "TRK",
-                    "qualityGate": Object {
+                    "qualityGate": {
                       "isDefault": true,
                       "key": "30",
                       "name": "Sonar way",
                     },
-                    "qualityProfiles": Array [
-                      Object {
+                    "qualityProfiles": [
+                      {
                         "deleted": false,
                         "key": "my-qp",
                         "language": "ts",
                         "name": "Sonar way",
                       },
                     ],
-                    "tags": Array [],
+                    "tags": [],
                   }
                 }
                 measures={
-                  Array [
-                    Object {
+                  [
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_bugs",
                         "key": "new_bugs",
                         "name": "new_bugs",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_vulnerabilities",
                         "key": "new_vulnerabilities",
                         "name": "new_vulnerabilities",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_code_smells",
                         "key": "new_code_smells",
                         "name": "new_code_smells",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
                       },
                       "value": "1.0",
                     },
-                    Object {
+                    {
                       "bestValue": true,
-                      "metric": Object {
+                      "metric": {
                         "id": "new_security_hotspots",
                         "key": "new_security_hotspots",
                         "name": "new_security_hotspots",
                         "type": "PERCENT",
                       },
-                      "period": Object {
+                      "period": {
                         "bestValue": true,
                         "index": 1,
                         "value": "1.0",
@@ -2579,61 +2579,61 @@ exports[`should render correctly for a passed QG 1`] = `
             <Memo(AfterMergeEstimate)
               className="overview-panel-big-padded overview-measures-aside text-right overview-measures-emphasis"
               measures={
-                Array [
-                  Object {
+                [
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_bugs",
                       "key": "new_bugs",
                       "name": "new_bugs",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_vulnerabilities",
                       "key": "new_vulnerabilities",
                       "name": "new_vulnerabilities",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_code_smells",
                       "key": "new_code_smells",
                       "name": "new_code_smells",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
                     },
                     "value": "1.0",
                   },
-                  Object {
+                  {
                     "bestValue": true,
-                    "metric": Object {
+                    "metric": {
                       "id": "new_security_hotspots",
                       "key": "new_security_hotspots",
                       "name": "new_security_hotspots",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",

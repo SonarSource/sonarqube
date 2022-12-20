@@ -15,7 +15,7 @@ exports[`should render correctly 1`] = `
   </li>
   <Memo(MenuItem)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -23,25 +23,25 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     key="branch-master"
@@ -60,7 +60,7 @@ exports[`should render correctly 1`] = `
   </li>
   <Memo(MenuItem)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "base": "master",
         "branch": "feature/foo/bar",
@@ -70,25 +70,25 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     indent={true}
@@ -99,7 +99,7 @@ exports[`should render correctly 1`] = `
   />
   <Memo(MenuItem)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "base": "master",
         "branch": "feature/foo/bar",
@@ -109,25 +109,25 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     indent={true}
@@ -139,7 +139,7 @@ exports[`should render correctly 1`] = `
   <hr />
   <Memo(MenuItem)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": false,
@@ -147,25 +147,25 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     key="branch-branch-1"
@@ -176,7 +176,7 @@ exports[`should render correctly 1`] = `
   <hr />
   <Memo(MenuItem)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": false,
@@ -184,25 +184,25 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     key="branch-branch-11"
@@ -213,7 +213,7 @@ exports[`should render correctly 1`] = `
   <hr />
   <Memo(MenuItem)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": false,
@@ -221,25 +221,25 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     key="branch-branch-12"
@@ -250,7 +250,7 @@ exports[`should render correctly 1`] = `
   <hr />
   <Memo(MenuItem)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": false,
@@ -258,25 +258,25 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     key="branch-branch-2"
@@ -287,7 +287,7 @@ exports[`should render correctly 1`] = `
   <hr />
   <Memo(MenuItem)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": false,
@@ -295,25 +295,25 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     key="branch-branch-3"
@@ -329,7 +329,7 @@ exports[`should render correctly 1`] = `
   </li>
   <Memo(MenuItem)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "base": "not-in-the-list",
         "branch": "feature/foo/bar",
@@ -339,25 +339,25 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     key="pull-request-1001"
@@ -376,7 +376,7 @@ exports[`should render correctly 1`] = `
   </li>
   <Memo(MenuItem)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "base": "master",
         "branch": "feature/foo/bar",
@@ -387,25 +387,25 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     key="pull-request-2"

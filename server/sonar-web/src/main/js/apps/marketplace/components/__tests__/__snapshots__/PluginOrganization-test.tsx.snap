@@ -8,7 +8,7 @@ exports[`should render correctly 1`] = `
     defaultMessage="marketplace.developed_by_x"
     id="marketplace.developed_by_x"
     values={
-      Object {
+      {
         "organization": <a
           className="js-plugin-organization"
           href="org_url"

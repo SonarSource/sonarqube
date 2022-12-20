@@ -9,7 +9,7 @@ exports[`renders favorite 1`] = `
     onClick={[MockFunction]}
     onFocus={[Function]}
     to={
-      Object {
+      {
         "pathname": "/dashboard",
         "search": "?id=foo",
       }
@@ -59,7 +59,7 @@ exports[`renders match 1`] = `
     onClick={[MockFunction]}
     onFocus={[Function]}
     to={
-      Object {
+      {
         "pathname": "/dashboard",
         "search": "?id=foo",
       }
@@ -83,7 +83,7 @@ exports[`renders match 1`] = `
         <span
           className="navbar-search-item-match"
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "f<mark>o</mark>o",
             }
           }
@@ -108,7 +108,7 @@ exports[`renders recently browsed 1`] = `
     onClick={[MockFunction]}
     onFocus={[Function]}
     to={
-      Object {
+      {
         "pathname": "/dashboard",
         "search": "?id=foo",
       }
@@ -157,7 +157,7 @@ exports[`renders selected 1`] = `
     onClick={[MockFunction]}
     onFocus={[Function]}
     to={
-      Object {
+      {
         "pathname": "/dashboard",
         "search": "?id=foo",
       }
@@ -204,7 +204,7 @@ exports[`renders selected 2`] = `
     onClick={[MockFunction]}
     onFocus={[Function]}
     to={
-      Object {
+      {
         "pathname": "/dashboard",
         "search": "?id=foo",
       }

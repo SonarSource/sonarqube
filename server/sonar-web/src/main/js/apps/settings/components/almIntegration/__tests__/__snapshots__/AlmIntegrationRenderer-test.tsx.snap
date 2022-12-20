@@ -20,8 +20,8 @@ exports[`should render correctly: azure 1`] = `
     onSelect={[MockFunction]}
     selected="azure"
     tabs={
-      Array [
-        Object {
+      [
+        {
           "key": "github",
           "label": <React.Fragment>
             <img
@@ -33,7 +33,7 @@ exports[`should render correctly: azure 1`] = `
             GitHub
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "bitbucket",
           "label": <React.Fragment>
             <img
@@ -45,7 +45,7 @@ exports[`should render correctly: azure 1`] = `
             Bitbucket
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "azure",
           "label": <React.Fragment>
             <img
@@ -57,7 +57,7 @@ exports[`should render correctly: azure 1`] = `
             Azure DevOps
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "gitlab",
           "label": <React.Fragment>
             <img
@@ -75,8 +75,8 @@ exports[`should render correctly: azure 1`] = `
   <AlmTab
     almTab="azure"
     branchesEnabled={true}
-    definitionStatus={Object {}}
-    definitions={Array []}
+    definitionStatus={{}}
+    definitions={[]}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={false}
@@ -107,8 +107,8 @@ exports[`should render correctly: bitbucket 1`] = `
     onSelect={[MockFunction]}
     selected="bitbucket"
     tabs={
-      Array [
-        Object {
+      [
+        {
           "key": "github",
           "label": <React.Fragment>
             <img
@@ -120,7 +120,7 @@ exports[`should render correctly: bitbucket 1`] = `
             GitHub
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "bitbucket",
           "label": <React.Fragment>
             <img
@@ -132,7 +132,7 @@ exports[`should render correctly: bitbucket 1`] = `
             Bitbucket
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "azure",
           "label": <React.Fragment>
             <img
@@ -144,7 +144,7 @@ exports[`should render correctly: bitbucket 1`] = `
             Azure DevOps
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "gitlab",
           "label": <React.Fragment>
             <img
@@ -162,8 +162,8 @@ exports[`should render correctly: bitbucket 1`] = `
   <AlmTab
     almTab="bitbucket"
     branchesEnabled={true}
-    definitionStatus={Object {}}
-    definitions={Array []}
+    definitionStatus={{}}
+    definitions={[]}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={false}
@@ -194,8 +194,8 @@ exports[`should render correctly: default 1`] = `
     onSelect={[MockFunction]}
     selected="github"
     tabs={
-      Array [
-        Object {
+      [
+        {
           "key": "github",
           "label": <React.Fragment>
             <img
@@ -207,7 +207,7 @@ exports[`should render correctly: default 1`] = `
             GitHub
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "bitbucket",
           "label": <React.Fragment>
             <img
@@ -219,7 +219,7 @@ exports[`should render correctly: default 1`] = `
             Bitbucket
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "azure",
           "label": <React.Fragment>
             <img
@@ -231,7 +231,7 @@ exports[`should render correctly: default 1`] = `
             Azure DevOps
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "gitlab",
           "label": <React.Fragment>
             <img
@@ -249,8 +249,8 @@ exports[`should render correctly: default 1`] = `
   <AlmTab
     almTab="github"
     branchesEnabled={true}
-    definitionStatus={Object {}}
-    definitions={Array []}
+    definitionStatus={{}}
+    definitions={[]}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={false}
@@ -281,8 +281,8 @@ exports[`should render correctly: delete modal 1`] = `
     onSelect={[MockFunction]}
     selected="github"
     tabs={
-      Array [
-        Object {
+      [
+        {
           "key": "github",
           "label": <React.Fragment>
             <img
@@ -294,7 +294,7 @@ exports[`should render correctly: delete modal 1`] = `
             GitHub
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "bitbucket",
           "label": <React.Fragment>
             <img
@@ -306,7 +306,7 @@ exports[`should render correctly: delete modal 1`] = `
             Bitbucket
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "azure",
           "label": <React.Fragment>
             <img
@@ -318,7 +318,7 @@ exports[`should render correctly: delete modal 1`] = `
             Azure DevOps
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "gitlab",
           "label": <React.Fragment>
             <img
@@ -336,8 +336,8 @@ exports[`should render correctly: delete modal 1`] = `
   <AlmTab
     almTab="github"
     branchesEnabled={true}
-    definitionStatus={Object {}}
-    definitions={Array []}
+    definitionStatus={{}}
+    definitions={[]}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={false}
@@ -373,8 +373,8 @@ exports[`should render correctly: gitlab 1`] = `
     onSelect={[MockFunction]}
     selected="gitlab"
     tabs={
-      Array [
-        Object {
+      [
+        {
           "key": "github",
           "label": <React.Fragment>
             <img
@@ -386,7 +386,7 @@ exports[`should render correctly: gitlab 1`] = `
             GitHub
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "bitbucket",
           "label": <React.Fragment>
             <img
@@ -398,7 +398,7 @@ exports[`should render correctly: gitlab 1`] = `
             Bitbucket
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "azure",
           "label": <React.Fragment>
             <img
@@ -410,7 +410,7 @@ exports[`should render correctly: gitlab 1`] = `
             Azure DevOps
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "gitlab",
           "label": <React.Fragment>
             <img
@@ -428,8 +428,8 @@ exports[`should render correctly: gitlab 1`] = `
   <AlmTab
     almTab="gitlab"
     branchesEnabled={true}
-    definitionStatus={Object {}}
-    definitions={Array []}
+    definitionStatus={{}}
+    definitions={[]}
     loadingAlmDefinitions={false}
     loadingProjectCount={false}
     multipleAlmEnabled={false}
@@ -460,8 +460,8 @@ exports[`should render correctly: loading 1`] = `
     onSelect={[MockFunction]}
     selected="github"
     tabs={
-      Array [
-        Object {
+      [
+        {
           "key": "github",
           "label": <React.Fragment>
             <img
@@ -473,7 +473,7 @@ exports[`should render correctly: loading 1`] = `
             GitHub
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "bitbucket",
           "label": <React.Fragment>
             <img
@@ -485,7 +485,7 @@ exports[`should render correctly: loading 1`] = `
             Bitbucket
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "azure",
           "label": <React.Fragment>
             <img
@@ -497,7 +497,7 @@ exports[`should render correctly: loading 1`] = `
             Azure DevOps
           </React.Fragment>,
         },
-        Object {
+        {
           "key": "gitlab",
           "label": <React.Fragment>
             <img
@@ -515,8 +515,8 @@ exports[`should render correctly: loading 1`] = `
   <AlmTab
     almTab="github"
     branchesEnabled={true}
-    definitionStatus={Object {}}
-    definitions={Array []}
+    definitionStatus={{}}
+    definitions={[]}
     loadingAlmDefinitions={true}
     loadingProjectCount={true}
     multipleAlmEnabled={false}

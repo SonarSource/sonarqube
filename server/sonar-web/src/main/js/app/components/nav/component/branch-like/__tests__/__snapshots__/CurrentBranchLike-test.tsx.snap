@@ -6,7 +6,7 @@ exports[`applications should render correctly when there are many branchlikes 1`
 >
   <BranchLikeIcon
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -31,7 +31,7 @@ exports[`applications should render correctly when there is only one branch and 
 >
   <BranchLikeIcon
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -55,7 +55,7 @@ exports[`applications should render correctly when there is only one branch and 
 >
   <BranchLikeIcon
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -81,7 +81,7 @@ exports[`applications should render correctly when there is only one branch and 
         />
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/project/admin/extension/developer-server/application-console",
               "search": "?id=my-project",
             }
@@ -106,7 +106,7 @@ exports[`projects should render correctly when branches support is disabled: alm
 >
   <BranchLikeIcon
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -125,8 +125,8 @@ exports[`projects should render correctly when branches support is disabled: alm
     content="branch_like_navigation.no_branch_support.content_x.mr.alm.gitlab"
     data-test="branches-support-disabled"
     links={
-      Array [
-        Object {
+      [
+        {
           "doc": false,
           "href": "https://redirect.sonarsource.com/editions/developer.html",
           "label": "learn_more",
@@ -149,7 +149,7 @@ exports[`projects should render correctly when branches support is disabled: alm
 >
   <BranchLikeIcon
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -168,8 +168,8 @@ exports[`projects should render correctly when branches support is disabled: alm
     content="branch_like_navigation.no_branch_support.content_x.pr.alm.github"
     data-test="branches-support-disabled"
     links={
-      Array [
-        Object {
+      [
+        {
           "doc": false,
           "href": "https://redirect.sonarsource.com/editions/developer.html",
           "label": "learn_more",
@@ -192,7 +192,7 @@ exports[`projects should render correctly when branches support is disabled: def
 >
   <BranchLikeIcon
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -211,8 +211,8 @@ exports[`projects should render correctly when branches support is disabled: def
     content="branch_like_navigation.no_branch_support.content"
     data-test="branches-support-disabled"
     links={
-      Array [
-        Object {
+      [
+        {
           "doc": false,
           "href": "https://redirect.sonarsource.com/editions/developer.html",
           "label": "learn_more",
@@ -235,7 +235,7 @@ exports[`projects should render correctly when there are many branchlikes 1`] = 
 >
   <BranchLikeIcon
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -260,7 +260,7 @@ exports[`projects should render correctly when there is only one branchlike 1`] 
 >
   <BranchLikeIcon
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -279,16 +279,16 @@ exports[`projects should render correctly when there is only one branchlike 1`] 
     content="branch_like_navigation.only_one_branch.content"
     data-test="only-one-branch-like"
     links={
-      Array [
-        Object {
+      [
+        {
           "href": "/analyzing-source-code/branches/branch-analysis/",
           "label": "branch_like_navigation.only_one_branch.documentation",
         },
-        Object {
+        {
           "href": "/analyzing-source-code/pull-request-analysis",
           "label": "branch_like_navigation.only_one_branch.pr_analysis",
         },
-        Object {
+        {
           "doc": false,
           "href": "/tutorials?id=my-project",
           "inPlace": true,

@@ -13,15 +13,15 @@ exports[`should render correctly: editing 1`] = `
       <AssigneeSelection
         allowCurrentUserSelection={false}
         loggedInUser={
-          Object {
-            "dismissedNotices": Object {
+          {
+            "dismissedNotices": {
               "educationPrinciples": false,
             },
-            "groups": Array [],
+            "groups": [],
             "isLoggedIn": true,
             "login": "luke",
             "name": "Skywalker",
-            "scmAccounts": Array [],
+            "scmAccounts": [],
           }
         }
         onSelect={[MockFunction]}

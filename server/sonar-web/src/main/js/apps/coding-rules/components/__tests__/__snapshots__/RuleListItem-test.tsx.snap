@@ -42,9 +42,9 @@ exports[`renderActions should render the activate button 1`] = `
     modalHeader="coding_rules.activate_in_quality_profile"
     onDone={[Function]}
     profiles={
-      Array [
-        Object {
-          "actions": Object {
+      [
+        {
+          "actions": {
             "edit": true,
           },
           "activeDeprecatedRuleCount": 2,
@@ -63,7 +63,7 @@ exports[`renderActions should render the activate button 1`] = `
       ]
     }
     rule={
-      Object {
+      {
         "isTemplate": false,
         "key": "javascript:S1067",
         "lang": "js",
@@ -71,11 +71,11 @@ exports[`renderActions should render the activate button 1`] = `
         "name": "Use foo",
         "severity": "MAJOR",
         "status": "READY",
-        "sysTags": Array [
+        "sysTags": [
           "a",
           "b",
         ],
-        "tags": Array [
+        "tags": [
           "x",
         ],
         "type": "CODE_SMELL",
@@ -120,7 +120,7 @@ exports[`should render correctly: default 1`] = `
               className="link-no-underline"
               onClick={[Function]}
               to={
-                Object {
+                {
                   "pathname": "/coding_rules",
                   "search": "?open=javascript%3AS1067&rule_key=javascript%3AS1067",
                 }
@@ -161,7 +161,7 @@ exports[`should render correctly: default 1`] = `
               allowUpdate={false}
               className="display-inline-flex-center note spacer-left"
               tags={
-                Array [
+                [
                   "x",
                   "a",
                   "b",
@@ -171,18 +171,18 @@ exports[`should render correctly: default 1`] = `
             <SimilarRulesFilter
               onFilterChange={[MockFunction]}
               rule={
-                Object {
+                {
                   "key": "javascript:S1067",
                   "lang": "js",
                   "langName": "JavaScript",
                   "name": "Use foo",
                   "severity": "MAJOR",
                   "status": "READY",
-                  "sysTags": Array [
+                  "sysTags": [
                     "a",
                     "b",
                   ],
-                  "tags": Array [
+                  "tags": [
                     "x",
                   ],
                   "type": "CODE_SMELL",
@@ -217,7 +217,7 @@ exports[`should render correctly: with activation 1`] = `
               className="link-no-underline"
               onClick={[Function]}
               to={
-                Object {
+                {
                   "pathname": "/coding_rules",
                   "search": "?open=javascript%3AS1067&rule_key=javascript%3AS1067",
                 }
@@ -258,7 +258,7 @@ exports[`should render correctly: with activation 1`] = `
               allowUpdate={false}
               className="display-inline-flex-center note spacer-left"
               tags={
-                Array [
+                [
                   "x",
                   "a",
                   "b",
@@ -268,18 +268,18 @@ exports[`should render correctly: with activation 1`] = `
             <SimilarRulesFilter
               onFilterChange={[MockFunction]}
               rule={
-                Object {
+                {
                   "key": "javascript:S1067",
                   "lang": "js",
                   "langName": "JavaScript",
                   "name": "Use foo",
                   "severity": "MAJOR",
                   "status": "READY",
-                  "sysTags": Array [
+                  "sysTags": [
                     "a",
                     "b",
                   ],
-                  "tags": Array [
+                  "tags": [
                     "x",
                   ],
                   "type": "CODE_SMELL",

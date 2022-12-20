@@ -6,5 +6,5 @@
       "*": ["./src/main/js/@types/*"]
     }
   },
-  "include": ["./src/main/js/**/*"]
+  "include": ["./src/main/js/**/*"],
 }

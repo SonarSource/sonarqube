@@ -4,7 +4,7 @@ exports[`should render correctly 1`] = `
 <nav
   className="navbar"
   style={
-    Object {
+    {
       "height": 42,
       "top": undefined,
     }
@@ -13,7 +13,7 @@ exports[`should render correctly 1`] = `
   <div
     className="navbar-inner"
     style={
-      Object {
+      {
         "height": 42,
         "left": 0,
       }
@@ -34,7 +34,7 @@ exports[`should render correctly with notif and not limited 1`] = `
 <nav
   className="navbar"
   style={
-    Object {
+    {
       "height": 42,
       "top": undefined,
     }
@@ -43,7 +43,7 @@ exports[`should render correctly with notif and not limited 1`] = `
   <div
     className="navbar-inner navbar-inner-with-notif"
     style={
-      Object {
+      {
         "height": 42,
         "left": 0,
       }

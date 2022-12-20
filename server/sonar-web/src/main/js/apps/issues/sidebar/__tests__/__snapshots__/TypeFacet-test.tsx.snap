@@ -11,7 +11,7 @@ exports[`should render open by default 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "issue.type.VULNERABILITY",
         "issue.type.CODE_SMELL",
       ]

@@ -4,25 +4,25 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <DefaultProjectKey
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -35,7 +35,7 @@ exports[`should render correctly 1`] = `
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh \\"\${scannerHome}/bin/sonar-scanner\\"
+      sh "\${scannerHome}/bin/sonar-scanner"
     }
   }
 }"

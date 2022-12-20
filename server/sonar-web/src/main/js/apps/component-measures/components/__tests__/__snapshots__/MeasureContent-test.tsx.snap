@@ -22,10 +22,10 @@ exports[`should render correctly for a file 1`] = `
               backToFirst={true}
               className="text-ellipsis flex-1"
               component={
-                Object {
+                {
                   "key": "foo:src/index.tsx",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "1",
@@ -38,10 +38,10 @@ exports[`should render correctly for a file 1`] = `
               }
               handleSelect={[Function]}
               rootComponent={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -67,10 +67,10 @@ exports[`should render correctly for a file 1`] = `
   >
     <MeasureHeader
       component={
-        Object {
+        {
           "key": "foo:src/index.tsx",
-          "measures": Array [
-            Object {
+          "measures": [
+            {
               "bestValue": false,
               "metric": "bugs",
               "value": "1",
@@ -83,7 +83,7 @@ exports[`should render correctly for a file 1`] = `
       }
       measureValue="12"
       metric={
-        Object {
+        {
           "direction": 1,
           "domain": "Reliability",
           "id": "1",
@@ -131,10 +131,10 @@ exports[`should render correctly for a project 1`] = `
               backToFirst={true}
               className="text-ellipsis flex-1"
               component={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -146,10 +146,10 @@ exports[`should render correctly for a project 1`] = `
               }
               handleSelect={[Function]}
               rootComponent={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -175,7 +175,7 @@ exports[`should render correctly for a project 1`] = `
                   className="measure-view-select spacer-left big-spacer-right"
                   handleViewChange={[Function]}
                   metric={
-                    Object {
+                    {
                       "bestValue": "0",
                       "custom": false,
                       "description": "Bugs",
@@ -208,10 +208,10 @@ exports[`should render correctly for a project 1`] = `
   >
     <MeasureHeader
       component={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [
-            Object {
+          "measures": [
+            {
               "bestValue": false,
               "metric": "bugs",
               "value": "12",
@@ -223,7 +223,7 @@ exports[`should render correctly for a project 1`] = `
       }
       measureValue="12"
       metric={
-        Object {
+        {
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
@@ -240,15 +240,15 @@ exports[`should render correctly for a project 1`] = `
     />
     <FilesView
       components={
-        Array [
-          Object {
+        [
+          {
             "key": "foo:src/index.tsx",
             "leak": undefined,
-            "measures": Array [
-              Object {
+            "measures": [
+              {
                 "bestValue": false,
                 "leak": undefined,
-                "metric": Object {
+                "metric": {
                   "domain": "Reliability",
                   "id": "1",
                   "key": "bugs",
@@ -271,7 +271,7 @@ exports[`should render correctly for a project 1`] = `
       handleSelect={[Function]}
       loadingMore={false}
       metric={
-        Object {
+        {
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
@@ -286,8 +286,8 @@ exports[`should render correctly for a project 1`] = `
         }
       }
       metrics={
-        Object {
-          "bugs": Object {
+        {
+          "bugs": {
             "domain": "Reliability",
             "id": "1",
             "key": "bugs",
@@ -297,17 +297,17 @@ exports[`should render correctly for a project 1`] = `
         }
       }
       paging={
-        Object {
+        {
           "pageIndex": 1,
           "pageSize": 500,
           "total": 2,
         }
       }
       rootComponent={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [
-            Object {
+          "measures": [
+            {
               "bestValue": false,
               "metric": "bugs",
               "value": "12",
@@ -345,10 +345,10 @@ exports[`should render correctly when asc prop is defined 1`] = `
               backToFirst={true}
               className="text-ellipsis flex-1"
               component={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -360,10 +360,10 @@ exports[`should render correctly when asc prop is defined 1`] = `
               }
               handleSelect={[Function]}
               rootComponent={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -389,7 +389,7 @@ exports[`should render correctly when asc prop is defined 1`] = `
                   className="measure-view-select spacer-left big-spacer-right"
                   handleViewChange={[Function]}
                   metric={
-                    Object {
+                    {
                       "bestValue": "0",
                       "custom": false,
                       "description": "Bugs",
@@ -422,10 +422,10 @@ exports[`should render correctly when asc prop is defined 1`] = `
   >
     <MeasureHeader
       component={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [
-            Object {
+          "measures": [
+            {
               "bestValue": false,
               "metric": "bugs",
               "value": "12",
@@ -437,7 +437,7 @@ exports[`should render correctly when asc prop is defined 1`] = `
       }
       measureValue="12"
       metric={
-        Object {
+        {
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
@@ -454,15 +454,15 @@ exports[`should render correctly when asc prop is defined 1`] = `
     />
     <FilesView
       components={
-        Array [
-          Object {
+        [
+          {
             "key": "foo:src/index.tsx",
             "leak": undefined,
-            "measures": Array [
-              Object {
+            "measures": [
+              {
                 "bestValue": false,
                 "leak": undefined,
-                "metric": Object {
+                "metric": {
                   "domain": "Reliability",
                   "id": "1",
                   "key": "bugs",
@@ -485,7 +485,7 @@ exports[`should render correctly when asc prop is defined 1`] = `
       handleSelect={[Function]}
       loadingMore={false}
       metric={
-        Object {
+        {
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
@@ -500,8 +500,8 @@ exports[`should render correctly when asc prop is defined 1`] = `
         }
       }
       metrics={
-        Object {
-          "bugs": Object {
+        {
+          "bugs": {
             "domain": "Reliability",
             "id": "1",
             "key": "bugs",
@@ -511,17 +511,17 @@ exports[`should render correctly when asc prop is defined 1`] = `
         }
       }
       paging={
-        Object {
+        {
           "pageIndex": 1,
           "pageSize": 500,
           "total": 2,
         }
       }
       rootComponent={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [
-            Object {
+          "measures": [
+            {
               "bestValue": false,
               "metric": "bugs",
               "value": "12",
@@ -559,10 +559,10 @@ exports[`should render correctly when view prop is tree 1`] = `
               backToFirst={false}
               className="text-ellipsis flex-1"
               component={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -574,10 +574,10 @@ exports[`should render correctly when view prop is tree 1`] = `
               }
               handleSelect={[Function]}
               rootComponent={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -603,7 +603,7 @@ exports[`should render correctly when view prop is tree 1`] = `
                   className="measure-view-select spacer-left big-spacer-right"
                   handleViewChange={[Function]}
                   metric={
-                    Object {
+                    {
                       "bestValue": "0",
                       "custom": false,
                       "description": "Bugs",
@@ -636,10 +636,10 @@ exports[`should render correctly when view prop is tree 1`] = `
   >
     <MeasureHeader
       component={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [
-            Object {
+          "measures": [
+            {
               "bestValue": false,
               "metric": "bugs",
               "value": "12",
@@ -651,7 +651,7 @@ exports[`should render correctly when view prop is tree 1`] = `
       }
       measureValue="12"
       metric={
-        Object {
+        {
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
@@ -668,15 +668,15 @@ exports[`should render correctly when view prop is tree 1`] = `
     />
     <FilesView
       components={
-        Array [
-          Object {
+        [
+          {
             "key": "foo:src/index.tsx",
             "leak": undefined,
-            "measures": Array [
-              Object {
+            "measures": [
+              {
                 "bestValue": false,
                 "leak": undefined,
-                "metric": Object {
+                "metric": {
                   "domain": "Reliability",
                   "id": "1",
                   "key": "bugs",
@@ -699,7 +699,7 @@ exports[`should render correctly when view prop is tree 1`] = `
       handleSelect={[Function]}
       loadingMore={false}
       metric={
-        Object {
+        {
           "bestValue": "0",
           "custom": false,
           "description": "Bugs",
@@ -714,8 +714,8 @@ exports[`should render correctly when view prop is tree 1`] = `
         }
       }
       metrics={
-        Object {
-          "bugs": Object {
+        {
+          "bugs": {
             "domain": "Reliability",
             "id": "1",
             "key": "bugs",
@@ -725,17 +725,17 @@ exports[`should render correctly when view prop is tree 1`] = `
         }
       }
       paging={
-        Object {
+        {
           "pageIndex": 1,
           "pageSize": 500,
           "total": 2,
         }
       }
       rootComponent={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [
-            Object {
+          "measures": [
+            {
               "bestValue": false,
               "metric": "bugs",
               "value": "12",
@@ -773,10 +773,10 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
               backToFirst={true}
               className="text-ellipsis flex-1"
               component={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -788,10 +788,10 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
               }
               handleSelect={[Function]}
               rootComponent={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -817,7 +817,7 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
                   className="measure-view-select spacer-left big-spacer-right"
                   handleViewChange={[Function]}
                   metric={
-                    Object {
+                    {
                       "direction": 1,
                       "domain": "Reliability",
                       "id": "1",
@@ -845,10 +845,10 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
   >
     <MeasureHeader
       component={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [
-            Object {
+          "measures": [
+            {
               "bestValue": false,
               "metric": "bugs",
               "value": "12",
@@ -860,7 +860,7 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
       }
       measureValue="12"
       metric={
-        Object {
+        {
           "direction": 1,
           "domain": "Reliability",
           "id": "1",
@@ -871,14 +871,14 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
       }
     />
     <FilesView
-      components={Array []}
+      components={[]}
       defaultShowBestMeasures={false}
       fetchMore={[Function]}
       handleOpen={[Function]}
       handleSelect={[Function]}
       loadingMore={true}
       metric={
-        Object {
+        {
           "direction": 1,
           "domain": "Reliability",
           "id": "1",
@@ -888,8 +888,8 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
         }
       }
       metrics={
-        Object {
-          "bugs": Object {
+        {
+          "bugs": {
             "direction": 1,
             "domain": "Reliability",
             "id": "1",
@@ -900,17 +900,17 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
         }
       }
       paging={
-        Object {
+        {
           "pageIndex": 12,
           "pageSize": 500,
           "total": 0,
         }
       }
       rootComponent={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [
-            Object {
+          "measures": [
+            {
               "bestValue": false,
               "metric": "bugs",
               "value": "12",

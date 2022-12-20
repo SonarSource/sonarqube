@@ -1,27 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`handles favorite projects 1`] = `
-Array [
-  Object {
+[
+  {
     "key": "foo",
-    "measures": Object {},
+    "measures": {},
     "name": "Foo",
     "qualifier": "TRK",
-    "tags": Array [],
+    "tags": [],
     "visibility": "public",
   },
 ]
 `;
 
 exports[`handles favorite projects 2`] = `
-Array [
-  Object {
+[
+  {
     "isFavorite": true,
     "key": "foo",
-    "measures": Object {},
+    "measures": {},
     "name": "Foo",
     "qualifier": "TRK",
-    "tags": Array [],
+    "tags": [],
     "visibility": "public",
   },
 ]
@@ -76,8 +76,8 @@ exports[`renders 1`] = `
           >
             <PageHeader
               currentUser={
-                Object {
-                  "dismissedNotices": Object {},
+                {
+                  "dismissedNotices": {},
                   "isLoggedIn": true,
                 }
               }
@@ -86,7 +86,7 @@ exports[`renders 1`] = `
               onQueryChange={[Function]}
               onSortChange={[Function]}
               query={
-                Object {
+                {
                   "coverage": undefined,
                   "duplications": undefined,
                   "gate": undefined,
@@ -123,8 +123,8 @@ exports[`renders 1`] = `
         <ProjectsList
           cardType="overall"
           currentUser={
-            Object {
-              "dismissedNotices": Object {},
+            {
+              "dismissedNotices": {},
               "isLoggedIn": true,
             }
           }
@@ -132,19 +132,19 @@ exports[`renders 1`] = `
           isFavorite={false}
           isFiltered={false}
           projects={
-            Array [
-              Object {
+            [
+              {
                 "key": "foo",
-                "measures": Object {},
+                "measures": {},
                 "name": "Foo",
                 "qualifier": "TRK",
-                "tags": Array [],
+                "tags": [],
                 "visibility": "public",
               },
             ]
           }
           query={
-            Object {
+            {
               "coverage": undefined,
               "duplications": undefined,
               "gate": undefined,

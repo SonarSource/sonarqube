@@ -12,12 +12,12 @@ exports[`should render correctly 1`] = `
     title="permission_templates.page"
   />
   <Home
-    permissionTemplates={Array []}
-    permissions={Array []}
+    permissionTemplates={[]}
+    permissions={[]}
     ready={false}
     refresh={[Function]}
     topQualifiers={
-      Array [
+      [
         "TRK",
       ]
     }
@@ -38,17 +38,17 @@ exports[`should render correctly 2`] = `
   />
   <Home
     permissionTemplates={
-      Array [
-        Object {
+      [
+        {
           "createdAt": "2019-02-07T17:23:26+0100",
-          "defaultFor": Array [
+          "defaultFor": [
             "TRK",
           ],
           "description": "Default permission template",
           "id": "1",
           "name": "Default template",
-          "permissions": Array [
-            Object {
+          "permissions": [
+            {
               "description": "Code viewer permission",
               "groupsCount": 1,
               "key": "codeviewer",
@@ -56,7 +56,7 @@ exports[`should render correctly 2`] = `
               "usersCount": 0,
               "withProjectCreator": false,
             },
-            Object {
+            {
               "description": "Admin permission",
               "groupsCount": 1,
               "key": "admin",
@@ -70,13 +70,13 @@ exports[`should render correctly 2`] = `
       ]
     }
     permissions={
-      Array [
-        Object {
+      [
+        {
           "description": "Code viewer permission",
           "key": "codeviewer",
           "name": "See Source Code",
         },
-        Object {
+        {
           "description": "Admin permission",
           "key": "admin",
           "name": "Administer",
@@ -86,7 +86,7 @@ exports[`should render correctly 2`] = `
     ready={true}
     refresh={[Function]}
     topQualifiers={
-      Array [
+      [
         "TRK",
       ]
     }

@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should open the right popups when the buttons are clicked 1`] = `
-Object {
+{
   "openPopup": "edit",
 }
 `;
 
 exports[`should open the right popups when the buttons are clicked 2`] = `
-Object {
+{
   "openPopup": "delete",
 }
 `;
@@ -31,7 +31,7 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
   <div
     className="issue-comment-text markdown"
     dangerouslySetInnerHTML={
-      Object {
+      {
         "__html": "<b>test</b>",
       }
     }
@@ -61,7 +61,7 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
         overlay={
           <CommentPopup
             comment={
-              Object {
+              {
                 "author": "john.doe",
                 "authorActive": true,
                 "authorAvatar": "gravatarhash",
@@ -129,7 +129,7 @@ exports[`should render correctly a comment that is not updatable 1`] = `
   <div
     className="issue-comment-text markdown"
     dangerouslySetInnerHTML={
-      Object {
+      {
         "__html": "<b>test</b>",
       }
     }
@@ -171,7 +171,7 @@ exports[`should render correctly a comment that is updatable 1`] = `
   <div
     className="issue-comment-text markdown"
     dangerouslySetInnerHTML={
-      Object {
+      {
         "__html": "<b>test</b>",
       }
     }
@@ -201,7 +201,7 @@ exports[`should render correctly a comment that is updatable 1`] = `
         overlay={
           <CommentPopup
             comment={
-              Object {
+              {
                 "author": "john.doe",
                 "authorActive": true,
                 "authorAvatar": "gravatarhash",

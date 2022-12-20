@@ -159,28 +159,28 @@ exports[`should show a create form 1`] = `
   </div>
   <CreateProfileForm
     languages={
-      Array [
-        Object {
+      [
+        {
           "key": "css",
           "name": "CSS",
         },
       ]
     }
     location={
-      Object {
+      {
         "hash": "",
         "key": "key",
         "pathname": "/path",
-        "query": Object {},
+        "query": {},
         "search": "",
-        "state": Object {},
+        "state": {},
       }
     }
     onClose={[Function]}
     onCreate={[Function]}
     profiles={
-      Array [
-        Object {
+      [
+        {
           "activeDeprecatedRuleCount": 2,
           "activeRuleCount": 10,
           "childrenCount": 0,

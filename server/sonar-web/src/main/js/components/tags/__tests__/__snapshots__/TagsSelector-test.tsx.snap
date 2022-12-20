@@ -3,7 +3,7 @@
 exports[`should render with selected tags 1`] = `
 <MultiSelect
   elements={
-    Array [
+    [
       "foo",
       "bar",
       "baz",
@@ -18,7 +18,7 @@ exports[`should render with selected tags 1`] = `
   placeholder="search.search_for_tags"
   renderLabel={[Function]}
   selectedElements={
-    Array [
+    [
       "bar",
     ]
   }
@@ -28,7 +28,7 @@ exports[`should render with selected tags 1`] = `
 
 exports[`should render without tags at all 1`] = `
 <MultiSelect
-  elements={Array []}
+  elements={[]}
   filterSelected={[Function]}
   legend="select_tags"
   listSize={10}
@@ -37,7 +37,7 @@ exports[`should render without tags at all 1`] = `
   onUnselect={[Function]}
   placeholder="search.search_for_tags"
   renderLabel={[Function]}
-  selectedElements={Array []}
+  selectedElements={[]}
   validateSearchInput={[Function]}
 />
 `;

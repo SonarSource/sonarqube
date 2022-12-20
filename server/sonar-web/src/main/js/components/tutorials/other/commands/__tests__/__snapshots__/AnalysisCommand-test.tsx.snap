@@ -4,25 +4,25 @@ exports[`renders correctly: .NET 1`] = `
 <DotNet
   baseUrl="http://example.com"
   component={
-    Object {
-      "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   token="myToken"
@@ -33,25 +33,25 @@ exports[`renders correctly: CFamily 1`] = `
 <ClangGCCCustom
   baseUrl="http://example.com"
   component={
-    Object {
-      "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   isLocal={true}
@@ -66,25 +66,25 @@ exports[`renders correctly: gradle 1`] = `
 <JavaGradle
   baseUrl="http://example.com"
   component={
-    Object {
-      "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   token="myToken"
@@ -95,25 +95,25 @@ exports[`renders correctly: maven 1`] = `
 <JavaMaven
   baseUrl="http://example.com"
   component={
-    Object {
-      "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   token="myToken"
@@ -124,25 +124,25 @@ exports[`renders correctly: other 1`] = `
 <Other
   baseUrl="http://example.com"
   component={
-    Object {
-      "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   isLocal={true}

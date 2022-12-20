@@ -11,7 +11,7 @@ exports[`should render correctly: active facet 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "issue.scope.MAIN",
       ]
     }
@@ -77,7 +77,7 @@ exports[`should render correctly: default 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={false}
-    values={Array []}
+    values={[]}
   />
 </FacetBox>
 `;
@@ -92,7 +92,7 @@ exports[`should render correctly: disabled facet 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <FacetItemsList>
     <FacetItem
@@ -156,7 +156,7 @@ exports[`should render correctly: open 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <FacetItemsList>
     <FacetItem

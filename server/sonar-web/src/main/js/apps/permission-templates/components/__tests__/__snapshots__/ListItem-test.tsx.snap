@@ -7,12 +7,12 @@ exports[`render correctly 1`] = `
 >
   <NameCell
     template={
-      Object {
+      {
         "createdAt": "2020-01-01",
-        "defaultFor": Array [],
+        "defaultFor": [],
         "id": "1",
         "name": "test",
-        "permissions": Array [],
+        "permissions": [],
       }
     }
   />
@@ -21,16 +21,16 @@ exports[`render correctly 1`] = `
   >
     <withRouter(ActionsCell)
       permissionTemplate={
-        Object {
+        {
           "createdAt": "2020-01-01",
-          "defaultFor": Array [],
+          "defaultFor": [],
           "id": "1",
           "name": "test",
-          "permissions": Array [],
+          "permissions": [],
         }
       }
       refresh={[Function]}
-      topQualifiers={Array []}
+      topQualifiers={[]}
     />
   </td>
 </tr>

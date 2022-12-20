@@ -12,7 +12,7 @@ exports[`should render correctly after fetching an example 2`] = `
 >
   <pre
     style={
-      Object {
+      {
         "whiteSpace": "pre-wrap",
       }
     }

@@ -20,18 +20,18 @@ exports[`should render correctly 1`] = `
     isSearchable={true}
     onChange={[Function]}
     options={
-      Array [
-        Object {
+      [
+        {
           "label": "JavaScript",
           "value": "js",
         },
-        Object {
+        {
           "label": "Java",
           "value": "java",
         },
       ]
     }
-    value={Array []}
+    value={[]}
   />
 </header>
 `;

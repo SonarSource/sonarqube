@@ -1,34 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`groupByDomains should correctly group by domains 1`] = `
-Array [
-  Object {
-    "measures": Array [
-      Object {
+[
+  {
+    "measures": [
+      {
         "leak": "70",
-        "metric": Object {
+        "metric": {
           "domain": "Coverage",
           "id": "1",
           "key": "lines_to_cover",
           "name": "Lines to Cover",
           "type": "INT",
         },
-        "period": Object {
+        "period": {
           "index": 1,
           "value": "70",
         },
         "value": "431",
       },
-      Object {
+      {
         "leak": "0.0999999999999943",
-        "metric": Object {
+        "metric": {
           "domain": "Coverage",
           "id": "2",
           "key": "coverage",
           "name": "Coverage",
           "type": "PERCENT",
         },
-        "period": Object {
+        "period": {
           "index": 1,
           "value": "0.0999999999999943",
         },
@@ -37,18 +37,18 @@ Array [
     ],
     "name": "Coverage",
   },
-  Object {
-    "measures": Array [
-      Object {
+  {
+    "measures": [
+      {
         "leak": "0.0",
-        "metric": Object {
+        "metric": {
           "domain": "Duplications",
           "id": "3",
           "key": "duplicated_lines_density",
           "name": "Duplicated Lines (%)",
           "type": "PERCENT",
         },
-        "period": Object {
+        "period": {
           "index": 1,
           "value": "0.0",
         },
@@ -61,17 +61,17 @@ Array [
 `;
 
 exports[`sortMeasures should sort based on the config 1`] = `
-Array [
-  Object {
-    "metric": Object {
+[
+  {
+    "metric": {
       "id": "3",
       "key": "new_bugs",
       "name": "new_bugs",
       "type": "INT",
     },
   },
-  Object {
-    "metric": Object {
+  {
+    "metric": {
       "id": "2",
       "key": "new_reliability_remediation_effort",
       "name": "bugs",
@@ -79,16 +79,16 @@ Array [
     },
   },
   "overall_category",
-  Object {
-    "metric": Object {
+  {
+    "metric": {
       "id": "4",
       "key": "bugs",
       "name": "bugs",
       "type": "INT",
     },
   },
-  Object {
-    "metric": Object {
+  {
+    "metric": {
       "id": "1",
       "key": "reliability_remediation_effort",
       "name": "new_bugs",

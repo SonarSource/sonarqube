@@ -15,7 +15,7 @@ exports[`should render correctly 1`] = `
     className="issues-similar-issues-menu"
     currentItem="type"
     items={
-      Array [
+      [
         "type",
         "severity",
         "status",

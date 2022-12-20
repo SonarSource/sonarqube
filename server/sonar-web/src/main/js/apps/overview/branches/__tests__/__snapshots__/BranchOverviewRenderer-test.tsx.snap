@@ -4,25 +4,25 @@ exports[`should render correctly: default 1`] = `
 <Fragment>
   <withCurrentUserContext(FirstAnalysisNextStepsNotif)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -43,25 +43,25 @@ exports[`should render correctly: default 1`] = `
         >
           <Memo(QualityGatePanel)
             component={
-              Object {
-                "breadcrumbs": Array [],
+              {
+                "breadcrumbs": [],
                 "key": "my-project",
                 "name": "MyProject",
                 "qualifier": "TRK",
-                "qualityGate": Object {
+                "qualityGate": {
                   "isDefault": true,
                   "key": "30",
                   "name": "Sonar way",
                 },
-                "qualityProfiles": Array [
-                  Object {
+                "qualityProfiles": [
+                  {
                     "deleted": false,
                     "key": "my-qp",
                     "language": "ts",
                     "name": "Sonar way",
                   },
                 ],
-                "tags": Array [],
+                "tags": [],
               }
             }
             loading={false}
@@ -75,7 +75,7 @@ exports[`should render correctly: default 1`] = `
           >
             <withRouter(Component)
               branch={
-                Object {
+                {
                   "analysisDate": "2018-01-01",
                   "excludedFromPurge": true,
                   "isMain": true,
@@ -83,40 +83,40 @@ exports[`should render correctly: default 1`] = `
                 }
               }
               component={
-                Object {
-                  "breadcrumbs": Array [],
+                {
+                  "breadcrumbs": [],
                   "key": "my-project",
                   "name": "MyProject",
                   "qualifier": "TRK",
-                  "qualityGate": Object {
+                  "qualityGate": {
                     "isDefault": true,
                     "key": "30",
                     "name": "Sonar way",
                   },
-                  "qualityProfiles": Array [
-                    Object {
+                  "qualityProfiles": [
+                    {
                       "deleted": false,
                       "key": "my-qp",
                       "language": "ts",
                       "name": "Sonar way",
                     },
                   ],
-                  "tags": Array [],
+                  "tags": [],
                 }
               }
               loading={false}
               measures={
-                Array [
-                  Object {
+                [
+                  {
                     "bestValue": true,
                     "leak": "1",
-                    "metric": Object {
+                    "metric": {
                       "id": "coverage",
                       "key": "coverage",
                       "name": "coverage",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
@@ -128,7 +128,7 @@ exports[`should render correctly: default 1`] = `
             />
             <Memo(ActivityPanel)
               branchLike={
-                Object {
+                {
                   "analysisDate": "2018-01-01",
                   "excludedFromPurge": true,
                   "isMain": true,
@@ -136,31 +136,31 @@ exports[`should render correctly: default 1`] = `
                 }
               }
               component={
-                Object {
-                  "breadcrumbs": Array [],
+                {
+                  "breadcrumbs": [],
                   "key": "my-project",
                   "name": "MyProject",
                   "qualifier": "TRK",
-                  "qualityGate": Object {
+                  "qualityGate": {
                     "isDefault": true,
                     "key": "30",
                     "name": "Sonar way",
                   },
-                  "qualityProfiles": Array [
-                    Object {
+                  "qualityProfiles": [
+                    {
                       "deleted": false,
                       "key": "my-qp",
                       "language": "ts",
                       "name": "Sonar way",
                     },
                   ],
-                  "tags": Array [],
+                  "tags": [],
                 }
               }
               graph="issues"
               loading={false}
-              measuresHistory={Array []}
-              metrics={Array []}
+              measuresHistory={[]}
+              metrics={[]}
               onGraphChange={[MockFunction]}
             />
           </div>
@@ -175,25 +175,25 @@ exports[`should render correctly: empty project 1`] = `
 <Fragment>
   <withCurrentUserContext(FirstAnalysisNextStepsNotif)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -208,7 +208,7 @@ exports[`should render correctly: empty project 1`] = `
       />
       <Memo(NoCodeWarning)
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": true,
@@ -216,39 +216,39 @@ exports[`should render correctly: empty project 1`] = `
           }
         }
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
         measures={
-          Array [
-            Object {
+          [
+            {
               "bestValue": true,
               "leak": "1",
-              "metric": Object {
+              "metric": {
                 "id": "coverage",
                 "key": "coverage",
                 "name": "coverage",
                 "type": "PERCENT",
               },
-              "period": Object {
+              "period": {
                 "bestValue": true,
                 "index": 1,
                 "value": "1.0",
@@ -267,25 +267,25 @@ exports[`should render correctly: loading 1`] = `
 <Fragment>
   <withCurrentUserContext(FirstAnalysisNextStepsNotif)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />
@@ -306,25 +306,25 @@ exports[`should render correctly: loading 1`] = `
         >
           <Memo(QualityGatePanel)
             component={
-              Object {
-                "breadcrumbs": Array [],
+              {
+                "breadcrumbs": [],
                 "key": "my-project",
                 "name": "MyProject",
                 "qualifier": "TRK",
-                "qualityGate": Object {
+                "qualityGate": {
                   "isDefault": true,
                   "key": "30",
                   "name": "Sonar way",
                 },
-                "qualityProfiles": Array [
-                  Object {
+                "qualityProfiles": [
+                  {
                     "deleted": false,
                     "key": "my-qp",
                     "language": "ts",
                     "name": "Sonar way",
                   },
                 ],
-                "tags": Array [],
+                "tags": [],
               }
             }
             loading={true}
@@ -338,7 +338,7 @@ exports[`should render correctly: loading 1`] = `
           >
             <withRouter(Component)
               branch={
-                Object {
+                {
                   "analysisDate": "2018-01-01",
                   "excludedFromPurge": true,
                   "isMain": true,
@@ -346,40 +346,40 @@ exports[`should render correctly: loading 1`] = `
                 }
               }
               component={
-                Object {
-                  "breadcrumbs": Array [],
+                {
+                  "breadcrumbs": [],
                   "key": "my-project",
                   "name": "MyProject",
                   "qualifier": "TRK",
-                  "qualityGate": Object {
+                  "qualityGate": {
                     "isDefault": true,
                     "key": "30",
                     "name": "Sonar way",
                   },
-                  "qualityProfiles": Array [
-                    Object {
+                  "qualityProfiles": [
+                    {
                       "deleted": false,
                       "key": "my-qp",
                       "language": "ts",
                       "name": "Sonar way",
                     },
                   ],
-                  "tags": Array [],
+                  "tags": [],
                 }
               }
               loading={true}
               measures={
-                Array [
-                  Object {
+                [
+                  {
                     "bestValue": true,
                     "leak": "1",
-                    "metric": Object {
+                    "metric": {
                       "id": "coverage",
                       "key": "coverage",
                       "name": "coverage",
                       "type": "PERCENT",
                     },
-                    "period": Object {
+                    "period": {
                       "bestValue": true,
                       "index": 1,
                       "value": "1.0",
@@ -391,7 +391,7 @@ exports[`should render correctly: loading 1`] = `
             />
             <Memo(ActivityPanel)
               branchLike={
-                Object {
+                {
                   "analysisDate": "2018-01-01",
                   "excludedFromPurge": true,
                   "isMain": true,
@@ -399,31 +399,31 @@ exports[`should render correctly: loading 1`] = `
                 }
               }
               component={
-                Object {
-                  "breadcrumbs": Array [],
+                {
+                  "breadcrumbs": [],
                   "key": "my-project",
                   "name": "MyProject",
                   "qualifier": "TRK",
-                  "qualityGate": Object {
+                  "qualityGate": {
                     "isDefault": true,
                     "key": "30",
                     "name": "Sonar way",
                   },
-                  "qualityProfiles": Array [
-                    Object {
+                  "qualityProfiles": [
+                    {
                       "deleted": false,
                       "key": "my-qp",
                       "language": "ts",
                       "name": "Sonar way",
                     },
                   ],
-                  "tags": Array [],
+                  "tags": [],
                 }
               }
               graph="issues"
               loading={true}
-              measuresHistory={Array []}
-              metrics={Array []}
+              measuresHistory={[]}
+              metrics={[]}
               onGraphChange={[MockFunction]}
             />
           </div>

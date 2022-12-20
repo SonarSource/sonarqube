@@ -79,7 +79,7 @@ exports[`should handle re-activation 1`] = `
           <Select
             aria-labelledby="coding-rules-custom-rule-type"
             components={
-              Object {
+              {
                 "Option": [Function],
                 "SingleValue": [Function],
               }
@@ -89,27 +89,27 @@ exports[`should handle re-activation 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "issue.type.BUG",
                   "value": "BUG",
                 },
-                Object {
+                {
                   "label": "issue.type.VULNERABILITY",
                   "value": "VULNERABILITY",
                 },
-                Object {
+                {
                   "label": "issue.type.CODE_SMELL",
                   "value": "CODE_SMELL",
                 },
-                Object {
+                {
                   "label": "issue.type.SECURITY_HOTSPOT",
                   "value": "SECURITY_HOTSPOT",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "issue.type.BUG",
                 "value": "BUG",
               }
@@ -146,23 +146,23 @@ exports[`should handle re-activation 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "rules.status.READY",
                   "value": "READY",
                 },
-                Object {
+                {
                   "label": "rules.status.BETA",
                   "value": "BETA",
                 },
-                Object {
+                {
                   "label": "rules.status.DEPRECATED",
                   "value": "DEPRECATED",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "rules.status.READY",
                 "value": "READY",
               }
@@ -213,7 +213,7 @@ exports[`should handle re-activation 1`] = `
         <div
           className="modal-field-description"
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "description",
             }
           }
@@ -334,7 +334,7 @@ exports[`should render correctly: default 1`] = `
           <Select
             aria-labelledby="coding-rules-custom-rule-type"
             components={
-              Object {
+              {
                 "Option": [Function],
                 "SingleValue": [Function],
               }
@@ -344,27 +344,27 @@ exports[`should render correctly: default 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "issue.type.BUG",
                   "value": "BUG",
                 },
-                Object {
+                {
                   "label": "issue.type.VULNERABILITY",
                   "value": "VULNERABILITY",
                 },
-                Object {
+                {
                   "label": "issue.type.CODE_SMELL",
                   "value": "CODE_SMELL",
                 },
-                Object {
+                {
                   "label": "issue.type.SECURITY_HOTSPOT",
                   "value": "SECURITY_HOTSPOT",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "issue.type.BUG",
                 "value": "BUG",
               }
@@ -401,23 +401,23 @@ exports[`should render correctly: default 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "rules.status.READY",
                   "value": "READY",
                 },
-                Object {
+                {
                   "label": "rules.status.BETA",
                   "value": "BETA",
                 },
-                Object {
+                {
                   "label": "rules.status.DEPRECATED",
                   "value": "DEPRECATED",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "rules.status.READY",
                 "value": "READY",
               }
@@ -468,7 +468,7 @@ exports[`should render correctly: default 1`] = `
         <div
           className="modal-field-description"
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "description",
             }
           }

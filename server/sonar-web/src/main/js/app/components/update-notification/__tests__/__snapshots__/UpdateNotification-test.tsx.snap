@@ -10,8 +10,8 @@ exports[`should render correctly: default 1`] = `
   <SystemUpgradeButton
     latestLTS="8.9"
     systemUpgrades={
-      Array [
-        Object {
+      [
+        {
           "changeLogUrl": "changelogurl",
           "description": "Version 5.6.7 description",
           "downloadUrl": "downloadurl",

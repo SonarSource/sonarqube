@@ -9,7 +9,7 @@ exports[`should render closed 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={false}
-    values={Array []}
+    values={[]}
   />
 </FacetBox>
 `;
@@ -24,7 +24,7 @@ exports[`should render empty sub-facet 1`] = `
     name="issues.facet.sansTop25"
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <div
     className="search-navigator-facet-empty little-spacer-top"
@@ -48,7 +48,7 @@ exports[`should render sub-facets 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "SONAR SQL Injection",
         "OWASP A3",
         "SANS Risky Resource Management",
@@ -66,7 +66,7 @@ exports[`should render sub-facets 1`] = `
       onClick={[Function]}
       open={true}
       values={
-        Array [
+        [
           "SQL Injection",
         ]
       }
@@ -98,7 +98,7 @@ exports[`should render sub-facets 1`] = `
       name="issues.facet.owaspTop10_2021"
       onClick={[Function]}
       open={false}
-      values={Array []}
+      values={[]}
     />
   </FacetBox>
   <FacetBox
@@ -111,7 +111,7 @@ exports[`should render sub-facets 1`] = `
       onClick={[Function]}
       open={true}
       values={
-        Array [
+        [
           "A3",
         ]
       }
@@ -155,7 +155,7 @@ exports[`should render sub-facets 1`] = `
       onClick={[Function]}
       open={true}
       values={
-        Array [
+        [
           "Risky Resource Management",
         ]
       }
@@ -205,18 +205,18 @@ exports[`should render sub-facets 1`] = `
     onToggle={[MockFunction]}
     open={true}
     property="cwe"
-    query={Object {}}
+    query={{}}
     renderFacetItem={[Function]}
     renderSearchResult={[Function]}
     searchPlaceholder="search.search_for_cwe"
     stats={
-      Object {
+      {
         "173": 3,
         "42": 5,
       }
     }
     values={
-      Array [
+      [
         "42",
       ]
     }

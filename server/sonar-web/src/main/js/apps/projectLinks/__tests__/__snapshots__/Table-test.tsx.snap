@@ -31,7 +31,7 @@ exports[`should render 1`] = `
       <LinkRow
         key="1"
         link={
-          Object {
+          {
             "id": "1",
             "type": "homepage",
             "url": "http://example.com/homepage",
@@ -42,7 +42,7 @@ exports[`should render 1`] = `
       <LinkRow
         key="2"
         link={
-          Object {
+          {
             "id": "2",
             "type": "issue",
             "url": "http://example.com/issue",
@@ -53,7 +53,7 @@ exports[`should render 1`] = `
       <LinkRow
         key="4"
         link={
-          Object {
+          {
             "id": "4",
             "name": "bar",
             "type": "bar",
@@ -65,7 +65,7 @@ exports[`should render 1`] = `
       <LinkRow
         key="3"
         link={
-          Object {
+          {
             "id": "3",
             "name": "foo",
             "type": "foo",

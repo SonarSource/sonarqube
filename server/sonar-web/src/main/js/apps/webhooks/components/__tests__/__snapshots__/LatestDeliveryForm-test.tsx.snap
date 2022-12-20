@@ -15,7 +15,7 @@ exports[`should render correctly 1`] = `
   <DeliveryItem
     className="modal-body modal-container"
     delivery={
-      Object {
+      {
         "at": "12.02.2018",
         "durationMs": 20,
         "httpStatus": 200,
@@ -53,7 +53,7 @@ exports[`should render correctly 2`] = `
   <DeliveryItem
     className="modal-body modal-container"
     delivery={
-      Object {
+      {
         "at": "12.02.2018",
         "durationMs": 20,
         "httpStatus": 200,
@@ -62,7 +62,7 @@ exports[`should render correctly 2`] = `
       }
     }
     loading={false}
-    payload="{ \\"success\\": true }"
+    payload="{ "success": true }"
   />
   <footer
     className="modal-foot"

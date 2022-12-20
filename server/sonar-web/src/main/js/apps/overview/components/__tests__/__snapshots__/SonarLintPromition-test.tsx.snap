@@ -8,7 +8,7 @@ exports[`should render correctly: has failed condition 1`] = `
     defaultMessage="overview.fix_failed_conditions_with_sonarlint"
     id="overview.fix_failed_conditions_with_sonarlint"
     values={
-      Object {
+      {
         "link": <React.Fragment>
           <a
             href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube"

@@ -14,7 +14,7 @@ exports[`should render correctly 1`] = `
   <MetaDataVersion
     key="3.0"
     versionInformation={
-      Object {
+      {
         "archived": false,
         "changeLogUrl": "https://example.com/sonar-java-plugin/release",
         "compatibility": "6.7",

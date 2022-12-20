@@ -33,7 +33,7 @@ exports[`should render correctly 1`] = `
         defaultMessage="settings.almintegration.form.personal_access_token.gitlab.help"
         id="settings.almintegration.form.personal_access_token.gitlab.help"
         values={
-          Object {
+          {
             "doc_link": <withAppStateContext(DocLink)
               to="/devops-platform-integration/gitlab-integration/"
             >
@@ -100,7 +100,7 @@ exports[`should render correctly 2`] = `
         defaultMessage="settings.almintegration.form.personal_access_token.gitlab.help"
         id="settings.almintegration.form.personal_access_token.gitlab.help"
         values={
-          Object {
+          {
             "doc_link": <withAppStateContext(DocLink)
               to="/devops-platform-integration/gitlab-integration/"
             >

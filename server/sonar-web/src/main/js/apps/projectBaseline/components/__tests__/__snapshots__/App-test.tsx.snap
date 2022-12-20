@@ -20,7 +20,7 @@ exports[`should render correctly 1`] = `
       <ProjectBaselineSelector
         analysis=""
         branch={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
@@ -28,8 +28,8 @@ exports[`should render correctly 1`] = `
           }
         }
         branchList={
-          Array [
-            Object {
+          [
+            {
               "analysisDate": "2018-01-01",
               "excludedFromPurge": true,
               "isMain": true,
@@ -42,7 +42,7 @@ exports[`should render correctly 1`] = `
         currentSetting="PREVIOUS_VERSION"
         days="30"
         generalSetting={
-          Object {
+          {
             "type": "PREVIOUS_VERSION",
           }
         }
@@ -79,8 +79,8 @@ exports[`should render correctly 1`] = `
         </h2>
         <BranchList
           branchList={
-            Array [
-              Object {
+            [
+              {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": true,
@@ -89,29 +89,29 @@ exports[`should render correctly 1`] = `
             ]
           }
           component={
-            Object {
-              "breadcrumbs": Array [],
+            {
+              "breadcrumbs": [],
               "key": "my-project",
               "name": "MyProject",
               "qualifier": "TRK",
-              "qualityGate": Object {
+              "qualityGate": {
                 "isDefault": true,
                 "key": "30",
                 "name": "Sonar way",
               },
-              "qualityProfiles": Array [
-                Object {
+              "qualityProfiles": [
+                {
                   "deleted": false,
                   "key": "my-qp",
                   "language": "ts",
                   "name": "Sonar way",
                 },
               ],
-              "tags": Array [],
+              "tags": [],
             }
           }
           inheritedSetting={
-            Object {
+            {
               "type": "PREVIOUS_VERSION",
               "value": undefined,
             }
@@ -140,7 +140,7 @@ exports[`should render correctly: without branch support 1`] = `
       <ProjectBaselineSelector
         analysis=""
         branch={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
@@ -148,8 +148,8 @@ exports[`should render correctly: without branch support 1`] = `
           }
         }
         branchList={
-          Array [
-            Object {
+          [
+            {
               "analysisDate": "2018-01-01",
               "excludedFromPurge": true,
               "isMain": true,
@@ -162,7 +162,7 @@ exports[`should render correctly: without branch support 1`] = `
         currentSetting="PREVIOUS_VERSION"
         days="30"
         generalSetting={
-          Object {
+          {
             "type": "PREVIOUS_VERSION",
           }
         }

@@ -8,7 +8,7 @@ exports[`should render 1`] = `
   <WorkspaceRuleTitle
     limited={true}
     rule={
-      Object {
+      {
         "key": "foo",
       }
     }

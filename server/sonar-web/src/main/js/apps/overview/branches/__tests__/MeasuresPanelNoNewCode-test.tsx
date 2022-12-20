@@ -30,7 +30,7 @@ it('should render the default message', () => {
   <div
     className="display-flex-center display-flex-justify-center"
     style={
-      Object {
+      {
         "height": 500,
       }
     }
@@ -44,7 +44,7 @@ it('should render the default message', () => {
     <div
       className="big-spacer-left text-muted"
       style={
-        Object {
+        {
           "maxWidth": 500,
         }
       }
@@ -59,7 +59,7 @@ it('should render the default message', () => {
           defaultMessage="overview.measures.empty_link"
           id="overview.measures.empty_link"
           values={
-            Object {
+            {
               "learn_more_link": <withAppStateContext(DocLink)
                 to="/user-guide/clean-as-you-code/"
               >

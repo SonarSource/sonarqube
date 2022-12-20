@@ -28,9 +28,9 @@ exports[`should render correctly: loaded 1`] = `
       <Export
         componentKey="my-project"
         loadStatus={[Function]}
-        status={Object {}}
+        status={{}}
         task={
-          Object {
+          {
             "executedAt": "2020-03-12T12:22:20Z",
             "startedAt": "2020-03-12T12:20:20Z",
             "status": "SUCCESS",
@@ -44,7 +44,7 @@ exports[`should render correctly: loaded 1`] = `
     >
       <Import
         analysis={
-          Object {
+          {
             "executedAt": "2020-03-12T12:22:20Z",
             "startedAt": "2020-03-12T12:20:20Z",
             "status": "SUCCESS",
@@ -54,9 +54,9 @@ exports[`should render correctly: loaded 1`] = `
         componentKey="my-project"
         importEnabled={true}
         loadStatus={[Function]}
-        status={Object {}}
+        status={{}}
         task={
-          Object {
+          {
             "executedAt": "2020-03-12T12:22:20Z",
             "startedAt": "2020-03-12T12:20:20Z",
             "status": "SUCCESS",
@@ -97,7 +97,7 @@ exports[`should render correctly: loaded without import 1`] = `
       <Export
         componentKey="my-project"
         loadStatus={[Function]}
-        status={Object {}}
+        status={{}}
       />
     </div>
     <div
@@ -107,7 +107,7 @@ exports[`should render correctly: loaded without import 1`] = `
         componentKey="my-project"
         importEnabled={false}
         loadStatus={[Function]}
-        status={Object {}}
+        status={{}}
       />
     </div>
   </div>

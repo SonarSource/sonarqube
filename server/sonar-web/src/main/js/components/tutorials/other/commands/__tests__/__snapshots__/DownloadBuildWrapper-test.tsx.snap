@@ -16,7 +16,7 @@ exports[`should render correctly for "linux": local 1`] = `
       defaultMessage="onboarding.analysis.build_wrapper.text"
       id="onboarding.analysis.build_wrapper.text"
       values={
-        Object {
+        {
           "env_var": <code>
             PATH
           </code>,
@@ -72,7 +72,7 @@ exports[`should render correctly for "mac": local 1`] = `
       defaultMessage="onboarding.analysis.build_wrapper.text"
       id="onboarding.analysis.build_wrapper.text"
       values={
-        Object {
+        {
           "env_var": <code>
             PATH
           </code>,
@@ -128,7 +128,7 @@ exports[`should render correctly for "win": local 1`] = `
       defaultMessage="onboarding.analysis.build_wrapper.text"
       id="onboarding.analysis.build_wrapper.text"
       values={
-        Object {
+        {
           "env_var": <code>
             %PATH%
           </code>,
@@ -160,13 +160,13 @@ exports[`should render correctly for "win": remote 1`] = `
     onboarding.analysis.build_wrapper.header.win
   </h4>
   <CodeSnippet
-    snippet="$env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,\\".sonar\\")
-rm \\"$env:SONAR_DIRECTORY/build-wrapper-win-x86\\" -Force -Recurse -ErrorAction SilentlyContinue
+    snippet="$env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,".sonar")
+rm "$env:SONAR_DIRECTORY/build-wrapper-win-x86" -Force -Recurse -ErrorAction SilentlyContinue
 New-Item -path $env:SONAR_DIRECTORY/build-wrapper-win-x86 -type directory
-(New-Object System.Net.WebClient).DownloadFile(\\"http://example.com/static/cpp/build-wrapper-win-x86.zip\\", \\"$env:SONAR_DIRECTORY/build-wrapper-win-x86.zip\\")
+(New-Object System.Net.WebClient).DownloadFile("http://example.com/static/cpp/build-wrapper-win-x86.zip", "$env:SONAR_DIRECTORY/build-wrapper-win-x86.zip")
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::ExtractToDirectory(\\"$env:SONAR_DIRECTORY/build-wrapper-win-x86.zip\\", \\"$env:SONAR_DIRECTORY\\")
-$env:Path += \\";$env:SONAR_DIRECTORY/build-wrapper-win-x86\\"
+[System.IO.Compression.ZipFile]::ExtractToDirectory("$env:SONAR_DIRECTORY/build-wrapper-win-x86.zip", "$env:SONAR_DIRECTORY")
+$env:Path += ";$env:SONAR_DIRECTORY/build-wrapper-win-x86"
 "
   />
 </div>

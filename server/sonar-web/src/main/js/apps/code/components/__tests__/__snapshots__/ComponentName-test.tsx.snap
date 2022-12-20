@@ -111,7 +111,7 @@ foo"
     <span>
       <span
         style={
-          Object {
+          {
             "color": "#656565",
           }
         }
@@ -172,7 +172,7 @@ foo:src/index.tsx"
   <ForwardRef(Link)
     className="display-inline-flex-center link-no-underline"
     to={
-      Object {
+      {
         "pathname": "/code",
         "search": "?id=foo&selected=foo%3Asrc%2Findex.tsx",
       }
@@ -292,7 +292,7 @@ foo"
   <ForwardRef(Link)
     className="display-inline-flex-center link-no-underline"
     to={
-      Object {
+      {
         "pathname": "/dashboard",
         "search": "?id=src%2Fmain%2Fts%2Fapp&code_scope=new",
       }
@@ -325,7 +325,7 @@ foo"
     <ForwardRef(Link)
       className="display-inline-flex-center link-no-underline"
       to={
-        Object {
+        {
           "pathname": "/dashboard",
           "search": "?id=src%2Fmain%2Fts%2Fapp&branch=foo&code_scope=new",
         }
@@ -369,7 +369,7 @@ foo"
     <ForwardRef(Link)
       className="display-inline-flex-center link-no-underline"
       to={
-        Object {
+        {
           "pathname": "/dashboard",
           "search": "?id=src%2Fmain%2Fts%2Fapp&code_scope=new",
         }

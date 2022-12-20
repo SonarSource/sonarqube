@@ -49,7 +49,7 @@ exports[`should render the changelog popup correctly 1`] = `
             </p>
             <IssueChangelogDiff
               diff={
-                Object {
+                {
                   "key": "severity",
                   "newValue": "MINOR",
                   "oldValue": "CRITICAL",
@@ -114,7 +114,7 @@ exports[`should render the changelog popup when change was triggered by a webhoo
             </p>
             <IssueChangelogDiff
               diff={
-                Object {
+                {
                   "key": "severity",
                   "newValue": "MINOR",
                   "oldValue": "CRITICAL",
@@ -173,7 +173,7 @@ exports[`should render the changelog popup when change was triggered by a webhoo
             </p>
             <IssueChangelogDiff
               diff={
-                Object {
+                {
                   "key": "severity",
                   "newValue": "MINOR",
                   "oldValue": "CRITICAL",
@@ -237,7 +237,7 @@ exports[`should render the changelog popup when we have a deleted user 1`] = `
             </p>
             <IssueChangelogDiff
               diff={
-                Object {
+                {
                   "key": "severity",
                   "newValue": "MINOR",
                   "oldValue": "CRITICAL",
@@ -302,7 +302,7 @@ exports[`should render the changelog popup with SQ user when both SQ and externa
             </p>
             <IssueChangelogDiff
               diff={
-                Object {
+                {
                   "key": "severity",
                   "newValue": "MINOR",
                   "oldValue": "CRITICAL",

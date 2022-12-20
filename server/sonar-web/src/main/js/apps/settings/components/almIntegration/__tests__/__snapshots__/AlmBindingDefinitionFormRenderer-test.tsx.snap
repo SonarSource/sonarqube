@@ -23,7 +23,7 @@ exports[`should render correctly 1`] = `
     >
       <GithubForm
         formData={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
@@ -81,7 +81,7 @@ exports[`should render correctly for azure 1`] = `
     >
       <AzureForm
         formData={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
@@ -139,7 +139,7 @@ exports[`should render correctly for bitbucket 1`] = `
     >
       <BitbucketForm
         formData={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
@@ -200,7 +200,7 @@ exports[`should render correctly for github 1`] = `
     >
       <GithubForm
         formData={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
@@ -258,7 +258,7 @@ exports[`should render correctly for gitlab 1`] = `
     >
       <GitlabForm
         formData={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
@@ -316,7 +316,7 @@ exports[`should render correctly: editing 1`] = `
     >
       <GithubForm
         formData={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
@@ -380,7 +380,7 @@ exports[`should render correctly: second instance 1`] = `
       </Alert>
       <GithubForm
         formData={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
@@ -438,7 +438,7 @@ exports[`should render correctly: submitting 1`] = `
     >
       <GithubForm
         formData={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
@@ -496,7 +496,7 @@ exports[`should render correctly: with validation error 1`] = `
     >
       <GithubForm
         formData={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",

@@ -14,7 +14,7 @@ exports[`should display measure badge params 1`] = `
     isSearchable={false}
     name="badge-metric"
     onChange={[Function]}
-    options={Array []}
+    options={[]}
   />
   <label
     className="spacer-right spacer-top"
@@ -26,7 +26,7 @@ exports[`should display measure badge params 1`] = `
   <Select
     className="input-medium"
     defaultValue={
-      Object {
+      {
         "label": "overview.badges.options.formats.md",
         "value": "md",
       }
@@ -35,12 +35,12 @@ exports[`should display measure badge params 1`] = `
     name="badge-format"
     onChange={[Function]}
     options={
-      Array [
-        Object {
+      [
+        {
           "label": "overview.badges.options.formats.md",
           "value": "md",
         },
-        Object {
+        {
           "label": "overview.badges.options.formats.url",
           "value": "url",
         },
@@ -62,7 +62,7 @@ exports[`should display quality gate badge params 1`] = `
   <Select
     className="input-medium"
     defaultValue={
-      Object {
+      {
         "label": "overview.badges.options.formats.md",
         "value": "md",
       }
@@ -71,12 +71,12 @@ exports[`should display quality gate badge params 1`] = `
     name="badge-format"
     onChange={[Function]}
     options={
-      Array [
-        Object {
+      [
+        {
           "label": "overview.badges.options.formats.md",
           "value": "md",
         },
-        Object {
+        {
           "label": "overview.badges.options.formats.url",
           "value": "url",
         },

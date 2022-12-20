@@ -43,8 +43,8 @@ exports[`should render correctly 1`] = `
   </div>
   <MetaDataVersions
     versions={
-      Array [
-        Object {
+      [
+        {
           "archived": false,
           "changeLogUrl": "https://example.com/sonar-java-plugin/release",
           "compatibility": "6.7",
@@ -52,7 +52,7 @@ exports[`should render correctly 1`] = `
           "downloadURL": "https://example.com/sonar-java-plugin-5.13.0.18197.jar",
           "version": "2.0",
         },
-        Object {
+        {
           "archived": true,
           "changeLogUrl": "https://example.com/sonar-java-plugin/release",
           "compatibility": "6.7",
@@ -109,8 +109,8 @@ exports[`should render correctly with organization 1`] = `
   </div>
   <MetaDataVersions
     versions={
-      Array [
-        Object {
+      [
+        {
           "archived": false,
           "changeLogUrl": "https://example.com/sonar-java-plugin/release",
           "compatibility": "6.7",
@@ -118,7 +118,7 @@ exports[`should render correctly with organization 1`] = `
           "downloadURL": "https://example.com/sonar-java-plugin-5.13.0.18197.jar",
           "version": "2.0",
         },
-        Object {
+        {
           "archived": true,
           "changeLogUrl": "https://example.com/sonar-java-plugin/release",
           "compatibility": "6.7",

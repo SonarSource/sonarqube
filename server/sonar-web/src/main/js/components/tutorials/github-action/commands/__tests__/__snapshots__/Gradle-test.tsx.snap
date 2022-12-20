@@ -9,7 +9,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="onboarding.tutorial.with.yaml.gradle"
       id="onboarding.tutorial.with.yaml.gradle"
       values={
-        Object {
+        {
           "gradle": <React.Fragment>
             <code
               className="rule"
@@ -30,12 +30,12 @@ exports[`should render correctly 1`] = `
     />
     <CodeSnippet
       snippet="plugins {
-  id \\"org.sonarqube\\" version \\"3.5.0.2730\\"
+  id "org.sonarqube" version "3.5.0.2730"
 }
 
 sonar {
   properties {
-    property \\"sonar.projectKey\\", \\"my-project\\"
+    property "sonar.projectKey", "my-project"
   }
 }"
     />
@@ -97,7 +97,7 @@ exports[`should render correctly: without branch enabled 1`] = `
       defaultMessage="onboarding.tutorial.with.yaml.gradle"
       id="onboarding.tutorial.with.yaml.gradle"
       values={
-        Object {
+        {
           "gradle": <React.Fragment>
             <code
               className="rule"
@@ -118,12 +118,12 @@ exports[`should render correctly: without branch enabled 1`] = `
     />
     <CodeSnippet
       snippet="plugins {
-  id \\"org.sonarqube\\" version \\"3.5.0.2730\\"
+  id "org.sonarqube" version "3.5.0.2730"
 }
 
 sonar {
   properties {
-    property \\"sonar.projectKey\\", \\"my-project\\"
+    property "sonar.projectKey", "my-project"
   }
 }"
     />

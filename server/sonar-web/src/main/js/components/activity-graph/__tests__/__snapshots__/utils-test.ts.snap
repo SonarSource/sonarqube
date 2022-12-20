@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`generateCoveredLinesMetric should correctly generate covered lines metric: empty data 1`] = `
-Object {
-  "data": Array [],
+{
+  "data": [],
   "name": "covered_lines",
   "translatedName": "project_activity.custom_metric.covered_lines",
   "type": "INT",
@@ -10,13 +10,13 @@ Object {
 `;
 
 exports[`generateCoveredLinesMetric should correctly generate covered lines metric: with data 1`] = `
-Object {
-  "data": Array [
-    Object {
+{
+  "data": [
+    {
       "x": 2017-04-27T08:21:32.000Z,
       "y": 88,
     },
-    Object {
+    {
       "x": 2017-04-30T23:06:24.000Z,
       "y": 50,
     },
@@ -28,14 +28,14 @@ Object {
 `;
 
 exports[`generateSeries should correctly generate the series 1`] = `
-Array [
-  Object {
-    "data": Array [
-      Object {
+[
+  {
+    "data": [
+      {
         "x": 2017-04-27T08:21:32.000Z,
         "y": 88,
       },
-      Object {
+      {
         "x": 2017-04-30T23:06:24.000Z,
         "y": 50,
       },
@@ -44,13 +44,13 @@ Array [
     "translatedName": "project_activity.custom_metric.covered_lines",
     "type": "INT",
   },
-  Object {
-    "data": Array [
-      Object {
+  {
+    "data": [
+      {
         "x": 2017-04-27T08:21:32.000Z,
         "y": 100,
       },
-      Object {
+      {
         "x": 2017-04-30T23:06:24.000Z,
         "y": 100,
       },
@@ -63,7 +63,7 @@ Array [
 `;
 
 exports[`getGraphTypes should correctly return the graph types 1`] = `
-Array [
+[
   "issues",
   "coverage",
   "duplications",
@@ -72,7 +72,7 @@ Array [
 `;
 
 exports[`getGraphTypes should correctly return the graph types 2`] = `
-Array [
+[
   "issues",
   "coverage",
   "duplications",

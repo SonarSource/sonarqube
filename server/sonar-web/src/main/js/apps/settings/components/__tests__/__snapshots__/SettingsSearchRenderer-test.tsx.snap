@@ -77,7 +77,7 @@ exports[`should render correctly when open: results 1`] = `
             onClick={[MockFunction]}
             onMouseEnter={[Function]}
             to={
-              Object {
+              {
                 "hash": "#foo",
                 "pathname": "/admin/settings",
                 "search": "?category=foo+category",
@@ -106,7 +106,7 @@ exports[`should render correctly when open: results 1`] = `
             onClick={[MockFunction]}
             onMouseEnter={[Function]}
             to={
-              Object {
+              {
                 "hash": "#bar",
                 "pathname": "/admin/settings",
                 "search": "?category=foo+category",

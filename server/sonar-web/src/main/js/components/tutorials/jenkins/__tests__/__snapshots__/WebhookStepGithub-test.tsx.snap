@@ -7,7 +7,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": <ForwardRef(Link)
             target="_blank"
             to="http://github.enterprise.com/PROJECT_KEY/settings/hooks"
@@ -38,7 +38,7 @@ exports[`should render correctly 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "events",
           "option",
         ]
@@ -63,7 +63,7 @@ exports[`should render correctly 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "add_webhook",
         ]
       }
@@ -80,7 +80,7 @@ exports[`should render correctly: with branches disabled 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": <ForwardRef(Link)
             target="_blank"
             to="http://github.enterprise.com/PROJECT_KEY/settings/hooks"
@@ -111,7 +111,7 @@ exports[`should render correctly: with branches disabled 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "events",
           "option",
         ]
@@ -131,7 +131,7 @@ exports[`should render correctly: with branches disabled 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "add_webhook",
         ]
       }
@@ -148,7 +148,7 @@ exports[`should render correctly: with no alm binding 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": <strong>
             onboarding.tutorial.with.jenkins.webhook.github.step1.link
           </strong>,
@@ -176,7 +176,7 @@ exports[`should render correctly: with no alm binding 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "events",
           "option",
         ]
@@ -201,7 +201,7 @@ exports[`should render correctly: with no alm binding 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "add_webhook",
         ]
       }

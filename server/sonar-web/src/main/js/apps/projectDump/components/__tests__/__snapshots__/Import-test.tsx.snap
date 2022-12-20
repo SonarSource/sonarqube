@@ -44,7 +44,7 @@ exports[`should render correctly: failed 1`] = `
       <ForwardRef(Link)
         className="spacer-left"
         to={
-          Object {
+          {
             "hash": "",
             "pathname": "/project/background_tasks",
             "search": "?id=key&status=FAILED&taskType=PROJECT_IMPORT",

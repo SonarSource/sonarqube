@@ -6,7 +6,7 @@ exports[`bulk applies permission template 1`] = `
   provisioned={false}
   qualifier="TRK"
   query=""
-  selection={Array []}
+  selection={[]}
   total={17}
 />
 `;
@@ -19,7 +19,7 @@ exports[`deletes projects 1`] = `
   qualifier="TRK"
   query=""
   selection={
-    Array [
+    [
       "foo",
       "bar",
     ]
@@ -54,7 +54,7 @@ exports[`render qualifiers filter 1`] = `
           <Select
             className="input-medium it__project-qualifier-select"
             components={
-              Object {
+              {
                 "Option": [Function],
                 "SingleValue": [Function],
               }
@@ -64,23 +64,23 @@ exports[`render qualifiers filter 1`] = `
             name="projects-qualifier"
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "qualifiers.TRK",
                   "value": "TRK",
                 },
-                Object {
+                {
                   "label": "qualifiers.VW",
                   "value": "VW",
                 },
-                Object {
+                {
                   "label": "qualifiers.APP",
                   "value": "APP",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "qualifiers.TRK",
                 "value": "TRK",
               }
@@ -107,23 +107,23 @@ exports[`render qualifiers filter 1`] = `
             name="projects-visibility"
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "visibility.both",
                   "value": "all",
                 },
-                Object {
+                {
                   "label": "visibility.public",
                   "value": "public",
                 },
-                Object {
+                {
                   "label": "visibility.private",
                   "value": "private",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "visibility.both",
                 "value": "all",
               }
@@ -226,23 +226,23 @@ exports[`renders 1`] = `
             name="projects-visibility"
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "visibility.both",
                   "value": "all",
                 },
-                Object {
+                {
                   "label": "visibility.public",
                   "value": "public",
                 },
-                Object {
+                {
                   "label": "visibility.private",
                   "value": "private",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "visibility.both",
                 "value": "all",
               }
@@ -308,7 +308,7 @@ exports[`renders 1`] = `
 exports[`renders optionrenderer and singlevaluerenderer: option renderer 1`] = `
 <Option
   data={
-    Object {
+    {
       "value": "val",
     }
   }
@@ -327,7 +327,7 @@ exports[`renders optionrenderer and singlevaluerenderer: option renderer 1`] = `
 exports[`renders optionrenderer and singlevaluerenderer: single value renderer 1`] = `
 <SingleValue
   data={
-    Object {
+    {
       "value": "val",
     }
   }

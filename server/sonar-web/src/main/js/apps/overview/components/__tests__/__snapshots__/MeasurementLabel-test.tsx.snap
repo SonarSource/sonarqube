@@ -19,7 +19,7 @@ exports[`should render correctly for coverage 1`] = `
       <DrilldownLink
         ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.coverage.name"
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -63,7 +63,7 @@ exports[`should render correctly for coverage 2`] = `
       <DrilldownLink
         ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.coverage.name"
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -86,10 +86,10 @@ exports[`should render correctly for coverage 2`] = `
         defaultMessage="overview.coverage_on_X_lines"
         id="overview.coverage_on_X_lines"
         values={
-          Object {
+          {
             "count": <DrilldownLink
               branchLike={
-                Object {
+                {
                   "analysisDate": "2018-01-01",
                   "base": "master",
                   "branch": "feature/foo/bar",
@@ -131,7 +131,7 @@ exports[`should render correctly for coverage 3`] = `
       <DrilldownLink
         ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.new_coverage.name"
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -154,10 +154,10 @@ exports[`should render correctly for coverage 3`] = `
         defaultMessage="overview.coverage_on_X_new_lines"
         id="overview.coverage_on_X_new_lines"
         values={
-          Object {
+          {
             "count": <DrilldownLink
               branchLike={
-                Object {
+                {
                   "analysisDate": "2018-01-01",
                   "base": "master",
                   "branch": "feature/foo/bar",
@@ -199,7 +199,7 @@ exports[`should render correctly for duplications 1`] = `
       <DrilldownLink
         ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.duplicated_lines_density.name"
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -243,7 +243,7 @@ exports[`should render correctly for duplications 2`] = `
       <DrilldownLink
         ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.duplicated_lines_density.name"
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -266,10 +266,10 @@ exports[`should render correctly for duplications 2`] = `
         defaultMessage="overview.duplications_on_X_lines"
         id="overview.duplications_on_X_lines"
         values={
-          Object {
+          {
             "count": <DrilldownLink
               branchLike={
-                Object {
+                {
                   "analysisDate": "2018-01-01",
                   "base": "master",
                   "branch": "feature/foo/bar",
@@ -311,7 +311,7 @@ exports[`should render correctly for duplications 3`] = `
       <DrilldownLink
         ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.new_duplicated_lines_density.name"
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -334,10 +334,10 @@ exports[`should render correctly for duplications 3`] = `
         defaultMessage="overview.duplications_on_X_new_lines"
         id="overview.duplications_on_X_new_lines"
         values={
-          Object {
+          {
             "count": <DrilldownLink
               branchLike={
-                Object {
+                {
                   "analysisDate": "2018-01-01",
                   "base": "master",
                   "branch": "feature/foo/bar",
@@ -378,7 +378,7 @@ exports[`should render correctly when centered 1`] = `
     <DrilldownLink
       ariaLabel="overview.see_more_details_on_x_of_y.1.0%.metric.coverage.name"
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "base": "master",
           "branch": "feature/foo/bar",

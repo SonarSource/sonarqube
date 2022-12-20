@@ -18,7 +18,7 @@ exports[`should render correctly for bugs 1`] = `
     <span>
       <DrilldownLink
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -58,7 +58,7 @@ exports[`should render correctly for bugs 2`] = `
     <span>
       <DrilldownLink
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -98,7 +98,7 @@ exports[`should render correctly for code smells 1`] = `
     <span>
       <DrilldownLink
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -138,7 +138,7 @@ exports[`should render correctly for code smells 2`] = `
     <span>
       <DrilldownLink
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -178,7 +178,7 @@ exports[`should render correctly for vulnerabilities 1`] = `
     <span>
       <DrilldownLink
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -218,7 +218,7 @@ exports[`should render correctly for vulnerabilities 2`] = `
     <span>
       <DrilldownLink
         branchLike={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",

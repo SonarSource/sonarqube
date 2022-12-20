@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: default 1`] = `
-Array [
+[
   <div
     className="modal-head"
   >
@@ -34,12 +34,12 @@ Array [
           isDisabled={false}
           onChange={[Function]}
           options={
-            Array [
-              Object {
+            [
+              {
                 "label": "CSS",
                 "value": "css",
               },
-              Object {
+              {
                 "label": "TS",
                 "value": "ts",
               },
@@ -63,14 +63,14 @@ Array [
         <Select
           className="abs-width-300"
           components={
-            Object {
+            {
               "Option": [Function],
             }
           }
           id="profiles"
           isDisabled={true}
           onChange={[Function]}
-          options={Array []}
+          options={[]}
           value={null}
         />
       </div>

@@ -6,12 +6,12 @@ exports[`should render correctly for BOOLEAN 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "BOOLEAN",
       },
@@ -22,7 +22,7 @@ exports[`should render correctly for BOOLEAN 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -35,12 +35,12 @@ exports[`should render correctly for FLOAT 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "FLOAT",
       },
@@ -51,7 +51,7 @@ exports[`should render correctly for FLOAT 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -64,12 +64,12 @@ exports[`should render correctly for FORMATTED_TEXT 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "FORMATTED_TEXT",
       },
@@ -80,7 +80,7 @@ exports[`should render correctly for FORMATTED_TEXT 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -93,12 +93,12 @@ exports[`should render correctly for INTEGER 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "INTEGER",
       },
@@ -109,7 +109,7 @@ exports[`should render correctly for INTEGER 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -122,12 +122,12 @@ exports[`should render correctly for JSON 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "JSON",
       },
@@ -138,7 +138,7 @@ exports[`should render correctly for JSON 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -151,12 +151,12 @@ exports[`should render correctly for LICENSE 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "LICENSE",
       },
@@ -167,7 +167,7 @@ exports[`should render correctly for LICENSE 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -180,12 +180,12 @@ exports[`should render correctly for LONG 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "LONG",
       },
@@ -196,7 +196,7 @@ exports[`should render correctly for LONG 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -209,12 +209,12 @@ exports[`should render correctly for PASSWORD 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "PASSWORD",
       },
@@ -225,7 +225,7 @@ exports[`should render correctly for PASSWORD 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -238,12 +238,12 @@ exports[`should render correctly for PROPERTY_SET 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "PROPERTY_SET",
       },
@@ -254,7 +254,7 @@ exports[`should render correctly for PROPERTY_SET 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -267,12 +267,12 @@ exports[`should render correctly for SINGLE_SELECT_LIST 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "SINGLE_SELECT_LIST",
       },
@@ -283,7 +283,7 @@ exports[`should render correctly for SINGLE_SELECT_LIST 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -296,12 +296,12 @@ exports[`should render correctly for STRING 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "STRING",
       },
@@ -312,7 +312,7 @@ exports[`should render correctly for STRING 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }
@@ -325,12 +325,12 @@ exports[`should render correctly for TEXT 1`] = `
   name="name"
   onChange={[MockFunction]}
   setting={
-    Object {
-      "definition": Object {
+    {
+      "definition": {
         "category": "foo category",
-        "fields": Array [],
+        "fields": [],
         "key": "foo",
-        "options": Array [],
+        "options": [],
         "subCategory": "foo subCat",
         "type": "TEXT",
       },
@@ -341,7 +341,7 @@ exports[`should render correctly for TEXT 1`] = `
     }
   }
   value={
-    Array [
+    [
       "foo",
     ]
   }

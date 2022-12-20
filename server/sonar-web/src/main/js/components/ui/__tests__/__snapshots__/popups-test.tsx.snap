@@ -5,14 +5,14 @@ exports[`Popup should render Popup 1`] = `
   <div
     className="popup is-left-top foo"
     style={
-      Object {
+      {
         "left": -5,
       }
     }
   >
     <PopupArrow
       style={
-        Object {
+        {
           "top": -5,
         }
       }
@@ -25,7 +25,7 @@ exports[`Popup should render PopupArrow 1`] = `
 <div
   className="popup-arrow"
   style={
-    Object {
+    {
       "left": -5,
     }
   }
@@ -50,13 +50,13 @@ exports[`PortalPopup should render correctly with overlay 1`] = `
 exports[`PortalPopup should render correctly with overlay 2`] = `
 <Popup
   arrowStyle={
-    Object {
+    {
       "marginLeft": 0,
     }
   }
   placement="bottom"
   style={
-    Object {
+    {
       "height": 10,
       "left": 0,
       "top": 0,

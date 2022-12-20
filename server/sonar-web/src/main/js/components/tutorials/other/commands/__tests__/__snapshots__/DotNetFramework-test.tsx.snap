@@ -15,7 +15,7 @@ exports[`should render correctly 1`] = `
         defaultMessage="onboarding.analysis.msbuild.text"
         id="onboarding.analysis.msbuild.text"
         values={
-          Object {
+          {
             "code": <code>
               %PATH%
             </code>,
@@ -32,32 +32,32 @@ exports[`should render correctly 1`] = `
   </div>
   <DotNetExecute
     commands={
-      Array [
-        "SonarScanner.MSBuild.exe begin /k:\\"projectKey\\" /d:sonar.host.url=\\"host\\" /d:sonar.login=\\"token\\"",
+      [
+        "SonarScanner.MSBuild.exe begin /k:"projectKey" /d:sonar.host.url="host" /d:sonar.login="token"",
         "MsBuild.exe /t:Rebuild",
-        "SonarScanner.MSBuild.exe end /d:sonar.login=\\"token\\"",
+        "SonarScanner.MSBuild.exe end /d:sonar.login="token"",
       ]
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "projectKey",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />

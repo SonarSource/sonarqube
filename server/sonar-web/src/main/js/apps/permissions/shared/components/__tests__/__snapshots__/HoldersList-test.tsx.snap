@@ -16,7 +16,7 @@ exports[`should display users and groups 1`] = `
           key="foo"
           onSelectPermission={[MockFunction]}
           permission={
-            Object {
+            {
               "description": "",
               "key": "foo",
               "name": "Foo",
@@ -28,15 +28,15 @@ exports[`should display users and groups 1`] = `
           key="admin"
           onSelectPermission={[MockFunction]}
           permission={
-            Object {
+            {
               "category": "admin",
-              "permissions": Array [
-                Object {
+              "permissions": [
+                {
                   "description": "",
                   "key": "bar",
                   "name": "Bar",
                 },
-                Object {
+                {
                   "description": "",
                   "key": "baz",
                   "name": "Baz",
@@ -53,21 +53,21 @@ exports[`should display users and groups 1`] = `
         key="user-barbaz"
         onToggle={[Function]}
         permissions={
-          Array [
-            Object {
+          [
+            {
               "description": "",
               "key": "foo",
               "name": "Foo",
             },
-            Object {
+            {
               "category": "admin",
-              "permissions": Array [
-                Object {
+              "permissions": [
+                {
                   "description": "",
                   "key": "bar",
                   "name": "Bar",
                 },
-                Object {
+                {
                   "description": "",
                   "key": "baz",
                   "name": "Baz",
@@ -78,10 +78,10 @@ exports[`should display users and groups 1`] = `
         }
         selectedPermission="bar"
         user={
-          Object {
+          {
             "login": "barbaz",
             "name": "Barbaz",
-            "permissions": Array [
+            "permissions": [
               "bar",
             ],
           }
@@ -89,10 +89,10 @@ exports[`should display users and groups 1`] = `
       />
       <GroupHolder
         group={
-          Object {
+          {
             "id": "barbaz",
             "name": "Barbaz",
-            "permissions": Array [
+            "permissions": [
               "bar",
             ],
           }
@@ -100,21 +100,21 @@ exports[`should display users and groups 1`] = `
         key="group-barbaz"
         onToggle={[Function]}
         permissions={
-          Array [
-            Object {
+          [
+            {
               "description": "",
               "key": "foo",
               "name": "Foo",
             },
-            Object {
+            {
               "category": "admin",
-              "permissions": Array [
-                Object {
+              "permissions": [
+                {
                   "description": "",
                   "key": "bar",
                   "name": "Bar",
                 },
-                Object {
+                {
                   "description": "",
                   "key": "baz",
                   "name": "Baz",
@@ -129,21 +129,21 @@ exports[`should display users and groups 1`] = `
         key="user-foobar"
         onToggle={[Function]}
         permissions={
-          Array [
-            Object {
+          [
+            {
               "description": "",
               "key": "foo",
               "name": "Foo",
             },
-            Object {
+            {
               "category": "admin",
-              "permissions": Array [
-                Object {
+              "permissions": [
+                {
                   "description": "",
                   "key": "bar",
                   "name": "Bar",
                 },
-                Object {
+                {
                   "description": "",
                   "key": "baz",
                   "name": "Baz",
@@ -154,10 +154,10 @@ exports[`should display users and groups 1`] = `
         }
         selectedPermission="bar"
         user={
-          Object {
+          {
             "login": "foobar",
             "name": "Foobar",
-            "permissions": Array [
+            "permissions": [
               "bar",
             ],
           }
@@ -165,10 +165,10 @@ exports[`should display users and groups 1`] = `
       />
       <GroupHolder
         group={
-          Object {
+          {
             "id": "foobar",
             "name": "Foobar",
-            "permissions": Array [
+            "permissions": [
               "bar",
             ],
           }
@@ -176,21 +176,21 @@ exports[`should display users and groups 1`] = `
         key="group-foobar"
         onToggle={[Function]}
         permissions={
-          Array [
-            Object {
+          [
+            {
               "description": "",
               "key": "foo",
               "name": "Foo",
             },
-            Object {
+            {
               "category": "admin",
-              "permissions": Array [
-                Object {
+              "permissions": [
+                {
                   "description": "",
                   "key": "bar",
                   "name": "Bar",
                 },
-                Object {
+                {
                   "description": "",
                   "key": "baz",
                   "name": "Baz",
@@ -210,30 +210,30 @@ exports[`should display users and groups 1`] = `
       <tr />
       <GroupHolder
         group={
-          Object {
+          {
             "id": "abc",
             "name": "abc",
-            "permissions": Array [],
+            "permissions": [],
           }
         }
         key="group-abc"
         onToggle={[Function]}
         permissions={
-          Array [
-            Object {
+          [
+            {
               "description": "",
               "key": "foo",
               "name": "Foo",
             },
-            Object {
+            {
               "category": "admin",
-              "permissions": Array [
-                Object {
+              "permissions": [
+                {
                   "description": "",
                   "key": "bar",
                   "name": "Bar",
                 },
-                Object {
+                {
                   "description": "",
                   "key": "baz",
                   "name": "Baz",
@@ -248,21 +248,21 @@ exports[`should display users and groups 1`] = `
         key="user-bcd"
         onToggle={[Function]}
         permissions={
-          Array [
-            Object {
+          [
+            {
               "description": "",
               "key": "foo",
               "name": "Foo",
             },
-            Object {
+            {
               "category": "admin",
-              "permissions": Array [
-                Object {
+              "permissions": [
+                {
                   "description": "",
                   "key": "bar",
                   "name": "Bar",
                 },
-                Object {
+                {
                   "description": "",
                   "key": "baz",
                   "name": "Baz",
@@ -273,10 +273,10 @@ exports[`should display users and groups 1`] = `
         }
         selectedPermission="bar"
         user={
-          Object {
+          {
             "login": "bcd",
             "name": "bcd",
-            "permissions": Array [],
+            "permissions": [],
           }
         }
       />

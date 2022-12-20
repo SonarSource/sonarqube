@@ -80,7 +80,7 @@ exports[`should render correctly: encryptable 1`] = `
         defaultMessage="settings.almintegration.form.secret.can_encrypt"
         id="settings.almintegration.form.secret.can_encrypt"
         values={
-          Object {
+          {
             "learn_more": <withAppStateContext(DocLink)
               to="/instance-administration/security/#settings-encryption"
             >

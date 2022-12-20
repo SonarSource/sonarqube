@@ -62,8 +62,8 @@ exports[`should render correctly 1`] = `
       />
       <BaselineSettingReferenceBranch
         branchList={
-          Array [
-            Object {
+          [
+            {
               "isMain": true,
               "label": "master",
               "value": "master",

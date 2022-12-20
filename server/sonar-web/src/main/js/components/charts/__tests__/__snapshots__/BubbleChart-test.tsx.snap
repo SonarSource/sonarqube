@@ -10,7 +10,7 @@ exports[`should display bubbles 1`] = `
       className="bubble-chart-bubble"
       r={45}
       style={
-        Object {
+        {
           "fill": "blue",
           "stroke": "blue",
         }
@@ -31,7 +31,7 @@ exports[`should display bubbles 2`] = `
       className="bubble-chart-bubble"
       r={33.57142857142858}
       style={
-        Object {
+        {
           "fill": "red",
           "stroke": "red",
         }
@@ -52,7 +52,7 @@ exports[`should render bubble links 1`] = `
       className="bubble-chart-bubble"
       r={45}
       style={
-        Object {
+        {
           "fill": "blue",
           "stroke": "blue",
         }
@@ -73,7 +73,7 @@ exports[`should render bubble links 2`] = `
       className="bubble-chart-bubble"
       r={33.57142857142858}
       style={
-        Object {
+        {
           "fill": "green",
           "stroke": "green",
         }
@@ -94,7 +94,7 @@ exports[`should render bubbles with click handlers 1`] = `
       className="bubble-chart-bubble"
       r={45}
       style={
-        Object {
+        {
           "fill": "blue",
           "stroke": "blue",
         }
@@ -115,7 +115,7 @@ exports[`should render bubbles with click handlers 2`] = `
       className="bubble-chart-bubble"
       r={33.57142857142858}
       style={
-        Object {
+        {
           "fill": "red",
           "stroke": "red",
         }

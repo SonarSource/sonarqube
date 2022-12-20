@@ -9,7 +9,7 @@ exports[`should handle formatting for invalid JSON 1`] = `
     name="foo"
     onChange={[Function]}
     rows={5}
-    value="{\\"a\\": 1b}"
+    value="{"a": 1b}"
   />
   <div>
     <Alert

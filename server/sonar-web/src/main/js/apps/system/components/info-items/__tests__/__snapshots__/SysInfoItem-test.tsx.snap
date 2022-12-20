@@ -38,7 +38,7 @@ exports[`should render correctly: object 1`] = `
         <SysInfoItem
           name="bar"
           value={
-            Object {
+            {
               "a": 1,
               "b": "b",
             }

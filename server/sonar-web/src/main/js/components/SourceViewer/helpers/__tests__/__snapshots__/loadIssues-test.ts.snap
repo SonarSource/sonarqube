@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`loadIssues should load issues 1`] = `
-Array [
-  Object {
-    "actions": Array [
+[
+  {
+    "actions": [
       "set_tags",
       "comment",
       "assign",
@@ -14,7 +14,7 @@ Array [
     "assigneeLogin": "luke",
     "assigneeName": "Luke",
     "author": "luke@sonarsource.com",
-    "comments": Array [],
+    "comments": [],
     "component": "foo.java",
     "componentEnabled": true,
     "componentKey": "foo.java",
@@ -23,8 +23,8 @@ Array [
     "componentPath": "/foo.java",
     "componentQualifier": "FIL",
     "creationDate": "2016-08-15T15:25:38+0200",
-    "flows": Array [],
-    "flowsWithType": Array [],
+    "flows": [],
+    "flowsWithType": [],
     "hash": "78417dcee7ba927b7e7c9161e29e02b8",
     "key": "AWaqVGl3tut9VbnJvk6M",
     "line": 62,
@@ -41,21 +41,21 @@ Array [
     "ruleLangName": "Java",
     "ruleName": "Handling files is security-sensitive",
     "ruleStatus": "READY",
-    "secondaryLocations": Array [],
+    "secondaryLocations": [],
     "status": "OPEN",
-    "tags": Array [
+    "tags": [
       "cert",
       "cwe",
       "owasp-a1",
       "owasp-a3",
     ],
-    "textRange": Object {
+    "textRange": {
       "endLine": 62,
       "endOffset": 96,
       "startLine": 62,
       "startOffset": 93,
     },
-    "transitions": Array [],
+    "transitions": [],
     "type": "SECURITY_HOTSPOT",
     "updateDate": "2018-10-25T10:23:08+0200",
   },

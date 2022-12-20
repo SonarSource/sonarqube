@@ -3,42 +3,42 @@
 exports[`renders correctly 1`] = `
 <ProjectQualityProfilesAppRenderer
   component={
-    Object {
-      "breadcrumbs": Array [],
-      "configuration": Object {
+    {
+      "breadcrumbs": [],
+      "configuration": {
         "showQualityProfiles": true,
       },
       "key": "foo",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "key": "css2",
           "language": "css",
           "name": "CSS 2",
         },
-        Object {
+        {
           "key": "js",
           "language": "js",
           "name": "JS",
         },
-        Object {
+        {
           "key": "ts_default",
           "language": "ts",
           "name": "TS (default)",
         },
-        Object {
+        {
           "key": "html",
           "language": "html",
           "name": "HTML",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   loading={true}

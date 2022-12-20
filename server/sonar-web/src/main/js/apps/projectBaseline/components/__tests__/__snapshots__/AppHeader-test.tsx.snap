@@ -16,7 +16,7 @@ exports[`should render correctly: can admin 1`] = `
       defaultMessage="project_baseline.page.description"
       id="project_baseline.page.description"
       values={
-        Object {
+        {
           "link": <withAppStateContext(DocLink)
             to="/project-administration/defining-new-code/"
           >
@@ -30,7 +30,7 @@ exports[`should render correctly: can admin 1`] = `
       defaultMessage="project_baseline.page.description2"
       id="project_baseline.page.description2"
       values={
-        Object {
+        {
           "link": <ForwardRef(Link)
             to="/admin/settings?category=new_code_period"
           >
@@ -59,7 +59,7 @@ exports[`should render correctly: cannot admin 1`] = `
       defaultMessage="project_baseline.page.description"
       id="project_baseline.page.description"
       values={
-        Object {
+        {
           "link": <withAppStateContext(DocLink)
             to="/project-administration/defining-new-code/"
           >

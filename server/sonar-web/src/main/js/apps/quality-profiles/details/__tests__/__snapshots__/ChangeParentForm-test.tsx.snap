@@ -42,32 +42,32 @@ exports[`should render correctly 1`] = `
           name="parentKey"
           onChange={[Function]}
           options={
-            Array [
-              Object {
+            [
+              {
                 "label": "none",
                 "value": "",
               },
-              Object {
+              {
                 "label": "name",
                 "value": "key",
               },
-              Object {
+              {
                 "label": "name",
                 "value": "key",
               },
-              Object {
+              {
                 "label": "name",
                 "value": "key",
               },
-              Object {
+              {
                 "label": "name",
                 "value": "key",
               },
             ]
           }
           value={
-            Array [
-              Object {
+            [
+              {
                 "label": "none",
                 "value": "",
               },

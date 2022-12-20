@@ -41,10 +41,10 @@ exports[`should render correctly 1`] = `
   onToggle={[MockFunction]}
   open={false}
   property="projects"
-  query={Object {}}
+  query={{}}
   renderFacetItem={[Function]}
   renderSearchResult={[Function]}
   searchPlaceholder="search.search_for_projects"
-  values={Array []}
+  values={[]}
 />
 `;

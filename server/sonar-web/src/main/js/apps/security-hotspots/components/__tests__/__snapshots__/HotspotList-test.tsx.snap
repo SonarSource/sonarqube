@@ -111,8 +111,8 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
           <HotspotCategory
             categoryKey="cat1"
             hotspots={
-              Array [
-                Object {
+              [
+                {
                   "author": "Developer 1",
                   "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                   "creationDate": "2013-05-13T17:55:39+0200",
@@ -134,7 +134,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
             onLocationClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
-              Object {
+              {
                 "author": "Developer 1",
                 "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                 "creationDate": "2013-05-13T17:55:39+0200",
@@ -160,8 +160,8 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
           <HotspotCategory
             categoryKey="cat2"
             hotspots={
-              Array [
-                Object {
+              [
+                {
                   "author": "Developer 1",
                   "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                   "creationDate": "2013-05-13T17:55:39+0200",
@@ -183,7 +183,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
             onLocationClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
-              Object {
+              {
                 "author": "Developer 1",
                 "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                 "creationDate": "2013-05-13T17:55:39+0200",
@@ -229,8 +229,8 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
           <HotspotCategory
             categoryKey="cat1"
             hotspots={
-              Array [
-                Object {
+              [
+                {
                   "author": "Developer 1",
                   "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                   "creationDate": "2013-05-13T17:55:39+0200",
@@ -245,7 +245,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
                   "updateDate": "2013-05-13T17:55:39+0200",
                   "vulnerabilityProbability": "MEDIUM",
                 },
-                Object {
+                {
                   "author": "Developer 1",
                   "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                   "creationDate": "2013-05-13T17:55:39+0200",
@@ -267,7 +267,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
             onLocationClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
-              Object {
+              {
                 "author": "Developer 1",
                 "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                 "creationDate": "2013-05-13T17:55:39+0200",
@@ -293,8 +293,8 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
           <HotspotCategory
             categoryKey="cat2"
             hotspots={
-              Array [
-                Object {
+              [
+                {
                   "author": "Developer 1",
                   "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                   "creationDate": "2013-05-13T17:55:39+0200",
@@ -316,7 +316,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
             onLocationClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
-              Object {
+              {
                 "author": "Developer 1",
                 "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                 "creationDate": "2013-05-13T17:55:39+0200",
@@ -387,8 +387,8 @@ exports[`should render correctly with hotspots: pagination 1`] = `
           <HotspotCategory
             categoryKey="cat1"
             hotspots={
-              Array [
-                Object {
+              [
+                {
                   "author": "Developer 1",
                   "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                   "creationDate": "2013-05-13T17:55:39+0200",
@@ -410,7 +410,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
             onLocationClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
-              Object {
+              {
                 "author": "Developer 1",
                 "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                 "creationDate": "2013-05-13T17:55:39+0200",
@@ -436,8 +436,8 @@ exports[`should render correctly with hotspots: pagination 1`] = `
           <HotspotCategory
             categoryKey="cat2"
             hotspots={
-              Array [
-                Object {
+              [
+                {
                   "author": "Developer 1",
                   "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                   "creationDate": "2013-05-13T17:55:39+0200",
@@ -459,7 +459,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
             onLocationClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
-              Object {
+              {
                 "author": "Developer 1",
                 "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                 "creationDate": "2013-05-13T17:55:39+0200",
@@ -505,8 +505,8 @@ exports[`should render correctly with hotspots: pagination 1`] = `
           <HotspotCategory
             categoryKey="cat1"
             hotspots={
-              Array [
-                Object {
+              [
+                {
                   "author": "Developer 1",
                   "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                   "creationDate": "2013-05-13T17:55:39+0200",
@@ -521,7 +521,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
                   "updateDate": "2013-05-13T17:55:39+0200",
                   "vulnerabilityProbability": "MEDIUM",
                 },
-                Object {
+                {
                   "author": "Developer 1",
                   "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                   "creationDate": "2013-05-13T17:55:39+0200",
@@ -543,7 +543,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
             onLocationClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
-              Object {
+              {
                 "author": "Developer 1",
                 "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                 "creationDate": "2013-05-13T17:55:39+0200",
@@ -569,8 +569,8 @@ exports[`should render correctly with hotspots: pagination 1`] = `
           <HotspotCategory
             categoryKey="cat2"
             hotspots={
-              Array [
-                Object {
+              [
+                {
                   "author": "Developer 1",
                   "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                   "creationDate": "2013-05-13T17:55:39+0200",
@@ -592,7 +592,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
             onLocationClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
-              Object {
+              {
                 "author": "Developer 1",
                 "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
                 "creationDate": "2013-05-13T17:55:39+0200",

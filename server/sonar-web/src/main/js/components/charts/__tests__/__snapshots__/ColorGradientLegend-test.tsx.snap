@@ -45,7 +45,7 @@ exports[`should render properly 1`] = `
     >
       <line
         style={
-          Object {
+          {
             "stroke": "#b4b4b4",
             "strokeWidth": 4,
           }
@@ -57,7 +57,7 @@ exports[`should render properly 1`] = `
       />
       <line
         style={
-          Object {
+          {
             "stroke": "#888",
             "strokeWidth": 4,
           }
@@ -69,7 +69,7 @@ exports[`should render properly 1`] = `
       />
       <line
         style={
-          Object {
+          {
             "stroke": "#b4b4b4",
             "strokeWidth": 4,
           }
@@ -81,7 +81,7 @@ exports[`should render properly 1`] = `
       />
       <line
         style={
-          Object {
+          {
             "stroke": "#888",
             "strokeWidth": 4,
           }
@@ -93,7 +93,7 @@ exports[`should render properly 1`] = `
       />
       <line
         style={
-          Object {
+          {
             "stroke": "#b4b4b4",
             "strokeWidth": 4,
           }
@@ -105,7 +105,7 @@ exports[`should render properly 1`] = `
       />
       <line
         style={
-          Object {
+          {
             "stroke": "#888",
             "strokeWidth": 4,
           }
@@ -117,7 +117,7 @@ exports[`should render properly 1`] = `
       />
       <line
         style={
-          Object {
+          {
             "stroke": "#b4b4b4",
             "strokeWidth": 4,
           }
@@ -129,7 +129,7 @@ exports[`should render properly 1`] = `
       />
       <line
         style={
-          Object {
+          {
             "stroke": "#888",
             "strokeWidth": 4,
           }

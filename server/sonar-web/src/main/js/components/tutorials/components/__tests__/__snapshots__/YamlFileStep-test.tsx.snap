@@ -13,7 +13,7 @@ exports[`should render child correctly: C unavailable 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build"
       options={
-        Array [
+        [
           "maven",
           "gradle",
           "dotnet",
@@ -38,7 +38,7 @@ exports[`should render correctly: C available 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build"
       options={
-        Array [
+        [
           "maven",
           "gradle",
           "dotnet",
@@ -64,7 +64,7 @@ exports[`should render correctly: C unavailable 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build"
       options={
-        Array [
+        [
           "maven",
           "gradle",
           "dotnet",

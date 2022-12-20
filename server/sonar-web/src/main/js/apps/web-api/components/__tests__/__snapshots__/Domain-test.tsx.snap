@@ -16,7 +16,7 @@ exports[`should also render actions with a description matching the query 1`] = 
   <div
     className="web-api-domain-description markdown"
     dangerouslySetInnerHTML={
-      Object {
+      {
         "__html": "API Desc",
       }
     }
@@ -26,8 +26,8 @@ exports[`should also render actions with a description matching the query 1`] = 
   >
     <Action
       action={
-        Object {
-          "changelog": Array [],
+        {
+          "changelog": [],
           "description": "Foo Desc",
           "hasResponseExample": false,
           "internal": false,
@@ -36,26 +36,26 @@ exports[`should also render actions with a description matching the query 1`] = 
         }
       }
       domain={
-        Object {
-          "actions": Array [
-            Object {
-              "changelog": Array [],
+        {
+          "actions": [
+            {
+              "changelog": [],
               "description": "Foo Desc",
               "hasResponseExample": false,
               "internal": false,
               "key": "foo",
               "post": false,
             },
-            Object {
-              "changelog": Array [],
+            {
+              "changelog": [],
               "description": "Bar desc",
               "hasResponseExample": false,
               "internal": false,
               "key": "bar",
               "post": false,
             },
-            Object {
-              "changelog": Array [],
+            {
+              "changelog": [],
               "description": "foobar",
               "hasResponseExample": false,
               "internal": false,
@@ -75,8 +75,8 @@ exports[`should also render actions with a description matching the query 1`] = 
     />
     <Action
       action={
-        Object {
-          "changelog": Array [],
+        {
+          "changelog": [],
           "description": "foobar",
           "hasResponseExample": false,
           "internal": false,
@@ -85,26 +85,26 @@ exports[`should also render actions with a description matching the query 1`] = 
         }
       }
       domain={
-        Object {
-          "actions": Array [
-            Object {
-              "changelog": Array [],
+        {
+          "actions": [
+            {
+              "changelog": [],
               "description": "Foo Desc",
               "hasResponseExample": false,
               "internal": false,
               "key": "foo",
               "post": false,
             },
-            Object {
-              "changelog": Array [],
+            {
+              "changelog": [],
               "description": "Bar desc",
               "hasResponseExample": false,
               "internal": false,
               "key": "bar",
               "post": false,
             },
-            Object {
-              "changelog": Array [],
+            {
+              "changelog": [],
               "description": "foobar",
               "hasResponseExample": false,
               "internal": false,
@@ -142,7 +142,7 @@ exports[`should not render deprecated actions 1`] = `
   <div
     className="web-api-domain-description markdown"
     dangerouslySetInnerHTML={
-      Object {
+      {
         "__html": "API Desc",
       }
     }
@@ -169,7 +169,7 @@ exports[`should not render internal actions 1`] = `
   <div
     className="web-api-domain-description markdown"
     dangerouslySetInnerHTML={
-      Object {
+      {
         "__html": "API Desc",
       }
     }
@@ -196,7 +196,7 @@ exports[`should render deprecated actions 1`] = `
   <div
     className="web-api-domain-description markdown"
     dangerouslySetInnerHTML={
-      Object {
+      {
         "__html": "API Desc",
       }
     }
@@ -206,8 +206,8 @@ exports[`should render deprecated actions 1`] = `
   >
     <Action
       action={
-        Object {
-          "changelog": Array [],
+        {
+          "changelog": [],
           "deprecatedSince": "5.0",
           "description": "Foo Desc",
           "hasResponseExample": false,
@@ -217,10 +217,10 @@ exports[`should render deprecated actions 1`] = `
         }
       }
       domain={
-        Object {
-          "actions": Array [
-            Object {
-              "changelog": Array [],
+        {
+          "actions": [
+            {
+              "changelog": [],
               "deprecatedSince": "5.0",
               "description": "Foo Desc",
               "hasResponseExample": false,
@@ -259,7 +259,7 @@ exports[`should render internal actions 1`] = `
   <div
     className="web-api-domain-description markdown"
     dangerouslySetInnerHTML={
-      Object {
+      {
         "__html": "API Desc",
       }
     }
@@ -269,8 +269,8 @@ exports[`should render internal actions 1`] = `
   >
     <Action
       action={
-        Object {
-          "changelog": Array [],
+        {
+          "changelog": [],
           "description": "Foo Desc",
           "hasResponseExample": false,
           "internal": true,
@@ -279,10 +279,10 @@ exports[`should render internal actions 1`] = `
         }
       }
       domain={
-        Object {
-          "actions": Array [
-            Object {
-              "changelog": Array [],
+        {
+          "actions": [
+            {
+              "changelog": [],
               "description": "Foo Desc",
               "hasResponseExample": false,
               "internal": true,
@@ -320,7 +320,7 @@ exports[`should render only actions matching the query 1`] = `
   <div
     className="web-api-domain-description markdown"
     dangerouslySetInnerHTML={
-      Object {
+      {
         "__html": "API Desc",
       }
     }
@@ -330,8 +330,8 @@ exports[`should render only actions matching the query 1`] = `
   >
     <Action
       action={
-        Object {
-          "changelog": Array [],
+        {
+          "changelog": [],
           "description": "Foo Desc",
           "hasResponseExample": false,
           "internal": false,
@@ -340,18 +340,18 @@ exports[`should render only actions matching the query 1`] = `
         }
       }
       domain={
-        Object {
-          "actions": Array [
-            Object {
-              "changelog": Array [],
+        {
+          "actions": [
+            {
+              "changelog": [],
               "description": "Foo Desc",
               "hasResponseExample": false,
               "internal": false,
               "key": "foo",
               "post": false,
             },
-            Object {
-              "changelog": Array [],
+            {
+              "changelog": [],
               "description": "Bar desc",
               "hasResponseExample": false,
               "internal": false,

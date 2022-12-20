@@ -1,17 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`getAnalysesByVersionByDay should also filter analysis based on the query 1`] = `
-Array [
-  Object {
-    "byDay": Object {
-      "1495065600000": Array [
-        Object {
+[
+  {
+    "byDay": {
+      "1495065600000": [
+        {
           "date": 2017-05-18T14:13:07.000Z,
-          "events": Array [
-            Object {
+          "events": [
+            {
               "category": "QUALITY_PROFILE",
               "key": "AVxZtC-N7841nF4RNEMJ",
-              "name": "Changes in \\"Default - SonarSource conventions\\" (Java)",
+              "name": "Changes in "Default - SonarSource conventions" (Java)",
             },
           ],
           "key": "AVxZtCpH7841nF4RNEMI",
@@ -21,21 +21,21 @@ Array [
     "key": "AVyM9oI1HjR_PLDzRciU",
     "version": "1.1",
   },
-  Object {
-    "byDay": Object {
-      "1494892800000": Array [
-        Object {
+  {
+    "byDay": {
+      "1494892800000": [
+        {
           "date": 2017-05-16T07:09:59.000Z,
-          "events": Array [
-            Object {
+          "events": [
+            {
               "category": "VERSION",
               "key": "AVyM9oI1HjR_PLDzRciU",
               "name": "1.0",
             },
-            Object {
+            {
               "category": "QUALITY_PROFILE",
               "key": "AVwQF7zXl-nNFgFWOJ3W",
-              "name": "Changes in \\"Default - SonarSource conventions\\" (Java)",
+              "name": "Changes in "Default - SonarSource conventions" (Java)",
             },
           ],
           "key": "AVwQF7kwl-nNFgFWOJ3V",
@@ -49,13 +49,13 @@ Array [
 `;
 
 exports[`getAnalysesByVersionByDay should also filter analysis based on the query 2`] = `
-Array [
-  Object {
-    "byDay": Object {
-      "1496966400000": Array [
-        Object {
+[
+  {
+    "byDay": {
+      "1496966400000": [
+        {
           "date": 2017-06-09T11:12:27.000Z,
-          "events": Array [],
+          "events": [],
           "key": "AVyM9n3cHjR_PLDzRciT",
         },
       ],
@@ -63,26 +63,26 @@ Array [
     "key": "AVyM9oI1HjR_PLDzRciU",
     "version": "1.1-SNAPSHOT",
   },
-  Object {
-    "byDay": Object {
-      "1495065600000": Array [
-        Object {
+  {
+    "byDay": {
+      "1495065600000": [
+        {
           "date": 2017-05-18T14:13:07.000Z,
-          "events": Array [
-            Object {
+          "events": [
+            {
               "category": "QUALITY_PROFILE",
               "key": "AVxZtC-N7841nF4RNEMJ",
-              "name": "Changes in \\"Default - SonarSource conventions\\" (Java)",
+              "name": "Changes in "Default - SonarSource conventions" (Java)",
             },
           ],
           "key": "AVxZtCpH7841nF4RNEMI",
         },
       ],
-      "1496966400000": Array [
-        Object {
+      "1496966400000": [
+        {
           "date": 2017-06-09T11:12:27.000Z,
-          "events": Array [
-            Object {
+          "events": [
+            {
               "category": "VERSION",
               "key": "AVyM9oI1HjR_PLDzRciU",
               "name": "1.1",
@@ -95,8 +95,8 @@ Array [
     "key": "AVyM9oI1HjR_PLDzRciU",
     "version": "1.1",
   },
-  Object {
-    "byDay": Object {},
+  {
+    "byDay": {},
     "key": "AVyM9oI1HjR_PLDzRciU",
     "version": "1.0",
   },
@@ -104,14 +104,14 @@ Array [
 `;
 
 exports[`getAnalysesByVersionByDay should correctly map analysis by versions and by days 1`] = `
-Array [
-  Object {
-    "byDay": Object {
-      "1496966400000": Array [
-        Object {
+[
+  {
+    "byDay": {
+      "1496966400000": [
+        {
           "date": 2017-06-09T13:06:10.000Z,
-          "events": Array [
-            Object {
+          "events": [
+            {
               "category": "VERSION",
               "key": "AVyM9oI1HjR_PLDzRciU",
               "name": "1.1-SNAPSHOT",
@@ -119,9 +119,9 @@ Array [
           ],
           "key": "AVyMjlK1HjR_PLDzRbB9",
         },
-        Object {
+        {
           "date": 2017-06-09T11:12:27.000Z,
-          "events": Array [],
+          "events": [],
           "key": "AVyM9n3cHjR_PLDzRciT",
         },
       ],
@@ -129,31 +129,31 @@ Array [
     "key": "AVyM9oI1HjR_PLDzRciU",
     "version": "1.1-SNAPSHOT",
   },
-  Object {
-    "byDay": Object {
-      "1495065600000": Array [
-        Object {
+  {
+    "byDay": {
+      "1495065600000": [
+        {
           "date": 2017-05-18T14:13:07.000Z,
-          "events": Array [
-            Object {
+          "events": [
+            {
               "category": "QUALITY_PROFILE",
               "key": "AVxZtC-N7841nF4RNEMJ",
-              "name": "Changes in \\"Default - SonarSource conventions\\" (Java)",
+              "name": "Changes in "Default - SonarSource conventions" (Java)",
             },
           ],
           "key": "AVxZtCpH7841nF4RNEMI",
         },
-        Object {
+        {
           "date": 2017-05-18T07:17:32.000Z,
-          "events": Array [],
+          "events": [],
           "key": "AVwaa1qkpbBde8B6UhYI",
         },
       ],
-      "1496966400000": Array [
-        Object {
+      "1496966400000": [
+        {
           "date": 2017-06-09T11:12:27.000Z,
-          "events": Array [
-            Object {
+          "events": [
+            {
               "category": "VERSION",
               "key": "AVyM9oI1HjR_PLDzRciU",
               "name": "1.1",
@@ -166,28 +166,28 @@ Array [
     "key": "AVyM9oI1HjR_PLDzRciU",
     "version": "1.1",
   },
-  Object {
-    "byDay": Object {
-      "1494288000000": Array [
-        Object {
+  {
+    "byDay": {
+      "1494288000000": [
+        {
           "date": 2017-05-09T12:03:59.000Z,
-          "events": Array [],
+          "events": [],
           "key": "AVvtGF3IY6vCuQNDdwxI",
         },
       ],
-      "1494892800000": Array [
-        Object {
+      "1494892800000": [
+        {
           "date": 2017-05-16T07:09:59.000Z,
-          "events": Array [
-            Object {
+          "events": [
+            {
               "category": "VERSION",
               "key": "AVyM9oI1HjR_PLDzRciU",
               "name": "1.0",
             },
-            Object {
+            {
               "category": "QUALITY_PROFILE",
               "key": "AVwQF7zXl-nNFgFWOJ3W",
-              "name": "Changes in \\"Default - SonarSource conventions\\" (Java)",
+              "name": "Changes in "Default - SonarSource conventions" (Java)",
             },
           ],
           "key": "AVwQF7kwl-nNFgFWOJ3V",
@@ -201,30 +201,30 @@ Array [
 `;
 
 exports[`getAnalysesByVersionByDay should create fake version 1`] = `
-Array [
-  Object {
-    "byDay": Object {
-      "1495065600000": Array [
-        Object {
+[
+  {
+    "byDay": {
+      "1495065600000": [
+        {
           "date": 2017-05-18T14:13:07.000Z,
-          "events": Array [],
+          "events": [],
           "key": "AVxZtCpH7841nF4RNEMI",
         },
       ],
-      "1496966400000": Array [
-        Object {
+      "1496966400000": [
+        {
           "date": 2017-06-09T13:06:10.000Z,
-          "events": Array [],
+          "events": [],
           "key": "AVyMjlK1HjR_PLDzRbB9",
         },
-        Object {
+        {
           "date": 2017-06-09T11:12:27.000Z,
-          "events": Array [],
+          "events": [],
           "key": "AVyM9n3cHjR_PLDzRciT",
         },
-        Object {
+        {
           "date": 2017-06-09T11:12:27.000Z,
-          "events": Array [],
+          "events": [],
           "key": "AVyMjlK1HjR_PLDzRbB9",
         },
       ],

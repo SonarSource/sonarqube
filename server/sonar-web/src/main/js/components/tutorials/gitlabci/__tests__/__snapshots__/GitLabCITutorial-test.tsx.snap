@@ -13,25 +13,25 @@ exports[`should render correctly 1`] = `
   </div>
   <withCLanguageFeature(ProjectKeyStep)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     finished={false}
@@ -43,37 +43,37 @@ exports[`should render correctly 1`] = `
   <EnvironmentVariablesStep
     baseUrl="http://localhost:9000"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     currentUser={
-      Object {
-        "dismissedNotices": Object {
+      {
+        "dismissedNotices": {
           "educationPrinciples": false,
         },
-        "groups": Array [],
+        "groups": [],
         "isLoggedIn": true,
         "login": "luke",
         "name": "Skywalker",
-        "scmAccounts": Array [],
+        "scmAccounts": [],
       }
     }
     finished={false}

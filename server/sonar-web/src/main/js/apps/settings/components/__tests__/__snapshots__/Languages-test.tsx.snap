@@ -16,18 +16,18 @@ exports[`should render correctly 1`] = `
       className="input-large select-settings-language"
       onChange={[Function]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "property.category.Java",
             "originalValue": "Java",
             "value": "java",
           },
-          Object {
+          {
             "label": "property.category.JavaScript",
             "originalValue": "JavaScript",
             "value": "javascript",
           },
-          Object {
+          {
             "label": "property.category.COBOL",
             "originalValue": "COBOL",
             "value": "cobol",
@@ -36,7 +36,7 @@ exports[`should render correctly 1`] = `
       }
       placeholder="settings.languages.select_a_language_placeholder"
       value={
-        Object {
+        {
           "label": "property.category.Java",
           "originalValue": "Java",
           "value": "java",
@@ -49,7 +49,7 @@ exports[`should render correctly 1`] = `
   >
     <CategoryDefinitionsList
       category="java"
-      definitions={Array []}
+      definitions={[]}
     />
   </div>
 </Fragment>
@@ -71,18 +71,18 @@ exports[`should render correctly with an unknow language 1`] = `
       className="input-large select-settings-language"
       onChange={[Function]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "property.category.Java",
             "originalValue": "Java",
             "value": "java",
           },
-          Object {
+          {
             "label": "property.category.JavaScript",
             "originalValue": "JavaScript",
             "value": "javascript",
           },
-          Object {
+          {
             "label": "property.category.COBOL",
             "originalValue": "COBOL",
             "value": "cobol",

@@ -21,7 +21,7 @@ exports[`should render correctly 1`] = `
     className="pull-right"
     data-test="rules"
     to={
-      Object {
+      {
         "pathname": "/coding_rules",
         "search": "?qprofile=bar&activation=false&compareToProfile=baz&languages=Java",
       }

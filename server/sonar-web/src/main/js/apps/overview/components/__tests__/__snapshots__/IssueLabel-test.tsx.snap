@@ -6,7 +6,7 @@ exports[`should render correctly for bugs 1`] = `
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.bugs.name"
     className="overview-measures-value text-light"
     to={
-      Object {
+      {
         "hash": "",
         "pathname": "/project/issues",
         "search": "?pullRequest=1001&resolved=false&types=BUG&inNewCodePeriod=false&id=my-project",
@@ -28,7 +28,7 @@ exports[`should render correctly for bugs 2`] = `
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.new_bugs.name"
     className="overview-measures-value text-light"
     to={
-      Object {
+      {
         "hash": "",
         "pathname": "/project/issues",
         "search": "?pullRequest=1001&resolved=false&types=BUG&inNewCodePeriod=true&id=my-project",
@@ -50,7 +50,7 @@ exports[`should render correctly for code smells 1`] = `
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.code_smells.name"
     className="overview-measures-value text-light"
     to={
-      Object {
+      {
         "hash": "",
         "pathname": "/project/issues",
         "search": "?pullRequest=1001&resolved=false&types=CODE_SMELL&inNewCodePeriod=false&id=my-project",
@@ -72,7 +72,7 @@ exports[`should render correctly for code smells 2`] = `
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.new_code_smells.name"
     className="overview-measures-value text-light"
     to={
-      Object {
+      {
         "hash": "",
         "pathname": "/project/issues",
         "search": "?pullRequest=1001&resolved=false&types=CODE_SMELL&inNewCodePeriod=true&id=my-project",
@@ -94,7 +94,7 @@ exports[`should render correctly for hotspots 1`] = `
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.security_hotspots.name"
     className="overview-measures-value text-light"
     to={
-      Object {
+      {
         "hash": "",
         "pathname": "/security_hotspots",
         "search": "?id=my-project&pullRequest=1001&inNewCodePeriod=false",
@@ -120,7 +120,7 @@ exports[`should render correctly for hotspots 2`] = `
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.new_security_hotspots.name"
     className="overview-measures-value text-light"
     to={
-      Object {
+      {
         "hash": "",
         "pathname": "/security_hotspots",
         "search": "?id=my-project&pullRequest=1001&inNewCodePeriod=true",
@@ -146,7 +146,7 @@ exports[`should render correctly for vulnerabilities 1`] = `
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.vulnerabilities.name"
     className="overview-measures-value text-light"
     to={
-      Object {
+      {
         "hash": "",
         "pathname": "/project/issues",
         "search": "?pullRequest=1001&resolved=false&types=VULNERABILITY&inNewCodePeriod=false&id=my-project",
@@ -168,7 +168,7 @@ exports[`should render correctly for vulnerabilities 2`] = `
     aria-label="overview.see_list_of_x_y_issues.1.0.metric.new_vulnerabilities.name"
     className="overview-measures-value text-light"
     to={
-      Object {
+      {
         "hash": "",
         "pathname": "/project/issues",
         "search": "?pullRequest=1001&resolved=false&types=VULNERABILITY&inNewCodePeriod=true&id=my-project",

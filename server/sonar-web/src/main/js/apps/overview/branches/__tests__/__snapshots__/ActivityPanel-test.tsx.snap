@@ -25,8 +25,8 @@ exports[`should render correctly 1`] = `
           <GraphsHeader
             graph="issues"
             metrics={
-              Array [
-                Object {
+              [
+                {
                   "id": "bugs",
                   "key": "bugs",
                   "name": "bugs",
@@ -37,16 +37,16 @@ exports[`should render correctly 1`] = `
             updateGraph={[MockFunction]}
           />
           <GraphsHistory
-            analyses={Array []}
+            analyses={[]}
             ariaLabel="overview.activity.graph_shows_data_for_x.metric.bugs.name, metric.code_smells.name, metric.vulnerabilities.name"
             canShowDataAsTable={false}
             graph="issues"
             graphs={
-              Array [
-                Array [
-                  Object {
-                    "data": Array [
-                      Object {
+              [
+                [
+                  {
+                    "data": [
+                      {
                         "x": 2016-10-27T14:33:50.000Z,
                         "y": 20,
                       },
@@ -60,17 +60,17 @@ exports[`should render correctly 1`] = `
             }
             loading={false}
             measuresHistory={
-              Array [
-                Object {
+              [
+                {
                   "bestValue": true,
-                  "history": Array [
-                    Object {
+                  "history": [
+                    {
                       "date": 2016-10-27T14:33:50.000Z,
                       "value": "20",
                     },
                   ],
                   "metric": "bugs",
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -80,10 +80,10 @@ exports[`should render correctly 1`] = `
               ]
             }
             series={
-              Array [
-                Object {
-                  "data": Array [
-                    Object {
+              [
+                {
+                  "data": [
+                    {
                       "x": 2016-10-27T14:33:50.000Z,
                       "y": 20,
                     },
@@ -101,7 +101,7 @@ exports[`should render correctly 1`] = `
         >
           <ActivityLink
             branchLike={
-              Object {
+              {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": true,
@@ -128,22 +128,22 @@ exports[`should render correctly 1`] = `
             >
               <Memo(Analysis)
                 analysis={
-                  Object {
+                  {
                     "date": "2017-03-01T09:36:01+0100",
-                    "events": Array [
-                      Object {
+                    "events": [
+                      {
                         "category": "QUALITY_GATE",
                         "description": "Lorem ipsum dolor sit amet",
                         "key": "E11",
                         "name": "Lorem ipsum",
-                        "qualityGate": Object {
-                          "failing": Array [
-                            Object {
+                        "qualityGate": {
+                          "failing": [
+                            {
                               "branch": "master",
                               "key": "foo",
                               "name": "Foo",
                             },
-                            Object {
+                            {
                               "branch": "feature/bar",
                               "key": "bar",
                               "name": "Bar",
@@ -195,8 +195,8 @@ exports[`should render correctly 2`] = `
           <GraphsHeader
             graph="issues"
             metrics={
-              Array [
-                Object {
+              [
+                {
                   "id": "bugs",
                   "key": "bugs",
                   "name": "bugs",
@@ -207,16 +207,16 @@ exports[`should render correctly 2`] = `
             updateGraph={[MockFunction]}
           />
           <GraphsHistory
-            analyses={Array []}
+            analyses={[]}
             ariaLabel="overview.activity.graph_shows_data_for_x.metric.bugs.name, metric.code_smells.name, metric.vulnerabilities.name"
             canShowDataAsTable={false}
             graph="issues"
             graphs={
-              Array [
-                Array [
-                  Object {
-                    "data": Array [
-                      Object {
+              [
+                [
+                  {
+                    "data": [
+                      {
                         "x": 2016-10-27T14:33:50.000Z,
                         "y": 20,
                       },
@@ -230,17 +230,17 @@ exports[`should render correctly 2`] = `
             }
             loading={true}
             measuresHistory={
-              Array [
-                Object {
+              [
+                {
                   "bestValue": true,
-                  "history": Array [
-                    Object {
+                  "history": [
+                    {
                       "date": 2016-10-27T14:33:50.000Z,
                       "value": "20",
                     },
                   ],
                   "metric": "bugs",
-                  "period": Object {
+                  "period": {
                     "bestValue": true,
                     "index": 1,
                     "value": "1.0",
@@ -250,10 +250,10 @@ exports[`should render correctly 2`] = `
               ]
             }
             series={
-              Array [
-                Object {
-                  "data": Array [
-                    Object {
+              [
+                {
+                  "data": [
+                    {
                       "x": 2016-10-27T14:33:50.000Z,
                       "y": 20,
                     },
@@ -271,7 +271,7 @@ exports[`should render correctly 2`] = `
         >
           <ActivityLink
             branchLike={
-              Object {
+              {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
                 "isMain": true,

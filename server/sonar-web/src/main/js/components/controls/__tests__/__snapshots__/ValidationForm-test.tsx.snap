@@ -3,7 +3,7 @@
 exports[`should render and submit 1`] = `
 <Formik
   initialValues={
-    Object {
+    {
       "foo": "bar",
     }
   }

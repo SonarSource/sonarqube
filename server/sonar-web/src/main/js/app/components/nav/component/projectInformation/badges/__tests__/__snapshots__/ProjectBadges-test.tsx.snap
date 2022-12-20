@@ -39,7 +39,7 @@ exports[`should display correctly 1`] = `
   <withMetricsContext(BadgeParams)
     className="big-spacer-bottom display-flex-column"
     options={
-      Object {
+      {
         "metric": "alert_status",
       }
     }

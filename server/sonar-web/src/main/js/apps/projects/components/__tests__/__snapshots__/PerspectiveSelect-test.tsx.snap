@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should handle perspective change correctly 1`] = `
-Array [
-  Array [
-    Object {
+[
+  [
+    {
       "view": "overall",
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "view": "leak",
     },
   ],
@@ -27,7 +27,7 @@ exports[`should render correctly 1`] = `
     aria-labelledby="aria-projects-perspective"
     className="little-spacer-left input-medium it__projects-perspective-select"
     components={
-      Object {
+      {
         "Option": [Function],
       }
     }
@@ -35,19 +35,19 @@ exports[`should render correctly 1`] = `
     isSearchable={false}
     onChange={[Function]}
     options={
-      Array [
-        Object {
+      [
+        {
           "label": "projects.view.overall",
           "value": "overall",
         },
-        Object {
+        {
           "label": "projects.view.new_code",
           "value": "leak",
         },
       ]
     }
     value={
-      Object {
+      {
         "label": "projects.view.overall",
         "value": "overall",
       }

@@ -19,7 +19,7 @@ exports[`should display right meta info 1`] = `
         className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
         title="permalink"
         to={
-          Object {
+          {
             "pathname": "/coding_rules",
             "search": "?open=squid%3AS1133&rule_key=squid%3AS1133",
           }
@@ -30,9 +30,9 @@ exports[`should display right meta info 1`] = `
       <SimilarRulesFilter
         onFilterChange={[MockFunction]}
         rule={
-          Object {
+          {
             "createdAt": "2013-07-26T09:40:51+0200",
-            "descriptionSections": Array [],
+            "descriptionSections": [],
             "key": "squid:S1133",
             "lang": "java",
             "langName": "Java",
@@ -94,8 +94,8 @@ exports[`should display right meta info 1`] = `
         overlay={
           <RuleDetailsTagsPopup
             setTags={[MockFunction]}
-            sysTags={Array []}
-            tags={Array []}
+            sysTags={[]}
+            tags={[]}
           />
         }
         overlayPlacement="bottom-left"
@@ -104,7 +104,7 @@ exports[`should display right meta info 1`] = `
           <TagsList
             allowUpdate={true}
             tags={
-              Array [
+              [
                 "coding_rules.no_tags",
               ]
             }
@@ -220,9 +220,9 @@ exports[`should display right meta info 3`] = `
         overlay={
           <RuleDetailsTagsPopup
             setTags={[MockFunction]}
-            sysTags={Array []}
+            sysTags={[]}
             tags={
-              Array [
+              [
                 "tag",
               ]
             }
@@ -234,7 +234,7 @@ exports[`should display right meta info 3`] = `
           <TagsList
             allowUpdate={true}
             tags={
-              Array [
+              [
                 "tag",
               ]
             }
@@ -270,8 +270,8 @@ exports[`should edit tags 1`] = `
     overlay={
       <RuleDetailsTagsPopup
         setTags={[MockFunction]}
-        sysTags={Array []}
-        tags={Array []}
+        sysTags={[]}
+        tags={[]}
       />
     }
     overlayPlacement="bottom-left"
@@ -280,7 +280,7 @@ exports[`should edit tags 1`] = `
       <TagsList
         allowUpdate={true}
         tags={
-          Array [
+          [
             "coding_rules.no_tags",
           ]
         }

@@ -2,7 +2,7 @@
 
 exports[`should render default view correctly 1`] = `
 <withRouter(SettingsAppRenderer)
-  definitions={Array []}
+  definitions={[]}
   loading={false}
 />
 `;

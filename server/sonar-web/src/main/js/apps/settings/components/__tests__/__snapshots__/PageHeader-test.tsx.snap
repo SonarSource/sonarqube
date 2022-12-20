@@ -23,28 +23,28 @@ exports[`should render correctly: for project 1`] = `
       <withRouter(SettingsSearch)
         className="big-spacer-top"
         component={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "key": "my-project",
             "name": "MyProject",
             "qualifier": "TRK",
-            "qualityGate": Object {
+            "qualityGate": {
               "isDefault": true,
               "key": "30",
               "name": "Sonar way",
             },
-            "qualityProfiles": Array [
-              Object {
+            "qualityProfiles": [
+              {
                 "deleted": false,
                 "key": "my-qp",
                 "language": "ts",
                 "name": "Sonar way",
               },
             ],
-            "tags": Array [],
+            "tags": [],
           }
         }
-        definitions={Array []}
+        definitions={[]}
       />
     </div>
   </div>
@@ -75,7 +75,7 @@ exports[`should render correctly: global 1`] = `
       </div>
       <withRouter(SettingsSearch)
         className="big-spacer-top"
-        definitions={Array []}
+        definitions={[]}
       />
     </div>
   </div>

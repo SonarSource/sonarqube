@@ -11,7 +11,7 @@ exports[`should render correctly for azure: content 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
       values={
-        Object {
+        {
           "link": <ButtonLink
             onClick={[MockFunction]}
           >
@@ -58,7 +58,7 @@ exports[`should render correctly for bitbucket: content 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
       values={
-        Object {
+        {
           "link": <ButtonLink
             onClick={[MockFunction]}
           >
@@ -74,14 +74,14 @@ exports[`should render correctly for bitbucket: content 1`] = `
     <WebhookStepBitbucket
       alm="bitbucket"
       almBinding={
-        Object {
+        {
           "alm": "github",
           "key": "key",
         }
       }
       branchesEnabled={true}
       projectBinding={
-        Object {
+        {
           "alm": "bitbucket",
           "key": "foo",
           "monorepo": true,
@@ -125,7 +125,7 @@ exports[`should render correctly for bitbucketcloud: content 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
       values={
-        Object {
+        {
           "link": <ButtonLink
             onClick={[MockFunction]}
           >
@@ -141,14 +141,14 @@ exports[`should render correctly for bitbucketcloud: content 1`] = `
     <WebhookStepBitbucket
       alm="bitbucketcloud"
       almBinding={
-        Object {
+        {
           "alm": "github",
           "key": "key",
         }
       }
       branchesEnabled={true}
       projectBinding={
-        Object {
+        {
           "alm": "bitbucketcloud",
           "key": "foo",
           "monorepo": true,
@@ -191,7 +191,7 @@ exports[`should render correctly for github: content 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
       values={
-        Object {
+        {
           "link": <ButtonLink
             onClick={[MockFunction]}
           >
@@ -206,14 +206,14 @@ exports[`should render correctly for github: content 1`] = `
   >
     <WebhookStepGithub
       almBinding={
-        Object {
+        {
           "alm": "github",
           "key": "key",
         }
       }
       branchesEnabled={true}
       projectBinding={
-        Object {
+        {
           "alm": "github",
           "key": "foo",
           "monorepo": true,
@@ -256,7 +256,7 @@ exports[`should render correctly for gitlab: content 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
       values={
-        Object {
+        {
           "link": <ButtonLink
             onClick={[MockFunction]}
           >

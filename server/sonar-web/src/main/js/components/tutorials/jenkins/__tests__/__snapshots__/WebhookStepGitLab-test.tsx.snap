@@ -7,7 +7,7 @@ exports[`should render correctly: default 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": "onboarding.tutorial.with.jenkins.webhook.gitlab.step1.link",
         }
       }
@@ -33,7 +33,7 @@ exports[`should render correctly: default 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "trigger",
         ]
       }
@@ -57,7 +57,7 @@ exports[`should render correctly: default 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "add_webhook",
         ]
       }
@@ -74,7 +74,7 @@ exports[`should render correctly: with branches disabled 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": "onboarding.tutorial.with.jenkins.webhook.gitlab.step1.link",
         }
       }
@@ -97,7 +97,7 @@ exports[`should render correctly: with branches disabled 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "trigger",
         ]
       }
@@ -116,7 +116,7 @@ exports[`should render correctly: with branches disabled 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "add_webhook",
         ]
       }

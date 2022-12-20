@@ -3,7 +3,7 @@
 exports[`renders correctly for applications 1`] = `
 <Memo(ApplicationLeakPeriodInfo)
   leakPeriod={
-    Object {
+    {
       "date": "2017-10-01",
       "project": "foo",
       "projectName": "Foo",
@@ -15,7 +15,7 @@ exports[`renders correctly for applications 1`] = `
 exports[`renders correctly for projects 1`] = `
 <Memo(injectIntl(ProjectLeakPeriodInfo))
   leakPeriod={
-    Object {
+    {
       "date": "2019-04-23T02:12:32+0100",
       "index": 0,
       "mode": "previous_version",

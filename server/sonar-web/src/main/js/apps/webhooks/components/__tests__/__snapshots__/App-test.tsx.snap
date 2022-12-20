@@ -57,13 +57,13 @@ exports[`should fetch webhooks and display them 1`] = `
         onDelete={[Function]}
         onUpdate={[Function]}
         webhooks={
-          Array [
-            Object {
+          [
+            {
               "key": "1",
               "name": "foo",
               "url": "http://foo",
             },
-            Object {
+            {
               "key": "2",
               "name": "bar",
               "url": "http://bar",

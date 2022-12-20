@@ -20,7 +20,7 @@ exports[`should render correctly: content 1`] = `
   >
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "installed",
           "configured",
         ]
@@ -45,7 +45,7 @@ exports[`should render correctly: content 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       values={
-        Object {
+        {
           "link": <withAppStateContext(DocLink)
             to="/analyzing-source-code/ci-integration/jenkins-integration/"
           >
@@ -82,7 +82,7 @@ exports[`should render correctly: content for branches disabled 1`] = `
   >
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "installed",
           "configured",
         ]
@@ -104,7 +104,7 @@ exports[`should render correctly: content for branches disabled 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       values={
-        Object {
+        {
           "link": <withAppStateContext(DocLink)
             to="/analyzing-source-code/ci-integration/jenkins-integration/"
           >
@@ -141,7 +141,7 @@ exports[`should render correctly: content for branches disabled, gitlab 1`] = `
   >
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "installed",
           "configured",
         ]
@@ -166,7 +166,7 @@ exports[`should render correctly: content for branches disabled, gitlab 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
       values={
-        Object {
+        {
           "link": <withAppStateContext(DocLink)
             to="/analyzing-source-code/ci-integration/jenkins-integration/"
           >

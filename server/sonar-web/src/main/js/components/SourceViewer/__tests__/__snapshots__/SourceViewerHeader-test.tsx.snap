@@ -74,7 +74,7 @@ exports[`should render correctly for a regular file 1`] = `
             rel="noopener noreferrer"
             target="_blank"
             to={
-              Object {
+              {
                 "pathname": "/code",
                 "search": "?id=project&selected=project%3Afoo%2Fbar.ts",
               }
@@ -208,7 +208,7 @@ exports[`should render correctly for a unit test 1`] = `
             rel="noopener noreferrer"
             target="_blank"
             to={
-              Object {
+              {
                 "pathname": "/code",
                 "search": "?id=my-project&selected=my-project%3Afoo%2Fbar.ts",
               }
@@ -365,7 +365,7 @@ exports[`should render correctly if issue details are passed 1`] = `
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "hash": "",
               "pathname": "/project/issues",
               "search": "?files=foo%2Fbar.ts&resolved=false&types=BUG&id=project",
@@ -390,7 +390,7 @@ exports[`should render correctly if issue details are passed 1`] = `
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "hash": "",
               "pathname": "/project/issues",
               "search": "?files=foo%2Fbar.ts&resolved=false&types=VULNERABILITY&id=project",
@@ -415,7 +415,7 @@ exports[`should render correctly if issue details are passed 1`] = `
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "hash": "",
               "pathname": "/project/issues",
               "search": "?files=foo%2Fbar.ts&resolved=false&types=CODE_SMELL&id=project",
@@ -440,7 +440,7 @@ exports[`should render correctly if issue details are passed 1`] = `
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "hash": "",
               "pathname": "/security_hotspots",
               "search": "?id=project&files=foo%2Fbar.ts",
@@ -473,7 +473,7 @@ exports[`should render correctly if issue details are passed 1`] = `
             rel="noopener noreferrer"
             target="_blank"
             to={
-              Object {
+              {
                 "pathname": "/code",
                 "search": "?id=project&selected=project%3Afoo%2Fbar.ts",
               }

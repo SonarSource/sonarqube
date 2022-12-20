@@ -17,7 +17,7 @@ exports[`should fetch issues and render 1`] = `
         (
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/issues",
               "search": "?resolved=false&rules=foo",
             }
@@ -53,7 +53,7 @@ exports[`should fetch issues and render 1`] = `
           >
             <ForwardRef(Link)
               to={
-                Object {
+                {
                   "pathname": "/issues",
                   "search": "?resolved=false&rules=foo&projects=sample-key",
                 }
@@ -76,7 +76,7 @@ exports[`should fetch issues and render 1`] = `
           >
             <ForwardRef(Link)
               to={
-                Object {
+                {
                   "pathname": "/issues",
                   "search": "?resolved=false&rules=foo&projects=example-key",
                 }

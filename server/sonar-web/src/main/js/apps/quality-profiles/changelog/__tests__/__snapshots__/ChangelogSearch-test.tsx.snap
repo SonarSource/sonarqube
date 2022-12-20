@@ -8,7 +8,7 @@ exports[`should render 1`] = `
   <DateRangeInput
     onChange={[MockFunction]}
     value={
-      Object {
+      {
         "from": 2016-01-01T00:00:00.000Z,
         "to": 2016-05-05T00:00:00.000Z,
       }

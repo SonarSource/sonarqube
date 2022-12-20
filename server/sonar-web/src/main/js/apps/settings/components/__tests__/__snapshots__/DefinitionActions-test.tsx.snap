@@ -71,7 +71,7 @@ exports[`displays default message when value is default 1`] = `
   <div
     className="spacer-top note"
     style={
-      Object {
+      {
         "lineHeight": "24px",
       }
     }

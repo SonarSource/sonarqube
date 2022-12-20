@@ -62,7 +62,7 @@ exports[`should render correctly 2`] = `
   </div>
   <LocationsList
     componentKey="com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest"
-    locations={Array []}
+    locations={[]}
     onLocationSelect={[Function]}
     showCrossFile={false}
   />

@@ -7,7 +7,7 @@ exports[`HotspotOpenInIdeButton should handle several IDE 1`] = `
   overlay={
     <DropdownOverlay>
       <HotspotOpenInIdeOverlay
-        ides={Array []}
+        ides={[]}
         onIdeSelected={[Function]}
       />
     </DropdownOverlay>
@@ -33,13 +33,13 @@ exports[`HotspotOpenInIdeButton should handle several IDE: dropdown open 1`] = `
     <DropdownOverlay>
       <HotspotOpenInIdeOverlay
         ides={
-          Array [
-            Object {
+          [
+            {
               "description": "Hello World",
               "ideName": "BlueJ IDE",
               "port": 42000,
             },
-            Object {
+            {
               "description": "Blink",
               "ideName": "Arduino IDE",
               "port": 42001,
@@ -70,7 +70,7 @@ exports[`HotspotOpenInIdeButton should render correctly 1`] = `
   overlay={
     <DropdownOverlay>
       <HotspotOpenInIdeOverlay
-        ides={Array []}
+        ides={[]}
         onIdeSelected={[Function]}
       />
     </DropdownOverlay>

@@ -6,7 +6,7 @@ exports[`should support more than two nodes 1`] = `
     biggerHealth={true}
     health="RED"
     healthCauses={
-      Array [
+      [
         "Database down",
       ]
     }
@@ -14,12 +14,12 @@ exports[`should support more than two nodes 1`] = `
     onClick={[Function]}
     open={true}
     sysInfoData={
-      Object {
-        "Compute Engine Tasks": Object {
+      {
+        "Compute Engine Tasks": {
           "Total In Progress": 0,
           "Total Pending": 0,
         },
-        "Database": Object {
+        "Database": {
           "Database": "PostgreSQL",
           "Database Version": "10.3",
           "Driver": "PostgreSQL JDBC Driver",
@@ -29,11 +29,11 @@ exports[`should support more than two nodes 1`] = `
         },
         "High Availability": true,
         "Lines of Code": "989,880",
-        "Search Indexes": Object {
+        "Search Indexes": {
           "Index components - Docs": 30445,
           "Index components - Shards": 10,
         },
-        "Search State": Object {
+        "Search State": {
           "Nodes": 3,
           "State": "GREEN",
         },
@@ -47,17 +47,17 @@ exports[`should support more than two nodes 1`] = `
   </li>
   <HealthCard
     health="GREEN"
-    healthCauses={Array []}
+    healthCauses={[]}
     key="Bar"
     name="Bar"
     onClick={[Function]}
     open={false}
     sysInfoData={
-      Object {
-        "Compute Engine Logging": Object {
+      {
+        "Compute Engine Logging": {
           "Logs Level": "INFO",
         },
-        "Web Logging": Object {
+        "Web Logging": {
           "Logs Level": "INFO",
         },
       }
@@ -74,11 +74,11 @@ exports[`should support more than two nodes 1`] = `
     onClick={[Function]}
     open={false}
     sysInfoData={
-      Object {
-        "Compute Engine Logging": Object {
+      {
+        "Compute Engine Logging": {
           "Logs Level": "INFO",
         },
-        "Web Logging": Object {
+        "Web Logging": {
           "Logs Level": "INFO",
         },
       }

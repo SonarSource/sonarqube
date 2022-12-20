@@ -48,8 +48,8 @@ exports[`generates token 1`] = `
                     className="spacer-left"
                     content="onboarding.token.name.help"
                     links={
-                      Array [
-                        Object {
+                      [
+                        {
                           "href": "/user-guide/user-account/generating-and-using-tokens/",
                           "label": "learn_more",
                         },
@@ -85,27 +85,27 @@ exports[`generates token 1`] = `
                     isSearchable={false}
                     onChange={[Function]}
                     options={
-                      Array [
-                        Object {
+                      [
+                        {
                           "label": "users.tokens.expiration.30",
                           "value": 30,
                         },
-                        Object {
+                        {
                           "label": "users.tokens.expiration.90",
                           "value": 90,
                         },
-                        Object {
+                        {
                           "label": "users.tokens.expiration.365",
                           "value": 365,
                         },
-                        Object {
+                        {
                           "label": "users.tokens.expiration.0",
                           "value": 0,
                         },
                       ]
                     }
                     value={
-                      Object {
+                      {
                         "label": "users.tokens.expiration.30",
                         "value": 30,
                       }
@@ -144,7 +144,7 @@ exports[`generates token 1`] = `
           defaultMessage="onboarding.token.text"
           id="onboarding.token.text"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
@@ -208,8 +208,8 @@ exports[`generates token 2`] = `
                     className="spacer-left"
                     content="onboarding.token.name.help"
                     links={
-                      Array [
-                        Object {
+                      [
+                        {
                           "href": "/user-guide/user-account/generating-and-using-tokens/",
                           "label": "learn_more",
                         },
@@ -245,27 +245,27 @@ exports[`generates token 2`] = `
                     isSearchable={false}
                     onChange={[Function]}
                     options={
-                      Array [
-                        Object {
+                      [
+                        {
                           "label": "users.tokens.expiration.30",
                           "value": 30,
                         },
-                        Object {
+                        {
                           "label": "users.tokens.expiration.90",
                           "value": 90,
                         },
-                        Object {
+                        {
                           "label": "users.tokens.expiration.365",
                           "value": 365,
                         },
-                        Object {
+                        {
                           "label": "users.tokens.expiration.0",
                           "value": 0,
                         },
                       ]
                     }
                     value={
-                      Object {
+                      {
                         "label": "users.tokens.expiration.30",
                         "value": 30,
                       }
@@ -301,7 +301,7 @@ exports[`generates token 2`] = `
           defaultMessage="onboarding.token.text"
           id="onboarding.token.text"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
@@ -363,7 +363,7 @@ exports[`generates token 3`] = `
           defaultMessage="onboarding.token.text"
           id="onboarding.token.text"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
@@ -435,7 +435,7 @@ exports[`revokes token 1`] = `
           defaultMessage="onboarding.token.text"
           id="onboarding.token.text"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
@@ -506,7 +506,7 @@ exports[`revokes token 2`] = `
           defaultMessage="onboarding.token.text"
           id="onboarding.token.text"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"
@@ -580,8 +580,8 @@ exports[`revokes token 3`] = `
                     className="spacer-left"
                     content="onboarding.token.name.help"
                     links={
-                      Array [
-                        Object {
+                      [
+                        {
                           "href": "/user-guide/user-account/generating-and-using-tokens/",
                           "label": "learn_more",
                         },
@@ -617,27 +617,27 @@ exports[`revokes token 3`] = `
                     isSearchable={false}
                     onChange={[Function]}
                     options={
-                      Array [
-                        Object {
+                      [
+                        {
                           "label": "users.tokens.expiration.30",
                           "value": 30,
                         },
-                        Object {
+                        {
                           "label": "users.tokens.expiration.90",
                           "value": 90,
                         },
-                        Object {
+                        {
                           "label": "users.tokens.expiration.365",
                           "value": 365,
                         },
-                        Object {
+                        {
                           "label": "users.tokens.expiration.0",
                           "value": 0,
                         },
                       ]
                     }
                     value={
-                      Object {
+                      {
                         "label": "users.tokens.expiration.30",
                         "value": 30,
                       }
@@ -676,7 +676,7 @@ exports[`revokes token 3`] = `
           defaultMessage="onboarding.token.text"
           id="onboarding.token.text"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 target="_blank"
                 to="/account/security"

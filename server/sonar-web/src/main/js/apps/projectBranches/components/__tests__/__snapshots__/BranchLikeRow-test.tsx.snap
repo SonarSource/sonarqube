@@ -7,7 +7,7 @@ exports[`should render correctly for branch 1`] = `
   >
     <BranchLikeIcon
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
@@ -28,7 +28,7 @@ exports[`should render correctly for branch 1`] = `
   >
     <withBranchStatus(BranchStatus)
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
@@ -36,25 +36,25 @@ exports[`should render correctly for branch 1`] = `
         }
       }
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
     />
@@ -71,7 +71,7 @@ exports[`should render correctly for branch 1`] = `
   >
     <BranchPurgeSetting
       branch={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
@@ -79,25 +79,25 @@ exports[`should render correctly for branch 1`] = `
         }
       }
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
       onUpdatePurgeSetting={[MockFunction]}
@@ -126,7 +126,7 @@ exports[`should render correctly for main branch 1`] = `
   >
     <BranchLikeIcon
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": true,
@@ -153,7 +153,7 @@ exports[`should render correctly for main branch 1`] = `
   >
     <withBranchStatus(BranchStatus)
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": true,
@@ -161,25 +161,25 @@ exports[`should render correctly for main branch 1`] = `
         }
       }
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
     />
@@ -196,7 +196,7 @@ exports[`should render correctly for main branch 1`] = `
   >
     <BranchPurgeSetting
       branch={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": true,
@@ -204,25 +204,25 @@ exports[`should render correctly for main branch 1`] = `
         }
       }
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
       onUpdatePurgeSetting={[MockFunction]}
@@ -250,7 +250,7 @@ exports[`should render correctly for pull request 1`] = `
   >
     <BranchLikeIcon
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "base": "master",
           "branch": "feature/foo/bar",
@@ -273,7 +273,7 @@ exports[`should render correctly for pull request 1`] = `
   >
     <withBranchStatus(BranchStatus)
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "base": "master",
           "branch": "feature/foo/bar",
@@ -283,25 +283,25 @@ exports[`should render correctly for pull request 1`] = `
         }
       }
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
     />

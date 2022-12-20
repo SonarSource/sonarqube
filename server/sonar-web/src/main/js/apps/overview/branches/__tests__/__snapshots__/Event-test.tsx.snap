@@ -41,7 +41,7 @@ exports[`should render rich quality gate event 1`] = `
     defaultMessage="event.quality_gate.still_x"
     id="event.quality_gate.still_x"
     values={
-      Object {
+      {
         "status": <Level
           level="ERROR"
           small={true}

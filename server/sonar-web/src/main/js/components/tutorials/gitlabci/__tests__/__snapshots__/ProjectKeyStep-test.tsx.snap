@@ -15,7 +15,7 @@ exports[`should render correctly for build tool cfamily 1`] = `
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
-          Array [
+          [
             "maven",
             "gradle",
             "dotnet",
@@ -32,7 +32,7 @@ exports[`should render correctly for build tool cfamily 1`] = `
         defaultMessage="onboarding.tutorial.with.gitlab_ci.project_key.cfamily.step2"
         id="onboarding.tutorial.with.gitlab_ci.project_key.cfamily.step2"
         values={
-          Object {
+          {
             "file": <React.Fragment>
               <code
                 className="rule"
@@ -77,7 +77,7 @@ exports[`should render correctly for build tool dotnet 1`] = `
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
-          Array [
+          [
             "maven",
             "gradle",
             "dotnet",
@@ -111,7 +111,7 @@ exports[`should render correctly for build tool gradle 1`] = `
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
-          Array [
+          [
             "maven",
             "gradle",
             "dotnet",
@@ -128,7 +128,7 @@ exports[`should render correctly for build tool gradle 1`] = `
         defaultMessage="onboarding.tutorial.with.gitlab_ci.project_key.gradle.step2"
         id="onboarding.tutorial.with.gitlab_ci.project_key.gradle.step2"
         values={
-          Object {
+          {
             "file": <React.Fragment>
               <code
                 className="rule"
@@ -145,13 +145,13 @@ exports[`should render correctly for build tool gradle 1`] = `
       />
       <CodeSnippet
         snippet="plugins {
-  id \\"org.sonarqube\\" version \\"3.5.0.2730\\"
+  id "org.sonarqube" version "3.5.0.2730"
 }
 
 sonar {
   properties {
-    property \\"sonar.projectKey\\", \\"my-project\\"
-    property \\"sonar.qualitygate.wait\\", true 
+    property "sonar.projectKey", "my-project"
+    property "sonar.qualitygate.wait", true 
   }
 }"
       />
@@ -180,7 +180,7 @@ exports[`should render correctly for build tool maven 1`] = `
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
-          Array [
+          [
             "maven",
             "gradle",
             "dotnet",
@@ -197,7 +197,7 @@ exports[`should render correctly for build tool maven 1`] = `
         defaultMessage="onboarding.tutorial.with.gitlab_ci.project_key.maven.step2"
         id="onboarding.tutorial.with.gitlab_ci.project_key.maven.step2"
         values={
-          Object {
+          {
             "file": <React.Fragment>
               <code
                 className="rule"
@@ -242,7 +242,7 @@ exports[`should render correctly for build tool other 1`] = `
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
-          Array [
+          [
             "maven",
             "gradle",
             "dotnet",
@@ -259,7 +259,7 @@ exports[`should render correctly for build tool other 1`] = `
         defaultMessage="onboarding.tutorial.with.gitlab_ci.project_key.other.step2"
         id="onboarding.tutorial.with.gitlab_ci.project_key.other.step2"
         values={
-          Object {
+          {
             "file": <React.Fragment>
               <code
                 className="rule"
@@ -303,7 +303,7 @@ exports[`should render correctly if C is not available 1`] = `
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
-          Array [
+          [
             "maven",
             "gradle",
             "dotnet",
@@ -341,7 +341,7 @@ exports[`should render correctly: initial content 1`] = `
         onCheck={[Function]}
         optionLabelKey="onboarding.build"
         options={
-          Array [
+          [
             "maven",
             "gradle",
             "dotnet",

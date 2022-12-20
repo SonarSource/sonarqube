@@ -3,13 +3,13 @@
 exports[`should set value correctly 1`] = `
 <AppStateContextProvider
   appState={
-    Object {
+    {
       "edition": "community",
       "productionDatabase": true,
-      "qualifiers": Array [
+      "qualifiers": [
         "TRK",
       ],
-      "settings": Object {
+      "settings": {
         "sonar.lf.logoUrl": "whatevs/",
       },
       "version": "1.0",

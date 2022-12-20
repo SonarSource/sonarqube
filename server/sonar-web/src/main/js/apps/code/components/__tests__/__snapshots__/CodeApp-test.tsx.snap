@@ -1,53 +1,53 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should correcly display new/overall measure for portfolio: new metrics 1`] = `
-Object {
-  "baseComponent": Object {
-    "breadcrumbs": Array [],
+{
+  "baseComponent": {
+    "breadcrumbs": [],
     "key": "my-project",
     "name": "MyProject",
     "qualifier": "TRK",
-    "qualityGate": Object {
+    "qualityGate": {
       "isDefault": true,
       "key": "30",
       "name": "Sonar way",
     },
-    "qualityProfiles": Array [
-      Object {
+    "qualityProfiles": [
+      {
         "deleted": false,
         "key": "my-qp",
         "language": "ts",
         "name": "Sonar way",
       },
     ],
-    "tags": Array [],
+    "tags": [],
   },
   "branchLike": undefined,
-  "components": Array [
-    Object {
-      "breadcrumbs": Array [],
+  "components": [
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     },
   ],
   "cycle": true,
-  "metrics": Array [
-    Object {
+  "metrics": [
+    {
       "domain": "new_reliability_rating",
       "id": "4",
       "key": "new_reliability_rating",
@@ -60,79 +60,79 @@ Object {
   "onGoToParent": [Function],
   "onHighlight": [Function],
   "onSelect": [Function],
-  "rootComponent": Object {
-    "breadcrumbs": Array [],
+  "rootComponent": {
+    "breadcrumbs": [],
     "canBrowseAllChildProjects": true,
     "key": "my-project",
     "name": "MyProject",
     "qualifier": "VW",
-    "qualityGate": Object {
+    "qualityGate": {
       "isDefault": true,
       "key": "30",
       "name": "Sonar way",
     },
-    "qualityProfiles": Array [
-      Object {
+    "qualityProfiles": [
+      {
         "deleted": false,
         "key": "my-qp",
         "language": "ts",
         "name": "Sonar way",
       },
     ],
-    "tags": Array [],
+    "tags": [],
   },
   "selected": undefined,
 }
 `;
 
 exports[`should correcly display new/overall measure for portfolio: overall metrics 1`] = `
-Object {
-  "baseComponent": Object {
-    "breadcrumbs": Array [],
+{
+  "baseComponent": {
+    "breadcrumbs": [],
     "key": "my-project",
     "name": "MyProject",
     "qualifier": "TRK",
-    "qualityGate": Object {
+    "qualityGate": {
       "isDefault": true,
       "key": "30",
       "name": "Sonar way",
     },
-    "qualityProfiles": Array [
-      Object {
+    "qualityProfiles": [
+      {
         "deleted": false,
         "key": "my-qp",
         "language": "ts",
         "name": "Sonar way",
       },
     ],
-    "tags": Array [],
+    "tags": [],
   },
   "branchLike": undefined,
-  "components": Array [
-    Object {
-      "breadcrumbs": Array [],
+  "components": [
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     },
   ],
   "cycle": true,
-  "metrics": Array [
-    Object {
+  "metrics": [
+    {
       "domain": "reliability_rating",
       "id": "2",
       "key": "reliability_rating",
@@ -145,26 +145,26 @@ Object {
   "onGoToParent": [Function],
   "onHighlight": [Function],
   "onSelect": [Function],
-  "rootComponent": Object {
-    "breadcrumbs": Array [],
+  "rootComponent": {
+    "breadcrumbs": [],
     "canBrowseAllChildProjects": true,
     "key": "my-project",
     "name": "MyProject",
     "qualifier": "VW",
-    "qualityGate": Object {
+    "qualityGate": {
       "isDefault": true,
       "key": "30",
       "name": "Sonar way",
     },
-    "qualityProfiles": Array [
-      Object {
+    "qualityProfiles": [
+      {
         "deleted": false,
         "key": "my-qp",
         "language": "ts",
         "name": "Sonar way",
       },
     ],
-    "tags": Array [],
+    "tags": [],
   },
   "selected": undefined,
 }
@@ -265,8 +265,8 @@ exports[`should render correclty when no sub component for APP: no search 1`] = 
   />
   <withRouter(Search)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
@@ -285,13 +285,13 @@ exports[`should render correclty when no sub component for APP: no search 1`] = 
       className="boxed-group spacer-top search-results"
     >
       <withKeyboardNavigation(Components)
-        components={Array []}
-        metrics={Array []}
+        components={[]}
+        metrics={[]}
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -322,8 +322,8 @@ exports[`should render correclty when no sub component for APP: with sub compone
   />
   <withRouter(Search)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
@@ -343,8 +343,8 @@ exports[`should render correclty when no sub component for APP: with sub compone
     >
       <withKeyboardNavigation(Components)
         baseComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -352,33 +352,33 @@ exports[`should render correclty when no sub component for APP: with sub compone
           }
         }
         components={
-          Array [
-            Object {
-              "breadcrumbs": Array [],
+          [
+            {
+              "breadcrumbs": [],
               "key": "my-project",
               "name": "MyProject",
               "qualifier": "FIL",
-              "qualityGate": Object {
+              "qualityGate": {
                 "isDefault": true,
                 "key": "30",
                 "name": "Sonar way",
               },
-              "qualityProfiles": Array [
-                Object {
+              "qualityProfiles": [
+                {
                   "deleted": false,
                   "key": "my-qp",
                   "language": "ts",
                   "name": "Sonar way",
                 },
               ],
-              "tags": Array [],
+              "tags": [],
             },
           ]
         }
         cycle={true}
         metrics={
-          Array [
-            Object {
+          [
+            {
               "domain": "Coverage",
               "id": "2",
               "key": "coverage",
@@ -393,8 +393,8 @@ exports[`should render correclty when no sub component for APP: with sub compone
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -462,8 +462,8 @@ exports[`should render correclty when no sub component for SVW: no search 1`] = 
   />
   <withRouter(Search)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
@@ -482,13 +482,13 @@ exports[`should render correclty when no sub component for SVW: no search 1`] = 
       className="boxed-group spacer-top search-results"
     >
       <withKeyboardNavigation(Components)
-        components={Array []}
-        metrics={Array []}
+        components={[]}
+        metrics={[]}
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -519,8 +519,8 @@ exports[`should render correclty when no sub component for SVW: with sub compone
   />
   <withRouter(Search)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
@@ -540,8 +540,8 @@ exports[`should render correclty when no sub component for SVW: with sub compone
     >
       <withKeyboardNavigation(Components)
         baseComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -549,39 +549,39 @@ exports[`should render correclty when no sub component for SVW: with sub compone
           }
         }
         components={
-          Array [
-            Object {
-              "breadcrumbs": Array [],
+          [
+            {
+              "breadcrumbs": [],
               "key": "my-project",
               "name": "MyProject",
               "qualifier": "FIL",
-              "qualityGate": Object {
+              "qualityGate": {
                 "isDefault": true,
                 "key": "30",
                 "name": "Sonar way",
               },
-              "qualityProfiles": Array [
-                Object {
+              "qualityProfiles": [
+                {
                   "deleted": false,
                   "key": "my-qp",
                   "language": "ts",
                   "name": "Sonar way",
                 },
               ],
-              "tags": Array [],
+              "tags": [],
             },
           ]
         }
         cycle={true}
-        metrics={Array []}
+        metrics={[]}
         newCodeSelected={true}
         onEndOfList={[Function]}
         onGoToParent={[Function]}
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -649,8 +649,8 @@ exports[`should render correclty when no sub component for TRK: no search 1`] = 
   />
   <withRouter(Search)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
@@ -669,13 +669,13 @@ exports[`should render correclty when no sub component for TRK: no search 1`] = 
       className="boxed-group spacer-top search-results"
     >
       <withKeyboardNavigation(Components)
-        components={Array []}
-        metrics={Array []}
+        components={[]}
+        metrics={[]}
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -706,8 +706,8 @@ exports[`should render correclty when no sub component for TRK: with sub compone
   />
   <withRouter(Search)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
@@ -727,8 +727,8 @@ exports[`should render correclty when no sub component for TRK: with sub compone
     >
       <withKeyboardNavigation(Components)
         baseComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -736,33 +736,33 @@ exports[`should render correclty when no sub component for TRK: with sub compone
           }
         }
         components={
-          Array [
-            Object {
-              "breadcrumbs": Array [],
+          [
+            {
+              "breadcrumbs": [],
               "key": "my-project",
               "name": "MyProject",
               "qualifier": "FIL",
-              "qualityGate": Object {
+              "qualityGate": {
                 "isDefault": true,
                 "key": "30",
                 "name": "Sonar way",
               },
-              "qualityProfiles": Array [
-                Object {
+              "qualityProfiles": [
+                {
                   "deleted": false,
                   "key": "my-qp",
                   "language": "ts",
                   "name": "Sonar way",
                 },
               ],
-              "tags": Array [],
+              "tags": [],
             },
           ]
         }
         cycle={true}
         metrics={
-          Array [
-            Object {
+          [
+            {
               "domain": "Coverage",
               "id": "2",
               "key": "coverage",
@@ -777,8 +777,8 @@ exports[`should render correclty when no sub component for TRK: with sub compone
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -846,8 +846,8 @@ exports[`should render correclty when no sub component for VW: no search 1`] = `
   />
   <withRouter(Search)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
@@ -866,13 +866,13 @@ exports[`should render correclty when no sub component for VW: no search 1`] = `
       className="boxed-group spacer-top search-results"
     >
       <withKeyboardNavigation(Components)
-        components={Array []}
-        metrics={Array []}
+        components={[]}
+        metrics={[]}
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -903,8 +903,8 @@ exports[`should render correclty when no sub component for VW: with sub componen
   />
   <withRouter(Search)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
@@ -924,8 +924,8 @@ exports[`should render correclty when no sub component for VW: with sub componen
     >
       <withKeyboardNavigation(Components)
         baseComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
@@ -933,39 +933,39 @@ exports[`should render correclty when no sub component for VW: with sub componen
           }
         }
         components={
-          Array [
-            Object {
-              "breadcrumbs": Array [],
+          [
+            {
+              "breadcrumbs": [],
               "key": "my-project",
               "name": "MyProject",
               "qualifier": "FIL",
-              "qualityGate": Object {
+              "qualityGate": {
                 "isDefault": true,
                 "key": "30",
                 "name": "Sonar way",
               },
-              "qualityProfiles": Array [
-                Object {
+              "qualityProfiles": [
+                {
                   "deleted": false,
                   "key": "my-qp",
                   "language": "ts",
                   "name": "Sonar way",
                 },
               ],
-              "tags": Array [],
+              "tags": [],
             },
           ]
         }
         cycle={true}
-        metrics={Array []}
+        metrics={[]}
         newCodeSelected={true}
         onEndOfList={[Function]}
         onGoToParent={[Function]}
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
-          Object {
-            "breadcrumbs": Array [],
+          {
+            "breadcrumbs": [],
             "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",

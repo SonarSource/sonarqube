@@ -6,38 +6,38 @@ exports[`renders correctly 1`] = `
 >
   <withRouter(TutorialSelection)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
         "version": "0.0.1",
       }
     }
     currentUser={
-      Object {
-        "dismissedNotices": Object {
+      {
+        "dismissedNotices": {
           "educationPrinciples": false,
         },
-        "groups": Array [],
+        "groups": [],
         "isLoggedIn": true,
         "login": "luke",
         "name": "Skywalker",
-        "scmAccounts": Array [],
+        "scmAccounts": [],
       }
     }
     willRefreshAutomatically={true}
@@ -62,7 +62,7 @@ exports[`renders correctly 3`] = `
       defaultMessage="provisioning.no_analysis_on_main_branch"
       id="provisioning.no_analysis_on_main_branch"
       values={
-        Object {
+        {
           "branchName": "master",
         }
       }
@@ -77,42 +77,42 @@ exports[`renders correctly 4`] = `
 >
   <withRouter(TutorialSelection)
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
         "version": "0.0.1",
       }
     }
     currentUser={
-      Object {
-        "dismissedNotices": Object {
+      {
+        "dismissedNotices": {
           "educationPrinciples": false,
         },
-        "groups": Array [],
+        "groups": [],
         "isLoggedIn": true,
         "login": "luke",
         "name": "Skywalker",
-        "scmAccounts": Array [],
+        "scmAccounts": [],
       }
     }
     projectBinding={
-      Object {
+      {
         "alm": "github",
         "key": "foo",
         "monorepo": true,
@@ -147,7 +147,7 @@ exports[`should render another message when there are branches 1`] = `
       defaultMessage="provisioning.no_analysis_on_main_branch.bad_configuration"
       id="provisioning.no_analysis_on_main_branch.bad_configuration"
       values={
-        Object {
+        {
           "branchName": "master",
           "branchType": "branches.main_branch",
         }
@@ -168,7 +168,7 @@ exports[`should render another message when there are branches 2`] = `
       defaultMessage="provisioning.no_analysis_on_main_branch.bad_configuration"
       id="provisioning.no_analysis_on_main_branch.bad_configuration"
       values={
-        Object {
+        {
           "branchName": "master",
           "branchType": "branches.main_branch",
         }

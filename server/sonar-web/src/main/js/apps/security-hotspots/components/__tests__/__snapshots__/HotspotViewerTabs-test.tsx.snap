@@ -6,8 +6,8 @@ exports[`should render correctly: fix 1`] = `
     onSelect={[Function]}
     selected="fix"
     tabs={
-      Array [
-        Object {
+      [
+        {
           "content": <div
             className="padded"
           >
@@ -18,13 +18,13 @@ exports[`should render correctly: fix 1`] = `
           "key": "code",
           "label": "hotspots.tabs.code",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "cause",
                   "key": "root_cause",
                 },
@@ -34,13 +34,13 @@ exports[`should render correctly: fix 1`] = `
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "assess",
                   "key": "assess_the_problem",
                 },
@@ -50,13 +50,13 @@ exports[`should render correctly: fix 1`] = `
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "how",
                   "key": "how_to_fix",
                 },
@@ -79,8 +79,8 @@ exports[`should render correctly: fix 1`] = `
       className="big-padded"
       isDefault={true}
       sections={
-        Array [
-          Object {
+        [
+          {
             "content": "how",
             "key": "how_to_fix",
           },
@@ -97,8 +97,8 @@ exports[`should render correctly: risk 1`] = `
     onSelect={[Function]}
     selected="code"
     tabs={
-      Array [
-        Object {
+      [
+        {
           "content": <div
             className="padded"
           >
@@ -109,13 +109,13 @@ exports[`should render correctly: risk 1`] = `
           "key": "code",
           "label": "hotspots.tabs.code",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "cause",
                   "key": "root_cause",
                 },
@@ -125,13 +125,13 @@ exports[`should render correctly: risk 1`] = `
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "assess",
                   "key": "assess_the_problem",
                 },
@@ -141,13 +141,13 @@ exports[`should render correctly: risk 1`] = `
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "how",
                   "key": "how_to_fix",
                 },
@@ -183,8 +183,8 @@ exports[`should render correctly: vulnerability 1`] = `
     onSelect={[Function]}
     selected="vulnerability"
     tabs={
-      Array [
-        Object {
+      [
+        {
           "content": <div
             className="padded"
           >
@@ -195,13 +195,13 @@ exports[`should render correctly: vulnerability 1`] = `
           "key": "code",
           "label": "hotspots.tabs.code",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "cause",
                   "key": "root_cause",
                 },
@@ -211,13 +211,13 @@ exports[`should render correctly: vulnerability 1`] = `
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "assess",
                   "key": "assess_the_problem",
                 },
@@ -227,13 +227,13 @@ exports[`should render correctly: vulnerability 1`] = `
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "how",
                   "key": "how_to_fix",
                 },
@@ -256,8 +256,8 @@ exports[`should render correctly: vulnerability 1`] = `
       className="big-padded"
       isDefault={true}
       sections={
-        Array [
-          Object {
+        [
+          {
             "content": "assess",
             "key": "assess_the_problem",
           },
@@ -274,8 +274,8 @@ exports[`should render correctly: with comments or changelog element 1`] = `
     onSelect={[Function]}
     selected="code"
     tabs={
-      Array [
-        Object {
+      [
+        {
           "content": <div
             className="padded"
           >
@@ -286,13 +286,13 @@ exports[`should render correctly: with comments or changelog element 1`] = `
           "key": "code",
           "label": "hotspots.tabs.code",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "cause",
                   "key": "root_cause",
                 },
@@ -302,13 +302,13 @@ exports[`should render correctly: with comments or changelog element 1`] = `
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "assess",
                   "key": "assess_the_problem",
                 },
@@ -318,13 +318,13 @@ exports[`should render correctly: with comments or changelog element 1`] = `
           "key": "vulnerability",
           "label": "hotspots.tabs.vulnerability_description",
         },
-        Object {
+        {
           "content": <RuleDescription
             className="big-padded"
             isDefault={true}
             sections={
-              Array [
-                Object {
+              [
+                {
                   "content": "how",
                   "key": "how_to_fix",
                 },

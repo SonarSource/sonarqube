@@ -6,7 +6,7 @@ exports[`renders correctly 1`] = `
 >
   <ComponentsHeader
     baseComponent={
-      Object {
+      {
         "branch": "develop",
         "key": "foo",
         "name": "Foo",
@@ -15,12 +15,12 @@ exports[`renders correctly 1`] = `
     }
     canBePinned={true}
     metrics={
-      Array [
+      [
         "coverage",
       ]
     }
     rootComponent={
-      Object {
+      {
         "branch": "develop",
         "key": "foo",
         "name": "Foo",
@@ -32,7 +32,7 @@ exports[`renders correctly 1`] = `
     <withScrollTo(Component)
       canBePinned={true}
       component={
-        Object {
+        {
           "branch": "develop",
           "key": "foo",
           "name": "Foo",
@@ -43,8 +43,8 @@ exports[`renders correctly 1`] = `
       isBaseComponent={true}
       key="foo"
       metrics={
-        Array [
-          Object {
+        [
+          {
             "id": "1",
             "key": "coverage",
             "name": "Coverage",
@@ -53,7 +53,7 @@ exports[`renders correctly 1`] = `
         ]
       }
       rootComponent={
-        Object {
+        {
           "branch": "develop",
           "key": "foo",
           "name": "Foo",
@@ -83,7 +83,7 @@ exports[`renders correctly 1`] = `
       canBePinned={true}
       canBrowse={true}
       component={
-        Object {
+        {
           "branch": "develop",
           "key": "foo",
           "name": "Foo",
@@ -93,8 +93,8 @@ exports[`renders correctly 1`] = `
       hasBaseComponent={true}
       key="foo/develop"
       metrics={
-        Array [
-          Object {
+        [
+          {
             "id": "1",
             "key": "coverage",
             "name": "Coverage",
@@ -103,7 +103,7 @@ exports[`renders correctly 1`] = `
         ]
       }
       rootComponent={
-        Object {
+        {
           "branch": "develop",
           "key": "foo",
           "name": "Foo",
@@ -133,7 +133,7 @@ exports[`renders correctly for a search 1`] = `
     <withScrollTo(Component)
       canBrowse={true}
       component={
-        Object {
+        {
           "branch": "develop",
           "key": "foo",
           "name": "Foo",
@@ -142,9 +142,9 @@ exports[`renders correctly for a search 1`] = `
       }
       hasBaseComponent={false}
       key="foo/develop"
-      metrics={Array []}
+      metrics={[]}
       rootComponent={
-        Object {
+        {
           "branch": "develop",
           "key": "foo",
           "name": "Foo",
@@ -172,7 +172,7 @@ exports[`renders correctly for leak 1`] = `
 >
   <ComponentsHeader
     baseComponent={
-      Object {
+      {
         "branch": "develop",
         "key": "foo",
         "name": "Foo",
@@ -181,12 +181,12 @@ exports[`renders correctly for leak 1`] = `
     }
     canBePinned={true}
     metrics={
-      Array [
+      [
         "coverage",
       ]
     }
     rootComponent={
-      Object {
+      {
         "branch": "develop",
         "key": "foo",
         "name": "Foo",
@@ -197,7 +197,7 @@ exports[`renders correctly for leak 1`] = `
   <tbody>
     <withScrollTo(Component)
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
@@ -206,7 +206,7 @@ exports[`renders correctly for leak 1`] = `
       }
       canBePinned={true}
       component={
-        Object {
+        {
           "branch": "develop",
           "key": "foo",
           "name": "Foo",
@@ -217,8 +217,8 @@ exports[`renders correctly for leak 1`] = `
       isBaseComponent={true}
       key="foo"
       metrics={
-        Array [
-          Object {
+        [
+          {
             "id": "1",
             "key": "coverage",
             "name": "Coverage",
@@ -227,7 +227,7 @@ exports[`renders correctly for leak 1`] = `
         ]
       }
       rootComponent={
-        Object {
+        {
           "branch": "develop",
           "key": "foo",
           "name": "Foo",
@@ -255,7 +255,7 @@ exports[`renders correctly for leak 1`] = `
     </tr>
     <withScrollTo(Component)
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
@@ -265,7 +265,7 @@ exports[`renders correctly for leak 1`] = `
       canBePinned={true}
       canBrowse={true}
       component={
-        Object {
+        {
           "branch": "develop",
           "key": "foo",
           "name": "Foo",
@@ -275,8 +275,8 @@ exports[`renders correctly for leak 1`] = `
       hasBaseComponent={true}
       key="foo/develop"
       metrics={
-        Array [
-          Object {
+        [
+          {
             "id": "1",
             "key": "coverage",
             "name": "Coverage",
@@ -285,7 +285,7 @@ exports[`renders correctly for leak 1`] = `
         ]
       }
       rootComponent={
-        Object {
+        {
           "branch": "develop",
           "key": "foo",
           "name": "Foo",

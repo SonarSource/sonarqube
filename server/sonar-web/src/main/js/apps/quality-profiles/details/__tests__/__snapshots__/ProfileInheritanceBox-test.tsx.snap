@@ -7,7 +7,7 @@ exports[`should render correctly 1`] = `
   <td>
     <div
       style={
-        Object {
+        {
           "paddingLeft": 25,
         }
       }
@@ -39,7 +39,7 @@ exports[`should render correctly 2`] = `
   <td>
     <div
       style={
-        Object {
+        {
           "paddingLeft": 75,
         }
       }
@@ -74,7 +74,7 @@ exports[`should render correctly 3`] = `
   <td>
     <div
       style={
-        Object {
+        {
           "paddingLeft": 25,
         }
       }
@@ -110,7 +110,7 @@ exports[`should render correctly 4`] = `
   <td>
     <div
       style={
-        Object {
+        {
           "paddingLeft": 25,
         }
       }

@@ -9,7 +9,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="onboarding.tutorial.env_variables"
       id="onboarding.tutorial.env_variables"
       values={
-        Object {
+        {
           "extra": <Button
             className="spacer-left"
             onClick={[Function]}

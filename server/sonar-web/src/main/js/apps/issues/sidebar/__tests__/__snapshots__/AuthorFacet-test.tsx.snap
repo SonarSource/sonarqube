@@ -16,11 +16,11 @@ exports[`should render correctly 1`] = `
   onToggle={[MockFunction]}
   open={true}
   property="author"
-  query={Object {}}
+  query={{}}
   renderFacetItem={[Function]}
   renderSearchResult={[Function]}
   searchPlaceholder="search.search_for_authors"
-  stats={Object {}}
-  values={Array []}
+  stats={{}}
+  values={[]}
 />
 `;

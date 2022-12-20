@@ -14,7 +14,7 @@ exports[`should render correctly 1`] = `
         defaultMessage="indexation.page_unavailable.title.issues"
         id="indexation.page_unavailable.title.issues"
         values={
-          Object {
+          {
             "componentName": <em>
               test-portfolio
             </em>,

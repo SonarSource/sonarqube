@@ -18,7 +18,7 @@ exports[`should render correctly: default 1`] = `
       defaultMessage="hotspots.find_in_status_filter_x"
       id="hotspots.successfully_changed_to_x"
       values={
-        Object {
+        {
           "status_label": <strong>
             hotspots.status_option.FIXED
           </strong>,
@@ -32,7 +32,7 @@ exports[`should render correctly: default 1`] = `
         defaultMessage="hotspots.x_done_keep_going"
         id="hotspots.x_done_keep_going"
         values={
-          Object {
+          {
             "percentage": <strong>
               
             </strong>,
@@ -77,7 +77,7 @@ exports[`should render correctly: opening hotspots again 1`] = `
       defaultMessage="hotspots.find_in_status_filter_x"
       id="hotspots.successfully_changed_to_x"
       values={
-        Object {
+        {
           "status_label": <strong>
             hotspots.status_option.TO_REVIEW
           </strong>,

@@ -45,15 +45,15 @@ exports[`should render correctly 1`] = `
       </thead>
       <NotificationsList
         channels={
-          Array [
+          [
             "channel1",
             "channel2",
           ]
         }
         checkboxId={[Function]}
         notifications={
-          Array [
-            Object {
+          [
+            {
               "channel": "channel1",
               "project": "foo",
               "projectName": "Foo",
@@ -65,7 +65,7 @@ exports[`should render correctly 1`] = `
         onRemove={[Function]}
         project={true}
         types={
-          Array [
+          [
             "CeReportTaskFailure",
           ]
         }

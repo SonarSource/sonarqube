@@ -7,8 +7,8 @@ exports[`should render all tabs correctly 1`] = `
     onSelect={[Function]}
     selected={0}
     tabs={
-      Array [
-        Object {
+      [
+        {
           "key": 0,
           "label": <React.Fragment>
             <BranchIcon />
@@ -19,7 +19,7 @@ exports[`should render all tabs correctly 1`] = `
             </span>
           </React.Fragment>,
         },
-        Object {
+        {
           "key": 1,
           "label": <React.Fragment>
             <PullRequestIcon />
@@ -40,38 +40,38 @@ exports[`should render all tabs correctly 1`] = `
   >
     <Memo(BranchLikeTable)
       branchLikes={
-        Array [
-          Object {
+        [
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
             "name": "branch-1",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
             "name": "branch-11",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
             "name": "branch-12",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
             "name": "branch-2",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
@@ -80,25 +80,25 @@ exports[`should render all tabs correctly 1`] = `
         ]
       }
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
       displayPurgeSetting={true}
@@ -118,8 +118,8 @@ exports[`should render all tabs correctly 2`] = `
     onSelect={[Function]}
     selected={1}
     tabs={
-      Array [
-        Object {
+      [
+        {
           "key": 0,
           "label": <React.Fragment>
             <BranchIcon />
@@ -130,7 +130,7 @@ exports[`should render all tabs correctly 2`] = `
             </span>
           </React.Fragment>,
         },
-        Object {
+        {
           "key": 1,
           "label": <React.Fragment>
             <PullRequestIcon />
@@ -151,8 +151,8 @@ exports[`should render all tabs correctly 2`] = `
   >
     <Memo(BranchLikeTable)
       branchLikes={
-        Array [
-          Object {
+        [
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -160,7 +160,7 @@ exports[`should render all tabs correctly 2`] = `
             "target": "master",
             "title": "PR-1",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -168,7 +168,7 @@ exports[`should render all tabs correctly 2`] = `
             "target": "master",
             "title": "PR-2",
           },
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "base": "master",
             "branch": "feature/foo/bar",
@@ -180,25 +180,25 @@ exports[`should render all tabs correctly 2`] = `
         ]
       }
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
       displayPurgeSetting={false}
@@ -214,7 +214,7 @@ exports[`should render all tabs correctly 2`] = `
 exports[`should render deletion modal correctly 1`] = `
 <DeleteBranchModal
   branchLike={
-    Object {
+    {
       "analysisDate": "2018-01-01",
       "base": "master",
       "branch": "feature/foo/bar",
@@ -224,25 +224,25 @@ exports[`should render deletion modal correctly 1`] = `
     }
   }
   component={
-    Object {
-      "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   onClose={[Function]}
@@ -253,7 +253,7 @@ exports[`should render deletion modal correctly 1`] = `
 exports[`should render renaming modal correctly 1`] = `
 <RenameBranchModal
   branch={
-    Object {
+    {
       "analysisDate": "2018-01-01",
       "excludedFromPurge": true,
       "isMain": true,
@@ -261,25 +261,25 @@ exports[`should render renaming modal correctly 1`] = `
     }
   }
   component={
-    Object {
-      "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   onClose={[Function]}

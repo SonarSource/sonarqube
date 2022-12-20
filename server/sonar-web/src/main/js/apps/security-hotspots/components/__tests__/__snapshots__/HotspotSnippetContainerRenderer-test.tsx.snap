@@ -9,7 +9,7 @@ exports[`should render correctly 1`] = `
   </p>
   <withCurrentUserContext(HotspotSnippetHeader)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -17,47 +17,47 @@ exports[`should render correctly 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     hotspot={
-      Object {
+      {
         "assignee": "assignee",
-        "assigneeUser": Object {
+        "assigneeUser": {
           "active": true,
           "local": true,
           "login": "assignee",
           "name": "John Doe",
         },
         "author": "author",
-        "authorUser": Object {
+        "authorUser": {
           "active": true,
           "local": true,
           "login": "author",
           "name": "John Doe",
         },
         "canChangeStatus": true,
-        "changelog": Array [],
-        "comment": Array [],
-        "component": Object {
+        "changelog": [],
+        "comment": [],
+        "component": {
           "key": "hotspot-component",
           "longName": "Hotspot component long name",
           "name": "Hotspot Component",
@@ -65,12 +65,12 @@ exports[`should render correctly 1`] = `
           "qualifier": "FIL",
         },
         "creationDate": "2013-05-13T17:55:41+0200",
-        "flows": Array [
-          Object {
-            "locations": Array [
-              Object {
+        "flows": [
+          {
+            "locations": [
+              {
                 "component": "main.js",
-                "textRange": Object {
+                "textRange": {
                   "endLine": 2,
                   "endOffset": 2,
                   "startLine": 1,
@@ -83,7 +83,7 @@ exports[`should render correctly 1`] = `
         "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
         "line": 142,
         "message": "'3' is a magic number.",
-        "project": Object {
+        "project": {
           "key": "hotspot-component",
           "longName": "Hotspot component long name",
           "name": "Hotspot Component",
@@ -91,28 +91,28 @@ exports[`should render correctly 1`] = `
           "qualifier": "TRK",
         },
         "resolution": "FIXED",
-        "rule": Object {
+        "rule": {
           "key": "squid:S2077",
           "name": "That rule",
           "securityCategory": "sql-injection",
           "vulnerabilityProbability": "HIGH",
         },
         "status": "REVIEWED",
-        "textRange": Object {
+        "textRange": {
           "endLine": 142,
           "endOffset": 83,
           "startLine": 142,
           "startOffset": 26,
         },
         "updateDate": "2013-05-13T17:55:42+0200",
-        "users": Array [
-          Object {
+        "users": [
+          {
             "active": true,
             "local": true,
             "login": "assignee",
             "name": "John Doe",
           },
-          Object {
+          {
             "active": true,
             "local": true,
             "login": "author",
@@ -142,7 +142,7 @@ exports[`should render correctly when secondary location is selected: with selec
   </p>
   <withCurrentUserContext(HotspotSnippetHeader)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -150,47 +150,47 @@ exports[`should render correctly when secondary location is selected: with selec
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     hotspot={
-      Object {
+      {
         "assignee": "assignee",
-        "assigneeUser": Object {
+        "assigneeUser": {
           "active": true,
           "local": true,
           "login": "assignee",
           "name": "John Doe",
         },
         "author": "author",
-        "authorUser": Object {
+        "authorUser": {
           "active": true,
           "local": true,
           "login": "author",
           "name": "John Doe",
         },
         "canChangeStatus": true,
-        "changelog": Array [],
-        "comment": Array [],
-        "component": Object {
+        "changelog": [],
+        "comment": [],
+        "component": {
           "key": "hotspot-component",
           "longName": "Hotspot component long name",
           "name": "Hotspot Component",
@@ -198,12 +198,12 @@ exports[`should render correctly when secondary location is selected: with selec
           "qualifier": "FIL",
         },
         "creationDate": "2013-05-13T17:55:41+0200",
-        "flows": Array [
-          Object {
-            "locations": Array [
-              Object {
+        "flows": [
+          {
+            "locations": [
+              {
                 "component": "main.js",
-                "textRange": Object {
+                "textRange": {
                   "endLine": 2,
                   "endOffset": 2,
                   "startLine": 1,
@@ -216,7 +216,7 @@ exports[`should render correctly when secondary location is selected: with selec
         "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
         "line": 142,
         "message": "'3' is a magic number.",
-        "project": Object {
+        "project": {
           "key": "hotspot-component",
           "longName": "Hotspot component long name",
           "name": "Hotspot Component",
@@ -224,28 +224,28 @@ exports[`should render correctly when secondary location is selected: with selec
           "qualifier": "TRK",
         },
         "resolution": "FIXED",
-        "rule": Object {
+        "rule": {
           "key": "squid:S2077",
           "name": "That rule",
           "securityCategory": "sql-injection",
           "vulnerabilityProbability": "HIGH",
         },
         "status": "REVIEWED",
-        "textRange": Object {
+        "textRange": {
           "endLine": 142,
           "endOffset": 83,
           "startLine": 142,
           "startOffset": 26,
         },
         "updateDate": "2013-05-13T17:55:42+0200",
-        "users": Array [
-          Object {
+        "users": [
+          {
             "active": true,
             "local": true,
             "login": "assignee",
             "name": "John Doe",
           },
-          Object {
+          {
             "active": true,
             "local": true,
             "login": "author",
@@ -270,7 +270,7 @@ exports[`should render correctly: with sourcelines 1`] = `
 <Fragment>
   <withCurrentUserContext(HotspotSnippetHeader)
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -278,47 +278,47 @@ exports[`should render correctly: with sourcelines 1`] = `
       }
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     hotspot={
-      Object {
+      {
         "assignee": "assignee",
-        "assigneeUser": Object {
+        "assigneeUser": {
           "active": true,
           "local": true,
           "login": "assignee",
           "name": "John Doe",
         },
         "author": "author",
-        "authorUser": Object {
+        "authorUser": {
           "active": true,
           "local": true,
           "login": "author",
           "name": "John Doe",
         },
         "canChangeStatus": true,
-        "changelog": Array [],
-        "comment": Array [],
-        "component": Object {
+        "changelog": [],
+        "comment": [],
+        "component": {
           "key": "hotspot-component",
           "longName": "Hotspot component long name",
           "name": "Hotspot Component",
@@ -326,12 +326,12 @@ exports[`should render correctly: with sourcelines 1`] = `
           "qualifier": "FIL",
         },
         "creationDate": "2013-05-13T17:55:41+0200",
-        "flows": Array [
-          Object {
-            "locations": Array [
-              Object {
+        "flows": [
+          {
+            "locations": [
+              {
                 "component": "main.js",
-                "textRange": Object {
+                "textRange": {
                   "endLine": 2,
                   "endOffset": 2,
                   "startLine": 1,
@@ -344,7 +344,7 @@ exports[`should render correctly: with sourcelines 1`] = `
         "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
         "line": 142,
         "message": "'3' is a magic number.",
-        "project": Object {
+        "project": {
           "key": "hotspot-component",
           "longName": "Hotspot component long name",
           "name": "Hotspot Component",
@@ -352,28 +352,28 @@ exports[`should render correctly: with sourcelines 1`] = `
           "qualifier": "TRK",
         },
         "resolution": "FIXED",
-        "rule": Object {
+        "rule": {
           "key": "squid:S2077",
           "name": "That rule",
           "securityCategory": "sql-injection",
           "vulnerabilityProbability": "HIGH",
         },
         "status": "REVIEWED",
-        "textRange": Object {
+        "textRange": {
           "endLine": 142,
           "endOffset": 83,
           "startLine": 142,
           "startOffset": 26,
         },
         "updateDate": "2013-05-13T17:55:42+0200",
-        "users": Array [
-          Object {
+        "users": [
+          {
             "active": true,
             "local": true,
             "login": "assignee",
             "name": "John Doe",
           },
-          Object {
+          {
             "active": true,
             "local": true,
             "login": "author",
@@ -392,12 +392,12 @@ exports[`should render correctly: with sourcelines 1`] = `
     >
       <SnippetViewer
         component={
-          Object {
+          {
             "canMarkAsFavorite": true,
             "fav": false,
             "key": "project:foo/bar.ts",
             "longName": "foo/bar.ts",
-            "measures": Object {
+            "measures": {
               "coverage": "85.2",
               "duplicationDensity": "1.0",
               "issues": "12",
@@ -415,28 +415,28 @@ exports[`should render correctly: with sourcelines 1`] = `
         displaySCM={false}
         expandBlock={[Function]}
         handleSymbolClick={[MockFunction]}
-        highlightedSymbols={Array []}
+        highlightedSymbols={[]}
         index={0}
         issue={
-          Object {
+          {
             "assignee": "assignee",
-            "assigneeUser": Object {
+            "assigneeUser": {
               "active": true,
               "local": true,
               "login": "assignee",
               "name": "John Doe",
             },
             "author": "author",
-            "authorUser": Object {
+            "authorUser": {
               "active": true,
               "local": true,
               "login": "author",
               "name": "John Doe",
             },
             "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
+            "changelog": [],
+            "comment": [],
+            "component": {
               "key": "hotspot-component",
               "longName": "Hotspot component long name",
               "name": "Hotspot Component",
@@ -444,12 +444,12 @@ exports[`should render correctly: with sourcelines 1`] = `
               "qualifier": "FIL",
             },
             "creationDate": "2013-05-13T17:55:41+0200",
-            "flows": Array [
-              Object {
-                "locations": Array [
-                  Object {
+            "flows": [
+              {
+                "locations": [
+                  {
                     "component": "main.js",
-                    "textRange": Object {
+                    "textRange": {
                       "endLine": 2,
                       "endOffset": 2,
                       "startLine": 1,
@@ -462,7 +462,7 @@ exports[`should render correctly: with sourcelines 1`] = `
             "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
             "line": 142,
             "message": "'3' is a magic number.",
-            "project": Object {
+            "project": {
               "key": "hotspot-component",
               "longName": "Hotspot component long name",
               "name": "Hotspot Component",
@@ -470,28 +470,28 @@ exports[`should render correctly: with sourcelines 1`] = `
               "qualifier": "TRK",
             },
             "resolution": "FIXED",
-            "rule": Object {
+            "rule": {
               "key": "squid:S2077",
               "name": "That rule",
               "securityCategory": "sql-injection",
               "vulnerabilityProbability": "HIGH",
             },
             "status": "REVIEWED",
-            "textRange": Object {
+            "textRange": {
               "endLine": 142,
               "endOffset": 83,
               "startLine": 142,
               "startOffset": 26,
             },
             "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
+            "users": [
+              {
                 "active": true,
                 "local": true,
                 "login": "assignee",
                 "name": "John Doe",
               },
-              Object {
+              {
                 "active": true,
                 "local": true,
                 "login": "author",
@@ -501,15 +501,15 @@ exports[`should render correctly: with sourcelines 1`] = `
           }
         }
         lastSnippetOfLastGroup={false}
-        locations={Array []}
-        locationsByLine={Object {}}
+        locations={[]}
+        locationsByLine={{}}
         onLocationSelect={[MockFunction]}
         renderAdditionalChildInLine={[Function]}
         renderDuplicationPopup={[Function]}
         snippet={
-          Array [
-            Object {
-              "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
+          [
+            {
+              "code": "<span class="k">import</span> java.util.<span class="sym-9 sym">ArrayList</span>;",
               "coverageStatus": "covered",
               "coveredConditions": 2,
               "duplicated": false,

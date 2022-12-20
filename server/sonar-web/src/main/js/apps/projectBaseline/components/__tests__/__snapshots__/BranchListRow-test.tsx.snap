@@ -9,12 +9,12 @@ exports[`should render correctly: branch with number of days 1`] = `
   >
     <BranchLikeIcon
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
           "name": "branch-6.7",
-          "newCodePeriod": Object {
+          "newCodePeriod": {
             "type": "NUMBER_OF_DAYS",
             "value": "21",
           },
@@ -61,12 +61,12 @@ exports[`should render correctly: branch with previous version 1`] = `
   >
     <BranchLikeIcon
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
           "name": "branch-6.7",
-          "newCodePeriod": Object {
+          "newCodePeriod": {
             "type": "PREVIOUS_VERSION",
           },
         }
@@ -112,12 +112,12 @@ exports[`should render correctly: branch with reference branch 1`] = `
   >
     <BranchLikeIcon
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
           "name": "branch-6.7",
-          "newCodePeriod": Object {
+          "newCodePeriod": {
             "type": "REFERENCE_BRANCH",
             "value": "master",
           },
@@ -164,12 +164,12 @@ exports[`should render correctly: branch with specific analysis 1`] = `
   >
     <BranchLikeIcon
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
           "name": "branch-6.7",
-          "newCodePeriod": Object {
+          "newCodePeriod": {
             "effectiveValue": "2018-12-02T13:01:12",
             "type": "SPECIFIC_ANALYSIS",
             "value": "A85835",
@@ -220,7 +220,7 @@ exports[`should render correctly: faulty branch 1`] = `
   >
     <BranchLikeIcon
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
@@ -268,7 +268,7 @@ exports[`should render correctly: main branch with default 1`] = `
   >
     <BranchLikeIcon
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": true,

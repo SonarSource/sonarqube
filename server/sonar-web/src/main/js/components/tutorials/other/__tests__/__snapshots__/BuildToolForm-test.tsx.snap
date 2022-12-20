@@ -12,24 +12,24 @@ exports[`renders correctly: default 1`] = `
       label="onboarding.build"
       onCheck={[Function]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "onboarding.build.maven",
             "value": "maven",
           },
-          Object {
+          {
             "label": "onboarding.build.gradle",
             "value": "gradle",
           },
-          Object {
+          {
             "label": "onboarding.build.dotnet",
             "value": "dotnet",
           },
-          Object {
+          {
             "label": "onboarding.build.cfamily",
             "value": "cfamily",
           },
-          Object {
+          {
             "label": "onboarding.build.other",
             "value": "other",
           },
@@ -52,24 +52,24 @@ exports[`renders correctly: with "maven" selected 1`] = `
       label="onboarding.build"
       onCheck={[Function]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "onboarding.build.maven",
             "value": "maven",
           },
-          Object {
+          {
             "label": "onboarding.build.gradle",
             "value": "gradle",
           },
-          Object {
+          {
             "label": "onboarding.build.dotnet",
             "value": "dotnet",
           },
-          Object {
+          {
             "label": "onboarding.build.cfamily",
             "value": "cfamily",
           },
-          Object {
+          {
             "label": "onboarding.build.other",
             "value": "other",
           },
@@ -93,24 +93,24 @@ exports[`renders correctly: with "other" selected 1`] = `
       label="onboarding.build"
       onCheck={[Function]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "onboarding.build.maven",
             "value": "maven",
           },
-          Object {
+          {
             "label": "onboarding.build.gradle",
             "value": "gradle",
           },
-          Object {
+          {
             "label": "onboarding.build.dotnet",
             "value": "dotnet",
           },
-          Object {
+          {
             "label": "onboarding.build.cfamily",
             "value": "cfamily",
           },
-          Object {
+          {
             "label": "onboarding.build.other",
             "value": "other",
           },
@@ -124,7 +124,7 @@ exports[`renders correctly: with "other" selected 1`] = `
     onCheck={[Function]}
     optionLabelKey="onboarding.build.other.os"
     options={
-      Array [
+      [
         "linux",
         "win",
         "mac",
@@ -147,20 +147,20 @@ exports[`renders correctly: without C 1`] = `
       label="onboarding.build"
       onCheck={[Function]}
       options={
-        Array [
-          Object {
+        [
+          {
             "label": "onboarding.build.maven",
             "value": "maven",
           },
-          Object {
+          {
             "label": "onboarding.build.gradle",
             "value": "gradle",
           },
-          Object {
+          {
             "label": "onboarding.build.dotnet",
             "value": "dotnet",
           },
-          Object {
+          {
             "label": "onboarding.build.other",
             "value": "other",
           },

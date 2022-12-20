@@ -5,7 +5,7 @@ exports[`should display applications 1`] = `
   className="display-flex-column boxed-group it_project_card"
   data-key="foo"
   style={
-    Object {
+    {
       "height": 100,
     }
   }
@@ -38,7 +38,7 @@ exports[`should display applications 1`] = `
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?id=foo",
             }
@@ -83,7 +83,7 @@ exports[`should display applications 1`] = `
         componentQualifier="APP"
         isNewCode={false}
         measures={
-          Object {
+          {
             "alert_status": "OK",
             "new_bugs": "12",
             "reliability_rating": "1.0",
@@ -104,7 +104,7 @@ exports[`should display applications: with project count 1`] = `
   className="display-flex-column boxed-group it_project_card"
   data-key="foo"
   style={
-    Object {
+    {
       "height": 100,
     }
   }
@@ -141,7 +141,7 @@ exports[`should display applications: with project count 1`] = `
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?id=foo",
             }
@@ -186,7 +186,7 @@ exports[`should display applications: with project count 1`] = `
         componentQualifier="APP"
         isNewCode={false}
         measures={
-          Object {
+          {
             "alert_status": "OK",
             "new_bugs": "12",
             "projects": "3",
@@ -208,7 +208,7 @@ exports[`should display configure analysis button for logged in user: default 1`
   className="display-flex-column boxed-group it_project_card"
   data-key="foo"
   style={
-    Object {
+    {
       "height": 100,
     }
   }
@@ -225,7 +225,7 @@ exports[`should display configure analysis button for logged in user: default 1`
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?id=foo",
             }
@@ -266,7 +266,7 @@ exports[`should display configure analysis button for logged in user: default 1`
         <ForwardRef(Link)
           className="button spacer-left"
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?id=foo",
             }
@@ -288,7 +288,7 @@ exports[`should display configure analysis button for logged in user: hidden if 
   className="display-flex-column boxed-group it_project_card project-card-disabled"
   data-key="foo"
   style={
-    Object {
+    {
       "height": 100,
     }
   }
@@ -348,7 +348,7 @@ exports[`should display correclty when project need issue synch 1`] = `
   className="display-flex-column boxed-group it_project_card project-card-disabled"
   data-key="foo"
   style={
-    Object {
+    {
       "height": 100,
     }
   }
@@ -401,7 +401,7 @@ exports[`should display correclty when project need issue synch 1`] = `
         componentQualifier="TRK"
         isNewCode={false}
         measures={
-          Object {
+          {
             "alert_status": "OK",
             "new_bugs": "12",
             "reliability_rating": "1.0",
@@ -422,7 +422,7 @@ exports[`should display not analyzed yet 1`] = `
   className="display-flex-column boxed-group it_project_card"
   data-key="foo"
   style={
-    Object {
+    {
       "height": 100,
     }
   }
@@ -439,7 +439,7 @@ exports[`should display not analyzed yet 1`] = `
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?id=foo",
             }
@@ -491,7 +491,7 @@ exports[`should display the overall measures and quality gate 1`] = `
   className="display-flex-column boxed-group it_project_card"
   data-key="foo"
   style={
-    Object {
+    {
       "height": 100,
     }
   }
@@ -508,7 +508,7 @@ exports[`should display the overall measures and quality gate 1`] = `
       >
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?id=foo",
             }
@@ -553,7 +553,7 @@ exports[`should display the overall measures and quality gate 1`] = `
         componentQualifier="TRK"
         isNewCode={false}
         measures={
-          Object {
+          {
             "alert_status": "OK",
             "new_bugs": "12",
             "reliability_rating": "1.0",

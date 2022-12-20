@@ -21,20 +21,20 @@ exports[`should display correctly for new_minor_version 1`] = `
       isPatch={false}
       key="6.3"
       systemUpgrades={
-        Array [
-          Object {
+        [
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 6.4 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-06-02",
             "version": "6.4",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 6.3 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-05-02",
             "version": "6.3",
           },
@@ -47,28 +47,28 @@ exports[`should display correctly for new_minor_version 1`] = `
       isPatch={false}
       key="5.6.5"
       systemUpgrades={
-        Array [
-          Object {
+        [
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.7 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-03-01",
             "version": "5.6.7",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.6 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-04-02",
             "version": "5.6.6",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.5 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-03-01",
             "version": "5.6.5",
           },
@@ -122,20 +122,20 @@ exports[`should display correctly for new_patch 1`] = `
       isPatch={false}
       key="6.3"
       systemUpgrades={
-        Array [
-          Object {
+        [
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 6.4 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-06-02",
             "version": "6.4",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 6.3 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-05-02",
             "version": "6.3",
           },
@@ -148,28 +148,28 @@ exports[`should display correctly for new_patch 1`] = `
       isPatch={true}
       key="5.6.5"
       systemUpgrades={
-        Array [
-          Object {
+        [
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.7 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-03-01",
             "version": "5.6.7",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.6 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-04-02",
             "version": "5.6.6",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.5 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-03-01",
             "version": "5.6.5",
           },
@@ -223,20 +223,20 @@ exports[`should display correctly for pre_lts 1`] = `
       isPatch={false}
       key="6.3"
       systemUpgrades={
-        Array [
-          Object {
+        [
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 6.4 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-06-02",
             "version": "6.4",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 6.3 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-05-02",
             "version": "6.3",
           },
@@ -249,28 +249,28 @@ exports[`should display correctly for pre_lts 1`] = `
       isPatch={false}
       key="5.6.5"
       systemUpgrades={
-        Array [
-          Object {
+        [
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.7 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-03-01",
             "version": "5.6.7",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.6 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-04-02",
             "version": "5.6.6",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.5 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-03-01",
             "version": "5.6.5",
           },
@@ -324,20 +324,20 @@ exports[`should display correctly for previous_lts 1`] = `
       isPatch={false}
       key="6.3"
       systemUpgrades={
-        Array [
-          Object {
+        [
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 6.4 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-06-02",
             "version": "6.4",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 6.3 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-05-02",
             "version": "6.3",
           },
@@ -350,28 +350,28 @@ exports[`should display correctly for previous_lts 1`] = `
       isPatch={false}
       key="5.6.5"
       systemUpgrades={
-        Array [
-          Object {
+        [
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.7 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-03-01",
             "version": "5.6.7",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.6 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-04-02",
             "version": "5.6.6",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.5 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-03-01",
             "version": "5.6.5",
           },
@@ -419,20 +419,20 @@ exports[`should display correctly for undefined 1`] = `
       isPatch={false}
       key="6.3"
       systemUpgrades={
-        Array [
-          Object {
+        [
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 6.4 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-06-02",
             "version": "6.4",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 6.3 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-05-02",
             "version": "6.3",
           },
@@ -445,28 +445,28 @@ exports[`should display correctly for undefined 1`] = `
       isPatch={false}
       key="5.6.5"
       systemUpgrades={
-        Array [
-          Object {
+        [
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.7 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-03-01",
             "version": "5.6.7",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.6 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-04-02",
             "version": "5.6.6",
           },
-          Object {
+          {
             "changeLogUrl": "changelogurl",
             "description": "Version 5.6.5 description",
             "downloadUrl": "downloadurl",
-            "plugins": Object {},
+            "plugins": {},
             "releaseDate": "2017-03-01",
             "version": "5.6.5",
           },

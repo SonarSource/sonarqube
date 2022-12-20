@@ -4,33 +4,33 @@ exports[`should fetch notifications and render 1`] = `
 <X
   addNotification={[Function]}
   channels={
-    Array [
+    [
       "channel1",
       "channel2",
     ]
   }
   globalTypes={
-    Array [
+    [
       "type-global",
       "type-common",
     ]
   }
   loading={false}
   notifications={
-    Array [
-      Object {
+    [
+      {
         "channel": "channel1",
         "project": "foo",
         "projectName": "Foo",
         "type": "type-global",
       },
-      Object {
+      {
         "channel": "channel1",
         "project": "bar",
         "projectName": "Bar",
         "type": "type-common",
       },
-      Object {
+      {
         "channel": "channel2",
         "project": "qux",
         "projectName": "Qux",
@@ -39,7 +39,7 @@ exports[`should fetch notifications and render 1`] = `
     ]
   }
   perProjectTypes={
-    Array [
+    [
       "type-common",
     ]
   }

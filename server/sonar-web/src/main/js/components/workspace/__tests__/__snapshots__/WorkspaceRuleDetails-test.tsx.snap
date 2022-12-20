@@ -16,8 +16,8 @@ exports[`should render 2`] = `
     onFilterChange={[Function]}
     onTagsChange={[Function]}
     referencedRepositories={
-      Object {
-        "repo": Object {
+      {
+        "repo": {
           "key": "repo",
           "language": "xoo",
           "name": "Xoo Repository",
@@ -25,7 +25,7 @@ exports[`should render 2`] = `
       }
     }
     ruleDetails={
-      Object {
+      {
         "key": "foo",
         "name": "Foo",
       }
@@ -35,7 +35,7 @@ exports[`should render 2`] = `
     canWrite={false}
     onChange={[Function]}
     ruleDetails={
-      Object {
+      {
         "key": "foo",
         "name": "Foo",
       }

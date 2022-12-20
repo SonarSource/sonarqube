@@ -42,14 +42,14 @@ exports[`should render correctly: multiple branches 1`] = `
         />
         <BaselineSettingReferenceBranch
           branchList={
-            Array [
-              Object {
+            [
+              {
                 "isDisabled": true,
                 "isMain": true,
                 "label": "master",
                 "value": "master",
               },
-              Object {
+              {
                 "isDisabled": false,
                 "isMain": false,
                 "label": "branch-6.7",
@@ -129,8 +129,8 @@ exports[`should render correctly: only one branch 1`] = `
         />
         <BaselineSettingReferenceBranch
           branchList={
-            Array [
-              Object {
+            [
+              {
                 "isDisabled": true,
                 "isMain": true,
                 "label": "master",

@@ -17,7 +17,7 @@ exports[`should render modal properly 1`] = `
   >
     <SelectList
       elements={
-        Array [
+        [
           "foo",
         ]
       }
@@ -27,7 +27,7 @@ exports[`should render modal properly 1`] = `
       onUnselect={[Function]}
       renderElement={[Function]}
       selectedElements={
-        Array [
+        [
           "foo",
         ]
       }

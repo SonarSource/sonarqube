@@ -17,7 +17,7 @@ exports[`should render 1`] = `
     className="js-close workspace-nav-item-close workspace-header-icon button-small little-spacer-left"
     color="#fff"
     iconProps={
-      Object {
+      {
         "size": 12,
       }
     }

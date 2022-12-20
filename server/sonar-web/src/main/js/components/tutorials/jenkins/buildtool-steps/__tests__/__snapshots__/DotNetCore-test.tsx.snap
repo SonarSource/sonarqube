@@ -18,9 +18,9 @@ exports[`should render correctly: linux 1`] = `
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner for MSBuild'
     withSonarQubeEnv() {
-      sh \\"dotnet \${scannerHome}/SonarScanner.MSBuild.dll begin /k:\\\\\\"my-project\\\\\\"\\"
-      sh \\"dotnet build\\"
-      sh \\"dotnet \${scannerHome}/SonarScanner.MSBuild.dll end\\"
+      sh "dotnet \${scannerHome}/SonarScanner.MSBuild.dll begin /k:\\"my-project\\""
+      sh "dotnet build"
+      sh "dotnet \${scannerHome}/SonarScanner.MSBuild.dll end"
     }
   }
 }
@@ -48,9 +48,9 @@ exports[`should render correctly: win 1`] = `
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner for MSBuild'
     withSonarQubeEnv() {
-      bat \\"dotnet \${scannerHome}\\\\\\\\SonarScanner.MSBuild.dll begin /k:\\\\\\"my-project\\\\\\"\\"
-      bat \\"dotnet build\\"
-      bat \\"dotnet \${scannerHome}\\\\\\\\SonarScanner.MSBuild.dll end\\"
+      bat "dotnet \${scannerHome}\\\\SonarScanner.MSBuild.dll begin /k:\\"my-project\\""
+      bat "dotnet build"
+      bat "dotnet \${scannerHome}\\\\SonarScanner.MSBuild.dll end"
     }
   }
 }

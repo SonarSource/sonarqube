@@ -41,7 +41,7 @@ exports[`should match snapshot: dangerous link, expanded 1`] = `
       onClick={[Function]}
       readOnly={true}
       type="text"
-      value="javascript:alert(\\"hi\\")"
+      value="javascript:alert("hi")"
     />
     <ClearButton
       className="little-spacer-left"

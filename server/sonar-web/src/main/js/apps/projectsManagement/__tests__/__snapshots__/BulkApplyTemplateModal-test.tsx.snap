@@ -71,19 +71,19 @@ exports[`bulk applies template to all results 2`] = `
         isDisabled={false}
         onChange={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "Foo",
               "value": "foo",
             },
-            Object {
+            {
               "label": "Bar",
               "value": "bar",
             },
           ]
         }
         value={
-          Object {
+          {
             "label": "Foo",
             "value": "foo",
           }
@@ -148,19 +148,19 @@ exports[`bulk applies template to all results 3`] = `
         isDisabled={true}
         onChange={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "Foo",
               "value": "foo",
             },
-            Object {
+            {
               "label": "Bar",
               "value": "bar",
             },
           ]
         }
         value={
-          Object {
+          {
             "label": "Foo",
             "value": "foo",
           }
@@ -294,19 +294,19 @@ exports[`bulk applies template to selected results 2`] = `
         isDisabled={false}
         onChange={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "Foo",
               "value": "foo",
             },
-            Object {
+            {
               "label": "Bar",
               "value": "bar",
             },
           ]
         }
         value={
-          Object {
+          {
             "label": "Foo",
             "value": "foo",
           }
@@ -371,19 +371,19 @@ exports[`bulk applies template to selected results 3`] = `
         isDisabled={true}
         onChange={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "Foo",
               "value": "foo",
             },
-            Object {
+            {
               "label": "Bar",
               "value": "bar",
             },
           ]
         }
         value={
-          Object {
+          {
             "label": "Foo",
             "value": "foo",
           }

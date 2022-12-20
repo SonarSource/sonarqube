@@ -16,12 +16,12 @@ exports[`should render correctly 1`] = `
   onToggle={[MockFunction]}
   open={false}
   property="directories"
-  query={Object {}}
+  query={{}}
   renderFacetItem={[Function]}
   renderSearchResult={[Function]}
   searchPlaceholder="search.search_for_directories"
   values={
-    Array [
+    [
       "foo/",
       "bar/baz/",
     ]

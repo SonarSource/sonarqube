@@ -20,7 +20,7 @@ exports[`should render correctly 1`] = `
   />
   <Search
     query={
-      Object {
+      {
         "search": "",
       }
     }
@@ -28,16 +28,16 @@ exports[`should render correctly 1`] = `
   />
   <UsersList
     currentUser={
-      Object {
-        "dismissedNotices": Object {},
+      {
+        "dismissedNotices": {},
         "isLoggedIn": true,
         "login": "luke",
       }
     }
-    identityProviders={Array []}
+    identityProviders={[]}
     onUpdateUsers={[Function]}
     updateTokensCount={[Function]}
-    users={Array []}
+    users={[]}
   />
 </div>
 `;
@@ -62,7 +62,7 @@ exports[`should render correctly 2`] = `
   />
   <Search
     query={
-      Object {
+      {
         "search": "",
       }
     }
@@ -70,15 +70,15 @@ exports[`should render correctly 2`] = `
   />
   <UsersList
     currentUser={
-      Object {
-        "dismissedNotices": Object {},
+      {
+        "dismissedNotices": {},
         "isLoggedIn": true,
         "login": "luke",
       }
     }
     identityProviders={
-      Array [
-        Object {
+      [
+        {
           "backgroundColor": "blue",
           "iconPath": "icon/path",
           "key": "foo",
@@ -89,13 +89,13 @@ exports[`should render correctly 2`] = `
     onUpdateUsers={[Function]}
     updateTokensCount={[Function]}
     users={
-      Array [
-        Object {
+      [
+        {
           "active": true,
           "local": false,
           "login": "luke",
           "name": "Luke",
-          "scmAccounts": Array [],
+          "scmAccounts": [],
         },
       ]
     }

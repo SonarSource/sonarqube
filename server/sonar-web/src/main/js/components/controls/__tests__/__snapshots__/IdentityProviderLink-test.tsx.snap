@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   className="identity-provider-link"
   href="/url/foo/bar"
   style={
-    Object {
+    {
       "backgroundColor": "#000",
     }
   }

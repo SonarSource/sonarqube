@@ -17,7 +17,7 @@ exports[`should render correctly 1`] = `
   >
     <SelectList
       elements={
-        Array [
+        [
           "test1",
           "test2",
           "test3",
@@ -30,7 +30,7 @@ exports[`should render correctly 1`] = `
       onUnselect={[Function]}
       renderElement={[Function]}
       selectedElements={
-        Array [
+        [
           "test1",
           "test2",
         ]

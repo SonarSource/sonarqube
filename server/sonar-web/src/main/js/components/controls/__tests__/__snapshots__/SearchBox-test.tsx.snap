@@ -27,7 +27,7 @@ exports[`renders 1`] = `
     aria-label="clear"
     className="button-tiny search-box-clear"
     iconProps={
-      Object {
+      {
         "size": 12,
       }
     }

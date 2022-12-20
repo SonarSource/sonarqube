@@ -32,7 +32,7 @@ exports[`should render correctly 1`] = `
         <ForwardRef(Link)
           className="js-show-history spacer-left button button-small"
           to={
-            Object {
+            {
               "pathname": "/project/activity",
               "search": "?id=foo&graph=custom&custom_metrics=reliability_rating",
             }
@@ -48,14 +48,14 @@ exports[`should render correctly 1`] = `
       <injectIntl(LeakPeriodLegend)
         className="spacer-left"
         component={
-          Object {
+          {
             "key": "foo",
             "name": "Foo",
             "qualifier": "TRK",
           }
         }
         period={
-          Object {
+          {
             "date": "2017-05-16T13:50:02+0200",
             "index": 1,
             "mode": "previous_version",
@@ -102,14 +102,14 @@ exports[`should render correctly for leak 1`] = `
       <injectIntl(LeakPeriodLegend)
         className="spacer-left"
         component={
-          Object {
+          {
             "key": "foo",
             "name": "Foo",
             "qualifier": "TRK",
           }
         }
         period={
-          Object {
+          {
             "date": "2017-05-16T13:50:02+0200",
             "index": 1,
             "mode": "previous_version",
@@ -156,14 +156,14 @@ exports[`should render with a branch 1`] = `
       <injectIntl(LeakPeriodLegend)
         className="spacer-left"
         component={
-          Object {
+          {
             "key": "foo",
             "name": "Foo",
             "qualifier": "TRK",
           }
         }
         period={
-          Object {
+          {
             "date": "2017-05-16T13:50:02+0200",
             "index": 1,
             "mode": "previous_version",
@@ -207,7 +207,7 @@ exports[`should work with measure without value 1`] = `
         <ForwardRef(Link)
           className="js-show-history spacer-left button button-small"
           to={
-            Object {
+            {
               "pathname": "/project/activity",
               "search": "?id=foo&graph=custom&custom_metrics=reliability_rating",
             }
@@ -223,14 +223,14 @@ exports[`should work with measure without value 1`] = `
       <injectIntl(LeakPeriodLegend)
         className="spacer-left"
         component={
-          Object {
+          {
             "key": "foo",
             "name": "Foo",
             "qualifier": "TRK",
           }
         }
         period={
-          Object {
+          {
             "date": "2017-05-16T13:50:02+0200",
             "index": 1,
             "mode": "previous_version",

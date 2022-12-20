@@ -16,18 +16,18 @@ exports[`should render correctly: with status 1`] = `
     <PluginUpdateItem
       key="1.3"
       release={
-        Object {
+        {
           "date": "2012-02-10",
           "version": "1.3",
         }
       }
       update={
-        Object {
-          "release": Object {
+        {
+          "release": {
             "date": "2012-02-10",
             "version": "1.3",
           },
-          "requires": Array [],
+          "requires": [],
           "status": "",
         }
       }
@@ -35,18 +35,18 @@ exports[`should render correctly: with status 1`] = `
     <PluginUpdateItem
       key="1.1"
       release={
-        Object {
+        {
           "date": "2012-02-01",
           "version": "1.1",
         }
       }
       update={
-        Object {
-          "release": Object {
+        {
+          "release": {
             "date": "2012-02-01",
             "version": "1.1",
           },
-          "requires": Array [],
+          "requires": [],
           "status": "",
         }
       }
@@ -54,18 +54,18 @@ exports[`should render correctly: with status 1`] = `
     <PluginUpdateItem
       key="1.2"
       release={
-        Object {
+        {
           "date": "2012-02-02",
           "version": "1.2",
         }
       }
       update={
-        Object {
-          "release": Object {
+        {
+          "release": {
             "date": "2012-02-02",
             "version": "1.2",
           },
-          "requires": Array [],
+          "requires": [],
           "status": "",
         }
       }

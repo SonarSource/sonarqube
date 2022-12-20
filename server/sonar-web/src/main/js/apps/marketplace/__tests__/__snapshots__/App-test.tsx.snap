@@ -42,7 +42,7 @@ exports[`should render correctly: loaded 1`] = `
           defaultMessage="marketplace.page.plugins.description2"
           id="marketplace.page.plugins.description2"
           values={
-            Object {
+            {
               "link": <withAppStateContext(DocLink)
                 to="/instance-administration/marketplace/"
               >
@@ -60,7 +60,7 @@ exports[`should render correctly: loaded 1`] = `
   />
   <Search
     query={
-      Object {
+      {
         "filter": "all",
         "search": "",
       }
@@ -73,15 +73,15 @@ exports[`should render correctly: loaded 1`] = `
   >
     <PluginsList
       pending={
-        Object {
-          "installing": Array [],
-          "removing": Array [],
-          "updating": Array [],
+        {
+          "installing": [],
+          "removing": [],
+          "updating": [],
         }
       }
       plugins={
-        Array [
-          Object {
+        [
+          {
             "key": "sonar-foo",
             "name": "Sonar Foo",
           },
@@ -139,7 +139,7 @@ exports[`should render correctly: loading 1`] = `
           defaultMessage="marketplace.page.plugins.description2"
           id="marketplace.page.plugins.description2"
           values={
-            Object {
+            {
               "link": <withAppStateContext(DocLink)
                 to="/instance-administration/marketplace/"
               >
@@ -157,7 +157,7 @@ exports[`should render correctly: loading 1`] = `
   />
   <Search
     query={
-      Object {
+      {
         "filter": "all",
         "search": "",
       }
@@ -216,7 +216,7 @@ exports[`should render correctly: not readonly 1`] = `
   />
   <Search
     query={
-      Object {
+      {
         "filter": "all",
         "search": "",
       }
@@ -229,15 +229,15 @@ exports[`should render correctly: not readonly 1`] = `
   >
     <PluginsList
       pending={
-        Object {
-          "installing": Array [],
-          "removing": Array [],
-          "updating": Array [],
+        {
+          "installing": [],
+          "removing": [],
+          "updating": [],
         }
       }
       plugins={
-        Array [
-          Object {
+        [
+          {
             "key": "sonar-foo",
             "name": "Sonar Foo",
           },

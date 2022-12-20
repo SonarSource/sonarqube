@@ -13,7 +13,7 @@ exports[`should render 1`] = `
   >
     <WorkspaceComponentTitle
       component={
-        Object {
+        {
           "branchLike": undefined,
           "key": "foo",
         }
@@ -23,7 +23,7 @@ exports[`should render 1`] = `
   <div
     className="workspace-viewer-container"
     style={
-      Object {
+      {
         "height": 300,
       }
     }

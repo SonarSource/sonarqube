@@ -4,7 +4,7 @@ exports[`should render properly 1`] = `
 <div
   className="rounded"
   style={
-    Object {
+    {
       "backgroundColor": "#c68c01",
       "borderRadius": undefined,
       "color": "#fff",
@@ -27,7 +27,7 @@ exports[`should render properly 2`] = `
 <div
   className="rounded"
   style={
-    Object {
+    {
       "backgroundColor": "#c68c01",
       "borderRadius": "50%",
       "color": "#fff",

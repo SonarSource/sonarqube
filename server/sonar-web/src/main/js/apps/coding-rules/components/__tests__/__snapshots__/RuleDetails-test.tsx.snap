@@ -11,8 +11,8 @@ exports[`should render correctly: loaded 1`] = `
       onFilterChange={[MockFunction]}
       onTagsChange={[Function]}
       referencedRepositories={
-        Object {
-          "javascript": Object {
+        {
+          "javascript": {
             "key": "javascript",
             "language": "js",
             "name": "SonarAnalyzer",
@@ -20,7 +20,7 @@ exports[`should render correctly: loaded 1`] = `
         }
       }
       ruleDetails={
-        Object {
+        {
           "createdAt": "2014-12-16T17:26:54+0100",
           "debtOverloaded": false,
           "debtRemFnOffset": "5min",
@@ -29,8 +29,8 @@ exports[`should render correctly: loaded 1`] = `
           "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
-          "descriptionSections": Array [
-            Object {
+          "descriptionSections": [
+            {
               "content": "<b>Why</b> Because",
               "key": "default",
             },
@@ -42,8 +42,8 @@ exports[`should render correctly: loaded 1`] = `
           "lang": "java",
           "langName": "Java",
           "mdDesc": "",
-          "name": "\\".equals()\\" should not be used to test the values of \\"Atomic\\" classes",
-          "params": Array [],
+          "name": "".equals()" should not be used to test the values of "Atomic" classes",
+          "params": [],
           "remFnBaseEffort": "5min",
           "remFnOverloaded": false,
           "remFnType": "CONSTANT_ISSUE",
@@ -51,10 +51,10 @@ exports[`should render correctly: loaded 1`] = `
           "scope": "MAIN",
           "severity": "MAJOR",
           "status": "READY",
-          "sysTags": Array [
+          "sysTags": [
             "multi-threading",
           ],
-          "tags": Array [],
+          "tags": [],
           "type": "BUG",
         }
       }
@@ -62,7 +62,7 @@ exports[`should render correctly: loaded 1`] = `
     <RuleDetailsDescription
       onChange={[Function]}
       ruleDetails={
-        Object {
+        {
           "createdAt": "2014-12-16T17:26:54+0100",
           "debtOverloaded": false,
           "debtRemFnOffset": "5min",
@@ -71,8 +71,8 @@ exports[`should render correctly: loaded 1`] = `
           "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
-          "descriptionSections": Array [
-            Object {
+          "descriptionSections": [
+            {
               "content": "<b>Why</b> Because",
               "key": "default",
             },
@@ -84,8 +84,8 @@ exports[`should render correctly: loaded 1`] = `
           "lang": "java",
           "langName": "Java",
           "mdDesc": "",
-          "name": "\\".equals()\\" should not be used to test the values of \\"Atomic\\" classes",
-          "params": Array [],
+          "name": "".equals()" should not be used to test the values of "Atomic" classes",
+          "params": [],
           "remFnBaseEffort": "5min",
           "remFnOverloaded": false,
           "remFnType": "CONSTANT_ISSUE",
@@ -93,21 +93,21 @@ exports[`should render correctly: loaded 1`] = `
           "scope": "MAIN",
           "severity": "MAJOR",
           "status": "READY",
-          "sysTags": Array [
+          "sysTags": [
             "multi-threading",
           ],
-          "tags": Array [],
+          "tags": [],
           "type": "BUG",
         }
       }
     />
     <RuleDetailsProfiles
       activations={
-        Array [
-          Object {
+        [
+          {
             "createdAt": "2017-06-16T16:13:38+0200",
             "inherit": "NONE",
-            "params": Array [],
+            "params": [],
             "qProfile": "foo",
             "severity": "MAJOR",
             "updatedAt": "2017-06-16T16:13:38+0200",
@@ -117,8 +117,8 @@ exports[`should render correctly: loaded 1`] = `
       onActivate={[Function]}
       onDeactivate={[Function]}
       referencedProfiles={
-        Object {
-          "key": Object {
+        {
+          "key": {
             "activeDeprecatedRuleCount": 2,
             "activeRuleCount": 10,
             "childrenCount": 0,
@@ -135,7 +135,7 @@ exports[`should render correctly: loaded 1`] = `
         }
       }
       ruleDetails={
-        Object {
+        {
           "createdAt": "2014-12-16T17:26:54+0100",
           "debtOverloaded": false,
           "debtRemFnOffset": "5min",
@@ -144,8 +144,8 @@ exports[`should render correctly: loaded 1`] = `
           "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
-          "descriptionSections": Array [
-            Object {
+          "descriptionSections": [
+            {
               "content": "<b>Why</b> Because",
               "key": "default",
             },
@@ -157,8 +157,8 @@ exports[`should render correctly: loaded 1`] = `
           "lang": "java",
           "langName": "Java",
           "mdDesc": "",
-          "name": "\\".equals()\\" should not be used to test the values of \\"Atomic\\" classes",
-          "params": Array [],
+          "name": "".equals()" should not be used to test the values of "Atomic" classes",
+          "params": [],
           "remFnBaseEffort": "5min",
           "remFnOverloaded": false,
           "remFnType": "CONSTANT_ISSUE",
@@ -166,17 +166,17 @@ exports[`should render correctly: loaded 1`] = `
           "scope": "MAIN",
           "severity": "MAJOR",
           "status": "READY",
-          "sysTags": Array [
+          "sysTags": [
             "multi-threading",
           ],
-          "tags": Array [],
+          "tags": [],
           "type": "BUG",
         }
       }
     />
     <withAvailableFeaturesContext(RuleDetailsIssues)
       ruleDetails={
-        Object {
+        {
           "createdAt": "2014-12-16T17:26:54+0100",
           "debtOverloaded": false,
           "debtRemFnOffset": "5min",
@@ -185,8 +185,8 @@ exports[`should render correctly: loaded 1`] = `
           "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
-          "descriptionSections": Array [
-            Object {
+          "descriptionSections": [
+            {
               "content": "<b>Why</b> Because",
               "key": "default",
             },
@@ -198,8 +198,8 @@ exports[`should render correctly: loaded 1`] = `
           "lang": "java",
           "langName": "Java",
           "mdDesc": "",
-          "name": "\\".equals()\\" should not be used to test the values of \\"Atomic\\" classes",
-          "params": Array [],
+          "name": "".equals()" should not be used to test the values of "Atomic" classes",
+          "params": [],
           "remFnBaseEffort": "5min",
           "remFnOverloaded": false,
           "remFnType": "CONSTANT_ISSUE",
@@ -207,10 +207,10 @@ exports[`should render correctly: loaded 1`] = `
           "scope": "MAIN",
           "severity": "MAJOR",
           "status": "READY",
-          "sysTags": Array [
+          "sysTags": [
             "multi-threading",
           ],
-          "tags": Array [],
+          "tags": [],
           "type": "BUG",
         }
       }

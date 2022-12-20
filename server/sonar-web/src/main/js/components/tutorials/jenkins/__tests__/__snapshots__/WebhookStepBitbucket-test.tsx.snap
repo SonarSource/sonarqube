@@ -7,7 +7,7 @@ exports[`should render correctly for bitbucket 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": <ForwardRef(Link)
             target="_blank"
             to="http://bbs.enterprise.com/plugins/servlet/webhooks/projects/PROJECT_KEY/repos/repo-slug/create"
@@ -48,7 +48,7 @@ exports[`should render correctly for bitbucket 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "events",
         ]
       }
@@ -72,7 +72,7 @@ exports[`should render correctly for bitbucket 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "create",
         ]
       }
@@ -89,7 +89,7 @@ exports[`should render correctly for bitbucket: with branches disabled 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": <ForwardRef(Link)
             target="_blank"
             to="http://bbs.enterprise.com/plugins/servlet/webhooks/projects/PROJECT_KEY/repos/repo-slug/create"
@@ -125,7 +125,7 @@ exports[`should render correctly for bitbucket: with branches disabled 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "events",
         ]
       }
@@ -144,7 +144,7 @@ exports[`should render correctly for bitbucket: with branches disabled 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "create",
         ]
       }
@@ -161,7 +161,7 @@ exports[`should render correctly for bitbucket: with no alm binding 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": <strong>
             onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.link
           </strong>,
@@ -199,7 +199,7 @@ exports[`should render correctly for bitbucket: with no alm binding 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "events",
         ]
       }
@@ -223,7 +223,7 @@ exports[`should render correctly for bitbucket: with no alm binding 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "create",
         ]
       }
@@ -240,7 +240,7 @@ exports[`should render correctly for bitbucketcloud 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": <ForwardRef(Link)
             target="_blank"
             to="http://bitbucket.org/workspace/repo-slug/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin"
@@ -276,7 +276,7 @@ exports[`should render correctly for bitbucketcloud 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "triggers",
           "option",
         ]
@@ -301,7 +301,7 @@ exports[`should render correctly for bitbucketcloud 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "save",
         ]
       }
@@ -318,7 +318,7 @@ exports[`should render correctly for bitbucketcloud: with branches disabled 1`] 
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": <ForwardRef(Link)
             target="_blank"
             to="http://bitbucket.org/workspace/repo-slug/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin"
@@ -354,7 +354,7 @@ exports[`should render correctly for bitbucketcloud: with branches disabled 1`] 
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "triggers",
           "option",
         ]
@@ -374,7 +374,7 @@ exports[`should render correctly for bitbucketcloud: with branches disabled 1`] 
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "save",
         ]
       }
@@ -391,7 +391,7 @@ exports[`should render correctly for bitbucketcloud: with no alm binding 1`] = `
       defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
       values={
-        Object {
+        {
           "link": <strong>
             onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step1.link
           </strong>,
@@ -424,7 +424,7 @@ exports[`should render correctly for bitbucketcloud: with no alm binding 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "triggers",
           "option",
         ]
@@ -449,7 +449,7 @@ exports[`should render correctly for bitbucketcloud: with no alm binding 1`] = `
   <li>
     <SentenceWithHighlights
       highlightKeys={
-        Array [
+        [
           "save",
         ]
       }

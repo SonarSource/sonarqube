@@ -10,7 +10,7 @@ exports[`should render correctly 1`] = `
     <SearchFilterContainer
       onQueryChange={[MockFunction]}
       query={
-        Object {
+        {
           "search": "test",
         }
       }
@@ -27,7 +27,7 @@ exports[`should render correctly 1`] = `
       <withCurrentUserContext(HomePageSelect)
         className="spacer-left little-spacer-right"
         currentPage={
-          Object {
+          {
             "type": "PROJECTS",
           }
         }
@@ -85,7 +85,7 @@ exports[`should render correctly while loading 1`] = `
     <SearchFilterContainer
       onQueryChange={[MockFunction]}
       query={
-        Object {
+        {
           "search": "test",
         }
       }
@@ -102,7 +102,7 @@ exports[`should render correctly while loading 1`] = `
       <withCurrentUserContext(HomePageSelect)
         className="spacer-left little-spacer-right"
         currentPage={
-          Object {
+          {
             "type": "PROJECTS",
           }
         }

@@ -49,7 +49,7 @@ exports[`should render correctly 1`] = `
         defaultMessage="encryption.form_note"
         id="encryption.form_note"
         values={
-          Object {
+          {
             "moreInformationLink": <withAppStateContext(DocLink)
               to="/instance-administration/security/"
             >

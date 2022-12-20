@@ -4,7 +4,7 @@ exports[`renders correctly 1`] = `
 <ForwardRef(Link)
   className="activity-link"
   to={
-    Object {
+    {
       "pathname": "/project/activity",
       "search": "?id=foo",
     }
@@ -24,7 +24,7 @@ exports[`renders correctly 2`] = `
 <ForwardRef(Link)
   className="activity-link"
   to={
-    Object {
+    {
       "pathname": "/project/activity",
       "search": "?id=foo&branch=branch-6.7",
     }
@@ -44,7 +44,7 @@ exports[`renders correctly 3`] = `
 <ForwardRef(Link)
   className="activity-link"
   to={
-    Object {
+    {
       "pathname": "/project/activity",
       "search": "?id=foo&graph=coverage",
     }
@@ -64,7 +64,7 @@ exports[`renders correctly 4`] = `
 <ForwardRef(Link)
   className="activity-link"
   to={
-    Object {
+    {
       "pathname": "/project/activity",
       "search": "?id=foo&graph=custom&custom_metrics=new_bugs%2Cbugs",
     }

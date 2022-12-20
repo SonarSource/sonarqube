@@ -29,7 +29,7 @@ exports[`correctly adds groups 1`] = `
         <ProfilePermissionsFormSelect
           onChange={[Function]}
           profile={
-            Object {
+            {
               "language": "js",
               "name": "Sonar way",
             }
@@ -87,7 +87,7 @@ exports[`correctly adds users 1`] = `
         <ProfilePermissionsFormSelect
           onChange={[Function]}
           profile={
-            Object {
+            {
               "language": "js",
               "name": "Sonar way",
             }
@@ -145,7 +145,7 @@ exports[`should render correctly: default 1`] = `
         <ProfilePermissionsFormSelect
           onChange={[Function]}
           profile={
-            Object {
+            {
               "language": "js",
               "name": "Sonar way",
             }
@@ -200,7 +200,7 @@ exports[`should render correctly: submitting 1`] = `
         <ProfilePermissionsFormSelect
           onChange={[Function]}
           profile={
-            Object {
+            {
               "language": "js",
               "name": "Sonar way",
             }

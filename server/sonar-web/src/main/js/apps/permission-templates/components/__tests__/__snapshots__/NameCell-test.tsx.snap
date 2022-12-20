@@ -6,7 +6,7 @@ exports[`render correctly 1`] = `
 >
   <ForwardRef(Link)
     to={
-      Object {
+      {
         "pathname": "/admin/permission_templates",
         "search": "?id=1",
       }
@@ -23,14 +23,14 @@ exports[`render correctly 1`] = `
   >
     <Defaults
       template={
-        Object {
+        {
           "createdAt": "2020-01-01",
-          "defaultFor": Array [
+          "defaultFor": [
             "user",
           ],
           "id": "1",
           "name": "test",
-          "permissions": Array [],
+          "permissions": [],
         }
       }
     />

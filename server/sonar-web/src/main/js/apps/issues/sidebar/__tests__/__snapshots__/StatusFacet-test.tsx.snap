@@ -10,7 +10,7 @@ exports[`should render correctly 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <FacetItemsList>
     <FacetItem

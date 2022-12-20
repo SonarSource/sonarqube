@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should not render developer nominative facets when asked not to 1`] = `
-Array [
+[
   "TypeFacet",
   "SeverityFacet",
   "ScopeFacet",
@@ -17,7 +17,7 @@ Array [
 `;
 
 exports[`should render facets for "APP" 1`] = `
-Array [
+[
   "PeriodFilter",
   "TypeFacet",
   "SeverityFacet",
@@ -36,7 +36,7 @@ Array [
 `;
 
 exports[`should render facets for "SVW" 1`] = `
-Array [
+[
   "TypeFacet",
   "SeverityFacet",
   "ScopeFacet",
@@ -54,7 +54,7 @@ Array [
 `;
 
 exports[`should render facets for "VW" 1`] = `
-Array [
+[
   "TypeFacet",
   "SeverityFacet",
   "ScopeFacet",
@@ -72,7 +72,7 @@ Array [
 `;
 
 exports[`should render facets for global page 1`] = `
-Array [
+[
   "TypeFacet",
   "SeverityFacet",
   "ScopeFacet",
@@ -90,7 +90,7 @@ Array [
 `;
 
 exports[`should render facets for project 1`] = `
-Array [
+[
   "PeriodFilter",
   "TypeFacet",
   "SeverityFacet",
@@ -110,7 +110,7 @@ Array [
 `;
 
 exports[`should render facets when my issues are selected 1`] = `
-Array [
+[
   "TypeFacet",
   "SeverityFacet",
   "ScopeFacet",

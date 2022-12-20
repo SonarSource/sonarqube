@@ -9,7 +9,7 @@ exports[`should render correctly 1`] = `
     defaultMessage="system.instance_restarting"
     id="system.instance_restarting"
     values={
-      Object {
+      {
         "instance": undefined,
         "link": <ForwardRef(Link)
           to="/admin/background_tasks"

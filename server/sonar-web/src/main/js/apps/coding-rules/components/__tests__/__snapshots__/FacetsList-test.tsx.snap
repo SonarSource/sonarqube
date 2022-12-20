@@ -22,7 +22,7 @@ exports[`should render correctly 1`] = `
     onChange={[MockFunction]}
     onToggle={[MockFunction]}
     open={false}
-    referencedRepositories={Object {}}
+    referencedRepositories={{}}
   />
   <DefaultSeverityFacet
     onChange={[MockFunction]}
@@ -46,7 +46,7 @@ exports[`should render correctly 1`] = `
     open={false}
     owaspTop10-2021Open={false}
     owaspTop10Open={false}
-    query={Object {}}
+    query={{}}
     sansTop25Open={false}
     sonarsourceSecurityOpen={false}
   />
@@ -64,7 +64,7 @@ exports[`should render correctly 1`] = `
     onChange={[MockFunction]}
     onToggle={[MockFunction]}
     open={false}
-    referencedProfiles={Object {}}
+    referencedProfiles={{}}
   />
   <InheritanceFacet
     disabled={true}

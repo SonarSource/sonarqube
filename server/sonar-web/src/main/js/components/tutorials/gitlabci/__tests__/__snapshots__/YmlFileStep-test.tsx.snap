@@ -22,7 +22,7 @@ exports[`should render correctly for build tool cfamily: with branch support 1`]
             defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
             id="onboarding.tutorial.with.gitlab_ci.yml.description"
             values={
-              Object {
+              {
                 "filename": <React.Fragment>
                   <code
                     className="rule"
@@ -87,7 +87,7 @@ exports[`should render correctly for build tool cfamily: without branch support 
             defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
             id="onboarding.tutorial.with.gitlab_ci.yml.description"
             values={
-              Object {
+              {
                 "filename": <React.Fragment>
                   <code
                     className="rule"
@@ -148,7 +148,7 @@ exports[`should render correctly for build tool dotnet: with branch support 1`] 
             defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
             id="onboarding.tutorial.with.gitlab_ci.yml.description"
             values={
-              Object {
+              {
                 "filename": <React.Fragment>
                   <code
                     className="rule"
@@ -209,7 +209,7 @@ exports[`should render correctly for build tool dotnet: without branch support 1
             defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
             id="onboarding.tutorial.with.gitlab_ci.yml.description"
             values={
-              Object {
+              {
                 "filename": <React.Fragment>
                   <code
                     className="rule"
@@ -270,7 +270,7 @@ exports[`should render correctly for build tool gradle: with branch support 1`] 
             defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
             id="onboarding.tutorial.with.gitlab_ci.yml.description"
             values={
-              Object {
+              {
                 "filename": <React.Fragment>
                   <code
                     className="rule"
@@ -331,7 +331,7 @@ exports[`should render correctly for build tool gradle: without branch support 1
             defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
             id="onboarding.tutorial.with.gitlab_ci.yml.description"
             values={
-              Object {
+              {
                 "filename": <React.Fragment>
                   <code
                     className="rule"
@@ -392,7 +392,7 @@ exports[`should render correctly for build tool maven: with branch support 1`] =
             defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
             id="onboarding.tutorial.with.gitlab_ci.yml.description"
             values={
-              Object {
+              {
                 "filename": <React.Fragment>
                   <code
                     className="rule"
@@ -453,7 +453,7 @@ exports[`should render correctly for build tool maven: without branch support 1`
             defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
             id="onboarding.tutorial.with.gitlab_ci.yml.description"
             values={
-              Object {
+              {
                 "filename": <React.Fragment>
                   <code
                     className="rule"
@@ -514,7 +514,7 @@ exports[`should render correctly for build tool other: with branch support 1`] =
             defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
             id="onboarding.tutorial.with.gitlab_ci.yml.description"
             values={
-              Object {
+              {
                 "filename": <React.Fragment>
                   <code
                     className="rule"
@@ -575,7 +575,7 @@ exports[`should render correctly for build tool other: without branch support 1`
             defaultMessage="onboarding.tutorial.with.gitlab_ci.yml.description"
             id="onboarding.tutorial.with.gitlab_ci.yml.description"
             values={
-              Object {
+              {
                 "filename": <React.Fragment>
                   <code
                     className="rule"

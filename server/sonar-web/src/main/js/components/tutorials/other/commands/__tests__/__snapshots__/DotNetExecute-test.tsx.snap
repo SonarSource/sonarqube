@@ -27,7 +27,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="onboarding.analysis.docs"
       id="onboarding.analysis.docs"
       values={
-        Object {
+        {
           "link": <withAppStateContext(DocLink)
             to="/analyzing-source-code/scanners/sonarscanner-for-dotnet/"
           >
@@ -39,25 +39,25 @@ exports[`should render correctly 1`] = `
   </p>
   <DoneNextSteps
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />

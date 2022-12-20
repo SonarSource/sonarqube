@@ -134,23 +134,23 @@ exports[`should render correctly: when there are configuration errors (admin use
           initialValue="i1"
           inputId="name"
           instances={
-            Array [
-              Object {
+            [
+              {
                 "alm": "github",
                 "key": "i1",
                 "url": "http://github.enterprise.com",
               },
-              Object {
+              {
                 "alm": "github",
                 "key": "i2",
                 "url": "http://github.enterprise.com",
               },
-              Object {
+              {
                 "alm": "bitbucket",
                 "key": "i3",
                 "url": "http://bbs.enterprise.com",
               },
-              Object {
+              {
                 "alm": "azure",
                 "key": "i4",
               },
@@ -163,30 +163,30 @@ exports[`should render correctly: when there are configuration errors (admin use
     <withAvailableFeaturesContext(AlmSpecificForm)
       alm="github"
       formData={
-        Object {
+        {
           "key": "i1",
           "monorepo": false,
           "repository": "account/repo",
         }
       }
       instances={
-        Array [
-          Object {
+        [
+          {
             "alm": "github",
             "key": "i1",
             "url": "http://github.enterprise.com",
           },
-          Object {
+          {
             "alm": "github",
             "key": "i2",
             "url": "http://github.enterprise.com",
           },
-          Object {
+          {
             "alm": "bitbucket",
             "key": "i3",
             "url": "http://bbs.enterprise.com",
           },
-          Object {
+          {
             "alm": "azure",
             "key": "i4",
           },
@@ -247,10 +247,10 @@ exports[`should render correctly: when there are configuration errors (admin use
           defaultMessage="settings.pr_decoration.binding.check_configuration.failure.check_global_settings"
           id="settings.pr_decoration.binding.check_configuration.failure.check_global_settings"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/admin/settings",
                     "search": "?category=almintegration&alm=github",
                   }
@@ -318,23 +318,23 @@ exports[`should render correctly: when there are configuration errors (admin use
           initialValue=""
           inputId="name"
           instances={
-            Array [
-              Object {
+            [
+              {
                 "alm": "github",
                 "key": "i1",
                 "url": "http://github.enterprise.com",
               },
-              Object {
+              {
                 "alm": "github",
                 "key": "i2",
                 "url": "http://github.enterprise.com",
               },
-              Object {
+              {
                 "alm": "bitbucket",
                 "key": "i3",
                 "url": "http://bbs.enterprise.com",
               },
-              Object {
+              {
                 "alm": "azure",
                 "key": "i4",
               },
@@ -448,23 +448,23 @@ exports[`should render correctly: when there are configuration errors (non-admin
           initialValue=""
           inputId="name"
           instances={
-            Array [
-              Object {
+            [
+              {
                 "alm": "github",
                 "key": "i1",
                 "url": "http://github.enterprise.com",
               },
-              Object {
+              {
                 "alm": "github",
                 "key": "i2",
                 "url": "http://github.enterprise.com",
               },
-              Object {
+              {
                 "alm": "bitbucket",
                 "key": "i3",
                 "url": "http://bbs.enterprise.com",
               },
-              Object {
+              {
                 "alm": "azure",
                 "key": "i4",
               },
@@ -581,8 +581,8 @@ exports[`should render correctly: with a single ALM instance 1`] = `
           initialValue=""
           inputId="name"
           instances={
-            Array [
-              Object {
+            [
+              {
                 "alm": "github",
                 "key": "i1",
                 "url": "http://github.enterprise.com",
@@ -651,23 +651,23 @@ exports[`should render correctly: with a valid and saved form 1`] = `
           initialValue="i1"
           inputId="name"
           instances={
-            Array [
-              Object {
+            [
+              {
                 "alm": "github",
                 "key": "i1",
                 "url": "http://github.enterprise.com",
               },
-              Object {
+              {
                 "alm": "github",
                 "key": "i2",
                 "url": "http://github.enterprise.com",
               },
-              Object {
+              {
                 "alm": "bitbucket",
                 "key": "i3",
                 "url": "http://bbs.enterprise.com",
               },
-              Object {
+              {
                 "alm": "azure",
                 "key": "i4",
               },
@@ -680,30 +680,30 @@ exports[`should render correctly: with a valid and saved form 1`] = `
     <withAvailableFeaturesContext(AlmSpecificForm)
       alm="github"
       formData={
-        Object {
+        {
           "key": "i1",
           "monorepo": false,
           "repository": "account/repo",
         }
       }
       instances={
-        Array [
-          Object {
+        [
+          {
             "alm": "github",
             "key": "i1",
             "url": "http://github.enterprise.com",
           },
-          Object {
+          {
             "alm": "github",
             "key": "i2",
             "url": "http://github.enterprise.com",
           },
-          Object {
+          {
             "alm": "bitbucket",
             "key": "i3",
             "url": "http://bbs.enterprise.com",
           },
-          Object {
+          {
             "alm": "azure",
             "key": "i4",
           },
@@ -797,23 +797,23 @@ exports[`should render correctly: with an empty form 1`] = `
           initialValue=""
           inputId="name"
           instances={
-            Array [
-              Object {
+            [
+              {
                 "alm": "github",
                 "key": "i1",
                 "url": "http://github.enterprise.com",
               },
-              Object {
+              {
                 "alm": "github",
                 "key": "i2",
                 "url": "http://github.enterprise.com",
               },
-              Object {
+              {
                 "alm": "bitbucket",
                 "key": "i3",
                 "url": "http://bbs.enterprise.com",
               },
-              Object {
+              {
                 "alm": "azure",
                 "key": "i4",
               },
@@ -840,10 +840,10 @@ exports[`should render correctly: with no ALM instances (admin user) 1`] = `
       defaultMessage="settings.pr_decoration.binding.no_bindings.admin"
       id="settings.pr_decoration.binding.no_bindings.admin"
       values={
-        Object {
+        {
           "link": <ForwardRef(Link)
             to={
-              Object {
+              {
                 "pathname": "/admin/settings",
                 "search": "?category=almintegration",
               }

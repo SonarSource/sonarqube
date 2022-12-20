@@ -11,7 +11,7 @@ exports[`should render correctly for createdInLast month 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "issues.facet.createdAt.last_month",
       ]
     }
@@ -24,7 +24,7 @@ exports[`should render correctly for createdInLast month 1`] = `
         alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
-          Object {
+          {
             "from": undefined,
             "to": undefined,
           }
@@ -86,7 +86,7 @@ exports[`should render correctly for createdInLast week 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "issues.facet.createdAt.last_week",
       ]
     }
@@ -99,7 +99,7 @@ exports[`should render correctly for createdInLast week 1`] = `
         alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
-          Object {
+          {
             "from": undefined,
             "to": undefined,
           }
@@ -161,7 +161,7 @@ exports[`should render correctly for createdInLast year 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "issues.facet.createdAt.last_year",
       ]
     }
@@ -174,7 +174,7 @@ exports[`should render correctly for createdInLast year 1`] = `
         alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
-          Object {
+          {
             "from": undefined,
             "to": undefined,
           }
@@ -235,7 +235,7 @@ exports[`should render correctly: clear 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <div>
     <div
@@ -245,7 +245,7 @@ exports[`should render correctly: clear 1`] = `
         alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
-          Object {
+          {
             "from": undefined,
             "to": undefined,
           }
@@ -306,7 +306,7 @@ exports[`should render correctly: closed 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={false}
-    values={Array []}
+    values={[]}
   />
 </FacetBox>
 `;
@@ -322,7 +322,7 @@ exports[`should render correctly: created after 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "formatted.Invalid Date",
       ]
     }
@@ -352,7 +352,7 @@ exports[`should render correctly: created after timestamp 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "formatted.Invalid Date",
       ]
     }
@@ -382,7 +382,7 @@ exports[`should render correctly: created at 1`] = `
     onClick={[Function]}
     open={true}
     values={
-      Array [
+      [
         "formatted.2019.05.21T13:33:00Z",
       ]
     }
@@ -415,7 +415,7 @@ exports[`should render correctly: portfolio 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <div>
     <div
@@ -425,7 +425,7 @@ exports[`should render correctly: portfolio 1`] = `
         alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
-          Object {
+          {
             "from": undefined,
             "to": undefined,
           }
@@ -486,7 +486,7 @@ exports[`should render correctly: project 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={Array []}
+    values={[]}
   />
   <div>
     <div
@@ -496,7 +496,7 @@ exports[`should render correctly: project 1`] = `
         alignEndDateCalandarRight={true}
         onChange={[Function]}
         value={
-          Object {
+          {
             "from": undefined,
             "to": undefined,
           }

@@ -262,7 +262,7 @@ exports[`renders facet bar chart 1`] = `
             <div
               className="projects-facet-bar-inner"
               style={
-                Object {
+                {
                   "width": 42.5,
                 }
               }
@@ -300,7 +300,7 @@ exports[`renders facet bar chart 1`] = `
             <div
               className="projects-facet-bar-inner"
               style={
-                Object {
+                {
                   "width": 37.5,
                 }
               }
@@ -338,7 +338,7 @@ exports[`renders facet bar chart 1`] = `
             <div
               className="projects-facet-bar-inner"
               style={
-                Object {
+                {
                   "width": 60,
                 }
               }

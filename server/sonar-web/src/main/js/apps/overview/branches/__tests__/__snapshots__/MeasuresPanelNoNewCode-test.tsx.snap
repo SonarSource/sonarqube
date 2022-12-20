@@ -4,7 +4,7 @@ exports[`should render "bad code setting" explanation: no link 1`] = `
 <div
   className="display-flex-center display-flex-justify-center"
   style={
-    Object {
+    {
       "height": 500,
     }
   }
@@ -18,7 +18,7 @@ exports[`should render "bad code setting" explanation: no link 1`] = `
   <div
     className="big-spacer-left text-muted"
     style={
-      Object {
+      {
         "maxWidth": 500,
       }
     }
@@ -33,7 +33,7 @@ exports[`should render "bad code setting" explanation: no link 1`] = `
         defaultMessage="overview.measures.empty_link"
         id="overview.measures.empty_link"
         values={
-          Object {
+          {
             "learn_more_link": <withAppStateContext(DocLink)
               to="/user-guide/clean-as-you-code/"
             >
@@ -51,7 +51,7 @@ exports[`should render "bad code setting" explanation: with link 1`] = `
 <div
   className="display-flex-center display-flex-justify-center"
   style={
-    Object {
+    {
       "height": 500,
     }
   }
@@ -65,7 +65,7 @@ exports[`should render "bad code setting" explanation: with link 1`] = `
   <div
     className="big-spacer-left text-muted"
     style={
-      Object {
+      {
         "maxWidth": 500,
       }
     }
@@ -80,7 +80,7 @@ exports[`should render "bad code setting" explanation: with link 1`] = `
         defaultMessage="overview.measures.empty_link"
         id="overview.measures.empty_link"
         values={
-          Object {
+          {
             "learn_more_link": <withAppStateContext(DocLink)
               to="/user-guide/clean-as-you-code/"
             >
@@ -98,7 +98,7 @@ exports[`should render the default message 5`] = `
 <div
   className="display-flex-center display-flex-justify-center"
   style={
-    Object {
+    {
       "height": 500,
     }
   }
@@ -112,7 +112,7 @@ exports[`should render the default message 5`] = `
   <div
     className="big-spacer-left text-muted"
     style={
-      Object {
+      {
         "maxWidth": 500,
       }
     }
@@ -130,7 +130,7 @@ exports[`should render the default message 6`] = `
 <div
   className="display-flex-center display-flex-justify-center"
   style={
-    Object {
+    {
       "height": 500,
     }
   }
@@ -144,7 +144,7 @@ exports[`should render the default message 6`] = `
   <div
     className="big-spacer-left text-muted"
     style={
-      Object {
+      {
         "maxWidth": 500,
       }
     }
@@ -159,7 +159,7 @@ exports[`should render the default message 6`] = `
         defaultMessage="overview.measures.empty_link"
         id="overview.measures.empty_link"
         values={
-          Object {
+          {
             "learn_more_link": <withAppStateContext(DocLink)
               to="/user-guide/clean-as-you-code/"
             >

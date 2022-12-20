@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`addCustomEvent should correctly add a custom event 1`] = `
-Object {
+{
   "date": 2016-10-27T10:21:15.000Z,
-  "events": Array [
-    Object {
+  "events": [
+    {
       "category": "Custom",
       "key": "Enew",
       "name": "Foo",
@@ -15,10 +15,10 @@ Object {
 `;
 
 exports[`changeEvent should correctly update an event 1`] = `
-Object {
+{
   "date": 2016-10-27T14:33:50.000Z,
-  "events": Array [
-    Object {
+  "events": [
+    {
       "category": "VERSION",
       "key": "E1",
       "name": "changed",
@@ -29,21 +29,21 @@ Object {
 `;
 
 exports[`deleteAnalysis should correctly delete an analyses 1`] = `
-Array [
-  Object {
+[
+  {
     "date": 2016-10-27T10:21:15.000Z,
-    "events": Array [],
+    "events": [],
     "key": "A2",
   },
-  Object {
+  {
     "date": 2016-10-26T10:17:29.000Z,
-    "events": Array [
-      Object {
+    "events": [
+      {
         "category": "OTHER",
         "key": "E2",
         "name": "foo",
       },
-      Object {
+      {
         "category": "OTHER",
         "key": "E3",
         "name": "foo",
@@ -55,26 +55,26 @@ Array [
 `;
 
 exports[`deleteEvent should correctly remove an event 1`] = `
-Object {
+{
   "date": 2016-10-27T14:33:50.000Z,
-  "events": Array [],
+  "events": [],
   "key": "A1",
 }
 `;
 
 exports[`deleteEvent should correctly remove an event 2`] = `
-Object {
+{
   "date": 2016-10-27T10:21:15.000Z,
-  "events": Array [],
+  "events": [],
   "key": "A2",
 }
 `;
 
 exports[`deleteEvent should correctly remove an event 3`] = `
-Object {
+{
   "date": 2016-10-26T10:17:29.000Z,
-  "events": Array [
-    Object {
+  "events": [
+    {
       "category": "OTHER",
       "key": "E3",
       "name": "foo",

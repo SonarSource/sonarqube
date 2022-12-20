@@ -4,15 +4,15 @@ exports[`should render correctly: default 1`] = `
 <tr>
   <PluginDescription
     plugin={
-      Object {
+      {
         "key": "sonar-foo",
         "name": "Sonar Foo",
-        "release": Object {
+        "release": {
           "date": "2020-01-01",
           "version": "8.2",
         },
-        "update": Object {
-          "requires": Array [],
+        "update": {
+          "requires": [],
           "status": "available",
         },
       }
@@ -37,14 +37,14 @@ exports[`should render correctly: default 1`] = `
         <div>
           <PluginChangeLogButton
             release={
-              Object {
+              {
                 "date": "2020-01-01",
                 "version": "8.2",
               }
             }
             update={
-              Object {
-                "requires": Array [],
+              {
+                "requires": [],
                 "status": "available",
               }
             }
@@ -59,15 +59,15 @@ exports[`should render correctly: default 1`] = `
     <ul>
       <PluginUrls
         plugin={
-          Object {
+          {
             "key": "sonar-foo",
             "name": "Sonar Foo",
-            "release": Object {
+            "release": {
               "date": "2020-01-01",
               "version": "8.2",
             },
-            "update": Object {
-              "requires": Array [],
+            "update": {
+              "requires": [],
               "status": "available",
             },
           }
@@ -76,15 +76,15 @@ exports[`should render correctly: default 1`] = `
       <PluginLicense />
       <PluginOrganization
         plugin={
-          Object {
+          {
             "key": "sonar-foo",
             "name": "Sonar Foo",
-            "release": Object {
+            "release": {
               "date": "2020-01-01",
               "version": "8.2",
             },
-            "update": Object {
-              "requires": Array [],
+            "update": {
+              "requires": [],
               "status": "available",
             },
           }
@@ -94,15 +94,15 @@ exports[`should render correctly: default 1`] = `
   </td>
   <PluginStatus
     plugin={
-      Object {
+      {
         "key": "sonar-foo",
         "name": "Sonar Foo",
-        "release": Object {
+        "release": {
           "date": "2020-01-01",
           "version": "8.2",
         },
-        "update": Object {
-          "requires": Array [],
+        "update": {
+          "requires": [],
           "status": "available",
         },
       }
@@ -116,16 +116,16 @@ exports[`should render correctly: has requirements 1`] = `
 <tr>
   <PluginDescription
     plugin={
-      Object {
+      {
         "key": "sonar-foo",
         "name": "Sonar Foo",
-        "release": Object {
+        "release": {
           "date": "2020-01-01",
           "version": "8.2",
         },
-        "update": Object {
-          "requires": Array [
-            Object {
+        "update": {
+          "requires": [
+            {
               "key": "sonar-foo",
               "name": "Sonar Foo",
             },
@@ -154,15 +154,15 @@ exports[`should render correctly: has requirements 1`] = `
         <div>
           <PluginChangeLogButton
             release={
-              Object {
+              {
                 "date": "2020-01-01",
                 "version": "8.2",
               }
             }
             update={
-              Object {
-                "requires": Array [
-                  Object {
+              {
+                "requires": [
+                  {
                     "key": "sonar-foo",
                     "name": "Sonar Foo",
                   },
@@ -188,16 +188,16 @@ exports[`should render correctly: has requirements 1`] = `
     <ul>
       <PluginUrls
         plugin={
-          Object {
+          {
             "key": "sonar-foo",
             "name": "Sonar Foo",
-            "release": Object {
+            "release": {
               "date": "2020-01-01",
               "version": "8.2",
             },
-            "update": Object {
-              "requires": Array [
-                Object {
+            "update": {
+              "requires": [
+                {
                   "key": "sonar-foo",
                   "name": "Sonar Foo",
                 },
@@ -210,16 +210,16 @@ exports[`should render correctly: has requirements 1`] = `
       <PluginLicense />
       <PluginOrganization
         plugin={
-          Object {
+          {
             "key": "sonar-foo",
             "name": "Sonar Foo",
-            "release": Object {
+            "release": {
               "date": "2020-01-01",
               "version": "8.2",
             },
-            "update": Object {
-              "requires": Array [
-                Object {
+            "update": {
+              "requires": [
+                {
                   "key": "sonar-foo",
                   "name": "Sonar Foo",
                 },
@@ -233,16 +233,16 @@ exports[`should render correctly: has requirements 1`] = `
   </td>
   <PluginStatus
     plugin={
-      Object {
+      {
         "key": "sonar-foo",
         "name": "Sonar Foo",
-        "release": Object {
+        "release": {
           "date": "2020-01-01",
           "version": "8.2",
         },
-        "update": Object {
-          "requires": Array [
-            Object {
+        "update": {
+          "requires": [
+            {
               "key": "sonar-foo",
               "name": "Sonar Foo",
             },
@@ -260,20 +260,20 @@ exports[`should render correctly: has requirements, some of them already met 1`]
 <tr>
   <PluginDescription
     plugin={
-      Object {
+      {
         "key": "sonar-foo",
         "name": "Sonar Foo",
-        "release": Object {
+        "release": {
           "date": "2020-01-01",
           "version": "8.2",
         },
-        "update": Object {
-          "requires": Array [
-            Object {
+        "update": {
+          "requires": [
+            {
               "key": "sonar-foo",
               "name": "Sonar Foo",
             },
-            Object {
+            {
               "filename": "sonar-bar-1.0.jar",
               "hash": "hash",
               "implementationBuild": "1.0.0.1234",
@@ -308,19 +308,19 @@ exports[`should render correctly: has requirements, some of them already met 1`]
         <div>
           <PluginChangeLogButton
             release={
-              Object {
+              {
                 "date": "2020-01-01",
                 "version": "8.2",
               }
             }
             update={
-              Object {
-                "requires": Array [
-                  Object {
+              {
+                "requires": [
+                  {
                     "key": "sonar-foo",
                     "name": "Sonar Foo",
                   },
-                  Object {
+                  {
                     "filename": "sonar-bar-1.0.jar",
                     "hash": "hash",
                     "implementationBuild": "1.0.0.1234",
@@ -352,20 +352,20 @@ exports[`should render correctly: has requirements, some of them already met 1`]
     <ul>
       <PluginUrls
         plugin={
-          Object {
+          {
             "key": "sonar-foo",
             "name": "Sonar Foo",
-            "release": Object {
+            "release": {
               "date": "2020-01-01",
               "version": "8.2",
             },
-            "update": Object {
-              "requires": Array [
-                Object {
+            "update": {
+              "requires": [
+                {
                   "key": "sonar-foo",
                   "name": "Sonar Foo",
                 },
-                Object {
+                {
                   "filename": "sonar-bar-1.0.jar",
                   "hash": "hash",
                   "implementationBuild": "1.0.0.1234",
@@ -384,20 +384,20 @@ exports[`should render correctly: has requirements, some of them already met 1`]
       <PluginLicense />
       <PluginOrganization
         plugin={
-          Object {
+          {
             "key": "sonar-foo",
             "name": "Sonar Foo",
-            "release": Object {
+            "release": {
               "date": "2020-01-01",
               "version": "8.2",
             },
-            "update": Object {
-              "requires": Array [
-                Object {
+            "update": {
+              "requires": [
+                {
                   "key": "sonar-foo",
                   "name": "Sonar Foo",
                 },
-                Object {
+                {
                   "filename": "sonar-bar-1.0.jar",
                   "hash": "hash",
                   "implementationBuild": "1.0.0.1234",
@@ -417,20 +417,20 @@ exports[`should render correctly: has requirements, some of them already met 1`]
   </td>
   <PluginStatus
     plugin={
-      Object {
+      {
         "key": "sonar-foo",
         "name": "Sonar Foo",
-        "release": Object {
+        "release": {
           "date": "2020-01-01",
           "version": "8.2",
         },
-        "update": Object {
-          "requires": Array [
-            Object {
+        "update": {
+          "requires": [
+            {
               "key": "sonar-foo",
               "name": "Sonar Foo",
             },
-            Object {
+            {
               "filename": "sonar-bar-1.0.jar",
               "hash": "hash",
               "implementationBuild": "1.0.0.1234",
@@ -454,15 +454,15 @@ exports[`should render correctly: read only 1`] = `
 <tr>
   <PluginDescription
     plugin={
-      Object {
+      {
         "key": "sonar-foo",
         "name": "Sonar Foo",
-        "release": Object {
+        "release": {
           "date": "2020-01-01",
           "version": "8.2",
         },
-        "update": Object {
-          "requires": Array [],
+        "update": {
+          "requires": [],
           "status": "available",
         },
       }
@@ -487,14 +487,14 @@ exports[`should render correctly: read only 1`] = `
         <div>
           <PluginChangeLogButton
             release={
-              Object {
+              {
                 "date": "2020-01-01",
                 "version": "8.2",
               }
             }
             update={
-              Object {
-                "requires": Array [],
+              {
+                "requires": [],
                 "status": "available",
               }
             }
@@ -509,15 +509,15 @@ exports[`should render correctly: read only 1`] = `
     <ul>
       <PluginUrls
         plugin={
-          Object {
+          {
             "key": "sonar-foo",
             "name": "Sonar Foo",
-            "release": Object {
+            "release": {
               "date": "2020-01-01",
               "version": "8.2",
             },
-            "update": Object {
-              "requires": Array [],
+            "update": {
+              "requires": [],
               "status": "available",
             },
           }
@@ -526,15 +526,15 @@ exports[`should render correctly: read only 1`] = `
       <PluginLicense />
       <PluginOrganization
         plugin={
-          Object {
+          {
             "key": "sonar-foo",
             "name": "Sonar Foo",
-            "release": Object {
+            "release": {
               "date": "2020-01-01",
               "version": "8.2",
             },
-            "update": Object {
-              "requires": Array [],
+            "update": {
+              "requires": [],
               "status": "available",
             },
           }

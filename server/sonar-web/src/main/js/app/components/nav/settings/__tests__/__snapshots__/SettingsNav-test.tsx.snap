@@ -4,17 +4,17 @@ exports[`should display a pending plugin notif 1`] = `
 <PendingPluginsActionNotif
   fetchSystemStatus={[MockFunction]}
   pending={
-    Object {
-      "installing": Array [
-        Object {
+    {
+      "installing": [
+        {
           "implementationBuild": "1",
           "key": "foo",
           "name": "Foo",
           "version": "1.0",
         },
       ],
-      "removing": Array [],
-      "updating": Array [],
+      "removing": [],
+      "updating": [],
     }
   }
   refreshPending={[MockFunction]}
@@ -323,7 +323,7 @@ exports[`should work with extensions 1`] = `
 `;
 
 exports[`should work with extensions 2`] = `
-Array [
+[
   <Dropdown
     overlay={
       <ul

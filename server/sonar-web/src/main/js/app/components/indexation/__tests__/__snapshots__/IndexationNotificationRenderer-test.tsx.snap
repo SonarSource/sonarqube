@@ -63,7 +63,7 @@ exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin
           defaultMessage="indexation.completed_with_error"
           id="indexation.completed_with_error"
           values={
-            Object {
+            {
               "link": "indexation.completed_with_error.link",
             }
           }
@@ -93,10 +93,10 @@ exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin
           defaultMessage="indexation.completed_with_error"
           id="indexation.completed_with_error"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/admin/background_tasks",
                     "search": "?taskType=ISSUE_SYNC&status=FAILED",
                   }
@@ -175,10 +175,10 @@ exports[`should render correctly for type="InProgress" & isSystemAdmin=true 1`] 
           defaultMessage="indexation.admin_link"
           id="indexation.admin_link"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/admin/background_tasks",
                     "search": "?taskType=ISSUE_SYNC",
                   }
@@ -222,7 +222,7 @@ exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmi
           defaultMessage="indexation.progression_with_error.25"
           id="indexation.progression_with_error"
           values={
-            Object {
+            {
               "link": "indexation.progression_with_error.link",
             }
           }
@@ -260,10 +260,10 @@ exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmi
           defaultMessage="indexation.progression_with_error.25"
           id="indexation.progression_with_error"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/admin/background_tasks",
                     "search": "?taskType=ISSUE_SYNC&status=FAILED",
                   }

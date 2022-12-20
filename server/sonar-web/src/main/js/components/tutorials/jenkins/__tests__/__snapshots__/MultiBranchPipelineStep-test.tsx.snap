@@ -26,7 +26,7 @@ exports[`should render correctly: content for bitbucket 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "new_item",
             "type",
           ]
@@ -37,7 +37,7 @@ exports[`should render correctly: content for bitbucket 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
             "source",
           ]
@@ -100,7 +100,7 @@ exports[`should render correctly: content for bitbucket 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "add",
                         "ref_spec",
                       ]
@@ -111,7 +111,7 @@ exports[`should render correctly: content for bitbucket 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "ref_spec",
                       ]
                     }
@@ -136,7 +136,7 @@ exports[`should render correctly: content for bitbucket 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
           ]
         }
@@ -160,7 +160,7 @@ exports[`should render correctly: content for bitbucket 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "save",
           ]
         }
@@ -195,7 +195,7 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "new_item",
             "type",
           ]
@@ -206,7 +206,7 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
             "source",
           ]
@@ -269,7 +269,7 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "add",
                         "ref_spec",
                       ]
@@ -280,7 +280,7 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "ref_spec",
                       ]
                     }
@@ -305,7 +305,7 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
           ]
         }
@@ -329,7 +329,7 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "save",
           ]
         }
@@ -364,7 +364,7 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "new_item",
             "type",
           ]
@@ -375,7 +375,7 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
             "source",
           ]
@@ -436,7 +436,7 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "add",
                         "ref_spec",
                       ]
@@ -447,7 +447,7 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "ref_spec",
                       ]
                     }
@@ -472,7 +472,7 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
           ]
         }
@@ -496,7 +496,7 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "save",
           ]
         }
@@ -531,7 +531,7 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "new_item",
             "type",
           ]
@@ -542,7 +542,7 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
             "source",
           ]
@@ -603,7 +603,7 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "add",
                         "ref_spec",
                       ]
@@ -614,7 +614,7 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "ref_spec",
                       ]
                     }
@@ -639,7 +639,7 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
           ]
         }
@@ -663,7 +663,7 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "save",
           ]
         }
@@ -698,7 +698,7 @@ exports[`should render correctly: content for github 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "new_item",
             "type",
           ]
@@ -709,7 +709,7 @@ exports[`should render correctly: content for github 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
             "source",
           ]
@@ -761,7 +761,7 @@ exports[`should render correctly: content for github 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "add",
                         "ref_spec",
                       ]
@@ -772,7 +772,7 @@ exports[`should render correctly: content for github 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "ref_spec",
                       ]
                     }
@@ -797,7 +797,7 @@ exports[`should render correctly: content for github 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
           ]
         }
@@ -821,7 +821,7 @@ exports[`should render correctly: content for github 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "save",
           ]
         }
@@ -856,7 +856,7 @@ exports[`should render correctly: content for github, no binding 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "new_item",
             "type",
           ]
@@ -867,7 +867,7 @@ exports[`should render correctly: content for github, no binding 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
             "source",
           ]
@@ -918,7 +918,7 @@ exports[`should render correctly: content for github, no binding 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "add",
                         "ref_spec",
                       ]
@@ -929,7 +929,7 @@ exports[`should render correctly: content for github, no binding 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "ref_spec",
                       ]
                     }
@@ -954,7 +954,7 @@ exports[`should render correctly: content for github, no binding 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
           ]
         }
@@ -978,7 +978,7 @@ exports[`should render correctly: content for github, no binding 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "save",
           ]
         }
@@ -1013,7 +1013,7 @@ exports[`should render correctly: content for gitlab 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "new_item",
             "type",
           ]
@@ -1024,7 +1024,7 @@ exports[`should render correctly: content for gitlab 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
             "source",
           ]
@@ -1080,7 +1080,7 @@ exports[`should render correctly: content for gitlab 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "add",
                         "ref_spec",
                       ]
@@ -1091,7 +1091,7 @@ exports[`should render correctly: content for gitlab 1`] = `
                 <li>
                   <SentenceWithHighlights
                     highlightKeys={
-                      Array [
+                      [
                         "ref_spec",
                       ]
                     }
@@ -1116,7 +1116,7 @@ exports[`should render correctly: content for gitlab 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "tab",
           ]
         }
@@ -1140,7 +1140,7 @@ exports[`should render correctly: content for gitlab 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "save",
           ]
         }

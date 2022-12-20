@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
 >
   <SentenceWithHighlights
     highlightKeys={
-      Array [
+      [
         "default_scanner",
       ]
     }
@@ -24,7 +24,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "path",
           ]
         }
@@ -34,7 +34,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "default_scanner",
             "add_scanner_for_msbuild",
           ]
@@ -45,7 +45,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "name",
           ]
         }
@@ -63,7 +63,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "install_from",
           ]
         }

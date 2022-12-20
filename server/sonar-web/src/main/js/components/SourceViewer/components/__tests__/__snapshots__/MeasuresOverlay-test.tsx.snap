@@ -26,7 +26,7 @@ exports[`should render source file 1`] = `
         />
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?branch=feature&id=project-key",
             }
@@ -60,8 +60,8 @@ exports[`should render source file 1`] = `
             <MeasuresOverlayMeasure
               key="lines"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Size",
                     "key": "lines",
                     "type": "INT",
@@ -73,8 +73,8 @@ exports[`should render source file 1`] = `
             <MeasuresOverlayMeasure
               key="ncloc"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Size",
                     "key": "ncloc",
                     "type": "INT",
@@ -86,8 +86,8 @@ exports[`should render source file 1`] = `
             <MeasuresOverlayMeasure
               key="comment_lines"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Size",
                     "key": "comment_lines",
                     "type": "INT",
@@ -99,8 +99,8 @@ exports[`should render source file 1`] = `
             <MeasuresOverlayMeasure
               key="comment_lines_density"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Size",
                     "key": "comment_lines_density",
                     "type": "PERCENT",
@@ -116,8 +116,8 @@ exports[`should render source file 1`] = `
             <MeasuresOverlayMeasure
               key="cognitive_complexity"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Complexity",
                     "key": "cognitive_complexity",
                     "type": "INT",
@@ -129,8 +129,8 @@ exports[`should render source file 1`] = `
             <MeasuresOverlayMeasure
               key="complexity"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Complexity",
                     "key": "complexity",
                     "type": "INT",
@@ -443,8 +443,8 @@ exports[`should render source file 1`] = `
             <MeasuresOverlayMeasure
               key="uncovered_lines"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Coverage",
                     "key": "uncovered_lines",
                     "type": "INT",
@@ -456,8 +456,8 @@ exports[`should render source file 1`] = `
             <MeasuresOverlayMeasure
               key="lines_to_cover"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Coverage",
                     "key": "lines_to_cover",
                     "type": "INT",
@@ -513,8 +513,8 @@ exports[`should render source file 1`] = `
             <MeasuresOverlayMeasure
               key="duplicated_blocks"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Duplications",
                     "key": "duplicated_blocks",
                     "type": "INT",
@@ -526,8 +526,8 @@ exports[`should render source file 1`] = `
             <MeasuresOverlayMeasure
               key="duplicated_lines"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Duplications",
                     "key": "duplicated_lines",
                     "type": "INT",
@@ -590,7 +590,7 @@ exports[`should render source file 2`] = `
         />
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?branch=feature&id=project-key",
             }
@@ -624,8 +624,8 @@ exports[`should render source file 2`] = `
             <MeasuresOverlayMeasure
               key="lines"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Size",
                     "key": "lines",
                     "type": "INT",
@@ -637,8 +637,8 @@ exports[`should render source file 2`] = `
             <MeasuresOverlayMeasure
               key="ncloc"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Size",
                     "key": "ncloc",
                     "type": "INT",
@@ -650,8 +650,8 @@ exports[`should render source file 2`] = `
             <MeasuresOverlayMeasure
               key="comment_lines"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Size",
                     "key": "comment_lines",
                     "type": "INT",
@@ -663,8 +663,8 @@ exports[`should render source file 2`] = `
             <MeasuresOverlayMeasure
               key="comment_lines_density"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Size",
                     "key": "comment_lines_density",
                     "type": "PERCENT",
@@ -680,8 +680,8 @@ exports[`should render source file 2`] = `
             <MeasuresOverlayMeasure
               key="cognitive_complexity"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Complexity",
                     "key": "cognitive_complexity",
                     "type": "INT",
@@ -693,8 +693,8 @@ exports[`should render source file 2`] = `
             <MeasuresOverlayMeasure
               key="complexity"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Complexity",
                     "key": "complexity",
                     "type": "INT",
@@ -1007,8 +1007,8 @@ exports[`should render source file 2`] = `
             <MeasuresOverlayMeasure
               key="uncovered_lines"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Coverage",
                     "key": "uncovered_lines",
                     "type": "INT",
@@ -1020,8 +1020,8 @@ exports[`should render source file 2`] = `
             <MeasuresOverlayMeasure
               key="lines_to_cover"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Coverage",
                     "key": "lines_to_cover",
                     "type": "INT",
@@ -1077,8 +1077,8 @@ exports[`should render source file 2`] = `
             <MeasuresOverlayMeasure
               key="duplicated_blocks"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Duplications",
                     "key": "duplicated_blocks",
                     "type": "INT",
@@ -1090,8 +1090,8 @@ exports[`should render source file 2`] = `
             <MeasuresOverlayMeasure
               key="duplicated_lines"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Duplications",
                     "key": "duplicated_lines",
                     "type": "INT",
@@ -1132,8 +1132,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="cognitive_complexity"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Complexity",
                       "key": "cognitive_complexity",
                       "type": "INT",
@@ -1145,8 +1145,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="complexity"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Complexity",
                       "key": "complexity",
                       "type": "INT",
@@ -1176,8 +1176,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="classes"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Size",
                       "key": "classes",
                       "type": "INT",
@@ -1189,8 +1189,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="comment_lines"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Size",
                       "key": "comment_lines",
                       "type": "INT",
@@ -1202,8 +1202,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="comment_lines_density"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Size",
                       "key": "comment_lines_density",
                       "type": "PERCENT",
@@ -1215,8 +1215,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="files"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Size",
                       "key": "files",
                       "type": "INT",
@@ -1228,8 +1228,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="functions"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Size",
                       "key": "functions",
                       "type": "INT",
@@ -1241,8 +1241,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="lines"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Size",
                       "key": "lines",
                       "type": "INT",
@@ -1254,8 +1254,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="ncloc"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Size",
                       "key": "ncloc",
                       "type": "INT",
@@ -1267,8 +1267,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="statements"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Size",
                       "key": "statements",
                       "type": "INT",
@@ -1298,8 +1298,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="coverage"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Coverage",
                       "key": "coverage",
                       "type": "PERCENT",
@@ -1311,8 +1311,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="line_coverage"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Coverage",
                       "key": "line_coverage",
                       "type": "PERCENT",
@@ -1324,8 +1324,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="lines_to_cover"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Coverage",
                       "key": "lines_to_cover",
                       "type": "INT",
@@ -1337,8 +1337,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="uncovered_lines"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Coverage",
                       "key": "uncovered_lines",
                       "type": "INT",
@@ -1368,8 +1368,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="bugs"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Reliability",
                       "key": "bugs",
                       "type": "INT",
@@ -1381,8 +1381,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="reliability_rating"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Reliability",
                       "key": "reliability_rating",
                       "type": "RATING",
@@ -1416,8 +1416,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="security_rating"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Security",
                       "key": "security_rating",
                       "type": "RATING",
@@ -1429,8 +1429,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="vulnerabilities"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Security",
                       "key": "vulnerabilities",
                       "type": "INT",
@@ -1460,8 +1460,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="skipped_tests"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Tests",
                       "key": "skipped_tests",
                       "type": "INT",
@@ -1473,8 +1473,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="test_errors"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Tests",
                       "key": "test_errors",
                       "type": "INT",
@@ -1486,8 +1486,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="test_failures"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Tests",
                       "key": "test_failures",
                       "type": "INT",
@@ -1499,8 +1499,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="test_success_density"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Tests",
                       "key": "test_success_density",
                       "type": "PERCENT",
@@ -1530,8 +1530,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="false_positive_issues"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Issues",
                       "key": "false_positive_issues",
                       "type": "INT",
@@ -1543,8 +1543,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="violations"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Issues",
                       "key": "violations",
                       "type": "INT",
@@ -1556,8 +1556,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="wont_fix_issues"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Issues",
                       "key": "wont_fix_issues",
                       "type": "INT",
@@ -1587,8 +1587,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="duplicated_blocks"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Duplications",
                       "key": "duplicated_blocks",
                       "type": "INT",
@@ -1600,8 +1600,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="duplicated_files"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Duplications",
                       "key": "duplicated_files",
                       "type": "INT",
@@ -1613,8 +1613,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="duplicated_lines"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Duplications",
                       "key": "duplicated_lines",
                       "type": "INT",
@@ -1626,8 +1626,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="duplicated_lines_density"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Duplications",
                       "key": "duplicated_lines_density",
                       "type": "PERCENT",
@@ -1657,8 +1657,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="code_smells"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Maintainability",
                       "key": "code_smells",
                       "type": "INT",
@@ -1670,8 +1670,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="sqale_debt_ratio"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Maintainability",
                       "key": "sqale_debt_ratio",
                       "type": "PERCENT",
@@ -1683,8 +1683,8 @@ exports[`should render source file 2`] = `
               <MeasuresOverlayMeasure
                 key="sqale_index"
                 measure={
-                  Object {
-                    "metric": Object {
+                  {
+                    "metric": {
                       "domain": "Maintainability",
                       "key": "sqale_index",
                       "type": "WORK_DUR",
@@ -1737,7 +1737,7 @@ exports[`should render test file 1`] = `
         />
         <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/dashboard",
               "search": "?branch=feature&id=project-key",
             }
@@ -1771,8 +1771,8 @@ exports[`should render test file 1`] = `
             <MeasuresOverlayMeasure
               key="test_success_density"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Tests",
                     "key": "test_success_density",
                     "type": "PERCENT",
@@ -1784,8 +1784,8 @@ exports[`should render test file 1`] = `
             <MeasuresOverlayMeasure
               key="test_failures"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Tests",
                     "key": "test_failures",
                     "type": "INT",
@@ -1797,8 +1797,8 @@ exports[`should render test file 1`] = `
             <MeasuresOverlayMeasure
               key="test_errors"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Tests",
                     "key": "test_errors",
                     "type": "INT",
@@ -1810,8 +1810,8 @@ exports[`should render test file 1`] = `
             <MeasuresOverlayMeasure
               key="skipped_tests"
               measure={
-                Object {
-                  "metric": Object {
+                {
+                  "metric": {
                     "domain": "Tests",
                     "key": "skipped_tests",
                     "type": "INT",

@@ -3,7 +3,7 @@
 exports[`renders 1`] = `
 <Histogram
   bars={
-    Array [
+    [
       1734,
       845,
       73,
@@ -12,7 +12,7 @@ exports[`renders 1`] = `
   }
   height={100}
   padding={
-    Array [
+    [
       0,
       60,
       0,
@@ -21,7 +21,7 @@ exports[`renders 1`] = `
   }
   width={260}
   yTicks={
-    Array [
+    [
       "Java",
       "JavaScript",
       "cpp",
@@ -29,7 +29,7 @@ exports[`renders 1`] = `
     ]
   }
   yTooltips={
-    Array [
+    [
       "1,734",
       "",
       "",
@@ -37,7 +37,7 @@ exports[`renders 1`] = `
     ]
   }
   yValues={
-    Array [
+    [
       "1.7short_number_suffix.k",
       "845",
       "73",

@@ -33,7 +33,7 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
         alm="azure"
         branchesEnabled={true}
         definition={
-          Object {
+          {
             "key": "key",
             "personalAccessToken": "asdf1234",
           }
@@ -81,7 +81,7 @@ exports[`should render correctly for multi-ALM binding: loaded 1`] = `
         alm="azure"
         branchesEnabled={true}
         definition={
-          Object {
+          {
             "key": "key",
             "personalAccessToken": "asdf1234",
           }
@@ -129,7 +129,7 @@ exports[`should render correctly for multi-ALM binding: loading ALM definitions 
         alm="azure"
         branchesEnabled={true}
         definition={
-          Object {
+          {
             "key": "key",
             "personalAccessToken": "asdf1234",
           }
@@ -177,7 +177,7 @@ exports[`should render correctly for multi-ALM binding: loading project count 1`
         alm="azure"
         branchesEnabled={true}
         definition={
-          Object {
+          {
             "key": "key",
             "personalAccessToken": "asdf1234",
           }
@@ -225,7 +225,7 @@ exports[`should render correctly for single-ALM binding 1`] = `
         alm="azure"
         branchesEnabled={true}
         definition={
-          Object {
+          {
             "key": "key",
             "personalAccessToken": "asdf1234",
           }
@@ -273,7 +273,7 @@ exports[`should render correctly for single-ALM binding 2`] = `
         alm="azure"
         branchesEnabled={true}
         definition={
-          Object {
+          {
             "key": "key",
             "personalAccessToken": "asdf1234",
           }
@@ -321,7 +321,7 @@ exports[`should render correctly for single-ALM binding 3`] = `
         alm="azure"
         branchesEnabled={true}
         definition={
-          Object {
+          {
             "key": "key",
             "personalAccessToken": "asdf1234",
           }
@@ -408,7 +408,7 @@ exports[`should render correctly with validation: create a second 1`] = `
         alm="azure"
         branchesEnabled={true}
         definition={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
@@ -461,7 +461,7 @@ exports[`should render correctly with validation: default 1`] = `
         alm="azure"
         branchesEnabled={true}
         definition={
-          Object {
+          {
             "appId": "123456",
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
@@ -553,7 +553,7 @@ exports[`should render correctly with validation: pass the correct key for bitbu
         alm="bitbucketcloud"
         branchesEnabled={true}
         definition={
-          Object {
+          {
             "clientId": "client1",
             "clientSecret": "**clientsecret**",
             "key": "key",
@@ -575,10 +575,10 @@ exports[`should render correctly with validation: pass the correct key for bitbu
       defaultMessage="settings.almintegration.tabs.authentication_moved"
       id="settings.almintegration.tabs.authentication-moved"
       values={
-        Object {
+        {
           "link": <ForwardRef(Link)
             to={
-              Object {
+              {
                 "pathname": "/admin/settings",
                 "search": "category=authentication&tab=bitbucket",
               }

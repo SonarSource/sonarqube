@@ -20,7 +20,7 @@ exports[`renders correctly: list element 1`] = `
     scrollToIndex={-1}
     scrollTop={0}
     style={
-      Object {
+      {
         "outline": "none",
       }
     }
@@ -33,7 +33,7 @@ exports[`renders correctly: row element 1`] = `
 <div
   role="row"
   style={
-    Object {
+    {
       "height": 145,
     }
   }
@@ -43,13 +43,13 @@ exports[`renders correctly: row element 1`] = `
   >
     <ProjectCard
       currentUser={
-        Object {
+        {
           "isLoggedIn": true,
         }
       }
       height={145}
       project={
-        Object {
+        {
           "key": "foo",
           "name": "Foo",
         }
@@ -66,7 +66,7 @@ exports[`renders different types of "no projects" 1`] = `
 >
   <withRouter(EmptyInstance)
     currentUser={
-      Object {
+      {
         "isLoggedIn": true,
       }
     }

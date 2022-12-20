@@ -9,8 +9,8 @@ exports[`should render correctly the graph and legends 1`] = `
     className="big-spacer-bottom"
     graph="issues"
     metrics={
-      Array [
-        Object {
+      [
+        {
           "id": "1",
           "key": "code_smells",
           "name": "Code Smells",
@@ -19,16 +19,16 @@ exports[`should render correctly the graph and legends 1`] = `
       ]
     }
     removeCustomMetric={[Function]}
-    selectedMetrics={Array []}
+    selectedMetrics={[]}
     updateGraph={[Function]}
   />
   <GraphsHistory
     analyses={
-      Array [
-        Object {
+      [
+        {
           "date": 2016-10-27T14:33:50.000Z,
-          "events": Array [
-            Object {
+          "events": [
+            {
               "category": "VERSION",
               "key": "E1",
               "name": "6.5-SNAPSHOT",
@@ -36,20 +36,20 @@ exports[`should render correctly the graph and legends 1`] = `
           ],
           "key": "A1",
         },
-        Object {
+        {
           "date": 2016-10-27T10:21:15.000Z,
-          "events": Array [],
+          "events": [],
           "key": "A2",
         },
-        Object {
+        {
           "date": 2016-10-26T10:17:29.000Z,
-          "events": Array [
-            Object {
+          "events": [
+            {
               "category": "VERSION",
               "key": "E2",
               "name": "6.4",
             },
-            Object {
+            {
               "category": "OTHER",
               "key": "E3",
               "name": "foo",
@@ -61,19 +61,19 @@ exports[`should render correctly the graph and legends 1`] = `
     }
     graph="issues"
     graphs={
-      Array [
-        Array [
-          Object {
-            "data": Array [
-              Object {
+      [
+        [
+          {
+            "data": [
+              {
                 "x": 2016-10-26T10:17:29.000Z,
                 "y": 2286,
               },
-              Object {
+              {
                 "x": 2016-10-27T10:21:15.000Z,
                 "y": 1749,
               },
-              Object {
+              {
                 "x": 2016-10-27T14:33:50.000Z,
                 "y": 500,
               },
@@ -88,18 +88,18 @@ exports[`should render correctly the graph and legends 1`] = `
     leakPeriodDate={2017-05-16T11:50:02.000Z}
     loading={false}
     measuresHistory={
-      Array [
-        Object {
-          "history": Array [
-            Object {
+      [
+        {
+          "history": [
+            {
               "date": 2016-10-26T10:17:29.000Z,
               "value": "2286",
             },
-            Object {
+            {
               "date": 2016-10-27T10:21:15.000Z,
               "value": "1749",
             },
-            Object {
+            {
               "date": 2016-10-27T14:33:50.000Z,
               "value": "500",
             },
@@ -110,18 +110,18 @@ exports[`should render correctly the graph and legends 1`] = `
     }
     removeCustomMetric={[Function]}
     series={
-      Array [
-        Object {
-          "data": Array [
-            Object {
+      [
+        {
+          "data": [
+            {
               "x": 2016-10-26T10:17:29.000Z,
               "y": 2286,
             },
-            Object {
+            {
               "x": 2016-10-27T10:21:15.000Z,
               "y": 1749,
             },
-            Object {
+            {
               "x": 2016-10-27T14:33:50.000Z,
               "y": 500,
             },
@@ -140,18 +140,18 @@ exports[`should render correctly the graph and legends 1`] = `
     loading={false}
     metricsType="INT"
     series={
-      Array [
-        Object {
-          "data": Array [
-            Object {
+      [
+        {
+          "data": [
+            {
               "x": 2016-10-26T10:17:29.000Z,
               "y": 2286,
             },
-            Object {
+            {
               "x": 2016-10-27T10:21:15.000Z,
               "y": 1749,
             },
-            Object {
+            {
               "x": 2016-10-27T14:33:50.000Z,
               "y": 500,
             },
@@ -169,22 +169,22 @@ exports[`should render correctly the graph and legends 1`] = `
 `;
 
 exports[`should render correctly with filter history on dates 1`] = `
-Object {
+{
   "graphEndDate": undefined,
   "graphStartDate": 2016-10-27T10:21:15.000Z,
-  "graphs": Array [
-    Array [
-      Object {
-        "data": Array [
-          Object {
+  "graphs": [
+    [
+      {
+        "data": [
+          {
             "x": 2016-10-26T10:17:29.000Z,
             "y": 2286,
           },
-          Object {
+          {
             "x": 2016-10-27T10:21:15.000Z,
             "y": 1749,
           },
-          Object {
+          {
             "x": 2016-10-27T14:33:50.000Z,
             "y": 500,
           },
@@ -195,18 +195,18 @@ Object {
       },
     ],
   ],
-  "series": Array [
-    Object {
-      "data": Array [
-        Object {
+  "series": [
+    {
+      "data": [
+        {
           "x": 2016-10-26T10:17:29.000Z,
           "y": 2286,
         },
-        Object {
+        {
           "x": 2016-10-27T10:21:15.000Z,
           "y": 1749,
         },
-        Object {
+        {
           "x": 2016-10-27T14:33:50.000Z,
           "y": 500,
         },

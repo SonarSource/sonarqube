@@ -3,7 +3,7 @@
 exports[`should render correctly 1`] = `
 <ForwardRef(Link)
   to={
-    Object {
+    {
       "pathname": "/component_measures",
       "search": "?id=project123&metric=other&view=list",
     }
@@ -16,7 +16,7 @@ exports[`should render correctly 1`] = `
 exports[`should render issuesLink correctly 1`] = `
 <ForwardRef(Link)
   to={
-    Object {
+    {
       "hash": "",
       "pathname": "/project/issues",
       "search": "?resolved=false&id=project123",

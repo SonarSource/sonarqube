@@ -48,12 +48,12 @@ exports[`should render correctly 1`] = `
         onUpdateUsers={[MockFunction]}
         updateTokensCount={[MockFunction]}
         user={
-          Object {
+          {
             "active": true,
             "local": false,
             "login": "luke",
             "name": "Luke",
-            "scmAccounts": Array [],
+            "scmAccounts": [],
           }
         }
       />
@@ -63,12 +63,12 @@ exports[`should render correctly 1`] = `
         onUpdateUsers={[MockFunction]}
         updateTokensCount={[MockFunction]}
         user={
-          Object {
+          {
             "active": true,
             "local": false,
             "login": "obi",
             "name": "One",
-            "scmAccounts": Array [],
+            "scmAccounts": [],
           }
         }
       />

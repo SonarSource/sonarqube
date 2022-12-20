@@ -42,7 +42,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="settings.almintegration.github.info"
       id="settings.almintegration.github.info"
       values={
-        Object {
+        {
           "link": <withAppStateContext(DocLink)
             to="/devops-platform-integration/github-integration/"
           >
@@ -145,7 +145,7 @@ exports[`should render correctly 2`] = `
       defaultMessage="settings.almintegration.github.info"
       id="settings.almintegration.github.info"
       values={
-        Object {
+        {
           "link": <withAppStateContext(DocLink)
             to="/devops-platform-integration/github-integration/"
           >

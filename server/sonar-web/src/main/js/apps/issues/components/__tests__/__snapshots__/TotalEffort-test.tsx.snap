@@ -11,7 +11,7 @@ exports[`should render 1`] = `
       defaultMessage="issue.x_effort"
       id="issue.x_effort"
       values={
-        Object {
+        {
           "0": <strong>
             work_duration.x_hours.2 work_duration.x_minutes.5
           </strong>,

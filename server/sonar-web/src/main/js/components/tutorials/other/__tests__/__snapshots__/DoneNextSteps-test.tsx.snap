@@ -24,7 +24,7 @@ exports[`should render correctly: default 1`] = `
       defaultMessage="onboarding.analysis.auto_refresh_after_analysis.check_these_links"
       id="onboarding.analysis.auto_refresh_after_analysis.check_these_links"
       values={
-        Object {
+        {
           "link_branches": <withAppStateContext(DocLink)
             to="/analyzing-source-code/branches/branch-analysis/"
           >
@@ -66,7 +66,7 @@ exports[`should render correctly: project admin 1`] = `
       defaultMessage="onboarding.analysis.auto_refresh_after_analysis.check_these_links"
       id="onboarding.analysis.auto_refresh_after_analysis.check_these_links"
       values={
-        Object {
+        {
           "link_branches": <withAppStateContext(DocLink)
             to="/analyzing-source-code/branches/branch-analysis/"
           >

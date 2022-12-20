@@ -119,7 +119,7 @@ exports[`should display warning when too many issues are passed 2`] = `
     defaultMessage="issue_bulk_change.max_issues_reached"
     id="issue_bulk_change.max_issues_reached"
     values={
-      Object {
+      {
         "max": <strong>
           500
         </strong>,
@@ -132,7 +132,7 @@ exports[`should display warning when too many issues are passed 2`] = `
 exports[`should render select for severity: Option 1`] = `
 <Option
   data={
-    Object {
+    {
       "label": "label",
       "value": "value",
     }
@@ -148,7 +148,7 @@ exports[`should render select for severity: Option 1`] = `
 exports[`should render select for severity: SingleValue 1`] = `
 <SingleValue
   data={
-    Object {
+    {
       "label": "label",
       "value": "value",
     }
@@ -164,7 +164,7 @@ exports[`should render select for severity: SingleValue 1`] = `
 exports[`should render select for type: Option 1`] = `
 <Option
   data={
-    Object {
+    {
       "label": "label",
       "value": "value",
     }
@@ -188,7 +188,7 @@ exports[`should render select for type: Option 1`] = `
 exports[`should render select for type: SingleValue 1`] = `
 <SingleValue
   data={
-    Object {
+    {
       "label": "label",
       "value": "value",
     }

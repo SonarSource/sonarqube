@@ -7,7 +7,7 @@ exports[`should render correctly 1`] = `
 >
   <ValidationForm
     initialValues={
-      Object {
+      {
         "field": "foo",
       }
     }
@@ -22,9 +22,9 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly 2`] = `
 <ContextProvider
   value={
-    Object {
+    {
       "dirty": false,
-      "errors": Object {},
+      "errors": {},
       "getFieldHelpers": [Function],
       "getFieldMeta": [Function],
       "getFieldProps": [Function],
@@ -32,10 +32,10 @@ exports[`should render correctly 2`] = `
       "handleChange": [Function],
       "handleReset": [Function],
       "handleSubmit": [Function],
-      "initialErrors": Object {},
+      "initialErrors": {},
       "initialStatus": undefined,
-      "initialTouched": Object {},
-      "initialValues": Object {
+      "initialTouched": {},
+      "initialValues": {
         "field": "foo",
       },
       "isSubmitting": false,
@@ -55,14 +55,14 @@ exports[`should render correctly 2`] = `
       "status": undefined,
       "submitCount": 0,
       "submitForm": [Function],
-      "touched": Object {},
+      "touched": {},
       "unregisterField": [Function],
       "validateField": [Function],
       "validateForm": [Function],
       "validateOnBlur": true,
       "validateOnChange": true,
       "validateOnMount": true,
-      "values": Object {
+      "values": {
         "field": "foo",
       },
     }

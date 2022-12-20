@@ -24,7 +24,7 @@ exports[`should render correctly: initial content 1`] = `
     defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
     id="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
     values={
-      Object {
+      {
         "link": <strong>
           onboarding.tutorial.with.gitlab_ci.env_variables.description.link
         </strong>,
@@ -41,7 +41,7 @@ exports[`should render correctly: initial content 1`] = `
         defaultMessage="onboarding.tutorial.env_variables"
         id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
         values={
-          Object {
+          {
             "extra": <ClipboardIconButton
               copyValue="SONAR_TOKEN"
             />,
@@ -59,37 +59,37 @@ exports[`should render correctly: initial content 1`] = `
     </li>
     <TokenStepGenerator
       component={
-        Object {
-          "breadcrumbs": Array [],
+        {
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
         }
       }
       currentUser={
-        Object {
-          "dismissedNotices": Object {
+        {
+          "dismissedNotices": {
             "educationPrinciples": false,
           },
-          "groups": Array [],
+          "groups": [],
           "isLoggedIn": true,
           "login": "luke",
           "name": "Skywalker",
-          "scmAccounts": Array [],
+          "scmAccounts": [],
         }
       }
     />
@@ -116,7 +116,7 @@ exports[`should render correctly: initial content 1`] = `
     defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
     id="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
     values={
-      Object {
+      {
         "link": <strong>
           onboarding.tutorial.with.gitlab_ci.env_variables.description.link
         </strong>,
@@ -133,7 +133,7 @@ exports[`should render correctly: initial content 1`] = `
         defaultMessage="onboarding.tutorial.env_variables"
         id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
         values={
-          Object {
+          {
             "extra": <ClipboardIconButton
               copyValue="SONAR_HOST_URL"
             />,
@@ -156,7 +156,7 @@ exports[`should render correctly: initial content 1`] = `
         defaultMessage="onboarding.tutorial.env_variables"
         id="onboarding.tutorial.with.gitlab_ci.env_variables.step2"
         values={
-          Object {
+          {
             "extra": <ClipboardIconButton
               copyValue="http://localhost:9000"
             />,

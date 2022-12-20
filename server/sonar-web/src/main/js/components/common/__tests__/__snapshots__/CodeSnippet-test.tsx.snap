@@ -12,7 +12,7 @@ exports[`renders correctly: array snippet 1`] = `
   bar
   </pre>
   <ClipboardButton
-    copyValue="foo \\\\
+    copyValue="foo \\
   bar"
   />
 </div>

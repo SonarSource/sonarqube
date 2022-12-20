@@ -20,19 +20,19 @@ exports[`renders correctly: default 1`] = `
   </div>
   <TokenStep
     currentUser={
-      Object {
-        "dismissedNotices": Object {
+      {
+        "dismissedNotices": {
           "educationPrinciples": false,
         },
-        "groups": Array [],
+        "groups": [],
         "isLoggedIn": true,
         "login": "luke",
         "name": "Skywalker",
-        "scmAccounts": Array [],
+        "scmAccounts": [],
       }
     }
     finished={false}
-    initialTokenName="Analyze \\"MyProject\\""
+    initialTokenName="Analyze "MyProject""
     onContinue={[Function]}
     onOpen={[Function]}
     open={true}
@@ -42,25 +42,25 @@ exports[`renders correctly: default 1`] = `
   <ProjectAnalysisStep
     baseUrl="http://example.com"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "my-project",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     isLocal={false}

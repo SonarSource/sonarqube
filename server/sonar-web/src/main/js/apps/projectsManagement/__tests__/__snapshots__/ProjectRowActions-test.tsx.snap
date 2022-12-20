@@ -4,7 +4,7 @@ exports[`permissions shows the apply permission template modal 1`] = `
 <ApplyTemplate
   onClose={[Function]}
   project={
-    Object {
+    {
       "id": "foo",
       "key": "foo",
       "name": "Foo",
@@ -33,21 +33,21 @@ exports[`renders correctly 1`] = `
 exports[`restore access shows the restore access modal 1`] = `
 <RestoreAccessModal
   currentUser={
-    Object {
-      "dismissedNotices": Object {
+    {
+      "dismissedNotices": {
         "educationPrinciples": false,
       },
-      "groups": Array [],
+      "groups": [],
       "isLoggedIn": true,
       "login": "luke",
       "name": "Skywalker",
-      "scmAccounts": Array [],
+      "scmAccounts": [],
     }
   }
   onClose={[Function]}
   onRestoreAccess={[Function]}
   project={
-    Object {
+    {
       "id": "foo",
       "key": "foo",
       "name": "Foo",

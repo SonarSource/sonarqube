@@ -29,14 +29,14 @@ exports[`renders list of projects 1`] = `
     <tbody>
       <ProjectRow
         currentUser={
-          Object {
+          {
             "login": "foo",
           }
         }
         key="a"
         onProjectCheck={[Function]}
         project={
-          Object {
+          {
             "key": "a",
             "name": "A",
             "qualifier": "TRK",
@@ -47,14 +47,14 @@ exports[`renders list of projects 1`] = `
       />
       <ProjectRow
         currentUser={
-          Object {
+          {
             "login": "foo",
           }
         }
         key="b"
         onProjectCheck={[Function]}
         project={
-          Object {
+          {
             "key": "b",
             "name": "B",
             "qualifier": "TRK",

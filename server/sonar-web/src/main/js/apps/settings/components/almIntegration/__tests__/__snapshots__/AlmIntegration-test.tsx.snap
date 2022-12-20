@@ -4,14 +4,14 @@ exports[`should render correctly 1`] = `
 <AlmIntegrationRenderer
   branchesEnabled={true}
   currentAlmTab="github"
-  definitionStatus={Object {}}
+  definitionStatus={{}}
   definitions={
-    Object {
-      "azure": Array [],
-      "bitbucket": Array [],
-      "bitbucketcloud": Array [],
-      "github": Array [],
-      "gitlab": Array [],
+    {
+      "azure": [],
+      "bitbucket": [],
+      "bitbucketcloud": [],
+      "github": [],
+      "gitlab": [],
     }
   }
   loadingAlmDefinitions={true}

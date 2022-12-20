@@ -25,12 +25,12 @@ exports[`should render correctly 1`] = `
     <tbody>
       <BranchListRow
         branch={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": true,
             "name": "master",
-            "newCodePeriod": Object {
+            "newCodePeriod": {
               "effectiveValue": undefined,
               "type": "NUMBER_OF_DAYS",
               "value": "27",
@@ -38,14 +38,14 @@ exports[`should render correctly 1`] = `
           }
         }
         existingBranches={
-          Array [
+          [
             "master",
             "branch-6.7",
             "branch-7.0",
           ]
         }
         inheritedSetting={
-          Object {
+          {
             "type": "PREVIOUS_VERSION",
           }
         }
@@ -55,7 +55,7 @@ exports[`should render correctly 1`] = `
       />
       <BranchListRow
         branch={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
@@ -63,14 +63,14 @@ exports[`should render correctly 1`] = `
           }
         }
         existingBranches={
-          Array [
+          [
             "master",
             "branch-6.7",
             "branch-7.0",
           ]
         }
         inheritedSetting={
-          Object {
+          {
             "type": "PREVIOUS_VERSION",
           }
         }
@@ -80,7 +80,7 @@ exports[`should render correctly 1`] = `
       />
       <BranchListRow
         branch={
-          Object {
+          {
             "analysisDate": "2018-01-01",
             "excludedFromPurge": true,
             "isMain": false,
@@ -88,14 +88,14 @@ exports[`should render correctly 1`] = `
           }
         }
         existingBranches={
-          Array [
+          [
             "master",
             "branch-6.7",
             "branch-7.0",
           ]
         }
         inheritedSetting={
-          Object {
+          {
             "type": "PREVIOUS_VERSION",
           }
         }

@@ -49,14 +49,14 @@ exports[`render correctly 2`] = `
           inputId="project-permissions-template-input"
           onChange={[Function]}
           options={
-            Array [
-              Object {
+            [
+              {
                 "label": "SonarSource projects",
                 "value": "tmp1",
               },
             ]
           }
-          value={Array []}
+          value={[]}
         />
       </div>
     </div>

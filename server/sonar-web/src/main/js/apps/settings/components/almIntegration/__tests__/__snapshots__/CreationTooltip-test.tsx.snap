@@ -8,7 +8,7 @@ exports[`should render correctly 1`] = `
       defaultMessage="settings.almintegration.create.tooltip"
       id="settings.almintegration.create.tooltip"
       values={
-        Object {
+        {
           "alm": "alm.azure",
           "link": <a
             href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=community"

@@ -11,7 +11,7 @@ exports[`should render correctly for a "APP" root component and a component with
       className="link-no-underline"
       id="component-measures-component-link-foo"
       to={
-        Object {
+        {
           "pathname": "/component_measures",
           "search": "?id=foo&metric=bugs&branch=develop&view=list&selected=foo",
         }
@@ -52,7 +52,7 @@ exports[`should render correctly for a "APP" root component and a component with
       className="link-no-underline"
       id="component-measures-component-link-foo"
       to={
-        Object {
+        {
           "pathname": "/component_measures",
           "search": "?id=foo&metric=bugs&view=list&selected=foo",
         }
@@ -90,7 +90,7 @@ exports[`should render correctly for a "TRK" root component and a component with
       className="link-no-underline"
       id="component-measures-component-link-foo"
       to={
-        Object {
+        {
           "pathname": "/component_measures",
           "search": "?id=foo&metric=bugs&branch=develop&view=list&selected=foo",
         }
@@ -123,7 +123,7 @@ exports[`should render correctly for a "TRK" root component and a component with
       className="link-no-underline"
       id="component-measures-component-link-foo"
       to={
-        Object {
+        {
           "pathname": "/component_measures",
           "search": "?id=foo&metric=bugs&view=list&selected=foo",
         }
@@ -156,7 +156,7 @@ exports[`should render correctly for a "VW" root component and a component with 
       className="link-no-underline"
       id="component-measures-component-link-foo"
       to={
-        Object {
+        {
           "pathname": "/component_measures",
           "search": "?id=foo&metric=bugs&branch=develop&view=list&selected=foo",
         }
@@ -197,7 +197,7 @@ exports[`should render correctly for a "VW" root component and a component with 
       className="link-no-underline"
       id="component-measures-component-link-foo"
       to={
-        Object {
+        {
           "pathname": "/component_measures",
           "search": "?id=foo&metric=bugs&view=list&selected=foo",
         }
@@ -235,7 +235,7 @@ exports[`should render correctly: default 1`] = `
       className="link-no-underline"
       id="component-measures-component-link-foo:src/index.tsx"
       to={
-        Object {
+        {
           "pathname": "/component_measures",
           "search": "?id=foo&metric=bugs&view=list&selected=foo%3Asrc%2Findex.tsx",
         }

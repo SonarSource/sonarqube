@@ -9,7 +9,7 @@ exports[`should render correctly 1`] = `
   >
     <ChangelogSearch
       dateRange={
-        Object {
+        {
           "from": undefined,
           "to": undefined,
         }
@@ -20,29 +20,29 @@ exports[`should render correctly 1`] = `
   </header>
   <Changelog
     events={
-      Array [
-        Object {
+      [
+        {
           "action": "ACTIVATED",
           "date": "2019-04-23T02:12:32+0100",
-          "params": Object {
+          "params": {
             "severity": "MAJOR",
           },
           "ruleKey": "rule-key",
           "ruleName": "rule-name",
         },
-        Object {
+        {
           "action": "ACTIVATED",
           "date": "2019-04-23T02:12:32+0100",
-          "params": Object {
+          "params": {
             "severity": "MAJOR",
           },
           "ruleKey": "rule-key",
           "ruleName": "rule-name",
         },
-        Object {
+        {
           "action": "ACTIVATED",
           "date": "2019-04-23T02:12:32+0100",
-          "params": Object {
+          "params": {
             "severity": "MAJOR",
           },
           "ruleKey": "rule-key",
@@ -73,7 +73,7 @@ exports[`should render correctly without events 1`] = `
   >
     <ChangelogSearch
       dateRange={
-        Object {
+        {
           "from": undefined,
           "to": undefined,
         }

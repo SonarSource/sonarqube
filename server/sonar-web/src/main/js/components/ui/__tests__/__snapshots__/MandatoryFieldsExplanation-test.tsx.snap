@@ -9,7 +9,7 @@ exports[`should render correctly: default 1`] = `
     defaultMessage="fields_marked_with_x_required"
     id="fields_marked_with_x_required"
     values={
-      Object {
+      {
         "star": <em
           className="mandatory"
         >
@@ -30,7 +30,7 @@ exports[`should render correctly: with className 1`] = `
     defaultMessage="fields_marked_with_x_required"
     id="fields_marked_with_x_required"
     values={
-      Object {
+      {
         "star": <em
           className="mandatory"
         >

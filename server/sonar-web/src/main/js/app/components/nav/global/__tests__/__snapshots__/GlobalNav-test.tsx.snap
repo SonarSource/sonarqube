@@ -9,13 +9,13 @@ exports[`should render correctly: anonymous users 1`] = `
   <withAppStateContext(GlobalNavBranding) />
   <withAppStateContext(GlobalNavMenu)
     currentUser={
-      Object {
-        "dismissedNotices": Object {},
+      {
+        "dismissedNotices": {},
         "isLoggedIn": false,
       }
     }
     location={
-      Object {
+      {
         "pathname": "",
       }
     }
@@ -27,8 +27,8 @@ exports[`should render correctly: anonymous users 1`] = `
     <withRouter(Search) />
     <withRouter(GlobalNavUser)
       currentUser={
-        Object {
-          "dismissedNotices": Object {},
+        {
+          "dismissedNotices": {},
           "isLoggedIn": false,
         }
       }
@@ -46,12 +46,12 @@ exports[`should render correctly: logged in users 1`] = `
   <withAppStateContext(GlobalNavBranding) />
   <withAppStateContext(GlobalNavMenu)
     currentUser={
-      Object {
+      {
         "isLoggedIn": true,
       }
     }
     location={
-      Object {
+      {
         "pathname": "",
       }
     }
@@ -63,7 +63,7 @@ exports[`should render correctly: logged in users 1`] = `
     <withRouter(Search) />
     <withRouter(GlobalNavUser)
       currentUser={
-        Object {
+        {
           "isLoggedIn": true,
         }
       }

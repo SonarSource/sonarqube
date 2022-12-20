@@ -57,49 +57,49 @@ exports[`should render correctly: no binding 1`] = `
 exports[`should render correctly: repo variable step content 1`] = `
 <RepositoryVariables
   almBinding={
-    Object {
+    {
       "alm": "github",
       "key": "key",
     }
   }
   baseUrl="test"
   component={
-    Object {
-      "breadcrumbs": Array [],
+    {
+      "breadcrumbs": [],
       "key": "my-project",
       "name": "MyProject",
       "qualifier": "TRK",
-      "qualityGate": Object {
+      "qualityGate": {
         "isDefault": true,
         "key": "30",
         "name": "Sonar way",
       },
-      "qualityProfiles": Array [
-        Object {
+      "qualityProfiles": [
+        {
           "deleted": false,
           "key": "my-qp",
           "language": "ts",
           "name": "Sonar way",
         },
       ],
-      "tags": Array [],
+      "tags": [],
     }
   }
   currentUser={
-    Object {
-      "dismissedNotices": Object {
+    {
+      "dismissedNotices": {
         "educationPrinciples": false,
       },
-      "groups": Array [],
+      "groups": [],
       "isLoggedIn": true,
       "login": "luke",
       "name": "Skywalker",
-      "scmAccounts": Array [],
+      "scmAccounts": [],
     }
   }
   onDone={[Function]}
   projectBinding={
-    Object {
+    {
       "alm": "bitbucketcloud",
       "key": "foo",
       "monorepo": true,

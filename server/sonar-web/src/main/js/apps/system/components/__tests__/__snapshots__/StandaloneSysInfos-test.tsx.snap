@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
     biggerHealth={true}
     health="RED"
     healthCauses={
-      Array [
+      [
         "Database down",
       ]
     }
@@ -14,8 +14,8 @@ exports[`should render correctly 1`] = `
     onClick={[Function]}
     open={false}
     sysInfoData={
-      Object {
-        "Database": Object {
+      {
+        "Database": {
           "Database": "PostgreSQL",
           "Database Version": "10.3",
           "Driver": "PostgreSQL JDBC Driver",
@@ -33,20 +33,20 @@ exports[`should render correctly 1`] = `
     onClick={[Function]}
     open={false}
     sysInfoData={
-      Object {
-        "Web Database Connection": Object {
+      {
+        "Web Database Connection": {
           "Pool Active Connections": 0,
           "Pool Max Connections": 60,
         },
-        "Web JVM Properties": Object {
+        "Web JVM Properties": {
           "file.encoding": "UTF-8",
           "file.separator": "/",
         },
-        "Web JVM State": Object {
+        "Web JVM State": {
           "Free Memory (MB)": 111,
           "Max Memory (MB)": 1024,
         },
-        "Web Logging": Object {
+        "Web Logging": {
           "Logs Dir": "/logs",
           "Logs Level": "INFO",
         },
@@ -59,24 +59,24 @@ exports[`should render correctly 1`] = `
     onClick={[Function]}
     open={true}
     sysInfoData={
-      Object {
-        "Compute Engine Database Connection": Object {
+      {
+        "Compute Engine Database Connection": {
           "Pool Active Connections": 0,
           "Pool Initial Size": 0,
         },
-        "Compute Engine JVM Properties": Object {
+        "Compute Engine JVM Properties": {
           "file.encoding": "UTF-8",
           "file.separator": "/",
         },
-        "Compute Engine JVM State": Object {
+        "Compute Engine JVM State": {
           "Free Memory (MB)": 89,
           "Max Memory (MB)": 1024,
         },
-        "Compute Engine Logging": Object {
+        "Compute Engine Logging": {
           "Logs Dir": "/logs",
           "Logs Level": "DEBUG",
         },
-        "Compute Engine Tasks": Object {
+        "Compute Engine Tasks": {
           "In Progress": 0,
           "Pending": 0,
         },
@@ -89,12 +89,12 @@ exports[`should render correctly 1`] = `
     onClick={[Function]}
     open={false}
     sysInfoData={
-      Object {
-        "Search Indexes": Object {
+      {
+        "Search Indexes": {
           "Index components - Docs": 30445,
           "Index components - Shards": 10,
         },
-        "Search State": Object {
+        "Search State": {
           "Nodes": 3,
           "State": "GREEN",
         },

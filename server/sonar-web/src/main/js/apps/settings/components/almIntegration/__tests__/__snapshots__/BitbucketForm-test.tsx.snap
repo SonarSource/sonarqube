@@ -15,12 +15,12 @@ exports[`should render correctly: bbc 1`] = `
         label="settings.almintegration.form.choose_bitbucket_variant"
         onCheck={[MockFunction]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "Bitbucket Server",
               "value": "bitbucket",
             },
-            Object {
+            {
               "label": "Bitbucket Cloud",
               "value": "bitbucketcloud",
             },
@@ -32,7 +32,7 @@ exports[`should render correctly: bbc 1`] = `
   </div>
   <BitbucketCloudForm
     formData={
-      Object {
+      {
         "clientId": "client1",
         "clientSecret": "**clientsecret**",
         "key": "key",
@@ -59,12 +59,12 @@ exports[`should render correctly: bbs 1`] = `
         label="settings.almintegration.form.choose_bitbucket_variant"
         onCheck={[MockFunction]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "Bitbucket Server",
               "value": "bitbucket",
             },
-            Object {
+            {
               "label": "Bitbucket Cloud",
               "value": "bitbucketcloud",
             },
@@ -76,7 +76,7 @@ exports[`should render correctly: bbs 1`] = `
   </div>
   <BitbucketServerForm
     formData={
-      Object {
+      {
         "key": "key",
         "personalAccessToken": "asdf1234",
         "url": "http://bbs.enterprise.com",
@@ -91,7 +91,7 @@ exports[`should render correctly: update bbc 1`] = `
 <Fragment>
   <BitbucketCloudForm
     formData={
-      Object {
+      {
         "clientId": "client1",
         "clientSecret": "**clientsecret**",
         "key": "key",
@@ -107,7 +107,7 @@ exports[`should render correctly: update bbs 1`] = `
 <Fragment>
   <BitbucketServerForm
     formData={
-      Object {
+      {
         "key": "key",
         "personalAccessToken": "asdf1234",
         "url": "http://bbs.enterprise.com",

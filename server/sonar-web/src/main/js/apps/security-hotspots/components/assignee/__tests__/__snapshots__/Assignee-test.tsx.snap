@@ -3,7 +3,7 @@
 exports[`should render correctly 1`] = `
 <AssigneeRenderer
   assignee={
-    Object {
+    {
       "active": true,
       "local": true,
       "login": "assignee",

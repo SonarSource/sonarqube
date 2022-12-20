@@ -56,7 +56,7 @@ exports[`should render correctly 1`] = `
   >
     <ForwardRef(Link)
       to={
-        Object {
+        {
           "hash": "",
           "pathname": "/project/issues",
           "search": "?files=foo%2Fbar.ts&resolved=false&id=my-project",
@@ -135,7 +135,7 @@ exports[`should render correctly: no link to project 1`] = `
   >
     <ForwardRef(Link)
       to={
-        Object {
+        {
           "hash": "",
           "pathname": "/project/issues",
           "search": "?files=foo%2Fbar.ts&resolved=false&id=my-project",
@@ -203,7 +203,7 @@ exports[`should render correctly: no project name 1`] = `
   >
     <ForwardRef(Link)
       to={
-        Object {
+        {
           "hash": "",
           "pathname": "/project/issues",
           "search": "?files=foo%2Fbar.ts&resolved=false&id=my-project",

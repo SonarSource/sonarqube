@@ -7,33 +7,33 @@ exports[`renderBulkButton should be null when the user is not logged in 1`] = `<
 exports[`renderBulkButton should show bulk change button when user has edit rights on specific quality profile 1`] = `
 <BulkChange
   query={
-    Object {
+    {
       "activation": undefined,
-      "activationSeverities": Array [],
+      "activationSeverities": [],
       "availableSince": undefined,
       "compareToProfile": undefined,
-      "cwe": Array [],
+      "cwe": [],
       "inheritance": undefined,
-      "languages": Array [],
-      "owaspTop10": Array [],
-      "owaspTop10-2021": Array [],
+      "languages": [],
+      "owaspTop10": [],
+      "owaspTop10-2021": [],
       "profile": undefined,
-      "repositories": Array [],
+      "repositories": [],
       "ruleKey": undefined,
-      "sansTop25": Array [],
+      "sansTop25": [],
       "searchQuery": undefined,
-      "severities": Array [],
-      "sonarsourceSecurity": Array [],
-      "statuses": Array [],
-      "tags": Array [],
+      "severities": [],
+      "sonarsourceSecurity": [],
+      "statuses": [],
+      "tags": [],
       "template": undefined,
-      "types": Array [],
+      "types": [],
     }
   }
   referencedProfiles={
-    Object {
-      "foo": Object {
-        "actions": Object {
+    {
+      "foo": {
+        "actions": {
           "edit": true,
         },
         "activeDeprecatedRuleCount": 2,
@@ -49,7 +49,7 @@ exports[`renderBulkButton should show bulk change button when user has edit righ
         "name": "name",
         "projectCount": 3,
       },
-      "key": Object {
+      "key": {
         "activeDeprecatedRuleCount": 2,
         "activeRuleCount": 10,
         "childrenCount": 0,
@@ -72,30 +72,30 @@ exports[`renderBulkButton should show bulk change button when user has edit righ
 exports[`renderBulkButton should show bulk change button when user has global admin rights on quality profiles 1`] = `
 <BulkChange
   query={
-    Object {
+    {
       "activation": undefined,
-      "activationSeverities": Array [],
+      "activationSeverities": [],
       "availableSince": undefined,
       "compareToProfile": undefined,
-      "cwe": Array [],
+      "cwe": [],
       "inheritance": undefined,
-      "languages": Array [],
-      "owaspTop10": Array [],
-      "owaspTop10-2021": Array [],
+      "languages": [],
+      "owaspTop10": [],
+      "owaspTop10-2021": [],
       "profile": undefined,
-      "repositories": Array [],
+      "repositories": [],
       "ruleKey": undefined,
-      "sansTop25": Array [],
+      "sansTop25": [],
       "searchQuery": undefined,
-      "severities": Array [],
-      "sonarsourceSecurity": Array [],
-      "statuses": Array [],
-      "tags": Array [],
+      "severities": [],
+      "sonarsourceSecurity": [],
+      "statuses": [],
+      "tags": [],
       "template": undefined,
-      "types": Array [],
+      "types": [],
     }
   }
-  referencedProfiles={Object {}}
+  referencedProfiles={{}}
   total={0}
 />
 `;
@@ -104,7 +104,7 @@ exports[`should render correctly: loaded (ScreenPositionHelper) 1`] = `
 <div
   className="layout-page-side"
   style={
-    Object {
+    {
       "top": 0,
     }
   }
@@ -134,11 +134,11 @@ exports[`should render correctly: loaded (ScreenPositionHelper) 1`] = `
         value=""
       />
       <FacetsList
-        facets={Object {}}
+        facets={{}}
         onFacetToggle={[Function]}
         onFilterChange={[Function]}
         openFacets={
-          Object {
+          {
             "languages": true,
             "owaspTop10": false,
             "owaspTop10-2021": false,
@@ -149,31 +149,31 @@ exports[`should render correctly: loaded (ScreenPositionHelper) 1`] = `
           }
         }
         query={
-          Object {
+          {
             "activation": undefined,
-            "activationSeverities": Array [],
+            "activationSeverities": [],
             "availableSince": undefined,
             "compareToProfile": undefined,
-            "cwe": Array [],
+            "cwe": [],
             "inheritance": undefined,
-            "languages": Array [],
-            "owaspTop10": Array [],
-            "owaspTop10-2021": Array [],
+            "languages": [],
+            "owaspTop10": [],
+            "owaspTop10-2021": [],
             "profile": undefined,
-            "repositories": Array [],
+            "repositories": [],
             "ruleKey": undefined,
-            "sansTop25": Array [],
+            "sansTop25": [],
             "searchQuery": undefined,
-            "severities": Array [],
-            "sonarsourceSecurity": Array [],
-            "statuses": Array [],
-            "tags": Array [],
+            "severities": [],
+            "sonarsourceSecurity": [],
+            "statuses": [],
+            "tags": [],
             "template": undefined,
-            "types": Array [],
+            "types": [],
           }
         }
-        referencedProfiles={Object {}}
-        referencedRepositories={Object {}}
+        referencedProfiles={{}}
+        referencedRepositories={{}}
       />
     </div>
   </div>
@@ -225,35 +225,35 @@ exports[`should render correctly: loaded 1`] = `
             >
               <BulkChange
                 query={
-                  Object {
+                  {
                     "activation": undefined,
-                    "activationSeverities": Array [],
+                    "activationSeverities": [],
                     "availableSince": undefined,
                     "compareToProfile": undefined,
-                    "cwe": Array [],
+                    "cwe": [],
                     "inheritance": undefined,
-                    "languages": Array [],
-                    "owaspTop10": Array [],
-                    "owaspTop10-2021": Array [],
+                    "languages": [],
+                    "owaspTop10": [],
+                    "owaspTop10-2021": [],
                     "profile": undefined,
-                    "repositories": Array [],
+                    "repositories": [],
                     "ruleKey": undefined,
-                    "sansTop25": Array [],
+                    "sansTop25": [],
                     "searchQuery": undefined,
-                    "severities": Array [],
-                    "sonarsourceSecurity": Array [],
-                    "statuses": Array [],
-                    "tags": Array [],
+                    "severities": [],
+                    "sonarsourceSecurity": [],
+                    "statuses": [],
+                    "tags": [],
                     "template": undefined,
-                    "types": Array [],
+                    "types": [],
                   }
                 }
-                referencedProfiles={Object {}}
+                referencedProfiles={{}}
                 total={0}
               />
               <PageActions
                 paging={
-                  Object {
+                  {
                     "pageIndex": 0,
                     "pageSize": 100,
                     "total": 0,
@@ -276,18 +276,18 @@ exports[`should render correctly: loaded 1`] = `
             onFilterChange={[Function]}
             onOpen={[Function]}
             rule={
-              Object {
+              {
                 "key": "javascript:S1067",
                 "lang": "js",
                 "langName": "JavaScript",
                 "name": "Use foo",
                 "severity": "MAJOR",
                 "status": "READY",
-                "sysTags": Array [
+                "sysTags": [
                   "a",
                   "b",
                 ],
-                "tags": Array [
+                "tags": [
                   "x",
                 ],
                 "type": "CODE_SMELL",
@@ -303,18 +303,18 @@ exports[`should render correctly: loaded 1`] = `
             onFilterChange={[Function]}
             onOpen={[Function]}
             rule={
-              Object {
+              {
                 "key": "javascript:S1067",
                 "lang": "js",
                 "langName": "JavaScript",
                 "name": "Use foo",
                 "severity": "MAJOR",
                 "status": "READY",
-                "sysTags": Array [
+                "sysTags": [
                   "a",
                   "b",
                 ],
-                "tags": Array [
+                "tags": [
                   "x",
                 ],
                 "type": "CODE_SMELL",

@@ -39,7 +39,7 @@ exports[`should render correctly 1`] = `
         <ForwardRef(Link)
           className="link-no-underline"
           to={
-            Object {
+            {
               "pathname": "/coding_rules",
               "search": "?qprofile=qp-5&activation=true&statuses=DEPRECATED",
             }
@@ -85,7 +85,7 @@ exports[`should render correctly 1`] = `
         <ForwardRef(Link)
           className="link-no-underline"
           to={
-            Object {
+            {
               "pathname": "/coding_rules",
               "search": "?qprofile=qp-4&activation=true&statuses=DEPRECATED",
             }
@@ -124,7 +124,7 @@ exports[`should render correctly 1`] = `
         <ForwardRef(Link)
           className="link-no-underline"
           to={
-            Object {
+            {
               "pathname": "/coding_rules",
               "search": "?qprofile=qp-2&activation=true&statuses=DEPRECATED",
             }
@@ -156,7 +156,7 @@ exports[`should render correctly 1`] = `
         <ForwardRef(Link)
           className="link-no-underline"
           to={
-            Object {
+            {
               "pathname": "/coding_rules",
               "search": "?qprofile=qp-3&activation=true&statuses=DEPRECATED",
             }

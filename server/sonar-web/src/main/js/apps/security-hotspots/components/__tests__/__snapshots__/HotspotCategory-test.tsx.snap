@@ -32,7 +32,7 @@ exports[`should render correctly with hotspots 1`] = `
     >
       <HotspotListItem
         hotspot={
-          Object {
+          {
             "author": "Developer 1",
             "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
             "creationDate": "2013-05-13T17:55:39+0200",
@@ -59,7 +59,7 @@ exports[`should render correctly with hotspots 1`] = `
     >
       <HotspotListItem
         hotspot={
-          Object {
+          {
             "author": "Developer 1",
             "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
             "creationDate": "2013-05-13T17:55:39+0200",
@@ -144,7 +144,7 @@ exports[`should render correctly with hotspots: contains selected 1`] = `
     >
       <HotspotListItem
         hotspot={
-          Object {
+          {
             "author": "Developer 1",
             "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
             "creationDate": "2013-05-13T17:55:39+0200",
@@ -171,7 +171,7 @@ exports[`should render correctly with hotspots: contains selected 1`] = `
     >
       <HotspotListItem
         hotspot={
-          Object {
+          {
             "author": "Developer 1",
             "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
             "creationDate": "2013-05-13T17:55:39+0200",
@@ -229,7 +229,7 @@ exports[`should render correctly with hotspots: lastAndIncomplete 1`] = `
     >
       <HotspotListItem
         hotspot={
-          Object {
+          {
             "author": "Developer 1",
             "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
             "creationDate": "2013-05-13T17:55:39+0200",
@@ -256,7 +256,7 @@ exports[`should render correctly with hotspots: lastAndIncomplete 1`] = `
     >
       <HotspotListItem
         hotspot={
-          Object {
+          {
             "author": "Developer 1",
             "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
             "creationDate": "2013-05-13T17:55:39+0200",

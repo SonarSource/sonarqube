@@ -14,60 +14,60 @@ exports[`render correctly 1`] = `
     loading={true}
     refresh={[Function]}
     template={
-      Object {
+      {
         "createdAt": "2020-01-01",
-        "defaultFor": Array [],
+        "defaultFor": [],
         "id": "1",
         "name": "test",
-        "permissions": Array [],
+        "permissions": [],
       }
     }
-    topQualifiers={Array []}
+    topQualifiers={[]}
   />
   <TemplateDetails
     template={
-      Object {
+      {
         "createdAt": "2020-01-01",
-        "defaultFor": Array [],
+        "defaultFor": [],
         "id": "1",
         "name": "test",
-        "permissions": Array [],
+        "permissions": [],
       }
     }
   />
   <HoldersList
-    groups={Array []}
+    groups={[]}
     onSelectPermission={[Function]}
     onToggleGroup={[Function]}
     onToggleUser={[Function]}
     permissions={
-      Array [
-        Object {
+      [
+        {
           "description": "projects_role.user.desc",
           "key": "user",
           "name": "projects_role.user",
         },
-        Object {
+        {
           "description": "projects_role.codeviewer.desc",
           "key": "codeviewer",
           "name": "projects_role.codeviewer",
         },
-        Object {
+        {
           "description": "projects_role.issueadmin.desc",
           "key": "issueadmin",
           "name": "projects_role.issueadmin",
         },
-        Object {
+        {
           "description": "projects_role.securityhotspotadmin.desc",
           "key": "securityhotspotadmin",
           "name": "projects_role.securityhotspotadmin",
         },
-        Object {
+        {
           "description": "projects_role.admin.desc",
           "key": "admin",
           "name": "projects_role.admin",
         },
-        Object {
+        {
           "description": "projects_role.scan.desc",
           "key": "scan",
           "name": "projects_role.scan",
@@ -76,11 +76,11 @@ exports[`render correctly 1`] = `
     }
     showPublicProjectsWarning={true}
     users={
-      Array [
-        Object {
+      [
+        {
           "login": "<creator>",
           "name": "permission_templates.project_creators",
-          "permissions": Array [],
+          "permissions": [],
         },
       ]
     }

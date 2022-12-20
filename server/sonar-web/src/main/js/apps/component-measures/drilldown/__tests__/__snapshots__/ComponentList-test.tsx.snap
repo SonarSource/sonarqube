@@ -7,9 +7,9 @@ exports[`should renders correctly 1`] = `
   <tbody>
     <ComponentsListRow
       component={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [],
+          "measures": [],
           "name": "Foo",
           "qualifier": "TRK",
         }
@@ -17,18 +17,18 @@ exports[`should renders correctly 1`] = `
       isSelected={false}
       key="foo"
       metric={
-        Object {
+        {
           "id": "2",
           "key": "new_bugs",
           "name": "New Bugs",
           "type": "INT",
         }
       }
-      otherMetrics={Array []}
+      otherMetrics={[]}
       rootComponent={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [],
+          "measures": [],
           "name": "Foo",
           "qualifier": "TRK",
         }
@@ -84,9 +84,9 @@ exports[`should renders with multiple measures 1`] = `
   <tbody>
     <ComponentsListRow
       component={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [],
+          "measures": [],
           "name": "Foo",
           "qualifier": "TRK",
         }
@@ -94,7 +94,7 @@ exports[`should renders with multiple measures 1`] = `
       isSelected={false}
       key="foo"
       metric={
-        Object {
+        {
           "id": "1",
           "key": "coverage",
           "name": "Coverage",
@@ -102,14 +102,14 @@ exports[`should renders with multiple measures 1`] = `
         }
       }
       otherMetrics={
-        Array [
-          Object {
+        [
+          {
             "id": "3",
             "key": "uncovered_lines",
             "name": "Lines",
             "type": "INT",
           },
-          Object {
+          {
             "id": "4",
             "key": "uncovered_conditions",
             "name": "Conditions",
@@ -118,9 +118,9 @@ exports[`should renders with multiple measures 1`] = `
         ]
       }
       rootComponent={
-        Object {
+        {
           "key": "foo",
-          "measures": Array [],
+          "measures": [],
           "name": "Foo",
           "qualifier": "TRK",
         }

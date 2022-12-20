@@ -10,7 +10,7 @@ exports[`renders correctly: default 1`] = `
     defaultMessage="component_navigation.status.failed_X"
     id="component_navigation.status.failed_X"
     values={
-      Object {
+      {
         "branch": undefined,
         "stacktrace": undefined,
         "type": "background_task.type.REPORT",
@@ -24,7 +24,7 @@ exports[`renders correctly: default 1`] = `
 exports[`renders correctly: license issue 1`] = `
 <withAppStateContext(ComponentNavLicenseNotif)
   currentTask={
-    Object {
+    {
       "analysisId": "x123",
       "componentKey": "foo",
       "componentName": "Foo",

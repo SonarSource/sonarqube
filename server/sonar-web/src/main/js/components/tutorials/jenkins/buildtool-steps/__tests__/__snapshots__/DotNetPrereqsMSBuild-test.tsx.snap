@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
 >
   <SentenceWithHighlights
     highlightKeys={
-      Array [
+      [
         "default_msbuild",
       ]
     }
@@ -24,7 +24,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "msbuild",
           ]
         }
@@ -34,7 +34,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "path",
           ]
         }
@@ -44,7 +44,7 @@ exports[`should render correctly 1`] = `
     <li>
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "msbuild",
             "add_msbuild",
             "name",

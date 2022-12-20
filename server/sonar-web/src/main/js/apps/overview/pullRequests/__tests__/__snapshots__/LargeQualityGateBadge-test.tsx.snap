@@ -17,10 +17,10 @@ exports[`should render correctly for SQ 1`] = `
           defaultMessage="overview.quality_gate.conditions_on_new_code"
           id="overview.quality_gate.conditions_on_new_code"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/quality_gates/show/30",
                   }
                 }
@@ -63,10 +63,10 @@ exports[`should render correctly for SQ 2`] = `
           defaultMessage="overview.quality_gate.conditions_on_new_code"
           id="overview.quality_gate.conditions_on_new_code"
           values={
-            Object {
+            {
               "link": <ForwardRef(Link)
                 to={
-                  Object {
+                  {
                     "pathname": "/quality_gates/show/30",
                   }
                 }

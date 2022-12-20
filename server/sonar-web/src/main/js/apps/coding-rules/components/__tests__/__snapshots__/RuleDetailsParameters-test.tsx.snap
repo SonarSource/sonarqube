@@ -27,7 +27,7 @@ exports[`should render correctly 1`] = `
         >
           <p
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "description",
               }
             }
@@ -59,7 +59,7 @@ exports[`should render correctly 1`] = `
         >
           <p
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "description",
               }
             }

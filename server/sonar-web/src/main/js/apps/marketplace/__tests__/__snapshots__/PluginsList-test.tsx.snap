@@ -15,17 +15,17 @@ exports[`should render correctly: default 1`] = `
       >
         <tbody>
           <PluginAvailable
-            installedPlugins={Array []}
+            installedPlugins={[]}
             plugin={
-              Object {
+              {
                 "key": "sonar-bar",
                 "name": "Sonar Bar",
-                "release": Object {
+                "release": {
                   "date": "2020-01-01",
                   "version": "8.2",
                 },
-                "update": Object {
-                  "requires": Array [],
+                "update": {
+                  "requires": [],
                   "status": "available",
                 },
               }
@@ -45,17 +45,17 @@ exports[`should render correctly: default 1`] = `
       >
         <tbody>
           <PluginAvailable
-            installedPlugins={Array []}
+            installedPlugins={[]}
             plugin={
-              Object {
+              {
                 "key": "sonar-baz",
                 "name": "Sonar Baz",
-                "release": Object {
+                "release": {
                   "date": "2020-01-01",
                   "version": "8.2",
                 },
-                "update": Object {
-                  "requires": Array [],
+                "update": {
+                  "requires": [],
                   "status": "available",
                 },
               }
@@ -75,17 +75,17 @@ exports[`should render correctly: default 1`] = `
       >
         <tbody>
           <PluginAvailable
-            installedPlugins={Array []}
+            installedPlugins={[]}
             plugin={
-              Object {
+              {
                 "key": "sonar-foo",
                 "name": "Sonar Foo",
-                "release": Object {
+                "release": {
                   "date": "2020-01-01",
                   "version": "8.2",
                 },
-                "update": Object {
-                  "requires": Array [],
+                "update": {
+                  "requires": [],
                   "status": "available",
                 },
               }
@@ -115,17 +115,17 @@ exports[`should render correctly: with status 1`] = `
       >
         <tbody>
           <PluginAvailable
-            installedPlugins={Array []}
+            installedPlugins={[]}
             plugin={
-              Object {
+              {
                 "key": "sonar-bar",
                 "name": "Sonar Bar",
-                "release": Object {
+                "release": {
                   "date": "2020-01-01",
                   "version": "8.2",
                 },
-                "update": Object {
-                  "requires": Array [],
+                "update": {
+                  "requires": [],
                   "status": "available",
                 },
               }
@@ -146,17 +146,17 @@ exports[`should render correctly: with status 1`] = `
       >
         <tbody>
           <PluginAvailable
-            installedPlugins={Array []}
+            installedPlugins={[]}
             plugin={
-              Object {
+              {
                 "key": "sonar-baz",
                 "name": "Sonar Baz",
-                "release": Object {
+                "release": {
                   "date": "2020-01-01",
                   "version": "8.2",
                 },
-                "update": Object {
-                  "requires": Array [],
+                "update": {
+                  "requires": [],
                   "status": "available",
                 },
               }
@@ -177,17 +177,17 @@ exports[`should render correctly: with status 1`] = `
       >
         <tbody>
           <PluginAvailable
-            installedPlugins={Array []}
+            installedPlugins={[]}
             plugin={
-              Object {
+              {
                 "key": "sonar-foo",
                 "name": "Sonar Foo",
-                "release": Object {
+                "release": {
                   "date": "2020-01-01",
                   "version": "8.2",
                 },
-                "update": Object {
-                  "requires": Array [],
+                "update": {
+                  "requires": [],
                   "status": "available",
                 },
               }

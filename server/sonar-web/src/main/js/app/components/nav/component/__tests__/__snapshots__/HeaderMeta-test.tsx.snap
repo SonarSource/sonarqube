@@ -13,13 +13,13 @@ exports[`should render correctly for a branch 1`] = `
         isBranch={true}
         onWarningDismiss={[MockFunction]}
         warnings={
-          Array [
-            Object {
+          [
+            {
               "dismissable": false,
               "key": "foo",
               "message": "ERROR_1",
             },
-            Object {
+            {
               "dismissable": false,
               "key": "foo",
               "message": "ERROR_2",
@@ -42,7 +42,7 @@ exports[`should render correctly for a branch 1`] = `
     <withCurrentUserContext(HomePageSelect)
       className="spacer-left"
       currentPage={
-        Object {
+        {
           "branch": "branch-6.7",
           "component": "my-project",
           "type": "PROJECT",
@@ -66,13 +66,13 @@ exports[`should render correctly for a main project branch 1`] = `
         isBranch={true}
         onWarningDismiss={[MockFunction]}
         warnings={
-          Array [
-            Object {
+          [
+            {
               "dismissable": false,
               "key": "foo",
               "message": "ERROR_1",
             },
-            Object {
+            {
               "dismissable": false,
               "key": "foo",
               "message": "ERROR_2",
@@ -95,7 +95,7 @@ exports[`should render correctly for a main project branch 1`] = `
     <withCurrentUserContext(HomePageSelect)
       className="spacer-left"
       currentPage={
-        Object {
+        {
           "branch": undefined,
           "component": "my-project",
           "type": "PROJECT",
@@ -119,13 +119,13 @@ exports[`should render correctly for a portfolio 1`] = `
         isBranch={true}
         onWarningDismiss={[MockFunction]}
         warnings={
-          Array [
-            Object {
+          [
+            {
               "dismissable": false,
               "key": "foo",
               "message": "ERROR_1",
             },
-            Object {
+            {
               "dismissable": false,
               "key": "foo",
               "message": "ERROR_2",
@@ -137,7 +137,7 @@ exports[`should render correctly for a portfolio 1`] = `
     <withCurrentUserContext(HomePageSelect)
       className="spacer-left"
       currentPage={
-        Object {
+        {
           "component": "foo",
           "type": "PORTFOLIO",
         }
@@ -160,13 +160,13 @@ exports[`should render correctly for a pull request 1`] = `
         isBranch={false}
         onWarningDismiss={[MockFunction]}
         warnings={
-          Array [
-            Object {
+          [
+            {
               "dismissable": false,
               "key": "foo",
               "message": "ERROR_1",
             },
-            Object {
+            {
               "dismissable": false,
               "key": "foo",
               "message": "ERROR_2",
@@ -195,7 +195,7 @@ exports[`should render correctly for a pull request 1`] = `
     </ForwardRef(Link)>
     <withBranchStatus(BranchStatus)
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "base": "master",
           "branch": "feature/foo/bar",
@@ -206,26 +206,26 @@ exports[`should render correctly for a pull request 1`] = `
         }
       }
       component={
-        Object {
+        {
           "analysisDate": "2017-01-02T00:00:00.000Z",
-          "breadcrumbs": Array [],
+          "breadcrumbs": [],
           "key": "my-project",
           "name": "MyProject",
           "qualifier": "TRK",
-          "qualityGate": Object {
+          "qualityGate": {
             "isDefault": true,
             "key": "30",
             "name": "Sonar way",
           },
-          "qualityProfiles": Array [
-            Object {
+          "qualityProfiles": [
+            {
               "deleted": false,
               "key": "my-qp",
               "language": "ts",
               "name": "Sonar way",
             },
           ],
-          "tags": Array [],
+          "tags": [],
           "version": "0.0.1",
         }
       }

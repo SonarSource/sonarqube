@@ -11,7 +11,7 @@ exports[`should render 1`] = `
       defaultMessage="component_navigation.last_analysis_had_warnings"
       id="component_navigation.last_analysis_had_warnings"
       values={
-        Object {
+        {
           "branchType": "branches.branch",
           "warnings": <a
             href="#"
@@ -21,7 +21,7 @@ exports[`should render 1`] = `
               defaultMessage="component_navigation.x_warnings"
               id="component_navigation.x_warnings"
               values={
-                Object {
+                {
                   "warningsCount": 1,
                 }
               }
@@ -36,8 +36,8 @@ exports[`should render 1`] = `
     onClose={[Function]}
     onWarningDismiss={[MockFunction]}
     warnings={
-      Array [
-        Object {
+      [
+        {
           "dismissable": false,
           "key": "foo",
           "message": "warning 1",

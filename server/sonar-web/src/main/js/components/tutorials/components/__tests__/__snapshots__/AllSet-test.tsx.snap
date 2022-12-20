@@ -10,7 +10,7 @@ exports[`should render correctly 1`] = `
     >
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "all_set",
           ]
         }
@@ -55,7 +55,7 @@ exports[`should render correctly: with auto refresh 1`] = `
     >
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "all_set",
           ]
         }
@@ -132,7 +132,7 @@ exports[`should render correctly: without branch 1`] = `
     >
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "all_set",
           ]
         }

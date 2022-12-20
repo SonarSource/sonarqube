@@ -7,7 +7,7 @@ exports[`#ExternalProvider should render correctly 1`] = `
   <div
     className="identity-provider"
     style={
-      Object {
+      {
         "backgroundColor": "blue",
         "color": "#fff",
       }
@@ -58,7 +58,7 @@ exports[`#UserListItemIdentity should render correctly 1`] = `
   </div>
   <ExternalProvider
     identityProvider={
-      Object {
+      {
         "backgroundColor": "blue",
         "iconPath": "icon/path",
         "key": "foo",
@@ -66,7 +66,7 @@ exports[`#UserListItemIdentity should render correctly 1`] = `
       }
     }
     user={
-      Object {
+      {
         "active": true,
         "email": "obi.one@empire",
         "externalProvider": "foo",
@@ -74,7 +74,7 @@ exports[`#UserListItemIdentity should render correctly 1`] = `
         "local": false,
         "login": "obi",
         "name": "One",
-        "scmAccounts": Array [],
+        "scmAccounts": [],
       }
     }
   />

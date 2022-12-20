@@ -31,7 +31,7 @@ exports[`should render correctly: with alert 1`] = `
     >
       <SentenceWithHighlights
         highlightKeys={
-          Array [
+          [
             "default",
             "in_jenkins",
           ]
@@ -47,7 +47,7 @@ exports[`should render correctly: with alert 1`] = `
             >
               <SentenceWithHighlights
                 highlightKeys={
-                  Array [
+                  [
                     "path",
                   ]
                 }
@@ -57,7 +57,7 @@ exports[`should render correctly: with alert 1`] = `
             <p>
               <SentenceWithHighlights
                 highlightKeys={
-                  Array [
+                  [
                     "path",
                     "name",
                   ]

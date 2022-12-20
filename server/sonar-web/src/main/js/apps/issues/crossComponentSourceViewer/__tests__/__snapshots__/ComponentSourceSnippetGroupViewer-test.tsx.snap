@@ -4,7 +4,7 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <IssueSourceViewerHeader
     branchLike={
-      Object {
+      {
         "analysisDate": "2018-01-01",
         "excludedFromPurge": true,
         "isMain": true,
@@ -16,12 +16,12 @@ exports[`should render correctly 1`] = `
     loading={false}
     onExpand={[Function]}
     sourceViewerFile={
-      Object {
+      {
         "canMarkAsFavorite": true,
         "fav": false,
         "key": "project:foo/bar.ts",
         "longName": "foo/bar.ts",
-        "measures": Object {
+        "measures": {
           "coverage": "85.2",
           "duplicationDensity": "1.0",
           "issues": "12",

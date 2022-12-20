@@ -17,7 +17,7 @@ exports[`should render correctly: changed value 1`] = `
     <div
       className="markdown small spacer-top"
       dangerouslySetInnerHTML={
-        Object {
+        {
           "__html": "property.foo.description",
         }
       }
@@ -49,12 +49,12 @@ exports[`should render correctly: changed value 1`] = `
         onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": false,
@@ -73,12 +73,12 @@ exports[`should render correctly: changed value 1`] = `
         onReset={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": false,
@@ -108,7 +108,7 @@ exports[`should render correctly: in error 1`] = `
     <div
       className="markdown small spacer-top"
       dangerouslySetInnerHTML={
-        Object {
+        {
           "__html": "property.foo.description",
         }
       }
@@ -151,12 +151,12 @@ exports[`should render correctly: in error 1`] = `
         onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": false,
@@ -173,12 +173,12 @@ exports[`should render correctly: in error 1`] = `
         onReset={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": false,
@@ -208,7 +208,7 @@ exports[`should render correctly: loading 1`] = `
     <div
       className="markdown small spacer-top"
       dangerouslySetInnerHTML={
-        Object {
+        {
           "__html": "property.foo.description",
         }
       }
@@ -249,12 +249,12 @@ exports[`should render correctly: loading 1`] = `
         onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": false,
@@ -271,12 +271,12 @@ exports[`should render correctly: loading 1`] = `
         onReset={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": false,
@@ -306,7 +306,7 @@ exports[`should render correctly: original value 1`] = `
     <div
       className="markdown small spacer-top"
       dangerouslySetInnerHTML={
-        Object {
+        {
           "__html": "property.foo.description",
         }
       }
@@ -338,12 +338,12 @@ exports[`should render correctly: original value 1`] = `
         onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": true,
@@ -362,12 +362,12 @@ exports[`should render correctly: original value 1`] = `
         onReset={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": true,
@@ -398,7 +398,7 @@ exports[`should render correctly: success 1`] = `
     <div
       className="markdown small spacer-top"
       dangerouslySetInnerHTML={
-        Object {
+        {
           "__html": "property.foo.description",
         }
       }
@@ -439,12 +439,12 @@ exports[`should render correctly: success 1`] = `
         onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": false,
@@ -461,12 +461,12 @@ exports[`should render correctly: success 1`] = `
         onReset={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": false,
@@ -496,7 +496,7 @@ exports[`should render correctly: with description 1`] = `
     <div
       className="markdown small spacer-top"
       dangerouslySetInnerHTML={
-        Object {
+        {
           "__html": "property.foo.description",
         }
       }
@@ -528,13 +528,13 @@ exports[`should render correctly: with description 1`] = `
         onEditing={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
               "description": "description",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": false,
@@ -551,13 +551,13 @@ exports[`should render correctly: with description 1`] = `
         onReset={[MockFunction]}
         onSave={[MockFunction]}
         setting={
-          Object {
-            "definition": Object {
+          {
+            "definition": {
               "category": "foo category",
               "description": "description",
-              "fields": Array [],
+              "fields": [],
               "key": "foo",
-              "options": Array [],
+              "options": [],
               "subCategory": "foo subCat",
             },
             "hasValue": false,

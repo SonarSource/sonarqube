@@ -5,7 +5,7 @@ exports[`should render correctly when creating a new webhook 1`] = `
   confirmButtonText="create"
   header="webhooks.create"
   initialValues={
-    Object {
+    {
       "name": "",
       "secret": "",
       "url": "",
@@ -25,7 +25,7 @@ exports[`should render correctly when updating a webhook with a secret 1`] = `
   confirmButtonText="update_verb"
   header="webhooks.update"
   initialValues={
-    Object {
+    {
       "name": "bar",
       "secret": "sonar",
       "url": "http://foo.bar",
@@ -45,7 +45,7 @@ exports[`should render correctly when updating a webhook without secret 1`] = `
   confirmButtonText="update_verb"
   header="webhooks.update"
   initialValues={
-    Object {
+    {
       "name": "foo",
       "secret": "",
       "url": "http://foo.bar",

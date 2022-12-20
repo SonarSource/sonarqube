@@ -18,7 +18,7 @@ exports[`should render correctly 1`] = `
   >
     <Memo(Event)
       event={
-        Object {
+        {
           "category": "VERSION",
           "key": "2",
           "name": "6.5-SNAPSHOT",
@@ -28,7 +28,7 @@ exports[`should render correctly 1`] = `
     />
     <Memo(Event)
       event={
-        Object {
+        {
           "category": "OTHER",
           "key": "1",
           "name": "test",
@@ -58,7 +58,7 @@ exports[`should render correctly 2`] = `
   >
     <Memo(Event)
       event={
-        Object {
+        {
           "category": "VERSION",
           "key": "2",
           "name": "6.5-SNAPSHOT",
@@ -68,7 +68,7 @@ exports[`should render correctly 2`] = `
     />
     <Memo(Event)
       event={
-        Object {
+        {
           "category": "OTHER",
           "key": "1",
           "name": "test",

@@ -20,10 +20,10 @@ exports[`should render correctly: default 1`] = `
               backToFirst={true}
               className="text-ellipsis"
               component={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -35,10 +35,10 @@ exports[`should render correctly: default 1`] = `
               }
               handleSelect={[MockFunction]}
               rootComponent={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -71,29 +71,29 @@ exports[`should render correctly: default 1`] = `
     />
     <BubbleChart
       componentKey="foo"
-      components={Array []}
+      components={[]}
       domain="Reliability"
       metrics={
-        Object {
-          "bugs": Object {
+        {
+          "bugs": {
             "id": "bugs",
             "key": "bugs",
             "name": "bugs",
             "type": "INT",
           },
-          "ncloc": Object {
+          "ncloc": {
             "id": "ncloc",
             "key": "ncloc",
             "name": "ncloc",
             "type": "INT",
           },
-          "reliability_rating": Object {
+          "reliability_rating": {
             "id": "reliability_rating",
             "key": "reliability_rating",
             "name": "reliability_rating",
             "type": "DATA",
           },
-          "reliability_remediation_effort": Object {
+          "reliability_remediation_effort": {
             "id": "reliability_remediation_effort",
             "key": "reliability_remediation_effort",
             "name": "reliability_remediation_effort",
@@ -126,7 +126,7 @@ exports[`should render correctly: has leak period 1`] = `
             <Breadcrumbs
               backToFirst={true}
               branchLike={
-                Object {
+                {
                   "analysisDate": "2018-01-01",
                   "excludedFromPurge": true,
                   "isMain": false,
@@ -135,10 +135,10 @@ exports[`should render correctly: has leak period 1`] = `
               }
               className="text-ellipsis"
               component={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -150,10 +150,10 @@ exports[`should render correctly: has leak period 1`] = `
               }
               handleSelect={[MockFunction]}
               rootComponent={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -184,10 +184,10 @@ exports[`should render correctly: has leak period 1`] = `
       <injectIntl(LeakPeriodLegend)
         className="pull-right"
         component={
-          Object {
+          {
             "key": "foo",
-            "measures": Array [
-              Object {
+            "measures": [
+              {
                 "bestValue": false,
                 "metric": "bugs",
                 "value": "12",
@@ -198,7 +198,7 @@ exports[`should render correctly: has leak period 1`] = `
           }
         }
         period={
-          Object {
+          {
             "date": "2019-04-23T02:12:32+0100",
             "index": 0,
             "mode": "previous_version",
@@ -211,7 +211,7 @@ exports[`should render correctly: has leak period 1`] = `
     />
     <BubbleChart
       branchLike={
-        Object {
+        {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
           "isMain": false,
@@ -219,29 +219,29 @@ exports[`should render correctly: has leak period 1`] = `
         }
       }
       componentKey="foo"
-      components={Array []}
+      components={[]}
       domain="Reliability"
       metrics={
-        Object {
-          "bugs": Object {
+        {
+          "bugs": {
             "id": "bugs",
             "key": "bugs",
             "name": "bugs",
             "type": "INT",
           },
-          "ncloc": Object {
+          "ncloc": {
             "id": "ncloc",
             "key": "ncloc",
             "name": "ncloc",
             "type": "INT",
           },
-          "reliability_rating": Object {
+          "reliability_rating": {
             "id": "reliability_rating",
             "key": "reliability_rating",
             "name": "reliability_rating",
             "type": "DATA",
           },
-          "reliability_remediation_effort": Object {
+          "reliability_remediation_effort": {
             "id": "reliability_remediation_effort",
             "key": "reliability_remediation_effort",
             "name": "reliability_remediation_effort",
@@ -275,10 +275,10 @@ exports[`should render correctly: is file 1`] = `
               backToFirst={true}
               className="text-ellipsis"
               component={
-                Object {
+                {
                   "key": "foo:src/index.tsx",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "1",
@@ -291,10 +291,10 @@ exports[`should render correctly: is file 1`] = `
               }
               handleSelect={[MockFunction]}
               rootComponent={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -360,10 +360,10 @@ exports[`should render correctly: loading 1`] = `
               backToFirst={true}
               className="text-ellipsis"
               component={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",
@@ -375,10 +375,10 @@ exports[`should render correctly: loading 1`] = `
               }
               handleSelect={[MockFunction]}
               rootComponent={
-                Object {
+                {
                   "key": "foo",
-                  "measures": Array [
-                    Object {
+                  "measures": [
+                    {
                       "bestValue": false,
                       "metric": "bugs",
                       "value": "12",

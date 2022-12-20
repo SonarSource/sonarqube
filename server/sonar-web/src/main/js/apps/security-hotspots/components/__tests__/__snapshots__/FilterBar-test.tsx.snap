@@ -57,27 +57,27 @@ exports[`should render correctly: anonymous 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "hotspot.filters.status.to_review",
                   "value": "TO_REVIEW",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.acknowledged",
                   "value": "ACKNOWLEDGED",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.fixed",
                   "value": "FIXED",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.safe",
                   "value": "SAFE",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "hotspot.filters.status.to_review",
                 "value": "TO_REVIEW",
               }
@@ -89,19 +89,19 @@ exports[`should render correctly: anonymous 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "hotspot.filters.period.since_leak_period",
                   "value": true,
                 },
-                Object {
+                {
                   "label": "hotspot.filters.period.overall",
                   "value": false,
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "hotspot.filters.period.overall",
                 "value": false,
               }
@@ -163,12 +163,12 @@ exports[`should render correctly: logged-in 1`] = `
             <ButtonToggle
               onCheck={[Function]}
               options={
-                Array [
-                  Object {
+                [
+                  {
                     "label": "hotspot.filters.assignee.assigned_to_me",
                     "value": "me",
                   },
-                  Object {
+                  {
                     "label": "hotspot.filters.assignee.all",
                     "value": "all",
                   },
@@ -190,27 +190,27 @@ exports[`should render correctly: logged-in 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "hotspot.filters.status.to_review",
                   "value": "TO_REVIEW",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.acknowledged",
                   "value": "ACKNOWLEDGED",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.fixed",
                   "value": "FIXED",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.safe",
                   "value": "SAFE",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "hotspot.filters.status.to_review",
                 "value": "TO_REVIEW",
               }
@@ -222,19 +222,19 @@ exports[`should render correctly: logged-in 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "hotspot.filters.period.since_leak_period",
                   "value": true,
                 },
-                Object {
+                {
                   "label": "hotspot.filters.period.overall",
                   "value": false,
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "hotspot.filters.period.overall",
                 "value": false,
               }
@@ -296,12 +296,12 @@ exports[`should render correctly: non-project 1`] = `
             <ButtonToggle
               onCheck={[Function]}
               options={
-                Array [
-                  Object {
+                [
+                  {
                     "label": "hotspot.filters.assignee.assigned_to_me",
                     "value": "me",
                   },
-                  Object {
+                  {
                     "label": "hotspot.filters.assignee.all",
                     "value": "all",
                   },
@@ -323,27 +323,27 @@ exports[`should render correctly: non-project 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "hotspot.filters.status.to_review",
                   "value": "TO_REVIEW",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.acknowledged",
                   "value": "ACKNOWLEDGED",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.fixed",
                   "value": "FIXED",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.safe",
                   "value": "SAFE",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "hotspot.filters.status.to_review",
                 "value": "TO_REVIEW",
               }
@@ -355,19 +355,19 @@ exports[`should render correctly: non-project 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "hotspot.filters.period.since_leak_period",
                   "value": true,
                 },
-                Object {
+                {
                   "label": "hotspot.filters.period.overall",
                   "value": false,
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "hotspot.filters.period.overall",
                 "value": false,
               }
@@ -414,27 +414,27 @@ exports[`should render correctly: on Pull request 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "hotspot.filters.status.to_review",
                   "value": "TO_REVIEW",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.acknowledged",
                   "value": "ACKNOWLEDGED",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.fixed",
                   "value": "FIXED",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.safe",
                   "value": "SAFE",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "hotspot.filters.status.to_review",
                 "value": "TO_REVIEW",
               }
@@ -503,27 +503,27 @@ exports[`should render correctly: with hotspots reviewed measure 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "hotspot.filters.status.to_review",
                   "value": "TO_REVIEW",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.acknowledged",
                   "value": "ACKNOWLEDGED",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.fixed",
                   "value": "FIXED",
                 },
-                Object {
+                {
                   "label": "hotspot.filters.status.safe",
                   "value": "SAFE",
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "hotspot.filters.status.to_review",
                 "value": "TO_REVIEW",
               }
@@ -535,19 +535,19 @@ exports[`should render correctly: with hotspots reviewed measure 1`] = `
             isSearchable={false}
             onChange={[Function]}
             options={
-              Array [
-                Object {
+              [
+                {
                   "label": "hotspot.filters.period.since_leak_period",
                   "value": true,
                 },
-                Object {
+                {
                   "label": "hotspot.filters.period.overall",
                   "value": false,
                 },
               ]
             }
             value={
-              Object {
+              {
                 "label": "hotspot.filters.period.overall",
                 "value": false,
               }

@@ -7,10 +7,10 @@ exports[`should render tags 1`] = `
   onSelect={[Function]}
   onUnselect={[Function]}
   selectedTags={
-    Array [
+    [
       "foo",
     ]
   }
-  tags={Array []}
+  tags={[]}
 />
 `;

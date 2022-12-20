@@ -16,7 +16,7 @@ exports[`should render correctly 1`] = `
   >
     <ForwardRef(Link)
       to={
-        Object {
+        {
           "pathname": "/coding_rules",
           "search": "?qprofile=bar&activation=true&types=BUG",
         }
@@ -31,7 +31,7 @@ exports[`should render correctly 1`] = `
     <ForwardRef(Link)
       className="small"
       to={
-        Object {
+        {
           "pathname": "/coding_rules",
           "search": "?qprofile=bar&activation=false&types=BUG",
         }
@@ -59,7 +59,7 @@ exports[`should render correctly if there is 0 rules 1`] = `
   >
     <ForwardRef(Link)
       to={
-        Object {
+        {
           "pathname": "/coding_rules",
           "search": "?qprofile=bar&activation=true&types=VULNERABILITY",
         }
@@ -96,7 +96,7 @@ exports[`should render correctly if there is missing data 1`] = `
   >
     <ForwardRef(Link)
       to={
-        Object {
+        {
           "pathname": "/coding_rules",
           "search": "?qprofile=bar&activation=true&types=VULNERABILITY",
         }

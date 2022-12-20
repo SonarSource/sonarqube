@@ -9,7 +9,7 @@ exports[`should render correctly 1`] = `
       onCheck={[Function]}
       optionLabelKey="onboarding.build.dotnet"
       options={
-        Array [
+        [
           "win_core",
           "win_msbuild",
           "linux_core",

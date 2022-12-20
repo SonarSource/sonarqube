@@ -5,10 +5,10 @@ exports[`should render issues correctly 1`] = `
   displayLocationsCount={true}
   displayLocationsLink={false}
   issue={
-    Object {
-      "actions": Array [],
-      "comments": Array [
-        Object {
+    {
+      "actions": [],
+      "comments": [
+        {
           "author": "admin",
           "authorActive": true,
           "authorAvatar": "admin-avatar",
@@ -27,8 +27,8 @@ exports[`should render issues correctly 1`] = `
       "componentQualifier": "FIL",
       "componentUuid": "foo1234",
       "creationDate": "2017-03-01T09:36:01+0100",
-      "flows": Array [],
-      "flowsWithType": Array [],
+      "flows": [],
+      "flowsWithType": [],
       "key": "AVsae-CQS-9G3txfbFN2",
       "line": 25,
       "message": "Reduce the number of conditional operators (4) used in the expression",
@@ -37,16 +37,16 @@ exports[`should render issues correctly 1`] = `
       "projectName": "Foo",
       "rule": "javascript:S1067",
       "ruleName": "foo",
-      "secondaryLocations": Array [],
+      "secondaryLocations": [],
       "severity": "MAJOR",
       "status": "OPEN",
-      "textRange": Object {
+      "textRange": {
         "endLine": 26,
         "endOffset": 15,
         "startLine": 25,
         "startOffset": 0,
       },
-      "transitions": Array [],
+      "transitions": [],
       "type": "BUG",
     }
   }

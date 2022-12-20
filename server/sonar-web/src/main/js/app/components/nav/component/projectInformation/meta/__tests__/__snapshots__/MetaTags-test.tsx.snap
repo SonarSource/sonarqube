@@ -10,7 +10,7 @@ exports[`should render with tags and admin rights 1`] = `
     overlay={
       <MetaTagsSelector
         selectedTags={
-          Array [
+          [
             "foo",
             "bar",
           ]
@@ -27,7 +27,7 @@ exports[`should render with tags and admin rights 1`] = `
       <TagsList
         allowUpdate={true}
         tags={
-          Array [
+          [
             "foo",
             "bar",
           ]
@@ -46,7 +46,7 @@ exports[`should render without tags and admin rights 1`] = `
     allowUpdate={false}
     className="note"
     tags={
-      Array [
+      [
         "no_tags",
       ]
     }

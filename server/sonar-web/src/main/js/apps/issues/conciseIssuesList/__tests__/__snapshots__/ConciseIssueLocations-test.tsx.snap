@@ -18,7 +18,7 @@ exports[`should render secondary locations 1`] = `
 `;
 
 exports[`should render several flows 1`] = `
-Array [
+[
   <ConciseIssueLocationBadge
     count={3}
     key="0"

@@ -11,7 +11,7 @@ exports[`should display the license field 1`] = `
       defaultMessage="marketplace.licensed_under_x"
       id="marketplace.licensed_under_x"
       values={
-        Object {
+        {
           "license": <span
             className="js-plugin-license"
           >

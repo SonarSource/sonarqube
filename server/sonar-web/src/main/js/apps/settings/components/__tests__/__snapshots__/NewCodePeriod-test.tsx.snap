@@ -28,7 +28,7 @@ exports[`should render correctly 1`] = `
                 defaultMessage="settings.new_code_period.description"
                 id="settings.new_code_period.description"
                 values={
-                  Object {
+                  {
                     "link": <withAppStateContext(DocLink)
                       to="/project-administration/defining-new-code/"
                     >

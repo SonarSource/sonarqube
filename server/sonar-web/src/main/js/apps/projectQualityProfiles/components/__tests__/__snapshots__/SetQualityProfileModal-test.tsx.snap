@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: default 1`] = `
-Array [
+[
   <div
     className="modal-head"
   >
@@ -71,21 +71,21 @@ Array [
               <Select
                 className="abs-width-300"
                 components={
-                  Object {
+                  {
                     "Option": [Function],
                   }
                 }
                 isDisabled={false}
                 onChange={[Function]}
                 options={
-                  Array [
-                    Object {
+                  [
+                    {
                       "isDisabled": false,
                       "label": "name",
                       "language": "js",
                       "value": "foo",
                     },
-                    Object {
+                    {
                       "isDisabled": true,
                       "label": "name",
                       "language": "js",
@@ -94,7 +94,7 @@ Array [
                   ]
                 }
                 value={
-                  Object {
+                  {
                     "isDisabled": false,
                     "label": "name",
                     "language": "js",
@@ -127,7 +127,7 @@ Array [
 `;
 
 exports[`should render correctly: inherits system default 1`] = `
-Array [
+[
   <div
     className="modal-head"
   >
@@ -197,21 +197,21 @@ Array [
               <Select
                 className="abs-width-300"
                 components={
-                  Object {
+                  {
                     "Option": [Function],
                   }
                 }
                 isDisabled={true}
                 onChange={[Function]}
                 options={
-                  Array [
-                    Object {
+                  [
+                    {
                       "isDisabled": false,
                       "label": "name",
                       "language": "js",
                       "value": "foo",
                     },
-                    Object {
+                    {
                       "isDisabled": true,
                       "label": "name",
                       "language": "js",
@@ -220,7 +220,7 @@ Array [
                   ]
                 }
                 value={
-                  Object {
+                  {
                     "isDisabled": false,
                     "label": "name",
                     "language": "js",
@@ -253,7 +253,7 @@ Array [
 `;
 
 exports[`should render correctly: needs reanalysis 1`] = `
-Array [
+[
   <div
     className="modal-head"
   >
@@ -323,21 +323,21 @@ Array [
               <Select
                 className="abs-width-300"
                 components={
-                  Object {
+                  {
                     "Option": [Function],
                   }
                 }
                 isDisabled={false}
                 onChange={[Function]}
                 options={
-                  Array [
-                    Object {
+                  [
+                    {
                       "isDisabled": false,
                       "label": "name",
                       "language": "js",
                       "value": "foo",
                     },
-                    Object {
+                    {
                       "isDisabled": true,
                       "label": "name",
                       "language": "js",
@@ -346,7 +346,7 @@ Array [
                   ]
                 }
                 value={
-                  Object {
+                  {
                     "isDisabled": false,
                     "label": "name",
                     "language": "js",

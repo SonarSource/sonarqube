@@ -9,10 +9,10 @@ exports[`should render correctly: show prompt to configure CI 1`] = `
     defaultMessage="overview.project.next_steps.set_up_ci"
     id="overview.project.next_steps.set_up_ci"
     values={
-      Object {
+      {
         "link": <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/tutorials",
               "search": "?id=my-project",
             }
@@ -35,10 +35,10 @@ exports[`should render correctly: show prompt to configure PR decoration + CI, p
     defaultMessage="overview.project.next_steps.set_up_pr_deco_and_ci.admin"
     id="overview.project.next_steps.set_up_pr_deco_and_ci.admin"
     values={
-      Object {
+      {
         "link_ci": <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/tutorials",
               "search": "?id=my-project",
             }
@@ -48,7 +48,7 @@ exports[`should render correctly: show prompt to configure PR decoration + CI, p
         </ForwardRef(Link)>,
         "link_project_settings": <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/project/settings",
               "search": "?id=my-project&category=pull_request_decoration_binding",
             }
@@ -71,10 +71,10 @@ exports[`should render correctly: show prompt to configure PR decoration + CI, r
     defaultMessage="overview.project.next_steps.set_up_pr_deco_and_ci"
     id="overview.project.next_steps.set_up_pr_deco_and_ci"
     values={
-      Object {
+      {
         "link_ci": <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/tutorials",
               "search": "?id=my-project",
             }
@@ -97,10 +97,10 @@ exports[`should render correctly: show prompt to configure PR decoration, projec
     defaultMessage="overview.project.next_steps.set_up_pr_deco.admin"
     id="overview.project.next_steps.set_up_pr_deco.admin"
     values={
-      Object {
+      {
         "link_project_settings": <ForwardRef(Link)
           to={
-            Object {
+            {
               "pathname": "/project/settings",
               "search": "?id=my-project&category=pull_request_decoration_binding",
             }

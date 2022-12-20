@@ -13,7 +13,7 @@ exports[`should render correctly 1`] = `
     <PluginChangeLogItem
       key="0.10"
       release={
-        Object {
+        {
           "changeLogUrl": "https://my.change.log/url",
           "date": "2018-06-05",
           "description": "Change version description",
@@ -21,14 +21,14 @@ exports[`should render correctly 1`] = `
         }
       }
       update={
-        Object {
-          "release": Object {
+        {
+          "release": {
             "changeLogUrl": "https://my.change.log/url",
             "date": "2018-06-05",
             "description": "Change version description",
             "version": "0.10",
           },
-          "requires": Array [],
+          "requires": [],
           "status": "COMPATIBLE",
         }
       }
@@ -36,7 +36,7 @@ exports[`should render correctly 1`] = `
     <PluginChangeLogItem
       key="0.11"
       release={
-        Object {
+        {
           "changeLogUrl": "https://my.change.log/url",
           "date": "2018-06-08",
           "description": "Change version description",
@@ -44,21 +44,21 @@ exports[`should render correctly 1`] = `
         }
       }
       update={
-        Object {
-          "release": Object {
+        {
+          "release": {
             "changeLogUrl": "https://my.change.log/url",
             "date": "2018-06-08",
             "description": "Change version description",
             "version": "0.11",
           },
-          "requires": Array [],
+          "requires": [],
           "status": "COMPATIBLE",
         }
       }
     />
     <PluginChangeLogItem
       release={
-        Object {
+        {
           "changeLogUrl": "https://my.change.log/url",
           "date": "2018-11-05",
           "description": "Change version description",
@@ -66,31 +66,31 @@ exports[`should render correctly 1`] = `
         }
       }
       update={
-        Object {
-          "previousUpdates": Array [
-            Object {
-              "release": Object {
+        {
+          "previousUpdates": [
+            {
+              "release": {
                 "changeLogUrl": "https://my.change.log/url",
                 "date": "2018-06-08",
                 "description": "Change version description",
                 "version": "0.11",
               },
-              "requires": Array [],
+              "requires": [],
               "status": "COMPATIBLE",
             },
-            Object {
-              "release": Object {
+            {
+              "release": {
                 "changeLogUrl": "https://my.change.log/url",
                 "date": "2018-06-05",
                 "description": "Change version description",
                 "version": "0.10",
               },
-              "requires": Array [],
+              "requires": [],
               "status": "COMPATIBLE",
             },
           ],
-          "requires": Array [
-            Object {
+          "requires": [
+            {
               "description": "Code Analyzer for Java",
               "key": "java",
               "name": "SonarJava",

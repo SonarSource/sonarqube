@@ -17,7 +17,7 @@ exports[`should render correctly 1`] = `
         defaultMessage="settings.almintegration.form.url.bitbucket.help"
         id="settings.almintegration.form.url.bitbucket.help"
         values={
-          Object {
+          {
             "example": "https://bitbucket-server.your-company.com",
           }
         }
@@ -35,7 +35,7 @@ exports[`should render correctly 1`] = `
         defaultMessage="settings.almintegration.form.personal_access_token.bitbucket.help"
         id="settings.almintegration.form.personal_access_token.bitbucket.help"
         values={
-          Object {
+          {
             "doc_link": <withAppStateContext(DocLink)
               to="/devops-platform-integration/bitbucket-integration/bitbucket-server-integration/"
             >

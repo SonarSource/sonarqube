@@ -43,7 +43,7 @@ exports[`should render correctly 1`] = `
   renderFacetItem={[Function]}
   renderSearchResult={[Function]}
   searchPlaceholder="search.search_for_tags"
-  stats={Object {}}
-  values={Array []}
+  stats={{}}
+  values={[]}
 />
 `;

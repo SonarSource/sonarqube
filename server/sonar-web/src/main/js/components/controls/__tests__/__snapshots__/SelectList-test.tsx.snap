@@ -14,16 +14,16 @@ exports[`should cancel filter selection when search is active 1`] = `
         disabled={false}
         onCheck={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "selected",
               "value": "selected",
             },
-            Object {
+            {
               "label": "unselected",
               "value": "deselected",
             },
-            Object {
+            {
               "label": "all",
               "value": "all",
             },
@@ -42,12 +42,12 @@ exports[`should cancel filter selection when search is active 1`] = `
   </div>
   <SelectListListContainer
     disabledElements={
-      Array [
+      [
         "bar",
       ]
     }
     elements={
-      Array [
+      [
         "foo",
         "bar",
         "baz",
@@ -58,7 +58,7 @@ exports[`should cancel filter selection when search is active 1`] = `
     onUnselect={[MockFunction]}
     renderElement={[Function]}
     selectedElements={
-      Array [
+      [
         "foo",
       ]
     }
@@ -80,16 +80,16 @@ exports[`should cancel filter selection when search is active 2`] = `
         disabled={true}
         onCheck={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "selected",
               "value": "selected",
             },
-            Object {
+            {
               "label": "unselected",
               "value": "deselected",
             },
-            Object {
+            {
               "label": "all",
               "value": "all",
             },
@@ -108,12 +108,12 @@ exports[`should cancel filter selection when search is active 2`] = `
   </div>
   <SelectListListContainer
     disabledElements={
-      Array [
+      [
         "bar",
       ]
     }
     elements={
-      Array [
+      [
         "foo",
         "bar",
         "baz",
@@ -124,7 +124,7 @@ exports[`should cancel filter selection when search is active 2`] = `
     onUnselect={[MockFunction]}
     renderElement={[Function]}
     selectedElements={
-      Array [
+      [
         "foo",
       ]
     }
@@ -146,16 +146,16 @@ exports[`should cancel filter selection when search is active 3`] = `
         disabled={false}
         onCheck={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "selected",
               "value": "selected",
             },
-            Object {
+            {
               "label": "unselected",
               "value": "deselected",
             },
-            Object {
+            {
               "label": "all",
               "value": "all",
             },
@@ -174,12 +174,12 @@ exports[`should cancel filter selection when search is active 3`] = `
   </div>
   <SelectListListContainer
     disabledElements={
-      Array [
+      [
         "bar",
       ]
     }
     elements={
-      Array [
+      [
         "foo",
         "bar",
         "baz",
@@ -190,7 +190,7 @@ exports[`should cancel filter selection when search is active 3`] = `
     onUnselect={[MockFunction]}
     renderElement={[Function]}
     selectedElements={
-      Array [
+      [
         "foo",
       ]
     }
@@ -212,16 +212,16 @@ exports[`should display a loader when searching 1`] = `
         disabled={false}
         onCheck={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "selected",
               "value": "selected",
             },
-            Object {
+            {
               "label": "unselected",
               "value": "deselected",
             },
-            Object {
+            {
               "label": "all",
               "value": "all",
             },
@@ -240,12 +240,12 @@ exports[`should display a loader when searching 1`] = `
   </div>
   <SelectListListContainer
     disabledElements={
-      Array [
+      [
         "bar",
       ]
     }
     elements={
-      Array [
+      [
         "foo",
         "bar",
         "baz",
@@ -256,7 +256,7 @@ exports[`should display a loader when searching 1`] = `
     onUnselect={[MockFunction]}
     renderElement={[Function]}
     selectedElements={
-      Array [
+      [
         "foo",
       ]
     }
@@ -278,16 +278,16 @@ exports[`should display pagination element properly and call search method with 
         disabled={false}
         onCheck={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "selected",
               "value": "selected",
             },
-            Object {
+            {
               "label": "unselected",
               "value": "deselected",
             },
-            Object {
+            {
               "label": "all",
               "value": "all",
             },
@@ -306,12 +306,12 @@ exports[`should display pagination element properly and call search method with 
   </div>
   <SelectListListContainer
     disabledElements={
-      Array [
+      [
         "bar",
       ]
     }
     elements={
-      Array [
+      [
         "foo",
         "bar",
         "baz",
@@ -322,7 +322,7 @@ exports[`should display pagination element properly and call search method with 
     onUnselect={[MockFunction]}
     renderElement={[Function]}
     selectedElements={
-      Array [
+      [
         "foo",
       ]
     }
@@ -350,16 +350,16 @@ exports[`should display pagination element properly and call search method with 
         disabled={false}
         onCheck={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "selected",
               "value": "selected",
             },
-            Object {
+            {
               "label": "unselected",
               "value": "deselected",
             },
-            Object {
+            {
               "label": "all",
               "value": "all",
             },
@@ -378,12 +378,12 @@ exports[`should display pagination element properly and call search method with 
   </div>
   <SelectListListContainer
     disabledElements={
-      Array [
+      [
         "bar",
       ]
     }
     elements={
-      Array [
+      [
         "foo",
         "bar",
         "baz",
@@ -394,7 +394,7 @@ exports[`should display pagination element properly and call search method with 
     onUnselect={[MockFunction]}
     renderElement={[Function]}
     selectedElements={
-      Array [
+      [
         "foo",
       ]
     }
@@ -423,16 +423,16 @@ exports[`should display properly with advanced features 1`] = `
         disabled={false}
         onCheck={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "selected",
               "value": "selected",
             },
-            Object {
+            {
               "label": "unselected",
               "value": "deselected",
             },
-            Object {
+            {
               "label": "all",
               "value": "all",
             },
@@ -452,12 +452,12 @@ exports[`should display properly with advanced features 1`] = `
   <SelectListListContainer
     allowBulkSelection={true}
     disabledElements={
-      Array [
+      [
         "bar",
       ]
     }
     elements={
-      Array [
+      [
         "foo",
         "bar",
         "baz",
@@ -469,7 +469,7 @@ exports[`should display properly with advanced features 1`] = `
     readOnly={true}
     renderElement={[Function]}
     selectedElements={
-      Array [
+      [
         "foo",
       ]
     }
@@ -497,16 +497,16 @@ exports[`should display properly with basics features 1`] = `
         disabled={false}
         onCheck={[Function]}
         options={
-          Array [
-            Object {
+          [
+            {
               "label": "selected",
               "value": "selected",
             },
-            Object {
+            {
               "label": "unselected",
               "value": "deselected",
             },
-            Object {
+            {
               "label": "all",
               "value": "all",
             },
@@ -525,12 +525,12 @@ exports[`should display properly with basics features 1`] = `
   </div>
   <SelectListListContainer
     disabledElements={
-      Array [
+      [
         "bar",
       ]
     }
     elements={
-      Array [
+      [
         "foo",
         "bar",
         "baz",
@@ -541,7 +541,7 @@ exports[`should display properly with basics features 1`] = `
     onUnselect={[MockFunction]}
     renderElement={[Function]}
     selectedElements={
-      Array [
+      [
         "foo",
       ]
     }

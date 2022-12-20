@@ -14,8 +14,8 @@ exports[`should render correctly 1`] = `
     >
       <Sector
         data={
-          Object {
-            "data": Object {
+          {
+            "data": {
               "fill": "#000000",
               "value": 25,
             },
@@ -33,8 +33,8 @@ exports[`should render correctly 1`] = `
       />
       <Sector
         data={
-          Object {
-            "data": Object {
+          {
+            "data": {
               "fill": "#ffffff",
               "value": 75,
             },
@@ -59,7 +59,7 @@ exports[`should render correctly 2`] = `
 <path
   d="M6.123233995736766e-16,-10A10,10,0,0,1,10,2.220446049250313e-15L8,1.7763568394002505e-15A8,8,0,0,0,4.898587196589413e-16,-8Z"
   style={
-    Object {
+    {
       "fill": "#000000",
     }
   }
@@ -80,8 +80,8 @@ exports[`should render correctly with padding and pad angle too 1`] = `
     >
       <Sector
         data={
-          Object {
-            "data": Object {
+          {
+            "data": {
               "fill": "#000000",
               "value": 25,
             },
@@ -99,8 +99,8 @@ exports[`should render correctly with padding and pad angle too 1`] = `
       />
       <Sector
         data={
-          Object {
-            "data": Object {
+          {
+            "data": {
               "fill": "#ffffff",
               "value": 75,
             },

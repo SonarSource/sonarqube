@@ -12,13 +12,13 @@ exports[`should render correctly 1`] = `
   </td>
   <UserListItemIdentity
     user={
-      Object {
+      {
         "active": true,
         "lastConnectionDate": "2019-01-18T15:06:33+0100",
         "local": false,
         "login": "obi",
         "name": "One",
-        "scmAccounts": Array [],
+        "scmAccounts": [],
       }
     }
   />
@@ -26,7 +26,7 @@ exports[`should render correctly 1`] = `
     className="thin nowrap text-middle"
   >
     <UserScmAccounts
-      scmAccounts={Array []}
+      scmAccounts={[]}
     />
   </td>
   <td
@@ -41,16 +41,16 @@ exports[`should render correctly 1`] = `
     className="thin nowrap text-middle"
   >
     <UserGroups
-      groups={Array []}
+      groups={[]}
       onUpdateUsers={[MockFunction]}
       user={
-        Object {
+        {
           "active": true,
           "lastConnectionDate": "2019-01-18T15:06:33+0100",
           "local": false,
           "login": "obi",
           "name": "One",
-          "scmAccounts": Array [],
+          "scmAccounts": [],
         }
       }
     />
@@ -73,13 +73,13 @@ exports[`should render correctly 1`] = `
       isCurrentUser={false}
       onUpdateUsers={[MockFunction]}
       user={
-        Object {
+        {
           "active": true,
           "lastConnectionDate": "2019-01-18T15:06:33+0100",
           "local": false,
           "login": "obi",
           "name": "One",
-          "scmAccounts": Array [],
+          "scmAccounts": [],
         }
       }
     />
@@ -99,13 +99,13 @@ exports[`should render correctly without last connection date 1`] = `
   </td>
   <UserListItemIdentity
     user={
-      Object {
+      {
         "active": true,
         "lastConnectionDate": "2019-01-18T15:06:33+0100",
         "local": false,
         "login": "obi",
         "name": "One",
-        "scmAccounts": Array [],
+        "scmAccounts": [],
       }
     }
   />
@@ -113,7 +113,7 @@ exports[`should render correctly without last connection date 1`] = `
     className="thin nowrap text-middle"
   >
     <UserScmAccounts
-      scmAccounts={Array []}
+      scmAccounts={[]}
     />
   </td>
   <td
@@ -128,16 +128,16 @@ exports[`should render correctly without last connection date 1`] = `
     className="thin nowrap text-middle"
   >
     <UserGroups
-      groups={Array []}
+      groups={[]}
       onUpdateUsers={[MockFunction]}
       user={
-        Object {
+        {
           "active": true,
           "lastConnectionDate": "2019-01-18T15:06:33+0100",
           "local": false,
           "login": "obi",
           "name": "One",
-          "scmAccounts": Array [],
+          "scmAccounts": [],
         }
       }
     />
@@ -160,13 +160,13 @@ exports[`should render correctly without last connection date 1`] = `
       isCurrentUser={false}
       onUpdateUsers={[MockFunction]}
       user={
-        Object {
+        {
           "active": true,
           "lastConnectionDate": "2019-01-18T15:06:33+0100",
           "local": false,
           "login": "obi",
           "name": "One",
-          "scmAccounts": Array [],
+          "scmAccounts": [],
         }
       }
     />

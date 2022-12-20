@@ -123,7 +123,7 @@ exports[`shows scanner context 1`] = `
 <ScannerContext
   onClose={[Function]}
   task={
-    Object {
+    {
       "analysisId": "x123",
       "componentKey": "foo",
       "componentName": "Foo",
@@ -142,7 +142,7 @@ exports[`shows stack trace 1`] = `
 <Stacktrace
   onClose={[Function]}
   task={
-    Object {
+    {
       "analysisId": "x123",
       "componentKey": "foo",
       "componentName": "Foo",

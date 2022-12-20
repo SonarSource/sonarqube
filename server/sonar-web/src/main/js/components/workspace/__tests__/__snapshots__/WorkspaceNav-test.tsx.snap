@@ -9,7 +9,7 @@ exports[`should not render open component 1`] = `
   >
     <WorkspaceNavComponent
       component={
-        Object {
+        {
           "branchLike": undefined,
           "key": "foo",
         }
@@ -23,7 +23,7 @@ exports[`should not render open component 1`] = `
       onClose={[MockFunction]}
       onOpen={[MockFunction]}
       rule={
-        Object {
+        {
           "key": "qux",
         }
       }
@@ -41,7 +41,7 @@ exports[`should not render open rule 1`] = `
   >
     <WorkspaceNavComponent
       component={
-        Object {
+        {
           "branchLike": undefined,
           "key": "foo",
         }
@@ -52,7 +52,7 @@ exports[`should not render open rule 1`] = `
     />
     <WorkspaceNavComponent
       component={
-        Object {
+        {
           "branchLike": undefined,
           "key": "bar",
         }
@@ -74,7 +74,7 @@ exports[`should render 1`] = `
   >
     <WorkspaceNavComponent
       component={
-        Object {
+        {
           "branchLike": undefined,
           "key": "foo",
         }
@@ -85,7 +85,7 @@ exports[`should render 1`] = `
     />
     <WorkspaceNavComponent
       component={
-        Object {
+        {
           "branchLike": undefined,
           "key": "bar",
         }
@@ -99,7 +99,7 @@ exports[`should render 1`] = `
       onClose={[MockFunction]}
       onOpen={[MockFunction]}
       rule={
-        Object {
+        {
           "key": "qux",
         }
       }

@@ -23,32 +23,32 @@ exports[`should render correctly 1`] = `
   </Alert>
   <DotNetExecute
     commands={
-      Array [
-        "dotnet sonarscanner begin /k:\\"projectKey\\" /d:sonar.host.url=\\"host\\"  /d:sonar.login=\\"token\\"",
+      [
+        "dotnet sonarscanner begin /k:"projectKey" /d:sonar.host.url="host"  /d:sonar.login="token"",
         "dotnet build",
-        "dotnet sonarscanner end /d:sonar.login=\\"token\\"",
+        "dotnet sonarscanner end /d:sonar.login="token"",
       ]
     }
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "projectKey",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
   />

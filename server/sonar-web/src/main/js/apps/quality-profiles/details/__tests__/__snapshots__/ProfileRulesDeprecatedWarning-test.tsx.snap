@@ -20,7 +20,7 @@ exports[`should render correctly 1`] = `
   <ForwardRef(Link)
     className="pull-right"
     to={
-      Object {
+      {
         "pathname": "/coding_rules",
         "search": "?qprofile=bar&activation=true&statuses=DEPRECATED",
       }

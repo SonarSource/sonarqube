@@ -8,7 +8,7 @@ exports[`should render correctly 1`] = `
     onCheck={[Function]}
     optionLabelKey="onboarding.build.dotnet.variant"
     options={
-      Array [
+      [
         "dotnet_core",
         "dotnet_framework",
       ]
@@ -18,25 +18,25 @@ exports[`should render correctly 1`] = `
   <DotNetCore
     baseUrl="host"
     component={
-      Object {
-        "breadcrumbs": Array [],
+      {
+        "breadcrumbs": [],
         "key": "projectKey",
         "name": "MyProject",
         "qualifier": "TRK",
-        "qualityGate": Object {
+        "qualityGate": {
           "isDefault": true,
           "key": "30",
           "name": "Sonar way",
         },
-        "qualityProfiles": Array [
-          Object {
+        "qualityProfiles": [
+          {
             "deleted": false,
             "key": "my-qp",
             "language": "ts",
             "name": "Sonar way",
           },
         ],
-        "tags": Array [],
+        "tags": [],
       }
     }
     token="token"
