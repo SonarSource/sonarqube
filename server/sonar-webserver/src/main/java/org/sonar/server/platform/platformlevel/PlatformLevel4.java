@@ -49,6 +49,7 @@ import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
 import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.language.LanguagesProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -300,6 +301,7 @@ public class PlatformLevel4 extends PlatformLevel {
       WebAnalyticsLoaderImpl.class,
       new MonitoringWsModule(),
       DefaultBranchNameResolver.class,
+      DefaultDocumentationLinkGenerator.class,
 
       // batch
       new BatchWsModule(),

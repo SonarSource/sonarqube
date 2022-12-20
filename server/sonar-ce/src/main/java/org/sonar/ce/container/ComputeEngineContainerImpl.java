@@ -66,6 +66,7 @@ import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.language.LanguagesProvider;
@@ -451,7 +452,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       QualityGateFinder.class,
       QualityGateEvaluatorImpl.class,
 
-      new AnalysisCacheCleaningModule()
+      new AnalysisCacheCleaningModule(),
+
+      DefaultDocumentationLinkGenerator.class
 
     );
 

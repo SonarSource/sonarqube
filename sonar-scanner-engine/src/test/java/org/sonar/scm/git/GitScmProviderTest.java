@@ -60,6 +60,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
@@ -74,6 +75,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.scm.git.GitScmProvider.SCM_INTEGRATION_DOCUMENTATION_SUFFIX;
 import static org.sonar.scm.git.GitUtils.createFile;
 import static org.sonar.scm.git.GitUtils.createRepository;
 import static org.sonar.scm.git.Utils.javaUnzip;
@@ -109,6 +111,7 @@ public class GitScmProviderTest {
     + "The door of all subtleties!";
 
   private static final String BRANCH_NAME = "branch";
+  private static final String TEST_DOC_LINK = "documentation link";
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -123,11 +126,13 @@ public class GitScmProviderTest {
   private Path worktree;
   private Git git;
   private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
+  private final DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
 
   @Before
   public void before() throws IOException, GitAPIException {
     worktree = temp.newFolder().toPath();
     git = createRepository(worktree);
+    when(documentationLinkGenerator.getDocumentationLink(SCM_INTEGRATION_DOCUMENTATION_SUFFIX)).thenReturn(TEST_DOC_LINK);
 
     createAndCommitFile("file-in-first-commit.xoo");
   }
@@ -142,7 +147,7 @@ public class GitScmProviderTest {
     JGitBlameCommand jblameCommand = new JGitBlameCommand();
     GitBlameCommand nativeBlameCommand = new GitBlameCommand(System2.INSTANCE, new ProcessWrapperFactory());
     CompositeBlameCommand compositeBlameCommand = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jblameCommand, nativeBlameCommand);
-    GitScmProvider gitScmProvider = new GitScmProvider(compositeBlameCommand, analysisWarnings, gitIgnoreCommand, system2);
+    GitScmProvider gitScmProvider = new GitScmProvider(compositeBlameCommand, analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator);
 
     assertThat(gitScmProvider.blameCommand()).isEqualTo(compositeBlameCommand);
   }
@@ -419,7 +424,8 @@ public class GitScmProviderTest {
   }
 
   @Test
-  public void branchChangedLinesWithFileMovementDetection_detects_modified_lines_on_renamed_pr_files_compared_to_original_files_on_target_branch() throws GitAPIException, IOException {
+  public void branchChangedLinesWithFileMovementDetection_detects_modified_lines_on_renamed_pr_files_compared_to_original_files_on_target_branch()
+    throws GitAPIException, IOException {
     String fileM1 = "file-m1.xoo";
     String newFileM1 = "new-file-m1.xoo";
     String fileM2 = "file-m2.xoo";
@@ -616,7 +622,7 @@ public class GitScmProviderTest {
 
   @Test
   public void branchChangedFiles_should_return_null_on_io_errors_of_repo_builder() {
-    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator) {
       @Override
       Repository buildRepo(Path basedir) throws IOException {
         throw new IOException();
@@ -633,7 +639,7 @@ public class GitScmProviderTest {
     when(repository.getRefDatabase()).thenReturn(refDatabase);
     when(refDatabase.findRef(BRANCH_NAME)).thenReturn(null);
 
-    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator) {
       @Override
       Repository buildRepo(Path basedir) {
         return repository;
@@ -648,7 +654,7 @@ public class GitScmProviderTest {
 
     String warning = refNotFound
       + ". You may see unexpected issues and changes. Please make sure to fetch this ref before pull request analysis"
-      + " and refer to <a href=\"/documentation/analyzing-source-code/scm-integration/\" target=\"_blank\">the documentation</a>.";
+      + " and refer to <a href=\"" + TEST_DOC_LINK + "\" rel=\"noopener noreferrer\" target=\"_blank\">the documentation</a>.";
     verify(analysisWarnings).addUnique(warning);
   }
 
@@ -663,7 +669,7 @@ public class GitScmProviderTest {
     Git git = mock(Git.class);
     when(git.diff()).thenReturn(diffCommand);
 
-    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator) {
       @Override
       Git newGit(Repository repo) {
         return git;
@@ -700,7 +706,7 @@ public class GitScmProviderTest {
     commit(f3);
 
     AtomicInteger callCount = new AtomicInteger(0);
-    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator) {
       @Override
       AbstractTreeIterator prepareTreeParser(Repository repo, RevCommit commit) throws IOException {
         if (callCount.getAndIncrement() == 2) {
@@ -721,7 +727,7 @@ public class GitScmProviderTest {
 
   @Test
   public void branchChangedLines_returns_null_on_io_errors_of_repo_builder() {
-    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2) {
+    GitScmProvider provider = new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator) {
       @Override
       Repository buildRepo(Path basedir) throws IOException {
         throw new IOException();
@@ -736,7 +742,7 @@ public class GitScmProviderTest {
   }
 
   private GitScmProvider newGitScmProvider() {
-    return new GitScmProvider(mock(CompositeBlameCommand.class), analysisWarnings, gitIgnoreCommand, system2);
+    return new GitScmProvider(mock(CompositeBlameCommand.class), analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator);
   }
 
   @Test
@@ -814,12 +820,6 @@ public class GitScmProviderTest {
     createAndCommitFile(relativePath, randomizedContent(relativePath, 3), git, this.worktree);
   }
 
-  private void createAndCommitFile(String relativePath, Instant commitDate) throws IOException, GitAPIException {
-    createFile(relativePath, randomizedContent(relativePath, 3), this.worktree);
-    commit(relativePath, commitDate);
-  }
-
-
   private void createAndCommitFile(String fileName, Git git, Path worktree) throws IOException, GitAPIException {
     createAndCommitFile(fileName, randomizedContent(fileName, 3), git, worktree);
   }
@@ -896,6 +896,6 @@ public class GitScmProviderTest {
   }
 
   private GitScmProvider newScmProvider() {
-    return new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2);
+    return new GitScmProvider(mockCommand(), analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator);
   }
 }

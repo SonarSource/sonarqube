@@ -19,6 +19,7 @@
  */
 package org.sonar.scm.git;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +70,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
@@ -84,18 +86,22 @@ public class GitScmProvider extends ScmProvider {
   private static final Logger LOG = Loggers.get(GitScmProvider.class);
   private static final String COULD_NOT_FIND_REF = "Could not find ref '%s' in refs/heads, refs/remotes, refs/remotes/upstream or refs/remotes/origin";
   private static final String NO_MERGE_BASE_FOUND_MESSAGE = "No merge base found between HEAD and %s";
+  @VisibleForTesting
+  static final String SCM_INTEGRATION_DOCUMENTATION_SUFFIX = "/analyzing-source-code/scm-integration/";
   private final BlameCommand blameCommand;
   private final AnalysisWarnings analysisWarnings;
   private final GitIgnoreCommand gitIgnoreCommand;
   private final System2 system2;
-  private final String documentationLink;
+  private final DocumentationLinkGenerator documentationLinkGenerator;
 
-  public GitScmProvider(CompositeBlameCommand blameCommand, AnalysisWarnings analysisWarnings, GitIgnoreCommand gitIgnoreCommand, System2 system2) {
+  public GitScmProvider(CompositeBlameCommand blameCommand, AnalysisWarnings analysisWarnings, GitIgnoreCommand gitIgnoreCommand, System2 system2,
+    DocumentationLinkGenerator documentationLinkGenerator) {
+
     this.blameCommand = blameCommand;
     this.analysisWarnings = analysisWarnings;
     this.gitIgnoreCommand = gitIgnoreCommand;
     this.system2 = system2;
-    this.documentationLink = "/documentation/analyzing-source-code/scm-integration/";
+    this.documentationLinkGenerator = documentationLinkGenerator;
   }
 
   @Override
@@ -257,10 +263,11 @@ public class GitScmProvider extends ScmProvider {
   }
 
   private void addWarningTargetNotFound(String targetBranchName) {
+    String url = documentationLinkGenerator.getDocumentationLink(SCM_INTEGRATION_DOCUMENTATION_SUFFIX);
     analysisWarnings.addUnique(format(COULD_NOT_FIND_REF
       + ". You may see unexpected issues and changes. "
       + "Please make sure to fetch this ref before pull request analysis and refer to"
-      + " <a href=\"%s\" target=\"_blank\">the documentation</a>.", targetBranchName, documentationLink));
+      + " <a href=\"%s\" rel=\"noopener noreferrer\" target=\"_blank\">the documentation</a>.", targetBranchName, url));
   }
 
   private void collectChangedLines(Repository repo, RevCommit mergeBaseCommit, Map<Path, Set<Integer>> changedLines, Path changedFilePath, ChangedFile changedFile) {

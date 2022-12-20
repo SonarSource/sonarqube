@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scm;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,27 +36,34 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.util.ProgressReport;
 
+import static java.lang.String.format;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 class DefaultBlameOutput implements BlameOutput {
 
   private static final Logger LOG = Loggers.get(DefaultBlameOutput.class);
+  @VisibleForTesting
+  static final String SCM_INTEGRATION_DOCUMENTATION_SUFFIX = "/analyzing-source-code/scm-integration/";
 
   private final ScannerReportWriter writer;
   private AnalysisWarnings analysisWarnings;
+  private final DocumentationLinkGenerator documentationLinkGenerator;
   private final Set<InputFile> allFilesToBlame = new LinkedHashSet<>();
   private ProgressReport progressReport;
   private int count;
   private int total;
 
-  DefaultBlameOutput(ScannerReportWriter writer, AnalysisWarnings analysisWarnings, List<InputFile> filesToBlame) {
+  DefaultBlameOutput(ScannerReportWriter writer, AnalysisWarnings analysisWarnings, List<InputFile> filesToBlame,
+    DocumentationLinkGenerator documentationLinkGenerator) {
     this.writer = writer;
     this.analysisWarnings = analysisWarnings;
+    this.documentationLinkGenerator = documentationLinkGenerator;
     this.allFilesToBlame.addAll(filesToBlame);
     count = 0;
     total = filesToBlame.size();
@@ -134,12 +142,12 @@ class DefaultBlameOutput implements BlameOutput {
         LOG.warn("  * " + f);
       }
       LOG.warn("This may lead to missing/broken features in SonarQube");
-      String link = "/documentation/analyzing-source-code/scm-integration/";
-      analysisWarnings.addUnique(String.format("Missing blame information for %d %s. This may lead to some features not working correctly. " +
-        "Please check the analysis logs and refer to <a href=\"%s\" target=\"_blank\">the documentation</a>.",
+      String docUrl = documentationLinkGenerator.getDocumentationLink(SCM_INTEGRATION_DOCUMENTATION_SUFFIX);
+      analysisWarnings.addUnique(format("Missing blame information for %d %s. This may lead to some features not working correctly. " +
+        "Please check the analysis logs and refer to <a href=\"%s\" rel=\"noopener noreferrer\" target=\"_blank\">the documentation</a>.",
         allFilesToBlame.size(),
         allFilesToBlame.size() > 1 ? "files" : "file",
-        link));
+        docUrl));
     }
   }
 
@@ -147,3 +155,4 @@ class DefaultBlameOutput implements BlameOutput {
     return filesCount == 1 ? "source file" : "source files";
   }
 }
+
