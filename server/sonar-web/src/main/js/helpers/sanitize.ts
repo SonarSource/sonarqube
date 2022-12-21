@@ -52,6 +52,6 @@ export function sanitizeUserInput(html: string) {
       'blockquote',
       'pre',
     ],
-    ALLOWED_ATTR: ['target', 'href'],
+    ALLOWED_ATTR: ['target', 'href', 'rel'],
   });
 }
