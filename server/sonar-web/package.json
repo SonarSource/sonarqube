@@ -83,7 +83,7 @@
     "eslint-plugin-react": "7.31.11",
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-testing-library": "5.9.1",
-    "fs-extra": "10.1.0",
+    "fs-extra": "11.1.0",
     "http-proxy": "1.18.1",
     "jest": "29.3.1",
     "jest-emotion": "10.0.32",
