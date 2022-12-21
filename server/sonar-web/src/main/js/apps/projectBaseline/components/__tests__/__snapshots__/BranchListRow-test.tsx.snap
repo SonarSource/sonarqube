@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: branch with number of days 1`] = `
-<tr
-  className=""
->
+<tr>
   <td
     className="nowrap"
   >
@@ -53,9 +51,7 @@ exports[`should render correctly: branch with number of days 1`] = `
 `;
 
 exports[`should render correctly: branch with previous version 1`] = `
-<tr
-  className=""
->
+<tr>
   <td
     className="nowrap"
   >
@@ -104,9 +100,7 @@ exports[`should render correctly: branch with previous version 1`] = `
 `;
 
 exports[`should render correctly: branch with reference branch 1`] = `
-<tr
-  className=""
->
+<tr>
   <td
     className="nowrap"
   >
@@ -156,9 +150,7 @@ exports[`should render correctly: branch with reference branch 1`] = `
 `;
 
 exports[`should render correctly: branch with specific analysis 1`] = `
-<tr
-  className=""
->
+<tr>
   <td
     className="nowrap"
   >
@@ -260,9 +252,7 @@ exports[`should render correctly: faulty branch 1`] = `
 `;
 
 exports[`should render correctly: main branch with default 1`] = `
-<tr
-  className=""
->
+<tr>
   <td
     className="nowrap"
   >

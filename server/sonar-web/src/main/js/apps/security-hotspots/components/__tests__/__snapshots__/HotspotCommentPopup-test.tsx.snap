@@ -22,9 +22,7 @@ exports[`should render correclty 1`] = `
     >
       <FormattingTips />
     </div>
-    <div
-      className=""
-    >
+    <div>
       <Button
         className="little-spacer-right"
         onClick={[Function]}

@@ -8,7 +8,6 @@ exports[`should render correctly with a tooltip 1`] = `
   <li>
     <ButtonPlain
       aria-selected={false}
-      className=""
       onBlur={[Function]}
       onClick={[Function]}
       onFocus={[Function]}
@@ -29,7 +28,6 @@ exports[`should render correctly with children 1`] = `
   <li>
     <ButtonPlain
       aria-selected={false}
-      className=""
       onBlur={[Function]}
       onClick={[Function]}
       onFocus={[Function]}
@@ -55,7 +53,6 @@ exports[`should render correctly without children 1`] = `
   <li>
     <ButtonPlain
       aria-selected={false}
-      className=""
       onBlur={[Function]}
       onClick={[Function]}
       onFocus={[Function]}

@@ -86,7 +86,6 @@
     "fs-extra": "11.1.0",
     "http-proxy": "1.18.1",
     "jest": "29.3.1",
-    "jest-emotion": "10.0.32",
     "jest-environment-jsdom": "29.3.1",
     "jest-junit": "13.0.0",
     "jsdom": "20.0.3",

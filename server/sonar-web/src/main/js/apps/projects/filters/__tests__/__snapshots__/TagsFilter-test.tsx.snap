@@ -217,7 +217,6 @@ exports[`should render the tags facet with the selected tags 2`] = `
       </button>
     </li>
     <li
-      className=""
       key="csharp"
     >
       <button

@@ -11,7 +11,6 @@ exports[`should render correctly 1`] = `
         "name": "master",
       }
     }
-    className=""
     expandable={true}
     loading={false}
     onExpand={[Function]}

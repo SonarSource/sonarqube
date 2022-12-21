@@ -4,22 +4,22 @@ module.exports = {
   coverageReporters: ['lcovonly', 'text'],
   globals: {
     'ts-jest': {
-      diagnostics: false
-    }
+      diagnostics: false,
+    },
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],
   moduleNameMapper: {
     '^.+\\.(md|jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       '<rootDir>/config/jest/FileStub.js',
-    '^.+\\.css$': '<rootDir>/config/jest/CSSStub.js'
+    '^.+\\.css$': '<rootDir>/config/jest/CSSStub.js',
   },
   setupFiles: [
     '<rootDir>/config/polyfills.ts',
     '<rootDir>/config/jest/SetupEnzyme.ts',
-    '<rootDir>/config/jest/SetupTestEnvironment.ts'
+    '<rootDir>/config/jest/SetupTestEnvironment.ts',
   ],
   setupFilesAfterEnv: ['<rootDir>/config/jest/SetupReactTestingLibrary.ts'],
-  snapshotSerializers: ['enzyme-to-json/serializer', 'jest-emotion'],
+  snapshotSerializers: ['enzyme-to-json/serializer', '@emotion/jest/serializer'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['<rootDir>/config', '<rootDir>/node_modules', '<rootDir>/scripts'],
   testRegex: '(/__tests__/.*|\\-test)\\.(ts|tsx|js)$',
@@ -28,10 +28,10 @@ module.exports = {
       '@swc/jest',
       {
         jsc: {
-          target: 'es2018'
-        }
-      }
-    ]
+          target: 'es2018',
+        },
+      },
+    ],
   },
   transformIgnorePatterns: ['/node_modules/(?!(d3-.+))/'],
   reporters: [
@@ -44,15 +44,15 @@ module.exports = {
         ancestorSeparator: ' > ',
         suiteNameTemplate: '{filename}',
         classNameTemplate: '{classname}',
-        titleTemplate: '{title}'
-      }
+        titleTemplate: '{title}',
+      },
     ],
     [
       './config/jest/ElasticSearchReporter.js',
       {
-        outputFilepath: '/tmp/ut-ts-web-monitoring.log'
-      }
-    ]
+        outputFilepath: '/tmp/ut-ts-web-monitoring.log',
+      },
+    ],
   ],
-  testTimeout: 30000
+  testTimeout: 30000,
 };

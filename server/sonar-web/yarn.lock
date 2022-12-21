@@ -2370,13 +2370,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^23.0.2":
-  version: 23.3.14
-  resolution: "@types/jest@npm:23.3.14"
-  checksum: 0f8ec7c7ef16c35afb17bb1c83167bb847b2a577e0298caf3d828c43026f7544eb831d63fe71bb0eee28c8724389cbf57402e5b9fe87a22b255bd79ece2c3152
-  languageName: node
-  linkType: hard
-
 "@types/jsdom@npm:^20.0.0":
   version: 20.0.1
   resolution: "@types/jsdom@npm:20.0.1"
@@ -2902,7 +2895,6 @@ __metadata:
     fs-extra: 11.1.0
     http-proxy: 1.18.1
     jest: 29.3.1
-    jest-emotion: 10.0.32
     jest-environment-jsdom: 29.3.1
     jest-junit: 13.0.0
     jsdom: 20.0.3
@@ -3687,7 +3679,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^2.0.0, chalk@npm:^2.4.1":
+"chalk@npm:^2.0.0":
   version: 2.4.2
   resolution: "chalk@npm:2.4.2"
   dependencies:
@@ -4021,18 +4013,6 @@ __metadata:
   version: 1.5.1
   resolution: "css.escape@npm:1.5.1"
   checksum: f6d38088d870a961794a2580b2b2af1027731bb43261cfdce14f19238a88664b351cc8978abc20f06cc6bbde725699dec8deb6fe9816b139fc3f2af28719e774
-  languageName: node
-  linkType: hard
-
-"css@npm:^2.2.1":
-  version: 2.2.4
-  resolution: "css@npm:2.2.4"
-  dependencies:
-    inherits: ^2.0.3
-    source-map: ^0.6.1
-    source-map-resolve: ^0.5.2
-    urix: ^0.1.0
-  checksum: a35d483c5ccc04bcde3b1e7393d58ad3eee1dd6956df0f152de38e46a17c0ee193c30eec6b1e59831ad0e74599385732000e95987fcc9cb2b16c6d951bae49e1
   languageName: node
   linkType: hard
 
@@ -7030,18 +7010,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-emotion@npm:10.0.32":
-  version: 10.0.32
-  resolution: "jest-emotion@npm:10.0.32"
-  dependencies:
-    "@babel/runtime": ^7.5.5
-    "@types/jest": ^23.0.2
-    chalk: ^2.4.1
-    css: ^2.2.1
-  checksum: 9e7cb48bd71c24059d4d6575901ce23f7200d2b6b4b7ea5fe27818fb52bac2adfbe60398be12dc80d51cc5ca8d6d42933a33d118d651acea6793a60ed0b25c94
-  languageName: node
-  linkType: hard
-
 "jest-environment-jsdom@npm:29.3.1":
   version: 29.3.1
   resolution: "jest-environment-jsdom@npm:29.3.1"
@@ -9425,13 +9393,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"resolve-url@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "resolve-url@npm:0.2.1"
-  checksum: 7b7035b9ed6e7bc7d289e90aef1eab5a43834539695dac6416ca6e91f1a94132ae4796bbd173cdacfdc2ade90b5f38a3fb6186bebc1b221cd157777a23b9ad14
-  languageName: node
-  linkType: hard
-
 "resolve.exports@npm:^1.1.0":
   version: 1.1.0
   resolution: "resolve.exports@npm:1.1.0"
@@ -9837,19 +9798,6 @@ resolve@^1.2.0:
   languageName: node
   linkType: hard
 
-"source-map-resolve@npm:^0.5.2":
-  version: 0.5.3
-  resolution: "source-map-resolve@npm:0.5.3"
-  dependencies:
-    atob: ^2.1.2
-    decode-uri-component: ^0.2.0
-    resolve-url: ^0.2.1
-    source-map-url: ^0.4.0
-    urix: ^0.1.0
-  checksum: c73fa44ac00783f025f6ad9e038ab1a2e007cd6a6b86f47fe717c3d0765b4a08d264f6966f3bd7cd9dbcd69e4832783d5472e43247775b2a550d6f2155d24bae
-  languageName: node
-  linkType: hard
-
 "source-map-resolve@npm:^0.6.0":
   version: 0.6.0
   resolution: "source-map-resolve@npm:0.6.0"
@@ -9867,13 +9815,6 @@ resolve@^1.2.0:
     buffer-from: ^1.0.0
     source-map: ^0.6.0
   checksum: 933550047b6c1a2328599a21d8b7666507427c0f5ef5eaadd56b5da0fd9505e239053c66fe181bf1df469a3b7af9d775778eee283cbb7ae16b902ddc09e93a97
-  languageName: node
-  linkType: hard
-
-"source-map-url@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "source-map-url@npm:0.4.0"
-  checksum: 63ed54045fcd7b4ec7ca17513f48fdc23b573eef679326ecf1a31333e1aaecc0a9c085adaa7d118283b160e65b71cc72da9e1385f2de4ac5ed68294e3920d719
   languageName: node
   linkType: hard
 
@@ -10590,13 +10531,6 @@ resolve@^1.2.0:
   dependencies:
     punycode: ^2.1.0
   checksum: 5a91c55d8ae6d9a1ff9dc1b0774888a99aae7cc6e9056c57b709275c0f6753b05cd1a9f2728a1479244b93a9f57ab37c60d277a48d9f2d032d6ae65837bf9bc7
-  languageName: node
-  linkType: hard
-
-"urix@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "urix@npm:0.1.0"
-  checksum: 4c076ecfbf3411e888547fe844e52378ab5ada2d2f27625139011eada79925e77f7fbf0e4016d45e6a9e9adb6b7e64981bd49b22700c7c401c5fc15f423303b3
   languageName: node
   linkType: hard
 

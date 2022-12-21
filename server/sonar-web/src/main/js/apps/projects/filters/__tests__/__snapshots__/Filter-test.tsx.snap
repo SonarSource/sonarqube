@@ -9,7 +9,6 @@ exports[`highlights under 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <li
-      className=""
       key="1"
     >
       <button
@@ -84,7 +83,6 @@ exports[`hightlights under selected 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <li
-      className=""
       key="1"
     >
       <button
@@ -159,7 +157,6 @@ exports[`renders 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <li
-      className=""
       key="1"
     >
       <button
@@ -180,7 +177,6 @@ exports[`renders 1`] = `
       </button>
     </li>
     <li
-      className=""
       key="2"
     >
       <button
@@ -201,7 +197,6 @@ exports[`renders 1`] = `
       </button>
     </li>
     <li
-      className=""
       key="3"
     >
       <button
@@ -234,7 +229,6 @@ exports[`renders facet bar chart 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <li
-      className=""
       key="a"
     >
       <button
@@ -272,7 +266,6 @@ exports[`renders facet bar chart 1`] = `
       </button>
     </li>
     <li
-      className=""
       key="b"
     >
       <button
@@ -310,7 +303,6 @@ exports[`renders facet bar chart 1`] = `
       </button>
     </li>
     <li
-      className=""
       key="c"
     >
       <button
@@ -361,7 +353,6 @@ exports[`renders header and footer 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <li
-      className=""
       key="1"
     >
       <button
@@ -382,7 +373,6 @@ exports[`renders header and footer 1`] = `
       </button>
     </li>
     <li
-      className=""
       key="2"
     >
       <button
@@ -403,7 +393,6 @@ exports[`renders header and footer 1`] = `
       </button>
     </li>
     <li
-      className=""
       key="3"
     >
       <button
@@ -479,7 +468,6 @@ exports[`renders multiple selected 1`] = `
       </button>
     </li>
     <li
-      className=""
       key="3"
     >
       <button
@@ -527,7 +515,6 @@ exports[`renders selected 1`] = `
     className="search-navigator-facet-list projects-facet-list"
   >
     <li
-      className=""
       key="1"
     >
       <button
@@ -569,7 +556,6 @@ exports[`renders selected 1`] = `
       </button>
     </li>
     <li
-      className=""
       key="3"
     >
       <button

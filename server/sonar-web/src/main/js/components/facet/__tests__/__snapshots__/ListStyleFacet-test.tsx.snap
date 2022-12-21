@@ -19,7 +19,6 @@ exports[`should be disabled 1`] = `
 
 exports[`should display all selected items 1`] = `
 <FacetBox
-  className=""
   property="foo"
 >
   <FacetHeader
@@ -101,7 +100,6 @@ exports[`should display all selected items 1`] = `
 
 exports[`should render 1`] = `
 <FacetBox
-  className=""
   property="foo"
 >
   <FacetHeader
@@ -170,7 +168,6 @@ exports[`should render 1`] = `
 
 exports[`should search 1`] = `
 <FacetBox
-  className=""
   property="foo"
 >
   <FacetHeader
@@ -230,7 +227,6 @@ exports[`should search 1`] = `
 
 exports[`should search 2`] = `
 <FacetBox
-  className=""
   property="foo"
 >
   <FacetHeader
@@ -301,7 +297,6 @@ exports[`should search 2`] = `
 
 exports[`should search 3`] = `
 <FacetBox
-  className=""
   property="foo"
 >
   <FacetHeader
@@ -370,7 +365,6 @@ exports[`should search 3`] = `
 
 exports[`should search 4`] = `
 <FacetBox
-  className=""
   property="foo"
 >
   <FacetHeader
@@ -404,7 +398,6 @@ exports[`should search 4`] = `
 
 exports[`should search 5`] = `
 <FacetBox
-  className=""
   property="foo"
 >
   <FacetHeader

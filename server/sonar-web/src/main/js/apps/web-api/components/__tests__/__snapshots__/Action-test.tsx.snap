@@ -132,7 +132,6 @@ exports[`should render correctly 1`] = `
     >
       <li>
         <a
-          className=""
           href="#"
           onClick={[Function]}
         >
@@ -141,7 +140,6 @@ exports[`should render correctly 1`] = `
       </li>
       <li>
         <a
-          className=""
           href="#"
           onClick={[Function]}
         >
@@ -150,7 +148,6 @@ exports[`should render correctly 1`] = `
       </li>
       <li>
         <a
-          className=""
           href="#"
           onClick={[Function]}
         >

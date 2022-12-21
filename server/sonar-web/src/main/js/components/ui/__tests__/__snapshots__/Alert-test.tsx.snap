@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render banner alert with correct css 1`] = `
-.emotion-3 {
+.emotion-0 {
   border: 1px solid;
   border-radius: 2px;
   margin-bottom: 8px;
@@ -11,16 +11,16 @@ exports[`should render banner alert with correct css 1`] = `
   display: block;
 }
 
-.emotion-3:empty {
+.emotion-0:empty {
   display: none;
 }
 
-.emotion-3 a,
-.emotion-3 .button-link {
+.emotion-0 a,
+.emotion-0 .button-link {
   border-color: #236a97;
 }
 
-.emotion-2 {
+.emotion-1 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -38,7 +38,7 @@ exports[`should render banner alert with correct css 1`] = `
   box-sizing: border-box;
 }
 
-.emotion-0 {
+.emotion-2 {
   -webkit-flex: 0 0 auto;
   -ms-flex: 0 0 auto;
   flex: 0 0 auto;
@@ -59,7 +59,7 @@ exports[`should render banner alert with correct css 1`] = `
   border-color: #f4b1b0;
 }
 
-.emotion-1 {
+.emotion-3 {
   -webkit-flex: 1 1 auto;
   -ms-flex: 1 1 auto;
   flex: 1 1 auto;
@@ -70,15 +70,15 @@ exports[`should render banner alert with correct css 1`] = `
 
 <div
   aria-label="alert.tooltip.error"
-  class="alert alert-test emotion-3"
+  class="alert alert-test emotion-0"
   id="error-message"
   role="alert"
 >
   <div
-    class="emotion-2"
+    class="emotion-1"
   >
     <div
-      class="emotion-0"
+      class="emotion-2"
     >
       <svg
         height="16"
@@ -96,7 +96,7 @@ exports[`should render banner alert with correct css 1`] = `
       </svg>
     </div>
     <div
-      class="alert-content emotion-1"
+      class="alert-content emotion-3"
     >
       This is an error!
     </div>

@@ -47,7 +47,6 @@ exports[`should display the field without any error/validation 1`] = `
     Foo
   </label>
   <input
-    className=""
     type="text"
   />
   <div
@@ -66,7 +65,6 @@ exports[`should display the field without any error/validation 2`] = `
     Foo
   </label>
   <input
-    className=""
     type="text"
   />
 </div>

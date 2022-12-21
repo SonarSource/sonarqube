@@ -144,7 +144,6 @@ exports[`should render the languages facet with the selected languages 2`] = `
       </button>
     </li>
     <li
-      className=""
       key="js"
     >
       <button

@@ -34,7 +34,6 @@ exports[`New code measures should be rendered properly 1`] = `
       className="bordered-left little-spacer"
     />
     <ProjectCardMeasure
-      className=""
       key="new_vulnerabilities"
       label="metric.vulnerabilities.name"
       metricKey="new_vulnerabilities"
@@ -57,7 +56,6 @@ exports[`New code measures should be rendered properly 1`] = `
       className="bordered-left little-spacer"
     />
     <ProjectCardMeasure
-      className=""
       iconKey="security_hotspots"
       key="new_security_hotspots_reviewed"
       label="projects.security_hotspots_reviewed"
@@ -78,7 +76,6 @@ exports[`New code measures should be rendered properly 1`] = `
       className="bordered-left little-spacer"
     />
     <ProjectCardMeasure
-      className=""
       key="new_code_smells"
       label="metric.code_smells.name"
       metricKey="new_code_smells"
@@ -196,7 +193,6 @@ exports[`Overall measures should be rendered properly 1`] = `
       className="bordered-left little-spacer"
     />
     <ProjectCardMeasure
-      className=""
       key="vulnerabilities"
       label="metric.vulnerabilities.name"
       metricKey="vulnerabilities"
@@ -219,7 +215,6 @@ exports[`Overall measures should be rendered properly 1`] = `
       className="bordered-left little-spacer"
     />
     <ProjectCardMeasure
-      className=""
       iconKey="security_hotspots"
       key="security_hotspots_reviewed"
       label="projects.security_hotspots_reviewed"
@@ -240,7 +235,6 @@ exports[`Overall measures should be rendered properly 1`] = `
       className="bordered-left little-spacer"
     />
     <ProjectCardMeasure
-      className=""
       key="code_smells"
       label="metric.code_smells.name"
       metricKey="code_smells"

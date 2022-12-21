@@ -80,9 +80,7 @@ exports[`should handle the descending sort direction 1`] = `
       innerRef={[Function]}
       onClick={[Function]}
     >
-      <SortDescIcon
-        className=""
-      />
+      <SortDescIcon />
     </ButtonIcon>
   </Tooltip>
 </div>
@@ -175,9 +173,7 @@ exports[`should render correctly for leak view 1`] = `
       innerRef={[Function]}
       onClick={[Function]}
     >
-      <SortAscIcon
-        className=""
-      />
+      <SortAscIcon />
     </ButtonIcon>
   </Tooltip>
 </div>
@@ -270,9 +266,7 @@ exports[`should render correctly for overall view 1`] = `
       innerRef={[Function]}
       onClick={[Function]}
     >
-      <SortAscIcon
-        className=""
-      />
+      <SortAscIcon />
     </ButtonIcon>
   </Tooltip>
 </div>

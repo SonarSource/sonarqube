@@ -17,19 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import PageShortcutsTooltip, { PageShortcutsTooltipProps } from '../PageShortcutsTooltip';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ upAndDownLabel: 'foo', leftAndRightLabel: 'bar' })).toMatchSnapshot(
-    'with up/down and left/right labels'
-  );
-  expect(shallowRender({ leftLabel: 'baz' })).toMatchSnapshot('only left label');
-  expect(shallowRender({ metaModifierLabel: 'funky' })).toMatchSnapshot('with meta label');
+const leftAndRightLabel = 'left & right';
+const leftLabel = 'left';
+const upAndDownLabel = 'up & down';
+const metaModifierLabel = 'meta';
+
+it('should render all the labels', async () => {
+  const user = userEvent.setup();
+
+  renderPageShortcutsTooltip({
+    leftAndRightLabel,
+    leftLabel,
+    upAndDownLabel,
+    metaModifierLabel,
+  });
+
+  await user.hover(screen.getByText('←'));
+
+  expect(await screen.findByText(leftAndRightLabel)).toBeInTheDocument();
+  expect(screen.getByText(leftLabel)).toBeInTheDocument();
+  expect(screen.getByText(upAndDownLabel)).toBeInTheDocument();
+  expect(screen.getByText(metaModifierLabel)).toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<PageShortcutsTooltipProps> = {}) {
-  return shallow<PageShortcutsTooltipProps>(<PageShortcutsTooltip {...props} />);
+it('should render left & right labels without up&down', async () => {
+  const user = userEvent.setup();
+
+  renderPageShortcutsTooltip({
+    leftAndRightLabel,
+    leftLabel,
+  });
+
+  await user.hover(screen.getByText('←'));
+
+  expect(await screen.findByText(leftAndRightLabel)).toBeInTheDocument();
+  expect(screen.getByText(leftLabel)).toBeInTheDocument();
+});
+
+function renderPageShortcutsTooltip(props: Partial<PageShortcutsTooltipProps> = {}) {
+  return renderComponent(<PageShortcutsTooltip {...props} />);
 }

@@ -10,7 +10,6 @@ exports[`should render 1`] = `
     loading={false}
   >
     <a
-      className=""
       data-qualifier="TRK"
       href="#"
       onClick={[Function]}
