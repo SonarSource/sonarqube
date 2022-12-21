@@ -1,5 +1,7 @@
 import groovy.json.JsonOutput
 
+import static org.gradle.api.JavaVersion.VERSION_17
+
 plugins {
   // Ordered alphabetically
   id 'com.github.hierynomus.license' version '0.16.1'
@@ -13,8 +15,8 @@ plugins {
   id 'org.sonarqube' version '3.5.0.2730'
 }
 
-if (!JavaVersion.current().java11Compatible) {
-  throw new GradleException("JDK 11+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
+if (!JavaVersion.current().isCompatibleWith(VERSION_17)) {
+  throw new GradleException("JDK 17+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
 }
 
 /**
@@ -145,9 +147,6 @@ subprojects {
 
   // do not deploy to Artifactory by default
   artifactoryPublish.skip = true
-
-  // Produce Java 11 bytecode while making sure the code does not use any APIs from Java 17
-  compileJava.options.release = 11
 
   compileJava.options.encoding = "UTF-8"
   compileTestJava.options.encoding = "UTF-8"
