@@ -47,7 +47,8 @@ public class ServerIdManager implements Startable {
   private final SonarRuntime runtime;
   private final WebServer webServer;
 
-  public ServerIdManager(ServerIdChecksum serverIdChecksum, ServerIdFactory serverIdFactory, DbClient dbClient, SonarRuntime runtime, WebServer webServer) {
+  public ServerIdManager(ServerIdChecksum serverIdChecksum, ServerIdFactory serverIdFactory,
+    DbClient dbClient, SonarRuntime runtime, WebServer webServer) {
     this.serverIdChecksum = serverIdChecksum;
     this.serverIdFactory = serverIdFactory;
     this.dbClient = dbClient;

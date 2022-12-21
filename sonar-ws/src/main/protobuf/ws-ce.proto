@@ -134,6 +134,7 @@ message Task {
   optional string pullRequestTitle = 25;
   optional int32 warningCount = 26;
   repeated string warnings = 27;
+  optional string nodeName = 28;
 }
 
 enum TaskStatus {

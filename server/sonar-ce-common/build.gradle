@@ -50,6 +50,7 @@ dependencies {
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.assertj:assertj-guava'
   testImplementation 'org.hamcrest:hamcrest-all'
+  testImplementation 'org.mockito:mockito-core'
   testImplementation project(':sonar-plugin-api-impl')
   testImplementation testFixtures(project(':server:sonar-server-common'))
 }

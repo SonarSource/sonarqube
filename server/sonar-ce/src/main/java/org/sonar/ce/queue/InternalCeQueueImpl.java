@@ -47,6 +47,7 @@ import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.platform.WebServer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -65,8 +66,8 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   private final NextPendingTaskPicker nextPendingTaskPicker;
 
   public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, CEQueueStatus queueStatus,
-    ComputeEngineStatus computeEngineStatus, NextPendingTaskPicker nextPendingTaskPicker) {
-    super(system2, dbClient, uuidFactory);
+    ComputeEngineStatus computeEngineStatus, NextPendingTaskPicker nextPendingTaskPicker, WebServer webServer) {
+    super(system2, dbClient, uuidFactory, webServer);
     this.dbClient = dbClient;
     this.queueStatus = queueStatus;
     this.computeEngineStatus = computeEngineStatus;
@@ -113,6 +114,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       CeQueueDto queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, task.getUuid())
         .orElseThrow(() -> new IllegalStateException("Task does not exist anymore: " + task));
       CeActivityDto activityDto = new CeActivityDto(queueDto);
+      activityDto.setNodeName(webServer.getNodeName().orElse(null));
       activityDto.setStatus(status);
       executionTimeInMs = updateExecutionFields(activityDto);
       updateTaskResult(activityDto, taskResult);
@@ -176,6 +178,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       List<CeQueueDto> wornOutTasks = dbClient.ceQueueDao().selectWornout(dbSession);
       wornOutTasks.forEach(queueDto -> {
         CeActivityDto activityDto = new CeActivityDto(queueDto);
+        activityDto.setNodeName(webServer.getNodeName().orElse(null));
         activityDto.setStatus(CeActivityDto.Status.CANCELED);
         updateExecutionFields(activityDto);
         remove(dbSession, queueDto, activityDto);

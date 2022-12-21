@@ -107,6 +107,7 @@ public class TaskFormatter {
     builder.setId(dto.getUuid());
     builder.setStatus(Ce.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
+    ofNullable(dto.getNodeName()).ifPresent(builder::setNodeName);
     ofNullable(dto.getComponentUuid()).ifPresent(uuid -> setComponent(builder, uuid, cache).setComponentId(uuid));
     String analysisUuid = dto.getAnalysisUuid();
     ofNullable(analysisUuid).ifPresent(builder::setAnalysisId);

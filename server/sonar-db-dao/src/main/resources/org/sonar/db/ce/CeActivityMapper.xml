@@ -21,6 +21,7 @@
 
   <sql id="ceActivityColumns">
     ca.uuid,
+    ca.node_name as nodeName,
     ca.task_type as taskType,
     ca.component_uuid as componentUuid,
     ca.main_component_uuid as mainComponentUuid,
@@ -175,6 +176,7 @@
   <insert id="insert" parameterType="org.sonar.db.ce.CeActivityDto" useGeneratedKeys="false">
     insert into ce_activity (
       uuid,
+      node_name,
       component_uuid,
       main_component_uuid,
       analysis_uuid,
@@ -199,6 +201,7 @@
     )
     values (
       #{uuid,jdbcType=VARCHAR},
+      #{nodeName,jdbcType=VARCHAR},
       #{componentUuid,jdbcType=VARCHAR},
       #{mainComponentUuid,jdbcType=VARCHAR},
       #{analysisUuid,jdbcType=VARCHAR},

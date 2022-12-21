@@ -17,30 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.platform.db.migration.version.v99;
 
-import java.util.Optional;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
+import org.junit.Test;
 
-@ComputeEngineSide
-@ServerSide
-public interface WebServer {
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-  /**
-   * Node is standalone when property {@link org.sonar.process.ProcessProperties.Property#CLUSTER_ENABLED} is {@code false} or
-   * undefined.
-   */
-  boolean isStandalone();
+public class DbVersion99Test {
+  private final DbVersion99 underTest = new DbVersion99();
 
-  /**
-   * The startup leader is the first node to be started in a cluster. It's the only one
-   * to create and populate datastores.
-   * A standard node is automatically marked as "startup leader" when cluster
-   * is disabled (default).
-   */
-  boolean isStartupLeader();
+  @Test
+  public void migrationNumber_starts_at_6800() {
+    verifyMinimumMigrationNumber(underTest, 6800);
+  }
 
-  Optional<String> getNodeName();
+  @Test
+  public void verify_migration_is_not_empty() {
+    verifyMigrationNotEmpty(underTest);
+  }
 
 }

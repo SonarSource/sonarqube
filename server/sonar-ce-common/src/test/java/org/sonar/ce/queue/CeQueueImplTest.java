@@ -43,6 +43,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
+import org.sonar.server.platform.WebServer;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
@@ -52,12 +53,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_MAIN_COMPONENT;
 
 public class CeQueueImplTest {
 
   private static final String WORKER_UUID = "workerUuid";
   private static final long NOW = 1_450_000_000_000L;
+  private static final String NODE_NAME = "nodeName1";
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 
@@ -68,7 +72,9 @@ public class CeQueueImplTest {
 
   private UuidFactory uuidFactory = new SequenceUuidFactory();
 
-  private CeQueue underTest = new CeQueueImpl(system2, db.getDbClient(), uuidFactory);
+  private WebServer nodeInformationProvider = mock(WebServer.class);
+
+  private CeQueue underTest = new CeQueueImpl(system2, db.getDbClient(), uuidFactory, nodeInformationProvider);
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
@@ -382,9 +388,35 @@ public class CeQueueImplTest {
 
     underTest.cancel(db.getSession(), queueDto);
 
-    Optional<CeActivityDto> activity = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
+    Optional<CeActivityDto> activity = findCeActivityDtoInDb(task);
     assertThat(activity).isPresent();
     assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+  }
+
+  @Test
+  public void cancel_pending_whenNodeNameProvided_setItInCeActivity() {
+    when(nodeInformationProvider.getNodeName()).thenReturn(Optional.of(NODE_NAME));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
+
+    underTest.cancel(db.getSession(), queueDto);
+
+    Optional<CeActivityDto> activity = findCeActivityDtoInDb(task);
+    assertThat(activity).isPresent();
+    assertThat(activity.get().getNodeName()).isEqualTo(NODE_NAME);
+  }
+
+  @Test
+  public void cancel_pending_whenNodeNameNOtProvided_setNulInCeActivity() {
+    when(nodeInformationProvider.getNodeName()).thenReturn(Optional.empty());
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
+
+    underTest.cancel(db.getSession(), queueDto);
+
+    Optional<CeActivityDto> activity = findCeActivityDtoInDb(task);
+    assertThat(activity).isPresent();
+    assertThat(activity.get().getNodeName()).isNull();
   }
 
   @Test
@@ -408,11 +440,11 @@ public class CeQueueImplTest {
     int canceledCount = underTest.cancelAll();
     assertThat(canceledCount).isEqualTo(2);
 
-    Optional<CeActivityDto> ceActivityInProgress = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask1.getUuid());
+    Optional<CeActivityDto> ceActivityInProgress = findCeActivityDtoInDb(pendingTask1);
     assertThat(ceActivityInProgress.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    Optional<CeActivityDto> ceActivityPending1 = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask2.getUuid());
+    Optional<CeActivityDto> ceActivityPending1 = findCeActivityDtoInDb(pendingTask2);
     assertThat(ceActivityPending1.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    Optional<CeActivityDto> ceActivityPending2 = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), inProgressTask.getUuid());
+    Optional<CeActivityDto> ceActivityPending2 = findCeActivityDtoInDb(inProgressTask);
     assertThat(ceActivityPending2).isNotPresent();
   }
 
@@ -430,7 +462,7 @@ public class CeQueueImplTest {
   @Test
   public void pauseWorkers_marks_workers_as_pausing_if_some_tasks_in_progress() {
     CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
-    db.getDbClient().ceQueueDao().tryToPeek(session, task.getUuid(),  WORKER_UUID);
+    db.getDbClient().ceQueueDao().tryToPeek(session, task.getUuid(), WORKER_UUID);
     // task is in-progress
 
     assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
@@ -477,13 +509,31 @@ public class CeQueueImplTest {
 
     underTest.fail(db.getSession(), queueDto, "TIMEOUT", "Failed on timeout");
 
-    Optional<CeActivityDto> activity = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
+    Optional<CeActivityDto> activity = findCeActivityDtoInDb(task);
     assertThat(activity).isPresent();
     assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.FAILED);
     assertThat(activity.get().getErrorType()).isEqualTo("TIMEOUT");
     assertThat(activity.get().getErrorMessage()).isEqualTo("Failed on timeout");
     assertThat(activity.get().getExecutedAt()).isEqualTo(NOW);
     assertThat(activity.get().getWorkerUuid()).isEqualTo(WORKER_UUID);
+    assertThat(activity.get().getNodeName()).isNull();
+  }
+
+  @Test
+  public void fail_in_progress_task_whenNodeNameProvided_setsItInCeActivityDto() {
+    when(nodeInformationProvider.getNodeName()).thenReturn(Optional.of(NODE_NAME));
+    CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeQueueDto queueDto = db.getDbClient().ceQueueDao().tryToPeek(db.getSession(), task.getUuid(), WORKER_UUID).get();
+
+    underTest.fail(db.getSession(), queueDto, "TIMEOUT", "Failed on timeout");
+
+    Optional<CeActivityDto> activity = findCeActivityDtoInDb(task);
+    assertThat(activity).isPresent();
+    assertThat(activity.get().getNodeName()).isEqualTo(NODE_NAME);
+  }
+
+  private Optional<CeActivityDto> findCeActivityDtoInDb(CeTask task) {
+    return db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
   }
 
   @Test

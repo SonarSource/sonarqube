@@ -49,6 +49,7 @@ import static org.sonar.db.ce.CeQueueTesting.makeInProgress;
 
 public class TaskFormatterTest {
 
+  private static final String NODE_NAME = "nodeName1";
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -187,6 +188,7 @@ public class TaskFormatterTest {
 
     assertThat(wsTask.getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(wsTask.getId()).isEqualTo("UUID");
+    assertThat(wsTask.getNodeName()).isEqualTo(NODE_NAME);
     assertThat(wsTask.getStatus()).isEqualTo(Ce.TaskStatus.FAILED);
     assertThat(wsTask.getSubmittedAt()).isEqualTo(DateUtils.formatDateTime(new Date(1_450_000_000_000L)));
     assertThat(wsTask.getSubmitterLogin()).isEqualTo(user.getLogin());
@@ -282,6 +284,7 @@ public class TaskFormatterTest {
     testActivityDto.setWarningCount(warningCount);
     return testActivityDto
       .setStatus(status)
+      .setNodeName(NODE_NAME)
       .setExecutionTimeMs(500L)
       .setAnalysisUuid("U1");
   }

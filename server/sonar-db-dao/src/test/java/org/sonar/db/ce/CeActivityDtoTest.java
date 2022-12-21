@@ -26,6 +26,7 @@ import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @RunWith(DataProviderRunner.class)
 public class CeActivityDtoTest {
   private static final String STR_40_CHARS = "0123456789012345678901234567890123456789";
+  private static final String STR_100_CHARS = randomAlphabetic(100);
   private CeActivityDto underTest = new CeActivityDto();
 
   @Test
@@ -97,6 +99,21 @@ public class CeActivityDtoTest {
     assertThatThrownBy(() -> underTest.setMainComponentUuid(str_41_chars))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Value is too long for column CE_ACTIVITY.MAIN_COMPONENT_UUID: " + str_41_chars);
+  }
+
+  @Test
+  public void setNodeName_accepts_null_empty_and_string_100_chars_or_less() {
+    underTest.setNodeName(null);
+    underTest.setNodeName("");
+    underTest.setNodeName("bar");
+    underTest.setNodeName(STR_100_CHARS);
+    assertThat(underTest.getNodeName()).isEqualTo(STR_100_CHARS);
+  }
+
+  @Test
+  public void setNodeName_ifMoreThan100chars_truncates() {
+    underTest.setNodeName(STR_100_CHARS + "This should be truncated");
+    assertThat(underTest.getNodeName()).isEqualTo(STR_100_CHARS);
   }
 
   @Test

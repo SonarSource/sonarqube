@@ -69,4 +69,40 @@ public class WebServerImplTest {
     assertThat(underTest.isStartupLeader()).isFalse();
   }
 
+  @Test
+  public void getNodeName_whenNotACluster_isEmpty() {
+    settings.setProperty("sonar.cluster.enabled", "false");
+    settings.setProperty("sonar.cluster.node.name", "nameIgnored");
+
+    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
+
+    assertThat(underTest.getNodeName()).isEmpty();
+  }
+
+  @Test
+  public void getNodeName_whenClusterAndNameNotDefined_fallbacksToDefaultName() {
+    settings.setProperty("sonar.cluster.enabled", "true");
+    settings.removeProperty("sonar.cluster.node.name");
+
+    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
+
+    assertThat(underTest.getNodeName()).isNotEmpty();
+    String nodeNameFirstCallToGetNodeName = underTest.getNodeName().get();
+    assertThat(nodeNameFirstCallToGetNodeName).startsWith("sonarqube-");
+    String nodeNameSecondCallToGetNodeName = underTest.getNodeName().get();
+    assertThat(nodeNameFirstCallToGetNodeName).isEqualTo(nodeNameSecondCallToGetNodeName);
+  }
+
+  @Test
+  public void getNodeName_whenClusterAndNameDefined_returnName() {
+    String nodeName = "nodeName1";
+    settings.setProperty("sonar.cluster.enabled", "true");
+    settings.setProperty("sonar.cluster.node.name", nodeName);
+
+    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
+
+    assertThat(underTest.getNodeName()).isNotEmpty();
+    assertThat(underTest.getNodeName().get()).startsWith(nodeName);
+  }
+
 }

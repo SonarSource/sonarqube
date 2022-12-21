@@ -84,6 +84,7 @@ import static org.sonar.server.ce.ws.CeWsParameters.PARAM_TYPE;
 public class ActivityActionTest {
 
   private static final long EXECUTED_AT = System2.INSTANCE.now();
+  private static final String NODE_NAME = "nodeName1";
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -111,6 +112,7 @@ public class ActivityActionTest {
     Task task = activityResponse.getTasks(0);
     assertThat(task.getId()).isEqualTo("T2");
     assertThat(task.getStatus()).isEqualTo(Ce.TaskStatus.FAILED);
+    assertThat(task.getNodeName()).isEqualTo(NODE_NAME);
     assertThat(task.getComponentId()).isEqualTo(project2.uuid());
     assertThat(task.hasAnalysisId()).isFalse();
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
@@ -118,6 +120,7 @@ public class ActivityActionTest {
 
     task = activityResponse.getTasks(1);
     assertThat(task.getId()).isEqualTo("T1");
+    assertThat(task.getNodeName()).isEqualTo(NODE_NAME);
     assertThat(task.getStatus()).isEqualTo(Ce.TaskStatus.SUCCESS);
     assertThat(task.getComponentId()).isEqualTo(project1.uuid());
     assertThat(task.getWarningCount()).isZero();
@@ -678,6 +681,7 @@ public class ActivityActionTest {
     activityDto.setStatus(status);
     activityDto.setExecutionTimeMs(500L);
     activityDto.setExecutedAt(EXECUTED_AT);
+    activityDto.setNodeName(NODE_NAME);
     activityDto.setAnalysisUuid(analysis == null ? null : analysis.getUuid());
     db.getDbClient().ceActivityDao().insert(db.getSession(), activityDto);
     db.commit();

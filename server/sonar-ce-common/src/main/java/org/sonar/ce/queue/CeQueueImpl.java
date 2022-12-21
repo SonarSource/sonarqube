@@ -49,6 +49,7 @@ import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.DeleteIf;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.platform.WebServer;
 import org.sonar.server.property.InternalProperties;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -68,11 +69,13 @@ public class CeQueueImpl implements CeQueue {
   private final System2 system2;
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
+  protected final WebServer webServer;
 
-  public CeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory) {
+  public CeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, WebServer webServer) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
+    this.webServer = webServer;
   }
 
   @Override
@@ -243,6 +246,7 @@ public class CeQueueImpl implements CeQueue {
 
   private void cancelImpl(DbSession dbSession, CeQueueDto q) {
     CeActivityDto activityDto = new CeActivityDto(q);
+    activityDto.setNodeName(webServer.getNodeName().orElse(null));
     activityDto.setStatus(CeActivityDto.Status.CANCELED);
     remove(dbSession, q, activityDto);
   }
@@ -251,13 +255,14 @@ public class CeQueueImpl implements CeQueue {
   public void fail(DbSession dbSession, CeQueueDto task, @Nullable String errorType, @Nullable String errorMessage) {
     checkState(IN_PROGRESS.equals(task.getStatus()), "Task is not in-progress and can't be marked as failed [uuid=%s]", task.getUuid());
     CeActivityDto activityDto = new CeActivityDto(task);
+    activityDto.setNodeName(webServer.getNodeName().orElse(null));
     activityDto.setStatus(CeActivityDto.Status.FAILED);
     activityDto.setErrorType(errorType);
     activityDto.setErrorMessage(errorMessage);
     updateExecutionFields(activityDto);
     remove(dbSession, task, activityDto);
   }
-
+  
   protected long updateExecutionFields(CeActivityDto activityDto) {
     Long startedAt = activityDto.getStartedAt();
     if (startedAt == null) {

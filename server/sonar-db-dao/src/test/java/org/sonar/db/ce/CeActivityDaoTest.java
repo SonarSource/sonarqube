@@ -71,6 +71,7 @@ public class CeActivityDaoTest {
   private static final String COMPONENT_1 = randomAlphabetic(14);
 
   private static final long INITIAL_TIME = 1_450_000_000_000L;
+  private static final String NODE_NAME = "node1";
 
   private final TestSystem2 system2 = new TestSystem2().setNow(INITIAL_TIME);
 
@@ -93,6 +94,7 @@ public class CeActivityDaoTest {
     assertThat(saved).isPresent();
     CeActivityDto dto = saved.get();
     assertThat(dto.getUuid()).isEqualTo("TASK_1");
+    assertThat(dto.getNodeName()).isEqualTo(NODE_NAME);
     assertThat(dto.getMainComponentUuid()).isEqualTo(MAINCOMPONENT_1);
     assertThat(dto.getComponentUuid()).isEqualTo(COMPONENT_1);
     assertThat(dto.getStatus()).isEqualTo(SUCCESS);
@@ -858,6 +860,7 @@ public class CeActivityDaoTest {
     CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().selectByUuid(dbSession, uuid).get();
 
     CeActivityDto dto = new CeActivityDto(ceQueueDto);
+    dto.setNodeName(NODE_NAME);
     dto.setStatus(status);
     dto.setStartedAt(1_500_000_000_000L);
     dto.setExecutedAt(1_500_000_000_500L);

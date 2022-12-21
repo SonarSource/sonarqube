@@ -30,7 +30,8 @@ import static java.lang.String.format;
 
 public class CeActivityDto {
 
-  private static final int MAX_SIZE_ERROR_MESSAGE = 1000;
+  private static final int ERROR_MESSAGE_MAX_SIZE = 1000;
+  private static final int NODE_NAME_MAX_SIZE = 100;
 
   public enum Status {
     SUCCESS, FAILED, CANCELED
@@ -104,6 +105,8 @@ public class CeActivityDto {
    * This property can not be populated when inserting but <strong>is populated when retrieving the activity by UUID</strong>.
    */
   private int warningCount = 0;
+
+  private String nodeName;
 
   CeActivityDto() {
     // required for MyBatis
@@ -287,7 +290,7 @@ public class CeActivityDto {
   }
 
   public CeActivityDto setErrorMessage(@Nullable String errorMessage) {
-    this.errorMessage = ensureNotTooBig(removeCharZeros(errorMessage), MAX_SIZE_ERROR_MESSAGE);
+    this.errorMessage = ensureNotTooBig(removeCharZeros(errorMessage), ERROR_MESSAGE_MAX_SIZE);
     return this;
   }
 
@@ -331,10 +334,21 @@ public class CeActivityDto {
     return this;
   }
 
+  @CheckForNull
+  public String getNodeName() {
+    return nodeName;
+  }
+
+  public CeActivityDto setNodeName(@Nullable String nodeName) {
+    this.nodeName = ensureNotTooBig(nodeName, NODE_NAME_MAX_SIZE);
+    return this;
+  }
+
   @Override
   public String toString() {
     return "CeActivityDto{" +
       "uuid='" + uuid + '\'' +
+      ", nodeName='" + nodeName + '\'' +
       ", componentUuid='" + componentUuid + '\'' +
       ", mainComponentUuid='" + mainComponentUuid + '\'' +
       ", analysisUuid='" + analysisUuid + '\'' +
