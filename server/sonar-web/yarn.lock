@@ -2896,7 +2896,7 @@ __metadata:
     http-proxy: 1.18.1
     jest: 29.3.1
     jest-environment-jsdom: 29.3.1
-    jest-junit: 13.0.0
+    jest-junit: 15.0.0
     jsdom: 20.0.3
     lodash: 4.17.21
     lunr: 2.3.9
@@ -7082,15 +7082,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-junit@npm:13.0.0":
-  version: 13.0.0
-  resolution: "jest-junit@npm:13.0.0"
+"jest-junit@npm:15.0.0":
+  version: 15.0.0
+  resolution: "jest-junit@npm:15.0.0"
   dependencies:
     mkdirp: ^1.0.4
     strip-ansi: ^6.0.1
     uuid: ^8.3.2
     xml: ^1.0.1
-  checksum: d3a1bf6e98250837d1a9939cd54f29a7bd4fb835af30e92d0d544300fbe634eb86d2b018c79a7a35b123d933bf3e6c96ba13c0161cdefbf66fc3ab771707572e
+  checksum: e8fe4d2f2ab843383ac41820a6fe495739d154ec435cd44ba590b44ec7fd62095676f3eef13f98392f81d4a3727ea58b4f4fad231fe367ac31243952b9ad716f
   languageName: node
   linkType: hard
 
