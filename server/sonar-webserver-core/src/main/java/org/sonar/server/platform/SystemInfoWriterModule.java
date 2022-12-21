@@ -37,21 +37,21 @@ import org.sonar.server.platform.monitoring.cluster.CeQueueGlobalSection;
 import org.sonar.server.platform.monitoring.cluster.EsClusterStateSection;
 import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.GlobalSystemSection;
-import org.sonar.server.platform.monitoring.cluster.ServerPushSection;
 import org.sonar.server.platform.monitoring.cluster.NodeSystemSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoaderImpl;
+import org.sonar.server.platform.monitoring.cluster.ServerPushSection;
 
 public class SystemInfoWriterModule extends Module {
-  private final WebServer webServer;
+  private final NodeInformation nodeInformation;
 
-  public SystemInfoWriterModule(WebServer webServer) {
-    this.webServer = webServer;
+  public SystemInfoWriterModule(NodeInformation nodeInformation) {
+    this.nodeInformation = nodeInformation;
   }
 
   @Override
   protected void configureModule() {
-    boolean standalone = webServer.isStandalone();
+    boolean standalone = nodeInformation.isStandalone();
 
     add(
       new JvmPropertiesSection("Web JVM Properties"),

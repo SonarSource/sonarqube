@@ -36,7 +36,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -53,7 +53,7 @@ public class CancelActionTest {
   public DbTester db = DbTester.create();
 
   private System2 system2 = new TestSystem2();
-  private CeQueue queue = new CeQueueImpl(system2, db.getDbClient(), UuidFactoryFast.getInstance(), mock(WebServer.class));
+  private CeQueue queue = new CeQueueImpl(system2, db.getDbClient(), UuidFactoryFast.getInstance(), mock(NodeInformation.class));
 
   private CancelAction underTest = new CancelAction(userSession, db.getDbClient(), queue);
   private WsActionTester tester = new WsActionTester(underTest);

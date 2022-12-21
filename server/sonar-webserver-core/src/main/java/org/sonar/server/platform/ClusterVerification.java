@@ -19,27 +19,26 @@
  */
 package org.sonar.server.platform;
 
+import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.MessageException;
 
-import javax.annotation.Nullable;
-import javax.inject.Inject;
-
 @ServerSide
 public class ClusterVerification implements Startable {
 
-  private final WebServer server;
+  private final NodeInformation server;
   @Nullable
   private final ClusterFeature feature;
 
   @Inject
-  public ClusterVerification(WebServer server, @Nullable ClusterFeature feature) {
+  public ClusterVerification(NodeInformation server, @Nullable ClusterFeature feature) {
     this.server = server;
     this.feature = feature;
   }
 
-  public ClusterVerification(WebServer server) {
+  public ClusterVerification(NodeInformation server) {
     this(server, null);
   }
 

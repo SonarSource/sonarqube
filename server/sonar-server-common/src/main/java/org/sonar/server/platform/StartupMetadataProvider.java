@@ -39,8 +39,8 @@ import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 @ServerSide
 public class StartupMetadataProvider {
   @Bean("StartupMetadata")
-  public StartupMetadata provide(System2 system, SonarRuntime runtime, WebServer webServer, DbClient dbClient) {
-    if (runtime.getSonarQubeSide() == SonarQubeSide.SERVER && webServer.isStartupLeader()) {
+  public StartupMetadata provide(System2 system, SonarRuntime runtime, NodeInformation nodeInformation, DbClient dbClient) {
+    if (runtime.getSonarQubeSide() == SonarQubeSide.SERVER && nodeInformation.isStartupLeader()) {
       return generate(system);
     } else {
       return load(dbClient);

@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.process.cluster.health.SharedHealthState;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,13 +49,13 @@ import static org.sonar.server.health.Health.Status.YELLOW;
 
 public class HealthCheckerImplTest {
 
-  private final WebServer webServer = mock(WebServer.class);
+  private final NodeInformation nodeInformation = mock(NodeInformation.class);
   private final SharedHealthState sharedHealthState = mock(SharedHealthState.class);
   private final Random random = new Random();
 
   @Test
   public void check_returns_green_status_without_any_cause_when_there_is_no_NodeHealthCheck() {
-    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0]);
+    HealthCheckerImpl underTest = new HealthCheckerImpl(nodeInformation, new NodeHealthCheck[0]);
 
     assertThat(underTest.checkNode()).isEqualTo(Health.GREEN);
   }
@@ -109,15 +109,15 @@ public class HealthCheckerImplTest {
       .toArray(NodeHealthCheck[]::new);
     String[] expected = Arrays.stream(nodeHealthChecks).map(NodeHealthCheck::check).flatMap(s -> s.getCauses().stream()).toArray(String[]::new);
 
-    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, nodeHealthChecks);
+    HealthCheckerImpl underTest = new HealthCheckerImpl(nodeInformation, nodeHealthChecks);
 
     assertThat(underTest.checkNode().getCauses()).containsOnly(expected);
   }
 
   @Test
   public void checkCluster_fails_with_ISE_in_standalone() {
-    when(webServer.isStandalone()).thenReturn(true);
-    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
+    when(nodeInformation.isStandalone()).thenReturn(true);
+    HealthCheckerImpl underTest = new HealthCheckerImpl(nodeInformation, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
 
     assertThatThrownBy(() -> underTest.checkCluster())
       .isInstanceOf(IllegalStateException.class)
@@ -126,8 +126,8 @@ public class HealthCheckerImplTest {
 
   @Test
   public void checkCluster_fails_with_ISE_in_clustering_and_HealthState_is_null() {
-    when(webServer.isStandalone()).thenReturn(false);
-    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], new ClusterHealthCheck[0], null);
+    when(nodeInformation.isStandalone()).thenReturn(false);
+    HealthCheckerImpl underTest = new HealthCheckerImpl(nodeInformation, new NodeHealthCheck[0], new ClusterHealthCheck[0], null);
 
     assertThatThrownBy(() -> underTest.checkCluster())
       .isInstanceOf(IllegalStateException.class)
@@ -136,15 +136,15 @@ public class HealthCheckerImplTest {
 
   @Test
   public void checkCluster_returns_GREEN_when_there_is_no_ClusterHealthCheck() {
-    when(webServer.isStandalone()).thenReturn(false);
-    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
+    when(nodeInformation.isStandalone()).thenReturn(false);
+    HealthCheckerImpl underTest = new HealthCheckerImpl(nodeInformation, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
 
     assertThat(underTest.checkCluster().getHealth()).isEqualTo(Health.GREEN);
   }
 
   @Test
   public void checkCluster_returns_GREEN_status_if_only_GREEN_statuses_returned_by_ClusterHealthChecks() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     List<Health.Status> statuses = IntStream.range(1, 1 + random.nextInt(20)).mapToObj(i -> GREEN).collect(Collectors.toList());
     HealthCheckerImpl underTest = newClusterHealthCheckerImpl(statuses.stream());
 
@@ -155,7 +155,7 @@ public class HealthCheckerImplTest {
 
   @Test
   public void checkCluster_returns_YELLOW_status_if_only_GREEN_and_at_least_one_YELLOW_statuses_returned_by_ClusterHealthChecks() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     List<Health.Status> statuses = new ArrayList<>();
     Stream.concat(
       IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> YELLOW), // at least 1 YELLOW
@@ -170,7 +170,7 @@ public class HealthCheckerImplTest {
 
   @Test
   public void checkCluster_returns_RED_status_if_at_least_one_RED_status_returned_by_ClusterHealthChecks() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     List<Health.Status> statuses = new ArrayList<>();
     Stream.of(
         IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
@@ -188,7 +188,7 @@ public class HealthCheckerImplTest {
 
   @Test
   public void checkCluster_returns_causes_of_all_ClusterHealthChecks_whichever_their_status() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     List<String[]> causesGroups = IntStream.range(0, 1 + random.nextInt(20))
       .mapToObj(s -> IntStream.range(0, random.nextInt(3)).mapToObj(i -> randomAlphanumeric(3)).toArray(String[]::new))
       .collect(Collectors.toList());
@@ -198,14 +198,14 @@ public class HealthCheckerImplTest {
       .toArray(ClusterHealthCheck[]::new);
     String[] expectedCauses = causesGroups.stream().flatMap(Arrays::stream).toArray(String[]::new);
 
-    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], clusterHealthChecks, sharedHealthState);
+    HealthCheckerImpl underTest = new HealthCheckerImpl(nodeInformation, new NodeHealthCheck[0], clusterHealthChecks, sharedHealthState);
 
     assertThat(underTest.checkCluster().getHealth().getCauses()).containsOnly(expectedCauses);
   }
 
   @Test
   public void checkCluster_passes_set_of_NodeHealth_returns_by_HealthState_to_all_ClusterHealthChecks() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     ClusterHealthCheck[] mockedClusterHealthChecks = IntStream.range(0, 1 + random.nextInt(3))
       .mapToObj(i -> mock(ClusterHealthCheck.class))
       .toArray(ClusterHealthCheck[]::new);
@@ -215,7 +215,7 @@ public class HealthCheckerImplTest {
       when(mockedClusterHealthCheck.check(same(nodeHealths))).thenReturn(Health.GREEN);
     }
 
-    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], mockedClusterHealthChecks, sharedHealthState);
+    HealthCheckerImpl underTest = new HealthCheckerImpl(nodeInformation, new NodeHealthCheck[0], mockedClusterHealthChecks, sharedHealthState);
     underTest.checkCluster();
 
     for (ClusterHealthCheck mockedClusterHealthCheck : mockedClusterHealthChecks) {
@@ -225,11 +225,11 @@ public class HealthCheckerImplTest {
 
   @Test
   public void checkCluster_returns_NodeHealths_returned_by_HealthState() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     Set<NodeHealth> nodeHealths = IntStream.range(0, 1 + random.nextInt(4)).mapToObj(i -> randomNodeHealth()).collect(Collectors.toSet());
     when(sharedHealthState.readAll()).thenReturn(nodeHealths);
 
-    HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
+    HealthCheckerImpl underTest = new HealthCheckerImpl(nodeInformation, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
 
     ClusterHealth clusterHealth = underTest.checkCluster();
     assertThat(clusterHealth.getNodes()).isEqualTo(nodeHealths);
@@ -251,14 +251,14 @@ public class HealthCheckerImplTest {
   private HealthCheckerImpl newNodeHealthCheckerImpl(Stream<Health.Status> statuses) {
     Stream<HardcodedHealthNodeCheck> staticHealthCheckStream = statuses.map(HardcodedHealthNodeCheck::new);
     return new HealthCheckerImpl(
-      webServer,
+      nodeInformation,
       staticHealthCheckStream.map(NodeHealthCheck.class::cast).toArray(NodeHealthCheck[]::new));
   }
 
   private HealthCheckerImpl newClusterHealthCheckerImpl(Stream<Health.Status> statuses) {
     Stream<HardcodedHealthClusterCheck> staticHealthCheckStream = statuses.map(HardcodedHealthClusterCheck::new);
     return new HealthCheckerImpl(
-      webServer,
+      nodeInformation,
       new NodeHealthCheck[0],
       staticHealthCheckStream.map(ClusterHealthCheck.class::cast).toArray(ClusterHealthCheck[]::new),
       sharedHealthState);

@@ -29,7 +29,7 @@ import org.sonar.core.platform.ServerId;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.property.InternalProperties;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -45,21 +45,21 @@ public class ServerIdManager implements Startable {
   private final ServerIdFactory serverIdFactory;
   private final DbClient dbClient;
   private final SonarRuntime runtime;
-  private final WebServer webServer;
+  private final NodeInformation nodeInformation;
 
-  public ServerIdManager(ServerIdChecksum serverIdChecksum, ServerIdFactory serverIdFactory,
-    DbClient dbClient, SonarRuntime runtime, WebServer webServer) {
+  public ServerIdManager(ServerIdChecksum serverIdChecksum, ServerIdFactory serverIdFactory, DbClient dbClient, SonarRuntime runtime,
+    NodeInformation nodeInformation) {
     this.serverIdChecksum = serverIdChecksum;
     this.serverIdFactory = serverIdFactory;
     this.dbClient = dbClient;
     this.runtime = runtime;
-    this.webServer = webServer;
+    this.nodeInformation = nodeInformation;
   }
 
   @Override
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (runtime.getSonarQubeSide() == SonarQubeSide.SERVER && webServer.isStartupLeader()) {
+      if (runtime.getSonarQubeSide() == SonarQubeSide.SERVER && nodeInformation.isStartupLeader()) {
         Optional<String> checksum = dbClient.internalPropertiesDao().selectByKey(dbSession, SERVER_ID_CHECKSUM);
 
         ServerId serverId = readCurrentServerId(dbSession)

@@ -23,19 +23,19 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 
 public class HealthAction implements SystemWsAction {
-  private final WebServer webServer;
+  private final NodeInformation nodeInformation;
   private final HealthActionSupport support;
   private final SystemPasscode systemPasscode;
   private final UserSession userSession;
 
-  public HealthAction(WebServer webServer, HealthActionSupport support, SystemPasscode systemPasscode, UserSession userSession) {
-    this.webServer = webServer;
+  public HealthAction(NodeInformation nodeInformation, HealthActionSupport support, SystemPasscode systemPasscode, UserSession userSession) {
+    this.nodeInformation = nodeInformation;
     this.support = support;
     this.systemPasscode = systemPasscode;
     this.userSession = userSession;
@@ -52,7 +52,7 @@ public class HealthAction implements SystemWsAction {
       throw new ForbiddenException("Insufficient privileges");
     }
 
-    if (webServer.isStandalone()) {
+    if (nodeInformation.isStandalone()) {
       WsUtils.writeProtobuf(support.checkNodeHealth(), request, response);
     } else {
       WsUtils.writeProtobuf(support.checkClusterHealth(), request, response);

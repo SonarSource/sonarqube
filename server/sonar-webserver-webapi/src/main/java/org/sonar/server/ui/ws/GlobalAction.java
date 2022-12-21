@@ -39,7 +39,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifier;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.VersionFormatter;
 import org.sonar.server.ui.WebAnalyticsLoader;
@@ -69,7 +69,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final Configuration config;
   private final ResourceTypes resourceTypes;
   private final Server server;
-  private final WebServer webServer;
+  private final NodeInformation nodeInformation;
   private final DbClient dbClient;
   private final UserSession userSession;
   private final PlatformEditionProvider editionProvider;
@@ -78,14 +78,14 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
-    WebServer webServer, DbClient dbClient, UserSession userSession, PlatformEditionProvider editionProvider,
+    NodeInformation nodeInformation, DbClient dbClient, UserSession userSession, PlatformEditionProvider editionProvider,
     WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker,
     DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;
     this.server = server;
-    this.webServer = webServer;
+    this.nodeInformation = nodeInformation;
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.editionProvider = editionProvider;
@@ -129,7 +129,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeInstanceUsesDefaultAdminCredentials(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
       writeNeedIssueSync(json);
-      json.prop("standalone", webServer.isStandalone());
+      json.prop("standalone", nodeInformation.isStandalone());
       writeWebAnalytics(json);
       json.endObject();
     }

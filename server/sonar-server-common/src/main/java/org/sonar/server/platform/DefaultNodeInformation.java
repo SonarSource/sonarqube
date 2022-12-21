@@ -27,18 +27,18 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_WEB_STARTUP_LEADER;
 
-public class WebServerImpl implements WebServer {
+public class DefaultNodeInformation implements NodeInformation {
 
   private final boolean clusterEnabled;
   private final boolean startupLeader;
   private final String nodeName;
 
-  public WebServerImpl(Configuration config) {
+  public DefaultNodeInformation(Configuration config) {
     this.clusterEnabled = config.getBoolean(CLUSTER_ENABLED.getKey()).orElse(false);
     if (this.clusterEnabled) {
       this.startupLeader = config.getBoolean(CLUSTER_WEB_STARTUP_LEADER.getKey()).orElse(false);
       this.nodeName = config.get(CLUSTER_NODE_NAME.getKey()).orElse(CLUSTER_NODE_NAME.getDefaultValue());
-      Loggers.get(WebServerImpl.class).info("Cluster enabled (startup {})", startupLeader ? "leader" : "follower");
+      Loggers.get(DefaultNodeInformation.class).info("Cluster enabled (startup {})", startupLeader ? "leader" : "follower");
     } else {
       this.startupLeader = true;
       this.nodeName = null;

@@ -46,15 +46,15 @@ public class StartupMetadataProviderTest {
 
   private final StartupMetadataProvider underTest = new StartupMetadataProvider();
   private final System2 system = mock(System2.class);
-  private final WebServer webServer = mock(WebServer.class);
+  private final NodeInformation nodeInformation = mock(NodeInformation.class);
 
   @Test
   public void generate_SERVER_STARTIME_but_do_not_persist_it_if_server_is_startup_leader() {
     when(system.now()).thenReturn(A_DATE);
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
-    when(webServer.isStartupLeader()).thenReturn(true);
+    when(nodeInformation.isStartupLeader()).thenReturn(true);
 
-    StartupMetadata metadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());
+    StartupMetadata metadata = underTest.provide(system, runtime, nodeInformation, dbTester.getDbClient());
     assertThat(metadata.getStartedAt()).isEqualTo(A_DATE);
 
     assertNotPersistedProperty(CoreProperties.SERVER_STARTTIME);
@@ -63,7 +63,7 @@ public class StartupMetadataProviderTest {
   @Test
   public void load_from_database_if_server_is_startup_follower() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
-    when(webServer.isStartupLeader()).thenReturn(false);
+    when(nodeInformation.isStartupLeader()).thenReturn(false);
 
     testLoadingFromDatabase(runtime, false);
   }
@@ -85,9 +85,9 @@ public class StartupMetadataProviderTest {
   @Test
   public void fail_to_load_from_database_if_properties_are_not_persisted() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.COMPUTE_ENGINE, SonarEdition.COMMUNITY);
-    when(webServer.isStartupLeader()).thenReturn(false);
+    when(nodeInformation.isStartupLeader()).thenReturn(false);
 
-    assertThatThrownBy(() -> underTest.provide(system, runtime, webServer, dbTester.getDbClient()))
+    assertThatThrownBy(() -> underTest.provide(system, runtime, nodeInformation, dbTester.getDbClient()))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Property sonar.core.startTime is missing in database");
   }
@@ -95,9 +95,9 @@ public class StartupMetadataProviderTest {
   private void testLoadingFromDatabase(SonarRuntime runtime, boolean isStartupLeader) {
     dbTester.properties().insertProperty(new PropertyDto().setKey(CoreProperties.SERVER_STARTTIME).setValue(formatDateTime(A_DATE)),
       null, null,null, null);
-    when(webServer.isStartupLeader()).thenReturn(isStartupLeader);
+    when(nodeInformation.isStartupLeader()).thenReturn(isStartupLeader);
 
-    StartupMetadata metadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());
+    StartupMetadata metadata = underTest.provide(system, runtime, nodeInformation, dbTester.getDbClient());
     assertThat(metadata.getStartedAt()).isEqualTo(A_DATE);
 
     // still in database

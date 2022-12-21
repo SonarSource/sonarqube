@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import org.junit.Test;
+import org.sonar.core.platform.ListContainer;
 import org.sonar.server.health.AppNodeClusterCheck;
 import org.sonar.server.health.CeStatusNodeCheck;
 import org.sonar.server.health.ClusterHealthCheck;
@@ -32,21 +33,20 @@ import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
 import org.sonar.server.health.NodeHealthCheck;
 import org.sonar.server.health.WebServerStatusNodeCheck;
-import org.sonar.core.platform.ListContainer;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HealthCheckerModuleTest {
-  private final WebServer webServer = mock(WebServer.class);
-  private final HealthCheckerModule underTest = new HealthCheckerModule(webServer);
+  private final NodeInformation nodeInformation = mock(NodeInformation.class);
+  private final HealthCheckerModule underTest = new HealthCheckerModule(nodeInformation);
 
   @Test
   public void verify_HealthChecker() {
     boolean standalone = new Random().nextBoolean();
-    when(webServer.isStandalone()).thenReturn(standalone);
+    when(nodeInformation.isStandalone()).thenReturn(standalone);
     ListContainer container = new ListContainer();
 
     underTest.configure(container);
@@ -61,7 +61,7 @@ public class HealthCheckerModuleTest {
 
   @Test
   public void verify_installed_NodeHealthChecks_implementations_when_standalone() {
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
     ListContainer container = new ListContainer();
 
     underTest.configure(container);
@@ -75,7 +75,7 @@ public class HealthCheckerModuleTest {
 
   @Test
   public void verify_installed_NodeHealthChecks_implementations_when_clustered() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     ListContainer container = new ListContainer();
 
     underTest.configure(container);
@@ -89,7 +89,7 @@ public class HealthCheckerModuleTest {
 
   @Test
   public void verify_installed_ClusterHealthChecks_implementations_in_standalone() {
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
     ListContainer container = new ListContainer();
 
     underTest.configure(container);
@@ -103,7 +103,7 @@ public class HealthCheckerModuleTest {
 
   @Test
   public void verify_installed_ClusterHealthChecks_implementations_in_clustering() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     ListContainer container = new ListContainer();
 
     underTest.configure(container);

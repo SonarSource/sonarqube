@@ -24,12 +24,11 @@ import java.util.stream.IntStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import static org.mockito.Mockito.mock;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 public class PlatformLevelTest {
 
@@ -61,7 +60,7 @@ public class PlatformLevelTest {
 
   @Test
   public void addIfStartupLeader_always_returns_the_same_instance() {
-    underTest.add(mock(WebServer.class));
+    underTest.add(mock(NodeInformation.class));
 
     PlatformLevel.AddIfStartupLeader addIfStartupLeader = underTest.addIfStartupLeader();
     IntStream.range(0, 1 + new Random().nextInt(4)).forEach(i -> assertThat(underTest.addIfStartupLeader()).isSameAs(addIfStartupLeader));
@@ -76,7 +75,7 @@ public class PlatformLevelTest {
 
   @Test
   public void addIfCluster_always_returns_the_same_instance() {
-    underTest.add(mock(WebServer.class));
+    underTest.add(mock(NodeInformation.class));
 
     PlatformLevel.AddIfCluster addIfCluster = underTest.addIfCluster();
     IntStream.range(0, 1 + new Random().nextInt(4)).forEach(i -> assertThat(underTest.addIfCluster()).isSameAs(addIfCluster));
@@ -91,7 +90,7 @@ public class PlatformLevelTest {
 
   @Test
   public void addIfStandalone_always_returns_the_same_instance() {
-    underTest.add(mock(WebServer.class));
+    underTest.add(mock(NodeInformation.class));
 
     PlatformLevel.AddIfCluster addIfCluster = underTest.addIfCluster();
     IntStream.range(0, 1 + new Random().nextInt(4)).forEach(i -> assertThat(underTest.addIfCluster()).isSameAs(addIfCluster));

@@ -43,7 +43,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
@@ -72,9 +72,9 @@ public class CeQueueImplTest {
 
   private UuidFactory uuidFactory = new SequenceUuidFactory();
 
-  private WebServer nodeInformationProvider = mock(WebServer.class);
+  private NodeInformation nodeInformation = mock(NodeInformation.class);
 
-  private CeQueue underTest = new CeQueueImpl(system2, db.getDbClient(), uuidFactory, nodeInformationProvider);
+  private CeQueue underTest = new CeQueueImpl(system2, db.getDbClient(), uuidFactory, nodeInformation);
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
@@ -395,7 +395,7 @@ public class CeQueueImplTest {
 
   @Test
   public void cancel_pending_whenNodeNameProvided_setItInCeActivity() {
-    when(nodeInformationProvider.getNodeName()).thenReturn(Optional.of(NODE_NAME));
+    when(nodeInformation.getNodeName()).thenReturn(Optional.of(NODE_NAME));
     CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
@@ -408,7 +408,7 @@ public class CeQueueImplTest {
 
   @Test
   public void cancel_pending_whenNodeNameNOtProvided_setNulInCeActivity() {
-    when(nodeInformationProvider.getNodeName()).thenReturn(Optional.empty());
+    when(nodeInformation.getNodeName()).thenReturn(Optional.empty());
     CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
@@ -521,7 +521,7 @@ public class CeQueueImplTest {
 
   @Test
   public void fail_in_progress_task_whenNodeNameProvided_setsItInCeActivityDto() {
-    when(nodeInformationProvider.getNodeName()).thenReturn(Optional.of(NODE_NAME));
+    when(nodeInformation.getNodeName()).thenReturn(Optional.of(NODE_NAME));
     CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().tryToPeek(db.getSession(), task.getUuid(), WORKER_UUID).get();
 

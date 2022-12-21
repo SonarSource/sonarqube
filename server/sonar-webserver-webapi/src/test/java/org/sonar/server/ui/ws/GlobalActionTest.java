@@ -39,7 +39,7 @@ import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifier;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoader;
@@ -61,7 +61,7 @@ public class GlobalActionTest {
   private final MapSettings settings = new MapSettings();
 
   private final Server server = mock(Server.class);
-  private final WebServer webServer = mock(WebServer.class);
+  private final NodeInformation nodeInformation = mock(NodeInformation.class);
   private final DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
   private final IssueIndexSyncProgressChecker indexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
   private final BranchFeatureRule branchFeature = new BranchFeatureRule();
@@ -244,7 +244,7 @@ public class GlobalActionTest {
   public void standalone_flag() {
     init();
     userSession.logIn().setSystemAdministrator();
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
 
     assertJson(call()).isSimilarTo("{\"standalone\":true}");
   }
@@ -253,7 +253,7 @@ public class GlobalActionTest {
   public void not_standalone_flag() {
     init();
     userSession.logIn().setSystemAdministrator();
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
 
     assertJson(call()).isSimilarTo("{\"standalone\":false}");
   }
@@ -280,7 +280,7 @@ public class GlobalActionTest {
     });
     when(server.getVersion()).thenReturn("6.2");
     when(dbClient.getDatabase().getDialect()).thenReturn(new PostgreSql());
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
 
     String result = call();
@@ -343,7 +343,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-      webServer, dbClient, userSession, editionProvider, webAnalyticsLoader,
+      nodeInformation, dbClient, userSession, editionProvider, webAnalyticsLoader,
       indexSyncProgressChecker, defaultAdminCredentialsVerifier);
     ws = new WsActionTester(wsAction);
     wsAction.start();

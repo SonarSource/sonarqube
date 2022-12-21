@@ -36,7 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.property.InternalProperties;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -66,7 +66,7 @@ public class ServerIdManagerTest {
   private final ServerIdFactory serverIdFactory = mock(ServerIdFactory.class);
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
-  private final WebServer webServer = mock(WebServer.class);
+  private final NodeInformation nodeInformation = mock(NodeInformation.class);
   private ServerIdManager underTest;
 
   @After
@@ -80,7 +80,7 @@ public class ServerIdManagerTest {
   public void web_leader_persists_new_server_id_if_missing() {
     mockCreateNewServerId();
     mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    when(webServer.isStartupLeader()).thenReturn(true);
+    when(nodeInformation.isStartupLeader()).thenReturn(true);
 
     test(SERVER);
 
@@ -93,7 +93,7 @@ public class ServerIdManagerTest {
     insertServerId("");
     mockCreateNewServerId();
     mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    when(webServer.isStartupLeader()).thenReturn(true);
+    when(nodeInformation.isStartupLeader()).thenReturn(true);
 
     test(SERVER);
 
@@ -106,7 +106,7 @@ public class ServerIdManagerTest {
     insertServerId(WITH_DATABASE_ID_SERVER_ID);
     insertChecksum(CHECKSUM_1);
     mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    when(webServer.isStartupLeader()).thenReturn(true);
+    when(nodeInformation.isStartupLeader()).thenReturn(true);
 
     test(SERVER);
 
@@ -121,7 +121,7 @@ public class ServerIdManagerTest {
     mockChecksumOf(currentServerId, "matches_WITH_DATABASE_ID_SERVER_ID");
     mockCreateNewServerIdFrom(currentServerId);
     mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    when(webServer.isStartupLeader()).thenReturn(true);
+    when(nodeInformation.isStartupLeader()).thenReturn(true);
 
     test(SERVER);
 
@@ -133,7 +133,7 @@ public class ServerIdManagerTest {
   public void web_leader_generates_missing_checksum_for_current_serverId_with_databaseId() {
     insertServerId(WITH_DATABASE_ID_SERVER_ID);
     mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    when(webServer.isStartupLeader()).thenReturn(true);
+    when(nodeInformation.isStartupLeader()).thenReturn(true);
 
     test(SERVER);
 
@@ -145,7 +145,7 @@ public class ServerIdManagerTest {
     insertServerId(WITH_DATABASE_ID_SERVER_ID);
     insertChecksum(CHECKSUM_1);
     mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    when(webServer.isStartupLeader()).thenReturn(false);
+    when(nodeInformation.isStartupLeader()).thenReturn(false);
 
     test(SERVER);
 
@@ -155,7 +155,7 @@ public class ServerIdManagerTest {
 
   @Test
   public void web_follower_fails_if_server_id_is_missing() {
-    when(webServer.isStartupLeader()).thenReturn(false);
+    when(nodeInformation.isStartupLeader()).thenReturn(false);
 
     expectMissingServerIdException(() -> test(SERVER));
   }
@@ -163,7 +163,7 @@ public class ServerIdManagerTest {
   @Test
   public void web_follower_fails_if_server_id_is_empty() {
     insertServerId("");
-    when(webServer.isStartupLeader()).thenReturn(false);
+    when(nodeInformation.isStartupLeader()).thenReturn(false);
 
     expectEmptyServerIdException(() -> test(SERVER));
   }
@@ -174,7 +174,7 @@ public class ServerIdManagerTest {
     insertServerId(WITH_DATABASE_ID_SERVER_ID);
     insertChecksum(dbChecksum);
     mockChecksumOf(WITH_DATABASE_ID_SERVER_ID, CHECKSUM_1);
-    when(webServer.isStartupLeader()).thenReturn(false);
+    when(nodeInformation.isStartupLeader()).thenReturn(false);
 
     try {
       test(SERVER);
@@ -286,7 +286,7 @@ public class ServerIdManagerTest {
 
   private void test(SonarQubeSide side) {
     underTest = new ServerIdManager(serverIdChecksum, serverIdFactory, dbClient, SonarRuntimeImpl
-      .forSonarQube(Version.create(6, 7), side, SonarEdition.COMMUNITY), webServer);
+      .forSonarQube(Version.create(6, 7), side, SonarEdition.COMMUNITY), nodeInformation);
     underTest.start();
   }
 }

@@ -20,18 +20,18 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 
 public class ChangeLogLevelServiceModule extends Module {
-  private final WebServer webServer;
+  private final NodeInformation nodeInformation;
 
-  public ChangeLogLevelServiceModule(WebServer webServer) {
-    this.webServer = webServer;
+  public ChangeLogLevelServiceModule(NodeInformation nodeInformation) {
+    this.nodeInformation = nodeInformation;
   }
 
   @Override
   protected void configureModule() {
-    if (webServer.isStandalone()) {
+    if (nodeInformation.isStandalone()) {
       add(ChangeLogLevelStandaloneService.class);
     } else {
       add(ChangeLogLevelClusterService.class);

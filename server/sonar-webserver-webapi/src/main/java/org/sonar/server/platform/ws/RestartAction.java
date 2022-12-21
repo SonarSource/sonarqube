@@ -26,7 +26,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.app.RestartFlagHolder;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -39,14 +39,14 @@ public class RestartAction implements SystemWsAction {
   private final UserSession userSession;
   private final ProcessCommandWrapper processCommandWrapper;
   private final RestartFlagHolder restartFlagHolder;
-  private final WebServer webServer;
+  private final NodeInformation nodeInformation;
 
   public RestartAction(UserSession userSession, ProcessCommandWrapper processCommandWrapper, RestartFlagHolder restartFlagHolder,
-    WebServer webServer) {
+    NodeInformation nodeInformation) {
     this.userSession = userSession;
     this.processCommandWrapper = processCommandWrapper;
     this.restartFlagHolder = restartFlagHolder;
-    this.webServer = webServer;
+    this.nodeInformation = nodeInformation;
   }
 
   @Override
@@ -61,7 +61,7 @@ public class RestartAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    if (!webServer.isStandalone()) {
+    if (!nodeInformation.isStandalone()) {
       throw new IllegalArgumentException("Restart not allowed for cluster nodes");
     }
 

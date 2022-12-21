@@ -25,7 +25,7 @@ import org.sonar.api.server.ServerSide;
 
 @ComputeEngineSide
 @ServerSide
-public interface WebServer {
+public interface NodeInformation {
 
   /**
    * Node is standalone when property {@link org.sonar.process.ProcessProperties.Property#CLUSTER_ENABLED} is {@code false} or

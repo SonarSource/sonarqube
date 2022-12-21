@@ -21,19 +21,19 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Test;
 import org.sonar.core.platform.ListContainer;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ChangeLogLevelServiceModuleTest {
-  private final WebServer webServer = mock(WebServer.class);
-  private final ChangeLogLevelServiceModule underTest = new ChangeLogLevelServiceModule(webServer);
+  private final NodeInformation nodeInformation = mock(NodeInformation.class);
+  private final ChangeLogLevelServiceModule underTest = new ChangeLogLevelServiceModule(nodeInformation);
 
   @Test
   public void provide_returns_ChangeLogLevelClusterService() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     ListContainer container = new ListContainer();
 
     underTest.configure(container);
@@ -43,7 +43,7 @@ public class ChangeLogLevelServiceModuleTest {
 
   @Test
   public void provide_returns_ChangeLogLevelStandaloneService_if_SQ_standalone() {
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
     ListContainer container = new ListContainer();
 
     underTest.configure(container);

@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.SpringComponentContainer;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -144,10 +144,10 @@ public abstract class PlatformLevel {
     return addIfStandalone;
   }
 
-  protected WebServer getWebServer() {
+  protected NodeInformation getWebServer() {
     return Optional.ofNullable(parent)
-      .flatMap(p -> p.getOptional(WebServer.class))
-      .or(() -> getOptional(WebServer.class))
+      .flatMap(p -> p.getOptional(NodeInformation.class))
+      .or(() -> getOptional(NodeInformation.class))
       .orElseThrow(() -> new IllegalStateException("WebServer not available in the container"));
   }
 

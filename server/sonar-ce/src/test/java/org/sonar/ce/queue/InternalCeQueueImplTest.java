@@ -48,7 +48,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -83,15 +83,15 @@ public class InternalCeQueueImplTest {
   private ComputeEngineStatus computeEngineStatus = mock(ComputeEngineStatus.class);
   private Configuration config = mock(Configuration.class);
   private NextPendingTaskPicker nextPendingTaskPicker = new NextPendingTaskPicker(config, db.getDbClient());
-  private WebServer nodeInformationProvider = mock(WebServer.class);
+  private NodeInformation nodeInformation = mock(NodeInformation.class);
   private InternalCeQueue underTest = new InternalCeQueueImpl(system2, db.getDbClient(), uuidFactory, queueStatus,
-    computeEngineStatus, nextPendingTaskPicker, nodeInformationProvider);
+    computeEngineStatus, nextPendingTaskPicker, nodeInformation);
 
   @Before
   public void setUp() {
     when(config.getBoolean(any())).thenReturn(Optional.of(false));
     when(computeEngineStatus.getStatus()).thenReturn(STARTED);
-    when(nodeInformationProvider.getNodeName()).thenReturn(Optional.of(NODE_NAME));
+    when(nodeInformation.getNodeName()).thenReturn(Optional.of(NODE_NAME));
   }
 
   @Test
@@ -215,8 +215,8 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void remove_sets_nodeName_in_CeActivity_when_nodeInformationProvider_defines_node_name() {
-    when(nodeInformationProvider.getNodeName()).thenReturn(Optional.of(NODE_NAME));
+  public void remove_sets_nodeName_in_CeActivity_when_nodeInformation_defines_node_name() {
+    when(nodeInformation.getNodeName()).thenReturn(Optional.of(NODE_NAME));
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_2, true);
@@ -228,8 +228,8 @@ public class InternalCeQueueImplTest {
   }
 
   @Test
-  public void remove_do_not_set_nodeName_in_CeActivity_when_nodeInformationProvider_does_not_define_node_name() {
-    when(nodeInformationProvider.getNodeName()).thenReturn(Optional.empty());
+  public void remove_do_not_set_nodeName_in_CeActivity_when_nodeInformation_does_not_define_node_name() {
+    when(nodeInformation.getNodeName()).thenReturn(Optional.empty());
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_2, true);
@@ -278,7 +278,7 @@ public class InternalCeQueueImplTest {
     db.getDbClient().ceQueueDao().deleteByUuid(db.getSession(), task.getUuid());
     db.commit();
 
-    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatus, null, null, nodeInformationProvider);
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatus, null, null, nodeInformation);
 
     try {
       underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null);
@@ -295,7 +295,7 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
     db.getDbClient().ceQueueDao().deleteByUuid(db.getSession(), task.getUuid());
     db.commit();
-    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null, nodeInformationProvider);
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null, nodeInformation);
 
     try {
       underTest.remove(task, CeActivityDto.Status.FAILED, null, null);
@@ -313,7 +313,7 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
     db.executeUpdateSql("update ce_queue set status = 'PENDING', started_at = 123 where uuid = '" + task.getUuid() + "'");
     db.commit();
-    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null, nodeInformationProvider);
+    InternalCeQueueImpl underTest = new InternalCeQueueImpl(system2, db.getDbClient(), null, queueStatusMock, null, null, nodeInformation);
 
     underTest.cancelWornOuts();
 

@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.platform.SpringComponentContainer;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 import org.sonar.server.plugins.ServerPluginRepository;
 
@@ -60,12 +60,12 @@ public class PlatformLevel2Test {
     var parentContainer = mock(SpringComponentContainer.class);
     var container = mock(SpringComponentContainer.class);
     var platform = mock(PlatformLevel.class);
-    var webserver = mock(WebServer.class);
+    var webserver = mock(NodeInformation.class);
 
     when(parentContainer.createChild()).thenReturn(container);
     when(platform.getContainer()).thenReturn(parentContainer);
     when(parentContainer.getOptionalComponentByType(any())).thenReturn(Optional.empty());
-    when(container.getOptionalComponentByType(WebServer.class)).thenReturn(Optional.of(webserver));
+    when(container.getOptionalComponentByType(NodeInformation.class)).thenReturn(Optional.of(webserver));
     when(webserver.isStartupLeader()).thenReturn(true);
 
     PlatformLevel2 underTest = new PlatformLevel2(platform);
@@ -81,12 +81,12 @@ public class PlatformLevel2Test {
     var parentContainer = mock(SpringComponentContainer.class);
     var container = mock(SpringComponentContainer.class);
     var platform = mock(PlatformLevel.class);
-    var webserver = mock(WebServer.class);
+    var webserver = mock(NodeInformation.class);
 
     when(parentContainer.createChild()).thenReturn(container);
     when(platform.getContainer()).thenReturn(parentContainer);
     when(parentContainer.getOptionalComponentByType(any())).thenReturn(Optional.empty());
-    when(container.getOptionalComponentByType(WebServer.class)).thenReturn(Optional.of(webserver));
+    when(container.getOptionalComponentByType(NodeInformation.class)).thenReturn(Optional.of(webserver));
     when(webserver.isStartupLeader()).thenReturn(false);
 
     PlatformLevel2 underTest = new PlatformLevel2(platform);

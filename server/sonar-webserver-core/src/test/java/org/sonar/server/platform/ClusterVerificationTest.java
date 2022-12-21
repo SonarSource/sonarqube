@@ -31,14 +31,14 @@ public class ClusterVerificationTest {
   private static final String ERROR_MESSAGE = "Cluster mode can't be enabled. Please install the Data Center Edition. More details at https://redirect.sonarsource.com/editions/datacenter.html.";
 
 
-  private WebServer webServer = mock(WebServer.class);
+  private NodeInformation nodeInformation = mock(NodeInformation.class);
   private ClusterFeature feature = mock(ClusterFeature.class);
 
   @Test
   public void throw_MessageException_if_cluster_is_enabled_but_HA_plugin_is_not_installed() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
 
-    ClusterVerification underTest = new ClusterVerification(webServer);
+    ClusterVerification underTest = new ClusterVerification(nodeInformation);
 
     assertThatThrownBy(underTest::start)
       .isInstanceOf(MessageException.class)
@@ -47,9 +47,9 @@ public class ClusterVerificationTest {
 
   @Test
   public void throw_MessageException_if_cluster_is_enabled_but_HA_feature_is_not_enabled() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     when(feature.isEnabled()).thenReturn(false);
-    ClusterVerification underTest = new ClusterVerification(webServer, feature);
+    ClusterVerification underTest = new ClusterVerification(nodeInformation, feature);
 
     assertThatThrownBy(underTest::start)
       .isInstanceOf(MessageException.class)
@@ -58,9 +58,9 @@ public class ClusterVerificationTest {
 
   @Test
   public void do_not_fail_if_cluster_is_enabled_and_HA_feature_is_enabled() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     when(feature.isEnabled()).thenReturn(true);
-    ClusterVerification underTest = new ClusterVerification(webServer, feature);
+    ClusterVerification underTest = new ClusterVerification(nodeInformation, feature);
 
     // no failure
     underTest.start();
@@ -69,9 +69,9 @@ public class ClusterVerificationTest {
 
   @Test
   public void do_not_fail_if_cluster_is_disabled() {
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
 
-    ClusterVerification underTest = new ClusterVerification(webServer);
+    ClusterVerification underTest = new ClusterVerification(nodeInformation);
 
     // no failure
     underTest.start();

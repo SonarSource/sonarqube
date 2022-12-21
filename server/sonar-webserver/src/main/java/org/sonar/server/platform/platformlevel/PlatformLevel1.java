@@ -51,6 +51,7 @@ import org.sonar.server.es.EsModule;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.platform.DefaultNodeInformation;
 import org.sonar.server.platform.DockerSupportImpl;
 import org.sonar.server.platform.LogServerVersion;
 import org.sonar.server.platform.Platform;
@@ -58,7 +59,6 @@ import org.sonar.server.platform.ServerFileSystemImpl;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.UrlSettings;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
-import org.sonar.server.platform.WebServerImpl;
 import org.sonar.server.platform.db.EmbeddedDatabaseFactory;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.setting.ThreadLocalSettings;
@@ -148,7 +148,7 @@ public class PlatformLevel1 extends PlatformLevel {
     addAll(CorePropertyDefinitions.all());
 
     // cluster
-    add(WebServerImpl.class);
+    add(DefaultNodeInformation.class);
   }
 
   private void addExtraRootComponents() {

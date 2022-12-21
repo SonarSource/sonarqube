@@ -28,7 +28,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -45,15 +45,15 @@ public class RestartActionTest {
 
   private ProcessCommandWrapper processCommandWrapper = mock(ProcessCommandWrapper.class);
   private RestartFlagHolder restartFlagHolder = mock(RestartFlagHolder.class);
-  private WebServer webServer = mock(WebServer.class);
-  private RestartAction sut = new RestartAction(userSessionRule, processCommandWrapper, restartFlagHolder, webServer);
+  private NodeInformation nodeInformation = mock(NodeInformation.class);
+  private RestartAction sut = new RestartAction(userSessionRule, processCommandWrapper, restartFlagHolder, nodeInformation);
   private InOrder inOrder = Mockito.inOrder(restartFlagHolder, processCommandWrapper);
 
   private WsActionTester actionTester = new WsActionTester(sut);
 
   @Test
   public void request_fails_in_production_mode_with_ForbiddenException_when_user_is_not_logged_in() {
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
 
     assertThatThrownBy(() -> actionTester.newRequest().execute())
       .isInstanceOf(ForbiddenException.class);
@@ -61,7 +61,7 @@ public class RestartActionTest {
 
   @Test
   public void request_fails_in_production_mode_with_ForbiddenException_when_user_is_not_system_administrator() {
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
     userSessionRule.logIn().setNonSystemAdministrator();
 
     assertThatThrownBy(() -> actionTester.newRequest().execute())
@@ -70,7 +70,7 @@ public class RestartActionTest {
 
   @Test
   public void request_fails_in_cluster_mode_with_IllegalArgumentException() {
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
 
     assertThatThrownBy(() -> actionTester.newRequest().execute())
       .isInstanceOf(IllegalArgumentException.class)
@@ -79,7 +79,7 @@ public class RestartActionTest {
 
   @Test
   public void calls_ProcessCommandWrapper_requestForSQRestart_in_production_mode() {
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
     userSessionRule.logIn().setSystemAdministrator();
 
     actionTester.newRequest().execute();
@@ -90,7 +90,7 @@ public class RestartActionTest {
 
   @Test
   public void logs_login_of_authenticated_user_requesting_the_restart_in_production_mode() {
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
     String login = "BigBother";
     userSessionRule.logIn(login).setSystemAdministrator();
 

@@ -24,14 +24,14 @@ import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WebServerImplTest {
+public class DefaultNodeInformationTest {
 
 
   private MapSettings settings = new MapSettings();
 
   @Test
   public void cluster_is_disabled_by_default() {
-    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
+    DefaultNodeInformation underTest = new DefaultNodeInformation(settings.asConfig());
 
     assertThat(underTest.isStandalone()).isTrue();
     assertThat(underTest.isStartupLeader()).isTrue();
@@ -42,7 +42,7 @@ public class WebServerImplTest {
     settings.setProperty("sonar.cluster.enabled", "true");
     settings.setProperty("sonar.cluster.web.startupLeader", "true");
 
-    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
+    DefaultNodeInformation underTest = new DefaultNodeInformation(settings.asConfig());
 
     assertThat(underTest.isStandalone()).isFalse();
     assertThat(underTest.isStartupLeader()).isTrue();
@@ -52,7 +52,7 @@ public class WebServerImplTest {
   public void node_is_startup_follower_by_default_in_cluster() {
     settings.setProperty("sonar.cluster.enabled", "true");
 
-    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
+    DefaultNodeInformation underTest = new DefaultNodeInformation(settings.asConfig());
 
     assertThat(underTest.isStandalone()).isFalse();
     assertThat(underTest.isStartupLeader()).isFalse();
@@ -63,7 +63,7 @@ public class WebServerImplTest {
     settings.setProperty("sonar.cluster.enabled", "true");
     settings.setProperty("sonar.cluster.web.startupLeader", "false");
 
-    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
+    DefaultNodeInformation underTest = new DefaultNodeInformation(settings.asConfig());
 
     assertThat(underTest.isStandalone()).isFalse();
     assertThat(underTest.isStartupLeader()).isFalse();
@@ -74,7 +74,7 @@ public class WebServerImplTest {
     settings.setProperty("sonar.cluster.enabled", "false");
     settings.setProperty("sonar.cluster.node.name", "nameIgnored");
 
-    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
+    DefaultNodeInformation underTest = new DefaultNodeInformation(settings.asConfig());
 
     assertThat(underTest.getNodeName()).isEmpty();
   }
@@ -84,7 +84,7 @@ public class WebServerImplTest {
     settings.setProperty("sonar.cluster.enabled", "true");
     settings.removeProperty("sonar.cluster.node.name");
 
-    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
+    DefaultNodeInformation underTest = new DefaultNodeInformation(settings.asConfig());
 
     assertThat(underTest.getNodeName()).isNotEmpty();
     String nodeNameFirstCallToGetNodeName = underTest.getNodeName().get();
@@ -99,7 +99,7 @@ public class WebServerImplTest {
     settings.setProperty("sonar.cluster.enabled", "true");
     settings.setProperty("sonar.cluster.node.name", nodeName);
 
-    WebServerImpl underTest = new WebServerImpl(settings.asConfig());
+    DefaultNodeInformation underTest = new DefaultNodeInformation(settings.asConfig());
 
     assertThat(underTest.getNodeName()).isNotEmpty();
     assertThat(underTest.getNodeName().get()).startsWith(nodeName);

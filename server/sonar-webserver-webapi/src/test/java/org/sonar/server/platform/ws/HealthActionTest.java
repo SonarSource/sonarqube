@@ -38,7 +38,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.health.ClusterHealth;
 import org.sonar.server.health.Health;
 import org.sonar.server.health.HealthChecker;
-import org.sonar.server.platform.WebServer;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.ws.TestRequest;
@@ -69,9 +69,9 @@ public class HealthActionTest {
 
   private final Random random = new Random();
   private HealthChecker healthChecker = mock(HealthChecker.class);
-  private WebServer webServer = mock(WebServer.class);
+  private NodeInformation nodeInformation = mock(NodeInformation.class);
   private SystemPasscode systemPasscode = mock(SystemPasscode.class);
-  private WsActionTester underTest = new WsActionTester(new HealthAction(webServer, new HealthActionSupport(healthChecker), systemPasscode, userSessionRule));
+  private WsActionTester underTest = new WsActionTester(new HealthAction(nodeInformation, new HealthActionSupport(healthChecker), systemPasscode, userSessionRule));
 
   @Test
   public void verify_definition() {
@@ -134,7 +134,7 @@ public class HealthActionTest {
   @Test
   public void verify_response_example() {
     authenticateWithRandomMethod();
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     long time = parseDateTime("2015-08-13T23:34:59+0200").getTime();
     when(healthChecker.checkCluster())
       .thenReturn(
@@ -183,7 +183,7 @@ public class HealthActionTest {
     IntStream.range(0, new Random().nextInt(5)).mapToObj(i -> RandomStringUtils.randomAlphanumeric(3)).forEach(builder::addCause);
     Health health = builder.build();
     when(healthChecker.checkNode()).thenReturn(health);
-    when(webServer.isStandalone()).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
     TestRequest request = underTest.newRequest();
 
     System.HealthResponse healthResponse = request.executeProtobuf(System.HealthResponse.class);
@@ -199,7 +199,7 @@ public class HealthActionTest {
     Health.Builder healthBuilder = Health.builder()
       .setStatus(randomStatus);
     Arrays.stream(causes).forEach(healthBuilder::addCause);
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     when(healthChecker.checkCluster()).thenReturn(new ClusterHealth(healthBuilder.build(), emptySet()));
 
     System.HealthResponse clusterHealthResponse = underTest.newRequest().executeProtobuf(System.HealthResponse.class);
@@ -213,7 +213,7 @@ public class HealthActionTest {
   public void response_contains_information_of_nodes_when_clustered() {
     authenticateWithRandomMethod();
     NodeHealth nodeHealth = randomNodeHealth();
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     when(healthChecker.checkCluster()).thenReturn(new ClusterHealth(GREEN, singleton(nodeHealth)));
 
     System.HealthResponse response = underTest.newRequest().executeProtobuf(System.HealthResponse.class);
@@ -255,7 +255,7 @@ public class HealthActionTest {
     String[] expected = nodeHealths.stream().map(s -> formatDateTime(new Date(s.getDetails().getStartedAt()))).toArray(String[]::new);
     Collections.shuffle(nodeHealths);
 
-    when(webServer.isStandalone()).thenReturn(false);
+    when(nodeInformation.isStandalone()).thenReturn(false);
     when(healthChecker.checkCluster()).thenReturn(new ClusterHealth(GREEN, new HashSet<>(nodeHealths)));
 
     System.HealthResponse response = underTest.newRequest().executeProtobuf(System.HealthResponse.class);
