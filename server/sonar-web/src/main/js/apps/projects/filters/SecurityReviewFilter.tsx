@@ -92,7 +92,7 @@ function renderAccessibleLabel(option: number) {
 function renderOption(option: number, selected: boolean) {
   return (
     <span>
-      <Rating muted={!selected} small={true} value={option} />
+      <Rating muted={!selected} value={option} />
       <span className="spacer-left">{labels[option]}</span>
     </span>
   );

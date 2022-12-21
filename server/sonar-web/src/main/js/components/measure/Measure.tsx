@@ -58,7 +58,7 @@ export default function Measure({
   }
 
   const tooltip = <RatingTooltipContent metricKey={metricKey} value={value} />;
-  const rating = <Rating small={small} value={value} />;
+  const rating = <Rating value={value} />;
 
   if (tooltip) {
     return (

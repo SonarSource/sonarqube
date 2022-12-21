@@ -39,7 +39,6 @@ exports[`renders: option 1`] = `
 <span>
   <Rating
     muted={true}
-    small={true}
     value={2}
   />
   <span

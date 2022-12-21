@@ -33,7 +33,6 @@ exports[`renders 2`] = `
 >
   <CoverageRating
     muted={true}
-    size="small"
     value={75}
   />
   <span

@@ -12,7 +12,7 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly 2`] = `
 <div
   aria-hidden="true"
-  className="size-rating size-rating-small size-rating-muted"
+  className="size-rating size-rating-muted"
 >
   S
 </div>

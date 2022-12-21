@@ -26,11 +26,11 @@ it('renders numeric value', () => {
 });
 
 it('renders string value', () => {
-  expect(shallow(<Rating value="2.0" muted={true} small={true} />)).toMatchSnapshot();
+  expect(shallow(<Rating value="2.0" muted={true} />)).toMatchSnapshot();
 });
 
 it('renders undefined value', () => {
-  expect(shallow(<Rating value={undefined} muted={true} small={true} />)).toMatchSnapshot();
+  expect(shallow(<Rating value={undefined} muted={true} />)).toMatchSnapshot();
 });
 
 it('renders with a custom aria-label', () => {

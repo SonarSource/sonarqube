@@ -83,7 +83,7 @@ export default function IssuesFilter(props: Props) {
 function renderOption(option: number, selected: boolean) {
   return (
     <span>
-      <Rating muted={!selected} small={true} value={option} />
+      <Rating muted={!selected} value={option} />
       <span className="spacer-left">
         {translateWithParameters('projects.facets.rating_x', formatMeasure(option, 'RATING'))}
       </span>

@@ -29,14 +29,6 @@
   justify-content: center;
 }
 
-.rating-small {
-  width: 20px;
-  height: 20px;
-  margin-top: -1px;
-  margin-bottom: -1px;
-  font-size: var(--mediumFontSize);
-}
-
 .rating-muted {
   background-color: var(--gray71) !important;
   color: var(--white) !important;

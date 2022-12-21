@@ -12,7 +12,7 @@ exports[`renders numeric value 1`] = `
 exports[`renders string value 1`] = `
 <span
   aria-label="metric.has_rating_X.B"
-  className="rating rating-B rating-small rating-muted"
+  className="rating rating-B rating-muted"
 >
   B
 </span>
@@ -21,7 +21,7 @@ exports[`renders string value 1`] = `
 exports[`renders undefined value 1`] = `
 <span
   aria-label="metric.no_rating"
-  className="no-rating rating-small rating-muted"
+  className="no-rating rating-muted"
 >
   –
 </span>

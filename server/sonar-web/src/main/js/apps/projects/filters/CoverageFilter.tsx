@@ -77,11 +77,7 @@ function renderOption(option: number, selected: boolean) {
   return (
     <div className="display-flex-center">
       {option < NO_DATA_OPTION && (
-        <CoverageRating
-          muted={!selected}
-          size="small"
-          value={getCoverageRatingAverageValue(option)}
-        />
+        <CoverageRating muted={!selected} value={getCoverageRatingAverageValue(option)} />
       )}
       <span className="spacer-left">
         {option < NO_DATA_OPTION ? (

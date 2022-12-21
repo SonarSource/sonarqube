@@ -53,7 +53,7 @@ export default function GraphsTooltipsContentIssues(props: GraphsTooltipsContent
       </td>
       <td className="text-right spacer-right">
         <span className="activity-graph-tooltip-value">{value}</span>
-        {ratingValue && <Rating className="spacer-left" small={true} value={ratingValue} />}
+        {ratingValue && <Rating className="spacer-left" value={ratingValue} />}
       </td>
       <td>{translatedName}</td>
     </tr>

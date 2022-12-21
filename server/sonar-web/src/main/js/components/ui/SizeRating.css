@@ -31,14 +31,6 @@
   text-align: center;
 }
 
-.size-rating-small {
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  margin-top: -1px;
-  margin-bottom: -1px;
-}
-
 .size-rating-muted {
   background-color: var(--gray71);
 }
