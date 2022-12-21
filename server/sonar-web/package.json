@@ -84,8 +84,6 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-testing-library": "5.9.1",
     "fs-extra": "10.1.0",
-    "glob": "7.2.3",
-    "glob-promise": "4.2.2",
     "http-proxy": "1.18.1",
     "jest": "29.3.1",
     "jest-emotion": "10.0.32",
