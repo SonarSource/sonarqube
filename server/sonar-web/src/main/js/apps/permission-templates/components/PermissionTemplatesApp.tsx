@@ -42,7 +42,7 @@ interface State {
   permissionTemplates: PermissionTemplate[];
 }
 
-export class App extends React.PureComponent<Props, State> {
+export class PermissionTemplatesApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     ready: false,
@@ -121,4 +121,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withAppStateContext(App));
+export default withRouter(withAppStateContext(PermissionTemplatesApp));

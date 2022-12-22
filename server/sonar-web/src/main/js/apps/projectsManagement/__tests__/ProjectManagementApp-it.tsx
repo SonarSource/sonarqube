@@ -26,8 +26,6 @@ import { renderAppWithAdminContext } from '../../../helpers/testReactTestingUtil
 import { ComponentQualifier, Visibility } from '../../../types/component';
 import routes from '../routes';
 
-jest.mock('../../../api/permissions');
-
 jest.mock('../../../api/components', () => ({
   getComponents: jest.fn().mockResolvedValue({
     paging: { total: 0 },

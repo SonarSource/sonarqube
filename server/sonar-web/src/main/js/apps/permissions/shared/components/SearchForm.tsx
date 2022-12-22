@@ -22,9 +22,10 @@ import ButtonToggle from '../../../../components/controls/ButtonToggle';
 import SearchBox from '../../../../components/controls/SearchBox';
 import { translate } from '../../../../helpers/l10n';
 
+export type FilterOption = 'all' | 'users' | 'groups';
 interface Props {
-  filter: string;
-  onFilter: (value: string) => void;
+  filter: FilterOption;
+  onFilter: (value: FilterOption) => void;
   onSearch: (value: string) => void;
   query: string;
 }

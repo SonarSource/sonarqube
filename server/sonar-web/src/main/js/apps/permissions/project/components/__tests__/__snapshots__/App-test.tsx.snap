@@ -44,36 +44,48 @@ exports[`should render correctly 1`] = `
     />
   </div>
   <AllHoldersList
-    component={
-      {
-        "breadcrumbs": [],
-        "key": "my-project",
-        "name": "MyProject",
-        "qualifier": "TRK",
-        "qualityGate": {
-          "isDefault": true,
-          "key": "30",
-          "name": "Sonar way",
-        },
-        "qualityProfiles": [
-          {
-            "deleted": false,
-            "key": "my-qp",
-            "language": "ts",
-            "name": "Sonar way",
-          },
-        ],
-        "tags": [],
-      }
-    }
     filter="all"
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}
     groups={[]}
-    onFilterChange={[Function]}
+    onFilter={[Function]}
     onLoadMore={[Function]}
-    onPermissionSelect={[Function]}
-    onQueryChange={[Function]}
+    onQuery={[Function]}
+    onSelectPermission={[Function]}
+    permissions={
+      [
+        {
+          "description": "projects_role.user.desc",
+          "key": "user",
+          "name": "projects_role.user",
+        },
+        {
+          "description": "projects_role.codeviewer.desc",
+          "key": "codeviewer",
+          "name": "projects_role.codeviewer",
+        },
+        {
+          "description": "projects_role.issueadmin.desc",
+          "key": "issueadmin",
+          "name": "projects_role.issueadmin",
+        },
+        {
+          "description": "projects_role.securityhotspotadmin.desc",
+          "key": "securityhotspotadmin",
+          "name": "projects_role.securityhotspotadmin",
+        },
+        {
+          "description": "projects_role.admin.desc",
+          "key": "admin",
+          "name": "projects_role.admin",
+        },
+        {
+          "description": "projects_role.scan.desc",
+          "key": "scan",
+          "name": "projects_role.scan",
+        },
+      ]
+    }
     query=""
     revokePermissionFromGroup={[Function]}
     revokePermissionFromUser={[Function]}
@@ -126,28 +138,6 @@ exports[`should render correctly 2`] = `
     />
   </div>
   <AllHoldersList
-    component={
-      {
-        "breadcrumbs": [],
-        "key": "my-project",
-        "name": "MyProject",
-        "qualifier": "TRK",
-        "qualityGate": {
-          "isDefault": true,
-          "key": "30",
-          "name": "Sonar way",
-        },
-        "qualityProfiles": [
-          {
-            "deleted": false,
-            "key": "my-qp",
-            "language": "ts",
-            "name": "Sonar way",
-          },
-        ],
-        "tags": [],
-      }
-    }
     filter="all"
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}
@@ -176,10 +166,44 @@ exports[`should render correctly 2`] = `
         "total": 2,
       }
     }
-    onFilterChange={[Function]}
+    onFilter={[Function]}
     onLoadMore={[Function]}
-    onPermissionSelect={[Function]}
-    onQueryChange={[Function]}
+    onQuery={[Function]}
+    onSelectPermission={[Function]}
+    permissions={
+      [
+        {
+          "description": "projects_role.user.desc",
+          "key": "user",
+          "name": "projects_role.user",
+        },
+        {
+          "description": "projects_role.codeviewer.desc",
+          "key": "codeviewer",
+          "name": "projects_role.codeviewer",
+        },
+        {
+          "description": "projects_role.issueadmin.desc",
+          "key": "issueadmin",
+          "name": "projects_role.issueadmin",
+        },
+        {
+          "description": "projects_role.securityhotspotadmin.desc",
+          "key": "securityhotspotadmin",
+          "name": "projects_role.securityhotspotadmin",
+        },
+        {
+          "description": "projects_role.admin.desc",
+          "key": "admin",
+          "name": "projects_role.admin",
+        },
+        {
+          "description": "projects_role.scan.desc",
+          "key": "scan",
+          "name": "projects_role.scan",
+        },
+      ]
+    }
     query=""
     revokePermissionFromGroup={[Function]}
     revokePermissionFromUser={[Function]}

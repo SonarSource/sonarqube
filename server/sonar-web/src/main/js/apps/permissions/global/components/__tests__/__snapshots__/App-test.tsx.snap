@@ -16,7 +16,7 @@ exports[`should render correctly 1`] = `
   <PageHeader
     loading={true}
   />
-  <withAppStateContext(AllHoldersList)
+  <AllHoldersList
     filter="all"
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}
@@ -24,7 +24,46 @@ exports[`should render correctly 1`] = `
     loading={true}
     onFilter={[Function]}
     onLoadMore={[Function]}
-    onSearch={[Function]}
+    onQuery={[Function]}
+    permissions={
+      [
+        {
+          "description": "global_permissions.admin.desc",
+          "key": "admin",
+          "name": "global_permissions.admin",
+        },
+        {
+          "category": "administer",
+          "permissions": [
+            {
+              "description": "global_permissions.gateadmin.desc",
+              "key": "gateadmin",
+              "name": "global_permissions.gateadmin",
+            },
+            {
+              "description": "global_permissions.profileadmin.desc",
+              "key": "profileadmin",
+              "name": "global_permissions.profileadmin",
+            },
+          ],
+        },
+        {
+          "description": "global_permissions.scan.desc",
+          "key": "scan",
+          "name": "global_permissions.scan",
+        },
+        {
+          "category": "creator",
+          "permissions": [
+            {
+              "description": "global_permissions.provisioning.desc",
+              "key": "provisioning",
+              "name": "global_permissions.provisioning",
+            },
+          ],
+        },
+      ]
+    }
     query=""
     revokePermissionFromGroup={[Function]}
     revokePermissionFromUser={[Function]}
@@ -49,7 +88,7 @@ exports[`should render correctly 2`] = `
   <PageHeader
     loading={false}
   />
-  <withAppStateContext(AllHoldersList)
+  <AllHoldersList
     filter="all"
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}
@@ -81,7 +120,46 @@ exports[`should render correctly 2`] = `
     loading={false}
     onFilter={[Function]}
     onLoadMore={[Function]}
-    onSearch={[Function]}
+    onQuery={[Function]}
+    permissions={
+      [
+        {
+          "description": "global_permissions.admin.desc",
+          "key": "admin",
+          "name": "global_permissions.admin",
+        },
+        {
+          "category": "administer",
+          "permissions": [
+            {
+              "description": "global_permissions.gateadmin.desc",
+              "key": "gateadmin",
+              "name": "global_permissions.gateadmin",
+            },
+            {
+              "description": "global_permissions.profileadmin.desc",
+              "key": "profileadmin",
+              "name": "global_permissions.profileadmin",
+            },
+          ],
+        },
+        {
+          "description": "global_permissions.scan.desc",
+          "key": "scan",
+          "name": "global_permissions.scan",
+        },
+        {
+          "category": "creator",
+          "permissions": [
+            {
+              "description": "global_permissions.provisioning.desc",
+              "key": "provisioning",
+              "name": "global_permissions.provisioning",
+            },
+          ],
+        },
+      ]
+    }
     query=""
     revokePermissionFromGroup={[Function]}
     revokePermissionFromUser={[Function]}

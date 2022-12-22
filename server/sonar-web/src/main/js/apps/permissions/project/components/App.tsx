@@ -25,8 +25,10 @@ import withComponentContext from '../../../../app/components/componentContext/wi
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
 import { translate } from '../../../../helpers/l10n';
 import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
+import AllHoldersList from '../../shared/components/AllHoldersList';
+import { FilterOption } from '../../shared/components/SearchForm';
 import '../../styles.css';
-import AllHoldersList from './AllHoldersList';
+import { convertToPermissionDefinitions, PERMISSIONS_ORDER_BY_QUALIFIER } from '../../utils';
 import PageHeader from './PageHeader';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 
@@ -37,7 +39,7 @@ interface Props {
 
 interface State {
   disclaimer: boolean;
-  filter: string;
+  filter: FilterOption;
   groups: PermissionGroup[];
   groupsPaging?: Paging;
   loading: boolean;
@@ -138,7 +140,7 @@ export class App extends React.PureComponent<Props, State> {
     }, this.stopLoading);
   };
 
-  handleFilterChange = (filter: string) => {
+  handleFilterChange = (filter: FilterOption) => {
     if (this.mounted) {
       this.setState({ filter }, this.loadHolders);
     }
@@ -340,18 +342,31 @@ export class App extends React.PureComponent<Props, State> {
 
   render() {
     const { component } = this.props;
+    const {
+      filter,
+      groups,
+      disclaimer,
+      loading,
+      selectedPermission,
+      query,
+      users,
+      usersPaging,
+      groupsPaging,
+    } = this.state;
     const canTurnToPrivate =
       component.configuration && component.configuration.canUpdateProjectVisibilityToPrivate;
+
+    let order = PERMISSIONS_ORDER_BY_QUALIFIER[component.qualifier];
+    if (component.visibility === 'public') {
+      order = without(order, 'user', 'codeviewer');
+    }
+    const permissions = convertToPermissionDefinitions(order, 'projects_role');
 
     return (
       <div className="page page-limited" id="project-permissions-page">
         <Helmet defer={false} title={translate('permissions.page')} />
 
-        <PageHeader
-          component={component}
-          loadHolders={this.loadHolders}
-          loading={this.state.loading}
-        />
+        <PageHeader component={component} loadHolders={this.loadHolders} loading={loading} />
         <div>
           <VisibilitySelector
             canTurnToPrivate={canTurnToPrivate}
@@ -359,7 +374,7 @@ export class App extends React.PureComponent<Props, State> {
             onChange={this.handleVisibilityChange}
             visibility={component.visibility}
           />
-          {this.state.disclaimer && (
+          {disclaimer && (
             <PublicProjectDisclaimer
               component={component}
               onClose={this.closeDisclaimer}
@@ -368,22 +383,22 @@ export class App extends React.PureComponent<Props, State> {
           )}
         </div>
         <AllHoldersList
-          component={component}
-          filter={this.state.filter}
+          filter={filter}
           grantPermissionToGroup={this.grantPermissionToGroup}
           grantPermissionToUser={this.grantPermissionToUser}
-          groups={this.state.groups}
-          groupsPaging={this.state.groupsPaging}
-          onFilterChange={this.handleFilterChange}
+          groups={groups}
+          groupsPaging={groupsPaging}
+          onFilter={this.handleFilterChange}
           onLoadMore={this.onLoadMore}
-          onPermissionSelect={this.handlePermissionSelect}
-          onQueryChange={this.handleQueryChange}
-          query={this.state.query}
+          onSelectPermission={this.handlePermissionSelect}
+          onQuery={this.handleQueryChange}
+          query={query}
           revokePermissionFromGroup={this.revokePermissionFromGroup}
           revokePermissionFromUser={this.revokePermissionFromUser}
-          selectedPermission={this.state.selectedPermission}
-          users={this.state.users}
-          usersPaging={this.state.usersPaging}
+          selectedPermission={selectedPermission}
+          users={users}
+          usersPaging={usersPaging}
+          permissions={permissions}
         />
       </div>
     );

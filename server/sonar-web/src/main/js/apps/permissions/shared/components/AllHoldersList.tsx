@@ -18,45 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
 import ListFooter from '../../../../components/controls/ListFooter';
-import { AppState } from '../../../../types/appstate';
-import { ComponentQualifier } from '../../../../types/component';
-import { Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
-import HoldersList from '../../shared/components/HoldersList';
-import SearchForm from '../../shared/components/SearchForm';
 import {
-  convertToPermissionDefinitions,
-  filterPermissions,
-  PERMISSIONS_ORDER_GLOBAL,
-} from '../../utils';
+  Paging,
+  PermissionDefinition,
+  PermissionDefinitionGroup,
+  PermissionGroup,
+  PermissionUser,
+} from '../../../../types/types';
+import HoldersList from '../../shared/components/HoldersList';
+import SearchForm, { FilterOption } from '../../shared/components/SearchForm';
 
-interface StateProps {
-  appState: AppState;
-}
-
-interface OwnProps {
-  filter: string;
-  grantPermissionToGroup: (groupName: string, permission: string) => Promise<void>;
-  grantPermissionToUser: (login: string, permission: string) => Promise<void>;
+interface Props {
+  filter: FilterOption;
+  query: string;
+  onFilter: (filter: string) => void;
+  onQuery: (query: string) => void;
   groups: PermissionGroup[];
   groupsPaging?: Paging;
-  loading?: boolean;
-  onLoadMore: () => void;
-  onFilter: (filter: string) => void;
-  onSearch: (query: string) => void;
-  query: string;
-  revokePermissionFromGroup: (groupName: string, permission: string) => Promise<void>;
-  revokePermissionFromUser: (login: string, permission: string) => Promise<void>;
+  revokePermissionFromGroup: (group: string, permission: string) => Promise<void>;
+  grantPermissionToGroup: (group: string, permission: string) => Promise<void>;
   users: PermissionUser[];
   usersPaging?: Paging;
+  revokePermissionFromUser: (user: string, permission: string) => Promise<void>;
+  grantPermissionToUser: (user: string, permission: string) => Promise<void>;
+  permissions: Array<PermissionDefinition | PermissionDefinitionGroup>;
+  onLoadMore: () => void;
+  selectedPermission?: string;
+  onSelectPermission?: (permissions?: string) => void;
+  loading?: boolean;
 }
 
-type Props = StateProps & OwnProps;
-
-export class AllHoldersList extends React.PureComponent<Props> {
+export default class AllHoldersList extends React.PureComponent<Props> {
   handleToggleUser = (user: PermissionUser, permission: string) => {
     const hasPermission = user.permissions.includes(permission);
+
     if (hasPermission) {
       return this.props.revokePermissionFromUser(user.login, permission);
     }
@@ -69,20 +65,12 @@ export class AllHoldersList extends React.PureComponent<Props> {
     if (hasPermission) {
       return this.props.revokePermissionFromGroup(group.name, permission);
     }
+
     return this.props.grantPermissionToGroup(group.name, permission);
   };
 
-  render() {
-    const { appState, filter, groups, groupsPaging, users, usersPaging, loading, query } =
-      this.props;
-    const l10nPrefix = 'global_permissions';
-
-    const hasPortfoliosEnabled = appState.qualifiers.includes(ComponentQualifier.Portfolio);
-    const hasApplicationsEnabled = appState.qualifiers.includes(ComponentQualifier.Application);
-    const permissions = convertToPermissionDefinitions(
-      filterPermissions(PERMISSIONS_ORDER_GLOBAL, hasApplicationsEnabled, hasPortfoliosEnabled),
-      l10nPrefix
-    );
+  getPaging = () => {
+    const { filter, groups, groupsPaging, users, usersPaging } = this.props;
 
     let count = 0;
     let total = 0;
@@ -95,22 +83,31 @@ export class AllHoldersList extends React.PureComponent<Props> {
       total += usersPaging ? usersPaging.total : users.length;
     }
 
+    return { count, total };
+  };
+
+  render() {
+    const { filter, query, groups, users, permissions, selectedPermission, loading } = this.props;
+    const { count, total } = this.getPaging();
+
     return (
       <>
         <HoldersList
+          loading={loading}
           filter={filter}
           groups={groups}
-          loading={loading}
+          onSelectPermission={this.props.onSelectPermission}
           onToggleGroup={this.handleToggleGroup}
           onToggleUser={this.handleToggleUser}
           permissions={permissions}
           query={query}
+          selectedPermission={selectedPermission}
           users={users}
         >
           <SearchForm
             filter={filter}
             onFilter={this.props.onFilter}
-            onSearch={this.props.onSearch}
+            onSearch={this.props.onQuery}
             query={query}
           />
         </HoldersList>
@@ -119,5 +116,3 @@ export class AllHoldersList extends React.PureComponent<Props> {
     );
   }
 }
-
-export default withAppStateContext(AllHoldersList);

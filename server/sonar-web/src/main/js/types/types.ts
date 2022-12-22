@@ -471,6 +471,13 @@ export interface PermissionUser extends UserActive {
   permissions: string[];
 }
 
+export interface PermissionTemplateGroup {
+  key: string;
+  usersCount: number;
+  groupsCount: number;
+  withProjectCreator?: boolean;
+}
+
 export interface PermissionTemplate {
   defaultFor: string[];
   id: string;
@@ -479,12 +486,7 @@ export interface PermissionTemplate {
   projectKeyPattern?: string;
   createdAt: string;
   updatedAt?: string;
-  permissions: Array<{
-    key: string;
-    usersCount: number;
-    groupsCount: number;
-    withProjectCreator?: boolean;
-  }>;
+  permissions: Array<PermissionTemplateGroup>;
 }
 
 export interface ProfileInheritanceDetails {

@@ -17,41 +17,105 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep } from 'lodash';
+import { chunk, cloneDeep } from 'lodash';
+import {
+  mockPermissionTemplate,
+  mockTemplateGroup,
+  mockTemplateUser,
+} from '../../helpers/testMocks';
 import { PermissionTemplate } from '../../types/types';
 import { BaseSearchProjectsParameters } from '../components';
-import { bulkApplyTemplate, getPermissionTemplates } from '../permissions';
+import {
+  addProjectCreatorToTemplate,
+  bulkApplyTemplate,
+  getPermissionTemplateGroups,
+  getPermissionTemplates,
+  getPermissionTemplateUsers,
+  grantTemplatePermissionToGroup,
+  grantTemplatePermissionToUser,
+  removeProjectCreatorFromTemplate,
+  revokeTemplatePermissionFromGroup,
+  revokeTemplatePermissionFromUser,
+} from '../permissions';
 
 const MAX_PROJECTS_TO_APPLY_PERMISSION_TEMPLATE = 10;
 
 const defaultPermissionTemplates: PermissionTemplate[] = [
-  {
-    id: 'template1',
-    name: 'Permission Template 1',
-    createdAt: '',
-    defaultFor: [],
-    permissions: [],
-  },
-  {
+  mockPermissionTemplate(),
+  mockPermissionTemplate({
     id: 'template2',
     name: 'Permission Template 2',
-    createdAt: '',
-    defaultFor: [],
-    permissions: [],
-  },
+  }),
 ];
+
+const templateUsers = [
+  mockTemplateUser(),
+  mockTemplateUser({
+    login: 'gooduser1',
+    name: 'John',
+    permissions: ['issueadmin', 'securityhotspotadmin', 'user'],
+  }),
+  mockTemplateUser({
+    login: 'gooduser2',
+    name: 'Alexa',
+    permissions: ['issueadmin', 'user'],
+  }),
+  mockTemplateUser({
+    name: 'Siri',
+    login: 'gooduser3',
+  }),
+  mockTemplateUser({
+    login: 'gooduser4',
+    name: 'Cool',
+    permissions: ['user'],
+  }),
+  mockTemplateUser({
+    name: 'White',
+    login: 'baduser1',
+  }),
+  mockTemplateUser({
+    name: 'Green',
+    login: 'baduser2',
+  }),
+];
+
+const templateGroups = [
+  mockTemplateGroup(),
+  mockTemplateGroup({ id: 'admins', name: 'admins', permissions: [] }),
+];
+
+const PAGE_SIZE = 5;
+const MIN_QUERY_LENGTH = 3;
+const DEFAULT_PAGE = 1;
+
+jest.mock('../permissions');
 
 export default class PermissionTemplateServiceMock {
   permissionTemplates: PermissionTemplate[] = [];
+  isAllowedPermissionChange = true;
 
   constructor() {
     this.permissionTemplates = cloneDeep(defaultPermissionTemplates);
     (getPermissionTemplates as jest.Mock).mockImplementation(this.handleGetPermissionTemplates);
     (bulkApplyTemplate as jest.Mock).mockImplementation(this.handleBulkApplyTemplate);
+    (getPermissionTemplateUsers as jest.Mock).mockImplementation(
+      this.handleGetPermissionTemplateUsers
+    );
+    (getPermissionTemplateGroups as jest.Mock).mockImplementation(
+      this.handleGetPermissionTemplateGroups
+    );
+    (addProjectCreatorToTemplate as jest.Mock).mockImplementation(this.handlePermissionChange);
+    (removeProjectCreatorFromTemplate as jest.Mock).mockImplementation(this.handlePermissionChange);
+    (grantTemplatePermissionToGroup as jest.Mock).mockImplementation(this.handlePermissionChange);
+    (revokeTemplatePermissionFromGroup as jest.Mock).mockImplementation(
+      this.handlePermissionChange
+    );
+    (grantTemplatePermissionToUser as jest.Mock).mockImplementation(this.handlePermissionChange);
+    (revokeTemplatePermissionFromUser as jest.Mock).mockImplementation(this.handlePermissionChange);
   }
 
   handleGetPermissionTemplates = () => {
-    return Promise.resolve({ permissionTemplates: cloneDeep(this.permissionTemplates) });
+    return this.reply({ permissionTemplates: this.permissionTemplates });
   };
 
   handleBulkApplyTemplate = (params: BaseSearchProjectsParameters) => {
@@ -68,7 +132,60 @@ export default class PermissionTemplateServiceMock {
     return Promise.resolve();
   };
 
+  handleGetPermissionTemplateUsers = (data: { q?: string | null; p?: number; ps?: number }) => {
+    const { ps = PAGE_SIZE, p = DEFAULT_PAGE, q } = data;
+
+    const users =
+      q && q.length >= MIN_QUERY_LENGTH
+        ? templateUsers.filter((user) =>
+            [user.login, user.name].some((key) => key.toLowerCase().includes(q.toLowerCase()))
+          )
+        : templateUsers;
+
+    const usersChunks = chunk(users, ps);
+
+    return this.reply({
+      paging: { pageSize: ps, total: users.length, pageIndex: p },
+      users: usersChunks[p - 1] ?? [],
+    });
+  };
+
+  handleGetPermissionTemplateGroups = (data: {
+    templateId: string;
+    q?: string | null;
+    permission?: string;
+    p?: number;
+    ps?: number;
+  }) => {
+    const { ps = PAGE_SIZE, p = DEFAULT_PAGE, q } = data;
+
+    const groups =
+      q && q.length >= MIN_QUERY_LENGTH
+        ? templateGroups.filter((group) => group.name.toLowerCase().includes(q.toLowerCase()))
+        : templateGroups;
+
+    const groupsChunks = chunk(groups, ps);
+
+    return this.reply({
+      paging: { pageSize: ps, total: groups.length, pageIndex: p },
+      groups: groupsChunks[p - 1] ?? [],
+    });
+  };
+
+  handlePermissionChange = () => {
+    return this.isAllowedPermissionChange ? Promise.resolve() : Promise.reject();
+  };
+
+  updatePermissionChangeAllowance = (val: boolean) => {
+    this.isAllowedPermissionChange = val;
+  };
+
   reset = () => {
     this.permissionTemplates = cloneDeep(defaultPermissionTemplates);
+    this.updatePermissionChangeAllowance(true);
   };
+
+  reply<T>(response: T): Promise<T> {
+    return Promise.resolve(cloneDeep(response));
+  }
 }

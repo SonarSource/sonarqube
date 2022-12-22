@@ -131,6 +131,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
       }
       return item.name;
     });
+
     const [itemWithPermissions, itemWithoutPermissions] = partition(items, (item) =>
       this.getItemInitialPermissionsCount(item)
     );

@@ -25,9 +25,10 @@ import {
   revokePermissionFromGroup,
   revokePermissionFromUser,
 } from '../../../../../api/permissions';
+import { mockAppState } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { ANYONE } from '../../../shared/components/GroupHolder';
-import App from '../App';
+import { App } from '../App';
 
 jest.mock('../../../../../api/permissions', () => ({
   getGlobalPermissionsGroups: jest.fn().mockResolvedValue({
@@ -130,5 +131,5 @@ describe('should manage state correctly', () => {
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(<App {...props} />);
+  return shallow<App>(<App appState={mockAppState()} {...props} />);
 }

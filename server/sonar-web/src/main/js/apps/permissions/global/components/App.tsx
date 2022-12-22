@@ -21,15 +21,27 @@ import { without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as api from '../../../../api/permissions';
+import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
 import Suggestions from '../../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../../helpers/l10n';
+import { AppState } from '../../../../types/appstate';
+import { ComponentQualifier } from '../../../../types/component';
 import { Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
+import AllHoldersList from '../../shared/components/AllHoldersList';
+import { FilterOption } from '../../shared/components/SearchForm';
 import '../../styles.css';
-import AllHoldersList from './AllHoldersList';
+import {
+  convertToPermissionDefinitions,
+  filterPermissions,
+  PERMISSIONS_ORDER_GLOBAL,
+} from '../../utils';
 import PageHeader from './PageHeader';
 
+interface Props {
+  appState: AppState;
+}
 interface State {
-  filter: 'all' | 'groups' | 'users';
+  filter: FilterOption;
   groups: PermissionGroup[];
   groupsPaging?: Paging;
   loading: boolean;
@@ -37,11 +49,10 @@ interface State {
   users: PermissionUser[];
   usersPaging?: Paging;
 }
-
-export default class App extends React.PureComponent<{}, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
 
-  constructor(props: {}) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       filter: 'all',
@@ -117,7 +128,7 @@ export default class App extends React.PureComponent<{}, State> {
     }, this.stopLoading);
   };
 
-  onFilter = (filter: 'all' | 'groups' | 'users') => {
+  onFilter = (filter: FilterOption) => {
     this.setState({ filter }, this.loadHolders);
   };
 
@@ -260,28 +271,40 @@ export default class App extends React.PureComponent<{}, State> {
   };
 
   render() {
+    const { appState } = this.props;
+    const { filter, groups, groupsPaging, users, usersPaging, loading, query } = this.state;
+
+    const hasPortfoliosEnabled = appState.qualifiers.includes(ComponentQualifier.Portfolio);
+    const hasApplicationsEnabled = appState.qualifiers.includes(ComponentQualifier.Application);
+    const permissions = convertToPermissionDefinitions(
+      filterPermissions(PERMISSIONS_ORDER_GLOBAL, hasApplicationsEnabled, hasPortfoliosEnabled),
+      'global_permissions'
+    );
     return (
       <div className="page page-limited">
         <Suggestions suggestions="global_permissions" />
         <Helmet defer={false} title={translate('global_permissions.permission')} />
-        <PageHeader loading={this.state.loading} />
+        <PageHeader loading={loading} />
         <AllHoldersList
-          filter={this.state.filter}
+          permissions={permissions}
+          filter={filter}
           grantPermissionToGroup={this.grantPermissionToGroup}
           grantPermissionToUser={this.grantPermissionToUser}
-          groups={this.state.groups}
-          groupsPaging={this.state.groupsPaging}
-          loading={this.state.loading}
+          groups={groups}
+          groupsPaging={groupsPaging}
+          loading={loading}
           onFilter={this.onFilter}
           onLoadMore={this.onLoadMore}
-          onSearch={this.onSearch}
-          query={this.state.query}
+          onQuery={this.onSearch}
+          query={query}
           revokePermissionFromGroup={this.revokePermissionFromGroup}
           revokePermissionFromUser={this.revokePermissionFromUser}
-          users={this.state.users}
-          usersPaging={this.state.usersPaging}
+          users={users}
+          usersPaging={usersPaging}
         />
       </div>
     );
   }
 }
+
+export default withAppStateContext(App);

@@ -21,6 +21,7 @@ import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import {
   Paging,
+  Permission,
   PermissionGroup,
   PermissionTemplate,
   PermissionUser,
@@ -65,7 +66,7 @@ export function revokePermissionFromGroup(data: {
 interface GetPermissionTemplatesResponse {
   permissionTemplates: PermissionTemplate[];
   defaultTemplates: Array<{ templateId: string; qualifier: string }>;
-  permissions: Array<{ key: string; name: string; description: string }>;
+  permissions: Array<Permission>;
 }
 
 export function getPermissionTemplates(): Promise<GetPermissionTemplatesResponse> {
@@ -185,34 +186,30 @@ export function getGlobalPermissionsGroups(data: {
   return getJSON('/api/permissions/groups', data);
 }
 
-export function getPermissionTemplateUsers(
-  templateId: string,
-  query?: string,
-  permission?: string
-): Promise<any> {
-  const data: RequestData = { templateId, ps: PAGE_SIZE };
-  if (query) {
-    data.q = query;
+export function getPermissionTemplateUsers(data: {
+  templateId: string;
+  q?: string | null;
+  permission?: string;
+  p?: number;
+  ps?: number;
+}): Promise<{ paging: Paging; users: PermissionUser[] }> {
+  if (data.ps === undefined) {
+    data.ps = PAGE_SIZE;
   }
-  if (permission) {
-    data.permission = permission;
-  }
-  return getJSON('/api/permissions/template_users', data).then((r) => r.users);
+  return getJSON('/api/permissions/template_users', data).catch(throwGlobalError);
 }
 
-export function getPermissionTemplateGroups(
-  templateId: string,
-  query?: string,
-  permission?: string
-): Promise<any> {
-  const data: RequestData = { templateId, ps: PAGE_SIZE };
-  if (query) {
-    data.q = query;
+export function getPermissionTemplateGroups(data: {
+  templateId: string;
+  q?: string | null;
+  permission?: string;
+  p?: number;
+  ps?: number;
+}): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
+  if (data.ps === undefined) {
+    data.ps = PAGE_SIZE;
   }
-  if (permission) {
-    data.permission = permission;
-  }
-  return getJSON('/api/permissions/template_groups', data).then((r) => r.groups);
+  return getJSON('/api/permissions/template_groups', data).catch(throwGlobalError);
 }
 
 export function changeProjectVisibility(
