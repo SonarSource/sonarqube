@@ -116,7 +116,7 @@ exports[`should render correctly: loaded 1`] = `
       }
     }
   />
-  <Tasks
+  <withAppStateContext(Tasks)
     component={
       {
         "breadcrumbs": [],
@@ -156,6 +156,7 @@ exports[`should render correctly: loaded 1`] = `
           "hasScannerContext": false,
           "id": "AWkGcOThOiAPiP5AE-kM",
           "logs": false,
+          "nodeName": "node_CE_server_1",
           "startedAt": "2019-02-19T16:47:36+0100",
           "status": "FAILED",
           "submittedAt": "2019-02-19T16:47:35+0100",

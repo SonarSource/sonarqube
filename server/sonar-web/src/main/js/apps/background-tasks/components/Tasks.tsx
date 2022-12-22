@@ -19,7 +19,10 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { translate } from '../../../helpers/l10n';
+import { AppState } from '../../../types/appstate';
+import { EditionKey } from '../../../types/editions';
 import { Task as ITask } from '../../../types/tasks';
 import Task from './Task';
 
@@ -29,9 +32,10 @@ interface Props {
   loading: boolean;
   onCancelTask: (task: ITask) => Promise<void>;
   onFilterTask: (task: ITask) => void;
+  appState: AppState;
 }
 
-export default function Tasks({ tasks, component, loading, onCancelTask, onFilterTask }: Props) {
+export function Tasks({ tasks, component, loading, onCancelTask, onFilterTask, appState }: Props) {
   const className = classNames('data zebra zebra-hover background-tasks', {
     'new-loading': loading,
   });
@@ -45,6 +49,9 @@ export default function Tasks({ tasks, component, loading, onCancelTask, onFilte
             <th>{translate('background_tasks.table.task')}</th>
             <th>{translate('background_tasks.table.id')}</th>
             <th>{translate('background_tasks.table.submitter')}</th>
+            {appState?.edition === EditionKey.datacenter && (
+              <th>{translate('background_tasks.table.nodeName')}</th>
+            )}
             <th>&nbsp;</th>
             <th className="text-right">{translate('background_tasks.table.submitted')}</th>
             <th className="text-right">{translate('background_tasks.table.started')}</th>
@@ -62,6 +69,7 @@ export default function Tasks({ tasks, component, loading, onCancelTask, onFilte
               onFilterTask={onFilterTask}
               previousTask={index > 0 ? tasks[index - 1] : undefined}
               task={task}
+              appState={appState}
             />
           ))}
         </tbody>
@@ -69,3 +77,5 @@ export default function Tasks({ tasks, component, loading, onCancelTask, onFilte
     </div>
   );
 }
+
+export default withAppStateContext(Tasks);

@@ -39,6 +39,7 @@ export enum TaskStatuses {
 export interface Task {
   analysisId?: string;
   branch?: string;
+  nodeName?: string;
   componentKey?: string;
   componentName?: string;
   componentQualifier?: string;

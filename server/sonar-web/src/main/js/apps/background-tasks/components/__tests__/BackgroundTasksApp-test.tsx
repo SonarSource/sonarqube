@@ -33,6 +33,7 @@ jest.mock('../../../../api/ce', () => ({
       {
         id: 'AWkGcOThOiAPiP5AE-kM',
         type: 'VIEW_REFRESH',
+        nodeName: 'node_CE_server_1',
         componentId: 'AWBLZYhGOUrjxRA-u6ex',
         componentKey: 'sonar-csharp',
         componentName: 'SonarC#',

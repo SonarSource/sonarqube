@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { AppState } from '../../../types/appstate';
+import { EditionKey } from '../../../types/editions';
 import { Task as ITask } from '../../../types/tasks';
 import TaskActions from './TaskActions';
 import TaskComponent from './TaskComponent';
@@ -25,6 +27,7 @@ import TaskDate from './TaskDate';
 import TaskDay from './TaskDay';
 import TaskExecutionTime from './TaskExecutionTime';
 import TaskId from './TaskId';
+import TaskNodeName from './TaskNodeName';
 import TaskStatus from './TaskStatus';
 import TaskSubmitter from './TaskSubmitter';
 
@@ -34,10 +37,11 @@ interface Props {
   onFilterTask: (task: ITask) => void;
   task: ITask;
   previousTask?: ITask;
+  appState: AppState;
 }
 
 export default function Task(props: Props) {
-  const { task, component, onCancelTask, onFilterTask, previousTask } = props;
+  const { task, component, onCancelTask, onFilterTask, previousTask, appState } = props;
 
   return (
     <tr>
@@ -45,6 +49,7 @@ export default function Task(props: Props) {
       <TaskComponent task={task} />
       <TaskId id={task.id} />
       <TaskSubmitter submitter={task.submitterLogin} />
+      {appState?.edition === EditionKey.datacenter && <TaskNodeName nodeName={task.nodeName} />}
       <TaskDay
         prevSubmittedAt={previousTask && previousTask.submittedAt}
         submittedAt={task.submittedAt}
