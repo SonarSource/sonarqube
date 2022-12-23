@@ -49,6 +49,45 @@ exports[`should display users and groups 1`] = `
       </tr>
     </thead>
     <tbody>
+      <GroupHolder
+        group={
+          {
+            "id": "anyone",
+            "name": "Anyone",
+            "permissions": [
+              "bar",
+            ],
+          }
+        }
+        isComponentPrivate={true}
+        key="group-anyone"
+        onToggle={[Function]}
+        permissions={
+          [
+            {
+              "description": "",
+              "key": "foo",
+              "name": "Foo",
+            },
+            {
+              "category": "admin",
+              "permissions": [
+                {
+                  "description": "",
+                  "key": "bar",
+                  "name": "Bar",
+                },
+                {
+                  "description": "",
+                  "key": "baz",
+                  "name": "Baz",
+                },
+              ],
+            },
+          ]
+        }
+        selectedPermission="bar"
+      />
       <UserHolder
         key="user-barbaz"
         onToggle={[Function]}
@@ -97,6 +136,7 @@ exports[`should display users and groups 1`] = `
             ],
           }
         }
+        isComponentPrivate={true}
         key="group-barbaz"
         onToggle={[Function]}
         permissions={
@@ -173,6 +213,7 @@ exports[`should display users and groups 1`] = `
             ],
           }
         }
+        isComponentPrivate={true}
         key="group-foobar"
         onToggle={[Function]}
         permissions={
@@ -216,6 +257,7 @@ exports[`should display users and groups 1`] = `
             "permissions": [],
           }
         }
+        isComponentPrivate={true}
         key="group-abc"
         onToggle={[Function]}
         permissions={

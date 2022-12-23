@@ -154,7 +154,9 @@ exports[`should render correctly 2`] = `
     groups={
       [
         {
-          "name": "Anyone",
+          "description": "SonarSource team",
+          "id": "1",
+          "name": "SonarSource",
           "permissions": [
             "admin",
             "codeviewer",
@@ -162,9 +164,7 @@ exports[`should render correctly 2`] = `
           ],
         },
         {
-          "description": "SonarSource team",
-          "id": "1",
-          "name": "SonarSource",
+          "name": "Anyone",
           "permissions": [],
         },
       ]

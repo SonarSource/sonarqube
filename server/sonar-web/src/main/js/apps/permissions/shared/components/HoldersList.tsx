@@ -34,6 +34,7 @@ import UserHolder from './UserHolder';
 interface Props {
   filter?: string;
   groups: PermissionGroup[];
+  isComponentPrivate?: boolean;
   loading?: boolean;
   onSelectPermission?: (permission: string) => void;
   onToggleGroup: (group: PermissionGroup, permission: string) => Promise<void>;
@@ -113,6 +114,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
     ) : (
       <GroupHolder
         group={item}
+        isComponentPrivate={this.props.isComponentPrivate}
         key={`group-${item.id || item.name}`}
         onToggle={this.handleGroupToggle}
         permissions={permissions}

@@ -17,49 +17,77 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { render, screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
 import { mockPermissionGroup } from '../../../../../helpers/mocks/permissions';
-import { waitAndUpdate } from '../../../../../helpers/testUtils';
-import GroupHolder from '../GroupHolder';
+import { Permissions } from '../../../../../types/permissions';
+import GroupHolder, { ANYONE } from '../GroupHolder';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
+it('should disable PermissionCell checkboxes when waiting for the promise to return', async () => {
+  renderComponent();
+
+  const checkbox = screen.getAllByRole('checkbox')[0];
+  expect(checkbox).not.toHaveClass('disabled');
+  checkbox.click();
+
+  await waitFor(() => {
+    expect(checkbox).toHaveClass('disabled');
+  });
+
+  await waitFor(() => {
+    expect(checkbox).not.toHaveClass('disabled');
+  });
 });
 
-it('should disable PermissionCell checkboxes when waiting for promise to return', async () => {
-  const wrapper = shallowRender();
-  expect(wrapper.state().loading).toEqual([]);
+it('should disable all PermissionCell checkboxes for group "Anyone" for a private project', () => {
+  renderComponent({ isComponentPrivate: true });
 
-  wrapper.instance().handleCheck(true, 'baz');
-  wrapper.update();
-  expect(wrapper.state().loading).toEqual(['baz']);
+  const checkboxes = screen.getAllByRole('checkbox');
 
-  wrapper.instance().handleCheck(true, 'bar');
-  wrapper.update();
-  expect(wrapper.state().loading).toEqual(['baz', 'bar']);
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().loading).toEqual([]);
+  ['Foo', 'Bar', 'Admin'].forEach((permission, idx) => {
+    expect(checkboxes[idx]).toHaveAttribute(
+      'aria-label',
+      `disabled permission '${permission}' for group 'Anyone'`
+    );
+  });
 });
 
-function shallowRender(props: Partial<GroupHolder['props']> = {}) {
-  return shallow<GroupHolder>(
-    <GroupHolder
-      group={mockPermissionGroup({ id: 'foobar' })}
-      onToggle={jest.fn().mockResolvedValue(null)}
-      permissions={[
-        {
-          category: 'admin',
-          permissions: [
-            { key: 'foo', name: 'Foo', description: '' },
-            { key: 'bar', name: 'Bar', description: '' },
-          ],
-        },
-        { key: 'baz', name: 'Baz', description: '' },
-      ]}
-      selectedPermission="bar"
-      {...props}
-    />
+it('should disable the "admin" PermissionCell checkbox for group "Anyone" for a public project', () => {
+  renderComponent();
+
+  expect(
+    screen.getByLabelText("unchecked permission 'Foo' for group 'Anyone'")
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByLabelText("unchecked permission 'Bar' for group 'Anyone'")
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByLabelText("disabled permission 'Admin' for group 'Anyone'")
+  ).toBeInTheDocument();
+});
+
+const renderComponent = (props: Partial<GroupHolder['props']> = {}) =>
+  render(
+    <table>
+      <tbody>
+        <GroupHolder
+          group={mockPermissionGroup({ id: 'foobar', name: ANYONE })}
+          onToggle={jest.fn().mockResolvedValue(null)}
+          permissions={[
+            {
+              category: 'baz',
+              permissions: [
+                { key: 'foo', name: 'Foo', description: '' },
+                { key: 'bar', name: 'Bar', description: '' },
+              ],
+            },
+            { key: Permissions.Admin, name: 'Admin', description: '' },
+          ]}
+          selectedPermission="bar"
+          {...props}
+        />
+      </tbody>
+    </table>
   );
-}

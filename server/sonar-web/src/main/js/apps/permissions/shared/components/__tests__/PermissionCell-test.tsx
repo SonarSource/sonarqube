@@ -22,9 +22,9 @@ import * as React from 'react';
 import PermissionCell from '../PermissionCell';
 
 const permissionItem = {
-  id: 'foobar',
-  name: 'Foobar',
-  permissions: ['bar'],
+  id: 'baz',
+  name: 'Baz',
+  permissions: ['baz'],
 };
 
 const permission = { key: 'baz', name: 'Baz', description: '' };
@@ -32,16 +32,16 @@ const permissionGroup = {
   category: 'admin',
   permissions: [
     { key: 'foo', name: 'Foo', description: '' },
-    { key: 'bar', name: 'Bar', description: '' },
+    { key: 'baz', name: 'Baz', description: '' },
   ],
 };
-it('should display unchecked checkbox', () => {
+it('should display an unchecked checkbox', () => {
   expect(
     shallow(
       <PermissionCell
         loading={[]}
         onCheck={jest.fn()}
-        permission={permission}
+        permission={{ ...permission, key: 'bar' }}
         permissionItem={permissionItem}
       />
     )
@@ -61,7 +61,7 @@ it('should display multiple checkboxes with one checked', () => {
   ).toMatchSnapshot();
 });
 
-it('should display disabled checkbox', () => {
+it('should display a disabled checkbox', () => {
   expect(
     shallow(
       <PermissionCell
@@ -74,7 +74,7 @@ it('should display disabled checkbox', () => {
   ).toMatchSnapshot();
 });
 
-it('should display selected checkbox', () => {
+it('should display a checked checkbox', () => {
   expect(
     shallow(
       <PermissionCell

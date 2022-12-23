@@ -1,13 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display disabled checkbox 1`] = `
+exports[`should display a checked checkbox 1`] = `
+<td
+  className="permission-column text-center text-middle selected"
+>
+  <Checkbox
+    checked={true}
+    disabled={false}
+    id="baz"
+    label="checked permission 'Baz' for user 'Baz'"
+    onCheck={[MockFunction]}
+    thirdState={false}
+  />
+</td>
+`;
+
+exports[`should display a disabled checkbox 1`] = `
+<td
+  className="permission-column text-center text-middle"
+>
+  <Checkbox
+    checked={true}
+    disabled={true}
+    id="baz"
+    label="disabled permission 'Baz' for user 'Baz'"
+    onCheck={[MockFunction]}
+    thirdState={false}
+  />
+</td>
+`;
+
+exports[`should display an unchecked checkbox 1`] = `
 <td
   className="permission-column text-center text-middle"
 >
   <Checkbox
     checked={false}
-    disabled={true}
-    id="baz"
+    disabled={false}
+    id="bar"
+    label="unchecked permission 'Baz' for user 'Baz'"
     onCheck={[MockFunction]}
     thirdState={false}
   />
@@ -25,6 +56,7 @@ exports[`should display multiple checkboxes with one checked 1`] = `
       checked={false}
       disabled={false}
       id="foo"
+      label="unchecked permission 'Foo' for user 'Baz'"
       onCheck={[MockFunction]}
       thirdState={false}
     >
@@ -36,49 +68,22 @@ exports[`should display multiple checkboxes with one checked 1`] = `
     </Checkbox>
   </div>
   <div
-    key="bar"
+    key="baz"
   >
     <Checkbox
       checked={true}
       disabled={false}
-      id="bar"
+      id="baz"
+      label="checked permission 'Baz' for user 'Baz'"
       onCheck={[MockFunction]}
       thirdState={false}
     >
       <span
         className="little-spacer-left"
       >
-        Bar
+        Baz
       </span>
     </Checkbox>
   </div>
-</td>
-`;
-
-exports[`should display selected checkbox 1`] = `
-<td
-  className="permission-column text-center text-middle selected"
->
-  <Checkbox
-    checked={false}
-    disabled={false}
-    id="baz"
-    onCheck={[MockFunction]}
-    thirdState={false}
-  />
-</td>
-`;
-
-exports[`should display unchecked checkbox 1`] = `
-<td
-  className="permission-column text-center text-middle"
->
-  <Checkbox
-    checked={false}
-    disabled={false}
-    id="baz"
-    onCheck={[MockFunction]}
-    thirdState={false}
-  />
 </td>
 `;

@@ -384,7 +384,6 @@ export class App extends React.PureComponent<Props, State> {
           selectedPermission={this.state.selectedPermission}
           users={this.state.users}
           usersPaging={this.state.usersPaging}
-          visibility={component.visibility}
         />
       </div>
     );

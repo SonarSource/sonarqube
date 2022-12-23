@@ -26,6 +26,7 @@ import {
   revokePermissionFromUser,
 } from '../../../../../api/permissions';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
+import { ANYONE } from '../../../shared/components/GroupHolder';
 import App from '../App';
 
 jest.mock('../../../../../api/permissions', () => ({
@@ -84,9 +85,9 @@ describe('should manage state correctly', () => {
     const wrapper = shallowRender();
     await waitAndUpdate(wrapper);
     const instance = wrapper.instance();
-    const apiPayload = { groupName: 'Anyone', permission: 'foo' };
+    const apiPayload = { groupName: ANYONE, permission: 'foo' };
 
-    instance.grantPermissionToGroup('Anyone', 'foo');
+    instance.grantPermissionToGroup(ANYONE, 'foo');
     const groupState = wrapper.state('groups');
     expect(groupState[0].permissions).toHaveLength(4);
     expect(groupState[0].permissions).toContain('foo');
@@ -95,14 +96,14 @@ describe('should manage state correctly', () => {
     expect(wrapper.state('groups')).toBe(groupState);
 
     (grantPermissionToGroup as jest.Mock).mockRejectedValueOnce({});
-    instance.grantPermissionToGroup('Anyone', 'bar');
+    instance.grantPermissionToGroup(ANYONE, 'bar');
     expect(wrapper.state('groups')[0].permissions).toHaveLength(5);
     expect(wrapper.state('groups')[0].permissions).toContain('bar');
     await waitAndUpdate(wrapper);
     expect(wrapper.state('groups')[0].permissions).toHaveLength(4);
     expect(wrapper.state('groups')[0].permissions).not.toContain('bar');
 
-    instance.revokePermissionFromGroup('Anyone', 'foo');
+    instance.revokePermissionFromGroup(ANYONE, 'foo');
     expect(wrapper.state('groups')[0].permissions).toHaveLength(3);
     expect(wrapper.state('groups')[0].permissions).not.toContain('foo');
     await waitAndUpdate(wrapper);

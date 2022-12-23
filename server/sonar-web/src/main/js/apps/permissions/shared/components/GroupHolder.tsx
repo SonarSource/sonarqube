@@ -19,14 +19,16 @@
  */
 import { without } from 'lodash';
 import * as React from 'react';
-import { translate } from '../../../../helpers/l10n';
 import GroupIcon from '../../../../components/icons/GroupIcon';
+import { translate } from '../../../../helpers/l10n';
+import { Permissions } from '../../../../types/permissions';
 import { PermissionDefinitions, PermissionGroup } from '../../../../types/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 import PermissionCell from './PermissionCell';
 
 interface Props {
   group: PermissionGroup;
+  isComponentPrivate?: boolean;
   onToggle: (group: PermissionGroup, permission: string) => Promise<void>;
   permissions: PermissionDefinitions;
   selectedPermission?: string;
@@ -36,7 +38,7 @@ interface State {
   loading: string[];
 }
 
-const ANYONE = 'Anyone';
+export const ANYONE = 'Anyone';
 
 export default class GroupHolder extends React.PureComponent<Props, State> {
   mounted = false;
@@ -67,7 +69,7 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { group } = this.props;
+    const { group, isComponentPrivate, permissions, selectedPermission } = this.props;
 
     return (
       <tr>
@@ -89,16 +91,24 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
             </div>
           </div>
         </td>
-        {this.props.permissions.map((permission) => (
-          <PermissionCell
-            key={isPermissionDefinitionGroup(permission) ? permission.category : permission.key}
-            loading={this.state.loading}
-            onCheck={this.handleCheck}
-            permission={permission}
-            permissionItem={group}
-            selectedPermission={this.props.selectedPermission}
-          />
-        ))}
+        {permissions.map((permission) => {
+          const isPermissionGroup = isPermissionDefinitionGroup(permission);
+          const permissionKey = isPermissionGroup ? permission.category : permission.key;
+          const isAdminPermission = !isPermissionGroup && permissionKey === Permissions.Admin;
+
+          return (
+            <PermissionCell
+              disabled={group.name === ANYONE && (isComponentPrivate || isAdminPermission)}
+              isGroupItem={true}
+              key={permissionKey}
+              loading={this.state.loading}
+              onCheck={this.handleCheck}
+              permission={permission}
+              permissionItem={group}
+              selectedPermission={selectedPermission}
+            />
+          );
+        })}
       </tr>
     );
   }

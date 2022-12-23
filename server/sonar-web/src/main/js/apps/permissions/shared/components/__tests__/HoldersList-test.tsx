@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ANYONE } from '../GroupHolder';
 import HoldersList from '../HoldersList';
 
 const permissions = [
@@ -35,6 +36,7 @@ const permissions = [
 const groups = [
   { id: 'foobar', name: 'Foobar', permissions: ['bar'] },
   { id: 'barbaz', name: 'Barbaz', permissions: ['bar'] },
+  { id: 'anyone', name: ANYONE, permissions: ['bar'] },
   { id: 'abc', name: 'abc', permissions: [] },
 ];
 
@@ -47,6 +49,7 @@ const users = [
 const elementsContainer = (
   <HoldersList
     groups={groups}
+    isComponentPrivate={true}
     onSelectPermission={jest.fn(() => Promise.resolve())}
     onToggleGroup={jest.fn(() => Promise.resolve())}
     onToggleUser={jest.fn(() => Promise.resolve())}

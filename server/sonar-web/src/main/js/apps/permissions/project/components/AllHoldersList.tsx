@@ -20,13 +20,7 @@
 import { without } from 'lodash';
 import * as React from 'react';
 import ListFooter from '../../../../components/controls/ListFooter';
-import {
-  Component,
-  Paging,
-  PermissionGroup,
-  PermissionUser,
-  Visibility,
-} from '../../../../types/types';
+import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import HoldersList from '../../shared/components/HoldersList';
 import SearchForm from '../../shared/components/SearchForm';
 import { convertToPermissionDefinitions, PERMISSIONS_ORDER_BY_QUALIFIER } from '../../utils';
@@ -48,7 +42,6 @@ interface Props {
   selectedPermission?: string;
   users: PermissionUser[];
   usersPaging?: Paging;
-  visibility?: Visibility;
 }
 
 export default class AllHoldersList extends React.PureComponent<Props> {
@@ -77,9 +70,16 @@ export default class AllHoldersList extends React.PureComponent<Props> {
   };
 
   render() {
-    const { filter, groups, groupsPaging, users, usersPaging } = this.props;
-    let order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.component.qualifier];
-    if (this.props.visibility === 'public') {
+    const {
+      component: { qualifier, visibility },
+      filter,
+      groups,
+      groupsPaging,
+      users,
+      usersPaging,
+    } = this.props;
+    let order = PERMISSIONS_ORDER_BY_QUALIFIER[qualifier];
+    if (visibility === 'public') {
       order = without(order, 'user', 'codeviewer');
     }
     const permissions = convertToPermissionDefinitions(order, 'projects_role');
@@ -100,6 +100,7 @@ export default class AllHoldersList extends React.PureComponent<Props> {
         <HoldersList
           filter={this.props.filter}
           groups={this.props.groups}
+          isComponentPrivate={visibility !== 'public'}
           onSelectPermission={this.handleSelectPermission}
           onToggleGroup={this.handleToggleGroup}
           onToggleUser={this.handleToggleUser}

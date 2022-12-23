@@ -29,6 +29,8 @@ import {
 import { isPermissionDefinitionGroup } from '../../utils';
 
 interface Props {
+  disabled?: boolean;
+  isGroupItem?: boolean;
   loading: string[];
   onCheck: (checked: boolean, permission?: string) => void;
   permission: PermissionDefinition | PermissionDefinitionGroup;
@@ -38,39 +40,70 @@ interface Props {
 
 export default class PermissionCell extends React.PureComponent<Props> {
   render() {
-    const { loading, onCheck, permission, permissionItem, selectedPermission } = this.props;
+    const {
+      disabled,
+      isGroupItem,
+      loading,
+      onCheck,
+      permission,
+      permissionItem,
+      selectedPermission,
+    } = this.props;
+
+    const tenant = `${isGroupItem ? 'group' : 'user'} '${permissionItem.name}'`;
+
     if (isPermissionDefinitionGroup(permission)) {
       return (
         <td className="text-middle">
-          {permission.permissions.map((permission) => (
-            <div key={permission.key}>
-              <Checkbox
-                checked={permissionItem.permissions.includes(permission.key)}
-                disabled={loading.includes(permission.key)}
-                id={permission.key}
-                onCheck={onCheck}
-              >
-                <span className="little-spacer-left">{permission.name}</span>
-              </Checkbox>
-            </div>
-          ))}
-        </td>
-      );
-    } else {
-      return (
-        <td
-          className={classNames('permission-column text-center text-middle', {
-            selected: permission.key === selectedPermission,
+          {permission.permissions.map((permissionDefinition) => {
+            const isChecked = permissionItem.permissions.includes(permissionDefinition.key);
+            const isDisabled = disabled || loading.includes(permissionDefinition.key);
+            let state = isChecked ? 'checked' : 'unchecked';
+
+            if (isDisabled) {
+              state = 'disabled';
+            }
+
+            return (
+              <div key={permissionDefinition.key}>
+                <Checkbox
+                  checked={isChecked}
+                  disabled={isDisabled}
+                  id={permissionDefinition.key}
+                  label={`${state} permission '${permissionDefinition.name}' for ${tenant}`}
+                  onCheck={onCheck}
+                >
+                  <span className="little-spacer-left">{permissionDefinition.name}</span>
+                </Checkbox>
+              </div>
+            );
           })}
-        >
-          <Checkbox
-            checked={permissionItem.permissions.includes(permission.key)}
-            disabled={loading.includes(permission.key)}
-            id={permission.key}
-            onCheck={onCheck}
-          />
         </td>
       );
     }
+
+    const isChecked = permissionItem.permissions.includes(permission.key);
+    const isDisabled = disabled || loading.includes(permission.key);
+    let state = isChecked ? 'checked' : 'unchecked';
+
+    if (isDisabled) {
+      state = 'disabled';
+    }
+
+    return (
+      <td
+        className={classNames('permission-column text-center text-middle', {
+          selected: permission.key === selectedPermission,
+        })}
+      >
+        <Checkbox
+          checked={isChecked}
+          disabled={isDisabled}
+          id={permission.key}
+          label={`${state} permission '${permission.name}' for ${tenant}`}
+          onCheck={onCheck}
+        />
+      </td>
+    );
   }
 }
