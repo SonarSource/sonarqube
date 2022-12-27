@@ -19,8 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
+import { mockIssue } from '../../../../helpers/testMocks';
 import { RuleStatus } from '../../../../types/rules';
-import { ButtonLink } from '../../../controls/buttons';
 import IssueMessage, { IssueMessageProps } from '../IssueMessage';
 
 jest.mock('react', () => {
@@ -34,35 +35,31 @@ jest.mock('react', () => {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ engine: 'js' })).toMatchSnapshot('with engine info');
-  expect(shallowRender({ quickFixAvailable: true })).toMatchSnapshot('with quick fix');
-  expect(shallowRender({ ruleStatus: RuleStatus.Deprecated })).toMatchSnapshot(
-    'is deprecated rule'
+  expect(shallowRender({ issue: mockIssue(false, { externalRuleEngine: 'js' }) })).toMatchSnapshot(
+    'with engine info'
   );
-  expect(shallowRender({ ruleStatus: RuleStatus.Removed })).toMatchSnapshot('is removed rule');
+  expect(shallowRender({ issue: mockIssue(false, { quickFixAvailable: true }) })).toMatchSnapshot(
+    'with quick fix'
+  );
+  expect(
+    shallowRender({ issue: mockIssue(false, { ruleStatus: RuleStatus.Deprecated }) })
+  ).toMatchSnapshot('is deprecated rule');
+  expect(
+    shallowRender({ issue: mockIssue(false, { ruleStatus: RuleStatus.Removed }) })
+  ).toMatchSnapshot('is removed rule');
   expect(shallowRender({ displayWhyIsThisAnIssue: false })).toMatchSnapshot(
     'hide why is it an issue'
   );
 });
 
-it('should open why is this an issue workspace', () => {
-  const openRule = jest.fn();
-  (React.useContext as jest.Mock).mockImplementationOnce(() => ({
-    externalRulesRepoNames: {},
-    openRule,
-  }));
-  const wrapper = shallowRender();
-  wrapper.find(ButtonLink).simulate('click');
-
-  expect(openRule).toHaveBeenCalled();
-});
-
 function shallowRender(props: Partial<IssueMessageProps> = {}) {
   return shallow<IssueMessageProps>(
     <IssueMessage
-      message="Reduce the number of conditional operators (4) used in the expression"
+      issue={mockIssue(false, {
+        message: 'Reduce the number of conditional operators (4) used in the expression',
+      })}
       displayWhyIsThisAnIssue={true}
-      ruleKey="javascript:S1067"
+      branchLike={mockBranch()}
       {...props}
     />
   );

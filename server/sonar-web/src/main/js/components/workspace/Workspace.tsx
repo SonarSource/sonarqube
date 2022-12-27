@@ -27,7 +27,6 @@ import './styles.css';
 import WorkspaceComponentViewer from './WorkspaceComponentViewer';
 import WorkspaceNav from './WorkspaceNav';
 import WorkspacePortal from './WorkspacePortal';
-import WorkspaceRuleViewer from './WorkspaceRuleViewer';
 
 const WORKSPACE = 'sonarqube-workspace';
 interface State {
@@ -35,7 +34,7 @@ interface State {
   externalRulesRepoNames: Dict<string>;
   height: number;
   maximized?: boolean;
-  open: { component?: string; rule?: string };
+  open: { component?: string };
   rules: RuleDescriptor[];
 }
 
@@ -125,33 +124,12 @@ export default class Workspace extends React.PureComponent<{}, State> {
     this.setState({ open: { component: componentKey } });
   };
 
-  handleOpenRule = (rule: RuleDescriptor) => {
-    this.setState((state: State) => ({
-      open: { rule: rule.key },
-      rules: uniqBy([...state.rules, rule], (r) => r.key),
-    }));
-  };
-
-  handleRuleReopen = (ruleKey: string) => {
-    this.setState({ open: { rule: ruleKey } });
-  };
-
   handleComponentClose = (componentKey: string) => {
     this.setState((state: State) => ({
       components: state.components.filter((x) => x.key !== componentKey),
       open: {
         ...state.open,
         component: state.open.component === componentKey ? undefined : state.open.component,
-      },
-    }));
-  };
-
-  handleRuleClose = (ruleKey: string) => {
-    this.setState((state: State) => ({
-      rules: state.rules.filter((x) => x.key !== ruleKey),
-      open: {
-        ...state.open,
-        rule: state.open.rule === ruleKey ? undefined : state.open.rule,
       },
     }));
   };
@@ -163,15 +141,6 @@ export default class Workspace extends React.PureComponent<{}, State> {
         components: state.components.map((component) =>
           component.key === key ? { ...component, name, qualifier } : component
         ),
-      }));
-    }
-  };
-
-  handleRuleLoad = (details: { key: string; name: string }) => {
-    if (this.mounted) {
-      const { key, name } = details;
-      this.setState((state: State) => ({
-        rules: state.rules.map((rule) => (rule.key === key ? { ...rule, name } : rule)),
       }));
     }
   };
@@ -200,7 +169,6 @@ export default class Workspace extends React.PureComponent<{}, State> {
     const { components, externalRulesRepoNames, height, maximized, open, rules } = this.state;
 
     const openComponent = open.component && components.find((x) => x.key === open.component);
-    const openRule = open.rule && rules.find((x) => x.key === open.rule);
 
     const actualHeight = maximized ? window.innerHeight * MAX_HEIGHT : height;
 
@@ -209,7 +177,6 @@ export default class Workspace extends React.PureComponent<{}, State> {
         value={{
           externalRulesRepoNames,
           openComponent: this.handleOpenComponent,
-          openRule: this.handleOpenRule,
         }}
       >
         {this.props.children}
@@ -219,10 +186,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
               components={components}
               onComponentClose={this.handleComponentClose}
               onComponentOpen={this.handleComponentReopen}
-              onRuleClose={this.handleRuleClose}
-              onRuleOpen={this.handleRuleReopen}
               open={open}
-              rules={rules}
             />
           )}
           {openComponent && (
@@ -236,19 +200,6 @@ export default class Workspace extends React.PureComponent<{}, State> {
               onMaximize={this.handleMaximize}
               onMinimize={this.handleMinimize}
               onResize={this.handleResize}
-            />
-          )}
-          {openRule && (
-            <WorkspaceRuleViewer
-              height={actualHeight}
-              maximized={maximized}
-              onClose={this.handleRuleClose}
-              onCollapse={this.handleCollapse}
-              onLoad={this.handleRuleLoad}
-              onMaximize={this.handleMaximize}
-              onMinimize={this.handleMinimize}
-              onResize={this.handleResize}
-              rule={openRule}
             />
           )}
         </WorkspacePortal>

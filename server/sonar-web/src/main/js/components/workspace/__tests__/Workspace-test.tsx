@@ -23,13 +23,7 @@ import { mockBranch } from '../../../helpers/mocks/branch-like';
 import { get, save } from '../../../helpers/storage';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../types/component';
-import Workspace, {
-  INITIAL_HEIGHT,
-  MAX_HEIGHT,
-  MIN_HEIGHT,
-  TYPE_KEY,
-  WorkspaceTypes,
-} from '../Workspace';
+import Workspace, { INITIAL_HEIGHT, MIN_HEIGHT, TYPE_KEY, WorkspaceTypes } from '../Workspace';
 
 jest.mock('../../../helpers/storage', () => {
   return {
@@ -76,12 +70,6 @@ it('should render correctly', () => {
       open: { component: 'foo' },
     })
   ).toMatchSnapshot('open component');
-  expect(
-    shallowRender({
-      rules: [{ key: 'foo' }],
-      open: { rule: 'foo' },
-    })
-  ).toMatchSnapshot('open rule');
 });
 
 it('should correctly load data from local storage', () => {
@@ -134,16 +122,8 @@ it('should allow elements to be loaded and updated', () => {
   });
   const instance = wrapper.instance();
 
-  // Load an non-existent element won't do anything.
-  instance.handleRuleLoad({ key: 'baz', name: 'Baz' });
-  expect(wrapper.state().rules).toEqual([rule]);
-
   instance.handleComponentLoad({ key: 'baz', name: 'Baz', qualifier: ComponentQualifier.TestFile });
   expect(wrapper.state().components).toEqual([component]);
-
-  // Load an existing element will update some of its properties.
-  instance.handleRuleLoad({ key: 'bar', name: 'Bar' });
-  expect(wrapper.state().rules).toEqual([{ ...rule, name: 'Bar' }]);
 
   instance.handleComponentLoad({ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.File });
   expect(wrapper.state().components).toEqual([
@@ -155,18 +135,14 @@ it('should be resizable', () => {
   (get as jest.Mock).mockReturnValue(
     JSON.stringify([{ [TYPE_KEY]: WorkspaceTypes.Rule, key: 'foo' }])
   );
-  const wrapper = shallowRender({ open: { rule: 'foo' } });
+  const wrapper = shallowRender();
   const instance = wrapper.instance();
 
   instance.handleMaximize();
   expect(wrapper.state().maximized).toBe(true);
-  // We cannot fetch by reference, as the viewer component is lazy loaded. Find
-  // by string instead.
-  expect(wrapper.find('WorkspaceRuleViewer').props().height).toBe(WINDOW_HEIGHT * MAX_HEIGHT);
 
   instance.handleMinimize();
   expect(wrapper.state().maximized).toBe(false);
-  expect(wrapper.find('WorkspaceRuleViewer').props().height).toBe(INITIAL_HEIGHT);
 
   instance.handleResize(-200);
   expect(wrapper.state().height).toBe(INITIAL_HEIGHT + 200);
@@ -176,10 +152,6 @@ it('should be resizable', () => {
 });
 
 it('should be openable/collapsible', () => {
-  const rule = {
-    key: 'baz',
-    name: 'Baz',
-  };
   const component = {
     branchLike: mockBranch(),
     key: 'foo',
@@ -190,9 +162,6 @@ it('should be openable/collapsible', () => {
   instance.handleOpenComponent(component);
   expect(wrapper.state().open).toEqual({ component: 'foo' });
 
-  instance.handleOpenRule(rule);
-  expect(wrapper.state().open).toEqual({ rule: 'baz' });
-
   instance.handleCollapse();
   expect(wrapper.state().open).toEqual({});
 
@@ -202,14 +171,6 @@ it('should be openable/collapsible', () => {
   instance.handleComponentClose('bar');
   expect(wrapper.state().open).toEqual({ component: 'foo' });
   instance.handleComponentClose('foo');
-  expect(wrapper.state().open).toEqual({});
-
-  instance.handleRuleReopen(rule.key);
-  expect(wrapper.state().open).toEqual({ rule: 'baz' });
-
-  instance.handleRuleClose('bar');
-  expect(wrapper.state().open).toEqual({ rule: 'baz' });
-  instance.handleRuleClose('baz');
   expect(wrapper.state().open).toEqual({});
 });
 

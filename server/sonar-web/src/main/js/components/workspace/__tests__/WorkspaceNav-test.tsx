@@ -29,25 +29,17 @@ it('should not render open component', () => {
   expect(shallowRender({ open: { component: 'bar' } })).toMatchSnapshot();
 });
 
-it('should not render open rule', () => {
-  expect(shallowRender({ open: { rule: 'qux' } })).toMatchSnapshot();
-});
-
 function shallowRender(props?: Partial<Props>) {
   const components = [
     { branchLike: undefined, key: 'foo' },
     { branchLike: undefined, key: 'bar' },
   ];
-  const rules = [{ key: 'qux' }];
   return shallow(
     <WorkspaceNav
       components={components}
       onComponentClose={jest.fn()}
       onComponentOpen={jest.fn()}
-      onRuleClose={jest.fn()}
-      onRuleOpen={jest.fn()}
       open={{}}
-      rules={rules}
       {...props}
     />
   );

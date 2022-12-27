@@ -18,36 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ButtonLink } from '../../../components/controls/buttons';
+import { Link } from 'react-router-dom';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { MessageFormatting } from '../../../types/issues';
+import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { BranchLike } from '../../../types/branch-like';
 import { RuleStatus } from '../../../types/rules';
-import { WorkspaceContext } from '../../workspace/context';
+import { Issue } from '../../../types/types';
 import { IssueMessageHighlighting } from '../IssueMessageHighlighting';
 import IssueMessageTags from './IssueMessageTags';
 
 export interface IssueMessageProps {
-  engine?: string;
-  quickFixAvailable?: boolean;
+  issue: Issue;
+  branchLike?: BranchLike;
   displayWhyIsThisAnIssue?: boolean;
-  message: string;
-  messageFormattings?: MessageFormatting[];
-  ruleKey: string;
-  ruleStatus?: RuleStatus;
 }
 
 export default function IssueMessage(props: IssueMessageProps) {
-  const {
-    engine,
-    quickFixAvailable,
-    message,
-    messageFormattings,
-    ruleKey,
-    ruleStatus,
-    displayWhyIsThisAnIssue,
-  } = props;
+  const { issue, branchLike, displayWhyIsThisAnIssue } = props;
 
-  const { openRule } = React.useContext(WorkspaceContext);
+  const { externalRuleEngine, quickFixAvailable, message, messageFormattings, ruleStatus } = issue;
+
+  const whyIsThisAnIssueUrl = getComponentIssuesUrl(issue.project, {
+    ...getBranchLikeQuery(branchLike),
+    files: issue.componentLongName,
+    open: issue.key,
+    resolved: 'false',
+    why: '1',
+  });
 
   return (
     <>
@@ -56,23 +54,20 @@ export default function IssueMessage(props: IssueMessageProps) {
           <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
         </span>
         <IssueMessageTags
-          engine={engine}
+          engine={externalRuleEngine}
           quickFixAvailable={quickFixAvailable}
-          ruleStatus={ruleStatus}
+          ruleStatus={ruleStatus as RuleStatus | undefined}
         />
       </div>
       {displayWhyIsThisAnIssue && (
-        <ButtonLink
+        <Link
           aria-label={translate('issue.why_this_issue.long')}
-          className="issue-see-rule spacer-right text-baseline"
-          onClick={() =>
-            openRule({
-              key: ruleKey,
-            })
-          }
+          className="spacer-right"
+          target="_blank"
+          to={whyIsThisAnIssueUrl}
         >
           {translate('issue.why_this_issue')}
-        </ButtonLink>
+        </Link>
       )}
     </>
   );

@@ -169,18 +169,6 @@
   width: 800px;
 }
 
-.issues .issue {
-  border: 2px solid transparent;
-  cursor: pointer;
-}
-
-.issues .issue:focus-within,
-.issues .issue:hover {
-  border: 2px dashed var(--blue);
-  transition: all 0.3s ease;
-  outline: 0;
-}
-
 .issues .issue a:focus,
 .issues .issue button:focus {
   box-shadow: none;

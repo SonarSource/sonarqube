@@ -50,6 +50,16 @@ beforeEach(() => {
   window.HTMLElement.prototype.scrollIntoView = jest.fn();
 });
 
+it('should navigate to Why is this an issue tab', async () => {
+  renderProjectIssuesApp('project/issues?issues=issue2&open=issue2&id=myproject&why=1');
+  expect(
+    await screen.findByRole('tab', {
+      name: `coding_rules.description_section.title.root_cause`,
+      selected: true,
+    })
+  ).toBeInTheDocument();
+});
+
 //Improve this to include all the bulk change fonctionality
 it('should be able to bulk change', async () => {
   const user = userEvent.setup();

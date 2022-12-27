@@ -8,7 +8,6 @@ exports[`should render correctly: default 1`] = `
     {
       "externalRulesRepoNames": {},
       "openComponent": [Function],
-      "openRule": [Function],
     }
   }
 >
@@ -25,7 +24,6 @@ exports[`should render correctly: open component 1`] = `
     {
       "externalRulesRepoNames": {},
       "openComponent": [Function],
-      "openRule": [Function],
     }
   }
 >
@@ -49,14 +47,11 @@ exports[`should render correctly: open component 1`] = `
       }
       onComponentClose={[Function]}
       onComponentOpen={[Function]}
-      onRuleClose={[Function]}
-      onRuleOpen={[Function]}
       open={
         {
           "component": "foo",
         }
       }
-      rules={[]}
     />
     <withBranchStatusActions(WorkspaceComponentViewer)
       component={
@@ -77,57 +72,6 @@ exports[`should render correctly: open component 1`] = `
       onMaximize={[Function]}
       onMinimize={[Function]}
       onResize={[Function]}
-    />
-  </WorkspacePortal>
-</ContextProvider>
-`;
-
-exports[`should render correctly: open rule 1`] = `
-<ContextProvider
-  value={
-    {
-      "externalRulesRepoNames": {},
-      "openComponent": [Function],
-      "openRule": [Function],
-    }
-  }
->
-  <div
-    className="child"
-  />
-  <WorkspacePortal>
-    <WorkspaceNav
-      components={[]}
-      onComponentClose={[Function]}
-      onComponentOpen={[Function]}
-      onRuleClose={[Function]}
-      onRuleOpen={[Function]}
-      open={
-        {
-          "rule": "foo",
-        }
-      }
-      rules={
-        [
-          {
-            "key": "foo",
-          },
-        ]
-      }
-    />
-    <WorkspaceRuleViewer
-      height={300}
-      onClose={[Function]}
-      onCollapse={[Function]}
-      onLoad={[Function]}
-      onMaximize={[Function]}
-      onMinimize={[Function]}
-      onResize={[Function]}
-      rule={
-        {
-          "key": "foo",
-        }
-      }
     />
   </WorkspacePortal>
 </ContextProvider>

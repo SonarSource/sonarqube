@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import { cloneDeep, debounce, groupBy } from 'lodash';
 import * as React from 'react';
+import { Location } from 'react-router-dom';
 import { dismissNotice } from '../../api/users';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
@@ -29,6 +30,7 @@ import { RuleDetails } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import ScreenPositionHelper from '../common/ScreenPositionHelper';
 import BoxedTabs, { getTabId, getTabPanelId } from '../controls/BoxedTabs';
+import withLocation from '../hoc/withLocation';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
 import './style.css';
@@ -39,6 +41,7 @@ interface RuleTabViewerProps extends CurrentUserContextInterface {
   ruleDescriptionContextKey?: string;
   codeTabContent?: React.ReactNode;
   scrollInTab?: boolean;
+  location: Location;
 }
 
 interface State {
@@ -83,6 +86,15 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
   componentDidMount() {
     this.setState((prevState) => this.computeState(prevState));
     this.attachScrollEvent();
+
+    const tabs = this.computeTabs(Boolean(this.state.displayEducationalPrinciplesNotification));
+
+    const query = new URLSearchParams(this.props.location.search);
+    if (query.has('why')) {
+      this.setState({
+        selectedTab: tabs.find((tab) => tab.key === TabKeys.WhyIsThisAnIssue) || tabs[0],
+      });
+    }
   }
 
   componentDidUpdate(prevProps: RuleTabViewerProps, prevState: State) {
@@ -337,4 +349,4 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
   }
 }
 
-export default withCurrentUserContext(RuleTabViewer);
+export default withCurrentUserContext(withLocation(RuleTabViewer));

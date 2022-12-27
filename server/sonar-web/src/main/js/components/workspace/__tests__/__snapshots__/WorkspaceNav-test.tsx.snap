@@ -18,49 +18,6 @@ exports[`should not render open component 1`] = `
       onClose={[MockFunction]}
       onOpen={[MockFunction]}
     />
-    <WorkspaceNavRule
-      key="rule-qux"
-      onClose={[MockFunction]}
-      onOpen={[MockFunction]}
-      rule={
-        {
-          "key": "qux",
-        }
-      }
-    />
-  </ul>
-</nav>
-`;
-
-exports[`should not render open rule 1`] = `
-<nav
-  className="workspace-nav"
->
-  <ul
-    className="workspace-nav-list"
-  >
-    <WorkspaceNavComponent
-      component={
-        {
-          "branchLike": undefined,
-          "key": "foo",
-        }
-      }
-      key="component-foo"
-      onClose={[MockFunction]}
-      onOpen={[MockFunction]}
-    />
-    <WorkspaceNavComponent
-      component={
-        {
-          "branchLike": undefined,
-          "key": "bar",
-        }
-      }
-      key="component-bar"
-      onClose={[MockFunction]}
-      onOpen={[MockFunction]}
-    />
   </ul>
 </nav>
 `;
@@ -93,16 +50,6 @@ exports[`should render 1`] = `
       key="component-bar"
       onClose={[MockFunction]}
       onOpen={[MockFunction]}
-    />
-    <WorkspaceNavRule
-      key="rule-qux"
-      onClose={[MockFunction]}
-      onOpen={[MockFunction]}
-      rule={
-        {
-          "key": "qux",
-        }
-      }
     />
   </ul>
 </nav>

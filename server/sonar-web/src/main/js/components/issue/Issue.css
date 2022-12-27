@@ -22,7 +22,8 @@
   padding-top: var(--gridSize);
   padding-bottom: var(--gridSize);
   background-color: var(--issueBgColor);
-  transition: all 0.3s ease, border 0s ease;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
   cursor: pointer;
 }
 
@@ -46,10 +47,6 @@
   margin-top: 5px;
 }
 
-.issue.selected + .issue {
-  border-top-color: transparent;
-}
-
 .issue-row {
   display: flex;
   margin-bottom: 5px;
@@ -59,7 +56,6 @@
 .issue-row-meta {
   padding-right: 5px;
   white-space: nowrap;
-  margin-top: 2px;
 }
 
 .issue-message {
@@ -85,7 +81,7 @@
 }
 
 .issue-meta {
-  line-height: 16px;
+  line-height: var(--smallFontSize);
   font-size: var(--smallFontSize);
   display: flex;
 }
@@ -106,12 +102,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.issue-see-rule {
-  border-bottom: none;
-  font-size: var(--smallFontSize);
-  margin-top: 5px;
 }
 
 .issue-changelog {
@@ -275,7 +265,9 @@
   background-color: var(--secondIssueBgColor);
 }
 
-.issue-message-box.secondary-issue:hover {
+.issue-message-box.secondary-issue:hover,
+.issue:focus-within,
+.issue:hover {
   border: 2px dashed var(--blue);
   outline: 0;
   cursor: pointer;
