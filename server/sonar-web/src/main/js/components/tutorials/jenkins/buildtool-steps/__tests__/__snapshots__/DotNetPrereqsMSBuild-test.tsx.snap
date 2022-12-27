@@ -18,8 +18,8 @@ exports[`should render correctly 1`] = `
   >
     onboarding.tutorial.with.jenkins.dotnet.msbuild.prereqs.info
   </Alert>
-  <ul
-    className="list-styled"
+  <ol
+    className="list-styled list-roman"
   >
     <li>
       <SentenceWithHighlights
@@ -62,6 +62,6 @@ exports[`should render correctly 1`] = `
         copyValue="Default MSBuild"
       />
     </li>
-  </ul>
+  </ol>
 </li>
 `;

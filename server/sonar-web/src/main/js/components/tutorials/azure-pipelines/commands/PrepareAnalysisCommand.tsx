@@ -48,7 +48,7 @@ export default function PrepareAnalysisCommand(props: PrepareAnalysisCommandProp
 sonar.projectKey=${projectKey}`;
 
   return (
-    <ul className="list-styled">
+    <ul className="list-styled list-alpha spacer-top">
       <li>
         <SentenceWithHighlights
           translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.endpoint"

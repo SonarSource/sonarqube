@@ -44,7 +44,7 @@ export default function JavaToolInstallation() {
   return (
     <li>
       {translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.title')}
-      <ul className="list-styled">
+      <ul className="list-styled list-alpha">
         <li>
           {renderSentenceWithFieldAndValue({
             field: translate(

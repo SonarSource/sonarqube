@@ -42,12 +42,12 @@ export default function JavaGradle(props: JavaGradleProps) {
             translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
             highlightKeys={['pipeline', 'task', 'before']}
           />
+          <PrepareAnalysisCommand
+            buildTool={BuildTools.Gradle}
+            kind={PrepareType.JavaMavenGradle}
+            projectKey={projectKey}
+          />
         </li>
-        <PrepareAnalysisCommand
-          buildTool={BuildTools.Gradle}
-          kind={PrepareType.JavaMavenGradle}
-          projectKey={projectKey}
-        />
 
         <JavaToolInstallation />
 
@@ -56,15 +56,15 @@ export default function JavaGradle(props: JavaGradleProps) {
             'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java',
             translate('onboarding.build', BuildTools.Gradle)
           )}
+          <ul className="list-styled list-alpha big-spacer-bottom">
+            <li>
+              <SentenceWithHighlights
+                translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java.settings"
+                highlightKeys={['section', 'option']}
+              />
+            </li>
+          </ul>
         </li>
-        <ul className="list-styled big-spacer-bottom">
-          <li>
-            <SentenceWithHighlights
-              translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java.settings"
-              highlightKeys={['section', 'option']}
-            />
-          </li>
-        </ul>
 
         <PublishSteps />
       </ol>

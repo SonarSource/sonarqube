@@ -33,7 +33,7 @@ export default function DotNetPrereqsMSBuild() {
       <Alert className="spacer-top" variant="info">
         {translate('onboarding.tutorial.with.jenkins.dotnet.msbuild.prereqs.info')}
       </Alert>
-      <ul className="list-styled">
+      <ol className="list-styled list-roman">
         <li>
           <SentenceWithHighlights
             highlightKeys={['msbuild']}
@@ -54,7 +54,7 @@ export default function DotNetPrereqsMSBuild() {
           <code className="rule">Default MSBuild</code>
           <ClipboardIconButton copyValue="Default MSBuild" />
         </li>
-      </ul>
+      </ol>
     </li>
   );
 }

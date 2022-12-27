@@ -90,7 +90,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
             ),
           }}
         />
-        <ul className="list-styled">
+        <ul className="list-styled list-alpha">
           <li>
             <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.step1.name" />
           </li>
@@ -120,7 +120,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
             highlightKeys={['triggers', 'option']}
             translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2"
           />
-          <ul className="list-styled">
+          <ul className="list-styled list-alpha">
             <li>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2.repo" />
             </li>
@@ -137,7 +137,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
             highlightKeys={['events']}
             translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2"
           />
-          <ul className="list-styled">
+          <ul className="list-styled list-alpha">
             <li>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.repo" />
             </li>

@@ -45,7 +45,7 @@ exports[`should render correctly: content for bitbucket 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <React.Fragment>
           <li>
@@ -76,8 +76,8 @@ exports[`should render correctly: content for bitbucket 1`] = `
             onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
             :
           </strong>
-          <ul
-            className="list-styled little-spacer-top abs-width-600"
+          <ol
+            className="list-styled list-roman little-spacer-top abs-width-600"
           >
             <li>
               <LabelActionPair
@@ -124,7 +124,7 @@ exports[`should render correctly: content for bitbucket 1`] = `
                 </li>
               </ul>
             </li>
-          </ul>
+          </ol>
         </li>
       </ul>
       <p
@@ -143,7 +143,7 @@ exports[`should render correctly: content for bitbucket 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <li>
           <LabelActionPair
@@ -214,7 +214,7 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <React.Fragment>
           <li>
@@ -245,8 +245,8 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
             onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
             :
           </strong>
-          <ul
-            className="list-styled little-spacer-top abs-width-600"
+          <ol
+            className="list-styled list-roman little-spacer-top abs-width-600"
           >
             <li>
               <LabelActionPair
@@ -293,7 +293,7 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
                 </li>
               </ul>
             </li>
-          </ul>
+          </ol>
         </li>
       </ul>
       <p
@@ -312,7 +312,7 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <li>
           <LabelActionPair
@@ -383,7 +383,7 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <React.Fragment>
           <li>
@@ -412,8 +412,8 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
             onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
             :
           </strong>
-          <ul
-            className="list-styled little-spacer-top abs-width-600"
+          <ol
+            className="list-styled list-roman little-spacer-top abs-width-600"
           >
             <li>
               <LabelActionPair
@@ -460,7 +460,7 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
                 </li>
               </ul>
             </li>
-          </ul>
+          </ol>
         </li>
       </ul>
       <p
@@ -479,7 +479,7 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <li>
           <LabelActionPair
@@ -550,7 +550,7 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <React.Fragment>
           <li>
@@ -579,8 +579,8 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
             onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
             :
           </strong>
-          <ul
-            className="list-styled little-spacer-top abs-width-600"
+          <ol
+            className="list-styled list-roman little-spacer-top abs-width-600"
           >
             <li>
               <LabelActionPair
@@ -627,7 +627,7 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
                 </li>
               </ul>
             </li>
-          </ul>
+          </ol>
         </li>
       </ul>
       <p
@@ -646,7 +646,7 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <li>
           <LabelActionPair
@@ -717,7 +717,7 @@ exports[`should render correctly: content for github 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <React.Fragment>
           <li>
@@ -737,8 +737,8 @@ exports[`should render correctly: content for github 1`] = `
             onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
             :
           </strong>
-          <ul
-            className="list-styled little-spacer-top abs-width-600"
+          <ol
+            className="list-styled list-roman little-spacer-top abs-width-600"
           >
             <li>
               <LabelActionPair
@@ -785,7 +785,7 @@ exports[`should render correctly: content for github 1`] = `
                 </li>
               </ul>
             </li>
-          </ul>
+          </ol>
         </li>
       </ul>
       <p
@@ -804,7 +804,7 @@ exports[`should render correctly: content for github 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <li>
           <LabelActionPair
@@ -875,7 +875,7 @@ exports[`should render correctly: content for github, no binding 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <React.Fragment>
           <li>
@@ -894,8 +894,8 @@ exports[`should render correctly: content for github, no binding 1`] = `
             onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
             :
           </strong>
-          <ul
-            className="list-styled little-spacer-top abs-width-600"
+          <ol
+            className="list-styled list-roman little-spacer-top abs-width-600"
           >
             <li>
               <LabelActionPair
@@ -942,7 +942,7 @@ exports[`should render correctly: content for github, no binding 1`] = `
                 </li>
               </ul>
             </li>
-          </ul>
+          </ol>
         </li>
       </ul>
       <p
@@ -961,7 +961,7 @@ exports[`should render correctly: content for github, no binding 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <li>
           <LabelActionPair
@@ -1032,7 +1032,7 @@ exports[`should render correctly: content for gitlab 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <React.Fragment>
           <li>
@@ -1056,8 +1056,8 @@ exports[`should render correctly: content for gitlab 1`] = `
             onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
             :
           </strong>
-          <ul
-            className="list-styled little-spacer-top abs-width-600"
+          <ol
+            className="list-styled list-roman little-spacer-top abs-width-600"
           >
             <li>
               <LabelActionPair
@@ -1104,7 +1104,7 @@ exports[`should render correctly: content for gitlab 1`] = `
                 </li>
               </ul>
             </li>
-          </ul>
+          </ol>
         </li>
       </ul>
       <p
@@ -1123,7 +1123,7 @@ exports[`should render correctly: content for gitlab 1`] = `
         translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
       />
       <ul
-        className="list-styled"
+        className="list-styled list-alpha"
       >
         <li>
           <LabelActionPair

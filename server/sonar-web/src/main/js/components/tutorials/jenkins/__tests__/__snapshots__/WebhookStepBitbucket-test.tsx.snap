@@ -18,7 +18,7 @@ exports[`should render correctly for bitbucket 1`] = `
       }
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -55,7 +55,7 @@ exports[`should render correctly for bitbucket 1`] = `
       translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2"
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -100,7 +100,7 @@ exports[`should render correctly for bitbucket: with branches disabled 1`] = `
       }
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -132,7 +132,7 @@ exports[`should render correctly for bitbucket: with branches disabled 1`] = `
       translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2"
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -169,7 +169,7 @@ exports[`should render correctly for bitbucket: with no alm binding 1`] = `
       }
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -206,7 +206,7 @@ exports[`should render correctly for bitbucket: with no alm binding 1`] = `
       translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2"
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -251,7 +251,7 @@ exports[`should render correctly for bitbucketcloud 1`] = `
       }
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -284,7 +284,7 @@ exports[`should render correctly for bitbucketcloud 1`] = `
       translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2"
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -329,7 +329,7 @@ exports[`should render correctly for bitbucketcloud: with branches disabled 1`] 
       }
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -362,7 +362,7 @@ exports[`should render correctly for bitbucketcloud: with branches disabled 1`] 
       translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2"
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -399,7 +399,7 @@ exports[`should render correctly for bitbucketcloud: with no alm binding 1`] = `
       }
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair
@@ -432,7 +432,7 @@ exports[`should render correctly for bitbucketcloud: with no alm binding 1`] = `
       translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucketcloud.step2"
     />
     <ul
-      className="list-styled"
+      className="list-styled list-alpha"
     >
       <li>
         <LabelActionPair

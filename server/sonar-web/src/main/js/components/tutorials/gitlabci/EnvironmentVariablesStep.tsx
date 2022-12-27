@@ -48,101 +48,153 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
 
   const renderForm = () => (
     <div className="boxed-group-inner">
-      <h2 className="spacer-bottom spacer-top">
-        {translate('onboarding.tutorial.with.gitlab_ci.env_variables.section.title')}
-      </h2>
+      <ol className="list-styled">
+        <li>
+          <p className="big-spacer-bottom">
+            {translate('onboarding.tutorial.with.gitlab_ci.env_variables.section.title')}
+          </p>
 
-      <FormattedMessage
-        defaultMessage={translate(
-          'onboarding.tutorial.with.gitlab_ci.env_variables.section.description'
-        )}
-        id="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
-        values={{
-          /* This link will be added when the backend provides the project URL */
-          link: <strong>{pipelineDescriptionLinkLabel}</strong>,
-        }}
-      />
-
-      <ol className="list-styled big-spacer-top">
-        <li className="big-spacer-bottom">
           <FormattedMessage
-            defaultMessage={fieldValueTranslation}
-            id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
+            defaultMessage={translate(
+              'onboarding.tutorial.with.gitlab_ci.env_variables.section.description'
+            )}
+            id="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
             values={{
-              extra: <ClipboardIconButton copyValue="SONAR_TOKEN" />,
-              field: (
-                <strong>
-                  {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step1')}
-                </strong>
-              ),
-              value: <code className="rule">SONAR_TOKEN</code>,
+              /* This link will be added when the backend provides the project URL */
+              link: <strong>{pipelineDescriptionLinkLabel}</strong>,
             }}
           />
+
+          <ul className="list-styled list-alpha big-spacer-top">
+            <li className="big-spacer-bottom">
+              <FormattedMessage
+                defaultMessage={fieldValueTranslation}
+                id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
+                values={{
+                  extra: <ClipboardIconButton copyValue="SONAR_TOKEN" />,
+                  field: (
+                    <strong>
+                      {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step1')}
+                    </strong>
+                  ),
+                  value: <code className="rule">SONAR_TOKEN</code>,
+                }}
+              />
+            </li>
+            <TokenStepGenerator component={component} currentUser={currentUser} />
+            <li className="big-spacer-bottom">
+              <FormattedMessage
+                defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.env_variables.step3')}
+                id="onboarding.tutorial.with.gitlab_ci.env_variables.step3"
+                values={{
+                  value: (
+                    <strong>
+                      {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step3.value')}
+                    </strong>
+                  ),
+                }}
+              />
+            </li>
+            <li className="big-spacer-bottom">
+              <FormattedMessage
+                defaultMessage={translate(
+                  'onboarding.tutorial.with.gitlab_ci.env_variables.section.step4'
+                )}
+                id="onboarding.tutorial.with.gitlab_ci.env_variables.section.step4"
+                values={{
+                  value: (
+                    <strong>
+                      {translate(
+                        'onboarding.tutorial.with.gitlab_ci.env_variables.section.step4.value'
+                      )}
+                    </strong>
+                  ),
+                }}
+              />
+            </li>
+          </ul>
+          <hr className="no-horizontal-margins" />
         </li>
-        <TokenStepGenerator component={component} currentUser={currentUser} />
-        <li className="big-spacer-bottom">
-          {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step3')}
-        </li>
-        <li className="big-spacer-bottom">
-          {translate('onboarding.tutorial.with.gitlab_ci.env_variables.section.step4')}
+        <li>
+          <p className="big-spacer-bottom big-spacer-top">
+            {translate('onboarding.tutorial.with.gitlab_ci.env_variables.section2.title')}
+          </p>
+
+          <FormattedMessage
+            defaultMessage={translate(
+              'onboarding.tutorial.with.gitlab_ci.env_variables.section2.description'
+            )}
+            id="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
+            values={{
+              /* This link will be added when the backend provides the project URL */
+              link: <strong>{pipelineDescriptionLinkLabel}</strong>,
+            }}
+          />
+
+          <ul className="list-styled list-alpha big-spacer-top big-spacer-bottom">
+            <li className="big-spacer-bottom">
+              <FormattedMessage
+                defaultMessage={fieldValueTranslation}
+                id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
+                values={{
+                  extra: <ClipboardIconButton copyValue="SONAR_HOST_URL" />,
+                  field: (
+                    <strong>
+                      {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step1')}
+                    </strong>
+                  ),
+                  value: <code className="rule">SONAR_HOST_URL</code>,
+                }}
+              />
+            </li>
+            <li className="big-spacer-bottom">
+              <FormattedMessage
+                defaultMessage={fieldValueTranslation}
+                id="onboarding.tutorial.with.gitlab_ci.env_variables.step2"
+                values={{
+                  extra: <ClipboardIconButton copyValue={baseUrl} />,
+                  field: <strong>{translate('onboarding.tutorial.env_variables.field')}</strong>,
+                  value: <code className="rule">{baseUrl}</code>,
+                }}
+              />
+            </li>
+            <li className="big-spacer-bottom">
+              <FormattedMessage
+                defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.env_variables.step3')}
+                id="onboarding.tutorial.with.gitlab_ci.env_variables.step3"
+                values={{
+                  value: (
+                    <strong>
+                      {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step3.value')}
+                    </strong>
+                  ),
+                }}
+              />
+            </li>
+            <li className="big-spacer-bottom">
+              <FormattedMessage
+                defaultMessage={translate(
+                  'onboarding.tutorial.with.gitlab_ci.env_variables.section2.step4'
+                )}
+                id="onboarding.tutorial.with.gitlab_ci.env_variables.section2.step4"
+                values={{
+                  value: (
+                    <strong>
+                      {translate(
+                        'onboarding.tutorial.with.gitlab_ci.env_variables.section.step4.value'
+                      )}
+                    </strong>
+                  ),
+                }}
+              />
+            </li>
+          </ul>
+
+          <Button className="big-spacer-bottom" onClick={props.onDone}>
+            {translate('continue')}
+          </Button>
         </li>
       </ol>
-
-      <hr className="no-horizontal-margins" />
-
-      <h2 className="spacer-bottom big-spacer-top">
-        {translate('onboarding.tutorial.with.gitlab_ci.env_variables.section2.title')}
-      </h2>
-
-      <FormattedMessage
-        defaultMessage={translate(
-          'onboarding.tutorial.with.gitlab_ci.env_variables.section2.description'
-        )}
-        id="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
-        values={{
-          /* This link will be added when the backend provides the project URL */
-          link: <strong>{pipelineDescriptionLinkLabel}</strong>,
-        }}
-      />
-
-      <ol className="list-styled big-spacer-top big-spacer-bottom">
-        <li className="big-spacer-bottom">
-          <FormattedMessage
-            defaultMessage={fieldValueTranslation}
-            id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
-            values={{
-              extra: <ClipboardIconButton copyValue="SONAR_HOST_URL" />,
-              field: (
-                <strong>
-                  {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step1')}
-                </strong>
-              ),
-              value: <code className="rule">SONAR_HOST_URL</code>,
-            }}
-          />
-        </li>
-        <li className="big-spacer-bottom">
-          <FormattedMessage
-            defaultMessage={fieldValueTranslation}
-            id="onboarding.tutorial.with.gitlab_ci.env_variables.step2"
-            values={{
-              extra: <ClipboardIconButton copyValue={baseUrl} />,
-              field: <strong>{translate('onboarding.tutorial.env_variables.field')}</strong>,
-              value: <code className="rule">{baseUrl}</code>,
-            }}
-          />
-        </li>
-        <li className="big-spacer-bottom">
-          {translate('onboarding.tutorial.with.gitlab_ci.env_variables.step3')}
-        </li>
-        <li className="big-spacer-bottom">
-          {translate('onboarding.tutorial.with.gitlab_ci.env_variables.section2.step4')}
-        </li>
-      </ol>
-
-      <Button className="big-spacer-bottom" onClick={props.onDone}>
-        {translate('continue')}
-      </Button>
     </div>
   );
 

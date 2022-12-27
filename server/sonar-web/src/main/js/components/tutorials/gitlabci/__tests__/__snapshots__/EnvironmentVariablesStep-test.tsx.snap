@@ -15,179 +15,227 @@ exports[`should render correctly: initial content 1`] = `
 <div
   className="boxed-group-inner"
 >
-  <h2
-    className="spacer-bottom spacer-top"
-  >
-    onboarding.tutorial.with.gitlab_ci.env_variables.section.title
-  </h2>
-  <FormattedMessage
-    defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
-    id="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
-    values={
-      {
-        "link": <strong>
-          onboarding.tutorial.with.gitlab_ci.env_variables.description.link
-        </strong>,
-      }
-    }
-  />
   <ol
-    className="list-styled big-spacer-top"
+    className="list-styled"
   >
-    <li
-      className="big-spacer-bottom"
-    >
+    <li>
+      <p
+        className="big-spacer-bottom"
+      >
+        onboarding.tutorial.with.gitlab_ci.env_variables.section.title
+      </p>
       <FormattedMessage
-        defaultMessage="onboarding.tutorial.env_variables"
-        id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
+        defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
+        id="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
         values={
           {
-            "extra": <ClipboardIconButton
-              copyValue="SONAR_TOKEN"
-            />,
-            "field": <strong>
-              onboarding.tutorial.with.gitlab_ci.env_variables.step1
+            "link": <strong>
+              onboarding.tutorial.with.gitlab_ci.env_variables.description.link
             </strong>,
-            "value": <code
-              className="rule"
-            >
-              SONAR_TOKEN
-            </code>,
           }
         }
       />
-    </li>
-    <TokenStepGenerator
-      component={
-        {
-          "breadcrumbs": [],
-          "key": "my-project",
-          "name": "MyProject",
-          "qualifier": "TRK",
-          "qualityGate": {
-            "isDefault": true,
-            "key": "30",
-            "name": "Sonar way",
-          },
-          "qualityProfiles": [
+      <ul
+        className="list-styled list-alpha big-spacer-top"
+      >
+        <li
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.env_variables"
+            id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
+            values={
+              {
+                "extra": <ClipboardIconButton
+                  copyValue="SONAR_TOKEN"
+                />,
+                "field": <strong>
+                  onboarding.tutorial.with.gitlab_ci.env_variables.step1
+                </strong>,
+                "value": <code
+                  className="rule"
+                >
+                  SONAR_TOKEN
+                </code>,
+              }
+            }
+          />
+        </li>
+        <TokenStepGenerator
+          component={
             {
-              "deleted": false,
-              "key": "my-qp",
-              "language": "ts",
-              "name": "Sonar way",
-            },
-          ],
-          "tags": [],
-        }
-      }
-      currentUser={
-        {
-          "dismissedNotices": {
-            "educationPrinciples": false,
-          },
-          "groups": [],
-          "isLoggedIn": true,
-          "login": "luke",
-          "name": "Skywalker",
-          "scmAccounts": [],
-        }
-      }
-    />
-    <li
-      className="big-spacer-bottom"
-    >
-      onboarding.tutorial.with.gitlab_ci.env_variables.step3
+              "breadcrumbs": [],
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "TRK",
+              "qualityGate": {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": [
+                {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": [],
+            }
+          }
+          currentUser={
+            {
+              "dismissedNotices": {
+                "educationPrinciples": false,
+              },
+              "groups": [],
+              "isLoggedIn": true,
+              "login": "luke",
+              "name": "Skywalker",
+              "scmAccounts": [],
+            }
+          }
+        />
+        <li
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.step3"
+            id="onboarding.tutorial.with.gitlab_ci.env_variables.step3"
+            values={
+              {
+                "value": <strong>
+                  onboarding.tutorial.with.gitlab_ci.env_variables.step3.value
+                </strong>,
+              }
+            }
+          />
+        </li>
+        <li
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.section.step4"
+            id="onboarding.tutorial.with.gitlab_ci.env_variables.section.step4"
+            values={
+              {
+                "value": <strong>
+                  onboarding.tutorial.with.gitlab_ci.env_variables.section.step4.value
+                </strong>,
+              }
+            }
+          />
+        </li>
+      </ul>
+      <hr
+        className="no-horizontal-margins"
+      />
     </li>
-    <li
-      className="big-spacer-bottom"
-    >
-      onboarding.tutorial.with.gitlab_ci.env_variables.section.step4
-    </li>
-  </ol>
-  <hr
-    className="no-horizontal-margins"
-  />
-  <h2
-    className="spacer-bottom big-spacer-top"
-  >
-    onboarding.tutorial.with.gitlab_ci.env_variables.section2.title
-  </h2>
-  <FormattedMessage
-    defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
-    id="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
-    values={
-      {
-        "link": <strong>
-          onboarding.tutorial.with.gitlab_ci.env_variables.description.link
-        </strong>,
-      }
-    }
-  />
-  <ol
-    className="list-styled big-spacer-top big-spacer-bottom"
-  >
-    <li
-      className="big-spacer-bottom"
-    >
+    <li>
+      <p
+        className="big-spacer-bottom big-spacer-top"
+      >
+        onboarding.tutorial.with.gitlab_ci.env_variables.section2.title
+      </p>
       <FormattedMessage
-        defaultMessage="onboarding.tutorial.env_variables"
-        id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
+        defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
+        id="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
         values={
           {
-            "extra": <ClipboardIconButton
-              copyValue="SONAR_HOST_URL"
-            />,
-            "field": <strong>
-              onboarding.tutorial.with.gitlab_ci.env_variables.step1
+            "link": <strong>
+              onboarding.tutorial.with.gitlab_ci.env_variables.description.link
             </strong>,
-            "value": <code
-              className="rule"
-            >
-              SONAR_HOST_URL
-            </code>,
           }
         }
       />
-    </li>
-    <li
-      className="big-spacer-bottom"
-    >
-      <FormattedMessage
-        defaultMessage="onboarding.tutorial.env_variables"
-        id="onboarding.tutorial.with.gitlab_ci.env_variables.step2"
-        values={
-          {
-            "extra": <ClipboardIconButton
-              copyValue="http://localhost:9000"
-            />,
-            "field": <strong>
-              onboarding.tutorial.env_variables.field
-            </strong>,
-            "value": <code
-              className="rule"
-            >
-              http://localhost:9000
-            </code>,
-          }
-        }
-      />
-    </li>
-    <li
-      className="big-spacer-bottom"
-    >
-      onboarding.tutorial.with.gitlab_ci.env_variables.step3
-    </li>
-    <li
-      className="big-spacer-bottom"
-    >
-      onboarding.tutorial.with.gitlab_ci.env_variables.section2.step4
+      <ul
+        className="list-styled list-alpha big-spacer-top big-spacer-bottom"
+      >
+        <li
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.env_variables"
+            id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
+            values={
+              {
+                "extra": <ClipboardIconButton
+                  copyValue="SONAR_HOST_URL"
+                />,
+                "field": <strong>
+                  onboarding.tutorial.with.gitlab_ci.env_variables.step1
+                </strong>,
+                "value": <code
+                  className="rule"
+                >
+                  SONAR_HOST_URL
+                </code>,
+              }
+            }
+          />
+        </li>
+        <li
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.env_variables"
+            id="onboarding.tutorial.with.gitlab_ci.env_variables.step2"
+            values={
+              {
+                "extra": <ClipboardIconButton
+                  copyValue="http://localhost:9000"
+                />,
+                "field": <strong>
+                  onboarding.tutorial.env_variables.field
+                </strong>,
+                "value": <code
+                  className="rule"
+                >
+                  http://localhost:9000
+                </code>,
+              }
+            }
+          />
+        </li>
+        <li
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.step3"
+            id="onboarding.tutorial.with.gitlab_ci.env_variables.step3"
+            values={
+              {
+                "value": <strong>
+                  onboarding.tutorial.with.gitlab_ci.env_variables.step3.value
+                </strong>,
+              }
+            }
+          />
+        </li>
+        <li
+          className="big-spacer-bottom"
+        >
+          <FormattedMessage
+            defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.section2.step4"
+            id="onboarding.tutorial.with.gitlab_ci.env_variables.section2.step4"
+            values={
+              {
+                "value": <strong>
+                  onboarding.tutorial.with.gitlab_ci.env_variables.section.step4.value
+                </strong>,
+              }
+            }
+          />
+        </li>
+      </ul>
+      <Button
+        className="big-spacer-bottom"
+        onClick={[MockFunction]}
+      >
+        continue
+      </Button>
     </li>
   </ol>
-  <Button
-    className="big-spacer-bottom"
-    onClick={[MockFunction]}
-  >
-    continue
-  </Button>
 </div>
 `;

@@ -39,12 +39,12 @@ export default function Other(props: OtherProps) {
             translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
             highlightKeys={['pipeline', 'task', 'before']}
           />
+          <PrepareAnalysisCommand
+            buildTool={BuildTools.Other}
+            kind={PrepareType.StandAlone}
+            projectKey={projectKey}
+          />
         </li>
-        <PrepareAnalysisCommand
-          buildTool={BuildTools.Other}
-          kind={PrepareType.StandAlone}
-          projectKey={projectKey}
-        />
 
         <li>
           <SentenceWithHighlights
