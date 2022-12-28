@@ -19,7 +19,14 @@
  */
 
 import { ComponentQualifier } from '../../types/component';
-import { SnippetsByComponent, SourceLine, SourceViewerFile } from '../../types/types';
+import {
+  DuplicatedFile,
+  Duplication,
+  DuplicationBlock,
+  SnippetsByComponent,
+  SourceLine,
+  SourceViewerFile,
+} from '../../types/types';
 
 export function mockSourceViewerFile(
   name = 'foo/bar.ts',
@@ -74,5 +81,30 @@ export function mockSnippetsByComponent(
   return {
     component: mockSourceViewerFile(file, project),
     sources,
+  };
+}
+
+export function mockDuplicatedFile(overrides: Partial<DuplicatedFile> = {}): DuplicatedFile {
+  return {
+    key: 'file1.java',
+    name: overrides.key || 'file1.java',
+    project: 'foo',
+    projectName: 'Foo',
+    ...overrides,
+  };
+}
+
+export function mockDuplication(overrides: Partial<Duplication> = {}): Duplication {
+  return {
+    blocks: [mockDuplicationBlock()],
+    ...overrides,
+  };
+}
+
+export function mockDuplicationBlock(overrides: Partial<DuplicationBlock> = {}): DuplicationBlock {
+  return {
+    from: 12,
+    size: 5,
+    ...overrides,
   };
 }

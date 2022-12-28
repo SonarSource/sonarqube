@@ -140,7 +140,7 @@ export function getComponent(
   return getJSON('/api/measures/component', data);
 }
 
-type GetTreeParams = {
+export type GetTreeParams = {
   asc?: boolean;
   component: string;
   p?: number;

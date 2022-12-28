@@ -20,8 +20,10 @@
 import { queryHelpers, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { act } from 'react-dom/test-utils';
 import { byRole } from 'testing-library-selector';
-import { SourceViewerServiceMock } from '../../../api/mocks/SourceViewerServiceMock';
+import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
+import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { HttpStatus } from '../../../helpers/request';
 import { mockIssue } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
@@ -30,10 +32,16 @@ import SourceViewer from '../SourceViewer';
 
 jest.mock('../../../api/components');
 jest.mock('../../../api/issues');
+// The following 2 mocks are needed, because IssuesServiceMock mocks more than it should.
+// This should be removed once IssuesServiceMock is cleaned up.
+jest.mock('../../../api/rules');
+jest.mock('../../../api/users');
+
 jest.mock('../helpers/loadIssues', () => ({
   __esModule: true,
   default: jest.fn().mockResolvedValue([]),
 }));
+
 jest.mock('../helpers/lines', () => {
   const lines = jest.requireActual('../helpers/lines');
   return {
@@ -47,10 +55,12 @@ const ui = {
   minorSeverityButton: byRole('button', { name: 'severity.MINOR' }),
 };
 
-const handler = new SourceViewerServiceMock();
+const componentsHandler = new ComponentsServiceMock();
+const issuesHandler = new IssuesServiceMock();
 
 beforeEach(() => {
-  handler.reset();
+  issuesHandler.reset();
+  componentsHandler.reset();
 });
 
 it('should show a permalink on line number', async () => {
@@ -64,48 +74,46 @@ it('should show a permalink on line number', async () => {
       name: 'source_viewer.line_X.1',
     })
   );
-  await user.click(
-    rowScreen.getByRole('button', {
-      name: 'component_viewer.copy_permalink',
-    })
-  );
 
   expect(
     /* eslint-disable-next-line testing-library/prefer-presence-queries */
     queryHelpers.queryByAttribute(
       'data-clipboard-text',
       row,
-      'http://localhost/code?id=project&selected=project%3Atest.js&line=1'
+      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1'
     )
   ).toBeInTheDocument();
 
-  await user.keyboard('[Escape]');
+  await act(async () => {
+    await user.keyboard('[Escape]');
+  });
 
   expect(
     /* eslint-disable-next-line testing-library/prefer-presence-queries */
     queryHelpers.queryByAttribute(
       'data-clipboard-text',
       row,
-      'http://localhost/code?id=project&selected=project%3Atest.js&line=1'
+      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1'
     )
   ).not.toBeInTheDocument();
 
   row = await screen.findByRole('row', { name: / \* 6$/ });
   expect(row).toBeInTheDocument();
   const lowerRowScreen = within(row);
-  await user.click(
-    lowerRowScreen.getByRole('button', {
-      name: 'source_viewer.line_X.6',
-    })
-  );
+
+  await act(async () => {
+    await user.click(
+      lowerRowScreen.getByRole('button', {
+        name: 'source_viewer.line_X.6',
+      })
+    );
+  });
 
   expect(
     lowerRowScreen.getByRole('button', {
       name: 'component_viewer.copy_permalink',
     })
   ).toBeInTheDocument();
-
-  await user.keyboard('[Escape]');
 });
 
 it('should show issue on empty file', async () => {
@@ -118,7 +126,7 @@ it('should show issue on empty file', async () => {
     }),
   ]);
   renderSourceViewer({
-    component: handler.getEmptyFile(),
+    component: componentsHandler.getEmptyFileKey(),
   });
   expect(await screen.findByRole('table')).toBeInTheDocument();
   expect(await screen.findByRole('row', { name: 'First Issue' })).toBeInTheDocument();
@@ -128,7 +136,7 @@ it('should be able to interact with issue action', async () => {
   (loadIssues as jest.Mock).mockResolvedValueOnce([
     mockIssue(false, {
       actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
-      key: 'first-issue',
+      key: 'issue1',
       message: 'First Issue',
       line: 1,
       textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 },
@@ -171,12 +179,12 @@ it('should be able to interact with issue action', async () => {
 });
 
 it('should load line when looking arround unloaded line', async () => {
-  const { rerender } = renderSourceViewer({
+  const rerender = renderSourceViewer({
     aroundLine: 50,
-    component: handler.getHugeFile(),
+    component: componentsHandler.getHugeFileKey(),
   });
   expect(await screen.findByRole('row', { name: /Line 50$/ })).toBeInTheDocument();
-  rerender(getSourceViewerUi({ aroundLine: 100, component: handler.getHugeFile() }));
+  rerender({ aroundLine: 100, component: componentsHandler.getHugeFileKey() });
 
   expect(await screen.findByRole('row', { name: /Line 100$/ })).toBeInTheDocument();
 });
@@ -365,14 +373,17 @@ it('should show duplication block', async () => {
     duplicateLine.getByRole('button', { name: 'source_viewer.tooltip.duplicated_block' })
   );
 
-  expect(duplicateLine.getAllByRole('link', { name: 'test2.js' })[0]).toBeInTheDocument();
-  await user.keyboard('[Escape]');
-  expect(duplicateLine.queryByRole('link', { name: 'test2.js' })).not.toBeInTheDocument();
+  expect(duplicateLine.getAllByRole('link', { name: 'foo:test2.js' })[0]).toBeInTheDocument();
+
+  await act(async () => {
+    await user.keyboard('[Escape]');
+  });
+  expect(duplicateLine.queryByRole('link', { name: 'foo:test2.js' })).not.toBeInTheDocument();
 });
 
 it('should highlight symbol', async () => {
   const user = userEvent.setup();
-  renderSourceViewer({ component: 'project:testSymb.tsx' });
+  renderSourceViewer({ component: 'foo:testSymb.tsx' });
   const symbols = await screen.findAllByText('symbole');
   await user.click(symbols[0]);
 
@@ -383,7 +394,7 @@ it('should highlight symbol', async () => {
 });
 
 it('should show correct message when component is not asscessible', async () => {
-  handler.setFailLoadingComponentStatus(HttpStatus.Forbidden);
+  componentsHandler.setFailLoadingComponentStatus(HttpStatus.Forbidden);
   renderSourceViewer();
   expect(
     await screen.findByText('code_viewer.no_source_code_displayed_due_to_security')
@@ -391,21 +402,17 @@ it('should show correct message when component is not asscessible', async () => 
 });
 
 it('should show correct message when component does not exist', async () => {
-  handler.setFailLoadingComponentStatus(HttpStatus.NotFound);
+  componentsHandler.setFailLoadingComponentStatus(HttpStatus.NotFound);
   renderSourceViewer();
   expect(await screen.findByText('component_viewer.no_component')).toBeInTheDocument();
 });
 
 function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
-  return renderComponent(getSourceViewerUi(override));
-}
-
-function getSourceViewerUi(override?: Partial<SourceViewer['props']>) {
-  return (
+  const { rerender } = renderComponent(
     <SourceViewer
       aroundLine={1}
       branchLike={undefined}
-      component={handler.getFileWithSource()}
+      component={componentsHandler.getNonEmptyFileKey()}
       displayAllIssues={true}
       displayIssueLocationsCount={true}
       displayIssueLocationsLink={false}
@@ -417,4 +424,23 @@ function getSourceViewerUi(override?: Partial<SourceViewer['props']>) {
       {...override}
     />
   );
+  return function (reoverride?: Partial<SourceViewer['props']>) {
+    rerender(
+      <SourceViewer
+        aroundLine={1}
+        branchLike={undefined}
+        component={componentsHandler.getNonEmptyFileKey()}
+        displayAllIssues={true}
+        displayIssueLocationsCount={true}
+        displayIssueLocationsLink={false}
+        displayLocationMarkers={true}
+        onIssueChange={jest.fn()}
+        onIssueSelect={jest.fn()}
+        onLoaded={jest.fn()}
+        onLocationSelect={jest.fn()}
+        {...override}
+        {...reoverride}
+      />
+    );
+  };
 }

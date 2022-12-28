@@ -28,6 +28,7 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import { ComponentMeasure } from '../../../types/types';
 
 interface Props {
@@ -90,13 +91,21 @@ export class Search extends React.PureComponent<Props, State> {
     if (this.mounted) {
       const { branchLike, component, router, location } = this.props;
       this.setState({ loading: true });
-      router.replace({
-        pathname: location.pathname,
-        query: { ...location.query, search: query },
-      });
 
-      const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
-      const qualifiers = isPortfolio ? 'SVW,TRK' : 'UTS,FIL';
+      if (query !== location.query.search) {
+        router.replace({
+          pathname: location.pathname,
+          query: { ...location.query, search: query },
+        });
+      }
+
+      const qualifiers = [
+        ComponentQualifier.Portfolio,
+        ComponentQualifier.SubPortfolio,
+        ComponentQualifier.Application,
+      ].includes(component.qualifier as ComponentQualifier)
+        ? [ComponentQualifier.SubPortfolio, ComponentQualifier.Project].join(',')
+        : [ComponentQualifier.TestFile, ComponentQualifier.File].join(',');
 
       getTree({
         component: component.key,

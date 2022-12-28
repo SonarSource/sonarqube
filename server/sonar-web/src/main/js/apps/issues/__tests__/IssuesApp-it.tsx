@@ -21,6 +21,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import selectEvent from 'react-select-event';
+import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -39,10 +40,12 @@ jest.mock('../../../api/rules');
 jest.mock('../../../api/components');
 jest.mock('../../../api/users');
 
-let handler: IssuesServiceMock;
+const issuesHandler = new IssuesServiceMock();
+const componentsHandler = new ComponentsServiceMock();
 
 beforeEach(() => {
-  handler = new IssuesServiceMock();
+  issuesHandler.reset();
+  componentsHandler.reset();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollIntoView = jest.fn();
 });
@@ -50,7 +53,7 @@ beforeEach(() => {
 //Improve this to include all the bulk change fonctionality
 it('should be able to bulk change', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  issuesHandler.setIsAdmin(true);
   renderIssueApp(mockCurrentUser({ isLoggedIn: true }));
 
   // Check that the bulk button has correct behavior
@@ -256,7 +259,7 @@ it('should open issue and navigate', async () => {
   expect(screen.getByRole('region', { name: 'Issue on file' })).toBeInTheDocument();
   expect(
     screen.getByRole('row', {
-      name: '2 source_viewer.tooltip.covered import java.util. ArrayList ;',
+      name: '2 * SonarQube',
     })
   ).toBeInTheDocument();
 });
@@ -279,8 +282,8 @@ it('should support OWASP Top 10 version 2021', async () => {
 
   await user.click(owaspTop102021);
   await Promise.all(
-    handler.owasp2021FacetList().values.map(async ({ val }) => {
-      const standard = await handler.getStandards();
+    issuesHandler.owasp2021FacetList().values.map(async ({ val }) => {
+      const standard = await issuesHandler.getStandards();
       /* eslint-disable-next-line testing-library/render-result-naming-convention */
       const linkName = renderOwaspTop102021Category(standard, val);
       expect(await screen.findByRole('checkbox', { name: linkName })).toBeInTheDocument();
@@ -290,7 +293,7 @@ it('should support OWASP Top 10 version 2021', async () => {
 
 it('should be able to perform action on issues', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  issuesHandler.setIsAdmin(true);
   renderIssueApp();
 
   // Select an issue with an advanced rule
@@ -484,7 +487,7 @@ it('should not allow performing actions when user does not have permission', asy
 
 it('should open the actions popup using keyboard shortcut', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  issuesHandler.setIsAdmin(true);
   renderIssueApp();
 
   // Select an issue with an advanced rule
@@ -521,7 +524,7 @@ it('should open the actions popup using keyboard shortcut', async () => {
 it('should not open the actions popup using keyboard shortcut when keyboard shortcut flag is disabled', async () => {
   localStorage.setItem('sonarqube.preferences.keyboard_shortcuts_enabled', 'false');
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  issuesHandler.setIsAdmin(true);
   renderIssueApp();
 
   // Select an issue with an advanced rule
@@ -587,7 +590,7 @@ it('should show code tabs when any secondary location is selected', async () => 
 
 it('should show issue tags if applicable', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  issuesHandler.setIsAdmin(true);
   renderIssueApp();
 
   // Select an issue with an advanced rule

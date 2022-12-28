@@ -17,13 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep, keyBy, range, times } from 'lodash';
+import { cloneDeep, keyBy, times } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
-import {
-  mockSnippetsByComponent,
-  mockSourceLine,
-  mockSourceViewerFile,
-} from '../../helpers/mocks/sources';
+import { mockSnippetsByComponent } from '../../helpers/mocks/sources';
 import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
 import {
@@ -33,7 +29,6 @@ import {
   mockRawIssue,
   mockRuleDetails,
 } from '../../helpers/testMocks';
-import { BranchParameters } from '../../types/branch-like';
 import {
   IssueType,
   RawFacet,
@@ -48,10 +43,8 @@ import {
   RuleActivation,
   RuleDetails,
   SnippetsByComponent,
-  SourceViewerFile,
 } from '../../types/types';
 import { NoticeType } from '../../types/users';
-import { getComponentForSourceViewer, getSources } from '../components';
 import {
   addIssueComment,
   bulkChangeIssues,
@@ -100,20 +93,15 @@ interface IssueData {
 export default class IssuesServiceMock {
   isAdmin = false;
   standards?: Standards;
-  sourceViewerFiles: SourceViewerFile[];
+  defaultList: IssueData[];
   list: IssueData[];
 
   constructor() {
-    // Comment should have their own store as we can test better CRUD operation
-    this.sourceViewerFiles = [
-      mockSourceViewerFile('file.foo', 'project'),
-      mockSourceViewerFile('file.bar', 'project'),
-    ];
-    this.list = [
+    this.defaultList = [
       {
         issue: mockRawIssue(false, {
           key: 'issue11',
-          component: 'project:file.foo',
+          component: 'foo:test1.js',
           message: 'FlowIssue',
           rule: 'simpleRuleId',
           textRange: {
@@ -128,7 +116,7 @@ export default class IssuesServiceMock {
               description: 'Backtracking 1',
               locations: [
                 {
-                  component: 'project:file.foo',
+                  component: 'foo:test1.js',
                   msg: 'Data location 1',
                   textRange: {
                     startLine: 20,
@@ -138,7 +126,7 @@ export default class IssuesServiceMock {
                   },
                 },
                 {
-                  component: 'project:file.foo',
+                  component: 'foo:test1.js',
                   msg: 'Data location 2',
                   textRange: {
                     startLine: 21,
@@ -153,7 +141,7 @@ export default class IssuesServiceMock {
               type: FlowType.EXECUTION,
               locations: [
                 {
-                  component: 'project:file.bar',
+                  component: 'foo:test2.js',
                   msg: 'Execution location 1',
                   textRange: {
                     startLine: 20,
@@ -163,7 +151,7 @@ export default class IssuesServiceMock {
                   },
                 },
                 {
-                  component: 'project:file.bar',
+                  component: 'foo:test2.js',
                   msg: 'Execution location 2',
                   textRange: {
                     startLine: 22,
@@ -173,7 +161,7 @@ export default class IssuesServiceMock {
                   },
                 },
                 {
-                  component: 'project:file.bar',
+                  component: 'foo:test2.js',
                   msg: 'Execution location 3',
                   textRange: {
                     startLine: 5,
@@ -189,13 +177,13 @@ export default class IssuesServiceMock {
         snippets: keyBy(
           [
             mockSnippetsByComponent(
-              'file.foo',
-              'project',
+              'test1.js',
+              'foo',
               times(40, (i) => i + 1)
             ),
             mockSnippetsByComponent(
-              'file.bar',
-              'project',
+              'test2.js',
+              'foo',
               times(40, (i) => i + 1)
             ),
           ],
@@ -205,7 +193,7 @@ export default class IssuesServiceMock {
       {
         issue: mockRawIssue(false, {
           key: 'issue0',
-          component: 'project:file.foo',
+          component: 'foo:test1.js',
           message: 'Issue on file',
           rule: 'simpleRuleId',
           textRange: undefined,
@@ -216,7 +204,7 @@ export default class IssuesServiceMock {
       {
         issue: mockRawIssue(false, {
           key: 'issue1',
-          component: 'project:file.foo',
+          component: 'foo:test1.js',
           message: 'Fix this',
           rule: 'simpleRuleId',
           textRange: {
@@ -229,7 +217,7 @@ export default class IssuesServiceMock {
             {
               locations: [
                 {
-                  component: 'project:file.foo',
+                  component: 'foo:test1.js',
                   msg: 'location 1',
                   textRange: {
                     startLine: 1,
@@ -243,7 +231,7 @@ export default class IssuesServiceMock {
             {
               locations: [
                 {
-                  component: 'project:file.bar',
+                  component: 'foo:test2.js',
                   msg: 'location 2',
                   textRange: {
                     startLine: 20,
@@ -259,13 +247,13 @@ export default class IssuesServiceMock {
         snippets: keyBy(
           [
             mockSnippetsByComponent(
-              'file.foo',
-              'project',
+              'test1.js',
+              'foo',
               times(40, (i) => i + 1)
             ),
             mockSnippetsByComponent(
-              'file.bar',
-              'project',
+              'test2.js',
+              'foo',
               times(40, (i) => i + 1)
             ),
           ],
@@ -277,7 +265,7 @@ export default class IssuesServiceMock {
           actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
           transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
           key: 'issue2',
-          component: 'project:file.bar',
+          component: 'foo:test2.js',
           message: 'Fix that',
           rule: 'advancedRuleId',
           textRange: {
@@ -291,8 +279,8 @@ export default class IssuesServiceMock {
         snippets: keyBy(
           [
             mockSnippetsByComponent(
-              'file.bar',
-              'project',
+              'test2.js',
+              'foo',
               times(40, (i) => i + 20)
             ),
           ],
@@ -302,7 +290,7 @@ export default class IssuesServiceMock {
       {
         issue: mockRawIssue(false, {
           key: 'issue3',
-          component: 'project:file.bar',
+          component: 'foo:test2.js',
           message: 'Second issue',
           rule: 'other',
           textRange: {
@@ -315,8 +303,8 @@ export default class IssuesServiceMock {
         snippets: keyBy(
           [
             mockSnippetsByComponent(
-              'file.bar',
-              'project',
+              'test2.js',
+              'foo',
               times(40, (i) => i + 20)
             ),
           ],
@@ -328,7 +316,7 @@ export default class IssuesServiceMock {
           actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
           transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
           key: 'issue4',
-          component: 'project:file.bar',
+          component: 'foo:test2.js',
           message: 'Issue with tags',
           rule: 'external_eslint_repo:no-div-regex',
           textRange: {
@@ -344,8 +332,8 @@ export default class IssuesServiceMock {
         snippets: keyBy(
           [
             mockSnippetsByComponent(
-              'file.bar',
-              'project',
+              'test2.js',
+              'foo',
               times(40, (i) => i + 20)
             ),
           ],
@@ -353,13 +341,12 @@ export default class IssuesServiceMock {
         ),
       },
     ];
+
+    this.list = cloneDeep(this.defaultList);
+
     (searchIssues as jest.Mock).mockImplementation(this.handleSearchIssues);
     (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
     (getIssueFlowSnippets as jest.Mock).mockImplementation(this.handleGetIssueFlowSnippets);
-    (getSources as jest.Mock).mockImplementation(this.handleGetSources);
-    (getComponentForSourceViewer as jest.Mock).mockImplementation(
-      this.handleGetComponentForSourceViewer
-    );
     (bulkChangeIssues as jest.Mock).mockImplementation(this.handleBulkChangeIssues);
     (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
     (dismissNotice as jest.Mock).mockImplementation(this.handleDismissNotification);
@@ -374,6 +361,10 @@ export default class IssuesServiceMock {
     (searchUsers as jest.Mock).mockImplementation(this.handleSearchUsers);
     (searchIssueTags as jest.Mock).mockImplementation(this.handleSearchIssueTags);
   }
+
+  reset = () => {
+    this.list = cloneDeep(this.defaultList);
+  };
 
   async getStandards(): Promise<Standards> {
     if (this.standards) {
@@ -402,21 +393,6 @@ export default class IssuesServiceMock {
         data.issue.type = query.set_type;
       });
     return this.reply({});
-  };
-
-  handleGetSources = (data: { key: string; from?: number; to?: number } & BranchParameters) => {
-    return this.reply(range(data.from || 1, data.to || 10).map((line) => mockSourceLine({ line })));
-  };
-
-  handleGetComponentForSourceViewer = (data: { component: string } & BranchParameters) => {
-    const file = this.sourceViewerFiles.find((f) => f.key === data.component);
-    if (file === undefined) {
-      return Promise.reject({
-        errors: [{ msg: `No source file has been found for id ${data.component}` }],
-      });
-    }
-
-    return this.reply(file);
   };
 
   handleGetIssueFlowSnippets = (issueKey: string): Promise<Dict<SnippetsByComponent>> => {
@@ -622,10 +598,14 @@ export default class IssuesServiceMock {
   };
 
   getActionsResponse = (overrides: Partial<RawIssue>, issueKey: string) => {
-    const issueDataSelected = this.list.find((l) => l.issue.key === issueKey)!;
+    const issueDataSelected = this.list.find((l) => l.issue.key === issueKey);
+
+    if (!issueDataSelected) {
+      throw new Error(`Coulnd't find issue for key ${issueKey}`);
+    }
 
     issueDataSelected.issue = {
-      ...issueDataSelected?.issue,
+      ...issueDataSelected.issue,
       ...overrides,
     };
 

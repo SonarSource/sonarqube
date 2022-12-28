@@ -21,11 +21,10 @@ import * as React from 'react';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { Location } from '../../../components/hoc/withRouter';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue, Measure } from '../../../types/types';
 
-interface Props {
+interface SourceViewerWrapperProps {
   branchLike?: BranchLike;
   component: string;
   componentMeasures: Measure[] | undefined;
@@ -33,37 +32,32 @@ interface Props {
   onIssueChange?: (issue: Issue) => void;
 }
 
-export class SourceViewerWrapper extends React.PureComponent<Props> {
-  scrollToLine = () => {
-    const { location } = this.props;
-    const { line } = location.query;
+export function SourceViewerWrapper(props: SourceViewerWrapperProps) {
+  const { branchLike, component, componentMeasures, location } = props;
+  const { line } = location.query;
+  const finalLine = line ? Number(line) : undefined;
 
+  const handleLoaded = React.useCallback(() => {
     if (line) {
       const row = document.querySelector(`.source-line[data-line-number="${line}"]`);
       if (row) {
-        scrollToElement(row, { smooth: false, bottomOffset: window.innerHeight / 2 - 60 });
+        row.scrollIntoView({ block: 'center' });
       }
     }
-  };
+  }, [line]);
 
-  render() {
-    const { branchLike, component, componentMeasures, location } = this.props;
-    const { line } = location.query;
-    const finalLine = line ? Number(line) : undefined;
-
-    return (
-      <SourceViewer
-        aroundLine={finalLine}
-        branchLike={branchLike}
-        component={component}
-        componentMeasures={componentMeasures}
-        highlightedLine={finalLine}
-        onIssueChange={this.props.onIssueChange}
-        onLoaded={this.scrollToLine}
-        showMeasures={true}
-      />
-    );
-  }
+  return (
+    <SourceViewer
+      aroundLine={finalLine}
+      branchLike={branchLike}
+      component={component}
+      componentMeasures={componentMeasures}
+      highlightedLine={finalLine}
+      onIssueChange={props.onIssueChange}
+      onLoaded={handleLoaded}
+      showMeasures={true}
+    />
+  );
 }
 
 export default withKeyboardNavigation(SourceViewerWrapper);
