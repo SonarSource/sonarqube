@@ -25,9 +25,7 @@ exports[`should render correctly for applications 1`] = `
       }
     />
   </div>
-  <div
-    className="overview-panel-content"
-  >
+  <div>
     <div
       className="overview-quality-gate-badge-large failed"
     >
@@ -97,6 +95,7 @@ exports[`should render correctly for applications 1`] = `
               },
             ],
             "ignoredConditions": false,
+            "isCaycCompliant": true,
             "key": "foo",
             "name": "Foo",
             "status": "ERROR",
@@ -178,6 +177,7 @@ exports[`should render correctly for applications 1`] = `
               },
             ],
             "ignoredConditions": false,
+            "isCaycCompliant": true,
             "key": "foo",
             "name": "Foo",
             "status": "ERROR",
@@ -289,9 +289,7 @@ exports[`should render correctly for applications 2`] = `
       }
     />
   </div>
-  <div
-    className="overview-panel-content"
-  >
+  <div>
     <div
       className="overview-quality-gate-badge-large failed"
     >
@@ -361,6 +359,7 @@ exports[`should render correctly for applications 2`] = `
               },
             ],
             "ignoredConditions": false,
+            "isCaycCompliant": true,
             "key": "foo",
             "name": "Foo",
             "status": "ERROR",
@@ -395,6 +394,7 @@ exports[`should render correctly for applications 2`] = `
           {
             "failedConditions": [],
             "ignoredConditions": false,
+            "isCaycCompliant": true,
             "key": "foo",
             "name": "Foo",
             "status": "OK",
@@ -460,9 +460,7 @@ exports[`should render correctly for projects 1`] = `
       }
     />
   </div>
-  <div
-    className="overview-panel-content"
-  >
+  <div>
     <div
       className="overview-quality-gate-badge-large failed"
     >
@@ -532,6 +530,7 @@ exports[`should render correctly for projects 1`] = `
               },
             ],
             "ignoredConditions": false,
+            "isCaycCompliant": true,
             "key": "foo",
             "name": "Foo",
             "status": "ERROR",
@@ -597,9 +596,7 @@ exports[`should render correctly for projects 2`] = `
       }
     />
   </div>
-  <div
-    className="overview-panel-content"
-  >
+  <div>
     <div
       className="overview-quality-gate-badge-large success"
     >
@@ -661,9 +658,7 @@ exports[`should render correctly for projects 3`] = `
       overlay="overview.quality_gate.ignored_conditions.tooltip"
     />
   </Alert>
-  <div
-    className="overview-panel-content"
-  >
+  <div>
     <div
       className="overview-quality-gate-badge-large failed"
     >
@@ -733,6 +728,7 @@ exports[`should render correctly for projects 3`] = `
               },
             ],
             "ignoredConditions": true,
+            "isCaycCompliant": true,
             "key": "foo",
             "name": "Foo",
             "status": "ERROR",

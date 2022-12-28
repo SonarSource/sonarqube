@@ -25,6 +25,7 @@ export interface QualityGateProjectStatus {
   conditions?: QualityGateProjectStatusCondition[];
   ignoredConditions: boolean;
   status: Status;
+  isCaycCompliant: boolean;
 }
 
 export interface QualityGateProjectStatusCondition {
@@ -58,11 +59,13 @@ export interface QualityGateApplicationStatusChildProject {
   key: string;
   name: string;
   status: Status;
+  isCaycCompliant: boolean;
 }
 
 export interface QualityGateStatus {
   failedConditions: QualityGateStatusConditionEnhanced[];
   ignoredConditions?: boolean;
+  isCaycCompliant: boolean;
   key: string;
   name: string;
   status: Status;

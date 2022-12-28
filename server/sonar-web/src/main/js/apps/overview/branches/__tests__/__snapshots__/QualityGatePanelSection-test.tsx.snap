@@ -4,11 +4,44 @@ exports[`should render correctly 1`] = `
 <div
   className="overview-quality-gate-conditions"
 >
-  <h4
-    className="overview-quality-gate-conditions-section-title"
+  <div
+    className="display-flex-center overview-quality-gate-conditions-section-title"
+  >
+    <h4
+      className="padded"
+    >
+      quality_gates.conditions.cayc
+    </h4>
+  </div>
+  <div
+    className="big-padded bordered-bottom overview-quality-gate-conditions-list"
+  >
+    <Alert
+      className="no-margin-bottom"
+      variant="success"
+    >
+      overview.quality_gate.conditions.cayc.passed
+    </Alert>
+  </div>
+  <div
+    className="display-flex-center overview-quality-gate-conditions-section-title"
+  >
+    <h4
+      className="padded"
+    >
+      quality_gates.conditions.other_conditions
+    </h4>
+    <span
+      className="text-muted big-spacer-left"
+    >
+      overview.X_conditions_failed.2
+    </span>
+  </div>
+  <h5
+    className="big-padded overview-quality-gate-conditions-subsection-title"
   >
     quality_gates.conditions.new_code
-  </h4>
+  </h5>
   <Memo(QualityGateConditions)
     component={
       {
@@ -61,6 +94,7 @@ exports[`should render correctly 1`] = `
           },
         ],
         "ignoredConditions": false,
+        "isCaycCompliant": true,
         "key": "foo",
         "name": "Foo",
         "status": "ERROR",
@@ -94,11 +128,11 @@ exports[`should render correctly 1`] = `
       ]
     }
   />
-  <h4
-    className="overview-quality-gate-conditions-section-title"
+  <h5
+    className="big-padded overview-quality-gate-conditions-subsection-title"
   >
     quality_gates.conditions.overall_code
-  </h4>
+  </h5>
   <Memo(QualityGateConditions)
     component={
       {
@@ -151,6 +185,7 @@ exports[`should render correctly 1`] = `
           },
         ],
         "ignoredConditions": false,
+        "isCaycCompliant": true,
         "key": "foo",
         "name": "Foo",
         "status": "ERROR",
@@ -191,16 +226,66 @@ exports[`should render correctly 2`] = `
 <div
   className="overview-quality-gate-conditions"
 >
-  <h3
-    className="overview-quality-gate-conditions-project-name"
+  <ButtonPlain
+    aria-expanded={true}
+    aria-label="overview.quality_gate.hide_project_conditions_x.Foo"
+    className="width-100 text-left"
+    onClick={[Function]}
   >
-    Foo
-  </h3>
-  <h4
-    className="overview-quality-gate-conditions-section-title"
+    <div
+      className="display-flex-center"
+    >
+      <h3
+        className="overview-quality-gate-conditions-project-name text-ellipsis"
+        title="Foo"
+      >
+        <ChevronDownIcon />
+        <span
+          className="spacer-left"
+        >
+          Foo
+        </span>
+      </h3>
+    </div>
+  </ButtonPlain>
+  <div
+    className="display-flex-center overview-quality-gate-conditions-section-title"
+  >
+    <h4
+      className="padded"
+    >
+      quality_gates.conditions.cayc
+    </h4>
+  </div>
+  <div
+    className="big-padded bordered-bottom overview-quality-gate-conditions-list"
+  >
+    <Alert
+      className="no-margin-bottom"
+      variant="success"
+    >
+      overview.quality_gate.conditions.cayc.passed
+    </Alert>
+  </div>
+  <div
+    className="display-flex-center overview-quality-gate-conditions-section-title"
+  >
+    <h4
+      className="padded"
+    >
+      quality_gates.conditions.other_conditions
+    </h4>
+    <span
+      className="text-muted big-spacer-left"
+    >
+      overview.X_conditions_failed.2
+    </span>
+  </div>
+  <h5
+    className="big-padded overview-quality-gate-conditions-subsection-title"
   >
     quality_gates.conditions.new_code
-  </h4>
+  </h5>
   <Memo(QualityGateConditions)
     component={
       {
@@ -253,6 +338,7 @@ exports[`should render correctly 2`] = `
           },
         ],
         "ignoredConditions": false,
+        "isCaycCompliant": true,
         "key": "foo",
         "name": "Foo",
         "status": "ERROR",
@@ -286,11 +372,11 @@ exports[`should render correctly 2`] = `
       ]
     }
   />
-  <h4
-    className="overview-quality-gate-conditions-section-title"
+  <h5
+    className="big-padded overview-quality-gate-conditions-subsection-title"
   >
     quality_gates.conditions.overall_code
-  </h4>
+  </h5>
   <Memo(QualityGateConditions)
     component={
       {
@@ -343,6 +429,7 @@ exports[`should render correctly 2`] = `
           },
         ],
         "ignoredConditions": false,
+        "isCaycCompliant": true,
         "key": "foo",
         "name": "Foo",
         "status": "ERROR",

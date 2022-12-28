@@ -17,22 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { MetricKey } from '../../../../types/metrics';
 import { DebtValue, DebtValueProps } from '../DebtValue';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ useDiffMetric: true })).toMatchSnapshot();
-  expect(shallowRender({ measures: [] })).toMatchSnapshot();
+  renderDebtValue();
+
+  expect(
+    screen.getByLabelText(
+      'overview.see_more_details_on_x_of_y.work_duration.x_minutes.1.sqale_index'
+    )
+  ).toBeInTheDocument();
+
+  expect(screen.getByText('sqale_index')).toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<DebtValueProps> = {}) {
-  return shallow(
+it('should render diff metric correctly', () => {
+  renderDebtValue({ useDiffMetric: true });
+
+  expect(
+    screen.getByLabelText(
+      'overview.see_more_details_on_x_of_y.work_duration.x_minutes.1.new_technical_debt'
+    )
+  ).toBeInTheDocument();
+
+  expect(screen.getByText('new_technical_debt')).toBeInTheDocument();
+});
+
+it('should handle missing measure', () => {
+  renderDebtValue({ measures: [] });
+
+  expect(screen.getByLabelText('no_data')).toBeInTheDocument();
+  expect(screen.getByText('metric.sqale_index.name')).toBeInTheDocument();
+});
+
+function renderDebtValue(props: Partial<DebtValueProps> = {}) {
+  return renderComponent(
     <DebtValue
       branchLike={mockMainBranch()}
       component={mockComponent()}

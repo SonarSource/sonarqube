@@ -42,9 +42,7 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
   const { branchLike, collapsible, component, failedConditions } = props;
   const [collapsed, toggleCollapsed] = React.useState(Boolean(collapsible));
 
-  if (failedConditions.length === 0) {
-    return null;
-  }
+  const handleToggleCollapsed = React.useCallback(() => toggleCollapsed(!collapsed), [collapsed]);
 
   const sortedConditions = sortBy(failedConditions, (condition) =>
     LEVEL_ORDER.indexOf(condition.level)
@@ -77,7 +75,7 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
         <li>
           <ButtonLink
             className="overview-quality-gate-conditions-list-collapse"
-            onClick={() => toggleCollapsed(!collapsed)}
+            onClick={handleToggleCollapsed}
           >
             {translateWithParameters(
               'overview.X_more_failed_conditions',

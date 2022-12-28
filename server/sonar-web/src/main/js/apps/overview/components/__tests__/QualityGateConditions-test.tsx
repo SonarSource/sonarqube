@@ -28,7 +28,6 @@ import { QualityGateConditions, QualityGateConditionsProps } from '../QualityGat
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper.find('QualityGateCondition').length).toBe(10);
-  expect(shallowRender({ failedConditions: [] }).type()).toBeNull();
 });
 
 it('should be collapsible', () => {

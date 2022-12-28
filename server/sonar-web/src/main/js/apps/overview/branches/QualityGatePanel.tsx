@@ -24,6 +24,7 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { ComponentQualifier } from '../../../types/component';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component } from '../../../types/types';
 import SonarLintPromotion from '../components/SonarLintPromotion';
@@ -51,8 +52,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
   );
 
   const showIgnoredConditionWarning =
-    component.qualifier === 'TRK' &&
-    qgStatuses !== undefined &&
+    component.qualifier === ComponentQualifier.Project &&
     qgStatuses.some((p) => Boolean(p.ignoredConditions));
 
   return (
@@ -82,7 +82,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
         </Alert>
       )}
 
-      <div className="overview-panel-content">
+      <div>
         {loading ? (
           <div className="overview-panel-big-padded">
             <DeferredSpinner loading={loading} />
@@ -107,7 +107,8 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
               </span>
             </div>
 
-            {overallFailedConditionsCount > 0 && (
+            {(overallFailedConditionsCount > 0 ||
+              qgStatuses.some(({ isCaycCompliant }) => !isCaycCompliant)) && (
               <div data-test="overview__quality-gate-conditions">
                 {qgStatuses.map((qgStatus) => (
                   <QualityGatePanelSection

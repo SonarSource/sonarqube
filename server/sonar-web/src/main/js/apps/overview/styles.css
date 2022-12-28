@@ -115,26 +115,27 @@
   color: white;
 }
 
-.overview-quality-gate-conditions {
-  padding-bottom: calc(2 * var(--gridSize));
+.overview-quality-gate-conditions-list {
+  background-color: white;
 }
 
 .overview-quality-gate-conditions-project-name {
-  padding: var(--gridSize) 0 var(--gridSize) calc(2 * var(--gridSize));
+  padding: calc(2 * var(--gridSize)) 0 calc(2 * var(--gridSize)) calc(2 * var(--gridSize));
   font-size: var(--bigFontSize);
-  background: var(--barBorderColor);
 }
 
 .overview-quality-gate-conditions-section-title {
-  padding: calc(2 * var(--gridSize)) calc(2 * var(--gridSize)) var(--gridSize)
-    calc(2 * var(--gridSize));
   border-bottom: 1px solid var(--barBorderColor);
   margin: 0;
   font-size: var(--baseFontSize);
+  background: var(--barBorderColor);
 }
 
-.overview-quality-gate-conditions-list {
-  margin-bottom: calc(2 * var(--gridSize));
+.overview-quality-gate-conditions-subsection-title {
+  background-color: white;
+  border-bottom: 1px solid var(--barBorderColor);
+  margin: 0;
+  font-size: var(--baseFontSize);
 }
 
 .overview-quality-gate-conditions-list-collapse {

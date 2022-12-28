@@ -17,33 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { getApplicationDetails, getApplicationLeak } from '../../../../api/application';
+import selectEvent from 'react-select-event';
 import { getMeasuresWithPeriodAndMetrics } from '../../../../api/measures';
 import { getProjectActivity } from '../../../../api/projectActivity';
-import {
-  getApplicationQualityGate,
-  getQualityGateProjectStatus,
-} from '../../../../api/quality-gates';
-import { getAllTimeMachineData } from '../../../../api/time-machine';
+import { getQualityGateProjectStatus } from '../../../../api/quality-gates';
+import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { getActivityGraph, saveActivityGraph } from '../../../../components/activity-graph/utils';
 import { isDiffMetric } from '../../../../helpers/measures';
-import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockAnalysis } from '../../../../helpers/mocks/project-activity';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-gates';
+import { mockLoggedInUser, mockPeriod } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { GraphType } from '../../../../types/project-activity';
 import { Measure, Metric } from '../../../../types/types';
 import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '../BranchOverview';
-import BranchOverviewRenderer from '../BranchOverviewRenderer';
-
-jest.mock('../../../../helpers/dates', () => ({
-  parseDate: jest.fn((date) => `PARSED:${date}`),
-  toNotSoISOString: jest.fn((date) => date),
-}));
 
 jest.mock('../../../../api/measures', () => {
   const { mockMeasure, mockMetric } = jest.requireActual('../../../../helpers/testMocks');
@@ -96,8 +90,8 @@ jest.mock('../../../../api/quality-gates', () => {
           {
             actualValue: '2',
             comparator: 'GT',
-            errorThreshold: '1.0',
-            metricKey: MetricKey.new_bugs,
+            errorThreshold: '1',
+            metricKey: MetricKey.new_reliability_rating,
             periodIndex: 1,
             status: 'ERROR',
           },
@@ -184,7 +178,9 @@ jest.mock('../../../../api/application', () => ({
 jest.mock('../../../../components/activity-graph/utils', () => {
   const { MetricKey } = jest.requireActual('../../../../types/metrics');
   const { GraphType } = jest.requireActual('../../../../types/project-activity');
+  const original = jest.requireActual('../../../../components/activity-graph/utils');
   return {
+    ...original,
     getActivityGraph: jest.fn(() => ({ graph: GraphType.coverage })),
     saveActivityGraph: jest.fn(),
     getHistoryMetrics: jest.fn(() => [MetricKey.lines_to_cover, MetricKey.uncovered_lines]),
@@ -194,57 +190,85 @@ jest.mock('../../../../components/activity-graph/utils', () => {
 beforeEach(jest.clearAllMocks);
 
 describe('project overview', () => {
-  it('should render correctly', async () => {
-    const wrapper = shallowRender();
-    await waitAndUpdate(wrapper);
-    expect(wrapper).toMatchSnapshot();
+  it('should show a successful QG', async () => {
+    const user = userEvent.setup();
+    jest
+      .mocked(getQualityGateProjectStatus)
+      .mockResolvedValueOnce(mockQualityGateProjectStatus({ status: 'OK' }));
+    renderBranchOverview();
+
+    // QG panel
+    expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
+    expect(screen.getByText('overview.quality_gate_all_conditions_passed')).toBeInTheDocument();
+    expect(
+      screen.queryByText('overview.quality_gate.conditions.cayc.warning')
+    ).not.toBeInTheDocument();
+
+    //Measures panel
+    expect(screen.getByText('metric.new_vulnerabilities.name')).toBeInTheDocument();
+
+    // go to overall
+    await user.click(screen.getByText('overview.overall_code'));
+
+    expect(screen.getByText('metric.vulnerabilities.name')).toBeInTheDocument();
   });
 
-  it("should correctly load a project's status", async () => {
-    const wrapper = shallowRender();
-    await waitAndUpdate(wrapper);
-    expect(getQualityGateProjectStatus).toHaveBeenCalled();
-    expect(getMeasuresWithPeriodAndMetrics).toHaveBeenCalled();
+  it('should show a successful non-compliant QG', async () => {
+    jest
+      .mocked(getQualityGateProjectStatus)
+      .mockResolvedValueOnce(
+        mockQualityGateProjectStatus({ status: 'OK', isCaycCompliant: false })
+      );
 
-    // Check the conditions got correctly enhanced with measure meta data.
-    const { qgStatuses } = wrapper.state();
-    expect(qgStatuses).toHaveLength(1);
-    const [qgStatus] = qgStatuses!;
+    renderBranchOverview();
 
-    expect(qgStatus).toEqual(
-      expect.objectContaining({
-        name: 'Foo',
-        key: 'foo',
+    expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
+    expect(screen.getByText('overview.quality_gate.conditions.cayc.warning')).toBeInTheDocument();
+  });
+
+  it('should show a failed QG', async () => {
+    renderBranchOverview();
+
+    expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
+    expect(screen.getByText('overview.X_conditions_failed.2')).toBeInTheDocument();
+
+    expect(
+      screen.queryByText('overview.quality_gate.conditions.cayc.passed')
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show a failed QG with passing CAYC conditions', async () => {
+    jest.mocked(getQualityGateProjectStatus).mockResolvedValueOnce(
+      mockQualityGateProjectStatus({
         status: 'ERROR',
+        conditions: [
+          {
+            actualValue: '12',
+            comparator: 'GT',
+            errorThreshold: '10',
+            metricKey: MetricKey.new_bugs,
+            periodIndex: 1,
+            status: 'ERROR',
+          },
+        ],
       })
     );
+    renderBranchOverview();
 
-    const { failedConditions } = qgStatus;
-    expect(failedConditions).toHaveLength(2);
-    expect(failedConditions[0]).toMatchObject({
-      actual: '2',
-      level: 'ERROR',
-      metric: MetricKey.new_bugs,
-      measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: MetricKey.new_bugs }),
-      }),
-    });
-    expect(failedConditions[1]).toMatchObject({
-      actual: '5',
-      level: 'ERROR',
-      metric: MetricKey.bugs,
-      measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: MetricKey.bugs }),
-      }),
-    });
+    expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
+    expect(screen.getByText('overview.quality_gate.conditions.cayc.passed')).toBeInTheDocument();
   });
 
-  it('should correctly flag a project as empty', async () => {
-    (getMeasuresWithPeriodAndMetrics as jest.Mock).mockResolvedValueOnce({ component: {} });
+  it('should correctly show a project as empty', async () => {
+    jest.mocked(getMeasuresWithPeriodAndMetrics).mockResolvedValueOnce({
+      component: { key: '', name: '', qualifier: ComponentQualifier.Project, measures: [] },
+      metrics: [],
+      period: mockPeriod(),
+    });
 
-    const wrapper = shallowRender();
-    await waitAndUpdate(wrapper);
-    expect(wrapper.find(BranchOverviewRenderer).props().projectIsEmpty).toBe(true);
+    renderBranchOverview();
+
+    expect(await screen.findByText('overview.project.main_branch_empty')).toBeInTheDocument();
   });
 });
 
@@ -254,106 +278,27 @@ describe('application overview', () => {
     qualifier: ComponentQualifier.Application,
   });
 
-  it('should render correctly', async () => {
-    const wrapper = shallowRender({ component });
-    await waitAndUpdate(wrapper);
-    expect(wrapper).toMatchSnapshot();
+  it('should show failed conditions for every project', async () => {
+    renderBranchOverview({ component });
+    expect(await screen.findByText('Foo')).toBeInTheDocument();
+    expect(screen.getByText('Bar')).toBeInTheDocument();
   });
 
-  it('should fetch correctly other branch', async () => {
-    const wrapper = shallowRender({ branch: mockBranch(), component });
-    await waitAndUpdate(wrapper);
-    expect(getApplicationDetails).toHaveBeenCalled();
-    expect(wrapper).toMatchSnapshot();
-  });
-
-  it("should correctly load an application's status", async () => {
-    const wrapper = shallowRender({ component });
-    await waitAndUpdate(wrapper);
-    expect(getApplicationQualityGate).toHaveBeenCalled();
-    expect(getApplicationLeak).toHaveBeenCalled();
-    expect(getMeasuresWithPeriodAndMetrics).toHaveBeenCalled();
-
-    // Check the conditions got correctly enhanced with measure meta data.
-    const { qgStatuses } = wrapper.state();
-    expect(qgStatuses).toHaveLength(2);
-    const [qgStatus1, qgStatus2] = qgStatuses!;
-
-    expect(qgStatus1).toEqual(
-      expect.objectContaining({
-        name: 'Foo',
-        key: 'foo',
-        status: 'ERROR',
-      })
-    );
-
-    const { failedConditions: failedConditions1 } = qgStatus1;
-    expect(failedConditions1).toHaveLength(2);
-    expect(failedConditions1[0]).toMatchObject({
-      actual: '10',
-      level: 'ERROR',
-      metric: MetricKey.coverage,
-      measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: MetricKey.coverage }),
-      }),
-    });
-    expect(failedConditions1[1]).toMatchObject({
-      actual: '5',
-      level: 'ERROR',
-      metric: MetricKey.new_bugs,
-      measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: MetricKey.new_bugs }),
-      }),
+  it('should correctly show an app as empty', async () => {
+    jest.mocked(getMeasuresWithPeriodAndMetrics).mockResolvedValueOnce({
+      component: { key: '', name: '', qualifier: ComponentQualifier.Application, measures: [] },
+      metrics: [],
+      period: mockPeriod(),
     });
 
-    expect(qgStatus1).toEqual(
-      expect.objectContaining({
-        name: 'Foo',
-        key: 'foo',
-        status: 'ERROR',
-      })
-    );
+    renderBranchOverview({ component });
 
-    const { failedConditions: failedConditions2 } = qgStatus2;
-    expect(failedConditions2).toHaveLength(1);
-    expect(failedConditions2[0]).toMatchObject({
-      actual: '15',
-      level: 'ERROR',
-      metric: MetricKey.new_bugs,
-      measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: MetricKey.new_bugs }),
-      }),
-    });
+    expect(await screen.findByText('portfolio.app.empty')).toBeInTheDocument();
   });
-
-  it('should correctly flag an application as empty', async () => {
-    (getMeasuresWithPeriodAndMetrics as jest.Mock).mockResolvedValueOnce({ component: {} });
-
-    const wrapper = shallowRender({ component });
-    await waitAndUpdate(wrapper);
-
-    expect(wrapper.find(BranchOverviewRenderer).props().projectIsEmpty).toBe(true);
-  });
-});
-
-it("should correctly load a component's history", async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(getProjectActivity).toHaveBeenCalled();
-  expect(getAllTimeMachineData).toHaveBeenCalled();
-
-  const { measuresHistory } = wrapper.state();
-  expect(measuresHistory).toHaveLength(6);
-  expect(measuresHistory![0]).toEqual(
-    expect.objectContaining({
-      metric: MetricKey.bugs,
-      history: [{ date: 'PARSED:2019-01-05', value: '2.0' }],
-    })
-  );
 });
 
 it.each([
-  ['no analysis', [], undefined],
+  ['no analysis', [], true],
   ['1 analysis, no CI data', [mockAnalysis()], false],
   ['1 analysis, no CI detected', [mockAnalysis({ detectedCI: NO_CI_DETECTED })], false],
   ['1 analysis, CI detected', [mockAnalysis({ detectedCI: 'Cirrus CI' })], true],
@@ -362,36 +307,41 @@ it.each([
   async (_, analyses, expected) => {
     (getProjectActivity as jest.Mock).mockResolvedValueOnce({ analyses });
 
-    const wrapper = shallowRender();
-    await waitAndUpdate(wrapper);
-    expect(wrapper.state().detectedCIOnLastAnalysis).toBe(expected);
+    renderBranchOverview();
+
+    // wait for loading
+    await screen.findByText('overview.quality_gate');
+
+    expect(screen.queryByText('overview.project.next_steps.set_up_ci') === null).toBe(expected);
   }
 );
 
-it('should correctly handle graph type storage', () => {
-  const wrapper = shallowRender();
+it('should correctly handle graph type storage', async () => {
+  renderBranchOverview();
   expect(getActivityGraph).toHaveBeenCalledWith(BRANCH_OVERVIEW_ACTIVITY_GRAPH, 'foo');
-  expect(wrapper.state().graph).toBe(GraphType.coverage);
 
-  wrapper.instance().handleGraphChange(GraphType.issues);
+  const select = await screen.findByLabelText('project_activity.graphs.choose_type');
+  await selectEvent.select(select, `project_activity.graphs.${GraphType.issues}`);
+
   expect(saveActivityGraph).toHaveBeenCalledWith(
     BRANCH_OVERVIEW_ACTIVITY_GRAPH,
     'foo',
     GraphType.issues
   );
-  expect(wrapper.state().graph).toBe(GraphType.issues);
 });
 
-function shallowRender(props: Partial<BranchOverview['props']> = {}) {
-  return shallow<BranchOverview>(
-    <BranchOverview
-      branch={mockMainBranch()}
-      component={mockComponent({
-        breadcrumbs: [mockComponent({ key: 'foo' })],
-        key: 'foo',
-        name: 'Foo',
-      })}
-      {...props}
-    />
+function renderBranchOverview(props: Partial<BranchOverview['props']> = {}) {
+  renderComponent(
+    <CurrentUserContextProvider currentUser={mockLoggedInUser()}>
+      <BranchOverview
+        branch={mockMainBranch()}
+        component={mockComponent({
+          breadcrumbs: [mockComponent({ key: 'foo' })],
+          key: 'foo',
+          name: 'Foo',
+        })}
+        {...props}
+      />
+    </CurrentUserContextProvider>
   );
 }

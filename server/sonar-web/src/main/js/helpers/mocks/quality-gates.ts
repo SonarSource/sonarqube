@@ -40,6 +40,7 @@ export function mockQualityGateStatus(
 ): QualityGateStatus {
   return {
     ignoredConditions: false,
+    isCaycCompliant: true,
     failedConditions: [mockQualityGateStatusConditionEnhanced()],
     key: 'foo',
     name: 'Foo',
@@ -90,6 +91,7 @@ export function mockQualityGateProjectStatus(
       },
     ],
     ignoredConditions: false,
+    isCaycCompliant: true,
     status: 'OK',
     ...overrides,
   };
@@ -121,6 +123,7 @@ export function mockQualityGateApplicationStatus(
             value: '5',
           },
         ],
+        isCaycCompliant: true,
         status: 'ERROR',
       },
       {
@@ -136,6 +139,7 @@ export function mockQualityGateApplicationStatus(
             value: '15',
           },
         ],
+        isCaycCompliant: true,
         status: 'ERROR',
       },
     ],

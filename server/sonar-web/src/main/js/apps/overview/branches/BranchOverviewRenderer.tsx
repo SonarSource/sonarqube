@@ -53,7 +53,7 @@ export interface BranchOverviewRendererProps {
   qgStatuses?: QualityGateStatus[];
 }
 
-export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
+export default function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
   const {
     analyses,
     appLeak,
@@ -131,5 +131,3 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
     </>
   );
 }
-
-export default React.memo(BranchOverviewRenderer);
