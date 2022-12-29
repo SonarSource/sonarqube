@@ -1,0 +1,12 @@
+Hello,
+
+I’m writing to suggest that in a next version of sonarqube, you offer an extra analysis parameter, that disables or
+enables the final step of execution of sonarqube, specifically, when sonarqube pushes the results to the server to
+be presented as a report.
+
+I’m asking these as the company I work for has now other needs, and want to be able to apply sonarqube to a new tool 
+designed by us, to evaluate commits from all developers of a project and extract metrics from the sonarqube analysis,
+that throughout the time will give us more information. I notice that with the end of the analysis, the sonarqube
+scanner writes down the results to a given directory, and sonarqube just reads them from there and interpret to a
+report structure, that then pushes to the server. But, as we already have the results locally, we don’t need the
+publishing the report phase, as this would carry unnecessary overhead. And that’s why we want this new feature.
