@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import okhttp3.HttpUrl;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +34,6 @@ import org.sonar.api.config.Configuration;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Optional.of;
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -112,7 +110,7 @@ public class WebhookSupportTest {
   public void itThrowsIllegalExceptionIfGettingNetworkInterfaceAddressesFails() throws SocketException {
     when(networkInterfaceProvider.getNetworkInterfaceAddresses()).thenThrow(new SocketException());
 
-    assertThatThrownBy(() -> underTest.checkUrlPattern("good-url.com", "msg"))
+    assertThatThrownBy(() -> underTest.checkUrlPattern("sonarsource.com", "msg"))
       .hasMessageContaining("")
       .isInstanceOf(IllegalArgumentException.class);
   }
