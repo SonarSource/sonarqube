@@ -240,7 +240,7 @@ public class ReportPublisher implements Startable {
       LOG.info("Analysis report uploaded in " + (stopTime - startTime) + "ms");
     }
     */
-    return branchName;
+    return ""; //
   }
 
   void prepareAndDumpMetadata(String taskId) {
