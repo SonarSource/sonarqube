@@ -50,7 +50,7 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
-import org.sonarqube.ws.Ce;
+//import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
@@ -201,35 +201,36 @@ public class ReportPublisher implements Startable {
     LOG.debug("Upload report");
     long startTime = System.currentTimeMillis();
     PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, report);
-    PostRequest post = new PostRequest("api/ce/submit")
+    /*PostRequest post = new PostRequest("api/ce/submit")
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("projectKey", moduleHierarchy.root().key())
       .setParam("projectName", moduleHierarchy.root().getOriginalName())
       .setPart("report", filePart);
-
+  */
     String branchName = branchConfiguration.branchName();
     if (branchName != null) {
       if (branchConfiguration.branchType() != PULL_REQUEST) {
-        post.setParam(CHARACTERISTIC, "branch=" + branchName);
-        post.setParam(CHARACTERISTIC, "branchType=" + branchConfiguration.branchType().name());
+        //post.setParam(CHARACTERISTIC, "branch=" + branchName);
+        //post.setParam(CHARACTERISTIC, "branchType=" + branchConfiguration.branchType().name());
       } else {
-        post.setParam(CHARACTERISTIC, "pullRequest=" + branchConfiguration.pullRequestKey());
+        //post.setParam(CHARACTERISTIC, "pullRequest=" + branchConfiguration.pullRequestKey());
       }
     }
 
     WsResponse response;
     try {
-      post.setWriteTimeOutInMs(properties.reportPublishTimeout() * 1000);
-      response = wsClient.call(post);
+      //post.setWriteTimeOutInMs(properties.reportPublishTimeout() * 1000);
+      //response = wsClient.call(post);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to upload report: " + e.getMessage(), e);
     }
 
     try {
-      response.failIfNotSuccessful();
+      //response.failIfNotSuccessful();
     } catch (HttpException e) {
       throw MessageException.of(String.format("Server failed to process report. Please check server logs: %s", DefaultScannerWsClient.createErrorMessage(e)));
     }
+    /*
     try (InputStream protobuf = response.contentStream()) {
       return Ce.SubmitResponse.parser().parseFrom(protobuf).getTaskId();
     } catch (Exception e) {
@@ -238,6 +239,8 @@ public class ReportPublisher implements Startable {
       long stopTime = System.currentTimeMillis();
       LOG.info("Analysis report uploaded in " + (stopTime - startTime) + "ms");
     }
+    */
+    return branchName;
   }
 
   void prepareAndDumpMetadata(String taskId) {
