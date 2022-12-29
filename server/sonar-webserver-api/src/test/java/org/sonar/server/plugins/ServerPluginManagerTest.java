@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.platform.ExplodedPlugin;
@@ -48,6 +49,8 @@ public class ServerPluginManagerTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private PluginClassLoader pluginClassLoader = mock(PluginClassLoader.class);
   private PluginJarExploder jarExploder = mock(PluginJarExploder.class);
@@ -61,7 +64,7 @@ public class ServerPluginManagerTest {
   }
 
   @Test
-  public void load_plugins() {
+  public void load_plugins() throws IOException {
     ServerPluginInfo p1 = newPluginInfo("p1");
     ServerPluginInfo p2 = newPluginInfo("p2");
     when(jarLoader.loadPlugins()).thenReturn(Arrays.asList(p1, p2));
@@ -89,28 +92,17 @@ public class ServerPluginManagerTest {
       .allMatch(p -> logTester.logs().contains(String.format("Deploy %s / %s / %s", p.getName(), p.getVersion(), p.getImplementationBuild())));
   }
 
-  private static ServerPluginInfo newPluginInfo(String key) {
+  private ServerPluginInfo newPluginInfo(String key) throws IOException {
     ServerPluginInfo pluginInfo = mock(ServerPluginInfo.class);
     when(pluginInfo.getKey()).thenReturn(key);
     when(pluginInfo.getType()).thenReturn(EXTERNAL);
-    when(pluginInfo.getNonNullJarFile()).thenReturn(getJarFile(key));
+    when(pluginInfo.getNonNullJarFile()).thenReturn(temp.newFile(key + ".jar"));
     when(pluginInfo.getName()).thenReturn(key + "_name");
     Version version = mock(Version.class);
     when(version.getName()).thenReturn(key + "_version");
     when(pluginInfo.getVersion()).thenReturn(version);
     when(pluginInfo.getImplementationBuild()).thenReturn(key + "_implementationBuild");
     return pluginInfo;
-  }
-
-  @NotNull
-  private static File getJarFile(String key) {
-    File file = new File(key + ".jar");
-    try {
-      file.createNewFile();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return file;
   }
 
   private static FileAndMd5 newFileAndMd5(File file) {
