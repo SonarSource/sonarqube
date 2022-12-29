@@ -292,10 +292,12 @@ export class CodeApp extends React.Component<Props, State> {
         ? translate('projects.page')
         : translate('code.page');
 
+    const isPortfolio = isPortfolioLike(qualifier);
+
     return (
       <div className="page page-limited">
         <A11ySkipTarget anchor="code_main" />
-        {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
+        {!canBrowseAllChildProjects && isPortfolio && (
           <StyledAlert variant="warning" className="it__portfolio_warning">
             <AlertContent>
               {translate('code_viewer.not_all_measures_are_shown')}
@@ -358,6 +360,7 @@ export class CodeApp extends React.Component<Props, State> {
                   rootComponent={component}
                   selected={highlighted}
                   newCodeSelected={newCodeSelected}
+                  showAnalysisDate={isPortfolio}
                 />
               </div>
               <ListFooter count={components.length} loadMore={this.handleLoadMore} total={total} />

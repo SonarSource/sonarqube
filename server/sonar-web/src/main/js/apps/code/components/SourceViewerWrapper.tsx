@@ -24,7 +24,7 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue, Measure } from '../../../types/types';
 
-interface SourceViewerWrapperProps {
+export interface SourceViewerWrapperProps {
   branchLike?: BranchLike;
   component: string;
   componentMeasures: Measure[] | undefined;

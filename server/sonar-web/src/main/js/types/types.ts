@@ -113,6 +113,7 @@ export interface ComponentQualityProfile {
 }
 
 export interface ComponentMeasureIntern {
+  analysisDate?: string;
   branch?: string;
   description?: string;
   isFavorite?: boolean;

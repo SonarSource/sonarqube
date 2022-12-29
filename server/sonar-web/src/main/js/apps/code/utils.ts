@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getBreadcrumbs, getChildren, getComponent } from '../../api/components';
+import { getBreadcrumbs, getChildren, getComponent, getComponentData } from '../../api/components';
 import { getBranchLikeQuery, isPullRequest } from '../../helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
-import { isPortfolioLike } from '../../types/component';
+import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 import { MetricKey } from '../../types/metrics';
 import { Breadcrumb, ComponentMeasure } from '../../types/types';
 import {
@@ -128,7 +128,7 @@ export function getCodeMetrics(
     }
     return options.includeQGStatus ? metrics.concat(MetricKey.alert_status) : metrics;
   }
-  if (qualifier === 'APP') {
+  if (qualifier === ComponentQualifier.Application) {
     return [...APPLICATION_METRICS];
   }
   if (showLeakMeasure(branchLike)) {
@@ -162,7 +162,7 @@ function retrieveComponentBase(
   });
 }
 
-export function retrieveComponentChildren(
+export async function retrieveComponentChildren(
   componentKey: string,
   qualifier: string,
   instance: { mounted: boolean },
@@ -181,20 +181,34 @@ export function retrieveComponentChildren(
     includeQGStatus: true,
   });
 
-  return getChildren(componentKey, metrics, {
+  const result = await getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,
     s: 'qualifier,name',
     ...getBranchLikeQuery(branchLike),
-  })
-    .then(prepareChildren)
-    .then((r) => {
-      if (instance.mounted) {
-        addComponentChildren(componentKey, r.components, r.total, r.page);
-        storeChildrenBase(r.components);
-        storeChildrenBreadcrumbs(componentKey, r.components);
+  }).then(prepareChildren);
+
+  if (instance.mounted && isPortfolioLike(qualifier)) {
+    await Promise.all(
+      result.components.map((c) => getComponentData({ component: c.refKey || c.key }))
+    ).then(
+      (data) => {
+        data.forEach(({ component: { analysisDate } }, i) => {
+          result.components[i].analysisDate = analysisDate;
+        });
+      },
+      () => {
+        // noop
       }
-      return r;
-    });
+    );
+  }
+
+  if (instance.mounted) {
+    addComponentChildren(componentKey, result.components, result.total, result.page);
+    storeChildrenBase(result.components);
+    storeChildrenBreadcrumbs(componentKey, result.components);
+  }
+
+  return result;
 }
 
 function retrieveComponentBreadcrumbs(

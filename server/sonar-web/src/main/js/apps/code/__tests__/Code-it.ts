@@ -41,6 +41,8 @@ jest.mock('../../../api/issues');
 jest.mock('../../../api/rules');
 jest.mock('../../../api/users');
 
+jest.mock('../../../components/intl/DateFromNow');
+
 jest.mock('../../../components/SourceViewer/helpers/lines', () => {
   const lines = jest.requireActual('../../../components/SourceViewer/helpers/lines');
   return {
@@ -246,7 +248,7 @@ it('should correctly show measures for a project', async () => {
     ['coverage', '2.0%'],
     ['duplicated_lines_density', '2.0%'],
   ].forEach(([domain, value]) => {
-    expect(ui.measureValueCell(folderRow, domain, value, 1)).toBeInTheDocument();
+    expect(ui.measureValueCell(folderRow, domain, value)).toBeInTheDocument();
   });
 
   // index.tsx
@@ -260,7 +262,7 @@ it('should correctly show measures for a project', async () => {
     ['coverage', '—'],
     ['duplicated_lines_density', '—'],
   ].forEach(([domain, value]) => {
-    expect(ui.measureValueCell(fileRow, domain, value, 1)).toBeInTheDocument();
+    expect(ui.measureValueCell(fileRow, domain, value)).toBeInTheDocument();
   });
 });
 
@@ -278,6 +280,7 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
     children: [
       {
         component: mockComponent({
+          analysisDate: '2022-02-01',
           key: 'child1',
           name: 'Child 1',
         }),
@@ -314,6 +317,7 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
     ['security_hotspots', 'C'],
     ['Maintainability', 'C'],
     ['ncloc', '3'],
+    ['last_analysis_date', '2022-02-01'],
   ].forEach(([domain, value]) => {
     expect(ui.measureValueCell(child1Row, domain, value)).toBeInTheDocument();
   });
@@ -327,6 +331,7 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
     ['security_hotspots', '—'],
     ['Maintainability', '—'],
     ['ncloc', '—'],
+    ['last_analysis_date', '—'],
   ].forEach(([domain, value]) => {
     expect(ui.measureValueCell(child2Row, domain, value)).toBeInTheDocument();
   });
@@ -375,7 +380,7 @@ function getPageObject(user: UserEvent) {
     newCodeBtn: byRole('button', { name: 'projects.view.new_code' }),
     overallCodeBtn: byRole('button', { name: 'projects.view.overall_code' }),
     measureRow: (name: string | RegExp) => byRole('row', { name, exact: false }),
-    measureValueCell: (row: HTMLElement, name: string, value: string, offset = 0) => {
+    measureValueCell: (row: HTMLElement, name: string, value: string) => {
       const i = Array.from(screen.getAllByRole('columnheader')).findIndex((c) =>
         c.textContent?.includes(name)
       );
@@ -386,7 +391,8 @@ function getPageObject(user: UserEvent) {
       }
 
       const { getAllByRole } = within(row);
-      const cell = getAllByRole('cell').at(i + offset);
+      const cell = getAllByRole('cell').at(i);
+
       if (cell?.textContent === value) {
         return cell;
       }

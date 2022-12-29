@@ -20,10 +20,10 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { withScrollTo } from '../../../components/hoc/withScrollTo';
+import DateFromNow from '../../../components/intl/DateFromNow';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
-import { MetricType } from '../../../types/metrics';
 import { ComponentMeasure as TypeComponentMeasure, Metric } from '../../../types/types';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentName from './ComponentName';
@@ -41,6 +41,7 @@ interface Props {
   rootComponent: TypeComponentMeasure;
   selected?: boolean;
   newCodeSelected?: boolean;
+  showAnalysisDate?: boolean;
 }
 
 export class Component extends React.PureComponent<Props> {
@@ -57,6 +58,7 @@ export class Component extends React.PureComponent<Props> {
       rootComponent,
       selected = false,
       newCodeSelected,
+      showAnalysisDate,
     } = this.props;
 
     const isFile =
@@ -64,22 +66,19 @@ export class Component extends React.PureComponent<Props> {
       component.qualifier === ComponentQualifier.TestFile;
 
     return (
-      <tr className={classNames({ selected })}>
-        <td className="blank" />
+      <tr className={classNames({ selected, 'current-folder': isBaseComponent })}>
         {canBePinned && (
           <td className="thin nowrap">
             {isFile && (
-              <span className="spacer-right">
-                <WorkspaceContext.Consumer>
-                  {({ openComponent }) => (
-                    <ComponentPin
-                      branchLike={branchLike}
-                      component={component}
-                      openComponent={openComponent}
-                    />
-                  )}
-                </WorkspaceContext.Consumer>
-              </span>
+              <WorkspaceContext.Consumer>
+                {({ openComponent }) => (
+                  <ComponentPin
+                    branchLike={branchLike}
+                    component={component}
+                    openComponent={openComponent}
+                  />
+                )}
+              </WorkspaceContext.Consumer>
             )}
           </td>
         )}
@@ -99,24 +98,18 @@ export class Component extends React.PureComponent<Props> {
         </td>
 
         {metrics.map((metric) => (
-          <td
-            className={classNames('thin', {
-              'text-center': metric.type === MetricType.Rating,
-              'nowrap text-right': metric.type !== MetricType.Rating,
-            })}
-            key={metric.key}
-          >
-            <div
-              className={classNames({
-                'code-components-rating-cell': metric.type === MetricType.Rating,
-                'code-components-cell': metric.type !== MetricType.Rating,
-              })}
-            >
-              <ComponentMeasure component={component} metric={metric} />
-            </div>
+          <td className="text-center" key={metric.key}>
+            <ComponentMeasure component={component} metric={metric} />
           </td>
         ))}
-        <td className="blank" />
+
+        {showAnalysisDate && isBaseComponent && <td />}
+
+        {showAnalysisDate && !isBaseComponent && (
+          <td className="text-center">
+            {component.analysisDate ? <DateFromNow date={component.analysisDate} /> : '—'}
+          </td>
+        )}
       </tr>
     );
   }

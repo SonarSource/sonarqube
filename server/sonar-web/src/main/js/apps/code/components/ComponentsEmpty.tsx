@@ -28,10 +28,9 @@ export default function ComponentsEmpty({ canBePinned = true }: Props) {
   return (
     <tr>
       {canBePinned && <td />}
-      <td className="note" colSpan={2}>
+      <td className="note" colSpan={10}>
         {translate('no_results')}
       </td>
-      <td colSpan={10} />
     </tr>
   );
 }

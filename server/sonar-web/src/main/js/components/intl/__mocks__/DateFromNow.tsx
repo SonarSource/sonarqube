@@ -26,5 +26,5 @@ interface Props {
 }
 
 export default function DateFromNow({ children, date }: Props) {
-  return children && children(date.toString());
+  return children ? children(date.toString()) : date.toString();
 }

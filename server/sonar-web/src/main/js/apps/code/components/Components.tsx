@@ -22,12 +22,13 @@ import * as React from 'react';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import { ComponentMeasure, Metric } from '../../../types/types';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
 
-interface Props {
+interface ComponentsProps {
   baseComponent?: ComponentMeasure;
   branchLike?: BranchLike;
   components: ComponentMeasure[];
@@ -35,33 +36,39 @@ interface Props {
   rootComponent: ComponentMeasure;
   selected?: ComponentMeasure;
   newCodeSelected?: boolean;
+  showAnalysisDate?: boolean;
 }
 
-const BASE_COLUMN_COUNT = 4;
+export function Components(props: ComponentsProps) {
+  const {
+    baseComponent,
+    branchLike,
+    components,
+    rootComponent,
+    selected,
+    metrics,
+    newCodeSelected,
+    showAnalysisDate,
+  } = props;
 
-export class Components extends React.PureComponent<Props> {
-  render() {
-    const {
-      baseComponent,
-      branchLike,
-      components,
-      rootComponent,
-      selected,
-      metrics,
-      newCodeSelected,
-    } = this.props;
+  const canBePinned =
+    baseComponent &&
+    ![
+      ComponentQualifier.Application,
+      ComponentQualifier.Portfolio,
+      ComponentQualifier.SubPortfolio,
+    ].includes(baseComponent.qualifier as ComponentQualifier);
 
-    const colSpan = metrics.length + BASE_COLUMN_COUNT;
-    const canBePinned = baseComponent && !['APP', 'VW', 'SVW'].includes(baseComponent.qualifier);
-
-    return (
-      <table className="data boxed-padding zebra">
+  return (
+    <div className="big-spacer-bottom table-wrapper">
+      <table className="data zebra">
         {baseComponent && (
           <ComponentsHeader
             baseComponent={baseComponent}
             canBePinned={canBePinned}
             metrics={metrics.map((metric) => metric.key)}
             rootComponent={rootComponent}
+            showAnalysisDate={showAnalysisDate}
           />
         )}
         <tbody>
@@ -77,14 +84,12 @@ export class Components extends React.PureComponent<Props> {
                 metrics={metrics}
                 rootComponent={rootComponent}
                 newCodeSelected={newCodeSelected}
+                showAnalysisDate={showAnalysisDate}
               />
               <tr className="blank">
-                <td colSpan={3}>
-                  <hr className="null-spacer-top" />
-                </td>
-                <td colSpan={colSpan}>
-                  <hr className="null-spacer-top" />
-                </td>
+                <td
+                  colSpan={metrics.length + 1 + (canBePinned ? 1 : 0) + (showAnalysisDate ? 1 : 0)}
+                />
               </tr>
             </>
           )}
@@ -103,10 +108,11 @@ export class Components extends React.PureComponent<Props> {
                 component={component}
                 hasBaseComponent={baseComponent !== undefined}
                 key={getComponentMeasureUniqueKey(component)}
-                metrics={this.props.metrics}
+                metrics={metrics}
                 previous={index > 0 ? list[index - 1] : undefined}
                 rootComponent={rootComponent}
                 newCodeSelected={newCodeSelected}
+                showAnalysisDate={showAnalysisDate}
                 selected={
                   selected &&
                   getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected)
@@ -116,15 +122,10 @@ export class Components extends React.PureComponent<Props> {
           ) : (
             <ComponentsEmpty canBePinned={canBePinned} />
           )}
-
-          <tr className="blank">
-            <td colSpan={3} />
-            <td colSpan={colSpan} />
-          </tr>
         </tbody>
       </table>
-    );
-  }
+    </div>
+  );
 }
 
 export default withKeyboardNavigation(Components);
