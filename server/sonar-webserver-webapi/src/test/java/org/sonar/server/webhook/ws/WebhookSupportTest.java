@@ -111,7 +111,7 @@ public class WebhookSupportTest {
   public void itThrowsIllegalExceptionIfGettingNetworkInterfaceAddressesFails() throws SocketException {
     when(networkInterfaceProvider.getNetworkInterfaceAddresses()).thenThrow(new SocketException());
 
-    assertThatThrownBy(() -> underTest.checkUrlPattern("https://good-url.com", "msg"))
+    assertThatThrownBy(() -> underTest.checkUrlPattern("https://sonarsource.com", "msg"))
       .hasMessageContaining("Can not retrieve a network interfaces")
       .isInstanceOf(IllegalStateException.class);
 
