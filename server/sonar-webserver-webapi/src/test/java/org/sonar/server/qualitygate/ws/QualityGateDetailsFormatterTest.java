@@ -21,9 +21,11 @@ package org.sonar.server.qualitygate.ws;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.junit.Test;
 import org.sonar.db.component.SnapshotDto;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
@@ -141,6 +143,30 @@ public class QualityGateDetailsFormatterTest {
     assertThatThrownBy(() -> underTest.format())
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Unknown quality gate comparator 'UNKNOWN'");
+  }
+
+  @Test
+  public void verify_cayc_quality_gate_checked() throws IOException {
+    String measureDataRaw = IOUtils.toString(getClass().getResource("QualityGateDetailsFormatterTest/cayc_compliant_qg.json"));
+
+    String measureDataCompliant = StrSubstitutor.replace(measureDataRaw, Map.of("nmr_error", "1.0"));
+    underTest = newQualityGateDetailsFormatter(measureDataCompliant, null);
+    ProjectStatus result = underTest.format();
+    assertThat(result.getIsCaycCompliant()).isTrue();
+
+    String measureDataNonCompliant = StrSubstitutor.replace(measureDataRaw, Map.of("nmr_error", "2.0"));
+    underTest = newQualityGateDetailsFormatter(measureDataNonCompliant, null);
+    result = underTest.format();
+    assertThat(result.getIsCaycCompliant()).isFalse();
+  }
+
+  @Test
+  public void verify_cayc_quality_gate_with_missing_metric() throws IOException {
+    String measureData = IOUtils.toString(getClass().getResource("QualityGateDetailsFormatterTest/cayc_missing_metric.json"));
+
+    underTest = newQualityGateDetailsFormatter(measureData, null);
+    ProjectStatus result = underTest.format();
+    assertThat(result.getIsCaycCompliant()).isFalse();
   }
 
   private static QualityGateDetailsFormatter newQualityGateDetailsFormatter(@Nullable String measureData, @Nullable SnapshotDto snapshotDto) {

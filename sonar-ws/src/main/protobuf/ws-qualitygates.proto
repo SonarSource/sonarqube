@@ -36,6 +36,7 @@ message ProjectStatusResponse {
     repeated Period periods = 3;
     optional bool ignoredConditions = 4;
     optional NewCodePeriod period = 5;
+    optional bool isCaycCompliant = 6;
   }
 
   message Condition {
