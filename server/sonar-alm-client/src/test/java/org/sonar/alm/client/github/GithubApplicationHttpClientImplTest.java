@@ -49,9 +49,9 @@ import static org.junit.Assert.fail;
 
 @RunWith(DataProviderRunner.class)
 public class GithubApplicationHttpClientImplTest {
-  private static final String BETA_API_HEADER = "application/vnd.github.antiope-preview+json, " +
-    "application/vnd.github.machine-man-preview+json, " +
-    "application/vnd.github.v3+json";
+  private static final String GH_API_VERSION_HEADER = "X-GitHub-Api-Version";
+  private static final String GH_API_VERSION = "2022-11-28";
+
   @Rule
   public MockWebServer server = new MockWebServer();
 
@@ -126,7 +126,7 @@ public class GithubApplicationHttpClientImplTest {
     assertThat(recordedRequest.getMethod()).isEqualTo("GET");
     assertThat(recordedRequest.getPath()).isEqualTo(randomEndPoint);
     assertThat(recordedRequest.getHeader("Authorization")).isEqualTo("token " + accessToken.getValue());
-    assertThat(recordedRequest.getHeader("Accept")).isEqualTo(BETA_API_HEADER);
+    assertThat(recordedRequest.getHeader(GH_API_VERSION_HEADER)).isEqualTo(GH_API_VERSION);
   }
 
   @Test
@@ -260,7 +260,7 @@ public class GithubApplicationHttpClientImplTest {
     assertThat(recordedRequest.getMethod()).isEqualTo("POST");
     assertThat(recordedRequest.getPath()).isEqualTo(randomEndPoint);
     assertThat(recordedRequest.getHeader("Authorization")).isEqualTo("token " + accessToken.getValue());
-    assertThat(recordedRequest.getHeader("Accept")).isEqualTo(BETA_API_HEADER);
+    assertThat(recordedRequest.getHeader(GH_API_VERSION_HEADER)).isEqualTo(GH_API_VERSION);
   }
 
   @Test
