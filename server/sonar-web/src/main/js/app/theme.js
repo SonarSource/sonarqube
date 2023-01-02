@@ -139,6 +139,10 @@ module.exports = {
     darkBackgroundSeparator: '#413b3b',
     darkBackgroundFontColor: '#f6f8fa',
 
+    //quality gate badges
+    badgeGreenBackground: '#f0faec',
+    badgeRedBackground: '#ffeaea',
+
     // new color palette
     // Some of these colors duplicate what we have above, but this will make it
     // easier to align with the UX designers on what colors to use where.

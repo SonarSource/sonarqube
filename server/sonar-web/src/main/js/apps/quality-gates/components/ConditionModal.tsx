@@ -25,7 +25,7 @@ import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { Condition, Metric, QualityGate } from '../../../types/types';
-import { getPossibleOperators } from '../utils';
+import { getPossibleOperators, isCaycCondition, isCaycWeakCondition } from '../utils';
 import ConditionOperator from './ConditionOperator';
 import MetricSelect from './MetricSelect';
 import ThresholdInput from './ThresholdInput';
@@ -105,7 +105,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { header, metrics, onClose } = this.props;
+    const { header, metrics, onClose, condition } = this.props;
     const { op, error, scope, metric } = this.state;
     return (
       <ConfirmModal
@@ -136,6 +136,14 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
               </span>
             </Radio>
           </div>
+        )}
+
+        {condition && isCaycCondition(condition) && !isCaycWeakCondition(condition) && (
+          <Alert className="big-spacer-bottom big-spacer-top" variant="warning">
+            <p className="cayc-warning-description">
+              {translate('quality_gates.cayc_condition.edit_warning')}
+            </p>
+          </Alert>
         )}
 
         <div className="modal-field">

@@ -48,6 +48,7 @@ interface Props {
   renderElement: (element: string) => React.ReactNode;
   selectedElements: string[];
   withPaging?: boolean;
+  autoFocusSearch?: boolean;
 }
 
 export interface SelectListSearchParams {
@@ -136,6 +137,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
       labelSelected = translate('selected'),
       labelUnselected = translate('unselected'),
       labelAll = translate('all'),
+      autoFocusSearch = true,
     } = this.props;
     const { filter } = this.state.lastSearchParams;
 
@@ -157,7 +159,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
             />
           </span>
           <SearchBox
-            autoFocus={true}
+            autoFocus={autoFocusSearch}
             loading={this.state.loading}
             onChange={this.handleQueryChange}
             placeholder={translate('search_verb')}

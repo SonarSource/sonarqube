@@ -39,7 +39,9 @@ export default function List({ qualityGates }: Props) {
           key={qualityGate.id}
           to={getQualityGateUrl(String(qualityGate.id))}
         >
-          <span className="flex-1">{qualityGate.name}</span>
+          <span className="flex-1 text-ellipsis" title={qualityGate.name}>
+            {qualityGate.name}
+          </span>
           {qualityGate.isDefault && (
             <span className="badge little-spacer-left">{translate('default')}</span>
           )}

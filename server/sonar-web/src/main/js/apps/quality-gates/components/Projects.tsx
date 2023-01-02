@@ -174,6 +174,7 @@ export default class Projects extends React.PureComponent<Props, State> {
         renderElement={this.renderElement}
         selectedElements={this.state.selectedProjects}
         withPaging={true}
+        autoFocusSearch={false}
       />
     );
   }

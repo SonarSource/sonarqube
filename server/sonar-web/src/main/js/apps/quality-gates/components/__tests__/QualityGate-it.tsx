@@ -160,9 +160,7 @@ it('should be able to add a condition', async () => {
   await user.click(dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' }));
   await user.keyboard('12{Enter}');
 
-  const newConditions = within(
-    await screen.findByRole('table', { name: 'quality_gates.conditions.new_code.long' })
-  );
+  const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
   expect(await newConditions.findByRole('cell', { name: 'Issues' })).toBeInTheDocument();
   expect(await newConditions.findByRole('cell', { name: '12' })).toBeInTheDocument();
 
@@ -178,9 +176,7 @@ it('should be able to add a condition', async () => {
   await user.click(dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' }));
   await user.keyboard('42{Enter}');
 
-  let overallConditions = within(
-    await screen.findByRole('table', { name: 'quality_gates.conditions.overall_code.long' })
-  );
+  const overallConditions = within(await screen.findByTestId('quality-gates__conditions-overall'));
 
   expect(await overallConditions.findByRole('cell', { name: 'Info Issues' })).toBeInTheDocument();
   expect(await overallConditions.findByRole('cell', { name: '42' })).toBeInTheDocument();
@@ -195,10 +191,6 @@ it('should be able to add a condition', async () => {
   await user.click(dialog.getByText('B'));
   await user.click(dialog.getByRole('button', { name: 'quality_gates.add_condition' }));
 
-  overallConditions = within(
-    await screen.findByRole('table', { name: 'quality_gates.conditions.overall_code.long' })
-  );
-
   expect(
     await overallConditions.findByRole('cell', { name: 'Maintainability Rating' })
   ).toBeInTheDocument();
@@ -210,11 +202,7 @@ it('should be able to edit a condition', async () => {
   handler.setIsAdmin(true);
   renderQualityGateApp();
 
-  const newConditions = within(
-    await screen.findByRole('table', {
-      name: 'quality_gates.conditions.new_code.long',
-    })
-  );
+  const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
 
   await user.click(
     newConditions.getByLabelText('quality_gates.condition.edit.Coverage on New Code')
@@ -246,11 +234,7 @@ it('should be able to handle delete condition', async () => {
   handler.setIsAdmin(true);
   renderQualityGateApp();
 
-  const newConditions = within(
-    await screen.findByRole('table', {
-      name: 'quality_gates.conditions.new_code.long',
-    })
-  );
+  const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
 
   await user.click(
     newConditions.getByLabelText('quality_gates.condition.delete.Coverage on New Code')
@@ -272,6 +256,114 @@ it('should explain condition on branch', async () => {
   ).toBeInTheDocument();
   expect(
     await screen.findByText('quality_gates.conditions.overall_code.description')
+  ).toBeInTheDocument();
+});
+
+it('should be able to see warning when CAYC condition is not properly set and update them', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  const qualityGate = await screen.findByText('SonarSource way - CFamily');
+
+  await user.click(qualityGate);
+
+  expect(
+    screen.getByText('quality_gates.cayc_condition.missing_warning.title')
+  ).toBeInTheDocument();
+  expect(screen.getByText('quality_gates.other_conditions')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
+  ).toBeInTheDocument();
+  expect(await screen.findAllByText('quality_gates.cayc_condition.missing')).toHaveLength(4);
+
+  await user.click(
+    screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
+  );
+  expect(
+    screen.getByRole('dialog', {
+      name: 'quality_gates.cayc.review_update_modal.header.SonarSource way - CFamily',
+    })
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText('quality_gates.cayc.review_update_modal.description')
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText('quality_gates.cayc.review_update_modal.add_condition.header.4')
+  ).toBeInTheDocument();
+  expect(await screen.findAllByText('quality_gates.cayc_condition.ok')).toHaveLength(4);
+  expect(
+    screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' })
+  ).toBeInTheDocument();
+
+  await user.click(
+    screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' })
+  );
+
+  const newCaycConditions = within(await screen.findByTestId('quality-gates__conditions-new-cayc'));
+  expect(await newCaycConditions.findAllByText('quality_gates.cayc_condition.ok')).toHaveLength(4);
+});
+
+it('should not show any warning when CAYC condition are properly set', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  const qualityGate = await screen.findByText('SonarSource way');
+
+  await user.click(qualityGate);
+
+  expect(
+    screen.queryByText('quality_gates.cayc_condition.missing_warning.title')
+  ).not.toBeInTheDocument();
+  expect(screen.getByText('quality_gates.other_conditions')).toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
+  ).not.toBeInTheDocument();
+
+  const newCaycConditions = within(await screen.findByTestId('quality-gates__conditions-new-cayc'));
+
+  expect(await newCaycConditions.findByText('Maintainability Rating')).toBeInTheDocument();
+  expect(await newCaycConditions.findByText('Reliability Rating')).toBeInTheDocument();
+  expect(await newCaycConditions.findByText('Security Hotspots Reviewed')).toBeInTheDocument();
+  expect(await newCaycConditions.findByText('Security Rating')).toBeInTheDocument();
+  expect(await newCaycConditions.findAllByText('quality_gates.cayc_condition.ok')).toHaveLength(4);
+
+  const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
+
+  expect(await newConditions.findByText('Coverage')).toBeInTheDocument();
+  expect(
+    newConditions.queryByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
+  ).not.toBeInTheDocument();
+});
+
+it('should unlock editing option for CAYC conditions', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  const qualityGate = await screen.findByText('SonarSource way');
+  await user.click(qualityGate);
+  expect(screen.getByText('quality_gates.cayc.unlock_edit')).toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', {
+      name: 'quality_gates.condition.edit.Security Rating on New Code',
+    })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', {
+      name: 'quality_gates.condition.delete.Security Rating on New Code',
+    })
+  ).not.toBeInTheDocument();
+
+  await user.click(screen.getByText('quality_gates.cayc.unlock_edit'));
+  expect(
+    screen.getByRole('button', { name: 'quality_gates.condition.edit.Security Rating on New Code' })
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', {
+      name: 'quality_gates.condition.delete.Security Rating on New Code',
+    })
   ).toBeInTheDocument();
 });
 

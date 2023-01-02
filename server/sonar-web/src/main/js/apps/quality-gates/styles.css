@@ -29,3 +29,70 @@
 .quality-gate-permissions .permission-list-item:hover {
   background-color: var(--rowHoverHighlight);
 }
+
+.cayc-conditions-wrapper {
+  background-color: var(--barBackgroundColor);
+}
+
+.quality-gate-section tbody {
+  border: 1px solid var(--disableGrayBorder);
+}
+
+.quality-gate-section tr {
+  background-color: white !important;
+  border-bottom: 1px solid var(--disableGrayBorder);
+}
+
+.quality-gate-section tr th {
+  font-weight: 400 !important;
+  font-size: 11px;
+}
+
+.quality-gate-section thead tr {
+  background-color: transparent !important;
+  border: none;
+}
+
+.quality-gate-section thead:after {
+  display: none !important;
+}
+
+.qg-cayc-ok-badge {
+  color: var(--success500);
+  background-color: var(--badgeGreenBackground);
+}
+
+.qg-cayc-weak-badge {
+  color: var(--alertIconWarning);
+  background-color: var(--alertBackgroundWarning);
+}
+
+.qg-cayc-missing-badge {
+  color: var(--red);
+  background-color: var(--badgeRedBackground);
+}
+
+.text-through {
+  text-decoration: line-through;
+  color: var(--blacka60);
+}
+
+.bordered-bottom-cayc {
+  border-bottom: 1px solid var(--whitea18);
+}
+
+.cayc-warning-header {
+  color: var(--alertTextWarning);
+}
+
+.cayc-warning-description {
+  line-height: 18px;
+}
+
+.green-text {
+  color: var(--success500);
+}
+
+.red-text {
+  color: var(--red);
+}

@@ -17,6 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+const RATING_GRID_SIZE = 4;
+export const PERCENT_MULTIPLIER = 100;
+export const DIFF_METRIC_PREFIX_LENGTH = 4;
+export const GRID_INDEX_OFFSET = 2; // Rating of 2 should get index 0 (threshold between 1 and 2)
+
 function checkNumberRating(coverageRating: number): void {
   if (!(typeof coverageRating === 'number' && coverageRating > 0 && coverageRating < 6)) {
     throw new Error(`Unknown number rating: "${coverageRating}"`);
@@ -58,3 +64,12 @@ export function getSizeRatingAverageValue(rating: number): number {
   const mapping = [500, 5000, 50000, 250000, 750000];
   return mapping[rating - 1];
 }
+
+export const getMaintainabilityGrid = (ratingGridSetting: string) => {
+  const numbers = ratingGridSetting
+    .split(',')
+    .map((s) => parseFloat(s))
+    .filter((n) => !isNaN(n));
+
+  return numbers.length === RATING_GRID_SIZE ? numbers : [0, 0, 0, 0];
+};

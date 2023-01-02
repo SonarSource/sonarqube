@@ -32,8 +32,10 @@ import { isDiffMetric } from '../../../helpers/measures';
 import { Feature } from '../../../types/features';
 import { MetricKey } from '../../../types/metrics';
 import { Condition as ConditionType, Dict, Metric, QualityGate } from '../../../types/types';
-import Condition from './Condition';
+import { getCaycConditions, getOthersConditions } from '../utils';
+import CaycConditions from './CaycConditions';
 import ConditionModal from './ConditionModal';
+import ConditionsTable from './ConditionsTable';
 
 interface Props extends WithAvailableFeaturesProps {
   canEdit: boolean;
@@ -65,56 +67,31 @@ export class Conditions extends React.PureComponent<Props> {
       updatedConditionId,
     } = this.props;
 
-    const captionTranslationId =
-      scope === 'new'
-        ? 'quality_gates.conditions.new_code'
-        : 'quality_gates.conditions.overall_code';
     return (
-      <table className="data zebra" data-test={`quality-gates__conditions-${scope}`}>
-        <caption>
-          <h4>{translate(captionTranslationId, 'long')}</h4>
-
-          {this.props.hasFeature(Feature.BranchSupport) && (
-            <p className="spacer-top spacer-bottom">
-              {translate(captionTranslationId, 'description')}
-            </p>
-          )}
-        </caption>
-        <thead>
-          <tr>
-            <th className="nowrap" style={{ width: 300 }}>
-              {translate('quality_gates.conditions.metric')}
-            </th>
-            <th className="nowrap">{translate('quality_gates.conditions.operator')}</th>
-            <th className="nowrap">{translate('quality_gates.conditions.value')}</th>
-            {canEdit && (
-              <>
-                <th className="thin">{translate('edit')}</th>
-                <th className="thin">{translate('delete')}</th>
-              </>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {conditions.map((condition) => (
-            <Condition
-              canEdit={canEdit}
-              condition={condition}
-              key={condition.id}
-              metric={metrics[condition.metric]}
-              onRemoveCondition={onRemoveCondition}
-              onSaveCondition={onSaveCondition}
-              qualityGate={qualityGate}
-              updated={condition.id === updatedConditionId}
-            />
-          ))}
-        </tbody>
-      </table>
+      <ConditionsTable
+        qualityGate={qualityGate}
+        metrics={metrics}
+        canEdit={canEdit}
+        onRemoveCondition={onRemoveCondition}
+        onSaveCondition={onSaveCondition}
+        updatedConditionId={updatedConditionId}
+        conditions={getOthersConditions(conditions)}
+        scope={scope}
+      />
     );
   };
 
   render() {
-    const { conditions, metrics, canEdit } = this.props;
+    const {
+      qualityGate,
+      metrics,
+      canEdit,
+      onAddCondition,
+      onRemoveCondition,
+      onSaveCondition,
+      updatedConditionId,
+      conditions,
+    } = this.props;
 
     const existingConditions = conditions.filter((condition) => metrics[condition.metric]);
     const sortedConditions = sortBy(
@@ -180,8 +157,8 @@ export class Conditions extends React.PureComponent<Props> {
           </div>
         )}
 
-        <header className="display-flex-center spacer-bottom">
-          <h3>{translate('quality_gates.conditions')}</h3>
+        <header className="display-flex-center">
+          <h2 className="big">{translate('quality_gates.conditions')}</h2>
           <DocumentationTooltip
             className="spacer-left"
             content={translate('quality_gates.conditions.help')}
@@ -207,13 +184,63 @@ export class Conditions extends React.PureComponent<Props> {
 
         {sortedConditionsOnNewMetrics.length > 0 && (
           <div className="big-spacer-top">
-            {this.renderConditionsTable(sortedConditionsOnNewMetrics, 'new')}
+            <h3 className="medium text-normal">
+              {translate('quality_gates.conditions.new_code', 'long')}
+            </h3>
+            {this.props.hasFeature(Feature.BranchSupport) && (
+              <p className="spacer-top spacer-bottom">
+                {translate('quality_gates.conditions.new_code', 'description')}
+              </p>
+            )}
+
+            <CaycConditions
+              qualityGate={qualityGate}
+              metrics={metrics}
+              canEdit={canEdit}
+              onRemoveCondition={onRemoveCondition}
+              onAddCondition={onAddCondition}
+              onSaveCondition={onSaveCondition}
+              updatedConditionId={updatedConditionId}
+              conditions={getCaycConditions(sortedConditionsOnNewMetrics)}
+              scope="new-cayc"
+            />
+
+            <h4>{translate('quality_gates.other_conditions')}</h4>
+            <ConditionsTable
+              qualityGate={qualityGate}
+              metrics={metrics}
+              canEdit={canEdit}
+              onRemoveCondition={onRemoveCondition}
+              onSaveCondition={onSaveCondition}
+              updatedConditionId={updatedConditionId}
+              conditions={getOthersConditions(sortedConditionsOnNewMetrics)}
+              scope="new"
+            />
           </div>
         )}
 
         {sortedConditionsOnOverallMetrics.length > 0 && (
           <div className="big-spacer-top">
-            {this.renderConditionsTable(sortedConditionsOnOverallMetrics, 'overall')}
+            <h3 className="medium text-normal">
+              {translate('quality_gates.conditions.overall_code', 'long')}
+            </h3>
+
+            {this.props.hasFeature(Feature.BranchSupport) && (
+              <p className="spacer-top spacer-bottom">
+                {translate('quality_gates.conditions.overall_code', 'description')}
+              </p>
+            )}
+
+            <ConditionsTable
+              qualityGate={qualityGate}
+              metrics={metrics}
+              canEdit={canEdit}
+              onRemoveCondition={onRemoveCondition}
+              onSaveCondition={onSaveCondition}
+              updatedConditionId={updatedConditionId}
+              conditions={sortedConditionsOnOverallMetrics}
+              scope="overall"
+            />
           </div>
         )}
 

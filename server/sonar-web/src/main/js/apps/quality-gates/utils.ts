@@ -21,6 +21,77 @@ import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { Condition, Dict, Metric, QualityGate } from '../../types/types';
 
+const CAYC_CONDITIONS_WITH_EXPECTED_VALUE: { [key: string]: Condition } = {
+  new_reliability_rating: {
+    error: '1',
+    id: 'new_reliability_rating',
+    metric: 'new_reliability_rating',
+    op: 'GT',
+  },
+  new_security_rating: {
+    error: '1',
+    id: 'new_security_rating',
+    metric: 'new_security_rating',
+    op: 'GT',
+  },
+  new_maintainability_rating: {
+    error: '1',
+    id: 'new_maintainability_rating',
+    metric: 'new_maintainability_rating',
+    op: 'GT',
+  },
+  new_security_hotspots_reviewed: {
+    error: '100',
+    id: 'new_security_hotspots_reviewed',
+    metric: 'new_security_hotspots_reviewed',
+    op: 'LT',
+  },
+};
+
+export function getCaycConditions(conditions: Condition[]) {
+  return conditions.filter((condition) => isCaycCondition(condition));
+}
+
+export function isCaycCondition(condition: Condition) {
+  return Object.keys(CAYC_CONDITIONS_WITH_EXPECTED_VALUE).includes(condition.metric);
+}
+
+export function isCaycWeakCondition(condition: Condition) {
+  return (
+    isCaycCondition(condition) &&
+    CAYC_CONDITIONS_WITH_EXPECTED_VALUE[condition.metric].error !== condition.error
+  );
+}
+
+export function getWeakAndMissingConditions(conditions: Condition[]) {
+  const result: {
+    weakConditions: Condition[];
+    missingConditions: Condition[];
+  } = {
+    weakConditions: [],
+    missingConditions: [],
+  };
+  Object.keys(CAYC_CONDITIONS_WITH_EXPECTED_VALUE).forEach((key) => {
+    const selectedCondition = conditions.find((condition) => condition.metric === key);
+    if (!selectedCondition) {
+      result.missingConditions.push(CAYC_CONDITIONS_WITH_EXPECTED_VALUE[key]);
+    } else if (CAYC_CONDITIONS_WITH_EXPECTED_VALUE[key].error !== selectedCondition.error) {
+      result.weakConditions.push(selectedCondition);
+    }
+  });
+  return result;
+}
+
+export function getOthersConditions(conditions: Condition[]) {
+  return conditions.filter(
+    (condition) => !Object.keys(CAYC_CONDITIONS_WITH_EXPECTED_VALUE).includes(condition.metric)
+  );
+}
+
+export function getCorrectCaycCondition(condition: Condition) {
+  return CAYC_CONDITIONS_WITH_EXPECTED_VALUE[condition.metric];
+}
+
 export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): boolean {
   const finding = list.find((candidate) => candidate.id === qualityGate.id);
   return (finding && finding.isDefault) || false;

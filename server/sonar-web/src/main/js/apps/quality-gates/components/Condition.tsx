@@ -23,11 +23,13 @@ import { deleteCondition } from '../../../api/quality-gates';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
+import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 import { Condition as ConditionType, Dict, Metric, QualityGate } from '../../../types/types';
-import { getLocalizedMetricNameNoDiffMetric } from '../utils';
+import { getLocalizedMetricNameNoDiffMetric, isCaycCondition } from '../utils';
+import CaycStatusBadge from './CaycStatusBadge';
 import ConditionModal from './ConditionModal';
+import ConditionValue from './ConditionValue';
 
 interface Props {
   condition: ConditionType;
@@ -38,6 +40,9 @@ interface Props {
   qualityGate: QualityGate;
   updated?: boolean;
   metrics: Dict<Metric>;
+  showEdit?: boolean;
+  isMissingCondition?: boolean;
+  isCaycModal?: boolean;
 }
 
 interface State {
@@ -90,63 +95,106 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { condition, canEdit, metric, qualityGate, updated, metrics } = this.props;
+    const {
+      condition,
+      canEdit,
+      metric,
+      qualityGate,
+      updated,
+      metrics,
+      showEdit = true,
+      isMissingCondition = false,
+      isCaycModal = false,
+    } = this.props;
+
     return (
       <tr className={classNames({ highlighted: updated })}>
-        <td className="text-middle">
+        <td
+          className={classNames('text-middle', {
+            'text-through': isMissingCondition && !isCaycModal,
+            'green-text': isMissingCondition && isCaycModal,
+          })}
+        >
           {getLocalizedMetricNameNoDiffMetric(metric, metrics)}
           {metric.hidden && (
             <span className="text-danger little-spacer-left">{translate('deprecated')}</span>
           )}
         </td>
 
-        <td className="text-middle nowrap">{this.renderOperator()}</td>
+        <td
+          className={classNames('text-middle nowrap', {
+            'text-through': isMissingCondition && !isCaycModal,
+            'green-text': isMissingCondition && isCaycModal,
+          })}
+        >
+          {this.renderOperator()}
+        </td>
 
-        <td className="text-middle nowrap">{formatMeasure(condition.error, metric.type)}</td>
-
-        {canEdit && (
-          <>
-            <td className="text-center thin">
+        <td
+          className={classNames('text-middle nowrap', {
+            'text-through': isMissingCondition && !isCaycModal,
+            'green-text': isMissingCondition && isCaycModal,
+          })}
+        >
+          <ConditionValue metric={metric} isCaycModal={isCaycModal} condition={condition} />
+        </td>
+        <td className="text-middle nowrap display-flex-justify-end">
+          {isCaycCondition(condition) && (
+            <CaycStatusBadge
+              isMissingCondition={isMissingCondition}
+              condition={condition}
+              isCaycModal={isCaycModal}
+              className="spacer-right"
+            />
+          )}
+          {canEdit && showEdit && !isMissingCondition && (
+            <>
               <EditButton
                 aria-label={translateWithParameters('quality_gates.condition.edit', metric.name)}
                 data-test="quality-gates__condition-update"
                 onClick={this.handleOpenUpdate}
+                className="spacer-right"
               />
-            </td>
-            <td className="text-center thin">
               <DeleteButton
                 aria-label={translateWithParameters('quality_gates.condition.delete', metric.name)}
                 data-test="quality-gates__condition-delete"
                 onClick={this.handleDeleteClick}
               />
-            </td>
-            {this.state.modal && (
-              <ConditionModal
-                condition={condition}
-                header={translate('quality_gates.update_condition')}
-                metric={metric}
-                onAddCondition={this.handleUpdateCondition}
-                onClose={this.handleUpdateClose}
-                qualityGate={qualityGate}
-              />
-            )}
-            {this.state.deleteFormOpen && (
-              <ConfirmModal
-                confirmButtonText={translate('delete')}
-                confirmData={condition}
-                header={translate('quality_gates.delete_condition')}
-                isDestructive={true}
-                onClose={this.closeDeleteForm}
-                onConfirm={this.removeCondition}
-              >
-                {translateWithParameters(
-                  'quality_gates.delete_condition.confirm.message',
-                  getLocalizedMetricName(this.props.metric)
-                )}
-              </ConfirmModal>
-            )}
-          </>
-        )}
+              {this.state.modal && (
+                <ConditionModal
+                  condition={condition}
+                  header={translate('quality_gates.update_condition')}
+                  metric={metric}
+                  onAddCondition={this.handleUpdateCondition}
+                  onClose={this.handleUpdateClose}
+                  qualityGate={qualityGate}
+                />
+              )}
+              {this.state.deleteFormOpen && (
+                <ConfirmModal
+                  confirmButtonText={translate('delete')}
+                  confirmData={condition}
+                  header={translate('quality_gates.delete_condition')}
+                  isDestructive={true}
+                  onClose={this.closeDeleteForm}
+                  onConfirm={this.removeCondition}
+                >
+                  {translateWithParameters(
+                    'quality_gates.delete_condition.confirm.message',
+                    getLocalizedMetricName(this.props.metric)
+                  )}
+                  {isCaycCondition(condition) && (
+                    <Alert className="big-spacer-bottom big-spacer-top" variant="warning">
+                      <p className="cayc-warning-description">
+                        {translate('quality_gates.cayc_condition.delete_warning')}
+                      </p>
+                    </Alert>
+                  )}
+                </ConfirmModal>
+              )}
+            </>
+          )}
+        </td>
       </tr>
     );
   }
