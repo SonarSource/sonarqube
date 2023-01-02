@@ -90,6 +90,9 @@ export interface Component extends LightComponent {
   visibility?: Visibility;
 }
 
+export interface NavigationComponent
+  extends Omit<Component, 'alm' | 'qualifier' | 'leakPeriodDate' | 'path' | 'tags'> {}
+
 interface ComponentConfiguration {
   canApplyPermissionTemplate?: boolean;
   canBrowseProject?: boolean;

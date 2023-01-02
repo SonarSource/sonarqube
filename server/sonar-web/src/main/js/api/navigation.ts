@@ -21,13 +21,11 @@ import { throwGlobalError } from '../helpers/error';
 import { getJSON } from '../helpers/request';
 import { AppState } from '../types/appstate';
 import { BranchParameters } from '../types/branch-like';
-import { Component, Extension } from '../types/types';
-
-type NavComponent = Omit<Component, 'alm' | 'qualifier' | 'leakPeriodDate' | 'path' | 'tags'>;
+import { Extension, NavigationComponent } from '../types/types';
 
 export function getComponentNavigation(
   data: { component: string } & BranchParameters
-): Promise<NavComponent> {
+): Promise<NavigationComponent> {
   return getJSON('/api/navigation/component', data).catch(throwGlobalError);
 }
 
