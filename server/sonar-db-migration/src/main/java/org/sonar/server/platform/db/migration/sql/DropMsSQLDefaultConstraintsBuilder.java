@@ -33,6 +33,9 @@ import org.sonar.db.dialect.MsSql;
 
 import static java.lang.String.format;
 
+/**
+ * See SONAR-13948. Some columns created in SQ < 5.6 were created with the default command which generated constraints on MS SQL server.
+ */
 public class DropMsSQLDefaultConstraintsBuilder {
   private final Database db;
   private String tableName;

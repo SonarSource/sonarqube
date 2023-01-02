@@ -20,9 +20,9 @@
 package org.sonar.server.platform.db.migration.version.v91;
 
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DropColumnWithConstraint;
+import org.sonar.server.platform.db.migration.step.DropColumnChange;
 
-public class DropUserManagedColumnFromMetricsTable extends DropColumnWithConstraint {
+public class DropUserManagedColumnFromMetricsTable extends DropColumnChange {
 
   private static final String TABLE_NAME = "metrics";
   private static final String COLUMN = "user_managed";

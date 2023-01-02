@@ -20,9 +20,9 @@
 package org.sonar.server.platform.db.migration.version.v96;
 
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DropColumnWithConstraint;
+import org.sonar.server.platform.db.migration.step.DropColumnChange;
 
-public class DropSonarlintAdSeenColumnInUsersTable extends DropColumnWithConstraint {
+public class DropSonarlintAdSeenColumnInUsersTable extends DropColumnChange {
 
   private static final String TABLE_NAME = "users";
   private static final String COLUMN = "sonarlint_ad_seen";
