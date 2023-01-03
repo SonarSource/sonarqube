@@ -14,6 +14,10 @@ dependencies {
     compileOnlyApi 'org.aspectj:aspectjtools'
 }
 
+tasks.withType(JavaCompile) {
+    options.release = 11
+}
+
 sonar {
     skipProject = true
 }
