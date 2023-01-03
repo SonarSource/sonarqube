@@ -140,7 +140,7 @@ public class UpdateGitlabActionTest {
       .setParam("url", GITLAB_URL)
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("ALM setting with key 'unknown' cannot be found");
+      .hasMessageContaining("DevOps Platform setting with key 'unknown' cannot be found");
   }
 
   @Test
@@ -157,7 +157,7 @@ public class UpdateGitlabActionTest {
       .setParam("url", GITLAB_URL)
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining(format("An ALM setting with key '%s' already exists", almSetting2.getKey()));
+      .hasMessageContaining(format("An DevOps Platform setting with key '%s' already exists", almSetting2.getKey()));
   }
 
   @Test

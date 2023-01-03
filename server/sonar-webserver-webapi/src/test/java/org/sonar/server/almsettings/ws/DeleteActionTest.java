@@ -108,7 +108,7 @@ public class DeleteActionTest {
       .setParam("key", "unknown")
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("ALM setting with key 'unknown' cannot be found");
+      .hasMessageContaining("DevOps Platform setting with key 'unknown' cannot be found");
   }
 
   @Test

@@ -84,7 +84,7 @@ public class SearchBitbucketCloudReposAction implements AlmIntegrationsWsAction 
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
 
     action.createParam(PARAM_REPO_NAME)
       .setRequired(false)
@@ -109,7 +109,7 @@ public class SearchBitbucketCloudReposAction implements AlmIntegrationsWsAction 
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
-        .orElseThrow(() -> new NotFoundException(String.format("ALM Setting '%s' not found", almSettingKey)));
+        .orElseThrow(() -> new NotFoundException(String.format("DevOps Platform Setting '%s' not found", almSettingKey)));
 
       String workspace = ofNullable(almSettingDto.getAppId())
         .orElseThrow(() -> new IllegalArgumentException(String.format("workspace for alm setting %s is missing", almSettingDto.getKey())));

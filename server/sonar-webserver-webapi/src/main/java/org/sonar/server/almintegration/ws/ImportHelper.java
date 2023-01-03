@@ -55,7 +55,7 @@ public class ImportHelper {
     String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
-        .orElseThrow(() -> new NotFoundException(String.format("ALM Setting '%s' not found", almSettingKey)));
+        .orElseThrow(() -> new NotFoundException(String.format("DevOps Platform Setting '%s' not found", almSettingKey)));
     }
   }
 

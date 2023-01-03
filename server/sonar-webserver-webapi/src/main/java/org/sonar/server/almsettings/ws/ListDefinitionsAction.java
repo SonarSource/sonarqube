@@ -57,7 +57,7 @@ public class ListDefinitionsAction implements AlmSettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     context.createAction("list_definitions")
-      .setDescription("List ALM Settings, sorted by created date.<br/>" +
+      .setDescription("List DevOps Platform Settings, sorted by created date.<br/>" +
         "Requires the 'Administer System' permission")
       .setSince("8.1")
       .setResponseExample(getClass().getResource("list_definitions-example.json"))
@@ -113,8 +113,8 @@ public class ListDefinitionsAction implements AlmSettingsWsAction {
     AlmSettingGithub.Builder builder = AlmSettingGithub
       .newBuilder()
       .setKey(settingDto.getKey())
-      .setUrl(requireNonNull(settingDto.getUrl(), "URL cannot be null for GitHub ALM setting"))
-      .setAppId(requireNonNull(settingDto.getAppId(), "App ID cannot be null for GitHub ALM setting"));
+      .setUrl(requireNonNull(settingDto.getUrl(), "URL cannot be null for GitHub setting"))
+      .setAppId(requireNonNull(settingDto.getAppId(), "App ID cannot be null for GitHub setting"));
     // Don't fail if clientId is not set for migration cases
     Optional.ofNullable(settingDto.getClientId()).ifPresent(builder::setClientId);
     return builder.build();
@@ -146,7 +146,7 @@ public class ListDefinitionsAction implements AlmSettingsWsAction {
     return AlmSettingBitbucket
       .newBuilder()
       .setKey(settingDto.getKey())
-      .setUrl(requireNonNull(settingDto.getUrl(), "URL cannot be null for Bitbucket ALM setting"))
+      .setUrl(requireNonNull(settingDto.getUrl(), "URL cannot be null for Bitbucket setting"))
       .build();
   }
 
@@ -155,7 +155,7 @@ public class ListDefinitionsAction implements AlmSettingsWsAction {
       .newBuilder()
       .setKey(settingDto.getKey())
       .setWorkspace(requireNonNull(settingDto.getAppId()))
-      .setClientId(requireNonNull(settingDto.getClientId(), "Client ID cannot be null for Bitbucket Cloud ALM setting"));
+      .setClientId(requireNonNull(settingDto.getClientId(), "Client ID cannot be null for Bitbucket Cloud setting"));
     return builder.build();
   }
 }

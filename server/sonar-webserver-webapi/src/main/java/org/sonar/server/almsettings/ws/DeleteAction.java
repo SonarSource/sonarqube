@@ -45,7 +45,7 @@ public class DeleteAction implements AlmSettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context
       .createAction("delete")
-      .setDescription("Delete an ALM Settings.<br/>" +
+      .setDescription("Delete an DevOps Platform Setting.<br/>" +
         "Requires the 'Administer System' permission")
       .setSince("8.1")
       .setPost(true)
@@ -53,7 +53,7 @@ public class DeleteAction implements AlmSettingsWsAction {
 
     action
       .createParam(PARAM_KEY)
-      .setDescription("ALM Setting key")
+      .setDescription("DevOps Platform Setting key")
       .setRequired(true);
   }
 

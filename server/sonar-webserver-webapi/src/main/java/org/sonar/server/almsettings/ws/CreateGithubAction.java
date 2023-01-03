@@ -55,7 +55,7 @@ public class CreateGithubAction implements AlmSettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("create_github")
-      .setDescription("Create GitHub ALM instance Setting. <br/>" +
+      .setDescription("Create GitHub instance Setting. <br/>" +
         "Requires the 'Administer System' permission")
       .setChangelog(new Change("9.7", String.format("Optional parameter '%s' was added", PARAM_WEBHOOK_SECRET)))
       .setPost(true)

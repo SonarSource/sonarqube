@@ -51,7 +51,7 @@ public class UpdateGitlabAction implements AlmSettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("update_gitlab")
-      .setDescription("Update GitLab ALM instance Setting. <br/>" +
+      .setDescription("Update GitLab instance Setting. <br/>" +
         "Requires the 'Administer System' permission")
       .setPost(true)
       .setSince("8.1")

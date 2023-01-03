@@ -88,7 +88,7 @@ public class CreateBitbucketActionTest {
       .setParam("personalAccessToken", "98765432100")
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", bitbucketAlmSetting.getKey()));
+      .hasMessageContaining(String.format("An DevOps Platform setting with key '%s' already exist", bitbucketAlmSetting.getKey()));
   }
 
   @Test

@@ -49,7 +49,7 @@ public class CreateBitBucketAction implements AlmSettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("create_bitbucket")
-      .setDescription("Create Bitbucket ALM instance Setting. <br/>" +
+      .setDescription("Create Bitbucket instance Setting. <br/>" +
         "Requires the 'Administer System' permission")
       .setPost(true)
       .setSince("8.1")

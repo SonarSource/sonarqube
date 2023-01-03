@@ -127,7 +127,7 @@ public class CreateGithubActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", gitHubAlmSetting.getKey()));
+      .hasMessageContaining(String.format("An DevOps Platform setting with key '%s' already exist", gitHubAlmSetting.getKey()));
   }
 
   @Test

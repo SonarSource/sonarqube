@@ -96,7 +96,7 @@ public class ListGithubOrganizationsActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("GitHub ALM Setting 'unknown' not found");
+      .hasMessage("GitHub Setting 'unknown' not found");
   }
 
   @Test

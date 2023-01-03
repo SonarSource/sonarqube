@@ -61,7 +61,7 @@ public class AlmSettingsSupport {
   public void checkAlmSettingDoesNotAlreadyExist(DbSession dbSession, String almSetting) {
     dbClient.almSettingDao().selectByKey(dbSession, almSetting)
       .ifPresent(a -> {
-        throw new IllegalArgumentException(format("An ALM setting with key '%s' already exists", a.getKey()));
+        throw new IllegalArgumentException(format("An DevOps Platform setting with key '%s' already exists", a.getKey()));
       });
   }
 
@@ -94,7 +94,7 @@ public class AlmSettingsSupport {
 
   public AlmSettingDto getAlmSetting(DbSession dbSession, String almSetting) {
     return dbClient.almSettingDao().selectByKey(dbSession, almSetting)
-      .orElseThrow(() -> new NotFoundException(format("ALM setting with key '%s' cannot be found", almSetting)));
+      .orElseThrow(() -> new NotFoundException(format("DevOps Platform setting with key '%s' cannot be found", almSetting)));
   }
 
   public static AlmSettings.Alm toAlmWs(ALM alm) {
@@ -110,7 +110,7 @@ public class AlmSettingsSupport {
       case GITLAB:
         return AlmSettings.Alm.gitlab;
       default:
-        throw new IllegalStateException(format("Unknown ALM '%s'", alm.name()));
+        throw new IllegalStateException(format("Unknown DevOps Platform '%s'", alm.name()));
     }
   }
 }

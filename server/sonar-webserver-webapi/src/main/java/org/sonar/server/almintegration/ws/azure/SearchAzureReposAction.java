@@ -89,7 +89,7 @@ public class SearchAzureReposAction implements AlmIntegrationsWsAction {
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
     action.createParam(PARAM_PROJECT_NAME)
       .setRequired(false)
       .setMaximumLength(200)
@@ -116,13 +116,13 @@ public class SearchAzureReposAction implements AlmIntegrationsWsAction {
       String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
       String userUuid = requireNonNull(userSession.getUuid(), "User UUID cannot be null");
       AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
-        .orElseThrow(() -> new NotFoundException(String.format("ALM Setting '%s' not found", almSettingKey)));
+        .orElseThrow(() -> new NotFoundException(String.format("DevOps Platform Setting '%s' not found", almSettingKey)));
       Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
 
       String projectKey = request.param(PARAM_PROJECT_NAME);
       String searchQuery = request.param(PARAM_SEARCH_QUERY);
       String pat = almPatDto.map(AlmPatDto::getPersonalAccessToken).orElseThrow(() -> new IllegalArgumentException("No personal access token found"));
-      String url = requireNonNull(almSettingDto.getUrl(), "ALM url cannot be null");
+      String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
 
       GsonAzureRepoList gsonAzureRepoList = azureDevOpsHttpClient.getRepos(url, pat, projectKey);
 

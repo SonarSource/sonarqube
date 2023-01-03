@@ -90,7 +90,7 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
 
   }
 

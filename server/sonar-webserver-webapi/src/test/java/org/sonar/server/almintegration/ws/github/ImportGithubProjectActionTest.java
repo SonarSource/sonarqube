@@ -171,7 +171,7 @@ public class ImportGithubProjectActionTest {
       .setParam(PARAM_REPOSITORY_KEY, "test/repo");
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("ALM Setting 'unknown' not found");
+      .hasMessage("DevOps Platform Setting 'unknown' not found");
   }
 
   @Test

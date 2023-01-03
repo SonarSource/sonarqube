@@ -77,7 +77,7 @@ public class GetGithubClientIdActionTest {
     TestRequest request = ws.newRequest().setParam(GetGithubClientIdAction.PARAM_ALM_SETTING, "unknown");
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Github ALM Setting 'unknown' not found");
+      .hasMessage("Github Setting 'unknown' not found");
   }
 
   @Test

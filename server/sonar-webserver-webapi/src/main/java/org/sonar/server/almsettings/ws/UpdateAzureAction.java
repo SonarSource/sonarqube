@@ -50,7 +50,7 @@ public class UpdateAzureAction implements AlmSettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("update_azure")
-      .setDescription("Update Azure ALM instance Setting. <br/>" +
+      .setDescription("Update Azure instance Setting. <br/>" +
         "Requires the 'Administer System' permission")
       .setPost(true)
       .setSince("8.1")

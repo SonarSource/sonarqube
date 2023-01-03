@@ -120,7 +120,7 @@ public class CreateGitlabActionTest {
       .setParam("url", GITLAB_URL)
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", gitlabAlmSetting.getKey()));
+      .hasMessageContaining(String.format("An DevOps Platform setting with key '%s' already exist", gitlabAlmSetting.getKey()));
   }
 
   @Test

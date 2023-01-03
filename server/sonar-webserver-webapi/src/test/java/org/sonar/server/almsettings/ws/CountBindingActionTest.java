@@ -94,7 +94,7 @@ public class CountBindingActionTest {
       .setParam("almSetting", "unknown")
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("ALM setting with key 'unknown' cannot be found");
+      .hasMessageContaining("DevOps Platform setting with key 'unknown' cannot be found");
   }
 
   @Test

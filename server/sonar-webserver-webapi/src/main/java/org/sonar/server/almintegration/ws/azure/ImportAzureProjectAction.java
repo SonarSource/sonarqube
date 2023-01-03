@@ -85,7 +85,7 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
 
     action.createParam(PARAM_PROJECT_NAME)
       .setRequired(true)
@@ -117,7 +117,7 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       String projectName = request.mandatoryParam(PARAM_PROJECT_NAME);
       String repositoryName = request.mandatoryParam(PARAM_REPOSITORY_NAME);
 
-      String url = requireNonNull(almSettingDto.getUrl(), "ALM url cannot be null");
+      String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
       GsonAzureRepo repo = azureDevOpsHttpClient.getRepo(url, pat, projectName, repositoryName);
 
       ComponentDto componentDto = createProject(dbSession, repo);

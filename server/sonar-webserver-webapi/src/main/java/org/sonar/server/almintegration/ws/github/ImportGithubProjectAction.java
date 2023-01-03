@@ -87,7 +87,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
 
     action.createParam(PARAM_ORGANIZATION)
       .setRequired(true)
@@ -120,7 +120,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       String githubOrganization = request.mandatoryParam(PARAM_ORGANIZATION);
       String repositoryKey = request.mandatoryParam(PARAM_REPOSITORY_KEY);
 
-      String url = requireNonNull(almSettingDto.getUrl(), "ALM url cannot be null");
+      String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
       Repository repository = githubApplicationClient.getRepository(url, accessToken, githubOrganization, repositoryKey)
         .orElseThrow(() -> new NotFoundException(String.format("GitHub repository '%s' not found", repositoryKey)));
 

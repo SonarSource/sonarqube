@@ -155,7 +155,7 @@ public class SearchBitbucketCloudReposActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("ALM Setting 'testKey' not found");
+      .hasMessageContaining("DevOps Platform Setting 'testKey' not found");
   }
 
   @Test

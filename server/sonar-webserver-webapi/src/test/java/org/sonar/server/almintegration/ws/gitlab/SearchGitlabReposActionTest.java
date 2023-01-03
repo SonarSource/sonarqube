@@ -204,7 +204,7 @@ public class SearchGitlabReposActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("ALM Setting 'testKey' not found");
+      .hasMessage("DevOps Platform Setting 'testKey' not found");
   }
 
   @Test

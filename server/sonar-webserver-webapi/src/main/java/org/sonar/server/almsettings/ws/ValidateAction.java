@@ -66,7 +66,7 @@ public class ValidateAction implements AlmSettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("validate")
-      .setDescription("Validate an ALM Setting by checking connectivity and permissions<br/>" +
+      .setDescription("Validate an DevOps Platform Setting by checking connectivity and permissions<br/>" +
         "Requires the 'Administer System' permission")
       .setSince("8.6")
       .setResponseExample(getClass().getResource("example-validate.json"))
@@ -75,7 +75,7 @@ public class ValidateAction implements AlmSettingsWsAction {
     action.createParam(PARAM_KEY)
       .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("Unique key of the ALM settings");
+      .setDescription("Unique key of the DevOps Platform settings");
   }
 
   @Override

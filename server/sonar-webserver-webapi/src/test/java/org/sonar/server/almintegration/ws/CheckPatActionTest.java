@@ -77,7 +77,7 @@ public class CheckPatActionTest {
     TestRequest request = ws.newRequest().setParam("almSetting", almSetting.getKey());
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("unsupported ALM GITHUB");
+      .hasMessage("unsupported DevOps Platform GITHUB");
   }
 
   @Test
@@ -250,7 +250,7 @@ public class CheckPatActionTest {
     TestRequest request = ws.newRequest().setParam("almSetting", "testKey");
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("ALM Setting 'testKey' not found");
+      .hasMessage("DevOps Platform Setting 'testKey' not found");
   }
 
   @Test

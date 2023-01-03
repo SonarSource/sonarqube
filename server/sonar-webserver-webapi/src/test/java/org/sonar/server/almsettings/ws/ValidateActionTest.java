@@ -92,7 +92,7 @@ public class ValidateActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("ALM setting with key 'unknown' cannot be found");
+      .hasMessage("DevOps Platform setting with key 'unknown' cannot be found");
   }
 
   @Test

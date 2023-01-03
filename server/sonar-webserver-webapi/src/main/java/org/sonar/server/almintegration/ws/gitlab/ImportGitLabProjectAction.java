@@ -81,7 +81,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
     action.createParam(ImportHelper.PARAM_ALM_SETTING)
       .setRequired(true)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
     action.createParam(PARAM_GITLAB_PROJECT_ID)
       .setRequired(true)
       .setDescription("GitLab project ID");
@@ -104,7 +104,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
       long gitlabProjectId = request.mandatoryParamAsLong(PARAM_GITLAB_PROJECT_ID);
 
-      String gitlabUrl = requireNonNull(almSettingDto.getUrl(), "ALM gitlabUrl cannot be null");
+      String gitlabUrl = requireNonNull(almSettingDto.getUrl(), "DevOps Platform gitlabUrl cannot be null");
       Project gitlabProject = gitlabHttpClient.getProject(gitlabUrl, pat, gitlabProjectId);
 
       Optional<String> almMainBranchName = getAlmDefaultBranch(pat, gitlabProjectId, gitlabUrl);

@@ -89,7 +89,7 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
 
     action.createParam(PARAM_PROJECT_KEY)
       .setRequired(true)
@@ -121,7 +121,7 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
       String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
       String repoSlug = request.mandatoryParam(PARAM_REPO_SLUG);
 
-      String url = requireNonNull(almSettingDto.getUrl(), "ALM url cannot be null");
+      String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
       Repository repo = bitbucketServerRestClient.getRepo(url, pat, projectKey, repoSlug);
 
       String defaultBranchName = getDefaultBranchName(pat, projectKey, repoSlug, url);

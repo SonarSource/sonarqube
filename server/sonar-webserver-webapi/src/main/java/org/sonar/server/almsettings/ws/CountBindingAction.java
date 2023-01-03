@@ -47,7 +47,7 @@ public class CountBindingAction implements AlmSettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("count_binding")
-      .setDescription("Count number of project bound to an ALM setting.<br/>" +
+      .setDescription("Count number of project bound to an DevOps Platform setting.<br/>" +
         "Requires the 'Administer System' permission")
       .setSince("8.1")
       .setResponseExample(getClass().getResource("example-count_binding.json"))
@@ -55,7 +55,7 @@ public class CountBindingAction implements AlmSettingsWsAction {
 
     action
       .createParam(PARAM_ALM_SETTING)
-      .setDescription("ALM setting key")
+      .setDescription("DevOps Platform setting key")
       .setRequired(true);
   }
 

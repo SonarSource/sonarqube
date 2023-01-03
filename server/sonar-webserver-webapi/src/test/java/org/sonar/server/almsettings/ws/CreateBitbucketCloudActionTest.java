@@ -92,7 +92,7 @@ public class CreateBitbucketCloudActionTest {
       .setParam("clientSecret", "secret")
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", bitbucketAlmSetting.getKey()));
+      .hasMessageContaining(String.format("An DevOps Platform setting with key '%s' already exist", bitbucketAlmSetting.getKey()));
   }
 
   @Test

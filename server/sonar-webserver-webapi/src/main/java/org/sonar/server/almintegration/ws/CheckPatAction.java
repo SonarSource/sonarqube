@@ -68,7 +68,7 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("check_pat")
-      .setDescription("Check validity of a Personal Access Token for the given ALM setting<br/>" +
+      .setDescription("Check validity of a Personal Access Token for the given DevOps Platform setting<br/>" +
         "Requires the 'Create Projects' permission")
       .setPost(false)
       .setInternal(true)
@@ -79,7 +79,7 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
   }
 
   @Override
@@ -95,7 +95,7 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
       String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
       String userUuid = requireNonNull(userSession.getUuid(), "User cannot be null");
       AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
-        .orElseThrow(() -> new NotFoundException(String.format("ALM Setting '%s' not found", almSettingKey)));
+        .orElseThrow(() -> new NotFoundException(String.format("DevOps Platform Setting '%s' not found", almSettingKey)));
 
       AlmPatDto almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto)
         .orElseThrow(() -> new IllegalArgumentException(String.format("personal access token for '%s' is missing", almSettingKey)));
@@ -125,7 +125,7 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
           break;
         case GITHUB:
         default:
-          throw new IllegalArgumentException(String.format("unsupported ALM %s", almSettingDto.getAlm()));
+          throw new IllegalArgumentException(String.format("unsupported DevOps Platform %s", almSettingDto.getAlm()));
       }
 
     }

@@ -80,7 +80,7 @@ public class ListGithubOrganizationsAction implements AlmIntegrationsWsAction {
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
 
     action.createParam(PARAM_TOKEN)
       .setMaximumLength(200)
@@ -106,16 +106,16 @@ public class ListGithubOrganizationsAction implements AlmIntegrationsWsAction {
 
       String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
       AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
-        .orElseThrow(() -> new NotFoundException(String.format("GitHub ALM Setting '%s' not found", almSettingKey)));
+        .orElseThrow(() -> new NotFoundException(String.format("GitHub Setting '%s' not found", almSettingKey)));
 
       String userUuid = requireNonNull(userSession.getUuid(), "User UUID is not null");
-      String url = requireNonNull(almSettingDto.getUrl(), String.format("No URL set for GitHub ALM '%s'", almSettingKey));
+      String url = requireNonNull(almSettingDto.getUrl(), String.format("No URL set for GitHub '%s'", almSettingKey));
 
       AccessToken accessToken;
       if (request.hasParam(PARAM_TOKEN)) {
         String code = request.mandatoryParam(PARAM_TOKEN);
-        String clientId = requireNonNull(almSettingDto.getClientId(), String.format("No clientId set for GitHub ALM '%s'", almSettingKey));
-        String clientSecret = requireNonNull(almSettingDto.getDecryptedClientSecret(encryption), String.format("No clientSecret set for GitHub ALM '%s'",
+        String clientId = requireNonNull(almSettingDto.getClientId(), String.format("No clientId set for GitHub '%s'", almSettingKey));
+        String clientSecret = requireNonNull(almSettingDto.getDecryptedClientSecret(encryption), String.format("No clientSecret set for GitHub '%s'",
           almSettingKey));
 
         try {

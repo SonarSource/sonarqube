@@ -90,7 +90,7 @@ public class CreateAzureActionTest {
       .setParam("url", "https://ado.sonarqube.com/")
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", azureAlmSetting.getKey()));
+      .hasMessageContaining(String.format("An DevOps Platform setting with key '%s' already exist", azureAlmSetting.getKey()));
   }
 
   @Test

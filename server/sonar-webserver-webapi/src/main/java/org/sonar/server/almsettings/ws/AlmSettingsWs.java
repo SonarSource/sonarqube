@@ -32,7 +32,7 @@ public class AlmSettingsWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/alm_settings")
-      .setDescription("Manage ALM Settings")
+      .setDescription("Manage DevOps Platform Settings")
       .setSince("8.1");
 
     actions.forEach(a -> a.define(controller));

@@ -59,8 +59,8 @@ public class SetPatAction implements AlmIntegrationsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set_pat")
-      .setDescription("Set a Personal Access Token for the given ALM setting<br/>" +
-        "Only valid for Azure DevOps, Bitbucket Server, GitLab Alm and Bitbucket Cloud Setting<br/>" +
+      .setDescription("Set a Personal Access Token for the given DevOps Platform setting<br/>" +
+        "Only valid for Azure DevOps, Bitbucket Server, GitLab and Bitbucket Cloud Setting<br/>" +
         "Requires the 'Create Projects' permission")
       .setPost(true)
       .setSince("8.2")
@@ -69,7 +69,7 @@ public class SetPatAction implements AlmIntegrationsWsAction {
 
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
     action.createParam(PARAM_PAT)
       .setRequired(true)
       .setMaximumLength(2000)
@@ -96,10 +96,10 @@ public class SetPatAction implements AlmIntegrationsWsAction {
 
       String userUuid = requireNonNull(userSession.getUuid(), "User UUID cannot be null");
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
-        .orElseThrow(() -> new NotFoundException(format("ALM Setting '%s' not found", almSettingKey)));
+        .orElseThrow(() -> new NotFoundException(format("DevOps Platform Setting '%s' not found", almSettingKey)));
 
       Preconditions.checkArgument(Arrays.asList(AZURE_DEVOPS, BITBUCKET, GITLAB, BITBUCKET_CLOUD)
-        .contains(almSetting.getAlm()), "Only Azure DevOps, Bitbucket Server, GitLab ALM and Bitbucket Cloud Settings are supported.");
+        .contains(almSetting.getAlm()), "Only Azure DevOps, Bitbucket Server, GitLab and Bitbucket Cloud Settings are supported.");
 
       if(almSetting.getAlm().equals(BITBUCKET_CLOUD)) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "Username cannot be null for Bitbucket Cloud");

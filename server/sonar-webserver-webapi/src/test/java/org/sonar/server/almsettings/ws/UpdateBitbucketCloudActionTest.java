@@ -153,7 +153,7 @@ public class UpdateBitbucketCloudActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("ALM setting with key 'unknown' cannot be found");
+      .hasMessage("DevOps Platform setting with key 'unknown' cannot be found");
   }
 
   @Test
@@ -171,7 +171,7 @@ public class UpdateBitbucketCloudActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage(format("An ALM setting with key '%s' already exists", almSetting2.getKey()));
+      .hasMessage(format("An DevOps Platform setting with key '%s' already exists", almSetting2.getKey()));
   }
 
   @Test

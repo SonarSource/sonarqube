@@ -171,7 +171,7 @@ public class SetPatActionTest {
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("ALM Setting 'notExistingKey' not found");
+      .hasMessage("DevOps Platform Setting 'notExistingKey' not found");
   }
 
   @Test
@@ -187,7 +187,7 @@ public class SetPatActionTest {
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Only Azure DevOps, Bitbucket Server, GitLab ALM and Bitbucket Cloud Settings are supported.");
+      .hasMessage("Only Azure DevOps, Bitbucket Server, GitLab and Bitbucket Cloud Settings are supported.");
   }
 
   @Test

@@ -68,7 +68,7 @@ public class ImportHelperTest {
     when(request.mandatoryParam("almSetting")).thenReturn("key");
     assertThatThrownBy(() -> underTest.getAlmSetting(request))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("ALM Setting 'key' not found");
+      .hasMessage("DevOps Platform Setting 'key' not found");
   }
 
   @Test

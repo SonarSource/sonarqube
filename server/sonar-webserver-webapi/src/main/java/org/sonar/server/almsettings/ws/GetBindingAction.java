@@ -56,7 +56,7 @@ public class GetBindingAction implements AlmSettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("get_binding")
-      .setDescription("Get ALM binding of a given project.<br/>" +
+      .setDescription("Get DevOps Platform binding of a given project.<br/>" +
         "Requires the 'Administer' permission on the project")
       .setSince("8.1")
       .setResponseExample(getClass().getResource("example-get_binding.json"))
@@ -83,9 +83,9 @@ public class GetBindingAction implements AlmSettingsWsAction {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
       userSession.checkProjectPermission(ADMIN, project);
       ProjectAlmSettingDto projectAlmSetting = dbClient.projectAlmSettingDao().selectByProject(dbSession, project)
-        .orElseThrow(() -> new NotFoundException(format("Project '%s' is not bound to any ALM", project.getKey())));
+        .orElseThrow(() -> new NotFoundException(format("Project '%s' is not bound to any DevOps Platform", project.getKey())));
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByUuid(dbSession, projectAlmSetting.getAlmSettingUuid())
-        .orElseThrow(() -> new IllegalStateException(format("ALM setting with uuid '%s' cannot be found", projectAlmSetting.getAlmSettingUuid())));
+        .orElseThrow(() -> new IllegalStateException(format("DevOps Platform setting with uuid '%s' cannot be found", projectAlmSetting.getAlmSettingUuid())));
 
       GetBindingWsResponse.Builder builder = GetBindingWsResponse.newBuilder()
         .setAlm(toAlmWs(almSetting.getAlm()))

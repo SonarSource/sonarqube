@@ -56,7 +56,7 @@ public class UpdateGithubAction implements AlmSettingsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("update_github")
-      .setDescription("Update GitHub ALM instance Setting. <br/>" +
+      .setDescription("Update GitHub instance Setting. <br/>" +
         "Requires the 'Administer System' permission")
       .setPost(true)
       .setSince("8.1")

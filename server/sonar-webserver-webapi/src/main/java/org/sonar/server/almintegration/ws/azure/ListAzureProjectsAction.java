@@ -69,7 +69,7 @@ public class ListAzureProjectsAction implements AlmIntegrationsWsAction {
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("ALM setting key");
+      .setDescription("DevOps Platform setting key");
   }
 
   @Override
@@ -87,7 +87,7 @@ public class ListAzureProjectsAction implements AlmIntegrationsWsAction {
       String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
       String userUuid = requireNonNull(userSession.getUuid(), "User UUID is not null");
       AlmSettingDto almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
-        .orElseThrow(() -> new NotFoundException(String.format("ALM Setting '%s' not found", almSettingKey)));
+        .orElseThrow(() -> new NotFoundException(String.format("DevOps Platform Setting '%s' not found", almSettingKey)));
       Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
       String pat = almPatDto.map(AlmPatDto::getPersonalAccessToken).orElseThrow(() -> new IllegalArgumentException("No personal access token found"));
 
