@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -34,12 +35,14 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
+import static java.util.stream.Collectors.joining;
 import static org.sonar.api.internal.apachecommons.lang.StringUtils.isBlank;
 import static org.sonar.api.internal.apachecommons.lang.StringUtils.substringBeforeLast;
 
@@ -83,18 +86,17 @@ public class AzureDevOpsHttpClient {
   }
 
   public GsonAzureRepoList getRepos(String serverUrl, String token, @Nullable String projectName) {
-    String url;
-    if (projectName != null && !projectName.isEmpty()) {
-      url = String.format("%s/%s/_apis/git/repositories?%s", getTrimmedUrl(serverUrl), projectName, API_VERSION_3);
-    } else {
-      url = String.format("%s/_apis/git/repositories?%s", getTrimmedUrl(serverUrl), API_VERSION_3);
-    }
+    String url = Stream.of(getTrimmedUrl(serverUrl), projectName, "_apis/git/repositories?" + API_VERSION_3)
+      .filter(StringUtils::isNotBlank)
+      .collect(joining("/"));
     LOG.debug(String.format("get repos : [%s]", url));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureRepoList.class));
   }
 
   public GsonAzureRepo getRepo(String serverUrl, String token, String projectName, String repositoryName) {
-    String url = String.format("%s/%s/_apis/git/repositories/%s?%s", getTrimmedUrl(serverUrl), projectName, repositoryName, API_VERSION_3);
+    String url = Stream.of(getTrimmedUrl(serverUrl), projectName, "_apis/git/repositories",  repositoryName + "?" + API_VERSION_3)
+      .filter(StringUtils::isNotBlank)
+      .collect(joining("/"));
     LOG.debug(String.format("get repo : [%s]", url));
     return doGet(token, url, r -> buildGson().fromJson(r.body().charStream(), GsonAzureRepo.class));
   }
