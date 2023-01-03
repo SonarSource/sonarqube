@@ -38,6 +38,8 @@ import org.sonar.api.utils.PathUtils;
  */
 @Immutable
 public class DefaultIndexedFile extends DefaultInputComponent implements IndexedFile {
+  // should match limit in org.sonar.core.component.ComponentKeys
+  private static final Integer MAX_KEY_LENGTH = 400;
   private static final AtomicInteger intGenerator = new AtomicInteger(0);
 
   private final String projectRelativePath;
@@ -73,6 +75,14 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     this.sensorStrategy = sensorStrategy;
     this.absolutePath = absolutePath;
     this.oldRelativeFilePath = oldRelativeFilePath;
+    validateKeyLength();
+  }
+
+  private void validateKeyLength() {
+    String key = key();
+    if (key.length() > MAX_KEY_LENGTH) {
+      throw new IllegalStateException(String.format("Component key (%s) length (%s) is longer than the maximum authorized (%s)", key, key.length(), MAX_KEY_LENGTH));
+    }
   }
 
   @Override
