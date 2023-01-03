@@ -1,7 +1,8 @@
 sudo: required
 install: true
 script: ./travis.sh
-dist: bionic
+dist: jammy
+jdk: openjdk17
 
 branches:
   except:
