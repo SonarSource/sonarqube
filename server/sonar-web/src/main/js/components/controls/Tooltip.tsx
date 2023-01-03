@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import { throttle, uniqueId } from 'lodash';
 import * as React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
@@ -29,6 +30,7 @@ import './Tooltip.css';
 export type Placement = 'bottom' | 'right' | 'left' | 'top';
 
 export interface TooltipProps {
+  accessible?: boolean;
   classNameSpace?: string;
   children: React.ReactElement<{}>;
   mouseEnterDelay?: number;
@@ -381,9 +383,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
         innerRef={this.tooltipNodeRef}
         style={style}
       >
-        <div className={`${classNameSpace}-inner`} id={this.id}>
-          {this.props.overlay}
-        </div>
+        {this.renderOverlay()}
         <div
           className={`${classNameSpace}-arrow`}
           style={
@@ -396,8 +396,24 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     );
   };
 
+  renderOverlay() {
+    const isVisible = this.isVisible();
+    const { classNameSpace = 'tooltip' } = this.props;
+
+    return (
+      <div
+        className={classNames(`${classNameSpace}-inner`, { hidden: !isVisible })}
+        id={this.id}
+        aria-hidden={!isVisible}
+      >
+        {this.props.overlay}
+      </div>
+    );
+  }
+
   render() {
     const isVisible = this.isVisible();
+    const { accessible = true } = this.props;
     return (
       <>
         {React.cloneElement(this.props.children, {
@@ -405,14 +421,15 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           onPointerLeave: this.handleMouseLeave,
           onFocus: this.handleFocus,
           onBlur: this.handleBlur,
-          tabIndex: 0,
+          tabIndex: accessible ? 0 : undefined,
           // aria-describedby is the semantically correct property to use, but it's not
           // always well supported. As a fallback, we use aria-labelledby as well.
           // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
           // See https://css-tricks.com/accessible-svgs/
-          'aria-describedby': isVisible ? this.id : undefined,
-          'aria-labelledby': isVisible ? this.id : undefined,
+          'aria-describedby': accessible ? this.id : undefined,
+          'aria-labelledby': accessible ? this.id : undefined,
         })}
+        {!isVisible && this.renderOverlay()}
         {isVisible && (
           <EscKeydownHandler onKeydown={this.closeTooltip}>
             <TooltipPortal>

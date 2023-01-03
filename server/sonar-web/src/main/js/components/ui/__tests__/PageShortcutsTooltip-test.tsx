@@ -38,7 +38,11 @@ it('should render all the labels', async () => {
     metaModifierLabel,
   });
 
-  await user.hover(screen.getByText('←'));
+  await user.hover(
+    screen.getByLabelText(
+      'shortcuts.on_page.intro shortcuts.on_page.up_down_x.up & down shortcuts.on_page.left_right_x.left & right shortcuts.on_page.left_x.left shortcuts.on_page.meta_x.meta'
+    )
+  );
 
   expect(await screen.findByText(leftAndRightLabel)).toBeInTheDocument();
   expect(screen.getByText(leftLabel)).toBeInTheDocument();
@@ -54,7 +58,11 @@ it('should render left & right labels without up&down', async () => {
     leftLabel,
   });
 
-  await user.hover(screen.getByText('←'));
+  await user.hover(
+    screen.getByLabelText(
+      'shortcuts.on_page.intro shortcuts.on_page.left_right_x.left & right shortcuts.on_page.left_x.left'
+    )
+  );
 
   expect(await screen.findByText(leftAndRightLabel)).toBeInTheDocument();
   expect(screen.getByText(leftLabel)).toBeInTheDocument();

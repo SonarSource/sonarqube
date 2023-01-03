@@ -23,35 +23,32 @@ exports[`should open the popup when the button is clicked 2`] = `
       />
     }
   >
-    <Tooltip
-      overlay="John Doe"
+    <ButtonLink
+      aria-expanded={true}
+      aria-label="issue.assign.assigned_to_x_click_to_change.John Doe"
+      className="issue-action issue-action-with-options js-issue-assign"
+      onClick={[Function]}
     >
-      <ButtonLink
-        aria-expanded={true}
-        aria-label="issue.assign.assigned_to_x_click_to_change.John Doe"
-        className="issue-action issue-action-with-options js-issue-assign"
-        onClick={[Function]}
+      <span
+        className="text-top"
       >
-        <span
-          className="text-top"
-        >
-          <withAppStateContext(Avatar)
-            className="little-spacer-right"
-            hash="gravatarhash"
-            name=""
-            size={16}
-          />
-        </span>
-        <span
-          className="issue-meta-label"
-        >
-          John Doe
-        </span>
-        <DropdownIcon
-          className="little-spacer-left"
+        <withAppStateContext(Avatar)
+          className="little-spacer-right"
+          hash="gravatarhash"
+          name=""
+          size={16}
         />
-      </ButtonLink>
-    </Tooltip>
+      </span>
+      <span
+        className="issue-meta-label"
+        title="John Doe"
+      >
+        John Doe
+      </span>
+      <DropdownIcon
+        className="little-spacer-left"
+      />
+    </ButtonLink>
   </Toggler>
 </div>
 `;
@@ -70,23 +67,21 @@ exports[`should render a fallback assignee display if assignee info are not avai
       />
     }
   >
-    <Tooltip>
-      <ButtonLink
-        aria-expanded={false}
-        aria-label="issue.assign.unassigned_click_to_assign"
-        className="issue-action issue-action-with-options js-issue-assign"
-        onClick={[Function]}
+    <ButtonLink
+      aria-expanded={false}
+      aria-label="issue.assign.unassigned_click_to_assign"
+      className="issue-action issue-action-with-options js-issue-assign"
+      onClick={[Function]}
+    >
+      <span
+        className="issue-meta-label"
       >
-        <span
-          className="issue-meta-label"
-        >
-          unassigned
-        </span>
-        <DropdownIcon
-          className="little-spacer-left"
-        />
-      </ButtonLink>
-    </Tooltip>
+        unassigned
+      </span>
+      <DropdownIcon
+        className="little-spacer-left"
+      />
+    </ButtonLink>
   </Toggler>
 </div>
 `;
@@ -105,35 +100,32 @@ exports[`should render with the action 1`] = `
       />
     }
   >
-    <Tooltip
-      overlay="John Doe"
+    <ButtonLink
+      aria-expanded={false}
+      aria-label="issue.assign.assigned_to_x_click_to_change.John Doe"
+      className="issue-action issue-action-with-options js-issue-assign"
+      onClick={[Function]}
     >
-      <ButtonLink
-        aria-expanded={false}
-        aria-label="issue.assign.assigned_to_x_click_to_change.John Doe"
-        className="issue-action issue-action-with-options js-issue-assign"
-        onClick={[Function]}
+      <span
+        className="text-top"
       >
-        <span
-          className="text-top"
-        >
-          <withAppStateContext(Avatar)
-            className="little-spacer-right"
-            hash="gravatarhash"
-            name=""
-            size={16}
-          />
-        </span>
-        <span
-          className="issue-meta-label"
-        >
-          John Doe
-        </span>
-        <DropdownIcon
-          className="little-spacer-left"
+        <withAppStateContext(Avatar)
+          className="little-spacer-right"
+          hash="gravatarhash"
+          name=""
+          size={16}
         />
-      </ButtonLink>
-    </Tooltip>
+      </span>
+      <span
+        className="issue-meta-label"
+        title="John Doe"
+      >
+        John Doe
+      </span>
+      <DropdownIcon
+        className="little-spacer-left"
+      />
+    </ButtonLink>
   </Toggler>
 </div>
 `;
@@ -152,6 +144,7 @@ exports[`should render without the action when the correct rights are missing 1`
   </span>
   <span
     className="issue-meta-label"
+    title="John Doe"
   >
     John Doe
   </span>

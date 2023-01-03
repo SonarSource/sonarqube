@@ -55,7 +55,7 @@ it('should list all quality gates', async () => {
   ).toBeInTheDocument();
   expect(
     await screen.findByRole('menuitem', {
-      name: `${handler.getBuiltInQualityGate().name} quality_gates.built_in`,
+      name: `${handler.getBuiltInQualityGate().name} quality_gates.built_in.help`,
     })
   ).toBeInTheDocument();
 });

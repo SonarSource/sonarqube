@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import selectEvent from 'react-select-event';
@@ -90,7 +90,9 @@ it('should be able to bulk change', async () => {
   expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.1' })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.1' }));
 
-  await user.click(screen.getByRole('textbox', { name: 'issue.comment.formlink' }));
+  await user.click(
+    screen.getByRole('textbox', { name: 'issue.comment.formlink issue_bulk_change.comment.help' })
+  );
   await user.keyboard('New Comment');
   expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
 
@@ -114,7 +116,9 @@ it('should show warning when not all issues are accessible', async () => {
   });
   expect(await screen.findByRole('alert', { name: 'alert.tooltip.warning' })).toBeInTheDocument();
 
-  await user.keyboard('{ArrowRight}');
+  await act(async () => {
+    await user.keyboard('{ArrowRight}');
+  });
 
   expect(await screen.findByRole('alert', { name: 'alert.tooltip.warning' })).toBeInTheDocument();
 });
@@ -243,7 +247,9 @@ it('should open issue and navigate', async () => {
   expect(extendedDescriptions).toHaveLength(1);
 
   // Select the previous issue (with a simple rule) through keyboard shortcut
-  await user.keyboard('{ArrowUp}');
+  await act(async () => {
+    await user.keyboard('{ArrowUp}');
+  });
 
   // Are rule headers present?
   expect(screen.getByRole('heading', { level: 1, name: 'Fix this' })).toBeInTheDocument();
@@ -259,7 +265,9 @@ it('should open issue and navigate', async () => {
   expect(screen.getByRole('heading', { name: 'Default' })).toBeInTheDocument();
 
   // Select the previous issue (with a simple rule) through keyboard shortcut
-  await user.keyboard('{ArrowUp}');
+  await act(async () => {
+    await user.keyboard('{ArrowUp}');
+  });
 
   // Are rule headers present?
   expect(screen.getByRole('heading', { level: 1, name: 'Issue on file' })).toBeInTheDocument();
@@ -388,7 +396,9 @@ it('should be able to perform action on issues', async () => {
   await user.keyboard('luke');
   expect(screen.getByText('Skywalker')).toBeInTheDocument();
   await user.keyboard('{ArrowUp}{enter}');
-  expect(screen.getByText('luke')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'issue.assign.assigned_to_x_click_to_change.luke' })
+  ).toBeInTheDocument();
 
   // adding comment to the issue
   expect(
@@ -456,8 +466,9 @@ it('should be able to perform action on issues', async () => {
 
   await user.click(screen.getByRole('searchbox', { name: 'search_verb' }));
   await user.keyboard('addNewTag');
-  expect(screen.getByText('+')).toBeInTheDocument();
-  expect(screen.getByText('addnewtag')).toBeInTheDocument();
+  expect(
+    screen.getByRole('checkbox', { name: 'create_new_element: addnewtag' })
+  ).toBeInTheDocument();
 });
 
 it('should not allow performing actions when user does not have permission', async () => {
@@ -556,8 +567,8 @@ it('should show code tabs when any secondary location is selected', async () => 
   renderIssueApp();
 
   await user.click(await screen.findByRole('region', { name: 'Fix this' }));
-  expect(screen.getByText('location 1')).toBeInTheDocument();
-  expect(screen.getByText('location 2')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'location 1' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'location 2' })).toBeInTheDocument();
 
   // Select the "why is this an issue" tab
   await user.click(
@@ -608,7 +619,7 @@ it('should show issue tags if applicable', async () => {
 
   expect(
     screen.getByRole('heading', {
-      name: 'Issue with tags sonar-lint-icon issue.resolution.badge.DEPRECATED',
+      name: 'Issue with tags issue.quick_fix_available_with_sonarlint opens_in_new_window SonarLint rules.status.DEPRECATED.help opens_in_new_window see_x.rules',
     })
   ).toBeInTheDocument();
 });

@@ -140,7 +140,6 @@ export default class LineCode extends React.PureComponent<React.PropsWithChildre
           onClick={onClick}
           selected={selected}
           aria-current={selected ? 'location' : false}
-          aria-label={message ? `${index + 1}-${message}` : index + 1}
         >
           <IssueSourceViewerScrollContext.Consumer>
             {(ctx) => (

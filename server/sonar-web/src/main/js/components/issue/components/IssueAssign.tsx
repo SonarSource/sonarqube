@@ -23,7 +23,6 @@ import Toggler from '../../../components/controls/Toggler';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
-import Tooltip from '../../controls/Tooltip';
 import Avatar from '../../ui/Avatar';
 import SetAssigneePopup from '../popups/SetAssigneePopup';
 
@@ -49,15 +48,17 @@ export default class IssueAssign extends React.PureComponent<Props> {
     const assigneeName = issue.assigneeName || issue.assignee;
 
     if (assigneeName) {
+      const assigneeDisplay =
+        issue.assigneeActive === false
+          ? translateWithParameters('user.x_deleted', assigneeName)
+          : assigneeName;
       return (
         <>
           <span className="text-top">
             <Avatar className="little-spacer-right" hash={issue.assigneeAvatar} name="" size={16} />
           </span>
-          <span className="issue-meta-label">
-            {issue.assigneeActive === false
-              ? translateWithParameters('user.x_deleted', assigneeName)
-              : assigneeName}
+          <span className="issue-meta-label" title={assigneeDisplay}>
+            {assigneeDisplay}
           </span>
         </>
       );
@@ -79,24 +80,22 @@ export default class IssueAssign extends React.PureComponent<Props> {
             open={isOpen}
             overlay={<SetAssigneePopup onSelect={this.props.onAssign} />}
           >
-            <Tooltip overlay={assigneeName}>
-              <ButtonLink
-                aria-expanded={isOpen}
-                aria-label={
-                  assigneeName
-                    ? translateWithParameters(
-                        'issue.assign.assigned_to_x_click_to_change',
-                        assigneeName
-                      )
-                    : translate('issue.assign.unassigned_click_to_assign')
-                }
-                className="issue-action issue-action-with-options js-issue-assign"
-                onClick={this.toggleAssign}
-              >
-                {this.renderAssignee()}
-                <DropdownIcon className="little-spacer-left" />
-              </ButtonLink>
-            </Tooltip>
+            <ButtonLink
+              aria-expanded={isOpen}
+              aria-label={
+                assigneeName
+                  ? translateWithParameters(
+                      'issue.assign.assigned_to_x_click_to_change',
+                      assigneeName
+                    )
+                  : translate('issue.assign.unassigned_click_to_assign')
+              }
+              className="issue-action issue-action-with-options js-issue-assign"
+              onClick={this.toggleAssign}
+            >
+              {this.renderAssignee()}
+              <DropdownIcon className="little-spacer-left" />
+            </ButtonLink>
           </Toggler>
         </div>
       );

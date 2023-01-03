@@ -47,12 +47,15 @@ export default class IssuesList extends React.PureComponent<Props, State> {
   };
 
   componentDidMount() {
-    // ! \\ This prerender state variable is to enable the page to be displayed
-    //      immediately, displaying a loader before attempting to render the
-    //      list of issues. See https://jira.sonarsource.com/browse/SONAR-11681
-    setTimeout(() => {
+    if (this.props.issues.length > 0) {
       this.setState({ prerender: false });
-    }, 42);
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.props.issues.length > 0) {
+      this.setState({ prerender: false });
+    }
   }
 
   render() {

@@ -33,7 +33,6 @@ import Select, {
   CreatableSelect,
   SearchSelect,
 } from '../../../components/controls/Select';
-import Tooltip from '../../../components/controls/Tooltip';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { Alert } from '../../../components/ui/Alert';
@@ -517,14 +516,12 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
         <div className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
-          <Tooltip overlay={!canSubmit ? translate('issue_bulk_change.no_change_selected') : null}>
-            <SubmitButton
-              disabled={!canSubmit || submitting || issues.length === 0}
-              id="bulk-change-submit"
-            >
-              {translate('apply')}
-            </SubmitButton>
-          </Tooltip>
+          <SubmitButton
+            disabled={!canSubmit || submitting || issues.length === 0}
+            id="bulk-change-submit"
+          >
+            {translate('apply')}
+          </SubmitButton>
           <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
         </div>
       </form>

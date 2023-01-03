@@ -111,7 +111,7 @@ export function ClipboardButton({
   return (
     <ClipboardBase>
       {({ setCopyButton, copySuccess }) => (
-        <Tooltip overlay={translate('copied_action')} visible={copySuccess}>
+        <Tooltip overlay={translate('copied_action')} visible={copySuccess} accessible={false}>
           <Button
             className={classNames('no-select', className)}
             data-clipboard-text={copyValue}
@@ -148,8 +148,8 @@ export function ClipboardIconButton(props: ClipboardIconButtonProps) {
             className={classNames('no-select', className)}
             data-clipboard-text={copyValue}
             innerRef={setCopyButton}
-            tooltip={translate(copySuccess ? 'copied_action' : 'copy_to_clipboard')}
-            tooltipProps={copySuccess ? { visible: copySuccess } : undefined}
+            tooltip={copySuccess ? translate('copied_action') : undefined}
+            tooltipProps={copySuccess ? { visible: copySuccess, accessible: false } : undefined}
           >
             <CopyIcon />
           </ButtonIcon>

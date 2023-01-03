@@ -28,16 +28,12 @@ exports[`should display error message when no issues available 1`] = `
     <div
       className="modal-foot"
     >
-      <Tooltip
-        overlay="issue_bulk_change.no_change_selected"
+      <SubmitButton
+        disabled={true}
+        id="bulk-change-submit"
       >
-        <SubmitButton
-          disabled={true}
-          id="bulk-change-submit"
-        >
-          apply
-        </SubmitButton>
-      </Tooltip>
+        apply
+      </SubmitButton>
       <ResetButtonLink
         onClick={[Function]}
       >
@@ -85,16 +81,12 @@ exports[`should display form when issues are present 1`] = `
     <div
       className="modal-foot"
     >
-      <Tooltip
-        overlay="issue_bulk_change.no_change_selected"
+      <SubmitButton
+        disabled={true}
+        id="bulk-change-submit"
       >
-        <SubmitButton
-          disabled={true}
-          id="bulk-change-submit"
-        >
-          apply
-        </SubmitButton>
-      </Tooltip>
+        apply
+      </SubmitButton>
       <ResetButtonLink
         onClick={[Function]}
       >

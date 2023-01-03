@@ -53,7 +53,9 @@ describe('The Global background task page', () => {
       within(await screen.findByText('background_tasks.number_of_workers')).getByText('2')
     ).toBeInTheDocument();
 
-    const editWorkersButton = screen.getByRole('button', { name: 'edit' });
+    const editWorkersButton = screen.getByRole('button', {
+      name: 'background_tasks.change_number_of_workers',
+    });
     expect(editWorkersButton).toBeInTheDocument();
 
     await user.click(editWorkersButton);

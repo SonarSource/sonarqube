@@ -89,7 +89,9 @@ it('should show import project feature when PAT is already set', async () => {
   expect(screen.getByText('Gitlab project 1')).toBeInTheDocument();
   expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
 
-  projectItem = screen.getByRole('row', { name: /Gitlab project 1/ });
+  projectItem = screen.getByRole('row', {
+    name: 'Gitlab_project_1 company/best-projects opens_in_new_window onboarding.create_project.gitlab.link onboarding.create_project.repository_imported',
+  });
   expect(
     within(projectItem).getByText('onboarding.create_project.repository_imported')
   ).toBeInTheDocument();
@@ -99,7 +101,9 @@ it('should show import project feature when PAT is already set', async () => {
     '/dashboard?id=key'
   );
 
-  projectItem = screen.getByRole('row', { name: /Gitlab project 2/ });
+  projectItem = screen.getByRole('row', {
+    name: 'Gitlab_project_2 company/best-projects opens_in_new_window onboarding.create_project.gitlab.link onboarding.create_project.set_up',
+  });
   const importProjectButton = within(projectItem).getByRole('button', {
     name: 'onboarding.create_project.set_up',
   });

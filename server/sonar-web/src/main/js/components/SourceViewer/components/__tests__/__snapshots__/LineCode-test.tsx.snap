@@ -113,7 +113,6 @@ exports[`render code: with secondary location 1`] = `
       >
         <LocationIndex
           aria-current={false}
-          aria-label="2-secondary-location-msg"
           leading={false}
           onClick={[Function]}
           selected={false}

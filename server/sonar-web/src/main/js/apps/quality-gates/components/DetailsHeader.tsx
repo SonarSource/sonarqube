@@ -113,6 +113,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                       overlay={
                         !isCaycCompliant ? translate('quality_gates.cannot_copy_no_cayc') : null
                       }
+                      accessible={false}
                     >
                       <Button
                         className="little-spacer-left"
@@ -131,6 +132,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                   overlay={
                     !isCaycCompliant ? translate('quality_gates.cannot_set_default_no_cayc') : null
                   }
+                  accessible={false}
                 >
                   <Button
                     className="little-spacer-left"

@@ -393,13 +393,11 @@ function getPageObject(user: UserEvent) {
       const { getAllByRole } = within(row);
       const cell = getAllByRole('cell').at(i);
 
-      if (cell?.textContent === value) {
-        return cell;
+      if (cell === undefined) {
+        throw new Error(`Couldn't locate cell with value ${value} for header ${name}`);
       }
 
-      // eslint-disable-next-line testing-library/no-debugging-utils
-      screen.debug(screen.getByRole('table'), 40000);
-      throw new Error(`Couldn't locate cell with value ${value} for header ${name}`);
+      return within(cell).getByText(value);
     },
   };
 
