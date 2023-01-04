@@ -334,12 +334,13 @@ public class DatabaseUtils {
    */
   public static Optional<String> findExistingIndex(Connection connection, String tableName, String indexName) {
     Predicate<String> indexSelector = idx -> indexName.equalsIgnoreCase(idx) || indexMatchesPattern(idx, format(INDEX_NAME_VARIATION, indexName));
+
     return findIndex(connection, tableName.toLowerCase(Locale.US), indexSelector)
       .or(() -> findIndex(connection, tableName.toUpperCase(Locale.US), indexSelector));
   }
 
-  private static boolean indexMatchesPattern(String idx, String pattern) {
-    return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(idx).matches();
+  private static boolean indexMatchesPattern(@Nullable String idx, String pattern) {
+    return idx != null && Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(idx).matches();
   }
 
   private static Optional<String> findIndex(Connection connection, String tableName, String indexName) {

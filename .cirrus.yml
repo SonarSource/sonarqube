@@ -43,7 +43,7 @@ except_nightly_task_template: &EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
 database_related_nightly_task_template: &DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
-    changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java', 'server/sonar-db-dao/**/*Dao.java')
+    changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java', 'server/sonar-db-dao/**/*Dao.java', 'server/sonar-db-core/src/main/java/org/sonar/db/*.java')
 
 saml_nightly_task_template: &SAML_NIGHTLY_TASK_TEMPLATE
   only_if: >-
