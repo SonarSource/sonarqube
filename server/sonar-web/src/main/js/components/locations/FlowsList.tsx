@@ -18,11 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import 'FlowsList.css';
+import { uniq } from 'lodash';
 import * as React from 'react';
 import ConciseIssueLocationBadge from '../../apps/issues/conciseIssuesList/ConciseIssueLocationBadge';
 import { translate } from '../../helpers/l10n';
 import { Flow, FlowType } from '../../types/types';
 import BoxedGroupAccordion from '../controls/BoxedGroupAccordion';
+import CrossFileLocationNavigator from './CrossFileLocationNavigator';
 import SingleFileLocationNavigator from './SingleFileLocationNavigator';
 
 const FLOW_ORDER_MAP = {
@@ -46,6 +48,39 @@ export default function FlowsList(props: Props) {
     <div className="issue-flows little-padded-top" role="list">
       {flows.map((flow, index) => {
         const open = selectedFlowIndex === index;
+
+        const locationComponents = flow.locations.map((location) => location.component);
+        const isCrossFile = uniq(locationComponents).length > 1;
+
+        let fileLocationNavigator;
+
+        if (isCrossFile) {
+          fileLocationNavigator = (
+            <CrossFileLocationNavigator
+              locations={flow.locations}
+              onLocationSelect={props.onLocationSelect}
+              selectedLocationIndex={selectedLocationIndex}
+            />
+          );
+        } else {
+          fileLocationNavigator = (
+            <ul>
+              {flow.locations.map((location, locIndex) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <li className="display-flex-column" key={locIndex}>
+                  <SingleFileLocationNavigator
+                    index={locIndex}
+                    message={location.msg}
+                    messageFormattings={location.msgFormattings}
+                    onClick={props.onLocationSelect}
+                    selected={locIndex === selectedLocationIndex}
+                  />
+                </li>
+              ))}
+            </ul>
+          );
+        }
+
         return (
           <BoxedGroupAccordion
             className="spacer-top"
@@ -67,20 +102,7 @@ export default function FlowsList(props: Props) {
               />
             )}
           >
-            <ul>
-              {flow.locations.map((location, locIndex) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <li className="display-flex-column" key={locIndex}>
-                  <SingleFileLocationNavigator
-                    index={locIndex}
-                    message={location.msg}
-                    messageFormattings={location.msgFormattings}
-                    onClick={props.onLocationSelect}
-                    selected={locIndex === selectedLocationIndex}
-                  />
-                </li>
-              ))}
-            </ul>
+            {fileLocationNavigator}
           </BoxedGroupAccordion>
         );
       })}

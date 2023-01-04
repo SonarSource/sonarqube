@@ -68,7 +68,7 @@ export default function HotspotListItem(props: HotspotListItemProps) {
       {selected && (
         <LocationsList
           locations={locations}
-          showCrossFile={false} // To removed once we support multi file location
+          showCrossFile={false} // To be removed once we support multi file location
           componentKey={hotspot.component}
           onLocationSelect={props.onLocationClick}
           selectedLocationIndex={selectedHotspotLocation}
