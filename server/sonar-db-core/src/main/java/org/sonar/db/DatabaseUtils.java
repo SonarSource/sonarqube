@@ -44,6 +44,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -60,7 +61,7 @@ public class DatabaseUtils {
   public static final int PARTITION_SIZE_FOR_ORACLE = 1000;
   public static final String ORACLE_DRIVER_NAME = "Oracle JDBC driver";
   public static final Pattern ORACLE_OBJECT_NAME_RULE = Pattern.compile("\"[^\"\\u0000]+\"|\\p{L}[\\p{L}\\p{N}_$#@]*");
-
+  public static final String INDEX_NAME_VARIATION = "^idx_\\d+_%s$";
   /**
    * @see DatabaseMetaData#getTableTypes()
    */
@@ -160,8 +161,8 @@ public class DatabaseUtils {
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    *
-   * @param inputs the whole list of elements to be partitioned
-   * @param consumer the mapper method to be executed, for example {@code mapper(dbSession)::selectByUuids}
+   * @param inputs                     the whole list of elements to be partitioned
+   * @param consumer                   the mapper method to be executed, for example {@code mapper(dbSession)::selectByUuids}
    * @param partitionSizeManipulations the function that computes the number of usages of a partition, for example
    *                                   {@code partitionSize -> partitionSize / 2} when the partition of elements
    *                                   in used twice in the SQL request.
@@ -329,35 +330,41 @@ public class DatabaseUtils {
    * Finds an index by searching by its lower case or upper case name. If an index is found, it's name is returned with the matching case.
    * This is useful when we need to drop an index that could exist with either lower case or upper case name.
    * See SONAR-13594
+   * Related to ticket SONAR-17737, some index name can be changed to pattern idx_{number}_index_name. We also want to be able to identify and return them
    */
   public static Optional<String> findExistingIndex(Connection connection, String tableName, String indexName) {
-    Optional<String> result = findIndex(connection, tableName.toLowerCase(Locale.US), indexName);
-    if (result.isPresent()) {
-      return result;
-    }
-    // in tests, tables have uppercase name
-    return findIndex(connection, tableName.toUpperCase(Locale.US), indexName);
+    Predicate<String> indexSelector = idx -> indexName.equalsIgnoreCase(idx) || indexMatchesPattern(idx, format(INDEX_NAME_VARIATION, indexName));
+    return findIndex(connection, tableName.toLowerCase(Locale.US), indexSelector)
+      .or(() -> findIndex(connection, tableName.toUpperCase(Locale.US), indexSelector));
+  }
+
+  private static boolean indexMatchesPattern(String idx, String pattern) {
+    return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(idx).matches();
   }
 
   private static Optional<String> findIndex(Connection connection, String tableName, String indexName) {
+    return findIndex(connection, tableName, indexName::equalsIgnoreCase);
+  }
+
+  private static Optional<String> findIndex(Connection connection, String tableName, Predicate<String> indexMatcher) {
     String schema = getSchema(connection);
 
     if (StringUtils.isNotEmpty(schema)) {
       String driverName = getDriver(connection);
 //      Fix for double quoted schema name in Oracle
       if (ORACLE_DRIVER_NAME.equals(driverName) && !ORACLE_OBJECT_NAME_RULE.matcher(schema).matches()) {
-        return getOracleIndex(connection, tableName, indexName, schema);
+        return getOracleIndex(connection, tableName, indexMatcher, schema);
       }
     }
 
-    return getIndex(connection, tableName, indexName, schema);
+    return getIndex(connection, tableName, indexMatcher, schema);
   }
 
-  private static Optional<String> getIndex(Connection connection, String tableName, String indexName, @Nullable String schema) {
+  private static Optional<String> getIndex(Connection connection, String tableName, Predicate<String> indexMatcher, @Nullable String schema) {
     try (ResultSet rs = connection.getMetaData().getIndexInfo(connection.getCatalog(), schema, tableName, false, true)) {
       while (rs.next()) {
         String idx = rs.getString("INDEX_NAME");
-        if (indexName.equalsIgnoreCase(idx)) {
+        if (indexMatcher.test(idx)) {
           return Optional.of(idx);
         }
       }
@@ -367,12 +374,12 @@ public class DatabaseUtils {
     }
   }
 
-  private static Optional<String> getOracleIndex(Connection connection, String tableName, String indexName, @Nonnull String schema) {
+  private static Optional<String> getOracleIndex(Connection connection, String tableName, Predicate<String> indexMatcher, @Nonnull String schema) {
     try (ResultSet rs = connection.getMetaData().getIndexInfo(connection.getCatalog(), null, tableName, false, true)) {
       while (rs.next()) {
         String idx = rs.getString("INDEX_NAME");
         String tableSchema = rs.getString("TABLE_SCHEM");
-        if (schema.equalsIgnoreCase(tableSchema) && indexName.equalsIgnoreCase(idx)) {
+        if (schema.equalsIgnoreCase(tableSchema) && indexMatcher.test(idx)) {
           return Optional.of(idx);
         }
       }
@@ -451,7 +458,7 @@ public class DatabaseUtils {
 
   /**
    * @throws IllegalArgumentException if the collection is not null and has strictly more
-   * than {@link #PARTITION_SIZE_FOR_ORACLE} values.
+   *                                  than {@link #PARTITION_SIZE_FOR_ORACLE} values.
    */
   public static void checkThatNotTooManyConditions(@Nullable Collection<?> values, String message) {
     if (values != null) {
