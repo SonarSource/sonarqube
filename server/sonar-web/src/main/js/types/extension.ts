@@ -41,6 +41,7 @@ export interface ExtensionStartMethodParameter {
   appState: AppState;
   el: HTMLElement | undefined | null;
   component?: Component;
+  onBranchesChange?: (updateBranches?: boolean, updatePRs?: boolean) => void;
   currentUser: CurrentUser;
   intl: IntlShape;
   location: Location;
