@@ -37,10 +37,12 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
@@ -51,6 +53,10 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
@@ -72,8 +78,9 @@ public class ProjectStatusActionTest {
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
+  private final QualityGateCaycChecker qualityGateCaycChecker = mock(QualityGateCaycChecker.class);
 
-  private final WsActionTester ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession));
+  private final WsActionTester ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession, qualityGateCaycChecker));
 
   @Test
   public void test_definition() {
@@ -314,6 +321,23 @@ public class ProjectStatusActionTest {
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
       .executeProtobuf(ProjectStatusResponse.class);
+  }
+
+  @Test
+  public void check_cayc_compliant_flag() {
+    ComponentDto project = db.components().insertPrivateProject();
+    var qg = db.qualityGates().insertBuiltInQualityGate();
+    db.qualityGates().setDefaultQualityGate(qg);
+    when(qualityGateCaycChecker.checkCaycCompliantFromProject(any(DbSession.class), eq(project.uuid()))).thenReturn(true);
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    dbSession.commit();
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    ProjectStatusResponse result = ws.newRequest()
+      .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
+      .executeProtobuf(ProjectStatusResponse.class);
+
+    assertThat(result.getProjectStatus().getIsCaycCompliant()).isTrue();
   }
 
   @Test

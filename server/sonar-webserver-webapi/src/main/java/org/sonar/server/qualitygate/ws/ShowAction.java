@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonarqube.ws.Qualitygates.ShowWsResponse;
 
@@ -53,20 +54,20 @@ public class ShowAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final QualityGateFinder qualityGateFinder;
   private final QualityGatesWsSupport wsSupport;
+  private final QualityGateCaycChecker qualityGateCaycChecker;
 
-  public ShowAction(DbClient dbClient, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport) {
+  public ShowAction(DbClient dbClient, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport, QualityGateCaycChecker qualityGateCaycChecker) {
     this.dbClient = dbClient;
     this.qualityGateFinder = qualityGateFinder;
     this.wsSupport = wsSupport;
+    this.qualityGateCaycChecker = qualityGateCaycChecker;
   }
 
-  @Override
-  public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("show")
-      .setDescription("Display the details of a quality gate")
-      .setSince("4.3")
+  @Override public void define(WebService.NewController controller) {
+    WebService.NewAction action = controller.createAction("show").setDescription("Display the details of a quality gate").setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
       .setChangelog(
+        new Change("9.9", "'isCaycCompliant' field is added to the response"),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."),
         new Change("8.4", "Field 'id' in the response is deprecated."),
         new Change("7.6", "'period' and 'warning' fields of conditions are removed from the response"),
@@ -83,8 +84,7 @@ public class ShowAction implements QualityGatesWsAction {
       .setExampleValue("My Quality Gate");
   }
 
-  @Override
-  public void handle(Request request, Response response) {
+  @Override public void handle(Request request, Response response) {
     String id = request.param(PARAM_ID);
     String name = request.param(PARAM_NAME);
     checkOneOfIdOrNamePresent(id, name);
@@ -94,7 +94,8 @@ public class ShowAction implements QualityGatesWsAction {
       Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate);
       Map<String, MetricDto> metricsByUuid = getMetricsByUuid(dbSession, conditions);
       QualityGateDto defaultQualityGate = qualityGateFinder.getDefault(dbSession);
-      writeProtobuf(buildResponse(dbSession, qualityGate, defaultQualityGate, conditions, metricsByUuid), request, response);
+      boolean isCaycCompliant = qualityGateCaycChecker.checkCaycCompliant(dbSession, qualityGate.getUuid());
+      writeProtobuf(buildResponse(dbSession, qualityGate, defaultQualityGate, conditions, metricsByUuid, isCaycCompliant), request, response);
     }
   }
 
@@ -114,17 +115,16 @@ public class ShowAction implements QualityGatesWsAction {
 
   private Map<String, MetricDto> getMetricsByUuid(DbSession dbSession, Collection<QualityGateConditionDto> conditions) {
     Set<String> metricUuids = conditions.stream().map(QualityGateConditionDto::getMetricUuid).collect(toSet());
-    return dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream()
-      .filter(MetricDto::isEnabled)
-      .collect(uniqueIndex(MetricDto::getUuid));
+    return dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().filter(MetricDto::isEnabled).collect(uniqueIndex(MetricDto::getUuid));
   }
 
-  private ShowWsResponse buildResponse(DbSession dbSession, QualityGateDto qualityGate, QualityGateDto defaultQualityGate,
-                                       Collection<QualityGateConditionDto> conditions, Map<String, MetricDto> metricsByUuid) {
+  private ShowWsResponse buildResponse(DbSession dbSession, QualityGateDto qualityGate, QualityGateDto defaultQualityGate, Collection<QualityGateConditionDto> conditions,
+    Map<String, MetricDto> metricsByUuid, boolean isCaycCompliant) {
     return ShowWsResponse.newBuilder()
       .setId(qualityGate.getUuid())
       .setName(qualityGate.getName())
       .setIsBuiltIn(qualityGate.isBuiltIn())
+      .setIsCaycCompliant(isCaycCompliant)
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsByUuid))
         .collect(toList()))

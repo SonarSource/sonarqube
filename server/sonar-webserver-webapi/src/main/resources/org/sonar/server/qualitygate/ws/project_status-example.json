@@ -2,6 +2,7 @@
   "projectStatus": {
     "status": "ERROR",
     "ignoredConditions": false,
+    "isCaycCompliant": false,
     "conditions": [
       {
         "status": "ERROR",

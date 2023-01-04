@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
@@ -31,6 +32,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -41,6 +43,10 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -52,10 +58,11 @@ public class ShowActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  private final QualityGateCaycChecker qualityGateCaycChecker = mock(QualityGateCaycChecker.class);
 
   private final WsActionTester ws = new WsActionTester(
     new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()),
-      new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db))));
+      new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db)), qualityGateCaycChecker));
 
   @Test
   public void show() {
@@ -91,6 +98,19 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getIsBuiltIn()).isTrue();
+  }
+
+  @Test
+  public void show_isCaycCompliant() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    when(qualityGateCaycChecker.checkCaycCompliant(any(DbSession.class), eq(qualityGate.getUuid()))).thenReturn(true);
+    db.qualityGates().setDefaultQualityGate(qualityGate);
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getIsCaycCompliant()).isTrue();
   }
 
   @Test

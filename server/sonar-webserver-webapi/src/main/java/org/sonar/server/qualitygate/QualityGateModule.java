@@ -26,6 +26,7 @@ public class QualityGateModule extends Module {
   protected void configureModule() {
     add(
       QualityGateUpdater.class,
+      QualityGateCaycChecker.class,
       QualityGateConditionsUpdater.class,
       QualityGateFinder.class,
       QualityGateEvaluatorImpl.class);

@@ -23,41 +23,28 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
-import org.sonar.api.measures.Metric;
 import org.sonar.db.component.SnapshotDto;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.NewCodePeriod;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Period;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.stream.Collectors.toUnmodifiableMap;
-import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
-import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 public class QualityGateDetailsFormatter {
-  public static final String METRIC_KEY = "metric";
-  private static final Map<String, Double> CAYC_REQUIREMENTS = Stream.of(
-    NEW_MAINTAINABILITY_RATING,
-    NEW_RELIABILITY_RATING,
-    NEW_SECURITY_HOTSPOTS_REVIEWED,
-    NEW_SECURITY_RATING
-  ).collect(toUnmodifiableMap(Metric::getKey, Metric::getBestValue));
   private final Optional<String> optionalMeasureData;
   private final Optional<SnapshotDto> optionalSnapshot;
+  private final boolean isCaycCompliant;
   private final ProjectStatusResponse.ProjectStatus.Builder projectStatusBuilder;
 
-  public QualityGateDetailsFormatter(Optional<String> measureData, Optional<SnapshotDto> snapshot) {
-    this.optionalMeasureData = measureData;
-    this.optionalSnapshot = snapshot;
+  public QualityGateDetailsFormatter(@Nullable String measureData, @Nullable SnapshotDto snapshot, boolean isCaycCompliant) {
+    this.optionalMeasureData = Optional.ofNullable(measureData);
+    this.optionalSnapshot = Optional.ofNullable(snapshot);
+    this.isCaycCompliant = isCaycCompliant;
     this.projectStatusBuilder = ProjectStatusResponse.ProjectStatus.newBuilder();
   }
 
@@ -70,31 +57,13 @@ public class QualityGateDetailsFormatter {
 
     ProjectStatusResponse.Status qualityGateStatus = measureLevelToQualityGateStatus(json.get("level").getAsString());
     projectStatusBuilder.setStatus(qualityGateStatus);
+    projectStatusBuilder.setIsCaycCompliant(isCaycCompliant);
 
     formatIgnoredConditions(json);
     formatConditions(json.getAsJsonArray("conditions"));
-    formatCleanAsYouCodeCompliant(json.getAsJsonArray("conditions"));
     formatPeriods();
 
     return projectStatusBuilder.build();
-  }
-
-  private void formatCleanAsYouCodeCompliant(@Nullable JsonArray jsonConditions) {
-    if (jsonConditions == null) {
-      return;
-    }
-
-    long matchCount = jsonConditions.asList().stream()
-      .map(JsonElement::getAsJsonObject)
-      .filter(jsonObject -> CAYC_REQUIREMENTS.containsKey(jsonObject.get(METRIC_KEY).getAsString()))
-      .filter(jsonObject -> {
-        String metricKey = jsonObject.get(METRIC_KEY).getAsString();
-        Double value = jsonObject.get("error").getAsDouble();
-        return CAYC_REQUIREMENTS.get(metricKey).compareTo(value) == 0;
-      })
-      .count();
-
-    projectStatusBuilder.setIsCaycCompliant(matchCount == CAYC_REQUIREMENTS.size());
   }
 
   private void formatIgnoredConditions(JsonObject json) {
@@ -201,7 +170,7 @@ public class QualityGateDetailsFormatter {
   }
 
   private static void formatConditionMetric(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
-    JsonElement metric = jsonCondition.get(METRIC_KEY);
+    JsonElement metric = jsonCondition.get("metric");
     if (metric != null && !isNullOrEmpty(metric.getAsString())) {
       conditionBuilder.setMetricKey(metric.getAsString());
     }
@@ -234,8 +203,8 @@ public class QualityGateDetailsFormatter {
     throw new IllegalStateException(String.format("Unknown quality gate comparator '%s'", measureOp));
   }
 
-  private static ProjectStatusResponse.ProjectStatus newResponseWithoutQualityGateDetails() {
-    return ProjectStatusResponse.ProjectStatus.newBuilder().setStatus(ProjectStatusResponse.Status.NONE).build();
+  private ProjectStatusResponse.ProjectStatus newResponseWithoutQualityGateDetails() {
+    return ProjectStatusResponse.ProjectStatus.newBuilder().setStatus(ProjectStatusResponse.Status.NONE).setIsCaycCompliant(isCaycCompliant).build();
   }
 
   private static Predicate<JsonObject> isConditionOnValidPeriod() {
