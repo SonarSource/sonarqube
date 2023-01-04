@@ -53,7 +53,7 @@ export function getCaycConditions(conditions: Condition[]) {
 }
 
 export function isCaycCondition(condition: Condition) {
-  return Object.keys(CAYC_CONDITIONS_WITH_EXPECTED_VALUE).includes(condition.metric);
+  return condition.metric in CAYC_CONDITIONS_WITH_EXPECTED_VALUE;
 }
 
 export function isCaycWeakCondition(condition: Condition) {
@@ -83,9 +83,7 @@ export function getWeakAndMissingConditions(conditions: Condition[]) {
 }
 
 export function getOthersConditions(conditions: Condition[]) {
-  return conditions.filter(
-    (condition) => !Object.keys(CAYC_CONDITIONS_WITH_EXPECTED_VALUE).includes(condition.metric)
-  );
+  return conditions.filter((condition) => !isCaycCondition(condition));
 }
 
 export function getCorrectCaycCondition(condition: Condition) {

@@ -23,8 +23,10 @@ import { Button } from '../../../components/controls/buttons';
 import ModalButton from '../../../components/controls/ModalButton';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
+import { BadgeTarget, QGBadgeType } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
+import CaycStatusBadge from './CaycStatusBadge';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
 import RenameQualityGateForm from './RenameQualityGateForm';
@@ -69,6 +71,13 @@ export default class DetailsHeader extends React.PureComponent<Props> {
             <div className="pull-left display-flex-center">
               <h2>{qualityGate.name}</h2>
               {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="spacer-left" />}
+              {!qualityGate.isCaycCompliant && (
+                <CaycStatusBadge
+                  className="spacer-left"
+                  target={BadgeTarget.QualityGate}
+                  type={QGBadgeType.Weak}
+                />
+              )}
             </div>
 
             <div className="pull-right">

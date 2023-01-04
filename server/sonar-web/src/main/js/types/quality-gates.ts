@@ -109,3 +109,14 @@ export interface Group {
 export function isUser(item: UserBase | Group): item is UserBase {
   return item && (item as UserBase).login !== undefined;
 }
+
+export enum QGBadgeType {
+  'Missing' = 'missing',
+  'Weak' = 'weak',
+  'Ok' = 'ok',
+}
+
+export enum BadgeTarget {
+  QualityGate = 'quality_gate',
+  Condition = 'condition',
+}

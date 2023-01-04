@@ -20,16 +20,18 @@
 import * as React from 'react';
 import DocLink from '../../../components/common/DocLink';
 import { translate } from '../../../helpers/l10n';
+import { BadgeTarget, QGBadgeType } from '../../../types/quality-gates';
 
 interface Props {
-  badgeType: 'missing' | 'weak' | 'ok';
+  badgeType: QGBadgeType;
+  target: BadgeTarget;
 }
 
-export default function CaycBadgeTooltip({ badgeType }: Props) {
+export default function CaycBadgeTooltip({ badgeType, target }: Props) {
   return (
     <div>
       <p className="spacer-bottom padded-bottom bordered-bottom-cayc">
-        {translate('quality_gates.cayc.tooltip', badgeType)}
+        {translate('quality_gates.cayc.tooltip', badgeType, target)}
       </p>
       <DocLink to="/user-guide/clean-as-you-code/">
         {translate('quality_gates.cayc.badge.tooltip.learn_more')}

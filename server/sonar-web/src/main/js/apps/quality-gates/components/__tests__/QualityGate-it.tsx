@@ -86,6 +86,7 @@ it('should be able to create a quality gate then delete it', async () => {
   await user.click(saveButton);
 
   const newQG = await screen.findByRole('menuitem', { name: 'testtwo' });
+
   expect(newQG).toBeInTheDocument();
 
   // Delete the quality gate
@@ -220,7 +221,8 @@ it('should be able to handle duplicate or deprecated condition', async () => {
   handler.setIsAdmin(true);
   renderQualityGateApp();
   await user.click(
-    await screen.findByRole('menuitem', { name: handler.getCorruptedQualityGateName() })
+    // make it a regexp to ignore badges:
+    await screen.findByRole('menuitem', { name: new RegExp(handler.getCorruptedQualityGateName()) })
   );
 
   expect(await screen.findByText('quality_gates.duplicated_conditions')).toBeInTheDocument();

@@ -25,8 +25,9 @@ import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
+import { QGBadgeType } from '../../../types/quality-gates';
 import { Condition as ConditionType, Dict, Metric, QualityGate } from '../../../types/types';
-import { getLocalizedMetricNameNoDiffMetric, isCaycCondition } from '../utils';
+import { getLocalizedMetricNameNoDiffMetric, isCaycCondition, isCaycWeakCondition } from '../utils';
 import CaycStatusBadge from './CaycStatusBadge';
 import ConditionModal from './ConditionModal';
 import ConditionValue from './ConditionValue';
@@ -86,6 +87,20 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
     );
   };
 
+  getBadgeType = () => {
+    const { condition, isCaycModal, isMissingCondition } = this.props;
+
+    if (!isCaycModal) {
+      if (isMissingCondition) {
+        return QGBadgeType.Missing;
+      } else if (isCaycWeakCondition(condition)) {
+        return QGBadgeType.Weak;
+      }
+    }
+
+    return QGBadgeType.Ok;
+  };
+
   renderOperator() {
     // TODO can operator be missing?
     const { op = 'GT' } = this.props.condition;
@@ -138,15 +153,9 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
         >
           <ConditionValue metric={metric} isCaycModal={isCaycModal} condition={condition} />
         </td>
+
         <td className="text-middle nowrap display-flex-justify-end">
-          {isCaycCondition(condition) && (
-            <CaycStatusBadge
-              isMissingCondition={isMissingCondition}
-              condition={condition}
-              isCaycModal={isCaycModal}
-              className="spacer-right"
-            />
-          )}
+          {isCaycCondition(condition) && <CaycStatusBadge type={this.getBadgeType()} />}
           {canEdit && showEdit && !isMissingCondition && (
             <>
               <EditButton

@@ -21,8 +21,10 @@ import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { BadgeTarget, QGBadgeType } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
+import CaycStatusBadge from './CaycStatusBadge';
 
 interface Props {
   qualityGates: QualityGate[];
@@ -46,6 +48,13 @@ export default function List({ qualityGates }: Props) {
             <span className="badge little-spacer-left">{translate('default')}</span>
           )}
           {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="little-spacer-left" />}
+          {!qualityGate.isCaycCompliant && (
+            <CaycStatusBadge
+              className="little-spacer-left"
+              target={BadgeTarget.QualityGate}
+              type={QGBadgeType.Weak}
+            />
+          )}
         </NavLink>
       ))}
     </div>

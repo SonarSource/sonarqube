@@ -24,47 +24,35 @@ import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
 import CheckIcon from '../../../components/icons/CheckIcon';
 import { translate } from '../../../helpers/l10n';
-import { Condition } from '../../../types/types';
-import { isCaycWeakCondition } from '../utils';
+import { BadgeTarget, QGBadgeType } from '../../../types/quality-gates';
 import CaycBadgeTooltip from './CaycBadgeTooltip';
 
 interface Props {
   className?: string;
-  isMissingCondition?: boolean;
-  condition: Condition;
-  isCaycModal?: boolean;
+  target?: BadgeTarget;
+  type: QGBadgeType;
 }
+
+const iconForType = {
+  [QGBadgeType.Ok]: CheckIcon,
+  [QGBadgeType.Missing]: AlertErrorIcon,
+  [QGBadgeType.Weak]: AlertWarnIcon,
+};
+
+const getIcon = (type: QGBadgeType) => iconForType[type];
 
 export default function CaycStatusBadge({
   className,
-  isMissingCondition,
-  condition,
-  isCaycModal,
+  target = BadgeTarget.Condition,
+  type,
 }: Props) {
-  if (isMissingCondition && !isCaycModal) {
-    return (
-      <Tooltip overlay={<CaycBadgeTooltip badgeType="missing" />}>
-        <div className={classNames('badge qg-cayc-missing-badge display-flex-center', className)}>
-          <AlertErrorIcon className="spacer-right" />
-          <span>{translate('quality_gates.cayc_condition.missing')}</span>
-        </div>
-      </Tooltip>
-    );
-  } else if (isCaycWeakCondition(condition) && !isCaycModal) {
-    return (
-      <Tooltip overlay={<CaycBadgeTooltip badgeType="weak" />}>
-        <div className={classNames('badge qg-cayc-weak-badge display-flex-center', className)}>
-          <AlertWarnIcon className="spacer-right" />
-          <span>{translate('quality_gates.cayc_condition.weak')}</span>
-        </div>
-      </Tooltip>
-    );
-  }
+  const Icon = getIcon(type);
+
   return (
-    <Tooltip overlay={<CaycBadgeTooltip badgeType="ok" />}>
-      <div className={classNames('badge qg-cayc-ok-badge display-flex-center', className)}>
-        <CheckIcon className="spacer-right" />
-        <span>{translate('quality_gates.cayc_condition.ok')}</span>
+    <Tooltip overlay={<CaycBadgeTooltip badgeType={type} target={target} />}>
+      <div className={classNames(`badge qg-cayc-${type}-badge display-flex-center`, className)}>
+        <Icon className="spacer-right" />
+        <span>{translate('quality_gates.cayc_condition', type)}</span>
       </div>
     </Tooltip>
   );

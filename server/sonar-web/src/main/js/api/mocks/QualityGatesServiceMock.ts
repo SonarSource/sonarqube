@@ -21,7 +21,8 @@ import { cloneDeep, flatten, omit, remove } from 'lodash';
 import { Project } from '../../apps/quality-gates/components/Projects';
 import { mockQualityGate } from '../../helpers/mocks/quality-gates';
 import { mockUserBase } from '../../helpers/mocks/users';
-import { mockGroup } from '../../helpers/testMocks';
+import { mockCondition, mockGroup } from '../../helpers/testMocks';
+import { MetricKey } from '../../types/metrics';
 import { Condition, QualityGate } from '../../types/types';
 import {
   addGroup,
@@ -81,6 +82,7 @@ export class QualityGatesServiceMock {
         ],
         isDefault: true,
         isBuiltIn: false,
+        isCaycCompliant: true,
       }),
       mockQualityGate({
         id: 'AXGYZrDqC-YjVCvvbRDY',
@@ -121,6 +123,7 @@ export class QualityGatesServiceMock {
         ],
         isDefault: false,
         isBuiltIn: true,
+        isCaycCompliant: true,
       }),
     ];
 
@@ -214,9 +217,31 @@ export class QualityGatesServiceMock {
       mockQualityGate({
         id: newId,
         name,
-        conditions: [],
+        conditions: [
+          mockCondition({
+            id: `${MetricKey.new_reliability_rating}1`,
+            metric: MetricKey.new_reliability_rating,
+            error: '1',
+          }),
+          mockCondition({
+            id: `${MetricKey.new_maintainability_rating}1`,
+            metric: MetricKey.new_maintainability_rating,
+            error: '1',
+          }),
+          mockCondition({
+            id: `${MetricKey.new_security_rating}1`,
+            metric: MetricKey.new_security_rating,
+            error: '1',
+          }),
+          mockCondition({
+            id: `${MetricKey.new_security_hotspots_reviewed}1`,
+            metric: MetricKey.new_security_hotspots_reviewed,
+            error: '100',
+          }),
+        ],
         isDefault: false,
         isBuiltIn: false,
+        isCaycCompliant: true,
       })
     );
     return this.reply({
