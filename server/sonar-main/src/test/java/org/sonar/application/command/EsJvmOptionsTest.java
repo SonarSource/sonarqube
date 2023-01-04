@@ -22,7 +22,9 @@ package org.sonar.application.command;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Properties;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -36,9 +38,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @RunWith(DataProviderRunner.class)
 public class EsJvmOptionsTest {
   @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private Properties properties = new Properties();
+  private final Properties properties = new Properties();
+
+  @Before
+  public void before() {
+    properties.put("sonar.path.logs", "path_to_logs");
+  }
 
   @Test
   public void constructor_sets_mandatory_JVM_options() throws IOException {
@@ -49,7 +56,7 @@ public class EsJvmOptionsTest {
       .containsExactlyInAnyOrder(
         "-XX:+UseG1GC",
         "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
-        "-XX:ErrorFile=../logs/es_hs_err_pid%p.log",
+        "-XX:ErrorFile=" + Paths.get("path_to_logs/es_hs_err_pid%p.log").toAbsolutePath(),
         "-Des.networkaddress.cache.ttl=60",
         "-Des.networkaddress.cache.negative.ttl=10",
         "-XX:+AlwaysPreTouch",
@@ -121,8 +128,8 @@ public class EsJvmOptionsTest {
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
 
     assertThat(underTest.getAll())
-        .isNotEmpty()
-        .doesNotContain("-Des.enforce.bootstrap.checks=true");
+      .isNotEmpty()
+      .doesNotContain("-Des.enforce.bootstrap.checks=true");
   }
 
   @Test
@@ -134,8 +141,8 @@ public class EsJvmOptionsTest {
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
 
     assertThat(underTest.getAll())
-        .isNotEmpty()
-        .contains("-Des.enforce.bootstrap.checks=true");
+      .isNotEmpty()
+      .contains("-Des.enforce.bootstrap.checks=true");
   }
 
   @Test
@@ -147,8 +154,8 @@ public class EsJvmOptionsTest {
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
 
     assertThat(underTest.getAll())
-        .isNotEmpty()
-        .doesNotContain("-Des.enforce.bootstrap.checks=true");
+      .isNotEmpty()
+      .doesNotContain("-Des.enforce.bootstrap.checks=true");
   }
 
   @Test
@@ -160,8 +167,8 @@ public class EsJvmOptionsTest {
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
 
     assertThat(underTest.getAll())
-        .isNotEmpty()
-        .contains("-Des.enforce.bootstrap.checks=true");
+      .isNotEmpty()
+      .contains("-Des.enforce.bootstrap.checks=true");
   }
 
   /**
@@ -185,7 +192,7 @@ public class EsJvmOptionsTest {
         "\n" +
         "-XX:+UseG1GC\n" +
         "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath() + "\n" +
-        "-XX:ErrorFile=../logs/es_hs_err_pid%p.log\n" +
+        "-XX:ErrorFile=" + Paths.get("path_to_logs/es_hs_err_pid%p.log").toAbsolutePath() + "\n" +
         "-Des.networkaddress.cache.ttl=60\n" +
         "-Des.networkaddress.cache.negative.ttl=10\n" +
         "-XX:+AlwaysPreTouch\n" +

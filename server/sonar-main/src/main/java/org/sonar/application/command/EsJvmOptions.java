@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
   // with some changes to fit running bundled in SQ
   private static Map<String, String> mandatoryOptions(File tmpDir, Props props) {
     Map<String, String> res = new LinkedHashMap<>(30);
-    fromJvmDotOptionsFile(tmpDir, res);
+    fromJvmDotOptionsFile(tmpDir, res, props);
     fromSystemJvmOptionsClass(tmpDir, res);
 
     boolean defaultDisableBootstrapChecks = props.value("sonar.jdbc.url", "").contains("jdbc:h2");
@@ -54,7 +55,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     return res;
   }
 
-  private static void fromJvmDotOptionsFile(File tmpDir, Map<String, String> res) {
+  private static void fromJvmDotOptionsFile(File tmpDir, Map<String, String> res, Props props) {
     // GC configuration
     res.put("-XX:+UseG1GC", "");
 
@@ -70,7 +71,8 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     // has sufficient space
     // res.put("-XX:HeapDumpPath", "data");
     // specify an alternative path for JVM fatal error logs (ES 6.6.1 default is "logs/hs_err_pid%p.log")
-    res.put("-XX:ErrorFile=", "../logs/es_hs_err_pid%p.log");
+    var path = Paths.get(props.value("sonar.path.logs", "logs"), "es_hs_err_pid%p.log");
+    res.put("-XX:ErrorFile=",  path.toAbsolutePath().toString());
 
   }
 
