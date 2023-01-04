@@ -108,7 +108,7 @@ public class WebhookCustomDnsTest {
     when(networkInterfaceProvider.getNetworkInterfaceAddresses())
       .thenThrow(new SocketException());
 
-    Assertions.assertThatThrownBy(() -> underTest.lookup("good-url.com"))
+    Assertions.assertThatThrownBy(() -> underTest.lookup("sonarsource.com"))
       .hasMessageContaining("Network interfaces could not be fetched.")
       .isInstanceOf(IllegalArgumentException.class);
   }
