@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { partition, sortBy } from 'lodash';
+import { partition } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import {
@@ -124,23 +124,26 @@ export default class HoldersList extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { permissions } = this.props;
-    const items = sortBy([...this.props.users, ...this.props.groups], (item) => {
-      if (this.isPermissionUser(item) && item.login === '<creator>') {
-        return 0;
-      }
-      return item.name;
-    });
-
+    const {
+      permissions,
+      users,
+      groups,
+      loading,
+      children,
+      selectedPermission,
+      showPublicProjectsWarning,
+    } = this.props;
+    const items = [...groups, ...users];
     const [itemWithPermissions, itemWithoutPermissions] = partition(items, (item) =>
       this.getItemInitialPermissionsCount(item)
     );
+
     return (
       <div className="boxed-group boxed-group-inner">
         <table className="data zebra permissions-table">
           <thead>
             <tr>
-              <td className="nowrap bordered-bottom">{this.props.children}</td>
+              <td className="nowrap bordered-bottom">{children}</td>
               {permissions.map((permission) => (
                 <PermissionHeader
                   key={
@@ -148,14 +151,14 @@ export default class HoldersList extends React.PureComponent<Props, State> {
                   }
                   onSelectPermission={this.props.onSelectPermission}
                   permission={permission}
-                  selectedPermission={this.props.selectedPermission}
-                  showPublicProjectsWarning={this.props.showPublicProjectsWarning}
+                  selectedPermission={selectedPermission}
+                  showPublicProjectsWarning={showPublicProjectsWarning}
                 />
               ))}
             </tr>
           </thead>
           <tbody>
-            {items.length === 0 && !this.props.loading && this.renderEmpty()}
+            {items.length === 0 && !loading && this.renderEmpty()}
             {itemWithPermissions.map((item) => this.renderItem(item, permissions))}
             {itemWithPermissions.length > 0 && itemWithoutPermissions.length > 0 && (
               <>
