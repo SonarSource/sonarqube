@@ -47,6 +47,8 @@ public class TelemetryData {
   private final List<UserTelemetryDto> users;
   private final List<Project> projects;
   private final List<ProjectStatistics> projectStatistics;
+  private final Boolean hasUnanalyzedC;
+  private final Boolean hasUnanalyzedCpp;
   private final Set<String> customSecurityConfigs;
 
   private TelemetryData(Builder builder) {
@@ -63,6 +65,8 @@ public class TelemetryData {
     users = builder.users;
     projects = builder.projects;
     projectStatistics = builder.projectStatistics;
+    hasUnanalyzedC = builder.hasUnanalyzedC;
+    hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = requireNonNullElse(builder.customSecurityConfigs, Set.of());
   }
 
@@ -106,6 +110,14 @@ public class TelemetryData {
     return isScimEnabled;
   }
 
+  public Optional<Boolean> hasUnanalyzedC() {
+    return Optional.ofNullable(hasUnanalyzedC);
+  }
+
+  public Optional<Boolean> hasUnanalyzedCpp() {
+    return Optional.ofNullable(hasUnanalyzedCpp);
+  }
+
   public Set<String> getCustomSecurityConfigs() {
     return customSecurityConfigs;
   }
@@ -137,6 +149,8 @@ public class TelemetryData {
     private String installationVersion;
     private boolean inDocker = false;
     private boolean isScimEnabled;
+    private Boolean hasUnanalyzedC;
+    private Boolean hasUnanalyzedCpp;
     private Set<String> customSecurityConfigs;
     private List<UserTelemetryDto> users;
     private List<Project> projects;
@@ -188,6 +202,16 @@ public class TelemetryData {
 
     Builder setInDocker(boolean inDocker) {
       this.inDocker = inDocker;
+      return this;
+    }
+
+    Builder setHasUnanalyzedC(@Nullable Boolean hasUnanalyzedC) {
+      this.hasUnanalyzedC = hasUnanalyzedC;
+      return this;
+    }
+
+    Builder setHasUnanalyzedCpp(@Nullable Boolean hasUnanalyzedCpp) {
+      this.hasUnanalyzedCpp = hasUnanalyzedCpp;
       return this;
     }
 
@@ -279,19 +303,15 @@ public class TelemetryData {
     private final String projectUuid;
     private final Long branchCount;
     private final Long pullRequestCount;
-    private final Boolean hasUnanalyzedC;
-    private final Boolean hasUnanalyzedCpp;
     private final String scm;
     private final String ci;
     private final String devopsPlatform;
 
-    ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount, @Nullable Boolean hasUnanalyzedC, @Nullable Boolean hasUnanalyzedCpp,
+    ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount,
       @Nullable String scm, @Nullable String ci, @Nullable String devopsPlatform) {
       this.projectUuid = projectUuid;
       this.branchCount = branchCount;
       this.pullRequestCount = pullRequestCount;
-      this.hasUnanalyzedC = hasUnanalyzedC;
-      this.hasUnanalyzedCpp = hasUnanalyzedCpp;
       this.scm = scm;
       this.ci = ci;
       this.devopsPlatform = devopsPlatform;
@@ -324,12 +344,5 @@ public class TelemetryData {
       return devopsPlatform;
     }
 
-    public Optional<Boolean> hasUnanalyzedC() {
-      return Optional.ofNullable(hasUnanalyzedC);
-    }
-
-    public Optional<Boolean> hasUnanalyzedCpp() {
-      return Optional.ofNullable(hasUnanalyzedCpp);
-    }
   }
 }

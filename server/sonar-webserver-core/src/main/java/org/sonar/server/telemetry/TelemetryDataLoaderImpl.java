@@ -57,6 +57,8 @@ import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETEC
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 import static org.sonar.core.platform.EditionProvider.Edition.DATACENTER;
 import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 import static org.sonar.server.telemetry.TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE;
 
 @ServerSide
@@ -115,6 +117,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       data.setDatabase(loadDatabaseMetadata(dbSession));
 
+      resolveUnanalyzedLanguageCode(data, dbSession);
       resolveProjectStatistics(data, dbSession);
       resolveProjects(data, dbSession);
       resolveUsers(data, dbSession);
@@ -133,6 +136,17 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       .build();
   }
 
+  private void resolveUnanalyzedLanguageCode(TelemetryData.Builder data, DbSession dbSession) {
+    long numberOfUnanalyzedCMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_C_KEY);
+    long numberOfUnanalyzedCppMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_CPP_KEY);
+    editionProvider.get()
+      .filter(edition -> edition.equals(COMMUNITY))
+      .ifPresent(edition -> {
+        data.setHasUnanalyzedC(numberOfUnanalyzedCMeasures > 0);
+        data.setHasUnanalyzedCpp(numberOfUnanalyzedCppMeasures > 0);
+      });
+  }
+
   private Long retrieveCurrentMessageSequenceNumber() {
     return internalProperties.read(I_PROP_MESSAGE_SEQUENCE).map(Long::parseLong).orElse(0L);
   }
@@ -145,21 +159,12 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Map<String, PrBranchAnalyzedLanguageCountByProjectDto> prAndBranchCountByProjects = dbClient.branchDao().countPrBranchAnalyzedLanguageByProjectUuid(dbSession)
       .stream().collect(Collectors.toMap(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, Function.identity()));
 
-    boolean isCommunityEdition = editionProvider.get().filter(edition -> edition.equals(COMMUNITY)).isPresent();
     List<TelemetryData.ProjectStatistics> projectStatistics = new ArrayList<>();
     for (String projectUuid : projectUuids) {
       Optional<PrBranchAnalyzedLanguageCountByProjectDto> counts = ofNullable(prAndBranchCountByProjects.get(projectUuid));
 
       Long branchCount = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getBranch).orElse(0L);
       Long pullRequestCount = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest).orElse(0L);
-
-      Boolean hasUnanalyzedCMeasures = null;
-      Boolean hasUnanalyzedCppMeasures = null;
-      if (isCommunityEdition) {
-        hasUnanalyzedCMeasures = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getUnanalyzedCCount).orElse(0L) > 0;
-        hasUnanalyzedCppMeasures = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getUnanalyzedCppCount).orElse(0L) > 0;
-      }
-
       String scm = Optional.ofNullable(scmByProject.get(projectUuid)).orElse(UNDETECTED);
       String ci = Optional.ofNullable(ciByProject.get(projectUuid)).orElse(UNDETECTED);
       String devopsPlatform = null;
@@ -170,7 +175,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       devopsPlatform = Optional.ofNullable(devopsPlatform).orElse(UNDETECTED);
 
       projectStatistics.add(
-        new TelemetryData.ProjectStatistics(projectUuid, branchCount, pullRequestCount, hasUnanalyzedCMeasures, hasUnanalyzedCppMeasures, scm, ci, devopsPlatform));
+        new TelemetryData.ProjectStatistics(projectUuid, branchCount, pullRequestCount, scm, ci, devopsPlatform));
     }
     data.setProjectStatistics(projectStatistics);
   }

@@ -225,6 +225,23 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
+  public void writes_has_unanalyzed_languages() {
+    TelemetryData data = telemetryBuilder()
+      .setHasUnanalyzedC(true)
+      .setHasUnanalyzedCpp(false)
+      .build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("""
+      {
+        "hasUnanalyzedC": true,
+        "hasUnanalyzedCpp": false,
+      }
+      """);
+  }
+
+  @Test
   public void writes_security_custom_config() {
     TelemetryData data = telemetryBuilder()
       .setCustomSecurityConfigs(Set.of("php", "java"))
@@ -319,51 +336,48 @@ public class TelemetryDataJsonWriterTest {
   @Test
   public void writes_all_projects_stats_with_analyzed_languages() {
     TelemetryData data = telemetryBuilder()
-      .setProjectStatistics(attachProjectStats(true))
+      .setProjectStatistics(attachProjectStats())
       .build();
 
     String json = writeTelemetryData(data);
 
-    assertJson(json).isSimilarTo("{" +
-      "  \"projects-general-stats\": [" +
-      "    {" +
-      "      \"projectUuid\": \"uuid-0\"," +
-      "      \"branchCount\": 2," +
-      "      \"pullRequestCount\": 2," +
-      "      \"scm\": \"scm-0\"," +
-      "      \"ci\": \"ci-0\"," +
-      "      \"devopsPlatform\": \"devops-0\"," +
-      "      \"hasUnanalyzedC\": true," +
-      "      \"hasUnanalyzedCpp\": false" +
-      "    }," +
-      "    {" +
-      "      \"projectUuid\": \"uuid-1\"," +
-      "      \"branchCount\": 4," +
-      "      \"pullRequestCount\": 4," +
-      "      \"scm\": \"scm-1\"," +
-      "      \"ci\": \"ci-1\"," +
-      "      \"devopsPlatform\": \"devops-1\"," +
-      "      \"hasUnanalyzedC\": false," +
-      "      \"hasUnanalyzedCpp\": true" +
-      "    }," +
-      "    {" +
-      "      \"projectUuid\": \"uuid-2\"," +
-      "      \"branchCount\": 6," +
-      "      \"pullRequestCount\": 6," +
-      "      \"scm\": \"scm-2\"," +
-      "      \"ci\": \"ci-2\"," +
-      "      \"devopsPlatform\": \"devops-2\"," +
-      "      \"hasUnanalyzedC\": true," +
-      "      \"hasUnanalyzedCpp\": false" +
-      "    }" +
-      "  ]" +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "projects-general-stats": [
+          {
+            "projectUuid": "uuid-0",
+            "branchCount": 2,
+            "pullRequestCount": 2,
+            "scm": "scm-0",
+            "ci": "ci-0",
+            "devopsPlatform": "devops-0"
+          },
+          {
+            "projectUuid": "uuid-1",
+            "branchCount": 4,
+            "pullRequestCount": 4,
+            "scm": "scm-1",
+            "ci": "ci-1",
+            "devopsPlatform": "devops-1"
+          },
+          {
+            "projectUuid": "uuid-2",
+            "branchCount": 6,
+            "pullRequestCount": 6,
+            "scm": "scm-2",
+            "ci": "ci-2",
+            "devopsPlatform": "devops-2"
+          }
+        ]
+      }
+      """
+    );
   }
 
   @Test
   public void writes_all_projects_stats_with_unanalyzed_languages() {
     TelemetryData data = telemetryBuilder()
-      .setProjectStatistics(attachProjectStats(false))
+      .setProjectStatistics(attachProjectStats())
       .build();
 
     String json = writeTelemetryData(data);
@@ -391,8 +405,8 @@ public class TelemetryDataJsonWriterTest {
     return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, (i + 1L) * 2L)).collect(Collectors.toList());
   }
 
-  private List<TelemetryData.ProjectStatistics> attachProjectStats(boolean hasUnanalyzedLanguages) {
-    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, hasUnanalyzedLanguages ? i % 2 == 0 : null, hasUnanalyzedLanguages ? i % 2 != 0 : null, "scm-" + i, "ci-" + i, "devops-" + i))
+  private List<TelemetryData.ProjectStatistics> attachProjectStats() {
+    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, "scm-" + i, "ci-" + i, "devops-" + i))
       .collect(Collectors.toList());
   }
 
