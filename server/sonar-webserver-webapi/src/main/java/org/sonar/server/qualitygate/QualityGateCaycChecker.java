@@ -19,10 +19,10 @@
  */
 package org.sonar.server.qualitygate;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -37,12 +37,16 @@ import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class QualityGateCaycChecker {
-  private static final Map<String, Double> CAYC_REQUIREMENTS = Stream.of(
+
+  public static final List<Metric<Integer>> CAYC_METRICS = List.of(
     NEW_MAINTAINABILITY_RATING,
     NEW_RELIABILITY_RATING,
     NEW_SECURITY_HOTSPOTS_REVIEWED,
     NEW_SECURITY_RATING
-  ).collect(toUnmodifiableMap(Metric::getKey, Metric::getBestValue));
+  );
+
+  private static final Map<String, Double> CAYC_REQUIREMENTS = CAYC_METRICS.stream()
+    .collect(toUnmodifiableMap(Metric::getKey, Metric::getBestValue));
 
   private final DbClient dbClient;
 
