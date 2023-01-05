@@ -63,8 +63,12 @@ public class ShowAction implements QualityGatesWsAction {
     this.qualityGateCaycChecker = qualityGateCaycChecker;
   }
 
-  @Override public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("show").setDescription("Display the details of a quality gate").setSince("4.3")
+  @Override
+  public void define(WebService.NewController controller) {
+    WebService.NewAction action = controller
+      .createAction("show")
+      .setDescription("Display the details of a quality gate")
+      .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
       .setChangelog(
         new Change("9.9", "'isCaycCompliant' field is added to the response"),
@@ -84,7 +88,8 @@ public class ShowAction implements QualityGatesWsAction {
       .setExampleValue("My Quality Gate");
   }
 
-  @Override public void handle(Request request, Response response) {
+  @Override
+  public void handle(Request request, Response response) {
     String id = request.param(PARAM_ID);
     String name = request.param(PARAM_NAME);
     checkOneOfIdOrNamePresent(id, name);
