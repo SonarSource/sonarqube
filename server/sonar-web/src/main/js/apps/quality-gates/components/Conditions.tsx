@@ -25,7 +25,7 @@ import withAvailableFeatures, {
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { Button } from '../../../components/controls/buttons';
-import ModalButton from '../../../components/controls/ModalButton';
+import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
 import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
@@ -57,26 +57,25 @@ const FORBIDDEN_METRICS: string[] = [
 ];
 
 export class Conditions extends React.PureComponent<Props> {
-  renderConditionsTable = (conditions: ConditionType[], scope: 'new' | 'overall') => {
-    const {
-      qualityGate,
-      metrics,
-      canEdit,
-      onRemoveCondition,
-      onSaveCondition,
-      updatedConditionId,
-    } = this.props;
-
+  renderConditionModal = ({ onClose }: ModalProps) => {
+    const { metrics, qualityGate, conditions } = this.props;
+    const availableMetrics = differenceWith(
+      map(metrics, (metric) => metric).filter(
+        (metric) =>
+          !metric.hidden &&
+          !FORBIDDEN_METRIC_TYPES.includes(metric.type) &&
+          !FORBIDDEN_METRICS.includes(metric.key)
+      ),
+      conditions,
+      (metric, condition) => metric.key === condition.metric
+    );
     return (
-      <ConditionsTable
+      <ConditionModal
+        header={translate('quality_gates.add_condition')}
+        metrics={availableMetrics}
+        onAddCondition={this.props.onAddCondition}
+        onClose={onClose}
         qualityGate={qualityGate}
-        metrics={metrics}
-        canEdit={canEdit}
-        onRemoveCondition={onRemoveCondition}
-        onSaveCondition={onSaveCondition}
-        updatedConditionId={updatedConditionId}
-        conditions={getOthersConditions(conditions)}
-        scope={scope}
       />
     );
   };
@@ -122,32 +121,11 @@ export class Conditions extends React.PureComponent<Props> {
       metric: metrics[condition.metric],
     }));
 
-    const availableMetrics = differenceWith(
-      map(metrics, (metric) => metric).filter(
-        (metric) =>
-          !metric.hidden &&
-          !FORBIDDEN_METRIC_TYPES.includes(metric.type) &&
-          !FORBIDDEN_METRICS.includes(metric.key)
-      ),
-      conditions,
-      (metric, condition) => metric.key === condition.metric
-    );
-
     return (
       <div className="quality-gate-section">
         {canEdit && (
           <div className="pull-right">
-            <ModalButton
-              modal={({ onClose }) => (
-                <ConditionModal
-                  header={translate('quality_gates.add_condition')}
-                  metrics={availableMetrics}
-                  onAddCondition={this.props.onAddCondition}
-                  onClose={onClose}
-                  qualityGate={this.props.qualityGate}
-                />
-              )}
-            >
+            <ModalButton modal={this.renderConditionModal}>
               {({ onClick }) => (
                 <Button data-test="quality-gates__add-condition" onClick={onClick}>
                   {translate('quality_gates.add_condition')}

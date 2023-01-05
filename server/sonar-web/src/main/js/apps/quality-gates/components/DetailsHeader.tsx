@@ -62,8 +62,8 @@ export default class DetailsHeader extends React.PureComponent<Props> {
   render() {
     const { qualityGate } = this.props;
     const actions = qualityGate.actions || ({} as any);
-    const hasNoConditions =
-      qualityGate.conditions === undefined || qualityGate.conditions.length === 0;
+    const { isCaycCompliant } = qualityGate;
+
     return (
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
         <div className="layout-page-header-panel-inner layout-page-main-header-inner">
@@ -109,23 +109,32 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                   )}
                 >
                   {({ onClick }) => (
-                    <Button className="little-spacer-left" id="quality-gate-copy" onClick={onClick}>
-                      {translate('copy')}
-                    </Button>
+                    <Tooltip
+                      overlay={
+                        !isCaycCompliant ? translate('quality_gates.cannot_copy_no_cayc') : null
+                      }
+                    >
+                      <Button
+                        className="little-spacer-left"
+                        id="quality-gate-copy"
+                        onClick={onClick}
+                        disabled={!isCaycCompliant}
+                      >
+                        {translate('copy')}
+                      </Button>
+                    </Tooltip>
                   )}
                 </ModalButton>
               )}
               {actions.setAsDefault && (
                 <Tooltip
                   overlay={
-                    hasNoConditions
-                      ? translate('quality_gates.cannot_set_default_no_conditions')
-                      : null
+                    !isCaycCompliant ? translate('quality_gates.cannot_set_default_no_cayc') : null
                   }
                 >
                   <Button
                     className="little-spacer-left"
-                    disabled={hasNoConditions}
+                    disabled={!isCaycCompliant}
                     id="quality-gate-toggle-default"
                     onClick={this.handleSetAsDefaultClick}
                   >

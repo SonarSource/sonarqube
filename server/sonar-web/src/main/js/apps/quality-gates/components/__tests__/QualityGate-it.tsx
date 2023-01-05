@@ -102,11 +102,13 @@ it('should be able to create a quality gate then delete it', async () => {
   });
 });
 
-it('should be able to copy a quality gate', async () => {
+it('should be able to copy a quality gate which is CAYC compliant', async () => {
   const user = userEvent.setup();
   handler.setIsAdmin(true);
   renderQualityGateApp();
 
+  const notDefaultQualityGate = await screen.findByText('Sonar way');
+  await user.click(notDefaultQualityGate);
   const copyButton = await screen.findByRole('button', { name: 'copy' });
 
   await user.click(copyButton);
@@ -116,6 +118,19 @@ it('should be able to copy a quality gate', async () => {
   await user.keyboard(' bis{Enter}');
 
   expect(await screen.findByRole('menuitem', { name: /.* bis/ })).toBeInTheDocument();
+});
+
+it('should not be able to copy a quality gate which is not CAYC compliant', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
+  await user.click(notDefaultQualityGate);
+
+  const copyButton = await screen.findByRole('button', { name: 'copy' });
+
+  expect(copyButton).toBeDisabled();
 });
 
 it('should be able to rename a quality gate', async () => {
@@ -134,7 +149,7 @@ it('should be able to rename a quality gate', async () => {
   expect(await screen.findByRole('menuitem', { name: /New Name.*/ })).toBeInTheDocument();
 });
 
-it('should be able to set as default a quality gate', async () => {
+it('should not be able to set as default a quality gate which is not CAYC compliant', async () => {
   const user = userEvent.setup();
   handler.setIsAdmin(true);
   renderQualityGateApp();
@@ -142,8 +157,19 @@ it('should be able to set as default a quality gate', async () => {
   const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
   await user.click(notDefaultQualityGate);
   const setAsDefaultButton = screen.getByRole('button', { name: 'set_as_default' });
+  expect(setAsDefaultButton).toBeDisabled();
+});
+
+it('should be able to set as default a quality gate which is CAYC compliant', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  const notDefaultQualityGate = await screen.findByText('Sonar way');
+  await user.click(notDefaultQualityGate);
+  const setAsDefaultButton = screen.getByRole('button', { name: 'set_as_default' });
   await user.click(setAsDefaultButton);
-  expect(screen.getAllByRole('menuitem')[1]).toHaveTextContent('default');
+  expect(screen.getAllByRole('menuitem')[2]).toHaveTextContent('default');
 });
 
 it('should be able to add a condition', async () => {
