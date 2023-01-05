@@ -55,6 +55,11 @@ ldap_nightly_task_template: &LDAP_NIGHTLY_TASK_TEMPLATE
     $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('server/sonar-auth-ldap/src/main/java/**/*.java', 'server/sonar-webserver-auth/src/main/java/org/sonar/server/authentication/LdapCredentialsAuthentication.java', 'private/it-core/src/test/java/org/sonarqube/tests/ldap/*.java')
 
+github_nightly_task_template: &GITHUB_NIGHTLY_TASK_TEMPLATE
+  only_if: >-
+    $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
+    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/*.java')    
+
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
   builder_image_project: sonarqube-team
@@ -465,7 +470,7 @@ qa_azure_task:
 qa_github_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *NIGHTLY_TASK_TEMPLATE
+  <<: *GITHUB_NIGHTLY_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
