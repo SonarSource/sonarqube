@@ -273,6 +273,7 @@ qa_task:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
     matrix:
+    # QA name should not exceed 13 characters to be properly reported on wallboard by burgr
       - QA_CATEGORY: Cat1
       - QA_CATEGORY: Cat2
       - QA_CATEGORY: Cat3
@@ -281,23 +282,23 @@ qa_task:
       - QA_CATEGORY: Cat6
       - QA_CATEGORY: Analysis
       - QA_CATEGORY: Authorization
-      - QA_CATEGORY: Authentication
+      - QA_CATEGORY: Auth
       - QA_CATEGORY: Branch1
       - QA_CATEGORY: Branch2
-      - QA_CATEGORY: CommunityEdition
-      - QA_CATEGORY: CommunityEditionWithPlugins
+      - QA_CATEGORY: CE
+      - QA_CATEGORY: CE_WithPlugins
       - QA_CATEGORY: ComputeEngine
-      - QA_CATEGORY: Dev1
-      - QA_CATEGORY: Dev2
-      - QA_CATEGORY: Enterprise
-      - QA_CATEGORY: EnterprisePortfolio
+      - QA_CATEGORY: DE1
+      - QA_CATEGORY: DE2
+      - QA_CATEGORY: EE
+      - QA_CATEGORY: EE_Portfolio
       - QA_CATEGORY: Issues1
       - QA_CATEGORY: Issues2
       - QA_CATEGORY: License1
       - QA_CATEGORY: License2
       - QA_CATEGORY: Plugins
       - QA_CATEGORY: Project
-      - QA_CATEGORY: QualityProfile
+      - QA_CATEGORY: QP
       - QA_CATEGORY: Upgrade
   script:
     - ./private/cirrus/cirrus-qa.sh postgres
