@@ -274,6 +274,7 @@ qa_task:
   env:
     matrix:
     # QA name should not exceed 13 characters to be properly reported on wallboard by burgr
+    # QA name cannot contain "_"
       - QA_CATEGORY: Cat1
       - QA_CATEGORY: Cat2
       - QA_CATEGORY: Cat3
@@ -285,13 +286,13 @@ qa_task:
       - QA_CATEGORY: Auth
       - QA_CATEGORY: Branch1
       - QA_CATEGORY: Branch2
-      - QA_CATEGORY: CE
-      - QA_CATEGORY: CE_WithPlugins
+      - QA_CATEGORY: CE1
+      - QA_CATEGORY: CE2
       - QA_CATEGORY: ComputeEngine
       - QA_CATEGORY: DE1
       - QA_CATEGORY: DE2
-      - QA_CATEGORY: EE
-      - QA_CATEGORY: EE_Portfolio
+      - QA_CATEGORY: EE1
+      - QA_CATEGORY: EE2
       - QA_CATEGORY: Issues1
       - QA_CATEGORY: Issues2
       - QA_CATEGORY: License1
