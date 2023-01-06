@@ -47,8 +47,7 @@ public class ClobColumnDef extends AbstractColumnDef {
     switch (dialect.getId()) {
       case MsSql.ID:
         return "NVARCHAR (MAX)";
-      case Oracle.ID:
-      case H2.ID:
+      case Oracle.ID, H2.ID:
         return "CLOB";
       case PostgreSql.ID:
         return "TEXT";

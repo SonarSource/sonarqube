@@ -42,18 +42,14 @@ public class DropTableBuilder {
   }
 
   public List<String> build() {
-    switch (dialect.getId()) {
-      case Oracle.ID:
-        return forOracle(tableName);
-      case H2.ID:
-      case PostgreSql.ID:
-        return singletonList("drop table if exists " + tableName);
-      case MsSql.ID:
+    return switch (dialect.getId()) {
+      case Oracle.ID -> forOracle(tableName);
+      case H2.ID, PostgreSql.ID -> singletonList("drop table if exists " + tableName);
+      case MsSql.ID ->
         // "if exists" is supported only since MSSQL 2016.
-        return singletonList("drop table " + tableName);
-      default:
-        throw new IllegalStateException("Unsupported DB: " + dialect.getId());
-    }
+        singletonList("drop table " + tableName);
+      default -> throw new IllegalStateException("Unsupported DB: " + dialect.getId());
+    };
   }
 
   private static List<String> forOracle(String tableName) {

@@ -45,17 +45,12 @@ public class TinyIntColumnDef extends AbstractColumnDef {
 
   @Override
   public String generateSqlType(Dialect dialect) {
-    switch (dialect.getId()) {
-      case PostgreSql.ID:
-        return "SMALLINT";
-      case Oracle.ID:
-        return "NUMBER(3)";
-      case MsSql.ID:
-      case H2.ID:
-        return "TINYINT";
-      default:
-        throw new UnsupportedOperationException(String.format("Unknown dialect '%s'", dialect.getId()));
-    }
+    return switch (dialect.getId()) {
+      case PostgreSql.ID -> "SMALLINT";
+      case Oracle.ID -> "NUMBER(3)";
+      case MsSql.ID, H2.ID -> "TINYINT";
+      default -> throw new UnsupportedOperationException(String.format("Unknown dialect '%s'", dialect.getId()));
+    };
   }
 
   public static class Builder {

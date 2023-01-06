@@ -93,13 +93,9 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       case PERMISSION_CHANGE:
         // nothing to do, permissions are not used in type projectmeasures/projectmeasure
         return Collections.emptyList();
-      case MEASURE_CHANGE:
-      case PROJECT_KEY_UPDATE:
-        // project must be re-indexed because key is used in this index
-      case PROJECT_CREATION:
-        // provisioned projects are supported by WS api/components/search_projects
-      case PROJECT_TAGS_UPDATE:
-      case PROJECT_DELETION:
+      case MEASURE_CHANGE, PROJECT_KEY_UPDATE, PROJECT_CREATION, PROJECT_TAGS_UPDATE, PROJECT_DELETION:
+        // when MEASURE_CHANGE or PROJECT_KEY_UPDATE project must be re-indexed because key is used in this index
+        // when PROJECT_CREATION provisioned projects are supported by WS api/components/search_projects
         List<EsQueueDto> items = projectUuids.stream()
           .map(projectUuid -> EsQueueDto.create(TYPE_PROJECT_MEASURES.format(), projectUuid, null, projectUuid))
           .collect(MoreCollectors.toArrayList(projectUuids.size()));

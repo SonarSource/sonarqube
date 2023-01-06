@@ -73,8 +73,7 @@ public class RenameTableBuilder {
 
   private List<String> createSqlStatement() {
     switch (dialect.getId()) {
-      case H2.ID:
-      case PostgreSql.ID:
+      case H2.ID, PostgreSql.ID:
         return singletonList("ALTER TABLE " + name + " RENAME TO " + newName);
       case MsSql.ID:
         return singletonList("EXEC sp_rename '" + name + "', '" + newName + "'");

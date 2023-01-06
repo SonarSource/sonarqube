@@ -291,14 +291,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
       return Sets.newHashSet(Qualifiers.PROJECT);
     }
 
-    switch (edition.get()) {
-      case ENTERPRISE:
-      case DATACENTER:
-      case DEVELOPER:
-        return Sets.newHashSet(Qualifiers.PROJECT, Qualifiers.APP);
-      default:
-        return Sets.newHashSet(Qualifiers.PROJECT);
-    }
+    return switch (edition.get()) {
+      case ENTERPRISE, DATACENTER, DEVELOPER -> Sets.newHashSet(Qualifiers.PROJECT, Qualifiers.APP);
+      default -> Sets.newHashSet(Qualifiers.PROJECT);
+    };
   }
 
   private static boolean hasFavoriteFilter(List<Criterion> criteria) {

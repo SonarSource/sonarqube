@@ -40,10 +40,10 @@ import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ProjectIndexer;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Populates the types "authorization" of each index requiring project
@@ -106,22 +106,15 @@ public class PermissionIndexer implements ProjectIndexer {
 
   @Override
   public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
-    switch (cause) {
-      case MEASURE_CHANGE:
-      case PROJECT_KEY_UPDATE:
-      case PROJECT_TAGS_UPDATE:
+    return switch (cause) {
+      case MEASURE_CHANGE, PROJECT_KEY_UPDATE, PROJECT_TAGS_UPDATE ->
         // nothing to change. Measures, project key and tags are not part of this index
-        return emptyList();
-
-      case PROJECT_CREATION:
-      case PROJECT_DELETION:
-      case PERMISSION_CHANGE:
-        return insertIntoEsQueue(dbSession, projectUuids);
-
-      default:
+        emptyList();
+      case PROJECT_CREATION, PROJECT_DELETION, PERMISSION_CHANGE -> insertIntoEsQueue(dbSession, projectUuids);
+      default ->
         // defensive case
         throw new IllegalStateException("Unsupported cause: " + cause);
-    }
+    };
   }
 
   private Collection<EsQueueDto> insertIntoEsQueue(DbSession dbSession, Collection<String> projectUuids) {

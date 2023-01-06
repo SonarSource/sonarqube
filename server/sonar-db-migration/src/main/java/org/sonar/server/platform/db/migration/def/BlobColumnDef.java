@@ -37,17 +37,12 @@ public class BlobColumnDef extends AbstractColumnDef {
 
   @Override
   public String generateSqlType(Dialect dialect) {
-    switch (dialect.getId()) {
-      case MsSql.ID:
-        return "VARBINARY(MAX)";
-      case Oracle.ID:
-      case H2.ID:
-        return "BLOB";
-      case PostgreSql.ID:
-        return "BYTEA";
-      default:
-        throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());
-    }
+    return switch (dialect.getId()) {
+      case MsSql.ID -> "VARBINARY(MAX)";
+      case Oracle.ID, H2.ID -> "BLOB";
+      case PostgreSql.ID -> "BYTEA";
+      default -> throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());
+    };
   }
 
   public static Builder newBlobColumnDefBuilder() {

@@ -50,50 +50,26 @@ public class MeasureValueFormatter {
   @CheckForNull
   static String formatMeasureValue(double doubleValue, @Nullable String stringValue, MetricDto metric) {
     Metric.ValueType metricType = Metric.ValueType.valueOf(metric.getValueType());
-    switch (metricType) {
-      case BOOL:
-        return formatBoolean(doubleValue);
-      case INT:
-        return formatInteger(doubleValue);
-      case MILLISEC:
-      case WORK_DUR:
-        return formatLong(doubleValue);
-      case FLOAT:
-      case PERCENT:
-      case RATING:
-        return String.valueOf(doubleValue);
-      case LEVEL:
-      case STRING:
-      case DATA:
-      case DISTRIB:
-        return stringValue;
-      default:
-        throw new IllegalArgumentException("Unsupported metric type: " + metricType.name());
-    }
+    return switch (metricType) {
+      case BOOL -> formatBoolean(doubleValue);
+      case INT -> formatInteger(doubleValue);
+      case MILLISEC, WORK_DUR -> formatLong(doubleValue);
+      case FLOAT, PERCENT, RATING -> String.valueOf(doubleValue);
+      case LEVEL, STRING, DATA, DISTRIB -> stringValue;
+      default -> throw new IllegalArgumentException("Unsupported metric type: " + metricType.name());
+    };
   }
 
   static String formatNumericalValue(double value, MetricDto metric) {
     Metric.ValueType metricType = Metric.ValueType.valueOf(metric.getValueType());
 
-    switch (metricType) {
-      case BOOL:
-        return formatBoolean(value);
-      case INT:
-        return formatInteger(value);
-      case MILLISEC:
-      case WORK_DUR:
-        return formatLong(value);
-      case FLOAT:
-      case PERCENT:
-      case RATING:
-        return String.valueOf(value);
-      case LEVEL:
-      case STRING:
-      case DATA:
-      case DISTRIB:
-      default:
-        throw new IllegalArgumentException(String.format("Unsupported metric type '%s' for numerical value", metricType.name()));
-    }
+    return switch (metricType) {
+      case BOOL -> formatBoolean(value);
+      case INT -> formatInteger(value);
+      case MILLISEC, WORK_DUR -> formatLong(value);
+      case FLOAT, PERCENT, RATING -> String.valueOf(value);
+      default -> throw new IllegalArgumentException(String.format("Unsupported metric type '%s' for numerical value", metricType.name()));
+    };
   }
 
   private static String formatBoolean(double value) {

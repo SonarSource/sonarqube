@@ -48,17 +48,12 @@ public class TimestampColumnDef extends AbstractColumnDef {
 
   @Override
   public String generateSqlType(Dialect dialect) {
-    switch (dialect.getId()) {
-      case MsSql.ID:
-        return "DATETIME";
-      case Oracle.ID:
-        return "TIMESTAMP (6)";
-      case H2.ID:
-      case PostgreSql.ID:
-        return "TIMESTAMP";
-      default:
-        throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());
-    }
+    return switch (dialect.getId()) {
+      case MsSql.ID -> "DATETIME";
+      case Oracle.ID -> "TIMESTAMP (6)";
+      case H2.ID, PostgreSql.ID -> "TIMESTAMP";
+      default -> throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());
+    };
   }
 
   public static class Builder {

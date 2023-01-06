@@ -50,8 +50,7 @@ public class BooleanColumnDef extends AbstractColumnDef {
   @Override
   public String generateSqlType(Dialect dialect) {
     switch (dialect.getId()) {
-      case PostgreSql.ID:
-      case H2.ID:
+      case PostgreSql.ID, H2.ID:
         return "BOOLEAN";
       case Oracle.ID:
         return "NUMBER(1)";

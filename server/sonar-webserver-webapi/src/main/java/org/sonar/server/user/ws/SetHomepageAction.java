@@ -121,13 +121,10 @@ public class SetHomepageAction implements UsersWsAction {
         } else {
           return projectDto.getUuid();
         }
-      case PORTFOLIO:
-      case APPLICATION:
+      case PORTFOLIO, APPLICATION:
         checkArgument(isNotBlank(componentParameter), PARAMETER_REQUIRED, type.name(), PARAM_COMPONENT);
         return componentFinder.getByKey(dbSession, componentParameter).uuid();
-      case PORTFOLIOS:
-      case PROJECTS:
-      case ISSUES:
+      case PORTFOLIOS, PROJECTS, ISSUES:
         return null;
       default:
         throw new IllegalArgumentException(format("Unknown type '%s'", type.name()));

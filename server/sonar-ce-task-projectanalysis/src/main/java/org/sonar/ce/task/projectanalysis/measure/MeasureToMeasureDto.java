@@ -67,11 +67,7 @@ public class MeasureToMeasureDto {
 
   private static String data(Measure in) {
     switch (in.getValueType()) {
-      case NO_VALUE:
-      case BOOLEAN:
-      case INT:
-      case LONG:
-      case DOUBLE:
+      case NO_VALUE, BOOLEAN, INT, LONG, DOUBLE:
         return in.getData();
       case STRING:
         return in.getStringValue();
@@ -88,20 +84,12 @@ public class MeasureToMeasureDto {
    */
   @CheckForNull
   private static Double valueAsDouble(Measure measure) {
-    switch (measure.getValueType()) {
-      case BOOLEAN:
-        return measure.getBooleanValue() ? 1.0D : 0.0D;
-      case INT:
-        return (double) measure.getIntValue();
-      case LONG:
-        return (double) measure.getLongValue();
-      case DOUBLE:
-        return measure.getDoubleValue();
-      case NO_VALUE:
-      case STRING:
-      case LEVEL:
-      default:
-        return null;
-    }
+    return switch (measure.getValueType()) {
+      case BOOLEAN -> measure.getBooleanValue() ? 1.0D : 0.0D;
+      case INT -> (double) measure.getIntValue();
+      case LONG -> (double) measure.getLongValue();
+      case DOUBLE -> measure.getDoubleValue();
+      default -> null;
+    };
   }
 }

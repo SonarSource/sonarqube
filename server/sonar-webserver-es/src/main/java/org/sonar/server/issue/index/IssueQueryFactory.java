@@ -321,8 +321,7 @@ public class IssueQueryFactory {
     setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest(), dbSession);
     String qualifier = qualifiers.iterator().next();
     switch (qualifier) {
-      case Qualifiers.VIEW:
-      case Qualifiers.SUBVIEW:
+      case Qualifiers.VIEW, Qualifiers.SUBVIEW:
         addViewsOrSubViews(builder, components);
         break;
       case Qualifiers.APP:
@@ -338,8 +337,7 @@ public class IssueQueryFactory {
       case Qualifiers.DIRECTORY:
         addDirectories(builder, components);
         break;
-      case Qualifiers.FILE:
-      case Qualifiers.UNIT_TEST_FILE:
+      case Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE:
         builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
         break;
       default:

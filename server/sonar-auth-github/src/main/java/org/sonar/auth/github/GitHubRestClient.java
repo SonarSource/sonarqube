@@ -83,9 +83,7 @@ public class GitHubRestClient {
     Response response = scribe.execute(request);
     int code = response.getCode();
     switch (code) {
-      case HttpURLConnection.HTTP_MOVED_TEMP:
-      case HttpURLConnection.HTTP_NOT_FOUND:
-      case HttpURLConnection.HTTP_NO_CONTENT:
+      case HttpURLConnection.HTTP_MOVED_TEMP, HttpURLConnection.HTTP_NOT_FOUND, HttpURLConnection.HTTP_NO_CONTENT:
         LOGGER.trace("Orgs response received : {}", code);
         return code == HttpURLConnection.HTTP_NO_CONTENT;
       default:

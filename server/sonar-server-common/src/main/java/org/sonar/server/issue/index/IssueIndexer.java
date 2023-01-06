@@ -123,13 +123,9 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   @Override
   public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
     switch (cause) {
-      case PROJECT_CREATION:
-        // nothing to do, issues do not exist at project creation
-      case MEASURE_CHANGE:
-      case PROJECT_KEY_UPDATE:
-      case PROJECT_TAGS_UPDATE:
-      case PERMISSION_CHANGE:
-        // nothing to do. Measures, permissions, project key and tags are not used in type issues/issue
+      case PROJECT_CREATION, MEASURE_CHANGE, PROJECT_KEY_UPDATE, PROJECT_TAGS_UPDATE, PERMISSION_CHANGE:
+        // Nothing to do, issues do not exist at project creation
+        // Measures, permissions, project key and tags are not used in type issues/issue
         return emptyList();
 
       case PROJECT_DELETION:

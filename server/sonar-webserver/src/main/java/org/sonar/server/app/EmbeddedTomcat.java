@@ -82,19 +82,13 @@ class EmbeddedTomcat {
     if (webappContext == null) {
       return Status.DOWN;
     }
-    switch (webappContext.getState()) {
-      case NEW:
-      case INITIALIZING:
-      case INITIALIZED:
-      case STARTING_PREP:
-      case STARTING:
-        return Status.DOWN;
-      case STARTED:
-        return Status.UP;
-      default:
+    return switch (webappContext.getState()) {
+      case NEW, INITIALIZING, INITIALIZED, STARTING_PREP, STARTING -> Status.DOWN;
+      case STARTED -> Status.UP;
+      default ->
         // problem, stopped or failed
-        return Status.FAILED;
-    }
+        Status.FAILED;
+    };
   }
 
   public enum Status {

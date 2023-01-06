@@ -128,19 +128,12 @@ class ConditionEvaluator {
   }
 
   private static Comparable getNumericValue(ValueType type, double value) {
-    switch (type) {
-      case INT:
-      case RATING:
-        return (int) value;
-      case FLOAT:
-      case PERCENT:
-        return value;
-      case MILLISEC:
-      case WORK_DUR:
-        return (long) value;
-      default:
-        throw new IllegalArgumentException("Condition on numeric value is not allowed for type " + type);
-    }
+    return switch (type) {
+      case INT, RATING -> (int) value;
+      case FLOAT, PERCENT -> value;
+      case MILLISEC, WORK_DUR -> (long) value;
+      default -> throw new IllegalArgumentException("Condition on numeric value is not allowed for type " + type);
+    };
   }
 
   private static int parseInteger(String value) {

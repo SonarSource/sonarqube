@@ -114,17 +114,12 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   private static ManagedProcessHandler.Timeout stopTimeoutFor(ProcessId processId, AppSettings settings) {
-    switch (processId) {
-      case ELASTICSEARCH:
-        return HARD_STOP_TIMEOUT;
-      case WEB_SERVER:
-        return newTimeout(getStopTimeoutMs(settings, WEB_GRACEFUL_STOP_TIMEOUT), TimeUnit.MILLISECONDS);
-      case COMPUTE_ENGINE:
-        return newTimeout(getStopTimeoutMs(settings, CE_GRACEFUL_STOP_TIMEOUT), TimeUnit.MILLISECONDS);
-      case APP:
-      default:
-        throw new IllegalArgumentException("Unsupported processId " + processId);
-    }
+    return switch (processId) {
+      case ELASTICSEARCH -> HARD_STOP_TIMEOUT;
+      case WEB_SERVER -> newTimeout(getStopTimeoutMs(settings, WEB_GRACEFUL_STOP_TIMEOUT), TimeUnit.MILLISECONDS);
+      case COMPUTE_ENGINE -> newTimeout(getStopTimeoutMs(settings, CE_GRACEFUL_STOP_TIMEOUT), TimeUnit.MILLISECONDS);
+      default -> throw new IllegalArgumentException("Unsupported processId " + processId);
+    };
   }
 
   private static long getStopTimeoutMs(AppSettings settings, ProcessProperties.Property property) {
@@ -385,8 +380,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
           restartAsync();
         }
         break;
-      case HARD_STOPPING:
-      case STOPPING:
+      case HARD_STOPPING, STOPPING:
         if (lastProcessStopped) {
           finalizeStop();
         }

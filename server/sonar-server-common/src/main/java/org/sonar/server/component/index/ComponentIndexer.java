@@ -90,20 +90,14 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   @Override
   public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, Cause cause) {
     switch (cause) {
-      case MEASURE_CHANGE:
-      case PROJECT_TAGS_UPDATE:
-      case PERMISSION_CHANGE:
+      case MEASURE_CHANGE, PROJECT_TAGS_UPDATE, PERMISSION_CHANGE:
         // measures, tags and permissions are not part of type components/component
         return emptyList();
-
-      case PROJECT_CREATION:
-      case PROJECT_DELETION:
-      case PROJECT_KEY_UPDATE:
+      case PROJECT_CREATION, PROJECT_DELETION, PROJECT_KEY_UPDATE:
         List<EsQueueDto> items = projectUuids.stream()
           .map(branchUuid -> EsQueueDto.create(TYPE_COMPONENT.format(), branchUuid, null, branchUuid))
           .collect(MoreCollectors.toArrayList(projectUuids.size()));
         return dbClient.esQueueDao().insert(dbSession, items);
-
       default:
         // defensive case
         throw new IllegalStateException("Unsupported cause: " + cause);

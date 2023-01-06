@@ -101,21 +101,17 @@ public class WebhookCallerImpl implements WebhookCaller {
 
   private Response execute(Request request) throws IOException {
     Response response = okHttpClient.newCall(request).execute();
-    switch (response.code()) {
-      case HTTP_MOVED_PERM:
-      case HTTP_MOVED_TEMP:
-      case HTTP_TEMP_REDIRECT:
-      case HTTP_PERM_REDIRECT:
+    return switch (response.code()) {
+      case HTTP_MOVED_PERM, HTTP_MOVED_TEMP, HTTP_TEMP_REDIRECT, HTTP_PERM_REDIRECT ->
         // OkHttpClient does not follow the redirect with the same HTTP method. A POST is
         // redirected to a GET. Because of that the redirect must be manually
         // implemented.
         // See:
         // https://github.com/square/okhttp/blob/07309c1c7d9e296014268ebd155ebf7ef8679f6c/okhttp/src/main/java/okhttp3/internal/http/RetryAndFollowUpInterceptor.java#L316
         // https://github.com/square/okhttp/issues/936#issuecomment-266430151
-        return followPostRedirect(response);
-      default:
-        return response;
-    }
+        followPostRedirect(response);
+      default -> response;
+    };
   }
 
   /**

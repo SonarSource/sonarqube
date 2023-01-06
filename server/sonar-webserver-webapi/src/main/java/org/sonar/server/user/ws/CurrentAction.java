@@ -221,13 +221,10 @@ public class CurrentAction implements UsersWsAction {
     if (!edition.isPresent()) {
       return false;
     }
-    switch (edition.get()) {
-      case ENTERPRISE:
-      case DATACENTER:
-        return true;
-      default:
-        return false;
-    }
+    return switch (edition.get()) {
+      case ENTERPRISE, DATACENTER -> true;
+      default -> false;
+    };
   }
 
   private void cleanUserHomepageInDb(DbSession dbSession, UserDto user) {
