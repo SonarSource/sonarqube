@@ -41,9 +41,11 @@ public class DefaultAdminCredentialsVerifierNotificationTemplateTest {
     EmailMessage emailMessage = underTest.format(notification);
 
     assertThat(emailMessage.getSubject()).isEqualTo("Default Administrator credentials are still used");
-    assertThat(emailMessage.getMessage()).isEqualTo("Hello,\n\n" +
-      "Your SonarQube instance is still using default administrator credentials.\n" +
-      "Make sure to change the password for the 'admin' account or deactivate this account.");
+    assertThat(emailMessage.getMessage()).isEqualTo("""
+      Hello,
+
+      Your SonarQube instance is still using default administrator credentials.
+      Make sure to change the password for the 'admin' account or deactivate this account.""");
   }
 
 }

@@ -27,9 +27,11 @@ import org.sonar.server.issue.notification.EmailTemplate;
 public class DefaultAdminCredentialsVerifierNotificationTemplate implements EmailTemplate {
 
   static final String SUBJECT = "Default Administrator credentials are still used";
-  static final String BODY_FORMAT = "Hello,\n\n" +
-    "Your SonarQube instance is still using default administrator credentials.\n" +
-    "Make sure to change the password for the 'admin' account or deactivate this account.";
+  static final String BODY_FORMAT = """
+    Hello,
+
+    Your SonarQube instance is still using default administrator credentials.
+    Make sure to change the password for the 'admin' account or deactivate this account.""";
 
   @Override
   @CheckForNull
