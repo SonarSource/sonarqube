@@ -31,7 +31,6 @@ import {
   mockFlowLocation,
   mockLocation,
   mockLoggedInUser,
-  mockRouter,
 } from '../../../helpers/testMocks';
 import { mockEvent, waitAndUpdate } from '../../../helpers/testUtils';
 import { SecurityStandard } from '../../../types/security';
@@ -162,10 +161,8 @@ it('should load data correctly when hotspot key list is forced', async () => {
   });
 
   const location = mockLocation({ query: { hotspots: hotspotKeys.join() } });
-  const router = mockRouter();
   const wrapper = shallowRender({
     location,
-    router,
   });
 
   await waitAndUpdate(wrapper);
@@ -179,11 +176,6 @@ it('should load data correctly when hotspot key list is forced', async () => {
   // Reset
   (getSecurityHotspots as jest.Mock).mockClear();
   (getSecurityHotspotList as jest.Mock).mockClear();
-  wrapper.find(SecurityHotspotsAppRenderer).props().onShowAllHotspots();
-  expect(router.push).toHaveBeenCalledWith({
-    ...location,
-    query: { ...location.query, hotspots: undefined },
-  });
 
   // Simulate a new location
   wrapper.setProps({
@@ -476,7 +468,6 @@ function shallowRender(props: Partial<SecurityHotspotsApp['props']> = {}) {
       component={mockComponent()}
       currentUser={mockCurrentUser()}
       location={mockLocation()}
-      router={mockRouter()}
       {...props}
     />
   );

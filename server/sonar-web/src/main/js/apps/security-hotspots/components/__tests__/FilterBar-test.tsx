@@ -43,16 +43,10 @@ it('should render correctly', () => {
 });
 
 it('should render correctly when the list of hotspot is static', () => {
-  const onShowAllHotspots = jest.fn();
-
   const wrapper = shallowRender({
     isStaticListOfHotspots: true,
-    onShowAllHotspots,
   });
   expect(wrapper).toMatchSnapshot();
-
-  wrapper.find('a').simulate('click');
-  expect(onShowAllHotspots).toHaveBeenCalled();
 });
 
 it('should trigger onChange for status', () => {
@@ -99,7 +93,6 @@ function shallowRender(props: Partial<FilterBarProps> = {}) {
       loadingMeasure={false}
       onBranch={true}
       onChangeFilters={jest.fn()}
-      onShowAllHotspots={jest.fn()}
       {...props}
     />
   );

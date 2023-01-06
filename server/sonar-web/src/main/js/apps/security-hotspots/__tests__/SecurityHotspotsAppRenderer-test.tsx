@@ -25,7 +25,6 @@ import { mockRawHotspot, mockStandards } from '../../../helpers/mocks/security-h
 import { scrollToElement } from '../../../helpers/scrolling';
 import { SecurityStandard } from '../../../types/security';
 import { HotspotStatusFilter } from '../../../types/security-hotspots';
-import FilterBar from '../components/FilterBar';
 import SecurityHotspotsAppRenderer, {
   SecurityHotspotsAppRendererProps,
 } from '../SecurityHotspotsAppRenderer';
@@ -92,15 +91,6 @@ it('should render correctly when filtered by category or cwe', () => {
   ).toMatchSnapshot('category');
 });
 
-it('should properly propagate the "show all" call', () => {
-  const onShowAllHotspots = jest.fn();
-  const wrapper = shallowRender({ onShowAllHotspots });
-
-  wrapper.find(FilterBar).props().onShowAllHotspots();
-
-  expect(onShowAllHotspots).toHaveBeenCalled();
-});
-
 describe('side effect', () => {
   const fakeElement = document.createElement('span');
   const fakeParent = document.createElement('div');
@@ -152,7 +142,6 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
       onChangeFilters={jest.fn()}
       onHotspotClick={jest.fn()}
       onLoadMore={jest.fn()}
-      onShowAllHotspots={jest.fn()}
       onSwitchStatusFilter={jest.fn()}
       onUpdateHotspot={jest.fn()}
       onLocationClick={jest.fn()}

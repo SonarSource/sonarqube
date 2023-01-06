@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import Link from '../../../components/common/Link';
 import ButtonToggle from '../../../components/controls/ButtonToggle';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Select from '../../../components/controls/Select';
@@ -26,6 +27,7 @@ import Measure from '../../../components/measure/Measure';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { getProjectSecurityHotspots } from '../../../helpers/urls';
 import { ComponentQualifier } from '../../../types/component';
 import { HotspotFilters, HotspotStatusFilter } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
@@ -40,7 +42,6 @@ export interface FilterBarProps {
   loadingMeasure: boolean;
   onBranch: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
-  onShowAllHotspots: () => void;
 }
 
 const statusOptions: Array<{ label: string; value: HotspotStatusFilter }> = [
@@ -85,14 +86,9 @@ export function FilterBar(props: FilterBarProps) {
       <div className="filter-bar">
         <div className="filter-bar-inner display-flex-center">
           {isStaticListOfHotspots ? (
-            <a
-              id="show_all_hotspot"
-              onClick={() => props.onShowAllHotspots()}
-              role="link"
-              tabIndex={0}
-            >
+            <Link to={getProjectSecurityHotspots(component.key)}>
               {translate('hotspot.filters.show_all')}
-            </a>
+            </Link>
           ) : (
             <div className="display-flex-space-between width-100">
               <div className="display-flex-center">

@@ -10,14 +10,16 @@ exports[`should render correctly when the list of hotspot is static 1`] = `
     <div
       className="filter-bar-inner display-flex-center"
     >
-      <a
-        id="show_all_hotspot"
-        onClick={[Function]}
-        role="link"
-        tabIndex={0}
+      <ForwardRef(Link)
+        to={
+          {
+            "pathname": "/security_hotspots",
+            "search": "?id=my-project",
+          }
+        }
       >
         hotspot.filters.show_all
-      </a>
+      </ForwardRef(Link)>
     </div>
   </div>
 </div>

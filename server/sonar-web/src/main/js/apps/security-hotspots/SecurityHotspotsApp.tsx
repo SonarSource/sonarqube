@@ -24,7 +24,7 @@ import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-
 import withBranchStatusActions from '../../app/components/branch-status/withBranchStatusActions';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import { Location, Router, withRouter } from '../../components/hoc/withRouter';
+import { Location, withRouter } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { isInput } from '../../helpers/keyboardEventHelpers';
@@ -55,7 +55,6 @@ interface OwnProps {
   currentUser: CurrentUser;
   component: Component;
   location: Location;
-  router: Router;
 }
 
 type Props = DispatchProps & OwnProps;
@@ -450,25 +449,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       .then(this.fetchSecurityHotspotsReviewed);
   };
 
-  handleShowAllHotspots = () => {
-    this.props.router.push({
-      ...this.props.location,
-      query: {
-        ...this.props.location.query,
-        hotspots: undefined,
-        [SecurityStandard.CWE]: undefined,
-        [SecurityStandard.OWASP_TOP10]: undefined,
-        [SecurityStandard.SANS_TOP25]: undefined,
-        [SecurityStandard.SONARSOURCE]: undefined,
-        [SecurityStandard.OWASP_TOP10_2021]: undefined,
-        [SecurityStandard.PCI_DSS_3_2]: undefined,
-        [SecurityStandard.PCI_DSS_4_0]: undefined,
-        [SecurityStandard.OWASP_ASVS_4_0]: undefined,
-        file: undefined,
-      },
-    });
-  };
-
   handleLoadMore = () => {
     const { hotspots, hotspotsPageIndex: hotspotPages } = this.state;
 
@@ -542,7 +522,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         onChangeFilters={this.handleChangeFilters}
         onHotspotClick={this.handleHotspotClick}
         onLoadMore={this.handleLoadMore}
-        onShowAllHotspots={this.handleShowAllHotspots}
         onSwitchStatusFilter={this.handleChangeStatusFilter}
         onUpdateHotspot={this.handleHotspotUpdate}
         onLocationClick={this.handleLocationClick}

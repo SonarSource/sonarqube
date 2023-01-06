@@ -110,6 +110,13 @@ export function getProjectUrl(
   };
 }
 
+export function getProjectSecurityHotspots(project: string): To {
+  return {
+    pathname: '/security_hotspots',
+    search: queryToSearch({ id: project }),
+  };
+}
+
 export function getProjectQueryUrl(
   project: string,
   branchParameters?: BranchParameters,

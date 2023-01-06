@@ -58,7 +58,6 @@ export interface SecurityHotspotsAppRendererProps {
   onHotspotClick: (hotspot: RawHotspot) => void;
   onLocationClick: (index?: number) => void;
   onLoadMore: () => void;
-  onShowAllHotspots: () => void;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
   selectedHotspot?: RawHotspot;
@@ -113,7 +112,6 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
         loadingMeasure={loadingMeasure}
         onBranch={isBranch(branchLike)}
         onChangeFilters={props.onChangeFilters}
-        onShowAllHotspots={props.onShowAllHotspots}
       />
 
       {loading && (

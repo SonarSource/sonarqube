@@ -50,7 +50,6 @@ exports[`should render correctly 1`] = `
     loadingMeasure={false}
     onBranch={false}
     onChangeFilters={[MockFunction]}
-    onShowAllHotspots={[MockFunction]}
   />
   <EmptyHotspotsPage
     filterByFile={false}
@@ -407,7 +406,6 @@ exports[`should render correctly with hotspots 1`] = `
     loadingMeasure={false}
     onBranch={false}
     onChangeFilters={[MockFunction]}
-    onShowAllHotspots={[MockFunction]}
   />
   <EmptyHotspotsPage
     filterByFile={false}
@@ -544,7 +542,6 @@ exports[`should render correctly: loading 1`] = `
     loadingMeasure={false}
     onBranch={false}
     onChangeFilters={[MockFunction]}
-    onShowAllHotspots={[MockFunction]}
   />
   <div
     className="layout-page"
@@ -610,7 +607,6 @@ exports[`should render correctly: no hotspots with filters 1`] = `
     loadingMeasure={false}
     onBranch={false}
     onChangeFilters={[MockFunction]}
-    onShowAllHotspots={[MockFunction]}
   />
   <EmptyHotspotsPage
     filterByFile={false}
