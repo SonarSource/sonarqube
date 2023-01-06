@@ -29,12 +29,26 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+
+import static java.lang.String.format;
+import static org.sonar.api.CoreProperties.PROJECT_TESTS_EXCLUSIONS_PROPERTY;
+import static org.sonar.api.CoreProperties.PROJECT_TESTS_INCLUSIONS_PROPERTY;
+import static org.sonar.api.CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY;
+import static org.sonar.api.CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY;
 
 public abstract class AbstractExclusionFilters {
 
   private static final Logger LOG = Loggers.get(AbstractExclusionFilters.class);
+  private static final String WARNING_ALIAS_PROPERTY_USAGE = "Use of %s detected. While being taken into account, the only supported property is %s." +
+    " Consider updating your configuration.";
+
+  private static final String WARNING_LEGACY_AND_ALIAS_PROPERTIES_USAGE =
+    "Use of %s and %s at the same time. %s is taken into account. Consider updating your configuration";
+
+  private final AnalysisWarnings analysisWarnings;
   private final String[] sourceInclusions;
   private final String[] testInclusions;
   private final String[] sourceExclusions;
@@ -45,15 +59,59 @@ public abstract class AbstractExclusionFilters {
   private PathPattern[] testInclusionsPattern;
   private PathPattern[] testExclusionsPattern;
 
-  protected AbstractExclusionFilters(Function<String, String[]> configProvider) {
+  protected AbstractExclusionFilters(AnalysisWarnings analysisWarnings, Function<String, String[]> configProvider) {
+    this.analysisWarnings = analysisWarnings;
     this.sourceInclusions = inclusions(configProvider, CoreProperties.PROJECT_INCLUSIONS_PROPERTY);
-    this.testInclusions = inclusions(configProvider, CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY);
     this.sourceExclusions = exclusions(configProvider, CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY, CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
-    this.testExclusions = exclusions(configProvider, CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY, CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY);
+
+    String[] testInclusionsFromLegacy = inclusions(configProvider, PROJECT_TEST_INCLUSIONS_PROPERTY);
+    String[] testInclusionsFromAlias = inclusions(configProvider, PROJECT_TESTS_INCLUSIONS_PROPERTY);
+    this.testInclusions = keepInclusionTestBetweenLegacyAndAliasProperties(testInclusionsFromLegacy, testInclusionsFromAlias);
+    String[] testExclusionsFromLegacy = exclusions(configProvider, CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY, PROJECT_TEST_EXCLUSIONS_PROPERTY);
+    String[] testExclusionsFromAlias = exclusions(configProvider, CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY, PROJECT_TESTS_EXCLUSIONS_PROPERTY);
+    this.testExclusions = keepExclusionTestBetweenLegacyAndAliasProperties(testExclusionsFromLegacy, testExclusionsFromAlias);
+
     this.mainInclusionsPattern = prepareMainInclusions(sourceInclusions);
-    this.mainExclusionsPattern = prepareMainExclusions(sourceExclusions, testInclusions);
-    this.testInclusionsPattern = prepareTestInclusions(testInclusions);
-    this.testExclusionsPattern = prepareTestExclusions(testExclusions);
+    this.mainExclusionsPattern = prepareMainExclusions(sourceExclusions, this.testInclusions);
+    this.testInclusionsPattern = prepareTestInclusions(this.testInclusions);
+    this.testExclusionsPattern = prepareTestExclusions(this.testExclusions);
+  }
+
+  private String[] keepExclusionTestBetweenLegacyAndAliasProperties(String[] fromLegacyProperty, String[] fromAliasProperty) {
+    if (fromAliasProperty.length == 0) {
+      return fromLegacyProperty;
+    }
+    if (fromLegacyProperty.length == 0) {
+      logWarningForAliasUsage(PROJECT_TEST_EXCLUSIONS_PROPERTY, PROJECT_TESTS_EXCLUSIONS_PROPERTY);
+      return fromAliasProperty;
+    }
+    logWarningForLegacyAndAliasUsage(PROJECT_TEST_EXCLUSIONS_PROPERTY, PROJECT_TESTS_EXCLUSIONS_PROPERTY);
+    return fromLegacyProperty;
+  }
+
+  private String[] keepInclusionTestBetweenLegacyAndAliasProperties(String[] fromLegacyProperty, String[] fromAliasProperty) {
+    if (fromAliasProperty.length == 0) {
+      return fromLegacyProperty;
+    }
+    if (fromLegacyProperty.length == 0) {
+      logWarningForAliasUsage(PROJECT_TEST_INCLUSIONS_PROPERTY, PROJECT_TESTS_INCLUSIONS_PROPERTY);
+      return fromAliasProperty;
+    }
+    logWarningForLegacyAndAliasUsage(PROJECT_TEST_INCLUSIONS_PROPERTY, PROJECT_TESTS_INCLUSIONS_PROPERTY);
+    return fromLegacyProperty;
+  }
+
+  private  void logWarningForAliasUsage(String legacyProperty, String aliasProperty) {
+    logWarning(format(WARNING_ALIAS_PROPERTY_USAGE, aliasProperty, legacyProperty));
+  }
+
+  private void logWarningForLegacyAndAliasUsage(String legacyProperty, String aliasProperty) {
+    logWarning(format(WARNING_LEGACY_AND_ALIAS_PROPERTIES_USAGE, legacyProperty, aliasProperty, legacyProperty));
+  }
+
+  private void logWarning(String warning) {
+    LOG.warn(warning);
+    analysisWarnings.addUnique(warning);
   }
 
   public void log(String indent) {
@@ -149,11 +207,11 @@ public abstract class AbstractExclusionFilters {
 
   /**
    * <p>Checks if the file should be excluded as a parent directory of excluded files and subdirectories.</p>
-   * 
+   *
    * @param absolutePath The full path of the file.
    * @param relativePath The relative path of the file.
-   * @param baseDir The base directory of the project.
-   * @param type The file type.
+   * @param baseDir      The base directory of the project.
+   * @param type         The file type.
    * @return True if the file should be excluded, false otherwise.
    */
   public boolean isExcludedAsParentDirectoryOfExcludedChildren(Path absolutePath, Path relativePath, Path baseDir, InputFile.Type type) {

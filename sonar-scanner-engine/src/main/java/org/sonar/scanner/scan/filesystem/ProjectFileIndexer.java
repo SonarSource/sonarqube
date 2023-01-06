@@ -43,6 +43,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.scm.IgnoreCommand;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -77,13 +78,15 @@ public class ProjectFileIndexer {
   private final FileIndexer fileIndexer;
   private final IgnoreCommand ignoreCommand;
   private final boolean useScmExclusion;
+  private final AnalysisWarnings analysisWarnings;
 
   private ProgressReport progressReport;
 
   public ProjectFileIndexer(InputComponentStore componentStore, ProjectExclusionFilters exclusionFilters,
     SonarGlobalPropertiesFilter sonarGlobalPropertiesFilter, InputModuleHierarchy inputModuleHierarchy,
     GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings, ProjectServerSettings projectServerSettings,
-    FileIndexer fileIndexer, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, ScmConfiguration scmConfiguration) {
+    FileIndexer fileIndexer, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, ScmConfiguration scmConfiguration,
+    AnalysisWarnings analysisWarnings) {
     this.componentStore = componentStore;
     this.sonarGlobalPropertiesFilter = sonarGlobalPropertiesFilter;
     this.inputModuleHierarchy = inputModuleHierarchy;
@@ -94,6 +97,7 @@ public class ProjectFileIndexer {
     this.projectExclusionFilters = exclusionFilters;
     this.projectCoverageAndDuplicationExclusions = projectCoverageAndDuplicationExclusions;
     this.scmConfiguration = scmConfiguration;
+    this.analysisWarnings = analysisWarnings;
     this.ignoreCommand = loadIgnoreCommand();
     this.useScmExclusion = ignoreCommand != null;
   }
@@ -147,7 +151,7 @@ public class ProjectFileIndexer {
   private void index(DefaultInputModule module, ExclusionCounter exclusionCounter) {
     // Emulate creation of module level settings
     ModuleConfiguration moduleConfig = new ModuleConfigurationProvider(sonarGlobalPropertiesFilter).provide(globalConfig, module, globalServerSettings, projectServerSettings);
-    ModuleExclusionFilters moduleExclusionFilters = new ModuleExclusionFilters(moduleConfig);
+    ModuleExclusionFilters moduleExclusionFilters = new ModuleExclusionFilters(moduleConfig, analysisWarnings);
     ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions = new ModuleCoverageAndDuplicationExclusions(moduleConfig);
     if (componentStore.allModules().size() > 1) {
       LOG.info("Indexing files of module '{}'", module.getName());
@@ -169,7 +173,7 @@ public class ProjectFileIndexer {
   private static void logPaths(String label, Path baseDir, List<Path> paths) {
     if (!paths.isEmpty()) {
       StringBuilder sb = new StringBuilder(label);
-      for (Iterator<Path> it = paths.iterator(); it.hasNext();) {
+      for (Iterator<Path> it = paths.iterator(); it.hasNext(); ) {
         Path file = it.next();
         Optional<String> relativePathToBaseDir = PathResolver.relativize(baseDir, file);
         if (!relativePathToBaseDir.isPresent()) {
@@ -225,10 +229,10 @@ public class ProjectFileIndexer {
    * <p>Exclusions patterns are checked both at project and module level.</p>
    *
    * @param moduleExclusionFilters The exclusion filters.
-   * @param realAbsoluteFile The path to be checked.
-   * @param projectBaseDir The project base directory.
-   * @param moduleBaseDir The module base directory.
-   * @param type The input file type.
+   * @param realAbsoluteFile       The path to be checked.
+   * @param projectBaseDir         The project base directory.
+   * @param moduleBaseDir          The module base directory.
+   * @param type                   The input file type.
    * @return True if path is an excluded directory, false otherwise.
    */
   private static boolean isExcludedDirectory(ModuleExclusionFilters moduleExclusionFilters, Path realAbsoluteFile, Path projectBaseDir, Path moduleBaseDir,
@@ -283,8 +287,7 @@ public class ProjectFileIndexer {
      * </p>
      *
      * @param file a reference to the file
-     * @param exc the I/O exception that prevented the file from being visited
-     *
+     * @param exc  the I/O exception that prevented the file from being visited
      * @throws IOException
      */
     @Override

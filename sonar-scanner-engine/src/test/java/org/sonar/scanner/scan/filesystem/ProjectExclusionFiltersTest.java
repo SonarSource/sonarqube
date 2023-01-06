@@ -32,8 +32,10 @@ import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.notifications.AnalysisWarnings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ProjectExclusionFiltersTest {
 
@@ -50,7 +52,7 @@ public class ProjectExclusionFiltersTest {
 
   @Test
   public void no_inclusions_nor_exclusions() {
-    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig(), mock(AnalysisWarnings.class));
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
     assertThat(filter.isExcluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
@@ -62,7 +64,7 @@ public class ProjectExclusionFiltersTest {
   @Test
   public void match_inclusion() {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java");
-    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig(), mock(AnalysisWarnings.class));
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
     assertThat(filter.isIncluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
@@ -74,7 +76,7 @@ public class ProjectExclusionFiltersTest {
   @Test
   public void match_at_least_one_inclusion() {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java,**/*Dto.java");
-    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig(),mock(AnalysisWarnings.class));
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java", null);
     assertThat(filter.isIncluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();
@@ -88,7 +90,7 @@ public class ProjectExclusionFiltersTest {
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "src/main/java/**/*");
     settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "src/test/java/**/*");
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Dao.java");
-    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig(),mock(AnalysisWarnings.class));
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
     assertThat(filter.isExcluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isTrue();
@@ -107,7 +109,7 @@ public class ProjectExclusionFiltersTest {
 
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "src/main/java/**/*");
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "file:" + excludedFile.getAbsolutePath());
-    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig());
+    ProjectExclusionFilters filter = new ProjectExclusionFilters(settings.asConfig(),mock(AnalysisWarnings.class));
 
     IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/org/bar/Foo.java", null);
     assertThat(filter.isExcluded(indexedFile.path(), Paths.get(indexedFile.relativePath()), InputFile.Type.MAIN)).isFalse();

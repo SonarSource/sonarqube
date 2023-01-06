@@ -20,11 +20,12 @@
 package org.sonar.scanner.scan.filesystem;
 
 import org.sonar.api.config.Configuration;
+import org.sonar.api.notifications.AnalysisWarnings;
 
 public class ProjectExclusionFilters extends AbstractExclusionFilters {
 
-  public ProjectExclusionFilters(Configuration projectConfig) {
-    super(projectConfig::getStringArray);
+  public ProjectExclusionFilters(Configuration projectConfig, AnalysisWarnings analysisWarnings) {
+    super(analysisWarnings, projectConfig::getStringArray);
   }
 
 }
