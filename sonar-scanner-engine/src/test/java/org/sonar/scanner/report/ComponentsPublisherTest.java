@@ -56,15 +56,16 @@ public class ComponentsPublisherTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private File outputDir;
+  private FileStructure fileStructure;
   private ScannerReportWriter writer;
   private BranchConfiguration branchConfiguration;
 
   @Before
   public void setUp() throws IOException {
     branchConfiguration = mock(BranchConfiguration.class);
-    outputDir = temp.newFolder();
-    writer = new ScannerReportWriter(outputDir);
+    File outputDir = temp.newFolder();
+    fileStructure = new FileStructure(outputDir);
+    writer = new ScannerReportWriter(fileStructure);
   }
 
   @Test
@@ -124,7 +125,7 @@ public class ComponentsPublisherTest {
     // no such reference
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 8)).isFalse();
 
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReportReader reader = new ScannerReportReader(fileStructure);
     Component rootProtobuf = reader.readComponent(1);
     assertThat(rootProtobuf.getKey()).isEqualTo("foo");
     assertThat(rootProtobuf.getDescription()).isEqualTo("Root description");
@@ -197,7 +198,7 @@ public class ComponentsPublisherTest {
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
 
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReportReader reader = new ScannerReportReader(fileStructure);
     Component rootProtobuf = reader.readComponent(1);
     assertThat(rootProtobuf.getKey()).isEqualTo("foo");
     assertThat(rootProtobuf.getName()).isEmpty();
@@ -225,7 +226,7 @@ public class ComponentsPublisherTest {
     ComponentsPublisher publisher = new ComponentsPublisher(project, store);
     publisher.publish(writer);
 
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReportReader reader = new ScannerReportReader(fileStructure);
     Component rootProtobuf = reader.readComponent(1);
     assertThat(rootProtobuf.getLinkCount()).isEqualTo(2);
     assertThat(rootProtobuf.getLink(0).getType()).isEqualTo(ComponentLinkType.HOME);

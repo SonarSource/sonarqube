@@ -20,15 +20,14 @@
 package org.sonar.scanner.cache;
 
 import java.io.InputStream;
-import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.springframework.context.annotation.Bean;
 
-import static java.util.Collections.emptyMap;
-
 public class AnalysisCacheProvider {
+
   @Bean("ReadCache")
   public ReadCache provideReader(AnalysisCacheEnabled analysisCacheEnabled, AnalysisCacheMemoryStorage storage) {
     if (analysisCacheEnabled.isEnabled()) {
@@ -39,13 +38,12 @@ public class AnalysisCacheProvider {
   }
 
   @Bean("WriteCache")
-  public ScannerWriteCache provideWriter(AnalysisCacheEnabled analysisCacheEnabled, ReadCache readCache, BranchConfiguration branchConfiguration) {
-    if (analysisCacheEnabled.isEnabled()) {
-      return new WriteCacheImpl(readCache, branchConfiguration);
+  public ScannerWriteCache provideWriter(AnalysisCacheEnabled analysisCacheEnabled, ReadCache readCache, BranchConfiguration branchConfiguration, FileStructure fileStructure) {
+    if (analysisCacheEnabled.isEnabled() && !branchConfiguration.isPullRequest()) {
+      return new WriteCacheImpl(readCache, fileStructure);
     }
     return new NoOpWriteCache();
   }
-
 
   static class NoOpWriteCache implements ScannerWriteCache {
     @Override
@@ -64,8 +62,8 @@ public class AnalysisCacheProvider {
     }
 
     @Override
-    public Map<String, byte[]> getCache() {
-      return emptyMap();
+    public void close() {
+      // no op
     }
   }
 

@@ -17,29 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.cache;
+package org.sonar.scanner.protocol.internal;
 
-import java.util.Optional;
+import com.google.protobuf.ByteString;
+import java.util.List;
 import org.junit.Test;
-import org.sonar.api.config.Configuration;
+import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.scanner.cache.AnalysisCacheEnabled.PROP_KEY;
 
-public class AnalysisCacheEnabledTest {
-  private final Configuration configuration = mock(Configuration.class);
-  private final AnalysisCacheEnabled analysisCacheEnabled = new AnalysisCacheEnabled(configuration);
-
+public class SensorCacheDataTest {
   @Test
-  public void enabled_by_default_if_not_pr() {
-    assertThat(analysisCacheEnabled.isEnabled()).isTrue();
+  public void constructor_processes_entries() {
+    SensorCacheEntry entry1 = SensorCacheEntry.newBuilder().setKey("key1").setData(ByteString.copyFrom("data1", UTF_8)).build();
+    SensorCacheEntry entry2 = SensorCacheEntry.newBuilder().setKey("key2").setData(ByteString.copyFrom("data2", UTF_8)).build();
+
+    SensorCacheData data = new SensorCacheData(List.of(entry1, entry2));
+    assertThat(data.getEntries()).containsExactly(entry(entry1.getKey(), entry1.getData()), entry(entry2.getKey(), entry2.getData()));
   }
 
-  @Test
-  public void disabled_if_property_set() {
-    when(configuration.getBoolean(PROP_KEY)).thenReturn(Optional.of(false));
-    assertThat(analysisCacheEnabled.isEnabled()).isFalse();
-  }
 }

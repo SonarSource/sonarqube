@@ -22,6 +22,8 @@ package org.sonar.scanner.cache;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.MessageException;
@@ -30,8 +32,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.Protobuf;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
-import org.sonar.scanner.protocol.internal.ScannerInternal;
-import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
+import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
+import org.sonar.scanner.protocol.internal.SensorCacheData;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
@@ -61,7 +63,7 @@ public class DefaultAnalysisCacheLoader implements AnalysisCacheLoader {
   }
 
   @Override
-  public Optional<AnalysisCacheMsg> load() {
+  public Optional<SensorCacheData> load() {
     String url = URL + "?project=" + project.key();
     if (branchConfiguration.referenceBranchName() != null) {
       url = url + "&branch=" + branchConfiguration.referenceBranchName();
@@ -75,13 +77,13 @@ public class DefaultAnalysisCacheLoader implements AnalysisCacheLoader {
       Optional<Integer> length = response.header(CONTENT_LENGTH).map(Integer::parseInt);
       boolean hasGzipEncoding = contentEncoding.isPresent() && contentEncoding.get().equals("gzip");
 
-      AnalysisCacheMsg msg = hasGzipEncoding ? decompress(is) : Protobuf.read(is, AnalysisCacheMsg.parser());
+      SensorCacheData cache = hasGzipEncoding ? decompress(is) : read(is);
       if (length.isPresent()) {
         profiler.stopInfo(LOG_MSG + String.format(" (%s)", humanReadableByteCountSI(length.get())));
       } else {
         profiler.stopInfo(LOG_MSG);
       }
-      return Optional.of(msg);
+      return Optional.of(cache);
     } catch (HttpException e) {
       if (e.code() == 404) {
         profiler.stopInfo(LOG_MSG + " (404)");
@@ -93,11 +95,15 @@ public class DefaultAnalysisCacheLoader implements AnalysisCacheLoader {
     }
   }
 
-  private static AnalysisCacheMsg decompress(InputStream is) {
+  public SensorCacheData decompress(InputStream is) throws IOException {
     try (GZIPInputStream gzipInputStream = new GZIPInputStream(is)) {
-      return Protobuf.read(gzipInputStream, ScannerInternal.AnalysisCacheMsg.parser());
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to decompress analysis cache", e);
+      return read(gzipInputStream);
     }
   }
+
+  public SensorCacheData read(InputStream is) {
+    Iterable<SensorCacheEntry> it = () -> Protobuf.readStream(is, SensorCacheEntry.parser());
+    return new SensorCacheData(StreamSupport.stream(it.spliterator(), false).collect(Collectors.toList()));
+  }
 }
+

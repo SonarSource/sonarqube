@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import org.apache.commons.io.IOUtils;
 
@@ -136,9 +137,8 @@ public class Protobuf {
   }
 
   /**
-   * Reads a stream of messages. This method returns an empty iterator if there are no messages. An 
-   * exception is raised on IO error, if file does not exist or if messages have a 
-   * different type than {@code parser}.
+   * Reads a stream of messages. This method returns an empty iterator if there are no messages. An
+   * exception is raised on IO error, if file does not exist or if messages have a different type than {@code parser}.
    */
   public static <MSG extends Message> CloseableIterator<MSG> readStream(File file, Parser<MSG> parser) {
     try {
@@ -151,11 +151,25 @@ public class Protobuf {
   }
 
   /**
-   * Reads a stream of messages. This method returns an empty iterator if there are no messages. An 
+   * Reads a stream of messages from a gzip file. This method returns an empty iterator if there are no messages. An
+   * exception is raised on IO error, if file does not exist or if messages have a different type than {@code parser}.
+   */
+  public static <MSG extends Message> CloseableIterator<MSG> readGzipStream(File file, Parser<MSG> parser) {
+    try {
+      // the input stream is closed by the CloseableIterator
+      InputStream input = new GZIPInputStream(new BufferedInputStream(new FileInputStream(file)));
+      return readStream(input, parser);
+    } catch (Exception e) {
+      throw ContextException.of("Unable to read messages", e).addContext("file", file);
+    }
+  }
+
+  /**
+   * Reads a stream of messages. This method returns an empty iterator if there are no messages. An
    * exception is raised on IO error or if messages have a different type than {@code parser}.
    * <p>
-   *   The stream is not closed by this method. It is closed when {@link CloseableIterator} traverses 
-   *   all messages or when {@link CloseableIterator#close()} is called.
+   * The stream is not closed by this method. It is closed when {@link CloseableIterator} traverses
+   * all messages or when {@link CloseableIterator#close()} is called.
    * </p>
    */
   public static <MSG extends Message> CloseableIterator<MSG> readStream(InputStream input, Parser<MSG> parser) {

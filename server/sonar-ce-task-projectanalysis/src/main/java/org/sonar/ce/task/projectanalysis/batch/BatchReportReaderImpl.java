@@ -31,15 +31,17 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.LineReaderIterator;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class BatchReportReaderImpl implements BatchReportReader {
 
   private final BatchReportDirectoryHolder batchReportDirectoryHolder;
-  private org.sonar.scanner.protocol.output.ScannerReportReader delegate;
+  private ScannerReportReader delegate;
   // caching of metadata which are read often
   private ScannerReport.Metadata metadata;
 
@@ -49,7 +51,8 @@ public class BatchReportReaderImpl implements BatchReportReader {
 
   private void ensureInitialized() {
     if (this.delegate == null) {
-      this.delegate = new org.sonar.scanner.protocol.output.ScannerReportReader(batchReportDirectoryHolder.getDirectory());
+      FileStructure fileStructure = new FileStructure(batchReportDirectoryHolder.getDirectory());
+      this.delegate = new ScannerReportReader(fileStructure);
     }
   }
 

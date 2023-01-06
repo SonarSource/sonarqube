@@ -19,40 +19,40 @@
  */
 package org.sonar.scanner.cache;
 
+import com.google.protobuf.ByteString;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.zip.GZIPOutputStream;
 import org.sonar.api.batch.sensor.cache.ReadCache;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
+import org.sonar.scanner.protocol.output.FileStructure;
 
-import static java.util.Collections.unmodifiableMap;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.api.utils.Preconditions.checkNotNull;
 
 public class WriteCacheImpl implements ScannerWriteCache {
   private final ReadCache readCache;
-  private final BranchConfiguration branchConfiguration;
-  private final Map<String, byte[]> cache = new HashMap<>();
+  private final Set<String> keys = new HashSet<>();
+  private final FileStructure fileStructure;
 
-  public WriteCacheImpl(ReadCache readCache, BranchConfiguration branchConfiguration) {
+  private OutputStream stream = null;
+
+  public WriteCacheImpl(ReadCache readCache, FileStructure fileStructure) {
     this.readCache = readCache;
-    this.branchConfiguration = branchConfiguration;
+    this.fileStructure = fileStructure;
   }
 
   @Override
   public void write(String key, InputStream data) {
     checkNotNull(data);
-    checkKey(key);
-    if (branchConfiguration.isPullRequest()) {
-      return;
-    }
     try {
-      byte[] arr = data.readAllBytes();
-      cache.put(key, arr);
+      write(key, data.readAllBytes());
     } catch (IOException e) {
-      throw new IllegalStateException("Failed to read stream", e);
+      throw new IllegalStateException("Failed to read sensor write cache data", e);
     }
   }
 
@@ -60,33 +60,48 @@ public class WriteCacheImpl implements ScannerWriteCache {
   public void write(String key, byte[] data) {
     checkNotNull(data);
     checkKey(key);
-    if (branchConfiguration.isPullRequest()) {
-      return;
+    try {
+      OutputStream out = getStream();
+      toProto(key, data).writeDelimitedTo(out);
+      keys.add(key);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to write to sensor cache file", e);
     }
-    cache.put(key, Arrays.copyOf(data, data.length));
+  }
+
+  private OutputStream getStream() throws IOException {
+    if (stream == null) {
+      stream = new GZIPOutputStream(new FileOutputStream(fileStructure.analysisCache()));
+    }
+    return stream;
   }
 
   @Override
   public void copyFromPrevious(String key) {
     checkArgument(readCache.contains(key), "Previous cache doesn't contain key '%s'", key);
-    checkKey(key);
-    if (branchConfiguration.isPullRequest()) {
-      return;
-    }
-    try {
-      cache.put(key, readCache.read(key).readAllBytes());
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to read plugin cache for key " + key, e);
-    }
+    write(key, readCache.read(key));
+  }
+
+  private static SensorCacheEntry toProto(String key, byte[] data) {
+    return SensorCacheEntry.newBuilder()
+      .setKey(key)
+      .setData(ByteString.copyFrom(data))
+      .build();
   }
 
   @Override
-  public Map<String, byte[]> getCache() {
-    return unmodifiableMap(cache);
+  public void close() {
+    if (stream != null) {
+      try {
+        stream.close();
+      } catch (IOException e) {
+        throw new IllegalStateException("Failed to close sensor cache file", e);
+      }
+    }
   }
 
   private void checkKey(String key) {
     checkNotNull(key);
-    checkArgument(!cache.containsKey(key), "Cache already contains key '%s'", key);
+    checkArgument(!keys.contains(key), "Cache already contains key '%s'", key);
   }
 }

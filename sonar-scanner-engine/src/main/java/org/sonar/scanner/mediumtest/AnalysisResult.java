@@ -32,16 +32,16 @@ import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.Symbol;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
-import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.ScannerReportUtils;
 import org.sonar.scanner.scan.SpringProjectScanContainer;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -57,8 +57,8 @@ public class AnalysisResult implements AnalysisObserver {
   @Override
   public void analysisCompleted(SpringProjectScanContainer container) {
     LOG.info("Store analysis results in memory for later assertions in medium test");
-    ReportPublisher reportPublisher = container.getComponentByType(ReportPublisher.class);
-    reader = new ScannerReportReader(reportPublisher.getReportDir().toFile());
+    FileStructure fileStructure = container.getComponentByType(FileStructure.class);
+    reader = new ScannerReportReader(fileStructure);
     project = container.getComponentByType(InputProject.class);
 
     storeFs(container);

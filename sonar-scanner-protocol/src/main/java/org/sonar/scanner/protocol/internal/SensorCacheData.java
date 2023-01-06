@@ -17,38 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.cache;
+package org.sonar.scanner.protocol.internal;
 
-import java.io.InputStream;
-import javax.annotation.Nullable;
-import org.sonar.scanner.protocol.internal.SensorCacheData;
+import com.google.protobuf.ByteString;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
 
-public class AnalysisCacheMemoryStorage implements AnalysisCacheStorage {
-  private final AnalysisCacheLoader loader;
-  @Nullable
-  private SensorCacheData cache;
+public class SensorCacheData {
+  private final Map<String, ByteString> map;
 
-  public AnalysisCacheMemoryStorage(AnalysisCacheLoader loader) {
-    this.loader = loader;
+  public SensorCacheData(List<SensorCacheEntry> entries) {
+    this.map = Collections.unmodifiableMap(entries.stream().collect(Collectors.toMap(SensorCacheEntry::getKey, SensorCacheEntry::getData)));
   }
 
-  @Override
-  public InputStream get(String key) {
-    if (!contains(key)) {
-      throw new IllegalArgumentException("Key not found: " + key);
-    }
-    return cache.getEntries().get(key).newInput();
-  }
-
-  @Override
-  public boolean contains(String key) {
-    if (cache == null) {
-      return false;
-    }
-    return cache.getEntries().containsKey(key);
-  }
-
-  public void load() {
-    cache = loader.load().orElse(null);
+  public Map<String, ByteString> getEntries() {
+    return map;
   }
 }

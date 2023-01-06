@@ -42,6 +42,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -83,6 +84,7 @@ public class ReportPublisherTest {
   private CeTaskReportDataHolder reportMetadataHolder = mock(CeTaskReportDataHolder.class);
   private ReportPublisher underTest;
   private AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
+  private FileStructure fileStructure;
   private JavaArchitectureInformationProvider javaArchitectureInformationProvider = mock(JavaArchitectureInformationProvider.class);
 
   @Before
@@ -90,13 +92,14 @@ public class ReportPublisherTest {
     root = new DefaultInputModule(
       ProjectDefinition.create().setKey("org.sonarsource.sonarqube:sonarqube").setBaseDir(reportTempFolder.newDir()).setWorkDir(reportTempFolder.getRoot()));
     when(moduleHierarchy.root()).thenReturn(root);
+    fileStructure = new FileStructure(reportTempFolder.getRoot());
     when(server.getPublicRootUrl()).thenReturn("https://localhost");
     when(server.getVersion()).thenReturn("6.4");
     when(properties.metadataFilePath()).thenReturn(reportTempFolder.newDir().toPath()
       .resolve("folder")
       .resolve("report-task.txt"));
     underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, reportTempFolder,
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure);
   }
 
   @Test
@@ -193,7 +196,7 @@ public class ReportPublisherTest {
     when(branchConfiguration.branchType()).thenReturn(BRANCH);
     when(branchConfiguration.branchName()).thenReturn("branch-6.7");
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure);
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
@@ -214,7 +217,7 @@ public class ReportPublisherTest {
     when(branchConfiguration.pullRequestKey()).thenReturn("105");
 
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure);
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
@@ -279,20 +282,17 @@ public class ReportPublisherTest {
   @Test
   public void should_not_delete_report_if_property_is_set() throws IOException {
     when(properties.shouldKeepReport()).thenReturn(true);
-    Path reportDir = reportTempFolder.getRoot().toPath().resolve("scanner-report");
 
     underTest.start();
     underTest.stop();
-    assertThat(reportDir).isDirectory();
+    assertThat(fileStructure.root()).isDirectory();
   }
 
   @Test
   public void should_delete_report_by_default() throws IOException {
-    Path reportDir = reportTempFolder.getRoot().toPath().resolve("scanner-report");
-
     underTest.start();
     underTest.stop();
-    assertThat(reportDir).doesNotExist();
+    assertThat(fileStructure.root()).doesNotExist();
   }
 
   @Test

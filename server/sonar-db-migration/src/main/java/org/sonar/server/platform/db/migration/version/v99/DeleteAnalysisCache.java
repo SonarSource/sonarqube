@@ -17,38 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.cache;
+package org.sonar.server.platform.db.migration.version.v99;
 
-import java.io.InputStream;
-import javax.annotation.Nullable;
-import org.sonar.scanner.protocol.internal.SensorCacheData;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-public class AnalysisCacheMemoryStorage implements AnalysisCacheStorage {
-  private final AnalysisCacheLoader loader;
-  @Nullable
-  private SensorCacheData cache;
-
-  public AnalysisCacheMemoryStorage(AnalysisCacheLoader loader) {
-    this.loader = loader;
+public class DeleteAnalysisCache extends DataChange {
+  public DeleteAnalysisCache(Database db) {
+    super(db);
   }
 
   @Override
-  public InputStream get(String key) {
-    if (!contains(key)) {
-      throw new IllegalArgumentException("Key not found: " + key);
-    }
-    return cache.getEntries().get(key).newInput();
-  }
-
-  @Override
-  public boolean contains(String key) {
-    if (cache == null) {
-      return false;
-    }
-    return cache.getEntries().containsKey(key);
-  }
-
-  public void load() {
-    cache = loader.load().orElse(null);
+  protected void execute(Context context) throws SQLException {
+    context.prepareUpsert("delete from scanner_analysis_cache")
+      .execute()
+      .commit();
   }
 }

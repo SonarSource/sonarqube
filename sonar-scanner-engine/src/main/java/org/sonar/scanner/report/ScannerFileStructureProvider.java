@@ -17,38 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.cache;
+package org.sonar.scanner.report;
 
-import java.io.InputStream;
-import javax.annotation.Nullable;
-import org.sonar.scanner.protocol.internal.SensorCacheData;
+import java.io.File;
+import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.protocol.output.FileStructure;
+import org.springframework.context.annotation.Bean;
 
-public class AnalysisCacheMemoryStorage implements AnalysisCacheStorage {
-  private final AnalysisCacheLoader loader;
-  @Nullable
-  private SensorCacheData cache;
+public class ScannerFileStructureProvider {
+  @Bean
+  public FileStructure fileStructure(InputModuleHierarchy inputModuleHierarchy) {
+    File reportDir = inputModuleHierarchy.root().getWorkDir().resolve("scanner-report").toFile();
 
-  public AnalysisCacheMemoryStorage(AnalysisCacheLoader loader) {
-    this.loader = loader;
-  }
-
-  @Override
-  public InputStream get(String key) {
-    if (!contains(key)) {
-      throw new IllegalArgumentException("Key not found: " + key);
+    if (!reportDir.exists() && !reportDir.mkdirs()) {
+      throw new IllegalStateException("Unable to create directory: " + reportDir);
     }
-    return cache.getEntries().get(key).newInput();
-  }
-
-  @Override
-  public boolean contains(String key) {
-    if (cache == null) {
-      return false;
-    }
-    return cache.getEntries().containsKey(key);
-  }
-
-  public void load() {
-    cache = loader.load().orElse(null);
+    return new FileStructure(reportDir);
   }
 }

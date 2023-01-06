@@ -19,9 +19,8 @@
  */
 package org.sonar.scanner.cache;
 
-import java.util.Map;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 
 public interface ScannerWriteCache extends WriteCache {
-  Map<String, byte[]> getCache();
+  void close();
 }

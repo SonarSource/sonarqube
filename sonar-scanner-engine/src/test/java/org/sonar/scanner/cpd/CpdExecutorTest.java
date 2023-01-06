@@ -47,6 +47,7 @@ import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
@@ -84,13 +85,14 @@ public class CpdExecutorTest {
   @Before
   public void setUp() throws IOException {
     File outputDir = temp.newFolder();
+    FileStructure fileStructure = new FileStructure(outputDir);
     baseDir = temp.newFolder();
-    when(publisher.getWriter()).thenReturn(new ScannerReportWriter(outputDir));
+    when(publisher.getWriter()).thenReturn(new ScannerReportWriter(fileStructure));
 
     DefaultInputProject project = TestInputFileBuilder.newDefaultInputProject("foo", baseDir);
     componentStore = new InputComponentStore(mock(BranchConfiguration.class), sonarRuntime);
     executor = new CpdExecutor(settings, index, publisher, componentStore, executorService);
-    reader = new ScannerReportReader(outputDir);
+    reader = new ScannerReportReader(fileStructure);
 
     batchComponent1 = createComponent("src/Foo.php", 5);
     batchComponent2 = createComponent("src/Foo2.php", 5);

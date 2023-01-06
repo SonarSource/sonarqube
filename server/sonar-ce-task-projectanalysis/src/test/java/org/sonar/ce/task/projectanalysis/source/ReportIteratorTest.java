@@ -45,7 +45,8 @@ public class ReportIteratorTest {
   @Before
   public void setUp() throws Exception {
     File dir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    FileStructure fileStructure = new FileStructure(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
 
     writer.writeComponentCoverage(1, newArrayList(
       ScannerReport.LineCoverage.newBuilder()

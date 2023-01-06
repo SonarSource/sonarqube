@@ -41,6 +41,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ProjectServerSettings;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -64,30 +65,26 @@ public class AnalysisContextReportPublisherTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private final ScannerPluginRepository pluginRepo = mock(ScannerPluginRepository.class);
-  private AnalysisContextReportPublisher publisher;
-  private System2 system2;
-  private GlobalServerSettings globalServerSettings;
-  private InputModuleHierarchy hierarchy;
-  private InputComponentStore store;
-  private ProjectServerSettings projectServerSettings;
+  private final System2 system2 = mock(System2.class);
+  private final GlobalServerSettings globalServerSettings = mock(GlobalServerSettings.class);
+  private final InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
+  private final InputComponentStore store = mock(InputComponentStore.class);
+  private final ProjectServerSettings projectServerSettings = mock(ProjectServerSettings.class);
+  private final AnalysisContextReportPublisher publisher = new AnalysisContextReportPublisher(projectServerSettings, pluginRepo, system2, globalServerSettings, hierarchy, store);
+  private ScannerReportWriter writer;
 
   @Before
-  public void prepare() {
+  public void prepare() throws IOException {
     logTester.setLevel(LoggerLevel.INFO);
-    system2 = mock(System2.class);
+    FileStructure fileStructure = new FileStructure(temp.newFolder());
+    writer = new ScannerReportWriter(fileStructure);
     when(system2.properties()).thenReturn(new Properties());
-    globalServerSettings = mock(GlobalServerSettings.class);
-    hierarchy = mock(InputModuleHierarchy.class);
-    store = mock(InputComponentStore.class);
-    projectServerSettings = mock(ProjectServerSettings.class);
-    publisher = new AnalysisContextReportPublisher(projectServerSettings, pluginRepo, system2, globalServerSettings, hierarchy, store);
   }
 
   @Test
   public void shouldOnlyDumpPluginsByDefault() throws Exception {
     when(pluginRepo.getExternalPluginsInfos()).thenReturn(singletonList(new PluginInfo("xoo").setName("Xoo").setVersion(Version.create("1.0"))));
 
-    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
       .setWorkDir(temp.newFolder()));
@@ -104,7 +101,6 @@ public class AnalysisContextReportPublisherTest {
   @Test
   public void dumpServerSideGlobalProps() throws Exception {
     logTester.setLevel(LoggerLevel.DEBUG);
-    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     when(globalServerSettings.properties()).thenReturn(ImmutableMap.of(COM_FOO, "bar", SONAR_SKIP, "true"));
     DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
@@ -123,7 +119,6 @@ public class AnalysisContextReportPublisherTest {
   @Test
   public void dumpServerSideProjectProps() throws Exception {
     logTester.setLevel(LoggerLevel.DEBUG);
-    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
 
     DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
@@ -150,7 +145,6 @@ public class AnalysisContextReportPublisherTest {
 
   @Test
   public void shouldNotDumpSensitiveModuleProperties() throws Exception {
-    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
       .setWorkDir(temp.newFolder())
@@ -175,7 +169,6 @@ public class AnalysisContextReportPublisherTest {
   @Test
   public void shouldShortenModuleProperties() throws Exception {
     File baseDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(baseDir)
       .setWorkDir(temp.newFolder())
@@ -190,14 +183,13 @@ public class AnalysisContextReportPublisherTest {
 
     assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8)).containsSubsequence(
       "sonar.aVeryLongProp=" + StringUtils.repeat("abcde", 199) + "ab...",
-      "sonar.projectBaseDir=" + baseDir.toString(),
+      "sonar.projectBaseDir=" + baseDir,
       "sonar.projectKey=foo");
   }
 
   // SONAR-7598
   @Test
   public void shouldNotDumpSensitiveGlobalProperties() throws Exception {
-    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     when(globalServerSettings.properties()).thenReturn(ImmutableMap.of("sonar.login", "my_token", "sonar.password", "azerty", "sonar.cpp.license.secured", "AZERTY"));
     DefaultInputModule rootModule = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
@@ -217,7 +209,6 @@ public class AnalysisContextReportPublisherTest {
   @Test
   public void dontDumpParentProps() throws Exception {
     logTester.setLevel(LoggerLevel.DEBUG);
-    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
 
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
@@ -253,7 +244,6 @@ public class AnalysisContextReportPublisherTest {
 
   @Test
   public void init_splitsPluginsByTypeInTheFile() throws IOException {
-    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     DefaultInputModule parent = new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
       .setWorkDir(temp.newFolder())

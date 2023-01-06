@@ -30,14 +30,10 @@ import org.sonar.scanner.protocol.internal.ScannerInternal;
 
 @Immutable
 public class ScannerReportWriter {
-
   private final FileStructure fileStructure;
 
-  public ScannerReportWriter(File dir) {
-    if (!dir.exists() && !dir.mkdirs()) {
-      throw new IllegalStateException("Unable to create directory: " + dir);
-    }
-    this.fileStructure = new FileStructure(dir);
+  public ScannerReportWriter(FileStructure fileStructure) {
+    this.fileStructure = fileStructure;
   }
 
   public FileStructure getFileStructure() {
@@ -92,12 +88,6 @@ public class ScannerReportWriter {
   public File writeComponentChangedLines(int componentRef, ScannerReport.ChangedLines changedLines) {
     File file = fileStructure.fileFor(FileStructure.Domain.CHANGED_LINES, componentRef);
     Protobuf.write(changedLines, file);
-    return file;
-  }
-
-  public File writeAnalysisCache(ScannerInternal.AnalysisCacheMsg cacheMsg) {
-    File file = fileStructure.analysisCache();
-    Protobuf.writeGzip(cacheMsg, file);
     return file;
   }
 

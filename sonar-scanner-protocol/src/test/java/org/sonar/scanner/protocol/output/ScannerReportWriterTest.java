@@ -41,20 +41,13 @@ public class ScannerReportWriterTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   File dir;
-  ScannerReportWriter underTest;
+  private FileStructure fileStructure;
+  private ScannerReportWriter underTest;
 
   @Before
   public void setUp() throws Exception {
-    dir = temp.newFolder();
-    underTest = new ScannerReportWriter(dir);
-  }
-
-  @Test
-  public void create_dir_if_does_not_exist() {
-    FileUtils.deleteQuietly(dir);
-    underTest = new ScannerReportWriter(dir);
-
-    assertThat(dir).isDirectory().exists();
+    fileStructure = new FileStructure(temp.newFolder());
+    underTest = new ScannerReportWriter(fileStructure);
   }
 
   @Test

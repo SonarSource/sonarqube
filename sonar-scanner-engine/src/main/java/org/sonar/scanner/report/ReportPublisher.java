@@ -45,6 +45,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ScanProperties;
@@ -94,7 +95,7 @@ public class ReportPublisher implements Startable {
   public ReportPublisher(ScanProperties properties, DefaultScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration,
     CeTaskReportDataHolder ceTaskReportDataHolder, AnalysisWarnings analysisWarnings,
-    JavaArchitectureInformationProvider javaArchitectureInformationProvider) {
+    JavaArchitectureInformationProvider javaArchitectureInformationProvider, FileStructure fileStructure) {
     this.wsClient = wsClient;
     this.server = server;
     this.contextPublisher = contextPublisher;
@@ -105,11 +106,11 @@ public class ReportPublisher implements Startable {
     this.branchConfiguration = branchConfiguration;
     this.properties = properties;
     this.ceTaskReportDataHolder = ceTaskReportDataHolder;
-    this.reportDir = moduleHierarchy.root().getWorkDir().resolve("scanner-report");
+    this.reportDir = fileStructure.root().toPath();
     this.analysisWarnings = analysisWarnings;
     this.javaArchitectureInformationProvider = javaArchitectureInformationProvider;
-    this.writer = new ScannerReportWriter(reportDir.toFile());
-    this.reader = new ScannerReportReader(reportDir.toFile());
+    this.writer = new ScannerReportWriter(fileStructure);
+    this.reader = new ScannerReportReader(fileStructure);
   }
 
   @Override

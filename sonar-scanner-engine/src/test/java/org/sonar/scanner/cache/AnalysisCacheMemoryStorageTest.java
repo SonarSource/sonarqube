@@ -21,12 +21,14 @@ package org.sonar.scanner.cache;
 
 import com.google.protobuf.ByteString;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
+import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
+import org.sonar.scanner.protocol.internal.SensorCacheData;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -39,19 +41,21 @@ public class AnalysisCacheMemoryStorageTest {
 
   @Test
   public void storage_loads_with_loader() throws IOException {
-    when(loader.load()).thenReturn(Optional.of(AnalysisCacheMsg.newBuilder()
-      .putMap("key1", ByteString.copyFrom("value1", StandardCharsets.UTF_8))
+    SensorCacheData data = new SensorCacheData(List.of(SensorCacheEntry.newBuilder()
+      .setKey("key1")
+      .setData(ByteString.copyFrom("value1", UTF_8))
       .build()));
+    when(loader.load()).thenReturn(Optional.of(data));
 
     storage.load();
     verify(loader).load();
-    assertThat(IOUtils.toString(storage.get("key1"), StandardCharsets.UTF_8)).isEqualTo("value1");
+    assertThat(IOUtils.toString(storage.get("key1"), UTF_8)).isEqualTo("value1");
     assertThat(storage.contains("key1")).isTrue();
   }
 
   @Test
   public void get_throws_IAE_if_doesnt_contain_key() {
-    when(loader.load()).thenReturn(Optional.of(AnalysisCacheMsg.newBuilder().build()));
+    when(loader.load()).thenReturn(Optional.empty());
     storage.load();
     assertThat(storage.contains("key1")).isFalse();
     assertThatThrownBy(() -> storage.get("key1")).isInstanceOf(IllegalArgumentException.class);

@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import java.util.zip.DeflaterInputStream;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,7 +35,8 @@ import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
-import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
+import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
+import org.sonar.scanner.protocol.internal.SensorCacheData;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsRequest;
@@ -45,6 +44,7 @@ import org.sonarqube.ws.client.WsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,8 +52,9 @@ import static org.mockito.Mockito.when;
 import static org.sonar.scanner.cache.DefaultAnalysisCacheLoader.CONTENT_ENCODING;
 
 public class DefaultAnalysisCacheLoaderTest {
-  private final static AnalysisCacheMsg MSG = AnalysisCacheMsg.newBuilder()
-    .putMap("key", ByteString.copyFrom("value", StandardCharsets.UTF_8))
+  private final static SensorCacheEntry MSG = SensorCacheEntry.newBuilder()
+    .setKey("key")
+    .setData(ByteString.copyFrom("value", StandardCharsets.UTF_8))
     .build();
   private final WsResponse response = mock(WsResponse.class);
   private final DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
@@ -73,8 +74,8 @@ public class DefaultAnalysisCacheLoaderTest {
   public void loads_content_and_logs_size() throws IOException {
     setResponse(MSG);
     when(response.header("Content-Length")).thenReturn(Optional.of("123"));
-    AnalysisCacheMsg msg = loader.load().get();
-    assertThat(msg).isEqualTo(MSG);
+    SensorCacheData msg = loader.load().get();
+    assertThat(msg.getEntries()).containsOnly(entry(MSG.getKey(), MSG.getData()));
     assertRequestPath("api/analysis_cache/get?project=myproject");
     assertThat(logs.logs()).anyMatch(s -> s.startsWith("Load analysis cache (123 bytes)"));
   }
@@ -84,9 +85,9 @@ public class DefaultAnalysisCacheLoaderTest {
     when(branchConfiguration.referenceBranchName()).thenReturn("name");
 
     setResponse(MSG);
-    AnalysisCacheMsg msg = loader.load().get();
+    SensorCacheData msg = loader.load().get();
 
-    assertThat(msg).isEqualTo(MSG);
+    assertThat(msg.getEntries()).containsOnly(entry(MSG.getKey(), MSG.getData()));
     assertRequestPath("api/analysis_cache/get?project=myproject&branch=name");
     assertThat(logs.logs()).anyMatch(s -> s.startsWith("Load analysis cache | time="));
   }
@@ -94,8 +95,8 @@ public class DefaultAnalysisCacheLoaderTest {
   @Test
   public void loads_compressed_content() throws IOException {
     setCompressedResponse(MSG);
-    AnalysisCacheMsg msg = loader.load().get();
-    assertThat(msg).isEqualTo(MSG);
+    SensorCacheData msg = loader.load().get();
+    assertThat(msg.getEntries()).containsOnly(entry(MSG.getKey(), MSG.getData()));
   }
 
   @Test
@@ -127,11 +128,11 @@ public class DefaultAnalysisCacheLoaderTest {
     assertThat(requestCaptor.getValue().getPath()).isEqualTo(expectedPath);
   }
 
-  private void setResponse(AnalysisCacheMsg msg) throws IOException {
+  private void setResponse(SensorCacheEntry msg) throws IOException {
     when(response.contentStream()).thenReturn(createInputStream(msg));
   }
 
-  private void setCompressedResponse(AnalysisCacheMsg msg) throws IOException {
+  private void setCompressedResponse(SensorCacheEntry msg) throws IOException {
     when(response.contentStream()).thenReturn(createCompressedInputStream(msg));
     when(response.header(CONTENT_ENCODING)).thenReturn(Optional.of("gzip"));
   }
@@ -141,16 +142,16 @@ public class DefaultAnalysisCacheLoaderTest {
     when(response.header(CONTENT_ENCODING)).thenReturn(Optional.of("gzip"));
   }
 
-  private InputStream createInputStream(AnalysisCacheMsg analysisCacheMsg) throws IOException {
+  private InputStream createInputStream(SensorCacheEntry analysisCacheMsg) throws IOException {
     ByteArrayOutputStream serialized = new ByteArrayOutputStream(analysisCacheMsg.getSerializedSize());
-    analysisCacheMsg.writeTo(serialized);
+    analysisCacheMsg.writeDelimitedTo(serialized);
     return new ByteArrayInputStream(serialized.toByteArray());
   }
 
-  private InputStream createCompressedInputStream(AnalysisCacheMsg analysisCacheMsg) throws IOException {
+  private InputStream createCompressedInputStream(SensorCacheEntry analysisCacheMsg) throws IOException {
     ByteArrayOutputStream serialized = new ByteArrayOutputStream(analysisCacheMsg.getSerializedSize());
     GZIPOutputStream compressed = new GZIPOutputStream(serialized);
-    analysisCacheMsg.writeTo(compressed);
+    analysisCacheMsg.writeDelimitedTo(compressed);
     compressed.close();
     return new ByteArrayInputStream(serialized.toByteArray());
   }

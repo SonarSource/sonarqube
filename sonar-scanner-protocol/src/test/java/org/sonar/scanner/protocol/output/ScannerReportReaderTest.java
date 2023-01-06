@@ -25,8 +25,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.AbstractMap;
-import java.util.zip.GZIPInputStream;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -35,8 +35,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
-import org.sonar.scanner.protocol.internal.ScannerInternal;
-import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
+import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 
@@ -47,24 +46,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScannerReportReaderTest {
 
-  private static int UNKNOWN_COMPONENT_REF = 123;
+  private static final int UNKNOWN_COMPONENT_REF = 123;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private File dir;
-
+  private FileStructure fileStructure;
   private ScannerReportReader underTest;
 
   @Before
   public void setUp() throws Exception {
-    dir = temp.newFolder();
-    underTest = new ScannerReportReader(dir);
+    File dir = temp.newFolder();
+    fileStructure = new FileStructure(dir);
+    underTest = new ScannerReportReader(fileStructure);
   }
 
   @Test
   public void read_metadata() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     ScannerReport.Metadata.Builder metadata = ScannerReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
@@ -86,7 +85,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void read_components() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     ScannerReport.Component.Builder component = ScannerReport.Component.newBuilder()
       .setRef(1)
       .setProjectRelativePath("src/main/java/Foo.java");
@@ -102,7 +101,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void read_issues() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     ScannerReport.Issue issue = ScannerReport.Issue.newBuilder()
       .build();
     writer.writeComponentIssues(1, asList(issue));
@@ -113,7 +112,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void read_external_issues() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     ScannerReport.ExternalIssue issue = ScannerReport.ExternalIssue.newBuilder()
       .build();
     writer.appendComponentExternalIssue(1, issue);
@@ -129,7 +128,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void read_measures() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     ScannerReport.Measure.Builder measure = ScannerReport.Measure.newBuilder()
       .setStringValue(StringValue.newBuilder().setValue("value_a"));
     writer.appendComponentMeasure(1, measure.build());
@@ -144,7 +143,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void read_changesets() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     ScannerReport.Changesets.Builder scm = ScannerReport.Changesets.newBuilder()
       .setComponentRef(1)
       .addChangeset(ScannerReport.Changesets.Changeset.newBuilder().setDate(123_456_789).setAuthor("jack.daniels").setRevision("123-456-789"));
@@ -161,7 +160,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void read_duplications() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     writer.writeMetadata(ScannerReport.Metadata.newBuilder()
       .setRootComponentRef(1).build());
     writer.writeComponent(ScannerReport.Component.newBuilder()
@@ -182,7 +181,7 @@ public class ScannerReportReaderTest {
       .build();
     writer.writeComponentDuplications(1, asList(duplication));
 
-    ScannerReportReader sut = new ScannerReportReader(dir);
+    ScannerReportReader sut = new ScannerReportReader(fileStructure);
     assertThat(sut.readComponentDuplications(1)).toIterable().hasSize(1);
   }
 
@@ -193,7 +192,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void read_duplication_blocks() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     writer.writeMetadata(ScannerReport.Metadata.newBuilder()
       .setRootComponentRef(1).build());
     writer.writeComponent(ScannerReport.Component.newBuilder()
@@ -208,37 +207,46 @@ public class ScannerReportReaderTest {
       .build();
     writer.writeCpdTextBlocks(1, singletonList(duplicationBlock));
 
-    ScannerReportReader sut = new ScannerReportReader(dir);
+    ScannerReportReader sut = new ScannerReportReader(fileStructure);
     assertThat(sut.readCpdTextBlocks(1)).toIterable().hasSize(1);
   }
 
   @Test
   public void read_analysis_cache() throws IOException {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
-    writer.writeAnalysisCache(ScannerInternal.AnalysisCacheMsg.newBuilder()
-      .putMap("key", ByteString.copyFrom("data", UTF_8))
-      .build());
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
 
-    ScannerReportReader reader = new ScannerReportReader(dir);
+    SensorCacheEntry entry1 = SensorCacheEntry.newBuilder()
+      .setKey("key")
+      .setData(ByteString.copyFrom("data", UTF_8))
+      .build();
+    SensorCacheEntry entry2 = SensorCacheEntry.newBuilder()
+      .setKey("key")
+      .setData(ByteString.copyFrom("data", UTF_8))
+      .build();
 
-    AnalysisCacheMsg cache = Protobuf.read(new GZIPInputStream(reader.getAnalysisCache()), ScannerInternal.AnalysisCacheMsg.parser());
-    assertThat(cache.getMapMap()).containsOnly(new AbstractMap.SimpleEntry<>("key", ByteString.copyFrom("data", UTF_8)));
+    Protobuf.writeStream(List.of(entry1, entry2), fileStructure.analysisCache(), false);
+    ScannerReportReader reader = new ScannerReportReader(fileStructure);
+
+    CloseableIterator<SensorCacheEntry> it = Protobuf.readStream(reader.getAnalysisCache(), SensorCacheEntry.parser());
+    List<SensorCacheEntry> data = new LinkedList<>();
+    it.forEachRemaining(data::add);
+    assertThat(data).containsExactly(entry1, entry2);
   }
 
   @Test
   public void read_analysis_cache_returns_null_if_no_file_exists() {
-    ScannerReportReader reader = new ScannerReportReader(dir);
+    ScannerReportReader reader = new ScannerReportReader(fileStructure);
     assertThat(reader.getAnalysisCache()).isNull();
   }
 
-    @Test
+  @Test
   public void empty_list_if_no_duplication_block_found() {
     assertThat(underTest.readComponentDuplications(UNKNOWN_COMPONENT_REF)).toIterable().isEmpty();
   }
 
   @Test
   public void read_syntax_highlighting() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     writer.writeMetadata(ScannerReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
@@ -270,7 +278,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void read_symbols() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     writer.writeMetadata(ScannerReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
@@ -292,7 +300,7 @@ public class ScannerReportReaderTest {
         .build())
       .build()));
 
-    underTest = new ScannerReportReader(dir);
+    underTest = new ScannerReportReader(fileStructure);
     assertThat(underTest.readComponentSymbols(1)).toIterable().hasSize(1);
   }
 
@@ -303,7 +311,7 @@ public class ScannerReportReaderTest {
 
   @Test
   public void read_coverage() {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     writer.writeMetadata(ScannerReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
@@ -324,8 +332,8 @@ public class ScannerReportReaderTest {
         .setCoveredConditions(4)
         .build()));
 
-    underTest = new ScannerReportReader(dir);
-    try (CloseableIterator<ScannerReport.LineCoverage> it = new ScannerReportReader(dir).readComponentCoverage(1)) {
+    underTest = new ScannerReportReader(fileStructure);
+    try (CloseableIterator<ScannerReport.LineCoverage> it = new ScannerReportReader(fileStructure).readComponentCoverage(1)) {
       ScannerReport.LineCoverage coverage = it.next();
       assertThat(coverage.getLine()).isOne();
       assertThat(coverage.getConditions()).isOne();
@@ -341,17 +349,17 @@ public class ScannerReportReaderTest {
 
   @Test
   public void read_source_lines() throws Exception {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     File file = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, 1);
     FileUtils.writeLines(file, Lists.newArrayList("line1", "line2"));
 
-    File sourceFile = new ScannerReportReader(dir).readFileSource(1);
+    File sourceFile = new ScannerReportReader(fileStructure).readFileSource(1);
     assertThat(sourceFile).isEqualTo(file);
   }
 
   @Test
   public void read_file_source() throws Exception {
-    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
     try (FileOutputStream outputStream = new FileOutputStream(writer.getSourceFile(1))) {
       IOUtils.write("line1\nline2", outputStream);
     }

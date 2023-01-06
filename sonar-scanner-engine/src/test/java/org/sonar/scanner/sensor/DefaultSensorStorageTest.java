@@ -96,8 +96,9 @@ public class DefaultSensorStorageTest {
 
     reportPublisher = mock(ReportPublisher.class);
     final File reportDir = temp.newFolder();
-    reportWriter = new ScannerReportWriter(reportDir);
-    reportReader = new ScannerReportReader(reportDir);
+    FileStructure fileStructure = new FileStructure(reportDir);
+    reportWriter = new ScannerReportWriter(fileStructure);
+    reportReader = new ScannerReportReader(fileStructure);
     when(reportPublisher.getWriter()).thenReturn(reportWriter);
     when(reportPublisher.getReader()).thenReturn(reportReader);
 

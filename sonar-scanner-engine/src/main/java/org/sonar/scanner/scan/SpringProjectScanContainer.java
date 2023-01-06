@@ -91,6 +91,7 @@ import org.sonar.scanner.report.ContextPropertiesPublisher;
 import org.sonar.scanner.report.JavaArchitectureInformationProvider;
 import org.sonar.scanner.report.MetadataPublisher;
 import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.report.ScannerFileStructureProvider;
 import org.sonar.scanner.report.SourcePublisher;
 import org.sonar.scanner.report.TestExecutionPublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
@@ -242,6 +243,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       ScannerMetrics.class,
       JavaArchitectureInformationProvider.class,
       ReportPublisher.class,
+      ScannerFileStructureProvider.class,
       AnalysisContextReportPublisher.class,
       MetadataPublisher.class,
       ActiveRulesPublisher.class,

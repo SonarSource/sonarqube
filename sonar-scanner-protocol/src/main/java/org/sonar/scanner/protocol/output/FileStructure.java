@@ -67,7 +67,7 @@ public class FileStructure {
   }
 
   public File analysisCache() {
-    return new File(dir, "analysis-cache.pb");
+    return new File(dir, "analysis-cache2.pb");
   }
 
   public File analysisLog() {

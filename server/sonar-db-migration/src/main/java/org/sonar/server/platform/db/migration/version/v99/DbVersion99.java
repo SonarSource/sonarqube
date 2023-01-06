@@ -26,6 +26,7 @@ public class DbVersion99 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(6800, "Add node_name column to ce_activity table", AddNodeNameColumnToCeActivityTable.class);
+      .add(6800, "Add node_name column to ce_activity table", AddNodeNameColumnToCeActivityTable.class)
+      .add(6801, "Delete all analysis cache", DeleteAnalysisCache.class);
   }
 }

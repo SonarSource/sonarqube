@@ -35,6 +35,7 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester.AnalysisBuilder;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Changeset;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
@@ -108,7 +109,8 @@ public class ScmMediumTest {
 
   private ScannerReport.Changesets getChangesets(File baseDir, String path) {
     File reportDir = new File(baseDir, ".sonar/scanner-report");
-    ScannerReportReader reader = new ScannerReportReader(reportDir);
+    FileStructure fileStructure = new FileStructure(reportDir);
+    ScannerReportReader reader = new ScannerReportReader(fileStructure);
 
     Component project = reader.readComponent(reader.readMetadata().getRootComponentRef());
     for (Integer fileRef : project.getChildRefList()) {

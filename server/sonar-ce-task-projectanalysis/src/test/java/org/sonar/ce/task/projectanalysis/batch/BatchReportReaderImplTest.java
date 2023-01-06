@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
@@ -59,7 +60,8 @@ public class BatchReportReaderImplTest {
   public void setUp() {
     BatchReportDirectoryHolder holder = new ImmutableBatchReportDirectoryHolder(tempFolder.newDir());
     underTest = new BatchReportReaderImpl(holder);
-    writer = new ScannerReportWriter(holder.getDirectory());
+    FileStructure fileStructure = new FileStructure(holder.getDirectory());
+    writer = new ScannerReportWriter(fileStructure);
   }
 
   @Test

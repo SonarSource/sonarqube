@@ -29,6 +29,7 @@ import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -44,7 +45,8 @@ public class ActiveRulesPublisherTest {
   @Test
   public void write() throws Exception {
     File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+    FileStructure fileStructure = new FileStructure(outputDir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
 
     NewActiveRule ar = new NewActiveRule.Builder()
       .setRuleKey(RuleKey.of("java", "S001"))
@@ -59,7 +61,7 @@ public class ActiveRulesPublisherTest {
     ActiveRulesPublisher underTest = new ActiveRulesPublisher(activeRules);
     underTest.publish(writer);
 
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReportReader reader = new ScannerReportReader(fileStructure);
     try (CloseableIterator<ScannerReport.ActiveRule> readIt = reader.readActiveRules()) {
       ScannerReport.ActiveRule reportAr = readIt.next();
       assertThat(reportAr.getRuleRepository()).isEqualTo("java");

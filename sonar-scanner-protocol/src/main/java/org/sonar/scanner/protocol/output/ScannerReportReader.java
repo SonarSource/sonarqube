@@ -31,11 +31,10 @@ import org.sonar.core.util.Protobuf;
 import static org.sonar.core.util.CloseableIterator.emptyCloseableIterator;
 
 public class ScannerReportReader {
-
   private final FileStructure fileStructure;
 
-  public ScannerReportReader(File dir) {
-    this.fileStructure = new FileStructure(dir);
+  public ScannerReportReader(FileStructure fileStructure) {
+    this.fileStructure = fileStructure;
   }
 
   public ScannerReport.Metadata readMetadata() {

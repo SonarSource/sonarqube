@@ -37,6 +37,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ReferenceBranchSupplier;
@@ -65,6 +66,7 @@ public class ChangedLinesPublisherTest {
   private final BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
   private final ReferenceBranchSupplier referenceBranchSupplier = mock(ReferenceBranchSupplier.class);
   private ScannerReportWriter writer;
+  private FileStructure fileStructure;
   private final ScmProvider provider = mock(ScmProvider.class);
   private final DefaultInputProject project = mock(DefaultInputProject.class);
 
@@ -78,7 +80,8 @@ public class ChangedLinesPublisherTest {
 
   @Before
   public void setUp() {
-    writer = new ScannerReportWriter(temp.getRoot());
+    fileStructure = new FileStructure(temp.getRoot());
+    writer = new ScannerReportWriter(fileStructure);
     when(branchConfiguration.isPullRequest()).thenReturn(true);
     when(scmConfiguration.isDisabled()).thenReturn(false);
     when(scmConfiguration.provider()).thenReturn(provider);
@@ -198,7 +201,7 @@ public class ChangedLinesPublisherTest {
 
   private void assertPublished(DefaultInputFile file, Set<Integer> lines) {
     assertThat(new File(temp.getRoot(), "changed-lines-" + file.scannerId() + ".pb")).exists();
-    ScannerReportReader reader = new ScannerReportReader(temp.getRoot());
+    ScannerReportReader reader = new ScannerReportReader(fileStructure);
     assertThat(reader.readComponentChangedLines(file.scannerId()).getLineList()).containsExactlyElementsOf(lines);
   }
 

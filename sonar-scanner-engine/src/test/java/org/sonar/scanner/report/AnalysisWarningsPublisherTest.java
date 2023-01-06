@@ -23,12 +23,14 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.System2;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -41,19 +43,18 @@ public class AnalysisWarningsPublisherTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private final AnalysisWarnings analysisWarnings;
-  private final AnalysisWarningsPublisher underTest;
+  private final DefaultAnalysisWarnings analysisWarnings = new DefaultAnalysisWarnings(mock(System2.class));
+  private final AnalysisWarningsPublisher underTest = new AnalysisWarningsPublisher(analysisWarnings);
+  private FileStructure fileStructure;
 
-  public AnalysisWarningsPublisherTest() {
-    DefaultAnalysisWarnings defaultAnalysisWarnings = new DefaultAnalysisWarnings(mock(System2.class));
-    this.analysisWarnings = defaultAnalysisWarnings;
-    this.underTest = new AnalysisWarningsPublisher(defaultAnalysisWarnings);
+  @Before
+  public void setUp() throws IOException {
+    fileStructure = new FileStructure(temp.newFolder());
   }
 
   @Test
   public void publish_warnings() throws IOException {
-    File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
 
     String warning1 = "warning 1";
     String warning2 = "warning 2";
@@ -63,7 +64,7 @@ public class AnalysisWarningsPublisherTest {
 
     underTest.publish(writer);
 
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReportReader reader = new ScannerReportReader(fileStructure);
     List<ScannerReport.AnalysisWarning> warnings = Lists.newArrayList(reader.readAnalysisWarnings());
 
     assertThat(warnings)
@@ -74,13 +75,13 @@ public class AnalysisWarningsPublisherTest {
   @Test
   public void do_not_write_warnings_report_when_empty() throws IOException {
     File outputDir = temp.newFolder();
-    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+    ScannerReportWriter writer = new ScannerReportWriter(fileStructure);
 
     underTest.publish(writer);
 
     assertThat(writer.getFileStructure().analysisWarnings()).doesNotExist();
 
-    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReportReader reader = new ScannerReportReader(fileStructure);
     List<ScannerReport.AnalysisWarning> warnings = Lists.newArrayList(reader.readAnalysisWarnings());
 
     assertThat(warnings).isEmpty();

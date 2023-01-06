@@ -19,7 +19,10 @@
  */
 package org.sonar.scanner.protocol.viewer;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,7 +34,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import javax.annotation.CheckForNull;
-import javax.swing.*;
+import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTree;
+import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -41,6 +53,7 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.FileStructure.Domain;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets;
@@ -111,19 +124,15 @@ public class ScannerReportViewerApp {
    * Launch the application.
    */
   public static void main(String[] args) {
-    EventQueue.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          ScannerReportViewerApp window = new ScannerReportViewerApp();
-          window.frame.setVisible(true);
+    EventQueue.invokeLater(() -> {
+      try {
+        ScannerReportViewerApp window = new ScannerReportViewerApp();
+        window.frame.setVisible(true);
 
-          window.loadReport();
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
+        window.loadReport();
+      } catch (Exception e) {
+        e.printStackTrace();
       }
-
     });
   }
 
@@ -184,7 +193,8 @@ public class ScannerReportViewerApp {
   }
 
   private void loadReport(File file) {
-    reader = new ScannerReportReader(file);
+    FileStructure fileStructure = new FileStructure(file);
+    reader = new ScannerReportReader(fileStructure);
     metadata = reader.readMetadata();
     updateTitle();
     loadComponents();
@@ -649,13 +659,6 @@ public class ScannerReportViewerApp {
 
   public JTree getComponentTree() {
     return componentTree;
-  }
-
-  /**
-   * @wbp.factory
-   */
-  public static JPanel createComponentPanel() {
-    return new JPanel();
   }
 
   protected JEditorPane getComponentEditor() {

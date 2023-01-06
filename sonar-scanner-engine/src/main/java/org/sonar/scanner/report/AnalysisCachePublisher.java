@@ -19,37 +19,18 @@
  */
 package org.sonar.scanner.report;
 
-import com.google.protobuf.ByteString;
-import java.util.Map;
-import org.sonar.scanner.cache.AnalysisCacheEnabled;
 import org.sonar.scanner.cache.ScannerWriteCache;
-import org.sonar.scanner.protocol.internal.ScannerInternal;
-import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 public class AnalysisCachePublisher implements ReportPublisherStep {
-  private final AnalysisCacheEnabled analysisCacheEnabled;
-  private final BranchConfiguration branchConfiguration;
   private final ScannerWriteCache cache;
 
-  public AnalysisCachePublisher(AnalysisCacheEnabled analysisCacheEnabled, BranchConfiguration branchConfiguration, ScannerWriteCache cache) {
-    this.analysisCacheEnabled = analysisCacheEnabled;
-    this.branchConfiguration = branchConfiguration;
+  public AnalysisCachePublisher(ScannerWriteCache cache) {
     this.cache = cache;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    if (!analysisCacheEnabled.isEnabled() || branchConfiguration.isPullRequest() || cache.getCache().isEmpty()) {
-      return;
-    }
-    AnalysisCacheMsg.Builder analysisCacheMsg = ScannerInternal.AnalysisCacheMsg.newBuilder();
-
-    for (Map.Entry<String, byte[]> entry : cache.getCache().entrySet()) {
-      analysisCacheMsg.putMap(entry.getKey(), ByteString.copyFrom(entry.getValue()));
-    }
-
-    writer.writeAnalysisCache(analysisCacheMsg.build());
+    cache.close();
   }
 }

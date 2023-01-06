@@ -21,9 +21,12 @@ package org.sonar.core.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -109,6 +112,23 @@ public class ProtobufTest {
     try (InputStream is = new GZIPInputStream(new FileInputStream(file))) {
       assertThat(Protobuf.read(is, Fake.parser()).getLabel()).isEqualTo("one");
     }
+  }
+
+  @Test
+  public void read_gzip_stream() throws IOException {
+    File file = temp.newFile();
+
+    Fake item1 = Fake.newBuilder().setLabel("one").setLine(1).build();
+    Fake item2 = Fake.newBuilder().setLabel("two").setLine(2).build();
+
+    try (OutputStream os = new GZIPOutputStream(new FileOutputStream(file))) {
+      item1.writeDelimitedTo(os);
+      item2.writeDelimitedTo(os);
+    }
+
+    Iterable<Fake> it = () -> Protobuf.readGzipStream(file, Fake.parser());
+
+    assertThat(it).containsExactly(item1, item2);
   }
 
   @Test
