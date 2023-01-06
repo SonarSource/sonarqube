@@ -21,7 +21,6 @@ package org.sonar.server.platform.db.migration.sql;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -81,7 +80,7 @@ public class RenameColumnsBuilder {
           default:
             throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());
         }
-      }).collect(Collectors.toList());
+      }).toList();
   }
 
   private static class Renaming implements ColumnDef {

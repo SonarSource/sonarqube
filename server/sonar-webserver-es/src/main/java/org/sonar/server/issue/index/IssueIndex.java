@@ -99,7 +99,6 @@ import org.springframework.util.CollectionUtils;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -1226,7 +1225,7 @@ public class IssueIndex {
       .filter(categoryBucket -> StringUtils.startsWith(categoryBucket.getKeyAsString(), categoryFilter.getName() + "."))
       .filter(categoryBucket -> level == null || OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(level).contains(categoryBucket.getKeyAsString()))
       .map(categoryBucket -> processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getKeyAsString(), null, null))
-      .collect(toList());
+      .toList();
 
     return processSecurityReportCategorySearchResults(categoryFilter, categoryFilter.getName(), children, version);
   }
@@ -1236,7 +1235,7 @@ public class IssueIndex {
     List<SecurityStandardCategoryStatistics> children = list.stream()
       .filter(categoryBucket -> OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(Integer.parseInt(level)).contains(categoryBucket.getKeyAsString()))
       .map(categoryBucket -> processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getKeyAsString(), null, null))
-      .collect(toList());
+      .toList();
 
     return processSecurityReportCategorySearchResults(categoryFilter, categoryFilter.getName(), children, version);
   }
@@ -1245,7 +1244,7 @@ public class IssueIndex {
     List<SecurityStandardCategoryStatistics> children = new ArrayList<>();
     if (includeDistribution) {
       Stream<? extends Terms.Bucket> stream = ((ParsedStringTerms) categoryBucket.getAggregations().get(AGG_DISTRIBUTION)).getBuckets().stream();
-      children = stream.map(cweBucket -> processSecurityReportCategorySearchResults(cweBucket, cweBucket.getKeyAsString(), null, null)).collect(toList());
+      children = stream.map(cweBucket -> processSecurityReportCategorySearchResults(cweBucket, cweBucket.getKeyAsString(), null, null)).toList();
     }
 
     return processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getName(), children, version);

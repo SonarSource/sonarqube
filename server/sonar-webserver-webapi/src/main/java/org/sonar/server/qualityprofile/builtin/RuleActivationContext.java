@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -186,7 +185,7 @@ public class RuleActivationContext {
     loadDescendants();
     return getProfiles().stream()
       .flatMap(p -> profilesByParentUuid.get(p.getKee()).stream())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private void loadDescendants() {
@@ -228,7 +227,7 @@ public class RuleActivationContext {
     this.currentRulesProfile = ruleProfile;
     this.currentProfiles = profilesByUuid.values().stream()
       .filter(p -> p.getRulesProfileUuid().equals(ruleProfile.getUuid()))
-      .collect(Collectors.toList());
+      .toList();
     this.currentActiveRule = this.activeRulesByKey.get(ActiveRuleKey.of(ruleProfile, ruleKey));
     this.currentParentActiveRule = this.currentProfiles.stream()
       .map(QProfileDto::getParentKee)

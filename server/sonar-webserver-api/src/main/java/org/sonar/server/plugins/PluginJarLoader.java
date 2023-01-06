@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.SonarRuntime;
@@ -179,7 +178,7 @@ public class PluginJarLoader {
     List<T> list = listJarFiles(pluginsDir).stream()
       .map(toPluginInfo)
       .filter(this::checkPluginInfo)
-      .collect(Collectors.toList());
+      .toList();
     failIfContainsIncompatiblePlugins(list);
     return list;
   }
@@ -189,7 +188,7 @@ public class PluginJarLoader {
       .filter(p -> FORBIDDEN_INCOMPATIBLE_PLUGINS.contains(p.getKey()))
       .map(p -> "'" + p.getKey() + "'")
       .sorted()
-      .collect(Collectors.toList());
+      .toList();
 
     if (!incompatiblePlugins.isEmpty()) {
       logGenericPluginLoadErrorLog();

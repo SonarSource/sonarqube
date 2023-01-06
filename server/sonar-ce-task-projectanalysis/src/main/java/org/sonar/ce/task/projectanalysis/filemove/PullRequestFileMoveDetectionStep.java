@@ -43,7 +43,6 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.FileMoveRowDto;
 
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
@@ -137,7 +136,7 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
       .values()
       .stream()
       .filter(file -> Objects.nonNull(file.getFileAttributes().getOldRelativePath()))
-      .collect(toList());
+      .toList();
   }
 
   private static Optional<DbComponent> retrieveDbFile(Map<String, DbComponent> dbFilesByPathReference, Component file) {

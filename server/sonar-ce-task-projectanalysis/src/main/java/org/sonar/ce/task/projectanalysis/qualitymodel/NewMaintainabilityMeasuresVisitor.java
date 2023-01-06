@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.qualitymodel;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.log.Logger;
@@ -188,7 +187,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
       .stream()
       .filter(entry -> entry.getValue() == 1)
       .map(Map.Entry::getKey)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public static final class Counter {

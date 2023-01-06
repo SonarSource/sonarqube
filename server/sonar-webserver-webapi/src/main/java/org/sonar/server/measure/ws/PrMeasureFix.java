@@ -129,7 +129,7 @@ class PrMeasureFix {
       }
     }
 
-    List<MetricDto> toRemove = measuresByComponentUuidAndMetric.columnKeySet().stream().filter(m -> !requestedMetricKeys.contains(m.getKey())).collect(Collectors.toList());
+    List<MetricDto> toRemove = measuresByComponentUuidAndMetric.columnKeySet().stream().filter(m -> !requestedMetricKeys.contains(m.getKey())).toList();
     measuresByComponentUuidAndMetric.columnKeySet().removeAll(toRemove);
   }
 

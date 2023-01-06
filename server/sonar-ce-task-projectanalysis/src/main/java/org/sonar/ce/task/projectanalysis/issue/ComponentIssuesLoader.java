@@ -47,7 +47,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.issue.IssueFieldsSetter.FROM_BRANCH;
@@ -96,7 +95,7 @@ public class ComponentIssuesLoader {
    */
   public List<DefaultIssue> loadChanges(DbSession dbSession, Collection<DefaultIssue> issues) {
     Map<String, List<IssueChangeDto>> changeDtoByIssueKey = dbClient.issueChangeDao()
-      .selectByIssueKeys(dbSession, issues.stream().map(DefaultIssue::key).collect(toList()))
+      .selectByIssueKeys(dbSession, issues.stream().map(DefaultIssue::key).toList())
       .stream()
       .collect(groupingBy(IssueChangeDto::getIssueKey));
 
@@ -198,7 +197,7 @@ public class ComponentIssuesLoader {
   private void setFilteredChanges(Map<String, List<IssueChangeDto>> changeDtoByIssueKey, DefaultIssue i) {
     List<IssueChangeDto> sortedIssueChanges = changeDtoByIssueKey.computeIfAbsent(i.key(), k -> emptyList()).stream()
       .sorted(Comparator.comparing(IssueChangeDto::getIssueChangeCreationDate).reversed())
-      .collect(toList());
+      .toList();
 
     int statusCount = 0;
     int branchCount = 0;

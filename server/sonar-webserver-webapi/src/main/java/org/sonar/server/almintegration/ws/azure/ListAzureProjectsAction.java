@@ -21,7 +21,6 @@ package org.sonar.server.almintegration.ws.azure;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.GsonAzureProject;
@@ -99,7 +98,7 @@ public class ListAzureProjectsAction implements AlmIntegrationsWsAction {
       List<AzureProject> values = projectList.getValues().stream()
         .map(ListAzureProjectsAction::toAzureProject)
         .sorted(comparing(AzureProject::getName, String::compareToIgnoreCase))
-        .collect(Collectors.toList());
+        .toList();
       ListAzureProjectsWsResponse.Builder builder = ListAzureProjectsWsResponse.newBuilder()
         .addAllProjects(values);
       return builder.build();

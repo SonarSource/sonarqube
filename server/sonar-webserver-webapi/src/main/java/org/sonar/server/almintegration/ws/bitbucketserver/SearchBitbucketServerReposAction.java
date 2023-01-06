@@ -48,7 +48,6 @@ import org.sonarqube.ws.AlmIntegrations.BBSRepo;
 import org.sonarqube.ws.AlmIntegrations.SearchBitbucketserverReposWsResponse;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -123,7 +122,7 @@ public class SearchBitbucketServerReposAction implements AlmIntegrationsWsAction
 
       Map<String, String> sqProjectsKeyByBBSKey = getSqProjectsKeyByBBSKey(dbSession, almSettingDto, gsonBBSRepoList);
       List<BBSRepo> bbsRepos = gsonBBSRepoList.getValues().stream().map(gsonBBSRepo -> toBBSRepo(gsonBBSRepo, sqProjectsKeyByBBSKey))
-        .collect(toList());
+        .toList();
 
       SearchBitbucketserverReposWsResponse.Builder builder = SearchBitbucketserverReposWsResponse.newBuilder()
         .setIsLastPage(gsonBBSRepoList.isLastPage())

@@ -24,7 +24,6 @@ import com.google.common.io.Resources;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -139,7 +138,7 @@ public class AuthorsAction implements IssuesWsAction {
     });
     return issueIndex.searchAuthors(
       issueQueryBuilder
-        .types(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS.stream().map(Enum::name).collect(Collectors.toList()))
+        .types(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS.stream().map(Enum::name).toList())
         .build(),
       request.param(TEXT_QUERY),
       request.mandatoryParamAsInt(PAGE_SIZE));

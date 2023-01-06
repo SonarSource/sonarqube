@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.core.util.Uuids;
@@ -75,7 +74,7 @@ public class QualityGateConditionsUpdater {
     ValueType.RATING,
     ValueType.WORK_DUR);
 
-  private static final List<String> RATING_VALID_INT_VALUES = stream(Rating.values()).map(r -> Integer.toString(r.getIndex())).collect(Collectors.toList());
+  private static final List<String> RATING_VALID_INT_VALUES = stream(Rating.values()).map(r -> Integer.toString(r.getIndex())).toList();
 
   private final DbClient dbClient;
 

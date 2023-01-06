@@ -21,7 +21,6 @@ package org.sonar.server.platform.monitoring.cluster;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.server.ServerSide;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
@@ -34,12 +33,12 @@ public class GlobalInfoLoader {
   public GlobalInfoLoader(SystemInfoSection[] sections) {
     this.globalSections = Arrays.stream(sections)
       .filter(section -> section instanceof Global)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public List<ProtobufSystemInfo.Section> load() {
     return globalSections.stream()
       .map(SystemInfoSection::toProtobuf)
-      .collect(Collectors.toList());
+      .toList();
   }
 }

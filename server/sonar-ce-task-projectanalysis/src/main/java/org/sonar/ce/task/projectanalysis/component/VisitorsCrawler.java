@@ -49,9 +49,9 @@ public class VisitorsCrawler implements ComponentCrawler {
   }
 
   public VisitorsCrawler(Collection<ComponentVisitor> visitors, boolean computeDuration) {
-    List<VisitorWrapper> visitorWrappers = visitors.stream().map(ToVisitorWrapper.INSTANCE).collect(Collectors.toList());
-    this.preOrderVisitorWrappers = visitorWrappers.stream().filter(MathPreOrderVisitor.INSTANCE).collect(Collectors.toList());
-    this.postOrderVisitorWrappers = visitorWrappers.stream().filter(MatchPostOrderVisitor.INSTANCE).collect(Collectors.toList());
+    List<VisitorWrapper> visitorWrappers = visitors.stream().map(ToVisitorWrapper.INSTANCE).toList();
+    this.preOrderVisitorWrappers = visitorWrappers.stream().filter(MathPreOrderVisitor.INSTANCE).toList();
+    this.postOrderVisitorWrappers = visitorWrappers.stream().filter(MatchPostOrderVisitor.INSTANCE).toList();
     this.computeDuration = computeDuration;
     this.visitorCumulativeDurations = computeDuration ? visitors.stream().collect(Collectors.toMap(v -> v, v -> new VisitorDuration())) : Collections.emptyMap();
   }
@@ -77,8 +77,8 @@ public class VisitorsCrawler implements ComponentCrawler {
 
   private void visitImpl(Component component) {
     MatchVisitorMaxDepth visitorMaxDepth = MatchVisitorMaxDepth.forComponent(component);
-    List<VisitorWrapper> preOrderVisitorWrappersToExecute = preOrderVisitorWrappers.stream().filter(visitorMaxDepth).collect(Collectors.toList());
-    List<VisitorWrapper> postOrderVisitorWrappersToExecute = postOrderVisitorWrappers.stream().filter(visitorMaxDepth).collect(Collectors.toList());
+    List<VisitorWrapper> preOrderVisitorWrappersToExecute = preOrderVisitorWrappers.stream().filter(visitorMaxDepth).toList();
+    List<VisitorWrapper> postOrderVisitorWrappersToExecute = postOrderVisitorWrappers.stream().filter(visitorMaxDepth).toList();
     if (preOrderVisitorWrappersToExecute.isEmpty() && postOrderVisitorWrappersToExecute.isEmpty()) {
       return;
     }

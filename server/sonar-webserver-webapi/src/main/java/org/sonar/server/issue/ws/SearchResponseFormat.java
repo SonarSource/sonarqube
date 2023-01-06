@@ -70,7 +70,6 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -148,7 +147,7 @@ public class SearchResponseFormat {
   private List<Issues.Issue> createIssues(Collection<SearchAdditionalField> fields, SearchResponseData data) {
     return data.getIssues().stream()
       .map(dto -> createIssue(fields, data, dto))
-      .collect(toList());
+      .toList();
   }
 
   private Issue createIssue(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto) {

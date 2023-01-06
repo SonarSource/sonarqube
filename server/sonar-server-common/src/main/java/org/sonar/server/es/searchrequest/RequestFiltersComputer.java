@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -162,7 +161,7 @@ public class RequestFiltersComputer {
     List<QueryBuilder> selectQueryBuilders = queryFilters.entrySet().stream()
       .filter(e -> predicate.test(e.getKey(), e.getValue()))
       .map(Map.Entry::getValue)
-      .collect(Collectors.toList());
+      .toList();
     if (selectQueryBuilders.isEmpty()) {
       return empty();
     }

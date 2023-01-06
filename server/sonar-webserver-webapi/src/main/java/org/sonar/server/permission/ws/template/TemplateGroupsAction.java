@@ -23,7 +23,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -151,7 +150,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
   }
 
   private List<PermissionTemplateGroupDto> findGroupPermissions(DbSession dbSession, List<GroupDto> groups, PermissionTemplateDto template) {
-    List<String> names = groups.stream().map(GroupDto::getName).collect(Collectors.toList());
+    List<String> names = groups.stream().map(GroupDto::getName).toList();
     return dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateIdAndGroupNames(dbSession, template.getUuid(), names);
   }
 }

@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
@@ -62,14 +61,14 @@ public class MetricFinder {
   public Collection<Metric> findAll(List<String> metricKeys) {
     try (DbSession session = dbClient.openSession(false)) {
       List<MetricDto> dtos = dbClient.metricDao().selectByKeys(session, metricKeys);
-      return dtos.stream().filter(IsEnabled.INSTANCE).map(ToMetric.INSTANCE).collect(Collectors.toList());
+      return dtos.stream().filter(IsEnabled.INSTANCE).map(ToMetric.INSTANCE).toList();
     }
   }
 
   public Collection<Metric> findAll() {
     try (DbSession session = dbClient.openSession(false)) {
       List<MetricDto> dtos = dbClient.metricDao().selectEnabled(session);
-      return dtos.stream().map(ToMetric.INSTANCE).collect(Collectors.toList());
+      return dtos.stream().map(ToMetric.INSTANCE).toList();
     }
   }
 

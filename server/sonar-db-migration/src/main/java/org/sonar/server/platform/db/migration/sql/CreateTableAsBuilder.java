@@ -78,7 +78,7 @@ public class CreateTableAsBuilder {
       sql.add(sb.toString());
     }
 
-    List<Column> notNullColumns = columns.stream().filter(c -> !c.definition().isNullable()).collect(Collectors.toList());
+    List<Column> notNullColumns = columns.stream().filter(c -> !c.definition().isNullable()).toList();
     for (Column c : notNullColumns) {
       sql.addAll(new AlterColumnsBuilder(dialect, tableName).updateColumn(c.definition()).build());
     }

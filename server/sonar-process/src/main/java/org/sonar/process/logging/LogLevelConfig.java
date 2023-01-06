@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.process.ProcessId;
 
@@ -107,7 +106,7 @@ public final class LogLevelConfig {
 
     private void levelByProperty(String loggerName, String property, String... otherProperties) {
       ensureUniqueConfiguration(loggerName);
-      configuredByProperties.put(loggerName, Stream.concat(Stream.of(property), Arrays.stream(otherProperties)).collect(Collectors.toList()));
+      configuredByProperties.put(loggerName, Stream.concat(Stream.of(property), Arrays.stream(otherProperties)).toList());
     }
 
     /**

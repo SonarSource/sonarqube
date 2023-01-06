@@ -42,7 +42,6 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V3_2;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.HIGH;
@@ -111,12 +110,12 @@ public final class SecurityStandards {
     "6.3.2", "6.4.1", "6.4.2", "7.1.3", "7.1.4", "7.2.1", "7.2.2", "7.3.1", "7.3.2", "7.3.3", "7.3.4", "7.4.2", "7.4.3", "8.1.1", "8.1.2", "8.1.3", "8.1.4", "8.3.5", "8.3.6",
     "8.3.7", "8.3.8", "9.2.1", "9.2.2", "9.2.3", "9.2.4", "10.2.1", "10.2.2", "11.1.6", "11.1.7", "11.1.8", "12.1.2", "12.1.3", "12.2.1", "12.3.6", "13.1.4", "13.1.5", "13.2.4",
     "13.2.5", "13.2.6", "13.3.2", "13.4.1", "13.4.2", "14.1.1", "14.1.2", "14.1.3", "14.1.4", "14.2.4", "14.2.5", "14.2.6", "14.5.4"), OWASP_ASVS_40_LEVEL_1.stream())
-    .collect(Collectors.toList()));
+    .toList());
 
   public static final List<String> OWASP_ASVS_40_LEVEL_3 = Collections.unmodifiableList(Stream
     .concat(Stream.of("1.11.3", "2.2.4", "2.2.5", "2.2.6", "2.2.7", "2.8.7", "3.6.1", "3.6.2", "6.2.7", "6.2.8", "6.3.3", "8.1.5",
       "8.1.6", "9.2.5", "10.1.1", "10.2.3", "10.2.4", "10.2.5", "10.2.6", "14.1.5"), OWASP_ASVS_40_LEVEL_2.stream())
-    .collect(Collectors.toList()));
+    .toList());
 
   public static final Map<Integer, List<String>> OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL = Map.of(
     1, OWASP_ASVS_40_LEVEL_1,
@@ -252,8 +251,8 @@ public final class SecurityStandards {
     .put(SQCategory.TRACEABILITY, Set.of("778"))
     .put(SQCategory.PERMISSION, Set.of("266", "269", "284", "668", "732"))
     .build();
-  private static final Ordering<SQCategory> SQ_CATEGORY_ORDERING = Ordering.explicit(stream(SQCategory.values()).collect(Collectors.toList()));
-  public static final Ordering<String> SQ_CATEGORY_KEYS_ORDERING = Ordering.explicit(stream(SQCategory.values()).map(SQCategory::getKey).collect(Collectors.toList()));
+  private static final Ordering<SQCategory> SQ_CATEGORY_ORDERING = Ordering.explicit(stream(SQCategory.values()).toList());
+  public static final Ordering<String> SQ_CATEGORY_KEYS_ORDERING = Ordering.explicit(stream(SQCategory.values()).map(SQCategory::getKey).toList());
 
   private final Set<String> standards;
   private final Set<String> cwe;
@@ -377,7 +376,7 @@ public final class SecurityStandards {
       .stream()
       .filter(k -> cwe.stream().anyMatch(CWES_BY_SQ_CATEGORY.get(k)::contains))
       .sorted(SQ_CATEGORY_ORDERING)
-      .collect(toList());
+      .toList();
     return result.isEmpty() ? singletonList(SQCategory.OTHERS) : result;
   }
 

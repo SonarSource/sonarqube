@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.sonar.auth.saml.SamlSettings.GROUP_NAME_ATTRIBUTE;
 import static org.sonar.auth.saml.SamlSettings.USER_EMAIL_ATTRIBUTE;
@@ -50,7 +49,7 @@ public final class SamlStatusChecker {
       samlAuthenticationStatus.getErrors().add(e.getMessage());
     }
 
-    samlAuthenticationStatus.getErrors().addAll(auth.getErrors().stream().filter(Objects::nonNull).collect(Collectors.toList()));
+    samlAuthenticationStatus.getErrors().addAll(auth.getErrors().stream().filter(Objects::nonNull).toList());
     if (auth.getLastErrorReason() != null) {
       samlAuthenticationStatus.getErrors().add(auth.getLastErrorReason());
     }
@@ -122,7 +121,7 @@ public final class SamlStatusChecker {
       .stream()
       .filter(entry -> !entry.getValue().isEmpty() && (auth.getAttribute(entry.getValue()) == null || auth.getAttribute(entry.getValue()).isEmpty()))
       .map(entry -> String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", entry.getKey(), entry.getValue()))
-      .collect(Collectors.toList());
+      .toList();
   }
 
 }

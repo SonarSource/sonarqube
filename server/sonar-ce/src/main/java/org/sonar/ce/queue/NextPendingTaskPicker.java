@@ -38,7 +38,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskDtoLight;
 import org.sonar.db.ce.PrOrBranchTask;
 
-import static java.util.stream.Collectors.toList;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 
@@ -110,7 +109,7 @@ public class NextPendingTaskPicker {
 
   private static List<PrOrBranchTask> filterOldestPerProject(List<PrOrBranchTask> queuedPrOrBranches) {
     Set<String> mainComponentUuidsSeen = new HashSet<>();
-    return queuedPrOrBranches.stream().filter(t -> mainComponentUuidsSeen.add(t.getMainComponentUuid())).collect(toList());
+    return queuedPrOrBranches.stream().filter(t -> mainComponentUuidsSeen.add(t.getMainComponentUuid())).toList();
   }
 
   /**
@@ -124,7 +123,7 @@ public class NextPendingTaskPicker {
     String mainComponentUuid = task.getMainComponentUuid();
     List<PrOrBranchTask> sameComponentTasks = inProgress.stream()
       .filter(t -> t.getMainComponentUuid().equals(mainComponentUuid))
-      .collect(toList());
+      .toList();
     //we can peek branch analysis task only if all the other in progress tasks for this component uuid are pull requests
     return sameComponentTasks.stream().map(PrOrBranchTask::getBranchType).allMatch(s -> Objects.equals(s, PULL_REQUEST));
   }

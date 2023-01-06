@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -157,7 +156,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     List<ActiveRuleParamDto> rules = ruleRepository.getRuleParams(activeRule.getRuleKey()).stream()
       .map(param -> createParamDto(param, Optional.ofNullable(valuesByParamKey.get(param.getName())).orElse(param.getDefaultValue())))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
 
     rules.forEach(paramDto -> dbClient.activeRuleDao().insertParam(session, activeRuleDto, paramDto));
     return rules;

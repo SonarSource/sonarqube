@@ -118,7 +118,7 @@ public class SearchResponseLoader {
     if (issueKeysToLoad.isEmpty()) {
       return issueKeys.stream()
         .map(new KeyToIssueFunction(preloadedIssues)).filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .toList();
     }
 
     List<IssueDto> loadedIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeysToLoad);
@@ -127,7 +127,7 @@ public class SearchResponseLoader {
 
     return issueKeys.stream()
       .map(new KeyToIssueFunction(unorderedIssues)).filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private void loadUsers(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession, SearchResponseData result) {

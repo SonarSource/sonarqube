@@ -221,12 +221,12 @@ public class SetAction implements SettingsWsAction {
 
     List<Map<String, String>> maps = request.getFieldValues().stream()
       .map(oneFieldValues -> readOneFieldValues(oneFieldValues, request.getKey()))
-      .collect(Collectors.toList());
+      .toList();
 
     for (Map<String, String> map : maps) {
       checkRequest(map.values().stream().anyMatch(StringUtils::isNotBlank), MSG_NO_EMPTY_VALUE);
     }
-    List<Map.Entry<String, String>> entries = maps.stream().flatMap(map -> map.entrySet().stream()).collect(Collectors.toList());
+    List<Map.Entry<String, String>> entries = maps.stream().flatMap(map -> map.entrySet().stream()).toList();
     entries.forEach(entry -> valuesByFieldKeys.put(entry.getKey(), entry.getValue()));
     entries.forEach(entry -> checkRequest(fieldKeys.contains(entry.getKey()), "Unknown field key '%s' for setting '%s'", entry.getKey(), request.getKey()));
     checkFieldType(request, definition, valuesByFieldKeys);

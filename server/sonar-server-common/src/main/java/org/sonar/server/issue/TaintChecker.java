@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
@@ -62,7 +61,7 @@ public class TaintChecker {
   private List<IssueDto> filterTaintIssues(List<IssueDto> issues, boolean returnTaint) {
     return issues.stream()
       .filter(getTaintIssueFilter(returnTaint))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @NotNull
@@ -85,7 +84,7 @@ public class TaintChecker {
       return repositories;
     }
 
-    repositories.addAll(Arrays.stream(config.getStringArray(EXTRA_TAINT_REPOSITORIES)).collect(Collectors.toList()));
+    repositories.addAll(Arrays.stream(config.getStringArray(EXTRA_TAINT_REPOSITORIES)).toList());
 
     return repositories;
   }

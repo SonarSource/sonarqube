@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -116,13 +115,13 @@ public class InheritanceAction implements QProfileWsAction {
   private static Iterable<QualityProfile> buildAncestors(List<QProfileDto> ancestors, Statistics statistics) {
     return ancestors.stream()
       .map(ancestor -> buildProfile(ancestor, statistics))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static Iterable<QualityProfile> buildChildren(List<QProfileDto> children, Statistics statistics) {
     return children.stream()
       .map(child -> buildProfile(child, statistics))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static QualityProfile buildProfile(QProfileDto qualityProfile, Statistics statistics) {

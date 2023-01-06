@@ -41,7 +41,6 @@ import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.server.projectanalysis.ws.EventCategory.fromLabel;
@@ -144,7 +143,7 @@ class SearchResponseBuilder {
 
     wsQualityGate.addAllFailing(eventComponentChangeDtos.stream()
       .map(SearchResponseBuilder::toFailing)
-      .collect(toList()));
+      .toList());
     wsEvent.setQualityGate(wsQualityGate.build());
   }
 
@@ -163,7 +162,7 @@ class SearchResponseBuilder {
         componentChangeByKey.asMap().values().stream()
           .map(SearchResponseBuilder::addChange)
           .map(Project::toProject)
-          .collect(toList())
+          .toList()
       );
       wsEvent.setDefinitionChange(wsDefinitionChange.build());
     } catch (IllegalStateException e) {

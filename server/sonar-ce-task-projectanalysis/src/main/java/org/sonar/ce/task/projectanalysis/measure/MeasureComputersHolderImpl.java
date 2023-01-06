@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.measure;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
@@ -43,6 +42,6 @@ public class MeasureComputersHolderImpl implements MutableMeasureComputersHolder
   public void setMeasureComputers(Iterable<MeasureComputerWrapper> measureComputers) {
     requireNonNull(measureComputers, "Measure computers cannot be null");
     checkState(this.measureComputers == null, "Measure computers have already been initialized");
-    this.measureComputers = StreamSupport.stream(measureComputers.spliterator(), false).filter(Objects::nonNull).collect(Collectors.toList());
+    this.measureComputers = StreamSupport.stream(measureComputers.spliterator(), false).filter(Objects::nonNull).toList();
   }
 }

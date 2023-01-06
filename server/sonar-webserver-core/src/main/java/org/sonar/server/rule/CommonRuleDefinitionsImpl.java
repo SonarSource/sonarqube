@@ -22,7 +22,6 @@ package org.sonar.server.rule;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.Severity;
@@ -67,7 +66,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
   private static List<Language> getActiveLanguages(Language[] allLanguages) {
     return Arrays.stream(allLanguages)
       .filter(Predicate.not(language -> LANGUAGES_TO_SKIP.contains(language.getKey())))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static void defineBranchCoverageRule(RulesDefinition.NewRepository repo) {

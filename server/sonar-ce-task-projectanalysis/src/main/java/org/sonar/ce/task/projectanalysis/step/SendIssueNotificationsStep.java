@@ -55,7 +55,6 @@ import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
 
 import static java.util.Collections.singleton;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -220,8 +219,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private Map<String, UserDto> loadUserDtoByUuid(NewIssuesStatistics statistics) {
     List<Map.Entry<String, NewIssuesStatistics.Stats>> entriesWithIssuesOnLeak = statistics.getAssigneesStatistics().entrySet()
-      .stream().filter(e -> e.getValue().hasIssuesOnCurrentAnalysis()).collect(toList());
-    List<String> assigneeUuids = entriesWithIssuesOnLeak.stream().map(Map.Entry::getKey).collect(toList());
+      .stream().filter(e -> e.getValue().hasIssuesOnCurrentAnalysis()).toList();
+    List<String> assigneeUuids = entriesWithIssuesOnLeak.stream().map(Map.Entry::getKey).toList();
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));
     }

@@ -36,7 +36,6 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.nullsFirst;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 @ServerSide
@@ -63,7 +62,7 @@ public class ProjectFinder {
     List<Project> resultProjects = allProjects.stream()
       .sorted(comparing(ProjectDto::getName, nullsFirst(String.CASE_INSENSITIVE_ORDER)))
       .map(p -> new Project(p.getKey(), p.getName()))
-      .collect(toList());
+      .toList();
     return new SearchResult(resultProjects);
   }
 

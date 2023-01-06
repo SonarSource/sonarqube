@@ -23,7 +23,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -110,7 +109,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
       Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
       List<UserDto> users = findUsers(dbSession, query, template);
       List<PermissionTemplateUserDto> permissionTemplateUsers = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateIdAndUserLogins(dbSession, template.getUuid(),
-        users.stream().map(UserDto::getLogin).collect(Collectors.toList()));
+        users.stream().map(UserDto::getLogin).toList());
       Permissions.UsersWsResponse templateUsersResponse = buildResponse(users, permissionTemplateUsers, paging);
       writeProtobuf(templateUsersResponse, wsRequest, wsResponse);
     }

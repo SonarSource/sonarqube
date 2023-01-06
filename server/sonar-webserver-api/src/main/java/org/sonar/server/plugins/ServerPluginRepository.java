@@ -61,7 +61,7 @@ public class ServerPluginRepository implements PluginRepository {
 
   @Override
   public Collection<PluginInfo> getPluginInfos() {
-    return pluginByKey.values().stream().map(ServerPlugin::getPluginInfo).collect(Collectors.toUnmodifiableList());
+    return pluginByKey.values().stream().map(ServerPlugin::getPluginInfo).toList();
   }
 
   @Override
@@ -90,7 +90,7 @@ public class ServerPluginRepository implements PluginRepository {
       .stream()
       .filter(p -> p.getType() == type)
       .map(ServerPlugin::getPluginInfo)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -104,7 +104,7 @@ public class ServerPluginRepository implements PluginRepository {
   public Collection<Plugin> getPluginInstances() {
     return pluginByKey.values().stream()
       .map(ServerPlugin::getInstance)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

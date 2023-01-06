@@ -219,6 +219,6 @@ public class IndexCreator implements Startable {
     return Arrays.stream(client.getIndex(new GetIndexRequest("_all")).getIndices())
       .filter(definedNames::contains)
       .filter(index -> !DESCRIPTOR.getName().equals(index))
-      .collect(Collectors.toList());
+      .toList();
   }
 }

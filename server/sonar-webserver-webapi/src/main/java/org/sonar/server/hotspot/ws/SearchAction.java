@@ -308,7 +308,7 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription("Comma-separated list of SonarSource security categories. Use '" + SecurityStandards.SQCategory.OTHERS.getKey() +
         "' to select issues not associated with any category")
       .setSince("8.6")
-      .setPossibleValues(Arrays.stream(SecurityStandards.SQCategory.values()).map(SecurityStandards.SQCategory::getKey).collect(Collectors.toList()));
+      .setPossibleValues(Arrays.stream(SecurityStandards.SQCategory.values()).map(SecurityStandards.SQCategory::getKey).toList());
     action.createParam(PARAM_CWE)
       .setDescription("Comma-separated list of CWE numbers")
       .setExampleValue("89,434,352")
@@ -362,7 +362,7 @@ public class SearchAction implements HotspotsWsAction {
     return issueKeys.stream()
       .map(hotspotsByKey::get)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private SearchResponse doIndexSearch(WsRequest wsRequest, DbSession dbSession, @Nullable ComponentDto project) {

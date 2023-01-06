@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.api.issue.Issue;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
@@ -56,10 +55,10 @@ public class PullRequestTrackerExecution {
     Input<DefaultIssue> unmatchedRawsAfterTargetResolvedTracking;
     if (targetInputFactory.hasTargetBranchAnalysis()) {
       Input<DefaultIssue> targetInput = targetInputFactory.createForTargetBranch(component);
-      List<DefaultIssue> resolvedTargetIssues = targetInput.getIssues().stream().filter(i -> Issue.STATUS_RESOLVED.equals(i.status())).collect(Collectors.toList());
+      List<DefaultIssue> resolvedTargetIssues = targetInput.getIssues().stream().filter(i -> Issue.STATUS_RESOLVED.equals(i.status())).toList();
       Input<DefaultIssue> resolvedTargetInput = createInput(targetInput, resolvedTargetIssues);
       Tracking<DefaultIssue, DefaultIssue> prResolvedTracking = tracker.trackNonClosed(unmatchedRawsAfterChangedLineFiltering, resolvedTargetInput);
-      unmatchedRawsAfterTargetResolvedTracking = createInput(rawInput, prResolvedTracking.getUnmatchedRaws().collect(Collectors.toList()));
+      unmatchedRawsAfterTargetResolvedTracking = createInput(rawInput, prResolvedTracking.getUnmatchedRaws().toList());
     } else {
       unmatchedRawsAfterTargetResolvedTracking = unmatchedRawsAfterChangedLineFiltering;
     }
@@ -84,7 +83,7 @@ public class PullRequestTrackerExecution {
     final Set<Integer> newLines = newLinesOpt.get();
     return issues.stream()
       .filter(i -> IssueLocations.allLinesFor(i, component.getUuid()).anyMatch(newLines::contains))
-      .collect(Collectors.toList());
+      .toList();
   }
 
 }

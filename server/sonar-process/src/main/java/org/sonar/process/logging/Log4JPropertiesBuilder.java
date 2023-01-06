@@ -184,7 +184,7 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
       .filter(loggerName -> !ROOT_LOGGER_NAME.equals(loggerName))
       .distinct()
       .sorted()
-      .collect(Collectors.toList());
+      .toList();
     if (!loggerNames.isEmpty()) {
       putProperty("loggers", loggerNames.stream().collect(Collectors.joining(",")));
     }

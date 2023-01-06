@@ -60,7 +60,7 @@ public class SiblingsIssuesLoader {
       return dbClient.issueDao().selectOpenByComponentUuids(session, uuids)
         .stream()
         .map(SiblingsIssuesLoader::toSiblingIssue)
-        .collect(Collectors.toList());
+        .toList();
     }
   }
 

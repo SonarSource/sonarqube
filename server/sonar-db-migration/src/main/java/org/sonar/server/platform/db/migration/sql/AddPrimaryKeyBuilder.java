@@ -22,7 +22,6 @@ package org.sonar.server.platform.db.migration.sql;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -36,7 +35,7 @@ public class AddPrimaryKeyBuilder {
 
   public AddPrimaryKeyBuilder(String tableName, String column, String... moreColumns) {
     this.tableName = validateTableName(tableName);
-    this.primaryKey = Lists.asList(column, moreColumns).stream().filter(Objects::nonNull).collect(Collectors.toList());
+    this.primaryKey = Lists.asList(column, moreColumns).stream().filter(Objects::nonNull).toList();
   }
 
   public String build() {

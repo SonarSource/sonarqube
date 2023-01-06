@@ -25,9 +25,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.permission.GlobalPermission;
-
-import static java.util.stream.Collectors.toList;
-
 @Immutable
 public class PermissionServiceImpl implements PermissionService {
   private static final List<String> ALL_PROJECT_PERMISSIONS = List.of(
@@ -48,11 +45,11 @@ public class PermissionServiceImpl implements PermissionService {
     globalPermissions = List.copyOf(ALL_GLOBAL_PERMISSIONS.stream()
       .filter(s -> !s.equals(GlobalPermission.APPLICATION_CREATOR) || resourceTypes.isQualifierPresent(Qualifiers.APP))
       .filter(s -> !s.equals(GlobalPermission.PORTFOLIO_CREATOR) || resourceTypes.isQualifierPresent(Qualifiers.VIEW))
-      .collect(toList()));
+      .toList());
     projectPermissions = List.copyOf(ALL_PROJECT_PERMISSIONS.stream()
       .filter(s -> !s.equals(GlobalPermission.APPLICATION_CREATOR.getKey()) || resourceTypes.isQualifierPresent(Qualifiers.APP))
       .filter(s -> !s.equals(GlobalPermission.PORTFOLIO_CREATOR.getKey()) || resourceTypes.isQualifierPresent(Qualifiers.VIEW))
-      .collect(toList()));
+      .toList());
   }
 
   /**

@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
@@ -122,7 +121,7 @@ public class DefaultRuleFinder implements ServerRuleFinder {
 
   private Collection<org.sonar.api.rules.Rule> convertToRuleApi(DbSession dbSession, List<RuleDto> ruleDtos) {
     List<org.sonar.api.rules.Rule> rules = new ArrayList<>();
-    List<RuleKey> ruleKeys = ruleDtos.stream().map(RuleDto::getKey).collect(Collectors.toList());
+    List<RuleKey> ruleKeys = ruleDtos.stream().map(RuleDto::getKey).toList();
     List<RuleParamDto> ruleParamDtos = ruleDao.selectRuleParamsByRuleKeys(dbSession, ruleKeys);
     ImmutableListMultimap<String, RuleParamDto> ruleParamByRuleUuid = FluentIterable.from(ruleParamDtos).index(RuleParamDtoToRuleUuid.INSTANCE);
     for (RuleDto rule : ruleDtos) {

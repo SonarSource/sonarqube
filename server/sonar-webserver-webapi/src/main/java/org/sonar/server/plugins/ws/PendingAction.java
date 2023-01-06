@@ -117,6 +117,6 @@ public class PendingAction implements PluginsWsAction {
         Plugin plugin = compatiblePluginsByKey.get(pluginInfo.getKey());
         return buildPluginDetails(null, pluginInfo, null, plugin);
       })
-      .collect(Collectors.toList());
+      .toList();
   }
 }

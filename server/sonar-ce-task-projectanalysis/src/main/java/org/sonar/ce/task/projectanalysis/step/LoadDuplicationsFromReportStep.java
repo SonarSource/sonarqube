@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
@@ -123,7 +122,7 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
         new Duplication(
           convert(duplication.getOriginPosition(), id),
           duplication.getDuplicateList().stream()
-            .map(new BatchDuplicateToCeDuplicate(file)).collect(Collectors.toList())));
+            .map(new BatchDuplicateToCeDuplicate(file)).toList()));
     }
 
     private DetailedTextBlock convert(ScannerReport.TextRange textRange, int id) {

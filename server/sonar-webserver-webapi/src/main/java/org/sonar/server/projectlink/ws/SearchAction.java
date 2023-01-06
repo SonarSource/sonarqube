@@ -20,7 +20,6 @@
 package org.sonar.server.projectlink.ws;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -100,7 +99,7 @@ public class SearchAction implements ProjectLinksWsAction {
     return SearchWsResponse.newBuilder()
       .addAllLinks(links.stream()
         .map(SearchAction::buildLink)
-        .collect(Collectors.toList()))
+        .toList())
       .build();
   }
 

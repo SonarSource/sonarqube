@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.process.MessageException;
@@ -68,7 +67,7 @@ public class JvmOptions<T extends JvmOptions> {
   public T addFromMandatoryProperty(Props props, String propertyName) {
     String value = props.nonNullValue(propertyName);
     if (!value.isEmpty()) {
-      List<String> jvmOptions = Arrays.stream(value.split(" (?=-)")).map(String::trim).collect(Collectors.toList());
+      List<String> jvmOptions = Arrays.stream(value.split(" (?=-)")).map(String::trim).toList();
       checkOptionFormat(propertyName, jvmOptions);
       checkMandatoryOptionOverwrite(propertyName, jvmOptions);
       options.addAll(jvmOptions);
@@ -80,7 +79,7 @@ public class JvmOptions<T extends JvmOptions> {
   private static void checkOptionFormat(String propertyName, List<String> jvmOptionsFromProperty) {
     List<String> invalidOptions = jvmOptionsFromProperty.stream()
       .filter(JvmOptions::isInvalidOption)
-      .collect(Collectors.toList());
+      .toList();
     if (!invalidOptions.isEmpty()) {
       throw new MessageException(format(
         "a JVM option can't be empty and must start with '-'. The following JVM options defined by property '%s' are invalid: %s",
@@ -94,7 +93,7 @@ public class JvmOptions<T extends JvmOptions> {
     List<Match> matches = jvmOptionsFromProperty.stream()
       .map(jvmOption -> new Match(jvmOption, mandatoryOptionFor(jvmOption)))
       .filter(match -> match.getMandatoryOption() != null)
-      .collect(Collectors.toList());
+      .toList();
     if (!matches.isEmpty()) {
       throw new MessageException(format(
         "a JVM option can't overwrite mandatory JVM options. The following JVM options defined by property '%s' are invalid: %s",

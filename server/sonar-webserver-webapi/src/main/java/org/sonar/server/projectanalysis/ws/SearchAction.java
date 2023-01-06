@@ -22,7 +22,6 @@ package org.sonar.server.projectanalysis.ws;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
@@ -180,7 +179,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
     var detectedCIs = dbClient.analysisPropertiesDao().selectByKeyAndAnalysisUuids(data.getDbSession(),
       CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI,
-      snapshotDtos.stream().map(SnapshotDto::getUuid).collect(Collectors.toList()));
+      snapshotDtos.stream().map(SnapshotDto::getUuid).toList());
     data.setAnalyses(snapshotDtos);
     data.setDetectedCIs(detectedCIs);
   }

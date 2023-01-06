@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -95,7 +94,7 @@ public class PersistEventsStep implements ComputationStep {
         .setDescription(event.getDescription())
         .setData(event.getData());
       // FIXME bulk insert
-      for (EventDto batchEventDto : StreamSupport.stream(eventRepository.getEvents(component).spliterator(), false).map(eventToEventDto).collect(Collectors.toList())) {
+      for (EventDto batchEventDto : StreamSupport.stream(eventRepository.getEvents(component).spliterator(), false).map(eventToEventDto).toList()) {
         dbClient.eventDao().insert(session, batchEventDto);
       }
     }

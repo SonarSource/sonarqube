@@ -20,7 +20,6 @@
 package org.sonar.server.user.ws;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -31,7 +30,7 @@ public class HomepageTypesImpl implements HomepageTypes {
   private List<Type> types;
 
   public HomepageTypesImpl() {
-    types = Stream.of(HomepageTypes.Type.values()).collect(Collectors.toList());
+    types = Stream.of(HomepageTypes.Type.values()).toList();
   }
 
   @Override

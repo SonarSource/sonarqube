@@ -45,7 +45,6 @@ import org.sonarqube.ws.Common.Paging;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -125,7 +124,7 @@ public class SearchBitbucketCloudReposAction implements AlmIntegrationsWsAction 
 
       List<BBCRepo> bbcRepos = repositoryList.getValues().stream()
         .map(repository -> toBBCRepo(repository, workspace, sqProjectKeyByRepoSlug))
-        .collect(toList());
+        .toList();
 
       SearchBitbucketcloudReposWsResponse.Builder builder = SearchBitbucketcloudReposWsResponse.newBuilder()
         .setIsLastPage(repositoryList.getNext() == null)

@@ -82,23 +82,23 @@ public class ListDefinitionsAction implements AlmSettingsWsAction {
       List<AlmSettingGithub> githubSettings = settingsByAlm.getOrDefault(ALM.GITHUB, emptyList())
         .stream()
         .sorted(Comparator.comparing(AlmSettingDto::getCreatedAt))
-        .map(ListDefinitionsAction::toGitHub).collect(Collectors.toList());
+        .map(ListDefinitionsAction::toGitHub).toList();
       List<AlmSettingAzure> azureSettings = settingsByAlm.getOrDefault(ALM.AZURE_DEVOPS, emptyList())
         .stream()
         .sorted(Comparator.comparing(AlmSettingDto::getCreatedAt))
-        .map(ListDefinitionsAction::toAzure).collect(Collectors.toList());
+        .map(ListDefinitionsAction::toAzure).toList();
       List<AlmSettingBitbucket> bitbucketSettings = settingsByAlm.getOrDefault(ALM.BITBUCKET, emptyList())
         .stream()
         .sorted(Comparator.comparing(AlmSettingDto::getCreatedAt))
-        .map(ListDefinitionsAction::toBitbucket).collect(Collectors.toList());
+        .map(ListDefinitionsAction::toBitbucket).toList();
       List<AlmSettingBitbucketCloud> bitbucketCloudSettings = settingsByAlm.getOrDefault(ALM.BITBUCKET_CLOUD, emptyList())
         .stream()
         .sorted(Comparator.comparing(AlmSettingDto::getCreatedAt))
-        .map(ListDefinitionsAction::toBitbucketCloud).collect(Collectors.toList());
+        .map(ListDefinitionsAction::toBitbucketCloud).toList();
       List<AlmSettingGitlab> gitlabSettings = settingsByAlm.getOrDefault(ALM.GITLAB, emptyList())
         .stream()
         .sorted(Comparator.comparing(AlmSettingDto::getCreatedAt))
-        .map(ListDefinitionsAction::toGitlab).collect(Collectors.toList());
+        .map(ListDefinitionsAction::toGitlab).toList();
       return ListDefinitionsWsResponse.newBuilder()
         .addAllGithub(githubSettings)
         .addAllAzure(azureSettings)

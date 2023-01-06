@@ -45,7 +45,6 @@ import org.sonarqube.ws.AlmIntegrations.GitlabRepository;
 import org.sonarqube.ws.Common.Paging;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -121,7 +120,7 @@ public class SearchGitlabReposAction implements AlmIntegrationsWsAction {
 
       List<GitlabRepository> gitlabRepositories = gitlabProjectList.getProjects().stream()
         .map(project -> toGitlabRepository(project, sqProjectsKeyByGitlabProjectId))
-        .collect(toList());
+        .toList();
 
       Paging.Builder pagingBuilder = Paging.newBuilder()
         .setPageIndex(gitlabProjectList.getPageNumber())

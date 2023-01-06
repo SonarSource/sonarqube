@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -135,7 +134,7 @@ public class SearchAction implements ComponentsWsAction {
       .selectByUuids(dbSession, projectUuidsToSearch)
       .stream()
       .filter(c -> !c.qualifier().equals(Qualifiers.MODULE))
-      .collect(Collectors.toList());
+      .toList();
     return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::getKey));
   }
 

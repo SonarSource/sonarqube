@@ -38,7 +38,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -156,7 +155,7 @@ public class SearchAction implements QualityGatesWsAction {
   }
 
   private static List<ProjectQgateAssociationDto> getPaginatedProjects(List<ProjectQgateAssociationDto> projects, Paging paging) {
-    return projects.stream().skip(paging.offset()).limit(paging.pageSize()).collect(toList());
+    return projects.stream().skip(paging.offset()).limit(paging.pageSize()).toList();
   }
 
   private List<ProjectQgateAssociationDto> keepAuthorizedProjects(DbSession dbSession, List<ProjectQgateAssociationDto> projects) {

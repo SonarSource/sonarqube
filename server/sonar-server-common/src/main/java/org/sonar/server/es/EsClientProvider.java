@@ -80,7 +80,7 @@ public class EsClientProvider {
     return Arrays.stream(config.getStringArray(CLUSTER_SEARCH_HOSTS.getKey()))
       .map(HostAndPort::fromString)
       .map(EsClientProvider::toHttpHost)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static HttpHost toHttpHost(HostAndPort host) {

@@ -20,7 +20,6 @@
 package org.sonar.server.user.ws;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.ws.Change;
@@ -126,7 +125,7 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
     return identityProviderRepository.getAllEnabledAndSorted()
       .stream()
       .map(IdentityProvider::getKey)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static boolean isLdapIdentityProvider(String identityProviderKey) {
