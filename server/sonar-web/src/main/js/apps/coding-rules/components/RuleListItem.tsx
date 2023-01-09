@@ -202,10 +202,9 @@ export default class RuleListItem extends React.PureComponent<Props> {
     const { rule, selected } = this.props;
     const allTags = [...(rule.tags || []), ...(rule.sysTags || [])];
     return (
-      <div
+      <li
         className={classNames('coding-rule', { selected })}
-        aria-selected={selected}
-        role="row"
+        aria-current={selected}
         data-rule={rule.key}
       >
         <table className="coding-rule-table">
@@ -264,7 +263,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
             </tr>
           </tbody>
         </table>
-      </div>
+      </li>
     );
   }
 }

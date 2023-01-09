@@ -101,11 +101,10 @@ exports[`renderActions should render the deactivate button 1`] = `
 `;
 
 exports[`should render correctly: default 1`] = `
-<div
-  aria-selected={false}
+<li
+  aria-current={false}
   className="coding-rule"
   data-rule="javascript:S1067"
-  role="row"
 >
   <table
     className="coding-rule-table"
@@ -194,15 +193,14 @@ exports[`should render correctly: default 1`] = `
       </tr>
     </tbody>
   </table>
-</div>
+</li>
 `;
 
 exports[`should render correctly: with activation 1`] = `
-<div
-  aria-selected={false}
+<li
+  aria-current={false}
   className="coding-rule"
   data-rule="javascript:S1067"
-  role="row"
 >
   <table
     className="coding-rule-table"
@@ -291,5 +289,5 @@ exports[`should render correctly: with activation 1`] = `
       </tr>
     </tbody>
   </table>
-</div>
+</li>
 `;

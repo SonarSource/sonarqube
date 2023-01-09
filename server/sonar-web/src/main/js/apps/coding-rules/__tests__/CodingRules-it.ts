@@ -43,19 +43,19 @@ afterEach(() => handler.reset());
 it('should select rules with keyboard navigation', async () => {
   const user = userEvent.setup();
   renderCodingRulesApp();
-  let row = await screen.findByRole('row', { selected: true });
-  expect(within(row).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
+  let listitem = await screen.findByRole('listitem', { current: true });
+  expect(within(listitem).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
   await user.keyboard('{ArrowDown}');
-  row = await screen.findByRole('row', { selected: true });
-  expect(within(row).getByRole('link', { name: 'Hot hotspot' })).toBeInTheDocument();
+  listitem = await screen.findByRole('listitem', { current: true });
+  expect(within(listitem).getByRole('link', { name: 'Hot hotspot' })).toBeInTheDocument();
   await user.keyboard('{ArrowUp}');
-  row = await screen.findByRole('row', { selected: true });
-  expect(within(row).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
+  listitem = await screen.findByRole('listitem', { current: true });
+  expect(within(listitem).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
   await user.keyboard('{ArrowRight}');
   expect(screen.getByRole('heading', { level: 3, name: 'Awsome java rule' })).toBeInTheDocument();
   await user.keyboard('{ArrowLeft}');
-  row = await screen.findByRole('row', { selected: true });
-  expect(within(row).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
+  listitem = await screen.findByRole('listitem', { current: true });
+  expect(within(listitem).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
 });
 
 it('should open with permalink', async () => {

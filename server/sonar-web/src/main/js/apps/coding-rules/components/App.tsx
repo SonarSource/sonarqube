@@ -647,7 +647,7 @@ export class App extends React.PureComponent<Props, State> {
                 />
               ) : (
                 <>
-                  <section>
+                  <ul>
                     {rules.map((rule) => (
                       <RuleListItem
                         activation={this.getRuleActivation(rule.key)}
@@ -662,7 +662,7 @@ export class App extends React.PureComponent<Props, State> {
                         selectedProfile={this.getSelectedProfile()}
                       />
                     ))}
-                  </section>
+                  </ul>
                   {paging !== undefined && (
                     <ListFooter
                       count={rules.length}
