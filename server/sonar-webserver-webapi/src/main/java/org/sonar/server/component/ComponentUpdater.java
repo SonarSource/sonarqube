@@ -104,9 +104,8 @@ public class ComponentUpdater {
    * - Index component in es indexes
    */
   public ComponentDto createApplicationOrPortfolio(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid,
-    @Nullable String userLogin) {
-    ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userUuid, userLogin,
-      defaultBranchNameResolver.getEffectiveMainBranchName(), c -> {});
+    @Nullable String userLogin, @Nullable String mainBranchName) {
+    ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userUuid, userLogin, mainBranchName, c -> {});
     commitAndIndex(dbSession, componentDto);
     return componentDto;
   }

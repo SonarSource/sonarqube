@@ -22,6 +22,7 @@
         <element name="remoteView" maxOccurs="unbounded" minOccurs="0" type="tns:remoteViewType"/>
         <element name="vw-ref" maxOccurs="unbounded" minOccurs="0" type="tns:keyType"/>
         <element name="qualifier" maxOccurs="1" minOccurs="0" type="string"/>
+        <element name="mainBranch" minOccurs="0" type="tns:mainBranch"/>
         <element name="branch" maxOccurs="unbounded" minOccurs="0" type="tns:branchType"/>
         <element name="tagsAssociation" maxOccurs="unbounded" minOccurs="0" type="tns:tagsAssociationType"/>
       </choice>
@@ -50,6 +51,9 @@
         <attribute name="branch" type="tns:branchKeyType" />
       </extension>
     </simpleContent>
+  </complexType>
+  <complexType name="mainBranch">
+    <attribute name="key" type="string" use="required"/>
   </complexType>
   <complexType name="remoteViewType">
     <sequence>
