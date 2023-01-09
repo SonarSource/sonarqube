@@ -19,9 +19,7 @@
  */
 package org.sonar.server.qualitygate;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +37,7 @@ import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
+import static org.sonar.server.qualitygate.QualityGateCaycChecker.CAYC_METRICS;
 
 public class QualityGateCaycCheckerTest {
 
@@ -49,20 +48,15 @@ public class QualityGateCaycCheckerTest {
   @Test
   public void checkCaycCompliant() {
     String qualityGateUuid = "abcd";
-    List<Metric<? extends Serializable>> CAYC_REQUIREMENT_METRICS = List.of(NEW_MAINTAINABILITY_RATING, NEW_RELIABILITY_RATING, NEW_SECURITY_HOTSPOTS_REVIEWED, NEW_SECURITY_RATING,
-      NEW_DUPLICATED_LINES_DENSITY, NEW_COVERAGE);
-    CAYC_REQUIREMENT_METRICS
-      .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
+    CAYC_METRICS.forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
     assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isTrue();
   }
 
   @Test
   public void check_Cayc_NonCompliant_with_lesser_threshold_value() {
-    var metrics = List.of(NEW_MAINTAINABILITY_RATING, NEW_RELIABILITY_RATING, NEW_SECURITY_HOTSPOTS_REVIEWED, NEW_SECURITY_RATING).stream()
-      .map(this::insertMetric)
-      .collect(Collectors.toList());
+    var metrics = CAYC_METRICS.stream().map(this::insertMetric).toList();
 
-    IntStream.range(0, metrics.size()).forEach(idx -> {
+    IntStream.range(0, 4).forEach(idx -> {
       String qualityGateUuid = "abcd" + idx;
       for (int i = 0; i < metrics.size(); i++) {
         var metric = metrics.get(i);
@@ -75,9 +69,19 @@ public class QualityGateCaycCheckerTest {
   @Test
   public void check_Cayc_NonCompliant_with_missing_metric() {
     String qualityGateUuid = "abcd";
-    List.of(NEW_MAINTAINABILITY_RATING, NEW_RELIABILITY_RATING, NEW_SECURITY_HOTSPOTS_REVIEWED)
+    List.of(NEW_MAINTAINABILITY_RATING, NEW_RELIABILITY_RATING, NEW_SECURITY_HOTSPOTS_REVIEWED, NEW_DUPLICATED_LINES_DENSITY)
       .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
     assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isFalse();
+  }
+
+  @Test
+  public void existency_requirements_check_only_existency() {
+    String qualityGateUuid = "abcd";
+    List.of(NEW_MAINTAINABILITY_RATING, NEW_RELIABILITY_RATING, NEW_SECURITY_HOTSPOTS_REVIEWED, NEW_SECURITY_RATING)
+      .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
+    List.of(NEW_COVERAGE, NEW_DUPLICATED_LINES_DENSITY)
+      .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getWorstValue()));
+    assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isTrue();
   }
 
   private void insertCondition(MetricDto metricDto, String qualityGateUuid, Double threshold) {

@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
@@ -32,7 +33,9 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 
 import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE;
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
@@ -50,7 +53,13 @@ public class QualityGateCaycChecker {
     NEW_COVERAGE
   );
 
-  private static final Map<String, Double> CAYC_REQUIREMENTS = CAYC_METRICS.stream()
+  private static final Set<String> EXISTENCY_REQUIREMENTS = Set.of(
+    NEW_DUPLICATED_LINES_DENSITY_KEY,
+    NEW_COVERAGE_KEY
+  );
+
+  private static final Map<String, Double> BEST_VALUE_REQUIREMENTS = CAYC_METRICS.stream()
+    .filter(metric -> !EXISTENCY_REQUIREMENTS.contains(metric.getKey()))
     .collect(toUnmodifiableMap(Metric::getKey, Metric::getBestValue));
 
   private final DbClient dbClient;
@@ -68,10 +77,9 @@ public class QualityGateCaycChecker {
       .filter(MetricDto::isEnabled)
       .collect(Collectors.toSet());
     long count = metrics.stream()
-      .filter(metric -> CAYC_REQUIREMENTS.containsKey(metric.getKey()))
       .filter(metric -> checkMetricCaycCompliant(conditionsByMetricId.get(metric.getUuid()), metric))
       .count();
-    return count == CAYC_REQUIREMENTS.size();
+    return count == CAYC_METRICS.size();
   }
 
   public boolean checkCaycCompliantFromProject(DbSession dbSession, String projectUuid) {
@@ -82,9 +90,15 @@ public class QualityGateCaycChecker {
   }
 
   private static boolean checkMetricCaycCompliant(QualityGateConditionDto condition, MetricDto metric) {
-    Double errorThreshold = Double.valueOf(condition.getErrorThreshold());
-    Double caycRequiredThreshold = CAYC_REQUIREMENTS.get(metric.getKey());
-    return caycRequiredThreshold.compareTo(errorThreshold) == 0;
+    if (EXISTENCY_REQUIREMENTS.contains(metric.getKey())) {
+      return true;
+    } else if (BEST_VALUE_REQUIREMENTS.containsKey(metric.getKey())) {
+      Double errorThreshold = Double.valueOf(condition.getErrorThreshold());
+      Double caycRequiredThreshold = BEST_VALUE_REQUIREMENTS.get(metric.getKey());
+      return caycRequiredThreshold.compareTo(errorThreshold) == 0;
+    } else {
+      return false;
+    }
   }
 
 }
