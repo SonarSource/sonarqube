@@ -102,9 +102,9 @@ public class WebServiceEngine implements LocalConnector, Startable {
       ActionExtractor actionExtractor = new ActionExtractor(request.getPath());
       WebService.Action action = getAction(actionExtractor);
       checkFound(action, "Unknown url : %s", request.getPath());
-      if (request instanceof ValidatingRequest) {
-        ((ValidatingRequest) request).setAction(action);
-        ((ValidatingRequest) request).setLocalConnector(this);
+      if (request instanceof ValidatingRequest validatingRequest) {
+        validatingRequest.setAction(action);
+        validatingRequest.setLocalConnector(this);
       }
       checkActionExtension(actionExtractor.getExtension());
       verifyRequest(action, request);
@@ -160,8 +160,8 @@ public class WebServiceEngine implements LocalConnector, Startable {
     }
 
     // response is not committed, status and content can be changed to return the error
-    if (stream instanceof ServletResponse.ServletStream) {
-      ((ServletResponse.ServletStream) stream).reset();
+    if (stream instanceof ServletResponse.ServletStream servletStream) {
+      servletStream.reset();
     }
     stream.setStatus(status);
     stream.setMediaType(MediaTypes.JSON);
@@ -189,7 +189,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
   private static boolean isResponseCommitted(Response response) {
     Response.Stream stream = response.stream();
     // Request has been aborted by the client or the response was partially streamed, nothing can been done as Tomcat has committed the response
-    return stream instanceof ServletResponse.ServletStream && ((ServletResponse.ServletStream) stream).response().isCommitted();
+    return stream instanceof ServletResponse.ServletStream servletStream && servletStream.response().isCommitted();
   }
 
   public static void writeErrors(JsonWriter json, List<String> errorMessages) {

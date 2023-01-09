@@ -51,12 +51,9 @@ public abstract class BaseDoc {
   protected BaseDoc(IndexType indexType, Map<String, Object> fields) {
     this.indexType = indexType;
     this.fields = fields;
-    if (indexType instanceof IndexMainType) {
-      IndexMainType mainType = (IndexMainType) indexType;
-      if (mainType.getIndex().acceptsRelations()) {
-        setField(mainType.getIndex().getJoinField(), ImmutableMap.of("name", mainType.getType()));
-        setField(FIELD_INDEX_TYPE, mainType.getType());
-      }
+    if (indexType instanceof IndexMainType mainType && mainType.getIndex().acceptsRelations()) {
+      setField(mainType.getIndex().getJoinField(), ImmutableMap.of("name", mainType.getType()));
+      setField(FIELD_INDEX_TYPE, mainType.getType());
     }
   }
 
@@ -106,11 +103,11 @@ public abstract class BaseDoc {
   public Date getNullableFieldAsDate(String key) {
     Object val = getNullableField(key);
     if (val != null) {
-      if (val instanceof Date) {
-        return (Date) val;
+      if (val instanceof Date date) {
+        return date;
       }
-      if (val instanceof Number) {
-        return epochSecondsToDate((Number) val);
+      if (val instanceof Number number) {
+        return epochSecondsToDate(number);
       }
       return EsUtils.parseDateTime((String) val);
     }
@@ -136,11 +133,11 @@ public abstract class BaseDoc {
 
   public Date getFieldAsDate(String key) {
     Object value = getField(key);
-    if (value instanceof Date) {
-      return (Date) value;
+    if (value instanceof Date date) {
+      return date;
     }
-    if (value instanceof Number) {
-      return epochSecondsToDate((Number) value);
+    if (value instanceof Number number) {
+      return epochSecondsToDate(number);
     }
     return EsUtils.parseDateTime((String) value);
   }

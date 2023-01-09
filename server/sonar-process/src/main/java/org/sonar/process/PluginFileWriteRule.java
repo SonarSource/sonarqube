@@ -44,11 +44,8 @@ public class PluginFileWriteRule implements PluginPolicyRule {
 
   @Override
   public boolean implies(Permission permission) {
-    if (permission instanceof FilePermission) {
-      FilePermission requestPermission = (FilePermission) permission;
-      if (blockedFilePermission.implies(requestPermission) && !tmpFilePermission.implies(requestPermission)) {
-        return false;
-      }
+    if (permission instanceof FilePermission requestPermission) {
+      return !blockedFilePermission.implies(requestPermission) || tmpFilePermission.implies(requestPermission);
     }
     return true;
   }

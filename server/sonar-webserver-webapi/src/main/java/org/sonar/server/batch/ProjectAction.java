@@ -103,8 +103,8 @@ public class ProjectAction implements BatchWsAction {
 
   private static WsProjectResponse buildResponse(ProjectRepositories data) {
     WsProjectResponse.Builder response = WsProjectResponse.newBuilder();
-    if (data instanceof SingleProjectRepository) {
-      response.putAllFileDataByPath(buildFileDataByPath((SingleProjectRepository) data));
+    if (data instanceof SingleProjectRepository singleProjectRepository) {
+      response.putAllFileDataByPath(buildFileDataByPath(singleProjectRepository));
     } else {
       response.putAllFileDataByModuleAndPath(buildFileDataByModuleAndPath((MultiModuleProjectRepository) data));
     }

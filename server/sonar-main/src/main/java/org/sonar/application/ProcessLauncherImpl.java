@@ -93,8 +93,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
 
     Process process;
-    if (command instanceof EsScriptCommand) {
-      process = launchExternal((EsScriptCommand) command);
+    if (command instanceof EsScriptCommand esScriptCommand) {
+      process = launchExternal(esScriptCommand);
     } else if (command instanceof JavaCommand) {
       process = launchJava((JavaCommand<?>) command);
     } else {

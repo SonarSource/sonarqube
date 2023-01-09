@@ -54,8 +54,8 @@ public class FpOrWontFixEmailTemplate extends IssueChangesEmailTemplate {
       .setMessageId(getMessageId(notification.getResolution()))
       .setSubject(buildSubject(notification))
       .setHtmlMessage(buildMessage(notification));
-    if (notification.getChange() instanceof UserChange) {
-      User user = ((UserChange) notification.getChange()).getUser();
+    if (notification.getChange() instanceof UserChange userChange) {
+      User user = userChange.getUser();
       emailMessage.setFrom(user.getName().orElse(user.getLogin()));
     }
     return emailMessage;

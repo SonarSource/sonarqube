@@ -68,12 +68,10 @@ public class MetadataIndexImpl implements MetadataIndex {
   }
 
   private static String initializedId(IndexType indexType) {
-    if (indexType instanceof IndexMainType) {
-      IndexMainType mainType = (IndexMainType) indexType;
+    if (indexType instanceof IndexMainType mainType) {
       return mainType.getIndex().getName() + "." + mainType.getType() + ".initialized";
     }
-    if (indexType instanceof IndexRelationType) {
-      IndexRelationType relationType = (IndexRelationType) indexType;
+    if (indexType instanceof IndexRelationType relationType) {
       IndexMainType mainType = relationType.getMainType();
       return mainType.getIndex().getName() + "." + mainType.getType() + "." + relationType.getName() + ".initialized";
     }

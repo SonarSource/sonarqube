@@ -71,8 +71,8 @@ public class OAuth2CallbackFilter extends AuthenticationFilter {
 
   private void handleProvider(HttpServletRequest request, HttpServletResponse response, IdentityProvider provider) {
     try {
-      if (provider instanceof OAuth2IdentityProvider) {
-        handleOAuth2Provider(response, request, (OAuth2IdentityProvider) provider);
+      if (provider instanceof OAuth2IdentityProvider oAuth2IdentityProvider) {
+        handleOAuth2Provider(response, request, oAuth2IdentityProvider);
       } else {
         handleError(request, response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
       }

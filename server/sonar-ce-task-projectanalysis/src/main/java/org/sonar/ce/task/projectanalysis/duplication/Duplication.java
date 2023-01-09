@@ -147,11 +147,11 @@ public final class Duplication {
       if (duplicate instanceof InnerDuplicate) {
         return "";
       }
-      if (duplicate instanceof InProjectDuplicate) {
-        return ((InProjectDuplicate) duplicate).getFile().getKey();
+      if (duplicate instanceof InProjectDuplicate inProjectDuplicate) {
+        return inProjectDuplicate.getFile().getKey();
       }
-      if (duplicate instanceof CrossProjectDuplicate) {
-        return ((CrossProjectDuplicate) duplicate).getFileKey();
+      if (duplicate instanceof CrossProjectDuplicate crossProjectDuplicate) {
+        return crossProjectDuplicate.getFileKey();
       }
       throw new IllegalArgumentException("Unsupported type of Duplicate " + duplicate.getClass().getName());
     }

@@ -67,12 +67,12 @@ class IndexDefinitionHash {
   }
 
   private static void appendObject(StringBuilder sb, Object value) {
-    if (value instanceof Object[]) {
-      sb.append(Arrays.toString((Object[]) value));
-    } else if (value instanceof Map) {
-      appendMap(sb, (Map) value);
-    } else if (value instanceof IndexType) {
-      sb.append(((IndexType) value).format());
+    if (value instanceof Object[] arrayValue) {
+      sb.append(Arrays.toString(arrayValue));
+    } else if (value instanceof Map map) {
+      appendMap(sb, map);
+    } else if (value instanceof IndexType indexType) {
+      sb.append(indexType.format());
     } else {
       sb.append(value);
     }

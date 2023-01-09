@@ -154,8 +154,8 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
     if (stacktrace != null) {
       activityDto.setErrorStacktrace(stacktrace);
     }
-    if (error instanceof TypedException) {
-      activityDto.setErrorType(((TypedException) error).getType());
+    if (error instanceof TypedException typedException) {
+      activityDto.setErrorType(typedException.getType());
     }
   }
 

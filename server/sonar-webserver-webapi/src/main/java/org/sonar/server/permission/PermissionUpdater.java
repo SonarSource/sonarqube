@@ -55,11 +55,11 @@ public class PermissionUpdater {
   }
 
   private boolean doApply(DbSession dbSession, PermissionChange change) {
-    if (change instanceof UserPermissionChange) {
-      return userPermissionChanger.apply(dbSession, (UserPermissionChange) change);
+    if (change instanceof UserPermissionChange userPermissionChange) {
+      return userPermissionChanger.apply(dbSession, userPermissionChange);
     }
-    if (change instanceof GroupPermissionChange) {
-      return groupPermissionChanger.apply(dbSession, (GroupPermissionChange) change);
+    if (change instanceof GroupPermissionChange groupPermissionChange) {
+      return groupPermissionChanger.apply(dbSession, groupPermissionChange);
     }
     throw new UnsupportedOperationException("Unsupported permission change: " + change.getClass());
 
