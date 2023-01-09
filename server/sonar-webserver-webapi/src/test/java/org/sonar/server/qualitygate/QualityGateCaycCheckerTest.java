@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -32,6 +33,8 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
@@ -46,7 +49,8 @@ public class QualityGateCaycCheckerTest {
   @Test
   public void checkCaycCompliant() {
     String qualityGateUuid = "abcd";
-    List<Metric<Integer>> CAYC_REQUIREMENT_METRICS = List.of(NEW_MAINTAINABILITY_RATING, NEW_RELIABILITY_RATING, NEW_SECURITY_HOTSPOTS_REVIEWED, NEW_SECURITY_RATING);
+    List<Metric<? extends Serializable>> CAYC_REQUIREMENT_METRICS = List.of(NEW_MAINTAINABILITY_RATING, NEW_RELIABILITY_RATING, NEW_SECURITY_HOTSPOTS_REVIEWED, NEW_SECURITY_RATING,
+      NEW_DUPLICATED_LINES_DENSITY, NEW_COVERAGE);
     CAYC_REQUIREMENT_METRICS
       .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
     assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isTrue();

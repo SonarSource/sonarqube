@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +31,8 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 
 import static java.util.stream.Collectors.toUnmodifiableMap;
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
@@ -38,11 +41,13 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class QualityGateCaycChecker {
 
-  public static final List<Metric<Integer>> CAYC_METRICS = List.of(
+  public static final List<Metric<? extends Serializable>> CAYC_METRICS = List.of(
     NEW_MAINTAINABILITY_RATING,
     NEW_RELIABILITY_RATING,
     NEW_SECURITY_HOTSPOTS_REVIEWED,
-    NEW_SECURITY_RATING
+    NEW_SECURITY_RATING,
+    NEW_DUPLICATED_LINES_DENSITY,
+    NEW_COVERAGE
   );
 
   private static final Map<String, Double> CAYC_REQUIREMENTS = CAYC_METRICS.stream()

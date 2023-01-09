@@ -36,6 +36,7 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -50,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.QualityGateCaycChecker.CAYC_METRICS;
+import static org.sonar.server.qualitygate.ws.CreateAction.DEFAULT_METRIC_VALUES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 
 @RunWith(DataProviderRunner.class)
@@ -90,8 +92,8 @@ public class CreateActionTest {
 
     CAYC_METRICS.stream()
       .map(m -> dbClient.metricDao().selectByKey(dbSession, m.getKey()))
-      .forEach(metricDto ->
-        assertThat(conditions).anyMatch(c -> metricDto.getUuid().equals(c.getMetricUuid())));
+      .forEach(metricDto -> assertThat(conditions)
+        .anyMatch(c -> metricDto.getUuid().equals(c.getMetricUuid()) && c.getErrorThreshold().equals(String.valueOf(getDefaultCaycValue(metricDto)))));
   }
 
   @Test
@@ -167,4 +169,15 @@ public class CreateActionTest {
       .setHidden(metric.isHidden())
       .setDirection(metric.getDirection()));
   }
+
+  private Integer getDefaultCaycValue(MetricDto metricDto) {
+    return DEFAULT_METRIC_VALUES.containsKey(metricDto.getKey())
+      ? DEFAULT_METRIC_VALUES.get(metricDto.getKey())
+      : CAYC_METRICS.stream()
+        .filter(metric -> metricDto.getKey().equals(metric.getKey()))
+        .findAny()
+        .orElseThrow()
+        .getBestValue().intValue();
+  }
+
 }

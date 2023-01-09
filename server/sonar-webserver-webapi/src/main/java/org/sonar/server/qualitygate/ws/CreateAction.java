@@ -19,7 +19,10 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,6 +37,8 @@ import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
 
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.Metric.DIRECTION_BETTER;
 import static org.sonar.api.measures.Metric.DIRECTION_WORST;
 import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
@@ -44,6 +49,11 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAM
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateAction implements QualityGatesWsAction {
+
+  static final Map<String, Integer> DEFAULT_METRIC_VALUES = Map.of(
+    NEW_COVERAGE_KEY, 80,
+    NEW_DUPLICATED_LINES_DENSITY_KEY, 3
+  );
 
   private static final Map<Integer, Condition.Operator> OPERATORS_BY_DIRECTION = Map.of(
     DIRECTION_BETTER, LESS_THAN,
@@ -103,7 +113,13 @@ public class CreateAction implements QualityGatesWsAction {
   private void addCaycConditions(DbSession dbSession, QualityGateDto newQualityGate) {
     CAYC_METRICS.forEach(m ->
       qualityGateConditionsUpdater.createCondition(dbSession, newQualityGate, m.getKey(), OPERATORS_BY_DIRECTION.get(m.getDirection()).getDbValue(),
-      String.valueOf(m.getBestValue().intValue()))
+        String.valueOf(getDefaultCaycValue(m)))
     );
+  }
+
+  private static int getDefaultCaycValue(Metric<? extends Serializable> metric) {
+    return DEFAULT_METRIC_VALUES.containsKey(metric.getKey()) ?
+      DEFAULT_METRIC_VALUES.get(metric.getKey()) :
+      Objects.requireNonNull(metric.getBestValue()).intValue();
   }
 }
