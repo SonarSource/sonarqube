@@ -39,7 +39,19 @@ import static org.sonar.server.rule.CommonRuleKeys.commonRepositoryForLang;
 // It replaces the common-rules that are still embedded within plugins.
 public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
 
-  private static final List<String> LANGUAGES_TO_SKIP = List.of("terraform", "cloudformation", "kubernetes", "docker", "web", "css", "xml", "yaml", "json", "jsp", "text");
+  private static final List<String> LANGUAGES_TO_SKIP = List.of(
+    "terraform",
+    "cloudformation",
+    "kubernetes",
+    "docker",
+    "web",
+    "css",
+    "xml",
+    "yaml",
+    "json",
+    "jsp",
+    "text",
+    "secrets");
   private static final String MINUTES_10 = "10min";
 
   private final Languages languages;
