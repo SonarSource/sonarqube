@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -72,13 +71,20 @@ public class QualityGateCaycChecker {
     var conditionsByMetricId = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateUuid)
       .stream()
       .collect(uniqueIndex(QualityGateConditionDto::getMetricUuid));
+
+    if (conditionsByMetricId.size() != CAYC_METRICS.size()) {
+      return false;
+    }
+
     var metrics = dbClient.metricDao().selectByUuids(dbSession, conditionsByMetricId.keySet())
       .stream()
       .filter(MetricDto::isEnabled)
-      .collect(Collectors.toSet());
+      .toList();
+
     long count = metrics.stream()
       .filter(metric -> checkMetricCaycCompliant(conditionsByMetricId.get(metric.getUuid()), metric))
       .count();
+
     return count == CAYC_METRICS.size();
   }
 

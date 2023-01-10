@@ -31,6 +31,8 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES;
+import static org.sonar.api.measures.CoreMetrics.LINE_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
@@ -50,6 +52,17 @@ public class QualityGateCaycCheckerTest {
     String qualityGateUuid = "abcd";
     CAYC_METRICS.forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
     assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isTrue();
+  }
+
+  @Test
+  public void check_Cayc_non_compliant_with_extra_conditions() {
+    String qualityGateUuid = "abcd";
+    CAYC_METRICS.forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
+
+    // extra conditions outside of CAYC requirements
+    List.of(LINE_COVERAGE, DUPLICATED_LINES).forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
+
+    assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isFalse();
   }
 
   @Test
