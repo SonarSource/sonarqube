@@ -245,8 +245,8 @@ public class PullRequestFileMoveDetectionStepTest {
     assertThat(movedFilesRepository.getOriginalPullRequestFile(fileInReport)).isPresent();
 
     OriginalFile detectedOriginalFile = movedFilesRepository.getOriginalPullRequestFile(fileInReport).get();
-    assertThat(detectedOriginalFile.getKey()).isEqualTo(originalFileInDatabase.getKey());
-    assertThat(detectedOriginalFile.getUuid()).isEqualTo(originalFileInDatabase.getUuid());
+    assertThat(detectedOriginalFile.key()).isEqualTo(originalFileInDatabase.getKey());
+    assertThat(detectedOriginalFile.uuid()).isEqualTo(originalFileInDatabase.getUuid());
   }
 
   private Map<String, Component> initializeTargetBranchDatabaseComponents(Set<FileReference> references) {

@@ -22,36 +22,21 @@ package org.sonar.ce.task.projectanalysis.qualitygate;
 import com.google.common.base.MoreObjects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 
 import static java.util.Objects.requireNonNull;
 
-@Immutable
-public final class EvaluationResult {
-  private final Measure.Level level;
-  @CheckForNull
-  private final Comparable<?> value;
-
+public record EvaluationResult(Measure.Level level, @CheckForNull Comparable<?> value) {
   public EvaluationResult(Measure.Level level, @Nullable Comparable<?> value) {
     this.level = requireNonNull(level);
     this.value = value;
   }
 
-  public Measure.Level getLevel() {
-    return level;
-  }
-
-  @CheckForNull
-  public Comparable<?> getValue() {
-    return value;
-  }
-
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add("level", level)
-        .add("value", value)
-        .toString();
+      .add("level", level)
+      .add("value", value)
+      .toString();
   }
 }

@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
@@ -128,22 +127,10 @@ public class EmailNotificationChannel extends NotificationChannel {
     return false;
   }
 
-  @Immutable
-  public static final class EmailDeliveryRequest {
-    private final String recipientEmail;
-    private final Notification notification;
-
+  public record EmailDeliveryRequest(String recipientEmail, Notification notification) {
     public EmailDeliveryRequest(String recipientEmail, Notification notification) {
       this.recipientEmail = requireNonNull(recipientEmail, "recipientEmail can't be null");
       this.notification = requireNonNull(notification, "notification can't be null");
-    }
-
-    public String getRecipientEmail() {
-      return recipientEmail;
-    }
-
-    public Notification getNotification() {
-      return notification;
     }
 
     @Override
@@ -160,11 +147,6 @@ public class EmailNotificationChannel extends NotificationChannel {
     }
 
     @Override
-    public int hashCode() {
-      return Objects.hash(recipientEmail, notification);
-    }
-
-    @Override
     public String toString() {
       return "EmailDeliveryRequest{" + "'" + recipientEmail + '\'' + " : " + notification + '}';
     }
@@ -177,11 +159,11 @@ public class EmailNotificationChannel extends NotificationChannel {
     }
 
     return (int) deliveries.stream()
-      .filter(t -> !t.getRecipientEmail().isBlank())
+      .filter(t -> !t.recipientEmail().isBlank())
       .map(t -> {
-        EmailMessage emailMessage = format(t.getNotification());
+        EmailMessage emailMessage = format(t.notification());
         if (emailMessage != null) {
-          emailMessage.setTo(t.getRecipientEmail());
+          emailMessage.setTo(t.recipientEmail());
           return deliver(emailMessage);
         }
         return false;

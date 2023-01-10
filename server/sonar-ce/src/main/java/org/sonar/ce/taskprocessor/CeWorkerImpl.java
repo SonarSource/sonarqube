@@ -287,11 +287,11 @@ public class CeWorkerImpl implements CeWorker {
     if (submitter == null) {
       return null;
     }
-    String submitterLogin = submitter.getLogin();
+    String submitterLogin = submitter.login();
     if (submitterLogin != null) {
       return submitterLogin;
     } else {
-      return submitter.getUuid();
+      return submitter.uuid();
     }
   }
 

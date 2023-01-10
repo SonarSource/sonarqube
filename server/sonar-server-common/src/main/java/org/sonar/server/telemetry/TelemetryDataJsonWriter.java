@@ -57,8 +57,8 @@ public class TelemetryDataJsonWriter {
     statistics.getEdition().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
     json.name("database");
     json.beginObject();
-    json.prop("name", statistics.getDatabase().getName());
-    json.prop("version", statistics.getDatabase().getVersion());
+    json.prop("name", statistics.getDatabase().name());
+    json.prop("version", statistics.getDatabase().version());
     json.endObject();
     json.name("plugins");
     json.beginArray();
@@ -128,12 +128,12 @@ public class TelemetryDataJsonWriter {
       json.beginArray();
       statistics.getProjects().forEach(project -> {
         json.beginObject();
-        json.prop("projectUuid", project.getProjectUuid());
-        if (project.getLastAnalysis() != null) {
-          json.prop("lastAnalysis", toUtc(project.getLastAnalysis()));
+        json.prop("projectUuid", project.projectUuid());
+        if (project.lastAnalysis() != null) {
+          json.prop("lastAnalysis", toUtc(project.lastAnalysis()));
         }
-        json.prop(LANGUAGE_PROPERTY, project.getLanguage());
-        json.prop("loc", project.getLoc());
+        json.prop(LANGUAGE_PROPERTY, project.language());
+        json.prop("loc", project.loc());
         json.endObject();
       });
       json.endArray();
@@ -146,12 +146,12 @@ public class TelemetryDataJsonWriter {
       json.beginArray();
       statistics.getProjectStatistics().forEach(project -> {
         json.beginObject();
-        json.prop("projectUuid", project.getProjectUuid());
-        json.prop("branchCount", project.getBranchCount());
-        json.prop("pullRequestCount", project.getPullRequestCount());
-        json.prop("scm", project.getScm());
-        json.prop("ci", project.getCi());
-        json.prop("devopsPlatform", project.getDevopsPlatform());
+        json.prop("projectUuid", project.projectUuid());
+        json.prop("branchCount", project.branchCount());
+        json.prop("pullRequestCount", project.pullRequestCount());
+        json.prop("scm", project.scm());
+        json.prop("ci", project.ci());
+        json.prop("devopsPlatform", project.devopsPlatform());
         json.endObject();
       });
       json.endArray();

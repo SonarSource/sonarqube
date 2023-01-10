@@ -208,10 +208,10 @@ public class QProfileBackuperImplTest {
 
     QProfileRestoreSummary summary = underTest.restore(db.getSession(), backup, (String) null);
 
-    assertThat(summary.getProfile().getName()).isEqualTo("foo");
-    assertThat(summary.getProfile().getLanguage()).isEqualTo("js");
+    assertThat(summary.profile().getName()).isEqualTo("foo");
+    assertThat(summary.profile().getLanguage()).isEqualTo("js");
 
-    assertThat(reset.calledProfile.getKee()).isEqualTo(summary.getProfile().getKee());
+    assertThat(reset.calledProfile.getKee()).isEqualTo(summary.profile().getKee());
     assertThat(reset.calledActivations).isEmpty();
   }
 
@@ -287,10 +287,10 @@ public class QProfileBackuperImplTest {
 
     QProfileRestoreSummary summary = underTest.restore(db.getSession(), backup, "bar");
 
-    assertThat(summary.getProfile().getName()).isEqualTo("bar");
-    assertThat(summary.getProfile().getLanguage()).isEqualTo("js");
+    assertThat(summary.profile().getName()).isEqualTo("bar");
+    assertThat(summary.profile().getLanguage()).isEqualTo("js");
 
-    assertThat(reset.calledProfile.getKee()).isEqualTo(summary.getProfile().getKee());
+    assertThat(reset.calledProfile.getKee()).isEqualTo(summary.profile().getKee());
     assertThat(reset.calledActivations).isEmpty();
   }
 

@@ -92,14 +92,14 @@ public class JvmOptions<T extends JvmOptions> {
   private void checkMandatoryOptionOverwrite(String propertyName, List<String> jvmOptionsFromProperty) {
     List<Match> matches = jvmOptionsFromProperty.stream()
       .map(jvmOption -> new Match(jvmOption, mandatoryOptionFor(jvmOption)))
-      .filter(match -> match.getMandatoryOption() != null)
+      .filter(match -> match.mandatoryOption() != null)
       .toList();
     if (!matches.isEmpty()) {
       throw new MessageException(format(
         "a JVM option can't overwrite mandatory JVM options. The following JVM options defined by property '%s' are invalid: %s",
         propertyName,
         matches.stream()
-          .map(m -> m.getOption() + " overwrites " + m.mandatoryOption.getKey() + m.mandatoryOption.getValue())
+          .map(m -> m.option() + " overwrites " + m.mandatoryOption.getKey() + m.mandatoryOption.getValue())
           .collect(joining(", "))));
     }
   }
@@ -158,23 +158,10 @@ public class JvmOptions<T extends JvmOptions> {
     return options.toString();
   }
 
-  private static final class Match {
-    private final String option;
-
-    private final Map.Entry<String, String> mandatoryOption;
-
+  private record Match(String option, Map.Entry<String, String> mandatoryOption) {
     private Match(String option, @Nullable Map.Entry<String, String> mandatoryOption) {
       this.option = option;
       this.mandatoryOption = mandatoryOption;
-    }
-
-    String getOption() {
-      return option;
-    }
-
-    @CheckForNull
-    Map.Entry<String, String> getMandatoryOption() {
-      return mandatoryOption;
     }
 
   }

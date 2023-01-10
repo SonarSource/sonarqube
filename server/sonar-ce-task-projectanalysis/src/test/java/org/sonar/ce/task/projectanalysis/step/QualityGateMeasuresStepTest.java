@@ -108,7 +108,7 @@ public class QualityGateMeasuresStepTest {
       public String answer(InvocationOnMock invocation) {
         Condition condition = (Condition) invocation.getArguments()[0];
         EvaluationResult evaluationResult = (EvaluationResult) invocation.getArguments()[1];
-        return dumbResultTextAnswer(condition, evaluationResult.getLevel(), evaluationResult.getValue());
+        return dumbResultTextAnswer(condition, evaluationResult.level(), evaluationResult.value());
       }
     });
   }

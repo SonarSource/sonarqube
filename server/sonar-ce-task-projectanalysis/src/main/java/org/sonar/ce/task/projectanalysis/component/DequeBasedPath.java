@@ -29,7 +29,7 @@ final class DequeBasedPath<T> implements PathAwareVisitor.Path<T>, Iterable<Path
 
   @Override
   public T current() {
-    return deque.getFirst().getElement();
+    return deque.getFirst().element();
   }
 
   @Override
@@ -38,7 +38,7 @@ final class DequeBasedPath<T> implements PathAwareVisitor.Path<T>, Iterable<Path
     if (iterator.hasNext()) {
       iterator.next();
       if (iterator.hasNext()) {
-        return iterator.next().getElement();
+        return iterator.next().element();
       }
     }
     throw new NoSuchElementException("Path is either empty or has only one element. There is no parent");
@@ -51,7 +51,7 @@ final class DequeBasedPath<T> implements PathAwareVisitor.Path<T>, Iterable<Path
 
   @Override
   public T root() {
-    return deque.getLast().getElement();
+    return deque.getLast().element();
   }
 
   @Override

@@ -383,10 +383,10 @@ public class PersistComponentsStep implements ComputationStep {
     componentDto.setBranchUuid(path.root().getDto().uuid());
 
     ComponentDto parentModule = StreamSupport.stream(path.getCurrentPath().spliterator(), false)
-      .filter(p -> p.getComponent().getType() == Component.Type.PROJECT)
+      .filter(p -> p.component().getType() == Component.Type.PROJECT)
       .findFirst()
       .get()
-      .getElement().getDto();
+      .element().getDto();
     componentDto.setUuidPath(formatUuidPathFromParent(path.parent().getDto()));
     componentDto.setRootUuid(parentModule.uuid());
     componentDto.setModuleUuid(parentModule.uuid());

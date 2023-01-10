@@ -23,20 +23,9 @@ import org.sonar.db.qualityprofile.QProfileDto;
 
 import static java.util.Objects.requireNonNull;
 
-public final class QProfileRestoreSummary {
-  private final QProfileDto profile;
-  private final BulkChangeResult ruleChanges;
-
+public record QProfileRestoreSummary(QProfileDto profile, BulkChangeResult ruleChanges) {
   public QProfileRestoreSummary(QProfileDto profile, BulkChangeResult ruleChanges) {
     this.profile = requireNonNull(profile);
     this.ruleChanges = requireNonNull(ruleChanges);
-  }
-
-  public QProfileDto getProfile() {
-    return profile;
-  }
-
-  public BulkChangeResult getRuleChanges() {
-    return ruleChanges;
   }
 }

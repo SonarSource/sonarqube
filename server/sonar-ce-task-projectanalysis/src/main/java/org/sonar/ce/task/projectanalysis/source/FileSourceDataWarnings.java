@@ -53,7 +53,7 @@ public class FileSourceDataWarnings {
     requireNonNull(file, "file can't be null");
     requireNonNull(readError, "readError can't be null");
 
-    fileErrorsPerData.compute(readError.getData(), (data, existingList) -> {
+    fileErrorsPerData.compute(readError.data(), (data, existingList) -> {
       Set<Component> res = existingList == null ? new HashSet<>() : existingList;
       res.add(file);
       return res;

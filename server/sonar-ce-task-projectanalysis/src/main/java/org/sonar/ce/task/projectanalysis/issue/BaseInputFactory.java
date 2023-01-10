@@ -44,7 +44,7 @@ public abstract class BaseInputFactory {
     BaseLazyInput(DbClient dbClient, Component component, @Nullable MovedFilesRepository.OriginalFile originalFile) {
       this.dbClient = dbClient;
       this.component = component;
-      this.effectiveUuid = originalFile == null ? component.getUuid() : originalFile.getUuid();
+      this.effectiveUuid = originalFile == null ? component.getUuid() : originalFile.uuid();
     }
 
     @Override

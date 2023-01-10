@@ -169,7 +169,7 @@ public class TelemetryDataLoaderImplTest {
         tuple(activeUsers.get(2).getUuid(), lastConnectionDate, activeUsers.get(2).getLastSonarlintConnectionDate(), true),
         tuple(inactiveUser.getUuid(), null, inactiveUser.getLastSonarlintConnectionDate(), false));
     assertThat(data.getProjects())
-      .extracting(TelemetryData.Project::getProjectUuid, TelemetryData.Project::getLanguage, TelemetryData.Project::getLoc, TelemetryData.Project::getLastAnalysis)
+      .extracting(TelemetryData.Project::projectUuid, TelemetryData.Project::language, TelemetryData.Project::loc, TelemetryData.Project::lastAnalysis)
       .containsExactlyInAnyOrder(
         tuple(project1.uuid(), "java", 70L, analysisDate),
         tuple(project1.uuid(), "js", 30L, analysisDate),
@@ -177,8 +177,8 @@ public class TelemetryDataLoaderImplTest {
         tuple(project2.uuid(), "java", 180L, analysisDate),
         tuple(project2.uuid(), "js", 20L, analysisDate));
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount,
-        TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi, TelemetryData.ProjectStatistics::getDevopsPlatform)
+      .extracting(TelemetryData.ProjectStatistics::branchCount, TelemetryData.ProjectStatistics::pullRequestCount,
+        TelemetryData.ProjectStatistics::scm, TelemetryData.ProjectStatistics::ci, TelemetryData.ProjectStatistics::devopsPlatform)
       .containsExactlyInAnyOrder(
         tuple(1L, 0L, "scm-1", "ci-1", "azure_devops_cloud"),
         tuple(1L, 0L, "scm-2", "ci-2", "github_cloud"));
@@ -198,8 +198,8 @@ public class TelemetryDataLoaderImplTest {
   private void assertDatabaseMetadata(TelemetryData.Database database) {
     try (DbSession dbSession = db.getDbClient().openSession(false)) {
       DatabaseMetaData metadata = dbSession.getConnection().getMetaData();
-      assertThat(database.getName()).isEqualTo("H2");
-      assertThat(database.getVersion()).isEqualTo(metadata.getDatabaseProductVersion());
+      assertThat(database.name()).isEqualTo("H2");
+      assertThat(database.version()).isEqualTo(metadata.getDatabaseProductVersion());
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -233,14 +233,14 @@ public class TelemetryDataLoaderImplTest {
 
     TelemetryData data = communityUnderTest.load();
 
-    assertThat(data.getProjects()).extracting(TelemetryData.Project::getProjectUuid, TelemetryData.Project::getLanguage, TelemetryData.Project::getLoc)
+    assertThat(data.getProjects()).extracting(TelemetryData.Project::projectUuid, TelemetryData.Project::language, TelemetryData.Project::loc)
       .containsExactlyInAnyOrder(
         tuple(project.uuid(), "java", 100L),
         tuple(project.uuid(), "js", 50L),
         tuple(project.uuid(), "kotlin", 30L));
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount,
-        TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
+      .extracting(TelemetryData.ProjectStatistics::branchCount, TelemetryData.ProjectStatistics::pullRequestCount,
+        TelemetryData.ProjectStatistics::scm, TelemetryData.ProjectStatistics::ci)
       .containsExactlyInAnyOrder(
         tuple(2L, 0L, "undetected", "undetected"));
   }
@@ -378,7 +378,7 @@ public class TelemetryDataLoaderImplTest {
     db.components().insertPublicProject();
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::getDevopsPlatform, TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
+      .extracting(TelemetryData.ProjectStatistics::devopsPlatform, TelemetryData.ProjectStatistics::scm, TelemetryData.ProjectStatistics::ci)
       .containsExactlyInAnyOrder(tuple("undetected", "undetected", "undetected"));
   }
 

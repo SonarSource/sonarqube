@@ -103,8 +103,8 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
   }
 
   private static void writeTask(JsonWriter writer, Optional<CeTask> ceTask) {
-    ceTask.ifPresent(ceTask1 -> writer.prop("taskId", ceTask1.getId()));
-    writer.prop(PROPERTY_STATUS, ceTask.map(CeTask::getStatus).orElse(CeTask.Status.SUCCESS).toString());
+    ceTask.ifPresent(ceTask1 -> writer.prop("taskId", ceTask1.id()));
+    writer.prop(PROPERTY_STATUS, ceTask.map(CeTask::status).orElse(CeTask.Status.SUCCESS).toString());
   }
 
   private void writeBranch(JsonWriter writer, Project project, Branch branch) {

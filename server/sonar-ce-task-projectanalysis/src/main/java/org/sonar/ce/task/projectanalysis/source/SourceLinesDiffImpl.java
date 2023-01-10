@@ -74,7 +74,7 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
         uuid = newCodeReferenceBranchComponentUuids.getComponentUuid(component.getKey());
       } else {
         Optional<MovedFilesRepository.OriginalFile> originalFile = movedFilesRepository.getOriginalFile(component);
-        uuid = originalFile.map(MovedFilesRepository.OriginalFile::getUuid).orElse(component.getUuid());
+        uuid = originalFile.map(MovedFilesRepository.OriginalFile::uuid).orElse(component.getUuid());
       }
 
       if (uuid == null) {

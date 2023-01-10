@@ -32,7 +32,7 @@ public final class SingleWithUncoveredCounter extends ElementsAndCoveredElements
 
   @Override
   protected void initializeForSupportedLeaf(CounterInitializationContext counterContext) {
-    this.elements = getLongMeasureValue(counterContext, metricKeys.getCovered());
-    this.coveredElements = this.elements - getLongMeasureValue(counterContext, metricKeys.getUncovered());
+    this.elements = getLongMeasureValue(counterContext, metricKeys.covered());
+    this.coveredElements = this.elements - getLongMeasureValue(counterContext, metricKeys.uncovered());
   }
 }

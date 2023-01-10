@@ -56,7 +56,7 @@ public class DefaultLdapGroupsProvider implements LdapGroupsProvider {
    */
   @Override
   public Collection<String> doGetGroups(Context context) {
-    return getGroups(context.getServerKey(), context.getUsername());
+    return getGroups(context.serverKey(), context.username());
   }
 
   private Collection<String> getGroups(String serverKey, String username) {

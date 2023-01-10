@@ -108,7 +108,7 @@ public class ChangesOnMyIssueNotificationHandler extends EmailNotificationHandle
       return subscribedAssignees.stream()
         .flatMap(recipient -> notificationsWithPeerChangedIssues.stream()
           // do not notify users of the changes they made themselves
-          .filter(notification -> !notification.getChange().isAuthorLogin(recipient.getLogin()))
+          .filter(notification -> !notification.getChange().isAuthorLogin(recipient.login()))
           .map(notification -> toEmailDeliveryRequest(notification, recipient, projectKeys)))
         .filter(Objects::nonNull)
         .collect(toSet(notificationsWithPeerChangedIssues.size()));
@@ -140,7 +140,7 @@ public class ChangesOnMyIssueNotificationHandler extends EmailNotificationHandle
         Set<String> subscribedProjectKeys = (Set<String>) entry.getValue();
         return notificationsWithPeerChangedIssues.stream()
           // do not notify users of the changes they made themselves
-          .filter(notification -> !notification.getChange().isAuthorLogin(recipient.getLogin()))
+          .filter(notification -> !notification.getChange().isAuthorLogin(recipient.login()))
           .map(notification -> toEmailDeliveryRequest(notification, recipient, subscribedProjectKeys))
           .filter(Objects::nonNull);
       })
@@ -156,14 +156,14 @@ public class ChangesOnMyIssueNotificationHandler extends EmailNotificationHandle
   @CheckForNull
   private static EmailDeliveryRequest toEmailDeliveryRequest(NotificationWithProjectKeys notification, EmailRecipient recipient, Set<String> subscribedProjectKeys) {
     Set<ChangedIssue> recipientIssuesByProject = notification.getIssues().stream()
-      .filter(issue -> issue.getAssignee().filter(assignee -> recipient.getLogin().equals(assignee.getLogin())).isPresent())
+      .filter(issue -> issue.getAssignee().filter(assignee -> recipient.login().equals(assignee.getLogin())).isPresent())
       .filter(issue -> subscribedProjectKeys.contains(issue.getProject().getKey()))
       .collect(toSet(notification.getIssues().size()));
     if (recipientIssuesByProject.isEmpty()) {
       return null;
     }
     return new EmailDeliveryRequest(
-      recipient.getEmail(),
+      recipient.email(),
       new ChangesOnMyIssuesNotification(notification.getChange(), recipientIssuesByProject));
   }
 

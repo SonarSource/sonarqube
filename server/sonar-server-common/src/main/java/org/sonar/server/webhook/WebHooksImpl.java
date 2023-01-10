@@ -103,8 +103,8 @@ public class WebHooksImpl implements WebHooks {
 
   private void sendProjectAnalysisUpdateImpl(Analysis analysis, Supplier<WebhookPayload> payloadSupplier,
     @Nullable PostProjectAnalysisTask.LogStatistics taskLogStatistics) {
-    List<Webhook> webhooks = readWebHooksFrom(analysis.getProjectUuid(), taskLogStatistics)
-      .map(dto -> new Webhook(dto.getUuid(), analysis.getProjectUuid(), analysis.getCeTaskUuid(), analysis.getAnalysisUuid(),
+    List<Webhook> webhooks = readWebHooksFrom(analysis.projectUuid(), taskLogStatistics)
+      .map(dto -> new Webhook(dto.getUuid(), analysis.projectUuid(), analysis.ceTaskUuid(), analysis.analysisUuid(),
         dto.getName(), dto.getUrl(), dto.getSecret()))
       .collect(MoreCollectors.toList());
     if (webhooks.isEmpty()) {
@@ -117,7 +117,7 @@ public class WebHooksImpl implements WebHooks {
       log(delivery);
       deliveryStorage.persist(delivery);
     }));
-    asyncExecution.addToQueue(() -> deliveryStorage.purge(analysis.getProjectUuid()));
+    asyncExecution.addToQueue(() -> deliveryStorage.purge(analysis.projectUuid()));
   }
 
   private static void log(WebhookDelivery delivery) {

@@ -85,7 +85,7 @@ class CallRecorderPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
   }
 
   private static List<Integer> toValueList(Path<Integer> path) {
-    return StreamSupport.stream(path.getCurrentPath().spliterator(), false).map(PathElement::getElement).collect(Collectors.toList());
+    return StreamSupport.stream(path.getCurrentPath().spliterator(), false).map(PathElement::element).collect(Collectors.toList());
   }
 
   private static Integer getParent(Path<Integer> path) {

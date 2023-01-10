@@ -197,8 +197,8 @@ public class RuleActivationContext {
       .filter(p -> p.getRulesProfileUuid().equals(baseRulesProfile.getUuid()))
       .collect(toArrayList(profilesByUuid.size()));
     DescendantProfilesSupplier.Result result = descendantProfilesSupplier.get(baseProfiles, rulesByUuid.keySet());
-    register(result.getProfiles());
-    register(result.getActiveRules(), result.getActiveRuleParams());
+    register(result.profiles());
+    register(result.activeRules(), result.activeRuleParams());
     descendantsLoaded = true;
   }
 

@@ -134,8 +134,8 @@ public class DefaultNotificationManager implements NotificationManager {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Set<String> authorizedLogins = keepAuthorizedLogins(dbSession, projectKey, subscriberAndChannels, subscriberPermissionsOnProject);
       subscriberAndChannels.stream()
-        .filter(subscriberAndChannel -> authorizedLogins.contains(subscriberAndChannel.getSubscriber().getLogin()))
-        .forEach(subscriberAndChannel -> builder.put(subscriberAndChannel.getSubscriber().getLogin(), subscriberAndChannel.getChannel()));
+        .filter(subscriberAndChannel -> authorizedLogins.contains(subscriberAndChannel.subscriber().getLogin()))
+        .forEach(subscriberAndChannel -> builder.put(subscriberAndChannel.subscriber().getLogin(), subscriberAndChannel.channel()));
     }
     return builder.build();
   }
@@ -167,8 +167,8 @@ public class DefaultNotificationManager implements NotificationManager {
   private Set<String> keepAuthorizedLogins(DbSession dbSession, String projectKey, Set<SubscriberAndChannel> subscriberAndChannels,
     @Nullable Boolean global, String permission) {
     Set<String> logins = subscriberAndChannels.stream()
-      .filter(s -> global == null || s.getSubscriber().isGlobal() == global)
-      .map(s -> s.getSubscriber().getLogin())
+      .filter(s -> global == null || s.subscriber().isGlobal() == global)
+      .map(s -> s.subscriber().getLogin())
       .collect(Collectors.toSet());
     if (logins.isEmpty()) {
       return Collections.emptySet();
@@ -244,22 +244,7 @@ public class DefaultNotificationManager implements NotificationManager {
       .filter(s -> authorizedLogins.contains(s.getLogin()));
   }
 
-  private static final class SubscriberAndChannel {
-    private final Subscriber subscriber;
-    private final NotificationChannel channel;
-
-    private SubscriberAndChannel(Subscriber subscriber, NotificationChannel channel) {
-      this.subscriber = subscriber;
-      this.channel = channel;
-    }
-
-    Subscriber getSubscriber() {
-      return subscriber;
-    }
-
-    NotificationChannel getChannel() {
-      return channel;
-    }
+  private record SubscriberAndChannel(Subscriber subscriber, NotificationChannel channel) {
 
     @Override
     public boolean equals(Object o) {
@@ -274,10 +259,6 @@ public class DefaultNotificationManager implements NotificationManager {
         Objects.equals(channel, that.channel);
     }
 
-    @Override
-    public int hashCode() {
-      return Objects.hash(subscriber, channel);
-    }
   }
 
   @VisibleForTesting

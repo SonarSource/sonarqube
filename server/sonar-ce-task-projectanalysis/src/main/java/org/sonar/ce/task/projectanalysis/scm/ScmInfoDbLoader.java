@@ -77,7 +77,7 @@ public class ScmInfoDbLoader {
     if (!analysisMetadataHolder.isFirstAnalysis() && !analysisMetadataHolder.isPullRequest() && !isReferenceBranch()) {
       Optional<MovedFilesRepository.OriginalFile> originalFile = movedFilesRepository.getOriginalFile(file);
       if (originalFile.isPresent()) {
-        return originalFile.map(MovedFilesRepository.OriginalFile::getUuid);
+        return originalFile.map(MovedFilesRepository.OriginalFile::uuid);
       }
       return Optional.of(file.getUuid());
     }

@@ -158,7 +158,7 @@ public class ExportIssuesStep implements ComputationStep {
     String ruleUuid = rs.getString(2);
     String ruleKey = rs.getString(3);
     String repositoryKey = rs.getString(4);
-    builder.setRuleRef(ruleRegistrar.register(ruleUuid, repositoryKey, ruleKey).getRef());
+    builder.setRuleRef(ruleRegistrar.register(ruleUuid, repositoryKey, ruleKey).ref());
   }
 
   private static void setLocations(ProjectDump.Issue.Builder builder, ResultSet rs, String issueUuid) throws SQLException {

@@ -21,32 +21,14 @@ package org.sonar.ce.task.projectexport.rule;
 
 import java.util.Objects;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
 
-@Immutable
-public final class Rule {
-  private final String ref;
-  private final String repository;
-  private final String key;
-
+public record Rule(String ref, String repository, String key) {
   public Rule(String ref, String repository, String key) {
     this.ref = ref;
     this.repository = requireNonNull(repository, "repository can not be null");
     this.key = requireNonNull(key, "key can not be null");
-  }
-
-  public String getRef() {
-    return ref;
-  }
-
-  public String getRepository() {
-    return repository;
-  }
-
-  public String getKey() {
-    return key;
   }
 
   @Override

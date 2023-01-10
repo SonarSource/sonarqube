@@ -221,15 +221,15 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
     ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder = notificationCaptor.getValue();
 
-    ReportAnalysisFailureNotificationBuilder.Project notificationProject = reportAnalysisFailureNotificationBuilder.getProject();
-    assertThat(notificationProject.getName()).isEqualTo(project.name());
-    assertThat(notificationProject.getKey()).isEqualTo(project.getKey());
-    assertThat(notificationProject.getUuid()).isEqualTo(project.uuid());
-    assertThat(notificationProject.getBranchName()).isNull();
-    ReportAnalysisFailureNotificationBuilder.Task notificationTask = reportAnalysisFailureNotificationBuilder.getTask();
-    assertThat(notificationTask.getUuid()).isEqualTo(taskUuid);
-    assertThat(notificationTask.getCreatedAt()).isEqualTo(createdAt);
-    assertThat(notificationTask.getFailedAt()).isEqualTo(executedAt);
+    ReportAnalysisFailureNotificationBuilder.Project notificationProject = reportAnalysisFailureNotificationBuilder.project();
+    assertThat(notificationProject.name()).isEqualTo(project.name());
+    assertThat(notificationProject.key()).isEqualTo(project.getKey());
+    assertThat(notificationProject.uuid()).isEqualTo(project.uuid());
+    assertThat(notificationProject.branchName()).isNull();
+    ReportAnalysisFailureNotificationBuilder.Task notificationTask = reportAnalysisFailureNotificationBuilder.task();
+    assertThat(notificationTask.uuid()).isEqualTo(taskUuid);
+    assertThat(notificationTask.createdAt()).isEqualTo(createdAt);
+    assertThat(notificationTask.failedAt()).isEqualTo(executedAt);
   }
 
   @Test
@@ -243,7 +243,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
 
     ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder = notificationCaptor.getValue();
-    assertThat(reportAnalysisFailureNotificationBuilder.getErrorMessage()).isEqualTo(message);
+    assertThat(reportAnalysisFailureNotificationBuilder.errorMessage()).isEqualTo(message);
   }
 
   @Test
@@ -258,7 +258,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
 
     ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder = notificationCaptor.getValue();
-    assertThat(reportAnalysisFailureNotificationBuilder.getErrorMessage()).isNull();
+    assertThat(reportAnalysisFailureNotificationBuilder.errorMessage()).isNull();
   }
 
   @Test
@@ -296,7 +296,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
 
     verify(notificationService).deliver(same(notificationMock));
     ArgumentCaptor<ReportAnalysisFailureNotificationBuilder> notificationCaptor = verifyAndCaptureSerializedNotification();
-    assertThat(notificationCaptor.getValue().getTask().getFailedAt()).isEqualTo(now);
+    assertThat(notificationCaptor.getValue().task().failedAt()).isEqualTo(now);
   }
 
   private ReportAnalysisFailureNotification mockSerializer() {

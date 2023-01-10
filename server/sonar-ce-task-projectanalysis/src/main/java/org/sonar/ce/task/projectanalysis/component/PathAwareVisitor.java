@@ -116,11 +116,11 @@ public interface PathAwareVisitor<T> extends ComponentVisitor {
     /**
      * The Component on the path.
      */
-    Component getComponent();
+    Component component();
 
     /**
      * The stacked element for the Component of this PathElement.
      */
-    T getElement();
+    T element();
   }
 }

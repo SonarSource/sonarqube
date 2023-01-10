@@ -83,6 +83,6 @@ public class ReportAnalysisFailureNotificationHandler extends EmailNotificationH
     return notificationManager.findSubscribedEmailRecipients(KEY, projectKey, REQUIRED_SUBSCRIBER_PERMISSIONS)
       .stream()
       .flatMap(emailRecipient -> notifications.stream()
-        .map(notification -> new EmailDeliveryRequest(emailRecipient.getEmail(), notification)));
+        .map(notification -> new EmailDeliveryRequest(emailRecipient.email(), notification)));
   }
 }

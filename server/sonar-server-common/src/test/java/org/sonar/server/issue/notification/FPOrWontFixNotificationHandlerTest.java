@@ -337,7 +337,7 @@ public class FPOrWontFixNotificationHandlerTest {
     verify(emailNotificationChannel).deliverAll(captor.capture());
     verifyNoMoreInteractions(emailNotificationChannel);
     ListMultimap<String, EmailDeliveryRequest> requestsByRecipientEmail = captor.getValue().stream()
-      .collect(index(EmailDeliveryRequest::getRecipientEmail));
+      .collect(index(EmailDeliveryRequest::recipientEmail));
     assertThat(requestsByRecipientEmail.get(emailOf(subscriber1.getLogin())))
       .containsOnly(
         Stream.of(
@@ -418,7 +418,7 @@ public class FPOrWontFixNotificationHandlerTest {
     verify(emailNotificationChannel).deliverAll(captor.capture());
     verifyNoMoreInteractions(emailNotificationChannel);
     ListMultimap<String, EmailDeliveryRequest> requestsByRecipientEmail = captor.getValue().stream()
-      .collect(index(EmailDeliveryRequest::getRecipientEmail));
+      .collect(index(EmailDeliveryRequest::recipientEmail));
     assertThat(requestsByRecipientEmail.get(emailOf(subscriber1.getLogin())))
       .containsOnly(
         new EmailDeliveryRequest(emailOf(subscriber1.getLogin()), new FPOrWontFixNotification(

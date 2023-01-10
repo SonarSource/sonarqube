@@ -35,14 +35,14 @@ public class ReportAnalysisFailureNotificationSerializerImpl implements ReportAn
   public ReportAnalysisFailureNotification toNotification(ReportAnalysisFailureNotificationBuilder reportAnalysisFailureNotificationBuilder) {
     ReportAnalysisFailureNotification notification = new ReportAnalysisFailureNotification();
     notification
-      .setFieldValue(FIELD_PROJECT_UUID, reportAnalysisFailureNotificationBuilder.getProject().getUuid())
-      .setFieldValue(FIELD_PROJECT_KEY, reportAnalysisFailureNotificationBuilder.getProject().getKey())
-      .setFieldValue(FIELD_PROJECT_NAME, reportAnalysisFailureNotificationBuilder.getProject().getName())
-      .setFieldValue(FIELD_PROJECT_BRANCH, reportAnalysisFailureNotificationBuilder.getProject().getBranchName())
-      .setFieldValue(FIELD_TASK_UUID, reportAnalysisFailureNotificationBuilder.getTask().getUuid())
-      .setFieldValue(FIELD_TASK_CREATED_AT, valueOf(reportAnalysisFailureNotificationBuilder.getTask().getCreatedAt()))
-      .setFieldValue(FIELD_TASK_FAILED_AT, valueOf(reportAnalysisFailureNotificationBuilder.getTask().getFailedAt()))
-      .setFieldValue(FIELD_ERROR_MESSAGE, reportAnalysisFailureNotificationBuilder.getErrorMessage());
+      .setFieldValue(FIELD_PROJECT_UUID, reportAnalysisFailureNotificationBuilder.project().uuid())
+      .setFieldValue(FIELD_PROJECT_KEY, reportAnalysisFailureNotificationBuilder.project().key())
+      .setFieldValue(FIELD_PROJECT_NAME, reportAnalysisFailureNotificationBuilder.project().name())
+      .setFieldValue(FIELD_PROJECT_BRANCH, reportAnalysisFailureNotificationBuilder.project().branchName())
+      .setFieldValue(FIELD_TASK_UUID, reportAnalysisFailureNotificationBuilder.task().uuid())
+      .setFieldValue(FIELD_TASK_CREATED_AT, valueOf(reportAnalysisFailureNotificationBuilder.task().createdAt()))
+      .setFieldValue(FIELD_TASK_FAILED_AT, valueOf(reportAnalysisFailureNotificationBuilder.task().failedAt()))
+      .setFieldValue(FIELD_ERROR_MESSAGE, reportAnalysisFailureNotificationBuilder.errorMessage());
     return notification;
   }
 

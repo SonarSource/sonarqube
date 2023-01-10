@@ -145,8 +145,8 @@ public class SmallChangesetQualityGateSpecialCaseTest {
 
     QualityGateMeasuresStep.MetricEvaluationResult modified = underTest.apply(original);
 
-    assertThat(modified.evaluationResult.getLevel()).isSameAs(OK);
-    assertThat(modified.evaluationResult.getValue()).isSameAs(value);
+    assertThat(modified.evaluationResult.level()).isSameAs(OK);
+    assertThat(modified.evaluationResult.value()).isSameAs(value);
     assertThat(modified.condition).isSameAs(condition);
   }
 

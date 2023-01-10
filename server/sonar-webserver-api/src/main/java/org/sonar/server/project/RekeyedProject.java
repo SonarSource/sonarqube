@@ -19,43 +19,12 @@
  */
 package org.sonar.server.project;
 
-import java.util.Objects;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class RekeyedProject {
-  private final Project project;
-  private final String previousKey;
-
+public record RekeyedProject(Project project, String previousKey) {
   public RekeyedProject(Project project, String previousKey) {
     this.project = checkNotNull(project, "project can't be null");
     this.previousKey = checkNotNull(previousKey, "previousKey can't be null");
-  }
-
-  public Project getProject() {
-    return project;
-  }
-
-  public String getPreviousKey() {
-    return previousKey;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    RekeyedProject that = (RekeyedProject) o;
-    return Objects.equals(project, that.project) &&
-      Objects.equals(previousKey, that.previousKey);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(project, previousKey);
   }
 
   @Override

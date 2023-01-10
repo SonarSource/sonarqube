@@ -103,7 +103,7 @@ public class MovedIssueVisitorTest {
   @Test
   public void onIssue_update_component_and_module_fields_to_component_and_flag_issue_has_changed() {
     MovedFilesRepository.OriginalFile originalFile = new MovedFilesRepository.OriginalFile("original uuid", "original key");
-    DefaultIssue issue = mockIssue(originalFile.getUuid());
+    DefaultIssue issue = mockIssue(originalFile.uuid());
     when(movedFilesRepository.getOriginalFile(FILE))
       .thenReturn(Optional.of(originalFile));
 

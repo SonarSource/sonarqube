@@ -161,7 +161,7 @@ public class ReportAnalysisFailureNotificationHandlerTest {
       .map(login -> new EmailRecipient(login, emailOf(login)))
       .collect(toSet());
     Set<EmailDeliveryRequest> expectedRequests = emailRecipients.stream()
-      .flatMap(emailRecipient -> withProjectKey.stream().map(notif -> new EmailDeliveryRequest(emailRecipient.getEmail(), notif)))
+      .flatMap(emailRecipient -> withProjectKey.stream().map(notif -> new EmailDeliveryRequest(emailRecipient.email(), notif)))
       .collect(toSet());
     when(emailNotificationChannel.isActivated()).thenReturn(true);
     when(notificationManager.findSubscribedEmailRecipients(REPORT_FAILURE_DISPATCHER_KEY, projectKey, REQUIRED_SUBSCRIBER_PERMISSIONS))
@@ -202,9 +202,9 @@ public class ReportAnalysisFailureNotificationHandlerTest {
       .thenReturn(emailRecipients2);
     Set<EmailDeliveryRequest> expectedRequests = Stream.concat(
       emailRecipients1.stream()
-        .flatMap(emailRecipient -> notifications1.stream().map(notif -> new EmailDeliveryRequest(emailRecipient.getEmail(), notif))),
+        .flatMap(emailRecipient -> notifications1.stream().map(notif -> new EmailDeliveryRequest(emailRecipient.email(), notif))),
       emailRecipients2.stream()
-        .flatMap(emailRecipient -> notifications2.stream().map(notif -> new EmailDeliveryRequest(emailRecipient.getEmail(), notif))))
+        .flatMap(emailRecipient -> notifications2.stream().map(notif -> new EmailDeliveryRequest(emailRecipient.email(), notif))))
       .collect(toSet());
 
     int deliver = underTest.deliver(Stream.concat(notifications1.stream(), notifications2.stream()).collect(toSet()));

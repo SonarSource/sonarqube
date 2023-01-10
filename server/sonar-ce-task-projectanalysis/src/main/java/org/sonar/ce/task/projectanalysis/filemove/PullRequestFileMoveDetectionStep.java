@@ -161,7 +161,7 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
   private static ResultHandler<FileMoveRowDto> accumulateFilesForFileMove(Map<String, DbComponent> accumulator) {
     return resultContext -> {
       DbComponent component = rowToDbComponent(resultContext.getResultObject());
-      accumulator.put(component.getUuid(), component);
+      accumulator.put(component.uuid(), component);
     };
   }
 
@@ -177,7 +177,7 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
   private static Map<String, DbComponent> toDbFilesByPathReferenceMap(Collection<DbComponent> dbFiles) {
     return dbFiles
       .stream()
-      .collect(toMap(DbComponent::getPath, identity()));
+      .collect(toMap(DbComponent::path, identity()));
   }
 
   private static Map<String, Component> getReportFilesByUuid(Component root) {
@@ -195,6 +195,6 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
   }
 
   private static OriginalFile toOriginalFile(DbComponent dbComponent) {
-    return new OriginalFile(dbComponent.getUuid(), dbComponent.getKey());
+    return new OriginalFile(dbComponent.uuid(), dbComponent.key());
   }
 }

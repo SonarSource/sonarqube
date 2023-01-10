@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.EditionProvider.Edition;
@@ -251,62 +250,13 @@ public class TelemetryData {
 
   }
 
-  static class Database {
-    private final String name;
-    private final String version;
-
-    Database(String name, String version) {
-      this.name = name;
-      this.version = version;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public String getVersion() {
-      return version;
-    }
+  record Database(String name, String version) {
   }
 
-  static class Project {
-    private final String projectUuid;
-    private final String language;
-    private final Long loc;
-    private final Long lastAnalysis;
-
-    public Project(String projectUuid, Long lastAnalysis, String language, Long loc) {
-      this.projectUuid = projectUuid;
-      this.lastAnalysis = lastAnalysis;
-      this.language = language;
-      this.loc = loc;
-    }
-
-    public String getProjectUuid() {
-      return projectUuid;
-    }
-
-    public String getLanguage() {
-      return language;
-    }
-
-    public Long getLoc() {
-      return loc;
-    }
-
-    public Long getLastAnalysis() {
-      return lastAnalysis;
-    }
+  record Project(String projectUuid, Long lastAnalysis, String language, Long loc) {
   }
 
-  static class ProjectStatistics {
-    private final String projectUuid;
-    private final Long branchCount;
-    private final Long pullRequestCount;
-    private final String scm;
-    private final String ci;
-    private final String devopsPlatform;
-
+  record ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount, String scm, String ci, String devopsPlatform) {
     ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount,
       @Nullable String scm, @Nullable String ci, @Nullable String devopsPlatform) {
       this.projectUuid = projectUuid;
@@ -316,33 +266,5 @@ public class TelemetryData {
       this.ci = ci;
       this.devopsPlatform = devopsPlatform;
     }
-
-    public String getProjectUuid() {
-      return projectUuid;
-    }
-
-    public Long getBranchCount() {
-      return branchCount;
-    }
-
-    public Long getPullRequestCount() {
-      return pullRequestCount;
-    }
-
-    @CheckForNull
-    public String getScm() {
-      return scm;
-    }
-
-    @CheckForNull
-    public String getCi() {
-      return ci;
-    }
-
-    @CheckForNull
-    public String getDevopsPlatform() {
-      return devopsPlatform;
-    }
-
   }
 }

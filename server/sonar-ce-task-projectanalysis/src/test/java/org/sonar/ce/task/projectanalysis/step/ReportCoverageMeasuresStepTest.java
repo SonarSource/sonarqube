@@ -136,15 +136,15 @@ public class ReportCoverageMeasuresStepTest {
 
   private void verify_coverage_aggregates_values(LinesAndConditionsWithUncoveredMetricKeys metricKeys, String codeCoverageKey, String lineCoverageKey, String branchCoverageKey) {
     measureRepository
-      .addRawMeasure(FILE_1_REF, metricKeys.getLines(), newMeasureBuilder().create(3000))
-      .addRawMeasure(FILE_1_REF, metricKeys.getConditions(), newMeasureBuilder().create(300))
-      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(30))
-      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(9))
+      .addRawMeasure(FILE_1_REF, metricKeys.lines(), newMeasureBuilder().create(3000))
+      .addRawMeasure(FILE_1_REF, metricKeys.conditions(), newMeasureBuilder().create(300))
+      .addRawMeasure(FILE_1_REF, metricKeys.uncoveredLines(), newMeasureBuilder().create(30))
+      .addRawMeasure(FILE_1_REF, metricKeys.uncoveredConditions(), newMeasureBuilder().create(9))
 
-      .addRawMeasure(FILE_2_REF, metricKeys.getLines(), newMeasureBuilder().create(2000))
-      .addRawMeasure(FILE_2_REF, metricKeys.getConditions(), newMeasureBuilder().create(400))
-      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(200))
-      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(16));
+      .addRawMeasure(FILE_2_REF, metricKeys.lines(), newMeasureBuilder().create(2000))
+      .addRawMeasure(FILE_2_REF, metricKeys.conditions(), newMeasureBuilder().create(400))
+      .addRawMeasure(FILE_2_REF, metricKeys.uncoveredLines(), newMeasureBuilder().create(200))
+      .addRawMeasure(FILE_2_REF, metricKeys.uncoveredConditions(), newMeasureBuilder().create(16));
 
     underTest.execute(new TestComputationStepContext());
 

@@ -42,12 +42,12 @@ public class MatchTest {
 
   @Test
   public void getDbKey_returns_first_constructor_argument() {
-    assertThat(underTest.getDbUuid()).isEqualTo(SOME_KEY);
+    assertThat(underTest.dbUuid()).isEqualTo(SOME_KEY);
   }
 
   @Test
   public void getDbKey_returns_second_constructor_argument() {
-    assertThat(underTest.getReportUuid()).isEqualTo(SOME_REPORT_KEY);
+    assertThat(underTest.reportUuid()).isEqualTo(SOME_REPORT_KEY);
   }
 
   @Test

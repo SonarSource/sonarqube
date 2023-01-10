@@ -266,15 +266,15 @@ public class NewCoverageMeasuresStepTest {
   private void verify_aggregates_variations(LinesAndConditionsWithUncoveredMetricKeys metricKeys, String codeCoverageKey, String lineCoverageKey, String branchCoverageKey) {
     treeRootHolder.setRoot(MULTIPLE_FILES_TREE);
     measureRepository
-      .addRawMeasure(FILE_1_REF, metricKeys.getLines(), createMeasure(3000))
-      .addRawMeasure(FILE_1_REF, metricKeys.getConditions(), createMeasure(300))
-      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredLines(), createMeasure(30))
-      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredConditions(), createMeasure(9))
+      .addRawMeasure(FILE_1_REF, metricKeys.lines(), createMeasure(3000))
+      .addRawMeasure(FILE_1_REF, metricKeys.conditions(), createMeasure(300))
+      .addRawMeasure(FILE_1_REF, metricKeys.uncoveredLines(), createMeasure(30))
+      .addRawMeasure(FILE_1_REF, metricKeys.uncoveredConditions(), createMeasure(9))
 
-      .addRawMeasure(FILE_2_REF, metricKeys.getLines(), createMeasure(2000))
-      .addRawMeasure(FILE_2_REF, metricKeys.getConditions(), createMeasure(400))
-      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), createMeasure(200))
-      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), createMeasure(16));
+      .addRawMeasure(FILE_2_REF, metricKeys.lines(), createMeasure(2000))
+      .addRawMeasure(FILE_2_REF, metricKeys.conditions(), createMeasure(400))
+      .addRawMeasure(FILE_2_REF, metricKeys.uncoveredLines(), createMeasure(200))
+      .addRawMeasure(FILE_2_REF, metricKeys.uncoveredConditions(), createMeasure(16));
 
     underTest.execute(new TestComputationStepContext());
 

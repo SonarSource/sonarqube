@@ -26,27 +26,6 @@ public interface LdapGroupsProvider {
 
   Collection<String> doGetGroups(Context context);
 
-  final class Context {
-    private final String serverKey;
-    private final String username;
-    private final HttpServletRequest request;
-
-    public Context(String serverKey, String username, HttpServletRequest request) {
-      this.serverKey = serverKey;
-      this.username = username;
-      this.request = request;
-    }
-
-    public String getServerKey() {
-      return serverKey;
-    }
-
-    public String getUsername() {
-      return username;
-    }
-
-    public HttpServletRequest getRequest() {
-      return request;
-    }
+  record Context(String serverKey, String username, HttpServletRequest request) {
   }
 }

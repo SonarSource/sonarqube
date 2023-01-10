@@ -92,7 +92,7 @@ public class RestoreAction implements QProfileWsAction {
   }
 
   private void writeResponse(JsonWriter json, QProfileRestoreSummary summary) {
-    QProfileDto profile = summary.getProfile();
+    QProfileDto profile = summary.profile();
     String languageKey = profile.getLanguage();
     Language language = languages.get(languageKey);
 
@@ -108,7 +108,7 @@ public class RestoreAction implements QProfileWsAction {
     }
     jsonProfile.endObject();
 
-    BulkChangeResult ruleChanges = summary.getRuleChanges();
+    BulkChangeResult ruleChanges = summary.ruleChanges();
     json.prop("ruleSuccesses", ruleChanges.countSucceeded());
     json.prop("ruleFailures", ruleChanges.countFailed());
     json.endObject().close();

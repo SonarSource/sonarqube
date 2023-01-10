@@ -59,23 +59,10 @@ public class CeTask {
     }
   }
 
-  @Immutable
-  public static final class User {
-    private final String uuid;
-    private final String login;
-
+  public record User(String uuid, String login) {
     public User(String uuid, @Nullable String login) {
       this.uuid = requireNonNull(uuid);
       this.login = emptyToNull(login);
-    }
-
-    public String getUuid() {
-      return uuid;
-    }
-
-    @CheckForNull
-    public String getLogin() {
-      return login;
     }
 
     @Override

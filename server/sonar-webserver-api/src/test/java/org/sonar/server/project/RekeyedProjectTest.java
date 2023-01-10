@@ -49,8 +49,8 @@ public class RekeyedProjectTest {
     String previousKey = randomAlphanumeric(6);
     RekeyedProject underTest = new RekeyedProject(project, previousKey);
 
-    assertThat(underTest.getProject()).isSameAs(project);
-    assertThat(underTest.getPreviousKey()).isEqualTo(previousKey);
+    assertThat(underTest.project()).isSameAs(project);
+    assertThat(underTest.previousKey()).isEqualTo(previousKey);
   }
 
   @Test

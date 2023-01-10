@@ -71,7 +71,7 @@ public class TrackerTargetBranchInputFactory {
   private Optional<String> getOriginalComponentKey(Component component) {
     return movedFilesRepository
       .getOriginalPullRequestFile(component)
-      .map(OriginalFile::getKey);
+      .map(OriginalFile::key);
   }
 
   private class TargetLazyInput extends LazyInput<DefaultIssue> {

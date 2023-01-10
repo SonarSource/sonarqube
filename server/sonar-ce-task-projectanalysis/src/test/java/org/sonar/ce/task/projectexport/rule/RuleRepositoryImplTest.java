@@ -51,9 +51,9 @@ public class RuleRepositoryImplTest {
     underTest.register(SOME_UUID, RuleKey.of(SOME_REPOSITORY, SOME_RULE_KEY));
     for (int i = 0; i < someRandomInt(); i++) {
       Rule otherRule = underTest.register(Integer.toString(i), RuleKey.of(SOME_REPOSITORY, SOME_RULE_KEY));
-      assertThat(otherRule.getRef()).isEqualTo(Integer.toString(i));
-      assertThat(otherRule.getRepository()).isEqualTo(SOME_REPOSITORY);
-      assertThat(otherRule.getKey()).isEqualTo(SOME_RULE_KEY);
+      assertThat(otherRule.ref()).isEqualTo(Integer.toString(i));
+      assertThat(otherRule.repository()).isEqualTo(SOME_REPOSITORY);
+      assertThat(otherRule.key()).isEqualTo(SOME_RULE_KEY);
     }
   }
 
@@ -79,7 +79,7 @@ public class RuleRepositoryImplTest {
   public void register_returns_the_same_object_for_every_call_with_equals_RuleKey_objects() {
     Rule rule = underTest.register(SOME_UUID, RuleKey.of(SOME_REPOSITORY, SOME_RULE_KEY));
     for (int i = 0; i < someRandomInt(); i++) {
-      assertThat(underTest.register(Uuids.createFast(), RuleKey.of(SOME_REPOSITORY, SOME_RULE_KEY)).getRef()).isNotEqualTo(rule.getRef());
+      assertThat(underTest.register(Uuids.createFast(), RuleKey.of(SOME_REPOSITORY, SOME_RULE_KEY)).ref()).isNotEqualTo(rule.ref());
     }
   }
 
@@ -89,9 +89,9 @@ public class RuleRepositoryImplTest {
       String repository = SOME_REPOSITORY + i;
       String ruleKey = String.valueOf(i);
       Rule rule = underTest.register(Integer.toString(i), RuleKey.of(repository, ruleKey));
-      assertThat(rule.getRef()).isEqualTo(Integer.toString(i));
-      assertThat(rule.getRepository()).isEqualTo(repository);
-      assertThat(rule.getKey()).isEqualTo(ruleKey);
+      assertThat(rule.ref()).isEqualTo(Integer.toString(i));
+      assertThat(rule.repository()).isEqualTo(repository);
+      assertThat(rule.key()).isEqualTo(ruleKey);
     }
   }
 
@@ -119,8 +119,8 @@ public class RuleRepositoryImplTest {
 
     Collection<Rule> all = underTest.getAll();
 
-    assertThat(all).extracting(Rule::getRepository).containsOnly(repositories);
-    assertThat(all).extracting(Rule::getKey).containsOnly(keys);
+    assertThat(all).extracting(Rule::repository).containsOnly(repositories);
+    assertThat(all).extracting(Rule::key).containsOnly(keys);
 
     assertThatThrownBy(() -> all.add(SOME_RULE))
       .isInstanceOf(UnsupportedOperationException.class);

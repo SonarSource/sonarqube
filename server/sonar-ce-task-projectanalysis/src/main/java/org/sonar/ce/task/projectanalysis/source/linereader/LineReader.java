@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.source.linereader;
 
-import java.util.Objects;
 import java.util.Optional;
-import javax.annotation.concurrent.Immutable;
 import org.sonar.db.protobuf.DbFileSources;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -36,24 +34,10 @@ public interface LineReader {
     COVERAGE, DUPLICATION, HIGHLIGHTING, SCM, SYMBOLS
   }
 
-  @Immutable
-  final class ReadError {
-    private final Data data;
-    private final int line;
-
-    public ReadError(Data data, int line) {
+  record ReadError(Data data, int line) {
+    public ReadError {
       requireNonNull(data);
       checkArgument(line >= 0);
-      this.data = data;
-      this.line = line;
-    }
-
-    public Data getData() {
-      return data;
-    }
-
-    public int getLine() {
-      return line;
     }
 
     @Override
@@ -67,11 +51,6 @@ public interface LineReader {
       ReadError readError = (ReadError) o;
       return line == readError.line &&
         data == readError.data;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(data, line);
     }
 
     @Override

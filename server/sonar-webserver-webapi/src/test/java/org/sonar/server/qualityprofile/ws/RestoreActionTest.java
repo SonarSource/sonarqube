@@ -82,7 +82,7 @@ public class RestoreActionTest {
     TestResponse response = restore("<backup/>");
 
     assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
-    assertThat(backuper.restoredSummary.getProfile().getName()).isEqualTo("the-name-in-backup");
+    assertThat(backuper.restoredSummary.profile().getName()).isEqualTo("the-name-in-backup");
     JsonAssert.assertJson(response.getInput()).isSimilarTo("{" +
       "  \"profile\": {" +
       "    \"name\": \"the-name-in-backup\"," +

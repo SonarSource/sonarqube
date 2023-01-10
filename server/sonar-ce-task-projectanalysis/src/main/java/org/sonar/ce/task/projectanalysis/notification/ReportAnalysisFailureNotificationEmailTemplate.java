@@ -50,8 +50,8 @@ public class ReportAnalysisFailureNotificationEmailTemplate implements EmailTemp
     }
 
     ReportAnalysisFailureNotificationBuilder taskFailureNotification = serializer.fromNotification((ReportAnalysisFailureNotification) notification);
-    String projectUuid = taskFailureNotification.getProject().getUuid();
-    String projectFullName = computeProjectFullName(taskFailureNotification.getProject());
+    String projectUuid = taskFailureNotification.project().uuid();
+    String projectFullName = computeProjectFullName(taskFailureNotification.project());
 
     return new EmailMessage()
       .setMessageId(notification.getType() + "/" + projectUuid)
@@ -60,11 +60,11 @@ public class ReportAnalysisFailureNotificationEmailTemplate implements EmailTemp
   }
 
   private static String computeProjectFullName(ReportAnalysisFailureNotificationBuilder.Project project) {
-    String branchName = project.getBranchName();
+    String branchName = project.branchName();
     if (branchName != null) {
-      return String.format("%s (%s)", project.getName(), branchName);
+      return String.format("%s (%s)", project.name(), branchName);
     }
-    return project.getName();
+    return project.name();
   }
 
   private static String subject(String projectFullName) {
@@ -72,23 +72,23 @@ public class ReportAnalysisFailureNotificationEmailTemplate implements EmailTemp
   }
 
   private String message(String projectFullName, ReportAnalysisFailureNotificationBuilder taskFailureNotification) {
-    ReportAnalysisFailureNotificationBuilder.Project project = taskFailureNotification.getProject();
-    ReportAnalysisFailureNotificationBuilder.Task task = taskFailureNotification.getTask();
+    ReportAnalysisFailureNotificationBuilder.Project project = taskFailureNotification.project();
+    ReportAnalysisFailureNotificationBuilder.Task task = taskFailureNotification.task();
 
     StringBuilder res = new StringBuilder();
     res.append("Project:").append(TAB).append(projectFullName).append(LINE_RETURN);
-    res.append("Background task:").append(TAB).append(task.getUuid()).append(LINE_RETURN);
-    res.append("Submission time:").append(TAB).append(formatDateTime(task.getCreatedAt())).append(LINE_RETURN);
-    res.append("Failure time:").append(TAB).append(formatDateTime(task.getFailedAt())).append(LINE_RETURN);
+    res.append("Background task:").append(TAB).append(task.uuid()).append(LINE_RETURN);
+    res.append("Submission time:").append(TAB).append(formatDateTime(task.createdAt())).append(LINE_RETURN);
+    res.append("Failure time:").append(TAB).append(formatDateTime(task.failedAt())).append(LINE_RETURN);
 
-    String errorMessage = taskFailureNotification.getErrorMessage();
+    String errorMessage = taskFailureNotification.errorMessage();
     if (errorMessage != null) {
       res.append(LINE_RETURN);
       res.append("Error message:").append(TAB).append(errorMessage).append(LINE_RETURN);
     }
 
     res.append(LINE_RETURN);
-    res.append("More details at: ").append(String.format("%s/project/background_tasks?id=%s", settings.getServerBaseURL(), encode(project.getKey())));
+    res.append("More details at: ").append(String.format("%s/project/background_tasks?id=%s", settings.getServerBaseURL(), encode(project.key())));
 
     return res.toString();
   }

@@ -276,7 +276,7 @@ public class EventComponentChangeDaoTest {
     Arrays.stream(event1Dtos).forEach(dto -> underTest.insert(dbSession, dto, doesNotMatter));
     Arrays.stream(event2Dtos).forEach(dto -> underTest.insert(dbSession, dto, doesNotMatter));
 
-    assertThat(underTest.selectByAnalysisUuids(dbSession, singletonList(doesNotMatter.getAnalysisUuid())))
+    assertThat(underTest.selectByAnalysisUuids(dbSession, singletonList(doesNotMatter.analysisUuid())))
       .extracting(
         EventComponentChangeDto::getUuid,
         EventComponentChangeDto::getEventUuid,

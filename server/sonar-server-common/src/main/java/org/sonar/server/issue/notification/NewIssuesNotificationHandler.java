@@ -82,7 +82,7 @@ public class NewIssuesNotificationHandler extends EmailNotificationHandler<NewIs
     return notificationManager.findSubscribedEmailRecipients(KEY, projectKey, ALL_MUST_HAVE_ROLE_USER)
       .stream()
       .flatMap(emailRecipient -> notifications.stream()
-        .map(notification -> new EmailDeliveryRequest(emailRecipient.getEmail(), notification)));
+        .map(notification -> new EmailDeliveryRequest(emailRecipient.email(), notification)));
   }
 
 }

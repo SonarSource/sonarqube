@@ -21,12 +21,10 @@ package org.sonar.alm.client.github;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.UserAccessToken;
@@ -163,67 +161,6 @@ public interface GithubApplicationClient {
     @Override
     public int hashCode() {
       return Long.hashCode(id);
-    }
-  }
-
-  @Immutable
-  final class RepositoryDetails {
-    private final Repository repository;
-    private final String description;
-    private final String mainBranchName;
-    private final String url;
-
-    public RepositoryDetails(Repository repository, String description, String mainBranchName, String url) {
-      this.repository = repository;
-      this.description = description;
-      this.mainBranchName = mainBranchName;
-      this.url = url;
-    }
-
-    public Repository getRepository() {
-      return repository;
-    }
-
-    public String getDescription() {
-      return description;
-    }
-
-    public String getMainBranchName() {
-      return mainBranchName;
-    }
-
-    public String getUrl() {
-      return url;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      RepositoryDetails that = (RepositoryDetails) o;
-      return Objects.equals(repository, that.repository) &&
-        Objects.equals(description, that.description) &&
-        Objects.equals(mainBranchName, that.mainBranchName) &&
-        Objects.equals(url, that.url);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(repository, description, mainBranchName, url);
-    }
-
-    @Override
-    public String toString() {
-      return "RepositoryDetails{" +
-        "repository=" + repository +
-        ", description='" + description + '\'' +
-        ", mainBranchName='" + mainBranchName + '\'' +
-        ", url='" + url + '\'' +
-        '}';
     }
   }
 

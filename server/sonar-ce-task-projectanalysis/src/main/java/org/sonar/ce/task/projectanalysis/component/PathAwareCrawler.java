@@ -169,7 +169,7 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
       @Override
       @Nonnull
       public String apply(@Nonnull PathAwareVisitor.PathElement<?> input) {
-        return format("%s(type=%s)", input.getComponent().getKey(), input.getComponent().getType());
+        return format("%s(type=%s)", input.component().getKey(), input.component().getType());
       }
     }
   }

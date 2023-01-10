@@ -136,7 +136,7 @@ public class FPOrWontFixNotificationHandler extends EmailNotificationHandler<Iss
   private static Stream<EmailDeliveryRequest> toRequests(NotificationWithProjectKeys notification, Set<String> projectKeys, Collection<EmailRecipient> recipients) {
     return recipients.stream()
       // do not notify author of the change
-      .filter(recipient -> !notification.getChange().isAuthorLogin(recipient.getLogin()))
+      .filter(recipient -> !notification.getChange().isAuthorLogin(recipient.login()))
       .flatMap(recipient -> {
         SetMultimap<String, ChangedIssue> issuesByNewResolution = notification.getIssues().stream()
           // ignore issues not changed to a FP or Won't Fix resolution
@@ -155,7 +155,7 @@ public class FPOrWontFixNotificationHandler extends EmailNotificationHandler<Iss
             .map(wontFixIssues -> new FPOrWontFixNotification(notification.getChange(), wontFixIssues, WONT_FIX))
             .orElse(null))
           .filter(Objects::nonNull)
-          .map(fpOrWontFixNotification -> new EmailDeliveryRequest(recipient.getEmail(), fpOrWontFixNotification));
+          .map(fpOrWontFixNotification -> new EmailDeliveryRequest(recipient.email(), fpOrWontFixNotification));
       });
   }
 

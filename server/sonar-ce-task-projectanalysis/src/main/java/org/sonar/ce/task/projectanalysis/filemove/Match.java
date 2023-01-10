@@ -19,45 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.filemove;
 
-import java.util.Objects;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
-@Immutable
-final class Match {
-  private final String dbUuid;
-  private final String reportUuid;
-
-  Match(String dbUuid, String reportUuid) {
-    this.dbUuid = dbUuid;
-    this.reportUuid = reportUuid;
-  }
-
-  public String getDbUuid() {
-    return dbUuid;
-  }
-
-  public String getReportUuid() {
-    return reportUuid;
-  }
-
-  @Override
-  public boolean equals(@Nullable Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Match match = (Match) o;
-    return dbUuid.equals(match.dbUuid) && reportUuid.equals(match.reportUuid);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(dbUuid, reportUuid);
-  }
-
+record Match(String dbUuid, String reportUuid) {
   @Override
   public String toString() {
     return '{' + dbUuid + "=>" + reportUuid + '}';

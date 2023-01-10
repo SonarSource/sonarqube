@@ -367,8 +367,8 @@ public class CeWorkerImplTest {
     verifyWorkerUuid();
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(2);
-    assertThat(logs.get(0)).contains(" | submitter=" + submitter.getLogin());
-    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=SUCCESS | time=", submitter.getLogin()));
+    assertThat(logs.get(0)).contains(" | submitter=" + submitter.login());
+    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=SUCCESS | time=", submitter.login()));
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
   }
@@ -387,8 +387,8 @@ public class CeWorkerImplTest {
     verifyWorkerUuid();
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(2);
-    assertThat(logs.get(0)).contains(" | submitter=" + submitter.getLogin());
-    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.getLogin()));
+    assertThat(logs.get(0)).contains(" | submitter=" + submitter.login());
+    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.login()));
     logs = logTester.logs(LoggerLevel.ERROR);
     assertThat(logs).hasSize(1);
     assertThat(logs.iterator().next()).isEqualTo("Failed to execute task " + ceTask.getUuid());
@@ -464,8 +464,8 @@ public class CeWorkerImplTest {
 
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(2);
-    assertThat(logs.get(0)).contains(" | submitter=" + submitter.getLogin());
-    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.getLogin()));
+    assertThat(logs.get(0)).contains(" | submitter=" + submitter.login());
+    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.login()));
     logs = logTester.logs(LoggerLevel.ERROR);
     assertThat(logs).hasSize(1);
     assertThat(logs.iterator().next()).isEqualTo("Failed to execute task " + ceTask.getUuid());
@@ -482,8 +482,8 @@ public class CeWorkerImplTest {
 
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(2);
-    assertThat(logs.get(1)).contains(" | submitter=" + submitter.getLogin());
-    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.getLogin()));
+    assertThat(logs.get(1)).contains(" | submitter=" + submitter.login());
+    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.login()));
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
   }
 
@@ -512,8 +512,8 @@ public class CeWorkerImplTest {
 
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(2);
-    assertThat(logs.get(0)).contains(" | submitter=" + submitter.getLogin());
-    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.getLogin()));
+    assertThat(logs.get(0)).contains(" | submitter=" + submitter.login());
+    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.login()));
     List<LogAndArguments> logAndArguments = logTester.getLogs(LoggerLevel.ERROR);
     assertThat(logAndArguments).hasSize(2);
 
@@ -541,8 +541,8 @@ public class CeWorkerImplTest {
 
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(2);
-    assertThat(logs.get(0)).contains(" | submitter=" + submitter.getLogin());
-    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.getLogin()));
+    assertThat(logs.get(0)).contains(" | submitter=" + submitter.login());
+    assertThat(logs.get(1)).contains(String.format(" | submitter=%s | status=FAILED | time=", submitter.login()));
     List<LogAndArguments> logAndArguments = logTester.getLogs(LoggerLevel.ERROR);
     assertThat(logAndArguments).hasSize(1);
     assertThat(logAndArguments.get(0).getFormattedMsg()).isEqualTo("Failed to finalize task with uuid '" + ceTask.getUuid() + "' and persist its state to db");

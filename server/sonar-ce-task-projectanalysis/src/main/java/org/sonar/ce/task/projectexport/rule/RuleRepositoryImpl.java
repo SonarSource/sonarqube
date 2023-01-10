@@ -37,10 +37,10 @@ public class RuleRepositoryImpl implements RuleRepository {
 
     Rule rule = rulesByUuid.get(ref);
     if (rule != null) {
-      if (!ruleKey.repository().equals(rule.getRepository()) || !ruleKey.rule().equals(rule.getKey())) {
+      if (!ruleKey.repository().equals(rule.repository()) || !ruleKey.rule().equals(rule.key())) {
         throw new IllegalArgumentException(format(
           "Specified RuleKey '%s' is not equal to the one already registered in repository for ref %s: '%s'",
-          ruleKey, ref, RuleKey.of(rule.getRepository(), rule.getKey())));
+          ruleKey, ref, RuleKey.of(rule.repository(), rule.key())));
       }
       return rule;
     }

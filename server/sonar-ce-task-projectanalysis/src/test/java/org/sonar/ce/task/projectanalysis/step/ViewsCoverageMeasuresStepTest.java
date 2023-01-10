@@ -91,37 +91,37 @@ public class ViewsCoverageMeasuresStepTest {
 
   private void verify_lines_and_conditions_aggregates_values(LinesAndConditionsWithUncoveredMetricKeys metricKeys) {
     measureRepository
-      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.getLines(), newMeasureBuilder().create(3000))
-      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.getConditions(), newMeasureBuilder().create(300))
-      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(30))
-      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(9))
+      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.lines(), newMeasureBuilder().create(3000))
+      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.conditions(), newMeasureBuilder().create(300))
+      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.uncoveredLines(), newMeasureBuilder().create(30))
+      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.uncoveredConditions(), newMeasureBuilder().create(9))
 
-      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.getLines(), newMeasureBuilder().create(2000))
-      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.getConditions(), newMeasureBuilder().create(400))
-      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(200))
-      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(16))
+      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.lines(), newMeasureBuilder().create(2000))
+      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.conditions(), newMeasureBuilder().create(400))
+      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.uncoveredLines(), newMeasureBuilder().create(200))
+      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.uncoveredConditions(), newMeasureBuilder().create(16))
 
-      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getLines(), newMeasureBuilder().create(1000))
-      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getConditions(), newMeasureBuilder().create(500))
-      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(300))
-      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(19));
+      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.lines(), newMeasureBuilder().create(1000))
+      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.conditions(), newMeasureBuilder().create(500))
+      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.uncoveredLines(), newMeasureBuilder().create(300))
+      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.uncoveredConditions(), newMeasureBuilder().create(19));
 
     underTest.execute(new TestComputationStepContext());
 
     MeasureRepoEntry[] subViewRepoEntries = {
-      entryOf(metricKeys.getLines(), newMeasureBuilder().create(5000)),
-      entryOf(metricKeys.getConditions(), newMeasureBuilder().create(700)),
-      entryOf(metricKeys.getUncoveredLines(), newMeasureBuilder().create(230)),
-      entryOf(metricKeys.getUncoveredConditions(), newMeasureBuilder().create(25))
+      entryOf(metricKeys.lines(), newMeasureBuilder().create(5000)),
+      entryOf(metricKeys.conditions(), newMeasureBuilder().create(700)),
+      entryOf(metricKeys.uncoveredLines(), newMeasureBuilder().create(230)),
+      entryOf(metricKeys.uncoveredConditions(), newMeasureBuilder().create(25))
     };
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_SUBVIEW_REF))).contains(subViewRepoEntries);
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUBVIEW_REF))).contains(subViewRepoEntries);
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(
-      entryOf(metricKeys.getLines(), newMeasureBuilder().create(6000)),
-      entryOf(metricKeys.getConditions(), newMeasureBuilder().create(1200)),
-      entryOf(metricKeys.getUncoveredLines(), newMeasureBuilder().create(530)),
-      entryOf(metricKeys.getUncoveredConditions(), newMeasureBuilder().create(44)));
+      entryOf(metricKeys.lines(), newMeasureBuilder().create(6000)),
+      entryOf(metricKeys.conditions(), newMeasureBuilder().create(1200)),
+      entryOf(metricKeys.uncoveredLines(), newMeasureBuilder().create(530)),
+      entryOf(metricKeys.uncoveredConditions(), newMeasureBuilder().create(44)));
   }
 
   @Test
@@ -138,20 +138,20 @@ public class ViewsCoverageMeasuresStepTest {
 
   private void verify_coverage_aggregates_values(LinesAndConditionsWithUncoveredMetricKeys metricKeys, String codeCoverageKey, String lineCoverageKey, String branchCoverageKey) {
     measureRepository
-      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.getLines(), newMeasureBuilder().create(3000))
-      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.getConditions(), newMeasureBuilder().create(300))
-      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(30))
-      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(9))
+      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.lines(), newMeasureBuilder().create(3000))
+      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.conditions(), newMeasureBuilder().create(300))
+      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.uncoveredLines(), newMeasureBuilder().create(30))
+      .addRawMeasure(PROJECTVIEW_1_REF, metricKeys.uncoveredConditions(), newMeasureBuilder().create(9))
 
-      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.getLines(), newMeasureBuilder().create(2000))
-      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.getConditions(), newMeasureBuilder().create(400))
-      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(200))
-      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(16))
+      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.lines(), newMeasureBuilder().create(2000))
+      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.conditions(), newMeasureBuilder().create(400))
+      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.uncoveredLines(), newMeasureBuilder().create(200))
+      .addRawMeasure(PROJECTVIEW_2_REF, metricKeys.uncoveredConditions(), newMeasureBuilder().create(16))
 
-      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getLines(), newMeasureBuilder().create(1000))
-      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getConditions(), newMeasureBuilder().create(500))
-      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getUncoveredLines(), newMeasureBuilder().create(300))
-      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.getUncoveredConditions(), newMeasureBuilder().create(19));
+      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.lines(), newMeasureBuilder().create(1000))
+      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.conditions(), newMeasureBuilder().create(500))
+      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.uncoveredLines(), newMeasureBuilder().create(300))
+      .addRawMeasure(PROJECTVIEW_3_REF, metricKeys.uncoveredConditions(), newMeasureBuilder().create(19));
 
     underTest.execute(new TestComputationStepContext());
 

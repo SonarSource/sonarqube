@@ -19,9 +19,7 @@
  */
 package org.sonar.server.webhook;
 
-import java.util.Objects;
 import java.util.function.Supplier;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.config.Configuration;
@@ -51,48 +49,11 @@ public interface WebHooks {
    */
   void sendProjectAnalysisUpdate(Analysis analysis, Supplier<WebhookPayload> payloadSupplier, PostProjectAnalysisTask.LogStatistics taskLogStatistics);
 
-  final class Analysis {
-    private final String projectUuid;
-    private final String ceTaskUuid;
-    private final String analysisUuid;
-
+  record Analysis(String projectUuid, String analysisUuid, String ceTaskUuid) {
     public Analysis(String projectUuid, @Nullable String analysisUuid, @Nullable String ceTaskUuid) {
       this.projectUuid = requireNonNull(projectUuid, "projectUuid can't be null");
       this.analysisUuid = analysisUuid;
       this.ceTaskUuid = ceTaskUuid;
-    }
-
-    public String getProjectUuid() {
-      return projectUuid;
-    }
-
-    @CheckForNull
-    public String getCeTaskUuid() {
-      return ceTaskUuid;
-    }
-
-    @CheckForNull
-    public String getAnalysisUuid() {
-      return analysisUuid;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      Analysis analysis = (Analysis) o;
-      return Objects.equals(projectUuid, analysis.projectUuid) &&
-        Objects.equals(ceTaskUuid, analysis.ceTaskUuid) &&
-        Objects.equals(analysisUuid, analysis.analysisUuid);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(projectUuid, ceTaskUuid, analysisUuid);
     }
 
     @Override

@@ -203,22 +203,7 @@ public class PopulateInitialSchema extends DataChange {
     return uuid;
   }
 
-  private static final class Groups {
-    private final String adminGroupUuid;
-    private final String userGroupUuid;
-
-    private Groups(String adminGroupUuid, String userGroupUuid) {
-      this.adminGroupUuid = adminGroupUuid;
-      this.userGroupUuid = userGroupUuid;
-    }
-
-    public String getAdminGroupUuid() {
-      return adminGroupUuid;
-    }
-
-    public String getUserGroupUuid() {
-      return userGroupUuid;
-    }
+  private record Groups(String adminGroupUuid, String userGroupUuid) {
   }
 
   private void insertGroupRoles(Context context, Groups groups) throws SQLException {
@@ -228,14 +213,14 @@ public class PopulateInitialSchema extends DataChange {
     for (String adminRole : ADMIN_ROLES) {
       upsert
         .setString(1, uuidFactory.create())
-        .setString(2, groups.getAdminGroupUuid())
+        .setString(2, groups.adminGroupUuid())
         .setString(3, adminRole)
         .addBatch();
     }
     for (String anyoneRole : Arrays.asList("scan", "provisioning")) {
       upsert
         .setString(1, uuidFactory.create())
-        .setString(2, groups.getUserGroupUuid())
+        .setString(2, groups.userGroupUuid())
         .setString(3, anyoneRole)
         .addBatch();
     }
@@ -250,11 +235,11 @@ public class PopulateInitialSchema extends DataChange {
     Upsert upsert = context.prepareUpsert(createInsertStatement("groups_users", "user_uuid", "group_uuid"));
     upsert
       .setString(1, adminUserUuid)
-      .setString(2, groups.getUserGroupUuid())
+      .setString(2, groups.userGroupUuid())
       .addBatch();
     upsert
       .setString(1, adminUserUuid)
-      .setString(2, groups.getAdminGroupUuid())
+      .setString(2, groups.adminGroupUuid())
       .addBatch();
     upsert
       .execute()

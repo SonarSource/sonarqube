@@ -577,11 +577,11 @@ public class CeQueueImplTest {
     assertThat(task.getType()).isEqualTo(taskSubmit.getType());
     if (taskSubmit.getSubmitterUuid() != null) {
       if (userDto == null) {
-        assertThat(task.getSubmitter().getUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
-        assertThat(task.getSubmitter().getLogin()).isNull();
+        assertThat(task.getSubmitter().uuid()).isEqualTo(taskSubmit.getSubmitterUuid());
+        assertThat(task.getSubmitter().login()).isNull();
       } else {
-        assertThat(task.getSubmitter().getUuid()).isEqualTo(userDto.getUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
-        assertThat(task.getSubmitter().getLogin()).isEqualTo(userDto.getLogin());
+        assertThat(task.getSubmitter().uuid()).isEqualTo(userDto.getUuid()).isEqualTo(taskSubmit.getSubmitterUuid());
+        assertThat(task.getSubmitter().login()).isEqualTo(userDto.getLogin());
       }
     }
   }

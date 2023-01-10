@@ -38,8 +38,8 @@ public class EvaluationResultTest {
     Measure.Level level = Measure.Level.OK;
 
     EvaluationResult evaluationResult = new EvaluationResult(level, value);
-    assertThat(evaluationResult.getLevel()).isEqualTo(level);
-    assertThat(evaluationResult.getValue()).isEqualTo(value);
+    assertThat(evaluationResult.level()).isEqualTo(level);
+    assertThat(evaluationResult.value()).isEqualTo(value);
   }
 
   @Test

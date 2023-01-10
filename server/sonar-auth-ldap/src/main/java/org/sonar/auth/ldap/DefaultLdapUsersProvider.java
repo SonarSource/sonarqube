@@ -55,7 +55,7 @@ public class DefaultLdapUsersProvider implements LdapUsersProvider {
 
   @Override
   public LdapUserDetails doGetUserDetails(Context context) {
-    return getUserDetails(context.getServerKey(), context.getUsername());
+    return getUserDetails(context.serverKey(), context.username());
   }
 
   /**

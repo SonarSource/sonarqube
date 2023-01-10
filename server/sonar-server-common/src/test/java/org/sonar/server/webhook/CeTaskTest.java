@@ -44,7 +44,7 @@ public class CeTaskTest {
 
   @Test
   public void verify_getters() {
-    assertThat(underTest.getId()).isEqualTo("A");
-    assertThat(underTest.getStatus()).isEqualTo(CeTask.Status.SUCCESS);
+    assertThat(underTest.id()).isEqualTo("A");
+    assertThat(underTest.status()).isEqualTo(CeTask.Status.SUCCESS);
   }
 }

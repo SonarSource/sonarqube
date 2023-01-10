@@ -340,8 +340,8 @@ public class FileMoveDetectionStepTest {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).containsExactly(file2);
     MovedFilesRepository.OriginalFile originalFile = movedFilesRepository.getOriginalFile(file2).get();
-    assertThat(originalFile.getKey()).isEqualTo(dtos[0].getKey());
-    assertThat(originalFile.getUuid()).isEqualTo(dtos[0].uuid());
+    assertThat(originalFile.key()).isEqualTo(dtos[0].getKey());
+    assertThat(originalFile.uuid()).isEqualTo(dtos[0].uuid());
     assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 1, 1, 1, 1);
   }
@@ -505,11 +505,11 @@ public class FileMoveDetectionStepTest {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).containsOnly(file3, file6);
     MovedFilesRepository.OriginalFile originalFile2 = movedFilesRepository.getOriginalFile(file3).get();
-    assertThat(originalFile2.getKey()).isEqualTo(dtos[0].getKey());
-    assertThat(originalFile2.getUuid()).isEqualTo(dtos[0].uuid());
+    assertThat(originalFile2.key()).isEqualTo(dtos[0].getKey());
+    assertThat(originalFile2.uuid()).isEqualTo(dtos[0].uuid());
     MovedFilesRepository.OriginalFile originalFile5 = movedFilesRepository.getOriginalFile(file6).get();
-    assertThat(originalFile5.getKey()).isEqualTo(dtos[3].getKey());
-    assertThat(originalFile5.getUuid()).isEqualTo(dtos[3].uuid());
+    assertThat(originalFile5.key()).isEqualTo(dtos[3].getKey());
+    assertThat(originalFile5.uuid()).isEqualTo(dtos[3].uuid());
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isGreaterThan(MIN_REQUIRED_SCORE);
     assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 3, 4, 2, 2);
@@ -581,11 +581,11 @@ public class FileMoveDetectionStepTest {
       migrationRb1238,
       addComponentUuidAndAnalysisUuidColumnToDuplicationsIndex);
 
-    assertThat(movedFilesRepository.getOriginalFile(makeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex).get().getUuid())
+    assertThat(movedFilesRepository.getOriginalFile(makeComponentUuidAndAnalysisUuidNotNullOnDuplicationsIndex).get().uuid())
       .isEqualTo("uuid_" + "MakeComponentUuidNotNullOnDuplicationsIndex.java".hashCode());
-    assertThat(movedFilesRepository.getOriginalFile(migrationRb1238).get().getUuid())
+    assertThat(movedFilesRepository.getOriginalFile(migrationRb1238).get().uuid())
       .isEqualTo("uuid_" + "1242_make_analysis_uuid_not_null_on_duplications_index.rb".hashCode());
-    assertThat(movedFilesRepository.getOriginalFile(addComponentUuidAndAnalysisUuidColumnToDuplicationsIndex).get().getUuid())
+    assertThat(movedFilesRepository.getOriginalFile(addComponentUuidAndAnalysisUuidColumnToDuplicationsIndex).get().uuid())
       .isEqualTo("uuid_" + "AddComponentUuidColumnToDuplicationsIndex.java".hashCode());
     verifyStatistics(context, comps.values().size(), 12, 6, 3);
   }

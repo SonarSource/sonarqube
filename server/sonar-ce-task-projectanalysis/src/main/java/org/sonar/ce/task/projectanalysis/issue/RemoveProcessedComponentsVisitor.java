@@ -37,7 +37,7 @@ public class RemoveProcessedComponentsVisitor extends IssueVisitor {
     componentsWithUnprocessedIssues.remove(component.getUuid());
     Optional<MovedFilesRepository.OriginalFile> originalFile = movedFilesRepository.getOriginalFile(component);
     if (originalFile.isPresent()) {
-      componentsWithUnprocessedIssues.remove(originalFile.get().getUuid());
+      componentsWithUnprocessedIssues.remove(originalFile.get().uuid());
     }
   }
 }

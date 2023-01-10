@@ -102,7 +102,7 @@ public class FileSourceDataComputerTest {
     ArgumentCaptor<LineReader.ReadError> readErrorCaptor = ArgumentCaptor.forClass(LineReader.ReadError.class);
     verify(fileSourceDataWarnings, times(lineCount)).addWarning(same(FILE), readErrorCaptor.capture());
     assertThat(readErrorCaptor.getAllValues())
-      .extracting(LineReader.ReadError::getLine)
+      .extracting(LineReader.ReadError::line)
       .containsExactly(IntStream.range(randomStartPoint, randomStartPoint + lineCount).boxed().toArray(Integer[]::new));
   }
 
