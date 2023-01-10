@@ -32,6 +32,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -58,6 +59,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 public class FileSystemMediumTest {
@@ -442,7 +444,8 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void analysisFailsIfFileDoesNotExist() throws IOException {
+  public void analysisFailsSymbolicLinkWithoutTargetIsInTheFolder() throws IOException {
+    assumeFalse(SystemUtils.IS_OS_WINDOWS);
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -1122,7 +1125,8 @@ public class FileSystemMediumTest {
 
     // src/srcSubDir2/srcSub2.xoo
     File srcSubDir2 = createDir(srcDir, "srcSubDir2", true);
-    writeFile(srcSubDir2, "srcSub2.xoo", "Sample 2 xoo\ncontent").setReadable(false);
+    boolean fileNotReadable = writeFile(srcSubDir2, "srcSub2.xoo", "Sample 2 xoo\ncontent").setReadable(false);
+    assumeTrue(fileNotReadable);
 
     // src/srcSubDir2/srcSubSubDir2/srcSubSub2.xoo
     File srcSubSubDir2 = createDir(srcSubDir2, "srcSubSubDir2", false);
@@ -1143,7 +1147,8 @@ public class FileSystemMediumTest {
   public void givenFileWithoutAccessWhenChildrenAreExcludedThenThenScanShouldFail() throws IOException {
     // src/src.xoo
     File srcDir = createDir(baseDir, "src", true);
-    writeFile(srcDir, "src.xoo", "Sample xoo\ncontent").setReadable(false);
+    boolean fileNotReadable = writeFile(srcDir, "src.xoo", "Sample xoo\ncontent").setReadable(false);
+    assumeTrue(fileNotReadable);
 
     AnalysisBuilder result = tester.newAnalysis()
       .properties(builder
@@ -1189,7 +1194,8 @@ public class FileSystemMediumTest {
 
     // src/srcSubDir2/srcSub2.xoo
     File srcSubDir2 = createDir(srcDir, "srcSubDir2", true);
-    writeFile(srcSubDir2, "srcSub2.xoo", "Sample 2 xoo\ncontent").setReadable(false);
+    boolean fileNotReadable = writeFile(srcSubDir2, "srcSub2.xoo", "Sample 2 xoo\ncontent").setReadable(false);
+    assumeTrue(fileNotReadable);
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -1254,7 +1260,8 @@ public class FileSystemMediumTest {
   private File createDir(File parentDir, String name, boolean isReadable) {
     File dir = new File(parentDir, name);
     dir.mkdir();
-    dir.setReadable(isReadable);
+    boolean fileSystemOperationSucceded = dir.setReadable(isReadable);
+    assumeTrue(fileSystemOperationSucceded); //On windows + java there is no reliable way to play with readable/not readable flag
     return dir;
   }
 

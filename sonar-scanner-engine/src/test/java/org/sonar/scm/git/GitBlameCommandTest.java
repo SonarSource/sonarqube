@@ -237,6 +237,13 @@ public class GitBlameCommandTest {
       "git version 2.25.1.msysgit.2"
     ).forEach(output -> {
       ProcessWrapperFactory mockedCmd = mockGitVersionCommand(output);
+      mockGitWhereOnWindows(mockedCmd);
+      when(mockedCmd.create(isNull(), any(), eq("C:\\mockGit.exe"), eq("--version"))).then(invocation -> {
+        var argument = (Consumer<String>) invocation.getArgument(1);
+        argument.accept(output);
+        return mock(ProcessWrapper.class);
+      });
+
       GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, mockedCmd);
       assertThat(blameCommand.checkIfEnabled()).isTrue();
     });
@@ -314,11 +321,7 @@ public class GitBlameCommandTest {
 
     ProcessWrapperFactory mockFactory = mock(ProcessWrapperFactory.class);
     ProcessWrapper mockProcess = mock(ProcessWrapper.class);
-    when(mockFactory.create(isNull(), any(), eq("C:\\Windows\\System32\\where.exe"), eq("$PATH:git.exe"))).then(invocation -> {
-      var argument = (Consumer<String>) invocation.getArgument(1);
-      argument.accept("C:\\mockGit.exe");
-      return mockProcess;
-    });
+    mockGitWhereOnWindows(mockFactory);
 
     when(mockFactory.create(isNull(), any(), eq("C:\\mockGit.exe"), eq("--version"))).then(invocation -> {
       var argument = (Consumer<String>) invocation.getArgument(1);
@@ -338,8 +341,7 @@ public class GitBlameCommandTest {
     when(system2.property("PATH")).thenReturn("C:\\some-path;C:\\some-another-path");
 
     ProcessWrapperFactory mockFactory = mock(ProcessWrapperFactory.class);
-    ProcessWrapper mockProcess = mock(ProcessWrapper.class);
-    when(mockFactory.create(isNull(), any(), eq("C:\\Windows\\System32\\where.exe"), eq("$PATH:git.exe"))).thenReturn(mockProcess);
+    mockGitWhereOnWindows(mockFactory);
 
     GitBlameCommand blameCommand = new GitBlameCommand(system2, mockFactory);
     assertThat(blameCommand.checkIfEnabled()).isFalse();
@@ -361,6 +363,14 @@ public class GitBlameCommandTest {
   private File createNewTempFolder() throws IOException {
     // This is needed for Windows, otherwise the created File point to invalid (shortened by Windows) temp folder path
     return temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
+  }
+
+  private void mockGitWhereOnWindows(ProcessWrapperFactory processWrapperFactory) {
+    when(processWrapperFactory.create(isNull(), any(), eq("C:\\Windows\\System32\\where.exe"), eq("$PATH:git.exe"))).then(invocation -> {
+      var argument = (Consumer<String>) invocation.getArgument(1);
+      argument.accept("C:\\mockGit.exe");
+      return mock(ProcessWrapper.class);
+    });
   }
 
   private ProcessWrapperFactory mockGitVersionCommand(String commandOutput) {

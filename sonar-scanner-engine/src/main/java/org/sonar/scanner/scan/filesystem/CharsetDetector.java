@@ -47,7 +47,7 @@ public class CharsetDetector {
       byte[] buf = readBuffer();
       return detectCharset(buf);
     } catch (IOException e) {
-      throw new IllegalStateException("Unable to read file " + filePath.toAbsolutePath().toString(), e);
+      throw new IllegalStateException("Unable to read file " + filePath.toAbsolutePath(), e);
     }
   }
 
