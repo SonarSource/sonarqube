@@ -97,19 +97,6 @@ public class ComponentUpdater {
     return componentDto;
   }
 
-  /**
-   * - Create component
-   * - Apply default permission template
-   * - Add component to favorite if the component has the 'Project Creators' permission
-   * - Index component in es indexes
-   */
-  public ComponentDto createApplicationOrPortfolio(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid,
-    @Nullable String userLogin, @Nullable String mainBranchName) {
-    ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userUuid, userLogin, mainBranchName, c -> {});
-    commitAndIndex(dbSession, componentDto);
-    return componentDto;
-  }
-
   public void commitAndIndex(DbSession dbSession, ComponentDto componentDto) {
     projectIndexers.commitAndIndexComponents(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
   }

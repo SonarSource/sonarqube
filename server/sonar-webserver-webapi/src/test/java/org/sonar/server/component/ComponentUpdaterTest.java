@@ -337,10 +337,10 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void createApplicationOrPortfolio_createsComponentWithMasterBranchName() {
+  public void create_createsComponentWithMasterBranchName() {
     String componentNameAndKey = "createApplicationOrPortfolio";
-    ComponentDto app = underTest.createApplicationOrPortfolio(db.getSession(),
-      NewComponent.newComponentBuilder().setName(componentNameAndKey).setKey(componentNameAndKey).setQualifier("APP").build(), null, null, null);
+    ComponentDto app = underTest.create(db.getSession(), NewComponent.newComponentBuilder().setName(componentNameAndKey)
+      .setKey(componentNameAndKey).setQualifier("APP").build(), null, null, null);
 
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), app.branchUuid());
     assertThat(branch).isPresent();
