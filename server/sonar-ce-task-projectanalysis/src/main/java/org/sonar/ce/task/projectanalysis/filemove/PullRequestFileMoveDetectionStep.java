@@ -137,7 +137,7 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
       .values()
       .stream()
       .filter(file -> Objects.nonNull(file.getFileAttributes().getOldRelativePath()))
-      .collect(toList());
+      .toList();
   }
 
   private static Optional<DbComponent> retrieveDbFile(Map<String, DbComponent> dbFilesByPathReference, Component file) {

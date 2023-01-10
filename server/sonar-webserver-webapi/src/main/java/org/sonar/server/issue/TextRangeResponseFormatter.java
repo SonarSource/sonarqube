@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
@@ -63,7 +62,7 @@ public class TextRangeResponseFormatter {
         convertFlowType(flow.getType()).ifPresent(targetFlow::setType);
       }
       return targetFlow.build();
-    }).collect(Collectors.toList());
+    }).toList();
   }
 
   private static Optional<Common.FlowType> convertFlowType(DbIssues.FlowType flowType) {

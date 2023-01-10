@@ -309,7 +309,7 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Comma-separated list of SonarSource security categories. Use '" + SQCategory.OTHERS.getKey() + "' to select issues not associated" +
         " with any category")
       .setSince("7.8")
-      .setPossibleValues(Arrays.stream(SQCategory.values()).map(SQCategory::getKey).collect(Collectors.toList()));
+      .setPossibleValues(Arrays.stream(SQCategory.values()).map(SQCategory::getKey).toList());
     action.createParam(PARAM_AUTHOR)
       .setDescription("SCM accounts. To set several values, the parameter must be called once for each value.")
       .setExampleValue("author=torvalds@linux-foundation.org&author=linux@fondation.org");
@@ -510,7 +510,7 @@ public class SearchAction implements IssuesWsAction {
     if (typeFacet != null) {
       typeFacet.remove(RuleType.SECURITY_HOTSPOT.name());
     }
-    addMandatoryValuesToFacet(facets, PARAM_TYPES, ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS.stream().map(Enum::name).collect(Collectors.toList()));
+    addMandatoryValuesToFacet(facets, PARAM_TYPES, ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS.stream().map(Enum::name).toList());
   }
 
   private static void addMandatoryValuesToFacet(Facets facets, String facetName, @Nullable Iterable<String> mandatoryValues) {
@@ -617,7 +617,7 @@ public class SearchAction implements IssuesWsAction {
     }
 
     List<UserDto> userDtos = dbClient.userDao().selectByLogins(dbSession, userLogins);
-    List<String> assigneeUuid = userDtos.stream().map(UserDto::getUuid).collect(toList());
+    List<String> assigneeUuid = userDtos.stream().map(UserDto::getUuid).toList();
 
     if ((assigneeLogins != null) && firstNonNull(assigneeUuid, emptyList()).isEmpty()) {
       assigneeUuid = List.of("non-existent-uuid");

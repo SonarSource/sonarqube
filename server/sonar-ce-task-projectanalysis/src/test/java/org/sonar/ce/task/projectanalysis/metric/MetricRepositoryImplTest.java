@@ -164,7 +164,7 @@ public class MetricRepositoryImplTest {
   public void get_all_metrics() {
     List<MetricDto> enabledMetrics = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> dbTester.measures().insertMetric(t -> t.setKey("key_enabled_" + i).setEnabled(true)))
-      .collect(Collectors.toList());
+      .toList();
     IntStream.range(0, 1 + new Random().nextInt(12))
       .forEach(i -> dbTester.measures().insertMetric(t -> t.setKey("key_disabled_" + i).setEnabled(false)));
 
@@ -178,7 +178,7 @@ public class MetricRepositoryImplTest {
   public void getMetricsByType_givenRatingType_returnRatingMetrics() {
     List<MetricDto> enabledMetrics = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> dbTester.measures().insertMetric(t -> t.setKey("key_enabled_" + i).setEnabled(true).setValueType("RATING")))
-      .collect(Collectors.toList());
+      .toList();
 
     underTest.start();
     assertThat(underTest.getMetricsByType(Metric.MetricType.RATING))

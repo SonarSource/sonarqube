@@ -21,7 +21,6 @@ package org.sonar.ce.monitoring;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.api.Startable;
 import org.sonar.ce.configuration.CeConfiguration;
 import org.sonar.ce.taskprocessor.CeWorker;
@@ -103,7 +102,7 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
     return workers.stream()
       .map(CeWorker::getUUID)
       .sorted()
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
@@ -113,7 +112,7 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
       .filter(ceWorkerController::isEnabled)
       .map(CeWorker::getUUID)
       .sorted()
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

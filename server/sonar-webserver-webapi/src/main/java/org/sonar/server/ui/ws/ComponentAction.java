@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
@@ -259,7 +258,7 @@ public class ComponentAction implements NavigationWsAction {
       .map(LiveMeasureDto::getDataAsString)
       .map(data -> QPMeasureData.fromJson(data).getProfiles())
       .orElse(emptySortedSet());
-    Map<String, QProfileDto> dtoByQPKey = dbClient.qualityProfileDao().selectByUuids(dbSession, qualityProfiles.stream().map(QualityProfile::getQpKey).collect(Collectors.toList()))
+    Map<String, QProfileDto> dtoByQPKey = dbClient.qualityProfileDao().selectByUuids(dbSession, qualityProfiles.stream().map(QualityProfile::getQpKey).toList())
       .stream()
       .collect(uniqueIndex(QProfileDto::getKee));
     json.name("qualityProfiles").beginArray();

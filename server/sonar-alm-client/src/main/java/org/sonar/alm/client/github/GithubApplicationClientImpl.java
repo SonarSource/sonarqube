@@ -20,7 +20,6 @@
 package org.sonar.alm.client.github;
 
 import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
@@ -32,7 +31,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-
 import org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
 import org.sonar.alm.client.github.GithubBinding.GsonGithubRepository;
 import org.sonar.alm.client.github.GithubBinding.GsonInstallations;
@@ -52,7 +50,6 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static java.util.stream.Collectors.toList;
 
 public class GithubApplicationClientImpl implements GithubApplicationClient {
   private static final Logger LOG = Loggers.get(GithubApplicationClientImpl.class);
@@ -121,7 +118,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       List<String> missingPermissions = permissions.entrySet().stream()
         .filter(permission -> !Objects.equals(permission.getValue(), perms.get(permission.getKey())))
         .map(Map.Entry::getKey)
-        .collect(toList());
+        .toList();
 
       if (!missingPermissions.isEmpty()) {
         String message = missingPermissions.stream()
@@ -155,7 +152,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
         organizations.setOrganizations(gsonInstallations.get().installations.stream()
           .map(gsonInstallation -> new Organization(gsonInstallation.account.id, gsonInstallation.account.login, null, null, null, null, null,
             gsonInstallation.targetType))
-          .collect(toList()));
+          .toList());
       }
 
       return organizations;
@@ -184,7 +181,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       if (gsonRepositories.get().items != null) {
         repositories.setRepositories(gsonRepositories.get().items.stream()
           .map(GsonGithubRepository::toRepository)
-          .collect(toList()));
+          .toList());
       }
 
       return repositories;

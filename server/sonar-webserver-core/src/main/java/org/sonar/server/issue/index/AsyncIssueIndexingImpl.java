@@ -154,7 +154,7 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
     List<String> uuids = ceQueueDtos.stream()
       .filter(p -> p.getTaskType().equals(BRANCH_ISSUE_SYNC))
       .map(CeQueueDto::getUuid)
-      .collect(Collectors.toList());
+      .toList();
 
     LOG.info(String.format("%s pending indexation task found to be deleted...", uuids.size()));
     for (String uuid : uuids) {

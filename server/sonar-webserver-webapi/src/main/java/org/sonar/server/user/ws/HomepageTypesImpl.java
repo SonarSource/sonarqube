@@ -31,7 +31,7 @@ public class HomepageTypesImpl implements HomepageTypes {
   private List<Type> types;
 
   public HomepageTypesImpl() {
-    types = Stream.of(HomepageTypes.Type.values()).collect(Collectors.toList());
+    types = Stream.of(HomepageTypes.Type.values()).toList();
   }
 
   @Override

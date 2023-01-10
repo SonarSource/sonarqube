@@ -397,13 +397,13 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
     List<SecurityStandardCategoryStatistics> owaspAsvsReportGroupedByLevel = new ArrayList<>();
     owaspAsvsReportGroupedByLevel.addAll(underTest.getOwaspAsvsReportGroupedByLevel(project.uuid(), false, OwaspAsvsVersion.V4_0, 1).stream()
       .sorted(comparing(s -> parseInt(s.getCategory())))
-      .collect(toList()));
+      .toList());
     owaspAsvsReportGroupedByLevel.addAll(underTest.getOwaspAsvsReportGroupedByLevel(project.uuid(), false, OwaspAsvsVersion.V4_0, 2).stream()
       .sorted(comparing(s -> parseInt(s.getCategory())))
-      .collect(toList()));
+      .toList());
     owaspAsvsReportGroupedByLevel.addAll(underTest.getOwaspAsvsReportGroupedByLevel(project.uuid(), false, OwaspAsvsVersion.V4_0, 3).stream()
       .sorted(comparing(s -> parseInt(s.getCategory())))
-      .collect(toList()));
+      .toList());
 
     assertThat(owaspAsvsReportGroupedByLevel)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,

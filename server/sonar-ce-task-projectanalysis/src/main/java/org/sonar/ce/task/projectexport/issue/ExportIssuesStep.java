@@ -29,7 +29,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
@@ -197,7 +196,7 @@ public class ExportIssuesStep implements ComputationStep {
         .setStart(e.getStart())
         .setEnd(e.getEnd())
         .setType(ProjectDump.MessageFormattingType.valueOf(e.getType().name())).build())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static class RuleRegistrar {

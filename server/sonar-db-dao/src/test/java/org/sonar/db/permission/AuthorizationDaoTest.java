@@ -475,7 +475,7 @@ public class AuthorizationDaoTest {
 
   @Test
   public void keepAuthorizedProjectUuids_should_be_able_to_handle_lots_of_projects() {
-    List<ComponentDto> projects = IntStream.range(0, 2000).mapToObj(i -> db.components().insertPublicProject()).collect(Collectors.toList());
+    List<ComponentDto> projects = IntStream.range(0, 2000).mapToObj(i -> db.components().insertPublicProject()).toList();
 
     Collection<String> uuids = projects.stream().map(ComponentDto::uuid).collect(Collectors.toSet());
     assertThat(underTest.keepAuthorizedProjectUuids(dbSession, uuids, null, UserRole.USER))
@@ -665,7 +665,7 @@ public class AuthorizationDaoTest {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_should_be_able_to_handle_lots_of_users() {
-    List<UserDto> users = IntStream.range(0, 2000).mapToObj(i -> db.users().insertUser()).collect(Collectors.toList());
+    List<UserDto> users = IntStream.range(0, 2000).mapToObj(i -> db.users().insertUser()).toList();
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession,
       users.stream().map(UserDto::getUuid).collect(Collectors.toSet()), "user", PROJECT_UUID)).isEmpty();

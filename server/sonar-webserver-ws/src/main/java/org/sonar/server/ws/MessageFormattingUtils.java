@@ -20,7 +20,6 @@
 package org.sonar.server.ws;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonarqube.ws.Common;
@@ -46,7 +45,7 @@ public class MessageFormattingUtils {
         .setStart(f.getStart())
         .setEnd(f.getEnd())
         .setType(Common.MessageFormattingType.valueOf(f.getType().name())).build())
-      .collect(Collectors.toList());
+      .toList();
   }
 
 }

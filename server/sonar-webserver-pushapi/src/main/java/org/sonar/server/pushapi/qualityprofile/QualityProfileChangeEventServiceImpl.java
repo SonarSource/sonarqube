@@ -98,14 +98,14 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<OrgActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfile(dbSession, profileDto);
-      List<String> activeRuleUuids = activeRuleDtos.stream().map(ActiveRuleDto::getUuid).collect(Collectors.toList());
+      List<String> activeRuleUuids = activeRuleDtos.stream().map(ActiveRuleDto::getUuid).toList();
 
       Map<String, List<ActiveRuleParamDto>> paramsByActiveRuleUuid = dbClient.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids)
         .stream().collect(Collectors.groupingBy(ActiveRuleParamDto::getActiveRuleUuid));
 
       Map<String, String> activeRuleUuidByRuleUuid = activeRuleDtos.stream().collect(Collectors.toMap(ActiveRuleDto::getRuleUuid, ActiveRuleDto::getUuid));
 
-      List<String> ruleUuids = activeRuleDtos.stream().map(ActiveRuleDto::getRuleUuid).collect(Collectors.toList());
+      List<String> ruleUuids = activeRuleDtos.stream().map(ActiveRuleDto::getRuleUuid).toList();
       List<RuleDto> ruleDtos = dbClient.ruleDao().selectByUuids(dbSession, ruleUuids);
 
       for (RuleDto ruleDto : ruleDtos) {
@@ -124,7 +124,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<OrgActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfile(dbSession, profileDto);
 
-      List<String> ruleUuids = activeRuleDtos.stream().map(ActiveRuleDto::getRuleUuid).collect(Collectors.toList());
+      List<String> ruleUuids = activeRuleDtos.stream().map(ActiveRuleDto::getRuleUuid).toList();
       List<RuleDto> ruleDtos = dbClient.ruleDao().selectByUuids(dbSession, ruleUuids);
 
       for (RuleDto ruleDto : ruleDtos) {
@@ -280,7 +280,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       .stream()
       .map(profile -> getQualityProfileAssociatedProjects(dbSession, profile))
       .flatMap(Collection::stream)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private List<ProjectDto> getQualityProfileAssociatedProjects(DbSession dbSession, QProfileDto profile) {

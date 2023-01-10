@@ -125,7 +125,7 @@ public class SearchBitbucketCloudReposAction implements AlmIntegrationsWsAction 
 
       List<BBCRepo> bbcRepos = repositoryList.getValues().stream()
         .map(repository -> toBBCRepo(repository, workspace, sqProjectKeyByRepoSlug))
-        .collect(toList());
+        .toList();
 
       SearchBitbucketcloudReposWsResponse.Builder builder = SearchBitbucketcloudReposWsResponse.newBuilder()
         .setIsLastPage(repositoryList.getNext() == null)

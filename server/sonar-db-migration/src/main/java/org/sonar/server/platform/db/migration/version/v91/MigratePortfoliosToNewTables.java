@@ -37,7 +37,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.xml.XMLConstants;
@@ -252,7 +251,7 @@ public class MigratePortfoliosToNewTables extends DataChange {
   private static List<String> findConsistencyErrors(Collection<ViewDef> portfolios, Map<String, PortfolioDb> portfolioDbMap) {
     return portfolios.stream()
       .flatMap(portfolio -> findConsistencyErrors(portfolio, portfolioDbMap).stream())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static List<String> findConsistencyErrors(ViewDef portfolio, Map<String, PortfolioDb> portfolioDbMap) {

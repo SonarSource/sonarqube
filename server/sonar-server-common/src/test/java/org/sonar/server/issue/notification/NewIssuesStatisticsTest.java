@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -119,7 +118,7 @@ public class NewIssuesStatisticsTest {
 
   @Test
   public void add_counts_issue_per_component_on_current_analysis_globally_and_per_assignee() {
-    List<String> componentUuids = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).collect(Collectors.toList());
+    List<String> componentUuids = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
     String assignee = randomAlphanumeric(10);
     componentUuids.stream()
       .map(componentUuid -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setComponentUuid(componentUuid).setAssigneeUuid(assignee).setNew(true))
@@ -133,7 +132,7 @@ public class NewIssuesStatisticsTest {
 
   @Test
   public void add_counts_issue_per_component_off_current_analysis_globally_and_per_assignee() {
-    List<String> componentUuids = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).collect(Collectors.toList());
+    List<String> componentUuids = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
     String assignee = randomAlphanumeric(10);
     componentUuids.stream()
       .map(componentUuid -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setComponentUuid(componentUuid).setAssigneeUuid(assignee).setNew(false))
@@ -163,7 +162,7 @@ public class NewIssuesStatisticsTest {
   @Test
   public void add_counts_issue_per_ruleKey_on_current_analysis_globally_and_per_assignee() {
     String repository = randomAlphanumeric(3);
-    List<String> ruleKeys = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).collect(Collectors.toList());
+    List<String> ruleKeys = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
     String assignee = randomAlphanumeric(10);
     ruleKeys.stream()
       .map(ruleKey -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setRuleKey(RuleKey.of(repository, ruleKey)).setAssigneeUuid(assignee).setNew(true))
@@ -179,7 +178,7 @@ public class NewIssuesStatisticsTest {
   @Test
   public void add_counts_issue_per_ruleKey_off_current_analysis_globally_and_per_assignee() {
     String repository = randomAlphanumeric(3);
-    List<String> ruleKeys = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).collect(Collectors.toList());
+    List<String> ruleKeys = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
     String assignee = randomAlphanumeric(10);
     ruleKeys.stream()
       .map(ruleKey -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setRuleKey(RuleKey.of(repository, ruleKey)).setAssigneeUuid(assignee).setNew(false))
@@ -207,7 +206,7 @@ public class NewIssuesStatisticsTest {
 
   @Test
   public void add_counts_issue_per_assignee_on_current_analysis_globally_and_per_assignee() {
-    List<String> assignees = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).collect(Collectors.toList());
+    List<String> assignees = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
     assignees.stream()
       .map(assignee -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setAssigneeUuid(assignee).setNew(true))
       .forEach(underTest::add);
@@ -235,7 +234,7 @@ public class NewIssuesStatisticsTest {
 
   @Test
   public void add_counts_issue_per_assignee_off_current_analysis_globally_and_per_assignee() {
-    List<String> assignees = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).collect(Collectors.toList());
+    List<String> assignees = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
     assignees.stream()
       .map(assignee -> new DefaultIssue().setType(randomRuleTypeExceptHotspot).setAssigneeUuid(assignee).setNew(false))
       .forEach(underTest::add);
@@ -273,7 +272,7 @@ public class NewIssuesStatisticsTest {
 
   @Test
   public void add_counts_issue_per_tags_on_current_analysis_globally_and_per_assignee() {
-    List<String> tags = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).collect(Collectors.toList());
+    List<String> tags = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
     String assignee = randomAlphanumeric(10);
     underTest.add(new DefaultIssue().setType(randomRuleTypeExceptHotspot).setTags(tags).setAssigneeUuid(assignee).setNew(true));
 
@@ -285,7 +284,7 @@ public class NewIssuesStatisticsTest {
 
   @Test
   public void add_counts_issue_per_tags_off_current_analysis_globally_and_per_assignee() {
-    List<String> tags = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).collect(Collectors.toList());
+    List<String> tags = IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> randomAlphabetic(3)).toList();
     String assignee = randomAlphanumeric(10);
     underTest.add(new DefaultIssue().setType(randomRuleTypeExceptHotspot).setTags(tags).setAssigneeUuid(assignee).setNew(false));
 
@@ -312,7 +311,7 @@ public class NewIssuesStatisticsTest {
   @Test
   public void add_sums_effort_on_current_analysis_globally_and_per_assignee() {
     Random random = new Random();
-    List<Integer> efforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10_000 * i).collect(Collectors.toList());
+    List<Integer> efforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10_000 * i).toList();
     int expected = efforts.stream().mapToInt(s -> s).sum();
     String assignee = randomAlphanumeric(10);
     efforts.stream()
@@ -332,7 +331,7 @@ public class NewIssuesStatisticsTest {
   @Test
   public void add_sums_effort_off_current_analysis_globally_and_per_assignee() {
     Random random = new Random();
-    List<Integer> efforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10_000 * i).collect(Collectors.toList());
+    List<Integer> efforts = IntStream.range(0, 1 + random.nextInt(10)).mapToObj(i -> 10_000 * i).toList();
     int expected = efforts.stream().mapToInt(s -> s).sum();
     String assignee = randomAlphanumeric(10);
     efforts.stream()

@@ -29,7 +29,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueQueryParams;
 
-import static java.util.stream.Collectors.toList;
 import static org.sonar.db.issue.IssueDao.DEFAULT_PAGE_SIZE;
 
 public class PullActionIssuesRetriever {
@@ -62,7 +61,7 @@ public class PullActionIssuesRetriever {
     return issues
       .stream()
       .filter(i -> hasCorrectTypeAndStatus(i, issueQueryParams))
-      .collect(toList());
+      .toList();
   }
 
   private static boolean hasCorrectTypeAndStatus(IssueDto issueDto, IssueQueryParams queryParams) {

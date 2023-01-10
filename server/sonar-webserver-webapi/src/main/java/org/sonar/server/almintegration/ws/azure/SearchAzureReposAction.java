@@ -134,7 +134,7 @@ public class SearchAzureReposAction implements AlmIntegrationsWsAction {
         .filter(r -> isSearchOnlyByProjectName(searchQuery) || doesSearchCriteriaMatchProjectOrRepo(r, searchQuery))
         .map(repo -> toAzureRepo(repo, sqProjectsKeyByAzureKey))
         .sorted(comparing(AzureRepo::getName, String::compareToIgnoreCase))
-        .collect(toList());
+        .toList();
 
       LOG.debug(repositories.toString());
 

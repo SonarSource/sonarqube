@@ -21,7 +21,6 @@ package org.sonar.server.platform.monitoring.cluster;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -40,7 +39,7 @@ public class ProcessInfoProvider implements Startable {
   public ProcessInfoProvider(SystemInfoSection[] sections) {
     this.sections = Arrays.stream(sections)
       .filter(section -> !(section instanceof Global))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

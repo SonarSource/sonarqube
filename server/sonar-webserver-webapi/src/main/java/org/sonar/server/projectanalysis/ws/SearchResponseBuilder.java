@@ -144,7 +144,7 @@ class SearchResponseBuilder {
 
     wsQualityGate.addAllFailing(eventComponentChangeDtos.stream()
       .map(SearchResponseBuilder::toFailing)
-      .collect(toList()));
+      .toList());
     wsEvent.setQualityGate(wsQualityGate.build());
   }
 
@@ -163,7 +163,7 @@ class SearchResponseBuilder {
         componentChangeByKey.asMap().values().stream()
           .map(SearchResponseBuilder::addChange)
           .map(Project::toProject)
-          .collect(toList())
+          .toList()
       );
       wsEvent.setDefinitionChange(wsDefinitionChange.build());
     } catch (IllegalStateException e) {

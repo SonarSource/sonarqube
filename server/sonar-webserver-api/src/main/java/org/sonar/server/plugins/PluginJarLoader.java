@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.SonarRuntime;
@@ -43,10 +42,10 @@ import org.sonar.server.platform.ServerFileSystem;
 
 import static java.lang.String.format;
 import static org.apache.commons.io.FileUtils.moveFile;
-import static org.sonar.core.util.FileUtils.deleteQuietly;
-import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
 import static org.sonar.core.plugin.PluginType.BUNDLED;
 import static org.sonar.core.plugin.PluginType.EXTERNAL;
+import static org.sonar.core.util.FileUtils.deleteQuietly;
+import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
 
 public class PluginJarLoader {
   private static final Logger LOG = Loggers.get(PluginJarLoader.class);
@@ -179,7 +178,7 @@ public class PluginJarLoader {
     List<T> list = listJarFiles(pluginsDir).stream()
       .map(toPluginInfo)
       .filter(this::checkPluginInfo)
-      .collect(Collectors.toList());
+      .toList();
     failIfContainsIncompatiblePlugins(list);
     return list;
   }
@@ -189,7 +188,7 @@ public class PluginJarLoader {
       .filter(p -> FORBIDDEN_INCOMPATIBLE_PLUGINS.contains(p.getKey()))
       .map(p -> "'" + p.getKey() + "'")
       .sorted()
-      .collect(Collectors.toList());
+      .toList();
 
     if (!incompatiblePlugins.isEmpty()) {
       logGenericPluginLoadErrorLog();

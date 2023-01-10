@@ -967,10 +967,10 @@ public class ShowActionTest {
         .build()));
     List<Common.Changelog> changelog = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> Common.Changelog.newBuilder().setUser("u" + i).build())
-      .collect(Collectors.toList());
+      .toList();
     List<Common.Comment> comments = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> Common.Comment.newBuilder().setKey("u" + i).build())
-      .collect(Collectors.toList());
+      .toList();
     FormattingContext formattingContext = mockChangelogAndCommentsFormattingContext();
     when(issueChangeSupport.formatChangelog(any(), any())).thenReturn(changelog.stream());
     when(issueChangeSupport.formatComments(any(), any(), any())).thenReturn(comments.stream());
@@ -1112,7 +1112,7 @@ public class ShowActionTest {
         .setUserName("Joe")
         .setAvatar("my-avatar")
         .build())
-      .collect(Collectors.toList());
+      .toList();
     List<Common.Comment> comments = IntStream.range(0, 3)
       .mapToObj(i -> Common.Comment.newBuilder()
         .setKey("comment-" + i)
@@ -1121,7 +1121,7 @@ public class ShowActionTest {
         .setMarkdown("markdown " + i)
         .setCreatedAt("2020-01-02T14:47:47+0100")
         .build())
-      .collect(Collectors.toList());
+      .toList();
 
     mockChangelogAndCommentsFormattingContext();
     when(issueChangeSupport.formatChangelog(any(), any())).thenReturn(changelog.stream());

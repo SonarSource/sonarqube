@@ -56,7 +56,7 @@ public class RecentTasksDurationTask extends ComputeEngineMetricsTask {
 
       Collection<String> componentUuids = recentSuccessfulTasks.stream()
         .map(CeActivityDto::getMainComponentUuid)
-        .collect(Collectors.toList());
+        .toList();
       List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
       Map<String, String> componentUuidAndKeys = componentDtos.stream()
         .collect(Collectors.toMap(ComponentDto::uuid, ComponentDto::getKey));
@@ -70,7 +70,7 @@ public class RecentTasksDurationTask extends ComputeEngineMetricsTask {
     List<CeActivityDto> recentTasks = dbClient.ceActivityDao().selectNewerThan(dbSession, lastUpdatedTimestamp);
     return recentTasks.stream()
       .filter(c -> c.getStatus() == CeActivityDto.Status.SUCCESS)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private void reportObservedDurationForTasks(List<CeActivityDto> tasks, Map<String, String> componentUuidAndKeys) {

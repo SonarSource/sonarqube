@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectexport.steps;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.step.ComputationStep;
@@ -66,7 +65,7 @@ public class ExportSettingsStep implements ComputationStep {
         .stream()
         .filter(dto -> dto.getComponentUuid() != null)
         .filter(dto -> !IGNORED_KEYS.contains(dto.getKey()))
-        .collect(Collectors.toList());
+        .toList();
       for (PropertyDto property : properties) {
         builder.clear()
           .setKey(property.getKey())

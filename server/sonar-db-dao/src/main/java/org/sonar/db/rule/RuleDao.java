@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.core.util.UuidFactory;
@@ -159,7 +158,7 @@ public class RuleDao implements Dao {
     List<String> templateRuleUuids = ruleDtos.stream()
       .map(RuleDto::getTemplateUuid)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
 
     Map<String, RuleDto> templateDtos = findTemplateDtos(mapper, templateRuleUuids);
     ruleDtos.stream().map(r -> toRuleForIndexingDto(r, templateDtos)).forEach(consumer);

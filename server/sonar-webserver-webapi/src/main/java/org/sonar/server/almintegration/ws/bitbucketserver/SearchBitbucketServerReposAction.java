@@ -123,7 +123,7 @@ public class SearchBitbucketServerReposAction implements AlmIntegrationsWsAction
 
       Map<String, String> sqProjectsKeyByBBSKey = getSqProjectsKeyByBBSKey(dbSession, almSettingDto, gsonBBSRepoList);
       List<BBSRepo> bbsRepos = gsonBBSRepoList.getValues().stream().map(gsonBBSRepo -> toBBSRepo(gsonBBSRepo, sqProjectsKeyByBBSKey))
-        .collect(toList());
+        .toList();
 
       SearchBitbucketserverReposWsResponse.Builder builder = SearchBitbucketserverReposWsResponse.newBuilder()
         .setIsLastPage(gsonBBSRepoList.isLastPage())

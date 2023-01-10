@@ -91,7 +91,7 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
   public List<Metric> getMetricsByType(Metric.MetricType type) {
     verifyMetricsInitialized();
     
-    return metricsByKey.values().stream().filter(m -> m.getType() == type).collect(Collectors.toList());
+    return metricsByKey.values().stream().filter(m -> m.getType() == type).toList();
   }
 
   private void verifyMetricsInitialized() {

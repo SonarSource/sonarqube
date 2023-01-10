@@ -22,7 +22,6 @@ package org.sonar.server.component.index;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
 import org.sonar.api.utils.System2;
@@ -75,7 +74,7 @@ public abstract class ComponentIndexTest {
     List<ComponentDto> files = Arrays.stream(resultsInOrder)
       .map(r -> ComponentTesting.newFileDto(project).setName(r))
       .peek(f -> f.setUuid(f.uuid() + "_" + f.name().replaceAll("[^a-zA-Z0-9]", "")))
-      .collect(Collectors.toList());
+      .toList();
 
     // index them, but not in the expected order
     files.stream()

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -199,7 +198,7 @@ public class PurgeDao implements Dao {
     List<String> branchUuids = session.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
       .map(BranchDto::getUuid)
       .filter(branchUuid -> !uuid.equals(branchUuid))
-      .collect(Collectors.toList());
+      .toList();
 
     branchUuids.forEach(id -> deleteRootComponent(id, purgeMapper, purgeCommands));
 

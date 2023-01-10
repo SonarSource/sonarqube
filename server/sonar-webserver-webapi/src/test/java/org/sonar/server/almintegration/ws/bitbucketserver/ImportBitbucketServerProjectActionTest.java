@@ -272,7 +272,7 @@ public class ImportBitbucketServerProjectActionTest {
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
 
     Collection<BranchDto> branchDtos = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get());
-    List<BranchDto> collect = branchDtos.stream().filter(BranchDto::isMain).collect(Collectors.toList());
+    List<BranchDto> collect = branchDtos.stream().filter(BranchDto::isMain).toList();
     String mainBranchName = collect.iterator().next().getKey();
     assertThat(mainBranchName).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
   }
@@ -306,7 +306,7 @@ public class ImportBitbucketServerProjectActionTest {
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
 
     Collection<BranchDto> branchDtos = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get());
-    List<BranchDto> collect = branchDtos.stream().filter(BranchDto::isMain).collect(Collectors.toList());
+    List<BranchDto> collect = branchDtos.stream().filter(BranchDto::isMain).toList();
     String mainBranchName = collect.iterator().next().getKey();
     assertThat(mainBranchName).isEqualTo("default");
   }

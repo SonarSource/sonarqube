@@ -24,7 +24,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -75,7 +74,7 @@ class MssqlCharsetHandler extends CharsetHandler {
     // Example of row:
     // issues | kee | Latin1_General_CS_AS or Latin1_General_100_CI_AS_KS_WS
     List<ColumnDef> columns = metadata.getColumnDefs(connection);
-    for (ColumnDef column : columns.stream().filter(ColumnDef::isInSonarQubeTable).collect(Collectors.toList())) {
+    for (ColumnDef column : columns.stream().filter(ColumnDef::isInSonarQubeTable).toList()) {
       String collation = column.getCollation();
       if (!isCollationCorrect(collation)) {
         repairColumnCollation(connection, column, toCaseSensitive(collation));

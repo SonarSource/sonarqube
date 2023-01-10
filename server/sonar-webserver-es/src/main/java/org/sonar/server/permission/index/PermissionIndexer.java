@@ -157,7 +157,7 @@ public class PermissionIndexer implements ProjectIndexer {
       .map(indexTypeByFormat::get)
       .filter(Objects::nonNull)
       .map(indexType -> new BulkIndexer(esClient, indexType, Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items)))
-      .collect(Collectors.toList());
+      .toList();
 
     if (bulkIndexers.isEmpty()) {
       return result;

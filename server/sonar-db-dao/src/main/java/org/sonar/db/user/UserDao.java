@@ -95,7 +95,7 @@ public class UserDao implements Dao {
     return logins.stream()
       .map(new LoginToUser(unordered))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public List<UserDto> selectUsers(DbSession dbSession, UserQuery query) {

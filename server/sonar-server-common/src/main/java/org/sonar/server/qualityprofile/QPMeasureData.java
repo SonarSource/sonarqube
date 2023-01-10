@@ -26,7 +26,6 @@ import java.io.StringWriter;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.utils.text.JsonWriter;
@@ -57,7 +56,7 @@ public class QPMeasureData {
           jsonProfile.get("name").getAsString(),
           jsonProfile.get("language").getAsString(),
           UtcDateUtils.parseDateTime(jsonProfile.get("rulesUpdatedAt").getAsString()));
-      }).collect(Collectors.toList()));
+      }).toList());
   }
 
   public static String toJson(QPMeasureData data) {

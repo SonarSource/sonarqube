@@ -158,7 +158,7 @@ public class SettingValidations {
 
     private void validateMetric(SettingData data) {
       try (DbSession dbSession = dbClient.openSession(false)) {
-        List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, data.values).stream().filter(MetricDto::isEnabled).collect(Collectors.toList());
+        List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, data.values).stream().filter(MetricDto::isEnabled).toList();
         checkRequest(data.values.size() == metrics.size(), "Error when validating metric setting with key '%s' and values [%s]. A value is not a valid metric key.",
           data.key, data.values.stream().collect(Collectors.joining(", ")));
       }
@@ -166,7 +166,7 @@ public class SettingValidations {
 
     private void validateLogin(SettingData data) {
       try (DbSession dbSession = dbClient.openSession(false)) {
-        List<UserDto> users = dbClient.userDao().selectByLogins(dbSession, data.values).stream().filter(UserDto::isActive).collect(Collectors.toList());
+        List<UserDto> users = dbClient.userDao().selectByLogins(dbSession, data.values).stream().filter(UserDto::isActive).toList();
         checkRequest(data.values.size() == users.size(), "Error when validating login setting with key '%s' and values [%s]. A value is not a valid login.",
           data.key, data.values.stream().collect(Collectors.joining(", ")));
       }

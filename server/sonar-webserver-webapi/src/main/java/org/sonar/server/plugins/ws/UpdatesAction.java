@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -122,7 +121,7 @@ public class UpdatesAction implements PluginsWsAction {
         ofNullable(plugin.getIssueTrackerUrl()).ifPresent(builder::setIssueTrackerUrl);
         ofNullable(plugin.getHomepageUrl()).ifPresent(builder::setHomepageUrl);
         return builder.build();
-      }).collect(Collectors.toList());
+      }).toList();
   }
 
   private static Collection<AvailableUpdate> buildUpdates(PluginUpdateAggregate pluginUpdateAggregate) {
@@ -132,7 +131,7 @@ public class UpdatesAction implements PluginsWsAction {
         .setStatus(convertUpdateCenterStatus(pluginUpdate.getStatus()))
         .addAllRequires(buildRequires(pluginUpdate))
         .build())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private Collection<PluginUpdateAggregate> retrieveUpdatablePlugins(UpdateCenter updateCenter) {

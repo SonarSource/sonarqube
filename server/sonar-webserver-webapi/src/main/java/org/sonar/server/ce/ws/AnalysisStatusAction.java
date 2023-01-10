@@ -20,7 +20,6 @@
 package org.sonar.server.ce.ws;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -137,7 +136,7 @@ public class AnalysisStatusAction implements CeWsAction {
       .setMessage(dto.getMessage())
       .setDismissable(dto.getType().isDismissible())
       .build())
-      .collect(Collectors.toList());
+      .toList();
     builder.addAllWarnings(result);
     return builder.build();
   }

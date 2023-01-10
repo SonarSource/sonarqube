@@ -174,7 +174,7 @@ public class ValuesAction implements SettingsWsAction {
     component.ifPresent(componentDto -> settings.addAll(loadComponentSettings(dbSession, keys, componentDto).values()));
     return settings.stream()
       .filter(s -> settingsWsSupport.isVisible(s.getKey(), component))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CheckForNull
@@ -190,7 +190,7 @@ public class ValuesAction implements SettingsWsAction {
       .filter(definition -> keys.contains(definition.key()))
       .filter(defaultProperty -> !isEmpty(defaultProperty.defaultValue()))
       .map(Setting::createFromDefinition)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private Map<String, String> getKeysToDisplayMap(Set<String> keys) {
@@ -206,7 +206,7 @@ public class ValuesAction implements SettingsWsAction {
     List<PropertyDto> propertySets = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, getPropertySetKeys(properties));
     return properties.stream()
       .map(property -> Setting.createFromDto(property, getPropertySets(property.getKey(), propertySets, null), propertyDefinitions.get(property.getKey())))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   /**
@@ -239,7 +239,7 @@ public class ValuesAction implements SettingsWsAction {
     return propertySets.stream()
       .filter(propertyDto -> Objects.equals(propertyDto.getComponentUuid(), componentUuid))
       .filter(propertyDto -> propertyDto.getKey().startsWith(propertyKey + "."))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private class ValuesResponseBuilder {
@@ -331,7 +331,7 @@ public class ValuesAction implements SettingsWsAction {
     }
 
     private Settings.Values.Builder createValuesBuilder(String value) {
-      List<String> values = COMMA_SPLITTER.splitToList(value).stream().map(v -> v.replace(COMMA_ENCODED_VALUE, ",")).collect(Collectors.toList());
+      List<String> values = COMMA_SPLITTER.splitToList(value).stream().map(v -> v.replace(COMMA_ENCODED_VALUE, ",")).toList();
       return Settings.Values.newBuilder().addAllValues(values);
     }
 

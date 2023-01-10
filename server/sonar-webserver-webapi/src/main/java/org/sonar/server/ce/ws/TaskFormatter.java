@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
@@ -174,7 +173,7 @@ public class TaskFormatter {
         .stream()
         .collect(uniqueIndex(ComponentDto::uuid));
       Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
-        .selectByTaskUuids(dbSession, ceQueueDtos.stream().map(CeQueueDto::getUuid).collect(Collectors.toList()))
+        .selectByTaskUuids(dbSession, ceQueueDtos.stream().map(CeQueueDto::getUuid).toList())
         .stream().collect(MoreCollectors.index(CeTaskCharacteristicDto::getTaskUuid));
       Set<String> submitterUuids = ceQueueDtos.stream().map(CeQueueDto::getSubmitterUuid).filter(Objects::nonNull).collect(toSet());
       Map<String, UserDto> usersByUuid = dbClient.userDao().selectByUuids(dbSession, submitterUuids).stream().collect(uniqueIndex(UserDto::getUuid));
@@ -196,7 +195,7 @@ public class TaskFormatter {
         .stream()
         .collect(uniqueIndex(ComponentDto::uuid));
       Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
-        .selectByTaskUuids(dbSession, ceActivityDtos.stream().map(CeActivityDto::getUuid).collect(Collectors.toList()))
+        .selectByTaskUuids(dbSession, ceActivityDtos.stream().map(CeActivityDto::getUuid).toList())
         .stream().collect(MoreCollectors.index(CeTaskCharacteristicDto::getTaskUuid));
       Set<String> submitterUuids = ceActivityDtos.stream().map(CeActivityDto::getSubmitterUuid).filter(Objects::nonNull).collect(toSet());
       Map<String, UserDto> usersByUuid = dbClient.userDao().selectByUuids(dbSession, submitterUuids).stream().collect(uniqueIndex(UserDto::getUuid));

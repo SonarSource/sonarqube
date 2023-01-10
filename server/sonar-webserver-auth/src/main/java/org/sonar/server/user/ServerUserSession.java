@@ -189,7 +189,7 @@ public class ServerUserSession extends AbstractUserSession {
 
     return projects.stream()
       .filter(project -> authorizedProjectsUuids.contains(project.getUuid()))
-      .collect(toList());
+      .toList();
   }
 
   private Set<String> keepProjectsUuidsByPermission(String permission, Collection<String> projectsUuids) {

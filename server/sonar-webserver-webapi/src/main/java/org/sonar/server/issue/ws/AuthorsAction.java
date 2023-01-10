@@ -139,7 +139,7 @@ public class AuthorsAction implements IssuesWsAction {
     });
     return issueIndex.searchAuthors(
       issueQueryBuilder
-        .types(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS.stream().map(Enum::name).collect(Collectors.toList()))
+        .types(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS.stream().map(Enum::name).toList())
         .build(),
       request.param(TEXT_QUERY),
       request.mandatoryParamAsInt(PAGE_SIZE));

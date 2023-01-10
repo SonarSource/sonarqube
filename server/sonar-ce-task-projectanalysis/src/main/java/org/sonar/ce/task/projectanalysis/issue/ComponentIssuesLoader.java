@@ -96,7 +96,7 @@ public class ComponentIssuesLoader {
    */
   public List<DefaultIssue> loadChanges(DbSession dbSession, Collection<DefaultIssue> issues) {
     Map<String, List<IssueChangeDto>> changeDtoByIssueKey = dbClient.issueChangeDao()
-      .selectByIssueKeys(dbSession, issues.stream().map(DefaultIssue::key).collect(toList()))
+      .selectByIssueKeys(dbSession, issues.stream().map(DefaultIssue::key).toList())
       .stream()
       .collect(groupingBy(IssueChangeDto::getIssueKey));
 
@@ -198,7 +198,7 @@ public class ComponentIssuesLoader {
   private void setFilteredChanges(Map<String, List<IssueChangeDto>> changeDtoByIssueKey, DefaultIssue i) {
     List<IssueChangeDto> sortedIssueChanges = changeDtoByIssueKey.computeIfAbsent(i.key(), k -> emptyList()).stream()
       .sorted(Comparator.comparing(IssueChangeDto::getIssueChangeCreationDate).reversed())
-      .collect(toList());
+      .toList();
 
     int statusCount = 0;
     int branchCount = 0;

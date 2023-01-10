@@ -264,7 +264,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       return stream(SuggestionCategory.values())
         .map(SuggestionCategory::getQualifier)
         .filter(availableQualifiers::contains)
-        .collect(Collectors.toList());
+        .toList();
     }
 
     String qualifier = SuggestionCategory.getByName(more).getQualifier();
@@ -351,6 +351,6 @@ public class SuggestionsAction implements ComponentsWsAction {
         .setKey(p.getKey())
         .setName(p.longName())
         .build())
-      .collect(Collectors.toList());
+      .toList();
   }
 }

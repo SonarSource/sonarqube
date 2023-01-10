@@ -194,7 +194,7 @@ public class SearchAction implements QProfileWsAction {
       .filter(byDefault(request, defaultProfiles))
       .filter(byProject(dbSession, project, defaultProfiles))
       .sorted(Q_PROFILE_COMPARATOR)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private Predicate<QProfileDto> hasLanguagePlugin() {

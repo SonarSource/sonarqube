@@ -126,7 +126,7 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
     return identityProviderRepository.getAllEnabledAndSorted()
       .stream()
       .map(IdentityProvider::getKey)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static boolean isLdapIdentityProvider(String identityProviderKey) {

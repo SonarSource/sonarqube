@@ -157,7 +157,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     List<ActiveRuleParamDto> rules = ruleRepository.getRuleParams(activeRule.getRuleKey()).stream()
       .map(param -> createParamDto(param, Optional.ofNullable(valuesByParamKey.get(param.getName())).orElse(param.getDefaultValue())))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
 
     rules.forEach(paramDto -> dbClient.activeRuleDao().insertParam(session, activeRuleDto, paramDto));
     return rules;

@@ -118,7 +118,7 @@ public class IssuesAction implements BatchWsAction {
       List<String> usersUuids = issueDtos.stream()
         .filter(issue -> issue.getAssigneeUuid() != null)
         .map(IssueDto::getAssigneeUuid)
-        .collect(toList());
+        .toList();
 
       Map<String, String> userLoginsByUserUuids = dbClient.userDao().selectByUuids(dbSession, usersUuids)
         .stream().collect(toMap(UserDto::getUuid, UserDto::getLogin));

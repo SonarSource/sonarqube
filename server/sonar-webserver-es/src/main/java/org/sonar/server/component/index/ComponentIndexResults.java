@@ -54,7 +54,7 @@ public class ComponentIndexResults {
     }
 
     public Builder setQualifiers(Stream<ComponentHitsPerQualifier> qualifiers) {
-      this.qualifiers = qualifiers.collect(Collectors.toList());
+      this.qualifiers = qualifiers.toList();
       return this;
     }
 

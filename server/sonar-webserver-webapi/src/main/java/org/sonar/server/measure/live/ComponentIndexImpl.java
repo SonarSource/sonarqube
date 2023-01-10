@@ -27,7 +27,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -79,7 +78,7 @@ public class ComponentIndexImpl implements ComponentIndex {
     }
     return dbClient.componentDao().selectByUuids(dbSession, componentUuids).stream()
       .sorted(Comparator.comparing(ComponentDto::getUuidPath).reversed())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

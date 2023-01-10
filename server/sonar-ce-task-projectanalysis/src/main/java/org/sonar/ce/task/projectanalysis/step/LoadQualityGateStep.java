@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.stream.Collectors;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 import org.sonar.ce.task.projectanalysis.qualitygate.MutableQualityGateHolder;
@@ -56,7 +55,7 @@ public class LoadQualityGateStep implements ComputationStep {
   }
 
   private static QualityGate filterQGForPR(QualityGate qg) {
-    return new QualityGate(qg.getUuid(), qg.getName(), qg.getConditions().stream().filter(Condition::useVariation).collect(Collectors.toList()));
+    return new QualityGate(qg.getUuid(), qg.getName(), qg.getConditions().stream().filter(Condition::useVariation).toList());
   }
 
   private QualityGate getProjectQualityGate() {

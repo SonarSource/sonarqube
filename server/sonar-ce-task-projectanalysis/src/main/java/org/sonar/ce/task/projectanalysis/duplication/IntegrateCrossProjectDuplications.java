@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
@@ -76,7 +75,7 @@ public class IntegrateCrossProjectDuplications {
     List<CloneGroup> duplications = SuffixTreeCloneDetectionAlgorithm.detect(duplicationIndex, originBlocks);
     Iterable<CloneGroup> filtered = duplications.stream()
       .filter(getNumberOfUnitsNotLessThan(component.getFileAttributes().getLanguageKey()))
-      .collect(Collectors.toList());
+      .toList();
     addDuplications(component, filtered);
   }
 
@@ -114,7 +113,7 @@ public class IntegrateCrossProjectDuplications {
       .filter(new DoesNotMatchSameComponentKey(originPart.getResourceId()))
       .filter(new DuplicateLimiter(file, originPart))
       .map(ClonePartToCrossProjectDuplicate.INSTANCE)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private NumberOfUnitsNotLessThan getNumberOfUnitsNotLessThan(String language) {

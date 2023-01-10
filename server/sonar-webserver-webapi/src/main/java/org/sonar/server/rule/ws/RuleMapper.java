@@ -215,7 +215,7 @@ public class RuleMapper {
 
       List<String> deprecatedKeys = deprecatedRuleKeyDtos.stream()
         .map(r -> RuleKey.of(r.getOldRepositoryKey(), r.getOldRuleKey()).toString())
-        .collect(Collectors.toList());
+        .toList();
       if (!deprecatedKeys.isEmpty()) {
         ruleResponse.setDeprecatedKeys(Rules.DeprecatedKeys.newBuilder().addAllDeprecatedKey(deprecatedKeys).build());
       }

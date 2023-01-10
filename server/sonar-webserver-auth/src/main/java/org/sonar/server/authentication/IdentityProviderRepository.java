@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
 
@@ -53,7 +52,7 @@ public class IdentityProviderRepository {
     return providersByKey.values().stream()
       .filter(IS_ENABLED_FILTER)
       .sorted(Comparator.comparing(TO_NAME))
-      .collect(Collectors.toList());
+      .toList();
   }
 
 }

@@ -31,7 +31,6 @@ import org.sonar.server.es.newindex.SettingsConfiguration;
 import org.sonar.server.es.newindex.TestNewIndex;
 import org.sonar.server.es.newindex.TypeMapping;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
@@ -277,14 +276,14 @@ public class IndexDefinitionHashTest {
         consumer.accept(mainTypeMapping.getMainTypeMapping());
         return mainTypeMapping;
       })
-      .collect(toList());
+      .toList();
     List<TestNewIndex> relationIndices = fieldTypes1.stream()
       .map(consumer -> {
         TestNewIndex relationTypeMapping = new TestNewIndex(mainType, settingsConfiguration);
         consumer.accept(relationTypeMapping.createRelationMapping("donut"));
         return relationTypeMapping;
       })
-      .collect(toList());
+      .toList();
 
     Set<String> mainHashes = mainIndices.stream()
       .map(IndexDefinitionHashTest::hashOf)
@@ -313,14 +312,14 @@ public class IndexDefinitionHashTest {
         consumer.accept(mainTypeMapping.getMainTypeMapping());
         return mainTypeMapping;
       })
-      .collect(toList());
+      .toList();
     List<TestNewIndex> relationIndices = Arrays.stream(fieldTypes)
       .map(consumer -> {
         TestNewIndex relationTypeMapping = new TestNewIndex(mainType, settingsConfiguration);
         consumer.accept(relationTypeMapping.createRelationMapping("donut"));
         return relationTypeMapping;
       })
-      .collect(toList());
+      .toList();
 
     Set<String> mainHashes = mainIndices.stream()
       .map(IndexDefinitionHashTest::hashOf)

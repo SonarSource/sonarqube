@@ -607,7 +607,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     List<DefaultIssue> issues = IntStream.range(0, 2001 + new Random().nextInt(10))
       .mapToObj(i -> newIssue(ruleDefinitionDto, project, file).setKee("uuid_" + i).setType(randomTypeExceptHotspot).toDefaultIssue()
         .setNew(false).setChanged(true).setSendNotifications(true).setAssigneeUuid(user.getUuid()))
-      .collect(toList());
+      .toList();
     DiskCache.CacheAppender cacheAppender = protoIssueCache.newAppender();
     issues.forEach(cacheAppender::append);
     cacheAppender.close();

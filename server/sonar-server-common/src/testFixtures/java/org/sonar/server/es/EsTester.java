@@ -38,7 +38,6 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.reflect.ConstructorUtils;
 import org.apache.http.HttpHost;
@@ -356,11 +355,11 @@ public class EsTester extends ExternalResource {
     return getDocuments(indexType)
       .stream()
       .map(input -> (T) input.getSourceAsMap().get(fieldNameToReturn))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public List<String> getIds(IndexType indexType) {
-    return getDocuments(indexType).stream().map(SearchHit::getId).collect(Collectors.toList());
+    return getDocuments(indexType).stream().map(SearchHit::getId).toList();
   }
 
   public void lockWrites(IndexType index) {

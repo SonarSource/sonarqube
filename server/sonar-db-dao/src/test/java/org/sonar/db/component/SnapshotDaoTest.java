@@ -230,7 +230,7 @@ public class SnapshotDaoTest {
           .mapToObj(j -> db.components().insertSnapshot(project));
       })
       .flatMap(t -> t)
-      .collect(toList());
+      .toList();
 
     assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery()))
       .extracting(SnapshotDto::getUuid)
@@ -244,10 +244,10 @@ public class SnapshotDaoTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     List<SnapshotDto> snapshots1 = IntStream.range(0, 1 + random.nextInt(20))
       .mapToObj(j -> db.components().insertSnapshot(project1))
-      .collect(toList());
+      .toList();
     List<SnapshotDto> snapshots2 = IntStream.range(0, 1 + random.nextInt(20))
       .mapToObj(j -> db.components().insertSnapshot(project2))
-      .collect(toList());
+      .toList();
 
     assertThat(underTest.selectAnalysesByQuery(db.getSession(), new SnapshotQuery().setComponentUuid(project1.uuid())))
       .extracting(SnapshotDto::getUuid)

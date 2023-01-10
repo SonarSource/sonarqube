@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.plugin.PluginDto;
@@ -120,7 +119,7 @@ public class PluginWSCommons {
         ofNullable(artifact.getDescription()).ifPresent(builder::setDescription);
         return builder.build();
       })
-      .collect(Collectors.toList());
+      .toList();
   }
 
   static UpdateStatus convertUpdateCenterStatus(PluginUpdate.Status status) {

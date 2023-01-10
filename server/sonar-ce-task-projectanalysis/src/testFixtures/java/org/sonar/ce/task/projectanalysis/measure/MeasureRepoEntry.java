@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.measure;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -61,7 +60,7 @@ public final class MeasureRepoEntry {
   }
 
   public static Iterable<MeasureRepoEntry> toEntries(Map<String, Measure> data) {
-    return data.entrySet().stream().map(toMeasureRepoEntry()).collect(Collectors.toList());
+    return data.entrySet().stream().map(toMeasureRepoEntry()).toList();
   }
 
   public static MeasureRepoEntry entryOf(String metricKey, Measure measure) {

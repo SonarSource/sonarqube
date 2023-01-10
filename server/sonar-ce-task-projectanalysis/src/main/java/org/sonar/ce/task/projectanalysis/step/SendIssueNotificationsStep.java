@@ -220,8 +220,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private Map<String, UserDto> loadUserDtoByUuid(NewIssuesStatistics statistics) {
     List<Map.Entry<String, NewIssuesStatistics.Stats>> entriesWithIssuesOnLeak = statistics.getAssigneesStatistics().entrySet()
-      .stream().filter(e -> e.getValue().hasIssuesOnCurrentAnalysis()).collect(toList());
-    List<String> assigneeUuids = entriesWithIssuesOnLeak.stream().map(Map.Entry::getKey).collect(toList());
+      .stream().filter(e -> e.getValue().hasIssuesOnCurrentAnalysis()).toList();
+    List<String> assigneeUuids = entriesWithIssuesOnLeak.stream().map(Map.Entry::getKey).toList();
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.userDao().selectByUuids(dbSession, assigneeUuids).stream().collect(toMap(UserDto::getUuid, u -> u));
     }

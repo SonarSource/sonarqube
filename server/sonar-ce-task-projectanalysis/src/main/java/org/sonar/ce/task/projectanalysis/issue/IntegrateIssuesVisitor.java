@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -96,7 +95,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
 
         var issues = Stream.of(newOpenIssues, existingOpenIssues, closedIssues, copiedIssues)
           .flatMap(Collection::stream)
-          .collect(Collectors.toList());
+          .toList();
         processIssues(component, issues);
         issueVisitors.beforeCaching(component);
         appendIssuesToCache(cacheAppender, issues);
@@ -141,7 +140,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     // TODO should replace flag "beingClosed" by express call to transition "automaticClose"
     issue.setBeingClosed(true)
     // TODO manual issues -> was updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);. Is it a problem ?
-    ).collect(Collectors.toList());
+    ).toList();
   }
 
   private List<DefaultIssue> copyIssues(Map<DefaultIssue, DefaultIssue> matched) {

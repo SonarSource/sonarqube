@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,10 +71,10 @@ public class MetricDaoTest {
   public void find_all_enabled() {
     List<MetricDto> enabledMetrics = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> MetricTesting.newMetricDto().setEnabled(true))
-      .collect(Collectors.toList());
+      .toList();
     List<MetricDto> disabledMetrics = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> MetricTesting.newMetricDto().setEnabled(false))
-      .collect(Collectors.toList());
+      .toList();
 
     List<MetricDto> all = new ArrayList<>(enabledMetrics);
     all.addAll(disabledMetrics);
@@ -92,10 +91,10 @@ public class MetricDaoTest {
   public void find_all() {
     List<MetricDto> enabledMetrics = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> MetricTesting.newMetricDto().setEnabled(true))
-      .collect(Collectors.toList());
+      .toList();
     List<MetricDto> disabledMetrics = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> MetricTesting.newMetricDto().setEnabled(false))
-      .collect(Collectors.toList());
+      .toList();
 
     List<MetricDto> all = new ArrayList<>(enabledMetrics);
     all.addAll(disabledMetrics);

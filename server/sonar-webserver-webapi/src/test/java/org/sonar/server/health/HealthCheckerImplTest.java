@@ -191,7 +191,7 @@ public class HealthCheckerImplTest {
     when(nodeInformation.isStandalone()).thenReturn(false);
     List<String[]> causesGroups = IntStream.range(0, 1 + random.nextInt(20))
       .mapToObj(s -> IntStream.range(0, random.nextInt(3)).mapToObj(i -> randomAlphanumeric(3)).toArray(String[]::new))
-      .collect(Collectors.toList());
+      .toList();
     ClusterHealthCheck[] clusterHealthChecks = causesGroups.stream()
       .map(HardcodedHealthClusterCheck::new)
       .map(ClusterHealthCheck.class::cast)

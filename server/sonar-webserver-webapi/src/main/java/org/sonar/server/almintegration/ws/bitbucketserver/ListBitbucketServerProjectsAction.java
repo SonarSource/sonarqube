@@ -21,7 +21,6 @@ package org.sonar.server.almintegration.ws.bitbucketserver;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.bitbucketserver.Project;
 import org.sonar.alm.client.bitbucketserver.ProjectList;
@@ -93,7 +92,7 @@ public class ListBitbucketServerProjectsAction implements AlmIntegrationsWsActio
       String url = requireNonNull(almSettingDto.getUrl(), "URL cannot be null");
       ProjectList projectList = bitbucketServerRestClient.getProjects(url, pat);
 
-      List<AlmProject> values = projectList.getValues().stream().map(ListBitbucketServerProjectsAction::toAlmProject).collect(Collectors.toList());
+      List<AlmProject> values = projectList.getValues().stream().map(ListBitbucketServerProjectsAction::toAlmProject).toList();
       ListBitbucketserverProjectsWsResponse.Builder builder = ListBitbucketserverProjectsWsResponse.newBuilder()
         .addAllProjects(values);
       return builder.build();

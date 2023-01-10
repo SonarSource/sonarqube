@@ -22,7 +22,6 @@ package org.sonar.server.authentication;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -564,7 +563,7 @@ public class UserRegistrarImplTest {
   }
 
   private void checkGroupMembership(UserDto user, GroupDto... expectedGroups) {
-    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getUuid).collect(Collectors.toList()).toArray(new String[]{}));
+    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getUuid).toList().toArray(new String[]{}));
   }
 
   private GroupDto insertDefaultGroup() {

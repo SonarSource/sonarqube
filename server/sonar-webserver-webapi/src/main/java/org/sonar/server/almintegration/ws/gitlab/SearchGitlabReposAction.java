@@ -121,7 +121,7 @@ public class SearchGitlabReposAction implements AlmIntegrationsWsAction {
 
       List<GitlabRepository> gitlabRepositories = gitlabProjectList.getProjects().stream()
         .map(project -> toGitlabRepository(project, sqProjectsKeyByGitlabProjectId))
-        .collect(toList());
+        .toList();
 
       Paging.Builder pagingBuilder = Paging.newBuilder()
         .setPageIndex(gitlabProjectList.getPageNumber())

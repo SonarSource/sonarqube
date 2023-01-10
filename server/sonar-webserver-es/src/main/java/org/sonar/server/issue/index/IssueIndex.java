@@ -1226,7 +1226,7 @@ public class IssueIndex {
       .filter(categoryBucket -> StringUtils.startsWith(categoryBucket.getKeyAsString(), categoryFilter.getName() + "."))
       .filter(categoryBucket -> level == null || OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(level).contains(categoryBucket.getKeyAsString()))
       .map(categoryBucket -> processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getKeyAsString(), null, null))
-      .collect(toList());
+      .toList();
 
     return processSecurityReportCategorySearchResults(categoryFilter, categoryFilter.getName(), children, version);
   }
@@ -1236,7 +1236,7 @@ public class IssueIndex {
     List<SecurityStandardCategoryStatistics> children = list.stream()
       .filter(categoryBucket -> OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL.get(Integer.parseInt(level)).contains(categoryBucket.getKeyAsString()))
       .map(categoryBucket -> processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getKeyAsString(), null, null))
-      .collect(toList());
+      .toList();
 
     return processSecurityReportCategorySearchResults(categoryFilter, categoryFilter.getName(), children, version);
   }

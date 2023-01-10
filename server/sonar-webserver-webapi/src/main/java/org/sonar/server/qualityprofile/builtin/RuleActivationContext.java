@@ -186,7 +186,7 @@ public class RuleActivationContext {
     loadDescendants();
     return getProfiles().stream()
       .flatMap(p -> profilesByParentUuid.get(p.getKee()).stream())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private void loadDescendants() {
@@ -228,7 +228,7 @@ public class RuleActivationContext {
     this.currentRulesProfile = ruleProfile;
     this.currentProfiles = profilesByUuid.values().stream()
       .filter(p -> p.getRulesProfileUuid().equals(ruleProfile.getUuid()))
-      .collect(Collectors.toList());
+      .toList();
     this.currentActiveRule = this.activeRulesByKey.get(ActiveRuleKey.of(ruleProfile, ruleKey));
     this.currentParentActiveRule = this.currentProfiles.stream()
       .map(QProfileDto::getParentKee)

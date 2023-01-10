@@ -418,7 +418,7 @@ public class FileMoveDetectionStep implements ComputationStep {
     }
 
     public List<Match> filter(Collection<Match> matches) {
-      return matches.stream().filter(this::notAlreadyMatched).collect(Collectors.toList());
+      return matches.stream().filter(this::notAlreadyMatched).toList();
     }
 
     private boolean notAlreadyMatched(Match input) {

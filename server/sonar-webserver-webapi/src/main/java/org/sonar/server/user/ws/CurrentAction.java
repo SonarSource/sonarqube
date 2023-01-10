@@ -47,7 +47,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.user.ws.DismissNoticeAction.EDUCATION_PRINCIPLES;
@@ -138,7 +137,7 @@ public class CurrentAction implements UsersWsAction {
     return permissionService.getGlobalPermissions().stream()
       .filter(userSession::hasPermission)
       .map(GlobalPermission::getKey)
-      .collect(toList());
+      .toList();
   }
 
   private boolean isNoticeDismissed(UserDto user, String noticeName) {
