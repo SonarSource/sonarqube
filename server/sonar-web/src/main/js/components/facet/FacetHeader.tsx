@@ -79,7 +79,10 @@ export default class FacetHeader extends React.PureComponent<Props> {
       name
     );
     return (
-      <div className="search-navigator-facet-header-wrapper display-flex-center">
+      <div
+        aria-disabled={disabled}
+        className="search-navigator-facet-header-wrapper display-flex-center"
+      >
         {this.props.onClick ? (
           <span className="search-navigator-facet-header display-flex-center">
             <button

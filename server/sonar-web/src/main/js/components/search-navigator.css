@@ -59,7 +59,6 @@
 
 .search-navigator-facet-box-forbidden {
   background-color: transparent;
-  opacity: 0.5;
 }
 
 .search-navigator-facet-box-forbidden .search-navigator-facet-list,
@@ -69,19 +68,8 @@
 }
 
 .search-navigator-facet-box-forbidden .search-navigator-facet-header {
-  color: var(--secondFontColor);
-}
-
-.search-navigator-facet-box-forbidden .search-navigator-facet-header:hover {
-  color: var(--blue);
-}
-
-.search-navigator-facet-box-forbidden .search-navigator-facet-header {
   cursor: default;
-}
-
-.search-navigator-facet-box-forbidden .search-navigator-facet-header:hover {
-  color: var(--secondFontColor);
+  color: var(--gray60);
 }
 
 .search-navigator-facet,
