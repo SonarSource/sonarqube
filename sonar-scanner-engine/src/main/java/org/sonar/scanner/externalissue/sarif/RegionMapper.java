@@ -35,18 +35,22 @@ public class RegionMapper {
       return Optional.empty();
     }
     int startLine = Objects.requireNonNull(region.getStartLine(), "No start line defined for the region.");
-    Integer endLine = region.getEndLine();
-    if (endLine != null) {
-      int startColumn = Optional.ofNullable(region.getStartColumn()).map(RegionMapper::adjustSarifColumnIndexToSqIndex).orElse(0);
-      int endColumn = Optional.ofNullable(region.getEndColumn()).map(RegionMapper::adjustSarifColumnIndexToSqIndex)
-        .orElseGet(() -> file.selectLine(endLine).end().lineOffset());
-      return Optional.of(file.newRange(startLine, startColumn, endLine, endColumn));
-    } else {
+    int endLine = Optional.ofNullable(region.getEndLine()).orElse(startLine);
+    int startColumn = Optional.ofNullable(region.getStartColumn()).map(RegionMapper::adjustSarifColumnIndexToSqIndex).orElse(0);
+    int endColumn = Optional.ofNullable(region.getEndColumn()).map(RegionMapper::adjustSarifColumnIndexToSqIndex)
+      .orElseGet(() -> file.selectLine(endLine).end().lineOffset());
+    if (rangeIsEmpty(startLine, endLine, startColumn, endColumn)) {
       return Optional.of(file.selectLine(startLine));
+    } else {
+      return Optional.of(file.newRange(startLine, startColumn, endLine, endColumn));
     }
   }
 
   private static int adjustSarifColumnIndexToSqIndex(int index) {
     return index - 1;
+  }
+
+  private static boolean rangeIsEmpty(int startLine, int endLine, int startColumn, int endColumn) {
+    return startLine == endLine && startColumn == endColumn;
   }
 }
