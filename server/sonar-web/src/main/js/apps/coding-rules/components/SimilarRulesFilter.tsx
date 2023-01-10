@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
+import { Button, ButtonPlain } from '../../../components/controls/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import FilterIcon from '../../../components/icons/FilterIcon';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import TagsIcon from '../../../components/icons/TagsIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Rule } from '../../../types/types';
 import { Query } from '../query';
 
@@ -34,32 +36,23 @@ interface Props {
 }
 
 export default class SimilarRulesFilter extends React.PureComponent<Props> {
-  handleLanguageClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleLanguageClick = () => {
     if (this.props.rule.lang) {
       this.props.onFilterChange({ languages: [this.props.rule.lang] });
     }
   };
 
-  handleTypeClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleTypeClick = () => {
     this.props.onFilterChange({ types: [this.props.rule.type] });
   };
 
-  handleSeverityClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleSeverityClick = () => {
     if (this.props.rule.severity) {
       this.props.onFilterChange({ severities: [this.props.rule.severity] });
     }
   };
 
-  handleTagClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    const { tag } = event.currentTarget.dataset;
+  handleTagClick = (tag: string) => {
     if (tag) {
       this.props.onFilterChange({ tags: [tag] });
     }
@@ -75,70 +68,82 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
         className="display-inline-block"
         overlay={
           <>
-            <h2 className="menu-header" id="filter-similar-rules">
+            <h3 className="coding-rules-filter-title">
               {translate('coding_rules.filter_similar_rules')}
-            </h2>
-            <ul className="menu" aria-labelledby="filter-similar-rules">
+            </h3>
+            <ul className="menu">
+              {rule.langName && (
+                <li>
+                  <ButtonPlain
+                    data-test="coding-rules__similar-language"
+                    aria-label={translateWithParameters(
+                      'coding_rules.filter_by_language',
+                      rule.langName
+                    )}
+                    onClick={this.handleLanguageClick}
+                  >
+                    {rule.langName}
+                  </ButtonPlain>
+                </li>
+              )}
               <li>
-                <a
-                  data-test="coding-rules__similar-language"
-                  href="#"
-                  onClick={this.handleLanguageClick}
-                >
-                  {rule.langName}
-                </a>
-              </li>
-
-              <li>
-                <a
-                  className="display-flex-center"
+                <ButtonPlain
+                  aria-label={translateWithParameters(
+                    'coding_rules.filter_by_type',
+                    translate('issue.type', rule.type)
+                  )}
                   data-test="coding-rules__similar-type"
-                  href="#"
                   onClick={this.handleTypeClick}
                 >
                   <IssueTypeIcon query={rule.type} />
                   <span className="little-spacer-left">{translate('issue.type', rule.type)}</span>
-                </a>
+                </ButtonPlain>
               </li>
 
               {severity && (
                 <li>
-                  <a
+                  <ButtonPlain
                     data-test="coding-rules__similar-severity"
-                    href="#"
+                    aria-label={translateWithParameters(
+                      'coding_rules.filter_by_severity',
+                      severity
+                    )}
                     onClick={this.handleSeverityClick}
                   >
-                    <SeverityHelper className="display-flex-center" severity={rule.severity} />
-                  </a>
+                    <SeverityHelper className="display-flex-center" severity={severity} />
+                  </ButtonPlain>
                 </li>
               )}
 
-              {allTags.length > 0 && <li className="divider" />}
-              {allTags.map((tag) => (
-                <li key={tag}>
-                  <a
+              {allTags.map((tag, index) => (
+                <li
+                  className={classNames('coding-rules-similar-tag', {
+                    'coding-rules-similar-tag-divider': index === 0,
+                  })}
+                  key={tag}
+                >
+                  <ButtonPlain
                     data-tag={tag}
                     data-test="coding-rules__similar-tag"
-                    href="#"
-                    onClick={this.handleTagClick}
+                    aria-label={translateWithParameters('coding_rules.filter_by_tag', tag)}
+                    onClick={() => this.handleTagClick(tag)}
                   >
                     <TagsIcon className="little-spacer-right text-middle" />
                     <span className="text-middle">{tag}</span>
-                  </a>
+                  </ButtonPlain>
                 </li>
               ))}
             </ul>
           </>
         }
       >
-        <a
-          className="js-rule-filter link-no-underline spacer-left dropdown-toggle"
-          href="#"
+        <Button
+          className="js-rule-filter spacer-left"
           title={translate('coding_rules.filter_similar_rules')}
         >
           <FilterIcon />
           <DropdownIcon />
-        </a>
+        </Button>
       </Dropdown>
     );
   }

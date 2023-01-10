@@ -62,6 +62,6 @@ function mountRenderAction(actionName: string, props: Partial<SimilarRulesFilter
     <SimilarRulesFilter onFilterChange={jest.fn()} rule={mockRule()} {...props} />
   );
   return mount(wrapper.find('Dropdown').prop<React.ReactElement>('overlay'))
-    .find(`a[data-test="coding-rules__similar-${actionName}"]`)
+    .find(`button[data-test="coding-rules__similar-${actionName}"]`)
     .first();
 }

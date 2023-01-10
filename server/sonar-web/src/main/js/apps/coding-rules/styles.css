@@ -17,12 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 .coding-rules-extended-view .coding-rules-list {
   display: none;
 }
 
 .coding-rules-extended-view .coding-rules-details {
   display: block;
+}
+
+.coding-rules-similar-tag-divider {
+  margin-top: 6px;
+  border-top: 1px solid var(--barBorderColor);
+}
+
+.coding-rules-filter-title {
+  padding: var(--gridSize);
+  font-size: 12px;
+  color: var(--neutral600);
+  white-space: nowrap;
+  line-height: unset;
 }
 
 /*
@@ -234,7 +248,7 @@
 }
 
 .coding-rule-table td {
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .coding-rule-table + .coding-rule-table {

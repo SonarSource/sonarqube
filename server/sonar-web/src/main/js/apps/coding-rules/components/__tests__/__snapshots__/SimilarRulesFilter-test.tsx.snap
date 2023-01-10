@@ -5,30 +5,27 @@ exports[`should render correctly 1`] = `
   className="display-inline-block"
   overlay={
     <React.Fragment>
-      <h2
-        className="menu-header"
-        id="filter-similar-rules"
+      <h3
+        className="coding-rules-filter-title"
       >
         coding_rules.filter_similar_rules
-      </h2>
+      </h3>
       <ul
-        aria-labelledby="filter-similar-rules"
         className="menu"
       >
         <li>
-          <a
+          <ButtonPlain
+            aria-label="coding_rules.filter_by_language.JavaScript"
             data-test="coding-rules__similar-language"
-            href="#"
             onClick={[Function]}
           >
             JavaScript
-          </a>
+          </ButtonPlain>
         </li>
         <li>
-          <a
-            className="display-flex-center"
+          <ButtonPlain
+            aria-label="coding_rules.filter_by_type.issue.type.CODE_SMELL"
             data-test="coding-rules__similar-type"
-            href="#"
             onClick={[Function]}
           >
             <IssueTypeIcon
@@ -39,28 +36,27 @@ exports[`should render correctly 1`] = `
             >
               issue.type.CODE_SMELL
             </span>
-          </a>
+          </ButtonPlain>
         </li>
         <li>
-          <a
+          <ButtonPlain
+            aria-label="coding_rules.filter_by_severity.MAJOR"
             data-test="coding-rules__similar-severity"
-            href="#"
             onClick={[Function]}
           >
             <SeverityHelper
               className="display-flex-center"
               severity="MAJOR"
             />
-          </a>
+          </ButtonPlain>
         </li>
         <li
-          className="divider"
-        />
-        <li>
-          <a
+          className="coding-rules-similar-tag coding-rules-similar-tag-divider"
+        >
+          <ButtonPlain
+            aria-label="coding_rules.filter_by_tag.x"
             data-tag="x"
             data-test="coding-rules__similar-tag"
-            href="#"
             onClick={[Function]}
           >
             <TagsIcon
@@ -71,13 +67,15 @@ exports[`should render correctly 1`] = `
             >
               x
             </span>
-          </a>
+          </ButtonPlain>
         </li>
-        <li>
-          <a
+        <li
+          className="coding-rules-similar-tag"
+        >
+          <ButtonPlain
+            aria-label="coding_rules.filter_by_tag.a"
             data-tag="a"
             data-test="coding-rules__similar-tag"
-            href="#"
             onClick={[Function]}
           >
             <TagsIcon
@@ -88,13 +86,15 @@ exports[`should render correctly 1`] = `
             >
               a
             </span>
-          </a>
+          </ButtonPlain>
         </li>
-        <li>
-          <a
+        <li
+          className="coding-rules-similar-tag"
+        >
+          <ButtonPlain
+            aria-label="coding_rules.filter_by_tag.b"
             data-tag="b"
             data-test="coding-rules__similar-tag"
-            href="#"
             onClick={[Function]}
           >
             <TagsIcon
@@ -105,19 +105,18 @@ exports[`should render correctly 1`] = `
             >
               b
             </span>
-          </a>
+          </ButtonPlain>
         </li>
       </ul>
     </React.Fragment>
   }
 >
-  <a
-    className="js-rule-filter link-no-underline spacer-left dropdown-toggle"
-    href="#"
+  <Button
+    className="js-rule-filter spacer-left"
     title="coding_rules.filter_similar_rules"
   >
     <FilterIcon />
     <DropdownIcon />
-  </a>
+  </Button>
 </Dropdown>
 `;
