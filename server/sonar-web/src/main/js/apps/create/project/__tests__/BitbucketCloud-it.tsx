@@ -76,6 +76,13 @@ it('should ask for PAT when it is not set yet and show the import project featur
     )
   ).toBeInTheDocument();
 
+  expect(
+    screen.getByText('onboarding.create_project.pat.expired.info_message')
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText('onboarding.create_project.pat.expired.info_message_contact')
+  ).toBeInTheDocument();
+
   expect(screen.getByRole('button', { name: 'save' })).toBeDisabled();
 
   await user.click(

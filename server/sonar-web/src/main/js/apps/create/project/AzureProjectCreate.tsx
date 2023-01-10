@@ -31,6 +31,7 @@ import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 import { Dict } from '../../../types/types';
 import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
+import { tokenExistedBefore } from './utils';
 
 interface Props {
   canAdmin: boolean;
@@ -55,6 +56,7 @@ interface State {
   selectedAlmInstance?: AlmSettingsInstance;
   submittingToken?: boolean;
   tokenValidationFailed: boolean;
+  firstConnection?: boolean;
 }
 
 export default class AzureProjectCreate extends React.PureComponent<Props, State> {
@@ -71,6 +73,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       loadingRepositories: {},
       repositories: {},
       tokenValidationFailed: false,
+      firstConnection: false,
     };
   }
 
@@ -92,7 +95,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   fetchData = async () => {
     this.setState({ loading: true });
 
-    const patIsValid = await this.checkPersonalAccessToken().catch(() => false);
+    const { patIsValid, error } = await this.checkPersonalAccessToken();
 
     let projects: AzureProject[] | undefined;
     if (patIsValid) {
@@ -126,6 +129,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
           loadingRepositories: { ...loadingRepositories },
           projects,
           repositories,
+          firstConnection: tokenExistedBefore(error),
         };
       });
     }
@@ -239,10 +243,12 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     const { selectedAlmInstance } = this.state;
 
     if (!selectedAlmInstance) {
-      return Promise.resolve(false);
+      return Promise.resolve({ patIsValid: false, error: '' });
     }
 
-    return checkPersonalAccessTokenIsValid(selectedAlmInstance.key).then(({ status }) => status);
+    return checkPersonalAccessTokenIsValid(selectedAlmInstance.key).then(({ status, error }) => {
+      return { patIsValid: status, error };
+    });
   };
 
   handlePersonalAccessTokenCreate = async (token: string) => {
@@ -256,10 +262,14 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
 
     try {
       await setAlmPersonalAccessToken(selectedAlmInstance.key, token);
-      const patIsValid = await this.checkPersonalAccessToken();
+      const { patIsValid } = await this.checkPersonalAccessToken();
 
       if (this.mounted) {
-        this.setState({ submittingToken: false, patIsValid, tokenValidationFailed: !patIsValid });
+        this.setState({
+          submittingToken: false,
+          patIsValid,
+          tokenValidationFailed: !patIsValid,
+        });
 
         if (patIsValid) {
           this.cleanUrl();
@@ -296,6 +306,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       selectedAlmInstance,
       submittingToken,
       tokenValidationFailed,
+      firstConnection,
     } = this.state;
 
     return (
@@ -321,6 +332,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
         submittingToken={submittingToken}
         tokenValidationFailed={tokenValidationFailed}
         onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
+        firstConnection={firstConnection}
       />
     );
   }

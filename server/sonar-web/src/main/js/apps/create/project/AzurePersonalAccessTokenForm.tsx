@@ -23,6 +23,7 @@ import { FormattedMessage } from 'react-intl';
 import Link from '../../../components/common/Link';
 import { SubmitButton } from '../../../components/controls/buttons';
 import ValidationInput from '../../../components/controls/ValidationInput';
+import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
@@ -32,6 +33,7 @@ export interface AzurePersonalAccessTokenFormProps {
   onPersonalAccessTokenCreate: (token: string) => void;
   submitting?: boolean;
   validationFailed: boolean;
+  firstConnection?: boolean;
 }
 
 function getAzurePatUrl(url: string) {
@@ -43,6 +45,7 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
     almSetting: { alm, url },
     submitting = false,
     validationFailed,
+    firstConnection,
   } = props;
 
   const [touched, setTouched] = React.useState(false);
@@ -86,6 +89,13 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
             }}
           />
         </div>
+
+        {!firstConnection && (
+          <Alert className="big-spacer-right" variant="warning">
+            <p>{translate('onboarding.create_project.pat.expired.info_message')}</p>
+            <p>{translate('onboarding.create_project.pat.expired.info_message_contact')}</p>
+          </Alert>
+        )}
 
         <form
           onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {

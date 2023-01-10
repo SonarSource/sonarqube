@@ -31,6 +31,7 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import { tokenExistedBefore } from './utils';
 
 interface Props {
   almSetting: AlmSettingsInstance;
@@ -46,6 +47,7 @@ interface State {
   username?: string;
   submitting: boolean;
   checkingPat: boolean;
+  firstConnection: boolean;
 }
 
 function getPatUrl(alm: AlmKeys, url = '') {
@@ -72,6 +74,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
       password: '',
       submitting: false,
       validationFailed: false,
+      firstConnection: false,
     };
   }
 
@@ -107,9 +110,10 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
       }
       if (this.mounted) {
         // This is the initial message when no token was provided
-        if (error === `personal access token for '${key}' is missing`) {
+        if (tokenExistedBefore(error)) {
           this.setState({
             checkingPat: false,
+            firstConnection: true,
           });
         } else {
           this.setState({
@@ -329,6 +333,7 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
       username,
       validationFailed,
       validationErrorMessage,
+      firstConnection,
     } = this.state;
 
     if (checkingPat) {
@@ -351,6 +356,13 @@ export default class PersonalAccessTokenForm extends React.PureComponent<Props, 
           <p className="big-spacer-top big-spacer-bottom">
             {translate('onboarding.create_project.pat_form.help', alm)}
           </p>
+
+          {!firstConnection && (
+            <Alert className="big-spacer-right" variant="warning">
+              <p>{translate('onboarding.create_project.pat.expired.info_message')}</p>
+              <p>{translate('onboarding.create_project.pat.expired.info_message_contact')}</p>
+            </Alert>
+          )}
 
           {alm === AlmKeys.BitbucketCloud && (
             <ValidationInput
