@@ -21,18 +21,16 @@ import * as React from 'react';
 import { ButtonPlain } from '../../../components/controls/buttons';
 import ChevronDownIcon from '../../../components/icons/ChevronDownIcon';
 import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
-import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { isApplication } from '../../../types/component';
 import {
   QualityGateStatus,
   QualityGateStatusConditionEnhanced,
 } from '../../../types/quality-gates';
 import { Component } from '../../../types/types';
 import QualityGateConditions from '../components/QualityGateConditions';
-import { CAYC_METRICS } from '../utils';
 import CleanAsYouCodeWarning from './CleanAsYouCodeWarning';
 
 export interface QualityGatePanelSectionProps {
@@ -41,22 +39,21 @@ export interface QualityGatePanelSectionProps {
   qgStatus: QualityGateStatus;
 }
 
-function splitConditions(conditions: QualityGateStatusConditionEnhanced[]) {
-  const caycConditions = [];
+function splitConditions(
+  conditions: QualityGateStatusConditionEnhanced[]
+): [QualityGateStatusConditionEnhanced[], QualityGateStatusConditionEnhanced[]] {
   const newCodeFailedConditions = [];
   const overallFailedConditions = [];
 
   for (const condition of conditions) {
-    if (CAYC_METRICS.includes(condition.metric)) {
-      caycConditions.push(condition);
-    } else if (isDiffMetric(condition.metric)) {
+    if (isDiffMetric(condition.metric)) {
       newCodeFailedConditions.push(condition);
     } else {
       overallFailedConditions.push(condition);
     }
   }
 
-  return [caycConditions, newCodeFailedConditions, overallFailedConditions];
+  return [newCodeFailedConditions, overallFailedConditions];
 }
 
 function displayConditions(conditions: number) {
@@ -84,24 +81,15 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
     return null;
   }
 
-  const [caycConditions, newCodeFailedConditions, overallFailedConditions] = splitConditions(
+  const [newCodeFailedConditions, overallFailedConditions] = splitConditions(
     qgStatus.failedConditions
   );
 
-  /*
-   * Show Clean as You Code if:
-   * - The QG is not CAYC-compliant
-   * - There are *any* failing conditions, we either show:
-   *   - the cayc-specific failures
-   *   - that cayc is passing and only other conditions are failing
-   */
-  const showCayc = !qgStatus.isCaycCompliant || qgStatus.failedConditions.length > 0;
+  const showName = isApplication(component.qualifier);
 
-  const showSuccessfulCayc = caycConditions.length === 0 && qgStatus.isCaycCompliant;
-
-  const hasOtherConditions = newCodeFailedConditions.length + overallFailedConditions.length > 0;
-
-  const showName = component.qualifier === ComponentQualifier.Application;
+  const showSectionTitles =
+    !qgStatus.isCaycCompliant ||
+    (overallFailedConditions.length > 0 && newCodeFailedConditions.length > 0);
 
   const toggleLabel = collapsed
     ? translateWithParameters('overview.quality_gate.show_project_conditions_x', qgStatus.name)
@@ -131,69 +119,45 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
 
       {!collapsed && (
         <>
-          {showCayc && (
+          {!qgStatus.isCaycCompliant && (
+            <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
+              <CleanAsYouCodeWarning />
+            </div>
+          )}
+
+          {newCodeFailedConditions.length > 0 && (
             <>
-              <div className="display-flex-center overview-quality-gate-conditions-section-title">
-                <h4 className="padded">{translate('quality_gates.conditions.cayc')}</h4>
-                {displayConditions(caycConditions.length)}
-              </div>
-
-              {!qgStatus.isCaycCompliant && (
-                <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
-                  <CleanAsYouCodeWarning />
-                </div>
+              {showSectionTitles && (
+                <h4 className="big-padded overview-quality-gate-conditions-section-title">
+                  {translateWithParameters(
+                    'quality_gates.conditions.new_code_x',
+                    newCodeFailedConditions.length.toString()
+                  )}
+                </h4>
               )}
-
-              {showSuccessfulCayc && (
-                <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
-                  <Alert variant="success" className="no-margin-bottom">
-                    {translate('overview.quality_gate.conditions.cayc.passed')}
-                  </Alert>
-                </div>
-              )}
-
-              {caycConditions.length > 0 && (
-                <QualityGateConditions
-                  component={qgStatus}
-                  branchLike={qgStatus.branchLike}
-                  failedConditions={caycConditions}
-                />
-              )}
+              <QualityGateConditions
+                component={qgStatus}
+                branchLike={qgStatus.branchLike}
+                failedConditions={newCodeFailedConditions}
+              />
             </>
           )}
 
-          {hasOtherConditions && (
+          {overallFailedConditions.length > 0 && (
             <>
-              <div className="display-flex-center overview-quality-gate-conditions-section-title">
-                <h4 className="padded">{translate('quality_gates.conditions.other_conditions')}</h4>
-                {displayConditions(newCodeFailedConditions.length + overallFailedConditions.length)}
-              </div>
-
-              {newCodeFailedConditions.length > 0 && (
-                <>
-                  <h5 className="big-padded overview-quality-gate-conditions-subsection-title">
-                    {translate('quality_gates.conditions.new_code')}
-                  </h5>
-                  <QualityGateConditions
-                    component={qgStatus}
-                    branchLike={qgStatus.branchLike}
-                    failedConditions={newCodeFailedConditions}
-                  />
-                </>
+              {showSectionTitles && (
+                <h4 className="big-padded overview-quality-gate-conditions-section-title">
+                  {translateWithParameters(
+                    'quality_gates.conditions.overall_code_x',
+                    overallFailedConditions.length.toString()
+                  )}
+                </h4>
               )}
-
-              {overallFailedConditions.length > 0 && (
-                <>
-                  <h5 className="big-padded overview-quality-gate-conditions-subsection-title">
-                    {translate('quality_gates.conditions.overall_code')}
-                  </h5>
-                  <QualityGateConditions
-                    component={qgStatus}
-                    branchLike={qgStatus.branchLike}
-                    failedConditions={overallFailedConditions}
-                  />
-                </>
-              )}
+              <QualityGateConditions
+                component={qgStatus}
+                branchLike={qgStatus.branchLike}
+                failedConditions={overallFailedConditions}
+              />
             </>
           )}
         </>

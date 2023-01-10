@@ -34,7 +34,6 @@ import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-
 import { mockLoggedInUser, mockPeriod } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
-import { MetricKey } from '../../../../types/metrics';
 import { GraphType } from '../../../../types/project-activity';
 import { Measure, Metric } from '../../../../types/types';
 import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '../BranchOverview';
@@ -231,32 +230,6 @@ describe('project overview', () => {
 
     expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
     expect(screen.getByText('overview.X_conditions_failed.2')).toBeInTheDocument();
-
-    expect(
-      screen.queryByText('overview.quality_gate.conditions.cayc.passed')
-    ).not.toBeInTheDocument();
-  });
-
-  it('should show a failed QG with passing CAYC conditions', async () => {
-    jest.mocked(getQualityGateProjectStatus).mockResolvedValueOnce(
-      mockQualityGateProjectStatus({
-        status: 'ERROR',
-        conditions: [
-          {
-            actualValue: '12',
-            comparator: 'GT',
-            errorThreshold: '10',
-            metricKey: MetricKey.new_bugs,
-            periodIndex: 1,
-            status: 'ERROR',
-          },
-        ],
-      })
-    );
-    renderBranchOverview();
-
-    expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
-    expect(screen.getByText('overview.quality_gate.conditions.cayc.passed')).toBeInTheDocument();
   });
 
   it('should correctly show a project as empty', async () => {

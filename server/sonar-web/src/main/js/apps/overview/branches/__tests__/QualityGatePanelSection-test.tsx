@@ -55,6 +55,7 @@ function shallowRender(props: Partial<QualityGatePanelSectionProps> = {}) {
           mockQualityGateStatusConditionEnhanced({ metric: MetricKey.new_bugs }),
         ],
         status: 'ERROR',
+        isCaycCompliant: false,
       })}
       {...props}
     />

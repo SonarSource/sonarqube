@@ -112,16 +112,6 @@ export enum MeasurementType {
   Duplication = 'DUPLICATION',
 }
 
-/*
- * Metrics part of Clean As You Code
- */
-export const CAYC_METRICS: string[] = [
-  MetricKey.new_maintainability_rating,
-  MetricKey.new_reliability_rating,
-  MetricKey.new_security_hotspots_reviewed,
-  MetricKey.new_security_rating,
-];
-
 const MEASUREMENTS_MAP = {
   [MeasurementType.Coverage]: {
     metric: MetricKey.coverage,

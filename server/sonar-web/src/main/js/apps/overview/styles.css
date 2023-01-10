@@ -131,13 +131,6 @@
   background: var(--barBorderColor);
 }
 
-.overview-quality-gate-conditions-subsection-title {
-  background-color: white;
-  border-bottom: 1px solid var(--barBorderColor);
-  margin: 0;
-  font-size: var(--baseFontSize);
-}
-
 .overview-quality-gate-conditions-list-collapse {
   margin: calc(2 * var(--gridSize)) 0;
 }
