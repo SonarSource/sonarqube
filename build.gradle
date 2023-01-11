@@ -252,7 +252,6 @@ subprojects {
       dependencySet(group: 'com.hazelcast', version: '5.2.1') {
         entry 'hazelcast'
       }
-      dependency 'com.hazelcast:hazelcast-kubernetes:2.2.3'
       // Documentation must be updated if mssql-jdbc is updated: https://github.com/SonarSource/sonarqube/commit/03e4773ebf6cba854cdcf57a600095f65f4f53e7
       dependency('com.microsoft.sqlserver:mssql-jdbc:11.2.2.jre17') {
         exclude 'com.fasterxml.jackson.core:jackson-databind'

@@ -16,7 +16,6 @@ dependencies {
   api 'com.google.guava:guava'
   api 'com.google.protobuf:protobuf-java'
   api 'com.hazelcast:hazelcast'
-  api 'com.hazelcast:hazelcast-kubernetes'
   api 'org.slf4j:jul-to-slf4j'
   api 'org.slf4j:slf4j-api'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
