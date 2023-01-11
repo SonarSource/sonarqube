@@ -36,6 +36,7 @@ export interface ValidationInputProps {
   isValid: boolean;
   label?: React.ReactNode;
   required?: boolean;
+  showValidIcon?: boolean;
 }
 
 export enum ValidationInputErrorPlacement {
@@ -56,15 +57,18 @@ export default function ValidationInput(props: ValidationInputProps) {
     isValid,
     label,
     required,
+    showValidIcon = true,
   } = props;
+
   const hasError = isInvalid && error !== undefined;
 
   let childrenWithStatus: React.ReactNode;
+
   if (errorPlacement === ValidationInputErrorPlacement.Right) {
     childrenWithStatus = (
       <>
         {children}
-        {isValid && (
+        {showValidIcon && isValid && (
           <AlertSuccessIcon
             ariaLabel={translate('valid_input')}
             className="spacer-left text-middle"
@@ -78,13 +82,13 @@ export default function ValidationInput(props: ValidationInputProps) {
     childrenWithStatus = (
       <>
         {children}
-        {isValid && (
+        {showValidIcon && isValid && (
           <AlertSuccessIcon
             ariaLabel={translate('valid_input')}
             className="spacer-left text-middle"
           />
         )}
-        <div className="spacer-top">
+        <div className="spacer-top" style={{ display: 'flex' }}>
           {isInvalid && <AlertErrorIcon className="text-middle" />}
           {hasError && <span className="little-spacer-left text-danger text-middle">{error}</span>}
         </div>

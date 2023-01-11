@@ -51,6 +51,11 @@ exports[`should render correctly: error under the input 1`] = `
     <div />
     <div
       className="spacer-top"
+      style={
+        {
+          "display": "flex",
+        }
+      }
     >
       <AlertErrorIcon
         className="text-middle"

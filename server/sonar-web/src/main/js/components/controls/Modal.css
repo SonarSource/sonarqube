@@ -196,6 +196,10 @@
   margin-top: 2px;
 }
 
+.modal-field input[type='text'].invalid {
+  border-color: var(--red);
+}
+
 .modal-foot {
   padding: var(--pagePadding) calc(4 * var(--gridSize));
   border-top: 1px solid var(--barBorderColor);
