@@ -58,8 +58,7 @@ public class ElasticSearchMetricTask implements MonitoringTask {
         serverMonitoringMetrics.setElasticSearchStatusToRed();
       } else {
         switch (esStatus) {
-          case GREEN:
-          case YELLOW:
+          case GREEN, YELLOW:
             serverMonitoringMetrics.setElasticSearchStatusToGreen();
             break;
           case RED:

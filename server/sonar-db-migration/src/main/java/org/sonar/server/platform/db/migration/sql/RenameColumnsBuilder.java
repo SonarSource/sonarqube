@@ -68,18 +68,12 @@ public class RenameColumnsBuilder {
 
   private List<String> createSqlStatement() {
     return renamings.stream().map(
-      r -> {
-        switch (dialect.getId()) {
-          case H2.ID:
-            return "ALTER TABLE " + tableName + " ALTER COLUMN " + r.getOldColumnName() + " RENAME TO " + r.getNewColumnName();
-          case Oracle.ID:
-          case PostgreSql.ID:
-            return "ALTER TABLE " + tableName + " RENAME COLUMN " + r.getOldColumnName() + " TO " + r.getNewColumnName();
-          case MsSql.ID:
-            return "EXEC sp_rename '" + tableName + "." + r.getOldColumnName() + "', '" + r.getNewColumnName() + "', 'COLUMN'";
-          default:
-            throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());
-        }
+      r -> switch (dialect.getId()) {
+        case H2.ID -> "ALTER TABLE " + tableName + " ALTER COLUMN " + r.getOldColumnName() + " RENAME TO " + r.getNewColumnName();
+        case Oracle.ID, PostgreSql.ID ->
+          "ALTER TABLE " + tableName + " RENAME COLUMN " + r.getOldColumnName() + " TO " + r.getNewColumnName();
+        case MsSql.ID -> "EXEC sp_rename '" + tableName + "." + r.getOldColumnName() + "', '" + r.getNewColumnName() + "', 'COLUMN'";
+        default -> throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());
       }).toList();
   }
 

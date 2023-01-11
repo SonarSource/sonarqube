@@ -111,9 +111,6 @@ class SearchResponseBuilder {
         case QUALITY_GATE:
           addQualityGateInformation(dbEvent);
           break;
-        case VERSION:
-        case OTHER:
-        case QUALITY_PROFILE:
         default:
           break;
       }

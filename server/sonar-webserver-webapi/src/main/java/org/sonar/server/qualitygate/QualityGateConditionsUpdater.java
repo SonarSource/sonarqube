@@ -175,21 +175,16 @@ public class QualityGateConditionsUpdater {
     try {
       ValueType valueType = ValueType.valueOf(metric.getValueType());
       switch (valueType) {
-        case BOOL:
-        case INT:
-        case RATING:
+        case BOOL, INT, RATING:
           parseInt(errorThreshold);
           return;
-        case MILLISEC:
-        case WORK_DUR:
+        case MILLISEC, WORK_DUR:
           parseLong(errorThreshold);
           return;
-        case FLOAT:
-        case PERCENT:
+        case FLOAT, PERCENT:
           parseDouble(errorThreshold);
           return;
-        case STRING:
-        case LEVEL:
+        case STRING, LEVEL:
           return;
         default:
           throw new IllegalArgumentException(format("Unsupported value type %s. Cannot convert condition value", valueType));

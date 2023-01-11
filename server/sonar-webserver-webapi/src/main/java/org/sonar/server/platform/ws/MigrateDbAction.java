@@ -84,9 +84,7 @@ public class MigrateDbAction implements SystemWsAction {
         writeNotSupportedResponse(json);
       } else {
         switch (migrationState.getStatus()) {
-          case RUNNING:
-          case FAILED:
-          case SUCCEEDED:
+          case RUNNING, FAILED, SUCCEEDED:
             write(json, migrationState);
             break;
           case NONE:
