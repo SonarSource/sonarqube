@@ -75,6 +75,28 @@ public class ConditionEvaluatorTest {
   }
 
   @Test
+  public void GREATER_THAN_long() {
+    test(new FakeMeasure(10L), Condition.Operator.GREATER_THAN, "9", EvaluatedCondition.EvaluationStatus.ERROR, "10");
+    test(new FakeMeasure(10L), Condition.Operator.GREATER_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10L), Condition.Operator.GREATER_THAN, "11", EvaluatedCondition.EvaluationStatus.OK, "10");
+
+    test(new FakeMeasure(10L), Condition.Operator.GREATER_THAN, "9", EvaluatedCondition.EvaluationStatus.ERROR, "10");
+    test(new FakeMeasure(10L), Condition.Operator.GREATER_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10L), Condition.Operator.GREATER_THAN, "11", EvaluatedCondition.EvaluationStatus.OK, "10");
+  }
+
+  @Test
+  public void LESS_THAN_long() {
+    test(new FakeMeasure(10L), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10L), Condition.Operator.LESS_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10L), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
+
+    test(new FakeMeasure(10L), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10L), Condition.Operator.LESS_THAN, "10", EvaluatedCondition.EvaluationStatus.OK, "10");
+    test(new FakeMeasure(10L), Condition.Operator.LESS_THAN, "11", EvaluatedCondition.EvaluationStatus.ERROR, "10");
+  }
+
+  @Test
   public void evaluate_throws_IAE_if_fail_to_parse_threshold() {
     assertThatThrownBy(() -> test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9bar", EvaluatedCondition.EvaluationStatus.ERROR, "10da"))
       .isInstanceOf(IllegalArgumentException.class)

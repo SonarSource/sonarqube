@@ -46,6 +46,11 @@ public class FakeMeasure  implements QualityGateEvaluator.Measure {
     this.valueType = Metric.ValueType.INT;
   }
 
+  public FakeMeasure(@Nullable Long value) {
+    this.value = value == null ? null : value.doubleValue();
+    this.valueType = Metric.ValueType.MILLISEC;
+  }
+
   @Override
   public Metric.ValueType getType() {
     return valueType;

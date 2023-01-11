@@ -419,7 +419,7 @@ public class DatabaseUtilsTest {
 
     List<String> outputs = DatabaseUtils.executeLargeInputs(inputs, input -> {
       // Check that each partition is only done on 1000 elements max
-      assertThat(input.size()).isLessThanOrEqualTo(1000);
+      assertThat(input).hasSizeLessThanOrEqualTo(1000);
       return input.stream().map(String::valueOf).collect(MoreCollectors.toList());
     });
 
@@ -463,7 +463,7 @@ public class DatabaseUtilsTest {
 
     List<Integer> processed = newArrayList();
     DatabaseUtils.executeLargeUpdates(inputs, input -> {
-      assertThat(input.size()).isLessThanOrEqualTo(1000);
+      assertThat(input).hasSizeLessThanOrEqualTo(1000);
       processed.addAll(input);
     });
     assertThat(processed).containsExactlyElementsOf(inputs);
@@ -537,7 +537,8 @@ public class DatabaseUtilsTest {
 
   @Test
   public void checkThatNotTooManyConditions_throws_IAE_if_strictly_more_than_1000_conditions() {
-    assertThatThrownBy(() -> DatabaseUtils.checkThatNotTooManyConditions(Collections.nCopies(1_001, "foo"), "the message"))
+    List<String> list = Collections.nCopies(1_001, "foo");
+    assertThatThrownBy(() -> DatabaseUtils.checkThatNotTooManyConditions(list, "the message"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("the message");
   }

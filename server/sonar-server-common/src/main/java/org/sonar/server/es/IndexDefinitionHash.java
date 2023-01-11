@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import java.util.Arrays;
 import java.util.Map;
@@ -44,7 +43,7 @@ class IndexDefinitionHash {
     IndexType.IndexMainType mainType = index.getMainType();
     return of(
       index.getSettings().toString(),
-      ImmutableMap.of(mainType.getIndex(), mainType),
+      Map.of(mainType.getIndex(), mainType),
       index.getRelationTypes().stream().collect(uniqueIndex(IndexType.IndexRelationType::getName, t -> t)),
       index.getAttributes());
   }
@@ -69,7 +68,7 @@ class IndexDefinitionHash {
   private static void appendObject(StringBuilder sb, Object value) {
     if (value instanceof Object[] arrayValue) {
       sb.append(Arrays.toString(arrayValue));
-    } else if (value instanceof Map map) {
+    } else if (value instanceof Map<?, ?> map) {
       appendMap(sb, map);
     } else if (value instanceof IndexType indexType) {
       sb.append(indexType.format());

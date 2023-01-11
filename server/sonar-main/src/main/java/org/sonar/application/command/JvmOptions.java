@@ -67,7 +67,8 @@ public class JvmOptions<T extends JvmOptions> {
   public T addFromMandatoryProperty(Props props, String propertyName) {
     String value = props.nonNullValue(propertyName);
     if (!value.isEmpty()) {
-      List<String> jvmOptions = Arrays.stream(value.split(" (?=-)")).map(String::trim).toList();
+      String splitRegex = " (?=-)";
+      List<String> jvmOptions = Arrays.stream(value.split(splitRegex)).map(String::trim).toList();
       checkOptionFormat(propertyName, jvmOptions);
       checkMandatoryOptionOverwrite(propertyName, jvmOptions);
       options.addAll(jvmOptions);

@@ -20,6 +20,7 @@
 package org.sonar.db.pushevent;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class PushEventDto {
   private String uuid;
@@ -65,7 +66,7 @@ public class PushEventDto {
     return language;
   }
 
-  public PushEventDto setLanguage(String language) {
+  public PushEventDto setLanguage(@Nullable String language) {
     this.language = language;
     return this;
   }

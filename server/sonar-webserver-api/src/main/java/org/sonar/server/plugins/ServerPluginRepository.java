@@ -61,7 +61,7 @@ public class ServerPluginRepository implements PluginRepository {
 
   @Override
   public Collection<PluginInfo> getPluginInfos() {
-    return pluginByKey.values().stream().map(ServerPlugin::getPluginInfo).collect(Collectors.toUnmodifiableList());
+    return pluginByKey.values().stream().map(ServerPlugin::getPluginInfo).toList();
   }
 
   @Override
