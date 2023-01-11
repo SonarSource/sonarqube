@@ -56,7 +56,7 @@ class DebtProperties {
 
       PropertyDefinition.builder(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS)
         .name("Language specific parameters")
-        .description("The parameters specified here for a given language will override the general parameters defined in this section.")
+        .description("DEPRECATED - The parameters specified here for a given language will override the general parameters defined in this section.")
         .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
         .deprecatedKey("languageSpecificParameters")
         .fields(
