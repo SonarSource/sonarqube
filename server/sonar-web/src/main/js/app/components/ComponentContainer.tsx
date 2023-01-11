@@ -384,11 +384,18 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   handleBranchesChange = () => {
-    if (this.mounted && this.state.component) {
-      this.fetchBranches(this.state.component).then(
+    const { router, location } = this.props;
+    const { component } = this.state;
+
+    if (this.mounted && component) {
+      this.fetchBranches(component).then(
         ({ branchLike, branchLikes }) => {
           if (this.mounted) {
             this.setState({ branchLike, branchLikes });
+
+            if (branchLike === undefined) {
+              router.replace({ query: { ...location.query, branch: undefined } });
+            }
           }
         },
         () => {}

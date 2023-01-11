@@ -162,6 +162,21 @@ it('updates branches on change', async () => {
   expect(updateBranchStatus).toHaveBeenCalledTimes(2);
 });
 
+it('sets main branch when current branch is not found', async () => {
+  const router = mockRouter();
+  const wrapper = shallowRender({
+    hasFeature: () => true,
+    location: mockLocation({ query: { id: 'portfolioKey', branch: 'any-branch' } }),
+    router,
+  });
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().handleBranchesChange();
+  await waitAndUpdate(wrapper);
+
+  expect(router.replace).toHaveBeenCalledWith({ query: { id: 'portfolioKey' } });
+});
+
 it('fetches status', async () => {
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
     component: {},
