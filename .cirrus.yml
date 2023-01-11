@@ -67,12 +67,14 @@ docker_build_container_template: &GKE_CONTAINER_TEMPLATE
 
 oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   name: oracle
-  image: us.gcr.io/sonarqube-team/oracle12:0.0.1 # see https://github.com/SonarSource/vms/blob/master/docker/README.md#oracle-12c to build it
+  image: gvenzl/oracle-xe:21-faststart
   port: 1521
   cpu: 2
   memory: 5Gb
   env:
-    ORACLE_PWD: sonarqube
+    ORACLE_PASSWORD: sonarqube
+    APP_USER: sonarqube
+    APP_USER_PASSWORD: sonarqube
 
 postgres_additional_container_template: &POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   name: postgres
@@ -611,7 +613,7 @@ sql_postgres11_task:
     - ./private/cirrus/cirrus-db-unit-test.sh postgres
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
-sql_oracle12_task:
+sql_oracle21_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
@@ -622,7 +624,7 @@ sql_oracle12_task:
     additional_containers:
       - <<: *ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   script:
-    - ./private/cirrus/cirrus-db-unit-test.sh oracle12
+    - ./private/cirrus/cirrus-db-unit-test.sh oracle21
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 upgd_mssql_task:
@@ -651,7 +653,7 @@ upgd_mssql_task:
     - ./private/cirrus/cirrus-qa.sh mssql
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
-upgd_oracle12_task:
+upgd_oracle21_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_NIGHTLY_TASK_TEMPLATE
@@ -666,7 +668,7 @@ upgd_oracle12_task:
   env:
     QA_CATEGORY: Upgrade
   script:
-    - ./private/cirrus/cirrus-qa.sh oracle12
+    - ./private/cirrus/cirrus-qa.sh oracle21
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 ws_scan_task:
