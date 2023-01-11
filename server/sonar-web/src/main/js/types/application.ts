@@ -31,11 +31,19 @@ export interface Application {
   description?: string;
   key: string;
   name: string;
-  projects: ApplicationProject[];
+  projects: ApplicationProjectBranch[];
   visibility: Visibility;
 }
 
 export interface ApplicationProject {
+  enabled?: boolean;
+  key: string;
+  name: string;
+  selected?: boolean;
+  accessible?: boolean;
+}
+
+export interface ApplicationProjectBranch {
   branch: string;
   enabled?: boolean;
   isMain: boolean;

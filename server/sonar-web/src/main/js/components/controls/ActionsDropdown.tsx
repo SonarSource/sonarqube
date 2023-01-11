@@ -64,6 +64,7 @@ interface ItemProps {
   className?: string;
   children: React.ReactNode;
   destructive?: boolean;
+  label?: string;
   tooltipOverlay?: React.ReactNode;
   tooltipPlacement?: Placement;
   /** used to pass a name of downloaded file */
@@ -87,12 +88,13 @@ export class ActionsDropdownItem extends React.PureComponent<ItemProps> {
   render() {
     const className = classNames(this.props.className, { 'text-danger': this.props.destructive });
     let { children } = this.props;
-    const { tooltipOverlay, tooltipPlacement } = this.props;
+    const { tooltipOverlay, tooltipPlacement, label } = this.props;
 
     if (this.props.download && typeof this.props.to === 'string') {
       children = (
         <a
           className={className}
+          aria-label={label}
           download={this.props.download}
           href={this.props.to}
           id={this.props.id}
@@ -102,7 +104,7 @@ export class ActionsDropdownItem extends React.PureComponent<ItemProps> {
       );
     } else if (this.props.to) {
       children = (
-        <Link className={className} id={this.props.id} to={this.props.to}>
+        <Link className={className} id={this.props.id} to={this.props.to} aria-label={label}>
           {children}
         </Link>
       );
@@ -113,6 +115,7 @@ export class ActionsDropdownItem extends React.PureComponent<ItemProps> {
           preventDefault={true}
           id={this.props.id}
           onClick={this.handleClick}
+          aria-label={label}
         >
           {children}
         </ButtonPlain>
