@@ -41,7 +41,6 @@ import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.server.projectanalysis.ws.EventCategory.fromLabel;

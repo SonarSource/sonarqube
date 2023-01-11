@@ -38,7 +38,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskDtoLight;
 import org.sonar.db.ce.PrOrBranchTask;
 
-import static java.util.stream.Collectors.toList;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 

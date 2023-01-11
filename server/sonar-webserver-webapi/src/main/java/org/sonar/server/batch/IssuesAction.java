@@ -45,7 +45,6 @@ import org.sonarqube.ws.MediaTypes;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;

@@ -20,7 +20,6 @@
 package org.sonar.server.user.ws;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.ws.Change;

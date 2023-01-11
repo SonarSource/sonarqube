@@ -20,7 +20,6 @@
 package org.sonar.server.user.ws;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkState;

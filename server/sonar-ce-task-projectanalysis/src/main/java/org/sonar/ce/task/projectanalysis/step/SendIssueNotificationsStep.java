@@ -55,7 +55,6 @@ import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
 
 import static java.util.Collections.singleton;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.StreamSupport.stream;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;

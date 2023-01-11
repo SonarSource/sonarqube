@@ -45,7 +45,6 @@ import org.sonarqube.ws.Common.Paging;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;

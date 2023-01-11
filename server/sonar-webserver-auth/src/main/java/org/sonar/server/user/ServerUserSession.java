@@ -48,7 +48,6 @@ import org.sonar.db.user.UserDto;
 import static java.util.Collections.singleton;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;

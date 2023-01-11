@@ -35,6 +35,11 @@ import static org.sonar.api.utils.DateUtils.DATETIME_FORMAT;
 
 public class TelemetryDataJsonWriter {
 
+  @VisibleForTesting
+  static final String SCIM_PROPERTY = "scim";
+
+  private static final String LANGUAGE_PROPERTY = "language";
+
   private final List<TelemetryExtension> extensions;
 
   private final System2 system2;
@@ -43,10 +48,6 @@ public class TelemetryDataJsonWriter {
     this.extensions = extensions;
     this.system2 = system2;
   }
-
-  @VisibleForTesting
-  static final String SCIM_PROPERTY = "scim";
-  private static final String LANGUAGE_PROPERTY = "language";
 
   public void writeTelemetryData(JsonWriter json, TelemetryData statistics) {
     json.beginObject();

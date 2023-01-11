@@ -51,7 +51,6 @@ import org.sonarqube.ws.AlmIntegrations.SearchAzureReposWsResponse;
 
 import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
