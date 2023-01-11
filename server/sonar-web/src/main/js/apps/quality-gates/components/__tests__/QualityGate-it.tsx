@@ -177,6 +177,8 @@ it('should be able to add a condition', async () => {
   handler.setIsAdmin(true);
   renderQualityGateApp();
 
+  await user.click(await screen.findByText('SonarSource way - CFamily'));
+
   // On new code
   await user.click(await screen.findByText('quality_gates.add_condition'));
 
@@ -246,6 +248,7 @@ it('should be able to handle duplicate or deprecated condition', async () => {
   const user = userEvent.setup();
   handler.setIsAdmin(true);
   renderQualityGateApp();
+
   await user.click(
     // make it a regexp to ignore badges:
     await screen.findByRole('menuitem', { name: new RegExp(handler.getCorruptedQualityGateName()) })
@@ -262,6 +265,7 @@ it('should be able to handle delete condition', async () => {
   handler.setIsAdmin(true);
   renderQualityGateApp();
 
+  await user.click(await screen.findByText('Non Cayc QG'));
   const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
 
   await user.click(
@@ -287,7 +291,7 @@ it('should explain condition on branch', async () => {
   ).toBeInTheDocument();
 });
 
-it('should be able to see warning when CAYC condition is not properly set and update them', async () => {
+it('should show warning banner when CAYC condition is not properly set and should be able to update them', async () => {
   const user = userEvent.setup();
   handler.setIsAdmin(true);
   renderQualityGateApp();
@@ -296,14 +300,11 @@ it('should be able to see warning when CAYC condition is not properly set and up
 
   await user.click(qualityGate);
 
-  expect(
-    screen.getByText('quality_gates.cayc_condition.missing_warning.title')
-  ).toBeInTheDocument();
-  expect(screen.getByText('quality_gates.other_conditions')).toBeInTheDocument();
+  expect(screen.getByText('quality_gates.cayc_missing.banner.title')).toBeInTheDocument();
+  expect(screen.getByText('quality_gates.cayc_missing.banner.description')).toBeInTheDocument();
   expect(
     screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
   ).toBeInTheDocument();
-  expect(await screen.findAllByText('quality_gates.cayc_condition.missing')).toHaveLength(4);
 
   await user.click(
     screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
@@ -317,10 +318,6 @@ it('should be able to see warning when CAYC condition is not properly set and up
     screen.getByText('quality_gates.cayc.review_update_modal.description')
   ).toBeInTheDocument();
   expect(
-    screen.getByText('quality_gates.cayc.review_update_modal.add_condition.header.4')
-  ).toBeInTheDocument();
-  expect(await screen.findAllByText('quality_gates.cayc_condition.ok')).toHaveLength(4);
-  expect(
     screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' })
   ).toBeInTheDocument();
 
@@ -328,11 +325,18 @@ it('should be able to see warning when CAYC condition is not properly set and up
     screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' })
   );
 
-  const newCaycConditions = within(await screen.findByTestId('quality-gates__conditions-new-cayc'));
-  expect(await newCaycConditions.findAllByText('quality_gates.cayc_condition.ok')).toHaveLength(4);
+  const conditionsWrapper = within(await screen.findByTestId('quality-gates__conditions-new'));
+  expect(conditionsWrapper.getByText('Maintainability Rating')).toBeInTheDocument();
+  expect(conditionsWrapper.getByText('Reliability Rating')).toBeInTheDocument();
+  expect(conditionsWrapper.getByText('Security Hotspots Reviewed')).toBeInTheDocument();
+  expect(conditionsWrapper.getByText('Security Rating')).toBeInTheDocument();
+  expect(conditionsWrapper.getAllByText('Coverage')).toHaveLength(2); // This quality gate has duplicate condition
+  expect(conditionsWrapper.getByText('Duplicated Lines (%)')).toBeInTheDocument();
+
+  expect(screen.queryByTestId('quality-gates__conditions-overall')).not.toBeInTheDocument();
 });
 
-it('should not show any warning when CAYC condition are properly set', async () => {
+it('should show success banner when quality gate is CAYC compliant', async () => {
   const user = userEvent.setup();
   handler.setIsAdmin(true);
   renderQualityGateApp();
@@ -341,28 +345,23 @@ it('should not show any warning when CAYC condition are properly set', async () 
 
   await user.click(qualityGate);
 
+  expect(screen.getByText('quality_gates.cayc.banner.title')).toBeInTheDocument();
+  expect(screen.getByText('quality_gates.cayc.banner.description')).toBeInTheDocument();
   expect(
     screen.queryByText('quality_gates.cayc_condition.missing_warning.title')
   ).not.toBeInTheDocument();
-  expect(screen.getByText('quality_gates.other_conditions')).toBeInTheDocument();
   expect(
     screen.queryByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
   ).not.toBeInTheDocument();
 
-  const newCaycConditions = within(await screen.findByTestId('quality-gates__conditions-new-cayc'));
+  const conditionsWrapper = within(await screen.findByTestId('quality-gates__conditions-new'));
 
-  expect(await newCaycConditions.findByText('Maintainability Rating')).toBeInTheDocument();
-  expect(await newCaycConditions.findByText('Reliability Rating')).toBeInTheDocument();
-  expect(await newCaycConditions.findByText('Security Hotspots Reviewed')).toBeInTheDocument();
-  expect(await newCaycConditions.findByText('Security Rating')).toBeInTheDocument();
-  expect(await newCaycConditions.findAllByText('quality_gates.cayc_condition.ok')).toHaveLength(4);
-
-  const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
-
-  expect(await newConditions.findByText('Coverage')).toBeInTheDocument();
-  expect(
-    newConditions.queryByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
-  ).not.toBeInTheDocument();
+  expect(await conditionsWrapper.findByText('Maintainability Rating')).toBeInTheDocument();
+  expect(await conditionsWrapper.findByText('Reliability Rating')).toBeInTheDocument();
+  expect(await conditionsWrapper.findByText('Security Hotspots Reviewed')).toBeInTheDocument();
+  expect(await conditionsWrapper.findByText('Security Rating')).toBeInTheDocument();
+  expect(await conditionsWrapper.findByText('Coverage')).toBeInTheDocument();
+  expect(await conditionsWrapper.findByText('Duplicated Lines (%)')).toBeInTheDocument();
 });
 
 it('should unlock editing option for CAYC conditions', async () => {
@@ -544,9 +543,8 @@ describe('The Permissions section', () => {
     });
     await user.click(cancelButton);
 
-    // FP
-    // eslint-disable-next-line jest-dom/prefer-in-document
-    expect(screen.getAllByRole('listitem')).toHaveLength(1);
+    const permissionList = within(await screen.findByTestId('quality-gate-permissions'));
+    expect(permissionList.getByRole('listitem')).toBeInTheDocument();
 
     // Delete the user permission
     const deleteButton = screen.getByTestId('permission-delete-button');
@@ -554,7 +552,7 @@ describe('The Permissions section', () => {
     const deletePopup = screen.getByRole('dialog');
     const dialogDeleteButton = within(deletePopup).getByRole('button', { name: 'remove' });
     await user.click(dialogDeleteButton);
-    expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
+    expect(permissionList.queryByRole('listitem')).not.toBeInTheDocument();
   });
 
   it('should assign permission to a group and delete it later', async () => {
@@ -586,7 +584,8 @@ describe('The Permissions section', () => {
     const deletePopup = screen.getByRole('dialog');
     const dialogDeleteButton = within(deletePopup).getByRole('button', { name: 'remove' });
     await user.click(dialogDeleteButton);
-    expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
+    const permissionList = within(await screen.findByTestId('quality-gate-permissions'));
+    expect(permissionList.queryByRole('listitem')).not.toBeInTheDocument();
   });
 
   it('should handle searchUser service failure', async () => {

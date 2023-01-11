@@ -30,10 +30,6 @@
   background-color: var(--rowHoverHighlight);
 }
 
-.cayc-conditions-wrapper {
-  background-color: var(--barBackgroundColor);
-}
-
 .quality-gate-section tbody {
   border: 1px solid var(--disableGrayBorder);
 }
@@ -41,6 +37,10 @@
 .quality-gate-section tr {
   background-color: white !important;
   border-bottom: 1px solid var(--disableGrayBorder);
+}
+
+.quality-gate-section td {
+  height: 24px;
 }
 
 .quality-gate-section tr th {
@@ -57,24 +57,8 @@
   display: none !important;
 }
 
-.qg-cayc-ok-badge {
-  color: var(--success500);
-  background-color: var(--badgeGreenBackground);
-}
-
-.qg-cayc-weak-badge {
-  color: var(--alertIconWarning);
-  background-color: var(--alertBackgroundWarning);
-}
-
-.qg-cayc-missing-badge {
-  color: var(--red);
-  background-color: var(--badgeRedBackground);
-}
-
-.text-through {
-  text-decoration: line-through;
-  color: var(--blacka60);
+.cayc-success-banner ul {
+  list-style: disc;
 }
 
 .bordered-bottom-cayc {
@@ -85,14 +69,15 @@
   color: var(--alertTextWarning);
 }
 
+.cayc-success-header {
+  color: var(--alertTextSuccess);
+}
+
 .cayc-warning-description {
   line-height: 18px;
 }
 
-.green-text {
-  color: var(--success500);
-}
-
-.red-text {
-  color: var(--red);
+.qg-unfollow-cayc {
+  border: 1px solid var(--neutral200);
+  background-color: var(--neutral50);
 }

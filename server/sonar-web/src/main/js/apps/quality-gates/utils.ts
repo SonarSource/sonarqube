@@ -21,7 +21,7 @@ import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { Condition, Dict, Metric, QualityGate } from '../../types/types';
 
-const CAYC_CONDITIONS_WITH_EXPECTED_VALUE: { [key: string]: Condition } = {
+const CAYC_CONDITIONS: { [key: string]: Condition } = {
   new_reliability_rating: {
     error: '1',
     id: 'new_reliability_rating',
@@ -46,48 +46,71 @@ const CAYC_CONDITIONS_WITH_EXPECTED_VALUE: { [key: string]: Condition } = {
     metric: 'new_security_hotspots_reviewed',
     op: 'LT',
   },
+  new_coverage: {
+    id: 'AXJMbIUHPAOIsUIE3eOF',
+    metric: 'new_coverage',
+    op: 'LT',
+    error: '80',
+  },
+  new_duplicated_lines_density: {
+    id: 'AXJMbIUHPAOIsUIE3eOG',
+    metric: 'new_duplicated_lines_density',
+    op: 'GT',
+    error: '3',
+  },
 };
 
-export function getCaycConditions(conditions: Condition[]) {
-  return conditions.filter((condition) => isCaycCondition(condition));
-}
+export const CAYC_CONDITIONS_WITHOUT_FIXED_VALUE = ['new_duplicated_lines_density', 'new_coverage'];
 
 export function isCaycCondition(condition: Condition) {
-  return condition.metric in CAYC_CONDITIONS_WITH_EXPECTED_VALUE;
+  return condition.metric in CAYC_CONDITIONS;
 }
 
-export function isCaycWeakCondition(condition: Condition) {
-  return (
-    isCaycCondition(condition) &&
-    CAYC_CONDITIONS_WITH_EXPECTED_VALUE[condition.metric].error !== condition.error
-  );
-}
-
-export function getWeakAndMissingConditions(conditions: Condition[]) {
+export function getWeakMissingAndNonCaycConditions(conditions: Condition[]) {
   const result: {
     weakConditions: Condition[];
     missingConditions: Condition[];
+    nonCaycConditions: Condition[];
   } = {
     weakConditions: [],
     missingConditions: [],
+    nonCaycConditions: [],
   };
-  Object.keys(CAYC_CONDITIONS_WITH_EXPECTED_VALUE).forEach((key) => {
+  Object.keys(CAYC_CONDITIONS).forEach((key) => {
     const selectedCondition = conditions.find((condition) => condition.metric === key);
     if (!selectedCondition) {
-      result.missingConditions.push(CAYC_CONDITIONS_WITH_EXPECTED_VALUE[key]);
-    } else if (CAYC_CONDITIONS_WITH_EXPECTED_VALUE[key].error !== selectedCondition.error) {
+      result.missingConditions.push(CAYC_CONDITIONS[key]);
+    } else if (
+      !CAYC_CONDITIONS_WITHOUT_FIXED_VALUE.includes(key) &&
+      CAYC_CONDITIONS[key].error !== selectedCondition.error
+    ) {
       result.weakConditions.push(selectedCondition);
     }
   });
+
+  result.nonCaycConditions = getNonCaycConditions(conditions);
   return result;
 }
 
-export function getOthersConditions(conditions: Condition[]) {
+export function getCaycConditionsWithCorrectValue(conditions: Condition[]) {
+  return Object.keys(CAYC_CONDITIONS).map((key) => {
+    const selectedCondition = conditions.find((condition) => condition.metric === key);
+    if (CAYC_CONDITIONS_WITHOUT_FIXED_VALUE.includes(key) && selectedCondition) {
+      return selectedCondition;
+    }
+    return CAYC_CONDITIONS[key];
+  });
+}
+
+export function getNonCaycConditions(conditions: Condition[]) {
   return conditions.filter((condition) => !isCaycCondition(condition));
 }
 
 export function getCorrectCaycCondition(condition: Condition) {
-  return CAYC_CONDITIONS_WITH_EXPECTED_VALUE[condition.metric];
+  if (CAYC_CONDITIONS_WITHOUT_FIXED_VALUE.includes(condition.metric)) {
+    return condition;
+  }
+  return CAYC_CONDITIONS[condition.metric];
 }
 
 export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): boolean {
@@ -98,12 +121,18 @@ export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): b
 export function addCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
   const oldConditions = qualityGate.conditions || [];
   const conditions = [...oldConditions, condition];
+  if (conditions) {
+    qualityGate.isCaycCompliant = updateCaycComplaintStatus(conditions);
+  }
   return { ...qualityGate, conditions };
 }
 
 export function deleteCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
   const conditions =
     qualityGate.conditions && qualityGate.conditions.filter((candidate) => candidate !== condition);
+  if (conditions) {
+    qualityGate.isCaycCompliant = updateCaycComplaintStatus(conditions);
+  }
   return { ...qualityGate, conditions };
 }
 
@@ -117,7 +146,34 @@ export function replaceCondition(
     qualityGate.conditions.map((candidate) => {
       return candidate === oldCondition ? newCondition : candidate;
     });
+  if (conditions) {
+    qualityGate.isCaycCompliant = updateCaycComplaintStatus(conditions);
+  }
+
   return { ...qualityGate, conditions };
+}
+
+export function updateCaycComplaintStatus(conditions: Condition[]) {
+  if (conditions.length !== Object.keys(CAYC_CONDITIONS).length) {
+    return false;
+  }
+
+  for (const key of Object.keys(CAYC_CONDITIONS)) {
+    const selectedCondition = conditions.find((condition) => condition.metric === key);
+    if (!selectedCondition) {
+      return false;
+    }
+
+    if (
+      !CAYC_CONDITIONS_WITHOUT_FIXED_VALUE.includes(key) &&
+      selectedCondition &&
+      selectedCondition.error !== CAYC_CONDITIONS[key].error
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 export function getPossibleOperators(metric: Metric) {

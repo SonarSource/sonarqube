@@ -22,11 +22,11 @@ import { setQualityGateAsDefault } from '../../../api/quality-gates';
 import { Button } from '../../../components/controls/buttons';
 import ModalButton from '../../../components/controls/ModalButton';
 import Tooltip from '../../../components/controls/Tooltip';
+import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
 import { translate } from '../../../helpers/l10n';
-import { BadgeTarget, QGBadgeType } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
-import CaycStatusBadge from './CaycStatusBadge';
+import CaycBadgeTooltip from './CaycBadgeTooltip';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
 import RenameQualityGateForm from './RenameQualityGateForm';
@@ -72,11 +72,9 @@ export default class DetailsHeader extends React.PureComponent<Props> {
               <h2>{qualityGate.name}</h2>
               {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="spacer-left" />}
               {!qualityGate.isCaycCompliant && (
-                <CaycStatusBadge
-                  className="spacer-left"
-                  target={BadgeTarget.QualityGate}
-                  type={QGBadgeType.Weak}
-                />
+                <Tooltip overlay={<CaycBadgeTooltip />}>
+                  <AlertWarnIcon className="spacer-left" />
+                </Tooltip>
               )}
             </div>
 

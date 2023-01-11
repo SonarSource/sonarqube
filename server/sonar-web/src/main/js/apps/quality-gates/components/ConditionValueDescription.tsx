@@ -31,6 +31,12 @@ import { GlobalSettingKeys } from '../../../types/settings';
 import { Condition, Metric } from '../../../types/types';
 import { isCaycCondition } from '../utils';
 
+const NO_DESCRIPTION_CONDITION = [
+  'new_security_hotspots_reviewed',
+  'new_coverage',
+  'new_duplicated_lines_density',
+];
+
 interface Props {
   appState: AppState;
   condition: Condition;
@@ -72,7 +78,7 @@ function ConditionValueDescription({
 
   return (
     <span className={className}>
-      {isCaycCondition(condition) && condition.metric !== 'new_security_hotspots_reviewed' && (
+      {isCaycCondition(condition) && !NO_DESCRIPTION_CONDITION.includes(condition.metric) && (
         <>
           (
           {translate(

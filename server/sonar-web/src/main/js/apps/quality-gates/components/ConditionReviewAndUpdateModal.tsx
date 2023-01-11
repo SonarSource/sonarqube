@@ -17,12 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sortBy } from 'lodash';
 import * as React from 'react';
-import { createCondition, updateCondition } from '../../../api/quality-gates';
+import { createCondition, deleteCondition, updateCondition } from '../../../api/quality-gates';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Condition, Dict, Metric, QualityGate } from '../../../types/types';
-import { getCorrectCaycCondition, getWeakAndMissingConditions } from '../utils';
+import {
+  getCaycConditionsWithCorrectValue,
+  getCorrectCaycCondition,
+  getWeakMissingAndNonCaycConditions,
+} from '../utils';
 import ConditionsTable from './ConditionsTable';
 
 interface Props {
@@ -33,23 +38,32 @@ interface Props {
   scope: 'new' | 'overall' | 'new-cayc';
   onClose: () => void;
   onAddCondition: (condition: Condition) => void;
-  onRemoveCondition: (Condition: Condition) => void;
+  onRemoveCondition: (condition: Condition) => void;
   onSaveCondition: (newCondition: Condition, oldCondition: Condition) => void;
+  lockEditing: () => void;
   qualityGate: QualityGate;
 }
 
 export default class CaycReviewUpdateConditionsModal extends React.PureComponent<Props> {
   updateCaycQualityGate = () => {
     const { conditions, qualityGate } = this.props;
-    const promiseArr: Promise<Condition | undefined>[] = [];
-    const { weakConditions, missingConditions } = getWeakAndMissingConditions(conditions);
+    const promiseArr: Promise<Condition | undefined | void>[] = [];
+    const { weakConditions, missingConditions, nonCaycConditions } =
+      getWeakMissingAndNonCaycConditions(conditions);
 
     weakConditions.forEach((condition) => {
       promiseArr.push(
         updateCondition({
           ...getCorrectCaycCondition(condition),
           id: condition.id,
-        }).catch(() => undefined)
+        })
+          .then((resultCondition) => {
+            const currentCondition = conditions.find((con) => con.metric === condition.metric);
+            if (currentCondition) {
+              this.props.onSaveCondition(resultCondition, currentCondition);
+            }
+          })
+          .catch(() => undefined)
       );
     });
 
@@ -58,29 +72,32 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
         createCondition({
           ...getCorrectCaycCondition(condition),
           gateId: qualityGate.id,
-        }).catch(() => undefined)
+        })
+          .then((resultCondition) => this.props.onAddCondition(resultCondition))
+          .catch(() => undefined)
       );
     });
 
-    return Promise.all(promiseArr).then((data) => {
-      data.forEach((condition) => {
-        if (condition === undefined) {
-          return;
-        }
-        const currentCondition = conditions.find((con) => con.metric === condition.metric);
-        if (currentCondition) {
-          this.props.onSaveCondition(condition, currentCondition);
-        } else {
-          this.props.onAddCondition(condition);
-        }
-      });
+    nonCaycConditions.forEach((condition) => {
+      promiseArr.push(
+        deleteCondition({ id: condition.id })
+          .then(() => this.props.onRemoveCondition(condition))
+          .catch(() => undefined)
+      );
+    });
+
+    return Promise.all(promiseArr).then(() => {
+      this.props.lockEditing();
     });
   };
 
   render() {
-    const { conditions, qualityGate } = this.props;
-    const { weakConditions, missingConditions } = getWeakAndMissingConditions(conditions);
-
+    const { conditions, qualityGate, metrics } = this.props;
+    const caycConditionsWithCorrectValue = getCaycConditionsWithCorrectValue(conditions);
+    const sortedConditions = sortBy(
+      caycConditionsWithCorrectValue,
+      (condition) => metrics[condition.metric] && metrics[condition.metric].name
+    );
     return (
       <ConfirmModal
         header={translateWithParameters(
@@ -92,45 +109,19 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
         onConfirm={this.updateCaycQualityGate}
         size="medium"
       >
-        <div className="quality-gate-section">
+        <div className="quality-gate-section huge-spacer-bottom">
           <p className="big-spacer-bottom">
             {translate('quality_gates.cayc.review_update_modal.description')}
           </p>
-
-          {weakConditions.length > 0 && (
-            <>
-              <h4 className="spacer-top spacer-bottom">
-                {translateWithParameters(
-                  'quality_gates.cayc.review_update_modal.modify_condition.header',
-                  weakConditions.length
-                )}
-              </h4>
-              <ConditionsTable
-                {...this.props}
-                conditions={weakConditions}
-                showEdit={false}
-                isCaycModal={true}
-              />
-            </>
-          )}
-
-          {missingConditions.length > 0 && (
-            <>
-              <h4 className="spacer-top spacer-bottom">
-                {translateWithParameters(
-                  'quality_gates.cayc.review_update_modal.add_condition.header',
-                  missingConditions.length
-                )}
-              </h4>
-              <ConditionsTable
-                {...this.props}
-                conditions={[]}
-                showEdit={false}
-                missingConditions={missingConditions}
-                isCaycModal={true}
-              />
-            </>
-          )}
+          <h3 className="medium text-normal spacer-top spacer-bottom">
+            {translate('quality_gates.conditions.new_code', 'long')}
+          </h3>
+          <ConditionsTable
+            {...this.props}
+            conditions={sortedConditions}
+            showEdit={false}
+            isCaycModal={true}
+          />
         </div>
       </ConfirmModal>
     );

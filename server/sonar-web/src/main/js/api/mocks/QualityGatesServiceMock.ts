@@ -125,6 +125,18 @@ export class QualityGatesServiceMock {
         isBuiltIn: true,
         isCaycCompliant: true,
       }),
+      mockQualityGate({
+        id: 'AWBWEMe4qGAMGEYPjJlruit',
+        name: 'Non Cayc QG',
+        conditions: [
+          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eOD', metric: 'new_reliability_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eOF', metric: 'new_coverage', op: 'LT', error: '80' },
+        ],
+        isDefault: false,
+        isBuiltIn: false,
+        isCaycCompliant: false,
+      }),
     ];
 
     this.list = cloneDeep(this.readOnlyList);

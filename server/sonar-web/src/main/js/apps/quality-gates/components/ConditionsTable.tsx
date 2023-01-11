@@ -30,10 +30,9 @@ interface Props {
   qualityGate: QualityGate;
   updatedConditionId?: string;
   conditions: ConditionType[];
-  missingConditions?: ConditionType[];
   scope: 'new' | 'overall' | 'new-cayc';
-  showEdit?: boolean;
   isCaycModal?: boolean;
+  showEdit?: boolean;
 }
 
 export default class ConditionsTable extends React.PureComponent<Props> {
@@ -47,9 +46,8 @@ export default class ConditionsTable extends React.PureComponent<Props> {
       updatedConditionId,
       scope,
       conditions,
-      missingConditions,
-      showEdit,
       isCaycModal,
+      showEdit,
     } = this.props;
 
     return (
@@ -77,27 +75,10 @@ export default class ConditionsTable extends React.PureComponent<Props> {
               onSaveCondition={onSaveCondition}
               qualityGate={qualityGate}
               updated={condition.id === updatedConditionId}
-              showEdit={showEdit}
               isCaycModal={isCaycModal}
+              showEdit={showEdit}
             />
           ))}
-
-          {missingConditions &&
-            missingConditions.map((condition) => (
-              <Condition
-                canEdit={canEdit}
-                condition={condition}
-                key={condition.id}
-                metric={metrics[condition.metric]}
-                onRemoveCondition={onRemoveCondition}
-                onSaveCondition={onSaveCondition}
-                qualityGate={qualityGate}
-                updated={condition.id === updatedConditionId}
-                showEdit={showEdit}
-                isMissingCondition={true}
-                isCaycModal={isCaycModal}
-              />
-            ))}
         </tbody>
       </table>
     );

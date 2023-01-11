@@ -37,7 +37,6 @@ export interface DetailsContentProps {
 
 export function DetailsContent(props: DetailsContentProps) {
   const { isDefault, qualityGate, updatedConditionId } = props;
-  const conditions = qualityGate.conditions || [];
   const actions = qualityGate.actions || {};
 
   return (
@@ -50,8 +49,6 @@ export function DetailsContent(props: DetailsContentProps) {
         )}
 
       <Conditions
-        canEdit={Boolean(actions.manageConditions)}
-        conditions={conditions}
         onAddCondition={props.onAddCondition}
         onRemoveCondition={props.onRemoveCondition}
         onSaveCondition={props.onSaveCondition}

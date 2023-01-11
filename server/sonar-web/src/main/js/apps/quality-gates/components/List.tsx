@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
+import Tooltip from '../../../components/controls/Tooltip';
+import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import { BadgeTarget, QGBadgeType } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
-import CaycStatusBadge from './CaycStatusBadge';
 
 interface Props {
   qualityGates: QualityGate[];
@@ -49,11 +49,9 @@ export default function List({ qualityGates }: Props) {
           )}
           {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="little-spacer-left" />}
           {!qualityGate.isCaycCompliant && (
-            <CaycStatusBadge
-              className="little-spacer-left"
-              target={BadgeTarget.QualityGate}
-              type={QGBadgeType.Weak}
-            />
+            <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')}>
+              <AlertWarnIcon className="spacer-left" />
+            </Tooltip>
           )}
         </NavLink>
       ))}

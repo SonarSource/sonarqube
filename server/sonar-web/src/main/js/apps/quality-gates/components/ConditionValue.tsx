@@ -20,42 +20,24 @@
 import * as React from 'react';
 import { formatMeasure } from '../../../helpers/measures';
 import { Condition, Metric } from '../../../types/types';
-import { getCorrectCaycCondition, isCaycCondition, isCaycWeakCondition } from '../utils';
+import { getCorrectCaycCondition, isCaycCondition } from '../utils';
 import ConditionValueDescription from './ConditionValueDescription';
 
 interface Props {
   condition: Condition;
   isCaycModal?: boolean;
   metric: Metric;
+  isCaycCompliant?: boolean;
 }
 
-function ConditionValue({ condition, isCaycModal, metric }: Props) {
+function ConditionValue({ condition, isCaycModal, metric, isCaycCompliant }: Props) {
   if (isCaycModal) {
     return (
       <>
-        {isCaycWeakCondition(condition) && (
-          <span className="spacer-right text-through red-text">
-            {formatMeasure(condition.error, metric.type)}
-          </span>
-        )}
-        <span className="green-text spacer-right">
+        <span className="spacer-right">
           {formatMeasure(getCorrectCaycCondition(condition).error, metric.type)}
         </span>
-
-        <ConditionValueDescription
-          condition={getCorrectCaycCondition(condition)}
-          metric={metric}
-          className="green-text"
-        />
-      </>
-    );
-  }
-
-  if (isCaycWeakCondition(condition)) {
-    return (
-      <>
-        <span className="spacer-right red-text">{formatMeasure(condition.error, metric.type)}</span>
-        <ConditionValueDescription condition={condition} metric={metric} />
+        <ConditionValueDescription condition={getCorrectCaycCondition(condition)} metric={metric} />
       </>
     );
   }
@@ -63,7 +45,7 @@ function ConditionValue({ condition, isCaycModal, metric }: Props) {
   return (
     <>
       <span className="spacer-right">{formatMeasure(condition.error, metric.type)}</span>
-      {isCaycCondition(condition) && (
+      {isCaycCompliant && isCaycCondition(condition) && (
         <ConditionValueDescription condition={condition} metric={metric} />
       )}
     </>
