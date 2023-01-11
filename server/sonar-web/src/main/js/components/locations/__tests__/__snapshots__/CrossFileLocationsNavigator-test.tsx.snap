@@ -42,7 +42,7 @@ exports[`should render 1`] = `
         href="#"
         onClick={[Function]}
       >
-        issues.x_more_locations.1
+        issues.x_more_locations.2
       </a>
     </div>
   </div>
@@ -62,8 +62,8 @@ exports[`should render 1`] = `
       className="location-file-locations"
     >
       <SingleFileLocationNavigator
-        index={2}
-        key="2"
+        index={3}
+        key="3"
         message="Do not use bar"
         onClick={[MockFunction]}
         selected={false}

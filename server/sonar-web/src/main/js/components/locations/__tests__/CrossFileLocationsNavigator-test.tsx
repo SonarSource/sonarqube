@@ -45,6 +45,13 @@ const location3: FlowLocation = {
   textRange: { startLine: 15, endLine: 16, startOffset: 4, endOffset: 6 },
 };
 
+const location4: FlowLocation = {
+  component: 'bar',
+  componentName: 'src/bar.js',
+  msg: 'Do not use bar',
+  textRange: { startLine: 17, endLine: 18, startOffset: 7, endOffset: 9 },
+};
+
 it('should render with no locations', () => {
   expect(shallowRender({ locations: [] })).toMatchSnapshot();
 });
@@ -60,13 +67,13 @@ it('should render', () => {
   expect(wrapper.find('SingleFileLocationNavigator').length).toBe(2);
 
   click(wrapper.find('.location-file-more'));
-  expect(wrapper.find('SingleFileLocationNavigator').length).toBe(3);
+  expect(wrapper.find('SingleFileLocationNavigator').length).toBe(4);
 });
 
 it('should render all locations', () => {
-  const wrapper = shallowRender({ locations: [location1, location2] });
+  const wrapper = shallowRender({ locations: [location1, location2, location3] });
 
-  expect(wrapper.find('SingleFileLocationNavigator').length).toBe(2);
+  expect(wrapper.find('SingleFileLocationNavigator').length).toBe(3);
 });
 
 it('should expand all locations', () => {
@@ -74,13 +81,13 @@ it('should expand all locations', () => {
   expect(wrapper.find('SingleFileLocationNavigator').length).toBe(2);
 
   wrapper.setProps({ selectedLocationIndex: 1 });
-  expect(wrapper.find('SingleFileLocationNavigator').length).toBe(3);
+  expect(wrapper.find('SingleFileLocationNavigator').length).toBe(4);
 });
 
 function shallowRender(props: Partial<CrossFileLocationsNavigator['props']> = {}) {
   return shallow<CrossFileLocationsNavigator>(
     <CrossFileLocationsNavigator
-      locations={[location1, location2, location3]}
+      locations={[location1, location2, location3, location4]}
       onLocationSelect={jest.fn()}
       selectedLocationIndex={undefined}
       {...props}

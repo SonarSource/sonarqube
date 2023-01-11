@@ -170,11 +170,16 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
   render() {
     const { locations } = this.props;
     const groups = this.groupByFile(locations);
-    const MIN_LOCATION_LENGTH = 2;
+    // below: fold the location list when there are >3 locations
+    const MIN_LOCATION_LENGTH = 3;
 
     if (locations.length > MIN_LOCATION_LENGTH && groups.length > 1 && this.state.collapsed) {
+      // the top and bottom locations are always displayed
+      const nbLocationsAlwaysDisplayed = 2;
+
       const firstGroup = groups[0];
       const lastGroup = groups[groups.length - 1];
+
       return (
         <div className="spacer-top">
           {this.renderGroup(firstGroup, 0, { onlyFirst: true })}
@@ -184,7 +189,7 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
               <a className="location-file-more" href="#" onClick={this.handleMoreLocationsClick}>
                 {translateWithParameters(
                   'issues.x_more_locations',
-                  locations.length - MIN_LOCATION_LENGTH
+                  locations.length - nbLocationsAlwaysDisplayed
                 )}
               </a>
             </div>
