@@ -81,6 +81,7 @@ public final class SqTables {
     "project_mappings",
     "project_measures",
     "project_qprofiles",
+    "project_qgates",
     "properties",
     "push_events",
     "qprofile_changes",

@@ -30,6 +30,10 @@ public class ProjectQgateAssociationDao implements Dao {
     return mapper(dbSession).selectProjects(query);
   }
 
+  public List<ProjectQgateAssociationDto> selectAll(DbSession dbSession) {
+    return mapper(dbSession).selectAll();
+  }
+
   /**
    * @return quality gate uuid if a specific Quality Gate has been defined for the given project uuid. <br>
    * Returns <code>{@link Optional#empty()}</code> otherwise (ex: default quality gate applies)

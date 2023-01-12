@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,8 +45,12 @@ import org.sonar.db.alm.setting.ProjectAlmKeyAndProject;
 import org.sonar.db.component.AnalysisPropertyValuePerProject;
 import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
 import org.sonar.db.measure.ProjectMeasureDto;
+import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
+import org.sonar.server.qualitygate.QualityGateCaycChecker;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.telemetry.TelemetryData.Database;
 
 import static java.util.Arrays.asList;
@@ -80,11 +85,13 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final Configuration configuration;
   private final InternalProperties internalProperties;
   private final DockerSupport dockerSupport;
+  private final QualityGateCaycChecker qualityGateCaycChecker;
+  private final QualityGateFinder qualityGateFinder;
 
   @Inject
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository,
     PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
-    DockerSupport dockerSupport) {
+    DockerSupport dockerSupport, QualityGateCaycChecker qualityGateCaycChecker, QualityGateFinder qualityGateFinder) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -92,6 +99,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.internalProperties = internalProperties;
     this.configuration = configuration;
     this.dockerSupport = dockerSupport;
+    this.qualityGateCaycChecker = qualityGateCaycChecker;
+    this.qualityGateFinder = qualityGateFinder;
   }
 
   private static Database loadDatabaseMetadata(DbSession dbSession) {
@@ -117,9 +126,13 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       data.setDatabase(loadDatabaseMetadata(dbSession));
 
+      String defaultQualityGateUuid = qualityGateFinder.getDefault(dbSession).getUuid();
+
+      data.setDefaultQualityGate(defaultQualityGateUuid);
       resolveUnanalyzedLanguageCode(data, dbSession);
-      resolveProjectStatistics(data, dbSession);
+      resolveProjectStatistics(data, dbSession, defaultQualityGateUuid);
       resolveProjects(data, dbSession);
+      resolveQualityGates(data, dbSession);
       resolveUsers(data, dbSession);
     }
 
@@ -151,7 +164,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     return internalProperties.read(I_PROP_MESSAGE_SEQUENCE).map(Long::parseLong).orElse(0L);
   }
 
-  private void resolveProjectStatistics(TelemetryData.Builder data, DbSession dbSession) {
+  private void resolveProjectStatistics(TelemetryData.Builder data, DbSession dbSession, String defaultQualityGateUuid) {
     List<String> projectUuids = dbClient.projectDao().selectAllProjectUuids(dbSession);
     Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
     Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);
@@ -159,12 +172,16 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Map<String, PrBranchAnalyzedLanguageCountByProjectDto> prAndBranchCountByProjects = dbClient.branchDao().countPrBranchAnalyzedLanguageByProjectUuid(dbSession)
       .stream().collect(Collectors.toMap(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, Function.identity()));
 
+
+    Map<String, String> projectQgatesMap = getProjectQgatesMap(dbSession);
+
     List<TelemetryData.ProjectStatistics> projectStatistics = new ArrayList<>();
     for (String projectUuid : projectUuids) {
       Optional<PrBranchAnalyzedLanguageCountByProjectDto> counts = ofNullable(prAndBranchCountByProjects.get(projectUuid));
 
       Long branchCount = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getBranch).orElse(0L);
       Long pullRequestCount = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest).orElse(0L);
+      String qualityGate = projectQgatesMap.getOrDefault(projectUuid, defaultQualityGateUuid);
       String scm = Optional.ofNullable(scmByProject.get(projectUuid)).orElse(UNDETECTED);
       String ci = Optional.ofNullable(ciByProject.get(projectUuid)).orElse(UNDETECTED);
       String devopsPlatform = null;
@@ -175,7 +192,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       devopsPlatform = Optional.ofNullable(devopsPlatform).orElse(UNDETECTED);
 
       projectStatistics.add(
-        new TelemetryData.ProjectStatistics(projectUuid, branchCount, pullRequestCount, scm, ci, devopsPlatform));
+        new TelemetryData.ProjectStatistics(projectUuid, branchCount, pullRequestCount, qualityGate, scm, ci, devopsPlatform));
     }
     data.setProjectStatistics(projectStatistics);
   }
@@ -192,6 +209,18 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       }
     }
     data.setProjects(projects);
+  }
+
+  private void resolveQualityGates(TelemetryData.Builder data, DbSession dbSession) {
+    List<TelemetryData.QualityGate> qualityGates = new ArrayList<>();
+    Collection<QualityGateDto> qualityGateDtos = dbClient.qualityGateDao().selectAll(dbSession);
+    for (QualityGateDto qualityGateDto : qualityGateDtos) {
+      qualityGates.add(
+        new TelemetryData.QualityGate(qualityGateDto.getUuid(), qualityGateCaycChecker.checkCaycCompliant(dbSession, qualityGateDto.getUuid()))
+      );
+    }
+
+    data.setQualityGates(qualityGates);
   }
 
   private void resolveUsers(TelemetryData.Builder data, DbSession dbSession) {
@@ -234,6 +263,12 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     }
 
     return alm + "_server";
+  }
+
+  private Map<String, String> getProjectQgatesMap(DbSession dbSession) {
+    return dbClient.projectQgateAssociationDao().selectAll(dbSession)
+      .stream()
+      .collect(Collectors.toMap(ProjectQgateAssociationDto::getUuid, p -> Optional.ofNullable(p.getGateUuid()).orElse("")));
   }
 
   private static boolean checkIfCloudAlm(String almRaw, String alm, String url, String cloudUrl) {

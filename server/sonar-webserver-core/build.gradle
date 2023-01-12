@@ -50,6 +50,7 @@ dependencies {
   api project(':sonar-markdown')
   api project(':sonar-plugin-api-impl')
   api project(':sonar-ws')
+  implementation project(path: ':server:sonar-webserver-webapi')
 
   compileOnlyApi 'com.google.code.findbugs:jsr305'
   // not a transitive dep. At runtime lib/jdbc/h2 is used

@@ -27,6 +27,11 @@
     order by proj.name, proj.kee
   </select>
 
+  <select id="selectAll" resultType="ProjectQgateAssociation">
+    SELECT project_uuid as uuid, quality_gate_uuid as gateUuid
+    FROM project_qgates
+  </select>
+
   <select id="selectQGateUuidByProjectUuid" parameterType="String" resultType="string">
     SELECT quality_gate_uuid
     FROM project_qgates

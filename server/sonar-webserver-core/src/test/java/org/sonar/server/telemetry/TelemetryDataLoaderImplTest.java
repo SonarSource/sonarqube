@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,12 +47,15 @@ import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTelemetryDto;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
+import org.sonar.server.qualitygate.QualityGateCaycChecker;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
@@ -89,12 +93,23 @@ public class TelemetryDataLoaderImplTest {
   private final Configuration configuration = mock(Configuration.class);
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final DockerSupport dockerSupport = mock(DockerSupport.class);
+  private final QualityGateCaycChecker qualityGateCaycChecker = mock(QualityGateCaycChecker.class);
+  private final QualityGateFinder qualityGateFinder = new QualityGateFinder(db.getDbClient());
   private final InternalProperties internalProperties = spy(new MapInternalProperties());
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-      internalProperties, configuration, dockerSupport);
+      internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-      internalProperties, configuration, dockerSupport);
+      internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder);
+
+  private QualityGateDto builtInDefaultQualityGate;
+
+  @Before
+  public void setUpBuiltInQualityGate() {
+    String builtInQgName = "Sonar Way";
+    builtInDefaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
+    db.qualityGates().setDefaultQualityGate(builtInDefaultQualityGate);
+  }
 
   @Test
   public void send_telemetry_data() {
@@ -151,10 +166,18 @@ public class TelemetryDataLoaderImplTest {
     db.almSettings().insertAzureProjectAlmSetting(almSettingDto, db.components().getProjectDto(project1));
     db.almSettings().insertGitlabProjectAlmSetting(gitHubAlmSetting, db.components().getProjectDto(project2));
 
+    // quality gates
+    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
+    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG2"));
+
+    // link one project to a non-default QG
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
+
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getServerId()).isEqualTo(serverId);
     assertThat(data.getVersion()).isEqualTo(version);
     assertThat(data.getEdition()).contains(DEVELOPER);
+    assertThat(data.getDefaultQualityGate()).isEqualTo(builtInDefaultQualityGate.getUuid());
     assertThat(data.getMessageSequenceNumber()).isOne();
     assertDatabaseMetadata(data.getDatabase());
     assertThat(data.getPlugins()).containsOnly(
@@ -177,11 +200,18 @@ public class TelemetryDataLoaderImplTest {
         tuple(project2.uuid(), "java", 180L, analysisDate),
         tuple(project2.uuid(), "js", 20L, analysisDate));
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::branchCount, TelemetryData.ProjectStatistics::pullRequestCount,
+      .extracting(TelemetryData.ProjectStatistics::branchCount, TelemetryData.ProjectStatistics::pullRequestCount, TelemetryData.ProjectStatistics::qualityGate,
         TelemetryData.ProjectStatistics::scm, TelemetryData.ProjectStatistics::ci, TelemetryData.ProjectStatistics::devopsPlatform)
       .containsExactlyInAnyOrder(
-        tuple(1L, 0L, "scm-1", "ci-1", "azure_devops_cloud"),
-        tuple(1L, 0L, "scm-2", "ci-2", "github_cloud"));
+        tuple(1L, 0L, qualityGate1.getUuid(), "scm-1", "ci-1", "azure_devops_cloud"),
+        tuple(1L, 0L, builtInDefaultQualityGate.getUuid(), "scm-2", "ci-2", "github_cloud"));
+    assertThat(data.getQualityGates())
+      .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::isCaycCompliant)
+      .containsExactlyInAnyOrder(
+        tuple(builtInDefaultQualityGate.getUuid(), false),
+        tuple(qualityGate1.getUuid(), false),
+        tuple(qualityGate2.getUuid(), false)
+      );
   }
 
   private List<UserDto> composeActiveUsers(int count) {
@@ -391,6 +421,17 @@ public class TelemetryDataLoaderImplTest {
     TelemetryData data = communityUnderTest.load();
 
     assertThat(data.isScimEnabled()).isEqualTo(isEnabled);
+  }
+
+  @Test
+  public void default_quality_gate_sent_with_project() {
+    db.components().insertPublicProject();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("anything").setBuiltIn(true));
+    db.qualityGates().setDefaultQualityGate(qualityGate);
+    TelemetryData data = communityUnderTest.load();
+    assertThat(data.getProjectStatistics())
+      .extracting(TelemetryData.ProjectStatistics::qualityGate)
+      .containsOnly(qualityGate.getUuid());
   }
 
   private PluginInfo newPlugin(String key, String version) {

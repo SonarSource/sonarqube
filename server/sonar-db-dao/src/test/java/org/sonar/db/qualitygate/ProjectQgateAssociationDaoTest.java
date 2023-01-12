@@ -146,6 +146,35 @@ public class ProjectQgateAssociationDaoTest {
   }
 
   @Test
+  public void select_all() {
+    List<ProjectQgateAssociationDto> t = underTest.selectAll(dbSession);
+
+    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
+    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project4 = db.components().insertPrivateProject();
+    ComponentDto project5 = db.components().insertPrivateProject();
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate2);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project3), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project4), qualityGate2);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project5), qualityGate1);
+
+    List<ProjectQgateAssociationDto> result = underTest.selectAll(dbSession);
+
+    assertThat(result)
+      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getGateUuid)
+      .containsExactlyInAnyOrder(
+        tuple(project1.uuid(), qualityGate1.getUuid()),
+        tuple(project2.uuid(), qualityGate2.getUuid()),
+        tuple(project3.uuid(), qualityGate1.getUuid()),
+        tuple(project4.uuid(), qualityGate2.getUuid()),
+        tuple(project5.uuid(), qualityGate1.getUuid()));
+  }
+
+  @Test
   public void select_qgate_uuid_is_absent() {
     ComponentDto project = db.components().insertPrivateProject();
 

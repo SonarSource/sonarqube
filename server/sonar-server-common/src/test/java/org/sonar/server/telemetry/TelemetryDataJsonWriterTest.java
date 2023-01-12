@@ -68,12 +68,13 @@ public class TelemetryDataJsonWriterTest {
     TelemetryData data = telemetryBuilder().build();
 
     String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"id\": \"" + data.getServerId() + "\"," +
-      "  \"version\": \"" + data.getVersion() + "\"," +
-      "  \"messageSequenceNumber\": " + data.getMessageSequenceNumber() +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "id": "%s",
+        "version": "%s",
+        "messageSequenceNumber": %s
+      }
+      """.formatted(data.getServerId(), data.getVersion(), data.getMessageSequenceNumber()));
   }
 
   @Test
@@ -93,10 +94,25 @@ public class TelemetryDataJsonWriterTest {
       .build();
 
     String json = writeTelemetryData(data);
+    assertJson(json).isSimilarTo("""
+      {
+        "edition": "%s"
+      }
+      """.formatted(edition.name().toLowerCase(Locale.ENGLISH)));
+  }
 
-    assertJson(json).isSimilarTo("{" +
-      "  \"edition\": \"" + edition.name().toLowerCase(Locale.ENGLISH) + "\"" +
-      "}");
+  @Test
+  public void writes_default_qg() {
+    TelemetryData data = telemetryBuilder()
+      .setDefaultQualityGate("default-qg")
+      .build();
+
+    String json = writeTelemetryData(data);
+    assertJson(json).isSimilarTo("""
+      {
+        "defaultQualityGate": "%s"
+      }
+      """.formatted(data.getDefaultQualityGate()));
   }
 
   @Test
@@ -108,13 +124,14 @@ public class TelemetryDataJsonWriterTest {
       .build();
 
     String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"database\": {" +
-      "    \"name\": \"" + name + "\"," +
-      "    \"version\": \"" + version + "\"" +
-      "  }" +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "database": {
+          "name": "%s",
+          "version": "%s"
+        }
+      }
+      """.formatted(name, version));
   }
 
   @Test
@@ -125,9 +142,11 @@ public class TelemetryDataJsonWriterTest {
 
     String json = writeTelemetryData(data);
 
-    assertJson(json).isSimilarTo("{" +
-      "  \"plugins\": []" +
-      "}");
+    assertJson(json).isSimilarTo("""
+      { 
+        "plugins": []
+      }
+      """);
   }
 
   @Test
@@ -140,13 +159,11 @@ public class TelemetryDataJsonWriterTest {
       .build();
 
     String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"plugins\": " +
-      "[" +
-      plugins.entrySet().stream().map(e -> "{\"name\":\"" + e.getKey() + "\",\"version\":\"" + e.getValue() + "\"}").collect(joining(",")) +
-      "]" +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "plugins": [%s]
+      }
+      """.formatted(plugins.entrySet().stream().map(e -> "{\"name\":\"" + e.getKey() + "\",\"version\":\"" + e.getValue() + "\"}").collect(joining(","))));
   }
 
   @Test
@@ -168,9 +185,11 @@ public class TelemetryDataJsonWriterTest {
 
     String json = writeTelemetryData(data);
 
-    assertJson(json).isSimilarTo("{" +
-      "  \"installationDate\":\"1970-01-01T00:00:01+0000\"," +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "installationDate":"1970-01-01T00:00:01+0000"
+      }
+      """);
   }
 
   @Test
@@ -192,10 +211,11 @@ public class TelemetryDataJsonWriterTest {
       .build();
 
     String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"installationVersion\":\"" + installationVersion + "\"" +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "installationVersion": "%s"
+      }
+      """.formatted(installationVersion));
   }
 
   @Test
@@ -206,10 +226,11 @@ public class TelemetryDataJsonWriterTest {
       .build();
 
     String json = writeTelemetryData(data);
-
-    assertJson(json).isSimilarTo("{" +
-      "  \"docker\":" + isInDocker +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "docker": %s
+      }
+      """.formatted(isInDocker));
   }
 
   @Test
@@ -249,9 +270,11 @@ public class TelemetryDataJsonWriterTest {
 
     String json = writeTelemetryData(data);
 
-    assertJson(json).isSimilarTo("{" +
-      "  \"customSecurityConfig\": [\"php\", \"java\"]" +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "customSecurityConfig": ["php", "java"]
+      }
+      """);
   }
 
   @Test
@@ -261,9 +284,11 @@ public class TelemetryDataJsonWriterTest {
     TelemetryData data = telemetryBuilder().build();
     String json = writeTelemetryData(data);
 
-    assertJson(json).isSimilarTo("{" +
-      "  \"localTimestamp\": \"1970-01-01T00:00:01+0000\"" +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "localTimestamp": "1970-01-01T00:00:01+0000"
+      }
+      """);
   }
 
   @Test
@@ -274,31 +299,34 @@ public class TelemetryDataJsonWriterTest {
 
     String json = writeTelemetryData(data);
 
-    assertJson(json).isSimilarTo("{" +
-      "  \"users\": [" +
-      "    {" +
-      "      \"userUuid\":\"" + DigestUtils.sha3_224Hex("uuid-0") + "\"," +
-      "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
-      "      \"identityProvider\":\"gitlab\"," +
-      "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
-      "      \"status\":\"active\"" +
-      "    }," +
-      "    {" +
-      "      \"userUuid\":\"" + DigestUtils.sha3_224Hex("uuid-1") + "\"," +
-      "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
-      "      \"identityProvider\":\"gitlab\"," +
-      "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
-      "      \"status\":\"inactive\"" +
-      "    }," +
-      "    {" +
-      "      \"userUuid\":\"" + DigestUtils.sha3_224Hex("uuid-2") + "\"," +
-      "      \"lastActivity\":\"1970-01-01T00:00:00+0000\"," +
-      "      \"identityProvider\":\"gitlab\"," +
-      "      \"lastSonarlintActivity\":\"1970-01-01T00:00:00+0000\"," +
-      "      \"status\":\"active\"" +
-      "    }" +
-      "  ]" +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "users": [
+          {
+            "userUuid": "%s",
+            "status": "active",
+            "identityProvider": "gitlab",
+            "lastActivity": "1970-01-01T00:00:00+0000",
+            "lastSonarlintActivity": "1970-01-01T00:00:00+0000"
+          },
+          {
+            "userUuid": "%s",
+            "status": "inactive",
+            "identityProvider": "gitlab",
+            "lastActivity": "1970-01-01T00:00:00+0000",
+            "lastSonarlintActivity": "1970-01-01T00:00:00+0000"
+          },
+          {
+            "userUuid": "%s",
+            "status": "active",
+            "identityProvider": "gitlab",
+            "lastActivity": "1970-01-01T00:00:00+0000",
+            "lastSonarlintActivity": "1970-01-01T00:00:00+0000"
+          }
+        ]
+      }
+      """
+      .formatted(DigestUtils.sha3_224Hex("uuid-0"), DigestUtils.sha3_224Hex("uuid-1"), DigestUtils.sha3_224Hex("uuid-2")));
   }
 
   @Test
@@ -309,28 +337,30 @@ public class TelemetryDataJsonWriterTest {
 
     String json = writeTelemetryData(data);
 
-    assertJson(json).isSimilarTo("{" +
-      "  \"projects\": [" +
-      "    {" +
-      "      \"projectUuid\": \"uuid-0\"," +
-      "      \"lastAnalysis\":\"1970-01-01T00:00:00+0000\"," +
-      "      \"language\": \"lang-0\"," +
-      "      \"loc\": 2" +
-      "    }," +
-      "    {" +
-      "      \"projectUuid\": \"uuid-1\"," +
-      "      \"lastAnalysis\":\"1970-01-01T00:00:00+0000\"," +
-      "      \"language\": \"lang-1\"," +
-      "      \"loc\": 4" +
-      "    }," +
-      "    {" +
-      "      \"projectUuid\": \"uuid-2\"," +
-      "      \"lastAnalysis\":\"1970-01-01T00:00:00+0000\"," +
-      "      \"language\": \"lang-2\"," +
-      "      \"loc\": 6" +
-      "    }" +
-      "  ]" +
-      "}");
+    assertJson(json).isSimilarTo("""
+      {
+        "projects": [
+          {
+            "projectUuid": "uuid-0",
+            "lastAnalysis": "1970-01-01T00:00:00+0000",
+            "language": "lang-0",
+            "loc": 2
+          },
+          {
+            "projectUuid": "uuid-1",
+            "lastAnalysis": "1970-01-01T00:00:00+0000",
+            "language": "lang-1",
+            "loc": 4
+          },
+          {
+            "projectUuid": "uuid-2",
+            "lastAnalysis": "1970-01-01T00:00:00+0000",
+            "language": "lang-2",
+            "loc": 6
+          }
+        ]
+      }
+      """);
   }
 
   @Test
@@ -348,6 +378,7 @@ public class TelemetryDataJsonWriterTest {
             "projectUuid": "uuid-0",
             "branchCount": 2,
             "pullRequestCount": 2,
+            "qualityGate": "qg-0"
             "scm": "scm-0",
             "ci": "ci-0",
             "devopsPlatform": "devops-0"
@@ -356,6 +387,7 @@ public class TelemetryDataJsonWriterTest {
             "projectUuid": "uuid-1",
             "branchCount": 4,
             "pullRequestCount": 4,
+            "qualityGate": "qg-1"
             "scm": "scm-1",
             "ci": "ci-1",
             "devopsPlatform": "devops-1"
@@ -364,6 +396,7 @@ public class TelemetryDataJsonWriterTest {
             "projectUuid": "uuid-2",
             "branchCount": 6,
             "pullRequestCount": 6,
+            "qualityGate": "qg-2"
             "scm": "scm-2",
             "ci": "ci-2",
             "devopsPlatform": "devops-2"
@@ -382,6 +415,34 @@ public class TelemetryDataJsonWriterTest {
 
     String json = writeTelemetryData(data);
     assertThat(json).doesNotContain("hasUnanalyzedC", "hasUnanalyzedCpp");
+  }
+
+  @Test
+  public void writes_all_quality_gates() {
+    TelemetryData data = telemetryBuilder()
+      .setQualityGates(attachQualityGates())
+      .build();
+
+    String json = writeTelemetryData(data);
+    assertJson(json).isSimilarTo("""
+      {
+        "quality-gates": [
+          {
+            "uuid": "uuid-0",
+            "isCaycCompliant": true
+          },
+          {
+            "uuid": "uuid-1",
+            "isCaycCompliant": false
+          },
+          {
+            "uuid": "uuid-2",
+            "isCaycCompliant": true
+          }
+        ]
+      }
+      """
+    );
   }
 
   private static TelemetryData.Builder telemetryBuilder() {
@@ -406,7 +467,12 @@ public class TelemetryDataJsonWriterTest {
   }
 
   private List<TelemetryData.ProjectStatistics> attachProjectStats() {
-    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, "scm-" + i, "ci-" + i, "devops-" + i))
+    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, "qg-" + i, "scm-" + i, "ci-" + i, "devops-" + i))
+      .collect(Collectors.toList());
+  }
+
+  private List<TelemetryData.QualityGate> attachQualityGates() {
+    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.QualityGate("uuid-" + i, i % 2 == 0))
       .collect(Collectors.toList());
   }
 

@@ -39,6 +39,7 @@ public class TelemetryData {
   private final Map<String, String> plugins;
   private final Database database;
   private final EditionProvider.Edition edition;
+  private final String defaultQualityGate;
   private final Long installationDate;
   private final String installationVersion;
   private final boolean inDocker;
@@ -46,6 +47,7 @@ public class TelemetryData {
   private final List<UserTelemetryDto> users;
   private final List<Project> projects;
   private final List<ProjectStatistics> projectStatistics;
+  private final List<QualityGate> qualityGates;
   private final Boolean hasUnanalyzedC;
   private final Boolean hasUnanalyzedCpp;
   private final Set<String> customSecurityConfigs;
@@ -57,6 +59,7 @@ public class TelemetryData {
     plugins = builder.plugins;
     database = builder.database;
     edition = builder.edition;
+    defaultQualityGate = builder.defaultQualityGate;
     installationDate = builder.installationDate;
     installationVersion = builder.installationVersion;
     inDocker = builder.inDocker;
@@ -64,6 +67,7 @@ public class TelemetryData {
     users = builder.users;
     projects = builder.projects;
     projectStatistics = builder.projectStatistics;
+    qualityGates = builder.qualityGates;
     hasUnanalyzedC = builder.hasUnanalyzedC;
     hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = requireNonNullElse(builder.customSecurityConfigs, Set.of());
@@ -91,6 +95,10 @@ public class TelemetryData {
 
   public Optional<EditionProvider.Edition> getEdition() {
     return Optional.ofNullable(edition);
+  }
+
+  public String getDefaultQualityGate() {
+    return defaultQualityGate;
   }
 
   public Long getInstallationDate() {
@@ -133,6 +141,10 @@ public class TelemetryData {
     return projectStatistics;
   }
 
+  public List<QualityGate> getQualityGates() {
+    return qualityGates;
+  }
+
   static Builder builder() {
     return new Builder();
   }
@@ -144,6 +156,7 @@ public class TelemetryData {
     private Map<String, String> plugins;
     private Database database;
     private Edition edition;
+    private String defaultQualityGate;
     private Long installationDate;
     private String installationVersion;
     private boolean inDocker = false;
@@ -154,6 +167,7 @@ public class TelemetryData {
     private List<UserTelemetryDto> users;
     private List<Project> projects;
     private List<ProjectStatistics> projectStatistics;
+    private List<QualityGate> qualityGates;
 
     private Builder() {
       // enforce static factory method
@@ -186,6 +200,11 @@ public class TelemetryData {
 
     Builder setEdition(@Nullable Edition edition) {
       this.edition = edition;
+      return this;
+    }
+
+    Builder setDefaultQualityGate(String defaultQualityGate) {
+      this.defaultQualityGate = defaultQualityGate;
       return this;
     }
 
@@ -244,6 +263,11 @@ public class TelemetryData {
       return this;
     }
 
+    Builder setQualityGates(List<QualityGate> qualityGates) {
+      this.qualityGates = qualityGates;
+      return this;
+    }
+
     private static void requireNonNullValues(Object... values) {
       Arrays.stream(values).forEach(Objects::requireNonNull);
     }
@@ -256,15 +280,9 @@ public class TelemetryData {
   record Project(String projectUuid, Long lastAnalysis, String language, Long loc) {
   }
 
-  record ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount, String scm, String ci, String devopsPlatform) {
-    ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount,
-      @Nullable String scm, @Nullable String ci, @Nullable String devopsPlatform) {
-      this.projectUuid = projectUuid;
-      this.branchCount = branchCount;
-      this.pullRequestCount = pullRequestCount;
-      this.scm = scm;
-      this.ci = ci;
-      this.devopsPlatform = devopsPlatform;
-    }
+  record ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount, String qualityGate, String scm, String ci, String devopsPlatform) {
+  }
+
+  record QualityGate(String uuid, boolean isCaycCompliant) {
   }
 }

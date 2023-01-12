@@ -56,6 +56,7 @@ public class TelemetryDataJsonWriter {
     json.prop("messageSequenceNumber", statistics.getMessageSequenceNumber());
     json.prop("localTimestamp", toUtc(system2.now()));
     statistics.getEdition().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
+    json.prop("defaultQualityGate", statistics.getDefaultQualityGate());
     json.name("database");
     json.beginObject();
     json.prop("name", statistics.getDatabase().name());
@@ -94,6 +95,7 @@ public class TelemetryDataJsonWriter {
     writeUserData(json, statistics);
     writeProjectData(json, statistics);
     writeProjectStatsData(json, statistics);
+    writeQualityGates(json, statistics);
 
     extensions.forEach(e -> e.write(json));
 
@@ -150,9 +152,24 @@ public class TelemetryDataJsonWriter {
         json.prop("projectUuid", project.projectUuid());
         json.prop("branchCount", project.branchCount());
         json.prop("pullRequestCount", project.pullRequestCount());
+        json.prop("qualityGate", project.qualityGate());
         json.prop("scm", project.scm());
         json.prop("ci", project.ci());
         json.prop("devopsPlatform", project.devopsPlatform());
+        json.endObject();
+      });
+      json.endArray();
+    }
+  }
+
+  private static void writeQualityGates(JsonWriter json, TelemetryData statistics) {
+    if (statistics.getQualityGates() != null) {
+      json.name("quality-gates");
+      json.beginArray();
+      statistics.getQualityGates().forEach(qualityGate -> {
+        json.beginObject();
+        json.prop("uuid", qualityGate.uuid());
+        json.prop("isCaycCompliant", qualityGate.isCaycCompliant());
         json.endObject();
       });
       json.endArray();
