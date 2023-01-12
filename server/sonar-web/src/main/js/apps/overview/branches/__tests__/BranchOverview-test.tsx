@@ -23,17 +23,24 @@ import * as React from 'react';
 import selectEvent from 'react-select-event';
 import { getMeasuresWithPeriodAndMetrics } from '../../../../api/measures';
 import { getProjectActivity } from '../../../../api/projectActivity';
-import { getQualityGateProjectStatus } from '../../../../api/quality-gates';
+import {
+  getApplicationQualityGate,
+  getQualityGateProjectStatus,
+} from '../../../../api/quality-gates';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { getActivityGraph, saveActivityGraph } from '../../../../components/activity-graph/utils';
 import { isDiffMetric } from '../../../../helpers/measures';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockAnalysis } from '../../../../helpers/mocks/project-activity';
-import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-gates';
+import {
+  mockQualityGateApplicationStatus,
+  mockQualityGateProjectStatus,
+} from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockPeriod } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
+import { MetricKey } from '../../../../types/metrics';
 import { GraphType } from '../../../../types/project-activity';
 import { Measure, Metric } from '../../../../types/types';
 import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '../BranchOverview';
@@ -255,6 +262,40 @@ describe('application overview', () => {
     renderBranchOverview({ component });
     expect(await screen.findByText('Foo')).toBeInTheDocument();
     expect(screen.getByText('Bar')).toBeInTheDocument();
+  });
+
+  it("should show projects that don't have a compliant quality gate", async () => {
+    const appStatus = mockQualityGateApplicationStatus({
+      projects: [
+        { key: '1', name: 'first project', conditions: [], isCaycCompliant: false, status: 'OK' },
+        { key: '2', name: 'second', conditions: [], isCaycCompliant: true, status: 'OK' },
+        { key: '3', name: 'number 3', conditions: [], isCaycCompliant: false, status: 'OK' },
+        {
+          key: '4',
+          name: 'four',
+          conditions: [
+            {
+              comparator: 'GT',
+              metric: MetricKey.bugs,
+              status: 'ERROR',
+              value: '3',
+              errorThreshold: '0',
+            },
+          ],
+          isCaycCompliant: false,
+          status: 'ERROR',
+        },
+      ],
+    });
+    jest.mocked(getApplicationQualityGate).mockResolvedValueOnce(appStatus);
+
+    renderBranchOverview({ component });
+    expect(
+      await screen.findByText('overview.quality_gate.application.non_cayc.projects_x.3')
+    ).toBeInTheDocument();
+    expect(screen.getByText('first project')).toBeInTheDocument();
+    expect(screen.queryByText('second')).not.toBeInTheDocument();
+    expect(screen.getByText('number 3')).toBeInTheDocument();
   });
 
   it('should correctly show an app as empty', async () => {

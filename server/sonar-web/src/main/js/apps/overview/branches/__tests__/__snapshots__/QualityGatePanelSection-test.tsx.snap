@@ -7,7 +7,30 @@ exports[`should render correctly 1`] = `
   <div
     className="big-padded bordered-bottom overview-quality-gate-conditions-list"
   >
-    <CleanAsYouCodeWarning />
+    <CleanAsYouCodeWarning
+      component={
+        {
+          "breadcrumbs": [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": [
+            {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": [],
+        }
+      }
+    />
   </div>
   <h4
     className="big-padded overview-quality-gate-conditions-section-title"
@@ -220,11 +243,6 @@ exports[`should render correctly 2`] = `
       </h3>
     </div>
   </ButtonPlain>
-  <div
-    className="big-padded bordered-bottom overview-quality-gate-conditions-list"
-  >
-    <CleanAsYouCodeWarning />
-  </div>
   <h4
     className="big-padded overview-quality-gate-conditions-section-title"
   >

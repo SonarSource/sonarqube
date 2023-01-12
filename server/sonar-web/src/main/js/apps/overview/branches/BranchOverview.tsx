@@ -185,20 +185,22 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     ).then(
       (results) => {
         if (this.mounted) {
-          const qgStatuses = results.map(({ measures = [], project, projectBranchLike }) => {
-            const { key, name, status, isCaycCompliant } = project;
-            const conditions = extractStatusConditionsFromApplicationStatusChildProject(project);
-            const failedConditions = this.getFailedConditions(conditions, measures);
+          const qgStatuses = results
+            .map(({ measures = [], project, projectBranchLike }) => {
+              const { key, name, status, isCaycCompliant } = project;
+              const conditions = extractStatusConditionsFromApplicationStatusChildProject(project);
+              const failedConditions = this.getFailedConditions(conditions, measures);
 
-            return {
-              failedConditions,
-              isCaycCompliant,
-              key,
-              name,
-              status,
-              branchLike: projectBranchLike,
-            };
-          });
+              return {
+                failedConditions,
+                isCaycCompliant,
+                key,
+                name,
+                status,
+                branchLike: projectBranchLike,
+              };
+            })
+            .sort((a, b) => Math.sign(b.failedConditions.length - a.failedConditions.length));
 
           this.setState({
             loadingStatus: false,

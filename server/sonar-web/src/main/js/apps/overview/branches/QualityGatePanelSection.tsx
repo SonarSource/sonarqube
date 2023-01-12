@@ -35,7 +35,7 @@ import CleanAsYouCodeWarning from './CleanAsYouCodeWarning';
 
 export interface QualityGatePanelSectionProps {
   branchLike?: BranchLike;
-  component: Pick<Component, 'key' | 'qualifier'>;
+  component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
   qgStatus: QualityGateStatus;
 }
 
@@ -77,7 +77,17 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
     setCollapsed(!collapsed);
   }, [collapsed]);
 
-  if (qgStatus.failedConditions.length === 0 && qgStatus.isCaycCompliant) {
+  /*
+   * Show if project has failed conditions or that
+   * it is a single non-cayc project
+   * In the context of an App, only show projects with failed conditions
+   */
+  if (
+    !(
+      qgStatus.failedConditions.length > 0 ||
+      (!qgStatus.isCaycCompliant && !isApplication(component.qualifier))
+    )
+  ) {
     return null;
   }
 
@@ -88,6 +98,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
   const showName = isApplication(component.qualifier);
 
   const showSectionTitles =
+    isApplication(component.qualifier) ||
     !qgStatus.isCaycCompliant ||
     (overallFailedConditions.length > 0 && newCodeFailedConditions.length > 0);
 
@@ -119,9 +130,9 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
 
       {!collapsed && (
         <>
-          {!qgStatus.isCaycCompliant && (
+          {!qgStatus.isCaycCompliant && !isApplication(component.qualifier) && (
             <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
-              <CleanAsYouCodeWarning />
+              <CleanAsYouCodeWarning component={component} />
             </div>
           )}
 
