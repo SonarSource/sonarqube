@@ -100,7 +100,6 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     Map<String, String> permissions = new HashMap<>();
     permissions.put("checks", WRITE_PERMISSION_NAME);
     permissions.put("pull_requests", WRITE_PERMISSION_NAME);
-    permissions.put("statuses", READ_PERMISSION_NAME);
     permissions.put("metadata", READ_PERMISSION_NAME);
 
     String endPoint = "/app";

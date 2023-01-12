@@ -163,7 +163,6 @@ public class GithubApplicationClientImplTest {
       + "      \"permissions\": {\n"
       + "        \"checks\": \"read\",\n"
       + "        \"metadata\": \"read\",\n"
-      + "        \"statuses\": \"read\",\n"
       + "        \"pull_requests\": \"read\"\n"
       + "      }\n"
       + "}";
@@ -183,7 +182,6 @@ public class GithubApplicationClientImplTest {
       + "      \"permissions\": {\n"
       + "        \"checks\": \"write\",\n"
       + "        \"metadata\": \"read\",\n"
-      + "        \"statuses\": \"read\",\n"
       + "        \"pull_requests\": \"write\"\n"
       + "      }\n"
       + "}";
