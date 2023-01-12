@@ -183,13 +183,14 @@ public class SearchResponseLoader {
       .forEach(ruleUuidsToLoad::remove);
 
     List<RuleDto> rules = dbClient.ruleDao().selectByUuids(dbSession, ruleUuidsToLoad);
-    updateNamesOfAdHocRules(rules);
     result.addRules(rules);
+    updateNamesOfAdHocRules(result.getRules());
   }
 
   private static void updateNamesOfAdHocRules(List<RuleDto> rules) {
     rules.stream()
       .filter(RuleDto::isAdHoc)
+      .filter(r -> r.getAdHocName() != null)
       .forEach(r -> r.setName(r.getAdHocName()));
   }
 

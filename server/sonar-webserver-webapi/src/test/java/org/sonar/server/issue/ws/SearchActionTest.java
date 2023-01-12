@@ -256,16 +256,25 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPublicProject();
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true).setLanguage("xoo").setIsAdHoc(true));
+    RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true)
+      .setName("xoo:x1:name")
+      .setAdHocName(null)
+      .setLanguage("xoo")
+      .setIsAdHoc(true));
     IssueDto issue = db.issues().insertIssue(rule, project, file);
     indexIssues();
 
     SearchWsResponse response = ws.newRequest()
+      .setParam("additionalFields", "rules")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getIssuesList())
       .extracting(Issue::getKey, Issue::getRule, Issue::getExternalRuleEngine)
       .containsExactlyInAnyOrder(tuple(issue.getKey(), rule.getKey().toString(), "xoo"));
+
+    assertThat((response.getRules().getRulesList()))
+      .extracting(Common.Rule::getKey, Common.Rule::getName)
+      .containsExactlyInAnyOrder(tuple(rule.getKey().toString(), rule.getName()));
   }
 
   @Test
@@ -499,6 +508,29 @@ public class SearchActionTest {
       .setParam("additionalFields", "_all")
       .execute();
     execute.assertJson(this.getClass(), "result_for_rule_search.json");
+  }
+
+  @Test
+  public void search_adhoc_issue_by_rule_key_returns_correct_rule_name() {
+
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDto rule = db.rules().insertIssueRule(RuleTesting.EXTERNAL_XOO, r -> r.setIsExternal(true)
+      .setIsAdHoc(true)
+      .setLanguage("xoo")
+      .setName(RuleTesting.EXTERNAL_XOO.toString())
+      .setAdHocName("adHocRuleName"));
+    db.issues().insertIssue(rule, project, file);
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_RULES, rule.getKey().toString())
+      .setParam("additionalFields", "_all")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getRules().getRulesList())
+      .extracting(Common.Rule::getKey, Common.Rule::getName)
+      .containsExactlyInAnyOrder(tuple(rule.getKey().toString(), rule.getAdHocName()));
   }
 
   @Test
@@ -911,7 +943,7 @@ public class SearchActionTest {
     assertThat(ws.newRequest()
       .setMultiParam("author", singletonList("unknown"))
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-        .isEmpty();
+      .isEmpty();
   }
 
   @Test
