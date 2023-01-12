@@ -99,7 +99,7 @@ import org.springframework.util.CollectionUtils;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toCollection;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -1245,7 +1245,8 @@ public class IssueIndex {
     List<SecurityStandardCategoryStatistics> children = new ArrayList<>();
     if (includeDistribution) {
       Stream<? extends Terms.Bucket> stream = ((ParsedStringTerms) categoryBucket.getAggregations().get(AGG_DISTRIBUTION)).getBuckets().stream();
-      children = stream.map(cweBucket -> processSecurityReportCategorySearchResults(cweBucket, cweBucket.getKeyAsString(), null, null)).collect(toList());
+      children = stream.map(cweBucket -> processSecurityReportCategorySearchResults(cweBucket, cweBucket.getKeyAsString(), null, null))
+        .collect(toCollection(ArrayList<SecurityStandardCategoryStatistics>::new));
     }
 
     return processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getName(), children, version);

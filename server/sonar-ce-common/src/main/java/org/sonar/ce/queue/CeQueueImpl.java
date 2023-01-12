@@ -138,7 +138,7 @@ public class CeQueueImpl implements CeQueue {
       List<CeQueueDto> taskDtos = submissions.stream()
         .filter(filterBySubmitOptions(options, submissions, dbSession))
         .map(submission -> addToQueueInDb(dbSession, submission))
-        .collect(Collectors.toList());
+        .toList();
       List<CeTask> tasks = loadTasks(dbSession, taskDtos);
       dbSession.commit();
       return tasks;

@@ -41,6 +41,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.SnapshotDto;
 
+import static java.util.stream.Collectors.toCollection;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
@@ -75,7 +76,7 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
         return;
       }
 
-      List<String> projectUuids = branchInNeedOfIssueSync.stream().map(BranchDto::getProjectUuid).distinct().collect(Collectors.toList());
+      List<String> projectUuids = branchInNeedOfIssueSync.stream().map(BranchDto::getProjectUuid).distinct().collect(toCollection(ArrayList<String>::new));
       LOG.info("{} projects found in need of issue sync.", projectUuids.size());
 
       sortProjectUuids(dbSession, projectUuids);

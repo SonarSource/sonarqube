@@ -20,11 +20,10 @@
 package org.sonar.server.setting.ws;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableTable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinition;
@@ -97,18 +96,17 @@ public class Setting {
     if (propertySets.isEmpty()) {
       return Collections.emptyList();
     }
-    ImmutableTable.Builder<String, String, String> tableBuilder = new ImmutableTable.Builder<>();
+    Map<String, Map<String, String>> table = new HashMap<>();
     propertySets.forEach(property -> {
       String keyWithoutSettingKey = property.getKey().replace(propertyKey + ".", "");
       List<String> setIdWithFieldKey = DOT_SPLITTER.splitToList(keyWithoutSettingKey);
       String setId = setIdWithFieldKey.get(0);
       String fieldKey = keyWithoutSettingKey.replaceFirst(setId + ".", "");
-      tableBuilder.put(setId, fieldKey, property.getValue());
+      table.computeIfAbsent(setId, k -> new HashMap<>()).put(fieldKey, property.getValue());
     });
-    ImmutableTable<String, String, String> table = tableBuilder.build();
-    return table.rowKeySet().stream()
-      .map(table::row)
-      .collect(Collectors.toList());
+    return table.keySet().stream()
+      .map(table::get)
+      .toList();
   }
 
 }
