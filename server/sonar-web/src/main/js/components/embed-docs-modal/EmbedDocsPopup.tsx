@@ -59,7 +59,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <ul className="menu abs-width-240" role="group">
+      <ul className="menu abs-width-240">
         {this.renderTitle(translate('docs.suggestion'))}
         {suggestions.map((suggestion, i) => (
           <li key={suggestion.link}>
@@ -95,7 +95,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     return (
       <DropdownOverlay>
         <SuggestionsContext.Consumer>{this.renderSuggestions}</SuggestionsContext.Consumer>
-        <ul className="menu abs-width-240" role="group">
+        <ul className="menu abs-width-240">
           <li>
             <DocLink innerRef={this.focusFirstItem} onClick={this.props.onClose} to="/">
               {translate('docs.documentation')}
@@ -107,7 +107,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
             </Link>
           </li>
         </ul>
-        <ul className="menu abs-width-240" role="group">
+        <ul className="menu abs-width-240">
           <li>
             <Link
               className="display-flex-center"
@@ -118,7 +118,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
             </Link>
           </li>
         </ul>
-        <ul className="menu abs-width-240" role="group">
+        <ul className="menu abs-width-240">
           {this.renderTitle(translate('docs.stay_connected'))}
           <li>
             {this.renderIconLink(
