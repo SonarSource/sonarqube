@@ -143,7 +143,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
         }
       >
         <input
-          aria-label={translate('search_verb')}
+          aria-label={this.props.placeholder}
           autoComplete="off"
           autoFocus={this.props.autoFocus}
           className={inputClassName}

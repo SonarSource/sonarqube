@@ -390,9 +390,9 @@ it('should be able to perform action on issues', async () => {
       name: `issue.assign.unassigned_click_to_assign`,
     })
   );
-  expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
+  expect(screen.getByRole('searchbox', { name: 'search.search_for_users' })).toBeInTheDocument();
 
-  await user.click(screen.getByRole('searchbox', { name: 'search_verb' }));
+  await user.click(screen.getByRole('searchbox', { name: 'search.search_for_users' }));
   await user.keyboard('luke');
   expect(screen.getByText('Skywalker')).toBeInTheDocument();
   await user.keyboard('{ArrowUp}{enter}');
@@ -452,7 +452,7 @@ it('should be able to perform action on issues', async () => {
   // changing tags
   expect(screen.getByText('issue.no_tag')).toBeInTheDocument();
   await user.click(screen.getByText('issue.no_tag'));
-  expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
+  expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
   expect(screen.getByText('android')).toBeInTheDocument();
   expect(screen.getByText('accessibility')).toBeInTheDocument();
 
@@ -464,7 +464,7 @@ it('should be able to perform action on issues', async () => {
   await user.click(screen.getByText('accessibility'));
   expect(screen.getByTitle('android')).toBeInTheDocument();
 
-  await user.click(screen.getByRole('searchbox', { name: 'search_verb' }));
+  await user.click(screen.getByRole('searchbox', { name: 'search.search_for_tags' }));
   await user.keyboard('addNewTag');
   expect(
     screen.getByRole('checkbox', { name: 'create_new_element: addnewtag' })
@@ -531,7 +531,7 @@ it('should open the actions popup using keyboard shortcut', async () => {
 
   // open tags popup on key press 't'
   await user.keyboard('t');
-  expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
+  expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
   expect(screen.getByText('android')).toBeInTheDocument();
   expect(screen.getByText('accessibility')).toBeInTheDocument();
   // closing tags popup
@@ -539,7 +539,7 @@ it('should open the actions popup using keyboard shortcut', async () => {
 
   // open assign popup on key press 'a'
   await user.keyboard('a');
-  expect(screen.getByRole('searchbox', { name: 'search_verb' })).toBeInTheDocument();
+  expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
 });
 
 it('should not open the actions popup using keyboard shortcut when keyboard shortcut flag is disabled', async () => {

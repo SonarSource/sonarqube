@@ -134,7 +134,7 @@ it('should show search filter when PAT is already set', async () => {
   });
 
   const inputSearch = screen.getByRole('searchbox', {
-    name: 'search_verb',
+    name: 'onboarding.create_project.search_repositories_by_name',
   });
   await user.click(inputSearch);
   await user.keyboard('search');

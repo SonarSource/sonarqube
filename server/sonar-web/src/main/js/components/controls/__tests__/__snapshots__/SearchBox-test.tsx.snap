@@ -6,7 +6,7 @@ exports[`renders 1`] = `
   title=""
 >
   <input
-    aria-label="search_verb"
+    aria-label="placeholder"
     autoComplete="off"
     className="search-box-input"
     maxLength={150}

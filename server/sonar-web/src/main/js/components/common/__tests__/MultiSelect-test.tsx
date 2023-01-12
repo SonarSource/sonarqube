@@ -25,7 +25,7 @@ import MultiSelect from '../MultiSelect';
 
 const ui = {
   checkbox: (name: string) => byRole('checkbox', { name }),
-  search: byRole('searchbox', { name: 'search_verb' }),
+  search: byRole('searchbox', { name: 'search' }),
   noResult: byText('no_results_for_x.notfound'),
 };
 
@@ -108,7 +108,7 @@ function renderMultiSelect(override?: Partial<MultiSelect['props']>) {
         onSearch={onSearch}
         onSelect={onSelect}
         onUnselect={onUnselect}
-        placeholder=""
+        placeholder="search"
         {...props}
       />
     );

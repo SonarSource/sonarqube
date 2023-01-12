@@ -148,7 +148,7 @@ it('should show search filter when the authentication is successful', async () =
   await selectEvent.select(ui.organizationSelector.get(), [/org-1/]);
 
   const inputSearch = screen.getByRole('searchbox', {
-    name: 'search_verb',
+    name: 'onboarding.create_project.search_repositories',
   });
   await user.click(inputSearch);
   await user.keyboard('search');
