@@ -27,14 +27,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AnalysisPropertyDtoTest {
 
-
   private AnalysisPropertyDto underTest;
 
   @Test
   public void null_key_should_throw_NPE() {
     underTest = new AnalysisPropertyDto();
 
-    assertThatThrownBy(() ->  underTest.setKey(null))
+    assertThatThrownBy(() -> underTest.setKey(null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("key cannot be null");
   }
@@ -74,40 +73,37 @@ public class AnalysisPropertyDtoTest {
       .setKey(randomAlphanumeric(512))
       .setValue(randomAlphanumeric(10000));
 
-    assertThat(underTest).isEqualTo(
-      new AnalysisPropertyDto()
-        .setUuid(underTest.getUuid())
-        .setAnalysisUuid(underTest.getAnalysisUuid())
-        .setKey(underTest.getKey())
-        .setValue(underTest.getValue()));
-
-    assertThat(underTest).isNotEqualTo(
-      new AnalysisPropertyDto()
-        .setUuid("1" + underTest.getUuid())
-        .setAnalysisUuid(underTest.getAnalysisUuid())
-        .setKey(underTest.getKey())
-        .setValue(underTest.getValue()));
-
-    assertThat(underTest).isNotEqualTo(
-      new AnalysisPropertyDto()
-        .setUuid(underTest.getUuid())
-        .setAnalysisUuid("1" + underTest.getAnalysisUuid())
-        .setKey(underTest.getKey())
-        .setValue(underTest.getValue()));
-
-    assertThat(underTest).isNotEqualTo(
-      new AnalysisPropertyDto()
-        .setUuid(underTest.getUuid())
-        .setAnalysisUuid(underTest.getAnalysisUuid())
-        .setKey("1" + underTest.getKey())
-        .setValue(underTest.getValue()));
-
-    assertThat(underTest).isNotEqualTo(
-      new AnalysisPropertyDto()
-        .setUuid(underTest.getUuid())
-        .setAnalysisUuid(underTest.getAnalysisUuid())
-        .setKey(underTest.getKey())
-        .setValue("1" + underTest.getValue()));
+    assertThat(underTest)
+      .isEqualTo(
+        new AnalysisPropertyDto()
+          .setUuid(underTest.getUuid())
+          .setAnalysisUuid(underTest.getAnalysisUuid())
+          .setKey(underTest.getKey())
+          .setValue(underTest.getValue()))
+      .isNotEqualTo(
+        new AnalysisPropertyDto()
+          .setUuid("1" + underTest.getUuid())
+          .setAnalysisUuid(underTest.getAnalysisUuid())
+          .setKey(underTest.getKey())
+          .setValue(underTest.getValue()))
+      .isNotEqualTo(
+        new AnalysisPropertyDto()
+          .setUuid(underTest.getUuid())
+          .setAnalysisUuid("1" + underTest.getAnalysisUuid())
+          .setKey(underTest.getKey())
+          .setValue(underTest.getValue()))
+      .isNotEqualTo(
+        new AnalysisPropertyDto()
+          .setUuid(underTest.getUuid())
+          .setAnalysisUuid(underTest.getAnalysisUuid())
+          .setKey("1" + underTest.getKey())
+          .setValue(underTest.getValue()))
+      .isNotEqualTo(
+        new AnalysisPropertyDto()
+          .setUuid(underTest.getUuid())
+          .setAnalysisUuid(underTest.getAnalysisUuid())
+          .setKey(underTest.getKey())
+          .setValue("1" + underTest.getValue()));
   }
 
   @Test

@@ -70,7 +70,7 @@ public class WebhookDeliveryTest {
       .setError(cause)
       .build();
 
-    assertThat(delivery.getErrorMessage().get()).isEqualTo("fail to connect");
+    assertThat(delivery.getErrorMessage()).contains("fail to connect");
   }
 
   private static WebhookDelivery.Builder newBuilderTemplate() {

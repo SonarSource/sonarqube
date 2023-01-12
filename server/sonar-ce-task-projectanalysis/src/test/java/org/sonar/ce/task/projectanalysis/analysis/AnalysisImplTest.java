@@ -60,8 +60,7 @@ public class AnalysisImplTest {
     assertThat(new Analysis.Builder()
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
-      .build().toString())
-      .isEqualTo("Analysis{uuid='uuid ', createdAt=123456789}");
+      .build()).hasToString("Analysis{uuid='uuid ', createdAt=123456789}");
   }
 
   @Test

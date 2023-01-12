@@ -76,12 +76,12 @@ public class ProjectAnalysisTest {
 
   @Test
   public void verify_getters() {
-    assertThat(underTest.getCeTask().get()).isSameAs(ceTask);
+    assertThat(underTest.getCeTask()).containsSame(ceTask);
     assertThat(underTest.getProject()).isSameAs(project);
-    assertThat(underTest.getBranch().get()).isSameAs(branch);
-    assertThat(underTest.getQualityGate().get()).isSameAs(qualityGate);
+    assertThat(underTest.getBranch()).containsSame(branch);
+    assertThat(underTest.getQualityGate()).containsSame(qualityGate);
     assertThat(underTest.getProperties()).isEqualTo(properties);
-    assertThat(underTest.getAnalysis().get()).isEqualTo(analysis);
+    assertThat(underTest.getAnalysis()).contains(analysis);
 
     ProjectAnalysis underTestWithNulls = new ProjectAnalysis(project, null, null, null, null, null, emptyMap());
     assertThat(underTestWithNulls.getCeTask()).isEmpty();
@@ -111,11 +111,12 @@ public class ProjectAnalysisTest {
       .setQualityGate(new QualityGate("A", "B", emptySet()))
       .setStatus(Metric.Level.ERROR)
       .build();
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, otherQualityGate, 1L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, null, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, 2L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, 1L, emptyMap()));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, 1L, ImmutableMap.of("A", "B")));
+    assertThat(underTest)
+      .isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, otherQualityGate, 1L, properties))
+      .isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, null, properties))
+      .isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, 2L, properties))
+      .isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, 1L, emptyMap()))
+      .isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, 1L, ImmutableMap.of("A", "B")));
   }
 
   @Test
@@ -151,7 +152,7 @@ public class ProjectAnalysisTest {
 
   @Test
   public void verify_toString() {
-    assertThat(underTest.toString()).isEqualTo(
+    assertThat(underTest).hasToString(
       "ProjectAnalysis{project=Project{uuid='uuid', key='key', name='name'}, ceTask=CeTask{id='id', status=SUCCESS}, branch=Branch{main=true, name='name', type=BRANCH}, qualityGate=EvaluatedQualityGate{qualityGate=QualityGate{id=id, name='name', conditions=[]}, status=ERROR, evaluatedConditions=[]}, updatedAt=1, properties={a=b}, analysis=Analysis{uuid='analysis_uuid', date=1500, revision=sha1}}");
   }
 }

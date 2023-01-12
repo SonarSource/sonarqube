@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MeasureComputerDefinitionImplTest {
 
-
   @Test
   public void build_measure_computer_definition() {
     String inputMetric = "ncloc";
@@ -156,16 +155,14 @@ public class MeasureComputerDefinitionImplTest {
       .setOutputMetrics("debt")
       .build();
 
-    assertThat(computer).isEqualTo(computer)
+    assertThat(computer)
+      .isEqualTo(computer)
       .isEqualTo(sameComputer)
       .isNotEqualTo(anotherComputer)
-      .isNotNull();
-
-    assertThat(computer)
+      .isNotNull()
       .hasSameHashCodeAs(computer)
-      .hasSameHashCodeAs(sameComputer);
-
-    assertThat(computer.hashCode()).isNotEqualTo(anotherComputer.hashCode());
+      .hasSameHashCodeAs(sameComputer)
+      .doesNotHaveSameHashCodeAs(anotherComputer.hashCode());
   }
 
   @Test
@@ -173,8 +170,8 @@ public class MeasureComputerDefinitionImplTest {
     assertThat(new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", "comment")
       .setOutputMetrics("comment_density_1", "comment_density_2")
-      .build().toString())
-      .isEqualTo("MeasureComputerDefinitionImpl{inputMetricKeys=[ncloc, comment], outputMetrics=[comment_density_1, comment_density_2]}");
+      .build())
+      .hasToString("MeasureComputerDefinitionImpl{inputMetricKeys=[ncloc, comment], outputMetrics=[comment_density_1, comment_density_2]}");
   }
 
 }

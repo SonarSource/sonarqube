@@ -48,7 +48,7 @@ public class IntSumCounterTest {
 
     sumCounter.initialize(counterInitializationContext);
 
-    assertThat(sumCounter.getValue().get()).isEqualTo(10);
+    assertThat(sumCounter.getValue()).contains(10);
   }
 
   @Test
@@ -68,7 +68,7 @@ public class IntSumCounterTest {
 
     sumCounter.aggregate(anotherCounter);
 
-    assertThat(sumCounter.getValue().get()).isEqualTo(10);
+    assertThat(sumCounter.getValue()).contains(10);
   }
 
   @Test

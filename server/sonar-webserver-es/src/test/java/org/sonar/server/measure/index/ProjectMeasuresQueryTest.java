@@ -70,7 +70,7 @@ public class ProjectMeasuresQueryTest {
   public void set_quality_gate_status() {
     underTest.setQualityGateStatus(OK);
 
-    assertThat(underTest.getQualityGateStatus().get()).isEqualTo(Level.OK);
+    assertThat(underTest.getQualityGateStatus()).contains(Level.OK);
   }
 
   @Test

@@ -103,7 +103,7 @@ public class ClusterHealthTest {
 
     ClusterHealth underTest = new ClusterHealth(health, nodeHealths);
 
-    assertThat(underTest.toString()).isEqualTo("ClusterHealth{health=" + health + ", nodes=" + nodeHealths + "}");
+    assertThat(underTest).hasToString("ClusterHealth{health=" + health + ", nodes=" + nodeHealths + "}");
   }
 
   @Test

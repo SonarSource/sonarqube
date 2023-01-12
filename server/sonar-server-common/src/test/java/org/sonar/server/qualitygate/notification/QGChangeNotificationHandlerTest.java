@@ -53,7 +53,7 @@ public class QGChangeNotificationHandlerTest {
 
   @Test
   public void getMetadata_returns_same_instance_as_static_method() {
-    assertThat(underTest.getMetadata().get()).isSameAs(QGChangeNotificationHandler.newMetadata());
+    assertThat(underTest.getMetadata()).containsSame(QGChangeNotificationHandler.newMetadata());
   }
 
   @Test

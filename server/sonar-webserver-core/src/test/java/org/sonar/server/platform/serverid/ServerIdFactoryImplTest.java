@@ -71,7 +71,7 @@ public class ServerIdFactoryImplTest {
 
     ServerId serverId = underTest.create();
 
-    assertThat(serverId.getDatabaseId().get()).isEqualTo(crc32Hex(sanitizedJdbcUrl));
+    assertThat(serverId.getDatabaseId()).contains(crc32Hex(sanitizedJdbcUrl));
     assertThat(serverId.getDatasetId()).isEqualTo(uuid);
   }
 
@@ -91,7 +91,7 @@ public class ServerIdFactoryImplTest {
 
     ServerId serverId = underTest.create(currentServerId);
 
-    assertThat(serverId.getDatabaseId().get()).isEqualTo(crc32Hex(sanitizedJdbcUrl));
+    assertThat(serverId.getDatabaseId()).contains(crc32Hex(sanitizedJdbcUrl));
     assertThat(serverId.getDatasetId()).isEqualTo(currentServerId.getDatasetId());
   }
 

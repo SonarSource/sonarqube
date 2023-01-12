@@ -69,19 +69,19 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldHandleIf() {
     List<Statement> statements = chunk("if (a > b) { something(); }");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("if(a>b)");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
 
     statements = chunk("if (a > b) { something(); } else { somethingOther(); }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("if(a>b)");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("else");
     assertThat(statements.get(3).getValue()).isEqualTo("somethingOther()");
 
     statements = chunk("if (a > 0) { something(); } else if (a == 0) { somethingOther(); }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("if(a>$NUMBER)");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("elseif(a==$NUMBER)");
@@ -91,12 +91,12 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldHandleFor() {
     List<Statement> statements = chunk("for (int i = 0; i < 10; i++) { something(); }");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("for(inti=$NUMBER;i<$NUMBER;i++)");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
 
     statements = chunk("for (Item item : items) { something(); }");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("for(Itemitem:items)");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
   }
@@ -104,7 +104,7 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldHandleWhile() {
     List<Statement> statements = chunk("while (i < args.length) { something(); }");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("while(i<args.length)");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
 
@@ -116,7 +116,7 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldHandleDoWhile() {
     List<Statement> statements = chunk("do { something(); } while (true);");
-    assertThat(statements.size()).isEqualTo(3);
+    assertThat(statements).hasSize(3);
     assertThat(statements.get(0).getValue()).isEqualTo("do");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("while(true)");
@@ -130,7 +130,7 @@ public class JavaStatementBuilderTest {
       "  case 2 : monthString=\"February\"; break;" +
       "  default: monthString=\"Invalid\";" +
       "}");
-    assertThat(statements.size()).isEqualTo(6);
+    assertThat(statements).hasSize(6);
     assertThat(statements.get(0).getValue()).isEqualTo("switch(month)");
     assertThat(statements.get(1).getValue()).isEqualTo("case$NUMBER:monthString=$CHARS");
     assertThat(statements.get(2).getValue()).isEqualTo("break");
@@ -149,7 +149,7 @@ public class JavaStatementBuilderTest {
       "  case 'a': case 'b': case 'c': something(); break;" +
       "  case 'd': case 'e': case 'f': somethingOther(); break;" +
       "}");
-    assertThat(statements.size()).isEqualTo(5);
+    assertThat(statements).hasSize(5);
     assertThat(statements.get(0).getValue()).isEqualTo("switch(a)");
     assertThat(statements.get(1).getValue()).isEqualTo("case$CHARS:case$CHARS:case$CHARS:something()");
     assertThat(statements.get(2).getValue()).isEqualTo("break");
@@ -160,7 +160,7 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldHandleArray() {
     List<Statement> statements = chunk("new Integer[] { 1, 2, 3, 4 };");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("newInteger[]");
     assertThat(statements.get(1).getValue()).isEqualTo("{$NUMBER,$NUMBER,$NUMBER,$NUMBER}");
   }
@@ -171,12 +171,12 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldHandleMultidimensionalArray() {
     List<Statement> statements = chunk("new Integer[][] { { 1, 2 }, {3, 4} };");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("newInteger[][]");
     assertThat(statements.get(1).getValue()).isEqualTo("{{$NUMBER,$NUMBER},{$NUMBER,$NUMBER}}");
 
     statements = chunk("new Integer[][] { null, {3, 4} };");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("newInteger[][]");
     assertThat(statements.get(1).getValue()).isEqualTo("{null,{$NUMBER,$NUMBER}}");
   }
@@ -185,28 +185,28 @@ public class JavaStatementBuilderTest {
   public void shouldHandleTryCatch() {
     List<Statement> statements;
     statements = chunk("try { } catch (Exception e) { }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("{}");
     assertThat(statements.get(2).getValue()).isEqualTo("catch(Exceptione)");
     assertThat(statements.get(3).getValue()).isEqualTo("{}");
 
     statements = chunk("try { something(); } catch (Exception e) { }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("catch(Exceptione)");
     assertThat(statements.get(3).getValue()).isEqualTo("{}");
 
     statements = chunk("try { something(); } catch (Exception e) { onException(); }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("catch(Exceptione)");
     assertThat(statements.get(3).getValue()).isEqualTo("onException()");
 
     statements = chunk("try { something(); } catch (Exception1 e) { onException1(); } catch (Exception2 e) { onException2(); }");
-    assertThat(statements.size()).isEqualTo(6);
+    assertThat(statements).hasSize(6);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("catch(Exception1e)");
@@ -219,21 +219,21 @@ public class JavaStatementBuilderTest {
   public void shouldHandleTryFinnaly() {
     List<Statement> statements;
     statements = chunk("try { } finally { }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("{}");
     assertThat(statements.get(2).getValue()).isEqualTo("finally");
     assertThat(statements.get(3).getValue()).isEqualTo("{}");
 
     statements = chunk("try { something(); } finally { }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("finally");
     assertThat(statements.get(3).getValue()).isEqualTo("{}");
 
     statements = chunk("try { something(); } finally { somethingOther(); }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("finally");
@@ -244,7 +244,7 @@ public class JavaStatementBuilderTest {
   public void shouldHandleTryCatchFinally() {
     List<Statement> statements;
     statements = chunk("try { } catch (Exception e) {} finally { }");
-    assertThat(statements.size()).isEqualTo(6);
+    assertThat(statements).hasSize(6);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("{}");
     assertThat(statements.get(2).getValue()).isEqualTo("catch(Exceptione)");
@@ -253,7 +253,7 @@ public class JavaStatementBuilderTest {
     assertThat(statements.get(5).getValue()).isEqualTo("{}");
 
     statements = chunk("try { something(); } catch (Exception e) { onException(); } finally { somethingOther(); }");
-    assertThat(statements.size()).isEqualTo(6);
+    assertThat(statements).hasSize(6);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("catch(Exceptione)");
@@ -269,21 +269,21 @@ public class JavaStatementBuilderTest {
   public void shouldHandleMultiCatch() {
     List<Statement> statements;
     statements = chunk("try { } catch (Exception1 | Exception2 e) { }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("{}");
     assertThat(statements.get(2).getValue()).isEqualTo("catch(Exception1|Exception2e)");
     assertThat(statements.get(3).getValue()).isEqualTo("{}");
 
     statements = chunk("try { something(); } catch (Exception1 | Exception2 e) { }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("catch(Exception1|Exception2e)");
     assertThat(statements.get(3).getValue()).isEqualTo("{}");
 
     statements = chunk("try { something(); } catch (Exception1 | Exception2 e) { onException(); }");
-    assertThat(statements.size()).isEqualTo(4);
+    assertThat(statements).hasSize(4);
     assertThat(statements.get(0).getValue()).isEqualTo("try");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
     assertThat(statements.get(2).getValue()).isEqualTo("catch(Exception1|Exception2e)");
@@ -297,22 +297,22 @@ public class JavaStatementBuilderTest {
   public void shouldHandleTryWithResource() {
     List<Statement> statements;
     statements = chunk("try (FileInputStream in = new FileInputStream()) {}");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("try(FileInputStreamin=newFileInputStream())");
     assertThat(statements.get(1).getValue()).isEqualTo("{}");
 
     statements = chunk("try (FileInputStream in = new FileInputStream(); FileOutputStream out = new FileOutputStream()) {}");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("try(FileInputStreamin=newFileInputStream();FileOutputStreamout=newFileOutputStream())");
     assertThat(statements.get(1).getValue()).isEqualTo("{}");
 
     statements = chunk("try (FileInputStream in = new FileInputStream(); FileOutputStream out = new FileOutputStream();) {}");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("try(FileInputStreamin=newFileInputStream();FileOutputStreamout=newFileOutputStream();)");
     assertThat(statements.get(1).getValue()).isEqualTo("{}");
 
     statements = chunk("try (FileInputStream in = new FileInputStream()) { something(); }");
-    assertThat(statements.size()).isEqualTo(2);
+    assertThat(statements).hasSize(2);
     assertThat(statements.get(0).getValue()).isEqualTo("try(FileInputStreamin=newFileInputStream())");
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
   }
@@ -328,7 +328,7 @@ public class JavaStatementBuilderTest {
     assertThat(statements).extracting(Statement::getValue).containsExactly("List<String>result=lines.stream().filter(line->!$CHARS.equals(line)).collect(Collectors.toList())");
 
     statements = chunk("items.forEach((k,v)->{System.out.println(\"Item : \" + k + \" Count : \" + v); if(\"E\".equals(k)) { System.out.println(\"Hello E\");}});");
-    assertThat(statements.size()).isEqualTo(5);
+    assertThat(statements).hasSize(5);
     assertThat(statements).extracting(Statement::getValue)
       .containsExactly("items.forEach((k,v)->",
         "System.out.println($CHARS+k+$CHARS+v)",
@@ -344,7 +344,7 @@ public class JavaStatementBuilderTest {
   public void shouldHandleModuleInfo() {
     List<Statement> statements;
     statements = chunk("module com.application.infra { requires com.application.domain; exports com.application.infra.api; }");
-    assertThat(statements.size()).isEqualTo(3);
+    assertThat(statements).hasSize(3);
     assertThat(statements).extracting(Statement::getValue)
       .containsExactly("modulecom.application.infra",
       "requirescom.application.domain",

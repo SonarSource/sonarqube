@@ -44,9 +44,10 @@ public class CeTaskDtoLightTest {
 
   @Test
   public void equals_is_based_on_created_date_and_uuid() {
-    assertThat(task1).isEqualTo(task2);
-    assertThat(task1).isNotEqualTo(task3);
-    assertThat(task1).isNotEqualTo(task4);
+    assertThat(task1)
+      .isEqualTo(task2)
+      .isNotEqualTo(task3)
+      .isNotEqualTo(task4);
   }
 
   @Test
@@ -56,8 +57,9 @@ public class CeTaskDtoLightTest {
 
   @Test
   public void compareTo_is_based_on_created_date_and_uuid() {
-    assertThat(task1).isEqualByComparingTo(task2);
-    assertThat(task1).isLessThan(task3);
-    assertThat(task1).isLessThan(task4);
+    assertThat(task1)
+      .isEqualByComparingTo(task2)
+      .isLessThan(task3)
+      .isLessThan(task4);
   }
 }

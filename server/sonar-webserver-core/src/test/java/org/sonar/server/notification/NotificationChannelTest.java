@@ -31,7 +31,7 @@ public class NotificationChannelTest {
   public void defaultMethods() {
     NotificationChannel channel = new FakeNotificationChannel();
     assertThat(channel.getKey()).isEqualTo("FakeNotificationChannel");
-    assertThat(channel.toString()).isEqualTo("FakeNotificationChannel");
+    assertThat(channel).hasToString("FakeNotificationChannel");
   }
 
   private static class FakeNotificationChannel extends NotificationChannel {

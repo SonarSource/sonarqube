@@ -41,8 +41,8 @@ public class PeriodTest {
 
   @Test
   public void verify_to_string() {
-    assertThat(new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), "2.3", 1420034400000L).toString())
-      .isEqualTo("Period{mode=PREVIOUS_VERSION, modeParameter=2.3, date=1420034400000}");
+    assertThat(new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), "2.3", 1420034400000L))
+      .hasToString("Period{mode=PREVIOUS_VERSION, modeParameter=2.3, date=1420034400000}");
   }
 
   @Test

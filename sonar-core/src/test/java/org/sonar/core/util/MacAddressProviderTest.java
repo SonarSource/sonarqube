@@ -28,14 +28,16 @@ public class MacAddressProviderTest {
   @Test
   public void getSecureMungedAddress() {
     byte[] address = MacAddressProvider.getSecureMungedAddress();
-    assertThat(address).isNotEmpty();
-    assertThat(address).hasSize(6);
+    assertThat(address)
+      .isNotEmpty()
+      .hasSize(6);
   }
 
   @Test
   public void constructDummyMulticastAddress() {
     byte[] address = MacAddressProvider.constructDummyMulticastAddress();
-    assertThat(address).isNotEmpty();
-    assertThat(address).hasSize(6);
+    assertThat(address)
+      .isNotEmpty()
+      .hasSize(6);
   }
 }

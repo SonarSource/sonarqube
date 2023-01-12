@@ -61,7 +61,7 @@ public class TelemetryClientTest {
     Buffer body = new Buffer();
     request.body().writeTo(body);
     assertThat(body.readUtf8()).isEqualTo(JSON);
-    assertThat(request.url().toString()).isEqualTo(TELEMETRY_URL);
+    assertThat(request.url()).hasToString(TELEMETRY_URL);
   }
 
   @Test
@@ -79,6 +79,6 @@ public class TelemetryClientTest {
     Buffer body = new Buffer();
     request.body().writeTo(body);
     assertThat(body.readUtf8()).isEqualTo(JSON);
-    assertThat(request.url().toString()).isEqualTo(TELEMETRY_URL);
+    assertThat(request.url()).hasToString(TELEMETRY_URL);
   }
 }

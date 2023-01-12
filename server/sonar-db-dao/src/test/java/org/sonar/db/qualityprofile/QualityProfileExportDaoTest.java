@@ -85,8 +85,9 @@ public class QualityProfileExportDaoTest {
     List<ActiveRuleDto> activeRules = activate(profile, customRule, rule);
 
     List<ExportRuleDto> results = underTest.selectRulesByProfile(dbSession, profile);
-    assertThat(results).isNotNull();
-    assertThat(results).isNotEmpty();
+    assertThat(results)
+      .isNotNull()
+      .isNotEmpty();
 
     // verify custom rule
     ExportRuleDto exportCustomRuleDto = results.stream().filter(ExportRuleDto::isCustomRule).findFirst().get();

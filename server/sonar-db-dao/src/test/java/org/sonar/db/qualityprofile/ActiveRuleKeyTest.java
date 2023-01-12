@@ -35,7 +35,7 @@ public class ActiveRuleKeyTest {
     ActiveRuleKey key = ActiveRuleKey.of(profile, ruleKey);
     assertThat(key.getRuleProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(key.getRuleKey()).isSameAs(ruleKey);
-    assertThat(key.toString()).isEqualTo(profile.getRulesProfileUuid() + ":xoo:R1");
+    assertThat(key).hasToString(profile.getRulesProfileUuid() + ":xoo:R1");
   }
 
   @Test
@@ -45,7 +45,7 @@ public class ActiveRuleKeyTest {
     ActiveRuleKey key = ActiveRuleKey.of(profile, ruleKey);
     assertThat(key.getRuleProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(key.getRuleKey()).isSameAs(ruleKey);
-    assertThat(key.toString()).isEqualTo(profile.getRulesProfileUuid() + ":java:Key:With:Some::Colons");
+    assertThat(key).hasToString(profile.getRulesProfileUuid() + ":java:Key:With:Some::Colons");
   }
 
   @Test

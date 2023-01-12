@@ -31,7 +31,7 @@ public class UnanalyzedLanguageMetricsTest {
   public void count_metrics() {
     UnanalyzedLanguageMetrics coreCustomMetrics = new UnanalyzedLanguageMetrics();
     List<Metric> metrics = coreCustomMetrics.getMetrics();
-    assertThat(metrics.size()).isEqualTo(2);
+    assertThat(metrics).hasSize(2);
   }
 
 }

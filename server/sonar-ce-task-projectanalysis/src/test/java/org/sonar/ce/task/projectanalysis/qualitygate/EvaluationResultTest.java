@@ -44,7 +44,7 @@ public class EvaluationResultTest {
 
   @Test
   public void toString_is_defined() {
-    assertThat(new EvaluationResult(Measure.Level.OK, "toto").toString())
-      .isEqualTo("EvaluationResult{level=OK, value=toto}");
+    assertThat(new EvaluationResult(Measure.Level.OK, "toto"))
+      .hasToString("EvaluationResult{level=OK, value=toto}");
   }
 }

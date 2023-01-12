@@ -55,7 +55,7 @@ public class NewIssuesNotificationHandlerTest {
 
   @Test
   public void getMetadata_returns_same_instance_as_static_method() {
-    assertThat(underTest.getMetadata().get()).isSameAs(NewIssuesNotificationHandler.newMetadata());
+    assertThat(underTest.getMetadata()).containsSame(NewIssuesNotificationHandler.newMetadata());
   }
 
   @Test

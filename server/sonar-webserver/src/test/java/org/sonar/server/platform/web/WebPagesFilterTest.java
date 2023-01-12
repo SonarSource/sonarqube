@@ -67,7 +67,7 @@ public class WebPagesFilterTest {
     verify(response).setContentType("text/html");
     verify(response).setCharacterEncoding("utf-8");
     verify(response).setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    assertThat(outputStream.toString()).isEqualTo("test");
+    assertThat(outputStream).hasToString("test");
   }
 
   @Test

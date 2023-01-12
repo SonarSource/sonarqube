@@ -338,7 +338,7 @@ public class JvmOptionsTest {
   public void toString_prints_all_jvm_options() {
     underTest.add("-foo").add("-bar");
 
-    assertThat(underTest.toString()).isEqualTo("[-foo, -bar]");
+    assertThat(underTest).hasToString("[-foo, -bar]");
   }
 
   private void expectJvmOptionNotNullNPE(ThrowingCallable callback) {

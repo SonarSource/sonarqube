@@ -177,11 +177,11 @@ public class ServletRequestTest {
   @Test
   public void to_string() {
     when(source.getRequestURL()).thenReturn(new StringBuffer("http:localhost:9000/api/issues"));
-    assertThat(underTest.toString()).isEqualTo("http:localhost:9000/api/issues");
+    assertThat(underTest).hasToString("http:localhost:9000/api/issues");
 
     when(source.getQueryString()).thenReturn("components=sonar");
 
-    assertThat(underTest.toString()).isEqualTo("http:localhost:9000/api/issues?components=sonar");
+    assertThat(underTest).hasToString("http:localhost:9000/api/issues?components=sonar");
   }
 
   @Test

@@ -64,7 +64,7 @@ public class EvaluatedConditionTest {
 
   @Test
   public void override_toString() {
-    assertThat(underTest.toString()).isEqualTo("EvaluatedCondition{condition=" +
+    assertThat(underTest).hasToString("EvaluatedCondition{condition=" +
       "Condition{metricKey='metricKey', operator=GREATER_THAN, errorThreshold='2'}, " +
       "status=ERROR, value='value'}");
   }
@@ -73,7 +73,7 @@ public class EvaluatedConditionTest {
   public void toString_does_not_quote_null_value() {
     EvaluatedCondition underTest = new EvaluatedCondition(CONDITION_1, ERROR, null);
 
-    assertThat(underTest.toString()).isEqualTo("EvaluatedCondition{condition=" +
+    assertThat(underTest).hasToString("EvaluatedCondition{condition=" +
       "Condition{metricKey='metricKey', operator=GREATER_THAN, errorThreshold='2'}, " +
       "status=ERROR, value=null}");
   }

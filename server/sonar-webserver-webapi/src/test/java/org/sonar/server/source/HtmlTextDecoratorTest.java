@@ -19,9 +19,8 @@
  */
 package org.sonar.server.source;
 
-import org.junit.Test;
-
 import java.util.List;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.source.HtmlTextDecorator.CR_END_OF_LINE;
@@ -322,19 +321,19 @@ public class HtmlTextDecoratorTest {
 
     HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
     List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(javadocWithHtml, decorationData, 4, null);
-    assertThat(htmlOutput).hasSize(9);
-
-    // Begin from line 4
-    assertThat(htmlOutput).containsExactly(
-      "<span class=\"cppd\"> * This framework can used for instance in order to :</span>",
-      "<span class=\"cppd\"> * &lt;ul&gt;</span>",
-      "<span class=\"cppd\"> *   &lt;li&gt;Create a lexer in charge to generate a list of tokens from a character stream&lt;/li&gt;</span>",
-      "<span class=\"cppd\"> *   &lt;li&gt;Create a source code syntax highligther in charge to decorate a source code with HTML tags&lt;/li&gt;</span>",
-      "<span class=\"cppd\"> *   &lt;li&gt;Create a javadoc generator&lt;/li&gt;</span>",
-      "<span class=\"cppd\"> *   &lt;li&gt;...&lt;/li&gt;</span>",
-      "<span class=\"cppd\"> * &lt;/ul&gt;</span>",
-      "<span class=\"cppd\"> */</span>",
-      "");
+    assertThat(htmlOutput)
+      .hasSize(9)
+      // Begin from line 4
+      .containsExactly(
+        "<span class=\"cppd\"> * This framework can used for instance in order to :</span>",
+        "<span class=\"cppd\"> * &lt;ul&gt;</span>",
+        "<span class=\"cppd\"> *   &lt;li&gt;Create a lexer in charge to generate a list of tokens from a character stream&lt;/li&gt;</span>",
+        "<span class=\"cppd\"> *   &lt;li&gt;Create a source code syntax highligther in charge to decorate a source code with HTML tags&lt;/li&gt;</span>",
+        "<span class=\"cppd\"> *   &lt;li&gt;Create a javadoc generator&lt;/li&gt;</span>",
+        "<span class=\"cppd\"> *   &lt;li&gt;...&lt;/li&gt;</span>",
+        "<span class=\"cppd\"> * &lt;/ul&gt;</span>",
+        "<span class=\"cppd\"> */</span>",
+        "");
   }
 
   @Test
@@ -358,14 +357,14 @@ public class HtmlTextDecoratorTest {
 
     HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
     List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(javadocWithHtml, decorationData, null, 4);
-    assertThat(htmlOutput).hasSize(4);
-
-    // End at line 4
-    assertThat(htmlOutput).containsExactly(
-      "<span class=\"cppd\">/**</span>",
-      "<span class=\"cppd\"> * Provides a basic framework to sequentially read any kind of character stream in order to feed a generic OUTPUT.</span>",
-      "<span class=\"cppd\"> * </span>",
-      "<span class=\"cppd\"> * This framework can used for instance in order to :</span>");
+    assertThat(htmlOutput)
+      .hasSize(4)
+      // End at line 4
+      .containsExactly(
+        "<span class=\"cppd\">/**</span>",
+        "<span class=\"cppd\"> * Provides a basic framework to sequentially read any kind of character stream in order to feed a generic OUTPUT.</span>",
+        "<span class=\"cppd\"> * </span>",
+        "<span class=\"cppd\"> * This framework can used for instance in order to :</span>");
   }
 
   @Test
@@ -389,15 +388,15 @@ public class HtmlTextDecoratorTest {
 
     HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
     List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(javadocWithHtml, decorationData, 4, 8);
-    assertThat(htmlOutput).hasSize(5);
-
-    // Begin from line 4 and finish at line 8
-    assertThat(htmlOutput).containsExactly(
-      "<span class=\"cppd\"> * This framework can used for instance in order to :</span>",
-      "<span class=\"cppd\"> * &lt;ul&gt;</span>",
-      "<span class=\"cppd\"> *   &lt;li&gt;Create a lexer in charge to generate a list of tokens from a character stream&lt;/li&gt;</span>",
-      "<span class=\"cppd\"> *   &lt;li&gt;Create a source code syntax highligther in charge to decorate a source code with HTML tags&lt;/li&gt;</span>",
-      "<span class=\"cppd\"> *   &lt;li&gt;Create a javadoc generator&lt;/li&gt;</span>"
-    );
+    assertThat(htmlOutput)
+      .hasSize(5)
+      // Begin from line 4 and finish at line 8
+      .containsExactly(
+        "<span class=\"cppd\"> * This framework can used for instance in order to :</span>",
+        "<span class=\"cppd\"> * &lt;ul&gt;</span>",
+        "<span class=\"cppd\"> *   &lt;li&gt;Create a lexer in charge to generate a list of tokens from a character stream&lt;/li&gt;</span>",
+        "<span class=\"cppd\"> *   &lt;li&gt;Create a source code syntax highligther in charge to decorate a source code with HTML tags&lt;/li&gt;</span>",
+        "<span class=\"cppd\"> *   &lt;li&gt;Create a javadoc generator&lt;/li&gt;</span>"
+      );
   }
 }

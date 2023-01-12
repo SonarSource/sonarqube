@@ -51,7 +51,7 @@ public class LineRangeTest {
 
   @Test
   public void testToString() {
-    assertThat(new LineRange(12, 15).toString()).isEqualTo("[12-15]");
+    assertThat(new LineRange(12, 15)).hasToString("[12-15]");
   }
 
   @Test

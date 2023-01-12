@@ -33,13 +33,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ProjectServerSettings;
@@ -115,8 +115,9 @@ public class AnalysisContextReportPublisherTest {
     publisher.init(writer);
 
     String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog(), StandardCharsets.UTF_8);
-    assertThat(content).containsOnlyOnce(COM_FOO);
-    assertThat(content).containsOnlyOnce(SONAR_SKIP);
+    assertThat(content)
+      .containsOnlyOnce(COM_FOO)
+      .containsOnlyOnce(SONAR_SKIP);
   }
 
   @Test

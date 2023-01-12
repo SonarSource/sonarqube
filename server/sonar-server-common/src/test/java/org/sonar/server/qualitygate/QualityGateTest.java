@@ -89,7 +89,7 @@ public class QualityGateTest {
   public void toString_is_override() {
     QualityGate underTest = new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2));
 
-    assertThat(underTest.toString()).isEqualTo("QualityGate{id=qg_id, name='qg_name', conditions=[" +
+    assertThat(underTest).hasToString("QualityGate{id=qg_id, name='qg_name', conditions=[" +
       "Condition{metricKey='m2', operator=LESS_THAN, errorThreshold='2'}" +
       "]}");
   }

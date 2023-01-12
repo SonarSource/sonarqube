@@ -223,7 +223,7 @@ public class ProjectMeasuresQueryFactoryTest {
 
     ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
 
-    assertThat(underTest.getQueryText().get()).isEqualTo("Sonar Qube");
+    assertThat(underTest.getQueryText()).contains("Sonar Qube");
   }
 
   @Test
@@ -232,7 +232,7 @@ public class ProjectMeasuresQueryFactoryTest {
 
     ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
 
-    assertThat(underTest.getQueryText().get()).isEqualTo("Sonar Qube");
+    assertThat(underTest.getQueryText()).contains("Sonar Qube");
   }
 
   @Test

@@ -142,7 +142,7 @@ public class HealthTest {
 
   @Test
   public void verify_toString() {
-    assertThat(Health.GREEN.toString()).isEqualTo("Health{GREEN, causes=[]}");
+    assertThat(Health.GREEN).hasToString("Health{GREEN, causes=[]}");
     Health.Builder builder = Health.builder().setStatus(anyStatus);
     randomCauses.forEach(builder::addCause);
 

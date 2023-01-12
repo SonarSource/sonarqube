@@ -49,7 +49,7 @@ public class LongSumCounterTest {
 
     sumCounter.initialize(counterInitializationContext);
 
-    assertThat(sumCounter.getValue().get()).isEqualTo(MEASURE_VALUE);
+    assertThat(sumCounter.getValue()).contains(MEASURE_VALUE);
   }
 
   @Test
@@ -69,7 +69,7 @@ public class LongSumCounterTest {
 
     sumCounter.aggregate(anotherCounter);
 
-    assertThat(sumCounter.getValue().get()).isEqualTo(MEASURE_VALUE);
+    assertThat(sumCounter.getValue()).contains(MEASURE_VALUE);
   }
 
   @Test

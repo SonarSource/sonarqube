@@ -113,7 +113,7 @@ public class ServerIdTest {
     assertThat(serverId.getFormat()).isEqualTo(DEPRECATED);
     assertThat(serverId.getDatasetId()).isEqualTo(deprecated);
     assertThat(serverId.getDatabaseId()).isEmpty();
-    assertThat(serverId.toString()).isEqualTo(deprecated);
+    assertThat(serverId).hasToString(deprecated);
   }
 
   @Test
@@ -124,7 +124,7 @@ public class ServerIdTest {
     assertThat(serverId.getFormat()).isEqualTo(NO_DATABASE_ID);
     assertThat(serverId.getDatasetId()).isEqualTo(noDatabaseId);
     assertThat(serverId.getDatabaseId()).isEmpty();
-    assertThat(serverId.toString()).isEqualTo(noDatabaseId);
+    assertThat(serverId).hasToString(noDatabaseId);
   }
 
   @DataProvider
@@ -148,7 +148,7 @@ public class ServerIdTest {
     assertThat(serverId.getFormat()).isEqualTo(WITH_DATABASE_ID);
     assertThat(serverId.getDatasetId()).isEqualTo(datasetId);
     assertThat(serverId.getDatabaseId()).contains(databaseId);
-    assertThat(serverId.toString()).isEqualTo(rawServerId);
+    assertThat(serverId).hasToString(rawServerId);
   }
 
   @DataProvider

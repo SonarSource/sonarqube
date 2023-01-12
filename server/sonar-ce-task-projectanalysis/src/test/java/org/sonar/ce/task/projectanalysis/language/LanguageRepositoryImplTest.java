@@ -47,8 +47,9 @@ public class LanguageRepositoryImplTest {
   public void find_by_key_returns_the_same_object() {
     LanguageRepositoryImpl languageRepository = new LanguageRepositoryImpl(SOME_LANGUAGE);
     Optional<Language> language = languageRepository.find(SOME_LANGUAGE_KEY);
-    assertThat(language).isPresent();
-    assertThat(language.get()).isSameAs(SOME_LANGUAGE);
+    assertThat(language)
+      .isPresent()
+      .containsSame(SOME_LANGUAGE);
   }
 
   @Test

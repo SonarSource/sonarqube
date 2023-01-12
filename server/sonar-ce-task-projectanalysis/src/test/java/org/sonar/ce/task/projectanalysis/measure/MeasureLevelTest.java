@@ -32,7 +32,7 @@ public class MeasureLevelTest {
   @Test
   public void verify_toLevel_supports_all_Level_values() {
     for (Measure.Level level : Measure.Level.values()) {
-      assertThat(Measure.Level.toLevel(level.name()).get()).isEqualTo(level);
+      assertThat(Measure.Level.toLevel(level.name())).contains(level);
     }
   }
 

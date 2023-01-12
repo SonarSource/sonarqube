@@ -624,8 +624,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     assertThat(newIssuesFactoryCaptor.issuesSetCaptor.get(0)).hasSize(1000);
     assertThat(newIssuesFactoryCaptor.issuesSetCaptor.get(1)).hasSize(1000);
     assertThat(newIssuesFactoryCaptor.issuesSetCaptor.get(2)).hasSize(issues.size() - 2000);
-    assertThat(newIssuesFactoryCaptor.assigneeCacheCaptor).hasSize(3);
-    assertThat(newIssuesFactoryCaptor.assigneeCacheCaptor).containsOnly(newIssuesFactoryCaptor.assigneeCacheCaptor.iterator().next());
+    assertThat(newIssuesFactoryCaptor.assigneeCacheCaptor)
+      .hasSize(3)
+      .containsOnly(newIssuesFactoryCaptor.assigneeCacheCaptor.iterator().next());
     ArgumentCaptor<Collection> collectionCaptor = forClass(Collection.class);
     verify(notificationService, times(3)).deliverEmails(collectionCaptor.capture());
     assertThat(collectionCaptor.getAllValues()).hasSize(3);

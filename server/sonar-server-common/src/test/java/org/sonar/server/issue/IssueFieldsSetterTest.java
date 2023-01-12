@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Predicate;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.api.utils.Duration;

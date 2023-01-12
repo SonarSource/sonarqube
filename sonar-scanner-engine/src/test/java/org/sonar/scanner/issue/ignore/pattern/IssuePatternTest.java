@@ -59,7 +59,7 @@ public class IssuePatternTest {
 
   @Test
   public void toString_should_include_all_fields() {
-    assertThat(new IssuePattern("*", "*:Foo*IllegalRegexp").toString()).isEqualTo("IssuePattern{filePattern=*, rulePattern=*:Foo*IllegalRegexp}");
+    assertThat(new IssuePattern("*", "*:Foo*IllegalRegexp")).hasToString("IssuePattern{filePattern=*, rulePattern=*:Foo*IllegalRegexp}");
   }
 
 }

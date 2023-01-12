@@ -89,7 +89,7 @@ public class RekeyedProjectTest {
     String previousKey = "E";
     RekeyedProject underTest = new RekeyedProject(project, previousKey);
 
-    assertThat(underTest.toString()).isEqualTo("RekeyedProject{project=Project{uuid='A', key='B', name='C', description='D'}, previousKey='E'}");
+    assertThat(underTest).hasToString("RekeyedProject{project=Project{uuid='A', key='B', name='C', description='D'}, previousKey='E'}");
   }
 
   private static Project newRandomProject() {

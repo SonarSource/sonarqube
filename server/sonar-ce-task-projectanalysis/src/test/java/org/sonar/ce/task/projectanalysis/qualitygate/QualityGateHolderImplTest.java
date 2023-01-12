@@ -60,7 +60,7 @@ public class QualityGateHolderImplTest {
 
     holder.setQualityGate(QUALITY_GATE);
 
-    assertThat(holder.getQualityGate().get()).isSameAs(QUALITY_GATE);
+    assertThat(holder.getQualityGate()).containsSame(QUALITY_GATE);
   }
 
   @Test
@@ -94,7 +94,7 @@ public class QualityGateHolderImplTest {
     EvaluatedQualityGate evaluation = mock(EvaluatedQualityGate.class);
     holder.setEvaluation(evaluation);
 
-    assertThat(holder.getEvaluation().get()).isSameAs(evaluation);
+    assertThat(holder.getEvaluation()).containsSame(evaluation);
   }
 
 }

@@ -82,6 +82,6 @@ public class EmailRecipientTest {
     String login = randomAlphabetic(11);
     String email = randomAlphabetic(12);
 
-    assertThat(new EmailRecipient(login, email).toString()).isEqualTo("EmailRecipient{'" + login + "':'" + email + "'}");
+    assertThat(new EmailRecipient(login, email)).hasToString("EmailRecipient{'" + login + "':'" + email + "'}");
   }
 }

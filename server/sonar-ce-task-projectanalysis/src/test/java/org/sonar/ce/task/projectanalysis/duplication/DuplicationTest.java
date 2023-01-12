@@ -144,10 +144,11 @@ public class DuplicationTest {
   public void equals_compares_on_original_and_duplicates() {
     Duplication duplication = new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1)));
 
-    assertThat(duplication).isEqualTo(duplication);
-    assertThat(duplication).isEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1))));
-    assertThat(duplication).isNotEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_2))));
-    assertThat(duplication).isNotEqualTo(new Duplication(TEXT_BLOCK_1, Arrays.asList(new InnerDuplicate(SOME_ORIGINAL_TEXTBLOCK))));
+    assertThat(duplication)
+      .isEqualTo(duplication)
+      .isEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1))))
+      .isNotEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_2))))
+      .isNotEqualTo(new Duplication(TEXT_BLOCK_1, Arrays.asList(new InnerDuplicate(SOME_ORIGINAL_TEXTBLOCK))));
   }
 
   @Test
@@ -165,8 +166,8 @@ public class DuplicationTest {
       SOME_ORIGINAL_TEXTBLOCK,
       Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1)));
 
-    assertThat(duplication.toString())
-      .isEqualTo("Duplication{original=TextBlock{start=1, end=2}, duplicates=[InnerDuplicate{textBlock=TextBlock{start=2, end=2}}]}");
+    assertThat(duplication)
+      .hasToString("Duplication{original=TextBlock{start=1, end=2}, duplicates=[InnerDuplicate{textBlock=TextBlock{start=2, end=2}}]}");
   }
 
   @SafeVarargs

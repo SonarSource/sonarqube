@@ -283,7 +283,7 @@ public class MeasureRepositoryImplTest {
     underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
     underTest.update(FILE_COMPONENT, metric1, newMeasure);
 
-    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1).get()).isSameAs(newMeasure);
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1)).containsSame(newMeasure);
   }
 
   @Test
@@ -312,8 +312,9 @@ public class MeasureRepositoryImplTest {
 
     Optional<Measure> res = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 
-    assertThat(res).isPresent();
-    assertThat(res.get()).isSameAs(SOME_MEASURE);
+    assertThat(res)
+      .isPresent()
+      .containsSame(SOME_MEASURE);
 
     // make sure we really match on the specified component and metric
     assertThat(underTest.getRawMeasure(OTHER_COMPONENT, metric1)).isNotPresent();
@@ -363,8 +364,9 @@ public class MeasureRepositoryImplTest {
 
     Optional<Measure> res = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 
-    assertThat(res).isPresent();
-    assertThat(res.get()).isSameAs(addedMeasure);
+    assertThat(res)
+      .isPresent()
+      .containsSame(addedMeasure);
   }
 
   @Test

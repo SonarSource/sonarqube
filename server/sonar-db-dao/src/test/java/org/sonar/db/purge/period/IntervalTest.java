@@ -57,7 +57,7 @@ public class IntervalTest {
       );
 
     List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2010-01-01"), DateUtils.parseDate("2011-12-31"), Calendar.MONTH);
-    assertThat(intervals.size()).isEqualTo(3);
+    assertThat(intervals).hasSize(3);
 
     assertThat(intervals.get(0).count()).isOne();
     assertThat(calendarField(intervals.get(0), Calendar.MONTH)).isEqualTo((Calendar.APRIL));
@@ -78,7 +78,7 @@ public class IntervalTest {
 
     List<Interval> intervals = Interval.group(snapshots,
       DateUtils.parseDateTime("2010-01-01T00:00:00+0100"), DateUtils.parseDateTime("2011-12-31T00:00:00+0100"), Calendar.MONTH);
-    assertThat(intervals.size()).isEqualTo(2);
+    assertThat(intervals).hasSize(2);
 
     assertThat(intervals.get(0).count()).isOne();
     assertThat(calendarField(intervals.get(0), Calendar.MONTH)).isEqualTo((Calendar.APRIL));

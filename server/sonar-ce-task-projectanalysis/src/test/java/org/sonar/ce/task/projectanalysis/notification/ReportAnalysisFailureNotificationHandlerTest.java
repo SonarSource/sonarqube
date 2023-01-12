@@ -57,7 +57,7 @@ public class ReportAnalysisFailureNotificationHandlerTest {
 
   @Test
   public void getMetadata_returns_same_instance_as_static_method() {
-    assertThat(underTest.getMetadata().get()).isSameAs(ReportAnalysisFailureNotificationHandler.newMetadata());
+    assertThat(underTest.getMetadata()).containsSame(ReportAnalysisFailureNotificationHandler.newMetadata());
   }
 
   @Test

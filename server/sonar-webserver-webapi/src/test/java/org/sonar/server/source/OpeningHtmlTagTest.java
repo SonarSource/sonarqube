@@ -39,11 +39,13 @@ public class OpeningHtmlTagTest {
     OpeningHtmlTag openingHtmlTagWithDifferentValues = new OpeningHtmlTag(5, "tag2");
     OpeningHtmlTag openingHtmlTagWithNoCssClass = new OpeningHtmlTag(3, null);
 
-    assertThat(openingHtmlTag).isEqualTo(openingHtmlTagWithSameValues);
-    assertThat(openingHtmlTag).isEqualTo(openingHtmlTag);
-    assertThat(openingHtmlTag).isNotEqualTo(openingHtmlTagWithDifferentValues);
-    assertThat(openingHtmlTag).isNotEqualTo(openingHtmlTagWithNoCssClass);
-    assertThat(openingHtmlTag).isNotEqualTo(new OpeningHtmlTag(3, "tag"){});
+    assertThat(openingHtmlTag)
+      .isEqualTo(openingHtmlTagWithSameValues)
+      .isEqualTo(openingHtmlTag)
+      .isNotEqualTo(openingHtmlTagWithDifferentValues)
+      .isNotEqualTo(openingHtmlTagWithNoCssClass)
+      .isNotEqualTo(new OpeningHtmlTag(3, "tag") {
+      });
   }
 
   @Test

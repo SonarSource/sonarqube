@@ -38,8 +38,8 @@ public class AppSettingsImplTest {
     AppSettingsImpl underTest = new AppSettingsImpl(initialProps);
     underTest.reload(newProps);
 
-    assertThat(underTest.getValue("foo").get()).isEqualTo("baz");
-    assertThat(underTest.getValue("newProp").get()).isEqualTo("newVal");
+    assertThat(underTest.getValue("foo")).contains("baz");
+    assertThat(underTest.getValue("newProp")).contains("newVal");
     assertThat(underTest.getProps().rawProperties()).hasSize(2);
   }
 }

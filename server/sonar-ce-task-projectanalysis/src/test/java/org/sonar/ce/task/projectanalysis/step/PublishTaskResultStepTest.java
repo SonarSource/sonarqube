@@ -50,6 +50,6 @@ public class PublishTaskResultStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(taskResultHolder.getResult().getAnalysisUuid().get()).isEqualTo(AN_ANALYSIS_UUID);
+    assertThat(taskResultHolder.getResult().getAnalysisUuid()).contains(AN_ANALYSIS_UUID);
   }
 }

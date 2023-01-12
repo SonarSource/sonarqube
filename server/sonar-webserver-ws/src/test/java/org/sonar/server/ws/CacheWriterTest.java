@@ -40,7 +40,7 @@ public class CacheWriterTest {
 
     underTest.close();
 
-    assertThat(writer.toString()).isEqualTo("content");
+    assertThat(writer).hasToString("content");
   }
 
   @Test

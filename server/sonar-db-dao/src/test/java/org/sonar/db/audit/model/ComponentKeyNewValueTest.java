@@ -34,6 +34,6 @@ public class ComponentKeyNewValueTest {
 
     JSONObject jsonObject = (JSONObject) new JSONParser().parse(newValue.toString());
 
-    assertThat(jsonObject.size()).isEqualTo(3);
+    assertThat(jsonObject).hasSize(3);
   }
 }

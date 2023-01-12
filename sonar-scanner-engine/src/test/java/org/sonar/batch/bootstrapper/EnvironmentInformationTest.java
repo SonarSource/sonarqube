@@ -36,6 +36,6 @@ public class EnvironmentInformationTest {
   public void test_toString() {
     EnvironmentInformation env = new EnvironmentInformation("Maven Plugin", "2.0");
 
-    assertThat(env.toString()).isEqualTo("Maven Plugin/2.0");
+    assertThat(env).hasToString("Maven Plugin/2.0");
   }
 }

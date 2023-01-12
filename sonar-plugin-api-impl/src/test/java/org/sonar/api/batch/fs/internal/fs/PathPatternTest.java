@@ -45,7 +45,7 @@ public class PathPatternTest {
   @Test
   public void match_relative_path() {
     PathPattern pattern = PathPattern.create("**/*Foo.java");
-    assertThat(pattern.toString()).isEqualTo("**/*Foo.java");
+    assertThat(pattern).hasToString("**/*Foo.java");
 
     IndexedFile indexedFile = new DefaultIndexedFile("ABCDE", baseDir, "src/main/java/org/MyFoo.java", null);
     assertThat(pattern.match(indexedFile.path(), Paths.get(indexedFile.relativePath()))).isTrue();
@@ -72,7 +72,7 @@ public class PathPatternTest {
   @Test
   public void match_absolute_path() {
     PathPattern pattern = PathPattern.create("file:**/src/main/**Foo.java");
-    assertThat(pattern.toString()).isEqualTo("file:**/src/main/**Foo.java");
+    assertThat(pattern).hasToString("file:**/src/main/**Foo.java");
 
     IndexedFile indexedFile = new DefaultIndexedFile("ABCDE", baseDir, "src/main/java/org/MyFoo.java", null);
     assertThat(pattern.match(indexedFile.path(), Paths.get(indexedFile.relativePath()))).isTrue();
@@ -88,7 +88,7 @@ public class PathPatternTest {
   @Test
   public void match_absolute_path_and_insensitive_file_extension() {
     PathPattern pattern = PathPattern.create("file:**/src/main/**Foo.java");
-    assertThat(pattern.toString()).isEqualTo("file:**/src/main/**Foo.java");
+    assertThat(pattern).hasToString("file:**/src/main/**Foo.java");
 
     IndexedFile indexedFile = new DefaultIndexedFile("ABCDE", baseDir, "src/main/java/org/MyFoo.JAVA", null);
     assertThat(pattern.match(indexedFile.path(), Paths.get(indexedFile.relativePath()), false)).isTrue();
@@ -104,7 +104,7 @@ public class PathPatternTest {
       "file:**/src/main/**Bar.java"
     });
     assertThat(patterns).hasSize(2);
-    assertThat(patterns[0].toString()).isEqualTo("**/src/main/**Foo.java");
-    assertThat(patterns[1].toString()).isEqualTo("file:**/src/main/**Bar.java");
+    assertThat(patterns[0]).hasToString("**/src/main/**Foo.java");
+    assertThat(patterns[1]).hasToString("file:**/src/main/**Bar.java");
   }
 }

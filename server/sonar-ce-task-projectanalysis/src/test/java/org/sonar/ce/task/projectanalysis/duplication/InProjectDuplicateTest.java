@@ -85,8 +85,8 @@ public class InProjectDuplicateTest {
 
   @Test
   public void verify_toString() {
-    assertThat(new InProjectDuplicate(FILE_1, new TextBlock(1, 2)).toString())
-      .isEqualTo("InProjectDuplicate{file=ReportComponent{ref=1, key='key_1', type=FILE}, textBlock=TextBlock{start=1, end=2}}");
+    assertThat(new InProjectDuplicate(FILE_1, new TextBlock(1, 2)))
+      .hasToString("InProjectDuplicate{file=ReportComponent{ref=1, key='key_1', type=FILE}, textBlock=TextBlock{start=1, end=2}}");
   }
 
 }

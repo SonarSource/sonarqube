@@ -138,7 +138,7 @@ public class TransitionTest {
   @Test
   public void test_toString() {
     Transition t1 = Transition.create("resolve", "OPEN", "RESOLVED");
-    assertThat(t1.toString()).isEqualTo("OPEN->resolve->RESOLVED");
+    assertThat(t1).hasToString("OPEN->resolve->RESOLVED");
   }
 
   @Test
