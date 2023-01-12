@@ -36,6 +36,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.filemove.ScoreMatrix.ScoreFile;
+import org.sonar.server.platform.ServerFileSystem;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +53,9 @@ public class ScoreMatrixDumperImplTest {
   private MapSettings settings = new MapSettings();
   private Configuration configuration = settings.asConfig();
   private CeTask ceTask = mock(CeTask.class);
-  private ScoreMatrixDumper underTest = new ScoreMatrixDumperImpl(configuration, ceTask);
+
+  private ServerFileSystem serverFileSystem = mock(ServerFileSystem.class);
+  private ScoreMatrixDumper underTest = new ScoreMatrixDumperImpl(configuration, ceTask, serverFileSystem);
   private Path tempDir;
 
   @Before
@@ -60,6 +63,7 @@ public class ScoreMatrixDumperImplTest {
     Path tempFile = Files.createTempFile("a", "b");
     Files.delete(tempFile);
     tempDir = tempFile.getParent();
+    when(serverFileSystem.getTempDir()).thenReturn(tempDir.toFile());
   }
 
   @After

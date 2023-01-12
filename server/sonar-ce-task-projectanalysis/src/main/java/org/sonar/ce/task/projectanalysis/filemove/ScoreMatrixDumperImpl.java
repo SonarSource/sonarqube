@@ -27,6 +27,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.CeTask;
+import org.sonar.server.platform.ServerFileSystem;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -35,17 +36,20 @@ public class ScoreMatrixDumperImpl implements ScoreMatrixDumper {
 
   private final Configuration configuration;
   private final CeTask ceTask;
+  private final ServerFileSystem fs;
 
-  public ScoreMatrixDumperImpl(Configuration configuration, CeTask ceTask) {
+  public ScoreMatrixDumperImpl(Configuration configuration, CeTask ceTask, ServerFileSystem fs) {
     this.configuration = configuration;
     this.ceTask = ceTask;
+    this.fs = fs;
   }
 
   @Override
   public void dumpAsCsv(ScoreMatrix scoreMatrix) {
     if (configuration.getBoolean("sonar.filemove.dumpCsv").orElse(false)) {
       try {
-        Path tempFile = Files.createTempFile(String.format("score-matrix-%s", ceTask.getUuid()), ".csv");
+        Path tempFile = fs.getTempDir().toPath()
+          .resolve(String.format("score-matrix-%s.csv", ceTask.getUuid()));
         try (BufferedWriter writer = Files.newBufferedWriter(tempFile, UTF_8)) {
           writer.write(scoreMatrix.toCsv(';'));
         }
