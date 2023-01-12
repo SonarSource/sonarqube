@@ -265,7 +265,6 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
           {creatingAlmDefinition && (
             <AlmBindingDefinitionForm
               alm={creatingAlmDefinition}
-              alreadyHaveInstanceConfigured={false}
               onCancel={this.handleOnCancelCreation}
               afterSubmit={this.handleAfterSubmit}
               enforceValidation={true}

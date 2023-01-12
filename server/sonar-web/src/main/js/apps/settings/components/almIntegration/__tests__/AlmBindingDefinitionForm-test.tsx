@@ -211,7 +211,6 @@ function shallowRender(props: Partial<AlmBindingDefinitionForm['props']> = {}) {
     <AlmBindingDefinitionForm
       alm={AlmKeys.GitHub}
       bindingDefinition={mockGithubBindingDefinition()}
-      alreadyHaveInstanceConfigured={false}
       onCancel={jest.fn()}
       afterSubmit={jest.fn()}
       {...props}

@@ -3,7 +3,6 @@
 exports[`should render correctly: create 1`] = `
 <AlmBindingDefinitionFormRenderer
   alm="github"
-  alreadyHaveInstanceConfigured={false}
   canSubmit={false}
   formData={
     {
@@ -28,7 +27,6 @@ exports[`should render correctly: create 1`] = `
 exports[`should render correctly: edit 1`] = `
 <AlmBindingDefinitionFormRenderer
   alm="github"
-  alreadyHaveInstanceConfigured={false}
   canSubmit={false}
   formData={
     {

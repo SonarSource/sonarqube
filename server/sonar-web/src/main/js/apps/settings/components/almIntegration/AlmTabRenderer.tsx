@@ -118,7 +118,6 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
             <AlmBindingDefinitionForm
               alm={almTab}
               bindingDefinition={editedDefinition}
-              alreadyHaveInstanceConfigured={definitions.length > 0}
               onCancel={props.onCancel}
               afterSubmit={props.afterSubmit}
             />

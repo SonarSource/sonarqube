@@ -50,7 +50,6 @@ import AlmBindingDefinitionFormRenderer from './AlmBindingDefinitionFormRenderer
 interface Props {
   alm: AlmKeys;
   bindingDefinition?: AlmBindingDefinition;
-  alreadyHaveInstanceConfigured: boolean;
   onCancel: () => void;
   afterSubmit: (data: AlmBindingDefinitionBase) => void;
   enforceValidation?: boolean;
@@ -260,7 +259,7 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
   };
 
   render() {
-    const { alm, bindingDefinition, alreadyHaveInstanceConfigured } = this.props;
+    const { alm, bindingDefinition } = this.props;
     const { formData, submitting, bitbucketVariant, validationError } = this.state;
 
     const isUpdate = !!bindingDefinition;
@@ -270,7 +269,6 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<Props,
         alm={alm}
         isUpdate={isUpdate}
         canSubmit={this.canSubmit()}
-        alreadyHaveInstanceConfigured={alreadyHaveInstanceConfigured}
         onCancel={this.handleOnCancel}
         onSubmit={this.handleFormSubmit}
         onFieldChange={this.handleFieldChange}

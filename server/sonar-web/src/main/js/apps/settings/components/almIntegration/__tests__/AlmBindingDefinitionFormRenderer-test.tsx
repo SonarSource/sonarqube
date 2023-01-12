@@ -30,7 +30,6 @@ import GithubForm from '../GithubForm';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ alreadyHaveInstanceConfigured: true })).toMatchSnapshot('second instance');
   expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
   expect(shallowRender({ isUpdate: true })).toMatchSnapshot('editing');
   expect(shallowRender({ validationError: 'this is a validation error' })).toMatchSnapshot(
@@ -80,7 +79,6 @@ function shallowRender(props: Partial<AlmBindingDefinitionFormProps> = {}) {
       alm={AlmKeys.GitHub}
       isUpdate={false}
       canSubmit={false}
-      alreadyHaveInstanceConfigured={false}
       submitting={false}
       formData={mockGithubBindingDefinition()}
       onCancel={jest.fn()}
