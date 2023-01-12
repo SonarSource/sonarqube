@@ -164,7 +164,7 @@
 .menu-header {
   padding: var(--gridSize);
   font-size: 12px;
-  color: #777;
+  color: var(--neutral600);
   white-space: nowrap;
 }
 
