@@ -4,107 +4,111 @@ exports[`should render correctly 1`] = `
 <Dropdown
   className="display-inline-block"
   overlay={
-    <ul
-      className="menu"
-    >
-      <li
+    <React.Fragment>
+      <h2
         className="menu-header"
+        id="filter-similar-rules"
       >
         coding_rules.filter_similar_rules
-      </li>
-      <li>
-        <a
-          data-test="coding-rules__similar-language"
-          href="#"
-          onClick={[Function]}
-        >
-          JavaScript
-        </a>
-      </li>
-      <li>
-        <a
-          className="display-flex-center"
-          data-test="coding-rules__similar-type"
-          href="#"
-          onClick={[Function]}
-        >
-          <IssueTypeIcon
-            query="CODE_SMELL"
-          />
-          <span
-            className="little-spacer-left"
+      </h2>
+      <ul
+        aria-labelledby="filter-similar-rules"
+        className="menu"
+      >
+        <li>
+          <a
+            data-test="coding-rules__similar-language"
+            href="#"
+            onClick={[Function]}
           >
-            issue.type.CODE_SMELL
-          </span>
-        </a>
-      </li>
-      <li>
-        <a
-          data-test="coding-rules__similar-severity"
-          href="#"
-          onClick={[Function]}
-        >
-          <SeverityHelper
+            JavaScript
+          </a>
+        </li>
+        <li>
+          <a
             className="display-flex-center"
-            severity="MAJOR"
-          />
-        </a>
-      </li>
-      <li
-        className="divider"
-      />
-      <li>
-        <a
-          data-tag="x"
-          data-test="coding-rules__similar-tag"
-          href="#"
-          onClick={[Function]}
-        >
-          <TagsIcon
-            className="little-spacer-right text-middle"
-          />
-          <span
-            className="text-middle"
+            data-test="coding-rules__similar-type"
+            href="#"
+            onClick={[Function]}
           >
-            x
-          </span>
-        </a>
-      </li>
-      <li>
-        <a
-          data-tag="a"
-          data-test="coding-rules__similar-tag"
-          href="#"
-          onClick={[Function]}
-        >
-          <TagsIcon
-            className="little-spacer-right text-middle"
-          />
-          <span
-            className="text-middle"
+            <IssueTypeIcon
+              query="CODE_SMELL"
+            />
+            <span
+              className="little-spacer-left"
+            >
+              issue.type.CODE_SMELL
+            </span>
+          </a>
+        </li>
+        <li>
+          <a
+            data-test="coding-rules__similar-severity"
+            href="#"
+            onClick={[Function]}
           >
-            a
-          </span>
-        </a>
-      </li>
-      <li>
-        <a
-          data-tag="b"
-          data-test="coding-rules__similar-tag"
-          href="#"
-          onClick={[Function]}
-        >
-          <TagsIcon
-            className="little-spacer-right text-middle"
-          />
-          <span
-            className="text-middle"
+            <SeverityHelper
+              className="display-flex-center"
+              severity="MAJOR"
+            />
+          </a>
+        </li>
+        <li
+          className="divider"
+        />
+        <li>
+          <a
+            data-tag="x"
+            data-test="coding-rules__similar-tag"
+            href="#"
+            onClick={[Function]}
           >
-            b
-          </span>
-        </a>
-      </li>
-    </ul>
+            <TagsIcon
+              className="little-spacer-right text-middle"
+            />
+            <span
+              className="text-middle"
+            >
+              x
+            </span>
+          </a>
+        </li>
+        <li>
+          <a
+            data-tag="a"
+            data-test="coding-rules__similar-tag"
+            href="#"
+            onClick={[Function]}
+          >
+            <TagsIcon
+              className="little-spacer-right text-middle"
+            />
+            <span
+              className="text-middle"
+            >
+              a
+            </span>
+          </a>
+        </li>
+        <li>
+          <a
+            data-tag="b"
+            data-test="coding-rules__similar-tag"
+            href="#"
+            onClick={[Function]}
+          >
+            <TagsIcon
+              className="little-spacer-right text-middle"
+            />
+            <span
+              className="text-middle"
+            >
+              b
+            </span>
+          </a>
+        </li>
+      </ul>
+    </React.Fragment>
   }
 >
   <a

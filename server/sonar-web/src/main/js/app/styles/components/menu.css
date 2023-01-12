@@ -31,7 +31,8 @@
   padding-bottom: 12px;
 }
 
-.menu + .menu {
+.menu + .menu,
+.menu + .menu-header {
   border-top: 1px solid var(--barBorderColor);
 }
 
@@ -163,12 +164,25 @@
 
 .menu-header {
   padding: var(--gridSize);
+  margin: -8px;
   font-size: 12px;
   color: var(--neutral600);
   white-space: nowrap;
+  line-height: unset;
 }
 
-.menu-header:first-child,
+.menu-header + ul {
+  padding-top: 8px;
+}
+
+.menu-header.no-margin + ul {
+  padding-top: 0;
+}
+
+.menu-header.no-margin {
+  margin: 0;
+}
+
 .divider + .menu-header {
   padding-top: calc(var(--gridSize) - 5px);
 }

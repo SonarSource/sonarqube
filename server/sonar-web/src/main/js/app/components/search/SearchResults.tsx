@@ -45,23 +45,29 @@ export default function SearchResults(props: Props): React.ReactElement<Props> {
       const more = props.more[qualifier];
 
       renderedComponents.push(
-        <ul className="menu" key={`header-${qualifier}`}>
-          <li className="menu-header" role="presentation">
+        <>
+          <h2 className="menu-header no-margin" id={translate('qualifiers', qualifier)}>
             {translate('qualifiers', qualifier)}
-          </li>
-          {components.map((component) => props.renderResult(component))}
-          {more !== undefined && more > 0 && (
-            <SearchShowMore
-              allowMore={props.allowMore}
-              key={`more-${qualifier}`}
-              loadingMore={props.loadingMore}
-              onMoreClick={props.onMoreClick}
-              onSelect={props.onSelect}
-              qualifier={qualifier}
-              selected={props.selected === `qualifier###${qualifier}`}
-            />
-          )}
-        </ul>
+          </h2>
+          <ul
+            className="menu"
+            key={`header-${qualifier}`}
+            aria-labelledby={translate('qualifiers', qualifier)}
+          >
+            {components.map((component) => props.renderResult(component))}
+            {more !== undefined && more > 0 && (
+              <SearchShowMore
+                allowMore={props.allowMore}
+                key={`more-${qualifier}`}
+                loadingMore={props.loadingMore}
+                onMoreClick={props.onMoreClick}
+                onSelect={props.onSelect}
+                qualifier={qualifier}
+                selected={props.selected === `qualifier###${qualifier}`}
+              />
+            )}
+          </ul>
+        </>
       );
     }
   });

@@ -74,57 +74,61 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
       <Dropdown
         className="display-inline-block"
         overlay={
-          <ul className="menu">
-            <li className="menu-header">{translate('coding_rules.filter_similar_rules')}</li>
-            <li>
-              <a
-                data-test="coding-rules__similar-language"
-                href="#"
-                onClick={this.handleLanguageClick}
-              >
-                {rule.langName}
-              </a>
-            </li>
-
-            <li>
-              <a
-                className="display-flex-center"
-                data-test="coding-rules__similar-type"
-                href="#"
-                onClick={this.handleTypeClick}
-              >
-                <IssueTypeIcon query={rule.type} />
-                <span className="little-spacer-left">{translate('issue.type', rule.type)}</span>
-              </a>
-            </li>
-
-            {severity && (
+          <>
+            <h2 className="menu-header" id="filter-similar-rules">
+              {translate('coding_rules.filter_similar_rules')}
+            </h2>
+            <ul className="menu" aria-labelledby="filter-similar-rules">
               <li>
                 <a
-                  data-test="coding-rules__similar-severity"
+                  data-test="coding-rules__similar-language"
                   href="#"
-                  onClick={this.handleSeverityClick}
+                  onClick={this.handleLanguageClick}
                 >
-                  <SeverityHelper className="display-flex-center" severity={rule.severity} />
+                  {rule.langName}
                 </a>
               </li>
-            )}
 
-            {allTags.length > 0 && <li className="divider" />}
-            {allTags.map((tag) => (
-              <li key={tag}>
+              <li>
                 <a
-                  data-tag={tag}
-                  data-test="coding-rules__similar-tag"
+                  className="display-flex-center"
+                  data-test="coding-rules__similar-type"
                   href="#"
-                  onClick={this.handleTagClick}
+                  onClick={this.handleTypeClick}
                 >
-                  <TagsIcon className="little-spacer-right text-middle" />
-                  <span className="text-middle">{tag}</span>
+                  <IssueTypeIcon query={rule.type} />
+                  <span className="little-spacer-left">{translate('issue.type', rule.type)}</span>
                 </a>
               </li>
-            ))}
-          </ul>
+
+              {severity && (
+                <li>
+                  <a
+                    data-test="coding-rules__similar-severity"
+                    href="#"
+                    onClick={this.handleSeverityClick}
+                  >
+                    <SeverityHelper className="display-flex-center" severity={rule.severity} />
+                  </a>
+                </li>
+              )}
+
+              {allTags.length > 0 && <li className="divider" />}
+              {allTags.map((tag) => (
+                <li key={tag}>
+                  <a
+                    data-tag={tag}
+                    data-test="coding-rules__similar-tag"
+                    href="#"
+                    onClick={this.handleTagClick}
+                  >
+                    <TagsIcon className="little-spacer-right text-middle" />
+                    <span className="text-middle">{tag}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
         }
       >
         <a

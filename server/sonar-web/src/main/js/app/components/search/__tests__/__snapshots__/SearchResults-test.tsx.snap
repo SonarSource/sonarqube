@@ -2,16 +2,17 @@
 
 exports[`renders "Show More" link 1`] = `
 <div>
+  <h2
+    className="menu-header no-margin"
+    id="qualifiers.TRK"
+  >
+    qualifiers.TRK
+  </h2>
   <ul
+    aria-labelledby="qualifiers.TRK"
     className="menu"
     key="header-TRK"
   >
-    <li
-      className="menu-header"
-      role="presentation"
-    >
-      qualifiers.TRK
-    </li>
     <span
       key="foo"
     >
@@ -36,32 +37,34 @@ exports[`renders "Show More" link 1`] = `
 
 exports[`renders different components and dividers between them 1`] = `
 <div>
+  <h2
+    className="menu-header no-margin"
+    id="qualifiers.FIL"
+  >
+    qualifiers.FIL
+  </h2>
   <ul
+    aria-labelledby="qualifiers.FIL"
     className="menu"
     key="header-FIL"
   >
-    <li
-      className="menu-header"
-      role="presentation"
-    >
-      qualifiers.FIL
-    </li>
     <span
       key="zux"
     >
       zux
     </span>
   </ul>
+  <h2
+    className="menu-header no-margin"
+    id="qualifiers.TRK"
+  >
+    qualifiers.TRK
+  </h2>
   <ul
+    aria-labelledby="qualifiers.TRK"
     className="menu"
     key="header-TRK"
   >
-    <li
-      className="menu-header"
-      role="presentation"
-    >
-      qualifiers.TRK
-    </li>
     <span
       key="foo"
     >

@@ -46,11 +46,11 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     }
   };
 
-  renderTitle(text: string) {
+  renderTitle(text: string, labelId: string) {
     return (
-      <li role="presentation" className="menu-header">
+      <h2 className="menu-header" id={labelId}>
         {text}
-      </li>
+      </h2>
     );
   }
 
@@ -59,20 +59,22 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <ul className="menu abs-width-240">
-        {this.renderTitle(translate('docs.suggestion'))}
-        {suggestions.map((suggestion, i) => (
-          <li key={suggestion.link}>
-            <DocLink
-              innerRef={i === 0 ? this.focusFirstItem : undefined}
-              onClick={this.props.onClose}
-              to={suggestion.link}
-            >
-              {suggestion.text}
-            </DocLink>
-          </li>
-        ))}
-      </ul>
+      <>
+        {this.renderTitle(translate('docs.suggestion'), 'suggestion')}
+        <ul className="menu abs-width-240" aria-labelledby="suggestion">
+          {suggestions.map((suggestion, i) => (
+            <li key={suggestion.link}>
+              <DocLink
+                innerRef={i === 0 ? this.focusFirstItem : undefined}
+                onClick={this.props.onClose}
+                to={suggestion.link}
+              >
+                {suggestion.text}
+              </DocLink>
+            </li>
+          ))}
+        </ul>
+      </>
     );
   };
 
@@ -118,8 +120,8 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
             </Link>
           </li>
         </ul>
-        <ul className="menu abs-width-240">
-          {this.renderTitle(translate('docs.stay_connected'))}
+        {this.renderTitle(translate('docs.stay_connected'), 'stay_connected')}
+        <ul className="menu abs-width-240" aria-labelledby="stay_connected">
           <li>
             {this.renderIconLink(
               'https://www.sonarqube.org/whats-new/?referrer=sonarqube',
