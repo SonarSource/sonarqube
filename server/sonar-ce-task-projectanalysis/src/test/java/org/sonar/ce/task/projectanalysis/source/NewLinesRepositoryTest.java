@@ -92,6 +92,18 @@ public class NewLinesRepositoryTest {
   }
 
   @Test
+  public void compute_new_lines_using_scm_info_for_period_with_missing_line() {
+    periodHolder.setPeriod(new Period("", null, 1000L));
+    scmInfoRepository.setScmInfo(FILE.getReportAttributes().getRef(), createChangesets(1100L, 900L, null, 800L));
+
+    Optional<Set<Integer>> newLines = repository.getNewLines(FILE);
+
+    assertThat(newLines).isPresent();
+    assertThat(newLines.get()).containsOnly(1);
+    assertThat(repository.newLinesAvailable()).isTrue();
+  }
+
+  @Test
   public void compute_new_lines_using_scm_info_for_pullrequest() {
     periodHolder.setPeriod(null);
     setPullRequest();
@@ -137,7 +149,7 @@ public class NewLinesRepositoryTest {
 
   private Changeset[] createChangesets(Long... dates) {
     return Arrays.stream(dates)
-      .map(l -> Changeset.newChangesetBuilder().setDate(l).build())
+      .map(l -> l == null ? null : Changeset.newChangesetBuilder().setDate(l).build())
       .toArray(Changeset[]::new);
   }
 
