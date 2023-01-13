@@ -33,5 +33,9 @@ exports[`renders 1`] = `
     }
     onClick={[Function]}
   />
+  <span
+    aria-live="polite"
+    className="search-box-note"
+  />
 </div>
 `;
