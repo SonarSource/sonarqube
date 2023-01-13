@@ -74,7 +74,7 @@ exports[`should display the edition 1`] = `
   >
     <ForwardRef(Link)
       target="_blank"
-      to="https://redirect.sonarsource.com/editions/developer.html?ncloc=1000&serverId=serverId&sourceEdition=community"
+      to="https://www.sonarsource.com/plans-and-pricing/developer/?ncloc=1000&serverId=serverId&sourceEdition=community"
     >
       marketplace.request_free_trial
     </ForwardRef(Link)>

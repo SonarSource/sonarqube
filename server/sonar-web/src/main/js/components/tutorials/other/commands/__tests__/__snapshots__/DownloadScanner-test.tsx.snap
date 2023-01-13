@@ -21,12 +21,11 @@ exports[`should render correctly for "linux": local 1`] = `
           "env_var": <code>
             PATH
           </code>,
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="https://redirect.sonarsource.com/doc/download-scanner.html"
+          "link": <withAppStateContext(DocLink)
+            to="/analyzing-source-code/scanners/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -111,12 +110,11 @@ exports[`should render correctly for "mac": local 1`] = `
           "env_var": <code>
             PATH
           </code>,
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="https://redirect.sonarsource.com/doc/download-scanner.html"
+          "link": <withAppStateContext(DocLink)
+            to="/analyzing-source-code/scanners/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />
@@ -201,12 +199,11 @@ exports[`should render correctly for "win": local 1`] = `
           "env_var": <code>
             %PATH%
           </code>,
-          "link": <ForwardRef(Link)
-            target="_blank"
-            to="https://redirect.sonarsource.com/doc/download-scanner.html"
+          "link": <withAppStateContext(DocLink)
+            to="/analyzing-source-code/scanners/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </ForwardRef(Link)>,
+          </withAppStateContext(DocLink)>,
         }
       }
     />

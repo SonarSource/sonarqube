@@ -21,7 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
-import Link from '../../../common/Link';
+import DocLink from '../../../common/DocLink';
 import { ClipboardButton } from '../../../controls/clipboard';
 import { OSs } from '../../types';
 
@@ -46,12 +46,9 @@ export default function DownloadScanner(props: DownloadScannerProps) {
               dir: <code>bin</code>,
               env_var: <code>{os === OSs.Windows ? '%PATH%' : 'PATH'}</code>,
               link: (
-                <Link
-                  to="https://redirect.sonarsource.com/doc/download-scanner.html"
-                  target="_blank"
-                >
+                <DocLink to="/analyzing-source-code/scanners/sonarscanner/">
                   {translate('onboarding.analysis.sq_scanner.docs_link')}
-                </Link>
+                </DocLink>
               ),
             }}
           />

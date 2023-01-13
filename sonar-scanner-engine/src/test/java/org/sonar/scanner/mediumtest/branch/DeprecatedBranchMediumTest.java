@@ -83,6 +83,6 @@ public class DeprecatedBranchMediumTest {
       .execute())
       .isInstanceOf(MessageException.class)
       .hasMessage("The 'sonar.branch' parameter is no longer supported. You should stop using it. " +
-        "Branch analysis is available in Developer Edition and above. See https://redirect.sonarsource.com/editions/developer.html for more information.");
+        "Branch analysis is available in Developer Edition and above. See https://www.sonarsource.com/plans-and-pricing/developer/ for more information.");
   }
 }

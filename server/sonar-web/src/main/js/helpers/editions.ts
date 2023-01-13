@@ -25,25 +25,25 @@ const EDITIONS: { [x in EditionKey]: Edition } = {
   community: {
     key: EditionKey.community,
     name: 'Community Edition',
-    homeUrl: 'https://redirect.sonarsource.com/editions/community.html',
+    homeUrl: 'https://www.sonarsource.com/open-source-editions/',
     downloadProperty: 'downloadUrl',
   },
   developer: {
     key: EditionKey.developer,
     name: 'Developer Edition',
-    homeUrl: 'https://redirect.sonarsource.com/editions/developer.html',
+    homeUrl: 'https://www.sonarsource.com/plans-and-pricing/developer/',
     downloadProperty: 'downloadDeveloperUrl',
   },
   enterprise: {
     key: EditionKey.enterprise,
     name: 'Enterprise Edition',
-    homeUrl: 'https://redirect.sonarsource.com/editions/enterprise.html',
+    homeUrl: 'https://www.sonarsource.com/plans-and-pricing/enterprise/',
     downloadProperty: 'downloadEnterpriseUrl',
   },
   datacenter: {
     key: EditionKey.datacenter,
     name: 'Data Center Edition',
-    homeUrl: 'https://redirect.sonarsource.com/editions/datacenter.html',
+    homeUrl: 'https://www.sonarsource.com/plans-and-pricing/data-center/',
     downloadProperty: 'downloadDatacenterUrl',
   },
 };

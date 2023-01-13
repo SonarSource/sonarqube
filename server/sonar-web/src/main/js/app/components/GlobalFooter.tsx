@@ -80,13 +80,9 @@ export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) 
           <DocLink to="/">{translate('footer.documentation')}</DocLink>
         </li>
         <li className="page-footer-menu-item">
-          <a
-            href="https://redirect.sonarsource.com/doc/plugin-library.html"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
+          <DocLink to="/instance-administration/plugin-version-matrix/">
             {translate('footer.plugins')}
-          </a>
+          </DocLink>
         </li>
         {!hideLoggedInInfo && (
           <li className="page-footer-menu-item">

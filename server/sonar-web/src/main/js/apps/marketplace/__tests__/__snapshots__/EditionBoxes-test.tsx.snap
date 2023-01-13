@@ -9,7 +9,7 @@ exports[`should display the available edition boxes correctly 1`] = `
     edition={
       {
         "downloadProperty": "downloadDeveloperUrl",
-        "homeUrl": "https://redirect.sonarsource.com/editions/developer.html",
+        "homeUrl": "https://www.sonarsource.com/plans-and-pricing/developer/",
         "key": "developer",
         "name": "Developer Edition",
       }
@@ -21,7 +21,7 @@ exports[`should display the available edition boxes correctly 1`] = `
     edition={
       {
         "downloadProperty": "downloadEnterpriseUrl",
-        "homeUrl": "https://redirect.sonarsource.com/editions/enterprise.html",
+        "homeUrl": "https://www.sonarsource.com/plans-and-pricing/enterprise/",
         "key": "enterprise",
         "name": "Enterprise Edition",
       }
@@ -33,7 +33,7 @@ exports[`should display the available edition boxes correctly 1`] = `
     edition={
       {
         "downloadProperty": "downloadDatacenterUrl",
-        "homeUrl": "https://redirect.sonarsource.com/editions/datacenter.html",
+        "homeUrl": "https://www.sonarsource.com/plans-and-pricing/data-center/",
         "key": "datacenter",
         "name": "Data Center Edition",
       }
@@ -52,7 +52,7 @@ exports[`should display the datacenter edition box only 1`] = `
     edition={
       {
         "downloadProperty": "downloadDatacenterUrl",
-        "homeUrl": "https://redirect.sonarsource.com/editions/datacenter.html",
+        "homeUrl": "https://www.sonarsource.com/plans-and-pricing/data-center/",
         "key": "datacenter",
         "name": "Data Center Edition",
       }
@@ -71,7 +71,7 @@ exports[`should display the enterprise and datacenter edition boxes 1`] = `
     edition={
       {
         "downloadProperty": "downloadEnterpriseUrl",
-        "homeUrl": "https://redirect.sonarsource.com/editions/enterprise.html",
+        "homeUrl": "https://www.sonarsource.com/plans-and-pricing/enterprise/",
         "key": "enterprise",
         "name": "Enterprise Edition",
       }
@@ -83,7 +83,7 @@ exports[`should display the enterprise and datacenter edition boxes 1`] = `
     edition={
       {
         "downloadProperty": "downloadDatacenterUrl",
-        "homeUrl": "https://redirect.sonarsource.com/editions/datacenter.html",
+        "homeUrl": "https://www.sonarsource.com/plans-and-pricing/data-center/",
         "key": "datacenter",
         "name": "Data Center Edition",
       }

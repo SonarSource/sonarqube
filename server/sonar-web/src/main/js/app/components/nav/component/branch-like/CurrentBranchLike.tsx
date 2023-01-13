@@ -96,7 +96,7 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
             data-test="branches-support-disabled"
             links={[
               {
-                href: 'https://redirect.sonarsource.com/editions/developer.html',
+                href: 'https://www.sonarsource.com/plans-and-pricing/developer/',
                 label: translate('learn_more'),
                 doc: false,
               },

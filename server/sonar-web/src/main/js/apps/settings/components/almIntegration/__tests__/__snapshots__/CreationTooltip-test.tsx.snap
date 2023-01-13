@@ -11,7 +11,7 @@ exports[`should render correctly 1`] = `
         {
           "alm": "alm.azure",
           "link": <a
-            href="https://redirect.sonarsource.com/editions/enterprise.html?sourceEdition=community"
+            href="https://www.sonarsource.com/plans-and-pricing/enterprise/?sourceEdition=community"
             rel="noopener noreferrer"
             target="_blank"
           >

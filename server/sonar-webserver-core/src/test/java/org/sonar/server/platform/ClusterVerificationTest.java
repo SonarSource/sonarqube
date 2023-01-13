@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 public class ClusterVerificationTest {
 
-  private static final String ERROR_MESSAGE = "Cluster mode can't be enabled. Please install the Data Center Edition. More details at https://redirect.sonarsource.com/editions/datacenter.html.";
+  private static final String ERROR_MESSAGE = "Cluster mode can't be enabled. Please install the Data Center Edition. More details at https://www.sonarsource.com/plans-and-pricing/data-center/.";
 
 
   private NodeInformation nodeInformation = mock(NodeInformation.class);

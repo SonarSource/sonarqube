@@ -564,7 +564,7 @@ exports[`should render correctly: success with branches disabled 1`] = `
               values={
                 {
                   "link": <a
-                    href="https://redirect.sonarsource.com/editions/developer.html?sourceEdition=community"
+                    href="https://www.sonarsource.com/plans-and-pricing/developer/?sourceEdition=community"
                     rel="noopener noreferrer"
                     target="_blank"
                   >

@@ -89,13 +89,12 @@ exports[`should display correctly 1`] = `
     >
       system.download_x.5.6.7
     </a>
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to="https://redirect.sonarsource.com/doc/upgrading.html"
+      to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
 </div>
 `;
@@ -189,13 +188,12 @@ exports[`should display correctly 2`] = `
     >
       system.download_x.5.6.7
     </a>
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to="https://redirect.sonarsource.com/doc/upgrading.html"
+      to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
 </div>
 `;
@@ -282,13 +280,12 @@ exports[`should display correctly 3`] = `
     >
       system.download_x.5.6.7
     </a>
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to="https://redirect.sonarsource.com/doc/upgrading.html"
+      to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
 </div>
 `;
@@ -382,13 +379,12 @@ exports[`should display correctly 4`] = `
     >
       system.download_x.5.6.7
     </a>
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to="https://redirect.sonarsource.com/doc/upgrading.html"
+      to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
 </div>
 `;
@@ -482,13 +478,12 @@ exports[`should display correctly 5`] = `
     >
       system.download_x.5.6.7
     </a>
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to="https://redirect.sonarsource.com/doc/upgrading.html"
+      to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
 </div>
 `;
@@ -582,13 +577,12 @@ exports[`should display correctly 6`] = `
     >
       system.download_x.5.6.7
     </a>
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to="https://redirect.sonarsource.com/doc/upgrading.html"
+      to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
 </div>
 `;
@@ -663,13 +657,12 @@ exports[`should display correctly 7`] = `
     >
       system.download_x.5.6.7
     </a>
-    <ForwardRef(Link)
+    <withAppStateContext(DocLink)
       className="spacer-left"
-      target="_blank"
-      to="https://redirect.sonarsource.com/doc/upgrading.html"
+      to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
     >
       system.how_to_upgrade
-    </ForwardRef(Link)>
+    </withAppStateContext(DocLink)>
   </div>
 </div>
 `;

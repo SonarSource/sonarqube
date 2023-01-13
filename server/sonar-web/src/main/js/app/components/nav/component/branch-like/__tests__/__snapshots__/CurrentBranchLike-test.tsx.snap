@@ -128,7 +128,7 @@ exports[`projects should render correctly when branches support is disabled: alm
       [
         {
           "doc": false,
-          "href": "https://redirect.sonarsource.com/editions/developer.html",
+          "href": "https://www.sonarsource.com/plans-and-pricing/developer/",
           "label": "learn_more",
         },
       ]
@@ -171,7 +171,7 @@ exports[`projects should render correctly when branches support is disabled: alm
       [
         {
           "doc": false,
-          "href": "https://redirect.sonarsource.com/editions/developer.html",
+          "href": "https://www.sonarsource.com/plans-and-pricing/developer/",
           "label": "learn_more",
         },
       ]
@@ -214,7 +214,7 @@ exports[`projects should render correctly when branches support is disabled: def
       [
         {
           "doc": false,
-          "href": "https://redirect.sonarsource.com/editions/developer.html",
+          "href": "https://www.sonarsource.com/plans-and-pricing/developer/",
           "label": "learn_more",
         },
       ]

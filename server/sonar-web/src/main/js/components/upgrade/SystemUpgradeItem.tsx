@@ -27,6 +27,7 @@ import {
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { SystemUpgrade } from '../../types/system';
+import DocLink from '../common/DocLink';
 import Link from '../common/Link';
 import DateFormatter from '../intl/DateFormatter';
 import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';
@@ -99,13 +100,9 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
         >
           {translateWithParameters('system.download_x', lastUpgrade.version)}
         </a>
-        <Link
-          className="spacer-left"
-          to="https://redirect.sonarsource.com/doc/upgrading.html"
-          target="_blank"
-        >
+        <DocLink className="spacer-left" to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/">
           {translate('system.how_to_upgrade')}
-        </Link>
+        </DocLink>
       </div>
     </div>
   );

@@ -49,7 +49,7 @@ public class ClusterVerification implements Startable {
     }
     if (feature == null || !feature.isEnabled()) {
       throw MessageException.of(
-        "Cluster mode can't be enabled. Please install the Data Center Edition. More details at https://redirect.sonarsource.com/editions/datacenter.html.");
+        "Cluster mode can't be enabled. Please install the Data Center Edition. More details at https://www.sonarsource.com/plans-and-pricing/data-center/.");
     }
   }
 

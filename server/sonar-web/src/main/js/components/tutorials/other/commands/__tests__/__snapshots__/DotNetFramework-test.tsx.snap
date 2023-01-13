@@ -19,12 +19,11 @@ exports[`should render correctly 1`] = `
             "code": <code>
               %PATH%
             </code>,
-            "link": <ForwardRef(Link)
-              target="_blank"
-              to="https://redirect.sonarsource.com/doc/download-scanner-msbuild.html"
+            "link": <withAppStateContext(DocLink)
+              to="/analyzing-source-code/scanners/sonarscanner-for-dotnet/"
             >
               onboarding.analysis.msbuild.docs_link
-            </ForwardRef(Link)>,
+            </withAppStateContext(DocLink)>,
           }
         }
       />

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
-import Link from '../../../common/Link';
+import DocLink from '../../../common/DocLink';
 import { DotNetProps } from './DotNet';
 import DotNetExecute from './DotNetExecute';
 
@@ -46,12 +46,9 @@ export default function DotNetFramework(props: DotNetProps) {
             values={{
               code: <code>%PATH%</code>,
               link: (
-                <Link
-                  to="https://redirect.sonarsource.com/doc/download-scanner-msbuild.html"
-                  target="_blank"
-                >
+                <DocLink to="/analyzing-source-code/scanners/sonarscanner-for-dotnet/">
                   {translate('onboarding.analysis.msbuild.docs_link')}
-                </Link>
+                </DocLink>
               ),
             }}
           />

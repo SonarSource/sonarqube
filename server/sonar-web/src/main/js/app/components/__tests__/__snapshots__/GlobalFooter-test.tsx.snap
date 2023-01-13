@@ -53,13 +53,11 @@ exports[`should display the sq version 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://redirect.sonarsource.com/doc/plugin-library.html"
-        rel="noopener noreferrer"
-        target="_blank"
+      <withAppStateContext(DocLink)
+        to="/instance-administration/plugin-version-matrix/"
       >
         footer.plugins
-      </a>
+      </withAppStateContext(DocLink)>
     </li>
     <li
       className="page-footer-menu-item"
@@ -117,13 +115,11 @@ exports[`should not render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://redirect.sonarsource.com/doc/plugin-library.html"
-        rel="noopener noreferrer"
-        target="_blank"
+      <withAppStateContext(DocLink)
+        to="/instance-administration/plugin-version-matrix/"
       >
         footer.plugins
-      </a>
+      </withAppStateContext(DocLink)>
     </li>
   </ul>
 </div>
@@ -182,13 +178,11 @@ exports[`should render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
-      <a
-        href="https://redirect.sonarsource.com/doc/plugin-library.html"
-        rel="noopener noreferrer"
-        target="_blank"
+      <withAppStateContext(DocLink)
+        to="/instance-administration/plugin-version-matrix/"
       >
         footer.plugins
-      </a>
+      </withAppStateContext(DocLink)>
     </li>
     <li
       className="page-footer-menu-item"
