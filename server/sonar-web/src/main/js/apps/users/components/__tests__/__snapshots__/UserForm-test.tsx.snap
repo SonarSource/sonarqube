@@ -34,11 +34,7 @@ exports[`should render correctly 1`] = `
           <MandatoryFieldMarker />
         </label>
         <input
-          className="hidden"
-          name="name-fake"
-          type="text"
-        />
-        <input
+          autoComplete="off"
           autoFocus={true}
           disabled={false}
           id="create-user-name"
@@ -59,11 +55,7 @@ exports[`should render correctly 1`] = `
           users.email
         </label>
         <input
-          className="hidden"
-          name="email-fake"
-          type="email"
-        />
-        <input
+          autoComplete="off"
           disabled={false}
           id="create-user-email"
           maxLength={100}
@@ -148,11 +140,7 @@ exports[`should render correctly 2`] = `
           <MandatoryFieldMarker />
         </label>
         <input
-          className="hidden"
-          name="login-fake"
-          type="text"
-        />
-        <input
+          autoComplete="off"
           autoFocus={true}
           id="create-user-login"
           maxLength={255}
@@ -179,11 +167,7 @@ exports[`should render correctly 2`] = `
           <MandatoryFieldMarker />
         </label>
         <input
-          className="hidden"
-          name="name-fake"
-          type="text"
-        />
-        <input
+          autoComplete="off"
           autoFocus={false}
           id="create-user-name"
           maxLength={200}
@@ -203,11 +187,7 @@ exports[`should render correctly 2`] = `
           users.email
         </label>
         <input
-          className="hidden"
-          name="email-fake"
-          type="email"
-        />
-        <input
+          autoComplete="off"
           id="create-user-email"
           maxLength={100}
           name="email"
@@ -226,11 +206,7 @@ exports[`should render correctly 2`] = `
           <MandatoryFieldMarker />
         </label>
         <input
-          className="hidden"
-          name="password-fake"
-          type="password"
-        />
-        <input
+          autoComplete="off"
           id="create-user-password"
           name="password"
           onChange={[Function]}

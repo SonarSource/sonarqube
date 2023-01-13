@@ -176,9 +176,8 @@ export default class UserForm extends React.PureComponent<Props, State> {
                     {translate('login')}
                     <MandatoryFieldMarker />
                   </label>
-                  {/* keep this fake field to hack browser autofill */}
-                  <input className="hidden" name="login-fake" type="text" />
                   <input
+                    autoComplete="off"
                     autoFocus={true}
                     id="create-user-login"
                     maxLength={255}
@@ -197,9 +196,8 @@ export default class UserForm extends React.PureComponent<Props, State> {
                   {translate('name')}
                   <MandatoryFieldMarker />
                 </label>
-                {/* keep this fake field to hack browser autofill */}
-                <input className="hidden" name="name-fake" type="text" />
                 <input
+                  autoComplete="off"
                   autoFocus={!!user}
                   disabled={user && !user.local}
                   id="create-user-name"
@@ -213,9 +211,8 @@ export default class UserForm extends React.PureComponent<Props, State> {
               </div>
               <div className="modal-field">
                 <label htmlFor="create-user-email">{translate('users.email')}</label>
-                {/* keep this fake field to hack browser autofill */}
-                <input className="hidden" name="email-fake" type="email" />
                 <input
+                  autoComplete="off"
                   disabled={user && !user.local}
                   id="create-user-email"
                   maxLength={100}
@@ -231,9 +228,8 @@ export default class UserForm extends React.PureComponent<Props, State> {
                     {translate('password')}
                     <MandatoryFieldMarker />
                   </label>
-                  {/* keep this fake field to hack browser autofill */}
-                  <input className="hidden" name="password-fake" type="password" />
                   <input
+                    autoComplete="off"
                     id="create-user-password"
                     name="password"
                     onChange={this.handlePasswordChange}
