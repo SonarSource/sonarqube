@@ -190,7 +190,7 @@ subprojects {
       dependency 'com.sonarsource.swift:sonar-swift-plugin:4.8.0.5759'
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.7.0.5449'
       dependency 'org.sonarsource.config:sonar-config-plugin:1.2.0.267'
-      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:8.50.0.58025'
+      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:8.51.0.59060'
       dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:8.51.0.59060'
       dependency 'org.sonarsource.flex:sonar-flex-plugin:2.8.0.3166'
       dependency 'org.sonarsource.html:sonar-html-plugin:3.7.1.3306'
