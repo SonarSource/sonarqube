@@ -33,7 +33,7 @@ export function GlobalNavBranding({ appState: { settings } }: GlobalNavBrandingP
   const customLogoUrl = settings[GlobalSettingKeys.LogoUrl];
   const customLogoWidth = settings[GlobalSettingKeys.LogoWidth];
 
-  const title = translate('layout.sonar.slogan');
+  const title = translate('layout.nav.home_logo_alt');
   const url = customLogoUrl || `${getBaseUrl()}/images/logo.svg?v=6.6`;
   const width = customLogoUrl ? customLogoWidth || 100 : 83;
 

@@ -6,10 +6,10 @@ exports[`should render correctly: default 1`] = `
   to="/"
 >
   <img
-    alt="layout.sonar.slogan"
+    alt="layout.nav.home_logo_alt"
     height={30}
     src="/images/logo.svg?v=6.6"
-    title="layout.sonar.slogan"
+    title="layout.nav.home_logo_alt"
     width={83}
   />
 </ForwardRef(Link)>
@@ -21,10 +21,10 @@ exports[`should render correctly: with logo 1`] = `
   to="/"
 >
   <img
-    alt="layout.sonar.slogan"
+    alt="layout.nav.home_logo_alt"
     height={30}
     src="http://sonarsource.com/custom-logo.svg"
-    title="layout.sonar.slogan"
+    title="layout.nav.home_logo_alt"
     width={100}
   />
 </ForwardRef(Link)>
@@ -36,10 +36,10 @@ exports[`should render correctly: with logo and width 1`] = `
   to="/"
 >
   <img
-    alt="layout.sonar.slogan"
+    alt="layout.nav.home_logo_alt"
     height={30}
     src="http://sonarsource.com/custom-logo.svg"
-    title="layout.sonar.slogan"
+    title="layout.nav.home_logo_alt"
     width="200"
   />
 </ForwardRef(Link)>
