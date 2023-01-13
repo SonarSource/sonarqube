@@ -42,7 +42,10 @@ export function translateWithParameters(
   if (message) {
     return parameters
       .map((parameter) => String(parameter))
-      .reduce((acc, parameter, index) => acc.replaceAll(`{${index}}`, () => parameter), message);
+      .reduce(
+        (acc, parameter, index) => acc.replace(new RegExp(`\\{${index}\\}`, 'g'), () => parameter),
+        message
+      );
   }
   if (process.env.NODE_ENV === 'development') {
     // eslint-disable-next-line no-console

@@ -83,7 +83,7 @@ function getPreferredLanguage() {
   return window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
 }
 
-function getL10nBundleFromCache() {
+function getL10nBundleFromCache(): L10nBundle {
   return (window as unknown as any).sonarQubeL10nBundle ?? {};
 }
 
