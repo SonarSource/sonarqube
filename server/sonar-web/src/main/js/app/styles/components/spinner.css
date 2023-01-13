@@ -22,7 +22,7 @@
   vertical-align: middle;
   width: 16px;
   height: 16px;
-  border: 2px solid var(--blue);
+  border: 2px solid var(--info500);
   border-radius: 50%;
   animation: spin 0.75s infinite linear;
 }
@@ -46,7 +46,7 @@
   display: inline-block;
   box-sizing: border-box;
   border-color: transparent;
-  border-top-color: var(--blue);
+  border-top-color: var(--info500);
   animation-duration: 1.2s;
 }
 

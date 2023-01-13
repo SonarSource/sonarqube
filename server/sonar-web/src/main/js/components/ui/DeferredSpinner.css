@@ -46,7 +46,7 @@
   display: inline-block;
   box-sizing: border-box;
   border-color: transparent;
-  border-top-color: var(--blue);
+  border-top-color: var(--info500);
   animation-duration: 1.2s;
 }
 
