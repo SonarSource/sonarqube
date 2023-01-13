@@ -48,10 +48,15 @@ export default function List({ qualityGates }: Props) {
             <span className="badge little-spacer-left">{translate('default')}</span>
           )}
           {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="little-spacer-left" />}
+
           {!qualityGate.isCaycCompliant && (
-            <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')}>
-              <AlertWarnIcon className="spacer-left" />
-            </Tooltip>
+            <>
+              {/* Adding a11y-hidden span for accessibility */}
+              <span className="a11y-hidden">{translate('quality_gates.cayc.tooltip.message')}</span>
+              <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')} accessible={false}>
+                <AlertWarnIcon className="spacer-left" />
+              </Tooltip>
+            </>
           )}
         </NavLink>
       ))}
