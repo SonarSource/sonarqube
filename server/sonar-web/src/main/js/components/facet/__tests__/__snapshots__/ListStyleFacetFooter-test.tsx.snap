@@ -1,23 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should not render "show less" 1`] = `
-<footer
+<div
   className="note spacer-top spacer-bottom text-center"
 >
   x_show.15
-</footer>
+</div>
 `;
 
 exports[`should not render "show more" 1`] = `
-<footer
+<div
   className="note spacer-top spacer-bottom text-center"
 >
   x_show.3
-</footer>
+</div>
 `;
 
 exports[`should show less 1`] = `
-<footer
+<div
   className="note spacer-top spacer-bottom text-center"
 >
   x_show.15
@@ -27,11 +27,11 @@ exports[`should show less 1`] = `
   >
     show_less
   </ButtonLink>
-</footer>
+</div>
 `;
 
 exports[`should show more 1`] = `
-<footer
+<div
   className="note spacer-top spacer-bottom text-center"
 >
   x_show.3
@@ -41,5 +41,5 @@ exports[`should show more 1`] = `
   >
     show_more
   </ButtonLink>
-</footer>
+</div>
 `;

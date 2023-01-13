@@ -46,7 +46,7 @@ export default class ListStyleFacetFooter extends React.PureComponent<Props> {
     const allShown = Boolean(total && total === count);
 
     return (
-      <footer className="note spacer-top spacer-bottom text-center">
+      <div className="note spacer-top spacer-bottom text-center">
         {translateWithParameters('x_show', formatMeasure(count, 'INT', null))}
 
         {hasMore && (
@@ -60,7 +60,7 @@ export default class ListStyleFacetFooter extends React.PureComponent<Props> {
             {translate('show_less')}
           </ButtonLink>
         )}
-      </footer>
+      </div>
     );
   }
 }
