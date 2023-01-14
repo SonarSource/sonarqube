@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.core.util.ContextException;
 import org.sonar.core.util.Protobuf;
-import org.sonar.scanner.protocol.internal.ScannerInternal;
 
 @Immutable
 public class ScannerReportWriter {
