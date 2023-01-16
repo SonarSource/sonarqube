@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -61,9 +62,9 @@ public class GetAction implements AnalysisCacheWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("get")
-      .setInternal(true)
       .setDescription("Get the scanner's cached data for a branch. Requires scan permission on the project. "
         + "Data is returned gzipped if the corresponding 'Accept-Encoding' header is set in the request.")
+      .setChangelog(new Change("9.9", "The web service is no longer internal"))
       .setSince("9.4")
       .setHandler(this);
 
