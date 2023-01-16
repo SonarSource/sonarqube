@@ -32,24 +32,40 @@ interface Props {
 export default function CleanAsYouCodeWarning({ component }: Props) {
   return (
     <>
-      <Alert variant="warning">{translate('overview.quality_gate.conditions.cayc.warning')}</Alert>
-      <p className="big-spacer-top big-spacer-bottom">
+      <Alert variant="warning">
         {component.qualityGate ? (
           <FormattedMessage
-            id="overview.quality_gate.conditions.cayc.details"
-            defaultMessage={translate('overview.quality_gate.conditions.cayc.details')}
+            id="overview.quality_gate.conditions.cayc.warning"
+            defaultMessage={translate('overview.quality_gate.conditions.cayc.warning')}
             values={{
               link: (
-                <Link to={getQualityGateUrl(component.qualityGate.key)}>
-                  {translate('overview.quality_gate.conditions.cayc.details.link')}
-                </Link>
+                <div
+                  className="overview-quality-gate-alert-inline-link"
+                  title={component.qualityGate.name}
+                >
+                  <Link to={getQualityGateUrl(component.qualityGate.key)}>
+                    {component.qualityGate.name}
+                  </Link>
+                </div>
               ),
             }}
           />
         ) : (
-          translate('overview.quality_gate.conditions.cayc.details.no_link')
+          translate('overview.quality_gate.conditions.cayc.warning.no_link')
         )}
+      </Alert>
+
+      <p className="big-spacer-top big-spacer-bottom">
+        {translate('overview.quality_gate.conditions.cayc.details')}
       </p>
+
+      {component.qualityGate && (
+        <div className="big-spacer-bottom">
+          <Link className="button" to={getQualityGateUrl(component.qualityGate.key)}>
+            {translate('overview.quality_gate.conditions.cayc.review')}
+          </Link>
+        </div>
+      )}
 
       <Link
         target="_blank"

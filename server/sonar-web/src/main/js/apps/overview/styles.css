@@ -159,6 +159,15 @@
   font-size: var(--bigFontSize);
 }
 
+.overview-quality-gate-alert-inline-link {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-bottom: 1px;
+  margin-bottom: -5px;
+}
+
 /*
  * Animations
  */
