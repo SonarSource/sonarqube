@@ -42,29 +42,24 @@ it('renders children before timeout', () => {
 
 it('renders spinner after timeout', () => {
   renderDeferredSpinner();
-  expect(screen.queryByLabelText('loading')).not.toBeInTheDocument();
+  expect(screen.queryByText('loading')).not.toBeInTheDocument();
   jest.runAllTimers();
-  expect(screen.getByLabelText('loading')).toBeInTheDocument();
-});
-
-it('renders a placeholder while waiting', () => {
-  renderDeferredSpinner({ placeholder: true });
-  expect(screen.getByTestId('deferred-spinner-placeholder')).toBeInTheDocument();
+  expect(screen.getByText('loading')).toBeInTheDocument();
 });
 
 it('allows setting a custom class name', () => {
   renderDeferredSpinner({ className: 'foo' });
   jest.runAllTimers();
-  expect(screen.getByLabelText('loading')).toHaveClass('foo');
+  expect(screen.getByTestId('deferred-spinner')).toHaveClass('foo');
 });
 
 it('can be controlled by the loading prop', () => {
   const { rerender } = renderDeferredSpinner({ loading: true });
   jest.runAllTimers();
-  expect(screen.getByLabelText('loading')).toBeInTheDocument();
+  expect(screen.getByText('loading')).toBeInTheDocument();
 
   rerender(prepareDeferredSpinner({ loading: false }));
-  expect(screen.queryByLabelText('loading')).not.toBeInTheDocument();
+  expect(screen.queryByText('loading')).not.toBeInTheDocument();
 });
 
 function renderDeferredSpinner(props: Partial<DeferredSpinner['props']> = {}) {

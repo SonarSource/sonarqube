@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { translate } from '../../helpers/l10n';
 import './DeferredSpinner.css';
 
 interface Props {
@@ -27,7 +28,6 @@ interface Props {
   className?: string;
   customSpinner?: JSX.Element;
   loading?: boolean;
-  placeholder?: boolean;
   timeout?: number;
 }
 
@@ -37,6 +37,14 @@ interface State {
 
 const DEFAULT_TIMEOUT = 100;
 
+/**
+ * Recommendation: do not render this component conditionally based on any loading state:
+ *   // Don't do this:
+ *   {loading && <DeferredSpinner />}
+ * Instead, pass the loading state as a prop:
+ *   // Do this:
+ *   <DeferredSpinner loading={loading} />
+ */
 export default class DeferredSpinner extends React.PureComponent<Props, State> {
   timer?: number;
 
@@ -75,28 +83,27 @@ export default class DeferredSpinner extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { ariaLabel, children, className, customSpinner, placeholder } = this.props;
-    if (this.state.showSpinner) {
-      return (
-        customSpinner || (
-          <i
-            className={classNames('deferred-spinner', className)}
-            aria-live={ariaLabel ? 'polite' : undefined}
-            aria-label={ariaLabel}
-          />
-        )
-      );
+    const { ariaLabel = translate('loading'), children, className, customSpinner } = this.props;
+    const { showSpinner } = this.state;
+
+    if (customSpinner) {
+      return showSpinner ? customSpinner : children;
     }
+
     return (
-      children ||
-      (placeholder ? (
+      <>
         <i
-          data-testid="deferred-spinner-placeholder"
-          className={classNames('deferred-spinner-placeholder', className)}
-          aria-live={ariaLabel ? 'polite' : undefined}
-          aria-label={ariaLabel}
-        />
-      ) : null)
+          aria-live="polite"
+          data-testid="deferred-spinner"
+          className={classNames('deferred-spinner', className, {
+            'a11y-hidden': !showSpinner,
+            'is-loading': showSpinner,
+          })}
+        >
+          {showSpinner && <span className="a11y-hidden">{ariaLabel}</span>}
+        </i>
+        {!showSpinner && children}
+      </>
     );
   }
 }

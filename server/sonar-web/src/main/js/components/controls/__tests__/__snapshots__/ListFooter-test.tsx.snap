@@ -17,6 +17,9 @@ exports[`should render correctly: default 1`] = `
   >
     show_more
   </Button>
+  <DeferredSpinner
+    className="text-bottom spacer-left position-absolute"
+  />
 </div>
 `;
 
@@ -30,6 +33,9 @@ exports[`should render correctly: empty if everything is loaded 1`] = `
   >
     x_of_y_shown.5.5
   </span>
+  <DeferredSpinner
+    className="text-bottom spacer-left position-absolute"
+  />
 </div>
 `;
 
@@ -43,6 +49,9 @@ exports[`should render correctly: empty if no loadMore nor reload props 1`] = `
   >
     x_of_y_shown.3.5
   </span>
+  <DeferredSpinner
+    className="text-bottom spacer-left position-absolute"
+  />
 </div>
 `;
 
@@ -63,6 +72,9 @@ exports[`should render correctly: force show load more button if count % pageSiz
   >
     show_more
   </Button>
+  <DeferredSpinner
+    className="text-bottom spacer-left position-absolute"
+  />
 </div>
 `;
 
@@ -87,6 +99,7 @@ exports[`should render correctly: loading 1`] = `
   </Button>
   <DeferredSpinner
     className="text-bottom spacer-left position-absolute"
+    loading={true}
   />
 </div>
 `;
@@ -108,6 +121,9 @@ exports[`should render correctly: reload 1`] = `
   >
     reload
   </Button>
+  <DeferredSpinner
+    className="text-bottom spacer-left position-absolute"
+  />
 </div>
 `;
 
@@ -132,6 +148,7 @@ exports[`should render correctly: reload, loading 1`] = `
   </Button>
   <DeferredSpinner
     className="text-bottom spacer-left position-absolute"
+    loading={true}
   />
 </div>
 `;
@@ -146,5 +163,8 @@ exports[`should render correctly: total undefined 1`] = `
   >
     x_show.3
   </span>
+  <DeferredSpinner
+    className="text-bottom spacer-left position-absolute"
+  />
 </div>
 `;

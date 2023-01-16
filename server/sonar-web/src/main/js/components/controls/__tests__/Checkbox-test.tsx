@@ -55,7 +55,7 @@ describe.each([
     jest.useFakeTimers();
     renderCheckbox({ label: 'me', children, loading: true });
     jest.runAllTimers();
-    expect(screen.getByLabelText('me')).toMatchSnapshot();
+    expect(screen.getByTestId('deferred-spinner')).toMatchSnapshot();
     jest.useRealTimers();
   });
 });

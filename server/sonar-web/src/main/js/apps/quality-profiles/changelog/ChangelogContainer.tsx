@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { getProfileChangelog } from '../../../api/quality-profiles';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { withQualityProfilesContext } from '../qualityProfilesContext';
@@ -147,7 +148,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
             onReset={this.handleReset}
           />
 
-          {this.state.loading && <i className="spinner spacer-left" />}
+          <DeferredSpinner loading={this.state.loading} className="spacer-left" />
         </header>
 
         {this.state.events != null && this.state.events.length === 0 && <ChangelogEmpty />}

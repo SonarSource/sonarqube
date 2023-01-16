@@ -17,6 +17,10 @@ exports[`should render correctly 1`] = `
       onDateRangeChange={[Function]}
       onReset={[Function]}
     />
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
+    />
   </header>
   <Changelog
     events={
@@ -80,6 +84,10 @@ exports[`should render correctly without events 1`] = `
       }
       onDateRangeChange={[Function]}
       onReset={[Function]}
+    />
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
     />
   </header>
   <ChangelogEmpty />

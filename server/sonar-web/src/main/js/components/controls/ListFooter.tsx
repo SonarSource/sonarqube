@@ -110,7 +110,7 @@ export default function ListFooter(props: ListFooterProps) {
           : translateWithParameters('x_show', formatMeasure(count, 'INT', null))}
       </span>
       {button}
-      {loading && <DeferredSpinner className="text-bottom spacer-left position-absolute" />}
+      {<DeferredSpinner loading={loading} className="text-bottom spacer-left position-absolute" />}
     </div>
   );
 }
