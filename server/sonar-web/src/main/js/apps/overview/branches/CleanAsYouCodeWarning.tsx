@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import Link from '../../../components/common/Link';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
@@ -32,28 +31,7 @@ interface Props {
 export default function CleanAsYouCodeWarning({ component }: Props) {
   return (
     <>
-      <Alert variant="warning">
-        {component.qualityGate ? (
-          <FormattedMessage
-            id="overview.quality_gate.conditions.cayc.warning"
-            defaultMessage={translate('overview.quality_gate.conditions.cayc.warning')}
-            values={{
-              link: (
-                <div
-                  className="overview-quality-gate-alert-inline-link"
-                  title={component.qualityGate.name}
-                >
-                  <Link to={getQualityGateUrl(component.qualityGate.key)}>
-                    {component.qualityGate.name}
-                  </Link>
-                </div>
-              ),
-            }}
-          />
-        ) : (
-          translate('overview.quality_gate.conditions.cayc.warning.no_link')
-        )}
-      </Alert>
+      <Alert variant="warning">{translate('overview.quality_gate.conditions.cayc.warning')}</Alert>
 
       <p className="big-spacer-top big-spacer-bottom">
         {translate('overview.quality_gate.conditions.cayc.details')}

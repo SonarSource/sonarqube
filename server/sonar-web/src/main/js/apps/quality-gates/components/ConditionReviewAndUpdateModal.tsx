@@ -19,7 +19,9 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { createCondition, deleteCondition, updateCondition } from '../../../api/quality-gates';
+import DocLink from '../../../components/common/DocLink';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Condition, Dict, Metric, QualityGate } from '../../../types/types';
@@ -110,8 +112,21 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
         size="medium"
       >
         <div className="quality-gate-section huge-spacer-bottom">
-          <p className="big-spacer-bottom">
-            {translate('quality_gates.cayc.review_update_modal.description')}
+          <p>
+            <FormattedMessage
+              id="quality_gates.cayc.review_update_modal.description1"
+              defaultMessage={translate('quality_gates.cayc.review_update_modal.description1')}
+              values={{
+                cayc_link: (
+                  <DocLink to="/user-guide/clean-as-you-code/">
+                    {translate('quality_gates.cayc')}
+                  </DocLink>
+                ),
+              }}
+            />
+          </p>
+          <p className="big-spacer-top big-spacer-bottom">
+            {translate('quality_gates.cayc.review_update_modal.description2')}
           </p>
           <h3 className="medium text-normal spacer-top spacer-bottom">
             {translate('quality_gates.conditions.new_code', 'long')}

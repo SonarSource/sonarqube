@@ -315,9 +315,8 @@ export class Conditions extends React.PureComponent<Props, State> {
         )}
 
         {qualityGate.isCaycCompliant && !unlockEditing && canEdit && (
-          <div className="huge-spacer-top big-spacer-bottom qg-unfollow-cayc big-padded">
-            <h4 className="spacer-bottom">{translate('quality_gates.cayc_unfollow.title')}</h4>
-            <div className="cayc-warning-description">
+          <div className="big-spacer-top big-spacer-bottom cayc-warning-description it__qg-unfollow-cayc">
+            <p>
               <FormattedMessage
                 id="quality_gates.cayc_unfollow.description"
                 defaultMessage={translate('quality_gates.cayc_unfollow.description')}
@@ -329,7 +328,7 @@ export class Conditions extends React.PureComponent<Props, State> {
                   ),
                 }}
               />
-            </div>
+            </p>
             <Button className="big-spacer-top spacer-bottom" onClick={this.unlockEditing}>
               {translate('quality_gates.cayc.unlock_edit')}
             </Button>

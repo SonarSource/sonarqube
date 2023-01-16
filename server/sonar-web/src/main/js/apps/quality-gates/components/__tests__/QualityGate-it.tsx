@@ -315,7 +315,10 @@ it('should show warning banner when CAYC condition is not properly set and shoul
     })
   ).toBeInTheDocument();
   expect(
-    screen.getByText('quality_gates.cayc.review_update_modal.description')
+    screen.getByText('quality_gates.cayc.review_update_modal.description1')
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText('quality_gates.cayc.review_update_modal.description2')
   ).toBeInTheDocument();
   expect(
     screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' })
