@@ -121,7 +121,7 @@ it('should show import project feature when PAT is already set', async () => {
   expect(screen.getByText('BitbucketCloud Repo 2')).toBeInTheDocument();
 
   projectItem = screen.getByRole('row', {
-    name: 'bitbucketcloud_repo_1 project opens_in_new_window onboarding.create_project.bitbucketcloud.link onboarding.create_project.repository_imported',
+    name: 'qualifier.TRK BitbucketCloud Repo 1 project opens_in_new_window onboarding.create_project.bitbucketcloud.link onboarding.create_project.repository_imported',
   });
   expect(
     within(projectItem).getByText('onboarding.create_project.repository_imported')
@@ -136,7 +136,7 @@ it('should show import project feature when PAT is already set', async () => {
   );
 
   projectItem = screen.getByRole('row', {
-    name: 'bitbucketcloud_repo_2 project opens_in_new_window onboarding.create_project.bitbucketcloud.link onboarding.create_project.set_up',
+    name: 'BitbucketCloud Repo 2 project opens_in_new_window onboarding.create_project.bitbucketcloud.link onboarding.create_project.set_up',
   });
   const importProjectButton = within(projectItem).getByRole('button', {
     name: 'onboarding.create_project.set_up',

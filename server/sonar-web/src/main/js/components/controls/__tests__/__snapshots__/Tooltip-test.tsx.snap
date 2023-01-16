@@ -16,7 +16,6 @@ exports[`should render 1`] = `
 <Fragment>
   <div
     aria-describedby="tooltip-1"
-    aria-labelledby="tooltip-1"
     id="tooltip"
     onBlur={[Function]}
     onFocus={[Function]}
@@ -28,6 +27,7 @@ exports[`should render 1`] = `
     aria-hidden={true}
     className="tooltip-inner hidden"
     id="tooltip-1"
+    role="tooltip"
   >
     <span
       id="overlay"
@@ -40,7 +40,6 @@ exports[`should render 2`] = `
 <Fragment>
   <div
     aria-describedby="tooltip-1"
-    aria-labelledby="tooltip-1"
     id="tooltip"
     onBlur={[Function]}
     onFocus={[Function]}

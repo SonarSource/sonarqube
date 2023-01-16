@@ -66,10 +66,11 @@ it('should ask for PAT when it is not set yet and show the import project featur
   expect(screen.getByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
   expect(screen.getByText('onboarding.create_project.pat_help.title')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'save' })).toBeInTheDocument();
-
-  await user.click(ui.personalAccessTokenInput.get());
-  await user.keyboard('secret');
-  await user.click(screen.getByRole('button', { name: 'save' }));
+  await act(async () => {
+    await user.click(ui.personalAccessTokenInput.get());
+    await user.keyboard('secret');
+    await user.click(screen.getByRole('button', { name: 'save' }));
+  });
 
   expect(screen.getByText('Gitlab project 1')).toBeInTheDocument();
   expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
@@ -90,7 +91,7 @@ it('should show import project feature when PAT is already set', async () => {
   expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
 
   projectItem = screen.getByRole('row', {
-    name: 'Gitlab_project_1 company/best-projects opens_in_new_window onboarding.create_project.gitlab.link onboarding.create_project.repository_imported',
+    name: 'qualifier.TRK Gitlab project 1 Company / Best Projects opens_in_new_window onboarding.create_project.gitlab.link onboarding.create_project.repository_imported',
   });
   expect(
     within(projectItem).getByText('onboarding.create_project.repository_imported')
@@ -102,13 +103,15 @@ it('should show import project feature when PAT is already set', async () => {
   );
 
   projectItem = screen.getByRole('row', {
-    name: 'Gitlab_project_2 company/best-projects opens_in_new_window onboarding.create_project.gitlab.link onboarding.create_project.set_up',
+    name: 'Gitlab project 2 Company / Best Projects opens_in_new_window onboarding.create_project.gitlab.link onboarding.create_project.set_up',
   });
   const importProjectButton = within(projectItem).getByRole('button', {
     name: 'onboarding.create_project.set_up',
   });
 
-  await user.click(importProjectButton);
+  await act(async () => {
+    await user.click(importProjectButton);
+  });
   expect(await screen.findByText('/dashboard?id=key')).toBeInTheDocument();
 });
 

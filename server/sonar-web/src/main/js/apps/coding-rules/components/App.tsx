@@ -41,7 +41,6 @@ import {
   removeSideBarClass,
   removeWhitePageClass,
 } from '../../../helpers/pages';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { SecurityStandard } from '../../../types/security';
 import { Dict, Paging, RawQuery, Rule, RuleActivation } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
@@ -385,15 +384,15 @@ export class App extends React.PureComponent<Props, State> {
         open: undefined,
       },
     });
-    this.scrollToSelectedRule(false);
+    this.scrollToSelectedRule();
   };
 
-  scrollToSelectedRule = (smooth = false) => {
+  scrollToSelectedRule = () => {
     const selected = this.getSelectedRuleKey(this.props);
     if (selected) {
       const element = document.querySelector(`[data-rule="${selected}"]`);
       if (element) {
-        scrollToElement(element, { topOffset: 150, bottomOffset: 100, smooth });
+        element.scrollIntoView({ behavior: 'auto', block: 'center' });
       }
     }
   };

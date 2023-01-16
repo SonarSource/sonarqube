@@ -50,7 +50,12 @@ export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
               key={serie.name}
               overlay={translate('project_activity.graphs.custom.metric_no_history')}
             >
-              <li className="spacer-left spacer-right">{legendItem}</li>
+              <li
+                className="spacer-left spacer-right"
+                aria-label={translate('project_activity.graphs.custom.metric_no_history')}
+              >
+                {legendItem}
+              </li>
             </Tooltip>
           );
         }

@@ -34,6 +34,7 @@ export default function PageShortcutsTooltip(props: PageShortcutsTooltipProps) {
   const { className, leftAndRightLabel, leftLabel, upAndDownLabel, metaModifierLabel } = props;
   return (
     <Tooltip
+      accessible={false}
       overlay={
         <div className="small nowrap">
           <div>
@@ -72,7 +73,7 @@ export default function PageShortcutsTooltip(props: PageShortcutsTooltipProps) {
         </div>
       }
     >
-      <div
+      <aside
         aria-label={`
         ${translate('shortcuts.on_page.intro')}
         ${
@@ -97,15 +98,17 @@ export default function PageShortcutsTooltip(props: PageShortcutsTooltipProps) {
           'page-shortcuts-tooltip note text-center display-inline-block'
         )}
       >
-        <div>
-          <span className="shortcut-button shortcut-button-tiny">↑</span>
+        <div aria-hidden={true}>
+          <div>
+            <span className="shortcut-button shortcut-button-tiny">↑</span>
+          </div>
+          <div>
+            <span className="shortcut-button shortcut-button-tiny">←</span>
+            <span className="shortcut-button shortcut-button-tiny">↓</span>
+            <span className="shortcut-button shortcut-button-tiny">→</span>
+          </div>
         </div>
-        <div>
-          <span className="shortcut-button shortcut-button-tiny">←</span>
-          <span className="shortcut-button shortcut-button-tiny">↓</span>
-          <span className="shortcut-button shortcut-button-tiny">→</span>
-        </div>
-      </div>
+      </aside>
     </Tooltip>
   );
 }

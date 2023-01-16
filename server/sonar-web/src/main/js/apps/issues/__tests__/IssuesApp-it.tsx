@@ -90,9 +90,7 @@ it('should be able to bulk change', async () => {
   expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.1' })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.1' }));
 
-  await user.click(
-    screen.getByRole('textbox', { name: 'issue.comment.formlink issue_bulk_change.comment.help' })
-  );
+  await user.click(screen.getByRole('textbox', { name: 'issue.comment.formlink' }));
   await user.keyboard('New Comment');
   expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
 
@@ -567,8 +565,8 @@ it('should show code tabs when any secondary location is selected', async () => 
   renderIssueApp();
 
   await user.click(await screen.findByRole('region', { name: 'Fix this' }));
-  expect(screen.getByRole('button', { name: 'location 1' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'location 2' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '1 location 1' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '2 location 2' })).toBeInTheDocument();
 
   // Select the "why is this an issue" tab
   await user.click(
@@ -619,7 +617,7 @@ it('should show issue tags if applicable', async () => {
 
   expect(
     screen.getByRole('heading', {
-      name: 'Issue with tags issue.quick_fix_available_with_sonarlint opens_in_new_window SonarLint rules.status.DEPRECATED.help opens_in_new_window see_x.rules',
+      name: 'Issue with tags sonar-lint-icon issue.resolution.badge.DEPRECATED',
     })
   ).toBeInTheDocument();
 });

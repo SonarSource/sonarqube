@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from '../../components/controls/buttons';
+import { Button, ButtonLink } from '../../components/controls/buttons';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import OpenCloseIcon from '../../components/icons/OpenCloseIcon';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
@@ -72,17 +72,20 @@ export default class FacetHeader extends React.PureComponent<Props> {
     const { disabled, values, disabledHelper, name, open, children, fetching } = this.props;
     const showClearButton = values != null && values.length > 0 && this.props.onClear != null;
     const header = disabled ? (
-      <Tooltip overlay={disabledHelper}>
-        <span>{name}</span>
+      <Tooltip overlay={disabledHelper} accessible={false}>
+        <ButtonLink
+          className="disabled"
+          aria-disabled={true}
+          aria-label={`${name}, ${disabledHelper}`}
+        >
+          {name}
+        </ButtonLink>
       </Tooltip>
     ) : (
       name
     );
     return (
-      <div
-        aria-disabled={disabled}
-        className="search-navigator-facet-header-wrapper display-flex-center"
-      >
+      <div className="search-navigator-facet-header-wrapper display-flex-center">
         {this.props.onClick ? (
           <span className="search-navigator-facet-header display-flex-center">
             <button

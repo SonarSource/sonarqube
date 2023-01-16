@@ -18,6 +18,7 @@ exports[`opens form 1`] = `
     overlay="background_tasks.change_number_of_workers"
   >
     <EditButton
+      aria-label="background_tasks.change_number_of_workers"
       className="js-edit button-small spacer-left"
       onClick={[Function]}
       title="edit"
@@ -44,6 +45,7 @@ exports[`opens form 2`] = `
     overlay="background_tasks.change_number_of_workers"
   >
     <EditButton
+      aria-label="background_tasks.change_number_of_workers"
       className="js-edit button-small spacer-left"
       onClick={[Function]}
       title="edit"
@@ -89,6 +91,7 @@ exports[`renders 2`] = `
     overlay="background_tasks.change_number_of_workers"
   >
     <EditButton
+      aria-label="background_tasks.change_number_of_workers"
       className="js-edit button-small spacer-left"
       onClick={[Function]}
       title="edit"
@@ -126,6 +129,7 @@ exports[`renders 3`] = `
     overlay="background_tasks.change_number_of_workers"
   >
     <EditButton
+      aria-label="background_tasks.change_number_of_workers"
       className="js-edit button-small spacer-left"
       onClick={[Function]}
       title="edit"
@@ -189,6 +193,7 @@ exports[`updates worker count 1`] = `
     overlay="background_tasks.change_number_of_workers"
   >
     <EditButton
+      aria-label="background_tasks.change_number_of_workers"
       className="js-edit button-small spacer-left"
       onClick={[Function]}
       title="edit"
@@ -230,6 +235,7 @@ exports[`updates worker count 2`] = `
     overlay="background_tasks.change_number_of_workers"
   >
     <EditButton
+      aria-label="background_tasks.change_number_of_workers"
       className="js-edit button-small spacer-left"
       onClick={[Function]}
       title="edit"

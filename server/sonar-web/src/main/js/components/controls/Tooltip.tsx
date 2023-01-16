@@ -398,13 +398,14 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   renderOverlay() {
     const isVisible = this.isVisible();
-    const { classNameSpace = 'tooltip' } = this.props;
+    const { classNameSpace = 'tooltip', accessible = true } = this.props;
 
     return (
       <div
         className={classNames(`${classNameSpace}-inner`, { hidden: !isVisible })}
         id={this.id}
-        aria-hidden={!isVisible}
+        role="tooltip"
+        aria-hidden={!accessible || !isVisible}
       >
         {this.props.overlay}
       </div>
@@ -427,7 +428,6 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
           // See https://css-tricks.com/accessible-svgs/
           'aria-describedby': accessible ? this.id : undefined,
-          'aria-labelledby': accessible ? this.id : undefined,
         })}
         {!isVisible && this.renderOverlay()}
         {isVisible && (
