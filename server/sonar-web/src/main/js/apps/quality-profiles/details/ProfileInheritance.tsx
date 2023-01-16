@@ -127,9 +127,9 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
           </div>
         )}
 
-        <header className="boxed-group-header">
+        <div className="boxed-group-header">
           <h2>{translate('quality_profiles.profile_inheritance')}</h2>
-        </header>
+        </div>
 
         <div className="boxed-group-inner">
           {this.state.loading ? (

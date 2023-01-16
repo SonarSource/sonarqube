@@ -49,7 +49,7 @@ export class ProfilesListHeader extends React.PureComponent<Props> {
     }));
 
     return (
-      <header className="quality-profiles-list-header clearfix">
+      <div className="quality-profiles-list-header clearfix">
         <label htmlFor="quality-profiles-filter-input" className="spacer-right">
           {translate('quality_profiles.filter_by')}:
         </label>
@@ -64,7 +64,7 @@ export class ProfilesListHeader extends React.PureComponent<Props> {
           isSearchable={true}
           value={options.filter((o) => o.value === currentFilter)}
         />
-      </header>
+      </div>
     );
   }
 }

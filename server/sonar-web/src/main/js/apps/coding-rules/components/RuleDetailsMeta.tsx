@@ -228,7 +228,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     const hasTypeData = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
     return (
       <div className="js-rule-meta">
-        <header className="page-header">
+        <div className="page-header">
           <div className="pull-right">
             {this.renderKey()}
             {!ruleDetails.isExternal && (
@@ -247,7 +247,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
           <h3 className="page-title coding-rules-detail-header">
             <big>{ruleDetails.name}</big>
           </h3>
-        </header>
+        </div>
 
         {hasTypeData && (
           <ul className="coding-rules-detail-properties">

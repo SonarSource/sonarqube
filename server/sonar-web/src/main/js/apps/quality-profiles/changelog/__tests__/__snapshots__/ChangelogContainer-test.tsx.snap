@@ -4,7 +4,7 @@ exports[`should render correctly 1`] = `
 <div
   className="boxed-group boxed-group-inner js-profile-changelog"
 >
-  <header
+  <div
     className="spacer-bottom"
   >
     <ChangelogSearch
@@ -21,7 +21,7 @@ exports[`should render correctly 1`] = `
       className="spacer-left"
       loading={false}
     />
-  </header>
+  </div>
   <Changelog
     events={
       [
@@ -72,7 +72,7 @@ exports[`should render correctly without events 1`] = `
 <div
   className="boxed-group boxed-group-inner js-profile-changelog"
 >
-  <header
+  <div
     className="spacer-bottom"
   >
     <ChangelogSearch
@@ -89,7 +89,7 @@ exports[`should render correctly without events 1`] = `
       className="spacer-left"
       loading={false}
     />
-  </header>
+  </div>
   <ChangelogEmpty />
 </div>
 `;

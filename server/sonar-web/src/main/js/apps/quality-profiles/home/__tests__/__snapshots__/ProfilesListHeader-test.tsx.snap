@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<header
+<div
   className="quality-profiles-list-header clearfix"
 >
   <label
@@ -33,5 +33,5 @@ exports[`should render correctly 1`] = `
     }
     value={[]}
   />
-</header>
+</div>
 `;

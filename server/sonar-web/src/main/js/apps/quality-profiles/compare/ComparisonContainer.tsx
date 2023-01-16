@@ -96,16 +96,14 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
 
     return (
       <div className="boxed-group boxed-group-inner js-profile-comparison">
-        <header>
-          <ComparisonForm
-            onCompare={this.handleCompare}
-            profile={profile}
-            profiles={profiles}
-            withKey={withKey}
-          />
+        <ComparisonForm
+          onCompare={this.handleCompare}
+          profile={profile}
+          profiles={profiles}
+          withKey={withKey}
+        />
 
-          {this.state.loading && <i className="spinner spacer-left" />}
-        </header>
+        {this.state.loading && <i className="spinner spacer-left" />}
 
         {this.hasResults(this.state) && (
           <div className="spacer-top">

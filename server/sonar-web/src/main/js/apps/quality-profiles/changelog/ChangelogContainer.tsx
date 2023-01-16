@@ -138,7 +138,7 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
 
     return (
       <div className="boxed-group boxed-group-inner js-profile-changelog">
-        <header className="spacer-bottom">
+        <div className="spacer-bottom">
           <ChangelogSearch
             dateRange={{
               from: query.since ? parseDate(query.since) : undefined,
@@ -147,9 +147,8 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
             onDateRangeChange={this.handleDateRangeChange}
             onReset={this.handleReset}
           />
-
           <DeferredSpinner loading={this.state.loading} className="spacer-left" />
-        </header>
+        </div>
 
         {this.state.events != null && this.state.events.length === 0 && <ChangelogEmpty />}
 

@@ -4,7 +4,7 @@ exports[`should display right meta info 1`] = `
 <div
   className="js-rule-meta"
 >
-  <header
+  <div
     className="page-header"
   >
     <div
@@ -53,7 +53,7 @@ exports[`should display right meta info 1`] = `
         Deprecated code should be removed
       </big>
     </h3>
-  </header>
+  </div>
   <ul
     className="coding-rules-detail-properties"
   >
@@ -133,7 +133,7 @@ exports[`should display right meta info 2`] = `
 <div
   className="js-rule-meta"
 >
-  <header
+  <div
     className="page-header"
   >
     <div
@@ -152,7 +152,7 @@ exports[`should display right meta info 2`] = `
         xoo:OneExternalIssuePerLine
       </big>
     </h3>
-  </header>
+  </div>
 </div>
 `;
 
@@ -160,7 +160,7 @@ exports[`should display right meta info 3`] = `
 <div
   className="js-rule-meta"
 >
-  <header
+  <div
     className="page-header"
   >
     <div
@@ -179,7 +179,7 @@ exports[`should display right meta info 3`] = `
         One external issue per line
       </big>
     </h3>
-  </header>
+  </div>
   <ul
     className="coding-rules-detail-properties"
   >

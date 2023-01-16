@@ -4,13 +4,13 @@ exports[`should render correctly 1`] = `
 <div
   className="boxed-group quality-profile-inheritance"
 >
-  <header
+  <div
     className="boxed-group-header"
   >
     <h2>
       quality_profiles.profile_inheritance
     </h2>
-  </header>
+  </div>
   <div
     className="boxed-group-inner"
   >
@@ -58,13 +58,13 @@ exports[`should render modal correctly 1`] = `
 <div
   className="boxed-group quality-profile-inheritance"
 >
-  <header
+  <div
     className="boxed-group-header"
   >
     <h2>
       quality_profiles.profile_inheritance
     </h2>
-  </header>
+  </div>
   <div
     className="boxed-group-inner"
   >

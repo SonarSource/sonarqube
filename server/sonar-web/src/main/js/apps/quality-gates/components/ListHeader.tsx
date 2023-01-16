@@ -31,7 +31,7 @@ interface Props {
 
 export default function ListHeader({ canCreate, refreshQualityGates }: Props) {
   return (
-    <header className="page-header">
+    <div className="page-header">
       {canCreate && (
         <div className="page-actions">
           <ModalButton
@@ -61,6 +61,6 @@ export default function ListHeader({ canCreate, refreshQualityGates }: Props) {
           ]}
         />
       </div>
-    </header>
+    </div>
   );
 }
