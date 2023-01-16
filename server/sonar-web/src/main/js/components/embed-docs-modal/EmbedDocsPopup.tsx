@@ -83,6 +83,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
       <a href={link} rel="noopener noreferrer" target="_blank">
         <img
           alt={text}
+          aria-hidden={true}
           className="spacer-right"
           height="18"
           src={`${getBaseUrl()}/images/${icon}`}
