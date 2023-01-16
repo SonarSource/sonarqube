@@ -204,7 +204,7 @@ subprojects {
       dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.11.0.3905'
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.11.0.3905'
       dependency 'org.sonarsource.api.plugin:sonar-plugin-api:9.14.0.375'
-      dependency 'org.sonarsource.xml:sonar-xml-plugin:2.6.1.3686'
+      dependency 'org.sonarsource.xml:sonar-xml-plugin:2.7.0.3820'
       dependency 'org.sonarsource.iac:sonar-iac-plugin:1.11.0.2847'
       dependency 'org.sonarsource.text:sonar-text-plugin:1.2.0.510'
 
