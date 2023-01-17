@@ -43,7 +43,7 @@ export default function ListFooter(props: ListFooterProps) {
     className,
     count,
     loadMore,
-    loading,
+    loading = false,
     needReload,
     total,
     pageSize,
