@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 const autoprefixer = require('autoprefixer');
-const postCssPlugin = require('esbuild-plugin-postcss2').default;
+const postCssPlugin = require('./esbuild-postcss-plugin');
+const postcss = require('postcss');
 const postCssCalc = require('postcss-calc');
 const postCssCustomProperties = require('postcss-custom-properties');
 const htmlPlugin = require('./esbuild-html-plugin');
@@ -36,6 +37,7 @@ module.exports = (release) => {
         }),
         postCssCalc,
       ],
+      postcss,
     }),
   ];
 

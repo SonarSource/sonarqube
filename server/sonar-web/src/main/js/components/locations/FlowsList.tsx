@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import 'FlowsList.css';
 import { uniq } from 'lodash';
 import * as React from 'react';
 import ConciseIssueLocationBadge from '../../apps/issues/conciseIssuesList/ConciseIssueLocationBadge';
@@ -25,6 +24,7 @@ import { translate } from '../../helpers/l10n';
 import { Flow, FlowType } from '../../types/types';
 import BoxedGroupAccordion from '../controls/BoxedGroupAccordion';
 import CrossFileLocationNavigator from './CrossFileLocationNavigator';
+import './FlowsList.css';
 import SingleFileLocationNavigator from './SingleFileLocationNavigator';
 
 const FLOW_ORDER_MAP = {
