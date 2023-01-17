@@ -6,6 +6,7 @@ exports[`should render correctly: default 1`] = `
   tabIndex={-1}
 >
   <span
+    aria-busy={false}
     aria-live="polite"
   >
     x_of_y_shown.3.5
@@ -13,12 +14,14 @@ exports[`should render correctly: default 1`] = `
   <Button
     className="spacer-left"
     data-test="show-more"
+    disabled={false}
     onClick={[Function]}
   >
     show_more
   </Button>
   <DeferredSpinner
     className="text-bottom spacer-left position-absolute"
+    loading={false}
   />
 </div>
 `;
@@ -29,12 +32,14 @@ exports[`should render correctly: empty if everything is loaded 1`] = `
   tabIndex={-1}
 >
   <span
+    aria-busy={false}
     aria-live="polite"
   >
     x_of_y_shown.5.5
   </span>
   <DeferredSpinner
     className="text-bottom spacer-left position-absolute"
+    loading={false}
   />
 </div>
 `;
@@ -45,12 +50,14 @@ exports[`should render correctly: empty if no loadMore nor reload props 1`] = `
   tabIndex={-1}
 >
   <span
+    aria-busy={false}
     aria-live="polite"
   >
     x_of_y_shown.3.5
   </span>
   <DeferredSpinner
     className="text-bottom spacer-left position-absolute"
+    loading={false}
   />
 </div>
 `;
@@ -61,6 +68,7 @@ exports[`should render correctly: force show load more button if count % pageSiz
   tabIndex={-1}
 >
   <span
+    aria-busy={false}
     aria-live="polite"
   >
     x_show.60
@@ -68,12 +76,14 @@ exports[`should render correctly: force show load more button if count % pageSiz
   <Button
     className="spacer-left"
     data-test="show-more"
+    disabled={false}
     onClick={[Function]}
   >
     show_more
   </Button>
   <DeferredSpinner
     className="text-bottom spacer-left position-absolute"
+    loading={false}
   />
 </div>
 `;
@@ -110,6 +120,7 @@ exports[`should render correctly: reload 1`] = `
   tabIndex={-1}
 >
   <span
+    aria-busy={false}
     aria-live="polite"
   >
     x_of_y_shown.3.5
@@ -117,12 +128,14 @@ exports[`should render correctly: reload 1`] = `
   <Button
     className="spacer-left"
     data-test="reload"
+    disabled={false}
     onClick={[MockFunction]}
   >
     reload
   </Button>
   <DeferredSpinner
     className="text-bottom spacer-left position-absolute"
+    loading={false}
   />
 </div>
 `;
@@ -159,12 +172,14 @@ exports[`should render correctly: total undefined 1`] = `
   tabIndex={-1}
 >
   <span
+    aria-busy={false}
     aria-live="polite"
   >
     x_show.3
   </span>
   <DeferredSpinner
     className="text-bottom spacer-left position-absolute"
+    loading={false}
   />
 </div>
 `;
