@@ -22,7 +22,6 @@ package org.sonar.server.batch;
 import java.io.IOException;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
@@ -49,7 +48,6 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -93,7 +91,6 @@ public class IssuesActionTest {
     ServerIssue serverIssue = call(project.getKey());
 
     assertThat(serverIssue.getKey()).isEqualTo(issue.getKey());
-    assertThat(serverIssue.getModuleKey()).isEqualTo(module.getKey());
     assertThat(serverIssue.getRuleRepository()).isEqualTo(rule.getRepositoryKey());
     assertThat(serverIssue.getRuleKey()).isEqualTo(rule.getRuleKey());
     assertThat(serverIssue.getStatus()).isEqualTo("OPEN");
@@ -130,7 +127,6 @@ public class IssuesActionTest {
     ServerIssue serverIssue = call(project.getKey());
 
     assertThat(serverIssue.getKey()).isEqualTo(issue.getKey());
-    assertThat(serverIssue.getModuleKey()).isEqualTo(module.getKey());
     assertThat(serverIssue.getRuleRepository()).isEqualTo(rule.getRepositoryKey());
     assertThat(serverIssue.getRuleKey()).isEqualTo(rule.getRuleKey());
     assertThat(serverIssue.getStatus()).isEqualTo("OPEN");
@@ -159,11 +155,11 @@ public class IssuesActionTest {
     try (CloseableIterator<ServerIssue> result = callStream(project.getKey(), null)) {
       assertThat(result)
         .toIterable()
-        .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
+        .extracting(ServerIssue::getKey)
         .containsExactlyInAnyOrder(
-          tuple(issueOnFile.getKey(), module.getKey()),
-          tuple(issueOnModule.getKey(), module.getKey()),
-          tuple(issueOnProject.getKey(), project.getKey()));
+          issueOnFile.getKey(),
+          issueOnModule.getKey(),
+          issueOnProject.getKey());
     }
   }
 
@@ -188,33 +184,12 @@ public class IssuesActionTest {
     try (CloseableIterator<ServerIssue> result = callStream(project.getKey(), null)) {
       assertThat(result)
         .toIterable()
-        .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
+        .extracting(ServerIssue::getKey)
         .containsExactlyInAnyOrder(
-          tuple(issueOnFile.getKey(), module.getKey()),
-          tuple(issueOnModule.getKey(), module.getKey()),
-          tuple(issueOnProject.getKey(), project.getKey()),
-          tuple(issueFromMigratedRule.getKey(), module.getKey()));
-    }
-  }
-
-  @Test
-  public void return_issues_of_module() {
-    RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(newFileDto(module, null));
-    IssueDto issueOnFile = db.issues().insert(rule, project, file, i -> i.setKee("ON_FILE").setType(randomRuleTypeExceptHotspot()));
-    IssueDto issueOnModule = db.issues().insert(rule, project, module, i -> i.setKee("ON_MODULE").setType(randomRuleTypeExceptHotspot()));
-    IssueDto issueOnProject = db.issues().insert(rule, project, project, i -> i.setKee("ON_PROJECT").setType(randomRuleTypeExceptHotspot()));
-
-    addPermissionTo(project);
-    try (CloseableIterator<ServerIssue> result = callStream(module.getKey(), null)) {
-      assertThat(result)
-        .toIterable()
-        .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
-        .containsExactlyInAnyOrder(
-          tuple(issueOnFile.getKey(), module.getKey()),
-          tuple(issueOnModule.getKey(), module.getKey()));
+          issueOnFile.getKey(),
+          issueOnModule.getKey(),
+          issueOnProject.getKey(),
+          issueFromMigratedRule.getKey());
     }
   }
 
@@ -232,9 +207,8 @@ public class IssuesActionTest {
     try (CloseableIterator<ServerIssue> result = callStream(file.getKey(), null)) {
       assertThat(result)
         .toIterable()
-        .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
-        .containsExactlyInAnyOrder(
-          tuple(issueOnFile.getKey(), module.getKey()));
+        .extracting(ServerIssue::getKey)
+        .containsExactlyInAnyOrder(issueOnFile.getKey());
     }
   }
 
@@ -248,29 +222,7 @@ public class IssuesActionTest {
     IssueDto issueOnFile = db.issues().insert(rule, branch, file, i -> i.setType(randomRuleTypeExceptHotspot()));
     IssueDto issueOnBranch = db.issues().insert(rule, branch, branch, i -> i.setType(randomRuleTypeExceptHotspot()));
 
-    assertResult(project.getKey(), "my_branch",
-      tuple(issueOnFile.getKey(), branch.getKey()),
-      tuple(issueOnBranch.getKey(), branch.getKey()));
-  }
-
-  @Test
-  public void return_issues_by_module_and_branch() {
-    RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
-    addPermissionTo(project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule));
-    IssueDto issueOnFile = db.issues().insert(rule, branch, file, i -> i.setType(randomRuleTypeExceptHotspot()));
-    IssueDto issueOnSubModule = db.issues().insert(rule, branch, subModule, i -> i.setType(randomRuleTypeExceptHotspot()));
-    IssueDto issueOnModule = db.issues().insert(rule, branch, module, i -> i.setType(randomRuleTypeExceptHotspot()));
-
-    assertResult(module.getKey(), "my_branch",
-      tuple(issueOnFile.getKey(), subModule.getKey()),
-      tuple(issueOnSubModule.getKey(), subModule.getKey()),
-      tuple(issueOnModule.getKey(), module.getKey())
-    );
+    assertResult(project.getKey(), "my_branch", issueOnFile.getKey(), issueOnBranch.getKey());
   }
 
   @Test
@@ -282,24 +234,6 @@ public class IssuesActionTest {
     assertThatThrownBy(() -> call(directory.getKey()))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Component of scope 'DIR' is not allowed");
-  }
-
-  @Test
-  public void issues_on_disabled_modules_are_returned() {
-    RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(module, null).setEnabled(false));
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setType(randomRuleTypeExceptHotspot()));
-
-    addPermissionTo(project);
-    try (CloseableIterator<ServerIssue> result = callStream(project.getKey(), null)) {
-      // Module key of removed file should be returned
-      assertThat(result)
-        .toIterable()
-        .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
-        .containsExactly(tuple(issue.getKey(), module.getKey()));
-    }
   }
 
   @Test
@@ -321,12 +255,12 @@ public class IssuesActionTest {
   @Test
   public void fail_if_branch_does_not_exist() {
     ComponentDto project = db.components().insertPrivateProject();
-     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     addPermissionTo(project);
 
     assertThatThrownBy(() -> {
       tester.newRequest()
-        .setParam("key",project.getKey())
+        .setParam("key", project.getKey())
         .setParam("branch", "does_not_exist")
         .execute();
     })
@@ -352,12 +286,12 @@ public class IssuesActionTest {
     return Protobuf.readStream(request.execute().getInputStream(), ServerIssue.parser());
   }
 
-  private void assertResult(String componentKey, String branch, Tuple... tuples) {
+  private void assertResult(String componentKey, String branch, String... issueKeys) {
     try (CloseableIterator<ServerIssue> result = callStream(componentKey, branch)) {
       assertThat(result)
         .toIterable()
-        .extracting(ServerIssue::getKey, ServerIssue::getModuleKey)
-        .containsExactlyInAnyOrder(tuples);
+        .extracting(ServerIssue::getKey)
+        .containsExactlyInAnyOrder(issueKeys);
     }
   }
 

@@ -456,68 +456,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_enabled_modules_tree() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto removedSubModule = db.components().insertComponent(newModuleDto(module).setEnabled(false));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(subModule, "src2").setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
-
-    // From root project
-    assertThat(underTest.selectEnabledDescendantModules(dbSession, project.uuid()))
-      .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(project.uuid(), module.uuid(), subModule.uuid())
-      .doesNotContain(removedModule.uuid(), removedSubModule.uuid());
-
-    // From module
-    assertThat(underTest.selectEnabledDescendantModules(dbSession, module.uuid()))
-      .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(module.uuid(), subModule.uuid())
-      .doesNotContain(removedModule.uuid(), removedModule.uuid());
-
-    // From sub module
-    assertThat(underTest.selectEnabledDescendantModules(dbSession, subModule.uuid()))
-      .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(subModule.uuid());
-
-    // Folder
-    assertThat(underTest.selectEnabledDescendantModules(dbSession, directory.uuid())).isEmpty();
-    assertThat(underTest.selectEnabledDescendantModules(dbSession, "unknown")).isEmpty();
-  }
-
-  @Test
-  public void select_all_modules_tree() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto removedSubModule = db.components().insertComponent(newModuleDto(module).setEnabled(false));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(subModule, "src2").setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
-
-    // From root project, disabled sub module is returned
-    assertThat(underTest.selectDescendantModules(dbSession, project.uuid()))
-      .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(project.uuid(), module.uuid(), removedModule.uuid(), subModule.uuid(), removedSubModule.uuid());
-
-    // From module, disabled sub module is returned
-    assertThat(underTest.selectDescendantModules(dbSession, module.uuid()))
-      .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(module.uuid(), subModule.uuid(), removedSubModule.uuid());
-
-    // From removed sub module -> should not be returned
-    assertThat(underTest.selectDescendantModules(dbSession, removedSubModule.uuid())).isEmpty();
-  }
-
-  @Test
   public void select_enabled_module_files_tree_from_module() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));

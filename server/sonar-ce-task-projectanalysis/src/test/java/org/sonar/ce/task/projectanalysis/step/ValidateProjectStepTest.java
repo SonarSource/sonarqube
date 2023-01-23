@@ -91,24 +91,6 @@ public class ValidateProjectStepTest {
   }
 
   @Test
-  public void fail_if_pr_is_targeting_branch_with_modules() {
-    ComponentDto masterProject = db.components().insertPublicProject();
-    ComponentDto mergeBranch = db.components().insertProjectBranch(masterProject, b -> b.setKey("mergeBranch"));
-    dbClient.componentDao().insert(db.getSession(), ComponentTesting.newModuleDto(mergeBranch));
-    setBranch(BranchType.PULL_REQUEST, mergeBranch.uuid());
-    db.getSession().commit();
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
-      .setKey("branch")
-      .build());
-
-    var stepContext = new TestComputationStepContext();
-    assertThatThrownBy(() -> underTest.execute(stepContext))
-      .isInstanceOf(MessageException.class)
-      .hasMessage("Due to an upgrade, you need first to re-analyze the target branch 'mergeBranch' before analyzing this pull request.");
-  }
-
-  @Test
   public void fail_if_analysis_date_is_before_last_analysis() {
     analysisMetadataHolder.setAnalysisDate(DateUtils.parseDate("2015-01-01"));
 

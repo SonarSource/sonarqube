@@ -23,7 +23,6 @@ import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.resources.Scopes;
@@ -42,7 +41,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
@@ -95,7 +93,6 @@ public class IssuesAction implements BatchWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
       userSession.checkComponentPermission(USER, component);
-      Map<String, String> keysByUUid = keysByUUid(dbSession, component);
 
       ScannerInput.ServerIssue.Builder responseBuilder = ScannerInput.ServerIssue.newBuilder();
       response.stream().setMediaType(MediaTypes.PROTOBUF);
@@ -124,15 +121,13 @@ public class IssuesAction implements BatchWsAction {
 
       issueDtos.forEach(issue -> {
         issue.setAssigneeUuid(userLoginsByUserUuids.get(issue.getAssigneeUuid()));
-        handleIssue(issue, responseBuilder, keysByUUid, output);
+        handleIssue(issue, responseBuilder, output);
       });
     }
   }
 
-  private static void handleIssue(IssueDto issue, ScannerInput.ServerIssue.Builder issueBuilder, Map<String, String> keysByUUid, OutputStream out) {
+  private static void handleIssue(IssueDto issue, ScannerInput.ServerIssue.Builder issueBuilder, OutputStream out) {
     issueBuilder.setKey(issue.getKey());
-    String moduleUuid = extractModuleUuid(issue);
-    issueBuilder.setModuleKey(keysByUUid.get(moduleUuid));
     ofNullable(issue.getFilePath()).ifPresent(issueBuilder::setPath);
     issueBuilder.setRuleRepository(issue.getRuleRepo());
     issueBuilder.setRuleKey(issue.getRule());
@@ -152,27 +147,6 @@ public class IssuesAction implements BatchWsAction {
       throw new IllegalStateException("Unable to serialize issue", e);
     }
     issueBuilder.clear();
-  }
-
-  private static String extractModuleUuid(IssueDto issue) {
-    List<String> split = MODULE_PATH_SPLITTER.splitToList(issue.getModuleUuidPath());
-    return split.get(split.size() - 1);
-  }
-
-  private Map<String, String> keysByUUid(DbSession session, ComponentDto component) {
-    Map<String, String> keysByUUid = new HashMap<>();
-    if (Scopes.PROJECT.equals(component.scope())) {
-      List<ComponentDto> modulesTree = dbClient.componentDao().selectDescendantModules(session, component.uuid());
-      for (ComponentDto componentDto : modulesTree) {
-        keysByUUid.put(componentDto.uuid(), componentDto.getKey());
-      }
-    } else {
-      String moduleUuid = component.moduleUuid();
-      checkArgument(moduleUuid != null, "The component '%s' has no module uuid", component.uuid());
-      ComponentDto module = dbClient.componentDao().selectOrFailByUuid(session, moduleUuid);
-      keysByUUid.put(module.uuid(), module.getKey());
-    }
-    return keysByUUid;
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {

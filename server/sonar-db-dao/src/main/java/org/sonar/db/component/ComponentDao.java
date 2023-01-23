@@ -82,10 +82,6 @@ public class ComponentDao implements Dao {
     return mapper(session).selectSubProjectsByComponentUuids(uuids);
   }
 
-  public List<ComponentDto> selectDescendantModules(DbSession session, String rootComponentUuid) {
-    return mapper(session).selectDescendantModules(rootComponentUuid, Scopes.PROJECT, false);
-  }
-
   public List<ComponentDto> selectEnabledDescendantModules(DbSession session, String rootComponentUuid) {
     return mapper(session).selectDescendantModules(rootComponentUuid, Scopes.PROJECT, true);
   }
