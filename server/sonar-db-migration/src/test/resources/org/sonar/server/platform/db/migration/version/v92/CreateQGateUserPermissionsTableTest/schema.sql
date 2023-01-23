@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS qgate_user_permissions;
