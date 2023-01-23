@@ -105,10 +105,6 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectByBranchUuid(branchUuid);
   }
 
-  public int countEnabledModulesByBranchUuid(DbSession session, String branchUuid) {
-    return mapper(session).countEnabledModulesByBranchUuid(branchUuid);
-  }
-
   /*
     SELECT BY QUERY
    */
@@ -173,13 +169,6 @@ public class ComponentDao implements Dao {
     @Nullable String branch, @Nullable String pullRequest) {
     checkState(branch == null || pullRequest == null, "Can't set both branch and pull request");
     return mapper(session).selectComponentsFromProjectKeyAndScope(projectKey, Scopes.PROJECT, excludeDisabled, branch, pullRequest);
-  }
-
-  /**
-   * If no branch or pull request is provided, returns components in the main branch
-   */
-  public List<ComponentDto> selectEnabledModulesFromProjectKey(DbSession session, String projectKey, @Nullable String branch, @Nullable String pullRequest) {
-    return selectProjectAndModulesFromProjectKey(session, projectKey, true, branch, pullRequest);
   }
 
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {
@@ -299,10 +288,6 @@ public class ComponentDao implements Dao {
   public Set<ComponentDto> selectComponentsByQualifiers(DbSession dbSession, Set<String> qualifiers) {
     checkArgument(!qualifiers.isEmpty(), "Qualifiers cannot be empty");
     return new HashSet<>(mapper(dbSession).selectComponentsByQualifiers(qualifiers));
-  }
-
-  public List<ComponentWithModuleUuidDto> selectEnabledComponentsWithModuleUuidFromProjectKey(DbSession dbSession, String projectKey) {
-    return mapper(dbSession).selectEnabledComponentsWithModuleUuidFromProjectKey(projectKey);
   }
 
   /**

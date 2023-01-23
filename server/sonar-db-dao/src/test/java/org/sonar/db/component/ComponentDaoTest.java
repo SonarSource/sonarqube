@@ -408,20 +408,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void count_enabled_modules_by_project_uuid() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    db.components().insertComponent(newModuleDto(module));
-    ComponentDto subModule2 = newModuleDto(module);
-    subModule2.setEnabled(false);
-    db.components().insertComponent(subModule2);
-
-    int result = underTest.countEnabledModulesByBranchUuid(dbSession, project.uuid());
-
-    assertThat(result).isEqualTo(2);
-  }
-
-  @Test
   public void find_sub_projects_by_component_keys() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
@@ -502,29 +488,6 @@ public class ComponentDaoTest {
     // Folder
     assertThat(underTest.selectEnabledDescendantModules(dbSession, directory.uuid())).isEmpty();
     assertThat(underTest.selectEnabledDescendantModules(dbSession, "unknown")).isEmpty();
-  }
-
-  @Test
-  public void select_enabled_components_with_module_dto() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto removedSubModule = db.components().insertComponent(newModuleDto(module).setEnabled(false));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(subModule, "src2").setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
-
-    // From root project
-    assertThat(underTest.selectEnabledComponentsWithModuleUuidFromProjectKey(dbSession, project.getKey()))
-      .extracting(ComponentWithModuleUuidDto::uuid)
-      .containsExactlyInAnyOrder(
-        project.uuid(),
-        module.uuid(),
-        subModule.uuid(),
-        directory.uuid(),
-        file.uuid());
   }
 
   @Test
@@ -716,57 +679,6 @@ public class ComponentDaoTest {
       entry(subModule.getKey(), subModule.uuid()),
       entry(directory.getKey(), directory.uuid()),
       entry(file.getKey(), file.uuid()));
-  }
-
-  @Test
-  public void select_enabled_modules_from_project() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto removedSubModule = db.components().insertComponent(newModuleDto(module).setEnabled(false));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(subModule, "src2").setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
-
-    // Removed modules are not included
-    assertThat(underTest.selectEnabledModulesFromProjectKey(dbSession, project.getKey(), null, null))
-      .extracting(ComponentDto::getKey)
-      .containsExactlyInAnyOrder(project.getKey(), module.getKey(), subModule.getKey());
-
-    assertThat(underTest.selectEnabledModulesFromProjectKey(dbSession, "UNKNOWN", null, null)).isEmpty();
-  }
-
-  @Test
-  public void select_enabled_modules_from_branch() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-
-    // Removed modules are not included
-    assertThat(underTest.selectEnabledModulesFromProjectKey(dbSession, project.getKey(), "branch1", null))
-      .extracting(ComponentDto::getKey)
-      .containsExactlyInAnyOrder(project.getKey(), module.getKey(), subModule.getKey());
-  }
-
-  @Test
-  public void select_enabled_modules_from_pr() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey("pr1"));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-
-    // Removed modules are not included
-    assertThat(underTest.selectEnabledModulesFromProjectKey(dbSession, project.getKey(), null, "pr1"))
-      .extracting(ComponentDto::getKey)
-      .containsExactlyInAnyOrder(project.getKey(), module.getKey(), subModule.getKey());
   }
 
   @Test

@@ -31,7 +31,10 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.extension.PluginRiskConsent;
 
 import static java.util.Arrays.asList;
-import static org.sonar.api.PropertyType.*;
+import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
+import static org.sonar.api.PropertyType.STRING;
+import static org.sonar.api.PropertyType.TEXT;
 import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 
 public class CorePropertyDefinitions {
@@ -73,7 +76,8 @@ public class CorePropertyDefinitions {
         .build(),
       PropertyDefinition.builder(CoreProperties.SERVER_BASE_URL)
         .name("Server base URL")
-        .description("HTTP(S) URL of this SonarQube server, such as <i>https://yourhost.yourdomain/sonar</i>. This value is used outside SonarQube itself, e.g. for PR decoration, emails, etc.")
+        .description(
+          "HTTP(S) URL of this SonarQube server, such as <i>https://yourhost.yourdomain/sonar</i>. This value is used outside SonarQube itself, e.g. for PR decoration, emails, etc.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .build(),
       PropertyDefinition.builder(SONAR_PROJECTCREATION_MAINBRANCHNAME)
@@ -196,7 +200,7 @@ public class CorePropertyDefinitions {
         .name("Duplication Exclusions")
         .description("Patterns used to exclude some source files from the duplication detection mechanism. " +
           "See below to know how to use wildcards to specify this property.")
-        .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
+        .onQualifiers(Qualifiers.PROJECT)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)

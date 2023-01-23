@@ -19,11 +19,11 @@
  */
 package org.sonar.core.component;
 
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 
 @ScannerSide
@@ -61,8 +61,7 @@ public final class DefaultResourceTypes {
         .hasSourceCode()
         .build())
 
-      .addRelations(Qualifiers.PROJECT, Qualifiers.MODULE)
-      .addRelations(Qualifiers.MODULE, Qualifiers.DIRECTORY)
+      .addRelations(Qualifiers.PROJECT, Qualifiers.DIRECTORY)
       .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE)
 
       .build();

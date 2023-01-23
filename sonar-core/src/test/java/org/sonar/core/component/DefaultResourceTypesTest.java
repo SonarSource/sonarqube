@@ -31,6 +31,6 @@ public class DefaultResourceTypesTest {
     ResourceTypeTree tree = DefaultResourceTypes.get();
 
     assertThat(tree.getTypes()).hasSize(5);
-    assertThat(tree.getChildren(Qualifiers.PROJECT)).containsExactly(Qualifiers.MODULE);
+    assertThat(tree.getChildren(Qualifiers.PROJECT)).containsExactly(Qualifiers.DIRECTORY);
   }
 }

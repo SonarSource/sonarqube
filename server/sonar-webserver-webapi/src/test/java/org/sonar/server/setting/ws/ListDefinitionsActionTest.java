@@ -50,7 +50,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
@@ -193,9 +192,9 @@ public class ListDefinitionsActionTest {
   public void return_JSON_property() {
     logIn();
     propertyDefinitions.addComponent(PropertyDefinition
-        .builder("foo")
-        .type(PropertyType.JSON)
-        .build());
+      .builder("foo")
+      .type(PropertyType.JSON)
+      .build());
 
     ListDefinitionsWsResponse result = executeRequest();
 
@@ -293,8 +292,7 @@ public class ListDefinitionsActionTest {
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("global").build(),
       PropertyDefinition.builder("global-and-project").onQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("only-on-project").onlyOnQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("only-on-module").onlyOnQualifiers(MODULE).build()));
+      PropertyDefinition.builder("only-on-project").onlyOnQualifiers(PROJECT).build()));
 
     ListDefinitionsWsResponse result = executeRequest();
 
@@ -307,8 +305,7 @@ public class ListDefinitionsActionTest {
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("global").build(),
       PropertyDefinition.builder("global-and-project").onQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("only-on-project").onlyOnQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("only-on-module").onlyOnQualifiers(MODULE).build()));
+      PropertyDefinition.builder("only-on-project").onlyOnQualifiers(PROJECT).build()));
 
     ListDefinitionsWsResponse result = executeRequest(project.getKey());
 

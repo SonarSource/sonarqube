@@ -26,8 +26,8 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static java.util.Arrays.asList;
+import static org.sonar.api.resources.Qualifiers.DIRECTORY;
 import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class ComponentIndexScoreTest extends ComponentIndexTest {
@@ -121,14 +121,14 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
 
     assertSearch(SuggestionQuery.builder()
       .setQuery("File")
-      .setQualifiers(asList(PROJECT, MODULE, FILE))
+      .setQualifiers(asList(PROJECT, DIRECTORY, FILE))
       .setRecentlyBrowsedKeys(ImmutableSet.of(file1.getKey()))
       .setFavoriteKeys(ImmutableSet.of(file2.getKey()))
       .build()).containsExactly(uuids(file2, file1));
 
     assertSearch(SuggestionQuery.builder()
       .setQuery("File")
-      .setQualifiers(asList(PROJECT, MODULE, FILE))
+      .setQualifiers(asList(PROJECT, DIRECTORY, FILE))
       .setRecentlyBrowsedKeys(ImmutableSet.of(file2.getKey()))
       .setFavoriteKeys(ImmutableSet.of(file1.getKey()))
       .build()).containsExactly(uuids(file1, file2));

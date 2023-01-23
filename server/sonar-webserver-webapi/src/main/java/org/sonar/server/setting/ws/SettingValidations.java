@@ -61,7 +61,7 @@ public class SettingValidations {
     "sonar.security.config.pythonsecurity",
     "sonar.security.config.roslyn.sonaranalyzer.security.cs"
   );
-  private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP, Qualifiers.MODULE, Qualifiers.SUBVIEW);
+  private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP, Qualifiers.SUBVIEW);
 
   private final PropertyDefinitions definitions;
   private final DbClient dbClient;
@@ -180,16 +180,16 @@ public class SettingValidations {
           validateJsonSchema(jsonContent.get(), definition);
         } catch (ValidationException e) {
           throw new IllegalArgumentException(String.format("Provided JSON is invalid [%s]", e.getMessage()));
-        } catch (IOException e){
+        } catch (IOException e) {
           throw new IllegalArgumentException("Provided JSON is invalid");
         }
       }
     }
 
     private void validateJsonSchema(String json, PropertyDefinition definition) {
-      if(SECURITY_JSON_PROPERTIES.contains(definition.key())){
+      if (SECURITY_JSON_PROPERTIES.contains(definition.key())) {
         InputStream jsonSchemaInputStream = this.getClass().getClassLoader().getResourceAsStream("json-schemas/security.json");
-        if(jsonSchemaInputStream != null){
+        if (jsonSchemaInputStream != null) {
           JSONObject jsonSchema = new JSONObject(new JSONTokener(jsonSchemaInputStream));
           JSONObject jsonSubject = new JSONObject(new JSONTokener(json));
           SchemaLoader.load(jsonSchema).validate(jsonSubject);

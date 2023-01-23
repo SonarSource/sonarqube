@@ -54,8 +54,6 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectComponentsByQualifiers(@Param("qualifiers") Collection<String> qualifiers);
 
-  int countEnabledModulesByBranchUuid(@Param("branchUuid") String branchUuid);
-
   List<ComponentDto> selectByQuery(@Param("query") ComponentQuery query, RowBounds rowBounds);
 
   int countByQuery(@Param("query") ComponentQuery query);
@@ -138,8 +136,6 @@ public interface ComponentMapper {
   List<KeyWithUuidDto> selectComponentsFromBranchesThatHaveOpenIssues(@Param("branchUuids") List<String> branchUuids);
 
   List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc();
-
-  List<ComponentWithModuleUuidDto> selectEnabledComponentsWithModuleUuidFromProjectKey(String projectKey);
 
   short checkIfAnyOfComponentsWithQualifiers(@Param("componentKeys") Collection<String> componentKeys, @Param("qualifiers") Set<String> qualifiers);
 }

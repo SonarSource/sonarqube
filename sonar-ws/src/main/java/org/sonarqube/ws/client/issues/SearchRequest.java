@@ -266,7 +266,6 @@ public class SearchRequest {
    * Possible values:
    * <ul>
    *   <li>"projects"</li>
-   *   <li>"moduleUuids"</li>
    *   <li>"fileUuids"</li>
    *   <li>"assigned_to_me"</li>
    *   <li>"severities"</li>

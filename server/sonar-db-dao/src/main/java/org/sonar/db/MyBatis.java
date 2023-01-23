@@ -52,7 +52,6 @@ import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentKeyUpdaterMapper;
 import org.sonar.db.component.ComponentMapper;
-import org.sonar.db.component.ComponentWithModuleUuidDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
@@ -192,7 +191,6 @@ public class MyBatis {
     confBuilder.loadAlias("ApplicationProject", ApplicationProjectDto.class);
     confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
-    confBuilder.loadAlias("ComponentWithModuleUuid", ComponentWithModuleUuidDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
     confBuilder.loadAlias("Event", EventDto.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);

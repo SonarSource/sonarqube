@@ -41,7 +41,7 @@ public class ExclusionProperties {
         .subCategory(CoreProperties.SUBCATEGORY_COVERAGE_EXCLUSIONS)
         .type(PropertyType.STRING)
         .multiValues(true)
-        .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
+        .onQualifiers(Qualifiers.PROJECT)
         .build(),
 
       // FILES

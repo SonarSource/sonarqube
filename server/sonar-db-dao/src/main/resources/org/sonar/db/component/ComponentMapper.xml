@@ -257,16 +257,6 @@
       </foreach>
   </select>
 
-  <select id="countEnabledModulesByBranchUuid" resultType="int">
-    select
-      count(1)
-    from components p
-    where
-      p.enabled=${_true}
-      and p.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
-      and p.qualifier = 'BRC'
-  </select>
-
   <select id="selectByQuery" resultType="Component">
     select
       <include refid="componentColumns"/>
@@ -539,15 +529,6 @@
     FROM components p
     WHERE
       p.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectEnabledComponentsWithModuleUuidFromProjectKey" resultType="ComponentWithModuleUuid">
-    SELECT
-      p.uuid as uuid, p.module_uuid as moduleUuid, p.path as path, p.scope as scope
-    FROM
-      components p
-    INNER JOIN
-      components root ON root.uuid=p.branch_uuid AND p.enabled = ${_true} AND root.kee=#{projectKey,jdbcType=VARCHAR}
   </select>
 
   <select id="selectUuidsByKeyFromProjectKeyAndBranchOrPr" parameterType="string" resultType="KeyWithUuid">

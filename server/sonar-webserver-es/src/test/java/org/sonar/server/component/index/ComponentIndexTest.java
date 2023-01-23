@@ -37,7 +37,6 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public abstract class ComponentIndexTest {
@@ -85,7 +84,7 @@ public abstract class ComponentIndexTest {
   }
 
   protected ListAssert<String> assertSearch(String query) {
-    return assertSearch(SuggestionQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)).build());
+    return assertSearch(SuggestionQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, FILE)).build());
   }
 
   protected ListAssert<String> assertSearch(SuggestionQuery query) {
@@ -95,7 +94,7 @@ public abstract class ComponentIndexTest {
   }
 
   protected void assertSearchResults(String query, ComponentDto... expectedComponents) {
-    assertSearchResults(SuggestionQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)).build(), expectedComponents);
+    assertSearchResults(SuggestionQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, FILE)).build(), expectedComponents);
   }
 
   protected void assertSearchResults(SuggestionQuery query, ComponentDto... expectedComponents) {

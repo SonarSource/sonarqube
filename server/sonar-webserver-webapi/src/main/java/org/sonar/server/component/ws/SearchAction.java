@@ -130,11 +130,7 @@ public class SearchAction implements ComponentsWsAction {
     Set<String> projectUuidsToSearch = components.stream()
       .map(ComponentDto::branchUuid)
       .collect(toHashSet());
-    List<ComponentDto> projects = dbClient.componentDao()
-      .selectByUuids(dbSession, projectUuidsToSearch)
-      .stream()
-      .filter(c -> !c.qualifier().equals(Qualifiers.MODULE))
-      .toList();
+    List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuidsToSearch);
     return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::getKey));
   }
 
