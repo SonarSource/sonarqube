@@ -86,7 +86,7 @@ function mountRender(props?: IndexationContextProviderProps) {
 }
 
 class TestComponent extends React.PureComponent {
-  context!: IndexationStatus;
+  context: IndexationStatus = { hasFailures: false, isCompleted: false, percentCompleted: 0 };
   static contextType = IndexationContext;
 
   render() {

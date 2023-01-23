@@ -11,7 +11,15 @@
     // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
 
     /* Language and Environment */
-    "target": "es6",                                     /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+
+
+    /* ** CAUTION: if the "target" below is changed, */
+    /*    we must ensure that the version of core-js */
+    /*    we import polyfills all its features       */
+    "target": "es2022",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    /* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
+
+
     // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
     "jsx": "react",                                      /* Specify what JSX code is generated. */
     // "experimentalDecorators": true,                   /* Enable experimental support for TC39 stage 2 draft decorators. */

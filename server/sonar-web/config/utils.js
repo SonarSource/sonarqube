@@ -85,5 +85,9 @@ function importAsGlobals(mapping) {
 module.exports = {
   getCustomProperties,
   importAsGlobals,
-  TARGET_BROWSERS: ['chrome58', 'firefox57', 'safari11', 'edge18']
+  /* NOTE: esbuild will transpile the _syntax_ down to what the TARGET_BROWSERS understand.    */
+  /* It will _not_, however, polyfill missing API methods, such as String.prototype.replaceAll */
+  /* This is why we also import core-js.                                                       */
+  TARGET_BROWSERS: ['chrome58', 'firefox57', 'safari11', 'edge18'],
+  /*                                                                                           */
 };
