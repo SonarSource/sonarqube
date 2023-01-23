@@ -21,7 +21,7 @@ jar {
       'Plugin-Version': project.version,
       'Plugin-Class': 'org.sonar.xoo.XooPlugin',
       'Plugin-ChildFirstClassLoader': 'false',
-      'Sonar-Version': project.version,
+      'Sonar-Version': project.pluginApiVersion,
       'SonarLint-Supported': 'true',
       'Plugin-Name': 'Xoo'
     )
