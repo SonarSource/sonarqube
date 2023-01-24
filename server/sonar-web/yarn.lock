@@ -2249,12 +2249,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/d3-shape@npm:3.1.0":
-  version: 3.1.0
-  resolution: "@types/d3-shape@npm:3.1.0"
+"@types/d3-shape@npm:3.1.1":
+  version: 3.1.1
+  resolution: "@types/d3-shape@npm:3.1.1"
   dependencies:
     "@types/d3-path": "*"
-  checksum: 19d43b9762cbff503806d014be1b8a5d22dd12c71635f1f0b30696d3b3b31528b978175afe2ba183542fd16e4fc740f56e7a84100ead00f7d95eaeb890ac8b78
+  checksum: 8f1762ecdeb4833a3802be1c65363cbc7cca753d0b836a3855fde4ba12f8e6fc142dba3c5f6d669a9e89374cc6dc414464e4f2d04e72fafd4bc64819ce30bb63
   languageName: node
   linkType: hard
 
@@ -2847,7 +2847,7 @@ __metadata:
     "@types/d3-hierarchy": 3.1.0
     "@types/d3-scale": 4.0.2
     "@types/d3-selection": 3.0.3
-    "@types/d3-shape": 3.1.0
+    "@types/d3-shape": 3.1.1
     "@types/d3-zoom": 3.0.1
     "@types/diff": 5.0.2
     "@types/dompurify": 2.4.0
@@ -2873,7 +2873,7 @@ __metadata:
     d3-hierarchy: 3.1.2
     d3-scale: 4.0.2
     d3-selection: 3.0.0
-    d3-shape: 3.1.0
+    d3-shape: 3.2.0
     d3-zoom: 3.0.0
     date-fns: 2.29.3
     diff: 5.1.0
@@ -4003,10 +4003,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3-path@npm:1 - 3":
-  version: 3.0.1
-  resolution: "d3-path@npm:3.0.1"
-  checksum: 6347c7055e0af330acadbe7f02144963eecabff560a791ecfeaffb45662e4d38eedabc6109dc481478f136b41d03707d3a43321ca9a115962888c99732ceb41a
+"d3-path@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "d3-path@npm:3.1.0"
+  checksum: 2306f1bd9191e1eac895ec13e3064f732a85f243d6e627d242a313f9777756838a2215ea11562f0c7630c7c3b16a19ec1fe0948b1c82f3317fac55882f6ee5d8
   languageName: node
   linkType: hard
 
@@ -4030,12 +4030,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3-shape@npm:3.1.0":
-  version: 3.1.0
-  resolution: "d3-shape@npm:3.1.0"
+"d3-shape@npm:3.2.0":
+  version: 3.2.0
+  resolution: "d3-shape@npm:3.2.0"
   dependencies:
-    d3-path: 1 - 3
-  checksum: 3dffe31b56feaf0817954748c9823c0e1fb6ab888b83775e9d568176ffa369546064ae49403963aac70108272988f632452634851f1c8a92805134d0c40e6dba
+    d3-path: ^3.1.0
+  checksum: de2af5fc9a93036a7b68581ca0bfc4aca2d5a328aa7ba7064c11aedd44d24f310c20c40157cb654359d4c15c3ef369f95ee53d71221017276e34172c7b719cfa
   languageName: node
   linkType: hard
 
