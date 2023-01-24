@@ -44,17 +44,6 @@ public class ProjectIndexersImplTest {
     assertThat(underTest.calls).containsExactly(project.uuid());
   }
 
-  @Test
-  public void commitAndIndex_of_module_indexes_the_project() {
-    ComponentDto project = ComponentTesting.newPublicProjectDto();
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-
-    FakeIndexers underTest = new FakeIndexers();
-    underTest.commitAndIndexComponents(mock(DbSession.class), singletonList(module), Cause.PROJECT_CREATION);
-
-    assertThat(underTest.calls).containsExactly(project.uuid());
-  }
-
   private static class FakeIndexers implements ProjectIndexers {
     private final List<String> calls = new ArrayList<>();
 

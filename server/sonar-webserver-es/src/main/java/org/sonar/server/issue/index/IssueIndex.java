@@ -155,7 +155,6 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IS_M
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_KEY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_LANGUAGE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_LINE;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_NEW_CODE_REFERENCE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_ASVS_40;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10;
@@ -593,9 +592,6 @@ public class IssueIndex {
       filters.addFilter(
         FIELD_ISSUE_PROJECT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_PROJECT_UUID),
         createTermsFilter(FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
-      filters.addFilter(
-        "__module", new SimpleFieldFilterScope(FIELD_ISSUE_MODULE_PATH),
-        createTermsFilter(FIELD_ISSUE_MODULE_PATH, query.moduleRootUuids()));
       filters.addFilter(
         FIELD_ISSUE_DIRECTORY_PATH, new SimpleFieldFilterScope(FIELD_ISSUE_DIRECTORY_PATH),
         createTermsFilter(FIELD_ISSUE_DIRECTORY_PATH, query.directories()));

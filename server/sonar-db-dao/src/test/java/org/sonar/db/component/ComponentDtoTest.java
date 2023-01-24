@@ -20,7 +20,6 @@
 package org.sonar.db.component;
 
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,9 +76,9 @@ public class ComponentDtoTest {
 
   @Test
   public void is_root_project() {
-    assertThat(new ComponentDto().setModuleUuid("ABCD").isRootProject()).isFalse();
-    assertThat(new ComponentDto().setModuleUuid("ABCD").setScope(Scopes.DIRECTORY).isRootProject()).isFalse();
-    assertThat(new ComponentDto().setModuleUuid(null).setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT).isRootProject()).isTrue();
+    assertThat(new ComponentDto().setUuid("uuid").setBranchUuid("branch").isRootProject()).isFalse();
+    assertThat(new ComponentDto().setScope(Scopes.DIRECTORY).setUuid("uuid").setBranchUuid("uuid").isRootProject()).isFalse();
+    assertThat(new ComponentDto().setScope(Scopes.PROJECT).setUuid("uuid").setBranchUuid("uuid").isRootProject()).isTrue();
   }
 
   @Test
@@ -93,11 +92,11 @@ public class ComponentDtoTest {
     ComponentDto project = ComponentTesting.newPrivateProjectDto().setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
     assertThat(project.getUuidPathLikeIncludingSelf()).isEqualTo("." + project.uuid() + ".%");
 
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    assertThat(module.getUuidPathLikeIncludingSelf()).isEqualTo("." + project.uuid() + "." + module.uuid() + ".%");
+    ComponentDto dir = ComponentTesting.newDirectory(project, "path");
+    assertThat(dir.getUuidPathLikeIncludingSelf()).isEqualTo("." + project.uuid() + "." + dir.uuid() + ".%");
 
-    ComponentDto file = ComponentTesting.newFileDto(module);
-    assertThat(file.getUuidPathLikeIncludingSelf()).isEqualTo("." + project.uuid() + "." + module.uuid() + "." + file.uuid() + ".%");
+    ComponentDto file = ComponentTesting.newFileDto(project, dir);
+    assertThat(file.getUuidPathLikeIncludingSelf()).isEqualTo("." + project.uuid() + "." + dir.uuid() + "." + file.uuid() + ".%");
   }
 
   @Test

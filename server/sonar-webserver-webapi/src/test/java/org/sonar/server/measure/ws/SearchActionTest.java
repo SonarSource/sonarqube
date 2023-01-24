@@ -52,7 +52,6 @@ import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PROJECT_KEYS;
@@ -334,18 +333,6 @@ public class SearchActionTest {
     MetricDto metric = db.measures().insertMetric();
 
     call(keys, singletonList(metric.getKey()));
-  }
-
-  @Test
-  public void fail_if_module() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    userSession.addProjectPermission(UserRole.USER, project);
-    MetricDto metric = db.measures().insertMetric();
-
-    assertThatThrownBy(() -> call(singletonList(module.getKey()), singletonList(metric.getKey())))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
   }
 
   @Test

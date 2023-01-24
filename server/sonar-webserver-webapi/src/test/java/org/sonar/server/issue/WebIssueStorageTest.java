@@ -46,8 +46,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 
 public class WebIssueStorageTest {
@@ -86,8 +86,8 @@ public class WebIssueStorageTest {
   public void insert_new_issues() {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
 
     String issueKey = "ABCDE";
     DefaultIssueComment comment = DefaultIssueComment.create(issueKey, "user_uuid", "the comment");
@@ -135,8 +135,8 @@ public class WebIssueStorageTest {
   public void update_issues() {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
 
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
@@ -218,8 +218,8 @@ public class WebIssueStorageTest {
   public void rule_uuid_is_set_on_updated_issue() {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
     DefaultIssue issue = newIssue(rule, project, file).toDefaultIssue();
 
     Collection<IssueDto> results = underTest.save(db.getSession(), singletonList(issue));
@@ -232,8 +232,8 @@ public class WebIssueStorageTest {
   public void rule_uuid_is_not_set_on_updated_issue_when_rule_is_removed() {
     RuleDto rule = db.rules().insert(r -> r.setStatus(REMOVED));
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
     DefaultIssue issue = newIssue(rule, project, file).toDefaultIssue();
 
     Collection<IssueDto> results = underTest.save(db.getSession(), singletonList(issue));

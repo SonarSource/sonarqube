@@ -19,6 +19,10 @@
  */
 package org.sonar.server.component.ws;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,13 +62,12 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
@@ -72,10 +75,6 @@ import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
 import static org.sonar.server.component.ws.SuggestionsAction.SHORT_INPUT_WARNING;
 import static org.sonar.test.JsonAssert.assertJson;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SuggestionsActionTest {
   private static final String[] SUGGESTION_QUALIFIERS = Stream.of(SuggestionCategory.values())
@@ -115,6 +114,7 @@ public class SuggestionsActionTest {
       PARAM_QUERY,
       PARAM_RECENTLY_BROWSED);
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("10.0", "The use of 'BRC' as value for parameter 'more' is no longer supported"),
       tuple("8.4", "The use of 'DIR', 'FIL','UTS' as values for parameter 'more' is no longer supported"),
       tuple("7.6", "The use of 'BRC' as value for parameter 'more' is deprecated"));
 
@@ -347,7 +347,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void suggestions_should_filter_allowed_qualifiers() {
-    resourceTypes.setAllQualifiers(PROJECT, MODULE, FILE, UNIT_TEST_FILE);
+    resourceTypes.setAllQualifiers(PROJECT, FILE, UNIT_TEST_FILE);
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
     componentIndexer.indexOnAnalysis(project.branchUuid());
     userSessionRule.addProjectPermission(USER, project);
@@ -359,7 +359,7 @@ public class SuggestionsActionTest {
 
     assertThat(response.getResultsList())
       .extracting(Category::getQ)
-      .containsExactlyInAnyOrder(PROJECT).doesNotContain(MODULE, FILE, UNIT_TEST_FILE);
+      .containsExactlyInAnyOrder(PROJECT).doesNotContain(FILE, UNIT_TEST_FILE);
   }
 
   @Test
@@ -471,38 +471,17 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_not_return_modules() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto().setName("ProjectWithModules"));
-    db.components().insertComponent(newModuleDto(project).setName("Module1"));
-    db.components().insertComponent(newModuleDto(project).setName("Module2"));
-    componentIndexer.indexOnAnalysis(project.branchUuid());
-    authorizationIndexerTester.allowOnlyAnyone(project);
-
-    SuggestionsWsResponse response = ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_QUERY, "Module")
-      .executeProtobuf(SuggestionsWsResponse.class);
-
-    assertThat(response.getResultsList())
-      .flatExtracting(Category::getItemsList)
-      .extracting(Suggestion::getKey)
-      .containsOnly(project.getKey());
-  }
-
-  @Test
   public void should_mark_recently_browsed_items() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto().setName("ProjectModule"));
-    ComponentDto module1 = newModuleDto(project).setName("Module1");
-    db.components().insertComponent(module1);
-    ComponentDto module2 = newModuleDto(project).setName("Module2");
-    db.components().insertComponent(module2);
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto().setName("ProjectTest"));
+    ComponentDto file1 = newFileDto(project).setName("File1");
+    ComponentDto file2 = newFileDto(project).setName("File2");
     componentIndexer.indexOnAnalysis(project.branchUuid());
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_QUERY, "Module")
-      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(module1.getKey(), project.getKey()).collect(joining(",")))
+      .setParam(PARAM_QUERY, "Test")
+      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(file1.getKey(), project.getKey()).collect(joining(",")))
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
@@ -556,9 +535,9 @@ public class SuggestionsActionTest {
     ComponentDto view = db.components().insertPublicPortfolio(v -> v.setName(query));
     ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubPortfolio(view).setName(query));
     ComponentDto project = db.components().insertPrivateProject(p -> p.setName(query));
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setName(query));
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(module).setName(query));
-    ComponentDto test = db.components().insertComponent(ComponentTesting.newFileDto(module).setName(query).setQualifier(UNIT_TEST_FILE));
+    ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "path").setName(query));
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query));
+    ComponentDto test = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query).setQualifier(UNIT_TEST_FILE));
     componentIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(project);
     authorizationIndexerTester.allowOnlyAnyone(view);

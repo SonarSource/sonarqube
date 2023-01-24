@@ -47,7 +47,6 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -142,14 +141,6 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
         .execute();
     })
       .isInstanceOf(NotFoundException.class);
-  }
-
-  @Test
-  public void fail_when_component_is_a_module() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-
-    failIfComponentIsNotAProjectOrView(module);
   }
 
   @Test

@@ -29,7 +29,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -324,13 +323,6 @@ public class ResetActionTest {
   public void succeed_for_property_without_definition_when_set_on_project_component() {
     ComponentDto project = randomPublicOrPrivateProject();
     succeedForPropertyWithoutDefinitionAndValidComponent(project, project);
-  }
-
-  @Test
-  public void succeed_for_property_without_definition_when_set_on_module_component() {
-    ComponentDto project = randomPublicOrPrivateProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    succeedForPropertyWithoutDefinitionAndValidComponent(project, module);
   }
 
   @Test

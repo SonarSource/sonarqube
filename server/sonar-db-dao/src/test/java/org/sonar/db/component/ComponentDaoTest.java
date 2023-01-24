@@ -90,7 +90,6 @@ import static org.sonar.db.component.ComponentTesting.newBranchComponent;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -102,7 +101,7 @@ import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 public class ComponentDaoTest {
 
   private static final String PROJECT_UUID = "project-uuid";
-  private static final String MODULE_UUID = "module-uuid";
+  private static final String DIR_UUID = "dir-uuid";
   private static final String FILE_1_UUID = "file-1-uuid";
   private static final String FILE_2_UUID = "file-2-uuid";
   private static final String FILE_3_UUID = "file-3-uuid";
@@ -139,8 +138,6 @@ public class ComponentDaoTest {
     assertThat(result).isNotNull();
     assertThat(result.uuid()).isEqualTo(project.uuid());
     assertThat(result.getUuidPath()).isEqualTo(".");
-    assertThat(result.moduleUuid()).isNull();
-    assertThat(result.moduleUuidPath()).isEqualTo("." + project.uuid() + ".");
     assertThat(result.branchUuid()).isEqualTo(project.uuid());
     assertThat(result.getKey()).isEqualTo("org.struts:struts");
     assertThat(result.path()).isNull();
@@ -168,8 +165,6 @@ public class ComponentDaoTest {
 
     ComponentDto result = underTest.selectByUuid(dbSession, projectCopy.uuid()).get();
     assertThat(result.uuid()).isEqualTo(projectCopy.uuid());
-    assertThat(result.moduleUuid()).isEqualTo(view.uuid());
-    assertThat(result.moduleUuidPath()).isEqualTo("." + view.uuid() + ".");
     assertThat(result.branchUuid()).isEqualTo(view.uuid());
     assertThat(result.getKey()).isEqualTo(view.getKey() + project.getKey());
     assertThat(result.path()).isNull();
@@ -388,12 +383,10 @@ public class ComponentDaoTest {
   @Test
   public void select_component_keys_by_qualifiers() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "src"));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
 
     assertThat(underTest.selectComponentsByQualifiers(dbSession, newHashSet("TRK"))).extracting(ComponentDto::getKey).containsExactlyInAnyOrder(project.getKey());
-    assertThat(underTest.selectComponentsByQualifiers(dbSession, newHashSet("BRC"))).extracting(ComponentDto::getKey).containsExactlyInAnyOrder(module.getKey());
     assertThat(underTest.selectComponentsByQualifiers(dbSession, newHashSet("DIR"))).extracting(ComponentDto::getKey).containsExactlyInAnyOrder(directory.getKey());
     assertThat(underTest.selectComponentsByQualifiers(dbSession, newHashSet("FIL"))).extracting(ComponentDto::getKey).containsExactlyInAnyOrder(file.getKey());
     assertThat(underTest.selectComponentsByQualifiers(dbSession, newHashSet("unknown"))).isEmpty();
@@ -411,32 +404,18 @@ public class ComponentDaoTest {
   public void find_sub_projects_by_component_keys() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto removedSubModule = db.components().insertComponent(newModuleDto(module).setEnabled(false));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(subModule, "src2").setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
+    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
+    ComponentDto removedFile = db.components().insertComponent(newFileDto(project, directory).setEnabled(false));
 
     // Sub project of a file
     assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, singletonList(file.uuid())))
       .extracting(ComponentDto::getKey)
-      .containsExactlyInAnyOrder(subModule.getKey());
+      .containsExactlyInAnyOrder(project.getKey());
 
     // Sub project of a directory
     assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, singletonList(directory.uuid())))
-      .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(subModule.uuid());
-
-    // Sub project of a sub module
-    assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, singletonList(subModule.uuid())))
-      .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(module.uuid());
-
-    // Sub project of a module
-    assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, singletonList(module.uuid())))
       .extracting(ComponentDto::uuid)
       .containsExactlyInAnyOrder(project.uuid());
 
@@ -445,39 +424,22 @@ public class ComponentDaoTest {
       .extracting(ComponentDto::uuid)
       .containsExactlyInAnyOrder(project.uuid());
 
-    // SUb projects of a component and a sub module
-    assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, asList(file.uuid(), subModule.uuid())))
-      .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(subModule.uuid(), module.uuid());
-
     assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, singletonList("unknown"))).isEmpty();
-
     assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, Collections.emptyList())).isEmpty();
   }
 
   @Test
   public void select_enabled_files_from_project() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto fileDirectlyOnModule = db.components().insertComponent(newFileDto(module));
-    FileSourceDto fileSourceDirectlyOnModule = db.fileSources().insertFileSource(fileDirectlyOnModule);
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     FileSourceDto fileSource = db.fileSources().insertFileSource(file);
 
     // From root project
     assertThat(underTest.selectEnabledFilesFromProject(dbSession, project.uuid()))
-      .extracting(FilePathWithHashDto::getUuid, FilePathWithHashDto::getModuleUuid, FilePathWithHashDto::getSrcHash, FilePathWithHashDto::getPath, FilePathWithHashDto::getRevision)
+      .extracting(FilePathWithHashDto::getUuid, FilePathWithHashDto::getSrcHash, FilePathWithHashDto::getPath, FilePathWithHashDto::getRevision)
       .containsExactlyInAnyOrder(
-        tuple(fileDirectlyOnModule.uuid(), module.uuid(), fileSourceDirectlyOnModule.getSrcHash(), fileDirectlyOnModule.path(), fileSourceDirectlyOnModule.getRevision()),
-        tuple(file.uuid(), subModule.uuid(), fileSource.getSrcHash(), file.path(), fileSource.getRevision()));
-
-    // From module
-    assertThat(underTest.selectEnabledFilesFromProject(dbSession, module.uuid())).isEmpty();
-
-    // From sub module
-    assertThat(underTest.selectEnabledFilesFromProject(dbSession, subModule.uuid())).isEmpty();
+        tuple(file.uuid(), fileSource.getSrcHash(), file.path(), fileSource.getRevision()));
 
     // From directory
     assertThat(underTest.selectEnabledFilesFromProject(dbSession, directory.uuid())).isEmpty();
@@ -489,20 +451,15 @@ public class ComponentDaoTest {
   public void select_by_branch_uuid() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto removedSubModule = db.components().insertComponent(newModuleDto(module).setEnabled(false));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(subModule, "src2").setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
+    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
+    ComponentDto removedFile = db.components().insertComponent(newFileDto(project, directory).setEnabled(false));
 
     // Removed components are included
     assertThat(underTest.selectByBranchUuid(project.uuid(), dbSession))
       .extracting(ComponentDto::getKey)
-      .containsExactlyInAnyOrder(project.getKey(), module.getKey(), removedModule.getKey(), subModule.getKey(), removedSubModule.getKey(),
-        directory.getKey(), removedDirectory.getKey(), file.getKey(), removedFile.getKey());
+      .containsExactlyInAnyOrder(project.getKey(), directory.getKey(), removedDirectory.getKey(), file.getKey(), removedFile.getKey());
 
     assertThat(underTest.selectByBranchUuid("UNKNOWN", dbSession)).isEmpty();
   }
@@ -512,24 +469,16 @@ public class ComponentDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto removedSubModule = db.components().insertComponent(newModuleDto(module).setEnabled(false));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(subModule, "src2").setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
+    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
+    ComponentDto removedFile = db.components().insertComponent(newFileDto(project, directory).setEnabled(false));
 
     Map<String, String> uuidsByKey = underTest.selectUuidsByKeyFromProjectKey(dbSession, project.getKey())
       .stream().collect(Collectors.toMap(KeyWithUuidDto::key, KeyWithUuidDto::uuid));
 
     assertThat(uuidsByKey).containsOnly(
       entry(project.getKey(), project.uuid()),
-      entry(module.getKey(), module.uuid()),
-      entry(removedModule.getKey(), removedModule.uuid()),
-      entry(subModule.getKey(), subModule.uuid()),
-      entry(removedSubModule.getKey(), removedSubModule.uuid()),
       entry(directory.getKey(), directory.uuid()),
       entry(removedDirectory.getKey(), removedDirectory.uuid()),
       entry(file.getKey(), file.uuid()),
@@ -542,10 +491,8 @@ public class ComponentDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey(branchKey).setBranchType(PULL_REQUEST));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, directory));
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project, directory));
 
     Map<String, String> uuidsByKey = underTest.selectUuidsByKeyFromProjectKeyAndBranch(dbSession, project.getKey(), branchKey)
@@ -553,8 +500,6 @@ public class ComponentDaoTest {
 
     assertThat(uuidsByKey).containsOnly(
       entry(branch.getKey(), branch.uuid()),
-      entry(module.getKey(), module.uuid()),
-      entry(subModule.getKey(), subModule.uuid()),
       entry(directory.getKey(), directory.uuid()),
       entry(file.getKey(), file.uuid()));
   }
@@ -565,10 +510,8 @@ public class ComponentDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(prKey).setBranchType(PULL_REQUEST));
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey(prKey).setBranchType(BRANCH));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, directory));
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project, directory));
 
     Map<String, String> uuidsByKey = underTest.selectUuidsByKeyFromProjectKeyAndPullRequest(dbSession, project.getKey(), prKey)
@@ -576,8 +519,6 @@ public class ComponentDaoTest {
 
     assertThat(uuidsByKey).containsOnly(
       entry(branch.getKey(), branch.uuid()),
-      entry(module.getKey(), module.uuid()),
-      entry(subModule.getKey(), subModule.uuid()),
       entry(directory.getKey(), directory.uuid()),
       entry(file.getKey(), file.uuid()));
   }
@@ -1081,18 +1022,14 @@ public class ComponentDaoTest {
   public void selectByProjectUuid() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto removedSubModule = db.components().insertComponent(newModuleDto(module).setEnabled(false));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(subModule, "src2").setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
+    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
+    ComponentDto removedFile = db.components().insertComponent(newFileDto(project, directory).setEnabled(false));
 
     assertThat(underTest.selectByBranchUuid(project.uuid(), dbSession))
       .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(project.uuid(), module.uuid(), removedModule.uuid(), subModule.uuid(), removedSubModule.uuid(), directory.uuid(), removedDirectory.uuid(),
+      .containsExactlyInAnyOrder(project.uuid(), directory.uuid(), removedDirectory.uuid(),
         file.uuid(),
         removedFile.uuid());
   }
@@ -1124,19 +1061,16 @@ public class ComponentDaoTest {
   private ListAssert<String> assertSelectForIndexing(@Nullable String projectUuid) {
     ComponentDto project = db.components().insertPrivateProject("U1");
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
-    ComponentDto module = db.components().insertComponent(newModuleDto("U2", project));
-    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "U3", "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(module, "src2").setEnabled(false));
-    ComponentDto file = db.components().insertComponent(newFileDto(module, directory, "U4"));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(module, directory).setEnabled(false));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "U3", "src"));
+    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory, "U4"));
+    ComponentDto removedFile = db.components().insertComponent(newFileDto(project, directory).setEnabled(false));
 
     ComponentDto view = db.components().insertPublicPortfolio("VW1", p -> {
     });
     db.components().insertComponent(newProjectCopy("COPY8", project, view));
 
     ComponentDto project2 = db.components().insertPrivateProject("U5");
-    ComponentDto moduleOnProject2 = db.components().insertComponent(newModuleDto("U6", project2));
 
     List<ComponentDto> components = new ArrayList<>();
     underTest.scrollForIndexing(dbSession, projectUuid,
@@ -1158,8 +1092,6 @@ public class ComponentDaoTest {
       .setBUuidPath("uuid_path")
       .setBLanguage("lang")
       .setBLongName("longName")
-      .setBModuleUuid("moduleUuid")
-      .setBModuleUuidPath("moduleUuidPath")
       .setBName("name")
       .setBPath("path")
       .setBQualifier("qualifier"), "qualifier");
@@ -1176,8 +1108,6 @@ public class ComponentDaoTest {
       .containsEntry("bUuidPath", "uuid_path")
       .containsEntry("bLanguage", "lang")
       .containsEntry("bLongName", "longName")
-      .containsEntry("bModuleUuid", "moduleUuid")
-      .containsEntry("bModuleUuidPath", "moduleUuidPath")
       .containsEntry("bName", "name")
       .containsEntry("bPath", "path")
       .containsEntry("bQualifier", "qualifier");
@@ -1204,8 +1134,6 @@ public class ComponentDaoTest {
       .containsEntry("bUuidPath", dto1.getUuidPath())
       .containsEntry("bLanguage", dto1.language())
       .containsEntry("bLongName", dto1.longName())
-      .containsEntry("bModuleUuid", dto1.moduleUuid())
-      .containsEntry("bModuleUuidPath", dto1.moduleUuidPath())
       .containsEntry("bName", dto1.name())
       .containsEntry("bPath", dto1.path())
       .containsEntry("bQualifier", dto1.qualifier());
@@ -1221,8 +1149,6 @@ public class ComponentDaoTest {
       .containsEntry("bUuidPath", dto2.getUuidPath())
       .containsEntry("bLanguage", dto2.language())
       .containsEntry("bLongName", dto2.longName())
-      .containsEntry("bModuleUuid", dto2.moduleUuid())
-      .containsEntry("bModuleUuidPath", dto2.moduleUuidPath())
       .containsEntry("bName", dto2.name())
       .containsEntry("bPath", dto2.path())
       .containsEntry("bQualifier", dto2.qualifier());
@@ -1234,8 +1160,7 @@ public class ComponentDaoTest {
   private Map<String, Object> selectBColumnsForUuid(String uuid) {
     return db.selectFirst(
       "select b_changed as \"bChanged\", deprecated_kee as \"bKey\", b_copy_component_uuid as \"bCopyComponentUuid\", b_description as \"bDescription\", " +
-        "b_enabled as \"bEnabled\", b_uuid_path as \"bUuidPath\", b_language as \"bLanguage\", b_long_name as \"bLongName\"," +
-        "b_module_uuid as \"bModuleUuid\", b_module_uuid_path as \"bModuleUuidPath\", b_name as \"bName\", " +
+        "b_enabled as \"bEnabled\", b_uuid_path as \"bUuidPath\", b_language as \"bLanguage\", b_long_name as \"bLongName\", b_name as \"bName\", " +
         "b_path as \"bPath\", b_qualifier as \"bQualifier\" " +
         "from components where uuid='" + uuid + "'");
   }
@@ -1549,12 +1474,12 @@ public class ComponentDaoTest {
 
   @Test
   public void selectAncestors() {
-    // project -> module -> file
+    // project -> dir -> file
     ComponentDto project = newPrivateProjectDto(PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
-    ComponentDto module = newModuleDto(MODULE_UUID, project);
-    db.components().insertComponent(module);
-    ComponentDto file = newFileDto(module, null, FILE_1_UUID);
+    ComponentDto dir = newDirectory(project, DIR_UUID, "path");
+    db.components().insertComponent(dir);
+    ComponentDto file = newFileDto(dir, null, FILE_1_UUID);
     db.components().insertComponent(file);
     db.commit();
 
@@ -1562,69 +1487,69 @@ public class ComponentDaoTest {
     List<ComponentDto> ancestors = underTest.selectAncestors(dbSession, project);
     assertThat(ancestors).isEmpty();
 
-    // ancestors of module
-    ancestors = underTest.selectAncestors(dbSession, module);
+    // ancestors of dir
+    ancestors = underTest.selectAncestors(dbSession, dir);
     assertThat(ancestors).extracting("uuid").containsExactly(PROJECT_UUID);
 
     // ancestors of file
     ancestors = underTest.selectAncestors(dbSession, file);
-    assertThat(ancestors).extracting("uuid").containsExactly(PROJECT_UUID, MODULE_UUID);
+    assertThat(ancestors).extracting("uuid").containsExactly(PROJECT_UUID, DIR_UUID);
   }
 
   @Test
   public void select_children() {
     ComponentDto project = newPrivateProjectDto(PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
-    ComponentDto module = newModuleDto(MODULE_UUID, project);
-    db.components().insertComponent(module);
+    ComponentDto dir = newDirectory(project, DIR_UUID, "path");
+    db.components().insertComponent(dir);
     ComponentDto fileInProject = newFileDto(project, null, FILE_1_UUID).setKey("file-key-1").setName("File One");
     db.components().insertComponent(fileInProject);
-    ComponentDto file1InModule = newFileDto(module, null, FILE_2_UUID).setKey("file-key-2").setName("File Two");
-    db.components().insertComponent(file1InModule);
-    ComponentDto file2InModule = newFileDto(module, null, FILE_3_UUID).setKey("file-key-3").setName("File Three");
-    db.components().insertComponent(file2InModule);
+    ComponentDto file1InDir = newFileDto(dir, null, FILE_2_UUID).setKey("file-key-2").setName("File Two");
+    db.components().insertComponent(file1InDir);
+    ComponentDto file2InDir = newFileDto(dir, null, FILE_3_UUID).setKey("file-key-3").setName("File Three");
+    db.components().insertComponent(file2InDir);
     db.commit();
 
     // test children of root
-    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(project))).extracting("uuid").containsOnly(FILE_1_UUID, MODULE_UUID);
+    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(project))).extracting("uuid").containsOnly(FILE_1_UUID, DIR_UUID);
 
-    // test children of intermediate component (module here)
-    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(module))).extracting("uuid").containsOnly(FILE_2_UUID, FILE_3_UUID);
+    // test children of intermediate component (dir here)
+    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(dir))).extracting("uuid").containsOnly(FILE_2_UUID, FILE_3_UUID);
 
     // test children of leaf component (file here)
     assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(fileInProject))).isEmpty();
 
     // test children of 2 components
-    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(project, module))).extracting("uuid").containsOnly(FILE_1_UUID, MODULE_UUID, FILE_2_UUID, FILE_3_UUID);
+    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(project, dir))).extracting("uuid").containsOnly(FILE_1_UUID, DIR_UUID, FILE_2_UUID, FILE_3_UUID);
   }
 
   @Test
   public void select_descendants_with_children_strategy() {
-    // project has 2 children: module and file 1. Other files are part of module.
+    // project has 2 children: dir and file 1. Other files are part of dir.
     ComponentDto project = newPrivateProjectDto(PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
-    ComponentDto module = newModuleDto(MODULE_UUID, project);
-    db.components().insertComponent(module);
+    ComponentDto dir = newDirectory(project, DIR_UUID, "dir");
+    db.components().insertComponent(dir);
     ComponentDto fileInProject = newFileDto(project, null, FILE_1_UUID).setKey("file-key-1").setName("File One");
     db.components().insertComponent(fileInProject);
-    ComponentDto file1InModule = newFileDto(module, null, FILE_2_UUID).setKey("file-key-2").setName("File Two");
-    db.components().insertComponent(file1InModule);
-    ComponentDto file2InModule = newFileDto(module, null, FILE_3_UUID).setKey("file-key-3").setName("File Three");
-    db.components().insertComponent(file2InModule);
+    ComponentDto file1InDir = newFileDto(project, dir, FILE_2_UUID).setKey("file-key-2").setName("File Two");
+    db.components().insertComponent(file1InDir);
+    ComponentDto file2InDir = newFileDto(project, dir, FILE_3_UUID).setKey("file-key-3").setName("File Three");
+    db.components().insertComponent(file2InDir);
     db.commit();
 
     // test children of root
     ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).build();
     List<ComponentDto> children = underTest.selectDescendants(dbSession, query);
-    assertThat(children).extracting("uuid").containsOnly(FILE_1_UUID, MODULE_UUID);
+    assertThat(children).extracting("uuid").containsOnly(FILE_1_UUID, DIR_UUID);
 
     // test children of root, filtered by qualifier
-    query = newTreeQuery(PROJECT_UUID).setQualifiers(asList(Qualifiers.MODULE)).build();
+    query = newTreeQuery(PROJECT_UUID).setQualifiers(asList(Qualifiers.DIRECTORY)).build();
     children = underTest.selectDescendants(dbSession, query);
-    assertThat(children).extracting("uuid").containsOnly(MODULE_UUID);
+    assertThat(children).extracting("uuid").containsOnly(DIR_UUID);
 
-    // test children of intermediate component (module here), default ordering by
-    query = newTreeQuery(MODULE_UUID).build();
+    // test children of intermediate component (dir here), default ordering by
+    query = newTreeQuery(DIR_UUID).build();
     assertThat(underTest.selectDescendants(dbSession, query)).extracting("uuid").containsOnly(FILE_2_UUID, FILE_3_UUID);
 
     // test children of leaf component (file here)
@@ -1647,12 +1572,12 @@ public class ComponentDaoTest {
     query = newTreeQuery(PROJECT_UUID).setNameOrKeyQuery("does-not-exist").build();
     assertThat(underTest.selectDescendants(dbSession, query)).isEmpty();
 
-    // test children of intermediate component (module here), matching name
-    query = newTreeQuery(MODULE_UUID).setNameOrKeyQuery("Two").build();
+    // test children of intermediate component (dir here), matching name
+    query = newTreeQuery(DIR_UUID).setNameOrKeyQuery("Two").build();
     assertThat(underTest.selectDescendants(dbSession, query)).extracting("uuid").containsOnly(FILE_2_UUID);
 
-    // test children of intermediate component (module here), without matching name
-    query = newTreeQuery(MODULE_UUID).setNameOrKeyQuery("does-not-exist").build();
+    // test children of intermediate component (dir here), without matching name
+    query = newTreeQuery(DIR_UUID).setNameOrKeyQuery("does-not-exist").build();
     assertThat(underTest.selectDescendants(dbSession, query)).isEmpty();
 
     // test children of leaf component (file here)
@@ -1668,17 +1593,17 @@ public class ComponentDaoTest {
     assertThat(underTest.selectDescendants(dbSession, query))
       .extracting(ComponentDto::uuid)
       .containsExactlyInAnyOrder(fileInProject.uuid());
-    query = newTreeQuery(project.uuid()).setScopes(asList(Scopes.PROJECT)).build();
+    query = newTreeQuery(project.uuid()).setScopes(asList(Scopes.DIRECTORY)).build();
     assertThat(underTest.selectDescendants(dbSession, query))
       .extracting(ComponentDto::uuid)
-      .containsExactlyInAnyOrder(module.uuid());
+      .containsExactlyInAnyOrder(dir.uuid());
   }
 
   @Test
   public void select_descendants_with_leaves_strategy() {
     ComponentDto project = newPrivateProjectDto(PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
-    db.components().insertComponent(newModuleDto("module-1-uuid", project));
+    db.components().insertComponent(newDirectory(project, "dir-1-uuid", "dir"));
     db.components().insertComponent(newFileDto(project, null, "file-1-uuid"));
     db.components().insertComponent(newFileDto(project, null, "file-2-uuid"));
     db.commit();
@@ -1686,7 +1611,7 @@ public class ComponentDaoTest {
     ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).setStrategy(LEAVES).build();
 
     List<ComponentDto> result = underTest.selectDescendants(dbSession, query);
-    assertThat(result).extracting("uuid").containsOnly("file-1-uuid", "file-2-uuid", "module-1-uuid");
+    assertThat(result).extracting("uuid").containsOnly("file-1-uuid", "file-2-uuid", "dir-1-uuid");
   }
 
   @Test

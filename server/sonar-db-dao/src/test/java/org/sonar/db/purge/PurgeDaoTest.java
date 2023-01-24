@@ -102,7 +102,6 @@ import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
@@ -219,12 +218,9 @@ public class PurgeDaoTest {
     // pull request with other components and issues, updated 31 days ago
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
     db.components().insertSnapshot(pullRequest, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
-    ComponentDto module = db.components().insertComponent(newModuleDto(pullRequest));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule));
+    ComponentDto dir = db.components().insertComponent(newDirectory(pullRequest, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(pullRequest, dir));
     db.issues().insert(rule, pullRequest, file);
-    db.issues().insert(rule, pullRequest, subModule);
-    db.issues().insert(rule, pullRequest, module);
 
     underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
@@ -274,11 +270,10 @@ public class PurgeDaoTest {
     db.components().insertSnapshot(project);
     db.components().insertSnapshot(project, s -> s.setLast(false));
 
-    ComponentDto module = db.components().insertComponent(newModuleDto(project).setEnabled(false));
-    ComponentDto dir = db.components().insertComponent(newDirectory(module, "sub").setEnabled(false));
-    ComponentDto srcFile = db.components().insertComponent(newFileDto(module, dir).setEnabled(false));
-    ComponentDto testFile = db.components().insertComponent(newFileDto(module, dir).setEnabled(false));
-    ComponentDto enabledFile = db.components().insertComponent(newFileDto(module, dir).setEnabled(true));
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "sub").setEnabled(false));
+    ComponentDto srcFile = db.components().insertComponent(newFileDto(project, dir).setEnabled(false));
+    ComponentDto testFile = db.components().insertComponent(newFileDto(project, dir).setEnabled(false));
+    ComponentDto enabledFile = db.components().insertComponent(newFileDto(project, dir).setEnabled(true));
     IssueDto openOnFile = db.issues().insert(rule, project, srcFile, issue -> issue.setStatus("OPEN"));
     IssueDto confirmOnFile = db.issues().insert(rule, project, srcFile, issue -> issue.setStatus("CONFIRM"));
     IssueDto openOnDir = db.issues().insert(rule, project, dir, issue -> issue.setStatus("OPEN"));
@@ -309,7 +304,7 @@ public class PurgeDaoTest {
     PurgeListener purgeListener = mock(PurgeListener.class);
 
     // back to present
-    Set<String> selectedComponentUuids = ImmutableSet.of(module.uuid(), srcFile.uuid(), testFile.uuid());
+    Set<String> selectedComponentUuids = ImmutableSet.of(srcFile.uuid(), testFile.uuid());
     underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid(), selectedComponentUuids),
       purgeListener, new PurgeProfiler());
     dbSession.commit();
@@ -552,8 +547,7 @@ public class PurgeDaoTest {
   public void delete_project_and_associated_data() {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "a/b"));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "a/b"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
     SnapshotDto analysis = db.components().insertSnapshot(project);
     IssueDto issue1 = db.issues().insert(rule, project, file);
@@ -563,8 +557,7 @@ public class PurgeDaoTest {
     db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(issue1));
 
     ComponentDto otherProject = db.components().insertPrivateProject();
-    ComponentDto otherModule = db.components().insertComponent(newModuleDto(otherProject));
-    ComponentDto otherDirectory = db.components().insertComponent(newDirectory(otherModule, "a/b"));
+    ComponentDto otherDirectory = db.components().insertComponent(newDirectory(otherProject, "a/b"));
     ComponentDto otherFile = db.components().insertComponent(newFileDto(otherDirectory));
     SnapshotDto otherAnalysis = db.components().insertSnapshot(otherProject);
     IssueDto otherIssue1 = db.issues().insert(rule, otherProject, otherFile);
@@ -576,7 +569,7 @@ public class PurgeDaoTest {
     underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
 
-    assertThat(uuidsIn("components")).containsOnly(otherProject.uuid(), otherModule.uuid(), otherDirectory.uuid(), otherFile.uuid());
+    assertThat(uuidsIn("components")).containsOnly(otherProject.uuid(), otherDirectory.uuid(), otherFile.uuid());
     assertThat(uuidsIn("projects")).containsOnly(otherProject.uuid());
     assertThat(uuidsIn("snapshots")).containsOnly(otherAnalysis.getUuid());
     assertThat(uuidsIn("issues", "kee")).containsOnly(otherIssue1.getKey(), otherIssue2.getKey());
@@ -1070,12 +1063,10 @@ public class PurgeDaoTest {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule));
+    ComponentDto dir = db.components().insertComponent(newDirectory(branch, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, dir));
     db.issues().insert(rule, branch, file);
-    db.issues().insert(rule, branch, subModule);
-    db.issues().insert(rule, branch, module);
+    db.issues().insert(rule, branch, dir);
     return project;
   }
 
@@ -1132,8 +1123,8 @@ public class PurgeDaoTest {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
 
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, dir));
 
     IssueDto oldClosed = db.issues().insert(rule, project, file, issue -> {
       issue.setStatus("CLOSED");
@@ -1521,19 +1512,19 @@ public class PurgeDaoTest {
     MetricDto metric = db.measures().insertMetric();
 
     ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project1));
+    ComponentDto dir1 = db.components().insertComponent(newDirectory(project1, "path"));
     db.measures().insertLiveMeasure(project1, metric);
-    db.measures().insertLiveMeasure(module1, metric);
+    db.measures().insertLiveMeasure(dir1, metric);
 
     ComponentDto project2 = db.components().insertPublicProject();
-    ComponentDto module2 = db.components().insertComponent(ComponentTesting.newModuleDto(project2));
+    ComponentDto dir2 = db.components().insertComponent(newDirectory(project2, "path"));
     db.measures().insertLiveMeasure(project2, metric);
-    db.measures().insertLiveMeasure(module2, metric);
+    db.measures().insertLiveMeasure(dir2, metric);
 
     underTest.deleteProject(dbSession, project1.uuid(), project1.qualifier(), project1.name(), project1.getKey());
 
-    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, asList(project1.uuid(), module1.uuid()), asList(metric.getUuid()))).isEmpty();
-    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, asList(project2.uuid(), module2.uuid()), asList(metric.getUuid()))).hasSize(2);
+    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, asList(project1.uuid(), dir1.uuid()), asList(metric.getUuid()))).isEmpty();
+    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, asList(project2.uuid(), dir2.uuid()), asList(metric.getUuid()))).hasSize(2);
   }
 
   private void verifyNoEffect(ComponentDto firstRoot, ComponentDto... otherRoots) {
@@ -1549,18 +1540,15 @@ public class PurgeDaoTest {
   @Test
   public void deleteNonRootComponents_deletes_only_non_root_components_of_a_project_from_table_components() {
     ComponentDto project = new Random().nextBoolean() ? db.components().insertPublicProject() : db.components().insertPrivateProject();
-    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto module2 = db.components().insertComponent(ComponentTesting.newModuleDto(module1));
-    ComponentDto dir1 = db.components().insertComponent(newDirectory(module1, "A/B"));
+    ComponentDto dir1 = db.components().insertComponent(newDirectory(project, "A/B"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project, dir1));
 
     List<ComponentDto> components = asList(
       project,
-      module1,
-      module2,
       dir1,
-      db.components().insertComponent(newDirectory(module2, "A/C")),
+      file1,
       db.components().insertComponent(newFileDto(dir1)),
-      db.components().insertComponent(newFileDto(module2)),
+      db.components().insertComponent(newFileDto(file1)),
       db.components().insertComponent(newFileDto(project)));
     Collections.shuffle(components);
 
@@ -1599,21 +1587,19 @@ public class PurgeDaoTest {
   @Test
   public void deleteNonRootComponents_deletes_only_specified_non_root_components_of_a_project_from_table_components() {
     ComponentDto project = new Random().nextBoolean() ? db.components().insertPublicProject() : db.components().insertPrivateProject();
-    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto module2 = db.components().insertComponent(ComponentTesting.newModuleDto(module1));
-    ComponentDto dir1 = db.components().insertComponent(newDirectory(module1, "A/B"));
-    ComponentDto dir2 = db.components().insertComponent(newDirectory(module2, "A/C"));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(dir1));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(module2));
+    ComponentDto dir1 = db.components().insertComponent(newDirectory(project, "A/B"));
+    ComponentDto dir2 = db.components().insertComponent(newDirectory(project, "A/C"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project, dir1));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     ComponentDto file3 = db.components().insertComponent(newFileDto(project));
 
     underTest.deleteNonRootComponentsInView(dbSession, singletonList(file3));
     assertThat(uuidsIn("components"))
-      .containsOnly(project.uuid(), module1.uuid(), module2.uuid(), dir1.uuid(), dir2.uuid(), file1.uuid(), file2.uuid());
+      .containsOnly(project.uuid(), dir1.uuid(), dir2.uuid(), file1.uuid(), file2.uuid());
 
-    underTest.deleteNonRootComponentsInView(dbSession, asList(module1, dir2, file1));
+    underTest.deleteNonRootComponentsInView(dbSession, asList(dir2, file1));
     assertThat(uuidsIn("components"))
-      .containsOnly(project.uuid(), module2.uuid(), dir1.uuid(), file2.uuid());
+      .containsOnly(project.uuid(), dir1.uuid(), file2.uuid());
   }
 
   @Test
@@ -1915,12 +1901,9 @@ public class PurgeDaoTest {
 
   private void addComponentsSnapshotsAndIssuesToBranch(ComponentDto branch, RuleDto rule, int branchAge) {
     db.components().insertSnapshot(branch, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -branchAge).getTime()));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule));
+    ComponentDto dir = db.components().insertComponent(newDirectory(branch, "path"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, dir));
     db.issues().insert(rule, branch, file);
-    db.issues().insert(rule, branch, subModule);
-    db.issues().insert(rule, branch, module);
   }
 
 }

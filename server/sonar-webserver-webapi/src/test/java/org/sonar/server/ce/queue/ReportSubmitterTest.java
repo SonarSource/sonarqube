@@ -68,7 +68,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
@@ -274,23 +274,23 @@ public class ReportSubmitterTest {
   }
 
   @Test
-  public void fail_if_project_key_already_exists_as_module() {
+  public void fail_if_project_key_already_exists_as_other_component() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
     mockSuccessfulPrepareSubmitCall();
 
-    String moduleDbKey = module.getKey();
-    String name = module.name();
+    String dirDbKey = dir.getKey();
+    String name = dir.name();
     Map<String, String> emptyMap = emptyMap();
     InputStream inputStream = IOUtils.toInputStream("{binary}", UTF_8);
-    assertThatThrownBy(() -> underTest.submit(moduleDbKey, name, emptyMap, inputStream))
+    assertThatThrownBy(() -> underTest.submit(dirDbKey, name, emptyMap, inputStream))
       .isInstanceOf(BadRequestException.class)
       .extracting(throwable -> ((BadRequestException) throwable).errors())
       .asList()
       .contains(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. " +
           "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
-        module.getKey(), project.getKey(), project.getKey(), module.getKey()));
+        dir.getKey(), project.getKey(), project.getKey(), dir.getKey()));
   }
 
   @Test

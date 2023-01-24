@@ -29,7 +29,7 @@ public class BatchWsModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new BatchWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(7);
+    assertThat(container.getAddedObjects()).hasSize(6);
   }
 
 }

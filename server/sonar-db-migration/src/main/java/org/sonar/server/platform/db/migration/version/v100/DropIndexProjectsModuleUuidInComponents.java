@@ -17,37 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.component;
+package org.sonar.server.platform.db.migration.version.v100;
 
-import javax.annotation.concurrent.Immutable;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-@Immutable
-public class ComponentWithModuleUuidDto {
-  private final String uuid;
-  private final String moduleUuid;
-  private final String path;
-  private final String scope;
+public class DropIndexProjectsModuleUuidInComponents extends DropIndexChange {
+  private static final String INDEX_NAME = "projects_module_uuid";
+  private static final String TABLE_NAME = "components";
 
-  public ComponentWithModuleUuidDto(String uuid, String moduleUuid, String path, String scope) {
-    this.uuid = uuid;
-    this.moduleUuid = moduleUuid;
-    this.path = path;
-    this.scope = scope;
-  }
-
-  public String path() {
-    return path;
-  }
-
-  public String moduleUuid() {
-    return moduleUuid;
-  }
-
-  public String uuid() {
-    return uuid;
-  }
-
-  public String scope() {
-    return scope;
+  public DropIndexProjectsModuleUuidInComponents(Database db) {
+    super(db, INDEX_NAME, TABLE_NAME);
   }
 }

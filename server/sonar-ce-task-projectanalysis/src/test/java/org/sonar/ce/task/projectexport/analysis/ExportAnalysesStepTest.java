@@ -67,25 +67,21 @@ public class ExportAnalysesStepTest {
     .setUuid(PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setRootUuid(PROJECT_UUID)
-    .setModuleUuid(null)
-    .setModuleUuidPath("." + PROJECT_UUID + ".")
     .setBranchUuid(PROJECT_UUID);
 
-  private static final String MODULE_UUID = "MODULE_UUID";
-  private static final String MODULE_UUID_PATH = UUID_PATH_OF_ROOT + UUID_PATH_SEPARATOR + MODULE_UUID;
-  private static final ComponentDto MODULE = new ComponentDto()
+  private static final String DIR_UUID = "DIR_UUID";
+  private static final String UUID_PATH = UUID_PATH_OF_ROOT + UUID_PATH_SEPARATOR + DIR_UUID;
+  private static final ComponentDto DIR = new ComponentDto()
     // no id yet
     .setScope(Scopes.PROJECT)
-    .setQualifier(Qualifiers.MODULE)
-    .setKey("the_module")
-    .setName("The Module")
-    .setDescription("description of module")
+    .setQualifier(Qualifiers.DIRECTORY)
+    .setKey("the_dir")
+    .setName("The Dir")
+    .setDescription("description of dir")
     .setEnabled(true)
-    .setUuid(MODULE_UUID)
-    .setUuidPath(MODULE_UUID_PATH)
-    .setRootUuid(MODULE_UUID)
-    .setModuleUuid(PROJECT_UUID)
-    .setModuleUuidPath("." + PROJECT_UUID + ".MODULE_UUID.")
+    .setUuid(DIR_UUID)
+    .setUuidPath(UUID_PATH)
+    .setRootUuid(PROJECT_UUID)
     .setBranchUuid(PROJECT_UUID);
 
   private static final String FILE_UUID = "FILE_UUID";
@@ -96,11 +92,9 @@ public class ExportAnalysesStepTest {
     .setKey("the_file")
     .setName("The File")
     .setUuid(FILE_UUID)
-    .setUuidPath(MODULE_UUID_PATH + UUID_PATH_SEPARATOR + FILE_UUID)
-    .setRootUuid(MODULE_UUID)
+    .setUuidPath(UUID_PATH + UUID_PATH_SEPARATOR + FILE_UUID)
+    .setRootUuid(PROJECT_UUID)
     .setEnabled(true)
-    .setModuleUuid(MODULE_UUID)
-    .setModuleUuidPath("." + PROJECT_UUID + ".MODULE_UUID.")
     .setBranchUuid(PROJECT_UUID);
 
   @Rule
@@ -117,7 +111,7 @@ public class ExportAnalysesStepTest {
   public void setUp() {
     ComponentDto projectDto = dbTester.components().insertPublicProject(PROJECT);
     componentRepository.register(1, projectDto.uuid(), false);
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), MODULE, FILE);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), DIR, FILE);
     dbTester.commit();
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(projectDto));
   }

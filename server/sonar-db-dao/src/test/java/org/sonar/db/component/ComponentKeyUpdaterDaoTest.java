@@ -43,7 +43,6 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.computeNewKey;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 public class ComponentKeyUpdaterDaoTest {
@@ -60,20 +59,16 @@ public class ComponentKeyUpdaterDaoTest {
   public void updateKey_changes_the_key_of_tree_of_components() {
     populateSomeData();
 
-    underTest.updateKey(dbSession, "B", "struts:core");
+    underTest.updateKey(dbSession, "A", "struts:core");
     dbSession.commit();
 
     assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from components"))
       .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
       .containsOnly(
-        Tuple.tuple("A", "org.struts:struts"),
-        Tuple.tuple("B", "struts:core"),
-        Tuple.tuple("C", "struts:core:/src/org/struts"),
-        Tuple.tuple("D", "struts:core:/src/org/struts/RequestContext.java"),
-        Tuple.tuple("E", "org.struts:struts-ui"),
-        Tuple.tuple("F", "org.struts:struts-ui:/src/org/struts"),
-        Tuple.tuple("G", "org.struts:struts-ui:/src/org/struts/RequestContext.java"),
-        Tuple.tuple("H", "foo:struts-core"));
+        Tuple.tuple("A", "struts:core"),
+        Tuple.tuple("B", "struts:core:/src/org/struts"),
+        Tuple.tuple("C", "struts:core:/src/org/struts/RequestContext.java"),
+        Tuple.tuple("D", "foo:struts-core"));
   }
 
   @Test
@@ -155,9 +150,9 @@ public class ComponentKeyUpdaterDaoTest {
   public void updateKey_throws_IAE_if_component_with_specified_key_does_not_exist() {
     populateSomeData();
 
-    assertThatThrownBy(() -> underTest.updateKey(dbSession, "B", "org.struts:struts-ui"))
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, "A", "foo:struts-core"))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Impossible to update key: a component with key \"org.struts:struts-ui\" already exists.");
+      .hasMessage("Impossible to update key: a component with key \"foo:struts-core\" already exists.");
   }
 
   @Test
@@ -190,12 +185,8 @@ public class ComponentKeyUpdaterDaoTest {
 
   private void populateSomeData() {
     ComponentDto project1 = db.components().insertPrivateProject(t -> t.setKey("org.struts:struts").setUuid("A"));
-    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setKey("org.struts:struts-core").setUuid("B"));
-    ComponentDto directory1 = db.components().insertComponent(newDirectory(module1, "/src/org/struts").setUuid("C"));
-    db.components().insertComponent(ComponentTesting.newFileDto(module1, directory1).setKey("org.struts:struts-core:/src/org/struts/RequestContext.java").setUuid("D"));
-    ComponentDto module2 = db.components().insertComponent(newModuleDto(project1).setKey("org.struts:struts-ui").setUuid("E"));
-    ComponentDto directory2 = db.components().insertComponent(newDirectory(module2, "/src/org/struts").setUuid("F"));
-    db.components().insertComponent(ComponentTesting.newFileDto(module2, directory2).setKey("org.struts:struts-ui:/src/org/struts/RequestContext.java").setUuid("G"));
-    ComponentDto project2 = db.components().insertPublicProject(t -> t.setKey("foo:struts-core").setUuid("H"));
+    ComponentDto directory1 = db.components().insertComponent(newDirectory(project1, "/src/org/struts").setUuid("B"));
+    db.components().insertComponent(ComponentTesting.newFileDto(project1, directory1).setKey("org.struts:struts:/src/org/struts/RequestContext.java").setUuid("C"));
+    ComponentDto project2 = db.components().insertPublicProject(t -> t.setKey("foo:struts-core").setUuid("D"));
   }
 }

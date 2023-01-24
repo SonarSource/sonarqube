@@ -61,7 +61,6 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
@@ -94,8 +93,7 @@ public class SearchActionFacetsTest {
   @Test
   public void display_all_facets() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
     UserDto user = db.users().insertUser();
     db.issues().insertIssue(rule, project, file, i -> i
@@ -262,9 +260,8 @@ public class SearchActionFacetsTest {
     IntStream.rangeClosed(1, 110)
       .forEach(index -> {
         UserDto user = db.users().insertUser();
-        ComponentDto module = db.components().insertComponent(newModuleDto(project));
-        ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir" + index));
-        ComponentDto file = db.components().insertComponent(newFileDto(directory));
+        ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir" + index));
+        ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
 
         RuleDto rule = db.rules().insertIssueRule();
         db.issues().insertIssue(rule, project, file, i -> i.setAssigneeUuid(user.getUuid())
@@ -273,12 +270,11 @@ public class SearchActionFacetsTest {
       });
 
     // insert some hotspots which should be filtered by default
-    IntStream.rangeClosed(1, 30)
+    IntStream.rangeClosed(201, 230)
       .forEach(index -> {
         UserDto user = db.users().insertUser();
-        ComponentDto module = db.components().insertComponent(newModuleDto(project));
-        ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir" + index));
-        ComponentDto file = db.components().insertComponent(newFileDto(directory));
+        ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir" + index));
+        ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
 
         db.issues().insertHotspot(project, file, i -> i.setAssigneeUuid(user.getUuid())
           .setStatus(random.nextBoolean() ? Issue.STATUS_TO_REVIEW : Issue.STATUS_REVIEWED));
@@ -330,11 +326,9 @@ public class SearchActionFacetsTest {
   @Test
   public void display_zero_valued_facets_for_selected_items_having_no_issue() {
     ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1));
-    ComponentDto module2 = db.components().insertComponent(newModuleDto(project1));
     ComponentDto project2 = db.components().insertPublicProject();
-    ComponentDto file1 = db.components().insertComponent(newFileDto(module1));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(module1));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project1));
     RuleDto rule1 = db.rules().insertIssueRule();
     RuleDto rule2 = db.rules().insertIssueRule();
     UserDto user1 = db.users().insertUser();

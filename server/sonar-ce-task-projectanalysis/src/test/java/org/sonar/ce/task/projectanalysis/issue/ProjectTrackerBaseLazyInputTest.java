@@ -37,12 +37,9 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.DateUtils.parseDate;
-import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class ProjectTrackerBaseLazyInputTest {
 

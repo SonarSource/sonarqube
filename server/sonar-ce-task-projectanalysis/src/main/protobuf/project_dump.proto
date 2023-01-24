@@ -30,8 +30,8 @@ message Component {
   string path = 9;
   string uuid = 10;
   string uuid_path = 12;
-  string module_uuid = 13;
-  string module_uuid_path = 14;
+  reserved 13; // module_uuid
+  reserved 14; // module_uuid_path
   string deprecated_key = 15;
   string project_uuid = 16;
   string main_branch_project_uuid = 17;

@@ -184,14 +184,6 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_if_module() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    failIfNotAProjectWithKey(project, module);
-    failIfNotAProjectWithUuid(project, module);
-  }
-
-  @Test
   public void fail_if_directory() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "A/B"));

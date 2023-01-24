@@ -47,7 +47,6 @@ public class IssueDocTesting {
       .setKey(key)
       .setBranchUuid(componentDto.branchUuid())
       .setComponentUuid(componentDto.uuid())
-      .setModuleUuidPath(componentDto.moduleUuidPath())
       .setProjectUuid(mainBranchProjectUuid == null ? componentDto.branchUuid() : mainBranchProjectUuid)
       // File path make no sens on modules and projects
       .setFilePath(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.path() : null)
@@ -67,7 +66,6 @@ public class IssueDocTesting {
     doc.setComponentUuid(Uuids.createFast());
     doc.setFilePath("filePath_" + randomAlphabetic(5));
     doc.setDirectoryPath("directory_" + randomAlphabetic(5));
-    doc.setModuleUuidPath(Uuids.createFast());
     doc.setProjectUuid(Uuids.createFast());
     doc.setLine(nextInt(1_000) + 1);
     doc.setStatus(STATUS_OPEN);

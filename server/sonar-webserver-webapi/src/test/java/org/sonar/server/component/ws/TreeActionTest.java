@@ -65,7 +65,6 @@ import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newChildComponent;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectBranchCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -132,21 +131,21 @@ public class TreeActionTest {
   public void return_children() {
     ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
-    ComponentDto module = newModuleDto("module-uuid-1", project);
-    db.components().insertComponent(module);
+    ComponentDto dir = newDirectory(project, "dir");
+    db.components().insertComponent(dir);
     db.components().insertComponent(newFileDto(project, 1));
     for (int i = 2; i <= 9; i++) {
-      db.components().insertComponent(newFileDto(module, i));
+      db.components().insertComponent(newFileDto(dir, i));
     }
-    ComponentDto directory = newDirectory(module, "directory-path-1");
+    ComponentDto directory = newDirectory(dir, "directory-path-1");
     db.components().insertComponent(directory);
-    db.components().insertComponent(newFileDto(module, directory, 10));
+    db.components().insertComponent(newFileDto(project, directory, 10));
     db.commit();
     logInWithBrowsePermission(project);
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
-      .setParam(PARAM_COMPONENT, module.getKey())
+      .setParam(PARAM_COMPONENT, dir.getKey())
       .setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "3")
       .setParam(Param.TEXT_QUERY, "file-name")
@@ -162,7 +161,7 @@ public class TreeActionTest {
   public void return_descendants() {
     ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
-    ComponentDto module = newModuleDto("module-uuid-1", project);
+    ComponentDto module = newDirectory(project, "path");
     db.components().insertComponent(module);
     db.components().insertComponent(newFileDto(project, 10));
     for (int i = 2; i <= 9; i++) {
@@ -194,7 +193,6 @@ public class TreeActionTest {
     db.components().insertProjectAndSnapshot(project);
     db.components().insertComponent(newFileDto(project, 1));
     db.components().insertComponent(newFileDto(project, 2));
-    db.components().insertComponent(newModuleDto("module-uuid-1", project));
     db.commit();
     logInWithBrowsePermission(project);
 
@@ -210,13 +208,11 @@ public class TreeActionTest {
   public void return_leaves() {
     ComponentDto project = newPrivateProjectDto("project-uuid");
     db.components().insertProjectAndSnapshot(project);
-    ComponentDto module = newModuleDto("module-uuid-1", project);
-    db.components().insertComponent(module);
     db.components().insertComponent(newFileDto(project, 1));
-    db.components().insertComponent(newFileDto(module, 2));
+    db.components().insertComponent(newFileDto(project, 2));
     ComponentDto directory = newDirectory(project, "directory-path-1");
     db.components().insertComponent(directory);
-    db.components().insertComponent(newFileDto(module, directory, 3));
+    db.components().insertComponent(newFileDto(project, directory, 3));
     db.commit();
     logInWithBrowsePermission(project);
 
@@ -236,8 +232,6 @@ public class TreeActionTest {
     db.components().insertProjectAndSnapshot(project);
     db.components().insertComponent(newFileDto(project, 1));
     db.components().insertComponent(newFileDto(project, 2));
-    ComponentDto module = newModuleDto("module-uuid-1", project);
-    db.components().insertComponent(module);
     db.components().insertComponent(newDirectory(project, "path/directory/", "directory-uuid-1"));
     db.commit();
     logInWithBrowsePermission(project);
@@ -247,7 +241,7 @@ public class TreeActionTest {
       .setParam(Param.SORT, "qualifier, name")
       .setParam(PARAM_COMPONENT, project.getKey()).executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getComponentsList()).extracting("key").containsExactly("MODULE_KEY_module-uuid-1", "KEY_project-uuid:directory-uuid-1", "file-key-1", "file-key-2");
+    assertThat(response.getComponentsList()).extracting("key").containsExactly("KEY_project-uuid:directory-uuid-1", "file-key-1", "file-key-2");
   }
 
   @Test
@@ -360,17 +354,16 @@ public class TreeActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     String branchKey = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
+    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "dir"));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory));
 
     TreeWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, module.getKey())
+      .setParam(PARAM_COMPONENT, branch.getKey())
       .setParam(PARAM_BRANCH, branchKey)
       .executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getBaseComponent()).extracting(Component::getKey, Component::getBranch)
-      .containsExactlyInAnyOrder(module.getKey(), branchKey);
+      .containsExactlyInAnyOrder(branch.getKey(), branchKey);
     assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getBranch)
       .containsExactlyInAnyOrder(
         tuple(directory.getKey(), branchKey),
@@ -398,20 +391,18 @@ public class TreeActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     String pullRequestId = "pr-123";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequestId).setBranchType(PULL_REQUEST));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
+    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "dir"));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory));
 
     TreeWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, module.getKey())
+      .setParam(PARAM_COMPONENT, directory.getKey())
       .setParam(PARAM_PULL_REQUEST, pullRequestId)
       .executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getBaseComponent()).extracting(Component::getKey, Component::getPullRequest)
-      .containsExactlyInAnyOrder(module.getKey(), pullRequestId);
+      .containsExactlyInAnyOrder(directory.getKey(), pullRequestId);
     assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getPullRequest)
       .containsExactlyInAnyOrder(
-        tuple(directory.getKey(), pullRequestId),
         tuple(file.getKey(), pullRequestId));
   }
 
@@ -535,10 +526,10 @@ public class TreeActionTest {
 
   private ComponentDto initJsonExampleComponents() throws IOException {
     ComponentDto project = db.components().insertPrivateProject(c -> c.setUuid("MY_PROJECT_ID")
-      .setDescription("MY_PROJECT_DESCRIPTION")
-      .setKey("MY_PROJECT_KEY")
-      .setName("Project Name")
-      .setBranchUuid("MY_PROJECT_ID"),
+        .setDescription("MY_PROJECT_DESCRIPTION")
+        .setKey("MY_PROJECT_KEY")
+        .setName("Project Name")
+        .setBranchUuid("MY_PROJECT_ID"),
       p -> p.setTagsString("abc,def"));
     db.components().insertSnapshot(project);
 

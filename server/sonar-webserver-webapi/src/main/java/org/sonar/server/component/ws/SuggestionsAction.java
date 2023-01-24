@@ -115,6 +115,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "suggestions-example.json"))
       .setChangelog(
+        new Change("10.0", String.format("The use of 'BRC' as value for parameter '%s' is no longer supported", PARAM_MORE)),
         new Change("8.4", String.format("The use of 'DIR', 'FIL','UTS' as values for parameter '%s' is no longer supported", PARAM_MORE)),
         new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_MORE)));
 
@@ -255,10 +256,6 @@ public class SuggestionsAction implements ComponentsWsAction {
   private List<String> getQualifiers(@Nullable String more) {
     Set<String> availableQualifiers = resourceTypes.getAll().stream()
       .map(ResourceType::getQualifier)
-      .filter(q -> !q.equals(Qualifiers.MODULE))
-      .filter(q -> !q.equals(Qualifiers.DIRECTORY))
-      .filter(q -> !q.equals(Qualifiers.FILE))
-      .filter(q -> !q.equals(Qualifiers.UNIT_TEST_FILE))
       .collect(MoreCollectors.toSet());
     if (more == null) {
       return stream(SuggestionCategory.values())

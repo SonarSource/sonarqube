@@ -224,13 +224,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteByRootAndModulesOrSubviews(List<String> rootAndModulesOrSubviewsUuids) {
-    if (rootAndModulesOrSubviewsUuids.isEmpty()) {
+  void deleteByRootAndSubviews(List<String> rootAndSubviewsUuids) {
+    if (rootAndSubviewsUuids.isEmpty()) {
       return;
     }
-    List<List<String>> uuidsPartitions = Lists.partition(rootAndModulesOrSubviewsUuids, MAX_RESOURCES_PER_QUERY);
+    List<List<String>> uuidsPartitions = Lists.partition(rootAndSubviewsUuids, MAX_RESOURCES_PER_QUERY);
 
-    profiler.start("deleteByRootAndModulesOrSubviews (properties)");
+    profiler.start("deleteByRootAndSubviews (properties)");
     uuidsPartitions.forEach(purgeMapper::deletePropertiesByComponentUuids);
     session.commit();
     profiler.stop();

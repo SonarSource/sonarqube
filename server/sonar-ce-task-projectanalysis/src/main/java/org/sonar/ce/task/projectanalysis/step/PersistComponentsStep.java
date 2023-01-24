@@ -54,7 +54,6 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
 
 /**
@@ -244,8 +243,6 @@ public class PersistComponentsStep implements ComputationStep {
         existingComponent.setUuidPath(updateDto.getBUuidPath());
         existingComponent.setLanguage(updateDto.getBLanguage());
         existingComponent.setLongName(updateDto.getBLongName());
-        existingComponent.setModuleUuid(updateDto.getBModuleUuid());
-        existingComponent.setModuleUuidPath(updateDto.getBModuleUuidPath());
         existingComponent.setName(updateDto.getBName());
         existingComponent.setPath(updateDto.getBPath());
         // We don't have a b_scope. The applyBChangesForRootComponentUuid query is using a case ... when to infer scope from the qualifier
@@ -267,7 +264,6 @@ public class PersistComponentsStep implements ComputationStep {
       res.setBranchUuid(res.uuid());
       res.setRootUuid(res.uuid());
       res.setUuidPath(UUID_PATH_OF_ROOT);
-      res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
 
       return res;
     }
@@ -281,7 +277,7 @@ public class PersistComponentsStep implements ComputationStep {
       res.setLongName(directory.getName());
       res.setPath(directory.getName());
 
-      setParentModuleProperties(res, path);
+      setParentProperties(res, path);
 
       return res;
     }
@@ -296,7 +292,7 @@ public class PersistComponentsStep implements ComputationStep {
       res.setPath(file.getName());
       res.setLanguage(file.getFileAttributes().getLanguageKey());
 
-      setParentModuleProperties(res, path);
+      setParentProperties(res, path);
 
       return res;
     }
@@ -313,7 +309,6 @@ public class PersistComponentsStep implements ComputationStep {
       res.setBranchUuid(res.uuid());
       res.setRootUuid(res.uuid());
       res.setUuidPath(UUID_PATH_OF_ROOT);
-      res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
 
       return res;
     }
@@ -362,35 +357,31 @@ public class PersistComponentsStep implements ComputationStep {
     }
 
     /**
-     * Applies to a node of type either MODULE, SUBVIEW, PROJECT_VIEW
+     * Applies to a node of type either SUBVIEW or PROJECT_VIEW
      */
     private void setRootAndParentModule(ComponentDto res, PathAwareVisitor.Path<ComponentDtoHolder> path) {
       ComponentDto rootDto = path.root().getDto();
       res.setRootUuid(rootDto.uuid());
       res.setBranchUuid(rootDto.uuid());
 
-      ComponentDto parentModule = path.parent().getDto();
-      res.setUuidPath(formatUuidPathFromParent(parentModule));
-      res.setModuleUuid(parentModule.uuid());
-      res.setModuleUuidPath(parentModule.moduleUuidPath() + res.uuid() + UUID_PATH_SEPARATOR);
+      ComponentDto parent = path.parent().getDto();
+      res.setUuidPath(formatUuidPathFromParent(parent));
     }
   }
 
   /**
    * Applies to a node of type either DIRECTORY or FILE
    */
-  private static void setParentModuleProperties(ComponentDto componentDto, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+  private static void setParentProperties(ComponentDto componentDto, PathAwareVisitor.Path<ComponentDtoHolder> path) {
     componentDto.setBranchUuid(path.root().getDto().uuid());
 
-    ComponentDto parentModule = StreamSupport.stream(path.getCurrentPath().spliterator(), false)
+    ComponentDto parent = StreamSupport.stream(path.getCurrentPath().spliterator(), false)
       .filter(p -> p.component().getType() == Component.Type.PROJECT)
       .findFirst()
       .get()
       .element().getDto();
     componentDto.setUuidPath(formatUuidPathFromParent(path.parent().getDto()));
-    componentDto.setRootUuid(parentModule.uuid());
-    componentDto.setModuleUuid(parentModule.uuid());
-    componentDto.setModuleUuidPath(parentModule.moduleUuidPath());
+    componentDto.setRootUuid(parent.uuid());
 
   }
 
@@ -402,8 +393,6 @@ public class PersistComponentsStep implements ComputationStep {
       !StringUtils.equals(existing.getUuidPath(), target.getUuidPath()) ||
       !StringUtils.equals(existing.language(), target.language()) ||
       !StringUtils.equals(existing.longName(), target.longName()) ||
-      !StringUtils.equals(existing.moduleUuid(), target.moduleUuid()) ||
-      !StringUtils.equals(existing.moduleUuidPath(), target.moduleUuidPath()) ||
       !StringUtils.equals(existing.name(), target.name()) ||
       !StringUtils.equals(existing.path(), target.path()) ||
       !StringUtils.equals(existing.scope(), target.scope()) ||

@@ -512,10 +512,9 @@ public class IssueMapperTest {
 
   private ComponentDto randomComponent() {
     ComponentDto project = dbTester.components().insertPublicProject();
-    ComponentDto module = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
     ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    ComponentDto[] components = new ComponentDto[] {project, module, dir, file};
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project, dir));
+    ComponentDto[] components = new ComponentDto[] {project, dir, file};
     return components[random.nextInt(components.length)];
   }
 

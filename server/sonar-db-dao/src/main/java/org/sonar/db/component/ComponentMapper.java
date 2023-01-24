@@ -97,7 +97,7 @@ public interface ComponentMapper {
   /**
    * Return technical projects from a view or a sub-view
    */
-  List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid);
+  List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("rootViewUuid") String rootViewUuid);
 
   void scrollForIndexing(@Param("projectUuid") @Nullable String projectUuid, ResultHandler<ComponentDto> handler);
 

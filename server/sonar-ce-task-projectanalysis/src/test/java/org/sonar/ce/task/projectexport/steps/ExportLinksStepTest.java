@@ -56,8 +56,6 @@ public class ExportLinksStepTest {
     .setUuid(PROJECT_UUID)
     .setRootUuid(PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
-    .setModuleUuid(null)
-    .setModuleUuidPath("." + PROJECT_UUID + ".")
     .setBranchUuid(PROJECT_UUID);
 
   @Rule

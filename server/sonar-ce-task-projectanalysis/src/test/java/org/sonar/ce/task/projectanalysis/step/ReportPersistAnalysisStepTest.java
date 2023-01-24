@@ -95,16 +95,14 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     String projectVersion = randomAlphabetic(10);
     ComponentDto projectDto = ComponentTesting.newPrivateProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbTester.components().insertComponent(projectDto);
-    ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_KEY").setName("Module");
-    dbTester.components().insertComponent(moduleDto);
-    ComponentDto directoryDto = ComponentTesting.newDirectory(moduleDto, "CDEF", "MODULE_KEY:src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir");
+    ComponentDto directoryDto = ComponentTesting.newDirectory(projectDto, "CDEF", "src/main/java/dir").setKey("PROJECT_KEY:src/main/java/dir");
     dbTester.components().insertComponent(directoryDto);
-    ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, directoryDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
+    ComponentDto fileDto = ComponentTesting.newFileDto(projectDto, directoryDto, "DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java");
     dbTester.components().insertComponent(fileDto);
     dbTester.getSession().commit();
 
-    Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
-    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey("PROJECT_KEY:src/main/java/dir/Foo.java").build();
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey("PROJECT_KEY:src/main/java/dir").addChildren(file).build();
     String buildString = Optional.ofNullable(projectVersion).map(v -> randomAlphabetic(7)).orElse(null);
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1)
       .setUuid("ABCD")
@@ -161,13 +159,10 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(projectDto);
     dbClient.snapshotDao().insert(dbTester.getSession(), projectSnapshot);
 
-    ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_KEY").setName("Module");
-    dbTester.components().insertComponent(moduleDto);
-
-    ComponentDto directoryDto = ComponentTesting.newDirectory(moduleDto, "CDEF", "MODULE_KEY:src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir");
+    ComponentDto directoryDto = ComponentTesting.newDirectory(projectDto, "CDEF", "MODULE_KEY:src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir");
     dbTester.components().insertComponent(directoryDto);
 
-    ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, directoryDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
+    ComponentDto fileDto = ComponentTesting.newFileDto(projectDto, directoryDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
     dbTester.components().insertComponent(fileDto);
 
     dbTester.getSession().commit();

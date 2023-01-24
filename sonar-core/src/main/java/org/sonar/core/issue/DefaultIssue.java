@@ -57,8 +57,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private String componentUuid = null;
   private String componentKey = null;
 
-  private String moduleUuidPath = null;
-
   private String projectUuid = null;
   private String projectKey = null;
 
@@ -172,16 +170,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setComponentKey(String s) {
     this.componentKey = s;
-    return this;
-  }
-
-  @CheckForNull
-  public String moduleUuidPath() {
-    return moduleUuidPath;
-  }
-
-  public DefaultIssue setModuleUuidPath(@Nullable String moduleUuidPath) {
-    this.moduleUuidPath = moduleUuidPath;
     return this;
   }
 

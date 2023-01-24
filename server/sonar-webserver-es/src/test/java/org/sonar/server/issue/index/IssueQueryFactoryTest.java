@@ -58,7 +58,6 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
@@ -82,7 +81,6 @@ public class IssueQueryFactoryTest {
     String ruleAdHocName = "New Name";
     UserDto user = db.users().insertUser(u -> u.setLogin("joanna"));
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     RuleDto rule1 = ruleDbTester.insert(r -> r.setAdHocName(ruleAdHocName));
@@ -138,7 +136,6 @@ public class IssueQueryFactoryTest {
   public void create_with_rule_key_that_does_not_exist_in_the_db() {
     db.users().insertUser(u -> u.setLogin("joanna"));
     ComponentDto project = db.components().insertPrivateProject();
-    db.components().insertComponent(newModuleDto(project));
     db.components().insertComponent(newFileDto(project));
     newRule(RuleKey.of("findbugs", "NullReference"));
     SearchRequest request = new SearchRequest()
@@ -316,7 +313,6 @@ public class IssueQueryFactoryTest {
 
     assertThat(query.componentUuids()).isEmpty();
     assertThat(query.projectUuids()).isEmpty();
-    assertThat(query.moduleRootUuids()).isEmpty();
     assertThat(query.directories()).isEmpty();
     assertThat(query.files()).isEmpty();
     assertThat(query.viewUuids()).isEmpty();
@@ -489,18 +485,6 @@ public class IssueQueryFactoryTest {
     assertThat(query.projectUuids()).isEmpty();
     assertThat(query.componentUuids()).containsExactly(project.uuid());
     assertThat(query.onComponentOnly()).isTrue();
-  }
-
-  @Test
-  public void should_search_in_tree_with_module_uuid() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    SearchRequest request = new SearchRequest()
-      .setComponentUuids(asList(module.uuid()));
-
-    IssueQuery query = underTest.create(request);
-    assertThat(query.moduleRootUuids()).containsExactly(module.uuid());
-    assertThat(query.onComponentOnly()).isFalse();
   }
 
   @Test

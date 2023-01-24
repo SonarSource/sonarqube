@@ -36,7 +36,6 @@ import org.sonar.db.rule.RuleDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 
 public class IssueIteratorFactoryTest {
@@ -86,7 +85,6 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.ruleUuid()).isEqualTo(rule.getUuid());
     assertThat(issue.componentUuid()).isEqualTo(file.uuid());
     assertThat(issue.projectUuid()).isEqualTo(file.branchUuid());
-    assertThat(issue.modulePath()).isEqualTo(file.moduleUuidPath());
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issue.getTags()).containsOnly("tag1", "tag2", "tag3");
@@ -98,9 +96,8 @@ public class IssueIteratorFactoryTest {
   public void iterator_over_issues() {
     RuleDto rule = dbTester.rules().insert();
     ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
-    ComponentDto directory = dbTester.components().insertComponent(newDirectory(module, "src/main/java"));
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(module, directory)
+    ComponentDto directory = dbTester.components().insertComponent(newDirectory(project, "src/main/java"));
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(directory, directory)
       .setPath("src/main/java/Action.java"));
     IssueDto fileIssue = dbTester.issues().insert(rule, project, file,
       t -> t
@@ -108,7 +105,7 @@ public class IssueIteratorFactoryTest {
         .setAuthorLogin("guy2")
         .setEffort(10L)
         .setType(1));
-    IssueDto moduleIssue = dbTester.issues().insert(rule, project, module, t -> t
+    IssueDto moduleIssue = dbTester.issues().insert(rule, project, file, t -> t
       .setAssigneeUuid("uuid-of-guy2")
       .setAuthorLogin("guy2")
       .setRuleUuid(rule.getUuid()));
@@ -130,15 +127,15 @@ public class IssueIteratorFactoryTest {
   public void iterator_over_issue_from_project() {
     RuleDto rule = dbTester.rules().insert();
     ComponentDto project1 = dbTester.components().insertPrivateProject();
-    ComponentDto module1 = dbTester.components().insertComponent(newModuleDto(project1));
-    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(module1));
-    String[] project1IssueKeys = Stream.of(project1, module1, file1)
+    ComponentDto dir = dbTester.components().insertComponent(newDirectory(project1, "path"));
+    ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project1, dir));
+    String[] project1IssueKeys = Stream.of(project1, dir, file1)
       .map(project1Component -> dbTester.issues().insert(rule, project1, project1Component).getKey())
       .toArray(String[]::new);
     ComponentDto project2 = dbTester.components().insertPrivateProject();
-    ComponentDto module2 = dbTester.components().insertComponent(newModuleDto(project2));
-    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(module2));
-    String[] project2IssueKeys = Stream.of(project2, module2, file2)
+    ComponentDto dir2 = dbTester.components().insertComponent(newDirectory(project2, "path"));
+    ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project2, dir2));
+    String[] project2IssueKeys = Stream.of(project2, dir2, file2)
       .map(project2Component -> dbTester.issues().insert(rule, project2, project2Component).getKey())
       .toArray(String[]::new);
 
@@ -154,20 +151,17 @@ public class IssueIteratorFactoryTest {
   public void extract_directory_path() {
     RuleDto rule = dbTester.rules().insert();
     ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
-    ComponentDto fileInRootDir = dbTester.components().insertComponent(newFileDto(module).setPath("pom.xml"));
-    ComponentDto fileInSubDir = dbTester.components().insertComponent(newFileDto(module).setPath("src/main/java/Action.java"));
+    ComponentDto fileInRootDir = dbTester.components().insertComponent(newFileDto(project).setPath("pom.xml"));
+    ComponentDto fileInSubDir = dbTester.components().insertComponent(newFileDto(project).setPath("src/main/java/Action.java"));
     IssueDto projectIssue = dbTester.issues().insert(rule, project, project);
     IssueDto fileInSubDirIssue = dbTester.issues().insert(rule, project, fileInSubDir);
     IssueDto fileInRootDirIssue = dbTester.issues().insert(rule, project, fileInRootDir);
-    IssueDto moduleIssue = dbTester.issues().insert(rule, project, module);
 
     Map<String, IssueDoc> issuesByKey = issuesByKey();
 
-    assertThat(issuesByKey).hasSize(4);
+    assertThat(issuesByKey).hasSize(3);
     assertThat(issuesByKey.get(fileInSubDirIssue.getKey()).directoryPath()).isEqualTo("src/main/java");
     assertThat(issuesByKey.get(fileInRootDirIssue.getKey()).directoryPath()).isEqualTo("/");
-    assertThat(issuesByKey.get(moduleIssue.getKey()).directoryPath()).isNull();
     assertThat(issuesByKey.get(projectIssue.getKey()).directoryPath()).isNull();
   }
 
@@ -175,20 +169,17 @@ public class IssueIteratorFactoryTest {
   public void extract_file_path() {
     RuleDto rule = dbTester.rules().insert();
     ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
-    ComponentDto fileInRootDir = dbTester.components().insertComponent(newFileDto(module).setPath("pom.xml"));
-    ComponentDto fileInSubDir = dbTester.components().insertComponent(newFileDto(module).setPath("src/main/java/Action.java"));
+    ComponentDto fileInRootDir = dbTester.components().insertComponent(newFileDto(project).setPath("pom.xml"));
+    ComponentDto fileInSubDir = dbTester.components().insertComponent(newFileDto(project).setPath("src/main/java/Action.java"));
     IssueDto projectIssue = dbTester.issues().insert(rule, project, project);
     IssueDto fileInSubDirIssue = dbTester.issues().insert(rule, project, fileInSubDir);
     IssueDto fileInRootDirIssue = dbTester.issues().insert(rule, project, fileInRootDir);
-    IssueDto moduleIssue = dbTester.issues().insert(rule, project, module);
 
     Map<String, IssueDoc> issuesByKey = issuesByKey();
 
-    assertThat(issuesByKey).hasSize(4);
+    assertThat(issuesByKey).hasSize(3);
     assertThat(issuesByKey.get(fileInSubDirIssue.getKey()).filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issuesByKey.get(fileInRootDirIssue.getKey()).filePath()).isEqualTo("pom.xml");
-    assertThat(issuesByKey.get(moduleIssue.getKey()).filePath()).isNull();
     assertThat(issuesByKey.get(projectIssue.getKey()).filePath()).isNull();
   }
 

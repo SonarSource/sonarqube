@@ -61,7 +61,6 @@ public class IssueDtoTest {
       .setComponentKey("org.sonar.sample:Sample")
       .setComponentUuid("CDEF")
       .setProjectUuid("GHIJ")
-      .setModuleUuidPath("ABCD.BCDE.")
       .setProjectKey("org.sonar.sample")
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
@@ -87,7 +86,6 @@ public class IssueDtoTest {
     assertThat(issue.componentUuid()).isEqualTo("CDEF");
     assertThat(issue.projectUuid()).isEqualTo("GHIJ");
     assertThat(issue.componentKey()).isEqualTo("org.sonar.sample:Sample");
-    assertThat(issue.moduleUuidPath()).isEqualTo("ABCD.BCDE.");
     assertThat(issue.projectKey()).isEqualTo("org.sonar.sample");
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
@@ -169,10 +167,8 @@ public class IssueDtoTest {
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
       IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
-      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey,
-      IssueDto::getRuleUuid)
-      .containsExactly(true, "123", "123", true, "123", "componentKey",
-        "path/to/module/uuid", "123", "projectKey", "ruleUuid");
+      IssueDto::getProjectUuid, IssueDto::getProjectKey, IssueDto::getRuleUuid)
+      .containsExactly(true, "123", "123", true, "123", "componentKey", "123", "projectKey", "ruleUuid");
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
@@ -201,10 +197,8 @@ public class IssueDtoTest {
       .containsExactly(Set.of("todo"), "admin");
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
-      IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey,
-      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey)
-      .containsExactly(true, "123", "123", true, "123", "componentKey",
-        "path/to/module/uuid", "123", "projectKey");
+      IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey, IssueDto::getProjectUuid, IssueDto::getProjectKey)
+      .containsExactly(true, "123", "123", true, "123", "componentKey", "123", "projectKey");
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
@@ -230,7 +224,6 @@ public class IssueDtoTest {
       .setTags(List.of("todo"))
       .setComponentUuid("123")
       .setComponentKey("componentKey")
-      .setModuleUuidPath("path/to/module/uuid")
       .setProjectUuid("123")
       .setProjectKey("projectKey")
       .setAuthorLogin("admin")

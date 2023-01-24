@@ -111,7 +111,6 @@ public class MovedIssueVisitorTest {
 
     verify(issue).setComponentUuid(FILE.getUuid());
     verify(issue).setComponentKey(FILE.getKey());
-    verify(issue).setModuleUuidPath(null);
     verify(issue).setUpdateDate(new Date(ANALYSIS_DATE));
     verify(issue).setChanged(true);
   }

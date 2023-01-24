@@ -416,7 +416,6 @@ public class IssueFieldsSetter {
 
     // other fields (such as module, modulePath, componentKey) are read-only and set/reset for consistency only
     issue.setComponentKey(newComponentKey);
-    issue.setModuleUuidPath(null);
   }
 
   private static boolean relevantDateDifference(@Nullable Date left, @Nullable Date right) {

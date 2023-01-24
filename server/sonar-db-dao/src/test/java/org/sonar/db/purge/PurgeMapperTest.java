@@ -54,27 +54,16 @@ public class PurgeMapperTest {
   }
 
   @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_returns_empty_when_table_is_empty() {
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid("foo")).isEmpty();
+  public void selectRootAndSubviewsByProjectUuid_returns_empty_when_table_is_empty() {
+    assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid("foo")).isEmpty();
   }
 
   @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_returns_project_with_specified_uuid() {
+  public void selectRootAndSubviewsByProjectUuid_returns_project_with_specified_uuid() {
     ComponentDto project = randomPublicOrPrivateProject();
 
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(project.uuid()))
+    assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(project.uuid()))
       .containsOnly(project.uuid());
-  }
-
-  @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_returns_modules_with_specified_project_uuid_and_project() {
-    ComponentDto project = randomPublicOrPrivateProject();
-    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto module2 = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto module3 = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(project.uuid()))
-      .containsOnly(project.uuid(), module1.uuid(), module2.uuid(), module3.uuid());
   }
 
   private ComponentDto randomPublicOrPrivateProject() {
@@ -82,85 +71,76 @@ public class PurgeMapperTest {
   }
 
   @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_returns_view_with_specified_uuid() {
+  public void selectRootAndSubviewsByProjectUuid_returns_view_with_specified_uuid() {
     ComponentDto view = db.components().insertPrivatePortfolio();
 
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
+    assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(view.uuid()))
       .containsOnly(view.uuid());
   }
 
   @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_returns_application_with_specified_uuid() {
+  public void selectRootAndSubviewsByProjectUuid_returns_application_with_specified_uuid() {
     ComponentDto view = db.components().insertPublicApplication();
 
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
+    assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(view.uuid()))
       .containsOnly(view.uuid());
   }
 
   @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_returns_subviews_with_specified_project_uuid_and_view() {
+  public void selectRootAndSubviewsByProjectUuid_returns_subviews_with_specified_project_uuid_and_view() {
     ComponentDto view = db.components().insertPublicPortfolio();
     ComponentDto subview1 = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
     ComponentDto subview2 = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
     ComponentDto subview3 = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
 
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
+    assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(view.uuid()))
       .containsOnly(view.uuid(), subview1.uuid(), subview2.uuid(), subview3.uuid());
   }
 
   @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_does_not_return_project_copy_with_specified_project_uuid() {
+  public void selectRootAndSubviewsByProjectUuid_does_not_return_project_copy_with_specified_project_uuid() {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto view = db.components().insertPrivatePortfolio();
     db.components().insertComponent(ComponentTesting.newProjectCopy("a", view, privateProject));
 
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
+    assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(view.uuid()))
       .containsOnly(view.uuid());
   }
 
   @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_does_not_return_module_with_specified_uuid() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(privateProject));
-
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(module.uuid()))
-      .isEmpty();
-  }
-
-  @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_does_not_return_directory_with_specified_uuid() {
+  public void selectRootAndSubviewsByProjectUuid_does_not_return_directory_with_specified_uuid() {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(privateProject, "A/B"));
 
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(directory.uuid()))
+    assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(directory.uuid()))
       .isEmpty();
   }
 
   @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_does_not_return_file_with_specified_uuid() {
+  public void selectRootAndSubviewsByProjectUuid_does_not_return_file_with_specified_uuid() {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(privateProject));
 
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(file.uuid()))
+    assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(file.uuid()))
       .isEmpty();
   }
 
   @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_does_not_return_subview_with_specified_uuid() {
+  public void selectRootAndSubviewsByProjectUuid_does_not_return_subview_with_specified_uuid() {
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
 
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(subview.uuid()))
+    assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(subview.uuid()))
       .isEmpty();
   }
 
   @Test
-  public void selectRootAndModulesOrSubviewsByProjectUuid_does_not_return_technicalCopy_with_specified_uuid() {
+  public void selectRootAndSubviewsByProjectUuid_does_not_return_technicalCopy_with_specified_uuid() {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto technicalCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", view, privateProject));
 
-    assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(technicalCopy.uuid()))
+    assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(technicalCopy.uuid()))
       .isEmpty();
   }
 }

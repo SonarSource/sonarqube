@@ -60,31 +60,11 @@ public class ExportComponentsStepTest {
     .setUuid(PROJECT_UUID)
     .setRootUuid(PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
-    .setModuleUuid(null)
-    .setModuleUuidPath("." + PROJECT_UUID + ".")
     .setCreatedAt(new Date(1596749115856L))
     .setBranchUuid(PROJECT_UUID);
 
-  private static final String MODULE_UUID = "MODULE_UUID";
-  private static final String MODULE_UUID_PATH = UUID_PATH_OF_ROOT + MODULE_UUID + UUID_PATH_SEPARATOR;
-  private static final ComponentDto MODULE = new ComponentDto()
-    // no id yet
-    .setScope(Scopes.PROJECT)
-    .setQualifier(Qualifiers.MODULE)
-    .setKey("the_module")
-    .setName("The Module")
-    .setDescription("description of module")
-    .setEnabled(true)
-    .setUuid(MODULE_UUID)
-    .setRootUuid(PROJECT_UUID)
-    .setUuidPath(MODULE_UUID_PATH)
-    .setModuleUuid(PROJECT_UUID)
-    .setModuleUuidPath("." + PROJECT_UUID + ".MODULE_UUID.")
-    .setCreatedAt(new Date(1596749132539L))
-    .setBranchUuid(PROJECT_UUID);
-
   private static final String FILE_UUID = "FILE_UUID";
-  private static final String FILE_UUID_PATH = MODULE_UUID_PATH + FILE_UUID + UUID_PATH_SEPARATOR;
+  private static final String FILE_UUID_PATH = PROJECT_UUID + FILE_UUID + UUID_PATH_SEPARATOR;
   private static final ComponentDto FILE = new ComponentDto()
     // no id yet
     .setScope(Scopes.FILE)
@@ -92,11 +72,9 @@ public class ExportComponentsStepTest {
     .setKey("the_file")
     .setName("The File")
     .setUuid(FILE_UUID)
-    .setRootUuid(MODULE_UUID)
+    .setRootUuid(PROJECT_UUID)
     .setUuidPath(FILE_UUID_PATH)
     .setEnabled(true)
-    .setModuleUuid(MODULE_UUID)
-    .setModuleUuidPath("." + PROJECT_UUID + ".MODULE_UUID.")
     .setCreatedAt(new Date(1596749148406L))
     .setBranchUuid(PROJECT_UUID);
 
@@ -118,25 +96,24 @@ public class ExportComponentsStepTest {
   @Test
   public void export_components_including_project() {
     dbTester.components().insertPublicProject(PROJECT);
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), MODULE, FILE);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), FILE);
     dbTester.commit();
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(PROJECT));
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("3 components exported");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("2 components exported");
     List<ProjectDump.Component> components = dumpWriter.getWrittenMessagesOf(DumpElement.COMPONENTS);
     assertThat(components).extracting(ProjectDump.Component::getQualifier, ProjectDump.Component::getUuid, ProjectDump.Component::getUuidPath)
       .containsExactlyInAnyOrder(
         tuple(Qualifiers.FILE, FILE_UUID, FILE_UUID_PATH),
-        tuple(Qualifiers.MODULE, MODULE_UUID, MODULE_UUID_PATH),
         tuple(Qualifiers.PROJECT, PROJECT_UUID, UUID_PATH_OF_ROOT));
   }
 
   @Test
   public void execute_register_all_components_uuids_as_their_id_in_ComponentRepository() {
     dbTester.components().insertPublicProject(PROJECT);
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), MODULE, FILE);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), FILE);
     dbTester.commit();
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(PROJECT));
 
@@ -144,14 +121,13 @@ public class ExportComponentsStepTest {
 
     assertThat(ImmutableSet.of(
       componentRepository.getRef(PROJECT.uuid()),
-      componentRepository.getRef(MODULE.uuid()),
-      componentRepository.getRef(FILE.uuid()))).containsExactlyInAnyOrder(1L, 2L, 3L);
+      componentRepository.getRef(FILE.uuid()))).containsExactlyInAnyOrder(1L, 2L);
   }
 
   @Test
   public void throws_ISE_if_error() {
     dbTester.components().insertPublicProject(PROJECT);
-    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), MODULE, FILE);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), FILE);
     dbTester.commit();
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(PROJECT));
     dumpWriter.failIfMoreThan(1, DumpElement.COMPONENTS);

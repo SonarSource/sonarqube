@@ -315,8 +315,8 @@ public class SetActionTest {
     logInAsProjectAdministrator(project);
 
     callForComponentPropertySet("my.key", newArrayList(
-      GSON.toJson(ImmutableMap.of("firstField", "firstValue", "secondField", "secondValue")),
-      GSON.toJson(ImmutableMap.of("firstField", "anotherFirstValue", "secondField", "anotherSecondValue"))),
+        GSON.toJson(ImmutableMap.of("firstField", "firstValue", "secondField", "secondValue")),
+        GSON.toJson(ImmutableMap.of("firstField", "anotherFirstValue", "secondField", "anotherSecondValue"))),
       project.getKey());
 
     assertThat(dbClient.propertiesDao().selectGlobalProperties(dbSession)).hasSize(3);
@@ -837,13 +837,6 @@ public class SetActionTest {
   public void succeed_for_property_without_definition_when_set_on_project_component() {
     ComponentDto project = randomPublicOrPrivateProject();
     succeedForPropertyWithoutDefinitionAndValidComponent(project, project);
-  }
-
-  @Test
-  public void succeed_for_property_without_definition_when_set_on_module_component() {
-    ComponentDto project = randomPublicOrPrivateProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    succeedForPropertyWithoutDefinitionAndValidComponent(project, module);
   }
 
   @Test

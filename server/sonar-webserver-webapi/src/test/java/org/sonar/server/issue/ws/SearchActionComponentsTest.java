@@ -71,7 +71,6 @@ import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
@@ -149,25 +148,6 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_by_module() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto module1 = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(module1));
-    ComponentDto module2 = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(module2));
-    RuleDto rule = db.rules().insertIssueRule();
-    IssueDto issue1 = db.issues().insertIssue(rule, project, file1);
-    IssueDto issue2 = db.issues().insertIssue(rule, project, file2);
-    allowAnyoneOnProjects(project);
-    indexIssues();
-
-    assertThat(ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, module1.getKey())
-      .executeProtobuf(SearchWsResponse.class).getIssuesList()).extracting(Issue::getKey)
-        .containsExactlyInAnyOrder(issue1.getKey());
-  }
-
-  @Test
   public void search_since_leak_period_on_project() {
     ComponentDto project = db.components().insertPublicProject(p -> p.setKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
@@ -184,30 +164,6 @@ public class SearchActionComponentsTest {
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
-      .execute()
-      .assertJson(this.getClass(), "search_since_leak_period.json");
-  }
-
-  @Test
-  public void search_since_leak_period_on_file_in_module_project() {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setKey("PK1"));
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(newFileDto(module, null, "F1").setKey("FK1"));
-    db.components().insertSnapshot(project, a -> a.setPeriodDate(parseDateTime("2015-09-03T00:00:00+0100").getTime()));
-    RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
-    IssueDto issueAfterLeak = db.issues().insertIssue(rule, project, file, i -> i.setKee(UUID_EXAMPLE_01)
-      .setIssueCreationDate(parseDateTime("2015-09-04T00:00:00+0100"))
-      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100")));
-    IssueDto issueBeforeLeak = db.issues().insertIssue(rule, project, file, i -> i.setKee(UUID_EXAMPLE_02)
-      .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
-      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100")));
-    allowAnyoneOnProjects(project);
-    indexIssues();
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(PARAM_FILES, file.path())
       .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "search_since_leak_period.json");

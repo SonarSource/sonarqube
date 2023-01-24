@@ -30,9 +30,9 @@ public interface PurgeMapper {
   List<String> selectAnalysisUuids(PurgeSnapshotQuery query);
 
   /**
-   * Returns the list of modules/subviews and the application/view/project for the specified project_uuid.
+   * Returns the list of subviews and the application/view/project for the specified project_uuid.
    */
-  List<String> selectRootAndModulesOrSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
+  List<String> selectRootAndSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
 
   Set<String> selectDisabledComponentsWithFileSource(@Param("branchUuid") String branchUuid);
 

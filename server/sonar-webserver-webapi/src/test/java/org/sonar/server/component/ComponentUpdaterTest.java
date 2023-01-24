@@ -97,8 +97,6 @@ public class ComponentUpdaterTest {
     assertThat(loaded.scope()).isEqualTo(Scopes.PROJECT);
     assertThat(loaded.uuid()).isNotNull();
     assertThat(loaded.branchUuid()).isEqualTo(loaded.uuid());
-    assertThat(loaded.moduleUuid()).isNull();
-    assertThat(loaded.moduleUuidPath()).isEqualTo("." + loaded.uuid() + ".");
     assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
     assertThat(loaded.getCreatedAt()).isNotNull();
     assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY)).isPresent();

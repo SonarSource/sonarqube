@@ -19,7 +19,6 @@
  */
 package org.sonar.db.purge;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -48,8 +47,8 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PurgeDao implements Dao {
   private static final Logger LOG = Loggers.get(PurgeDao.class);
-  private static final Set<String> QUALIFIERS_PROJECT_VIEW = ImmutableSet.of("TRK", "VW");
-  private static final Set<String> QUALIFIERS_MODULE_SUBVIEW = ImmutableSet.of("BRC", "SVW");
+  private static final Set<String> QUALIFIERS_PROJECT_VIEW = Set.of("TRK", "VW");
+  private static final Set<String> QUALIFIER_SUBVIEW = Set.of("SVW");
   private static final String SCOPE_PROJECT = "PRJ";
 
   private final System2 system2;
@@ -219,11 +218,11 @@ public class PurgeDao implements Dao {
   }
 
   private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
-    List<String> rootAndModulesOrSubviews = mapper.selectRootAndModulesOrSubviewsByProjectUuid(rootUuid);
+    List<String> rootAndSubviews = mapper.selectRootAndSubviewsByProjectUuid(rootUuid);
     commands.deleteLinks(rootUuid);
     commands.deleteScannerCache(rootUuid);
     commands.deleteAnalyses(rootUuid);
-    commands.deleteByRootAndModulesOrSubviews(rootAndModulesOrSubviews);
+    commands.deleteByRootAndSubviews(rootAndSubviews);
     commands.deleteIssues(rootUuid);
     commands.deleteFileSources(rootUuid);
     commands.deleteCeActivity(rootUuid);
@@ -268,10 +267,10 @@ public class PurgeDao implements Dao {
 
   private static void deleteNonRootComponentsInView(Set<ComponentDto> nonRootComponents, PurgeCommands purgeCommands) {
     List<String> subviewsOrProjectCopies = nonRootComponents.stream()
-      .filter(PurgeDao::isModuleOrSubview)
+      .filter(PurgeDao::isSubview)
       .map(ComponentDto::uuid)
       .collect(MoreCollectors.toList());
-    purgeCommands.deleteByRootAndModulesOrSubviews(subviewsOrProjectCopies);
+    purgeCommands.deleteByRootAndSubviews(subviewsOrProjectCopies);
     List<String> nonRootComponentUuids = nonRootComponents.stream().map(ComponentDto::uuid).collect(MoreCollectors.toList(nonRootComponents.size()));
     purgeCommands.deleteComponentMeasures(nonRootComponentUuids);
     purgeCommands.deleteComponents(nonRootComponentUuids);
@@ -281,8 +280,8 @@ public class PurgeDao implements Dao {
     return !(SCOPE_PROJECT.equals(dto.scope()) && QUALIFIERS_PROJECT_VIEW.contains(dto.qualifier()));
   }
 
-  private static boolean isModuleOrSubview(ComponentDto dto) {
-    return SCOPE_PROJECT.equals(dto.scope()) && QUALIFIERS_MODULE_SUBVIEW.contains(dto.qualifier());
+  private static boolean isSubview(ComponentDto dto) {
+    return SCOPE_PROJECT.equals(dto.scope()) && QUALIFIER_SUBVIEW.contains(dto.qualifier());
   }
 
   public void deleteAnalyses(DbSession session, PurgeProfiler profiler, List<String> analysisUuids) {

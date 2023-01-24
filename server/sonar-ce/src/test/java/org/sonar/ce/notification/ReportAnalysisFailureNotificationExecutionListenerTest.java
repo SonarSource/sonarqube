@@ -59,7 +59,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class ReportAnalysisFailureNotificationExecutionListenerTest {
   @Rule
@@ -161,15 +160,14 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
   public void onEnd_fails_with_IAE_if_component_is_not_a_project() {
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);
     ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto module = dbTester.components().insertComponent(newModuleDto(project));
-    ComponentDto directory = dbTester.components().insertComponent(newDirectory(module, randomAlphanumeric(12)));
+    ComponentDto directory = dbTester.components().insertComponent(newDirectory(project, randomAlphanumeric(12)));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
     ComponentDto view = dbTester.components().insertComponent(ComponentTesting.newPortfolio());
     ComponentDto subView = dbTester.components().insertComponent(ComponentTesting.newSubPortfolio(view));
     ComponentDto projectCopy = dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project, subView));
     ComponentDto application = dbTester.components().insertComponent(ComponentTesting.newApplication());
 
-    Arrays.asList(module, directory, file, view, subView, projectCopy, application)
+    Arrays.asList(directory, file, view, subView, projectCopy, application)
       .forEach(component -> {
 
       when(ceTaskMock.getComponent()).thenReturn(Optional.of(new CeTask.Component(component.uuid(), null, null)));

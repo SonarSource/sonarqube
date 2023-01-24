@@ -331,9 +331,6 @@ public class IssueQueryFactory {
       case Qualifiers.PROJECT:
         builder.projectUuids(components.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
         break;
-      case Qualifiers.MODULE:
-        builder.moduleRootUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
-        break;
       case Qualifiers.DIRECTORY:
         addDirectories(builder, components);
         break;

@@ -46,7 +46,6 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class AppActionTest {
@@ -91,9 +90,8 @@ public class AppActionTest {
   @Test
   public void file_on_module() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(module, directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     userSession.logIn("john").addProjectPermission(USER, project);
 
     String result = ws.newRequest()
@@ -256,9 +254,8 @@ public class AppActionTest {
     userSession.logIn("john").addProjectPermission(USER, project);
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(module, directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, directory));
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
     db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(95.4d));
 

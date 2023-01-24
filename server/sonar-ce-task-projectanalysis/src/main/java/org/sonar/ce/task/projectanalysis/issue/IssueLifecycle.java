@@ -193,7 +193,6 @@ public class IssueLifecycle {
     // (in which case base issue belongs to original file and raw issue to component)
     raw.setComponentUuid(base.componentUuid());
     raw.setComponentKey(base.componentKey());
-    raw.setModuleUuidPath(base.moduleUuidPath());
 
     // fields coming from raw
     updater.setPastLine(raw, base.getLine());

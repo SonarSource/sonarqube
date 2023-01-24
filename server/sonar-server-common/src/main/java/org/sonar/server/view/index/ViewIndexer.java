@@ -86,11 +86,11 @@ public class ViewIndexer implements ResilientIndexer {
    */
   public void index(String rootViewUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, String> viewAndProjectViewUuidMap = new HashMap<>();
+      Map<String, String> viewAndRootViewUuidMap = new HashMap<>();
       for (ComponentDto viewOrSubView : dbClient.componentDao().selectEnabledViewsFromRootView(dbSession, rootViewUuid)) {
-        viewAndProjectViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.branchUuid());
+        viewAndRootViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.branchUuid());
       }
-      index(dbSession, viewAndProjectViewUuidMap, true, Size.REGULAR);
+      index(dbSession, viewAndRootViewUuidMap, true, Size.REGULAR);
     }
   }
 
@@ -106,10 +106,10 @@ public class ViewIndexer implements ResilientIndexer {
     bulk.stop();
   }
 
-  private void index(DbSession dbSession, Map<String, String> viewAndProjectViewUuidMap, boolean needClearCache, Size bulkSize) {
+  private void index(DbSession dbSession, Map<String, String> viewAndRootViewUuidMap, boolean needClearCache, Size bulkSize) {
     BulkIndexer bulk = new BulkIndexer(esClient, TYPE_VIEW, bulkSize);
     bulk.start();
-    for (Map.Entry<String, String> entry : viewAndProjectViewUuidMap.entrySet()) {
+    for (Map.Entry<String, String> entry : viewAndRootViewUuidMap.entrySet()) {
       String viewUuid = entry.getKey();
       List<String> projects = dbClient.componentDao().selectProjectsFromView(dbSession, viewUuid, entry.getValue());
       doIndex(bulk, new ViewDoc()

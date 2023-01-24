@@ -26,6 +26,7 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,10 +72,8 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ValuesAction implements SettingsWsAction {
-
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
-  private static final Splitter DOT_SPLITTER = Splitter.on(".").omitEmptyStrings();
   private static final Set<String> SERVER_SETTING_KEYS = Set.of(SERVER_STARTTIME, SERVER_ID);
 
   private final DbClient dbClient;
@@ -210,10 +209,14 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   /**
-   * Return list of settings by component uuid, sorted from project to lowest module
+   * Return list of settings by component uuid
    */
   private Multimap<String, Setting> loadComponentSettings(DbSession dbSession, Set<String> keys, ComponentDto component) {
-    List<String> componentUuids = DOT_SPLITTER.splitToList(component.moduleUuidPath());
+    List<String> componentUuids = new LinkedList<>();
+    if (!component.uuid().equals(component.branchUuid())) {
+      componentUuids.add(component.branchUuid());
+    }
+    componentUuids.add(component.uuid());
     List<PropertyDto> properties = dbClient.propertiesDao().selectPropertiesByKeysAndComponentUuids(dbSession, keys, componentUuids);
     List<PropertyDto> propertySets = dbClient.propertiesDao().selectPropertiesByKeysAndComponentUuids(dbSession, getPropertySetKeys(properties), componentUuids);
 

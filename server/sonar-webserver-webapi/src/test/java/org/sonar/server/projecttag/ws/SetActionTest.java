@@ -41,7 +41,6 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +48,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class SetActionTest {
   @Rule
@@ -159,17 +157,6 @@ public class SetActionTest {
     assertThatThrownBy(() -> call(viewKey, "point-of-view"))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Project 'VIEW_KEY' not found");
-  }
-
-  @Test
-  public void fail_if_component_is_a_module() {
-    ComponentDto projectComponent = dbClient.componentDao().selectByUuid(dbSession, project.getUuid()).get();
-    ComponentDto module = db.components().insertComponent(newModuleDto(projectComponent).setKey("MODULE_KEY"));
-
-    String moduleKey = module.getKey();
-    assertThatThrownBy(() -> call(moduleKey, "modz"))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage("Project 'MODULE_KEY' not found");
   }
 
   @Test

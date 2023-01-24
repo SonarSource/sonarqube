@@ -53,7 +53,6 @@ import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -135,21 +134,19 @@ public class ShowActionTest {
   @Test
   public void show_with_ancestors_when_not_project() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
-    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     userSession.addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest(file.getKey());
 
     assertThat(response.getComponent().getKey()).isEqualTo(file.getKey());
-    assertThat(response.getAncestorsList()).extracting(Component::getKey).containsOnly(directory.getKey(), module.getKey(), project.getKey());
+    assertThat(response.getAncestorsList()).extracting(Component::getKey).containsOnly(directory.getKey(), project.getKey());
   }
 
   @Test
   public void show_without_ancestors_when_project() {
     ComponentDto project = db.components().insertPrivateProject();
-    db.components().insertComponent(newModuleDto(project));
     userSession.addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest(project.getKey());
@@ -191,9 +188,8 @@ public class ShowActionTest {
   public void show_with_ancestors_and_analysis_date() {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
-    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     userSession.addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest(file.getKey());
@@ -233,21 +229,10 @@ public class ShowActionTest {
   }
 
   @Test
-  public void should_not_return_visibility_for_module() {
-    ComponentDto privateProject = db.components().insertPrivateProject();
-    userSession.addProjectPermission(USER, privateProject);
-    ComponentDto module = db.components().insertComponent(newModuleDto(privateProject));
-
-    ShowWsResponse result = newRequest(module.getKey());
-    assertThat(result.getComponent().hasVisibility()).isFalse();
-  }
-
-  @Test
   public void display_version() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
-    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
     db.components().insertSnapshot(project, s -> s.setProjectVersion("1.1"));
     userSession.addProjectPermission(USER, project);
 
@@ -265,9 +250,8 @@ public class ShowActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     String branchKey = "my_branch";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
-    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, directory));
     db.components().insertSnapshot(branch, s -> s.setProjectVersion("1.1"));
 
     ShowWsResponse response = ws.newRequest()
@@ -281,7 +265,6 @@ public class ShowActionTest {
     assertThat(response.getAncestorsList()).extracting(Component::getKey, Component::getBranch, Component::getVersion)
       .containsExactlyInAnyOrder(
         tuple(directory.getKey(), branchKey, "1.1"),
-        tuple(module.getKey(), branchKey, "1.1"),
         tuple(branch.getKey(), branchKey, "1.1"));
   }
 
@@ -306,9 +289,8 @@ public class ShowActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     String pullRequest = "pr-1234";
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequest).setBranchType(PULL_REQUEST));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
-    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, directory));
     db.components().insertSnapshot(branch, s -> s.setProjectVersion("1.1"));
 
     ShowWsResponse response = ws.newRequest()
@@ -322,7 +304,6 @@ public class ShowActionTest {
     assertThat(response.getAncestorsList()).extracting(Component::getKey, Component::getPullRequest, Component::getVersion)
       .containsExactlyInAnyOrder(
         tuple(directory.getKey(), pullRequest, "1.1"),
-        tuple(module.getKey(), pullRequest, "1.1"),
         tuple(branch.getKey(), pullRequest, "1.1"));
   }
 
@@ -336,9 +317,8 @@ public class ShowActionTest {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto branch1 = db.components().insertProjectBranch(project1, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1)
       .setNeedIssueSync(true));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch1));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
-    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    ComponentDto directory = db.components().insertComponent(newDirectory(branch1, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch1, directory));
 
     ComponentDto project2 = db.components().insertPrivateProject();
     String branchName2 = randomAlphanumeric(248);
@@ -349,9 +329,8 @@ public class ShowActionTest {
     ComponentDto project3 = db.components().insertPrivateProject();
     String pullRequestKey4 = randomAlphanumeric(100);
     ComponentDto branch4 = db.components().insertProjectBranch(project3, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey4).setNeedIssueSync(false));
-    ComponentDto moduleOfBranch4 = db.components().insertComponent(newModuleDto(branch4));
-    ComponentDto directoryOfBranch4 = db.components().insertComponent(newDirectory(moduleOfBranch4, "dir"));
-    ComponentDto fileOfBranch4 = db.components().insertComponent(newFileDto(directoryOfBranch4));
+    ComponentDto directoryOfBranch4 = db.components().insertComponent(newDirectory(branch4, "dir"));
+    ComponentDto fileOfBranch4 = db.components().insertComponent(newFileDto(branch4, directoryOfBranch4));
     String branchName5 = randomAlphanumeric(248);
     ComponentDto branch5 = db.components().insertProjectBranch(project3, b -> b.setBranchType(BRANCH).setNeedIssueSync(false).setKey(branchName5));
 
@@ -366,7 +345,6 @@ public class ShowActionTest {
     // if branch need sync it is propagated to other components
     assertNeedIssueSyncEqual(null, null, project1, true);
     assertNeedIssueSyncEqual(pullRequestKey1, null, branch1, true);
-    assertNeedIssueSyncEqual(pullRequestKey1, null, module, true);
     assertNeedIssueSyncEqual(pullRequestKey1, null, directory, true);
     assertNeedIssueSyncEqual(pullRequestKey1, null, file, true);
 
@@ -377,7 +355,6 @@ public class ShowActionTest {
     // if all branches are synced, need issue sync on project is is set to false
     assertNeedIssueSyncEqual(null, null, project3, false);
     assertNeedIssueSyncEqual(pullRequestKey4, null, branch4, false);
-    assertNeedIssueSyncEqual(pullRequestKey4, null, moduleOfBranch4, false);
     assertNeedIssueSyncEqual(pullRequestKey4, null, directoryOfBranch4, false);
     assertNeedIssueSyncEqual(pullRequestKey4, null, fileOfBranch4, false);
     assertNeedIssueSyncEqual(null, branchName5, branch5, false);
@@ -452,11 +429,11 @@ public class ShowActionTest {
 
   private void insertJsonExampleComponentsAndSnapshots() {
     ComponentDto project = db.components().insertPrivateProject(c -> c.setUuid("AVIF98jgA3Ax6PH2efOW")
-      .setBranchUuid("AVIF98jgA3Ax6PH2efOW")
-      .setKey("com.sonarsource:java-markdown")
-      .setName("Java Markdown")
-      .setDescription("Java Markdown Project")
-      .setQualifier(Qualifiers.PROJECT),
+        .setBranchUuid("AVIF98jgA3Ax6PH2efOW")
+        .setKey("com.sonarsource:java-markdown")
+        .setName("Java Markdown")
+        .setDescription("Java Markdown Project")
+        .setQualifier(Qualifiers.PROJECT),
       p -> p.setTagsString("language, plugin"));
     userSession.addProjectPermission(USER, project);
     db.components().insertSnapshot(project, snapshot -> snapshot

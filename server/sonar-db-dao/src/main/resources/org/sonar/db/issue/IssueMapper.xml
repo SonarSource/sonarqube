@@ -34,7 +34,6 @@
     r.security_standards as securityStandards,
     p.kee as componentKey,
     i.component_uuid as componentUuid,
-    p.module_uuid_path as moduleUuidPath,
     p.path as filePath,
     root.kee as projectKey,
     i.project_uuid as projectUuid,
@@ -231,21 +230,6 @@
     i.status &lt;&gt; 'CLOSED'
   </select>
 
-  <select id="selectNonClosedByComponentUuidExcludingExternals" parameterType="String" resultType="Issue">
-    select
-    <include refid="issueColumns"/>
-    from issues i
-    inner join rules r on r.uuid=i.rule_uuid
-    inner join components p on p.uuid=i.component_uuid
-    inner join components root on root.uuid=i.project_uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
-    where
-    (r.is_external is NULL or r.is_external = ${_false}) and
-    i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
-    i.status &lt;&gt; 'CLOSED' and
-    i.issue_type &lt;&gt; 4
-  </select>
-
   <select id="scrollClosedByComponentUuid" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
       <include refid="issueColumns"/>,
@@ -328,22 +312,6 @@
         #{key,jdbcType=VARCHAR}
       </foreach>
       and i.status &lt;&gt; 'CLOSED'
-  </select>
-
-  <select id="selectNonClosedByModuleOrProject" parameterType="map" resultType="Issue">
-    select
-    <include refid="issueColumns"/>
-    from issues i
-    inner join rules r on r.uuid = i.rule_uuid
-    inner join components p on p.uuid = i.component_uuid
-    inner join components root on root.uuid = i.project_uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
-    where
-    (r.is_external is NULL or r.is_external = ${_false}) and
-    i.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
-    p.module_uuid_path like  #{likeModuleUuidPath, jdbcType=VARCHAR} escape '/' and
-    i.status &lt;&gt; 'CLOSED' and
-    i.issue_type &lt;&gt; 4
   </select>
 
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map">

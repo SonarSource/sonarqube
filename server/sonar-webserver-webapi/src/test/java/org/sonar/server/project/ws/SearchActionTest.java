@@ -57,9 +57,8 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newPortfolio;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -136,11 +135,10 @@ public class SearchActionTest {
   public void search_projects() {
     userSession.addPermission(ADMINISTER);
     ComponentDto project = ComponentTesting.newPrivateProjectDto().setKey(PROJECT_KEY_1);
-    ComponentDto module = newModuleDto(project);
-    ComponentDto directory = newDirectory(module, "dir");
+    ComponentDto directory = newDirectory(project, "dir");
     ComponentDto file = newFileDto(directory);
     db.components().insertComponents(
-      project, module, directory, file,
+      project, directory, file,
       ComponentTesting.newPrivateProjectDto().setKey(PROJECT_KEY_2),
       newPortfolio());
 

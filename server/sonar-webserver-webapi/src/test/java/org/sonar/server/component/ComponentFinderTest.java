@@ -34,7 +34,6 @@ import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 
@@ -152,12 +151,10 @@ public class ComponentFinderTest {
   public void get_by_key_and_branch() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "scr"));
-    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "scr"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
     assertThat(underTest.getByKeyAndBranch(dbSession, project.getKey(), "my_branch").uuid()).isEqualTo(branch.uuid());
-    assertThat(underTest.getByKeyAndBranch(dbSession, module.getKey(), "my_branch").uuid()).isEqualTo(module.uuid());
     assertThat(underTest.getByKeyAndBranch(dbSession, file.getKey(), "my_branch").uuid()).isEqualTo(file.uuid());
     assertThat(underTest.getByKeyAndBranch(dbSession, directory.getKey(), "my_branch").uuid()).isEqualTo(directory.uuid());
   }
@@ -166,12 +163,10 @@ public class ComponentFinderTest {
   public void get_by_key_and_pull_request() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST).setMergeBranchUuid(project.uuid()));
-    ComponentDto module = db.components().insertComponent(newModuleDto(branch));
-    ComponentDto directory = db.components().insertComponent(newDirectory(module, "scr"));
-    ComponentDto file = db.components().insertComponent(newFileDto(module));
+    ComponentDto directory = db.components().insertComponent(newDirectory(branch, "scr"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
 
     assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), null, "pr-123").uuid()).isEqualTo(branch.uuid());
-    assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, module.getKey(), null, "pr-123").uuid()).isEqualTo(module.uuid());
     assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, file.getKey(), null, "pr-123").uuid()).isEqualTo(file.uuid());
     assertThat(underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, directory.getKey(), null, "pr-123").uuid()).isEqualTo(directory.uuid());
   }
@@ -182,7 +177,6 @@ public class ComponentFinderTest {
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey("pr").setBranchType(PULL_REQUEST));
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
-
 
     assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), null, null)).isPresent();
     assertThat(underTest.getOptionalByKeyAndOptionalBranchOrPullRequest(dbSession, project.getKey(), null, null).get().uuid())

@@ -43,11 +43,8 @@ import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class ProjectDataLoaderTest {
   @Rule
@@ -131,35 +128,22 @@ public class ProjectDataLoaderTest {
   }
 
   @Test
-  public void fails_with_BRE_if_component_is_not_a_project() {
-    String[][] allScopesAndQualifierButProjectAndModule = {
-      {Scopes.PROJECT, "fakeModuleUuid"},
-      {Scopes.FILE, null},
-      {Scopes.DIRECTORY, null}
-    };
+  public void fails_with_BRE_if_component_is_not_root() {
+    String uuid = "uuid";
+    String key = "key";
+    dbClient.componentDao().insert(dbSession, new ComponentDto()
+      .setUuid(uuid)
+      .setUuidPath(uuid + ".")
+      .setRootUuid(uuid)
+      .setBranchUuid("branchUuid")
+      .setScope(Scopes.PROJECT)
+      .setKey("key"));
+    dbSession.commit();
 
-    for (String[] scopeAndQualifier : allScopesAndQualifierButProjectAndModule) {
-      String scope = scopeAndQualifier[0];
-      String moduleUuid = scopeAndQualifier[1];
-      String key = "theKey_" + scope + "_" + moduleUuid;
-      String uuid = "uuid_" + uuidCounter++;
-      dbClient.componentDao().insert(dbSession, new ComponentDto()
-        .setUuid(uuid)
-        .setUuidPath(uuid + ".")
-        .setRootUuid(uuid)
-        .setBranchUuid(uuid)
-        .setScope(scope)
-        .setModuleUuid(moduleUuid)
-        .setKey(key));
-      dbSession.commit();
-
-      try {
-        underTest.load(ProjectDataQuery.create().setProjectKey(key));
-        fail("A NotFoundException should have been raised because component is not project");
-      } catch (BadRequestException e) {
-        assertThat(e).hasMessage("Key '" + key + "' belongs to a component which is not a Project");
-      }
-    }
+    ProjectDataQuery query = ProjectDataQuery.create().setProjectKey(key);
+    assertThatThrownBy(() -> underTest.load(query))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Key '" + key + "' belongs to a component which is not a Project");
   }
 
   @Test

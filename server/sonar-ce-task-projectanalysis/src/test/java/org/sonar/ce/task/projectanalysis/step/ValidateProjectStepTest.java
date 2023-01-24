@@ -66,20 +66,6 @@ public class ValidateProjectStepTest {
   private final ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder);
 
   @Test
-  public void dont_fail_for_long_forked_from_master_with_modules() {
-    ComponentDto masterProject = db.components().insertPublicProject();
-    dbClient.componentDao().insert(db.getSession(), ComponentTesting.newModuleDto(masterProject));
-    setBranch(BranchType.BRANCH, masterProject.uuid());
-    db.getSession().commit();
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
-      .setKey("branch")
-      .build());
-
-    underTest.execute(new TestComputationStepContext());
-  }
-
-  @Test
   public void not_fail_if_analysis_date_is_after_last_analysis() {
     ComponentDto project = db.components().insertPrivateProject("ABCD", c -> c.setKey(PROJECT_KEY));
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(PAST_ANALYSIS_TIME));

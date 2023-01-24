@@ -62,9 +62,8 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newPortfolio;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
@@ -165,11 +164,10 @@ public class SearchActionTest {
   @Test
   public void return_project_key() {
     ComponentDto project = ComponentTesting.newPublicProjectDto();
-    ComponentDto module = ComponentTesting.newModuleDto(project);
-    ComponentDto dir1 = newDirectory(module, "dir1").setKey("dir1");
-    ComponentDto dir2 = newDirectory(module, "dir2").setKey("dir2");
+    ComponentDto dir1 = newDirectory(project, "dir1").setKey("dir1");
+    ComponentDto dir2 = newDirectory(project, "dir2").setKey("dir2");
     ComponentDto dir3 = newDirectory(project, "dir3").setKey("dir3");
-    db.components().insertComponents(project, module, dir1, dir2, dir3);
+    db.components().insertComponents(project, dir1, dir2, dir3);
     setBrowsePermissionOnUserAndIndex(project);
 
     SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT, APP)));
@@ -210,10 +208,9 @@ public class SearchActionTest {
   public void test_json_example() {
     db.components().insertComponent(newPortfolio());
     ComponentDto project = newPrivateProjectDto("project-uuid").setName("Project Name").setKey("project-key");
-    ComponentDto module = newModuleDto("module-uuid", project).setName("Module Name").setKey("module-key");
-    ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setKey("directory-key").setName("Directory Name");
+    ComponentDto directory = newDirectory(project, "path/to/directoy").setUuid("directory-uuid").setKey("directory-key").setName("Directory Name");
     ComponentDto view = newPortfolio();
-    db.components().insertComponents(project, module, directory, view);
+    db.components().insertComponents(project, directory, view);
     setBrowsePermissionOnUserAndIndex(project);
 
     String response = underTest.newRequest()

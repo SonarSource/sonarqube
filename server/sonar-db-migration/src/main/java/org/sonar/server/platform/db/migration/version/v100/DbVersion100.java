@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v100;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
-// ignoring bad number formating, as it's indented that we align the migration numbers to SQ versions
+// ignoring bad number formatting, as it's indented that we align the migration numbers to SQ versions
 @SuppressWarnings("java:S3937")
 public class DbVersion100 implements DbVersion {
 
@@ -42,6 +42,11 @@ public class DbVersion100 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(10_0_000, "Remove orphan rules in Quality Profiles", RemoveOrphanRulesFromQualityProfiles.class)
+      .add(10_0_001, "Drop index 'projects_module_uuid' in the 'Components' table", DropIndexProjectsModuleUuidInComponents.class)
+      .add(10_0_002, "Drop column 'module_uuid' in the 'Components' table", DropModuleUuidInComponents.class)
+      .add(10_0_003, "Drop column 'module_uuid_path' in the 'Components' table", DropModuleUuidPathInComponents.class)
+      .add(10_0_004, "Drop column 'b_module_uuid' in the 'Components' table", DropBModuleUuidInComponents.class)
+      .add(10_0_005, "Drop column 'b_module_uuid_path' in the 'Components' table", DropBModuleUuidPathInComponents.class)
     ;
   }
 }

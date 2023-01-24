@@ -94,7 +94,6 @@ public final class IssueDto implements Serializable {
   private boolean isExternal;
   private String language;
   private String componentKey;
-  private String moduleUuidPath;
   private String projectKey;
   private String filePath;
   private String tags;
@@ -131,7 +130,6 @@ public final class IssueDto implements Serializable {
       .setRuleDescriptionContextKey(issue.getRuleDescriptionContextKey().orElse(null))
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
-      .setModuleUuidPath(issue.moduleUuidPath())
       .setProjectUuid(issue.projectUuid())
       .setProjectKey(issue.projectKey())
       .setAuthorLogin(issue.authorLogin())
@@ -180,7 +178,6 @@ public final class IssueDto implements Serializable {
       .setRuleDescriptionContextKey(issue.getRuleDescriptionContextKey().orElse(null))
       .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
-      .setModuleUuidPath(issue.moduleUuidPath())
       .setProjectUuid(issue.projectUuid())
       .setProjectKey(issue.projectKey())
       .setIssueCreationDate(issue.creationDate())
@@ -210,7 +207,6 @@ public final class IssueDto implements Serializable {
   public IssueDto setComponent(ComponentDto component) {
     this.componentKey = component.getKey();
     this.componentUuid = component.uuid();
-    this.moduleUuidPath = component.moduleUuidPath();
     this.filePath = component.path();
     return this;
   }
@@ -556,21 +552,6 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  @CheckForNull
-  public String getModuleUuidPath() {
-    return moduleUuidPath;
-  }
-
-  /**
-   * Should only be used to persist in E/S
-   * <p/>
-   * Please use {@link #setComponent(ComponentDto)} instead
-   */
-  public IssueDto setModuleUuidPath(@Nullable String moduleUuidPath) {
-    this.moduleUuidPath = moduleUuidPath;
-    return this;
-  }
-
   /**
    * Used by the issue tracking mechanism, but it should used the component uuid instead
    */
@@ -763,7 +744,6 @@ public final class IssueDto implements Serializable {
     issue.setAssigneeUuid(assigneeUuid);
     issue.setComponentKey(componentKey);
     issue.setComponentUuid(componentUuid);
-    issue.setModuleUuidPath(moduleUuidPath);
     issue.setProjectUuid(projectUuid);
     issue.setProjectKey(projectKey);
     issue.setManualSeverity(manualSeverity);

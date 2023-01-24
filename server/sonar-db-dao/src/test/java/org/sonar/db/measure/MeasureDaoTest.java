@@ -37,8 +37,8 @@ import org.sonar.db.metric.MetricDto;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 public class MeasureDaoTest {
@@ -46,7 +46,6 @@ public class MeasureDaoTest {
   private MetricDto coverage;
   private MetricDto complexity;
   private MetricDto ncloc;
-
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -57,8 +56,8 @@ public class MeasureDaoTest {
 
   @Before
   public void before() {
-    coverage =db.measures().insertMetric(m -> m.setKey("coverage"));
-    complexity = db.measures().insertMetric(m -> m.setKey( "complexity"));
+    coverage = db.measures().insertMetric(m -> m.setKey("coverage"));
+    complexity = db.measures().insertMetric(m -> m.setKey("complexity"));
     ncloc = db.measures().insertMetric(m -> m.setKey("ncloc"));
   }
 
@@ -110,9 +109,9 @@ public class MeasureDaoTest {
   @Test
   public void test_selects() {
     ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project1));
-    db.components().insertComponent(newFileDto(module).setUuid("C1"));
-    db.components().insertComponent(newFileDto(module).setUuid("C2"));
+    ComponentDto dir = db.components().insertComponent(newDirectory(project1, "path"));
+    db.components().insertComponent(newFileDto(dir).setUuid("C1"));
+    db.components().insertComponent(newFileDto(dir).setUuid("C2"));
     SnapshotDto lastAnalysis = insertAnalysis(project1.uuid(), true);
     SnapshotDto pastAnalysis = insertAnalysis(project1.uuid(), false);
 
@@ -141,11 +140,11 @@ public class MeasureDaoTest {
     verifyNoMeasure("MISSING_COMPONENT", ncloc.getKey(), pastAnalysis.getUuid());
 
     // ncloc measure of component C1 of last analysis
-    verifyMeasure("C1",  ncloc.getKey(), "M2");
+    verifyMeasure("C1", ncloc.getKey(), "M2");
     // ncloc measure of component C1 of non last analysis
-    verifyMeasure("C1",  ncloc.getKey(), pastAnalysis.getUuid(), "M1");
+    verifyMeasure("C1", ncloc.getKey(), pastAnalysis.getUuid(), "M1");
     // ncloc measure of component C1 of last analysis by UUID
-    verifyMeasure("C1",  ncloc.getKey(), lastAnalysis.getUuid(), "M2");
+    verifyMeasure("C1", ncloc.getKey(), lastAnalysis.getUuid(), "M2");
 
     // missing measure of component C1 of last analysis
     verifyNoMeasure("C1", complexity.getKey());
@@ -155,10 +154,10 @@ public class MeasureDaoTest {
     verifyNoMeasure("C1", complexity.getKey(), lastAnalysis.getUuid());
 
     // projects measures of last analysis
-    verifyMeasure(project1.uuid(),  ncloc.getKey(), "P1_M1");
+    verifyMeasure(project1.uuid(), ncloc.getKey(), "P1_M1");
 
     // projects measures of none last analysis
-    verifyMeasure(project1.uuid(),  ncloc.getKey(), pastAnalysis.getUuid(), "P1_M3");
+    verifyMeasure(project1.uuid(), ncloc.getKey(), pastAnalysis.getUuid(), "P1_M3");
   }
 
   @Test

@@ -63,7 +63,7 @@
 
   </select>
 
-  <select id="selectRootAndModulesOrSubviewsByProjectUuid" resultType="String" parameterType="String">
+  <select id="selectRootAndSubviewsByProjectUuid" resultType="String" parameterType="String">
     select
        p.uuid
     from
@@ -71,7 +71,7 @@
     where
       (
         p.branch_uuid=#{rootUuid,jdbcType=VARCHAR}
-        and p.scope = 'PRJ' and p.qualifier in ('SVW','BRC')
+        and p.scope = 'PRJ' and p.qualifier = 'SVW'
       )
       or (
         uuid=#{rootUuid,jdbcType=VARCHAR}

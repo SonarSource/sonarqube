@@ -6,8 +6,6 @@
     p.uuid as uuid,
     p.uuid_path as uuidPath,
     p.branch_uuid as branchUuid,
-    p.module_uuid as moduleUuid,
-    p.module_uuid_path as moduleUuidPath,
     p.main_branch_project_uuid as mainBranchProjectUuid,
     p.kee as kee,
     p.name as name,
@@ -58,8 +56,6 @@
           p.uuid as uuid,
           p.uuid_path as uuidPath,
           p.branch_uuid as branchUuid,
-          p.module_uuid as moduleUuid,
-          p.module_uuid_path as moduleUuidPath,
           p.main_branch_project_uuid as mainBranchProjectUuid,
           p.kee as kee,
           case
@@ -192,7 +188,6 @@
     SELECT
       p.uuid,
       p.path,
-      p.module_uuid as moduleUuid,
       fs.src_hash as srcHash,
       fs.revision
     FROM components root
@@ -451,13 +446,13 @@
     from components p
     where
       p.enabled = ${_true}
-      and p.branch_uuid = #{projectViewUuid,jdbcType=VARCHAR}
+      and p.branch_uuid = #{rootViewUuid,jdbcType=VARCHAR}
     <choose>
       <when test="_databaseId == 'mssql'">
-        and p.module_uuid_path like #{viewUuidLikeQuery,jdbcType=VARCHAR} {escape '\'}
+        and p.uuid_path like #{viewUuidLikeQuery,jdbcType=VARCHAR} {escape '\'}
       </when>
       <otherwise>
-        and p.module_uuid_path like #{viewUuidLikeQuery,jdbcType=VARCHAR} ESCAPE '\'
+        and p.uuid_path like #{viewUuidLikeQuery,jdbcType=VARCHAR} ESCAPE '\'
       </otherwise>
     </choose>
       and p.qualifier = 'TRK'
@@ -537,8 +532,6 @@
       uuid,
       uuid_path,
       branch_uuid,
-      module_uuid,
-      module_uuid_path,
       main_branch_project_uuid,
       name,
       long_name,
@@ -559,8 +552,6 @@
       b_enabled,
       b_language,
       b_long_name,
-      b_module_uuid,
-      b_module_uuid_path,
       b_name,
       b_path,
       b_qualifier
@@ -570,8 +561,6 @@
     #{uuid,jdbcType=VARCHAR},
     #{uuidPath,jdbcType=VARCHAR},
     #{branchUuid,jdbcType=VARCHAR},
-    #{moduleUuid,jdbcType=VARCHAR},
-    #{moduleUuidPath,jdbcType=VARCHAR},
     #{mainBranchProjectUuid, jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{longName,jdbcType=VARCHAR},
@@ -594,8 +583,6 @@
     null,
     null,
     null,
-    null,
-    null,
     null
     )
   </insert>
@@ -611,8 +598,6 @@
     b_uuid_path = #{bUuidPath,jdbcType=VARCHAR},
     b_language = #{bLanguage,jdbcType=VARCHAR},
     b_long_name = #{bLongName,jdbcType=VARCHAR},
-    b_module_uuid = #{bModuleUuid,jdbcType=VARCHAR},
-    b_module_uuid_path = #{bModuleUuidPath,jdbcType=VARCHAR},
     b_name = #{bName,jdbcType=VARCHAR},
     b_path = #{bPath,jdbcType=VARCHAR},
     b_qualifier = #{bQualifier,jdbcType=VARCHAR}
@@ -631,8 +616,6 @@
     b_uuid_path = uuid_path,
     b_language = language,
     b_long_name = long_name,
-    b_module_uuid = module_uuid,
-    b_module_uuid_path = module_uuid_path,
     b_name = name,
     b_path = path,
     b_qualifier = qualifier
@@ -650,8 +633,6 @@
     uuid_path = b_uuid_path,
     language = b_language,
     long_name = b_long_name,
-    module_uuid = b_module_uuid,
-    module_uuid_path = b_module_uuid_path,
     name = b_name,
     path = b_path,
     qualifier = b_qualifier,
@@ -676,8 +657,6 @@
     b_enabled = ${_false},
     b_language = null,
     b_long_name = null,
-    b_module_uuid = null,
-    b_module_uuid_path = null,
     b_name = null,
     b_path = null,
     b_qualifier = null

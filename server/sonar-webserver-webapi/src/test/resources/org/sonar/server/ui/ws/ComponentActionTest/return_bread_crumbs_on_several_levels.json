@@ -1,5 +1,5 @@
 {
-  "key": "palap:src/main/xoo/Source.xoo",
+  "key": "polop:src/main/xoo/Source.xoo",
   "id": "cdef",
   "name": "Source.xoo",
   "isFavorite": false,
@@ -10,17 +10,12 @@
       "qualifier": "TRK"
     },
     {
-      "key": "palap",
-      "name": "Palap",
-      "qualifier": "BRC"
-    },
-    {
-      "key": "palap:src/main/xoo",
+      "key": "polop:src/main/xoo",
       "name": "src/main/xoo",
       "qualifier": "DIR"
     },
     {
-      "key": "palap:src/main/xoo/Source.xoo",
+      "key": "polop:src/main/xoo/Source.xoo",
       "name": "Source.xoo",
       "qualifier": "FIL"
     }

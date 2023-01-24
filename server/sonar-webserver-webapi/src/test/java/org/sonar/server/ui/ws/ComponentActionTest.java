@@ -84,7 +84,6 @@ import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -602,10 +601,9 @@ public class ComponentActionTest {
   @Test
   public void return_bread_crumbs_on_several_levels() {
     ComponentDto project = insertProject();
-    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setKey("palap").setName("Palap"));
-    ComponentDto directory = componentDbTester.insertComponent(newDirectory(module, "src/main/xoo"));
+    ComponentDto directory = componentDbTester.insertComponent(newDirectory(project, "src/main/xoo"));
     ComponentDto file = componentDbTester.insertComponent(newFileDto(directory, directory, "cdef").setName("Source.xoo")
-      .setKey("palap:src/main/xoo/Source.xoo")
+      .setKey("polop:src/main/xoo/Source.xoo")
       .setPath(directory.path()));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
@@ -756,20 +754,9 @@ public class ComponentActionTest {
   }
 
   @Test
-  public void fail_on_module_key_as_param() {
-    ComponentDto project = insertProject();
-    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setKey("palap").setName("Palap"));
-    init();
-
-    assertThatThrownBy(() -> execute(module.getKey()))
-      .isInstanceOf(BadRequestException.class);
-  }
-
-  @Test
   public void fail_on_directory_key_as_param() {
     ComponentDto project = insertProject();
-    ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setKey("palap").setName("Palap"));
-    ComponentDto directory = componentDbTester.insertComponent(newDirectory(module, "src/main/xoo"));
+    ComponentDto directory = componentDbTester.insertComponent(newDirectory(project, "src/main/xoo"));
     userSession.addProjectPermission(UserRole.USER, project);
     init();
     String dirKey = directory.getKey();

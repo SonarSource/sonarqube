@@ -597,21 +597,6 @@ public class SearchActionTest {
   }
 
   @Test
-  public void components_contains_sub_projects() {
-    ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setKey("ProjectHavingModule"));
-    indexPermissions();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setKey("ModuleHavingFile"));
-    ComponentDto file = db.components().insertComponent(newFileDto(module, null, "BCDE").setKey("FileLinkedToModule"));
-    IssueDto issue = newDto(newIssueRule(), file, project);
-    dbClient.issueDao().insert(session, issue);
-    session.commit();
-    indexIssues();
-
-    ws.newRequest().setParam(PARAM_ADDITIONAL_FIELDS, "_all").execute()
-      .assertJson(this.getClass(), "components_contains_sub_projects.json");
-  }
-
-  @Test
   public void filter_by_assigned_to_me() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));

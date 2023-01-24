@@ -45,7 +45,7 @@ public class ExportComponentsStep implements ComputationStep {
   private static final String QUERY = "select" +
     " p.uuid, p.qualifier, p.uuid_path, p.kee, p.name," +
     " p.description, p.scope, p.language, p.long_name, p.path," +
-    " p.module_uuid, p.module_uuid_path, p.deprecated_kee, p.branch_uuid, p.main_branch_project_uuid" +
+    " p.deprecated_kee, p.branch_uuid, p.main_branch_project_uuid" +
     " from components p" +
     " join components pp on pp.uuid = p.branch_uuid" +
     " join project_branches pb on pb.uuid = pp.uuid" +
@@ -90,11 +90,9 @@ public class ExportComponentsStep implements ComputationStep {
           .setLanguage(defaultString(getString(rs, 8)))
           .setLongName(defaultString(getString(rs, 9)))
           .setPath(defaultString(getString(rs, 10)))
-          .setModuleUuid(defaultString(getString(rs, 11)))
-          .setModuleUuidPath(defaultString(getString(rs, 12)))
-          .setDeprecatedKey(defaultString(getString(rs, 13)))
-          .setProjectUuid(getString(rs, 14))
-          .setMainBranchProjectUuid(defaultString(getString(rs, 15)))
+          .setDeprecatedKey(defaultString(getString(rs, 11)))
+          .setProjectUuid(getString(rs, 12))
+          .setMainBranchProjectUuid(defaultString(getString(rs, 13)))
           .build();
         output.write(component);
         ref++;

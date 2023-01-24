@@ -137,11 +137,9 @@ public class PurgeCommandsTest {
     dbTester.components().insertComponent(project);
     ComponentDto otherProject = dbTester.components().insertPrivateProject();
     Stream.of(project, otherProject).forEach(prj -> {
-      ComponentDto module = dbTester.components().insertComponent(ComponentTesting.newModuleDto(prj));
-      ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(module, "a"));
+      ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(prj, "a"));
       ComponentDto directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(prj, "b"));
       dbTester.components().insertComponent(newFileDto(prj));
-      dbTester.components().insertComponent(newFileDto(module));
       dbTester.components().insertComponent(newFileDto(directory1));
       dbTester.components().insertComponent(newFileDto(directory2));
     });
@@ -149,7 +147,7 @@ public class PurgeCommandsTest {
     underTest.deleteComponents(project.uuid());
 
     assertThat(countComponentOfRoot(project)).isZero();
-    assertThat(countComponentOfRoot(otherProject)).isEqualTo(8);
+    assertThat(countComponentOfRoot(otherProject)).isEqualTo(6);
   }
 
   @Test
@@ -158,18 +156,16 @@ public class PurgeCommandsTest {
     dbTester.components().insertComponent(project);
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
     Stream.of(project, branch).forEach(prj -> {
-      ComponentDto module = dbTester.components().insertComponent(ComponentTesting.newModuleDto(prj));
-      ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(module, "a"));
+      ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(prj, "a"));
       ComponentDto directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(prj, "b"));
       dbTester.components().insertComponent(newFileDto(prj));
-      dbTester.components().insertComponent(newFileDto(module));
       dbTester.components().insertComponent(newFileDto(directory1));
       dbTester.components().insertComponent(newFileDto(directory2));
     });
 
     underTest.deleteComponentsByMainBranchProjectUuid(project.uuid());
 
-    assertThat(countComponentOfRoot(project)).isEqualTo(8);
+    assertThat(countComponentOfRoot(project)).isEqualTo(6);
     assertThat(countComponentOfRoot(branch)).isZero();
   }
 
@@ -866,14 +862,14 @@ public class PurgeCommandsTest {
 
   @DataProvider
   public static Object[] projects() {
-    return new Object[]{
+    return new Object[] {
       ComponentTesting.newPrivateProjectDto(), ComponentTesting.newPublicProjectDto(),
     };
   }
 
   @DataProvider
   public static Object[] views() {
-    return new Object[]{
+    return new Object[] {
       ComponentTesting.newPortfolio(), ComponentTesting.newApplication()
     };
   }

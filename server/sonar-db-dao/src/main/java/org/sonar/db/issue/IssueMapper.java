@@ -70,10 +70,6 @@ public interface IssueMapper {
 
   void scrollClosedByComponentUuid(@Param("componentUuid") String componentUuid, @Param("closeDateAfter") long closeDateAfter, ResultHandler<IssueDto> handler);
 
-  List<IssueDto> selectNonClosedByComponentUuidExcludingExternals(@Param("componentUuid") String componentUuid);
-
-  List<IssueDto> selectNonClosedByModuleOrProject(@Param("projectUuid") String projectUuid, @Param("likeModuleUuidPath") String likeModuleUuidPath);
-
   Collection<IssueGroupDto> selectIssueGroupsByComponent(@Param("component") ComponentDto component, @Param("leakPeriodBeginningDate") long leakPeriodBeginningDate);
 
   List<IssueDto> selectByBranch(@Param("keys") Set<String> keys, @Nullable @Param("changedSince") Long changedSince);

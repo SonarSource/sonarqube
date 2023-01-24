@@ -247,9 +247,9 @@ public class ComponentDao implements Dao {
       i -> i);
   }
 
-  public List<String> selectProjectsFromView(DbSession session, String viewUuid, String projectViewUuid) {
+  public List<String> selectProjectsFromView(DbSession session, String viewUuid, String rootViewUuid) {
     var escapedViewUuid = viewUuid.replace("_", "\\_").replace("%", "\\%");
-    return mapper(session).selectProjectsFromView("%." + escapedViewUuid + ".%", projectViewUuid);
+    return mapper(session).selectProjectsFromView("%." + escapedViewUuid + ".%", rootViewUuid);
   }
 
   /**

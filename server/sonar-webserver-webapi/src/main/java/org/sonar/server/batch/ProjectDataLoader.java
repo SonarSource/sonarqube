@@ -57,8 +57,7 @@ public class ProjectDataLoader {
       String pullRequest = query.getPullRequest();
       ComponentDto project = componentFinder.getByKey(session, projectKey);
       checkRequest(project.isRootProject(), "Key '%s' belongs to a component which is not a Project", projectKey);
-      boolean hasScanPerm = userSession.hasComponentPermission(UserRole.SCAN, project) ||
-        userSession.hasPermission(GlobalPermission.SCAN);
+      boolean hasScanPerm = userSession.hasComponentPermission(UserRole.SCAN, project) || userSession.hasPermission(GlobalPermission.SCAN);
       checkPermission(hasScanPerm);
       ComponentDto branchComponent = (branch == null && pullRequest == null) ? project
         : componentFinder.getByKeyAndOptionalBranchOrPullRequest(session, projectKey, branch, pullRequest);

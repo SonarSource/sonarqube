@@ -34,8 +34,8 @@ import org.sonar.test.JsonAssert;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class ShowResponseBuilderTest {
 
@@ -47,9 +47,9 @@ public class ShowResponseBuilderTest {
   @Test
   public void write_duplications() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(module));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(module));
+    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project, dir));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project, dir));
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
       Duplication.newComponent(file1, 57, 12),

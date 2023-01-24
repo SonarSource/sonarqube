@@ -58,10 +58,6 @@ public class IssueDoc extends BaseDoc {
     return getField(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID);
   }
 
-  public String modulePath() {
-    return getField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH);
-  }
-
   public String projectUuid() {
     return getField(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID);
   }
@@ -252,11 +248,6 @@ public class IssueDoc extends BaseDoc {
 
   public IssueDoc setDirectoryPath(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, s);
-    return this;
-  }
-
-  public IssueDoc setModuleUuidPath(@Nullable String s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, s);
     return this;
   }
 

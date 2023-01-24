@@ -19,7 +19,6 @@
  */
 package org.sonar.db.issue;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,14 +35,12 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,16 +49,13 @@ import static org.junit.Assert.assertFalse;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
-import static org.sonar.api.issue.Issue.STATUSES;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
-import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 
@@ -285,65 +279,6 @@ public class IssueDaoTest {
 
     // results are not ordered, so do not use "containsExactly"
     assertThat(issues).extracting("key").containsOnly("I1", "I2");
-  }
-
-  @Test
-  public void scrollNonClosedByComponentUuid() {
-    RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    IssueDto openIssue1OnFile = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
-    IssueDto openIssue2OnFile = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
-    IssueDto closedIssueOnFile = db.issues().insert(rule, project, file, i -> i.setStatus("CLOSED").setResolution("FIXED").setType(randomRuleTypeExceptHotspot()));
-    IssueDto openIssueOnProject = db.issues().insert(rule, project, project, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
-
-    IssueDto securityHotspot = db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
-
-    RuleDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
-    IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL").setType(randomRuleTypeExceptHotspot()));
-
-    assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), file.uuid()))
-      .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile}).map(IssueDto::getKey).toArray(String[]::new));
-
-    assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), project.uuid()))
-      .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
-
-    assertThat(underTest.selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(db.getSession(), "does_not_exist")).isEmpty();
-  }
-
-  @Test
-  public void scrollNonClosedByModuleOrProject() {
-    RuleDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto anotherProject = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(newFileDto(module));
-    IssueDto openIssue1OnFile = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
-    IssueDto openIssue2OnFile = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
-    IssueDto closedIssueOnFile = db.issues().insert(rule, project, file, i -> i.setStatus("CLOSED").setResolution("FIXED").setType(randomRuleTypeExceptHotspot()));
-    IssueDto openIssueOnModule = db.issues().insert(rule, project, module, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
-    IssueDto openIssueOnProject = db.issues().insert(rule, project, project, i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
-    IssueDto openIssueOnAnotherProject = db.issues().insert(rule, anotherProject, anotherProject,
-      i -> i.setStatus("OPEN").setResolution(null).setType(randomRuleTypeExceptHotspot()));
-
-    IssueDto securityHotspot = db.issues().insert(rule, project, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
-
-    RuleDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
-    IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL").setType(randomRuleTypeExceptHotspot()));
-
-    assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), project))
-      .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(
-        Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule, openIssueOnProject}).map(IssueDto::getKey).toArray(String[]::new));
-
-    assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), module))
-      .extracting(IssueDto::getKey)
-      .containsExactlyInAnyOrder(Arrays.stream(new IssueDto[] {openIssue1OnFile, openIssue2OnFile, openIssueOnModule}).map(IssueDto::getKey).toArray(String[]::new));
-
-    ComponentDto notPersisted = ComponentTesting.newPrivateProjectDto();
-    assertThat(underTest.selectNonClosedByModuleOrProjectExcludingExternalsAndSecurityHotspots(db.getSession(), notPersisted)).isEmpty();
   }
 
   @Test

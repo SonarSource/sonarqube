@@ -103,11 +103,11 @@ public class ScrollForFileMoveComponentDaoTest {
   @Test
   public void scrollAllFilesForFileMove_scrolls_files_of_project() {
     ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
-    ComponentDto module1 = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    ComponentDto module2 = db.components().insertComponent(ComponentTesting.newModuleDto(module1));
+    ComponentDto dir1 = db.components().insertComponent(ComponentTesting.newDirectory(project, "path"));
+    ComponentDto dir2 = db.components().insertComponent(ComponentTesting.newDirectory(dir1, "path2"));
     ComponentAndSource file1 = insertFileAndSource(project, FILE);
-    ComponentAndSource file2 = insertFileAndSource(module1, FILE);
-    ComponentAndSource file3 = insertFileAndSource(module2, FILE);
+    ComponentAndSource file2 = insertFileAndSource(dir1, FILE);
+    ComponentAndSource file3 = insertFileAndSource(dir2, FILE);
     RecordingResultHandler resultHandler = new RecordingResultHandler();
 
     underTest.scrollAllFilesForFileMove(dbSession, project.uuid(), resultHandler);
@@ -177,11 +177,9 @@ public class ScrollForFileMoveComponentDaoTest {
   public void scrollAllFilesForFileMove_ignores_non_file_and_non_ut_component_with_source() {
     ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
     db.fileSources().insertFileSource(project);
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
-    db.fileSources().insertFileSource(module);
-    ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(module, "foo"));
+    ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
     db.fileSources().insertFileSource(dir);
-    ComponentAndSource file = insertFileAndSource(module, FILE);
+    ComponentAndSource file = insertFileAndSource(project, FILE);
     ComponentAndSource ut = insertFileAndSource(dir, UNIT_TEST_FILE);
     ComponentDto portfolio = random.nextBoolean() ? db.components().insertPublicPortfolio() : db.components().insertPrivatePortfolio();
     db.fileSources().insertFileSource(portfolio);

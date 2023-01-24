@@ -49,7 +49,6 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -204,14 +203,6 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     assertThatThrownBy(() -> executeRequest(aGroup, ISSUE_ADMIN))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Invalid global permission 'issueadmin'. Valid values are [admin, gateadmin, profileadmin, provisioning, scan]");
-  }
-
-  @Test
-  public void fail_when_component_is_a_module() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-
-    failIfComponentIsNotAProjectOrView(module);
   }
 
   @Test

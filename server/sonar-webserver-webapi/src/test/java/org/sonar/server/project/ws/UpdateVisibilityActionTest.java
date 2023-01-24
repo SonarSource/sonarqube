@@ -189,10 +189,9 @@ public class UpdateVisibilityActionTest {
   @Test
   public void execute_fails_with_BadRequestException_if_specified_component_is_neither_a_project_a_portfolio_nor_an_application() {
     ComponentDto project = randomPublicOrPrivateProject();
-    ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto dir = ComponentTesting.newDirectory(project, "path");
     ComponentDto file = ComponentTesting.newFileDto(project);
-    dbTester.components().insertComponents(module, dir, file);
+    dbTester.components().insertComponents(dir, file);
     ComponentDto application = dbTester.components().insertPublicApplication();
     ComponentDto portfolio = dbTester.components().insertPrivatePortfolio();
     ComponentDto subView = ComponentTesting.newSubPortfolio(portfolio);
@@ -205,7 +204,7 @@ public class UpdateVisibilityActionTest {
       .setParam(PARAM_VISIBILITY, randomVisibility)
       .execute());
 
-    Stream.of(module, dir, file, subView, projectCopy)
+    Stream.of(dir, file, subView, projectCopy)
       .forEach(nonRootComponent -> {
         request.setParam(PARAM_PROJECT, nonRootComponent.getKey())
           .setParam(PARAM_VISIBILITY, randomVisibility);
@@ -307,11 +306,10 @@ public class UpdateVisibilityActionTest {
     dbClient.branchDao().insert(dbSession, branchDto);
 
     ComponentDto branch = ComponentTesting.newBranchComponent(project, branchDto);
-    ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto dir = ComponentTesting.newDirectory(project, "path");
     ComponentDto file = ComponentTesting.newFileDto(project);
 
-    dbTester.components().insertComponents(branch, module, dir, file);
+    dbTester.components().insertComponents(branch, dir, file);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     request.setParam(PARAM_PROJECT, project.getKey())
@@ -320,7 +318,6 @@ public class UpdateVisibilityActionTest {
 
     assertThat(isPrivateInDb(project)).isEqualTo(!initiallyPrivate);
     assertThat(isPrivateInDb(branch)).isEqualTo(!initiallyPrivate);
-    assertThat(isPrivateInDb(module)).isEqualTo(!initiallyPrivate);
     assertThat(isPrivateInDb(dir)).isEqualTo(!initiallyPrivate);
     assertThat(isPrivateInDb(file)).isEqualTo(!initiallyPrivate);
   }
@@ -335,14 +332,12 @@ public class UpdateVisibilityActionTest {
 
     ComponentDto branch = ComponentTesting.newBranchComponent(project, branchDto)
       .setPrivate(initiallyPrivate);
-    ComponentDto module = ComponentTesting.newModuleDto(project)
-      .setPrivate(initiallyPrivate);
     ComponentDto dir = ComponentTesting.newDirectory(project, "path")
       // child is inconsistent with root (should not occur) and won't be fixed
       .setPrivate(!initiallyPrivate);
     ComponentDto file = ComponentTesting.newFileDto(project)
       .setPrivate(initiallyPrivate);
-    dbTester.components().insertComponents(branch, module, dir, file);
+    dbTester.components().insertComponents(branch, dir, file);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     request.setParam(PARAM_PROJECT, project.getKey())
@@ -351,7 +346,6 @@ public class UpdateVisibilityActionTest {
 
     assertThat(isPrivateInDb(project)).isEqualTo(initiallyPrivate);
     assertThat(isPrivateInDb(branch)).isEqualTo(initiallyPrivate);
-    assertThat(isPrivateInDb(module)).isEqualTo(initiallyPrivate);
     assertThat(isPrivateInDb(dir)).isEqualTo(!initiallyPrivate);
     assertThat(isPrivateInDb(file)).isEqualTo(initiallyPrivate);
   }
