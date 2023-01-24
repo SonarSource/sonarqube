@@ -2189,10 +2189,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/d3-array@npm:3.0.3":
-  version: 3.0.3
-  resolution: "@types/d3-array@npm:3.0.3"
-  checksum: 972c8ff009c97c9093883d7597aac7185d4e8c2832d7f25420d8312aa1ebd60182f85fe768615cbc9d73d8819add52eea7ce640e57f5b1668ef389f1dc9569bc
+"@types/d3-array@npm:3.0.4":
+  version: 3.0.4
+  resolution: "@types/d3-array@npm:3.0.4"
+  checksum: b0e398365fc1f638d48442e865e036d671c731b2b18f7a92e5172db1f60f5a38d4cd992693a29ad64b38e7ba981eb8c63a2aef95fbdcfbc4bf8926a9cb9ca978
   languageName: node
   linkType: hard
 
@@ -2843,7 +2843,7 @@ __metadata:
     "@testing-library/user-event": 14.4.3
     "@types/cheerio": 0.22.31
     "@types/classnames": 2.3.1
-    "@types/d3-array": 3.0.3
+    "@types/d3-array": 3.0.4
     "@types/d3-hierarchy": 3.1.0
     "@types/d3-scale": 4.0.2
     "@types/d3-selection": 3.0.3
@@ -2869,7 +2869,7 @@ __metadata:
     classnames: 2.3.2
     clipboard: 2.0.11
     core-js: 3.26.1
-    d3-array: 3.2.1
+    d3-array: 3.2.2
     d3-hierarchy: 3.1.2
     d3-scale: 4.0.2
     d3-selection: 3.0.0
@@ -3940,12 +3940,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3-array@npm:3.2.1":
-  version: 3.2.1
-  resolution: "d3-array@npm:3.2.1"
+"d3-array@npm:3.2.2":
+  version: 3.2.2
+  resolution: "d3-array@npm:3.2.2"
   dependencies:
     internmap: 1 - 2
-  checksum: 0bed33cc33b70f9d48ccef3e7a5956e134862e09179bf14df0bf9c8fc0ec02b8f847d4f5e1d32729cd5e02032af1d0a32bcc968ff1333795028455a749994623
+  checksum: 98af3db792685ceca5d9c3721efba0c567520da5532b2c7a590fd83627a598ea225d11c2cecbad404dc154120feb5ea6df0ded38f82ddf342c714cfd0c6143d1
   languageName: node
   linkType: hard
 
