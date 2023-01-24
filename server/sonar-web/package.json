@@ -92,7 +92,7 @@
     "postcss": "8.4.21",
     "postcss-calc": "8.2.4",
     "postcss-custom-properties": "12.1.11",
-    "prettier": "2.8.1",
+    "prettier": "2.8.3",
     "react-select-event": "5.5.1",
     "testing-library-selector": "0.2.1",
     "typescript": "4.9.4",
