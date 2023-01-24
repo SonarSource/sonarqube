@@ -97,6 +97,11 @@ const StyledAlert = styled.div<{ isInline: boolean; variantInfo: AlertVariantInf
 
   a,
   .button-link {
+    border-color: ${colors.primarya40};
+  }
+
+  a: hover,
+  .button-link:hover {
     border-color: ${colors.darkBlue};
   }
 `;

@@ -17,6 +17,11 @@ exports[`should render banner alert with correct css 1`] = `
 
 .emotion-0 a,
 .emotion-0 .button-link {
+  border-color: rgba(35, 107, 151, 0.40);
+}
+
+.emotion-0 a:hover,
+.emotion-0 .button-link:hover {
   border-color: #236a97;
 }
 
