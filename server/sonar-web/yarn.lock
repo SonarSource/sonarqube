@@ -2868,7 +2868,7 @@ __metadata:
     chalk: 4.1.2
     classnames: 2.3.2
     clipboard: 2.0.11
-    core-js: 3.26.1
+    core-js: 3.27.2
     d3-array: 3.2.2
     d3-hierarchy: 3.1.2
     d3-scale: 4.0.2
@@ -3828,10 +3828,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.26.1":
-  version: 3.26.1
-  resolution: "core-js@npm:3.26.1"
-  checksum: 0a01149f51ff1e9f41d1ea49cc4c9222047949ea597189ede7c4cf8cde3b097766b9c7615acc77c86fe65b4002f20b638a133dfba7b41dba830d707aeeed45ad
+"core-js@npm:3.27.2":
+  version: 3.27.2
+  resolution: "core-js@npm:3.27.2"
+  checksum: 718debd426f55a6b97cf9b757c936be258afd6d4f7052f89d0f96c982d7013e9000b0b006df42831a0cf32adad298e34d6a19052dce9ae1c7ab87162c0c665e0
   languageName: node
   linkType: hard
 
