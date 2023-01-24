@@ -24,13 +24,17 @@ const postCssCalc = require('postcss-calc');
 const postCssCustomProperties = require('postcss-custom-properties');
 const htmlPlugin = require('./esbuild-html-plugin');
 const htmlTemplate = require('./indexHtmlTemplate');
-const { getCustomProperties, TARGET_BROWSERS } = require('./utils');
+const {
+  getCustomProperties,
+  ESBUILD_TARGET_BROWSERS,
+  AUTOPREFIXER_BROWSER_LIST,
+} = require('./utils');
 
 module.exports = (release) => {
   const plugins = [
     postCssPlugin({
       plugins: [
-        autoprefixer,
+        autoprefixer({ overrideBrowserslist: AUTOPREFIXER_BROWSER_LIST }),
         postCssCustomProperties({
           importFrom: { customProperties: getCustomProperties() },
           preserve: false,
@@ -63,7 +67,7 @@ module.exports = (release) => {
     minify: release,
     metafile: true,
     sourcemap: true,
-    target: TARGET_BROWSERS,
+    target: ESBUILD_TARGET_BROWSERS,
     outdir: 'build/webapp/js',
     entryNames: release ? 'out[hash]' : 'out',
     plugins,

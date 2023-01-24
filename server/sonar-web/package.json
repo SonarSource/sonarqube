@@ -125,12 +125,5 @@
   "browser": {
     "path": "path-browserify"
   },
-  "browserslist": [
-    "last 3 Chrome versions",
-    "last 3 Firefox versions",
-    "last 3 Safari versions",
-    "last 3 Edge versions",
-    "IE 11"
-  ],
   "packageManager": "yarn@3.3.1"
 }
