@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import DocLink from '../../../components/common/DocLink';
 import Link from '../../../components/common/Link';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
@@ -45,12 +46,9 @@ export default function CleanAsYouCodeWarning({ component }: Props) {
         </div>
       )}
 
-      <Link
-        target="_blank"
-        to="https://docs.sonarqube.org/latest/user-guide/clean-as-you-code/#quality-gate"
-      >
+      <DocLink to="/user-guide/clean-as-you-code/">
         {translate('overview.quality_gate.conditions.cayc.link')}
-      </Link>
+      </DocLink>
     </>
   );
 }

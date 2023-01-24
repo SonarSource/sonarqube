@@ -38,6 +38,8 @@ interface Props {
   refreshList: () => Promise<void>;
 }
 
+const TOOLTIP_MOUSE_LEAVE_DELAY = 0.3;
+
 export default class DetailsHeader extends React.PureComponent<Props> {
   handleActionRefresh = () => {
     const { refreshItem, refreshList } = this.props;
@@ -72,7 +74,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
               <h2>{qualityGate.name}</h2>
               {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="spacer-left" />}
               {!qualityGate.isCaycCompliant && (
-                <Tooltip overlay={<CaycBadgeTooltip />}>
+                <Tooltip overlay={<CaycBadgeTooltip />} mouseLeaveDelay={TOOLTIP_MOUSE_LEAVE_DELAY}>
                   <AlertWarnIcon className="spacer-left" />
                 </Tooltip>
               )}
