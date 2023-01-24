@@ -30,7 +30,7 @@ public class DatabaseVersion {
    * versions must be previously upgraded to LTS version.
    * Note that the value can't be less than current LTS version.
    */
-  public static final long MIN_UPGRADE_VERSION = 4_405;
+  public static final long MIN_UPGRADE_VERSION = 6_802;
 
   private final MigrationSteps migrationSteps;
   private final MigrationHistory migrationHistory;

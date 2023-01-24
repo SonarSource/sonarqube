@@ -51,7 +51,7 @@ public class PopulateInitialSchemaTest {
   private final SonarQubeVersion sonarQubeVersion = mock(SonarQubeVersion.class);
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(PopulateInitialSchemaTest.class, "v89.sql");
+  public final CoreDbTester db = CoreDbTester.createForSchema(PopulateInitialSchemaTest.class, "v99.sql");
 
   private final PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2, uuidFactory, sonarQubeVersion);
 
@@ -90,8 +90,6 @@ public class PopulateInitialSchemaTest {
       "crypted_password as \"CRYPTED_PASSWORD\", " +
       "salt as \"SALT\", " +
       "hash_method as \"HASH_METHOD\", " +
-      "is_root as \"IS_ROOT\", " +
-      "onboarded as \"ONBOARDED\", " +
       "created_at as \"CREATED_AT\", " +
       "updated_at as \"UPDATED_AT\", " +
       "reset_password as \"RESET_PASSWORD\" " +
@@ -106,8 +104,6 @@ public class PopulateInitialSchemaTest {
       .containsEntry("USER_LOCAL", true)
       .containsEntry("CRYPTED_PASSWORD", "$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi")
       .containsEntry("HASH_METHOD", "BCRYPT")
-      .containsEntry("IS_ROOT", false)
-      .containsEntry("ONBOARDED", true)
       .containsEntry("CREATED_AT", NOW)
       .containsEntry("RESET_PASSWORD", true)
       .containsEntry("UPDATED_AT", NOW);
