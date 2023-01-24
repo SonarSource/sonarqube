@@ -92,10 +92,10 @@ sonarqube-check:
   allow_failure: true`;
   } else {
     const onlyBlock = branchesEnabled
-      ? `- merge_requests
-    - ${mainBranchName}
-    - develop`
-      : `- ${mainBranchName}`;
+      ? `- if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == '${mainBranchName}'
+    - if: $CI_COMMIT_BRANCH == 'develop'`
+      : `- if: $CI_COMMIT_BRANCH == '${mainBranchName}'`;
 
     const { image, script } = BUILD_TOOL_SPECIFIC[buildTool];
 
@@ -110,7 +110,7 @@ sonarqube-check:
       - .sonar/cache
   script: ${script(projectKey)}
   allow_failure: true
-  only:
+  rules:
     ${onlyBlock}
 `;
   }

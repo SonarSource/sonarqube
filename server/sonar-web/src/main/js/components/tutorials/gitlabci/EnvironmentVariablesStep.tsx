@@ -204,7 +204,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
       onOpen={props.onOpen}
       open={open}
       renderForm={renderForm}
-      stepNumber={2}
+      stepNumber={1}
       stepTitle={translate('onboarding.tutorial.with.gitlab_ci.env_variables.title')}
     />
   );

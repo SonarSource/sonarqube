@@ -11,35 +11,6 @@ exports[`should render correctly 1`] = `
       onboarding.tutorial.with.gitlab_ci.title
     </h2>
   </div>
-  <withCLanguageFeature(ProjectKeyStep)
-    component={
-      {
-        "breadcrumbs": [],
-        "key": "my-project",
-        "name": "MyProject",
-        "qualifier": "TRK",
-        "qualityGate": {
-          "isDefault": true,
-          "key": "30",
-          "name": "Sonar way",
-        },
-        "qualityProfiles": [
-          {
-            "deleted": false,
-            "key": "my-qp",
-            "language": "ts",
-            "name": "Sonar way",
-          },
-        ],
-        "tags": [],
-      }
-    }
-    finished={false}
-    onDone={[Function]}
-    onOpen={[Function]}
-    open={true}
-    setBuildTool={[Function]}
-  />
   <EnvironmentVariablesStep
     baseUrl="http://localhost:9000"
     component={
@@ -79,9 +50,31 @@ exports[`should render correctly 1`] = `
     finished={false}
     onDone={[Function]}
     onOpen={[Function]}
-    open={false}
+    open={true}
   />
-  <withAvailableFeaturesContext(YmlFileStep)
+  <withCLanguageFeature(withAvailableFeaturesContext(YmlFileStep))
+    component={
+      {
+        "breadcrumbs": [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": [
+          {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": [],
+      }
+    }
     finished={false}
     mainBranchName="main"
     onDone={[Function]}
@@ -92,7 +85,7 @@ exports[`should render correctly 1`] = `
   <AllSetStep
     alm="gitlab"
     open={false}
-    stepNumber={4}
+    stepNumber={3}
     willRefreshAutomatically={true}
   />
 </Fragment>

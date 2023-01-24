@@ -6,7 +6,7 @@ exports[`should render correctly: Step wrapper 1`] = `
   onOpen={[MockFunction]}
   open={true}
   renderForm={[Function]}
-  stepNumber={2}
+  stepNumber={1}
   stepTitle="onboarding.tutorial.with.gitlab_ci.env_variables.title"
 />
 `;

@@ -97,10 +97,10 @@ exports[`should render correctly for dotnet: branches enabled 1`] = `
       - "dotnet build"
       - "dotnet sonarscanner end /d:sonar.login=\\"$SONAR_TOKEN\\""
   allow_failure: true
-  only:
-    - merge_requests
-    - main
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
 "
   />
 </Fragment>
@@ -127,10 +127,10 @@ exports[`should render correctly for dotnet: branches not enabled 1`] = `
       - "dotnet build"
       - "dotnet sonarscanner end /d:sonar.login=\\"$SONAR_TOKEN\\""
   allow_failure: true
-  only:
-    - merge_requests
-    - main
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
 "
   />
 </Fragment>
@@ -150,10 +150,10 @@ exports[`should render correctly for gradle: branches enabled 1`] = `
       - .sonar/cache
   script: gradle sonar
   allow_failure: true
-  only:
-    - merge_requests
-    - main
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
 "
   />
 </Fragment>
@@ -173,10 +173,10 @@ exports[`should render correctly for gradle: branches not enabled 1`] = `
       - .sonar/cache
   script: gradle sonar
   allow_failure: true
-  only:
-    - merge_requests
-    - main
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
 "
   />
 </Fragment>
@@ -197,10 +197,10 @@ exports[`should render correctly for maven: branches enabled 1`] = `
   script: 
     - mvn verify sonar:sonar -Dsonar.projectKey=test
   allow_failure: true
-  only:
-    - merge_requests
-    - main
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
 "
   />
 </Fragment>
@@ -221,10 +221,10 @@ exports[`should render correctly for maven: branches not enabled 1`] = `
   script: 
     - mvn verify sonar:sonar -Dsonar.projectKey=test
   allow_failure: true
-  only:
-    - merge_requests
-    - main
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
 "
   />
 </Fragment>
@@ -247,10 +247,10 @@ exports[`should render correctly for other: branches enabled 1`] = `
   script: 
     - sonar-scanner
   allow_failure: true
-  only:
-    - merge_requests
-    - main
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
 "
   />
 </Fragment>
@@ -273,10 +273,10 @@ exports[`should render correctly for other: branches not enabled 1`] = `
   script: 
     - sonar-scanner
   allow_failure: true
-  only:
-    - merge_requests
-    - main
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
 "
   />
 </Fragment>

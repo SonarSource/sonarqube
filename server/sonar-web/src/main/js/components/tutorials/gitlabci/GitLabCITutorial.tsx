@@ -23,13 +23,10 @@ import { AlmKeys } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import AllSetStep from '../components/AllSetStep';
-import { BuildTools } from '../types';
 import EnvironmentVariablesStep from './EnvironmentVariablesStep';
-import ProjectKeyStep from './ProjectKeyStep';
 import YmlFileStep from './YmlFileStep';
 
 export enum Steps {
-  PROJECT_KEY,
   ENV_VARIABLES,
   YML,
   ALL_SET,
@@ -46,24 +43,13 @@ export interface GitLabCITutorialProps {
 export default function GitLabCITutorial(props: GitLabCITutorialProps) {
   const { baseUrl, component, currentUser, willRefreshAutomatically, mainBranchName } = props;
 
-  const [step, setStep] = React.useState(Steps.PROJECT_KEY);
-  const [buildTool, setBuildTool] = React.useState<BuildTools>();
+  const [step, setStep] = React.useState(Steps.ENV_VARIABLES);
 
   return (
     <>
       <div className="page-header big-spacer-bottom">
         <h2 className="page-title">{translate('onboarding.tutorial.with.gitlab_ci.title')}</h2>
       </div>
-
-      <ProjectKeyStep
-        buildTool={buildTool}
-        component={component}
-        finished={step > Steps.PROJECT_KEY}
-        onDone={() => setStep(Steps.ENV_VARIABLES)}
-        onOpen={() => setStep(Steps.PROJECT_KEY)}
-        open={step === Steps.PROJECT_KEY}
-        setBuildTool={setBuildTool}
-      />
 
       <EnvironmentVariablesStep
         baseUrl={baseUrl}
@@ -76,8 +62,8 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
       />
 
       <YmlFileStep
-        buildTool={buildTool}
         finished={step > Steps.YML}
+        component={component}
         mainBranchName={mainBranchName}
         onDone={() => setStep(Steps.ALL_SET)}
         onOpen={() => setStep(Steps.YML)}
@@ -88,7 +74,7 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
       <AllSetStep
         alm={AlmKeys.GitLab}
         open={step === Steps.ALL_SET}
-        stepNumber={4}
+        stepNumber={3}
         willRefreshAutomatically={willRefreshAutomatically}
       />
     </>

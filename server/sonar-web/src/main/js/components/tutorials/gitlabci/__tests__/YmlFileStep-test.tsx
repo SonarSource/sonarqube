@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderStepContent } from '../../test-utils';
-import { BuildTools } from '../../types';
 import { YmlFileStep, YmlFileStepProps } from '../YmlFileStep';
 
 it('should render correctly', () => {
@@ -29,22 +29,11 @@ it('should render correctly', () => {
   expect(renderStepContent(wrapper)).toMatchSnapshot('initial content');
 });
 
-it.each([
-  [BuildTools.Maven],
-  [BuildTools.Gradle],
-  [BuildTools.DotNet],
-  [BuildTools.CFamily],
-  [BuildTools.Other],
-])('should render correctly for build tool %s', (buildTool) => {
-  expect(renderStepContent(shallowRender({ buildTool }))).toMatchSnapshot('with branch support');
-  expect(renderStepContent(shallowRender({ hasFeature: () => false, buildTool }))).toMatchSnapshot(
-    'without branch support'
-  );
-});
-
 function shallowRender(props: Partial<YmlFileStepProps> = {}) {
   return shallow<YmlFileStepProps>(
     <YmlFileStep
+      hasCLanguageFeature={true}
+      component={mockComponent()}
       hasFeature={jest.fn().mockReturnValue(true)}
       open={true}
       projectKey="test"
