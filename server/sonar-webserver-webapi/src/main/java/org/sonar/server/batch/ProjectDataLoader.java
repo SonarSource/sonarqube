@@ -20,9 +20,7 @@
 package org.sonar.server.batch;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
@@ -32,9 +30,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.scanner.protocol.input.FileData;
-import org.sonar.scanner.protocol.input.MultiModuleProjectRepository;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
-import org.sonar.scanner.protocol.input.SingleProjectRepository;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
@@ -64,48 +60,24 @@ public class ProjectDataLoader {
       boolean hasScanPerm = userSession.hasComponentPermission(UserRole.SCAN, project) ||
         userSession.hasPermission(GlobalPermission.SCAN);
       checkPermission(hasScanPerm);
-      ComponentDto branchOrMainModule = (branch == null && pullRequest == null) ? project
+      ComponentDto branchComponent = (branch == null && pullRequest == null) ? project
         : componentFinder.getByKeyAndOptionalBranchOrPullRequest(session, projectKey, branch, pullRequest);
 
-      List<ComponentDto> modulesTree = dbClient.componentDao().selectEnabledDescendantModules(session, branchOrMainModule.uuid());
-
-      List<FilePathWithHashDto> files = searchFilesWithHashAndRevision(session, branchOrMainModule);
-
-      // MMF-365 we still have to support multi-module projects because it's not possible to transform from logical to
-      // physical structure for some multi-module projects
-      if (modulesTree.size() > 1) {
-        MultiModuleProjectRepository repository = new MultiModuleProjectRepository();
-        addFileDataPerModule(repository, modulesTree, files);
-        return repository;
-      } else {
-        SingleProjectRepository repository = new SingleProjectRepository();
-        addFileData(repository, files);
-        return repository;
-      }
+      List<FilePathWithHashDto> files = searchFilesWithHashAndRevision(session, branchComponent);
+      ProjectRepositories repository = new ProjectRepositories();
+      addFileData(repository, files);
+      return repository;
     }
   }
 
-  private List<FilePathWithHashDto> searchFilesWithHashAndRevision(DbSession session, @Nullable ComponentDto module) {
-    if (module == null) {
+  private List<FilePathWithHashDto> searchFilesWithHashAndRevision(DbSession session, @Nullable ComponentDto branchComponent) {
+    if (branchComponent == null) {
       return Collections.emptyList();
     }
-    return module.isRootProject() ? dbClient.componentDao().selectEnabledFilesFromProject(session, module.uuid())
-      : dbClient.componentDao().selectEnabledDescendantFiles(session, module.uuid());
+    return dbClient.componentDao().selectEnabledFilesFromProject(session, branchComponent.uuid());
   }
 
-  private static void addFileDataPerModule(MultiModuleProjectRepository data, List<ComponentDto> moduleChildren, List<FilePathWithHashDto> files) {
-    Map<String, String> moduleKeysByUuid = new HashMap<>();
-    for (ComponentDto module : moduleChildren) {
-      moduleKeysByUuid.put(module.uuid(), module.getKey());
-    }
-
-    for (FilePathWithHashDto file : files) {
-      FileData fileData = new FileData(file.getSrcHash(), file.getRevision());
-      data.addFileDataToModule(moduleKeysByUuid.get(file.getModuleUuid()), file.getPath(), fileData);
-    }
-  }
-
-  private static void addFileData(SingleProjectRepository data, List<FilePathWithHashDto> files) {
+  private static void addFileData(ProjectRepositories data, List<FilePathWithHashDto> files) {
     for (FilePathWithHashDto file : files) {
       FileData fileData = new FileData(file.getSrcHash(), file.getRevision());
       data.addFileData(file.getPath(), fileData);

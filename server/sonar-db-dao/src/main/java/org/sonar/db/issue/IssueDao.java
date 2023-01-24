@@ -30,7 +30,6 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.WildcardPosition;
 import org.sonar.db.component.ComponentDto;
 
-import static java.util.Collections.emptyList;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -84,10 +83,6 @@ public class IssueDao implements Dao {
 
   public Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(DbSession session, String projectUuid) {
     return mapper(session).selectComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
-  }
-
-  public Set<String> selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(DbSession session, String projectUuid) {
-    return mapper(session).selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
   }
 
   public List<IssueDto> selectNonClosedByComponentUuidExcludingExternalsAndSecurityHotspots(DbSession dbSession, String componentUuid) {

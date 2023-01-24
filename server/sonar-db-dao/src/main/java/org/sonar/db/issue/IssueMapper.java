@@ -34,8 +34,6 @@ public interface IssueMapper {
 
   Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(String projectUuid);
 
-  Set<String> selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(String projectUuid);
-
   List<IssueDto> selectByKeys(List<String> keys);
 
   Set<String> selectIssueKeysByComponentUuid(@Param("componentUuid") String componentUuid);

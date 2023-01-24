@@ -456,44 +456,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_enabled_module_files_tree_from_module() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto fileDirectlyOnModule = db.components().insertComponent(newFileDto(module));
-    FileSourceDto fileSourceDirectlyOnModule = db.fileSources().insertFileSource(fileDirectlyOnModule);
-    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
-    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
-    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
-    FileSourceDto fileSource = db.fileSources().insertFileSource(file);
-
-    // From root project
-    assertThat(underTest.selectEnabledDescendantFiles(dbSession, project.uuid()))
-      .extracting(FilePathWithHashDto::getUuid, FilePathWithHashDto::getModuleUuid, FilePathWithHashDto::getSrcHash, FilePathWithHashDto::getPath, FilePathWithHashDto::getRevision)
-      .containsExactlyInAnyOrder(
-        tuple(fileDirectlyOnModule.uuid(), module.uuid(), fileSourceDirectlyOnModule.getSrcHash(), fileDirectlyOnModule.path(), fileSourceDirectlyOnModule.getRevision()),
-        tuple(file.uuid(), subModule.uuid(), fileSource.getSrcHash(), file.path(), fileSource.getRevision()));
-
-    // From module
-    assertThat(underTest.selectEnabledDescendantFiles(dbSession, module.uuid()))
-      .extracting(FilePathWithHashDto::getUuid, FilePathWithHashDto::getModuleUuid, FilePathWithHashDto::getSrcHash, FilePathWithHashDto::getPath, FilePathWithHashDto::getRevision)
-      .containsExactlyInAnyOrder(
-        tuple(fileDirectlyOnModule.uuid(), module.uuid(), fileSourceDirectlyOnModule.getSrcHash(), fileDirectlyOnModule.path(), fileSourceDirectlyOnModule.getRevision()),
-        tuple(file.uuid(), subModule.uuid(), fileSource.getSrcHash(), file.path(), fileSource.getRevision()));
-
-    // From sub module
-    assertThat(underTest.selectEnabledDescendantFiles(dbSession, subModule.uuid()))
-      .extracting(FilePathWithHashDto::getUuid, FilePathWithHashDto::getModuleUuid, FilePathWithHashDto::getSrcHash, FilePathWithHashDto::getPath, FilePathWithHashDto::getRevision)
-      .containsExactlyInAnyOrder(
-        tuple(file.uuid(), subModule.uuid(), fileSource.getSrcHash(), file.path(), fileSource.getRevision()));
-
-    // From directory
-    assertThat(underTest.selectEnabledDescendantFiles(dbSession, directory.uuid())).isEmpty();
-
-    assertThat(underTest.selectEnabledDescendantFiles(dbSession, "unknown")).isEmpty();
-  }
-
-  @Test
-  public void select_enabled_module_files_tree_from_project() {
+  public void select_enabled_files_from_project() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto fileDirectlyOnModule = db.components().insertComponent(newFileDto(module));
@@ -928,6 +891,19 @@ public class ComponentDaoTest {
     assertThat(underTest.selectProjectsFromView(dbSession, subView.uuid(), viewWithSubView.uuid())).containsExactlyInAnyOrder(project1.uuid());
     assertThat(underTest.selectProjectsFromView(dbSession, viewWithoutProject.uuid(), viewWithoutProject.uuid())).isEmpty();
     assertThat(underTest.selectProjectsFromView(dbSession, "Unknown", "Unknown")).isEmpty();
+  }
+
+  @Test
+  public void select_enabled_views_from_root_view() {
+    ComponentDto rootPortfolio = db.components().insertPrivatePortfolio();
+    ComponentDto subPortfolio = db.components().insertSubView(rootPortfolio);
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertComponent(newProjectCopy(project, subPortfolio));
+
+    assertThat(underTest.selectEnabledViewsFromRootView(dbSession, rootPortfolio.uuid()))
+      .extracting(ComponentDto::uuid)
+      .containsOnly(rootPortfolio.uuid(), subPortfolio.uuid());
+    assertThat(underTest.selectEnabledViewsFromRootView(dbSession, project.uuid())).isEmpty();
   }
 
   @Test

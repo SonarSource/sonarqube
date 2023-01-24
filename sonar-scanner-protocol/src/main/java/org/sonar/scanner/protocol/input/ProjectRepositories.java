@@ -19,5 +19,27 @@
  */
 package org.sonar.scanner.protocol.input;
 
-public interface ProjectRepositories {
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nullable;
+
+public class ProjectRepositories {
+  private final Map<String, FileData> fileDataByPath = new HashMap<>();
+
+  public ProjectRepositories addFileData(@Nullable String path, FileData fileData) {
+    if (path == null || (fileData.hash() == null && fileData.revision() == null)) {
+      return this;
+    }
+
+    fileDataByPath.put(path, fileData);
+    return this;
+  }
+
+  public Map<String, FileData> fileData() {
+    return fileDataByPath;
+  }
+
+  public FileData fileDataByPath(@Nullable String path) {
+    return fileDataByPath.get(path);
+  }
 }

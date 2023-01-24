@@ -177,33 +177,16 @@
         </foreach>
   </select>
 
-  <select id="selectDescendantModules" parameterType="map" resultType="Component">
+  <select id="selectEnabledViewsFromRootView" parameterType="map" resultType="Component">
     SELECT
     <include refid="componentColumns"/>
     FROM components p
-    <include refid="modulesTreeQuery"/>
-  </select>
-
-  <sql id="modulesTreeQuery">
-    INNER JOIN components module ON
-      module.branch_uuid = p.branch_uuid
-      and module.uuid = #{moduleUuid}
-      and module.scope='PRJ' AND module.enabled = ${_true}
     where
-      p.scope = #{scope,jdbcType=VARCHAR}
-      <if test="excludeDisabled">
-        and p.enabled = ${_true}
-      </if>
-      and
-      <choose>
-        <when test="_databaseId == 'mssql'">
-          p.module_uuid_path LIKE module.module_uuid_path + '%'
-        </when>
-        <otherwise>
-          p.module_uuid_path LIKE module.module_uuid_path || '%'
-        </otherwise>
-      </choose>
-  </sql>
+      p.enabled=${_true}
+      and p.scope='PRJ'
+      and p.qualifier in ('VW', 'SVW', 'APP')
+      and p.branch_uuid=#{rootViewUuid,jdbcType=VARCHAR}
+  </select>
 
   <select id="selectEnabledFilesFromProject" parameterType="map" resultType="FilePathWithHash">
     SELECT
@@ -221,19 +204,6 @@
       fs.file_uuid=p.uuid
     where
       root.uuid=#{projectUuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectDescendantFiles" parameterType="map" resultType="FilePathWithHash">
-    SELECT
-      p.uuid,
-      p.path,
-      p.module_uuid as moduleUuid,
-      fs.src_hash as srcHash,
-      fs.revision
-    FROM components p
-    INNER JOIN file_sources fs ON
-      fs.file_uuid=p.uuid
-    <include refid="modulesTreeQuery"/>
   </select>
 
   <select id="selectProjects" resultType="Component">
@@ -492,35 +462,6 @@
     </choose>
       and p.qualifier = 'TRK'
       and p.copy_component_uuid is not null
-  </select>
-
-  <select id="selectComponentsFromProjectKeyAndScope" parameterType="map" resultType="Component">
-    SELECT
-    <include refid="componentColumns"/>
-    FROM components p
-    INNER JOIN components root ON root.uuid=p.branch_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
-    <if test="branch != null || pullRequest != null">
-      INNER JOIN project_branches pb ON pb.uuid=p.branch_uuid
-    </if>
-    <where>
-      <if test="excludeDisabled">
-        p.enabled = ${_true}
-      </if>
-      <if test="scope != null">
-        AND p.scope=#{scope,jdbcType=VARCHAR}
-      </if>
-      <choose>
-        <when test="branch != null">
-          AND pb.kee=#{branch,jdbcType=VARCHAR} AND pb.branch_type = 'BRANCH'
-        </when>
-        <when test="pullRequest != null">
-          AND pb.kee=#{pullRequest,jdbcType=VARCHAR} AND pb.branch_type = 'PULL_REQUEST'
-        </when>
-        <otherwise>
-          AND root.main_branch_project_uuid is null
-        </otherwise>
-      </choose>
-    </where>
   </select>
 
   <select id="selectByBranchUuid" parameterType="map" resultType="Component">

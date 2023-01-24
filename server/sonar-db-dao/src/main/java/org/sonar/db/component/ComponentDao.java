@@ -82,12 +82,8 @@ public class ComponentDao implements Dao {
     return mapper(session).selectSubProjectsByComponentUuids(uuids);
   }
 
-  public List<ComponentDto> selectEnabledDescendantModules(DbSession session, String rootComponentUuid) {
-    return mapper(session).selectDescendantModules(rootComponentUuid, Scopes.PROJECT, true);
-  }
-
-  public List<FilePathWithHashDto> selectEnabledDescendantFiles(DbSession session, String rootComponentUuid) {
-    return mapper(session).selectDescendantFiles(rootComponentUuid, Scopes.FILE, true);
+  public List<ComponentDto> selectEnabledViewsFromRootView(DbSession session, String rootViewUuid) {
+    return mapper(session).selectEnabledViewsFromRootView(rootViewUuid);
   }
 
   public List<FilePathWithHashDto> selectEnabledFilesFromProject(DbSession session, String rootComponentUuid) {
@@ -156,15 +152,6 @@ public class ComponentDao implements Dao {
 
   public List<KeyWithUuidDto> selectUuidsByKeyFromProjectKeyAndPullRequest(DbSession session, String projectKey, String pullrequest) {
     return mapper(session).selectUuidsByKeyFromProjectKeyAndBranchOrPr(projectKey, null, pullrequest);
-  }
-
-  /**
-   * If no branch or pull request is provided, returns components in the main branch
-   */
-  public List<ComponentDto> selectProjectAndModulesFromProjectKey(DbSession session, String projectKey, boolean excludeDisabled,
-    @Nullable String branch, @Nullable String pullRequest) {
-    checkState(branch == null || pullRequest == null, "Can't set both branch and pull request");
-    return mapper(session).selectComponentsFromProjectKeyAndScope(projectKey, Scopes.PROJECT, excludeDisabled, branch, pullRequest);
   }
 
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {

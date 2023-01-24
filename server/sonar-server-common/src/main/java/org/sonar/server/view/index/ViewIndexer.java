@@ -79,7 +79,7 @@ public class ViewIndexer implements ResilientIndexer {
   }
 
   /**
-   * Index a root view : it will load projects on each sub views and index it.
+   * Index a root view : it will a view and its subviews and index them.
    * Used by the compute engine to reindex a root view.
    * <p/>
    * The views lookup cache will be cleared
@@ -87,7 +87,7 @@ public class ViewIndexer implements ResilientIndexer {
   public void index(String rootViewUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, String> viewAndProjectViewUuidMap = new HashMap<>();
-      for (ComponentDto viewOrSubView : dbClient.componentDao().selectEnabledDescendantModules(dbSession, rootViewUuid)) {
+      for (ComponentDto viewOrSubView : dbClient.componentDao().selectEnabledViewsFromRootView(dbSession, rootViewUuid)) {
         viewAndProjectViewUuidMap.put(viewOrSubView.uuid(), viewOrSubView.branchUuid());
       }
       index(dbSession, viewAndProjectViewUuidMap, true, Size.REGULAR);

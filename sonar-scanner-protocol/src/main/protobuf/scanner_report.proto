@@ -49,7 +49,8 @@ message Metadata {
   string scm_revision_id = 13;
 
   string pull_request_key = 14;
-  map<string, string> modules_project_relative_path_by_key = 15;
+
+  reserved 15; // modules_project_relative_path_by_key (no longer used)
 
   string projectVersion = 16;
   string buildString = 17;

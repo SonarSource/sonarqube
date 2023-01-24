@@ -36,7 +36,6 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableTreeRootHolderRule;
-import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -94,10 +93,9 @@ public class BuildComponentTreeStepTest {
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
-  private ReportModulesPath reportModulesPath = new ReportModulesPath(reportReader);
 
   private DbClient dbClient = dbTester.getDbClient();
-  private BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, reportModulesPath);
+  private BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
 
   @Test
   public void fails_if_root_component_does_not_exist_in_reportReader() {
@@ -263,7 +261,7 @@ public class BuildComponentTreeStepTest {
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(newPrivateProjectDto().setKey(REPORT_PROJECT_KEY)))
       .setBranch(branch);
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, reportModulesPath);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
     reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_PATH_1));
 
@@ -286,7 +284,7 @@ public class BuildComponentTreeStepTest {
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(projectDto))
       .setBranch(branch);
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, reportModulesPath);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
     reportReader.putComponent(component(ROOT_REF, PROJECT, componentDto.getKey()));
 
     underTest.execute(new TestComputationStepContext());
@@ -297,7 +295,7 @@ public class BuildComponentTreeStepTest {
   @Test
   public void generate_keys_when_using_main_branch() {
     setAnalysisMetadataHolder();
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, reportModulesPath);
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
     reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_PATH_1));
 

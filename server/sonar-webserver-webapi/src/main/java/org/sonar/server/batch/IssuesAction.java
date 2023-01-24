@@ -19,7 +19,6 @@
  */
 package org.sonar.server.batch;
 
-import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -52,7 +51,6 @@ public class IssuesAction implements BatchWsAction {
 
   private static final String PARAM_KEY = "key";
   private static final String PARAM_BRANCH = "branch";
-  private static final Splitter MODULE_PATH_SPLITTER = Splitter.on('.').trimResults().omitEmptyStrings();
 
   private final DbClient dbClient;
   private final UserSession userSession;

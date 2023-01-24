@@ -32,9 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.scanner.protocol.input.FileData;
-import org.sonar.scanner.protocol.input.MultiModuleProjectRepository;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
-import org.sonar.scanner.protocol.input.SingleProjectRepository;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -86,35 +84,11 @@ public class ProjectDataLoaderTest {
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(file).setSrcHash("123456"));
     db.commit();
 
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
-
-    assertTrue(ref instanceof SingleProjectRepository);
-    SingleProjectRepository singleProjectRepository = ((SingleProjectRepository) ref);
-    assertThat(singleProjectRepository.fileData()).hasSize(1);
-    FileData fileData = singleProjectRepository.fileDataByPath(file.path());
+    ProjectRepositories projectRepository = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
+    assertThat(projectRepository.fileData()).hasSize(1);
+    FileData fileData = projectRepository.fileDataByPath(file.path());
     assertThat(fileData).isNotNull();
     assertThat(fileData.hash()).isEqualTo("123456");
-  }
-
-  @Test
-  public void return_file_data_from_multi_modules() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    // File on project
-    ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
-    dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(projectFile).setSrcHash("123456"));
-    // File on module
-    ComponentDto moduleFile = db.components().insertComponent(newFileDto(module));
-    dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(moduleFile).setSrcHash("789456"));
-    dbSession.commit();
-
-    ProjectRepositories ref = underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
-
-    assertTrue(ref instanceof MultiModuleProjectRepository);
-    MultiModuleProjectRepository repository = ((MultiModuleProjectRepository) ref);
-    assertThat(repository.fileData(project.getKey(), projectFile.path()).hash()).isEqualTo("123456");
-    assertThat(repository.fileData(module.getKey(), moduleFile.path()).hash()).isEqualTo("789456");
   }
 
   @Test
@@ -122,23 +96,16 @@ public class ProjectDataLoaderTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
-    ComponentDto moduleBranch = db.components().insertComponent(newModuleDto(branch));
     // File on branch
     ComponentDto projectFile = db.components().insertComponent(newFileDto(branch));
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(projectFile).setSrcHash("123456"));
-    // File on moduleBranch branch
-    ComponentDto moduleFile = db.components().insertComponent(newFileDto(moduleBranch));
-    dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(moduleFile).setSrcHash("789456"));
     dbSession.commit();
 
     ProjectRepositories ref = underTest.load(ProjectDataQuery.create()
       .setProjectKey(project.getKey())
       .setBranch("my_branch"));
 
-    assertTrue(ref instanceof MultiModuleProjectRepository);
-    MultiModuleProjectRepository repository = ((MultiModuleProjectRepository) ref);
-    assertThat(repository.fileData(branch.getKey(), projectFile.path()).hash()).isEqualTo("123456");
-    assertThat(repository.fileData(moduleBranch.getKey(), moduleFile.path()).hash()).isEqualTo("789456");
+    assertThat(ref.fileDataByPath(projectFile.path()).hash()).isEqualTo("123456");
   }
 
   @Test

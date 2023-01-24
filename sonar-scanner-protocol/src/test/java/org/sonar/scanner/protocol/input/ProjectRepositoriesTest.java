@@ -25,13 +25,8 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SingleProjectRepositoryTest {
-  private SingleProjectRepository repository;
-
-  @Before
-  public void setUp() {
-    repository = new SingleProjectRepository();
-  }
+public class ProjectRepositoriesTest {
+  private final ProjectRepositories repository = new ProjectRepositories();
 
   @Test
   public void add_file_data() {

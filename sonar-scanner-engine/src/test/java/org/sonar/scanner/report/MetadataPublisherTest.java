@@ -138,7 +138,6 @@ public class MetadataPublisherTest {
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getNewCodeReferenceBranch()).isEqualTo("newCodeReference");
     assertThat(metadata.getProjectKey()).isEqualTo("root");
-    assertThat(metadata.getModulesProjectRelativePathByKeyMap()).containsOnly(entry("module", "modulePath"), entry("root", ""));
     assertThat(metadata.getProjectVersion()).isEmpty();
     assertThat(metadata.getNotAnalyzedFilesByLanguageCount()).isZero();
     assertThat(metadata.getQprofilesPerLanguageMap()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()

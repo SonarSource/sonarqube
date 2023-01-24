@@ -21,11 +21,9 @@ package org.sonar.scanner.report;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -112,24 +110,12 @@ public class MetadataPublisher implements ReportPublisherStep {
         .setUpdatedAt(pluginEntry.getValue().getUpdatedAt()).build());
     }
 
-    addModulesRelativePaths(builder);
+    addRelativePathFromScmRoot(builder);
 
     writer.writeMetadata(builder.build());
   }
 
-  private void addModulesRelativePaths(ScannerReport.Metadata.Builder builder) {
-    LinkedList<DefaultInputModule> queue = new LinkedList<>();
-    queue.add(moduleHierarchy.root());
-
-    while (!queue.isEmpty()) {
-      DefaultInputModule module = queue.removeFirst();
-      queue.addAll(moduleHierarchy.children(module));
-      String relativePath = moduleHierarchy.relativePathToRoot(module);
-      if (relativePath != null) {
-        builder.putModulesProjectRelativePathByKey(module.key(), relativePath);
-      }
-    }
-
+  private void addRelativePathFromScmRoot(ScannerReport.Metadata.Builder builder) {
     ScmProvider scmProvider = scmConfiguration.provider();
     if (scmProvider == null) {
       return;
