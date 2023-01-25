@@ -28,6 +28,7 @@ import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistryImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStepsProvider;
 import org.sonar.server.platform.db.migration.version.v00.DbVersion00;
+import org.sonar.server.platform.db.migration.version.v100.DbVersion100;
 
 public class MigrationConfigurationModule extends Module {
   @Override
@@ -36,6 +37,7 @@ public class MigrationConfigurationModule extends Module {
       MigrationHistoryTableImpl.class,
       // DbVersion implementations
       DbVersion00.class,
+      DbVersion100.class,
 
       // migration steps
       MigrationStepRegistryImpl.class,
