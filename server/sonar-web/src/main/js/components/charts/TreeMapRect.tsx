@@ -96,6 +96,7 @@ export default class TreeMapRect extends React.PureComponent<Props> {
       <div
         className="treemap-cell"
         onClick={this.handleRectClick}
+        // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
         role="treeitem"
         style={cellStyles}
         tabIndex={0}
