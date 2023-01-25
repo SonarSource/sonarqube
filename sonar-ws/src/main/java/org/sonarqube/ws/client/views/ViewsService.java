@@ -57,24 +57,6 @@ public class ViewsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/add_local_view">Further information about this action online (including a response example)</a>
-   * @since 1.0
-   * @deprecated since 9.3
-   */
-  @Deprecated
-  public void addLocalView(AddLocalViewRequest request) {
-    call(
-      new PostRequest(path("add_local_view"))
-        .setParam("key", request.getKey())
-        .setParam("ref_key", request.getRefKey())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/add_portfolio">Further information about this action online (including a response example)</a>
    * @since 9.3
    */
@@ -116,26 +98,6 @@ public class ViewsService extends BaseService {
         .setParam("branch", request.getBranch())
         .setParam("key", request.getKey())
         .setParam("project", request.getProject())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/add_sub_view">Further information about this action online (including a response example)</a>
-   * @since 1.0
-   * @deprecated since 9.3
-   */
-  @Deprecated
-  public void addSubView(AddSubViewRequest request) {
-    call(
-      new PostRequest(path("add_sub_view"))
-        .setParam("description", request.getDescription())
-        .setParam("key", request.getKey())
-        .setParam("name", request.getName())
-        .setParam("subKey", request.getSubKey())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -232,23 +194,6 @@ public class ViewsService extends BaseService {
   public String list() {
     return call(
       new GetRequest(path("list"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/local_views">Further information about this action online (including a response example)</a>
-   * @since 1.0
-   * @deprecated since 9.3
-   */
-  @Deprecated
-  public String localViews(LocalViewsRequest request) {
-    return call(
-      new GetRequest(path("local_views"))
-        .setParam("key", request.getKey())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }

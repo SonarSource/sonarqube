@@ -27,7 +27,6 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.WildcardPosition;
 import org.sonar.db.component.ComponentDto;
 
 import static org.sonar.db.DaoUtils.buildLikeValue;
