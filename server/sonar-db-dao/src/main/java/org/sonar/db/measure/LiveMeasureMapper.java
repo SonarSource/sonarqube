@@ -31,6 +31,9 @@ public interface LiveMeasureMapper {
     @Param("componentUuids") Collection<String> componentUuids,
     @Param("metricUuids") Collection<String> metricUuids);
 
+  List<LiveMeasureDto> selectForProjectsByMetricUuids(
+    @Param("metricUuids") Collection<String> metricUuids);
+
   List<LiveMeasureDto> selectByComponentUuidsAndMetricKeys(
     @Param("componentUuids") Collection<String> componentUuids,
     @Param("metricKeys") Collection<String> metricKeys);

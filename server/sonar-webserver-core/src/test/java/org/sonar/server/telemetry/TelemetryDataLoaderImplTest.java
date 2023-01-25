@@ -66,10 +66,15 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
+import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI;
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM;
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
@@ -103,12 +108,23 @@ public class TelemetryDataLoaderImplTest {
       internalProperties, configuration, dockerSupport, qualityGateCaycChecker, qualityGateFinder);
 
   private QualityGateDto builtInDefaultQualityGate;
+  private MetricDto bugsDto;
+  private MetricDto vulnerabilitiesDto;
+  private MetricDto securityHotspotsDto;
+  private MetricDto technicalDebtDto;
+  private MetricDto developmentCostDto;
 
   @Before
   public void setUpBuiltInQualityGate() {
     String builtInQgName = "Sonar Way";
     builtInDefaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
     db.qualityGates().setDefaultQualityGate(builtInDefaultQualityGate);
+
+    bugsDto = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
+    vulnerabilitiesDto = db.measures().insertMetric(m -> m.setKey(VULNERABILITIES_KEY));
+    securityHotspotsDto = db.measures().insertMetric(m -> m.setKey(SECURITY_HOTSPOTS_KEY));
+    technicalDebtDto = db.measures().insertMetric(m -> m.setKey(TECHNICAL_DEBT_KEY));
+    developmentCostDto = db.measures().insertMetric(m -> m.setKey(DEVELOPMENT_COST_KEY));
   }
 
   @Test
@@ -141,6 +157,11 @@ public class TelemetryDataLoaderImplTest {
     db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(110d));
     db.measures().insertLiveMeasure(project1, coverage, m -> m.setValue(80d));
     db.measures().insertLiveMeasure(project1, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
+    db.measures().insertLiveMeasure(project1, bugsDto, m -> m.setValue(1d));
+    db.measures().insertLiveMeasure(project1, vulnerabilitiesDto, m -> m.setValue(1d).setData((String) null));
+    db.measures().insertLiveMeasure(project1, securityHotspotsDto, m -> m.setValue(1d).setData((String) null));
+    db.measures().insertLiveMeasure(project1, developmentCostDto, m -> m.setData("50").setValue(null));
+    db.measures().insertLiveMeasure(project1, technicalDebtDto, m -> m.setValue(5d).setData((String) null));
 
     ComponentDto project2 = db.components().insertPrivateProject();
     db.measures().insertLiveMeasure(project2, lines, m -> m.setValue(200d));
@@ -200,11 +221,13 @@ public class TelemetryDataLoaderImplTest {
         tuple(project2.uuid(), "java", 180L, analysisDate),
         tuple(project2.uuid(), "js", 20L, analysisDate));
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::branchCount, TelemetryData.ProjectStatistics::pullRequestCount, TelemetryData.ProjectStatistics::qualityGate,
-        TelemetryData.ProjectStatistics::scm, TelemetryData.ProjectStatistics::ci, TelemetryData.ProjectStatistics::devopsPlatform)
+      .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount, TelemetryData.ProjectStatistics::getQualityGate,
+        TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi, TelemetryData.ProjectStatistics::getDevopsPlatform,
+        TelemetryData.ProjectStatistics::getBugs, TelemetryData.ProjectStatistics::getVulnerabilities, TelemetryData.ProjectStatistics::getSecurityHotspots,
+        TelemetryData.ProjectStatistics::getDevelopmentCost, TelemetryData.ProjectStatistics::getTechnicalDebt)
       .containsExactlyInAnyOrder(
-        tuple(1L, 0L, qualityGate1.getUuid(), "scm-1", "ci-1", "azure_devops_cloud"),
-        tuple(1L, 0L, builtInDefaultQualityGate.getUuid(), "scm-2", "ci-2", "github_cloud"));
+        tuple(1L, 0L, qualityGate1.getUuid(), "scm-1", "ci-1", "azure_devops_cloud", Optional.of(1L), Optional.of(1L), Optional.of(1L), Optional.of(50.0), Optional.of(5.0)),
+        tuple(1L, 0L, builtInDefaultQualityGate.getUuid(), "scm-2", "ci-2", "github_cloud", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
     assertThat(data.getQualityGates())
       .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::isCaycCompliant)
       .containsExactlyInAnyOrder(
@@ -269,8 +292,8 @@ public class TelemetryDataLoaderImplTest {
         tuple(project.uuid(), "js", 50L),
         tuple(project.uuid(), "kotlin", 30L));
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::branchCount, TelemetryData.ProjectStatistics::pullRequestCount,
-        TelemetryData.ProjectStatistics::scm, TelemetryData.ProjectStatistics::ci)
+      .extracting(TelemetryData.ProjectStatistics::getBranchCount, TelemetryData.ProjectStatistics::getPullRequestCount,
+        TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
       .containsExactlyInAnyOrder(
         tuple(2L, 0L, "undetected", "undetected"));
   }
@@ -408,7 +431,7 @@ public class TelemetryDataLoaderImplTest {
     db.components().insertPublicProject();
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::devopsPlatform, TelemetryData.ProjectStatistics::scm, TelemetryData.ProjectStatistics::ci)
+      .extracting(TelemetryData.ProjectStatistics::getDevopsPlatform, TelemetryData.ProjectStatistics::getScm, TelemetryData.ProjectStatistics::getCi)
       .containsExactlyInAnyOrder(tuple("undetected", "undetected", "undetected"));
   }
 
@@ -430,7 +453,7 @@ public class TelemetryDataLoaderImplTest {
     db.qualityGates().setDefaultQualityGate(qualityGate);
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getProjectStatistics())
-      .extracting(TelemetryData.ProjectStatistics::qualityGate)
+      .extracting(TelemetryData.ProjectStatistics::getQualityGate)
       .containsOnly(qualityGate.getUuid());
   }
 
