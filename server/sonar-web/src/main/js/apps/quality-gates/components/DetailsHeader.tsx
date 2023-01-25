@@ -54,7 +54,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
     if (!qualityGate.isDefault) {
       // Optimistic update
       this.props.onSetDefault();
-      setQualityGateAsDefault({ id: qualityGate.id }).then(
+      setQualityGateAsDefault({ name: qualityGate.name }).then(
         this.handleActionRefresh,
         this.handleActionRefresh
       );

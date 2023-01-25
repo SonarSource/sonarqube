@@ -31,7 +31,6 @@ export function searchUsersGroups(data: {
 }
 
 export function getUsersInGroup(data: {
-  id?: number;
   name?: string;
   p?: number;
   ps?: number;
@@ -41,11 +40,11 @@ export function getUsersInGroup(data: {
   return getJSON('/api/user_groups/users', data).catch(throwGlobalError);
 }
 
-export function addUserToGroup(data: { id?: string; name?: string; login?: string }) {
+export function addUserToGroup(data: { name: string; login?: string }) {
   return post('/api/user_groups/add_user', data).catch(throwGlobalError);
 }
 
-export function removeUserFromGroup(data: { id?: string; name?: string; login?: string }) {
+export function removeUserFromGroup(data: { name: string; login?: string }) {
   return post('/api/user_groups/remove_user', data).catch(throwGlobalError);
 }
 
@@ -53,7 +52,7 @@ export function createGroup(data: { description?: string; name: string }): Promi
   return postJSON('/api/user_groups/create', data).then((r) => r.group, throwGlobalError);
 }
 
-export function updateGroup(data: { description?: string; id: number; name?: string }) {
+export function updateGroup(data: { description?: string; currentName: string; name?: string }) {
   return post('/api/user_groups/update', data).catch(throwGlobalError);
 }
 

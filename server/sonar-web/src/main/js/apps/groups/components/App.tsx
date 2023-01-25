@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { omit } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { createGroup, deleteGroup, searchUsersGroups, updateGroup } from '../../../api/user_groups';
@@ -163,8 +164,8 @@ export default class App extends React.PureComponent<{}, State> {
     }
 
     const data = {
+      currentName: editedGroup.name,
       description,
-      id: editedGroup.id,
       // pass `name` only if it has changed, otherwise the WS fails
       ...omitNil({ name: name !== editedGroup.name ? name : undefined }),
     };
@@ -175,7 +176,12 @@ export default class App extends React.PureComponent<{}, State> {
       this.setState(({ groups = [] }: State) => ({
         editedGroup: undefined,
         groups: groups.map((group) =>
-          group.name === editedGroup.name ? { ...group, ...data } : group
+          group.name === editedGroup.name
+            ? {
+                ...group,
+                ...omit(data, ['currentName']),
+              }
+            : group
         ),
       }));
     }

@@ -52,7 +52,7 @@ export class CopyQualityGateForm extends React.PureComponent<Props, State> {
     const { qualityGate } = this.props;
     const { name } = this.state;
 
-    return copyQualityGate({ id: qualityGate.id, name }).then((newQualityGate) => {
+    return copyQualityGate({ sourceName: qualityGate.name, name }).then((newQualityGate) => {
       this.props.onCopy();
       this.props.router.push(getQualityGateUrl(String(newQualityGate.id)));
     });

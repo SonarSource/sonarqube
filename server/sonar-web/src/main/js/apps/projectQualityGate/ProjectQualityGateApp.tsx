@@ -147,7 +147,6 @@ export class ProjectQualityGateApp extends React.PureComponent<Props, State> {
 
     if (selectedQualityGateId === USE_SYSTEM_DEFAULT) {
       await dissociateGateWithProject({
-        gateId: currentQualityGate.id,
         projectKey: component.key,
       }).catch(() => {
         /* noop */

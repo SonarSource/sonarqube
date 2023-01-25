@@ -146,7 +146,6 @@ it('correctly associates a project with the system default Quality Gate', async 
   wrapper.instance().handleSubmit();
 
   expect(dissociateGateWithProject).toHaveBeenCalledWith({
-    gateId: 'gate1',
     projectKey: 'foo',
   });
 });

@@ -95,7 +95,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
       .map((key) => `${key}=${csvEscape(this.state.params[key])}`)
       .join(';');
     const ruleData = {
-      markdown_description: this.state.description,
+      markdownDescription: this.state.description,
       name: this.state.name,
       params,
       severity: this.state.severity,
@@ -105,9 +105,9 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
       ? updateRule({ ...ruleData, key: customRule.key })
       : createRule({
           ...ruleData,
-          custom_key: this.state.key,
-          prevent_reactivation: !this.state.reactivating,
-          template_key: templateRule.key,
+          customKey: this.state.key,
+          preventReactivation: !this.state.reactivating,
+          templateKey: templateRule.key,
           type: this.state.type,
         });
   };

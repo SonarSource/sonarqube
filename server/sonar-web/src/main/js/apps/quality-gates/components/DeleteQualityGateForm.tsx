@@ -35,7 +35,7 @@ interface Props {
 export class DeleteQualityGateForm extends React.PureComponent<Props> {
   onDelete = () => {
     const { qualityGate } = this.props;
-    return deleteQualityGate({ id: qualityGate.id })
+    return deleteQualityGate({ name: qualityGate.name })
       .then(this.props.onDelete)
       .then(() => {
         this.props.router.push(getQualityGatesUrl());

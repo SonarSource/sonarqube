@@ -262,15 +262,17 @@ export class QualityGatesServiceMock {
     });
   };
 
-  destroyHandler = ({ id }: { id: string }) => {
-    this.list = this.list.filter((q) => q.id !== id);
+  destroyHandler = ({ name }: { name: string }) => {
+    this.list = this.list.filter((q) => q.name !== name);
     return Promise.resolve();
   };
 
-  copyHandler = ({ id, name }: { id: string; name: string }) => {
-    const newQG = cloneDeep(this.list.find((q) => q.id === id));
+  copyHandler = ({ sourceName, name }: { sourceName: string; name: string }) => {
+    const newQG = cloneDeep(this.list.find((q) => q.name === sourceName));
     if (newQG === undefined) {
-      return Promise.reject({ errors: [{ msg: `No quality gate has been found for id ${id}` }] });
+      return Promise.reject({
+        errors: [{ msg: `No quality gate has been found for name ${sourceName}` }],
+      });
     }
     newQG.name = name;
     newQG.id = `newId${this.list.length}`;
@@ -286,10 +288,12 @@ export class QualityGatesServiceMock {
     });
   };
 
-  renameHandler = ({ id, name }: { id: string; name: string }) => {
-    const renameQG = this.list.find((q) => q.id === id);
+  renameHandler = ({ currentName, name }: { currentName: string; name: string }) => {
+    const renameQG = this.list.find((q) => q.name === currentName);
     if (renameQG === undefined) {
-      return Promise.reject({ errors: [{ msg: `No quality gate has been found for id ${id}` }] });
+      return Promise.reject({
+        errors: [{ msg: `No quality gate has been found for name ${currentName}` }],
+      });
     }
     renameQG.name = name;
     return this.reply({
@@ -298,13 +302,15 @@ export class QualityGatesServiceMock {
     });
   };
 
-  setDefaultHandler = ({ id }: { id: string }) => {
+  setDefaultHandler = ({ name }: { name: string }) => {
     this.list.forEach((q) => {
       q.isDefault = false;
     });
-    const selectedQG = this.list.find((q) => q.id === id);
+    const selectedQG = this.list.find((q) => q.name === name);
     if (selectedQG === undefined) {
-      return Promise.reject({ errors: [{ msg: `No quality gate has been found for id ${id}` }] });
+      return Promise.reject({
+        errors: [{ msg: `No quality gate has been found for name ${name}` }],
+      });
     }
     selectedQG.isDefault = true;
     return Promise.resolve();
