@@ -121,6 +121,13 @@ it('should show warning when not all issues are accessible', async () => {
   expect(await screen.findByRole('alert', { name: 'alert.tooltip.warning' })).toBeInTheDocument();
 });
 
+it('should show secondary location even when no message is present', async () => {
+  renderProjectIssuesApp('project/issues?issues=issue101&open=issue101&id=myproject');
+
+  expect(await screen.findByRole('button', { name: '1 issue.location_x.1' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '2 issue.location_x.2' })).toBeInTheDocument();
+});
+
 it('should interact with flows and locations', async () => {
   const user = userEvent.setup();
   renderProjectIssuesApp('project/issues?issues=issue11&open=issue11&id=myproject');

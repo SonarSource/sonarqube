@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { translateWithParameters } from '../../helpers/l10n';
 import { MessageFormatting } from '../../types/issues';
 import LocationIndex from '../common/LocationIndex';
 import LocationMessage from '../common/LocationMessage';
@@ -77,7 +78,11 @@ export default class SingleFileLocationNavigator extends React.PureComponent<Pro
       >
         <LocationIndex>{index + 1}</LocationIndex>
         <LocationMessage>
-          {<IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />}
+          {message ? (
+            <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+          ) : (
+            translateWithParameters('issue.location_x', index + 1)
+          )}
         </LocationMessage>
       </ButtonPlain>
     );

@@ -38,7 +38,7 @@ export default class LocationsList extends React.PureComponent<Props> {
     const locationComponents = [componentKey, ...locations.map((location) => location.component)];
     const isCrossFile = uniq(locationComponents).length > 1;
 
-    if (!locations || locations.length === 0 || locations.every((location) => !location.msg)) {
+    if (!locations || locations.length === 0) {
       return null;
     }
 

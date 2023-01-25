@@ -100,6 +100,63 @@ export default class IssuesServiceMock {
     this.defaultList = [
       {
         issue: mockRawIssue(false, {
+          key: 'issue101',
+          component: 'foo:test1.js',
+          message: 'Issue with no location message',
+          rule: 'simpleRuleId',
+          textRange: {
+            startLine: 10,
+            endLine: 10,
+            startOffset: 0,
+            endOffset: 2,
+          },
+          flows: [
+            {
+              locations: [
+                {
+                  component: 'foo:test1.js',
+                  textRange: {
+                    startLine: 1,
+                    endLine: 1,
+                    startOffset: 0,
+                    endOffset: 1,
+                  },
+                },
+              ],
+            },
+            {
+              locations: [
+                {
+                  component: 'foo:test2.js',
+                  textRange: {
+                    startLine: 20,
+                    endLine: 20,
+                    startOffset: 0,
+                    endOffset: 1,
+                  },
+                },
+              ],
+            },
+          ],
+        }),
+        snippets: keyBy(
+          [
+            mockSnippetsByComponent(
+              'test1.js',
+              'foo',
+              times(40, (i) => i + 1)
+            ),
+            mockSnippetsByComponent(
+              'test2.js',
+              'foo',
+              times(40, (i) => i + 1)
+            ),
+          ],
+          'component.key'
+        ),
+      },
+      {
+        issue: mockRawIssue(false, {
           key: 'issue11',
           component: 'foo:test1.js',
           message: 'FlowIssue',
