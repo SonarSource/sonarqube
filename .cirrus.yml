@@ -683,10 +683,11 @@ upgd_oracle21_task:
     - ./private/cirrus/cirrus-qa.sh oracle21
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
-ws_scan_task:
+mend_scan_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  only_if: $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE
+  only_if: >-
+    $CIRRUS_BRANCH == $BRANCH_MAIN || ($CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE && $CIRRUS_BRANCH != $BRANCH_NIGHTLY)
   <<: *YARN_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 30m
@@ -699,12 +700,12 @@ ws_scan_task:
     WS_WSS_URL: VAULT[development/kv/data/mend data.url]
     WS_USERKEY: VAULT[development/kv/data/mend data.userKey]
     SLACK_WEBHOOK_SQ: VAULT[development/kv/data/slack data.webhook]
-  whitesource_script:
-    - ./private/cirrus/cirrus-whitesource-scan.sh
+  mend_script:
+    - ./private/cirrus/cirrus-mend-scan.sh
   allow_failures: "true"
   on_failure:
     slack_notification_script:
-      - ./private/cirrus/cirrus-whitesource-notifications.sh
+      - ./private/cirrus/cirrus-mend-notifications.sh
   always:
     ws_artifacts:
       path: "whitesource/**/*"
