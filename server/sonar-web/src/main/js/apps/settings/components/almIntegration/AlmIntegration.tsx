@@ -96,7 +96,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
           AlmKeys.GitHub,
           AlmKeys.GitLab,
         ].forEach((alm) => {
-          this.state.definitions[alm].forEach((def: AlmBindingDefinitionBase) =>
+          definitions[alm].forEach((def: AlmBindingDefinitionBase) =>
             this.handleCheck(def.key, false)
           );
         });
@@ -115,33 +115,34 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleConfirmDelete = (definitionKey: string) => {
-    return deleteConfiguration(definitionKey)
-      .then(() => {
-        if (this.mounted) {
-          this.setState({ definitionKeyForDeletion: undefined, projectCount: undefined });
-        }
-      })
-      .then(this.fetchPullRequestDecorationSetting);
+  handleConfirmDelete = async (definitionKey: string) => {
+    try {
+      await deleteConfiguration(definitionKey);
+      await this.fetchPullRequestDecorationSetting();
+    } finally {
+      if (this.mounted) {
+        this.setState({ definitionKeyForDeletion: undefined, projectCount: undefined });
+      }
+    }
   };
 
-  fetchPullRequestDecorationSetting = () => {
+  fetchPullRequestDecorationSetting = async () => {
     this.setState({ loadingAlmDefinitions: true });
-    return getAlmDefinitions()
-      .then((definitions) => {
-        if (this.mounted) {
-          this.setState({
-            definitions,
-            loadingAlmDefinitions: false,
-          });
-          return definitions;
-        }
-      })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ loadingAlmDefinitions: false });
-        }
-      });
+    try {
+      const definitions = await getAlmDefinitions();
+
+      if (this.mounted) {
+        this.setState({
+          definitions,
+          loadingAlmDefinitions: false,
+        });
+      }
+      return definitions;
+    } catch {
+      if (this.mounted) {
+        this.setState({ loadingAlmDefinitions: false });
+      }
+    }
   };
 
   handleSelectAlm = (currentAlmTab: AlmTabs) => {
