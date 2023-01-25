@@ -39,7 +39,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -68,7 +67,6 @@ import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
-import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_ONLY_CURRENTS;
@@ -80,7 +78,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;
-  private static final String[] POSSIBLE_QUALIFIERS = new String[] {Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW};
+  private static final String[] POSSIBLE_QUALIFIERS = new String[]{Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW};
   private static final String INVALID_QUERY_PARAM_ERROR_MESSAGE = "%s and %s must not be set at the same time";
 
   private final UserSession userSession;
@@ -103,10 +101,8 @@ public class ActivityAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("activity")
       .setDescription(format("Search for tasks.<br> " +
-        "Either %s or %s can be provided, but not both.<br> " +
         "Requires the system administration permission, " +
-        "or project administration permission if %s or %s is set.",
-        PARAM_COMPONENT_ID, PARAM_COMPONENT, PARAM_COMPONENT_ID, PARAM_COMPONENT))
+        "or project administration permission if %s is set.", PARAM_COMPONENT))
       .setResponseExample(getClass().getResource("activity-example.json"))
       .setHandler(this)
       .setChangelog(
@@ -114,13 +110,9 @@ public class ActivityAction implements CeWsAction {
         new Change("6.1", "field \"logs\" is deprecated and its value is always false"),
         new Change("6.6", "fields \"branch\" and \"branchType\" added"),
         new Change("7.1", "field \"pullRequest\" added"),
-        new Change("7.6", format("The use of module keys in parameters '%s' is deprecated", TEXT_QUERY)))
+        new Change("7.6", format("The use of module keys in parameters '%s' is deprecated", TEXT_QUERY)),
+        new Change("10.0", "Remove deprecated field 'componentId'"))
       .setSince("5.2");
-
-    action.createParam(PARAM_COMPONENT_ID)
-      .setDescription("Id of the component (project) to filter on")
-      .setDeprecatedSince("8.0")
-      .setExampleValue(Uuids.UUID_EXAMPLE_03);
 
     action.createParam(PARAM_COMPONENT)
       .setDescription("Key of the component (project) to filter on")
@@ -132,8 +124,7 @@ public class ActivityAction implements CeWsAction {
         "<li>component names that contain the supplied string</li>" +
         "<li>component keys that are exactly the same as the supplied string</li>" +
         "<li>task ids that are exactly the same as the supplied string</li>" +
-        "</ul>" +
-        "Must not be set together with %s", PARAM_COMPONENT_ID))
+        "</ul>"))
       .setExampleValue("Apache")
       .setSince("5.5");
     action.createParam(PARAM_STATUS)
@@ -237,20 +228,15 @@ public class ActivityAction implements CeWsAction {
 
   @CheckForNull
   private ComponentDto loadComponent(DbSession dbSession, Request request) {
-    String componentId = request.getComponentId();
     String componentKey = request.getComponent();
 
-    Optional<ComponentDto> foundComponent;
-
-    if (componentId != null) {
-      foundComponent = dbClient.componentDao().selectByUuid(dbSession, componentId);
-      return checkFoundWithOptional(foundComponent, "Component '%s' does not exist", componentId);
-    } else if (componentKey != null) {
+    if (componentKey != null) {
+      Optional<ComponentDto> foundComponent;
       foundComponent = dbClient.componentDao().selectByKey(dbSession, componentKey);
       return checkFoundWithOptional(foundComponent, "Component '%s' does not exist", componentKey);
+    } else {
+      return null;
     }
-
-    return null;
   }
 
   private void checkPermission(@Nullable ComponentDto component) {
@@ -365,7 +351,6 @@ public class ActivityAction implements CeWsAction {
 
   private static Request toSearchWsRequest(org.sonar.api.server.ws.Request request) {
     Request activityWsRequest = new Request()
-      .setComponentId(request.param(PARAM_COMPONENT_ID))
       .setComponent(request.param(PARAM_COMPONENT))
       .setQ(request.param(TEXT_QUERY))
       .setStatus(request.paramAsStrings(PARAM_STATUS))
@@ -376,21 +361,14 @@ public class ActivityAction implements CeWsAction {
       .setPs(String.valueOf(request.mandatoryParamAsInt(Param.PAGE_SIZE)))
       .setP(String.valueOf(request.mandatoryParamAsInt(Param.PAGE)));
 
-    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQ() == null, INVALID_QUERY_PARAM_ERROR_MESSAGE,
-      PARAM_COMPONENT_ID, TEXT_QUERY);
-
     checkRequest(activityWsRequest.getComponent() == null || activityWsRequest.getQ() == null, INVALID_QUERY_PARAM_ERROR_MESSAGE,
       PARAM_COMPONENT, TEXT_QUERY);
-
-    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getComponent() == null, INVALID_QUERY_PARAM_ERROR_MESSAGE,
-      PARAM_COMPONENT_ID, PARAM_COMPONENT);
 
     return activityWsRequest;
   }
 
   private static class Request {
 
-    private String componentId;
     private String component;
     private String maxExecutedAt;
     private String minSubmittedAt;
@@ -403,19 +381,6 @@ public class ActivityAction implements CeWsAction {
 
     Request() {
       // Nothing to do
-    }
-
-    /**
-     * Example value: "AU-TpxcA-iU5OvuD2FL0"
-     */
-    private Request setComponentId(@Nullable String componentId) {
-      this.componentId = componentId;
-      return this;
-    }
-
-    @CheckForNull
-    private String getComponentId() {
-      return componentId;
     }
 
     /**

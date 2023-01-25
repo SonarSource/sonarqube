@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -39,8 +38,6 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Ce.ActivityStatusWsResponse;
 
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
-import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityStatusAction implements CeWsAction {
@@ -66,10 +63,6 @@ public class ActivityStatusAction implements CeWsAction {
       .setResponseExample(getClass().getResource("activity_status-example.json"))
       .setHandler(this);
 
-    action.createParam(PARAM_COMPONENT_ID)
-      .setDeprecatedSince("8.8")
-      .setDescription("Id of the component (project) to filter on")
-      .setExampleValue(Uuids.UUID_EXAMPLE_03);
     action.createParam(PARAM_COMPONENT)
       .setDescription("Key of the component (project) to filter on")
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
@@ -114,8 +107,8 @@ public class ActivityStatusAction implements CeWsAction {
 
   private Optional<ComponentDto> searchComponent(DbSession dbSession, Request request) {
     ComponentDto component = null;
-    if (hasComponentInRequest(request)) {
-      component = componentFinder.getByUuidOrKey(dbSession, request.getComponentId(), request.getComponentKey(), COMPONENT_ID_AND_KEY);
+    if (request.getComponentKey() != null) {
+      component = componentFinder.getByKey(dbSession, request.getComponentKey());
     }
     return Optional.ofNullable(component);
   }
@@ -128,26 +121,15 @@ public class ActivityStatusAction implements CeWsAction {
     }
   }
 
-  private static boolean hasComponentInRequest(Request request) {
-    return request.getComponentId() != null || request.getComponentKey() != null;
-  }
-
   private static Request toWsRequest(org.sonar.api.server.ws.Request request) {
-    return new Request(request.param(PARAM_COMPONENT_ID), request.param(PARAM_COMPONENT));
+    return new Request(request.param(PARAM_COMPONENT));
   }
 
   private static class Request {
-    private final String componentId;
     private final String componentKey;
 
-    Request(@Nullable String componentId, @Nullable String componentKey) {
-      this.componentId = componentId;
+    Request(@Nullable String componentKey) {
       this.componentKey = componentKey;
-    }
-
-    @CheckForNull
-    public String getComponentId() {
-      return componentId;
     }
 
     @CheckForNull

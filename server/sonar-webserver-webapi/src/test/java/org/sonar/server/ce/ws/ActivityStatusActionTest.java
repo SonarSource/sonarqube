@@ -67,7 +67,7 @@ public class ActivityStatusActionTest {
     assertThat(def.key()).isEqualTo("activity_status");
     assertThat(def.isInternal()).isFalse();
     assertThat(def.isPost()).isFalse();
-    assertThat(def.params()).extracting(WebService.Param::key).containsOnly("componentId", "component");
+    assertThat(def.params()).extracting(WebService.Param::key).containsOnly("component");
   }
 
   @Test
@@ -128,7 +128,7 @@ public class ActivityStatusActionTest {
     Ce.ActivityStatusWsResponse result = callByComponentKey(projectKey);
 
     assertThat(result).extracting(Ce.ActivityStatusWsResponse::getPending, Ce.ActivityStatusWsResponse::getFailing,
-      Ce.ActivityStatusWsResponse::getInProgress, Ce.ActivityStatusWsResponse::getPendingTime)
+        Ce.ActivityStatusWsResponse::getInProgress, Ce.ActivityStatusWsResponse::getPendingTime)
       .containsOnly(1, 0, 0, 1000L);
   }
 

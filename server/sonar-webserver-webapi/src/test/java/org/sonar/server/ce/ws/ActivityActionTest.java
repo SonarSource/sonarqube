@@ -75,11 +75,10 @@ import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_STATUS;
-import static org.sonar.server.ce.ws.CeWsParameters.PARAM_TYPE;
 
 public class ActivityActionTest {
 
@@ -273,23 +272,6 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void project_administrator_can_access_his_project_activity_using_component_id() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    // no need to be a system admin
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project1);
-    insertActivity("T1", project1, SUCCESS);
-    insertActivity("T2", project2, FAILED);
-
-    ActivityResponse activityResponse = call(ws.newRequest().setParam("componentId", project1.uuid()));
-
-    assertThat(activityResponse.getTasksCount()).isOne();
-    assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
-    assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(Ce.TaskStatus.SUCCESS);
-    assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo(project1.uuid());
-  }
-
-  @Test
   public void project_administrator_can_access_his_project_activity_using_component_key() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
@@ -402,21 +384,6 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void search_task_by_component_id() {
-    ComponentDto project = db.components().insertPrivateProject();
-    insertQueue("T1", project, IN_PROGRESS);
-    insertActivity("T1", project, SUCCESS);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-
-    ActivityResponse result = call(ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, project.uuid())
-      .setParam(PARAM_TYPE, CeTaskTypes.REPORT)
-      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
-
-    assertThat(result.getTasksCount()).isOne();
-  }
-
-  @Test
   public void branch_in_past_activity() {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
@@ -499,17 +466,6 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void fail_if_both_component_id_and_component_key_provided() {
-    TestRequest request = ws.newRequest()
-      .setParam("componentId", "ID1")
-      .setParam("component", "apache")
-      .setMediaType(MediaTypes.PROTOBUF);
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("componentId and component must not be set at the same time");
-  }
-
-  @Test
   public void fail_if_both_filters_on_component_key_and_name() {
     TestRequest request = ws.newRequest()
       .setParam("q", "apache")
@@ -518,18 +474,6 @@ public class ActivityActionTest {
     assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("component and q must not be set at the same time");
-  }
-
-  @Test
-  public void fail_if_both_filters_on_component_id_and_name() {
-    TestRequest request = ws.newRequest()
-      .setParam("componentId", "ID1")
-      .setParam("q", "apache")
-      .setMediaType(MediaTypes.PROTOBUF);
-
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("componentId and q must not be set at the same time");
   }
 
   @Test
@@ -603,7 +547,7 @@ public class ActivityActionTest {
   public void fail_when_project_does_not_exist() {
     logInAsSystemAdministrator();
 
-    TestRequest request = ws.newRequest().setParam(PARAM_COMPONENT_ID, "unknown");
+    TestRequest request = ws.newRequest().setParam(PARAM_COMPONENT, "unknown");
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Component 'unknown' does not exist");
