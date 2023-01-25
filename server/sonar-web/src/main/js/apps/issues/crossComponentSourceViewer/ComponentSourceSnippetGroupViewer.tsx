@@ -27,7 +27,7 @@ import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isFile } from '../../../types/component';
+import { isFile } from '../../../types/component';
 import { IssueStatus } from '../../../types/issues';
 import {
   Dict,
@@ -265,8 +265,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     });
 
     const issueIsClosed = issue.status === IssueStatus.Closed;
-    const issueIsFileLevel =
-      issue.componentQualifier === ComponentQualifier.File && issue.componentEnabled;
+    const issueIsFileLevel = isFile(issue.componentQualifier) && issue.componentEnabled;
     const closedIssueMessageKey = issueIsFileLevel
       ? 'issue.closed.file_level'
       : 'issue.closed.project_level';
