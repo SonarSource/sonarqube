@@ -132,5 +132,5 @@
     "last 3 Edge versions",
     "IE 11"
   ],
-  "packageManager": "yarn@3.2.4"
+  "packageManager": "yarn@3.3.1"
 }
