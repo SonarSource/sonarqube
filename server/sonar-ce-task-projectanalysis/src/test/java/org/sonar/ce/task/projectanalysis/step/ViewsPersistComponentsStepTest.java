@@ -285,7 +285,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     // commit functional transaction -> copies B-fields to A-fields
-    dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), viewDto.uuid());
+    dbClient.componentDao().applyBChangesForBranchUuid(dbTester.getSession(), viewDto.uuid());
     dbTester.commit();
 
     assertRowsCountInTableProjects(1);
@@ -312,7 +312,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     // commit functional transaction -> copies B-fields to A-fields
-    dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), view.uuid());
+    dbClient.componentDao().applyBChangesForBranchUuid(dbTester.getSession(), view.uuid());
     dbTester.commit();
 
     assertRowsCountInTableProjects(3);
@@ -342,7 +342,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     // commit functional transaction -> copies B-fields to A-fields
-    dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), view.uuid());
+    dbClient.componentDao().applyBChangesForBranchUuid(dbTester.getSession(), view.uuid());
     dbTester.commit();
 
     ComponentDto pv1Dto = getComponentFromDb(PROJECT_VIEW_1_KEY);
@@ -365,7 +365,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     // commit functional transaction -> copies B-fields to A-fields
-    dbClient.componentDao().applyBChangesForRootComponentUuid(dbTester.getSession(), view.uuid());
+    dbClient.componentDao().applyBChangesForBranchUuid(dbTester.getSession(), view.uuid());
     dbTester.commit();
 
     ComponentDto subViewReloaded = getComponentFromDb(SUBVIEW_1_KEY);
@@ -500,7 +500,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(dto.path()).isNull();
     assertThat(dto.uuid()).isEqualTo(VIEW_UUID);
     assertThat(dto.branchUuid()).isEqualTo(VIEW_UUID);
-    assertThat(dto.getRootUuid()).isEqualTo(VIEW_UUID);
     assertThat(dto.qualifier()).isEqualTo(Qualifiers.VIEW);
     assertThat(dto.scope()).isEqualTo(Scopes.PROJECT);
     assertThat(dto.getCopyComponentUuid()).isNull();
@@ -517,7 +516,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(dto.path()).isNull();
     assertThat(dto.uuid()).isEqualTo(VIEW_UUID);
     assertThat(dto.branchUuid()).isEqualTo(VIEW_UUID);
-    assertThat(dto.getRootUuid()).isEqualTo(VIEW_UUID);
     assertThat(dto.qualifier()).isEqualTo(Qualifiers.APP);
     assertThat(dto.scope()).isEqualTo(Scopes.PROJECT);
     assertThat(dto.getCopyComponentUuid()).isNull();
@@ -534,7 +532,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(sv1Dto.path()).isNull();
     assertThat(sv1Dto.uuid()).isEqualTo(SUBVIEW_1_UUID);
     assertThat(sv1Dto.branchUuid()).isEqualTo(viewDto.uuid());
-    assertThat(sv1Dto.getRootUuid()).isEqualTo(viewDto.uuid());
     assertThat(sv1Dto.qualifier()).isEqualTo(Qualifiers.SUBVIEW);
     assertThat(sv1Dto.scope()).isEqualTo(Scopes.PROJECT);
     assertThat(sv1Dto.getCopyComponentUuid()).isNull();
@@ -548,7 +545,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(pv1Dto.path()).isNull();
     assertThat(pv1Dto.uuid()).isEqualTo(PROJECT_VIEW_1_UUID);
     assertThat(pv1Dto.branchUuid()).isEqualTo(viewDto.uuid());
-    assertThat(pv1Dto.getRootUuid()).isEqualTo(viewDto.uuid());
     assertThat(pv1Dto.qualifier()).isEqualTo(Qualifiers.PROJECT);
     assertThat(pv1Dto.scope()).isEqualTo(Scopes.FILE);
     assertThat(pv1Dto.getCopyComponentUuid()).isEqualTo(project.uuid());

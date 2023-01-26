@@ -51,21 +51,18 @@ public class ExportMeasuresStepTest {
   private static final ComponentDto PROJECT = new ComponentDto()
     .setKey("project_key")
     .setUuid("project_uuid")
-    .setRootUuid("project_uuid")
     .setBranchUuid("project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setEnabled(true);
   private static final ComponentDto FILE = new ComponentDto()
     .setKey("file_key")
     .setUuid("file_uuid")
-    .setRootUuid("project_uuid")
     .setBranchUuid("project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT + PROJECT.uuid() + UUID_PATH_SEPARATOR)
     .setEnabled(true);
   private static final ComponentDto ANOTHER_PROJECT = new ComponentDto()
     .setKey("another_project_key")
     .setUuid("another_project_uuid")
-    .setRootUuid("another_project_uuid")
     .setBranchUuid("another_project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setEnabled(true);

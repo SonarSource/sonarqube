@@ -184,7 +184,7 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   private void populateSomeData() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setKey("org.struts:struts").setUuid("A"));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setKey("org.struts:struts").setUuid("A").setBranchUuid("A"));
     ComponentDto directory1 = db.components().insertComponent(newDirectory(project1, "/src/org/struts").setUuid("B"));
     db.components().insertComponent(ComponentTesting.newFileDto(project1, directory1).setKey("org.struts:struts:/src/org/struts/RequestContext.java").setUuid("C"));
     ComponentDto project2 = db.components().insertPublicProject(t -> t.setKey("foo:struts-core").setUuid("D"));

@@ -247,7 +247,7 @@ public class ComponentIndexerTest {
     ComponentUpdateDto updateComponent = ComponentUpdateDto.copyFrom(component);
     updateComponent.setBChanged(true);
     dbClient.componentDao().update(dbSession, updateComponent, component.qualifier());
-    dbClient.componentDao().applyBChangesForRootComponentUuid(dbSession, component.getRootUuid());
+    dbClient.componentDao().applyBChangesForBranchUuid(dbSession, component.branchUuid());
     dbSession.commit();
   }
 

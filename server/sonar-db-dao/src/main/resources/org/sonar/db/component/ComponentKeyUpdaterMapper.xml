@@ -7,7 +7,6 @@
     <result property="key" column="kee"/>
     <result property="uuid" column="uuid"/>
     <result property="deprecatedKey" column="deprecated_kee"/>
-    <result property="rootUuid" column="root_uuid"/>
     <result property="scope" column="scope"/>
     <result property="enabled" column="enabled"/>
   </resultMap>
@@ -26,7 +25,7 @@
   <select id="selectBranchResources" parameterType="String" resultMap="resourceResultMap">
     select * from components
     where
-    root_uuid = #{rootUuid,jdbcType=VARCHAR}
+    branch_uuid = #{branchUuid,jdbcType=VARCHAR}
     and scope != 'PRJ'
   </select>
 

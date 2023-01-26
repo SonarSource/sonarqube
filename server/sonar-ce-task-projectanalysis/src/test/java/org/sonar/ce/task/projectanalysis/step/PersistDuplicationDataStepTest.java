@@ -178,7 +178,6 @@ public class PersistDuplicationDataStepTest extends BaseStepTest {
       .setKey(key)
       .setUuid(uuid)
       .setUuidPath(uuid + ".")
-      .setRootUuid(uuid)
       .setBranchUuid(uuid);
     db.components().insertComponent(componentDto);
     return componentDto;

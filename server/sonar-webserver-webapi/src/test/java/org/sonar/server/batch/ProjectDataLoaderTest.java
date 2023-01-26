@@ -134,7 +134,6 @@ public class ProjectDataLoaderTest {
     dbClient.componentDao().insert(dbSession, new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(uuid + ".")
-      .setRootUuid(uuid)
       .setBranchUuid("branchUuid")
       .setScope(Scopes.PROJECT)
       .setKey("key"));

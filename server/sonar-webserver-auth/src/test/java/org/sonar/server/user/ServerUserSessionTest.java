@@ -302,7 +302,7 @@ public class ServerUserSessionTest {
     assertThat(session.hasChildProjectsPermission(USER, application)).isTrue();
 
     // change privacy of the project without updating the cache
-    db.getDbClient().componentDao().setPrivateForRootComponentUuidWithoutAudit(db.getSession(), project.uuid(), true);
+    db.getDbClient().componentDao().setPrivateForBranchUuidWithoutAudit(db.getSession(), project.uuid(), true);
     assertThat(session.hasChildProjectsPermission(USER, application)).isTrue();
   }
 
@@ -387,7 +387,7 @@ public class ServerUserSessionTest {
     assertThat(session.hasChildProjectsPermission(USER, portfolio)).isTrue();
 
     // change privacy of the project without updating the cache
-    db.getDbClient().componentDao().setPrivateForRootComponentUuidWithoutAudit(db.getSession(), project.uuid(), true);
+    db.getDbClient().componentDao().setPrivateForBranchUuidWithoutAudit(db.getSession(), project.uuid(), true);
     assertThat(session.hasChildProjectsPermission(USER, portfolio)).isTrue();
   }
 

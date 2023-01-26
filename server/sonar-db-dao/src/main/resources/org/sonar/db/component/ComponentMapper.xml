@@ -14,7 +14,6 @@
     p.qualifier as qualifier,
     p.scope as scope,
     p.language as language,
-    p.root_uuid as rootUuid,
     p.path as path,
     p.enabled as enabled,
     p.copy_component_uuid as copyComponentUuid,
@@ -72,7 +71,6 @@
           p.qualifier as qualifier,
           p.scope as scope,
           p.language as language,
-          p.root_uuid as rootUuid,
           p.path as path,
           p.enabled as enabled,
           p.copy_component_uuid as copyComponentUuid,
@@ -162,7 +160,7 @@
     <include refid="componentColumns"/>
     FROM components p
     INNER JOIN components child ON
-      child.root_uuid=p.uuid
+      child.branch_uuid=p.uuid
       and child.enabled=${_true}
     where
       p.enabled=${_true}
@@ -540,7 +538,6 @@
       language,
       description,
       private,
-      root_uuid,
       path,
       copy_component_uuid,
       enabled,
@@ -569,7 +566,6 @@
     #{language,jdbcType=VARCHAR},
     #{description,jdbcType=VARCHAR},
     #{isPrivate,jdbcType=BOOLEAN},
-    #{rootUuid,jdbcType=VARCHAR},
     #{path,jdbcType=VARCHAR},
     #{copyComponentUuid,jdbcType=VARCHAR},
     #{enabled,jdbcType=BOOLEAN},
@@ -623,7 +619,7 @@
     uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
   </update>
 
-  <update id="applyBChangesForRootComponentUuid" parameterType="string" useGeneratedKeys="false">
+  <update id="applyBChangesForBranchUuid" parameterType="string" useGeneratedKeys="false">
     update components set
     <!-- Component key is normally immutable, but since 7.6 deprecated_kee is used as a b_kee to migrate component keys after the drop of modules -->
     kee = deprecated_kee,
@@ -665,7 +661,7 @@
     b_changed = ${_true}
   </update>
 
-  <update id="resetBChangedForRootComponentUuid" parameterType="map" >
+  <update id="resetBChangedForBranchUuid" parameterType="map" >
     update components
     set b_changed = ${_false},
     <!-- Component key is normally immutable, but since 7.6 deprecated_kee is used as a b_kee to migrate component keys after the drop of modules -->
@@ -675,7 +671,7 @@
     b_changed = ${_true}
   </update>
 
-  <update id="setPrivateForRootComponentUuid" parameterType="map" >
+  <update id="setPrivateForBranchUuid" parameterType="map" >
     update components set
       private = #{isPrivate,jdbcType=BOOLEAN}
     where

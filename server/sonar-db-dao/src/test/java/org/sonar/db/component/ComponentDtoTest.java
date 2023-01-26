@@ -37,8 +37,7 @@ public class ComponentDtoTest {
       .setLanguage("java")
       .setDescription("desc")
       .setPath("src/org/struts/RequestContext.java")
-      .setCopyComponentUuid("uuid_5")
-      .setRootUuid("uuid_3");
+      .setCopyComponentUuid("uuid_5");
 
     assertThat(componentDto.getKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(componentDto.name()).isEqualTo("RequestContext.java");
@@ -48,7 +47,6 @@ public class ComponentDtoTest {
     assertThat(componentDto.path()).isEqualTo("src/org/struts/RequestContext.java");
     assertThat(componentDto.language()).isEqualTo("java");
     assertThat(componentDto.description()).isEqualTo("desc");
-    assertThat(componentDto.getRootUuid()).isEqualTo("uuid_3");
     assertThat(componentDto.getCopyComponentUuid()).isEqualTo("uuid_5");
     assertThat(componentDto.isPrivate()).isFalse();
   }

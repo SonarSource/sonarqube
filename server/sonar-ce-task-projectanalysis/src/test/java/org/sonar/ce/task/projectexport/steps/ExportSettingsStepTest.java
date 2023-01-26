@@ -47,13 +47,11 @@ public class ExportSettingsStepTest {
   private static final ComponentDto PROJECT = new ComponentDto()
     .setUuid("project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT)
-    .setRootUuid("project_uuid")
     .setBranchUuid("project_uuid")
     .setKey("the_project");
   private static final ComponentDto ANOTHER_PROJECT = new ComponentDto()
     .setUuid("another_project_uuid")
     .setUuidPath(UUID_PATH_OF_ROOT)
-    .setRootUuid("another_project_uuid")
     .setBranchUuid("another_project_uuid")
     .setKey("another_project");
 

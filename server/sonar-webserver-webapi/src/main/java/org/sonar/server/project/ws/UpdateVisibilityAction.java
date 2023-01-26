@@ -133,7 +133,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   private void setPrivateForRootComponentUuid(DbSession dbSession, ComponentDto component, boolean isPrivate) {
     String uuid = component.uuid();
-    dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, uuid, isPrivate, component.getKey(), component.qualifier(), component.name());
+    dbClient.componentDao().setPrivateForBranchUuid(dbSession, uuid, isPrivate, component.getKey(), component.qualifier(), component.name());
 
     if (component.qualifier().equals(Qualifiers.PROJECT) || component.qualifier().equals(Qualifiers.APP)) {
       dbClient.projectDao().updateVisibility(dbSession, uuid, isPrivate);
@@ -142,7 +142,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     ComponentMapper mapper = dbSession.getMapper(ComponentMapper.class);
     dbSession.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
       .filter(branch -> !uuid.equals(branch.getUuid()))
-      .forEach(branch -> mapper.setPrivateForRootComponentUuid(branch.getUuid(), isPrivate));
+      .forEach(branch -> mapper.setPrivateForBranchUuid(branch.getUuid(), isPrivate));
   }
 
   private boolean noPendingTask(DbSession dbSession, ComponentDto rootComponent) {

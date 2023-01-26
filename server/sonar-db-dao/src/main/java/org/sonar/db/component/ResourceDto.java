@@ -36,7 +36,6 @@ public class ResourceDto {
   private String deprecatedKey;
   private String name;
   private String longName;
-  private String rootUuid;
   private String path;
   private String scope;
   private String qualifier;
@@ -88,15 +87,6 @@ public class ResourceDto {
 
   public ResourceDto setDeprecatedKey(String s) {
     this.deprecatedKey = s;
-    return this;
-  }
-
-  public String getRootUuid() {
-    return rootUuid;
-  }
-
-  public ResourceDto setRootUuid(String rootUuid) {
-    this.rootUuid = rootUuid;
     return this;
   }
 

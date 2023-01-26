@@ -58,7 +58,6 @@ public class ExportComponentsStepTest {
     .setDescription("The project description")
     .setEnabled(true)
     .setUuid(PROJECT_UUID)
-    .setRootUuid(PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
     .setCreatedAt(new Date(1596749115856L))
     .setBranchUuid(PROJECT_UUID);
@@ -72,7 +71,6 @@ public class ExportComponentsStepTest {
     .setKey("the_file")
     .setName("The File")
     .setUuid(FILE_UUID)
-    .setRootUuid(PROJECT_UUID)
     .setUuidPath(FILE_UUID_PATH)
     .setEnabled(true)
     .setCreatedAt(new Date(1596749148406L))

@@ -89,18 +89,6 @@ public class ComponentDto {
   private String branchUuid;
 
   /**
-   * Badly named, it is not the root !
-   * - on root: UUID="1" ROOT_UUID="1"
-   * - on directory, value is the closest module: UUID="3" ROOT_UUID="2"
-   * - on file, value is the closest module: UUID="4" ROOT_UUID="2"
-   * - on view: UUID="5" ROOT_UUID="5"
-   * - on sub-view: UUID="6" ROOT_UUID="5"
-   *
-   * @since 6.0
-   */
-  private String rootUuid;
-
-  /**
    * On non-main branches only, {@link #uuid} of the main branch that represents
    * the project ({@link #qualifier}="TRK").
    * It is propagated to all the components of the branch.
@@ -256,19 +244,6 @@ public class ComponentDto {
     return this;
   }
 
-  /**
-   * Use {@link #branchUuid()}
-   */
-  @Deprecated
-  public String getRootUuid() {
-    return rootUuid;
-  }
-
-  public ComponentDto setRootUuid(String rootUuid) {
-    this.rootUuid = rootUuid;
-    return this;
-  }
-
   @Nullable
   public String getMainBranchProjectUuid() {
     return mainBranchProjectUuid;
@@ -347,7 +322,6 @@ public class ComponentDto {
       .append("scope", scope)
       .append("qualifier", qualifier)
       .append("branchUuid", branchUuid)
-      .append("rootUuid", rootUuid)
       .append("mainBranchProjectUuid", mainBranchProjectUuid)
       .append("copyComponentUuid", copyComponentUuid)
       .append("path", path)
@@ -365,7 +339,6 @@ public class ComponentDto {
     copy.uuid = uuid;
     copy.uuidPath = uuidPath;
     copy.branchUuid = branchUuid;
-    copy.rootUuid = rootUuid;
     copy.mainBranchProjectUuid = mainBranchProjectUuid;
     copy.copyComponentUuid = copyComponentUuid;
     copy.scope = scope;

@@ -10,7 +10,6 @@
   <projects organization_uuid="org1"
             uuid="FILE1"
             uuid_path="NOT_USED"
-            root_uuid="ABCD"
             id="1"
             kee="org.struts:struts-core:src/org/struts/RequestContext.java"
             enabled="[true]"/>

@@ -364,7 +364,6 @@ public class NextPendingTaskPickerTest {
     view.setKey(view_uuid + "_key");
     view.setUuid(view_uuid);
     view.setPrivate(false);
-    view.setRootUuid(view_uuid);
     view.setUuidPath("uuid_path");
     view.setBranchUuid(view_uuid);
     db.components().insertPortfolioAndSnapshot(view);
@@ -377,7 +376,6 @@ public class NextPendingTaskPickerTest {
     branch.setKey(uuid + "_key");
     branch.setUuid(uuid);
     branch.setPrivate(false);
-    branch.setRootUuid(uuid);
     branch.setUuidPath("uuid_path");
     branch.setBranchUuid(uuid);
     db.components().insertComponent(branch);

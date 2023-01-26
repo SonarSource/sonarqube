@@ -50,7 +50,6 @@ public class ExportEventsStepTest {
   private static final ComponentDto PROJECT = new ComponentDto()
     .setUuid(PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
-    .setRootUuid(PROJECT_UUID)
     .setBranchUuid(PROJECT_UUID)
     .setScope(Scopes.PROJECT)
     .setQualifier(Qualifiers.PROJECT)

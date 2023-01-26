@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.component;
+package org.sonar.server.platform.db.migration.version.v100;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-public interface ComponentKeyUpdaterMapper {
+public class DropIndexProjectsRootUuidInComponents extends DropIndexChange {
+  private static final String INDEX_NAME = "projects_root_uuid";
+  private static final String TABLE_NAME = "components";
 
-  int countComponentsByKey(String key);
-
-  ResourceDto selectComponentByUuid(@Param("uuid") String uuid);
-
-  List<ResourceDto> selectBranchResources(@Param("branchUuid") String branchUuid);
-
-  void updateComponent(ResourceDto resource);
-
-  void updateProject(@Param("oldProjectKey") String oldProjectKey, @Param("newProjectKey") String newProjectKey);
-
+  public DropIndexProjectsRootUuidInComponents(Database db) {
+    super(db, INDEX_NAME, TABLE_NAME);
+  }
 }

@@ -77,7 +77,8 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(CoreProperties.SERVER_BASE_URL)
         .name("Server base URL")
         .description(
-          "HTTP(S) URL of this SonarQube server, such as <i>https://yourhost.yourdomain/sonar</i>. This value is used outside SonarQube itself, e.g. for PR decoration, emails, etc.")
+          "HTTP(S) URL of this SonarQube server, such as <i>https://yourhost.yourdomain/sonar</i>. "
+            + "This value is used outside SonarQube itself, e.g. for PR decoration, emails, etc.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .build(),
       PropertyDefinition.builder(SONAR_PROJECTCREATION_MAINBRANCHNAME)

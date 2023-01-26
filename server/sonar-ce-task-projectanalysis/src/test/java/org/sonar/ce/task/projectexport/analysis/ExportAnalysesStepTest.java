@@ -66,7 +66,6 @@ public class ExportAnalysesStepTest {
     .setEnabled(true)
     .setUuid(PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
-    .setRootUuid(PROJECT_UUID)
     .setBranchUuid(PROJECT_UUID);
 
   private static final String DIR_UUID = "DIR_UUID";
@@ -81,7 +80,6 @@ public class ExportAnalysesStepTest {
     .setEnabled(true)
     .setUuid(DIR_UUID)
     .setUuidPath(UUID_PATH)
-    .setRootUuid(PROJECT_UUID)
     .setBranchUuid(PROJECT_UUID);
 
   private static final String FILE_UUID = "FILE_UUID";
@@ -93,7 +91,6 @@ public class ExportAnalysesStepTest {
     .setName("The File")
     .setUuid(FILE_UUID)
     .setUuidPath(UUID_PATH + UUID_PATH_SEPARATOR + FILE_UUID)
-    .setRootUuid(PROJECT_UUID)
     .setEnabled(true)
     .setBranchUuid(PROJECT_UUID);
 

@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -94,7 +93,7 @@ public class PersistComponentsStep implements ComputationStep {
       String projectUuid = treeRootHolder.getRoot().getUuid();
 
       // safeguard, reset all rows to b-changed=false
-      dbClient.componentDao().resetBChangedForRootComponentUuid(dbSession, projectUuid);
+      dbClient.componentDao().resetBChangedForBranchUuid(dbSession, projectUuid);
 
       Map<String, ComponentDto> existingDtosByUuids = indexExistingDtosByUuids(dbSession);
       boolean isRootPrivate = isRootPrivate(treeRootHolder.getRoot(), existingDtosByUuids);
@@ -106,7 +105,7 @@ public class PersistComponentsStep implements ComputationStep {
         .visit(treeRootHolder.getRoot());
 
       disableRemainingComponents(dbSession, existingDtosByUuids.values());
-      dbClient.componentDao().setPrivateForRootComponentUuidWithoutAudit(dbSession, projectUuid, isRootPrivate);
+      dbClient.componentDao().setPrivateForBranchUuidWithoutAudit(dbSession, projectUuid, isRootPrivate);
       dbSession.commit();
     }
   }
@@ -262,7 +261,6 @@ public class PersistComponentsStep implements ComputationStep {
       res.setDescription(project.getDescription());
 
       res.setBranchUuid(res.uuid());
-      res.setRootUuid(res.uuid());
       res.setUuidPath(UUID_PATH_OF_ROOT);
 
       return res;
@@ -277,7 +275,7 @@ public class PersistComponentsStep implements ComputationStep {
       res.setLongName(directory.getName());
       res.setPath(directory.getName());
 
-      setParentProperties(res, path);
+      setUuids(res, path);
 
       return res;
     }
@@ -292,7 +290,7 @@ public class PersistComponentsStep implements ComputationStep {
       res.setPath(file.getName());
       res.setLanguage(file.getFileAttributes().getLanguageKey());
 
-      setParentProperties(res, path);
+      setUuids(res, path);
 
       return res;
     }
@@ -307,7 +305,6 @@ public class PersistComponentsStep implements ComputationStep {
       res.setLongName(res.name());
 
       res.setBranchUuid(res.uuid());
-      res.setRootUuid(res.uuid());
       res.setUuidPath(UUID_PATH_OF_ROOT);
 
       return res;
@@ -361,7 +358,6 @@ public class PersistComponentsStep implements ComputationStep {
      */
     private void setRootAndParentModule(ComponentDto res, PathAwareVisitor.Path<ComponentDtoHolder> path) {
       ComponentDto rootDto = path.root().getDto();
-      res.setRootUuid(rootDto.uuid());
       res.setBranchUuid(rootDto.uuid());
 
       ComponentDto parent = path.parent().getDto();
@@ -372,17 +368,9 @@ public class PersistComponentsStep implements ComputationStep {
   /**
    * Applies to a node of type either DIRECTORY or FILE
    */
-  private static void setParentProperties(ComponentDto componentDto, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+  private static void setUuids(ComponentDto componentDto, PathAwareVisitor.Path<ComponentDtoHolder> path) {
     componentDto.setBranchUuid(path.root().getDto().uuid());
-
-    ComponentDto parent = StreamSupport.stream(path.getCurrentPath().spliterator(), false)
-      .filter(p -> p.component().getType() == Component.Type.PROJECT)
-      .findFirst()
-      .get()
-      .element().getDto();
     componentDto.setUuidPath(formatUuidPathFromParent(path.parent().getDto()));
-    componentDto.setRootUuid(parent.uuid());
-
   }
 
   private static Optional<ComponentUpdateDto> compareForUpdate(ComponentDto existing, ComponentDto target) {

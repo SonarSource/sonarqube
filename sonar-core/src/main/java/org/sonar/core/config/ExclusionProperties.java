@@ -19,7 +19,6 @@
  */
 package org.sonar.core.config;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
@@ -33,7 +32,7 @@ public class ExclusionProperties {
   }
 
   public static List<PropertyDefinition> all() {
-    return ImmutableList.of(
+    return List.of(
 
       // COVERAGE
       PropertyDefinition.builder(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY)

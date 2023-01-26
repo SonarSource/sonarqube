@@ -348,22 +348,22 @@ public class ComponentDao implements Dao {
     executeLargeUpdates(uuids, mapper(session)::updateBEnabledToFalse);
   }
 
-  public void applyBChangesForRootComponentUuid(DbSession session, String branchUuid) {
-    mapper(session).applyBChangesForRootComponentUuid(branchUuid);
+  public void applyBChangesForBranchUuid(DbSession session, String branchUuid) {
+    mapper(session).applyBChangesForBranchUuid(branchUuid);
   }
 
-  public void resetBChangedForRootComponentUuid(DbSession session, String branchUuid) {
-    mapper(session).resetBChangedForRootComponentUuid(branchUuid);
+  public void resetBChangedForBranchUuid(DbSession session, String branchUuid) {
+    mapper(session).resetBChangedForBranchUuid(branchUuid);
   }
 
-  public void setPrivateForRootComponentUuidWithoutAudit(DbSession session, String branchUuid, boolean isPrivate) {
-    mapper(session).setPrivateForRootComponentUuid(branchUuid, isPrivate);
+  public void setPrivateForBranchUuidWithoutAudit(DbSession session, String branchUuid, boolean isPrivate) {
+    mapper(session).setPrivateForBranchUuid(branchUuid, isPrivate);
   }
 
-  public void setPrivateForRootComponentUuid(DbSession session, String branchUuid, boolean isPrivate, String qualifier, String componentKey, String componentName) {
+  public void setPrivateForBranchUuid(DbSession session, String branchUuid, boolean isPrivate, String qualifier, String componentKey, String componentName) {
     ComponentNewValue componentNewValue = new ComponentNewValue(branchUuid, componentName, componentKey, isPrivate, qualifier);
     auditPersister.updateComponentVisibility(session, componentNewValue);
-    mapper(session).setPrivateForRootComponentUuid(branchUuid, isPrivate);
+    mapper(session).setPrivateForBranchUuid(branchUuid, isPrivate);
   }
 
   /*

@@ -47,6 +47,10 @@ public class DbVersion100 implements DbVersion {
       .add(10_0_003, "Drop column 'module_uuid_path' in the 'Components' table", DropModuleUuidPathInComponents.class)
       .add(10_0_004, "Drop column 'b_module_uuid' in the 'Components' table", DropBModuleUuidInComponents.class)
       .add(10_0_005, "Drop column 'b_module_uuid_path' in the 'Components' table", DropBModuleUuidPathInComponents.class)
+      .add(10_0_006, "Drop index 'projects_root_uuid' in the 'Components' table", DropIndexProjectsRootUuidInComponents.class)
+      .add(10_0_007, "Drop column 'root_uuid' in the 'Components' table", DropRootUuidInComponents.class)
+
+
     ;
   }
 }

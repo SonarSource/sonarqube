@@ -109,11 +109,11 @@ public interface ComponentMapper {
 
   void updateBEnabledToFalse(@Param("uuids") List<String> uuids);
 
-  void applyBChangesForRootComponentUuid(@Param("branchUuid") String branchUuid);
+  void applyBChangesForBranchUuid(@Param("branchUuid") String branchUuid);
 
-  void resetBChangedForRootComponentUuid(@Param("branchUuid") String branchUuid);
+  void resetBChangedForBranchUuid(@Param("branchUuid") String branchUuid);
 
-  void setPrivateForRootComponentUuid(@Param("branchUuid") String branchUuid, @Param("isPrivate") boolean isPrivate);
+  void setPrivateForBranchUuid(@Param("branchUuid") String branchUuid, @Param("isPrivate") boolean isPrivate);
 
   List<KeyWithUuidDto> selectComponentsFromPullRequestsTargetingCurrentBranchThatHaveOpenIssues(@Param("referenceBranchUuid") String referenceBranchUuid,
     @Param("currentBranchUuid") String currentBranchUuid);

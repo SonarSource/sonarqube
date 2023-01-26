@@ -148,7 +148,6 @@ public class ComponentUpdater {
     ComponentDto component = new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
-      .setRootUuid(uuid)
       .setBranchUuid(uuid)
       .setKey(newComponent.key())
       .setName(newComponent.name())
