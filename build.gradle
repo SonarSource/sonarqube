@@ -539,7 +539,7 @@ subprojects {
       dependencies {
         testImplementation project(":ut-monitoring")
 
-        utMonitoring 'org.aspectj:aspectjweaver:1.9.9.1'
+        utMonitoring 'org.aspectj:aspectjweaver:1.9.19'
       }
 
       doFirst {
