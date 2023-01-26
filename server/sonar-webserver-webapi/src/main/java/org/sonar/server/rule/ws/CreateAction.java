@@ -86,6 +86,7 @@ public class CreateAction implements RulesWsAction {
       .setResponseExample(Resources.getResource(getClass(), "create-example.json"))
       .setSince("4.4")
       .setChangelog(
+        new Change("10.0","Drop deprecated keys: 'custom_key', 'template_key', 'markdown_description', 'prevent_reactivation'"),
         new Change("5.5", "Creating manual rule is not more possible"))
       .setHandler(this);
 
@@ -94,15 +95,13 @@ public class CreateAction implements RulesWsAction {
       .setRequired(true)
       .setMaximumLength(KEY_MAXIMUM_LENGTH)
       .setDescription("Key of the custom rule")
-      .setExampleValue("Todo_should_not_be_used")
-      .setDeprecatedKey("custom_key", "9.7");
+      .setExampleValue("Todo_should_not_be_used");
 
     action
       .createParam(PARAM_TEMPLATE_KEY)
       .setRequired(true)
       .setDescription("Key of the template rule in order to create a custom rule (mandatory for custom rule)")
-      .setExampleValue("java:XPath")
-      .setDeprecatedKey("template_key", "9.7");
+      .setExampleValue("java:XPath");
 
     action
       .createParam(PARAM_NAME)
@@ -115,8 +114,7 @@ public class CreateAction implements RulesWsAction {
       .createParam(PARAM_DESCRIPTION)
       .setRequired(true)
       .setDescription("Rule description in <a href='/formatting/help'>markdown format</a>")
-      .setExampleValue("Description of my custom rule")
-      .setDeprecatedKey("markdown_description", "9.7");
+      .setExampleValue("Description of my custom rule");
 
     action
       .createParam(PARAM_SEVERITY)
@@ -140,8 +138,7 @@ public class CreateAction implements RulesWsAction {
       .createParam(PARAM_PREVENT_REACTIVATION)
       .setBooleanPossibleValues()
       .setDefaultValue(false)
-      .setDescription("If set to true and if the rule has been deactivated (status 'REMOVED'), a status 409 will be returned")
-      .setDeprecatedKey("prevent_reactivation", "9.7");
+      .setDescription("If set to true and if the rule has been deactivated (status 'REMOVED'), a status 409 will be returned");
 
     action.createParam(PARAM_TYPE)
       .setPossibleValues(RuleType.names())

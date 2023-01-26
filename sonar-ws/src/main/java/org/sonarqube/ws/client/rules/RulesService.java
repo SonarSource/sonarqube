@@ -81,30 +81,6 @@ public class RulesService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
-   * This method is used specifically for sending requests using deprecated parameters for SQ before 9.7.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules/create">Further information about this action online (including a response example)</a>
-   * @since 4.4
-   */
-  @Deprecated
-  public void createForSQBefore97(CreateRequest request) {
-    call(
-      new PostRequest(path("create"))
-        .setParam("custom_key", request.getCustomKey())
-        .setParam("markdown_description", request.getMarkdownDescription())
-        .setParam("name", request.getName())
-        .setParam("params", request.getParams() == null ? null : request.getParams().stream().collect(Collectors.joining(",")))
-        .setParam("prevent_reactivation", request.getPreventReactivation())
-        .setParam("severity", request.getSeverity())
-        .setParam("status", request.getStatus())
-        .setParam("template_key", request.getTemplateKey())
-        .setParam("type", request.getType()),
-      CreateResponse.parser());
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules/delete">Further information about this action online (including a response example)</a>
    * @since 4.4
    */
