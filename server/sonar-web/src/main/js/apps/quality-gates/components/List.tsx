@@ -28,15 +28,16 @@ import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 
 interface Props {
   qualityGates: QualityGate[];
+  currentQualityGate?: string;
 }
 
-export default function List({ qualityGates }: Props) {
+export default function List({ qualityGates, currentQualityGate }: Props) {
   return (
-    <div className="list-group" role="menu">
+    <div className="list-group">
       {qualityGates.map((qualityGate) => (
         <NavLink
           className="list-group-item display-flex-center"
-          role="menuitem"
+          aria-current={currentQualityGate === qualityGate.id && 'page'}
           data-id={qualityGate.id}
           key={qualityGate.id}
           to={getQualityGateUrl(String(qualityGate.id))}

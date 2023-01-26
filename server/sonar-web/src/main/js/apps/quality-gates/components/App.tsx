@@ -131,7 +131,7 @@ class App extends React.PureComponent<Props, State> {
                       refreshQualityGates={this.fetchQualityGates}
                     />
                     <DeferredSpinner loading={this.state.loading}>
-                      <List qualityGates={qualityGates} />
+                      <List qualityGates={qualityGates} currentQualityGate={id} />
                     </DeferredSpinner>
                   </div>
                 </div>
