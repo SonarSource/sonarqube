@@ -366,7 +366,7 @@ public class TelemetryDataJsonWriterTest {
   @Test
   public void writes_all_projects_stats_with_analyzed_languages() {
     TelemetryData data = telemetryBuilder()
-      .setProjectStatistics(attachProjectStats())
+      .setProjectStatistics(attachProjectStatsWithMetrics())
       .build();
 
     String json = writeTelemetryData(data);
@@ -378,28 +378,43 @@ public class TelemetryDataJsonWriterTest {
             "projectUuid": "uuid-0",
             "branchCount": 2,
             "pullRequestCount": 2,
-            "qualityGate": "qg-0"
+            "qualityGate": "qg-0",
             "scm": "scm-0",
             "ci": "ci-0",
-            "devopsPlatform": "devops-0"
+            "devopsPlatform": "devops-0",
+            "bugs": 2,
+            "vulnerabilities": 3,
+            "securityHotspots": 4,
+            "technicalDebt": 60.0,
+            "developmentCost": 30.0
           },
           {
             "projectUuid": "uuid-1",
             "branchCount": 4,
             "pullRequestCount": 4,
-            "qualityGate": "qg-1"
+            "qualityGate": "qg-1",
             "scm": "scm-1",
             "ci": "ci-1",
-            "devopsPlatform": "devops-1"
+            "devopsPlatform": "devops-1",
+            "bugs": 4,
+            "vulnerabilities": 6,
+            "securityHotspots": 8,
+            "technicalDebt": 120.0,
+            "developmentCost": 60.0
           },
           {
             "projectUuid": "uuid-2",
             "branchCount": 6,
             "pullRequestCount": 6,
-            "qualityGate": "qg-2"
+            "qualityGate": "qg-2",
             "scm": "scm-2",
             "ci": "ci-2",
-            "devopsPlatform": "devops-2"
+            "devopsPlatform": "devops-2",
+            "bugs": 6,
+            "vulnerabilities": 9,
+            "securityHotspots": 12,
+            "technicalDebt": 180.0,
+            "developmentCost": 90.0
           }
         ]
       }
@@ -415,6 +430,15 @@ public class TelemetryDataJsonWriterTest {
 
     String json = writeTelemetryData(data);
     assertThat(json).doesNotContain("hasUnanalyzedC", "hasUnanalyzedCpp");
+  }
+
+  @Test
+  public void writes_all_projects_stats_without_missing_metrics() {
+    TelemetryData data = telemetryBuilder()
+      .setProjectStatistics(attachProjectStats())
+      .build();
+    String json = writeTelemetryData(data);
+    assertThat(json).doesNotContain("bugs", "vulnerabilities", "securityHotspots", "technicalDebt", "developmentCost");
   }
 
   @Test
@@ -466,9 +490,31 @@ public class TelemetryDataJsonWriterTest {
     return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, (i + 1L) * 2L)).collect(Collectors.toList());
   }
 
-  private List<TelemetryData.ProjectStatistics> attachProjectStats() {
-    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.ProjectStatistics("uuid-" + i, (i + 1L) * 2L, (i + 1L) * 2L, "qg-" + i, "scm-" + i, "ci-" + i, "devops-" + i))
-      .collect(Collectors.toList());
+  private static List<TelemetryData.ProjectStatistics> attachProjectStatsWithMetrics() {
+    return IntStream.range(0, 3).mapToObj(i -> getProjectStatisticsWithMetricBuilder(i).build()).toList();
+  }
+
+  private static List<TelemetryData.ProjectStatistics> attachProjectStats() {
+    return IntStream.range(0, 3).mapToObj(i -> getProjectStatisticsBuilder(i).build()).toList();
+  }
+
+  private static TelemetryData.ProjectStatistics.Builder getProjectStatisticsBuilder(int i) {
+    return new TelemetryData.ProjectStatistics.Builder()
+      .setProjectUuid("uuid-" + i)
+      .setBranchCount((i + 1L) * 2L)
+      .setPRCount((i + 1L) * 2L)
+      .setQG("qg-" + i).setCi("ci-" + i)
+      .setScm("scm-" + i)
+      .setDevops("devops-" + i);
+  }
+
+  private static TelemetryData.ProjectStatistics.Builder getProjectStatisticsWithMetricBuilder(int i) {
+    return getProjectStatisticsBuilder(i)
+      .setBugs((i + 1L) * 2)
+      .setVulnerabilities((i + 1L) * 3)
+      .setSecurityHotspots((i + 1L) * 4)
+      .setDevelopmentCost((i + 1L) * 30d)
+      .setTechnicalDebt((i + 1L) * 60d);
   }
 
   private List<TelemetryData.QualityGate> attachQualityGates() {
@@ -479,7 +525,7 @@ public class TelemetryDataJsonWriterTest {
   @DataProvider
   public static Object[][] allEditions() {
     return Arrays.stream(EditionProvider.Edition.values())
-      .map(t -> new Object[] {t})
+      .map(t -> new Object[]{t})
       .toArray(Object[][]::new);
   }
 

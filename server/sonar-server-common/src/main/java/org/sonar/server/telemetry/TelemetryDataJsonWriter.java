@@ -149,13 +149,18 @@ public class TelemetryDataJsonWriter {
       json.beginArray();
       statistics.getProjectStatistics().forEach(project -> {
         json.beginObject();
-        json.prop("projectUuid", project.projectUuid());
-        json.prop("branchCount", project.branchCount());
-        json.prop("pullRequestCount", project.pullRequestCount());
-        json.prop("qualityGate", project.qualityGate());
-        json.prop("scm", project.scm());
-        json.prop("ci", project.ci());
-        json.prop("devopsPlatform", project.devopsPlatform());
+        json.prop("projectUuid", project.getProjectUuid());
+        json.prop("branchCount", project.getBranchCount());
+        json.prop("pullRequestCount", project.getPullRequestCount());
+        json.prop("qualityGate", project.getQualityGate());
+        json.prop("scm", project.getScm());
+        json.prop("ci", project.getCi());
+        json.prop("devopsPlatform", project.getDevopsPlatform());
+        project.getBugs().ifPresent(bugs -> json.prop("bugs", bugs));
+        project.getVulnerabilities().ifPresent(vulnerabilities -> json.prop("vulnerabilities", vulnerabilities));
+        project.getSecurityHotspots().ifPresent(securityHotspots -> json.prop("securityHotspots", securityHotspots));
+        project.getTechnicalDebt().ifPresent(technicalDebt -> json.prop("technicalDebt", technicalDebt));
+        project.getDevelopmentCost().ifPresent(developmentCost -> json.prop("developmentCost", developmentCost));
         json.endObject();
       });
       json.endArray();

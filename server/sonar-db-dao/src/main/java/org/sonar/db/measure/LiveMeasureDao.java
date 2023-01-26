@@ -42,14 +42,18 @@ public class LiveMeasureDao implements Dao {
     this.system2 = system2;
   }
 
-  public List<LiveMeasureDto> selectByComponentUuidsAndMetricUuids(DbSession dbSession, Collection<String> largeComponentUuids, Collection<String> metricUuis) {
-    if (largeComponentUuids.isEmpty() || metricUuis.isEmpty()) {
+  public List<LiveMeasureDto> selectByComponentUuidsAndMetricUuids(DbSession dbSession, Collection<String> largeComponentUuids, Collection<String> metricUuids) {
+    if (largeComponentUuids.isEmpty() || metricUuids.isEmpty()) {
       return Collections.emptyList();
     }
 
     return executeLargeInputs(
       largeComponentUuids,
-      componentUuids -> mapper(dbSession).selectByComponentUuidsAndMetricUuids(componentUuids, metricUuis));
+      componentUuids -> mapper(dbSession).selectByComponentUuidsAndMetricUuids(componentUuids, metricUuids));
+  }
+
+  public List<LiveMeasureDto> selectForProjectsByMetricUuids(DbSession dbSession, Collection<String> metricUuids) {
+    return mapper(dbSession).selectForProjectsByMetricUuids(metricUuids);
   }
 
   public void scrollSelectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricKeys, ResultHandler<LiveMeasureDto> handler) {

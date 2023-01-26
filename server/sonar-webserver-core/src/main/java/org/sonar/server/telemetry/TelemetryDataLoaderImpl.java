@@ -24,6 +24,8 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,7 +46,9 @@ import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.ProjectAlmKeyAndProject;
 import org.sonar.db.component.AnalysisPropertyValuePerProject;
 import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.ProjectMeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.platform.DockerSupport;
@@ -55,8 +59,15 @@ import org.sonar.server.telemetry.TelemetryData.Database;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.internal.apachecommons.lang.StringUtils.startsWithIgnoreCase;
+import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
+import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
+import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI;
 import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDSCM;
 import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
@@ -121,7 +132,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     data.setVersion(server.getVersion());
     data.setEdition(editionProvider.get().orElse(null));
     Function<PluginInfo, String> getVersion = plugin -> plugin.getVersion() == null ? "undefined" : plugin.getVersion().getName();
-    Map<String, String> plugins = pluginRepository.getPluginInfos().stream().collect(MoreCollectors.uniqueIndex(PluginInfo::getKey, getVersion));
+    Map<String, String> plugins = pluginRepository.getPluginInfos().stream().collect(MoreCollectors.uniqueIndex(PluginInfo::getKey,
+      getVersion));
     data.setPlugins(plugins);
     try (DbSession dbSession = dbClient.openSession(false)) {
       data.setDatabase(loadDatabaseMetadata(dbSession));
@@ -169,32 +181,44 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
     Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);
     Map<String, ProjectAlmKeyAndProject> almAndUrlByProject = getAlmAndUrlByProject(dbSession);
-    Map<String, PrBranchAnalyzedLanguageCountByProjectDto> prAndBranchCountByProjects = dbClient.branchDao().countPrBranchAnalyzedLanguageByProjectUuid(dbSession)
-      .stream().collect(Collectors.toMap(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, Function.identity()));
-
-
-    Map<String, String> projectQgatesMap = getProjectQgatesMap(dbSession);
+    Map<String, PrBranchAnalyzedLanguageCountByProjectDto> prAndBranchCountByProject =
+      dbClient.branchDao().countPrBranchAnalyzedLanguageByProjectUuid(dbSession)
+        .stream().collect(toMap(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, Function.identity()));
+    Map<String, String> qgatesByProject = getProjectQgatesMap(dbSession);
+    Map<String, Map<String, Number>> metricsByProject =
+      getProjectMetricsByMetricKeys(dbSession, TECHNICAL_DEBT_KEY, DEVELOPMENT_COST_KEY, SECURITY_HOTSPOTS_KEY, VULNERABILITIES_KEY,
+        BUGS_KEY);
 
     List<TelemetryData.ProjectStatistics> projectStatistics = new ArrayList<>();
     for (String projectUuid : projectUuids) {
-      Optional<PrBranchAnalyzedLanguageCountByProjectDto> counts = ofNullable(prAndBranchCountByProjects.get(projectUuid));
+      Map<String, Number> metrics = metricsByProject.getOrDefault(projectUuid, Collections.emptyMap());
+      Optional<PrBranchAnalyzedLanguageCountByProjectDto> counts = ofNullable(prAndBranchCountByProject.get(projectUuid));
 
-      Long branchCount = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getBranch).orElse(0L);
-      Long pullRequestCount = counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest).orElse(0L);
-      String qualityGate = projectQgatesMap.getOrDefault(projectUuid, defaultQualityGateUuid);
-      String scm = Optional.ofNullable(scmByProject.get(projectUuid)).orElse(UNDETECTED);
-      String ci = Optional.ofNullable(ciByProject.get(projectUuid)).orElse(UNDETECTED);
-      String devopsPlatform = null;
-      if (almAndUrlByProject.containsKey(projectUuid)) {
-        ProjectAlmKeyAndProject projectAlmKeyAndProject = almAndUrlByProject.get(projectUuid);
-        devopsPlatform = getAlmName(projectAlmKeyAndProject.getAlmId(), projectAlmKeyAndProject.getUrl());
-      }
-      devopsPlatform = Optional.ofNullable(devopsPlatform).orElse(UNDETECTED);
-
-      projectStatistics.add(
-        new TelemetryData.ProjectStatistics(projectUuid, branchCount, pullRequestCount, qualityGate, scm, ci, devopsPlatform));
+      TelemetryData.ProjectStatistics stats = new TelemetryData.ProjectStatistics.Builder()
+        .setProjectUuid(projectUuid)
+        .setBranchCount(counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getBranch).orElse(0L))
+        .setPRCount(counts.map(PrBranchAnalyzedLanguageCountByProjectDto::getPullRequest).orElse(0L))
+        .setQG(qgatesByProject.getOrDefault(projectUuid, defaultQualityGateUuid))
+        .setScm(Optional.ofNullable(scmByProject.get(projectUuid)).orElse(UNDETECTED))
+        .setCi(Optional.ofNullable(ciByProject.get(projectUuid)).orElse(UNDETECTED))
+        .setDevops(resolveDevopsPlatform(almAndUrlByProject, projectUuid))
+        .setBugs(metrics.getOrDefault("bugs", null))
+        .setDevelopmentCost(metrics.getOrDefault("development_cost", null))
+        .setVulnerabilities(metrics.getOrDefault("vulnerabilities", null))
+        .setSecurityHotspots(metrics.getOrDefault("security_hotspots", null))
+        .setTechnicalDebt(metrics.getOrDefault("sqale_index", null))
+        .build();
+      projectStatistics.add(stats);
     }
     data.setProjectStatistics(projectStatistics);
+  }
+
+  private static String resolveDevopsPlatform(Map<String, ProjectAlmKeyAndProject> almAndUrlByProject, String projectUuid) {
+    if (almAndUrlByProject.containsKey(projectUuid)) {
+      ProjectAlmKeyAndProject projectAlmKeyAndProject = almAndUrlByProject.get(projectUuid);
+      return getAlmName(projectAlmKeyAndProject.getAlmId(), projectAlmKeyAndProject.getUrl());
+    }
+    return UNDETECTED;
   }
 
   private void resolveProjects(TelemetryData.Builder data, DbSession dbSession) {
@@ -216,7 +240,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Collection<QualityGateDto> qualityGateDtos = dbClient.qualityGateDao().selectAll(dbSession);
     for (QualityGateDto qualityGateDto : qualityGateDtos) {
       qualityGates.add(
-        new TelemetryData.QualityGate(qualityGateDto.getUuid(), qualityGateCaycChecker.checkCaycCompliant(dbSession, qualityGateDto.getUuid()))
+        new TelemetryData.QualityGate(qualityGateDto.getUuid(), qualityGateCaycChecker.checkCaycCompliant(dbSession,
+          qualityGateDto.getUuid()))
       );
     }
 
@@ -237,12 +262,12 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     return dbClient.analysisPropertiesDao()
       .selectAnalysisPropertyValueInLastAnalysisPerProject(dbSession, analysisPropertyKey)
       .stream()
-      .collect(Collectors.toMap(AnalysisPropertyValuePerProject::getProjectUuid, AnalysisPropertyValuePerProject::getPropertyValue));
+      .collect(toMap(AnalysisPropertyValuePerProject::getProjectUuid, AnalysisPropertyValuePerProject::getPropertyValue));
   }
 
   private Map<String, ProjectAlmKeyAndProject> getAlmAndUrlByProject(DbSession dbSession) {
     List<ProjectAlmKeyAndProject> projectAlmKeyAndProjects = dbClient.projectAlmSettingDao().selectAlmTypeAndUrlByProject(dbSession);
-    return projectAlmKeyAndProjects.stream().collect(Collectors.toMap(ProjectAlmKeyAndProject::getProjectUuid, Function.identity()));
+    return projectAlmKeyAndProjects.stream().collect(toMap(ProjectAlmKeyAndProject::getProjectUuid, Function.identity()));
   }
 
   private static String getAlmName(String alm, String url) {
@@ -268,7 +293,25 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private Map<String, String> getProjectQgatesMap(DbSession dbSession) {
     return dbClient.projectQgateAssociationDao().selectAll(dbSession)
       .stream()
-      .collect(Collectors.toMap(ProjectQgateAssociationDto::getUuid, p -> Optional.ofNullable(p.getGateUuid()).orElse("")));
+      .collect(toMap(ProjectQgateAssociationDto::getUuid, p -> Optional.ofNullable(p.getGateUuid()).orElse("")));
+  }
+
+  private Map<String, Map<String, Number>> getProjectMetricsByMetricKeys(DbSession dbSession, String... metricKeys) {
+    Map<String, String> metricNamesByUuid = dbClient.metricDao().selectByKeys(dbSession, asList(metricKeys))
+      .stream()
+      .collect(toMap(MetricDto::getUuid, MetricDto::getKey));
+
+    // metrics can be empty for un-analyzed projects
+    if (metricNamesByUuid.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
+    return dbClient.liveMeasureDao().selectForProjectsByMetricUuids(dbSession, metricNamesByUuid.keySet())
+      .stream()
+      .collect(groupingBy(LiveMeasureDto::getProjectUuid,
+        toMap(lmDto -> metricNamesByUuid.get(lmDto.getMetricUuid()),
+          lmDto -> Optional.ofNullable(lmDto.getValue()).orElseGet(() -> Double.valueOf(lmDto.getTextValue())),
+          (oldValue, newValue) -> newValue, HashMap::new)));
   }
 
   private static boolean checkIfCloudAlm(String almRaw, String alm, String url, String cloudUrl) {

@@ -280,9 +280,163 @@ public class TelemetryData {
   record Project(String projectUuid, Long lastAnalysis, String language, Long loc) {
   }
 
-  record ProjectStatistics(String projectUuid, Long branchCount, Long pullRequestCount, String qualityGate, String scm, String ci, String devopsPlatform) {
+  record QualityGate(String uuid, boolean isCaycCompliant) {
   }
 
-  record QualityGate(String uuid, boolean isCaycCompliant) {
+  public static class ProjectStatistics {
+    private final String projectUuid;
+    private final Long branchCount;
+    private final Long pullRequestCount;
+    private final String qualityGate;
+    private final String scm;
+    private final String ci;
+    private final String devopsPlatform;
+    private final Long bugs;
+    private final Long vulnerabilities;
+    private final Long securityHotspots;
+    private final Double technicalDebt;
+    private final Double developmentCost;
+
+    ProjectStatistics(Builder builder) {
+      this.projectUuid = builder.projectUuid;
+      this.branchCount = builder.branchCount;
+      this.pullRequestCount = builder.pullRequestCount;
+      this.qualityGate = builder.qualityGate;
+      this.scm = builder.scm;
+      this.ci = builder.ci;
+      this.devopsPlatform = builder.devopsPlatform;
+      this.bugs = builder.bugs;
+      this.vulnerabilities = builder.vulnerabilities;
+      this.securityHotspots = builder.securityHotspots;
+      this.technicalDebt = builder.technicalDebt;
+      this.developmentCost = builder.developmentCost;
+    }
+
+    public String getProjectUuid() {
+      return projectUuid;
+    }
+
+    public Long getBranchCount() {
+      return branchCount;
+    }
+
+    public Long getPullRequestCount() {
+      return pullRequestCount;
+    }
+
+    public String getQualityGate() {
+      return qualityGate;
+    }
+
+    public String getScm() {
+      return scm;
+    }
+
+    public String getCi() {
+      return ci;
+    }
+
+    public String getDevopsPlatform() {
+      return devopsPlatform;
+    }
+
+    public Optional<Long> getBugs() {
+      return Optional.ofNullable(bugs);
+    }
+
+    public Optional<Long> getVulnerabilities() {
+      return Optional.ofNullable(vulnerabilities);
+    }
+
+    public Optional<Long> getSecurityHotspots() {
+      return Optional.ofNullable(securityHotspots);
+    }
+
+    public Optional<Double> getTechnicalDebt() {
+      return Optional.ofNullable(technicalDebt);
+    }
+
+    public Optional<Double> getDevelopmentCost() {
+      return Optional.ofNullable(developmentCost);
+    }
+
+    static class Builder {
+      private String projectUuid;
+      private Long branchCount;
+      private Long pullRequestCount;
+      private String qualityGate;
+      private String scm;
+      private String ci;
+      private String devopsPlatform;
+      private Long bugs;
+      private Long vulnerabilities;
+      private Long securityHotspots;
+      private Double technicalDebt;
+      private Double developmentCost;
+
+      public Builder setProjectUuid(String projectUuid) {
+        this.projectUuid = projectUuid;
+        return this;
+      }
+
+      public Builder setBranchCount(Long branchCount) {
+        this.branchCount = branchCount;
+        return this;
+      }
+
+      public Builder setPRCount(Long pullRequestCount) {
+        this.pullRequestCount = pullRequestCount;
+        return this;
+      }
+
+      public Builder setQG(String qualityGate) {
+        this.qualityGate = qualityGate;
+        return this;
+      }
+
+      public Builder setScm(String scm) {
+        this.scm = scm;
+        return this;
+      }
+
+      public Builder setCi(String ci) {
+        this.ci = ci;
+        return this;
+      }
+
+      public Builder setDevops(String devopsPlatform) {
+        this.devopsPlatform = devopsPlatform;
+        return this;
+      }
+
+      public Builder setBugs(@Nullable Number bugs) {
+        this.bugs = bugs != null ? bugs.longValue() : null;
+        return this;
+      }
+
+      public Builder setVulnerabilities(@Nullable Number vulnerabilities) {
+        this.vulnerabilities = vulnerabilities != null ? vulnerabilities.longValue() : null;
+        return this;
+      }
+
+      public Builder setSecurityHotspots(@Nullable Number securityHotspots) {
+        this.securityHotspots = securityHotspots != null ? securityHotspots.longValue() : null;
+        return this;
+      }
+
+      public Builder setTechnicalDebt(@Nullable Number technicalDebt) {
+        this.technicalDebt = technicalDebt != null ? technicalDebt.doubleValue() : null;
+        return this;
+      }
+
+      public Builder setDevelopmentCost(@Nullable Number developmentCost) {
+        this.developmentCost = developmentCost != null ? developmentCost.doubleValue() : null;
+        return this;
+      }
+
+      public ProjectStatistics build() {
+        return new ProjectStatistics(this);
+      }
+    }
   }
 }
