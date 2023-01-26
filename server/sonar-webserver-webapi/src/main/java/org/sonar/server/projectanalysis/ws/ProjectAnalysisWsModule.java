@@ -32,9 +32,7 @@ public class ProjectAnalysisWsModule extends Module {
       UpdateEventAction.class,
       DeleteEventAction.class,
       DeleteAction.class,
-      SearchAction.class,
-      SetBaselineAction.class,
-      UnsetBaselineAction.class);
+      SearchAction.class);
   }
 
 }
