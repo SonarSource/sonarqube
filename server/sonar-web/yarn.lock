@@ -2362,13 +2362,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:29.2.4":
-  version: 29.2.4
-  resolution: "@types/jest@npm:29.2.4"
+"@types/jest@npm:29.2.6":
+  version: 29.2.6
+  resolution: "@types/jest@npm:29.2.6"
   dependencies:
     expect: ^29.0.0
     pretty-format: ^29.0.0
-  checksum: 9deb4756fe1b438d41ff1aae7d6c216c9e49e5fe60f539f8edb6698ffeb530ff7b25d37e223439b03602ca3a7397c9c2e53e1a39c7bd616353472fce0cc04107
+  checksum: 90190ac830334af1470d255853f9621fe657e5030b4d96773fc1f884833cd303c76580b00c1b86dc38a8db94f1c7141d462190437a10af31852b8845a57c48ba
   languageName: node
   linkType: hard
 
@@ -2852,7 +2852,7 @@ __metadata:
     "@types/diff": 5.0.2
     "@types/dompurify": 2.4.0
     "@types/enzyme": 3.10.12
-    "@types/jest": 29.2.4
+    "@types/jest": 29.2.6
     "@types/lodash": 4.14.191
     "@types/node": 18.11.17
     "@types/react": 16.14.34
