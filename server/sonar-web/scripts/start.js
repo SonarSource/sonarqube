@@ -62,30 +62,28 @@ function handleStaticFileRequest(req, res) {
   });
 }
 
-function run() {
+async function run() {
   console.log('starting...');
-  esbuild
-    .serve(
-      {
-        servedir: 'build/webapp'
-      },
-      config
-    )
-    .then(result => {
+  const esbuildContext = await esbuild.context(config);
+  esbuildContext
+    .serve({
+      servedir: 'build/webapp',
+    })
+    .then((result) => {
       const { port: esbuildport } = result;
 
       const proxy = httpProxy.createProxyServer();
       const esbuildProxy = httpProxy.createProxyServer({
-        target: `http://localhost:${esbuildport}`
+        target: `http://localhost:${esbuildport}`,
       });
 
-      proxy.on('error', error => {
+      proxy.on('error', (error) => {
         console.error(chalk.blue('Backend'));
         console.error('\t', chalk.red(error.message));
         console.error('\t', error.stack);
       });
 
-      esbuildProxy.on('error', error => {
+      esbuildProxy.on('error', (error) => {
         console.error(chalk.cyan('Frontend'));
         console.error('\t', chalk.red(error.message));
         console.error('\t', error.stack);
@@ -106,9 +104,9 @@ function run() {
               req,
               res,
               {
-                target: proxyTarget
+                target: proxyTarget,
               },
-              e => console.error('req error', e)
+              (e) => console.error('req error', e)
             );
           } else {
             handleStaticFileRequest(req, res);
@@ -118,7 +116,7 @@ function run() {
 
       console.log(`server started: http://localhost:${port}`);
     })
-    .catch(e => console.error(e));
+    .catch((e) => console.error(e));
 }
 
 run();
