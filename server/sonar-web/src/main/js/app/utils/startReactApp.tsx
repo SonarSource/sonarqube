@@ -21,7 +21,7 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import accountRoutes from '../../apps/account/routes';
 import auditLogsRoutes from '../../apps/audit-logs/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
@@ -57,7 +57,6 @@ import tutorialsRoutes from '../../apps/tutorials/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
-import { omitNil } from '../../helpers/request';
 import { getBaseUrl } from '../../helpers/system';
 import { AppState } from '../../types/appstate';
 import { Feature } from '../../types/features';
@@ -92,82 +91,6 @@ import ResetPassword from '../components/ResetPassword';
 import SimpleContainer from '../components/SimpleContainer';
 import SonarLintConnection from '../components/SonarLintConnection';
 import exportModulesAsGlobals from './exportModulesAsGlobals';
-import NavigateWithParams from './NavigateWithParams';
-import NavigateWithSearchAndHash from './NavigateWithSearchAndHash';
-
-function renderRedirect({ from, to }: { from: string; to: string }) {
-  return <Route path={from} element={<Navigate to={{ pathname: to }} replace={true} />} />;
-}
-
-function renderRedirects() {
-  return (
-    <>
-      <Route
-        path="/account/issues"
-        element={
-          <NavigateWithParams
-            pathname="/issues"
-            transformParams={() => ({ myIssues: 'true', resolved: 'false' })}
-          />
-        }
-      />
-
-      <Route path="/codingrules" element={<NavigateWithSearchAndHash pathname="/coding_rules" />} />
-
-      <Route
-        path="/dashboard/index/:key"
-        element={
-          <NavigateWithParams
-            pathname="/dashboard"
-            transformParams={(params) => omitNil({ id: params['key'] })}
-          />
-        }
-      />
-
-      <Route
-        path="/application/console"
-        element={
-          <NavigateWithSearchAndHash pathname="/project/admin/extension/developer-server/application-console" />
-        }
-      />
-
-      <Route
-        path="/application/settings"
-        element={
-          <NavigateWithSearchAndHash pathname="/project/admin/extension/governance/application_report" />
-        }
-      />
-
-      <Route path="/issues/search" element={<NavigateWithSearchAndHash pathname="/issues" />} />
-
-      {renderRedirect({ from: '/admin', to: '/admin/settings' })}
-      {renderRedirect({ from: '/background_tasks', to: '/admin/background_tasks' })}
-      {renderRedirect({ from: '/groups', to: '/admin/groups' })}
-      {renderRedirect({ from: '/extension/governance/portfolios', to: '/portfolios' })}
-      {renderRedirect({ from: '/permission_templates', to: '/admin/permission_templates' })}
-      {renderRedirect({ from: '/profiles/index', to: '/profiles' })}
-      {renderRedirect({ from: '/projects_admin', to: '/admin/projects_management' })}
-      {renderRedirect({ from: '/quality_gates/index', to: '/quality_gates' })}
-      {renderRedirect({ from: '/roles/global', to: '/admin/permissions' })}
-      {renderRedirect({ from: '/admin/roles/global', to: '/admin/permissions' })}
-      {renderRedirect({ from: '/settings', to: '/admin/settings' })}
-      {renderRedirect({ from: '/settings/encryption', to: '/admin/settings/encryption' })}
-      {renderRedirect({ from: '/settings/index', to: '/admin/settings' })}
-      {renderRedirect({ from: '/sessions/login', to: '/sessions/new' })}
-      {renderRedirect({ from: '/system', to: '/admin/system' })}
-      {renderRedirect({ from: '/system/index', to: '/admin/system' })}
-      {renderRedirect({ from: '/users', to: '/admin/users' })}
-      {renderRedirect({ from: '/onboarding', to: '/projects/create' })}
-      {renderRedirect({ from: '/markdown/help', to: '/formatting/help' })}
-
-      {/*
-       * This redirect enables analyzers and PDFs to link to the correct version of the
-       * documentation without having to compute the direct links themselves (DRYer).
-       */}
-      <Route path="/documentation/*" element={<DocumentationRedirect />} />
-    </>
-  );
-}
 
 function renderComponentRoutes() {
   return (
@@ -232,6 +155,18 @@ function renderAdminRoutes() {
   );
 }
 
+function renderRedirects() {
+  return (
+    <>
+      {/*
+       * This redirect enables analyzers and PDFs to link to the correct version of the
+       * documentation without having to compute the direct links themselves (DRYer).
+       */}
+      <Route path="/documentation/*" element={<DocumentationRedirect />} />
+    </>
+  );
+}
+
 export default function startReactApp(
   lang: string,
   currentUser?: CurrentUser,
@@ -252,6 +187,7 @@ export default function startReactApp(
               <BrowserRouter basename={getBaseUrl()}>
                 <Routes>
                   {renderRedirects()}
+
                   <Route path="formatting/help" element={<FormattingHelp />} />
 
                   <Route element={<SimpleContainer />}>{maintenanceRoutes()}</Route>

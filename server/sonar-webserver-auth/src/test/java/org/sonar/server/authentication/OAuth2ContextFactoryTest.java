@@ -168,24 +168,24 @@ public class OAuth2ContextFactoryTest {
 
   @Test
   public void redirect_to_requested_page() throws Exception {
-    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.of("/settings"));
+    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.of("/admin/settings"));
     when(server.getContextPath()).thenReturn("");
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.redirectToRequestedPage();
 
-    verify(response).sendRedirect("/settings");
+    verify(response).sendRedirect("/admin/settings");
   }
 
   @Test
   public void redirect_to_requested_page_does_not_need_context() throws Exception {
-    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.of("/sonarqube/settings"));
+    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.of("/admin/settings"));
     when(server.getContextPath()).thenReturn("/other");
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.redirectToRequestedPage();
 
-    verify(response).sendRedirect("/sonarqube/settings");
+    verify(response).sendRedirect("/admin/settings");
   }
 
   @Test
@@ -199,7 +199,7 @@ public class OAuth2ContextFactoryTest {
 
   @Test
   public void delete_oauth2_parameters_during_redirection() {
-    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.of("/settings"));
+    when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.of("/admin/settings"));
     when(server.getContextPath()).thenReturn("");
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 

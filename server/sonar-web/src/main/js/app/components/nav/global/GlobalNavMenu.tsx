@@ -130,7 +130,10 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
 
     return (
       <li>
-        <NavLink className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')} to="/admin">
+        <NavLink
+          className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
+          to="/admin/settings"
+        >
           {translate('layout.settings')}
         </NavLink>
       </li>

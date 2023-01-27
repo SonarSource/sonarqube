@@ -54,7 +54,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void init_create_cookie() {
-    when(request.getParameter("return_to")).thenReturn("/settings");
+    when(request.getParameter("return_to")).thenReturn("/admin/settings");
 
     underTest.init(request, response);
 
@@ -105,11 +105,11 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_parameter() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/admin/settings\"}")});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
-    assertThat(redirection).contains("/settings");
+    assertThat(redirection).contains("/admin/settings");
   }
 
   @Test
@@ -132,7 +132,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void delete() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/admin/settings\"}")});
 
     underTest.delete(request, response);
 
