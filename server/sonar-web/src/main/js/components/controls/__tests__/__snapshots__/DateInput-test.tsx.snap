@@ -58,7 +58,7 @@ exports[`should render 2`] = `
           fill=""
         />
         <ClearButton
-          aria-label="reset_verb"
+          aria-label="reset_date"
           className="button-tiny date-input-control-reset"
           iconProps={
             {
@@ -100,7 +100,7 @@ exports[`should render 3`] = `
           fill=""
         />
         <ClearButton
-          aria-label="reset_verb"
+          aria-label="reset_date"
           className="button-tiny date-input-control-reset"
           iconProps={
             {

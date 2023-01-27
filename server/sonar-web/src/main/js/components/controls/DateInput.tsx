@@ -186,7 +186,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
               <CalendarIcon className="date-input-control-icon" fill="" />
               {value !== undefined && (
                 <ClearButton
-                  aria-label={translate('reset_verb')}
+                  aria-label={translate('reset_date')}
                   className="button-tiny date-input-control-reset"
                   iconProps={{ size: 12 }}
                   onClick={this.handleResetClick}
