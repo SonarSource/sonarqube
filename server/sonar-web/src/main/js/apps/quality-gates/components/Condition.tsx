@@ -21,11 +21,25 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { deleteCondition } from '../../../api/quality-gates';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
+import { colors } from '../../../app/theme';
 import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
+import Tooltip from '../../../components/controls/Tooltip';
+import InfoIcon from '../../../components/icons/InfoIcon';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
-import { Condition as ConditionType, Dict, Metric, QualityGate } from '../../../types/types';
-import { CAYC_CONDITIONS_WITHOUT_FIXED_VALUE, getLocalizedMetricNameNoDiffMetric } from '../utils';
+import {
+  CaycStatus,
+  Condition as ConditionType,
+  Dict,
+  Metric,
+  QualityGate,
+} from '../../../types/types';
+import {
+  CAYC_CONDITIONS_WITH_FIXED_VALUE,
+  getLocalizedMetricNameNoDiffMetric,
+  isCaycCondition,
+} from '../utils';
+import CaycOverCompliantBadgeTooltip from './CaycOverCompliantBadgeTooltip';
 import ConditionModal from './ConditionModal';
 import ConditionValue from './ConditionValue';
 
@@ -47,6 +61,7 @@ interface State {
   modal: boolean;
 }
 
+const TOOLTIP_MOUSE_LEAVE_DELAY = 0.3;
 export class ConditionComponent extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -103,6 +118,8 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
       isCaycModal = false,
     } = this.props;
 
+    const isCaycCompliantAndOverCompliant = qualityGate.caycStatus !== CaycStatus.NonCompliant;
+
     return (
       <tr className={classNames({ highlighted: updated })}>
         <td className="text-middle">
@@ -119,15 +136,25 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
             metric={metric}
             isCaycModal={isCaycModal}
             condition={condition}
-            isCaycCompliant={qualityGate.isCaycCompliant}
+            isCaycCompliantAndOverCompliant={isCaycCompliantAndOverCompliant}
           />
         </td>
         <td className="text-middle nowrap display-flex-justify-end">
+          {!isCaycCondition(condition) && isCaycCompliantAndOverCompliant && (
+            <span className="display-flex-center spacer-right">
+              <Tooltip
+                overlay={<CaycOverCompliantBadgeTooltip />}
+                mouseLeaveDelay={TOOLTIP_MOUSE_LEAVE_DELAY}
+              >
+                <InfoIcon fill={colors.alertIconInfo} />
+              </Tooltip>
+            </span>
+          )}
           {!isCaycModal && canEdit && (
             <>
-              {(!qualityGate.isCaycCompliant ||
-                CAYC_CONDITIONS_WITHOUT_FIXED_VALUE.includes(condition.metric) ||
-                (qualityGate.isCaycCompliant && showEdit)) && (
+              {(!isCaycCompliantAndOverCompliant ||
+                !CAYC_CONDITIONS_WITH_FIXED_VALUE.includes(condition.metric) ||
+                (isCaycCompliantAndOverCompliant && showEdit)) && (
                 <>
                   <EditButton
                     aria-label={translateWithParameters(
@@ -150,7 +177,9 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
                   )}
                 </>
               )}
-              {(!qualityGate.isCaycCompliant || (qualityGate.isCaycCompliant && showEdit)) && (
+              {(!isCaycCompliantAndOverCompliant ||
+                !isCaycCondition(condition) ||
+                (isCaycCompliantAndOverCompliant && showEdit)) && (
                 <>
                   <DeleteButton
                     aria-label={translateWithParameters(

@@ -187,13 +187,13 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         if (this.mounted) {
           const qgStatuses = results
             .map(({ measures = [], project, projectBranchLike }) => {
-              const { key, name, status, isCaycCompliant } = project;
+              const { key, name, status, caycStatus } = project;
               const conditions = extractStatusConditionsFromApplicationStatusChildProject(project);
               const failedConditions = this.getFailedConditions(conditions, measures);
 
               return {
                 failedConditions,
-                isCaycCompliant,
+                caycStatus,
                 key,
                 name,
                 status,
@@ -241,13 +241,13 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     this.loadMeasuresAndMeta(key, branch, metricKeys).then(
       ({ measures, metrics, period }) => {
         if (this.mounted && measures) {
-          const { ignoredConditions, isCaycCompliant, status } = projectStatus;
+          const { ignoredConditions, caycStatus, status } = projectStatus;
           const conditions = extractStatusConditionsFromProjectStatus(projectStatus);
           const failedConditions = this.getFailedConditions(conditions, measures);
 
           const qgStatus = {
             ignoredConditions,
-            isCaycCompliant,
+            caycStatus,
             failedConditions,
             key,
             name,

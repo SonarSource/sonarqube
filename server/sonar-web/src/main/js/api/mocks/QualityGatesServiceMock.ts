@@ -23,7 +23,7 @@ import { mockQualityGate } from '../../helpers/mocks/quality-gates';
 import { mockUserBase } from '../../helpers/mocks/users';
 import { mockCondition, mockGroup } from '../../helpers/testMocks';
 import { MetricKey } from '../../types/metrics';
-import { Condition, QualityGate } from '../../types/types';
+import { CaycStatus, Condition, QualityGate } from '../../types/types';
 import {
   addGroup,
   addUser,
@@ -84,7 +84,7 @@ export class QualityGatesServiceMock {
         ],
         isDefault: true,
         isBuiltIn: false,
-        isCaycCompliant: true,
+        caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
         name: 'SonarSource way - CFamily',
@@ -95,6 +95,7 @@ export class QualityGatesServiceMock {
         ],
         isDefault: false,
         isBuiltIn: false,
+        caycStatus: CaycStatus.NonCompliant,
       }),
       mockQualityGate({
         name: 'Sonar way',
@@ -123,7 +124,7 @@ export class QualityGatesServiceMock {
         ],
         isDefault: false,
         isBuiltIn: true,
-        isCaycCompliant: true,
+        caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
         name: 'Non Cayc QG',
@@ -134,14 +135,45 @@ export class QualityGatesServiceMock {
         ],
         isDefault: false,
         isBuiltIn: false,
-        isCaycCompliant: false,
+        caycStatus: CaycStatus.NonCompliant,
+      }),
+      mockQualityGate({
+        name: 'Over Compliant CAYC QG',
+        conditions: [
+          { id: 'deprecatedoc', metric: 'function_complexity', op: 'LT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eOFoc', metric: 'new_coverage', op: 'LT', error: '80' },
+          { id: 'AXJMbIUHPAOIsUIE3eNsoc', metric: 'new_security_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eODoc', metric: 'new_reliability_rating', op: 'GT', error: '1' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOEoc',
+            metric: 'new_maintainability_rating',
+            op: 'GT',
+            error: '1',
+          },
+          { id: 'AXJMbIUHPAOIsUIE3eOFocdl', metric: 'new_coverage', op: 'LT', error: '80' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOGoc',
+            metric: 'new_duplicated_lines_density',
+            op: 'GT',
+            error: '3',
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOkoc',
+            metric: 'new_security_hotspots_reviewed',
+            op: 'LT',
+            error: '100',
+          },
+        ],
+        isDefault: false,
+        isBuiltIn: false,
+        caycStatus: CaycStatus.OverCompliant,
       }),
       mockQualityGate({
         name: 'QG without conditions',
         conditions: [],
         isDefault: false,
         isBuiltIn: false,
-        isCaycCompliant: false,
+        caycStatus: CaycStatus.NonCompliant,
       }),
       mockQualityGate({
         name: 'QG without new code conditions',
@@ -150,7 +182,7 @@ export class QualityGatesServiceMock {
         ],
         isDefault: false,
         isBuiltIn: false,
-        isCaycCompliant: false,
+        caycStatus: CaycStatus.NonCompliant,
       }),
     ];
 
@@ -279,7 +311,7 @@ export class QualityGatesServiceMock {
         ],
         isDefault: false,
         isBuiltIn: false,
-        isCaycCompliant: true,
+        caycStatus: CaycStatus.Compliant,
       })
     );
     return this.reply({

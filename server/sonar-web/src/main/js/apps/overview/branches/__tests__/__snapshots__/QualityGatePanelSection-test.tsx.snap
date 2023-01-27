@@ -40,6 +40,7 @@ exports[`should render correctly 1`] = `
   <Memo(QualityGateConditions)
     component={
       {
+        "caycStatus": "non-compliant",
         "failedConditions": [
           {
             "actual": "10",
@@ -89,7 +90,6 @@ exports[`should render correctly 1`] = `
           },
         ],
         "ignoredConditions": false,
-        "isCaycCompliant": false,
         "key": "foo",
         "name": "Foo",
         "status": "ERROR",
@@ -131,6 +131,7 @@ exports[`should render correctly 1`] = `
   <Memo(QualityGateConditions)
     component={
       {
+        "caycStatus": "non-compliant",
         "failedConditions": [
           {
             "actual": "10",
@@ -180,7 +181,6 @@ exports[`should render correctly 1`] = `
           },
         ],
         "ignoredConditions": false,
-        "isCaycCompliant": false,
         "key": "foo",
         "name": "Foo",
         "status": "ERROR",
@@ -251,6 +251,7 @@ exports[`should render correctly 2`] = `
   <Memo(QualityGateConditions)
     component={
       {
+        "caycStatus": "non-compliant",
         "failedConditions": [
           {
             "actual": "10",
@@ -300,7 +301,6 @@ exports[`should render correctly 2`] = `
           },
         ],
         "ignoredConditions": false,
-        "isCaycCompliant": false,
         "key": "foo",
         "name": "Foo",
         "status": "ERROR",
@@ -342,6 +342,7 @@ exports[`should render correctly 2`] = `
   <Memo(QualityGateConditions)
     component={
       {
+        "caycStatus": "non-compliant",
         "failedConditions": [
           {
             "actual": "10",
@@ -391,7 +392,6 @@ exports[`should render correctly 2`] = `
           },
         ],
         "ignoredConditions": false,
-        "isCaycCompliant": false,
         "key": "foo",
         "name": "Foo",
         "status": "ERROR",

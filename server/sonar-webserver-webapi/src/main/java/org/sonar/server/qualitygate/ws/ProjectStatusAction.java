@@ -42,6 +42,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
+import org.sonar.server.qualitygate.QualityGateCaycStatus;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
@@ -95,7 +96,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       .setSince("5.3")
       .setHandler(this)
       .setChangelog(
-        new Change("9.9", "'isCaycCompliant' field is added to the response"),
+        new Change("9.9", "'caycStatus' field is added to the response"),
         new Change("9.5", "The 'Execute Analysis' permission also allows to access the endpoint"),
         new Change("8.5", "The field 'periods' in the response is deprecated. Use 'period' instead"),
         new Change("7.7", "The parameters 'branch' and 'pullRequest' were added"),
@@ -152,10 +153,10 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, analysisId, projectUuid, projectKey, branchKey, pullRequestId);
     checkPermission(projectAndSnapshot.project);
     Optional<String> measureData = loadQualityGateDetails(dbSession, projectAndSnapshot, analysisId != null);
-    boolean isCaycCompliant = qualityGateCaycChecker.checkCaycCompliantFromProject(dbSession, projectAndSnapshot.project.getUuid());
+    QualityGateCaycStatus caycStatus = qualityGateCaycChecker.checkCaycCompliantFromProject(dbSession, projectAndSnapshot.project.getUuid());
 
     return ProjectStatusResponse.newBuilder()
-      .setProjectStatus(new QualityGateDetailsFormatter(measureData.orElse(null), projectAndSnapshot.snapshotDto.orElse(null), isCaycCompliant).format())
+      .setProjectStatus(new QualityGateDetailsFormatter(measureData.orElse(null), projectAndSnapshot.snapshotDto.orElse(null), caycStatus).format())
       .build();
   }
 

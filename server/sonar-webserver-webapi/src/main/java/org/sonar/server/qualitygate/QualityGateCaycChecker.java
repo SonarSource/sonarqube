@@ -40,6 +40,9 @@ import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
 
 public class QualityGateCaycChecker {
 
@@ -67,13 +70,13 @@ public class QualityGateCaycChecker {
     this.dbClient = dbClient;
   }
 
-  public boolean checkCaycCompliant(DbSession dbSession, String qualityGateUuid) {
+  public QualityGateCaycStatus checkCaycCompliant(DbSession dbSession, String qualityGateUuid) {
     var conditionsByMetricId = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateUuid)
       .stream()
       .collect(uniqueIndex(QualityGateConditionDto::getMetricUuid));
 
-    if (conditionsByMetricId.size() != CAYC_METRICS.size()) {
-      return false;
+    if (conditionsByMetricId.size() < CAYC_METRICS.size()) {
+      return NON_COMPLIANT;
     }
 
     var metrics = dbClient.metricDao().selectByUuids(dbSession, conditionsByMetricId.keySet())
@@ -85,14 +88,20 @@ public class QualityGateCaycChecker {
       .filter(metric -> checkMetricCaycCompliant(conditionsByMetricId.get(metric.getUuid()), metric))
       .count();
 
-    return count == CAYC_METRICS.size();
+    if (metrics.size() == count && count == CAYC_METRICS.size()) {
+      return COMPLIANT;
+    } else if (metrics.size() > count && count == CAYC_METRICS.size()) {
+      return OVER_COMPLIANT;
+    }
+
+    return NON_COMPLIANT;
   }
 
-  public boolean checkCaycCompliantFromProject(DbSession dbSession, String projectUuid) {
+  public QualityGateCaycStatus checkCaycCompliantFromProject(DbSession dbSession, String projectUuid) {
     return Optional.ofNullable(dbClient.qualityGateDao().selectByProjectUuid(dbSession, projectUuid))
       .or(() -> Optional.ofNullable(dbClient.qualityGateDao().selectDefault(dbSession)))
       .map(qualityGate -> checkCaycCompliant(dbSession, qualityGate.getUuid()))
-      .orElse(false);
+      .orElse(NON_COMPLIANT);
   }
 
   private static boolean checkMetricCaycCompliant(QualityGateConditionDto condition, MetricDto metric) {

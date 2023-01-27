@@ -35,6 +35,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
+import org.sonar.server.qualitygate.QualityGateCaycStatus;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonarqube.ws.Qualitygates.ShowWsResponse;
 
@@ -71,7 +72,7 @@ public class ShowAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
       .setChangelog(
-        new Change("9.9", "'isCaycCompliant' field is added to the response"),
+        new Change("9.9", "'caycStatus' field is added to the response"),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."),
         new Change("8.4", "Field 'id' in the response is deprecated."),
         new Change("7.6", "'period' and 'warning' fields of conditions are removed from the response"),
@@ -99,8 +100,8 @@ public class ShowAction implements QualityGatesWsAction {
       Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate);
       Map<String, MetricDto> metricsByUuid = getMetricsByUuid(dbSession, conditions);
       QualityGateDto defaultQualityGate = qualityGateFinder.getDefault(dbSession);
-      boolean isCaycCompliant = qualityGateCaycChecker.checkCaycCompliant(dbSession, qualityGate.getUuid());
-      writeProtobuf(buildResponse(dbSession, qualityGate, defaultQualityGate, conditions, metricsByUuid, isCaycCompliant), request, response);
+      QualityGateCaycStatus caycStatus = qualityGateCaycChecker.checkCaycCompliant(dbSession, qualityGate.getUuid());
+      writeProtobuf(buildResponse(dbSession, qualityGate, defaultQualityGate, conditions, metricsByUuid, caycStatus), request, response);
     }
   }
 
@@ -124,12 +125,12 @@ public class ShowAction implements QualityGatesWsAction {
   }
 
   private ShowWsResponse buildResponse(DbSession dbSession, QualityGateDto qualityGate, QualityGateDto defaultQualityGate, Collection<QualityGateConditionDto> conditions,
-    Map<String, MetricDto> metricsByUuid, boolean isCaycCompliant) {
+    Map<String, MetricDto> metricsByUuid, QualityGateCaycStatus caycStatus) {
     return ShowWsResponse.newBuilder()
       .setId(qualityGate.getUuid())
       .setName(qualityGate.getName())
       .setIsBuiltIn(qualityGate.isBuiltIn())
-      .setIsCaycCompliant(isCaycCompliant)
+      .setCaycStatus(caycStatus.toString())
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsByUuid))
         .collect(toList()))

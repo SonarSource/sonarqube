@@ -24,7 +24,7 @@ import ModalButton from '../../../components/controls/ModalButton';
 import Tooltip from '../../../components/controls/Tooltip';
 import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
 import { translate } from '../../../helpers/l10n';
-import { QualityGate } from '../../../types/types';
+import { CaycStatus, QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import CaycBadgeTooltip from './CaycBadgeTooltip';
 import CopyQualityGateForm from './CopyQualityGateForm';
@@ -64,7 +64,6 @@ export default class DetailsHeader extends React.PureComponent<Props> {
   render() {
     const { qualityGate } = this.props;
     const actions = qualityGate.actions || ({} as any);
-    const { isCaycCompliant } = qualityGate;
 
     return (
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
@@ -73,7 +72,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
             <div className="pull-left display-flex-center">
               <h2>{qualityGate.name}</h2>
               {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="spacer-left" />}
-              {!qualityGate.isCaycCompliant && (
+              {qualityGate.caycStatus === CaycStatus.NonCompliant && (
                 <Tooltip overlay={<CaycBadgeTooltip />} mouseLeaveDelay={TOOLTIP_MOUSE_LEAVE_DELAY}>
                   <AlertWarnIcon className="spacer-left" />
                 </Tooltip>
@@ -111,7 +110,9 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                   {({ onClick }) => (
                     <Tooltip
                       overlay={
-                        !isCaycCompliant ? translate('quality_gates.cannot_copy_no_cayc') : null
+                        qualityGate.caycStatus === CaycStatus.NonCompliant
+                          ? translate('quality_gates.cannot_copy_no_cayc')
+                          : null
                       }
                       accessible={false}
                     >
@@ -119,7 +120,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                         className="little-spacer-left"
                         id="quality-gate-copy"
                         onClick={onClick}
-                        disabled={!isCaycCompliant}
+                        disabled={qualityGate.caycStatus === CaycStatus.NonCompliant}
                       >
                         {translate('copy')}
                       </Button>
@@ -130,13 +131,15 @@ export default class DetailsHeader extends React.PureComponent<Props> {
               {actions.setAsDefault && (
                 <Tooltip
                   overlay={
-                    !isCaycCompliant ? translate('quality_gates.cannot_set_default_no_cayc') : null
+                    qualityGate.caycStatus === CaycStatus.NonCompliant
+                      ? translate('quality_gates.cannot_set_default_no_cayc')
+                      : null
                   }
                   accessible={false}
                 >
                   <Button
                     className="little-spacer-left"
-                    disabled={!isCaycCompliant}
+                    disabled={qualityGate.caycStatus === CaycStatus.NonCompliant}
                     id="quality-gate-toggle-default"
                     onClick={this.handleSetAsDefaultClick}
                   >

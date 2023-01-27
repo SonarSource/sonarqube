@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -43,12 +44,14 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.Qualitygates.Actions;
 
@@ -63,6 +66,11 @@ public class ShowActionTest {
   private final WsActionTester ws = new WsActionTester(
     new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()),
       new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db)), qualityGateCaycChecker));
+
+  @Before
+  public void setUp() {
+    when(qualityGateCaycChecker.checkCaycCompliant(any(), any())).thenReturn(COMPLIANT);
+  }
 
   @Test
   public void show() {
@@ -103,14 +111,14 @@ public class ShowActionTest {
   @Test
   public void show_isCaycCompliant() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    when(qualityGateCaycChecker.checkCaycCompliant(any(DbSession.class), eq(qualityGate.getUuid()))).thenReturn(true);
+    when(qualityGateCaycChecker.checkCaycCompliant(any(DbSession.class), eq(qualityGate.getUuid()))).thenReturn(COMPLIANT);
     db.qualityGates().setDefaultQualityGate(qualityGate);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
       .executeProtobuf(ShowWsResponse.class);
 
-    assertThat(response.getIsCaycCompliant()).isTrue();
+    assertEquals(COMPLIANT.toString(), response.getCaycStatus());
   }
 
   @Test

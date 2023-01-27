@@ -63,6 +63,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -83,6 +84,7 @@ import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
 import static org.sonar.server.telemetry.TelemetryDataLoaderImpl.SCIM_PROPERTY_ENABLED;
 
 @RunWith(DataProviderRunner.class)
@@ -118,6 +120,7 @@ public class TelemetryDataLoaderImplTest {
   public void setUpBuiltInQualityGate() {
     String builtInQgName = "Sonar Way";
     builtInDefaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
+    when(qualityGateCaycChecker.checkCaycCompliant(any(), any())).thenReturn(NON_COMPLIANT);
     db.qualityGates().setDefaultQualityGate(builtInDefaultQualityGate);
 
     bugsDto = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
@@ -229,11 +232,11 @@ public class TelemetryDataLoaderImplTest {
         tuple(1L, 0L, qualityGate1.getUuid(), "scm-1", "ci-1", "azure_devops_cloud", Optional.of(1L), Optional.of(1L), Optional.of(1L), Optional.of(50L), Optional.of(5L)),
         tuple(1L, 0L, builtInDefaultQualityGate.getUuid(), "scm-2", "ci-2", "github_cloud", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
     assertThat(data.getQualityGates())
-      .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::isCaycCompliant)
+      .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::caycStatus)
       .containsExactlyInAnyOrder(
-        tuple(builtInDefaultQualityGate.getUuid(), false),
-        tuple(qualityGate1.getUuid(), false),
-        tuple(qualityGate2.getUuid(), false)
+        tuple(builtInDefaultQualityGate.getUuid(), "non-compliant"),
+        tuple(qualityGate1.getUuid(), "non-compliant"),
+        tuple(qualityGate2.getUuid(), "non-compliant")
       );
   }
 

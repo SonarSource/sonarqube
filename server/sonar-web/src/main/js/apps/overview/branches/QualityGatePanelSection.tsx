@@ -29,9 +29,10 @@ import {
   QualityGateStatus,
   QualityGateStatusConditionEnhanced,
 } from '../../../types/quality-gates';
-import { Component } from '../../../types/types';
+import { CaycStatus, Component } from '../../../types/types';
 import QualityGateConditions from '../components/QualityGateConditions';
 import CleanAsYouCodeWarning from './CleanAsYouCodeWarning';
+import CleanAsYouCodeWarningOverCompliant from './CleanAsYouCodeWarningOverCompliant';
 
 export interface QualityGatePanelSectionProps {
   branchLike?: BranchLike;
@@ -85,7 +86,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
   if (
     !(
       qgStatus.failedConditions.length > 0 ||
-      (!qgStatus.isCaycCompliant && !isApplication(component.qualifier))
+      (qgStatus.caycStatus !== CaycStatus.Compliant && !isApplication(component.qualifier))
     )
   ) {
     return null;
@@ -99,7 +100,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
 
   const showSectionTitles =
     isApplication(component.qualifier) ||
-    !qgStatus.isCaycCompliant ||
+    qgStatus.caycStatus !== CaycStatus.Compliant ||
     (overallFailedConditions.length > 0 && newCodeFailedConditions.length > 0);
 
   const toggleLabel = collapsed
@@ -130,11 +131,19 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
 
       {!collapsed && (
         <>
-          {!qgStatus.isCaycCompliant && !isApplication(component.qualifier) && (
-            <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
-              <CleanAsYouCodeWarning component={component} />
-            </div>
-          )}
+          {qgStatus.caycStatus === CaycStatus.NonCompliant &&
+            !isApplication(component.qualifier) && (
+              <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
+                <CleanAsYouCodeWarning component={component} />
+              </div>
+            )}
+
+          {qgStatus.caycStatus === CaycStatus.OverCompliant &&
+            !isApplication(component.qualifier) && (
+              <div className="big-padded bordered-bottom overview-quality-gate-conditions-list">
+                <CleanAsYouCodeWarningOverCompliant component={component} />
+              </div>
+            )}
 
           {newCodeFailedConditions.length > 0 && (
             <>

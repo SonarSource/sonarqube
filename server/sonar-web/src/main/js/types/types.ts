@@ -506,6 +506,12 @@ export interface ProjectLink {
   url: string;
 }
 
+export enum CaycStatus {
+  Compliant = 'compliant',
+  NonCompliant = 'non-compliant',
+  OverCompliant = 'over-compliant',
+}
+
 export interface QualityGate {
   actions?: {
     associateProjects?: boolean;
@@ -518,7 +524,7 @@ export interface QualityGate {
   };
   conditions?: Condition[];
   isBuiltIn?: boolean;
-  isCaycCompliant?: boolean;
+  caycStatus?: CaycStatus;
   isDefault?: boolean;
   name: string;
 }

@@ -86,7 +86,7 @@ export default class Details extends React.PureComponent<Props, State> {
       addGlobalSuccessMessage(translate('quality_gates.condition_added'));
 
       const updatedQualityGate = addCondition(clone(qualityGate), condition);
-      if (qualityGate.isCaycCompliant !== updatedQualityGate.isCaycCompliant) {
+      if (qualityGate.caycStatus !== updatedQualityGate.caycStatus) {
         this.props.refreshQualityGates();
       }
 
@@ -104,7 +104,7 @@ export default class Details extends React.PureComponent<Props, State> {
       }
       addGlobalSuccessMessage(translate('quality_gates.condition_updated'));
       const updatedQualityGate = replaceCondition(clone(qualityGate), newCondition, oldCondition);
-      if (qualityGate.isCaycCompliant !== updatedQualityGate.isCaycCompliant) {
+      if (qualityGate.caycStatus !== updatedQualityGate.caycStatus) {
         this.props.refreshQualityGates();
       }
       return {
@@ -121,7 +121,7 @@ export default class Details extends React.PureComponent<Props, State> {
       }
       addGlobalSuccessMessage(translate('quality_gates.condition_deleted'));
       const updatedQualityGate = deleteCondition(clone(qualityGate), condition);
-      if (qualityGate.isCaycCompliant !== updatedQualityGate.isCaycCompliant) {
+      if (qualityGate.caycStatus !== updatedQualityGate.caycStatus) {
         this.props.refreshQualityGates();
       }
       return {

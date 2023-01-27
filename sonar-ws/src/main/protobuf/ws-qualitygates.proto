@@ -36,7 +36,7 @@ message ProjectStatusResponse {
     repeated Period periods = 3;
     optional bool ignoredConditions = 4;
     optional NewCodePeriod period = 5;
-    optional bool isCaycCompliant = 6;
+    optional string caycStatus = 6;
   }
 
   message Condition {
@@ -131,7 +131,7 @@ message ShowWsResponse {
   repeated Condition conditions = 3;
   optional bool isBuiltIn = 4;
   optional Actions actions = 5;
-  optional bool isCaycCompliant = 6;
+  optional string caycStatus = 6;
 
   message Condition {
     optional string id = 1;
@@ -168,7 +168,7 @@ message ListWsResponse {
     optional bool isDefault = 3;
     optional bool isBuiltIn = 4;
     optional Actions actions = 5;
-    optional bool isCaycCompliant = 6;
+    optional string caycStatus = 6;
   }
 
   message RootActions {

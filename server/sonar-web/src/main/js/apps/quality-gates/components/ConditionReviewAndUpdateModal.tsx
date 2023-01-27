@@ -20,16 +20,12 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { createCondition, deleteCondition, updateCondition } from '../../../api/quality-gates';
+import { createCondition, updateCondition } from '../../../api/quality-gates';
 import DocLink from '../../../components/common/DocLink';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Condition, Dict, Metric, QualityGate } from '../../../types/types';
-import {
-  getCaycConditionsWithCorrectValue,
-  getCorrectCaycCondition,
-  getWeakMissingAndNonCaycConditions,
-} from '../utils';
+import { getCorrectCaycCondition, getWeakMissingAndNonCaycConditions } from '../utils';
 import ConditionsTable from './ConditionsTable';
 
 interface Props {
@@ -50,8 +46,7 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
   updateCaycQualityGate = () => {
     const { conditions, qualityGate } = this.props;
     const promiseArr: Promise<Condition | undefined | void>[] = [];
-    const { weakConditions, missingConditions, nonCaycConditions } =
-      getWeakMissingAndNonCaycConditions(conditions);
+    const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
 
     weakConditions.forEach((condition) => {
       promiseArr.push(
@@ -80,14 +75,6 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
       );
     });
 
-    nonCaycConditions.forEach((condition) => {
-      promiseArr.push(
-        deleteCondition({ id: condition.id })
-          .then(() => this.props.onRemoveCondition(condition))
-          .catch(() => undefined)
-      );
-    });
-
     return Promise.all(promiseArr).then(() => {
       this.props.lockEditing();
     });
@@ -95,11 +82,18 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
 
   render() {
     const { conditions, qualityGate, metrics } = this.props;
-    const caycConditionsWithCorrectValue = getCaycConditionsWithCorrectValue(conditions);
-    const sortedConditions = sortBy(
-      caycConditionsWithCorrectValue,
+
+    const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
+    const sortedWeakConditions = sortBy(
+      weakConditions,
       (condition) => metrics[condition.metric] && metrics[condition.metric].name
     );
+
+    const sortedMissingConditions = sortBy(
+      missingConditions,
+      (condition) => metrics[condition.metric] && metrics[condition.metric].name
+    );
+
     return (
       <ConfirmModal
         header={translateWithParameters(
@@ -125,18 +119,44 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
               }}
             />
           </p>
-          <p className="big-spacer-top big-spacer-bottom">
+
+          {sortedMissingConditions.length > 0 && (
+            <>
+              <h4 className="big-spacer-top spacer-bottom">
+                {translateWithParameters(
+                  'quality_gates.cayc.review_update_modal.add_condition.header',
+                  sortedMissingConditions.length
+                )}
+              </h4>
+              <ConditionsTable
+                {...this.props}
+                conditions={sortedMissingConditions}
+                showEdit={false}
+                isCaycModal={true}
+              />
+            </>
+          )}
+
+          {sortedWeakConditions.length > 0 && (
+            <>
+              <h4 className="big-spacer-top spacer-bottom">
+                {translateWithParameters(
+                  'quality_gates.cayc.review_update_modal.modify_condition.header',
+                  sortedWeakConditions.length
+                )}
+              </h4>
+              <ConditionsTable
+                {...this.props}
+                conditions={sortedWeakConditions}
+                showEdit={false}
+                isCaycModal={true}
+              />
+            </>
+          )}
+
+          <h4 className="big-spacer-top spacer-bottom">
             {translate('quality_gates.cayc.review_update_modal.description2')}
-          </p>
-          <h3 className="medium text-normal spacer-top spacer-bottom">
-            {translate('quality_gates.conditions.new_code', 'long')}
-          </h3>
-          <ConditionsTable
-            {...this.props}
-            conditions={sortedConditions}
-            showEdit={false}
-            isCaycModal={true}
-          />
+          </h4>
         </div>
       </ConfirmModal>
     );

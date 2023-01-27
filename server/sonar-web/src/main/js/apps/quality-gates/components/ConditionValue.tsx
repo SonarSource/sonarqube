@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { formatMeasure } from '../../../helpers/measures';
 import { Condition, Metric } from '../../../types/types';
@@ -27,17 +28,33 @@ interface Props {
   condition: Condition;
   isCaycModal?: boolean;
   metric: Metric;
-  isCaycCompliant?: boolean;
+  isCaycCompliantAndOverCompliant?: boolean;
 }
 
-function ConditionValue({ condition, isCaycModal, metric, isCaycCompliant }: Props) {
+function ConditionValue({
+  condition,
+  isCaycModal,
+  metric,
+  isCaycCompliantAndOverCompliant,
+}: Props) {
   if (isCaycModal) {
+    const isToBeModified = condition.error !== getCorrectCaycCondition(condition).error;
+
     return (
       <>
-        <span className="spacer-right">
+        {isToBeModified && (
+          <span className="red-text strike-through spacer-right">
+            {formatMeasure(condition.error, metric.type)}
+          </span>
+        )}
+        <span className={classNames('spacer-right', { 'green-text': isToBeModified })}>
           {formatMeasure(getCorrectCaycCondition(condition).error, metric.type)}
         </span>
-        <ConditionValueDescription condition={getCorrectCaycCondition(condition)} metric={metric} />
+        <ConditionValueDescription
+          className={classNames({ 'green-text': isToBeModified })}
+          condition={getCorrectCaycCondition(condition)}
+          metric={metric}
+        />
       </>
     );
   }
@@ -45,7 +62,7 @@ function ConditionValue({ condition, isCaycModal, metric, isCaycCompliant }: Pro
   return (
     <>
       <span className="spacer-right">{formatMeasure(condition.error, metric.type)}</span>
-      {isCaycCompliant && isCaycCondition(condition) && (
+      {isCaycCompliantAndOverCompliant && isCaycCondition(condition) && (
         <ConditionValueDescription condition={condition} metric={metric} />
       )}
     </>

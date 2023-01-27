@@ -453,15 +453,15 @@ public class TelemetryDataJsonWriterTest {
         "quality-gates": [
           {
             "uuid": "uuid-0",
-            "isCaycCompliant": true
+            "caycStatus": "non-compliant"
           },
           {
             "uuid": "uuid-1",
-            "isCaycCompliant": false
+            "caycStatus": "compliant"
           },
           {
             "uuid": "uuid-2",
-            "isCaycCompliant": true
+            "caycStatus": "over-compliant"
           }
         ]
       }
@@ -518,8 +518,9 @@ public class TelemetryDataJsonWriterTest {
   }
 
   private List<TelemetryData.QualityGate> attachQualityGates() {
-    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.QualityGate("uuid-" + i, i % 2 == 0))
-      .collect(Collectors.toList());
+    return List.of(new TelemetryData.QualityGate("uuid-0", "non-compliant"),
+      new TelemetryData.QualityGate("uuid-1", "compliant"),
+      new TelemetryData.QualityGate("uuid-2", "over-compliant"));
   }
 
   @DataProvider

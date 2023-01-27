@@ -174,7 +174,7 @@ public class TelemetryDataJsonWriter {
       statistics.getQualityGates().forEach(qualityGate -> {
         json.beginObject();
         json.prop("uuid", qualityGate.uuid());
-        json.prop("isCaycCompliant", qualityGate.isCaycCompliant());
+        json.prop("caycStatus", qualityGate.caycStatus());
         json.endObject();
       });
       json.endArray();

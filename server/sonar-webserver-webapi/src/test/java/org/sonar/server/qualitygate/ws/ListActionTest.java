@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -43,6 +44,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.Qualitygates.ListWsResponse;
 
@@ -60,6 +64,11 @@ public class ListActionTest {
 
   private final WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(),
     new QualityGatesWsSupport(dbClient, userSession, TestComponentFinder.from(db)), qualityGateFinder, qualityGateCaycChecker));
+
+  @Before
+  public void setUp() {
+    when(qualityGateCaycChecker.checkCaycCompliant(any(), any())).thenReturn(COMPLIANT);
+  }
 
   @Test
   public void list_quality_gates() {
@@ -94,11 +103,13 @@ public class ListActionTest {
   }
 
   @Test
-  public void test_isCaycCompliant_flag() {
+  public void test_caycStatus_flag() {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
-    when(qualityGateCaycChecker.checkCaycCompliant(any(DbSession.class), eq(qualityGate1.getUuid()))).thenReturn(true);
-    when(qualityGateCaycChecker.checkCaycCompliant(any(DbSession.class), eq(qualityGate2.getUuid()))).thenReturn(false);
+    QualityGateDto qualityGate3 = db.qualityGates().insertQualityGate();
+    when(qualityGateCaycChecker.checkCaycCompliant(any(DbSession.class), eq(qualityGate1.getUuid()))).thenReturn(COMPLIANT);
+    when(qualityGateCaycChecker.checkCaycCompliant(any(DbSession.class), eq(qualityGate2.getUuid()))).thenReturn(NON_COMPLIANT);
+    when(qualityGateCaycChecker.checkCaycCompliant(any(DbSession.class), eq(qualityGate3.getUuid()))).thenReturn(OVER_COMPLIANT);
 
     db.qualityGates().setDefaultQualityGate(qualityGate1);
 
@@ -106,10 +117,11 @@ public class ListActionTest {
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getQualitygatesList())
-      .extracting(QualityGate::getId, QualityGate::getIsCaycCompliant)
+      .extracting(QualityGate::getId, QualityGate::getCaycStatus)
       .containsExactlyInAnyOrder(
-        tuple(qualityGate1.getUuid(), true),
-        tuple(qualityGate2.getUuid(), false));
+        tuple(qualityGate1.getUuid(), COMPLIANT.toString()),
+        tuple(qualityGate2.getUuid(), NON_COMPLIANT.toString()),
+        tuple(qualityGate3.getUuid(), OVER_COMPLIANT.toString()));
   }
 
   @Test
