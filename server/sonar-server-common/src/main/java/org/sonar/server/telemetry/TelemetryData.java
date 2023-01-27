@@ -280,7 +280,7 @@ public class TelemetryData {
   record Project(String projectUuid, Long lastAnalysis, String language, Long loc) {
   }
 
-  record QualityGate(String uuid, boolean isCaycCompliant) {
+  record QualityGate(String uuid, String caycStatus) {
   }
 
   public static class ProjectStatistics {

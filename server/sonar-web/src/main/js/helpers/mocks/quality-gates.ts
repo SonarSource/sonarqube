@@ -24,7 +24,7 @@ import {
   QualityGateStatusCondition,
   QualityGateStatusConditionEnhanced,
 } from '../../types/quality-gates';
-import { QualityGate } from '../../types/types';
+import { CaycStatus, QualityGate } from '../../types/types';
 import { mockMeasureEnhanced, mockMetric } from '../testMocks';
 
 export function mockQualityGate(overrides: Partial<QualityGate> = {}): QualityGate {
@@ -40,7 +40,7 @@ export function mockQualityGateStatus(
 ): QualityGateStatus {
   return {
     ignoredConditions: false,
-    isCaycCompliant: true,
+    caycStatus: CaycStatus.Compliant,
     failedConditions: [mockQualityGateStatusConditionEnhanced()],
     key: 'foo',
     name: 'Foo',
@@ -91,7 +91,7 @@ export function mockQualityGateProjectStatus(
       },
     ],
     ignoredConditions: false,
-    isCaycCompliant: true,
+    caycStatus: CaycStatus.Compliant,
     status: 'OK',
     ...overrides,
   };
@@ -123,7 +123,7 @@ export function mockQualityGateApplicationStatus(
             value: '5',
           },
         ],
-        isCaycCompliant: true,
+        caycStatus: CaycStatus.Compliant,
         status: 'ERROR',
       },
       {
@@ -139,7 +139,7 @@ export function mockQualityGateApplicationStatus(
             value: '15',
           },
         ],
-        isCaycCompliant: true,
+        caycStatus: CaycStatus.Compliant,
         status: 'ERROR',
       },
     ],

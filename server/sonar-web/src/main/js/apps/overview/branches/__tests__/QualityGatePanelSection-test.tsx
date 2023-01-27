@@ -27,6 +27,7 @@ import {
 } from '../../../../helpers/mocks/quality-gates';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
+import { CaycStatus } from '../../../../types/types';
 import { QualityGatePanelSection, QualityGatePanelSectionProps } from '../QualityGatePanelSection';
 
 it('should render correctly', () => {
@@ -36,6 +37,7 @@ it('should render correctly', () => {
       qgStatus: mockQualityGateStatus({
         failedConditions: [],
         status: 'OK',
+        caycStatus: CaycStatus.Compliant,
       }),
     }).type()
   ).toBeNull();
@@ -55,7 +57,7 @@ function shallowRender(props: Partial<QualityGatePanelSectionProps> = {}) {
           mockQualityGateStatusConditionEnhanced({ metric: MetricKey.new_bugs }),
         ],
         status: 'ERROR',
-        isCaycCompliant: false,
+        caycStatus: CaycStatus.NonCompliant,
       })}
       {...props}
     />

@@ -42,7 +42,7 @@ import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { GraphType } from '../../../../types/project-activity';
-import { Measure, Metric } from '../../../../types/types';
+import { CaycStatus, Measure, Metric } from '../../../../types/types';
 import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '../BranchOverview';
 
 jest.mock('../../../../api/measures', () => {
@@ -223,7 +223,7 @@ describe('project overview', () => {
     jest
       .mocked(getQualityGateProjectStatus)
       .mockResolvedValueOnce(
-        mockQualityGateProjectStatus({ status: 'OK', isCaycCompliant: false })
+        mockQualityGateProjectStatus({ status: 'OK', caycStatus: CaycStatus.NonCompliant })
       );
 
     renderBranchOverview();
@@ -267,9 +267,27 @@ describe('application overview', () => {
   it("should show projects that don't have a compliant quality gate", async () => {
     const appStatus = mockQualityGateApplicationStatus({
       projects: [
-        { key: '1', name: 'first project', conditions: [], isCaycCompliant: false, status: 'OK' },
-        { key: '2', name: 'second', conditions: [], isCaycCompliant: true, status: 'OK' },
-        { key: '3', name: 'number 3', conditions: [], isCaycCompliant: false, status: 'OK' },
+        {
+          key: '1',
+          name: 'first project',
+          conditions: [],
+          caycStatus: CaycStatus.NonCompliant,
+          status: 'OK',
+        },
+        {
+          key: '2',
+          name: 'second',
+          conditions: [],
+          caycStatus: CaycStatus.Compliant,
+          status: 'OK',
+        },
+        {
+          key: '3',
+          name: 'number 3',
+          conditions: [],
+          caycStatus: CaycStatus.NonCompliant,
+          status: 'OK',
+        },
         {
           key: '4',
           name: 'four',
@@ -282,7 +300,7 @@ describe('application overview', () => {
               errorThreshold: '0',
             },
           ],
-          isCaycCompliant: false,
+          caycStatus: CaycStatus.NonCompliant,
           status: 'ERROR',
         },
       ],

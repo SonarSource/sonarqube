@@ -28,6 +28,7 @@ import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.server.qualitygate.QualityGateCaycStatus;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.NewCodePeriod;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Period;
@@ -38,13 +39,13 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 public class QualityGateDetailsFormatter {
   private final Optional<String> optionalMeasureData;
   private final Optional<SnapshotDto> optionalSnapshot;
-  private final boolean isCaycCompliant;
+  private final QualityGateCaycStatus caycStatus;
   private final ProjectStatusResponse.ProjectStatus.Builder projectStatusBuilder;
 
-  public QualityGateDetailsFormatter(@Nullable String measureData, @Nullable SnapshotDto snapshot, boolean isCaycCompliant) {
+  public QualityGateDetailsFormatter(@Nullable String measureData, @Nullable SnapshotDto snapshot, QualityGateCaycStatus caycStatus) {
     this.optionalMeasureData = Optional.ofNullable(measureData);
     this.optionalSnapshot = Optional.ofNullable(snapshot);
-    this.isCaycCompliant = isCaycCompliant;
+    this.caycStatus = caycStatus;
     this.projectStatusBuilder = ProjectStatusResponse.ProjectStatus.newBuilder();
   }
 
@@ -57,7 +58,7 @@ public class QualityGateDetailsFormatter {
 
     ProjectStatusResponse.Status qualityGateStatus = measureLevelToQualityGateStatus(json.get("level").getAsString());
     projectStatusBuilder.setStatus(qualityGateStatus);
-    projectStatusBuilder.setIsCaycCompliant(isCaycCompliant);
+    projectStatusBuilder.setCaycStatus(caycStatus.toString());
 
     formatIgnoredConditions(json);
     formatConditions(json.getAsJsonArray("conditions"));
@@ -204,7 +205,7 @@ public class QualityGateDetailsFormatter {
   }
 
   private ProjectStatusResponse.ProjectStatus newResponseWithoutQualityGateDetails() {
-    return ProjectStatusResponse.ProjectStatus.newBuilder().setStatus(ProjectStatusResponse.Status.NONE).setIsCaycCompliant(isCaycCompliant).build();
+    return ProjectStatusResponse.ProjectStatus.newBuilder().setStatus(ProjectStatusResponse.Status.NONE).setCaycStatus(caycStatus.toString()).build();
   }
 
   private static Predicate<JsonObject> isConditionOnValidPeriod() {

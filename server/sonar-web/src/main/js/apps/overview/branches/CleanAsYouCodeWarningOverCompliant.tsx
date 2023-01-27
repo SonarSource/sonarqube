@@ -21,7 +21,6 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../components/common/DocLink';
 import Link from '../../../components/common/Link';
-import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { Component } from '../../../types/types';
@@ -30,32 +29,33 @@ interface Props {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
 }
 
-export default function CleanAsYouCodeWarning({ component }: Props) {
+export default function CleanAsYouCodeWarningOverCompliant({ component }: Props) {
   return (
     <>
-      <Alert variant="warning">{translate('overview.quality_gate.conditions.cayc.warning')}</Alert>
       {component.qualityGate ? (
-        <p className="big-spacer-top big-spacer-bottom">
+        <p className="big-spacer-bottom">
           <FormattedMessage
-            id="overview.quality_gate.conditions.cayc.details_with_link"
-            defaultMessage={translate('overview.quality_gate.conditions.cayc.details_with_link')}
+            id="overview.quality_gate.conditions.cayc_over_compliant.details_with_link"
+            defaultMessage={translate(
+              'overview.quality_gate.conditions.cayc_over_compliant.details_with_link'
+            )}
             values={{
               link: (
                 <Link to={getQualityGateUrl(component.qualityGate.key)}>
-                  {translate('overview.quality_gate.conditions.non_cayc.warning.link')}
+                  {translate('overview.quality_gate.conditions.cayc_over_compliant.warning.link')}
                 </Link>
               ),
             }}
           />
         </p>
       ) : (
-        <p className="big-spacer-top big-spacer-bottom">
-          {translate('overview.quality_gate.conditions.cayc.details')}
+        <p className="big-spacer-bottom">
+          {translate('overview.quality_gate.conditions.cayc_over_compliant.details')}
         </p>
       )}
 
-      <DocLink to="/user-guide/clean-as-you-code/">
-        {translate('overview.quality_gate.conditions.cayc.link')}
+      <DocLink to="/user-guide/clean-as-you-code/#potential-drawbacks">
+        {translate('overview.quality_gate.conditions.cayc_over_compliant.link')}
       </DocLink>
     </>
   );

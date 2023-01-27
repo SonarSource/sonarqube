@@ -23,7 +23,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import { QualityGate } from '../../../types/types';
+import { CaycStatus, QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 
 interface Props {
@@ -49,7 +49,7 @@ export default function List({ qualityGates }: Props) {
           )}
           {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="little-spacer-left" />}
 
-          {!qualityGate.isCaycCompliant && (
+          {qualityGate.caycStatus === CaycStatus.NonCompliant && (
             <>
               {/* Adding a11y-hidden span for accessibility */}
               <span className="a11y-hidden">{translate('quality_gates.cayc.tooltip.message')}</span>

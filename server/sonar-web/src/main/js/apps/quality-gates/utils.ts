@@ -19,7 +19,7 @@
  */
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
-import { Condition, Dict, Metric, QualityGate } from '../../types/types';
+import { CaycStatus, Condition, Dict, Metric, QualityGate } from '../../types/types';
 
 const CAYC_CONDITIONS: { [key: string]: Condition } = {
   new_reliability_rating: {
@@ -61,6 +61,12 @@ const CAYC_CONDITIONS: { [key: string]: Condition } = {
 };
 
 export const CAYC_CONDITIONS_WITHOUT_FIXED_VALUE = ['new_duplicated_lines_density', 'new_coverage'];
+export const CAYC_CONDITIONS_WITH_FIXED_VALUE = [
+  'new_security_hotspots_reviewed',
+  'new_maintainability_rating',
+  'new_security_rating',
+  'new_reliability_rating',
+];
 
 export function isCaycCondition(condition: Condition) {
   return condition.metric in CAYC_CONDITIONS;
@@ -70,11 +76,9 @@ export function getWeakMissingAndNonCaycConditions(conditions: Condition[]) {
   const result: {
     weakConditions: Condition[];
     missingConditions: Condition[];
-    nonCaycConditions: Condition[];
   } = {
     weakConditions: [],
     missingConditions: [],
-    nonCaycConditions: [],
   };
   Object.keys(CAYC_CONDITIONS).forEach((key) => {
     const selectedCondition = conditions.find((condition) => condition.metric === key);
@@ -87,8 +91,6 @@ export function getWeakMissingAndNonCaycConditions(conditions: Condition[]) {
       result.weakConditions.push(selectedCondition);
     }
   });
-
-  result.nonCaycConditions = getNonCaycConditions(conditions);
   return result;
 }
 
@@ -100,10 +102,6 @@ export function getCaycConditionsWithCorrectValue(conditions: Condition[]) {
     }
     return CAYC_CONDITIONS[key];
   });
-}
-
-export function getNonCaycConditions(conditions: Condition[]) {
-  return conditions.filter((condition) => !isCaycCondition(condition));
 }
 
 export function getCorrectCaycCondition(condition: Condition) {
@@ -122,7 +120,7 @@ export function addCondition(qualityGate: QualityGate, condition: Condition): Qu
   const oldConditions = qualityGate.conditions || [];
   const conditions = [...oldConditions, condition];
   if (conditions) {
-    qualityGate.isCaycCompliant = updateCaycComplaintStatus(conditions);
+    qualityGate.caycStatus = updateCaycCompliantStatus(conditions);
   }
   return { ...qualityGate, conditions };
 }
@@ -131,7 +129,7 @@ export function deleteCondition(qualityGate: QualityGate, condition: Condition):
   const conditions =
     qualityGate.conditions && qualityGate.conditions.filter((candidate) => candidate !== condition);
   if (conditions) {
-    qualityGate.isCaycCompliant = updateCaycComplaintStatus(conditions);
+    qualityGate.caycStatus = updateCaycCompliantStatus(conditions);
   }
   return { ...qualityGate, conditions };
 }
@@ -147,21 +145,21 @@ export function replaceCondition(
       return candidate === oldCondition ? newCondition : candidate;
     });
   if (conditions) {
-    qualityGate.isCaycCompliant = updateCaycComplaintStatus(conditions);
+    qualityGate.caycStatus = updateCaycCompliantStatus(conditions);
   }
 
   return { ...qualityGate, conditions };
 }
 
-export function updateCaycComplaintStatus(conditions: Condition[]) {
-  if (conditions.length !== Object.keys(CAYC_CONDITIONS).length) {
-    return false;
+export function updateCaycCompliantStatus(conditions: Condition[]) {
+  if (conditions.length < Object.keys(CAYC_CONDITIONS).length) {
+    return CaycStatus.NonCompliant;
   }
 
   for (const key of Object.keys(CAYC_CONDITIONS)) {
     const selectedCondition = conditions.find((condition) => condition.metric === key);
     if (!selectedCondition) {
-      return false;
+      return CaycStatus.NonCompliant;
     }
 
     if (
@@ -169,11 +167,15 @@ export function updateCaycComplaintStatus(conditions: Condition[]) {
       selectedCondition &&
       selectedCondition.error !== CAYC_CONDITIONS[key].error
     ) {
-      return false;
+      return CaycStatus.NonCompliant;
     }
   }
 
-  return true;
+  if (conditions.length > Object.keys(CAYC_CONDITIONS).length) {
+    return CaycStatus.OverCompliant;
+  }
+
+  return CaycStatus.Compliant;
 }
 
 export function getPossibleOperators(metric: Metric) {

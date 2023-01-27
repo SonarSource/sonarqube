@@ -241,7 +241,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     for (QualityGateDto qualityGateDto : qualityGateDtos) {
       qualityGates.add(
         new TelemetryData.QualityGate(qualityGateDto.getUuid(), qualityGateCaycChecker.checkCaycCompliant(dbSession,
-          qualityGateDto.getUuid()))
+          qualityGateDto.getUuid()).toString())
       );
     }
 

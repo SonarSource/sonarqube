@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { BranchLike } from './branch-like';
-import { MeasureEnhanced, Metric, Status } from './types';
+import { CaycStatus, MeasureEnhanced, Metric, Status } from './types';
 import { UserBase } from './users';
 
 export interface QualityGateProjectStatus {
   conditions?: QualityGateProjectStatusCondition[];
   ignoredConditions: boolean;
   status: Status;
-  isCaycCompliant: boolean;
+  caycStatus: CaycStatus;
 }
 
 export interface QualityGateProjectStatusCondition {
@@ -59,13 +59,13 @@ export interface QualityGateApplicationStatusChildProject {
   key: string;
   name: string;
   status: Status;
-  isCaycCompliant: boolean;
+  caycStatus: CaycStatus;
 }
 
 export interface QualityGateStatus {
   failedConditions: QualityGateStatusConditionEnhanced[];
   ignoredConditions?: boolean;
-  isCaycCompliant: boolean;
+  caycStatus: CaycStatus;
   key: string;
   name: string;
   status: Status;

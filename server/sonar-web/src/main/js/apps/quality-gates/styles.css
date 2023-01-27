@@ -73,6 +73,22 @@
   color: var(--alertTextSuccess);
 }
 
+.cayc-over-compliant-header {
+  color: var(--veryDarkBlue);
+}
+
 .cayc-warning-description {
   line-height: 18px;
+}
+
+.red-text {
+  color: var(--red);
+}
+
+.green-text {
+  color: var(--success500);
+}
+
+.strike-through {
+  text-decoration: line-through;
 }

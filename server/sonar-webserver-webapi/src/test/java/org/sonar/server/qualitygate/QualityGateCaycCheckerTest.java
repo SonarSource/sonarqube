@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES;
 import static org.sonar.api.measures.CoreMetrics.LINE_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE;
@@ -40,6 +40,9 @@ import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
 import static org.sonar.server.qualitygate.QualityGateCaycChecker.CAYC_METRICS;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
 
 public class QualityGateCaycCheckerTest {
 
@@ -51,7 +54,7 @@ public class QualityGateCaycCheckerTest {
   public void checkCaycCompliant() {
     String qualityGateUuid = "abcd";
     CAYC_METRICS.forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
-    assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isTrue();
+    assertEquals(COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
   }
 
   @Test
@@ -62,7 +65,7 @@ public class QualityGateCaycCheckerTest {
     // extra conditions outside of CAYC requirements
     List.of(LINE_COVERAGE, DUPLICATED_LINES).forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
 
-    assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isFalse();
+    assertEquals(OVER_COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
   }
 
   @Test
@@ -75,7 +78,7 @@ public class QualityGateCaycCheckerTest {
         var metric = metrics.get(i);
         insertCondition(metric, qualityGateUuid, idx == i ? metric.getWorstValue() : metric.getBestValue());
       }
-      assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isFalse();
+      assertEquals(NON_COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
     });
   }
 
@@ -84,7 +87,7 @@ public class QualityGateCaycCheckerTest {
     String qualityGateUuid = "abcd";
     List.of(NEW_MAINTAINABILITY_RATING, NEW_RELIABILITY_RATING, NEW_SECURITY_HOTSPOTS_REVIEWED, NEW_DUPLICATED_LINES_DENSITY)
       .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
-    assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isFalse();
+    assertEquals(NON_COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
   }
 
   @Test
@@ -94,7 +97,7 @@ public class QualityGateCaycCheckerTest {
       .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
     List.of(NEW_COVERAGE, NEW_DUPLICATED_LINES_DENSITY)
       .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getWorstValue()));
-    assertThat(underTest.checkCaycCompliant(db.getSession(), qualityGateUuid)).isTrue();
+    assertEquals(COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
   }
 
   private void insertCondition(MetricDto metricDto, String qualityGateUuid, Double threshold) {

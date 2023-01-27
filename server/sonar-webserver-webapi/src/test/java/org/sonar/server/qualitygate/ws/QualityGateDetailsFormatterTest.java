@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate.ws;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -31,7 +30,9 @@ import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.ProjectStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
 
 public class QualityGateDetailsFormatterTest {
 
@@ -49,7 +50,7 @@ public class QualityGateDetailsFormatterTest {
     ProjectStatus result = underTest.format();
 
     assertThat(result.getStatus()).isEqualTo(ProjectStatusResponse.Status.ERROR);
-    assertThat(result.getIsCaycCompliant()).isFalse();
+    assertEquals(NON_COMPLIANT.toString(), result.getCaycStatus());
     // check conditions
     assertThat(result.getConditionsCount()).isEqualTo(3);
     List<ProjectStatusResponse.Condition> conditions = result.getConditionsList();
@@ -145,6 +146,6 @@ public class QualityGateDetailsFormatterTest {
   }
 
   private static QualityGateDetailsFormatter newQualityGateDetailsFormatter(@Nullable String measureData, @Nullable SnapshotDto snapshotDto) {
-    return new QualityGateDetailsFormatter(measureData, snapshotDto, false);
+    return new QualityGateDetailsFormatter(measureData, snapshotDto, NON_COMPLIANT);
   }
 }

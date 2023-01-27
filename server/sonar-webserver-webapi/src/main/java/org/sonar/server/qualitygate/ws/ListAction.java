@@ -59,7 +59,7 @@ public class ListAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "list-example.json"))
       .setChangelog(
-        new Change("9.9", "'isCaycCompliant' field is added on quality gate"),
+        new Change("9.9", "'caycStatus' field is added on quality gate"),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
         new Change("7.0", "'isDefault' field is added on quality gate"),
         new Change("7.0", "'default' field on root level is deprecated"),
@@ -88,7 +88,7 @@ public class ListAction implements QualityGatesWsAction {
           .setName(qualityGate.getName())
           .setIsDefault(qualityGate.getUuid().equals(defaultUuid))
           .setIsBuiltIn(qualityGate.isBuiltIn())
-          .setIsCaycCompliant(qualityGateCaycChecker.checkCaycCompliant(dbSession, qualityGate.getUuid()))
+          .setCaycStatus(qualityGateCaycChecker.checkCaycCompliant(dbSession, qualityGate.getUuid()).toString())
           .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
           .build())
         .collect(toList()));

@@ -33,7 +33,13 @@ import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { Feature } from '../../../types/features';
 import { MetricKey } from '../../../types/metrics';
-import { Condition as ConditionType, Dict, Metric, QualityGate } from '../../../types/types';
+import {
+  CaycStatus,
+  Condition as ConditionType,
+  Dict,
+  Metric,
+  QualityGate,
+} from '../../../types/types';
 import ConditionModal from './ConditionModal';
 import CaycReviewUpdateConditionsModal from './ConditionReviewAndUpdateModal';
 import ConditionsTable from './ConditionsTable';
@@ -63,14 +69,14 @@ export class Conditions extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      unlockEditing: !props.qualityGate.isCaycCompliant,
+      unlockEditing: props.qualityGate.caycStatus === CaycStatus.NonCompliant,
     };
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
     const { qualityGate } = this.props;
     if (prevProps.qualityGate.name !== qualityGate.name) {
-      this.setState({ unlockEditing: !qualityGate.isCaycCompliant });
+      this.setState({ unlockEditing: qualityGate.caycStatus === CaycStatus.NonCompliant });
     }
   }
 
@@ -164,7 +170,7 @@ export class Conditions extends React.PureComponent<Props, State> {
 
     return (
       <div className="quality-gate-section">
-        {qualityGate.isCaycCompliant && (
+        {qualityGate.caycStatus !== CaycStatus.NonCompliant && (
           <Alert className="big-spacer-top big-spacer-bottom cayc-success-banner" variant="success">
             <h4 className="spacer-bottom cayc-success-header">
               {translate('quality_gates.cayc.banner.title')}
@@ -180,7 +186,7 @@ export class Conditions extends React.PureComponent<Props, State> {
                     </DocLink>
                   ),
                   new_code_link: (
-                    <DocLink to="/project-administration/defining-new-code//">
+                    <DocLink to="/project-administration/defining-new-code/">
                       {translate('quality_gates.cayc.new_code')}
                     </DocLink>
                   ),
@@ -197,7 +203,29 @@ export class Conditions extends React.PureComponent<Props, State> {
           </Alert>
         )}
 
-        {!qualityGate.isCaycCompliant && (
+        {qualityGate.caycStatus === CaycStatus.OverCompliant && (
+          <Alert className="big-spacer-top big-spacer-bottom cayc-success-banner" variant="info">
+            <h4 className="spacer-bottom cayc-over-compliant-header">
+              {translate('quality_gates.cayc_over_compliant.banner.title')}
+            </h4>
+            <p>{translate('quality_gates.cayc_over_compliant.banner.description1')}</p>
+            <div className="cayc-warning-description spacer-top">
+              <FormattedMessage
+                id="quality_gates.cayc_over_compliant.banner.description2"
+                defaultMessage={translate('quality_gates.cayc_over_compliant.banner.description2')}
+                values={{
+                  link: (
+                    <DocLink to="/user-guide/clean-as-you-code/#potential-drawbacks">
+                      {translate('quality_gates.cayc_over_compliant.banner.link')}
+                    </DocLink>
+                  ),
+                }}
+              />
+            </div>
+          </Alert>
+        )}
+
+        {qualityGate.caycStatus === CaycStatus.NonCompliant && (
           <Alert className="big-spacer-top big-spacer-bottom" variant="warning">
             <h4 className="spacer-bottom cayc-warning-header">
               {translate('quality_gates.cayc_missing.banner.title')}
@@ -227,18 +255,17 @@ export class Conditions extends React.PureComponent<Props, State> {
           </Alert>
         )}
 
-        {(!qualityGate.isCaycCompliant || (qualityGate.isCaycCompliant && unlockEditing)) &&
-          canEdit && (
-            <div className="pull-right">
-              <ModalButton modal={this.renderConditionModal}>
-                {({ onClick }) => (
-                  <Button data-test="quality-gates__add-condition" onClick={onClick}>
-                    {translate('quality_gates.add_condition')}
-                  </Button>
-                )}
-              </ModalButton>
-            </div>
-          )}
+        {(qualityGate.caycStatus === CaycStatus.NonCompliant || unlockEditing) && canEdit && (
+          <div className="pull-right">
+            <ModalButton modal={this.renderConditionModal}>
+              {({ onClick }) => (
+                <Button data-test="quality-gates__add-condition" onClick={onClick}>
+                  {translate('quality_gates.add_condition')}
+                </Button>
+              )}
+            </ModalButton>
+          </div>
+        )}
 
         <header className="display-flex-center">
           <h2 className="big">{translate('quality_gates.conditions')}</h2>
@@ -314,7 +341,7 @@ export class Conditions extends React.PureComponent<Props, State> {
           </div>
         )}
 
-        {qualityGate.isCaycCompliant && !unlockEditing && canEdit && (
+        {qualityGate.caycStatus !== CaycStatus.NonCompliant && !unlockEditing && canEdit && (
           <div className="big-spacer-top big-spacer-bottom cayc-warning-description it__qg-unfollow-cayc">
             <p>
               <FormattedMessage
