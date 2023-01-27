@@ -294,8 +294,8 @@ public class TelemetryData {
     private final Long bugs;
     private final Long vulnerabilities;
     private final Long securityHotspots;
-    private final Double technicalDebt;
-    private final Double developmentCost;
+    private final Long technicalDebt;
+    private final Long developmentCost;
 
     ProjectStatistics(Builder builder) {
       this.projectUuid = builder.projectUuid;
@@ -352,11 +352,11 @@ public class TelemetryData {
       return Optional.ofNullable(securityHotspots);
     }
 
-    public Optional<Double> getTechnicalDebt() {
+    public Optional<Long> getTechnicalDebt() {
       return Optional.ofNullable(technicalDebt);
     }
 
-    public Optional<Double> getDevelopmentCost() {
+    public Optional<Long> getDevelopmentCost() {
       return Optional.ofNullable(developmentCost);
     }
 
@@ -371,8 +371,8 @@ public class TelemetryData {
       private Long bugs;
       private Long vulnerabilities;
       private Long securityHotspots;
-      private Double technicalDebt;
-      private Double developmentCost;
+      private Long technicalDebt;
+      private Long developmentCost;
 
       public Builder setProjectUuid(String projectUuid) {
         this.projectUuid = projectUuid;
@@ -425,12 +425,12 @@ public class TelemetryData {
       }
 
       public Builder setTechnicalDebt(@Nullable Number technicalDebt) {
-        this.technicalDebt = technicalDebt != null ? technicalDebt.doubleValue() : null;
+        this.technicalDebt = technicalDebt != null ? technicalDebt.longValue() : null;
         return this;
       }
 
       public Builder setDevelopmentCost(@Nullable Number developmentCost) {
-        this.developmentCost = developmentCost != null ? developmentCost.doubleValue() : null;
+        this.developmentCost = developmentCost != null ? developmentCost.longValue() : null;
         return this;
       }
 

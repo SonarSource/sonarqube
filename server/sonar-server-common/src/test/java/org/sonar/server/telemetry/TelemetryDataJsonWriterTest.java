@@ -364,7 +364,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
-  public void writes_all_projects_stats_with_analyzed_languages() {
+  public void writeTelemetryData_whenAnalyzedLanguages_shouldwriteAllProjectsStats() {
     TelemetryData data = telemetryBuilder()
       .setProjectStatistics(attachProjectStatsWithMetrics())
       .build();
@@ -385,8 +385,8 @@ public class TelemetryDataJsonWriterTest {
             "bugs": 2,
             "vulnerabilities": 3,
             "securityHotspots": 4,
-            "technicalDebt": 60.0,
-            "developmentCost": 30.0
+            "technicalDebt": 60,
+            "developmentCost": 30
           },
           {
             "projectUuid": "uuid-1",
@@ -399,8 +399,8 @@ public class TelemetryDataJsonWriterTest {
             "bugs": 4,
             "vulnerabilities": 6,
             "securityHotspots": 8,
-            "technicalDebt": 120.0,
-            "developmentCost": 60.0
+            "technicalDebt": 120,
+            "developmentCost": 60
           },
           {
             "projectUuid": "uuid-2",
@@ -413,8 +413,8 @@ public class TelemetryDataJsonWriterTest {
             "bugs": 6,
             "vulnerabilities": 9,
             "securityHotspots": 12,
-            "technicalDebt": 180.0,
-            "developmentCost": 90.0
+            "technicalDebt": 180,
+            "developmentCost": 90
           }
         ]
       }
