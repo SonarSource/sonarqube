@@ -66,7 +66,6 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchAction implements QProfileWsAction {
@@ -95,7 +94,8 @@ public class SearchAction implements QProfileWsAction {
       .setChangelog(
         new Change("6.5", format("The parameters '%s', '%s' and '%s' can be combined without any constraint", PARAM_DEFAULTS, PARAM_PROJECT, PARAM_LANGUAGE)),
         new Change("6.6", "Add available actions 'edit', 'copy' and 'setAsDefault' and global action 'create'"),
-        new Change("7.0", "Add available actions 'delete' and 'associateProjects'"))
+        new Change("7.0", "Add available actions 'delete' and 'associateProjects'"),
+        new Change("10.0", "Remove deprecated parameter 'project_key'. Please use 'project' instead."))
       .setResponseExample(getClass().getResource("search-example.json"));
 
     action
@@ -106,8 +106,6 @@ public class SearchAction implements QProfileWsAction {
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
-      // still used by Scanner for MSBuild 4.7.1
-      .setDeprecatedKey(PARAM_PROJECT_KEY, "6.5")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action

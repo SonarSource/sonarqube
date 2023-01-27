@@ -59,7 +59,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchActionTest {
@@ -206,25 +205,6 @@ public class SearchActionTest {
 
     SearchWsResponse result = call(ws.newRequest()
       .setParam(PARAM_PROJECT, project.getKey())
-      .setParam(PARAM_DEFAULTS, "true"));
-
-    assertThat(result.getProfilesList())
-      .extracting(QualityProfile::getKey)
-      .containsExactlyInAnyOrder(defaultProfileOnXoo2.getKee())
-      .doesNotContain(defaultProfileOnXoo1.getKee(), profileOnXoo1.getKee());
-  }
-
-  @Test
-  public void filter_on_deprecated_project_key_and_default() {
-    ProjectDto project = db.components().insertPrivateProjectDto();
-    QProfileDto profileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
-    QProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
-    QProfileDto defaultProfileOnXoo2 = db.qualityProfiles().insert(q -> q.setLanguage(XOO2.getKey()));
-    db.qualityProfiles().associateWithProject(project, profileOnXoo1);
-    db.qualityProfiles().setAsDefault(defaultProfileOnXoo1, defaultProfileOnXoo2);
-
-    SearchWsResponse result = call(ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_DEFAULTS, "true"));
 
     assertThat(result.getProfilesList())
@@ -430,7 +410,8 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(
         tuple("6.5", "The parameters 'defaults', 'project' and 'language' can be combined without any constraint"),
         tuple("6.6", "Add available actions 'edit', 'copy' and 'setAsDefault' and global action 'create'"),
-        tuple("7.0", "Add available actions 'delete' and 'associateProjects'"));
+        tuple("7.0", "Add available actions 'delete' and 'associateProjects'"),
+        tuple("10.0", "Remove deprecated parameter 'project_key'. Please use 'project' instead."));
 
     WebService.Param defaults = definition.param("defaults");
     assertThat(defaults.defaultValue()).isEqualTo("false");
@@ -438,7 +419,7 @@ public class SearchActionTest {
 
     WebService.Param projectKey = definition.param("project");
     assertThat(projectKey.description()).isEqualTo("Project key");
-    assertThat(projectKey.deprecatedKey()).isEqualTo("projectKey");
+    assertThat(projectKey.deprecatedKey()).isNull();
 
     WebService.Param language = definition.param("language");
     assertThat(language.possibleValues()).containsExactly("xoo1", "xoo2");
