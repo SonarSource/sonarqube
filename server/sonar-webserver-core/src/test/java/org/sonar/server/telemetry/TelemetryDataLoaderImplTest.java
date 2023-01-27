@@ -226,7 +226,7 @@ public class TelemetryDataLoaderImplTest {
         TelemetryData.ProjectStatistics::getBugs, TelemetryData.ProjectStatistics::getVulnerabilities, TelemetryData.ProjectStatistics::getSecurityHotspots,
         TelemetryData.ProjectStatistics::getDevelopmentCost, TelemetryData.ProjectStatistics::getTechnicalDebt)
       .containsExactlyInAnyOrder(
-        tuple(1L, 0L, qualityGate1.getUuid(), "scm-1", "ci-1", "azure_devops_cloud", Optional.of(1L), Optional.of(1L), Optional.of(1L), Optional.of(50.0), Optional.of(5.0)),
+        tuple(1L, 0L, qualityGate1.getUuid(), "scm-1", "ci-1", "azure_devops_cloud", Optional.of(1L), Optional.of(1L), Optional.of(1L), Optional.of(50L), Optional.of(5L)),
         tuple(1L, 0L, builtInDefaultQualityGate.getUuid(), "scm-2", "ci-2", "github_cloud", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
     assertThat(data.getQualityGates())
       .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::isCaycCompliant)
