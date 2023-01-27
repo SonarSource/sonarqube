@@ -2448,12 +2448,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-helmet@npm:5.0.21":
-  version: 5.0.21
-  resolution: "@types/react-helmet@npm:5.0.21"
+"@types/react-helmet@npm:6.1.6":
+  version: 6.1.6
+  resolution: "@types/react-helmet@npm:6.1.6"
   dependencies:
     "@types/react": "*"
-  checksum: 74b6e685d1c145c3920263359c812db71ebe680fb53195680924089eb139253ed15659fd7dee9dc1059e0919a9923898792c04e1aa8c34f1ba7ab1298faf7199
+  checksum: 81560c56bfe854b6a43aee31360862588ac875d1177b975da5ce049ac9aa2f7c98dcde65d4397bfaa04e468f40cf3ab2975a2ef966a69d64a60493422898698d
   languageName: node
   linkType: hard
 
@@ -2857,7 +2857,7 @@ __metadata:
     "@types/node": 18.11.18
     "@types/react": 16.14.34
     "@types/react-dom": 16.9.17
-    "@types/react-helmet": 5.0.21
+    "@types/react-helmet": 6.1.6
     "@types/react-modal": 3.13.1
     "@types/react-select": 4.0.18
     "@types/react-virtualized": 9.21.21
