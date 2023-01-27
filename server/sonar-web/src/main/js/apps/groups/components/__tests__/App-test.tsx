@@ -33,7 +33,6 @@ jest.mock('../../../../api/user_groups', () => ({
   createGroup: jest.fn().mockResolvedValue({
     default: false,
     description: 'Desc foo',
-    id: 3,
     membersCount: 0,
     name: 'Foo',
   }),
@@ -44,14 +43,12 @@ jest.mock('../../../../api/user_groups', () => ({
       {
         default: false,
         description: 'Owners of organization foo',
-        id: 1,
         membersCount: 1,
         name: 'Owners',
       },
       {
         default: true,
         description: 'Members of organization foo',
-        id: 2,
         membersCount: 2,
         name: 'Members',
       },
@@ -103,14 +100,13 @@ it('should ignore deletion', async () => {
 it('should correctly handle edition', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  wrapper.setState({ editedGroup: mockGroup({ id: 1, name: 'Owners' }) });
+  wrapper.setState({ editedGroup: mockGroup({ name: 'Owners' }) });
   wrapper.instance().handleEdit({ description: 'foo', name: 'bar' });
   await waitAndUpdate(wrapper);
   expect(updateGroup).toHaveBeenCalled();
   expect(wrapper.state('groups')).toContainEqual({
     default: false,
     description: 'foo',
-    id: 1,
     membersCount: 1,
     name: 'bar',
   });

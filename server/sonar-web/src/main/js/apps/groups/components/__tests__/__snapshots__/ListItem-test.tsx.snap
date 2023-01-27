@@ -24,7 +24,6 @@ exports[`should render correctly 1`] = `
     <EditMembers
       group={
         {
-          "id": 1,
           "membersCount": 1,
           "name": "Foo",
         }

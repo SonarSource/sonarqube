@@ -62,14 +62,12 @@ exports[`should render correctly 2`] = `
           {
             "default": false,
             "description": "Owners of organization foo",
-            "id": 1,
             "membersCount": 1,
             "name": "Owners",
           },
           {
             "default": true,
             "description": "Members of organization foo",
-            "id": 2,
             "membersCount": 2,
             "name": "Members",
           },
