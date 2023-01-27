@@ -51,7 +51,7 @@ export class CreateQualityGateForm extends React.PureComponent<Props, State> {
 
       await this.props.onCreate();
 
-      this.props.router.push(getQualityGateUrl(String(qualityGate.id)));
+      this.props.router.push(getQualityGateUrl(qualityGate.name));
     }
   };
 

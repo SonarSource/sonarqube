@@ -30,7 +30,7 @@ import DetailsContent from './DetailsContent';
 import DetailsHeader from './DetailsHeader';
 
 interface Props {
-  id: string;
+  qualityGateName: string;
   onSetDefault: (qualityGate: QualityGate) => void;
   qualityGates: QualityGate[];
   refreshQualityGates: () => Promise<void>;
@@ -52,7 +52,7 @@ export default class Details extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.id !== this.props.id) {
+    if (prevProps.qualityGateName !== this.props.qualityGateName) {
       this.fetchDetails();
     }
   }
@@ -62,9 +62,9 @@ export default class Details extends React.PureComponent<Props, State> {
   }
 
   fetchDetails = () => {
-    const { id } = this.props;
+    const { qualityGateName } = this.props;
     this.setState({ loading: true });
-    return fetchQualityGate({ id }).then(
+    return fetchQualityGate({ name: qualityGateName }).then(
       (qualityGate) => {
         if (this.mounted) {
           this.setState({ loading: false, qualityGate, updatedConditionId: undefined });

@@ -61,6 +61,20 @@ exports[`renders correctly 1`] = `
         "name": "qualitygate",
       },
       {
+        "conditions": [
+          {
+            "error": "10",
+            "id": "1",
+            "metric": "coverage",
+            "op": "LT",
+          },
+          {
+            "error": "10",
+            "id": "1",
+            "metric": "new_bugs",
+            "op": "LT",
+          },
+        ],
         "id": "gate4",
         "name": "qualitygate",
       },

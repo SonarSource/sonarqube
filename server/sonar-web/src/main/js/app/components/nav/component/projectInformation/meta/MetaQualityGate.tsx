@@ -23,7 +23,7 @@ import { translate } from '../../../../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../../../../helpers/urls';
 
 interface Props {
-  qualityGate: { isDefault?: boolean; key: string; name: string };
+  qualityGate: { isDefault?: boolean; name: string };
 }
 
 export default function MetaQualityGate({ qualityGate }: Props) {
@@ -36,7 +36,7 @@ export default function MetaQualityGate({ qualityGate }: Props) {
           {qualityGate.isDefault && (
             <span className="note spacer-right">({translate('default')})</span>
           )}
-          <Link to={getQualityGateUrl(qualityGate.key)}>{qualityGate.name}</Link>
+          <Link to={getQualityGateUrl(qualityGate.name)}>{qualityGate.name}</Link>
         </li>
       </ul>
     </>

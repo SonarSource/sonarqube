@@ -21,7 +21,7 @@ exports[`should render correctly for SQ 1`] = `
               "link": <ForwardRef(Link)
                 to={
                   {
-                    "pathname": "/quality_gates/show/30",
+                    "pathname": "/quality_gates/show/Sonar%20way",
                   }
                 }
               >
@@ -67,7 +67,7 @@ exports[`should render correctly for SQ 2`] = `
               "link": <ForwardRef(Link)
                 to={
                   {
-                    "pathname": "/quality_gates/show/30",
+                    "pathname": "/quality_gates/show/Sonar%20way",
                   }
                 }
               >

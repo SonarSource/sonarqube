@@ -24,7 +24,7 @@ import App from './components/App';
 const routes = () => (
   <Route path="quality_gates">
     <Route index={true} element={<App />} />
-    <Route path="show/:id" element={<App />} />
+    <Route path="show/:name" element={<App />} />
   </Route>
 );
 

@@ -100,7 +100,7 @@ export class ProjectQualityGateApp extends React.PureComponent<Props, State> {
     const { qualitygates } = await fetchQualityGates();
     return Promise.all(
       qualitygates.map(async (qg) => {
-        const detailedQp = await fetchQualityGate({ id: qg.id }).catch(() => qg);
+        const detailedQp = await fetchQualityGate({ name: qg.name }).catch(() => qg);
         return { ...detailedQp, ...qg };
       })
     );

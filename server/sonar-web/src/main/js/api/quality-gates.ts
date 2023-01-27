@@ -38,7 +38,7 @@ export function fetchQualityGates(): Promise<{
   return getJSON('/api/qualitygates/list').catch(throwGlobalError);
 }
 
-export function fetchQualityGate(data: { id: number | string }): Promise<QualityGate> {
+export function fetchQualityGate(data: { name: string }): Promise<QualityGate> {
   return getJSON('/api/qualitygates/show', data).catch(throwGlobalError);
 }
 

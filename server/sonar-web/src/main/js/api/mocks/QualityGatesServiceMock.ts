@@ -215,9 +215,9 @@ export class QualityGatesServiceMock {
     });
   };
 
-  showHandler = ({ id }: { id: string }) => {
+  showHandler = ({ name }: { name: string }) => {
     const qualityGate = omit(
-      this.list.find((q) => q.id === id),
+      this.list.find((q) => q.name === name),
       'isDefault'
     );
     return this.reply({ ...qualityGate, actions: this.computeActions(qualityGate) });

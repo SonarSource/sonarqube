@@ -86,7 +86,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
                   modal={({ onClose }) => (
                     <RenameQualityGateForm
                       onClose={onClose}
-                      onRename={this.handleActionRefresh}
+                      onRename={this.props.refreshList}
                       qualityGate={qualityGate}
                     />
                   )}

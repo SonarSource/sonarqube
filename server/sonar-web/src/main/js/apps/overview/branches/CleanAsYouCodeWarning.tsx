@@ -40,7 +40,7 @@ export default function CleanAsYouCodeWarning({ component }: Props) {
 
       {component.qualityGate && (
         <div className="big-spacer-bottom">
-          <Link className="button" to={getQualityGateUrl(component.qualityGate.key)}>
+          <Link className="button" to={getQualityGateUrl(component.qualityGate.name)}>
             {translate('overview.quality_gate.conditions.cayc.review')}
           </Link>
         </div>
