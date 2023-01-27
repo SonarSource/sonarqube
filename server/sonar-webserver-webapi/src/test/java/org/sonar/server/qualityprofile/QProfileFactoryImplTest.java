@@ -19,8 +19,8 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
@@ -288,11 +288,10 @@ public class QProfileFactoryImplTest {
   }
 
   private void verifyCallActiveRuleIndexerDelete(String... expectedRuleProfileUuids) {
-    Class<Set<QProfileDto>> setClass = (Class<Set<QProfileDto>>) (Class) Set.class;
-    ArgumentCaptor<Set<QProfileDto>> setCaptor = ArgumentCaptor.forClass(setClass);
-    verify(activeRuleIndexer).commitDeletionOfProfiles(any(DbSession.class), setCaptor.capture());
+    ArgumentCaptor<Collection<QProfileDto>> collectionCaptor = ArgumentCaptor.forClass(Collection.class);
+    verify(activeRuleIndexer).commitDeletionOfProfiles(any(DbSession.class), collectionCaptor.capture());
 
-    assertThat(setCaptor.getValue())
+    assertThat(collectionCaptor.getValue())
       .extracting(QProfileDto::getKee)
       .containsExactlyInAnyOrder(expectedRuleProfileUuids);
   }

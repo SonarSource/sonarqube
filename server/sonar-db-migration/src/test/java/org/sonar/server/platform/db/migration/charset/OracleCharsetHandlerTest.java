@@ -21,12 +21,10 @@ package org.sonar.server.platform.db.migration.charset;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.utils.MessageException;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -86,7 +84,7 @@ public class OracleCharsetHandlerTest {
   }
 
   private void answerCharset(@Nullable String charset) throws SQLException {
-    when(sqlExecutor.select(any(Connection.class), anyString(), any(SqlExecutor.StringsConverter.class)))
-      .thenReturn(charset == null ? Collections.emptyList() : singletonList(new String[] {charset}));
+    when(sqlExecutor.selectSingleString(any(Connection.class), anyString()))
+      .thenReturn(charset);
   }
 }

@@ -87,8 +87,8 @@ public class NotificationMediumTest {
   @Test
   public void scenario1() {
     setUpMocks();
-    doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
-    doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnIssueCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnIssueCreatedByMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     underTest.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
@@ -111,8 +111,8 @@ public class NotificationMediumTest {
   @Test
   public void scenario2() {
     setUpMocks();
-    doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
-    doAnswer(addUser(CREATOR_EVGENY, gtalkChannel)).when(commentOnIssueCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(CREATOR_EVGENY, gtalkChannel)).when(commentOnIssueCreatedByMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     underTest.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
@@ -136,8 +136,8 @@ public class NotificationMediumTest {
   @Test
   public void scenario3() {
     setUpMocks();
-    doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[] {emailChannel, gtalkChannel}))
-      .when(commentOnIssueAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[]{emailChannel, gtalkChannel}))
+      .when(commentOnIssueAssignedToMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     underTest.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
@@ -174,8 +174,8 @@ public class NotificationMediumTest {
   public void shouldNotStopWhenException() {
     setUpMocks();
     when(manager.getFromQueue()).thenThrow(new RuntimeException("Unexpected exception")).thenReturn(notification).thenReturn(null);
-    doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
-    doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnIssueCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnIssueCreatedByMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     underTest.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
@@ -187,7 +187,7 @@ public class NotificationMediumTest {
   @Test
   public void shouldNotAddNullAsUser() {
     setUpMocks();
-    doAnswer(addUser(null, gtalkChannel)).when(commentOnIssueCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(null, gtalkChannel)).when(commentOnIssueCreatedByMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     underTest.start();
     underTest.stop();

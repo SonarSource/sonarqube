@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -211,45 +210,42 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    Class<ArrayList<Block>> listClass = (Class<ArrayList<Block>>) (Class) ArrayList.class;
-    ArgumentCaptor<ArrayList<Block>> originBlocks = ArgumentCaptor.forClass(listClass);
-    ArgumentCaptor<ArrayList<Block>> duplicationBlocks = ArgumentCaptor.forClass(listClass);
+    ArgumentCaptor<List<Block>> originBlocks = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<List<Block>> duplicationBlocks = ArgumentCaptor.forClass(List.class);
 
     verify(integrateCrossProjectDuplications).computeCpd(eq(CURRENT_FILE), originBlocks.capture(), duplicationBlocks.capture());
 
     Map<Integer, Block> originBlocksByIndex = blocksByIndexInFile(originBlocks.getValue());
-    assertThat(originBlocksByIndex.get(0)).isEqualTo(
-      new Block.Builder()
+    assertThat(originBlocksByIndex).containsExactly(
+      Map.entry(0, new Block.Builder()
         .setResourceId(CURRENT_FILE_KEY)
         .setBlockHash(new ByteArray(originBlock1.getHash()))
         .setIndexInFile(0)
         .setLines(originBlock1.getStartLine(), originBlock1.getEndLine())
         .setUnit(originBlock1.getStartTokenIndex(), originBlock1.getEndTokenIndex())
-        .build());
-    assertThat(originBlocksByIndex.get(1)).isEqualTo(
-      new Block.Builder()
+        .build()),
+      Map.entry(1, new Block.Builder()
         .setResourceId(CURRENT_FILE_KEY)
         .setBlockHash(new ByteArray(originBlock2.getHash()))
         .setIndexInFile(1)
         .setLines(originBlock2.getStartLine(), originBlock2.getEndLine())
         .setUnit(originBlock2.getStartTokenIndex(), originBlock2.getEndTokenIndex())
-        .build());
+        .build()));
 
     Map<Integer, Block> duplicationBlocksByIndex = blocksByIndexInFile(duplicationBlocks.getValue());
-    assertThat(duplicationBlocksByIndex.get(0)).isEqualTo(
-      new Block.Builder()
+    assertThat(duplicationBlocksByIndex).containsExactly(
+      Map.entry(0, new Block.Builder()
         .setResourceId(otherFile.getKey())
         .setBlockHash(new ByteArray(originBlock1.getHash()))
         .setIndexInFile(duplicate1.getIndexInFile())
         .setLines(duplicate1.getStartLine(), duplicate1.getEndLine())
-        .build());
-    assertThat(duplicationBlocksByIndex.get(1)).isEqualTo(
-      new Block.Builder()
+        .build()),
+      Map.entry(1, new Block.Builder()
         .setResourceId(otherFile.getKey())
         .setBlockHash(new ByteArray(originBlock2.getHash()))
         .setIndexInFile(duplicate2.getIndexInFile())
         .setLines(duplicate2.getStartLine(), duplicate2.getEndLine())
-        .build());
+        .build()));
   }
 
   @Test
