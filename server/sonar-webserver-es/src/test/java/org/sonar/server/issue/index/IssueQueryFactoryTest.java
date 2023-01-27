@@ -148,28 +148,6 @@ public class IssueQueryFactoryTest {
   }
 
   @Test
-  public void leak_period_start_date_is_exclusive() {
-    long leakPeriodStart = addDays(new Date(), -14).getTime();
-
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-
-    SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodDate(leakPeriodStart));
-
-    SearchRequest request = new SearchRequest()
-      .setComponentUuids(Collections.singletonList(file.uuid()))
-      .setOnComponentOnly(true)
-      .setSinceLeakPeriod(true);
-
-    IssueQuery query = underTest.create(request);
-
-    assertThat(query.componentUuids()).containsOnly(file.uuid());
-    assertThat(query.createdAfter().date()).isEqualTo(new Date(leakPeriodStart));
-    assertThat(query.createdAfter().inclusive()).isFalse();
-    assertThat(query.newCodeOnReference()).isNull();
-  }
-
-  @Test
   public void in_new_code_period_start_date_is_exclusive() {
     long newCodePeriodStart = addDays(new Date(), -14).getTime();
 
@@ -191,30 +169,6 @@ public class IssueQueryFactoryTest {
     assertThat(query.newCodeOnReference()).isNull();
   }
 
-  @Test
-  public void leak_period_relies_on_date_for_reference_branch_with_analysis_after_sonarqube_94() {
-    long leakPeriodStart = addDays(new Date(), -14).getTime();
-
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-
-    SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodMode(REFERENCE_BRANCH.name())
-      .setPeriodParam("master"));
-
-    MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
-    db.measures().insertLiveMeasure(project, analysisMetric, measure -> measure.setData("true"));
-
-    SearchRequest request = new SearchRequest()
-      .setComponentUuids(Collections.singletonList(file.uuid()))
-      .setOnComponentOnly(true)
-      .setSinceLeakPeriod(true);
-
-    IssueQuery query = underTest.create(request);
-
-    assertThat(query.componentUuids()).containsOnly(file.uuid());
-    assertThat(query.newCodeOnReference()).isTrue();
-    assertThat(query.createdAfter()).isNull();
-  }
   @Test
   public void new_code_period_does_not_rely_on_date_for_reference_branch_with_analysis_after_sonarqube_94() {
     ComponentDto project = db.components().insertPublicProject();
@@ -378,43 +332,6 @@ public class IssueQueryFactoryTest {
     IssueQuery result = underTest.create(new SearchRequest().setComponentUuids(singletonList(application.uuid())));
 
     assertThat(result.viewUuids()).containsOnly("<UNKNOWN>");
-  }
-
-  @Test
-  public void application_search_project_issues_on_leak_with_and_without_analysis_after_sonarqube_94() {
-    Date now = new Date();
-    when(clock.millis()).thenReturn(now.getTime());
-    ComponentDto project1 = db.components().insertPublicProject();
-    SnapshotDto analysis1 = db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));
-    ComponentDto project2 = db.components().insertPublicProject();
-    db.components().insertSnapshot(project2, s -> s.setPeriodDate(null));
-    ComponentDto project3 = db.components().insertPublicProject();
-    ComponentDto project4 = db.components().insertPublicProject();
-    SnapshotDto analysis3 =db.components().insertSnapshot(project3,
-      s -> s.setPeriodMode(REFERENCE_BRANCH.name()).setPeriodParam("master")
-        .setPeriodDate(addDays(now, -14).getTime()));
-    db.components().insertSnapshot(project4,
-      s -> s.setPeriodMode(REFERENCE_BRANCH.name()).setPeriodParam("master"));
-    ComponentDto application = db.components().insertPublicApplication();
-    MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
-    db.measures().insertLiveMeasure(project4, analysisMetric, measure -> measure.setData("true"));
-    db.components().insertComponents(newProjectCopy("PC1", project1, application));
-    db.components().insertComponents(newProjectCopy("PC2", project2, application));
-    db.components().insertComponents(newProjectCopy("PC3", project3, application));
-    db.components().insertComponents(newProjectCopy("PC4", project4, application));
-    userSession.registerApplication(application, project1, project2, project3, project4);
-
-    IssueQuery result = underTest.create(new SearchRequest()
-      .setComponentUuids(singletonList(application.uuid()))
-      .setSinceLeakPeriod(true));
-
-    assertThat(result.createdAfterByProjectUuids()).hasSize(2);
-    assertThat(result.createdAfterByProjectUuids().entrySet()).extracting(Map.Entry::getKey, e -> e.getValue().date(), e -> e.getValue().inclusive()).containsOnly(
-      tuple(project1.uuid(), new Date(analysis1.getPeriodDate()), false),
-      tuple(project3.uuid(), new Date(analysis3.getPeriodDate()), false));
-    assertThat(result.newCodeOnReferenceByProjectUuids()).hasSize(1);
-    assertThat(result.newCodeOnReferenceByProjectUuids()).containsOnly(project4.uuid());
-    assertThat(result.viewUuids()).containsExactlyInAnyOrder(application.uuid());
   }
 
   @Test
@@ -679,15 +596,6 @@ public class IssueQueryFactoryTest {
   }
 
   @Test
-  public void fail_if_since_leak_period_and_created_after_set_at_the_same_time() {
-    assertThatThrownBy(() -> underTest.create(new SearchRequest()
-      .setSinceLeakPeriod(true)
-      .setCreatedAfter("2013-07-25T07:35:00+0100")))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Parameters 'createdAfter' and 'inNewCodePeriod' or 'sinceLeakPeriod' cannot be set simultaneously");
-  }
-
-  @Test
   public void fail_if_in_new_code_period_and_created_after_set_at_the_same_time() {
     SearchRequest searchRequest = new SearchRequest()
       .setInNewCodePeriod(true)
@@ -695,18 +603,7 @@ public class IssueQueryFactoryTest {
 
     assertThatThrownBy(() -> underTest.create(searchRequest))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Parameters 'createdAfter' and 'inNewCodePeriod' or 'sinceLeakPeriod' cannot be set simultaneously");
-  }
-
-  @Test
-  public void fail_if_since_leak_period_and_created_in_last_set_at_the_same_time() {
-    SearchRequest searchRequest = new SearchRequest()
-      .setSinceLeakPeriod(true)
-      .setCreatedInLast("1y2m3w4d");
-
-    assertThatThrownBy(() -> underTest.create(searchRequest))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Parameters 'createdInLast' and 'inNewCodePeriod' or 'sinceLeakPeriod' cannot be set simultaneously");
+      .hasMessageContaining("Parameters 'createdAfter' and 'inNewCodePeriod' cannot be set simultaneously");
   }
 
   @Test
@@ -717,7 +614,7 @@ public class IssueQueryFactoryTest {
 
     assertThatThrownBy(() -> underTest.create(searchRequest))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Parameters 'createdInLast' and 'inNewCodePeriod' or 'sinceLeakPeriod' cannot be set simultaneously");
+      .hasMessageContaining("Parameters 'createdInLast' and 'inNewCodePeriod' cannot be set simultaneously");
   }
 
   @Test
@@ -732,18 +629,6 @@ public class IssueQueryFactoryTest {
     SearchRequest searchRequest = new SearchRequest().setInNewCodePeriod(true);
 
     assertThatThrownBy(() -> underTest.create(searchRequest))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("One and only one component must be provided when searching in new code period");
-  }
-
-  @Test
-  public void fail_if_several_components_provided_with_since_leak_period() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-
-    assertThatThrownBy(() -> underTest.create(new SearchRequest()
-      .setSinceLeakPeriod(true)
-      .setComponents(asList(project1.getKey(), project2.getKey()))))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("One and only one component must be provided when searching in new code period");
   }

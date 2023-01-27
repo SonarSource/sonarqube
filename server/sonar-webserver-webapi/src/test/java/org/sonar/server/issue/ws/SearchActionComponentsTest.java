@@ -76,9 +76,9 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRA
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
 
 public class SearchActionComponentsTest {
 
@@ -148,7 +148,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_since_leak_period_on_project() {
+  public void search_since_in_new_code_period_on_project() {
     ComponentDto project = db.components().insertPublicProject(p -> p.setKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
     db.components().insertSnapshot(project, a -> a.setPeriodDate(parseDateTime("2015-09-03T00:00:00+0100").getTime()));
@@ -164,7 +164,7 @@ public class SearchActionComponentsTest {
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "search_since_leak_period.json");
   }
@@ -406,7 +406,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_by_application_and_by_leak() {
+  public void search_by_application_and_by_new_code_period() {
     Date now = new Date();
     RuleDto rule = db.rules().insertIssueRule();
     ComponentDto application = db.components().insertPublicApplication();
@@ -428,7 +428,7 @@ public class SearchActionComponentsTest {
 
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, application.getKey())
-      .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).extracting(Issue::getKey)
@@ -460,7 +460,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_by_application_and_project_and_leak() {
+  public void search_by_application_and_project_and_new_code_period() {
     Date now = new Date();
     RuleDto rule = db.rules().insertIssueRule();
     ComponentDto application = db.components().insertPublicApplication();
@@ -483,7 +483,7 @@ public class SearchActionComponentsTest {
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, application.getKey())
       .setParam(PARAM_PROJECTS, project1.getKey())
-      .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).extracting(Issue::getKey)
@@ -492,7 +492,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void search_by_application_and_by_leak_when_one_project_has_no_leak() {
+  public void search_by_application_and_by_new_code_period_when_one_project_has_no_leak() {
     Date now = new Date();
     RuleDto rule = db.rules().insertIssueRule();
     ComponentDto application = db.components().insertPublicApplication();
@@ -514,7 +514,7 @@ public class SearchActionComponentsTest {
 
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, application.getKey())
-      .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).extracting(Issue::getKey)

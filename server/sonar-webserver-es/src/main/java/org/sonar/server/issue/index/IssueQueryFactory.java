@@ -82,7 +82,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_U
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_LAST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
 
 /**
  * This component is used to create an IssueQuery, in order to transform the component and component roots keys into uuid.
@@ -199,9 +198,9 @@ public class IssueQueryFactory {
       setCreatedAfterFromDates(builder, createdAfter, createdInLast, true);
     } else {
       // If the filter is on leak period
-      checkArgument(createdAfter == null, "Parameters '%s' and '%s' or '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_IN_NEW_CODE_PERIOD, PARAM_SINCE_LEAK_PERIOD);
+      checkArgument(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_IN_NEW_CODE_PERIOD);
       checkArgument(createdInLast == null,
-        format("Parameters '%s' and '%s' or '%s' cannot be set simultaneously", PARAM_CREATED_IN_LAST, PARAM_IN_NEW_CODE_PERIOD, PARAM_SINCE_LEAK_PERIOD));
+        format("Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_IN_LAST, PARAM_IN_NEW_CODE_PERIOD));
 
       checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching in new code period");
       ComponentDto component = componentUuids.iterator().next();
@@ -220,20 +219,9 @@ public class IssueQueryFactory {
   }
 
   private static boolean notInNewCodePeriod(SearchRequest request) {
-    Boolean sinceLeakPeriod = request.getSinceLeakPeriod();
     Boolean inNewCodePeriod = request.getInNewCodePeriod();
-
-    checkArgument(validPeriodParameterValues(sinceLeakPeriod, inNewCodePeriod),
-      "If both provided, the following parameters %s and %s must match.", PARAM_SINCE_LEAK_PERIOD, PARAM_IN_NEW_CODE_PERIOD);
-
-    sinceLeakPeriod = Boolean.TRUE.equals(sinceLeakPeriod);
     inNewCodePeriod = Boolean.TRUE.equals(inNewCodePeriod);
-
-    return !sinceLeakPeriod && !inNewCodePeriod;
-  }
-
-  private static boolean validPeriodParameterValues(@Nullable Boolean sinceLeakPeriod, @Nullable Boolean inNewCodePeriod) {
-    return atMostOneNonNullElement(sinceLeakPeriod, inNewCodePeriod) || !Boolean.logicalXor(sinceLeakPeriod, inNewCodePeriod);
+    return !inNewCodePeriod;
   }
 
   private Date findCreatedAfterFromComponentUuid(Optional<SnapshotDto> snapshot) {

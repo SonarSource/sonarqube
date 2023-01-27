@@ -62,7 +62,7 @@ public class SearchRequest {
   private String s;
   private List<String> sansTop25;
   private List<String> severities;
-  private String sinceLeakPeriod;
+  private String inNewCodePeriod;
   private List<String> sonarsourceSecurity;
   private List<String> statuses;
   private List<String> tags;
@@ -543,13 +543,13 @@ public class SearchRequest {
    *   <li>"no"</li>
    * </ul>
    */
-  public SearchRequest setSinceLeakPeriod(String sinceLeakPeriod) {
-    this.sinceLeakPeriod = sinceLeakPeriod;
+  public SearchRequest setInNewCodePeriod(String inNewCodePeriod) {
+    this.inNewCodePeriod = inNewCodePeriod;
     return this;
   }
 
-  public String getSinceLeakPeriod() {
-    return sinceLeakPeriod;
+  public String isInNewCodePeriod() {
+    return inNewCodePeriod;
   }
 
   /**

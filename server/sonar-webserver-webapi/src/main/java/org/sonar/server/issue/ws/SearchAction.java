@@ -123,7 +123,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SCOPES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
@@ -195,6 +194,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.0", format("Parameter 'sinceLeakPeriod' is removed, please use '%s' instead", PARAM_IN_NEW_CODE_PERIOD)),
         new Change("9.8", "Add message formatting to issue and locations response"),
         new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
         new Change("9.7", "Issues flows in the response may contain a description and a type"),
@@ -204,7 +204,7 @@ public class SearchAction implements IssuesWsAction {
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("9.6", "New possible value for 'additionalFields' parameter: 'ruleDescriptionContextKey'"),
         new Change("9.6", "Facet 'moduleUuids' is dropped."),
-        new Change("9.4", format("Parameter '%s' is deprecated, please use '%s' instead", PARAM_SINCE_LEAK_PERIOD, PARAM_IN_NEW_CODE_PERIOD)),
+        new Change("9.4", format("Parameter 'sinceLeakPeriod' is deprecated, please use '%s' instead", PARAM_IN_NEW_CODE_PERIOD)),
         new Change("9.2", "Response field 'quickFixAvailable' added"),
         new Change("9.1", "Deprecated parameters 'authors', 'facetMode' and 'moduleUuids' were dropped"),
         new Change("8.6", "Parameter 'timeZone' added"),
@@ -342,11 +342,6 @@ public class SearchAction implements IssuesWsAction {
         "Accepted units are 'y' for year, 'm' for month, 'w' for week and 'd' for day. " +
         "If this parameter is set, createdAfter must not be set")
       .setExampleValue("1m2w (1 month 2 weeks)");
-    action.createParam(PARAM_SINCE_LEAK_PERIOD)
-      .setDescription("To retrieve issues created since the leak period.<br>" +
-        "If this parameter is set to a truthy value, createdAfter must not be set and one component uuid or key must be provided.")
-      .setDeprecatedSince("9.4")
-      .setBooleanPossibleValues();
     action.createParam(PARAM_IN_NEW_CODE_PERIOD)
       .setDescription("To retrieve issues created in the new code period.<br>" +
         "If this parameter is set to a truthy value, createdAfter must not be set and one component uuid or key must be provided.")
@@ -565,7 +560,6 @@ public class SearchAction implements IssuesWsAction {
       .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
       .setResolved(request.paramAsBoolean(PARAM_RESOLVED))
       .setRules(request.paramAsStrings(PARAM_RULES))
-      .setSinceLeakPeriod(request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD))
       .setSort(request.param(Param.SORT))
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
