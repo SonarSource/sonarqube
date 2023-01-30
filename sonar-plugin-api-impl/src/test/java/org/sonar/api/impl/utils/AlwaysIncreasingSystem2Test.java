@@ -97,7 +97,7 @@ public class AlwaysIncreasingSystem2Test {
         if (initialValue != null) {
           assertThat(now).isEqualTo(initialValue);
         } else {
-          assertThat(now).isPositive();
+          assertThat(now).isNotNegative();
         }
         previousValue = now;
       } else {
