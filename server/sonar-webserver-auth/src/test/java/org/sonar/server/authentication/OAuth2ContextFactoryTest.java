@@ -135,16 +135,6 @@ public class OAuth2ContextFactoryTest {
   }
 
   @Test
-  public void authenticate_with_organization_alm_ids() {
-    OAuthContextImpl callback = (OAuthContextImpl) newCallbackContext();
-    Set<String> organizationAlmIds = ImmutableSet.of("ABCD", "EFGH");
-
-    callback.authenticate(USER_IDENTITY, organizationAlmIds);
-
-    assertThat(userIdentityAuthenticator.getAuthenticatorParameters().getOrganizationAlmIds()).containsAll(organizationAlmIds);
-  }
-
-  @Test
   public void redirect_to_home() throws Exception {
     when(server.getContextPath()).thenReturn("");
     when(oAuthParameters.getReturnTo(request)).thenReturn(Optional.empty());

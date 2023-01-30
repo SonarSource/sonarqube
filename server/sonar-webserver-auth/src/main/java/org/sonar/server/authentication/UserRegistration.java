@@ -33,13 +33,11 @@ public class UserRegistration {
   private final UserIdentity userIdentity;
   private final IdentityProvider provider;
   private final AuthenticationEvent.Source source;
-  private final Set<String> organizationAlmIds;
 
   UserRegistration(Builder builder) {
     this.userIdentity = builder.userIdentity;
     this.provider = builder.provider;
     this.source = builder.source;
-    this.organizationAlmIds = builder.organizationAlmIds;
   }
 
   public UserIdentity getUserIdentity() {
@@ -54,11 +52,6 @@ public class UserRegistration {
     return source;
   }
 
-  @CheckForNull
-  public Set<String> getOrganizationAlmIds() {
-    return organizationAlmIds;
-  }
-
   public static UserRegistration.Builder builder() {
     return new Builder();
   }
@@ -67,7 +60,6 @@ public class UserRegistration {
     private UserIdentity userIdentity;
     private IdentityProvider provider;
     private AuthenticationEvent.Source source;
-    private Set<String> organizationAlmIds;
 
     public Builder setUserIdentity(UserIdentity userIdentity) {
       this.userIdentity = userIdentity;
@@ -81,15 +73,6 @@ public class UserRegistration {
 
     public Builder setSource(AuthenticationEvent.Source source) {
       this.source = source;
-      return this;
-    }
-
-    /**
-     * List of ALM organization the user is member of.
-     * When set to null, it means that no organization membership synchronization should be done.
-     */
-    public Builder setOrganizationAlmIds(@Nullable Set<String> organizationAlmIds) {
-      this.organizationAlmIds = organizationAlmIds;
       return this;
     }
 

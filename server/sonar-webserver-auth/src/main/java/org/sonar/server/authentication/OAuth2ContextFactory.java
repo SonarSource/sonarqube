@@ -73,7 +73,7 @@ public class OAuth2ContextFactory {
     return server.getPublicRootUrl() + CALLBACK_PATH + identityProviderKey;
   }
 
-  public class OAuthContextImpl implements OAuth2IdentityProvider.InitContext, OAuth2CallbackContext {
+  public class OAuthContextImpl implements OAuth2IdentityProvider.InitContext, OAuth2IdentityProvider.CallbackContext {
 
     private final HttpServletRequest request;
     private final HttpServletResponse response;
@@ -137,17 +137,11 @@ public class OAuth2ContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
-      authenticate(userIdentity, null);
-    }
-
-    @Override
-    public void authenticate(UserIdentity userIdentity, @Nullable Set<String> organizationAlmIds) {
       UserDto userDto = userRegistrar.register(
         UserRegistration.builder()
           .setUserIdentity(userIdentity)
           .setProvider(identityProvider)
           .setSource(AuthenticationEvent.Source.oauth2(identityProvider))
-          .setOrganizationAlmIds(organizationAlmIds)
           .build());
       jwtHttpHandler.generateToken(userDto, request, response);
       threadLocalUserSession.set(userSessionFactory.create(userDto));
