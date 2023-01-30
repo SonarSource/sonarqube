@@ -30,7 +30,8 @@
                                close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
     and component_uuid in (SELECT
       p.uuid as uuid
-    FROM projects p)
+    FROM projects p
+    where p.qualifier = 'TRK')
   </select>
 
   <select id="selectByComponentUuidsAndMetricKeys" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">

@@ -279,6 +279,18 @@ public class ProjectDaoTest {
       .containsExactlyInAnyOrderElementsOf(extractComponentUuids(projects));
   }
 
+  @Test
+  public void selectAllProjectUuids_shouldOnlyReturnProjectWithTRKQualifier() {
+    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.components().addApplicationProject(application, project, project2);
+
+    List<String> projectUuids = projectDao.selectAllProjectUuids(db.getSession());
+
+    assertThat(projectUuids).containsExactlyInAnyOrder(project.uuid(), project2.uuid());
+  }
+
   private void insertDefaultQualityProfile(String language) {
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true).setLanguage(language));
     db.qualityProfiles().setAsDefault(profile);

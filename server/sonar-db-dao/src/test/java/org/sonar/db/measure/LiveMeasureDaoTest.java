@@ -169,6 +169,24 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
+  public void selectForProjectsByMetricUuids_shouldReturnProjectWithTRKQualifierOnly() {
+    MetricDto metric = db.measures().insertMetric();
+    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.components().addApplicationProject(application, project, project2);
+    underTest.insert(db.getSession(), newLiveMeasure(application, metric).setValue(3.14).setData((String) null));
+    underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(4.54).setData((String) null));
+    underTest.insert(db.getSession(), newLiveMeasure(project2, metric).setValue(5.56).setData((String) null));
+
+    List<LiveMeasureDto> selected = underTest.selectForProjectsByMetricUuids(db.getSession(), List.of(metric.getUuid()));
+
+    assertThat(selected)
+      .extracting(LiveMeasureDto::getProjectUuid)
+      .containsExactlyInAnyOrder(project.uuid(), project2.uuid());
+  }
+
+  @Test
   public void selectByComponentUuidAndMetricKey() {
     LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
