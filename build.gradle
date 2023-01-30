@@ -331,7 +331,6 @@ subprojects {
       }
       dependency('org.mockito:mockito-inline:5.0.0')
       dependency 'org.mybatis:mybatis:3.5.11'
-      dependency 'org.nanohttpd:nanohttpd:2.3.1'
       dependencySet(group: 'org.slf4j', version: '2.0.6') {
         entry 'jcl-over-slf4j'
         entry 'jul-to-slf4j'
