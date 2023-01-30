@@ -18,6 +18,7 @@
     SELECT
       p.uuid as uuid
     FROM projects p
+    where p.qualifier = 'TRK'
   </select>
 
   <select id="selectByUuid" parameterType="String" resultType="Project">
