@@ -26,8 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
-import org.sonar.server.authentication.event.AuthenticationEvent;
-import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.GithubWebhookUserSession;
@@ -57,11 +55,8 @@ public class RequestAuthenticatorImplTest {
   private final GithubWebhookAuthentication githubWebhookAuthentication = mock(GithubWebhookAuthentication.class);
   private final HttpHeadersAuthentication httpHeadersAuthentication = mock(HttpHeadersAuthentication.class);
   private final UserSessionFactory sessionFactory = mock(UserSessionFactory.class);
-  private final CustomAuthentication customAuthentication1 = mock(CustomAuthentication.class);
-  private final CustomAuthentication customAuthentication2 = mock(CustomAuthentication.class);
   private final RequestAuthenticator underTest = new RequestAuthenticatorImpl(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication,
-    githubWebhookAuthentication, sessionFactory,
-    new CustomAuthentication[]{customAuthentication1, customAuthentication2});
+    githubWebhookAuthentication, sessionFactory);
 
   private final GithubWebhookUserSession githubWebhookMockUserSession = mock(GithubWebhookUserSession.class);
 
@@ -142,31 +137,6 @@ public class RequestAuthenticatorImplTest {
     assertThat(session.isLoggedIn()).isFalse();
     assertThat(session.getUuid()).isNull();
     verify(response, never()).setStatus(anyInt());
-  }
-
-  @Test
-  public void delegate_to_CustomAuthentication() {
-    when(customAuthentication1.authenticate(request, response)).thenReturn(Optional.of(new MockUserSession("foo")));
-
-    UserSession session = underTest.authenticate(request, response);
-
-    assertThat(session.getLogin()).isEqualTo("foo");
-  }
-
-  @Test
-  public void CustomAuthentication_has_priority_over_core_authentications() {
-    // use-case: both custom and core authentications check the HTTP header "Authorization".
-    // The custom authentication should be able to test the header because that the core authentication
-    // throws an exception.
-    when(customAuthentication1.authenticate(request, response)).thenReturn(Optional.of(new MockUserSession("foo")));
-    when(basicAuthentication.authenticate(request)).thenThrow(AuthenticationException.newBuilder()
-      .setSource(AuthenticationEvent.Source.sso())
-      .setMessage("message")
-      .build());
-
-    UserSession session = underTest.authenticate(request, response);
-
-    assertThat(session.getLogin()).isEqualTo("foo");
   }
 
   private static UserTokenDto mockUserTokenDto(UserDto userDto) {
