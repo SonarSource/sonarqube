@@ -27,7 +27,6 @@ import org.sonar.server.permission.PermissionService;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -83,15 +82,9 @@ public class WsParameters {
 
   public static void createGroupNameParameter(WebService.NewAction action) {
     action.createParam(PARAM_GROUP_NAME)
+      .setRequired(true)
       .setDescription("Group name or 'anyone' (case insensitive)")
       .setExampleValue("sonar-administrators");
-  }
-
-  public static void createGroupIdParameter(WebService.NewAction action) {
-    action.createParam(PARAM_GROUP_ID)
-      .setDescription("Group id, use 'name' param instead")
-      .setDeprecatedSince("8.4")
-      .setExampleValue(UUID_EXAMPLE_01);
   }
 
   public static void createProjectParameters(WebService.NewAction action) {

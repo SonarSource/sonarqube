@@ -30,23 +30,10 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class AddGroupToTemplateRequest {
 
-  private String groupId;
   private String groupName;
   private String permission;
   private String templateId;
   private String templateName;
-
-  /**
-   * Example value: "42"
-   */
-  public AddGroupToTemplateRequest setGroupId(String groupId) {
-    this.groupId = groupId;
-    return this;
-  }
-
-  public String getGroupId() {
-    return groupId;
-  }
 
   /**
    * Example value: "sonar-administrators"

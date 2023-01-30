@@ -50,7 +50,6 @@ public class UserGroupsService extends BaseService {
   public void addUser(AddUserRequest request) {
     call(
       new PostRequest(path("add_user"))
-        .setParam("id", request.getId())
         .setParam("login", request.getLogin())
         .setParam("name", request.getName())
         .setMediaType(MediaTypes.JSON)).content();
@@ -81,7 +80,6 @@ public class UserGroupsService extends BaseService {
   public void delete(DeleteRequest request) {
     call(
       new PostRequest(path("delete"))
-        .setParam("id", request.getId())
         .setParam("name", request.getName())
         .setMediaType(MediaTypes.JSON)).content();
   }
@@ -96,7 +94,6 @@ public class UserGroupsService extends BaseService {
   public void removeUser(RemoveUserRequest request) {
     call(
       new PostRequest(path("remove_user"))
-        .setParam("id", request.getId())
         .setParam("login", request.getLogin())
         .setParam("name", request.getName())
         .setMediaType(MediaTypes.JSON)).content();
@@ -130,7 +127,6 @@ public class UserGroupsService extends BaseService {
     call(
       new PostRequest(path("update"))
         .setParam("description", request.getDescription())
-        .setParam("id", request.getId())
         .setParam("name", request.getName()),
       UpdateWsResponse.parser());
   }
@@ -145,7 +141,6 @@ public class UserGroupsService extends BaseService {
   public String users(UsersRequest request) {
     return call(
       new GetRequest(path("users"))
-        .setParam("id", request.getId())
         .setParam("name", request.getName())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())

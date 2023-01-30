@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class UsersActionTest {
@@ -61,6 +61,7 @@ public class UsersActionTest {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isFalse();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.0", "Parameter 'id' is removed. Use 'name' instead."),
       tuple("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead."),
       tuple("9.8", "The field 'paging' has been added to the response."),
       tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
@@ -69,26 +70,24 @@ public class UsersActionTest {
   @Test
   public void fail_if_unknown_group_uuid() {
     loginAsAdmin();
+    TestRequest request = newUsersRequest()
+      .setParam(PARAM_GROUP_NAME, "unknown")
+      .setParam("login", "john");
 
-    assertThatThrownBy(() -> {
-      newUsersRequest()
-        .setParam("id", "42")
-        .setParam("login", "john").execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("No group with id '42'");
+      .hasMessage("No group with name 'unknown'");
   }
 
   @Test
   public void fail_if_not_admin() {
     GroupDto group = db.users().insertGroup();
     userSession.logIn("not-admin");
+    TestRequest request = newUsersRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam("login", "john");
 
-    assertThatThrownBy(() -> {
-      newUsersRequest()
-        .setParam("id", group.getUuid())
-        .setParam("login", "john").execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -99,42 +98,20 @@ public class UsersActionTest {
 
     String result = newUsersRequest()
       .setParam("login", "john")
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"p\": 1,\n" +
-      "  \"total\": 0,\n" +
-      "  \"paging\": {\n" +
-      "    \"pageIndex\": 1,\n" +
-      "    \"pageSize\": 25,\n" +
-      "    \"total\": 0\n" +
-      "  }," +
-      "  \"users\": []\n" +
-      "}");
-  }
-
-  @Test
-  public void return_members_by_group_uuid() {
-    GroupDto group = db.users().insertGroup();
-    UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
-    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
-    db.users().insertMember(group, lovelace);
-    loginAsAdmin();
-
-    String result = newUsersRequest()
-      .setParam("id", group.getUuid())
-      .setParam(Param.SELECTED, SelectionMode.ALL.value())
-      .execute()
-      .getInput();
-
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"users\": [\n" +
-      "    {\"login\": \"ada.login\", \"name\": \"Ada Lovelace\", \"selected\": true},\n" +
-      "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
-      "  ]\n" +
-      "}\n");
+    assertJson(result).isSimilarTo("""
+      {
+        "p": 1,
+        "total": 0,
+        "paging": {
+          "pageIndex": 1,
+          "pageSize": 25,
+          "total": 0
+        },  "users": []
+      }""");
   }
 
   @Test
@@ -146,17 +123,19 @@ public class UsersActionTest {
     loginAsAdmin();
 
     String result = newUsersRequest()
-      .setParam("name", group.getName())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"users\": [\n" +
-      "    {\"login\": \"ada.login\", \"name\": \"Ada Lovelace\", \"selected\": true},\n" +
-      "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
-      "  ]\n" +
-      "}\n");
+    assertJson(result).isSimilarTo("""
+      {
+        "users": [
+          {"login": "ada.login", "name": "Ada Lovelace", "selected": true},
+          {"login": "grace", "name": "Grace Hopper", "selected": false}
+        ]
+      }
+      """);
   }
 
   @Test
@@ -168,7 +147,7 @@ public class UsersActionTest {
     db.users().insertMember(group, graceHopper);
     loginAsAdmin();
 
-    String response = newUsersRequest().setParam(PARAM_GROUP_ID, group.getUuid()).execute().getInput();
+    String response = newUsersRequest().setParam(PARAM_GROUP_NAME, group.getName()).execute().getInput();
 
     assertThat(response).contains("Ada Lovelace", "Grace Hopper");
   }
@@ -182,23 +161,25 @@ public class UsersActionTest {
     loginAsAdmin();
 
     assertJson(newUsersRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .execute()
-      .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
-        "  ]\n" +
-        "}");
+      .getInput()).isSimilarTo("""
+      {
+        "users": [
+          {"login": "ada", "name": "Ada Lovelace", "selected": true}
+        ]
+      }""");
 
     assertJson(newUsersRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(Param.SELECTED, SelectionMode.SELECTED.value())
       .execute()
-      .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
-        "  ]\n" +
-        "}");
+      .getInput()).isSimilarTo("""
+      {
+        "users": [
+          {"login": "ada", "name": "Ada Lovelace", "selected": true}
+        ]
+      }""");
   }
 
   @Test
@@ -210,16 +191,17 @@ public class UsersActionTest {
     loginAsAdmin();
 
     String result = newUsersRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(Param.SELECTED, SelectionMode.DESELECTED.value())
       .execute()
       .getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"users\": [\n" +
-      "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
-      "  ]\n" +
-      "}");
+    assertJson(result).isSimilarTo("""
+      {
+        "users": [
+          {"login": "grace", "name": "Grace Hopper", "selected": false}
+        ]
+      }""");
   }
 
   @Test
@@ -231,43 +213,43 @@ public class UsersActionTest {
     loginAsAdmin();
 
     assertJson(newUsersRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam("ps", "1")
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
-      .getInput()).isSimilarTo("{\n" +
-        "  \"p\": 1,\n" +
-        "  \"ps\": 1,\n" +
-        "  \"total\": 2,\n" +
-        "  \"paging\": {\n" +
-        "    \"pageIndex\": 1,\n" +
-        "    \"pageSize\": 1,\n" +
-        "    \"total\": 2\n" +
-        "  }," +
-        "  \"users\": [\n" +
-        "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
-        "  ]\n" +
-        "}");
+      .getInput()).isSimilarTo("""
+      {
+        "p": 1,
+        "ps": 1,
+        "total": 2,
+        "paging": {
+          "pageIndex": 1,
+          "pageSize": 1,
+          "total": 2
+        },  "users": [
+          {"login": "ada", "name": "Ada Lovelace", "selected": true}
+        ]
+      }""");
 
     assertJson(newUsersRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam("ps", "1")
       .setParam("p", "2")
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
-      .getInput()).isSimilarTo("{\n" +
-        "  \"p\": 2,\n" +
-        "  \"ps\": 1,\n" +
-        "  \"total\": 2,\n" +
-        "  \"paging\": {\n" +
-        "    \"pageIndex\": 2,\n" +
-        "    \"pageSize\": 1,\n" +
-        "    \"total\": 2\n" +
-        "  }," +
-        "  \"users\": [\n" +
-        "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
-        "  ]\n" +
-        "}");
+      .getInput()).isSimilarTo("""
+      {
+        "p": 2,
+        "ps": 1,
+        "total": 2,
+        "paging": {
+          "pageIndex": 2,
+          "pageSize": 1,
+          "total": 2
+        },  "users": [
+          {"login": "grace", "name": "Grace Hopper", "selected": false}
+        ]
+      }""");
   }
 
   @Test
@@ -279,55 +261,63 @@ public class UsersActionTest {
     loginAsAdmin();
 
     assertJson(newUsersRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam("q", "ace")
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
-      .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\"login\": \"ada.login\", \"name\": \"Ada Lovelace\", \"selected\": true},\n" +
-        "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
-        "  ]\n" +
-        "}\n");
+      .getInput()).isSimilarTo("""
+      {
+        "users": [
+          {"login": "ada.login", "name": "Ada Lovelace", "selected": true},
+          {"login": "grace", "name": "Grace Hopper", "selected": false}
+        ]
+      }
+      """);
 
-    assertJson(newUsersRequest().setParam("id", group.getUuid())
+    assertJson(newUsersRequest().setParam(PARAM_GROUP_NAME, group.getName())
       .setParam("q", ".logi")
       .execute()
-      .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\n" +
-        "      \"login\": \"ada.login\",\n" +
-        "      \"name\": \"Ada Lovelace\",\n" +
-        "      \"selected\": true\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}\n");
+      .getInput()).isSimilarTo("""
+      {
+        "users": [
+          {
+            "login": "ada.login",
+            "name": "Ada Lovelace",
+            "selected": true
+          }
+        ]
+      }
+      """);
 
-    assertJson(newUsersRequest().setParam("id", group.getUuid())
+    assertJson(newUsersRequest().setParam(PARAM_GROUP_NAME, group.getName())
       .setParam("q", "OvE")
       .execute()
-      .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\n" +
-        "      \"login\": \"ada.login\",\n" +
-        "      \"name\": \"Ada Lovelace\",\n" +
-        "      \"selected\": true\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}\n");
+      .getInput()).isSimilarTo("""
+      {
+        "users": [
+          {
+            "login": "ada.login",
+            "name": "Ada Lovelace",
+            "selected": true
+          }
+        ]
+      }
+      """);
 
-    assertJson(newUsersRequest().setParam("id", group.getUuid())
+    assertJson(newUsersRequest().setParam(PARAM_GROUP_NAME, group.getName())
       .setParam("q", "mail")
       .execute()
-      .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\n" +
-        "      \"login\": \"ada.login\",\n" +
-        "      \"name\": \"Ada Lovelace\",\n" +
-        "      \"selected\": true\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}\n");
+      .getInput()).isSimilarTo("""
+      {
+        "users": [
+          {
+            "login": "ada.login",
+            "name": "Ada Lovelace",
+            "selected": true
+          }
+        ]
+      }
+      """);
   }
 
   @Test
@@ -340,7 +330,7 @@ public class UsersActionTest {
     loginAsAdmin();
 
     String result = newUsersRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput();

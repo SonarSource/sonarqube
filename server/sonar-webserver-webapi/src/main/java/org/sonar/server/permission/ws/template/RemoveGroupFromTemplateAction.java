@@ -33,7 +33,6 @@ import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
@@ -59,15 +58,15 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setSince("5.2")
       .setDescription("Remove a group from a permission template.<br /> " +
-        "The group id or group name must be provided. <br />" +
+        "The group name must be provided. <br />" +
         "Requires the following permission: 'Administer System'.")
       .setChangelog(
+        new Change("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
         new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setHandler(this);
 
     createTemplateParameters(action);
     wsParameters.createProjectPermissionParameter(action);
-    createGroupIdParameter(action);
     createGroupNameParameter(action);
   }
 

@@ -35,7 +35,6 @@ import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -65,7 +64,7 @@ public class AddGroupAction implements PermissionsWsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setDescription("Add a permission to a group.<br /> " +
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> " +
-        "The group name or group id must be provided. <br />" +
+        "The group name must be provided. <br />" +
         "Requires one of the following permissions:" +
         "<ul>" +
         "<li>'Administer System'</li>" +
@@ -73,13 +72,13 @@ public class AddGroupAction implements PermissionsWsAction {
         "</ul>")
       .setSince("5.2")
       .setChangelog(
-        new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'name' instead."))
+        new Change("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
+        new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setPost(true)
       .setHandler(this);
 
     wsParameters.createPermissionParameter(action, "The permission you would like to grant to the group.");
     createGroupNameParameter(action);
-    createGroupIdParameter(action);
     createProjectParameters(action);
   }
 

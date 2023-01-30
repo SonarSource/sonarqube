@@ -20,6 +20,7 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
@@ -33,9 +34,7 @@ import org.sonarqube.ws.UserGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
-import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 
 /**
@@ -45,6 +44,7 @@ public class GroupWsSupport {
 
   static final String PARAM_GROUP_ID = "id";
   static final String PARAM_GROUP_NAME = "name";
+  static final String PARAM_GROUP_CURRENT_NAME = "currentName";
   static final String PARAM_GROUP_DESCRIPTION = "description";
   static final String PARAM_LOGIN = "login";
 
@@ -62,7 +62,7 @@ public class GroupWsSupport {
   }
 
   /**
-   * Find a group by its id (parameter {@link #PARAM_GROUP_ID}) or group name (parameter {@link #PARAM_GROUP_NAME}). The virtual
+   * Find a group by its  group name (parameter {@link #PARAM_GROUP_NAME}). The virtual
    * group "Anyone" is not supported.
    *
    * @throws NotFoundException if parameters are missing/incorrect, if the requested group does not exist
@@ -73,36 +73,25 @@ public class GroupWsSupport {
   }
 
   public GroupDto findGroupDto(DbSession dbSession, Request request) {
-    String uuid = request.param(PARAM_GROUP_ID);
-    String name = request.param(PARAM_GROUP_NAME);
-    return findGroupDto(dbSession, GroupWsRef.create(uuid, name));
+    String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
+    return findGroupDto(dbSession, groupName);
   }
 
-  public GroupDto findGroupDto(DbSession dbSession, GroupWsRef ref) {
-    if (ref.hasUuid()) {
-      GroupDto group = dbClient.groupDao().selectByUuid(dbSession, ref.getUuid());
-      checkFound(group, "No group with id '%s'", ref.getUuid());
-      return group;
-    }
+  public GroupDto findGroupDto(DbSession dbSession, String groupName) {
 
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, ref.getName());
-    checkFoundWithOptional(group, "No group with name '%s'", ref.getName());
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, groupName);
+    checkFoundWithOptional(group, "No group with name '%s'", groupName);
     return group.get();
   }
 
-  public GroupUuidOrAnyone findGroupOrAnyone(DbSession dbSession, GroupWsRef ref) {
-    if (ref.hasUuid()) {
-      GroupDto group = dbClient.groupDao().selectByUuid(dbSession, ref.getUuid());
-      checkFound(group, "No group with id '%s'", ref.getUuid());
-      return GroupUuidOrAnyone.from(group);
-    }
+  public GroupUuidOrAnyone findGroupOrAnyone(DbSession dbSession, String groupName) {
 
-    if (ref.isAnyone()) {
+    if (DefaultGroups.isAnyone(groupName)) {
       return GroupUuidOrAnyone.forAnyone();
     }
 
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, ref.getName());
-    checkFoundWithOptional(group, "No group with name '%s'", ref.getName());
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, groupName);
+    checkFoundWithOptional(group, "No group with name '%s'", groupName);
     return GroupUuidOrAnyone.from(group.get());
   }
 
@@ -129,19 +118,12 @@ public class GroupWsSupport {
   }
 
   static void defineGroupWsParameters(WebService.NewAction action) {
-    defineGroupIdWsParameter(action);
     defineGroupNameWsParameter(action);
-  }
-
-  private static void defineGroupIdWsParameter(WebService.NewAction action) {
-    action.createParam(PARAM_GROUP_ID)
-      .setDescription("Group id, use 'name' instead")
-      .setDeprecatedSince("8.4")
-      .setExampleValue(UUID_EXAMPLE_01);
   }
 
   private static void defineGroupNameWsParameter(WebService.NewAction action) {
     action.createParam(PARAM_GROUP_NAME)
+      .setRequired(true)
       .setDescription("Group name")
       .setExampleValue("sonar-administrators");
   }

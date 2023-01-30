@@ -30,23 +30,10 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class RemoveGroupRequest {
 
-  private String groupId;
   private String groupName;
   private String permission;
   private String projectId;
   private String projectKey;
-
-  /**
-   * Example value: "42"
-   */
-  public RemoveGroupRequest setGroupId(String groupId) {
-    this.groupId = groupId;
-    return this;
-  }
-
-  public String getGroupId() {
-    return groupId;
-  }
 
   /**
    * Example value: "sonar-administrators"

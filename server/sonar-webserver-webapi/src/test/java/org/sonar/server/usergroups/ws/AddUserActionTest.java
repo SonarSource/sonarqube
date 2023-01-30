@@ -60,23 +60,10 @@ public class AddUserActionTest {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.0", "Parameter 'id' is removed. Use 'name' instead."),
       tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
   }
 
-  @Test
-  public void add_user_to_group_referenced_by_its_id() {
-    insertDefaultGroup();
-    GroupDto group = db.users().insertGroup();
-    UserDto user = db.users().insertUser();
-    loginAsAdmin();
-
-    newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("login", user.getLogin())
-      .execute();
-
-    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(group.getUuid());
-  }
 
   @Test
   public void add_user_to_group_referenced_by_its_name() {
@@ -103,8 +90,8 @@ public class AddUserActionTest {
     loginAsAdmin();
 
     newRequest()
-      .setParam("id", admins.getUuid())
-      .setParam("login", user.getLogin())
+      .setParam(PARAM_GROUP_NAME, admins.getName())
+      .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
 
     assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(admins.getUuid(), users.getUuid());
@@ -119,8 +106,8 @@ public class AddUserActionTest {
     loginAsAdmin();
 
     newRequest()
-      .setParam("id", users.getUuid())
-      .setParam("login", user.getLogin())
+      .setParam(PARAM_GROUP_NAME, users.getName())
+      .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
 
     // do not insert duplicated row
@@ -137,8 +124,8 @@ public class AddUserActionTest {
     loginAsAdmin();
 
     newRequest()
-      .setParam("id", users.getUuid())
-      .setParam("login", user2.getLogin())
+      .setParam(PARAM_GROUP_NAME, users.getName())
+      .setParam(PARAM_LOGIN, user2.getLogin())
       .execute();
 
     assertThat(db.users().selectGroupUuidsOfUser(user1)).containsOnly(users.getUuid());
@@ -153,8 +140,8 @@ public class AddUserActionTest {
     loginAsAdmin();
 
     TestResponse response = newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("login", user.getLogin())
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
@@ -164,28 +151,24 @@ public class AddUserActionTest {
   public void fail_if_group_does_not_exist() {
     UserDto user = db.users().insertUser();
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, "unknown")
+      .setParam(PARAM_LOGIN, user.getLogin());
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", "42")
-        .setParam("login", user.getLogin())
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("No group with id '42'");
+      .hasMessage("No group with name 'unknown'");
   }
 
   @Test
   public void fail_if_user_does_not_exist() {
     GroupDto group = db.users().insertGroup("admins");
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_LOGIN, "my-admin");
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", group.getUuid())
-        .setParam("login", "my-admin")
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Could not find a user with login 'my-admin'");
   }
@@ -206,13 +189,11 @@ public class AddUserActionTest {
     UserDto user = db.users().insertUser();
     GroupDto defaultGroup = db.users().insertDefaultGroup();
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, defaultGroup.getName())
+      .setParam(PARAM_LOGIN, user.getLogin());
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", defaultGroup.getUuid())
-        .setParam(PARAM_LOGIN, user.getLogin())
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
   }
@@ -222,21 +203,19 @@ public class AddUserActionTest {
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_LOGIN, user.getLogin())
+      .setParam(PARAM_GROUP_NAME, group.getName());
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_LOGIN, user.getLogin())
-        .setParam(PARAM_GROUP_NAME, group.getName())
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Default group cannot be found");
   }
 
   private void executeRequest(GroupDto groupDto, UserDto userDto) {
     newRequest()
-      .setParam("id", groupDto.getUuid())
-      .setParam("login", userDto.getLogin())
+      .setParam(PARAM_GROUP_NAME, groupDto.getName())
+      .setParam(PARAM_LOGIN, userDto.getLogin())
       .execute();
   }
 

@@ -38,6 +38,9 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_CURRENT_NAME;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class UpdateActionTest {
@@ -69,18 +72,19 @@ public class UpdateActionTest {
     loginAsAdmin();
 
     String result = newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("name", "new-name")
-      .setParam("description", "New Description")
+      .setParam(PARAM_GROUP_CURRENT_NAME, group.getName())
+      .setParam(PARAM_GROUP_NAME, "new-name")
+      .setParam(PARAM_GROUP_DESCRIPTION, "New Description")
       .execute().getInput();
 
-    assertJson(result).isSimilarTo("{" +
-      "  \"group\": {" +
-      "    \"name\": \"new-name\"," +
-      "    \"description\": \"New Description\"," +
-      "    \"membersCount\": 1" +
-      "  }" +
-      "}");
+    assertJson(result).isSimilarTo("""
+      {
+        "group": {
+          "name": "new-name",
+          "description": "New Description",
+          "membersCount": 1
+        }
+      }""");
   }
 
   @Test
@@ -90,37 +94,18 @@ public class UpdateActionTest {
     loginAsAdmin();
 
     String result = newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("name", "new-name")
+      .setParam(PARAM_GROUP_CURRENT_NAME, group.getName())
+      .setParam(PARAM_GROUP_NAME, "new-name")
       .execute().getInput();
 
-    assertJson(result).isSimilarTo("{" +
-      "  \"group\": {" +
-      "    \"name\": \"new-name\"," +
-      "    \"description\": \"" + group.getDescription() + "\"," +
-      "    \"membersCount\": 0" +
-      "  }" +
-      "}");
-  }
-
-  @Test
-  public void update_only_name_by_name() {
-    insertDefaultGroup();
-    GroupDto group = db.users().insertGroup();
-    loginAsAdmin();
-
-    String result = newRequest()
-      .setParam("currentName", group.getName())
-      .setParam("name", "new-name")
-      .execute().getInput();
-
-    assertJson(result).isSimilarTo("{" +
-      "  \"group\": {" +
-      "    \"name\": \"new-name\"," +
-      "    \"description\": \"" + group.getDescription() + "\"," +
-      "    \"membersCount\": 0" +
-      "  }" +
-      "}");
+    assertJson(result).isSimilarTo(String.format("""
+      {
+        "group": {
+          "name": "new-name",
+          "description": "%s",
+          "membersCount": 0
+        }
+      }""", group.getDescription()));
   }
 
   @Test
@@ -130,17 +115,18 @@ public class UpdateActionTest {
     loginAsAdmin();
 
     String result = newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("description", "New Description")
+      .setParam(PARAM_GROUP_CURRENT_NAME, group.getName())
+      .setParam(PARAM_GROUP_DESCRIPTION, "New Description")
       .execute().getInput();
 
-    assertJson(result).isSimilarTo("{" +
-      "  \"group\": {" +
-      "    \"name\": \"" + group.getName() + "\"," +
-      "    \"description\": \"New Description\"," +
-      "    \"membersCount\": 0" +
-      "  }" +
-      "}");
+    assertJson(result).isSimilarTo(String.format("""
+      {
+        "group": {
+          "name": "%s",
+          "description": "New Description",
+          "membersCount": 0
+        }
+      }""", group.getName()));
   }
 
   @Test
@@ -150,8 +136,8 @@ public class UpdateActionTest {
     loginAsAdmin();
 
     String result = newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("name", "new-name")
+      .setParam(PARAM_GROUP_CURRENT_NAME, group.getName())
+      .setParam(PARAM_GROUP_NAME, "new-name")
       .execute().getInput();
 
     assertJson(result).isSimilarTo("{" +
@@ -172,9 +158,9 @@ public class UpdateActionTest {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam("id", group.getUuid())
-        .setParam("name", "some-product-bu")
-        .setParam("description", "Business Unit for Some Awesome Product")
+        .setParam(PARAM_GROUP_CURRENT_NAME, group.getName())
+        .setParam(PARAM_GROUP_NAME, "some-product-bu")
+        .setParam(PARAM_GROUP_DESCRIPTION, "Business Unit for Some Awesome Product")
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
@@ -185,42 +171,24 @@ public class UpdateActionTest {
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_CURRENT_NAME, group.getName())
+      .setParam(PARAM_GROUP_NAME, "");
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", group.getUuid())
-        .setParam("name", "")
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Group name cannot be empty");
   }
 
   @Test
-  public void fail_if_no_id_and_no_currentname_are_provided() {
+  public void fail_if_no_currentname_are_provided() {
     insertDefaultGroup();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, "newname");
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("name", "newname")
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Need to specify one and only one of 'id' or 'currentName'");
-  }
-
-  @Test
-  public void fail_if_both_id_and_currentname_are_provided() {
-    insertDefaultGroup();
-
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", "id")
-        .setParam("currentName", "name")
-        .execute();
-    })
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Need to specify one and only one of 'id' or 'currentName'");
+      .hasMessage("The 'currentName' parameter is missing");
   }
 
   @Test
@@ -228,13 +196,11 @@ public class UpdateActionTest {
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_CURRENT_NAME, group.getName())
+      .setParam(PARAM_GROUP_NAME, "AnYoNe");
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", group.getUuid())
-        .setParam("name", "AnYoNe")
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Anyone group cannot be used");
   }
@@ -246,39 +212,22 @@ public class UpdateActionTest {
     String newName = "new-name";
     db.users().insertGroup(newName);
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_CURRENT_NAME, groupToBeRenamed.getName())
+      .setParam(PARAM_GROUP_NAME, newName);
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", groupToBeRenamed.getUuid())
-        .setParam("name", newName)
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ServerException.class)
       .hasMessage("Group 'new-name' already exists");
   }
 
   @Test
-  public void fail_if_unknown_group_id() {
-    loginAsAdmin();
-
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", "42")
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage("Could not find a user group with id '42'.");
-  }
-
-  @Test
   public void fail_if_unknown_group_name() {
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_CURRENT_NAME, "42");
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("currentName", "42")
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Could not find a user group with name '42'.");
   }
@@ -287,13 +236,11 @@ public class UpdateActionTest {
   public void fail_to_update_default_group_name() {
     GroupDto group = db.users().insertDefaultGroup();
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_CURRENT_NAME, group.getName())
+      .setParam(PARAM_GROUP_NAME, "new name");
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", group.getUuid())
-        .setParam("name", "new name")
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
   }
@@ -302,13 +249,11 @@ public class UpdateActionTest {
   public void fail_to_update_default_group_description() {
     GroupDto group = db.users().insertDefaultGroup();
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_CURRENT_NAME, group.getName())
+      .setParam(PARAM_GROUP_DESCRIPTION, "new description");
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", group.getUuid())
-        .setParam("description", "new description")
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
   }

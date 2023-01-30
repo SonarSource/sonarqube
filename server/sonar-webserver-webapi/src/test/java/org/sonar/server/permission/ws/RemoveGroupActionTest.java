@@ -52,7 +52,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -83,6 +82,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
       tuple("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."));
   }
 
@@ -95,20 +95,6 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
       .setParam(PARAM_PERMISSION, PROVISIONING)
-      .execute();
-
-    assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(ADMINISTER.getKey());
-  }
-
-  @Test
-  public void remove_permission_using_group_id() {
-    db.users().insertPermissionOnGroup(aGroup, ADMINISTER);
-    db.users().insertPermissionOnGroup(aGroup, PROVISION_PROJECTS);
-    loginAsAdmin();
-
-    newRequest()
-      .setParam(PARAM_GROUP_ID, aGroup.getUuid())
-      .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
       .execute();
 
     assertThat(db.users().selectGroupPermissions(aGroup, null)).containsOnly(ADMINISTER.getKey());
@@ -252,8 +238,8 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
         .execute();
     })
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Group name or group id must be provided");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'groupName' parameter is missing");
   }
 
   @Test
@@ -267,20 +253,6 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'permission' parameter is missing");
-  }
-
-  @Test
-  public void fail_when_group_id_does_not_exist() {
-    loginAsAdmin();
-
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-        .setParam(PARAM_GROUP_ID, "999999")
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage("No group with id '999999'");
   }
 
   @Test

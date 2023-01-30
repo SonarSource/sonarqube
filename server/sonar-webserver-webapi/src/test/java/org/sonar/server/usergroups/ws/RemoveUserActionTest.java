@@ -63,6 +63,7 @@ public class RemoveUserActionTest {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.0", "Parameter 'id' is removed. Use 'name' instead."),
       tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
   }
 
@@ -77,26 +78,8 @@ public class RemoveUserActionTest {
     loginAsAdmin();
 
     newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("login", user.getLogin())
-      .execute();
-
-    assertThat(db.users().selectGroupUuidsOfUser(user)).isEmpty();
-  }
-
-  @Test
-  public void remove_user_by_group_id() {
-    // keep an administrator
-    insertAnAdministrator();
-    insertDefaultGroup();
-    GroupDto users = db.users().insertGroup("users");
-    UserDto user = db.users().insertUser("my-admin");
-    db.users().insertMember(users, user);
-    loginAsAdmin();
-
-    newRequest()
-      .setParam("id", users.getUuid())
-      .setParam("login", user.getLogin())
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
 
     assertThat(db.users().selectGroupUuidsOfUser(user)).isEmpty();
@@ -133,8 +116,8 @@ public class RemoveUserActionTest {
     loginAsAdmin();
 
     newRequest()
-      .setParam("id", admins.getUuid())
-      .setParam("login", user.getLogin())
+      .setParam(PARAM_GROUP_NAME, admins.getName())
+      .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
 
     assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(users.getUuid());
@@ -151,8 +134,8 @@ public class RemoveUserActionTest {
     loginAsAdmin();
 
     TestResponse response = newRequest()
-      .setParam("id", users.getUuid())
-      .setParam("login", user.getLogin())
+      .setParam(PARAM_GROUP_NAME, users.getName())
+      .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
@@ -161,14 +144,12 @@ public class RemoveUserActionTest {
   @Test
   public void fail_if_unknown_group() {
     UserDto user = db.users().insertUser("my-admin");
+    loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, "unknown")
+      .setParam(PARAM_LOGIN, user.getLogin());
 
-    assertThatThrownBy(() -> {
-      loginAsAdmin();
-      newRequest()
-        .setParam("id", "42")
-        .setParam("login", user.getLogin())
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class);
   }
 
@@ -176,14 +157,12 @@ public class RemoveUserActionTest {
   public void fail_if_unknown_user() {
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup("admins");
+    loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_LOGIN, "my-admin");
 
-    assertThatThrownBy(() -> {
-      loginAsAdmin();
-      newRequest()
-        .setParam("id", group.getUuid())
-        .setParam("login", "my-admin")
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class);
   }
 
@@ -193,13 +172,11 @@ public class RemoveUserActionTest {
     UserDto user = db.users().insertUser();
     db.users().insertMember(group, user);
     userSession.logIn("admin");
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_LOGIN, user.getLogin());
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", group.getUuid())
-        .setParam("login", user.getLogin())
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }
@@ -212,13 +189,11 @@ public class RemoveUserActionTest {
     UserDto adminUser = db.users().insertUser("the-single-admin");
     db.users().insertMember(adminGroup, adminUser);
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, adminGroup.getName())
+      .setParam(PARAM_LOGIN, adminUser.getLogin());
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", adminGroup.getUuid())
-        .setParam("login", adminUser.getLogin())
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("The last administrator user cannot be removed");
   }
@@ -229,13 +204,11 @@ public class RemoveUserActionTest {
     GroupDto defaultGroup = db.users().insertDefaultGroup();
     db.users().insertMember(defaultGroup, user);
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, defaultGroup.getName())
+      .setParam(PARAM_LOGIN, user.getLogin());
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", defaultGroup.getUuid())
-        .setParam(PARAM_LOGIN, user.getLogin())
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
   }

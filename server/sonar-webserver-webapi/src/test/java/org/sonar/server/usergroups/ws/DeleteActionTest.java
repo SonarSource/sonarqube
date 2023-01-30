@@ -34,7 +34,6 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -46,7 +45,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 
 public class DeleteActionTest {
@@ -67,6 +65,7 @@ public class DeleteActionTest {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.0", "Parameter 'id' is removed. Use 'name' instead."),
       tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
   }
 
@@ -78,24 +77,10 @@ public class DeleteActionTest {
     loginAsAdmin();
 
     TestResponse response = newRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(204);
-  }
-
-  @Test
-  public void delete_by_id() {
-    addAdmin();
-    insertDefaultGroup();
-    GroupDto group = db.users().insertGroup();
-    loginAsAdmin();
-
-    newRequest()
-      .setParam("id", group.getUuid())
-      .execute();
-
-    assertThat(db.users().selectGroupByUuid(group.getUuid())).isNull();
   }
 
   @Test
@@ -122,7 +107,7 @@ public class DeleteActionTest {
     loginAsAdmin();
 
     newRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .execute();
 
     assertThat(db.countRowsOfTable("groups_users")).isZero();
@@ -138,7 +123,7 @@ public class DeleteActionTest {
     loginAsAdmin();
 
     newRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .execute();
 
     assertThat(db.countRowsOfTable("group_roles")).isZero();
@@ -158,7 +143,7 @@ public class DeleteActionTest {
     assertThat(db.countRowsOfTable("perm_templates_groups")).isOne();
 
     newRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .execute();
 
     assertThat(db.countRowsOfTable("perm_templates_groups")).isZero();
@@ -174,7 +159,7 @@ public class DeleteActionTest {
     loginAsAdmin();
 
     newRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .execute();
 
     assertThat(db.countRowsOfTable("qprofile_edit_groups")).isZero();
@@ -190,26 +175,12 @@ public class DeleteActionTest {
     loginAsAdmin();
 
     newRequest()
-      .setParam("id", group.getUuid())
+      .setParam(PARAM_GROUP_NAME, group.getName())
       .execute();
 
     assertThat(db.countRowsOfTable("qgate_group_permissions")).isZero();
   }
 
-  @Test
-  public void fail_if_id_does_not_exist() {
-    addAdmin();
-    loginAsAdmin();
-    int groupId = 123;
-
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam("id", String.valueOf(groupId))
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage("No group with id '" + groupId + "'");
-  }
 
   @Test
   public void fail_to_delete_default_group() {
@@ -218,7 +189,7 @@ public class DeleteActionTest {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam("id", defaultGroup.getUuid())
+        .setParam(PARAM_GROUP_NAME, defaultGroup.getName())
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -231,12 +202,10 @@ public class DeleteActionTest {
     GroupDto group = db.users().insertGroup();
     db.users().insertPermissionOnGroup(group, SYSTEM_ADMIN);
     loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName());
 
-    assertThatThrownBy(() -> {
-      newRequest()
-        .setParam(PARAM_GROUP_NAME, group.getName())
-        .execute();
-    })
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The last system admin group cannot be deleted");
   }
@@ -276,7 +245,7 @@ public class DeleteActionTest {
 
   private void executeDeleteGroupRequest(GroupDto adminGroup1) {
     newRequest()
-      .setParam(PARAM_GROUP_ID, adminGroup1.getUuid())
+      .setParam(PARAM_GROUP_NAME, adminGroup1.getName())
       .execute();
   }
 

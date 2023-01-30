@@ -30,20 +30,7 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class DeleteRequest {
 
-  private String id;
   private String name;
-
-  /**
-   * Example value: "42"
-   */
-  public DeleteRequest setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getId() {
-    return id;
-  }
 
   /**
    * Example value: "sonar-administrators"

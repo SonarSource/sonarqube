@@ -34,7 +34,6 @@ import org.sonar.server.user.UserSession;
 import static java.lang.String.format;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
@@ -56,13 +55,13 @@ public class RemoveUserAction implements UserGroupsWsAction {
   public void define(NewController context) {
     NewAction action = context.createAction("remove_user")
       .setDescription(format("Remove a user from a group.<br />" +
-          "'%s' or '%s' must be provided.<br>" +
-          "Requires the following permission: 'Administer System'.",
-        PARAM_GROUP_ID, PARAM_GROUP_NAME))
+        "'%s' must be provided.<br>" +
+        "Requires the following permission: 'Administer System'.", PARAM_GROUP_NAME))
       .setHandler(this)
       .setPost(true)
       .setSince("5.2")
       .setChangelog(
+        new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
 
     defineGroupWsParameters(action);

@@ -35,7 +35,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.ws.template.WsTemplateRef;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.usergroups.ws.GroupWsRef;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonarqube.ws.client.permission.PermissionsWsParameters;
 
@@ -44,7 +43,6 @@ import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 
 public class PermissionWsSupport {
@@ -80,10 +78,8 @@ public class PermissionWsSupport {
   }
 
   public GroupUuidOrAnyone findGroup(DbSession dbSession, Request request) {
-    String groupUuid = request.param(PARAM_GROUP_ID);
-    String groupName = request.param(PARAM_GROUP_NAME);
-    GroupWsRef groupRef = GroupWsRef.create(groupUuid, groupName);
-    return groupWsSupport.findGroupOrAnyone(dbSession, groupRef);
+    String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
+    return groupWsSupport.findGroupOrAnyone(dbSession, groupName);
   }
 
   public UserId findUser(DbSession dbSession, String login) {

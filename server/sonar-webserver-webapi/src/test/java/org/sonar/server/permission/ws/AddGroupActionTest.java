@@ -52,7 +52,6 @@ import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -80,7 +79,8 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
-      tuple("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'name' instead."));
+      tuple("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
+      tuple("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."));
   }
 
   @Test
@@ -109,18 +109,6 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     assertThat(db.users().selectGroupPermissions(group, null)).containsOnly("provisioning");
   }
 
-  @Test
-  public void add_permission_to_group_referenced_by_its_id() {
-    GroupDto group = db.users().insertGroup("sonar-administrators");
-    loginAsAdmin();
-
-    newRequest()
-      .setParam(PARAM_GROUP_ID, group.getUuid())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
-
-    assertThat(db.users().selectGroupPermissions(group, null)).containsOnly(SYSTEM_ADMIN);
-  }
 
   @Test
   public void add_permission_to_project_referenced_by_its_id() {
@@ -267,7 +255,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_when_group_name_and_group_id_are_missing() {
+  public void fail_when_group_name_is_missing() {
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
@@ -275,8 +263,8 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
         .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
         .execute();
     })
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Group name or group id must be provided");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'groupName' parameter is missing");
   }
 
   @Test

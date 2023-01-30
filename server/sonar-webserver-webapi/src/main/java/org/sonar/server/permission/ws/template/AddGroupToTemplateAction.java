@@ -36,7 +36,6 @@ import static java.lang.String.format;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
-import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.fromRequest;
@@ -63,15 +62,15 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setSince("5.2")
       .setDescription("Add a group to a permission template.<br /> " +
-        "The group id or group name must be provided. <br />" +
+        "The group name must be provided. <br />" +
         "Requires the following permission: 'Administer System'.")
       .setChangelog(
+        new Change("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
         new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setHandler(this);
 
     createTemplateParameters(action);
     wsParameters.createProjectPermissionParameter(action);
-    createGroupIdParameter(action);
     createGroupNameParameter(action);
   }
 

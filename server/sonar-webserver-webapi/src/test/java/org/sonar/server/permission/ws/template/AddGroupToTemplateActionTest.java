@@ -49,7 +49,6 @@ import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -82,7 +81,8 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
-      tuple("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."));
+      tuple("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."),
+      tuple("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."));
   }
 
   @Test
@@ -102,19 +102,6 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PERMISSION, CODEVIEWER)
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
-      .execute();
-
-    assertThat(getGroupNamesInTemplateAndPermission(template, CODEVIEWER)).containsExactly(group.getName());
-  }
-
-  @Test
-  public void add_with_group_id() {
-    loginAsAdmin();
-
-    newRequest()
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .setParam(PARAM_PERMISSION, CODEVIEWER)
-      .setParam(PARAM_GROUP_ID, String.valueOf(group.getUuid()))
       .execute();
 
     assertThat(getGroupNamesInTemplateAndPermission(template, CODEVIEWER)).containsExactly(group.getName());
@@ -169,7 +156,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
     loginAsAdmin();
 
     assertThatThrownBy(() -> newRequest(null, template.getUuid(), CODEVIEWER))
-      .isInstanceOf(BadRequestException.class);
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

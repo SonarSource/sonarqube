@@ -30,24 +30,11 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class UsersRequest {
 
-  private String id;
   private String name;
   private String p;
   private String ps;
   private String q;
   private String selected;
-
-  /**
-   * Example value: "42"
-   */
-  public UsersRequest setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getId() {
-    return id;
-  }
 
   /**
    * Example value: "sonar-administrators"

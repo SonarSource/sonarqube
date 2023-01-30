@@ -68,6 +68,7 @@ public class UsersAction implements UserGroupsWsAction {
       .addSearchQuery("freddy", "names", "logins")
       .addPagingParams(25)
       .setChangelog(
+        new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead."),
         new Change("9.8", "The field 'paging' has been added to the response."),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));

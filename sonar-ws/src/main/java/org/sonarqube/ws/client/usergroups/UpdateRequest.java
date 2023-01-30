@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class UpdateRequest {
 
   private String description;
-  private String id;
   private String name;
 
   /**
@@ -44,19 +43,6 @@ public class UpdateRequest {
 
   public String getDescription() {
     return description;
-  }
-
-  /**
-   * This is a mandatory parameter.
-   * Example value: "42"
-   */
-  public UpdateRequest setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getId() {
-    return id;
   }
 
   /**
