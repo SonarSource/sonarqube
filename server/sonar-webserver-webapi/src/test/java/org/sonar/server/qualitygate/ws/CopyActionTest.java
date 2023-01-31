@@ -50,8 +50,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_SOURCE_NAME;
 
 @RunWith(DataProviderRunner.class)
 public class CopyActionTest {
@@ -82,8 +82,7 @@ public class CopyActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("id", false),
-        tuple("sourceName", false),
+        tuple("sourceName", true),
         tuple("name", true));
   }
 
@@ -96,7 +95,7 @@ public class CopyActionTest {
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
 
     ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getUuid())
+      .setParam(PARAM_SOURCE_NAME, qualityGate.getName())
       .setParam(PARAM_NAME, "new-name")
       .execute();
 
@@ -117,7 +116,7 @@ public class CopyActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qualityGateDto -> qualityGateDto.setBuiltIn(true));
 
     ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getUuid())
+      .setParam(PARAM_SOURCE_NAME, qualityGate.getName())
       .setParam(PARAM_NAME, "new-name")
       .execute();
 
@@ -132,7 +131,7 @@ public class CopyActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     QualityGate response = ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getUuid())
+      .setParam(PARAM_SOURCE_NAME, qualityGate.getName())
       .setParam(PARAM_NAME, "new-name")
       .executeProtobuf(QualityGate.class);
 
@@ -148,33 +147,33 @@ public class CopyActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getUuid())
+      .setParam(PARAM_SOURCE_NAME, qualityGate.getName())
       .setParam(PARAM_NAME, "new-name")
       .execute())
       .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
-  public void fail_when_id_parameter_is_missing() {
+  public void fail_when_source_name_parameter_is_missing() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_NAME, "new-name")
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Either 'id' or 'sourceName' must be provided, and not both");
+      .hasMessageContaining("The 'sourceName' parameter is missing");
   }
 
   @Test
-  public void fail_when_quality_gate_id_is_not_found() {
+  public void fail_when_quality_gate_name_is_not_found() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_ID, "123")
+      .setParam(PARAM_SOURCE_NAME, "unknown")
       .setParam(PARAM_NAME, "new-name")
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("No quality gate has been found for id 123");
+      .hasMessageContaining("No quality gate has been found for name unknown");
   }
 
   @Test
@@ -184,7 +183,7 @@ public class CopyActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getUuid());
+      .setParam(PARAM_SOURCE_NAME, qualityGate.getName());
     ofNullable(nameParameter).ifPresent(t -> request.setParam(PARAM_NAME, t));
 
     assertThatThrownBy(() -> request.execute())
@@ -208,7 +207,7 @@ public class CopyActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getUuid())
+      .setParam(PARAM_SOURCE_NAME, qualityGate.getName())
       .setParam(PARAM_NAME, existingQualityGate.getName())
       .execute())
       .isInstanceOf(IllegalArgumentException.class)

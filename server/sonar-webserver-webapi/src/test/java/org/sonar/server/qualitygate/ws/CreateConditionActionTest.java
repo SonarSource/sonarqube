@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 
@@ -79,7 +79,7 @@ public class CreateConditionActionTest {
     MetricDto metric = insertMetric();
 
     ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
@@ -95,7 +95,7 @@ public class CreateConditionActionTest {
     MetricDto metric = insertMetric();
 
     ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
@@ -111,7 +111,7 @@ public class CreateConditionActionTest {
     MetricDto metric = insertMetric();
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
@@ -127,7 +127,7 @@ public class CreateConditionActionTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(0));
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "ABC")
       .setParam(PARAM_ERROR, "90")
@@ -144,7 +144,7 @@ public class CreateConditionActionTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(direction));
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, operator)
       .setParam(PARAM_ERROR, "90")
@@ -160,7 +160,7 @@ public class CreateConditionActionTest {
     MetricDto metric = insertMetric();
 
     CreateConditionResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "45")
@@ -182,7 +182,7 @@ public class CreateConditionActionTest {
     userSession.logIn(user);
 
     TestResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
@@ -201,7 +201,7 @@ public class CreateConditionActionTest {
     userSession.logIn(user).setGroups(group);
 
     TestResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
@@ -217,7 +217,7 @@ public class CreateConditionActionTest {
     userSession.logIn();
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_GATE_ID, qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
@@ -236,8 +236,7 @@ public class CreateConditionActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("gateId", false),
-        tuple("gateName", false),
+        tuple("gateName", true),
         tuple("metric", true),
         tuple("error", true),
         tuple("op", false));

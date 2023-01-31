@@ -44,7 +44,7 @@ import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.SELECTED;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PAGE;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PAGE_SIZE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SELECTED;
@@ -70,7 +70,7 @@ public class SearchActionTest {
     db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project), qualityGate);
 
     SearchResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .executeProtobuf(SearchResponse.class);
 
     assertThat(response.getResultsList())
@@ -83,7 +83,7 @@ public class SearchActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     SearchResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .executeProtobuf(SearchResponse.class);
 
     assertThat(response.getResultsList()).isEmpty();
@@ -97,7 +97,7 @@ public class SearchActionTest {
     db.qualityGates().associateProjectToQualityGate(associatedProject, qualityGate);
 
     SearchResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_SELECTED, ALL.value())
       .executeProtobuf(SearchResponse.class);
 
@@ -116,7 +116,7 @@ public class SearchActionTest {
     db.qualityGates().associateProjectToQualityGate(associatedProject, qualityGate);
 
     SearchResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_SELECTED, SELECTED.value())
       .executeProtobuf(SearchResponse.class);
 
@@ -134,7 +134,7 @@ public class SearchActionTest {
     db.qualityGates().associateProjectToQualityGate(associatedProject, qualityGate);
 
     SearchResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_SELECTED, DESELECTED.value())
       .executeProtobuf(SearchResponse.class);
 
@@ -155,7 +155,7 @@ public class SearchActionTest {
     userSession.logIn(user);
 
     SearchResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_SELECTED, ALL.value())
       .executeProtobuf(SearchResponse.class);
 
@@ -175,7 +175,7 @@ public class SearchActionTest {
 
     // Return partial result on first page
     assertThat(ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_SELECTED, ALL.value())
       .setParam(PARAM_PAGE, "1")
       .setParam(PARAM_PAGE_SIZE, "1")
@@ -186,7 +186,7 @@ public class SearchActionTest {
 
     // Return partial result on second page
     assertThat(ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_SELECTED, ALL.value())
       .setParam(PARAM_PAGE, "2")
       .setParam(PARAM_PAGE_SIZE, "1")
@@ -197,7 +197,7 @@ public class SearchActionTest {
 
     // Return partial result on first page
     assertThat(ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_SELECTED, ALL.value())
       .setParam(PARAM_PAGE, "1")
       .setParam(PARAM_PAGE_SIZE, "2")
@@ -208,7 +208,7 @@ public class SearchActionTest {
 
     // Return all result on first page
     assertThat(ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_SELECTED, ALL.value())
       .setParam(PARAM_PAGE, "1")
       .setParam(PARAM_PAGE_SIZE, "3")
@@ -219,7 +219,7 @@ public class SearchActionTest {
 
     // Return no result as page index is off limit
     assertThat(ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_SELECTED, ALL.value())
       .setParam(PARAM_PAGE, "3")
       .setParam(PARAM_PAGE_SIZE, "3")
@@ -239,7 +239,7 @@ public class SearchActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     SearchResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_PAGE_SIZE, valueOf(5))
       .setParam(PARAM_PAGE, valueOf(2))
       .executeProtobuf(SearchResponse.class);
@@ -262,7 +262,7 @@ public class SearchActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     SearchResponse response = ws.newRequest()
-      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_GATE_NAME, valueOf(qualityGate.getName()))
       .setParam(PARAM_PAGE_SIZE, valueOf(100))
       .setParam(PARAM_PAGE, valueOf(1))
       .executeProtobuf(SearchResponse.class);
@@ -278,10 +278,10 @@ public class SearchActionTest {
   @Test
   public void fail_on_unknown_quality_gate() {
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_GATE_ID, "42")
+      .setParam(PARAM_GATE_NAME, "unknown")
       .executeProtobuf(SearchResponse.class))
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("No quality gate has been found for id 42");
+      .hasMessageContaining("No quality gate has been found for name unknown");
   }
 
   @Test
@@ -295,8 +295,7 @@ public class SearchActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("gateId", false),
-        tuple("gateName", false),
+        tuple("gateName", true),
         tuple("query", false),
         tuple("selected", false),
         tuple("page", false),

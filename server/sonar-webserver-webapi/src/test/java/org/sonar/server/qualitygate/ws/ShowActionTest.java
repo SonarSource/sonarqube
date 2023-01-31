@@ -127,7 +127,7 @@ public class ShowActionTest {
     db.qualityGates().setDefaultQualityGate(qualityGate);
 
     ShowWsResponse response = ws.newRequest()
-      .setParam("id", qualityGate.getUuid())
+      .setParam("name", qualityGate.getName())
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getId()).isEqualTo(qualityGate.getUuid());
@@ -261,24 +261,12 @@ public class ShowActionTest {
   }
 
   @Test
-  public void fail_when_no_name_or_id() {
+  public void fail_when_no_name() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest().execute())
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Either 'id' or 'name' must be provided");
-  }
-
-  @Test
-  public void fail_when_both_name_or_id() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam("name", qualityGate.getName())
-      .setParam("id", qualityGate.getUuid())
-      .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Either 'id' or 'name' must be provided");
+      .hasMessageContaining("The 'name' parameter is missing");
   }
 
   @Test
@@ -309,17 +297,6 @@ public class ShowActionTest {
   }
 
   @Test
-  public void fail_when_quality_id_does_not_exist() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-
-    assertThatThrownBy(() -> ws.newRequest()
-      .setParam("id", "123")
-      .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("No quality gate has been found for id 123");
-  }
-
-  @Test
   public void json_example() {
     userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("My Quality Gate"));
@@ -346,8 +323,7 @@ public class ShowActionTest {
     assertThat(action.params())
       .extracting(Param::key, Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("id", false),
-        tuple("name", false));
+        tuple("name", true));
   }
 
 }

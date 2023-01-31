@@ -82,7 +82,6 @@ public class CreateActionTest {
     CreateResponse response = executeRequest(qgName);
 
     assertThat(response.getName()).isEqualTo(qgName);
-    assertThat(response.getId()).isNotNull();
     dbSession.commit();
 
     QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByName(dbSession, qgName);

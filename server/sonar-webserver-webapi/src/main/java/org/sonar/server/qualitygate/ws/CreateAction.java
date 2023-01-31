@@ -81,6 +81,7 @@ public class CreateAction implements QualityGatesWsAction {
         "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setChangelog(
+        new Change("10.0", "Field 'id' in the response is removed."),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."))
       .setResponseExample(getClass().getResource("create-example.json"))
       .setHandler(this);
@@ -103,7 +104,6 @@ public class CreateAction implements QualityGatesWsAction {
       addCaycConditions(dbSession, newQualityGate);
 
       CreateResponse.Builder createResponse = CreateResponse.newBuilder()
-        .setId(newQualityGate.getUuid())
         .setName(newQualityGate.getName());
       dbSession.commit();
       writeProtobuf(createResponse.build(), request, response);

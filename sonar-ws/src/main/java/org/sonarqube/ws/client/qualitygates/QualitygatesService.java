@@ -55,7 +55,7 @@ public class QualitygatesService extends BaseService {
   public void copy(CopyRequest request) {
     call(
       new PostRequest(path("copy"))
-        .setParam("id", request.getId())
+        .setParam("sourceName", request.getSourceName())
         .setParam("name", request.getName())
         .setMediaType(MediaTypes.JSON)).content();
   }
@@ -95,7 +95,7 @@ public class QualitygatesService extends BaseService {
     return call(
       new PostRequest(path("create_condition"))
         .setParam("error", request.getError())
-        .setParam("gateId", request.getGateId())
+        .setParam("gateName", request.getGateName())
         .setParam("metric", request.getMetric())
         .setParam("op", request.getOp()),
       CreateConditionResponse.parser());
@@ -140,7 +140,7 @@ public class QualitygatesService extends BaseService {
   public void destroy(DestroyRequest request) {
     call(
       new PostRequest(path("destroy"))
-        .setParam("id", request.getId())
+        .setParam("name", request.getName())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -228,7 +228,7 @@ public class QualitygatesService extends BaseService {
   public SearchResponse search(SearchRequest request) {
     return call(
       new GetRequest(path("search"))
-        .setParam("gateId", request.getGateId())
+        .setParam("gateName", request.getGateName())
         .setParam("page", request.getPage())
         .setParam("pageSize", request.getPageSize())
         .setParam("query", request.getQuery())
@@ -246,8 +246,7 @@ public class QualitygatesService extends BaseService {
   public void select(SelectRequest request) {
     call(
       new PostRequest(path("select"))
-        .setParam("gateId", request.getGateId())
-        .setParam("projectId", request.getProjectId())
+        .setParam("gateName", request.getGateName())
         .setParam("projectKey", request.getProjectKey())
         .setMediaType(MediaTypes.JSON)).content();
   }
@@ -262,7 +261,7 @@ public class QualitygatesService extends BaseService {
   public void setAsDefault(SetAsDefaultRequest request) {
     call(
       new PostRequest(path("set_as_default"))
-        .setParam("id", request.getId())
+        .setParam("name", request.getName())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -276,7 +275,6 @@ public class QualitygatesService extends BaseService {
   public ShowWsResponse show(ShowRequest request) {
     return call(
       new GetRequest(path("show"))
-        .setParam("id", request.getId())
         .setParam("name", request.getName()),
       ShowWsResponse.parser());
   }

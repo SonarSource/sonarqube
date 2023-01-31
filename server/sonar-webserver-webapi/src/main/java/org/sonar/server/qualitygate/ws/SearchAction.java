@@ -37,13 +37,10 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.ANY;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PAGE;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PAGE_SIZE;
@@ -70,6 +67,7 @@ public class SearchAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "search-example.json"))
       .setChangelog(
+        new Change("10.0", "Parameter 'gateId' is removed. Use 'gateName' instead."),
         new Change("8.4", "Parameter 'gateName' added"),
         new Change("8.4", "Parameter 'gateId' is deprecated. Format changes from integer to string. Use 'gateName' instead."),
         new Change("7.9", "New field 'paging' in response"),
@@ -77,15 +75,9 @@ public class SearchAction implements QualityGatesWsAction {
         new Change("7.9", "Field 'more' is deprecated in the response"))
       .setHandler(this);
 
-    action.createParam(PARAM_GATE_ID)
-      .setDescription("Quality Gate ID. This parameter is deprecated. Use 'gateName' instead.")
-      .setRequired(false)
-      .setDeprecatedSince("8.4")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_GATE_NAME)
       .setDescription("Quality Gate name")
-      .setRequired(false)
+      .setRequired(true)
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setSince("8.4")
       .setExampleValue("SonarSource Way");
@@ -110,17 +102,12 @@ public class SearchAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      String gateUuid = request.param(PARAM_GATE_ID);
-      String gateName = request.param(PARAM_GATE_NAME);
+      String gateName = request.mandatoryParam(PARAM_GATE_NAME);
 
-      checkArgument(gateName != null ^ gateUuid != null, "One of 'gateId' or 'gateName' must be provided, and not both");
 
       QualityGateDto qualityGate;
-      if (gateUuid != null) {
-        qualityGate = wsSupport.getByUuid(dbSession, gateUuid);
-      } else {
-        qualityGate = wsSupport.getByName(dbSession, gateName);
-      }
+
+      qualityGate = wsSupport.getByName(dbSession, gateName);
 
       ProjectQgateAssociationQuery projectQgateAssociationQuery = ProjectQgateAssociationQuery.builder()
         .qualityGate(qualityGate)

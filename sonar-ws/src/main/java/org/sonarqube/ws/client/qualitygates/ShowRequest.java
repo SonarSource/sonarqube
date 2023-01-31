@@ -30,20 +30,7 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class ShowRequest {
 
-  private String id;
   private String name;
-
-  /**
-   * Example value: "1"
-   */
-  public ShowRequest setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getId() {
-    return id;
-  }
 
   /**
    * Example value: "My Quality Gate"

@@ -30,20 +30,17 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class CopyRequest {
 
-  private String id;
+  private String sourceName;
   private String name;
 
-  /**
-   * This is a mandatory parameter.
-   * Example value: "1"
-   */
-  public CopyRequest setId(String id) {
-    this.id = id;
-    return this;
+
+  public String getSourceName() {
+    return sourceName;
   }
 
-  public String getId() {
-    return id;
+  public CopyRequest setSourceName(String sourceName) {
+    this.sourceName = sourceName;
+    return this;
   }
 
   /**

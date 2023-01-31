@@ -32,6 +32,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 
 public class SetAsDefaultActionTest {
   @Rule
@@ -51,8 +52,7 @@ public class SetAsDefaultActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("id", false),
-        tuple("name", false));
+        tuple("name", true));
   }
 
   @Test
@@ -61,7 +61,7 @@ public class SetAsDefaultActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("name"));
 
     ws.newRequest()
-      .setParam("name", "name")
+      .setParam(PARAM_NAME, "name")
       .execute();
 
     assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), "qualitygate.default").getValue())

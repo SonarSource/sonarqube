@@ -38,6 +38,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_CURRENT_NAME;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 
 public class RenameActionTest {
 
@@ -58,9 +60,8 @@ public class RenameActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("id", false),
-        tuple("currentName", false),
-        tuple("name", true));
+        tuple(PARAM_CURRENT_NAME, true),
+        tuple(PARAM_NAME, true));
   }
 
   @Test
@@ -69,8 +70,8 @@ public class RenameActionTest {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
 
     ws.newRequest()
-      .setParam("id", qualityGate.getUuid())
-      .setParam("name", "new name")
+      .setParam(PARAM_CURRENT_NAME, qualityGate.getName())
+      .setParam(PARAM_NAME, "new name")
       .execute();
 
     assertThat(db.getDbClient().qualityGateDao().selectByUuid(db.getSession(), qualityGate.getUuid()).getName()).isEqualTo("new name");
@@ -82,8 +83,8 @@ public class RenameActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("old name"));
 
     QualityGate result = ws.newRequest()
-      .setParam("id", qualityGate.getUuid())
-      .setParam("name", "new name")
+      .setParam(PARAM_CURRENT_NAME, qualityGate.getName())
+      .setParam(PARAM_NAME, "new name")
       .executeProtobuf(QualityGate.class);
 
     assertThat(result.getId()).isEqualTo(qualityGate.getUuid());
@@ -93,14 +94,14 @@ public class RenameActionTest {
   @Test
   public void rename_with_same_name() {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("name"));
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName(PARAM_NAME));
 
     ws.newRequest()
-      .setParam("id", qualityGate.getUuid())
-      .setParam("name", "name")
+      .setParam(PARAM_CURRENT_NAME, qualityGate.getName())
+      .setParam(PARAM_NAME, "name")
       .execute();
 
-    assertThat(db.getDbClient().qualityGateDao().selectByUuid(db.getSession(), qualityGate.getUuid()).getName()).isEqualTo("name");
+    assertThat(db.getDbClient().qualityGateDao().selectByUuid(db.getSession(), qualityGate.getUuid()).getName()).isEqualTo(PARAM_NAME);
   }
 
   @Test
@@ -109,8 +110,8 @@ public class RenameActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("id", qualityGate.getUuid())
-      .setParam("name", "name")
+      .setParam(PARAM_CURRENT_NAME, qualityGate.getName())
+      .setParam(PARAM_NAME, "name")
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
@@ -122,8 +123,8 @@ public class RenameActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("id", qualityGate.getUuid())
-      .setParam("name", "")
+      .setParam(PARAM_CURRENT_NAME, qualityGate.getName())
+      .setParam(PARAM_NAME, "")
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("The 'name' parameter is missing");
@@ -136,8 +137,8 @@ public class RenameActionTest {
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("id", qualityGate1.getUuid())
-      .setParam("name", qualityGate2.getName())
+      .setParam(PARAM_CURRENT_NAME, qualityGate1.getName())
+      .setParam(PARAM_NAME, qualityGate2.getName())
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining(format("Name '%s' has already been taken", qualityGate2.getName()));
@@ -148,8 +149,8 @@ public class RenameActionTest {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("id", "123")
-      .setParam("name", "new name")
+      .setParam(PARAM_CURRENT_NAME, "unknown")
+      .setParam(PARAM_NAME, "new name")
       .execute())
       .isInstanceOf(NotFoundException.class);
   }
@@ -160,8 +161,8 @@ public class RenameActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("old name"));
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("id", qualityGate.getUuid())
-      .setParam("name", "new name")
+      .setParam(PARAM_CURRENT_NAME, qualityGate.getName())
+      .setParam(PARAM_NAME, "new name")
       .execute())
       .isInstanceOf(ForbiddenException.class);
   }

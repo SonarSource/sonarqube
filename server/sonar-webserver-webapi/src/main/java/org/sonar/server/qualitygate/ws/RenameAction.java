@@ -29,10 +29,8 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_CURRENT_NAME;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -54,18 +52,13 @@ public class RenameAction implements QualityGatesWsAction {
         "Either 'id' or 'currentName' must be specified. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setChangelog(
+        new Change("10.0", "Parameter 'id' is removed. Use 'currentName' instead."),
         new Change("8.4", "Parameter 'currentName' added"),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'currentName' instead."))
       .setHandler(this);
 
-    action.createParam(PARAM_ID)
-      .setRequired(false)
-      .setDeprecatedSince("8.4")
-      .setDescription("ID of the quality gate to rename. This parameter is deprecated. Use 'currentName' instead.")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_CURRENT_NAME)
-      .setRequired(false)
+      .setRequired(true)
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setSince("8.4")
       .setDescription("Current name of the quality gate")
@@ -80,19 +73,14 @@ public class RenameAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String uuid = request.param(PARAM_ID);
-    String currentName = request.param(PARAM_CURRENT_NAME);
-
-    checkArgument(uuid != null ^ currentName != null, "One of 'id' or 'currentName' must be provided, and not both");
+    String currentName = request.mandatoryParam(PARAM_CURRENT_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       QualityGateDto qualityGate;
-      if (uuid != null) {
-        qualityGate = wsSupport.getByUuid(dbSession, uuid);
-      } else {
-        qualityGate = wsSupport.getByName(dbSession, currentName);
-      }
+
+      qualityGate = wsSupport.getByName(dbSession, currentName);
+
       QualityGateDto renamedQualityGate = rename(dbSession, qualityGate, request.mandatoryParam(PARAM_NAME));
       writeProtobuf(QualityGate.newBuilder()
         .setId(renamedQualityGate.getUuid())

@@ -104,7 +104,7 @@ message AppResponse {
 
 // POST api/qualitygates/create
 message CreateResponse {
-  optional string id = 1;
+  reserved 1; //drop id in web-api response
   optional string name = 2;
 }
 

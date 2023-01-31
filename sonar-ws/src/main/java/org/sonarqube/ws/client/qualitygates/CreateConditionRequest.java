@@ -31,7 +31,7 @@ import javax.annotation.Generated;
 public class CreateConditionRequest {
 
   private String error;
-  private String gateId;
+  private String gateName;
   private String metric;
   private String op;
 
@@ -51,13 +51,13 @@ public class CreateConditionRequest {
    * This is a mandatory parameter.
    * Example value: "1"
    */
-  public CreateConditionRequest setGateId(String gateId) {
-    this.gateId = gateId;
+  public CreateConditionRequest setGateName(String gateName) {
+    this.gateName = gateName;
     return this;
   }
 
-  public String getGateId() {
-    return gateId;
+  public String getGateName() {
+    return gateName;
   }
 
   /**

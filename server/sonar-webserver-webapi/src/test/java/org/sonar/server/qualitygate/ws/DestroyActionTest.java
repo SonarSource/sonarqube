@@ -40,7 +40,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -48,7 +47,7 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.qualitygate.SearchQualityGatePermissionQuery.builder;
 import static org.sonar.db.user.SearchPermissionQuery.IN;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 
 public class DestroyActionTest {
 
@@ -72,7 +71,7 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getUuid())
+      .setParam(PARAM_NAME, qualityGate.getName())
       .execute();
 
     assertThat(db.getDbClient().qualityGateDao().selectByUuid(dbSession, qualityGate.getUuid())).isNull();
@@ -85,7 +84,7 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_NAME, qualityGate.getName())
       .execute();
 
     assertThat(db.getDbClient().qualityGateDao().selectByUuid(dbSession, qualityGate.getUuid())).isNull();
@@ -102,7 +101,7 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_NAME, qualityGate.getName())
       .execute();
 
     assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, prj1.getUuid()))
@@ -128,7 +127,7 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_NAME, qualityGate.getName())
       .execute();
 
     assertThat(db.getDbClient().qualityGateGroupPermissionsDao().selectByQuery(dbSession, builder()
@@ -150,7 +149,7 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
+      .setParam(PARAM_NAME, qualityGate.getName())
       .execute();
 
     assertThat(db.getDbClient().qualityGateUserPermissionDao().selectByQuery(dbSession, builder()
@@ -168,20 +167,19 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_ID, valueOf(builtInQualityGate.getUuid()))
+      .setParam(PARAM_NAME, valueOf(builtInQualityGate.getName()))
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", builtInQualityGate.getName()));
   }
 
   @Test
-  public void fail_when_missing_id() {
+  public void fail_when_missing_name() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_ID, EMPTY)
       .execute())
-      .isInstanceOf(NotFoundException.class);
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -190,7 +188,7 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_ID, valueOf(defaultQualityGate.getUuid()))
+      .setParam(PARAM_NAME, valueOf(defaultQualityGate.getName()))
       .execute())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("The default quality gate cannot be removed");
@@ -201,7 +199,7 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_ID, "123")
+      .setParam(PARAM_NAME, "unknown")
       .execute())
       .isInstanceOf(NotFoundException.class);
   }
@@ -213,7 +211,7 @@ public class DestroyActionTest {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getUuid())
+      .setParam(PARAM_NAME, qualityGate.getName())
       .execute())
       .isInstanceOf(ForbiddenException.class);
   }
@@ -228,8 +226,7 @@ public class DestroyActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("id", false),
-        tuple("name", false));
+        tuple("name", true));
   }
 
 }

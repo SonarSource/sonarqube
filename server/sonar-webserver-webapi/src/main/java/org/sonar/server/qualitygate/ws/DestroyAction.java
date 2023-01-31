@@ -29,7 +29,6 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 
 public class DestroyAction implements QualityGatesWsAction {
@@ -52,19 +51,14 @@ public class DestroyAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setPost(true)
       .setChangelog(
+        new Change("10.0", "Parameter 'name' is removed. Use 'name' instead."),
         new Change("8.4", "Parameter 'name' added"),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."))
       .setHandler(this);
 
-    action.createParam(QualityGatesWsParameters.PARAM_ID)
-      .setDescription("ID of the quality gate to delete. This parameter is deprecated. Use 'name' instead.")
-      .setRequired(false)
-      .setDeprecatedSince("8.4")
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(QualityGatesWsParameters.PARAM_NAME)
       .setDescription("Name of the quality gate to delete")
-      .setRequired(false)
+      .setRequired(true)
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setSince("8.4")
       .setExampleValue("SonarSource Way");
@@ -72,19 +66,13 @@ public class DestroyAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String uuid = request.param(QualityGatesWsParameters.PARAM_ID);
-    String name = request.param(QualityGatesWsParameters.PARAM_NAME);
+    String name = request.mandatoryParam(QualityGatesWsParameters.PARAM_NAME);
 
-    checkArgument(name != null ^ uuid != null, "One of 'id' or 'name' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto qualityGate;
 
-      if (uuid != null) {
-        qualityGate = wsSupport.getByUuid(dbSession, uuid);
-      } else {
-        qualityGate = wsSupport.getByName(dbSession, name);
-      }
+      qualityGate = wsSupport.getByName(dbSession, name);
 
       QualityGateDto defaultQualityGate = finder.getDefault(dbSession);
       checkArgument(!defaultQualityGate.getUuid().equals(qualityGate.getUuid()), "The default quality gate cannot be removed");

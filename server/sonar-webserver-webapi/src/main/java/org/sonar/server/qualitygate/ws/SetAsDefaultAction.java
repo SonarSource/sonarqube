@@ -29,11 +29,8 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 
 public class SetAsDefaultAction implements QualityGatesWsAction {
@@ -56,20 +53,15 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
         "Either 'id' or 'name' must be specified. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setChangelog(
+        new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("8.4", "Parameter 'name' added"),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."))
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(PARAM_ID)
-      .setDescription("ID of the quality gate to set as default. This parameter is deprecated. Use 'name' instead.")
-      .setDeprecatedSince("8.4")
-      .setRequired(false)
-      .setExampleValue(UUID_EXAMPLE_01);
-
     action.createParam(PARAM_NAME)
       .setDescription("Name of the quality gate to set as default")
-      .setRequired(false)
+      .setRequired(true)
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setSince("8.4")
       .setExampleValue("SonarSource Way");
@@ -77,19 +69,14 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String uuid = request.param(PARAM_ID);
-    String name = request.param(PARAM_NAME);
-    checkArgument(name != null ^ uuid != null, "One of 'id' or 'name' must be provided, and not both");
+    String name = request.mandatoryParam(PARAM_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       userSession.checkPermission(ADMINISTER_QUALITY_GATES);
       QualityGateDto qualityGate;
 
-      if (uuid != null) {
-        qualityGate = wsSupport.getByUuid(dbSession, uuid);
-      } else {
-        qualityGate = wsSupport.getByName(dbSession, name);
-      }
+      qualityGate = wsSupport.getByName(dbSession, name);
+
       dbClient.propertiesDao().saveProperty(new PropertyDto().setKey(DEFAULT_QUALITY_GATE_PROPERTY_NAME).setValue(qualityGate.getUuid()));
       dbSession.commit();
     }

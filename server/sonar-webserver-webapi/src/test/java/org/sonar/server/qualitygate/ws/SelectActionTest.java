@@ -34,12 +34,12 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 
 public class SelectActionTest {
 
@@ -61,7 +61,7 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     ws.newRequest()
-      .setParam("gateId", qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam("projectKey", project.getKey())
       .execute();
 
@@ -76,12 +76,12 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     ws.newRequest()
-      .setParam("gateId", initialQualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, initialQualityGate.getName())
       .setParam("projectKey", project.getKey())
       .execute();
 
     ws.newRequest()
-      .setParam("gateId", secondQualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, secondQualityGate.getName())
       .setParam("projectKey", project.getKey())
       .execute();
 
@@ -95,12 +95,12 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     ws.newRequest()
-      .setParam("gateId", initialQualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, initialQualityGate.getName())
       .setParam("projectKey", project.getKey())
       .execute();
 
     ws.newRequest()
-      .setParam("gateId", initialQualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, initialQualityGate.getName())
       .setParam("projectKey", project.getKey())
       .execute();
 
@@ -114,7 +114,7 @@ public class SelectActionTest {
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     ws.newRequest()
-      .setParam("gateId", qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam("projectKey", project.getKey())
       .execute();
 
@@ -128,7 +128,7 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     ws.newRequest()
-      .setParam("gateId", qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam("projectKey", project.getKey())
       .execute();
 
@@ -141,7 +141,7 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("gateId", "1")
+      .setParam(PARAM_GATE_NAME, "unknown")
       .setParam("projectKey", project.getKey())
       .execute())
       .isInstanceOf(NotFoundException.class);
@@ -153,7 +153,7 @@ public class SelectActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("gateId", qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam("projectKey", "unknown")
       .execute())
       .isInstanceOf(NotFoundException.class);
@@ -166,7 +166,7 @@ public class SelectActionTest {
     userSession.anonymous();
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("gateId", qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam("projectKey", project.getKey())
       .execute())
       .isInstanceOf(ForbiddenException.class);
@@ -179,7 +179,7 @@ public class SelectActionTest {
     userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("gateId", qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam("projectKey", project.getKey())
       .execute())
       .isInstanceOf(ForbiddenException.class);
@@ -192,7 +192,7 @@ public class SelectActionTest {
     userSession.logIn();
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("gateId", qualityGate.getUuid())
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam("projectKey", project.getKey())
       .execute())
       .isInstanceOf(ForbiddenException.class);
