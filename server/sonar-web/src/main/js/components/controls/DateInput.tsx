@@ -33,6 +33,7 @@ import {
   getShortWeekDayName,
   getWeekDayName,
   translate,
+  translateWithParameters,
 } from '../../helpers/l10n';
 import './DayPicker.css';
 import EscKeydownHandler from './EscKeydownHandler';
@@ -63,6 +64,8 @@ interface State {
 }
 
 type Week = [string, string, string, string, string, string, string];
+
+const LAST_MONTH_INDEX = 11;
 
 export default class DateInput extends React.PureComponent<Props, State> {
   input?: HTMLInputElement | null;
@@ -121,6 +124,36 @@ export default class DateInput extends React.PureComponent<Props, State> {
 
   handleNextMonthClick = () => {
     this.setState((state) => ({ currentMonth: addMonths(state.currentMonth, 1) }));
+  };
+
+  getPreviousMonthAriaLabel = () => {
+    const { currentMonth } = this.state;
+    return currentMonth.getMonth() === 0
+      ? translateWithParameters(
+          'show_month_x_of_year_y',
+          getShortMonthName(LAST_MONTH_INDEX),
+          currentMonth.getFullYear() - 1
+        )
+      : translateWithParameters(
+          'show_month_x_of_year_y',
+          getShortMonthName(currentMonth.getMonth() - 1),
+          currentMonth.getFullYear()
+        );
+  };
+
+  getNextMonthAriaLabel = () => {
+    const { currentMonth } = this.state;
+    return currentMonth.getMonth() === LAST_MONTH_INDEX
+      ? translateWithParameters(
+          'show_month_x_of_year_y',
+          getShortMonthName(0),
+          currentMonth.getFullYear() + 1
+        )
+      : translateWithParameters(
+          'show_month_x_of_year_y',
+          getShortMonthName(currentMonth.getMonth() + 1),
+          currentMonth.getFullYear()
+        );
   };
 
   render() {
@@ -195,7 +228,11 @@ export default class DateInput extends React.PureComponent<Props, State> {
               {open && (
                 <div className={classNames('date-input-calendar', { 'align-right': alignRight })}>
                   <nav className="date-input-calendar-nav">
-                    <ButtonIcon className="button-small" onClick={this.handlePreviousMonthClick}>
+                    <ButtonIcon
+                      className="button-small"
+                      aria-label={this.getPreviousMonthAriaLabel()}
+                      onClick={this.handlePreviousMonthClick}
+                    >
                       <ChevronLeftIcon />
                     </ButtonIcon>
                     <div className="date-input-calender-month">
@@ -218,7 +255,11 @@ export default class DateInput extends React.PureComponent<Props, State> {
                         )}
                       />
                     </div>
-                    <ButtonIcon className="button-small" onClick={this.handleNextMonthClick}>
+                    <ButtonIcon
+                      className="button-small"
+                      aria-label={this.getNextMonthAriaLabel()}
+                      onClick={this.handleNextMonthClick}
+                    >
                       <ChevronRightIcon />
                     </ButtonIcon>
                   </nav>

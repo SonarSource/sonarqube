@@ -116,6 +116,7 @@ exports[`should render 3`] = `
             className="date-input-calendar-nav"
           >
             <ButtonIcon
+              aria-label="show_month_x_of_year_y.Dec.2017"
               className="button-small"
               onClick={[Function]}
             >
@@ -248,6 +249,7 @@ exports[`should render 3`] = `
               />
             </div>
             <ButtonIcon
+              aria-label="show_month_x_of_year_y.Feb.2018"
               className="button-small"
               onClick={[Function]}
             >

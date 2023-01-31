@@ -103,6 +103,17 @@ it('should hightlightTo range', () => {
   expect(dayPicker.prop('selectedDays')).toEqual([dateB]);
 });
 
+it('should announce the proper month and year for next/previous buttons aria label', () => {
+  const { wrapper, instance } = shallowRender();
+  expect(wrapper.state().currentMonth).toEqual(dateA);
+  expect(instance.getPreviousMonthAriaLabel()).toEqual('show_month_x_of_year_y.Dec.2017');
+  expect(instance.getNextMonthAriaLabel()).toEqual('show_month_x_of_year_y.Feb.2018');
+
+  instance.handleCurrentMonthChange({ value: 11 });
+  expect(instance.getPreviousMonthAriaLabel()).toEqual('show_month_x_of_year_y.Nov.2018');
+  expect(instance.getNextMonthAriaLabel()).toEqual('show_month_x_of_year_y.Jan.2019');
+});
+
 function shallowRender(props?: Partial<DateInput['props']>) {
   const wrapper = shallow<DateInput>(
     <DateInput
