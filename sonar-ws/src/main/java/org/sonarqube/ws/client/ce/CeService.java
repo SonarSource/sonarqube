@@ -56,7 +56,6 @@ public class CeService extends BaseService {
   public ActivityResponse activity(ActivityRequest request) {
     return call(
       new GetRequest(path("activity"))
-        .setParam("componentId", request.getComponentId())
         .setParam("component", request.getComponent())
         .setParam("maxExecutedAt", request.getMaxExecutedAt())
         .setParam("minSubmittedAt", request.getMinSubmittedAt())
@@ -79,8 +78,7 @@ public class CeService extends BaseService {
   public ActivityStatusWsResponse activityStatus(ActivityStatusRequest request) {
     return call(
       new GetRequest(path("activity_status"))
-        .setParam("componentId", request.getComponentId())
-        .setParam("componentKey", request.getComponentKey()),
+        .setParam("component", request.getComponent()),
       ActivityStatusWsResponse.parser());
   }
 

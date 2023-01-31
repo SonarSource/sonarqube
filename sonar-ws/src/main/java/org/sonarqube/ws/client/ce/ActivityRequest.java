@@ -32,7 +32,6 @@ import javax.annotation.Generated;
 public class ActivityRequest {
 
   private String component;
-  private String componentId;
   private String maxExecutedAt;
   private String minSubmittedAt;
   private String onlyCurrents;
@@ -41,18 +40,6 @@ public class ActivityRequest {
   private String q;
   private List<String> status;
   private String type;
-
-  /**
-   * Example value: "AU-TpxcA-iU5OvuD2FL0"
-   */
-  public ActivityRequest setComponentId(String componentId) {
-    this.componentId = componentId;
-    return this;
-  }
-
-  public String getComponentId() {
-    return componentId;
-  }
 
   /**
    * Example value: "sample:src/main/xoo/sample/Sample2.xoo"
