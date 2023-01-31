@@ -62,7 +62,7 @@ export default class QualityGatePermissions extends React.Component<Props, State
   }
 
   componentDidUpdate(newProps: Props) {
-    if (this.props.qualityGate.id !== newProps.qualityGate.id) {
+    if (this.props.qualityGate.name !== newProps.qualityGate.name) {
       this.fetchPermissions();
     }
   }

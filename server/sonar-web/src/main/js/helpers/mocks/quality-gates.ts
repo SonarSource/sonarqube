@@ -29,7 +29,6 @@ import { mockMeasureEnhanced, mockMetric } from '../testMocks';
 
 export function mockQualityGate(overrides: Partial<QualityGate> = {}): QualityGate {
   return {
-    id: '1',
     name: 'qualitygate',
     ...overrides,
   };

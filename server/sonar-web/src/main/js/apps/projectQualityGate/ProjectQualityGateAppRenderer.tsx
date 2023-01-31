@@ -43,7 +43,7 @@ export interface ProjectQualityGateAppRendererProps {
   loading: boolean;
   onSelect: (id: string) => void;
   onSubmit: () => void;
-  selectedQualityGateId: string;
+  selectedQualityGateName: string;
   submitting: boolean;
 }
 
@@ -83,7 +83,8 @@ function renderQualitygateOption(props: OptionProps<QualityGateOption, false>) {
 }
 
 export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateAppRendererProps) {
-  const { allQualityGates, currentQualityGate, loading, selectedQualityGateId, submitting } = props;
+  const { allQualityGates, currentQualityGate, loading, selectedQualityGateName, submitting } =
+    props;
   const defaultQualityGate = allQualityGates?.find((g) => g.isDefault);
 
   if (loading) {
@@ -98,19 +99,19 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
     return null;
   }
 
-  const usesDefault = selectedQualityGateId === USE_SYSTEM_DEFAULT;
+  const usesDefault = selectedQualityGateName === USE_SYSTEM_DEFAULT;
   const needsReanalysis = usesDefault
     ? // currentQualityGate.isDefault is not always up to date. We need to check
       // against defaultQualityGate explicitly.
-      defaultQualityGate.id !== currentQualityGate.id
-    : selectedQualityGateId !== currentQualityGate.id;
+      defaultQualityGate.name !== currentQualityGate.name
+    : selectedQualityGateName !== currentQualityGate.name;
 
-  const selectedQualityGate = allQualityGates.find((qg) => qg.id === selectedQualityGateId);
+  const selectedQualityGate = allQualityGates.find((qg) => qg.name === selectedQualityGateName);
 
   const options: QualityGateOption[] = allQualityGates.map((g) => ({
     isDisabled: g.conditions === undefined || g.conditions.length === 0,
     label: g.name,
-    value: g.id,
+    value: g.name,
   }));
 
   return (
@@ -180,7 +181,7 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
                   props.onSelect(value);
                 }
               }}
-              value={!usesDefault ? selectedQualityGateId : currentQualityGate.id}
+              value={!usesDefault ? selectedQualityGateName : currentQualityGate.name}
             >
               <div className="spacer-left">
                 <div className="little-spacer-bottom">
@@ -197,8 +198,9 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
                     onChange={({ value }: QualityGateOption) => {
                       props.onSelect(value);
                     }}
+                    aria-label={translate('project_quality_gate.select_specific_qg')}
                     options={options}
-                    value={options.find((o) => o.value === selectedQualityGateId)}
+                    value={options.find((o) => o.value === selectedQualityGateName)}
                   />
                 </div>
               </div>

@@ -67,7 +67,7 @@ export function setQualityGateAsDefault(data: { name: string }): Promise<void | 
 
 export function createCondition(
   data: {
-    gateId: string;
+    gateName: string;
   } & Omit<Condition, 'id'>
 ): Promise<Condition> {
   return postJSON('/api/qualitygates/create_condition', data).catch(throwGlobalError);
@@ -106,7 +106,7 @@ export function searchProjects(data: {
 }
 
 export function associateGateWithProject(data: {
-  gateId: string;
+  gateName: string;
   projectKey: string;
 }): Promise<void | Response> {
   return post('/api/qualitygates/select', data).catch(throwGlobalError);

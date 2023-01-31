@@ -38,8 +38,7 @@ export default function List({ qualityGates, currentQualityGate }: Props) {
         <NavLink
           className="list-group-item display-flex-center"
           aria-current={currentQualityGate === qualityGate.name && 'page'}
-          data-id={qualityGate.id}
-          key={qualityGate.id}
+          key={qualityGate.name}
           to={getQualityGateUrl(qualityGate.name)}
         >
           <span className="flex-1 text-ellipsis" title={qualityGate.name}>

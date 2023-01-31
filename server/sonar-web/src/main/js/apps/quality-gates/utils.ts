@@ -114,8 +114,7 @@ export function getCorrectCaycCondition(condition: Condition) {
 }
 
 export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): boolean {
-  const finding = list.find((candidate) => candidate.id === qualityGate.id);
-  return (finding && finding.isDefault) || false;
+  return list.find((candidate) => candidate.name === qualityGate.name)?.isDefault ?? false;
 }
 
 export function addCondition(qualityGate: QualityGate, condition: Condition): QualityGate {

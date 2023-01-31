@@ -101,8 +101,8 @@ class App extends React.PureComponent<Props, State> {
     this.setState(({ qualityGates }) => {
       return {
         qualityGates: qualityGates.map((candidate) => {
-          if (candidate.isDefault || candidate.id === qualityGate.id) {
-            return { ...candidate, isDefault: candidate.id === qualityGate.id };
+          if (candidate.isDefault || candidate.name === qualityGate.name) {
+            return { ...candidate, isDefault: candidate.name === qualityGate.name };
           }
           return candidate;
         }),
