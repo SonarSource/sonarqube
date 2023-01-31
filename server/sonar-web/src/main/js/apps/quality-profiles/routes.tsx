@@ -26,13 +26,18 @@ import QualityProfilesApp from './components/QualityProfilesApp';
 import ProfileDetails from './details/ProfileDetails';
 import HomeContainer from './home/HomeContainer';
 
+export enum QualityProfilePath {
+  SHOW = 'show',
+  CHANGELOG = 'changelog',
+  COMPARE = 'compare',
+}
 const routes = () => (
   <Route path="profiles" element={<QualityProfilesApp />}>
     <Route index={true} element={<HomeContainer />} />
     <Route element={<ProfileContainer />}>
-      <Route path="show" element={<ProfileDetails />} />
-      <Route path="changelog" element={<ChangelogContainer />} />
-      <Route path="compare" element={<ComparisonContainer />} />
+      <Route path={QualityProfilePath.SHOW} element={<ProfileDetails />} />
+      <Route path={QualityProfilePath.CHANGELOG} element={<ChangelogContainer />} />
+      <Route path={QualityProfilePath.COMPARE} element={<ComparisonContainer />} />
     </Route>
   </Route>
 );

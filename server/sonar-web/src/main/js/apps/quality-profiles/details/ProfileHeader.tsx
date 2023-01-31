@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { NavLink } from 'react-router-dom';
 import Link from '../../../components/common/Link';
@@ -31,6 +32,7 @@ import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge
 import ProfileActions from '../components/ProfileActions';
 import ProfileLink from '../components/ProfileLink';
 import { PROFILE_PATH } from '../constants';
+import { QualityProfilePath } from '../routes';
 import { Profile } from '../types';
 import {
   getProfileChangelogPath,
@@ -47,9 +49,22 @@ interface Props {
 export default function ProfileHeader(props: Props) {
   const { profile, isComparable, updateProfiles } = props;
   const location = useLocation();
+  const isComparePage = location.pathname.endsWith(`/${QualityProfilePath.COMPARE}`);
+  const isChangeLogPage = location.pathname.endsWith(`/${QualityProfilePath.CHANGELOG}`);
 
   return (
     <div className="page-header quality-profile-header">
+      {(isComparePage || isChangeLogPage) && (
+        <Helmet
+          defer={false}
+          title={translateWithParameters(
+            isChangeLogPage
+              ? 'quality_profiles.page_title_changelog_x'
+              : 'quality_profiles.page_title_compare_x',
+            profile.name
+          )}
+        />
+      )}
       <div className="note spacer-bottom">
         <NavLink end={true} to={PROFILE_PATH}>
           {translate('quality_profiles.page')}

@@ -22,16 +22,17 @@ import { Helmet } from 'react-helmet-async';
 import { Outlet, useSearchParams } from 'react-router-dom';
 import { useLocation } from '../../../components/hoc/withRouter';
 import ProfileHeader from '../details/ProfileHeader';
-import { QualityProfilesContextProps, withQualityProfilesContext } from '../qualityProfilesContext';
+import { useQualityProfilesContext } from '../qualityProfilesContext';
 import ProfileNotFound from './ProfileNotFound';
 
-export function ProfileContainer(props: QualityProfilesContextProps) {
+export default function ProfileContainer() {
   const [_, setSearchParams] = useSearchParams();
   const location = useLocation();
 
   const { key, language, name } = location.query;
 
-  const { profiles } = props;
+  const context = useQualityProfilesContext();
+  const { profiles } = context;
 
   // try to find a quality profile with the given key
   // if managed to find one, redirect to a new version
@@ -55,22 +56,15 @@ export function ProfileContainer(props: QualityProfilesContextProps) {
     return <ProfileNotFound />;
   }
 
-  const context: QualityProfilesContextProps = {
-    profile,
-    ...props,
-  };
-
   return (
     <div id="quality-profile">
       <Helmet defer={false} title={profile.name} />
       <ProfileHeader
         profile={profile}
         isComparable={filteredProfiles.length > 1}
-        updateProfiles={props.updateProfiles}
+        updateProfiles={context.updateProfiles}
       />
-      <Outlet context={context} />
+      <Outlet context={{ profile, ...context }} />
     </div>
   );
 }
-
-export default withQualityProfilesContext(ProfileContainer);
