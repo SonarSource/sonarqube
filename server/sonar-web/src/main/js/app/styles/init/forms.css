@@ -71,7 +71,8 @@ select:invalid {
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--secondFontColor);
+  color: var(--neutral600);
+  opacity: 0.9;
 }
 
 input[type='text'].is-valid,

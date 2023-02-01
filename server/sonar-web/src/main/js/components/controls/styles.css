@@ -40,8 +40,8 @@
 }
 
 .date-input-control-icon path {
-  fill: var(--gray80);
-  transition: fill 0.3s ease;
+  fill: var(--neutral600);
+  opacity: 0.9;
 }
 
 .date-input-control-input:focus + .date-input-control-icon path {
