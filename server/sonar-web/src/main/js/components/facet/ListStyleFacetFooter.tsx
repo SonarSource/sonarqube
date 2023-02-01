@@ -25,8 +25,10 @@ import { ButtonLink } from '../controls/buttons';
 interface Props {
   count: number;
   showMore: () => void;
-  showLess: (() => void) | undefined;
+  showLess?: () => void;
   total: number;
+  showMoreAriaLabel?: string;
+  showLessAriaLabel?: string;
 }
 
 export default class ListStyleFacetFooter extends React.PureComponent<Props> {
@@ -41,7 +43,7 @@ export default class ListStyleFacetFooter extends React.PureComponent<Props> {
   };
 
   render() {
-    const { count, total } = this.props;
+    const { count, total, showMoreAriaLabel, showLessAriaLabel } = this.props;
     const hasMore = total > count;
     const allShown = Boolean(total && total === count);
 
@@ -50,13 +52,21 @@ export default class ListStyleFacetFooter extends React.PureComponent<Props> {
         {translateWithParameters('x_show', formatMeasure(count, 'INT', null))}
 
         {hasMore && (
-          <ButtonLink className="spacer-left" onClick={this.handleShowMoreClick}>
+          <ButtonLink
+            className="spacer-left"
+            aria-label={showMoreAriaLabel}
+            onClick={this.handleShowMoreClick}
+          >
             {translate('show_more')}
           </ButtonLink>
         )}
 
         {this.props.showLess && allShown && (
-          <ButtonLink className="spacer-left" onClick={this.handleShowLessClick}>
+          <ButtonLink
+            className="spacer-left"
+            aria-label={showLessAriaLabel}
+            onClick={this.handleShowLessClick}
+          >
             {translate('show_less')}
           </ButtonLink>
         )}

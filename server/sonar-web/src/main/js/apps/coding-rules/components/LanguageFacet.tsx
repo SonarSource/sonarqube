@@ -68,6 +68,8 @@ export class LanguageFacet extends React.PureComponent<Props> {
         disabled={this.props.disabled}
         disabledHelper={translate('coding_rules.filters.language.inactive')}
         facetHeader={translate('coding_rules.facet.languages')}
+        showMoreAriaLabel={translate('coding_rules.facet.language.show_more')}
+        showLessAriaLabel={translate('coding_rules.facet.language.show_less')}
         fetching={false}
         getFacetItemText={this.getLanguageName}
         getSearchResultKey={(language) => language.key}

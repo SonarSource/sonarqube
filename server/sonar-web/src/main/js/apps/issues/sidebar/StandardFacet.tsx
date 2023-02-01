@@ -398,12 +398,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
         )}
         {!allItemShown && (
           <ListStyleFacetFooter
+            showMoreAriaLabel={translate('issues.facet.sonarsource.show_more')}
             count={limitedList.length + selectedBelowLimit.length}
-            showLess={
-              this.state.showFullSonarSourceList
-                ? () => this.setState({ showFullSonarSourceList: false })
-                : undefined
-            }
             showMore={() => this.setState({ showFullSonarSourceList: true })}
             total={sortedItems.length}
           />

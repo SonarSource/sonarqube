@@ -25,7 +25,7 @@ import DeferredSpinner from '../ui/DeferredSpinner';
 import { Button } from './buttons';
 
 export interface ListFooterProps {
-  accessibleLoadMoreLabel?: string;
+  loadMoreAriaLabel?: string;
   count: number;
   className?: string;
   loading?: boolean;
@@ -39,7 +39,7 @@ export interface ListFooterProps {
 
 export default function ListFooter(props: ListFooterProps) {
   const {
-    accessibleLoadMoreLabel,
+    loadMoreAriaLabel,
     className,
     count,
     loadMore,
@@ -79,7 +79,7 @@ export default function ListFooter(props: ListFooterProps) {
   } else if (hasMore && props.loadMore) {
     button = (
       <Button
-        aria-label={accessibleLoadMoreLabel}
+        aria-label={loadMoreAriaLabel}
         className="spacer-left"
         disabled={loading}
         data-test="show-more"

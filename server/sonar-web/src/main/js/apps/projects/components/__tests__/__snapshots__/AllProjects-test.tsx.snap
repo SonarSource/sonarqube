@@ -170,9 +170,9 @@ exports[`renders 1`] = `
           }
         />
         <ListFooter
-          accessibleLoadMoreLabel="projects.show_more"
           count={1}
           loadMore={[Function]}
+          loadMoreAriaLabel="projects.show_more"
           loading={false}
           ready={true}
           total={0}

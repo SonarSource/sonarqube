@@ -67,6 +67,8 @@ export interface Props<S> {
   getSortedItems?: () => string[];
   stats: Dict<number> | undefined;
   values: string[];
+  showMoreAriaLabel?: string;
+  showLessAriaLabel?: string;
 }
 
 interface State<S> {
@@ -238,7 +240,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   };
 
   renderList() {
-    const { stats } = this.props;
+    const { stats, showMoreAriaLabel, showLessAriaLabel } = this.props;
 
     if (!stats) {
       return null;
@@ -303,6 +305,8 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
           showLess={this.state.showFullList ? this.hideFullList : undefined}
           showMore={this.showFullList}
           total={sortedItems.length}
+          showMoreAriaLabel={showMoreAriaLabel}
+          showLessAriaLabel={showLessAriaLabel}
         />
         {mightHaveMoreResults && this.state.showFullList && (
           <Alert className="spacer-top" variant="warning">
@@ -328,6 +332,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
   }
 
   renderSearchResults() {
+    const { showMoreAriaLabel } = this.props;
     const { searching, searchMaxResults, searchResults, searchPaging } = this.state;
 
     if (!searching && (!searchResults || !searchResults.length)) {
@@ -356,6 +361,7 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
             loadMore={this.searchMore}
             ready={!searching}
             total={searchPaging.total}
+            loadMoreAriaLabel={showMoreAriaLabel}
           />
         )}
       </>

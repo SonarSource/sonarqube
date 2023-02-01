@@ -266,7 +266,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
           />
         )}
         <ListFooter
-          accessibleLoadMoreLabel={translate('projects.show_more')}
+          loadMoreAriaLabel={translate('projects.show_more')}
           count={this.state.projects !== undefined ? this.state.projects.length : 0}
           loading={this.state.loading}
           loadMore={this.fetchMoreProjects}

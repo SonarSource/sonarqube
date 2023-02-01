@@ -43,6 +43,8 @@ exports[`should render correctly 1`] = `
   renderFacetItem={[Function]}
   renderSearchResult={[Function]}
   searchPlaceholder="search.search_for_tags"
+  showLessAriaLabel="coding_rules.facet.tag.show_less"
+  showMoreAriaLabel="coding_rules.facet.tag.show_more"
   stats={{}}
   values={[]}
 />
