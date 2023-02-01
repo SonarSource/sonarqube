@@ -70,8 +70,7 @@ if [[ -n "${NEXT_TOKEN-}" ]]; then
       -Dsonar.analysis.prNumber="$PULL_REQUEST_NUMBER" \
       -Dsonar.pullrequest.branch="$GIT_BRANCH" \
       -Dsonar.pullrequest.base="$PULL_REQUEST_BASE_BRANCH" \
-      -Dsonar.pullrequest.key="$PULL_REQUEST_NUMBER" \
-      -Dsonar.pullrequest.github.repository="$TRAVIS_REPO_SLUG"
+      -Dsonar.pullrequest.key="$PULL_REQUEST_NUMBER"
   elif [ "${TRAVIS_BRANCH}" == "master" ]; then
     echo '======= Analyze master'
     ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --console plain \
