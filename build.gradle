@@ -329,7 +329,6 @@ subprojects {
       dependency('org.mockito:mockito-core:5.0.0') {
         exclude 'org.hamcrest:hamcrest-core'
       }
-      dependency('org.mockito:mockito-inline:5.0.0')
       dependency 'org.mybatis:mybatis:3.5.11'
       dependencySet(group: 'org.slf4j', version: '2.0.6') {
         entry 'jcl-over-slf4j'

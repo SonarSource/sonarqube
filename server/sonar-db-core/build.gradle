@@ -27,7 +27,6 @@ dependencies {
   testImplementation 'com.oracle.database.jdbc:ojdbc11'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'org.mockito:mockito-core'
-  testImplementation 'org.mockito:mockito-inline'
   testImplementation 'org.postgresql:postgresql'
 
   testImplementation project(':sonar-testing-harness')

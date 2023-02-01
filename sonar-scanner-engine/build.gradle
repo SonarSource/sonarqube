@@ -56,7 +56,6 @@ dependencies {
   testImplementation 'com.fasterxml.staxmate:staxmate'
   testImplementation 'org.hamcrest:hamcrest-core'
   testImplementation 'org.mockito:mockito-core'
-  testImplementation 'org.mockito:mockito-inline'
   testImplementation project(':plugins:sonar-xoo-plugin')
 }
 
