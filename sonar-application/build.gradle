@@ -342,8 +342,8 @@ artifactoryPublish.skip = false
 
 def bomFile = layout.buildDirectory.file('reports/bom.json')
 cyclonedxBom {
-  includeConfigs += ["runtimeClasspath", "web", "shutdowner", "jdbc_mssql", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
-                     "cyclonedx"]
+  includeConfigs = ["runtimeClasspath", "web", "shutdowner", "jdbc_mssql", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
+                    "cyclonedx"]
   outputs.file bomFile
 }
 tasks.cyclonedxBom {
