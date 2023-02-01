@@ -189,11 +189,14 @@ public class BulkIndexer {
   }
 
   public void addDeletion(IndexType indexType, String id) {
-    add(new DeleteRequest(indexType.getMainType().getIndex().getName(), indexType.getMainType().getType(), id));
+    add(new DeleteRequest(indexType.getMainType().getIndex().getName())
+      .id(id));
   }
 
   public void addDeletion(IndexType indexType, String id, @Nullable String routing) {
-    add(new DeleteRequest(indexType.getMainType().getIndex().getName(), indexType.getMainType().getType(), id).routing(routing));
+    add(new DeleteRequest(indexType.getMainType().getIndex().getName())
+      .id(id)
+      .routing(routing));
   }
 
   /**

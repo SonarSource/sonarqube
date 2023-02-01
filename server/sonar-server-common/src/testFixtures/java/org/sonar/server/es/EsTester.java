@@ -253,7 +253,7 @@ public class EsTester extends ExternalResource {
         .setRefreshPolicy(REFRESH_IMMEDIATE);
       for (Map<String, Object> doc : docs) {
         IndexType.IndexMainType mainType = indexType.getMainType();
-        bulk.add(new IndexRequest(mainType.getIndex().getName(), mainType.getType())
+        bulk.add(new IndexRequest(mainType.getIndex().getName())
           .source(doc));
       }
       BulkResponse bulkResponse = ES_REST_CLIENT.bulk(bulk);

@@ -163,13 +163,11 @@ public abstract class IndexType {
   public static final class IndexRelationType extends IndexType {
     private final IndexMainType mainType;
     private final String name;
-    private final String key;
 
     private IndexRelationType(IndexMainType mainType, String name) {
       this.mainType = mainType;
       checkArgument(name != null && !name.isEmpty(), "type name can't be null nor empty");
       this.name = name;
-      this.key = mainType.index.getName() + "/" + mainType.type + "/" + name;
     }
 
     @Override
@@ -183,7 +181,7 @@ public abstract class IndexType {
 
     @Override
     public String format() {
-      return key;
+      return mainType.index.getName()  + "/" + "_doc";
     }
 
     @Override
@@ -206,7 +204,7 @@ public abstract class IndexType {
 
     @Override
     public String toString() {
-      return "[" + key + "]";
+      return "[" + mainType.index.getName() + "/" + mainType.type + "/" + name + "]";
     }
   }
 }

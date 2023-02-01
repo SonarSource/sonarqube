@@ -19,15 +19,12 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.Maps;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -53,19 +50,19 @@ public class MigrationEsClientImpl implements MigrationEsClient {
 
   @Override
   public void addMappingToExistingIndex(String index, String type, String mappingName, String mappingType, Map<String, String> options) {
-    String[] indices = client.getIndex(new GetIndexRequest(index)).getIndices();
-    if (indices != null && indices.length == 1) {
-      Loggers.get(getClass()).info("Add mapping [{}] to Elasticsearch index [{}]", mappingName, index);
-      String mappingOptions = Stream.concat(Stream.of(Maps.immutableEntry("type", mappingType)), options.entrySet().stream())
-        .map(e -> e.getKey() + "=" + e.getValue())
-        .collect(Collectors.joining(","));
-      client.putMapping(new PutMappingRequest(index)
-        .type(type)
-        .source(mappingName, mappingOptions));
-      updatedIndices.add(index);
-    } else {
-      throw new IllegalStateException("Expected only one index to be found, actual [" + String.join(",", indices) + "]");
-    }
+    //TODO:: remove?
+//    String[] indices = client.getIndex(new GetIndexRequest(index)).getIndices();
+//    if (indices != null && indices.length == 1) {
+//      Loggers.get(getClass()).info("Add mapping [{}] to Elasticsearch index [{}]", mappingName, index);
+//      String mappingOptions = Stream.concat(Stream.of(Maps.immutableEntry("type", mappingType)), options.entrySet().stream())
+//        .map(e -> e.getKey() + "=" + e.getValue())
+//        .collect(Collectors.joining(","));
+//      client.putMapping(new PutMappingRequest(index)
+//        .source(mappingName, mappingOptions));
+//      updatedIndices.add(index);
+//    } else {
+//      throw new IllegalStateException("Expected only one index to be found, actual [" + String.join(",", indices) + "]");
+//    }
   }
 
   @Override

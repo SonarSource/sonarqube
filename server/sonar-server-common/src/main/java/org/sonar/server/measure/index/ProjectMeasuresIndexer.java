@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.index;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +52,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
 
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_PROJECT_MEASURES,
     project -> Qualifiers.PROJECT.equals(project.getQualifier()) || Qualifiers.APP.equals(project.getQualifier()));
-  private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(TYPE_PROJECT_MEASURES);
+  private static final Set<IndexType> INDEX_TYPES = Set.of(TYPE_PROJECT_MEASURES);
 
   private final DbClient dbClient;
   private final EsClient esClient;

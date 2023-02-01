@@ -76,7 +76,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
-import org.sonar.server.es.IndexType;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.es.searchrequest.RequestFiltersComputer;
@@ -637,11 +636,9 @@ public class IssueIndex {
 
     BoolQueryBuilder viewsFilter = boolQuery();
     for (String viewUuid : viewUuids) {
-      IndexType.IndexMainType mainType = TYPE_VIEW;
       viewsFilter.should(QueryBuilders.termsLookupQuery(FIELD_ISSUE_BRANCH_UUID,
         new TermsLookup(
-          mainType.getIndex().getName(),
-          mainType.getType(),
+          TYPE_VIEW.getIndex().getName(),
           viewUuid,
           ViewIndexDefinition.FIELD_PROJECTS)));
     }
@@ -1319,11 +1316,9 @@ public class IssueIndex {
   private static SearchSourceBuilder prepareNonClosedVulnerabilitiesAndHotspotSearch(String projectUuid, boolean isViewOrApp) {
     BoolQueryBuilder componentFilter = boolQuery();
     if (isViewOrApp) {
-      IndexType.IndexMainType mainType = TYPE_VIEW;
       componentFilter.filter(QueryBuilders.termsLookupQuery(FIELD_ISSUE_BRANCH_UUID,
         new TermsLookup(
-          mainType.getIndex().getName(),
-          mainType.getType(),
+          TYPE_VIEW.getIndex().getName(),
           projectUuid,
           ViewIndexDefinition.FIELD_PROJECTS)));
     } else {

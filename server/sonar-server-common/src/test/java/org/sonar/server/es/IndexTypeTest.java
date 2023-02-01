@@ -60,12 +60,12 @@ public class IndexTypeTest {
   public void parseMainType_from_relationtype() {
     IndexMainType mainType = IndexType.main(Index.withRelations("foo"), "bar");
     IndexRelationType type1 = IndexType.relation(mainType, "donut");
-    assertThat(type1.format()).isEqualTo("foo/bar/donut");
+    assertThat(type1.format()).isEqualTo("foo/_doc");
 
     SimpleIndexMainType type2 = IndexType.parseMainType(type1.format());
     assertThat(type2)
       .extracting(SimpleIndexMainType::getIndex, SimpleIndexMainType::getType)
-      .containsExactly("foo", "bar");
+      .containsExactly("foo", "_doc");
   }
 
   @Test

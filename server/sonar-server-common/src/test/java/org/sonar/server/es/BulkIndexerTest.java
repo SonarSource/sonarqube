@@ -19,10 +19,10 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -42,12 +42,13 @@ import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.es.newindex.FakeIndexDefinition.EXCPECTED_TYPE_FAKE;
 import static org.sonar.server.es.newindex.FakeIndexDefinition.INDEX;
 import static org.sonar.server.es.newindex.FakeIndexDefinition.TYPE_FAKE;
 
 public class BulkIndexerTest {
 
-  private TestSystem2 testSystem2 = new TestSystem2().setNow(1_000L);
+  private final TestSystem2 testSystem2 = new TestSystem2().setNow(1_000L);
 
   @Rule
   public EsTester es = EsTester.createCustom(new FakeIndexDefinition().setReplicas(1));
@@ -131,7 +132,7 @@ public class BulkIndexerTest {
     indexer.addDeletion(TYPE_FAKE, "foo");
     indexer.stop();
     assertThat(listener.calledDocIds)
-      .containsExactlyInAnyOrder(newDocId(TYPE_FAKE, "foo"));
+      .containsExactlyInAnyOrder(newDocId(EXCPECTED_TYPE_FAKE, "foo"));
     assertThat(listener.calledResult.getSuccess()).isOne();
     assertThat(listener.calledResult.getTotal()).isOne();
   }
@@ -145,7 +146,7 @@ public class BulkIndexerTest {
     indexer.add(newIndexRequestWithDocId("bar"));
     indexer.stop();
     assertThat(listener.calledDocIds)
-      .containsExactlyInAnyOrder(newDocId(TYPE_FAKE, "foo"), newDocId(TYPE_FAKE, "bar"));
+      .containsExactlyInAnyOrder(newDocId(EXCPECTED_TYPE_FAKE, "foo"), newDocId(EXCPECTED_TYPE_FAKE, "bar"));
     assertThat(listener.calledResult.getSuccess()).isEqualTo(2);
     assertThat(listener.calledResult.getTotal()).isEqualTo(2);
   }
@@ -156,9 +157,9 @@ public class BulkIndexerTest {
     BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, listener);
     indexer.start();
     indexer.add(newIndexRequestWithDocId("foo"));
-    indexer.add(new IndexRequest("index_does_not_exist", "index_does_not_exist", "bar").source(emptyMap()));
+    indexer.add(new IndexRequest("index_does_not_exist").id("bar").source(emptyMap()));
     indexer.stop();
-    assertThat(listener.calledDocIds).containsExactly(newDocId(TYPE_FAKE, "foo"));
+    assertThat(listener.calledDocIds).containsExactly(newDocId(EXCPECTED_TYPE_FAKE, "foo"));
     assertThat(listener.calledResult.getSuccess()).isOne();
     assertThat(listener.calledResult.getTotal()).isEqualTo(2);
   }
@@ -176,7 +177,7 @@ public class BulkIndexerTest {
 
     assertThat(logTester.logs(LoggerLevel.TRACE)
       .stream()
-      .filter(log -> log.contains("Bulk[2 index requests on fakes/fake, 1 delete requests on fakes/fake]"))
+      .filter(log -> log.contains("Bulk[2 index requests on fakes/_doc, 1 delete requests on fakes/_doc]"))
       .count()).isNotZero();
 
   }
@@ -211,14 +212,14 @@ public class BulkIndexerTest {
   }
 
   private IndexRequest newIndexRequest(int intField) {
-    return new IndexRequest(INDEX, TYPE_FAKE.getType())
-      .source(ImmutableMap.of(FakeIndexDefinition.INT_FIELD, intField));
+    return new IndexRequest(INDEX)
+      .source(Map.of(FakeIndexDefinition.INT_FIELD, intField));
   }
 
   private IndexRequest newIndexRequestWithDocId(String id) {
-    return new IndexRequest(INDEX, TYPE_FAKE.getType())
+    return new IndexRequest(INDEX)
       .id(id)
-      .source(ImmutableMap.of(FakeIndexDefinition.INT_FIELD, 42));
+      .source(Map.of(FakeIndexDefinition.INT_FIELD, 42));
   }
 
   private static DocId newDocId(IndexType.IndexMainType mainType, String id) {

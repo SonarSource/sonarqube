@@ -26,13 +26,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.api.Startable;
@@ -153,14 +153,12 @@ public class IndexCreator implements Startable {
     }
     client.waitForStatus(ClusterHealthStatus.YELLOW);
 
-    // create types
-    LOGGER.info("Create type {}", builtIndex.getMainType().format());
+    LOGGER.info("Create mapping {}", builtIndex.getMainType().getIndex().getName());
     AcknowledgedResponse mappingResponse = client.putMapping(new PutMappingRequest(builtIndex.getMainType().getIndex().getName())
-      .type(builtIndex.getMainType().getType())
       .source(builtIndex.getAttributes()));
 
     if (!mappingResponse.isAcknowledged()) {
-      throw new IllegalStateException("Failed to create type " + builtIndex.getMainType().getType());
+      throw new IllegalStateException("Failed to create mapping " + builtIndex.getMainType().getIndex().getName());
     }
     client.waitForStatus(ClusterHealthStatus.YELLOW);
   }

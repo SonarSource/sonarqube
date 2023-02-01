@@ -41,9 +41,9 @@ import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRespo
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
 import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
+import org.elasticsearch.client.indices.GetMappingsRequest;
+import org.elasticsearch.client.indices.GetMappingsResponse;
+import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
@@ -123,11 +123,7 @@ public class EsClient implements Closeable {
   }
 
   public static SearchRequest prepareSearch(IndexType.IndexMainType mainType) {
-    return Requests.searchRequest(mainType.getIndex().getName()).types(mainType.getType());
-  }
-
-  public static SearchRequest prepareSearch(String index, String type) {
-    return Requests.searchRequest(index).types(type);
+    return Requests.searchRequest(mainType.getIndex().getName());
   }
 
   public SearchResponse search(SearchRequest searchRequest) {

@@ -64,14 +64,14 @@ import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE
 
 public class ProjectMeasuresIndexerTest {
 
-  private System2 system2 = System2.INSTANCE;
+  private final System2 system2 = System2.INSTANCE;
 
   @Rule
   public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
+  private final ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
 
   @Test
   public void test_getAuthorizationScope() {

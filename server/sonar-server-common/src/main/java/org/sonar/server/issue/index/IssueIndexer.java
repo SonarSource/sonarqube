@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import java.util.Collection;
 import java.util.Iterator;
@@ -69,7 +68,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   private static final String ID_TYPE_PROJECT_UUID = "projectUuid";
   private static final Logger LOGGER = Loggers.get(IssueIndexer.class);
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_ISSUE, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
-  private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(TYPE_ISSUE);
+  private static final Set<IndexType> INDEX_TYPES = Set.of(TYPE_ISSUE);
 
   private final EsClient esClient;
   private final DbClient dbClient;
@@ -262,7 +261,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   }
 
   private static IndexRequest newIndexRequest(IssueDoc issue) {
-    return new IndexRequest(TYPE_ISSUE.getMainType().getIndex().getName(), TYPE_ISSUE.getMainType().getType())
+    return new IndexRequest(TYPE_ISSUE.getMainType().getIndex().getName())
       .id(issue.getId())
       .routing(issue.getRouting().orElseThrow(() -> new IllegalStateException("IssueDoc should define a routing")))
       .source(issue.getFields());

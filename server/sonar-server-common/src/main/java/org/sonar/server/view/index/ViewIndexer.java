@@ -127,8 +127,7 @@ public class ViewIndexer implements ResilientIndexer {
   }
 
   private static IndexRequest newIndexRequest(ViewDoc doc) {
-    IndexType.IndexMainType mainType = TYPE_VIEW;
-    return new IndexRequest(mainType.getIndex().getName(), mainType.getType())
+    return new IndexRequest(TYPE_VIEW.getIndex().getName())
       .id(doc.getId())
       .routing(doc.getRouting().orElse(null))
       .source(doc.getFields());

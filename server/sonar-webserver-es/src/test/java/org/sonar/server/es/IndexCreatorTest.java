@@ -19,19 +19,17 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.client.indices.GetMappingsRequest;
 import org.elasticsearch.cluster.metadata.MappingMetadata;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,11 +62,11 @@ public class IndexCreatorTest {
   @Rule
   public EsTester es = EsTester.createCustom();
 
-  private MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
-  private MetadataIndex metadataIndex = new MetadataIndexImpl(es.client());
-  private TestEsDbCompatibility esDbCompatibility = new TestEsDbCompatibility();
-  private MapSettings settings = new MapSettings();
-  private MigrationEsClient migrationEsClient = mock(MigrationEsClient.class);
+  private final MetadataIndexDefinition metadataIndexDefinition = new MetadataIndexDefinition(new MapSettings().asConfig());
+  private final MetadataIndex metadataIndex = new MetadataIndexImpl(es.client());
+  private final TestEsDbCompatibility esDbCompatibility = new TestEsDbCompatibility();
+  private final MapSettings settings = new MapSettings();
+  private final MigrationEsClient migrationEsClient = mock(MigrationEsClient.class);
 
   @Test
   public void create_index() {
@@ -98,20 +96,20 @@ public class IndexCreatorTest {
 
     IndexMainType fakeIndexType = main(Index.simple("fakes"), "fake");
     String id = "1";
-    es.client().index(new IndexRequest(fakeIndexType.getIndex().getName(), fakeIndexType.getType()).id(id).source(new FakeDoc().getFields())
+    es.client().index(new IndexRequest(fakeIndexType.getIndex().getName()).id(id).source(new FakeDoc().getFields())
       .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE));
-    assertThat(es.client().get(new GetRequest(fakeIndexType.getIndex().getName(), fakeIndexType.getType(), id)).isExists()).isTrue();
+    assertThat(es.client().get(new GetRequest(fakeIndexType.getIndex().getName()).id(id)).isExists()).isTrue();
 
     // v2
     run(new FakeIndexDefinitionV2());
 
-    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings = mappings();
-    MappingMetadata mapping = mappings.get("fakes").get("fake");
+    Map<String, MappingMetadata> mappings = mappings();
+    MappingMetadata mapping = mappings.get("fakes");
     assertThat(countMappingFields(mapping)).isEqualTo(3);
     assertThat(field(mapping, "updatedAt")).containsEntry("type", "date");
     assertThat(field(mapping, "newField")).containsEntry("type", "integer");
 
-    assertThat(es.client().get(new GetRequest(fakeIndexType.getIndex().getName(), fakeIndexType.getType(), id)).isExists()).isFalse();
+    assertThat(es.client().get(new GetRequest(fakeIndexType.getIndex().getName()).id(id)).isExists()).isFalse();
   }
 
   @Test
@@ -122,7 +120,8 @@ public class IndexCreatorTest {
     run(new FakeIndexDefinition());
 
     // v2
-    assertThatThrownBy(() -> run(new FakeIndexDefinitionV2()))
+    FakeIndexDefinitionV2 definitionV2 = new FakeIndexDefinitionV2();
+    assertThatThrownBy(() -> run(definitionV2))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Blue/green deployment is not supported. Elasticsearch index [fakes] changed and needs to be dropped.");
   }
@@ -174,8 +173,8 @@ public class IndexCreatorTest {
     assertThat(logTester.logs(LoggerLevel.INFO))
       .doesNotContain(LOG_DB_VENDOR_CHANGED)
       .doesNotContain(LOG_DB_SCHEMA_CHANGED)
-      .contains("Create type fakes/fake")
-      .contains("Create type metadatas/metadata");
+      .contains("Create mapping fakes")
+      .contains("Create mapping metadatas");
   }
 
   @Test
@@ -227,8 +226,8 @@ public class IndexCreatorTest {
     run(new FakeIndexDefinition());
     assertThat(logTester.logs(LoggerLevel.INFO))
       .doesNotContain(expectedLog)
-      .contains("Create type fakes/fake")
-      .contains("Create type metadatas/metadata");
+      .contains("Create mapping fakes")
+      .contains("Create mapping metadatas");
     putFakeDocument();
     assertThat(es.countDocuments(FakeIndexDefinition.INDEX_TYPE)).isOne();
 
@@ -238,14 +237,14 @@ public class IndexCreatorTest {
 
     assertThat(logTester.logs(LoggerLevel.INFO))
       .contains(expectedLog)
-      .contains("Create type fakes/fake")
+      .contains("Create mapping fakes")
       // keep existing metadata
-      .doesNotContain("Create type metadatas/metadata");
+      .doesNotContain("Create mapping metadatas");
     // index has been dropped and re-created
     assertThat(es.countDocuments(FakeIndexDefinition.INDEX_TYPE)).isZero();
   }
 
-  private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings() {
+  private Map<String, MappingMetadata> mappings() {
     return es.client().getMapping(new GetMappingsRequest()).mappings();
   }
 
@@ -269,13 +268,12 @@ public class IndexCreatorTest {
   }
 
   private void putFakeDocument() {
-    es.putDocuments(FakeIndexDefinition.INDEX_TYPE, ImmutableMap.of("key", "foo"));
+    es.putDocuments(FakeIndexDefinition.INDEX_TYPE, Map.of("key", "foo"));
   }
 
   private void verifyFakeIndexV1() {
-    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings = mappings();
-    MappingMetadata mapping = mappings.get("fakes").get("fake");
-    assertThat(mapping.type()).isEqualTo("fake");
+    Map<String, MappingMetadata> mappings = mappings();
+    MappingMetadata mapping = mappings.get("fakes");
     assertThat(mapping.getSourceAsMap()).isNotEmpty();
     assertThat(countMappingFields(mapping)).isEqualTo(2);
     assertThat(field(mapping, "updatedAt")).containsEntry("type", "date");

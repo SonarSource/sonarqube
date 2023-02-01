@@ -50,7 +50,7 @@ public class OneToOneResilientIndexingListener implements IndexingListener {
     this.itemsById = items.stream()
       .collect(MoreCollectors.index(i -> {
         IndexType.SimpleIndexMainType mainType = IndexType.parseMainType(i.getDocType());
-        return new DocId(mainType.getIndex(), mainType.getType(), i.getDocId());
+        return new DocId(mainType.getIndex(), "_doc", i.getDocId());
       }, Function.identity()));
   }
 

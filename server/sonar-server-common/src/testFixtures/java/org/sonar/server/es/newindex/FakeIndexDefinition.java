@@ -35,6 +35,7 @@ public class FakeIndexDefinition implements IndexDefinition {
   public static final String TYPE = "fake";
   public static final Index DESCRIPTOR = Index.simple(INDEX);
   public static final IndexMainType TYPE_FAKE = IndexType.main(DESCRIPTOR, TYPE);
+  public static final IndexMainType EXCPECTED_TYPE_FAKE = IndexType.main(DESCRIPTOR, "_doc");
   public static final String INT_FIELD = "intField";
 
   private int replicas = 0;
