@@ -71,7 +71,6 @@ if [[ -n "${NEXT_TOKEN-}" ]]; then
       -Dsonar.pullrequest.branch="$GIT_BRANCH" \
       -Dsonar.pullrequest.base="$PULL_REQUEST_BASE_BRANCH" \
       -Dsonar.pullrequest.key="$PULL_REQUEST_NUMBER" \
-      -Dsonar.pullrequest.provider=github \
       -Dsonar.pullrequest.github.repository="$TRAVIS_REPO_SLUG"
   elif [ "${TRAVIS_BRANCH}" == "master" ]; then
     echo '======= Analyze master'
