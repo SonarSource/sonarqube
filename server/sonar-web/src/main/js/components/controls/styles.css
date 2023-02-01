@@ -45,7 +45,7 @@
 }
 
 .date-input-control-input:focus + .date-input-control-icon path {
-  fill: var(--blue);
+  fill: var(--info500);
 }
 
 .date-input-control-reset {
