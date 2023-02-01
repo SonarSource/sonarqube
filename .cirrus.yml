@@ -488,7 +488,7 @@ qa_saml_task:
     memory: 10Gb
     additional_containers:
       - name: keycloak
-        image: public.ecr.aws/bitnami/keycloak:17.0.1
+        image: quay.io/keycloak/keycloak:17.0.1
         port: 8080
         cpu: 1
         memory: 1Gb
