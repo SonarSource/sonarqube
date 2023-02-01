@@ -410,6 +410,23 @@ qa_gitlab_task:
         matrix:
           - image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:latest
           - image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:15.6.2-ce.0
+        env:
+          - GITLAB_POST_RECONFIGURE_SCRIPT: |-
+              { cat >/tmp/setup.rb <<-'EOF'
+                token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'token');
+                token.set_token('token-here-456');
+                token.save!;
+                token_read = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_user], name: 'token_read');
+                token_read.set_token('token-read-123');
+                token_read.save!;
+                user = User.find_by_username('root');
+                user.password = 'eng-YTU1ydh6kyt7tjd';
+                user.password_confirmation = 'eng-YTU1ydh6kyt7tjd';
+                user.save!;
+              EOF
+              } && gitlab-rails runner /tmp/setup.rb && \
+              echo 'from_file "/etc/gitlab/external_gitlab.rb"' >> /etc/gitlab/gitlab.rb && \
+              gitlab-ctl reconfigure
   env:
     QA_CATEGORY: GITLAB
   script:
