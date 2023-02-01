@@ -74,6 +74,24 @@ export function getLocalizedMetricDomain(domainName: string) {
   return hasMessage(bundleKey) ? translate(bundleKey) : domainName;
 }
 
+export function getMonthName(index: number) {
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  return translate(months[index]);
+}
+
 export function getShortMonthName(index: number) {
   const months = [
     'Jan',

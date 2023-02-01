@@ -29,6 +29,7 @@ import CalendarIcon from '../../components/icons/CalendarIcon';
 import ChevronLeftIcon from '../../components/icons/ChevronLeftIcon';
 import ChevronRightIcon from '../../components/icons/ChevronRightIcon';
 import {
+  getMonthName,
   getShortMonthName,
   getShortWeekDayName,
   getWeekDayName,
@@ -65,7 +66,7 @@ interface State {
 
 type Week = [string, string, string, string, string, string, string];
 
-const LAST_MONTH_INDEX = 11;
+const MONTH_IN_YEAR = 12;
 
 export default class DateInput extends React.PureComponent<Props, State> {
   input?: HTMLInputElement | null;
@@ -128,32 +129,25 @@ export default class DateInput extends React.PureComponent<Props, State> {
 
   getPreviousMonthAriaLabel = () => {
     const { currentMonth } = this.state;
-    return currentMonth.getMonth() === 0
-      ? translateWithParameters(
-          'show_month_x_of_year_y',
-          getShortMonthName(LAST_MONTH_INDEX),
-          currentMonth.getFullYear() - 1
-        )
-      : translateWithParameters(
-          'show_month_x_of_year_y',
-          getShortMonthName(currentMonth.getMonth() - 1),
-          currentMonth.getFullYear()
-        );
+    const previous = (currentMonth.getMonth() + MONTH_IN_YEAR - 1) % MONTH_IN_YEAR;
+
+    return translateWithParameters(
+      'show_month_x_of_year_y',
+      getMonthName(previous),
+      currentMonth.getFullYear() - Math.floor(previous / (MONTH_IN_YEAR - 1))
+    );
   };
 
   getNextMonthAriaLabel = () => {
     const { currentMonth } = this.state;
-    return currentMonth.getMonth() === LAST_MONTH_INDEX
-      ? translateWithParameters(
-          'show_month_x_of_year_y',
-          getShortMonthName(0),
-          currentMonth.getFullYear() + 1
-        )
-      : translateWithParameters(
-          'show_month_x_of_year_y',
-          getShortMonthName(currentMonth.getMonth() + 1),
-          currentMonth.getFullYear()
-        );
+
+    const next = (currentMonth.getMonth() + MONTH_IN_YEAR + 1) % MONTH_IN_YEAR;
+
+    return translateWithParameters(
+      'show_month_x_of_year_y',
+      getMonthName(next),
+      currentMonth.getFullYear() + 1 - Math.ceil(next / (MONTH_IN_YEAR - 1))
+    );
   };
 
   render() {
@@ -173,7 +167,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
 
     const after = this.props.maxDate || new Date();
 
-    const months = range(12);
+    const months = range(MONTH_IN_YEAR);
     const years = range(new Date().getFullYear() - 10, new Date().getFullYear() + 1);
 
     const selectedDays: Modifier[] = value ? [value] : [];
@@ -226,8 +220,14 @@ export default class DateInput extends React.PureComponent<Props, State> {
                 />
               )}
               {open && (
-                <div className={classNames('date-input-calendar', { 'align-right': alignRight })}>
-                  <nav className="date-input-calendar-nav">
+                <form className={classNames('date-input-calendar', { 'align-right': alignRight })}>
+                  <fieldset
+                    className="date-input-calendar-nav"
+                    aria-label={translateWithParameters(
+                      'date.select_month_and_year_x',
+                      `${getMonthName(currentMonth.getMonth())}, ${currentMonth.getFullYear()}`
+                    )}
+                  >
                     <ButtonIcon
                       className="button-small"
                       aria-label={this.getPreviousMonthAriaLabel()}
@@ -262,7 +262,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
                     >
                       <ChevronRightIcon />
                     </ButtonIcon>
-                  </nav>
+                  </fieldset>
                   <DayPicker
                     captionElement={<NullComponent />}
                     disabledDays={{ after, before: minDate }}
@@ -276,7 +276,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
                     weekdaysLong={weekdaysLong}
                     weekdaysShort={weekdaysShort}
                   />
-                </div>
+                </form>
               )}
             </span>
           </EscKeydownHandler>

@@ -109,14 +109,15 @@ exports[`should render 3`] = `
           }
           onClick={[Function]}
         />
-        <div
+        <form
           className="date-input-calendar"
         >
-          <nav
+          <fieldset
+            aria-label="date.select_month_and_year_x.January, 2018"
             className="date-input-calendar-nav"
           >
             <ButtonIcon
-              aria-label="show_month_x_of_year_y.Dec.2017"
+              aria-label="show_month_x_of_year_y.December.2017"
               className="button-small"
               onClick={[Function]}
             >
@@ -249,13 +250,13 @@ exports[`should render 3`] = `
               />
             </div>
             <ButtonIcon
-              aria-label="show_month_x_of_year_y.Feb.2018"
+              aria-label="show_month_x_of_year_y.February.2018"
               className="button-small"
               onClick={[Function]}
             >
               <ChevronRightIcon />
             </ButtonIcon>
-          </nav>
+          </fieldset>
           <DayPicker
             canChangeMonth={true}
             captionElement={<NullComponent />}
@@ -362,7 +363,7 @@ exports[`should render 3`] = `
               ]
             }
           />
-        </div>
+        </form>
       </span>
     </EscKeydownHandler>
   </OutsideClickHandler>
