@@ -38,11 +38,11 @@ exports[`should render correctly for SQ 1`] = `
       />
     </HelpTooltip>
   </div>
-  <h3
-    className="huge-spacer-top huge"
+  <div
+    className="huge-spacer-top huge h3"
   >
     metric.level.ERROR
-  </h3>
+  </div>
 </div>
 `;
 
@@ -84,10 +84,10 @@ exports[`should render correctly for SQ 2`] = `
       />
     </HelpTooltip>
   </div>
-  <h3
-    className="huge-spacer-top huge"
+  <div
+    className="huge-spacer-top huge h3"
   >
     metric.level.OK
-  </h3>
+  </div>
 </div>
 `;

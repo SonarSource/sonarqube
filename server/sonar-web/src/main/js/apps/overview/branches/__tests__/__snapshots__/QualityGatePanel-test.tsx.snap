@@ -29,11 +29,11 @@ exports[`should render correctly for applications 1`] = `
     <div
       className="overview-quality-gate-badge-large failed"
     >
-      <h3
-        className="big-spacer-bottom huge"
+      <div
+        className="big-spacer-bottom huge h3"
       >
         metric.level.ERROR
-      </h3>
+      </div>
       <span
         className="small"
       >
@@ -293,11 +293,11 @@ exports[`should render correctly for applications 2`] = `
     <div
       className="overview-quality-gate-badge-large failed"
     >
-      <h3
-        className="big-spacer-bottom huge"
+      <div
+        className="big-spacer-bottom huge h3"
       >
         metric.level.ERROR
-      </h3>
+      </div>
       <span
         className="small"
       >
@@ -464,11 +464,11 @@ exports[`should render correctly for projects 1`] = `
     <div
       className="overview-quality-gate-badge-large failed"
     >
-      <h3
-        className="big-spacer-bottom huge"
+      <div
+        className="big-spacer-bottom huge h3"
       >
         metric.level.ERROR
-      </h3>
+      </div>
       <span
         className="small"
       >
@@ -600,11 +600,11 @@ exports[`should render correctly for projects 2`] = `
     <div
       className="overview-quality-gate-badge-large success"
     >
-      <h3
-        className="big-spacer-bottom huge"
+      <div
+        className="big-spacer-bottom huge h3"
       >
         metric.level.OK
-      </h3>
+      </div>
       <span
         className="small"
       >
@@ -662,11 +662,11 @@ exports[`should render correctly for projects 3`] = `
     <div
       className="overview-quality-gate-badge-large failed"
     >
-      <h3
-        className="big-spacer-bottom huge"
+      <div
+        className="big-spacer-bottom huge h3"
       >
         metric.level.ERROR
-      </h3>
+      </div>
       <span
         className="small"
       >

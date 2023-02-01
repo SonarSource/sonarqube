@@ -117,13 +117,13 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
           onClick={toggle}
         >
           <div className="display-flex-center">
-            <h3
-              className="overview-quality-gate-conditions-project-name text-ellipsis"
+            <div
+              className="overview-quality-gate-conditions-project-name text-ellipsis h3"
               title={qgStatus.name}
             >
               {collapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
               <span className="spacer-left">{qgStatus.name}</span>
-            </h3>
+            </div>
             {collapsed && displayConditions(qgStatus.failedConditions.length)}
           </div>
         </ButtonPlain>
@@ -148,12 +148,12 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
           {newCodeFailedConditions.length > 0 && (
             <>
               {showSectionTitles && (
-                <h4 className="big-padded overview-quality-gate-conditions-section-title">
+                <div className="big-padded overview-quality-gate-conditions-section-title h4">
                   {translateWithParameters(
                     'quality_gates.conditions.new_code_x',
                     newCodeFailedConditions.length.toString()
                   )}
-                </h4>
+                </div>
               )}
               <QualityGateConditions
                 component={qgStatus}
@@ -166,12 +166,12 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
           {overallFailedConditions.length > 0 && (
             <>
               {showSectionTitles && (
-                <h4 className="big-padded overview-quality-gate-conditions-section-title">
+                <div className="big-padded overview-quality-gate-conditions-section-title h4">
                   {translateWithParameters(
                     'quality_gates.conditions.overall_code_x',
                     overallFailedConditions.length.toString()
                   )}
-                </h4>
+                </div>
               )}
               <QualityGateConditions
                 component={qgStatus}

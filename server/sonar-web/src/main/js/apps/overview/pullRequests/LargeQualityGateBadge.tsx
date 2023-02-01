@@ -67,7 +67,7 @@ export function LargeQualityGateBadge({ component, level }: Props) {
         </HelpTooltip>
       </div>
       {level !== undefined && (
-        <h3 className="huge-spacer-top huge">{translate('metric.level', level)}</h3>
+        <div className="huge-spacer-top huge h3">{translate('metric.level', level)}</div>
       )}
     </div>
   );

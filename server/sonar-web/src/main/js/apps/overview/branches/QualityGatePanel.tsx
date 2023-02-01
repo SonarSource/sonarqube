@@ -108,7 +108,9 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
                 success,
               })}
             >
-              <h3 className="big-spacer-bottom huge">{translate('metric.level', overallLevel)}</h3>
+              <div className="big-spacer-bottom huge h3">
+                {translate('metric.level', overallLevel)}
+              </div>
 
               <span className="small">
                 {overallFailedConditionsCount > 0

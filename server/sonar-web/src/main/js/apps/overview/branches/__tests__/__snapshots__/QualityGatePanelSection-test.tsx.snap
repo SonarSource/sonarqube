@@ -32,11 +32,11 @@ exports[`should render correctly 1`] = `
       }
     />
   </div>
-  <h4
-    className="big-padded overview-quality-gate-conditions-section-title"
+  <div
+    className="big-padded overview-quality-gate-conditions-section-title h4"
   >
     quality_gates.conditions.new_code_x.1
-  </h4>
+  </div>
   <Memo(QualityGateConditions)
     component={
       {
@@ -123,11 +123,11 @@ exports[`should render correctly 1`] = `
       ]
     }
   />
-  <h4
-    className="big-padded overview-quality-gate-conditions-section-title"
+  <div
+    className="big-padded overview-quality-gate-conditions-section-title h4"
   >
     quality_gates.conditions.overall_code_x.1
-  </h4>
+  </div>
   <Memo(QualityGateConditions)
     component={
       {
@@ -230,8 +230,8 @@ exports[`should render correctly 2`] = `
     <div
       className="display-flex-center"
     >
-      <h3
-        className="overview-quality-gate-conditions-project-name text-ellipsis"
+      <div
+        className="overview-quality-gate-conditions-project-name text-ellipsis h3"
         title="Foo"
       >
         <ChevronDownIcon />
@@ -240,14 +240,14 @@ exports[`should render correctly 2`] = `
         >
           Foo
         </span>
-      </h3>
+      </div>
     </div>
   </ButtonPlain>
-  <h4
-    className="big-padded overview-quality-gate-conditions-section-title"
+  <div
+    className="big-padded overview-quality-gate-conditions-section-title h4"
   >
     quality_gates.conditions.new_code_x.1
-  </h4>
+  </div>
   <Memo(QualityGateConditions)
     component={
       {
@@ -334,11 +334,11 @@ exports[`should render correctly 2`] = `
       ]
     }
   />
-  <h4
-    className="big-padded overview-quality-gate-conditions-section-title"
+  <div
+    className="big-padded overview-quality-gate-conditions-section-title h4"
   >
     quality_gates.conditions.overall_code_x.1
-  </h4>
+  </div>
   <Memo(QualityGateConditions)
     component={
       {
