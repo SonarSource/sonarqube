@@ -11,7 +11,7 @@ exports[`should render correctly 1`] = `
     prioritizeSeoTags={false}
     title="user_groups.page"
   />
-  <div
+  <main
     className="page page-limited"
     id="groups-page"
   >
@@ -26,7 +26,7 @@ exports[`should render correctly 1`] = `
       placeholder="search.search_by_name"
       value=""
     />
-  </div>
+  </main>
 </Fragment>
 `;
 
@@ -41,7 +41,7 @@ exports[`should render correctly 2`] = `
     prioritizeSeoTags={false}
     title="user_groups.page"
   />
-  <div
+  <main
     className="page page-limited"
     id="groups-page"
   >
@@ -89,6 +89,6 @@ exports[`should render correctly 2`] = `
         total={5}
       />
     </div>
-  </div>
+  </main>
 </Fragment>
 `;

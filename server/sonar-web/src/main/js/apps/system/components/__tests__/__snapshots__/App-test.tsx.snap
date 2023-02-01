@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: cluster sysinfo 1`] = `
-<div
+<main
   className="page page-limited"
 >
   <Suggestions
@@ -190,11 +190,11 @@ exports[`should render correctly: cluster sysinfo 1`] = `
     }
     toggleCard={[Function]}
   />
-</div>
+</main>
 `;
 
 exports[`should render correctly: loading 1`] = `
-<div
+<main
   className="page page-limited"
 >
   <Suggestions
@@ -213,11 +213,11 @@ exports[`should render correctly: loading 1`] = `
       dismissable={false}
     />
   </div>
-</div>
+</main>
 `;
 
 exports[`should render correctly: stand-alone sysinfo 1`] = `
-<div
+<main
   className="page page-limited"
 >
   <Suggestions
@@ -319,5 +319,5 @@ exports[`should render correctly: stand-alone sysinfo 1`] = `
     }
     toggleCard={[Function]}
   />
-</div>
+</main>
 `;

@@ -56,7 +56,7 @@ export default function ProjectActivityAppRenderer(props: Props) {
     (configuration ? configuration.showHistory : false);
   const canDeleteAnalyses = configuration ? configuration.showHistory : false;
   return (
-    <div className="page page-limited" id="project-activity">
+    <main className="page page-limited" id="project-activity">
       <Suggestions suggestions="project_activity" />
       <Helmet defer={false} title={translate('project_activity.page')} />
 
@@ -106,6 +106,6 @@ export default function ProjectActivityAppRenderer(props: Props) {
           />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -61,7 +61,9 @@ export class Account extends React.PureComponent<Props> {
           </div>
         </header>
 
-        <Outlet />
+        <main>
+          <Outlet />
+        </main>
       </div>
     );
   }

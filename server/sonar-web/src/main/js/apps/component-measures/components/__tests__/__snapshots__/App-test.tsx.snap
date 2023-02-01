@@ -21,7 +21,7 @@ exports[`should not render drilldown for estimated duplications 1`] = `
     >
       <Component />
     </ScreenPositionHelper>
-    <div
+    <main
       className="layout-page-main"
     >
       <div
@@ -33,7 +33,7 @@ exports[`should not render drilldown for estimated duplications 1`] = `
           component_measures.details_are_not_available
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </div>
 `;

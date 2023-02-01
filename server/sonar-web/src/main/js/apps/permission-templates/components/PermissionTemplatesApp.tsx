@@ -110,13 +110,13 @@ export class PermissionTemplatesApp extends React.PureComponent<Props, State> {
   render() {
     const { id } = this.props.location.query;
     return (
-      <div>
+      <main>
         <Suggestions suggestions="permission_templates" />
         <Helmet defer={false} title={translate('permission_templates.page')} />
 
         {id && this.renderTemplate(id)}
         {!id && this.renderHome()}
-      </div>
+      </main>
     );
   }
 }

@@ -53,7 +53,7 @@ export default function ProfileHeader(props: Props) {
   const isChangeLogPage = location.pathname.endsWith(`/${QualityProfilePath.CHANGELOG}`);
 
   return (
-    <div className="page-header quality-profile-header">
+    <header className="page-header quality-profile-header">
       {(isComparePage || isChangeLogPage) && (
         <Helmet
           defer={false}
@@ -141,6 +141,6 @@ export default function ProfileHeader(props: Props) {
           />
         </div>
       )}
-    </div>
+    </header>
   );
 }

@@ -67,7 +67,7 @@ export function SettingsAppRenderer(props: SettingsAppRendererProps) {
       (!isProjectSettings && foundAdditionalCategory.availableGlobally));
 
   return (
-    <div id="settings-page">
+    <main id="settings-page">
       <Suggestions suggestions="settings" />
       <Helmet defer={false} title={translate('settings.page')} />
       <PageHeader component={component} definitions={definitions} />
@@ -110,7 +110,7 @@ export function SettingsAppRenderer(props: SettingsAppRendererProps) {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

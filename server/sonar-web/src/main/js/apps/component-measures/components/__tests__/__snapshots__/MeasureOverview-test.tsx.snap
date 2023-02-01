@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: default 1`] = `
-<div>
+<main>
   <div
     className="layout-page-header-panel layout-page-main-header"
   >
@@ -104,11 +104,11 @@ exports[`should render correctly: default 1`] = `
       updateSelected={[MockFunction]}
     />
   </div>
-</div>
+</main>
 `;
 
 exports[`should render correctly: has leak period 1`] = `
-<div>
+<main>
   <div
     className="layout-page-header-panel layout-page-main-header"
   >
@@ -252,11 +252,11 @@ exports[`should render correctly: has leak period 1`] = `
       updateSelected={[MockFunction]}
     />
   </div>
-</div>
+</main>
 `;
 
 exports[`should render correctly: is file 1`] = `
-<div>
+<main>
   <div
     className="layout-page-header-panel layout-page-main-header"
   >
@@ -337,11 +337,11 @@ exports[`should render correctly: is file 1`] = `
       />
     </div>
   </div>
-</div>
+</main>
 `;
 
 exports[`should render correctly: loading 1`] = `
-<div>
+<main>
   <div
     className="layout-page-header-panel layout-page-main-header"
   >
@@ -410,5 +410,5 @@ exports[`should render correctly: loading 1`] = `
       loading={true}
     />
   </div>
-</div>
+</main>
 `;

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<div
+<main
   className="page page-limited"
 >
   <Suggestions
@@ -69,11 +69,11 @@ exports[`should render correctly 1`] = `
     revokePermissionFromUser={[Function]}
     users={[]}
   />
-</div>
+</main>
 `;
 
 exports[`should render correctly 2`] = `
-<div
+<main
   className="page page-limited"
 >
   <Suggestions
@@ -198,5 +198,5 @@ exports[`should render correctly 2`] = `
       }
     }
   />
-</div>
+</main>
 `;

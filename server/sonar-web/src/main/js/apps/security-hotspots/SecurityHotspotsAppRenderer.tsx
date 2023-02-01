@@ -174,7 +174,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
               )}
             </ScreenPositionHelper>
 
-            <div className="layout-page-main">
+            <main className="layout-page-main">
               <HotspotViewer
                 component={component}
                 hotspotKey={selectedHotspot.key}
@@ -184,7 +184,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                 onLocationClick={props.onLocationClick}
                 selectedHotspotLocation={selectedHotspotLocation}
               />
-            </div>
+            </main>
           </div>
         ))}
     </div>

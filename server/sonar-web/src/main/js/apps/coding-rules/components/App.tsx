@@ -602,7 +602,7 @@ export class App extends React.PureComponent<Props, State> {
             )}
           </ScreenPositionHelper>
 
-          <div className="layout-page-main">
+          <main className="layout-page-main">
             <div className="layout-page-header-panel layout-page-main-header">
               <div className="layout-page-header-panel-inner layout-page-main-header-inner">
                 <div className="layout-page-main-inner">
@@ -673,7 +673,7 @@ export class App extends React.PureComponent<Props, State> {
                 </>
               )}
             </div>
-          </div>
+          </main>
         </div>
       </>
     );

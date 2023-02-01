@@ -56,12 +56,12 @@ export class App extends React.PureComponent<Props> {
     }
 
     return isPullRequest(branchLike) ? (
-      <>
+      <main>
         <Suggestions suggestions="pull_requests" />
         <PullRequestOverview branchLike={branchLike} component={component} />
-      </>
+      </main>
     ) : (
-      <>
+      <main>
         <Suggestions suggestions="overview" />
 
         {!component.analysisDate && (
@@ -82,7 +82,7 @@ export class App extends React.PureComponent<Props> {
             projectBinding={projectBinding}
           />
         )}
-      </>
+      </main>
     );
   }
 }

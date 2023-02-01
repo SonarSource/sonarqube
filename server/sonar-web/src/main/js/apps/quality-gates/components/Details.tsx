@@ -150,7 +150,7 @@ export default class Details extends React.PureComponent<Props, State> {
     const { loading, qualityGate, updatedConditionId } = this.state;
 
     return (
-      <div className="layout-page-main">
+      <main className="layout-page-main">
         <DeferredSpinner loading={loading} timeout={200}>
           {qualityGate && (
             <>
@@ -172,7 +172,7 @@ export default class Details extends React.PureComponent<Props, State> {
             </>
           )}
         </DeferredSpinner>
-      </div>
+      </main>
     );
   }
 }

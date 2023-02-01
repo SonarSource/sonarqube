@@ -196,7 +196,7 @@ export default class App extends React.PureComponent<{}, State> {
       <>
         <Suggestions suggestions="user_groups" />
         <Helmet defer={false} title={translate('user_groups.page')} />
-        <div className="page page-limited" id="groups-page">
+        <main className="page page-limited" id="groups-page">
           <Header onCreate={this.handleCreate} />
 
           <SearchBox
@@ -247,7 +247,7 @@ export default class App extends React.PureComponent<{}, State> {
               onSubmit={this.handleEdit}
             />
           )}
-        </div>
+        </main>
       </>
     );
   }

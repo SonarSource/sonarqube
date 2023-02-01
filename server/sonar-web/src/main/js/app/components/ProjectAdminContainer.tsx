@@ -54,10 +54,10 @@ export class ProjectAdminContainer extends React.PureComponent<Props> {
     }
 
     return (
-      <>
+      <main>
         <A11ySkipTarget anchor="admin_main" />
         <Outlet />
-      </>
+      </main>
     );
   }
 }

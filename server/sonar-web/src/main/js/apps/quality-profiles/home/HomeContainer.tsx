@@ -35,12 +35,12 @@ export default function HomeContainer() {
       <PageHeader {...context} />
 
       <div className="page-with-sidebar">
-        <div className="page-main">
+        <main className="page-main">
           <ProfilesList {...context} language={selectedLanguage} />
-        </div>
-        <div className="page-sidebar">
+        </main>
+        <aside className="page-sidebar">
           <Evolution {...context} />
-        </div>
+        </aside>
       </div>
     </div>
   );

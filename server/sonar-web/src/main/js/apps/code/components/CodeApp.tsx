@@ -292,7 +292,7 @@ class CodeApp extends React.Component<Props, State> {
     const isPortfolio = isPortfolioLike(qualifier);
 
     return (
-      <div className="page page-limited">
+      <main className="page page-limited">
         <A11ySkipTarget anchor="code_main" />
         {!canBrowseAllChildProjects && isPortfolio && (
           <StyledAlert variant="warning" className="it__portfolio_warning">
@@ -394,7 +394,7 @@ class CodeApp extends React.Component<Props, State> {
             </div>
           )}
         </div>
-      </div>
+      </main>
     );
   }
 }

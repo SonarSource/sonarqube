@@ -229,7 +229,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     const query = this.props.location.query.query || '';
 
     return (
-      <div className="page page-limited">
+      <main className="page page-limited">
         <Suggestions suggestions="background_tasks" />
         <Helmet defer={false} title={translate('background_tasks.page')} />
         <Header component={component} />
@@ -272,7 +272,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
           pageSize={pagination.pageSize}
           total={pagination.total}
         />
-      </div>
+      </main>
     );
   }
 }

@@ -154,7 +154,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
     const { branchLike, className, component, leakPeriod, loading, rootComponent } = this.props;
     const displayLeak = hasFullMeasures(branchLike);
     return (
-      <div className={className}>
+      <main className={className}>
         <div className="layout-page-header-panel layout-page-main-header">
           <A11ySkipTarget anchor="measures_main" />
 
@@ -190,7 +190,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
           <DeferredSpinner loading={loading} />
           {!loading && this.renderContent()}
         </div>
-      </div>
+      </main>
     );
   }
 }

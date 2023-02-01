@@ -265,11 +265,11 @@ export class App extends React.PureComponent<Props, State> {
 
     if (hideDrilldown) {
       return (
-        <div className="layout-page-main">
+        <main className="layout-page-main">
           <div className="layout-page-main-inner">
             <div className="note">{translate('component_measures.details_are_not_available')}</div>
           </div>
-        </div>
+        </main>
       );
     }
 

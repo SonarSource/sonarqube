@@ -11,7 +11,7 @@ exports[`should render correctly: initial 1`] = `
 `;
 
 exports[`should render correctly: loaded 1`] = `
-<div
+<main
   className="page page-limited"
 >
   <Suggestions
@@ -190,5 +190,5 @@ exports[`should render correctly: loaded 1`] = `
     loading={false}
     total={2}
   />
-</div>
+</main>
 `;

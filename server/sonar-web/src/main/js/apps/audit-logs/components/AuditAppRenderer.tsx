@@ -72,12 +72,12 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
   const { dateRange, downloadStarted, housekeepingPolicy, selection } = props;
 
   return (
-    <div className="page page-limited" id="marketplace-page">
+    <main className="page page-limited" id="marketplace-page">
       <Suggestions suggestions="audit-logs" />
       <Helmet title={translate('audit_logs.page')} />
 
       <header className="page-header">
-        <h1 className="page-title">{translate('audit_logs.page')}</h1>
+        <h2 className="page-title">{translate('audit_logs.page')}</h2>
       </header>
 
       <p className="big-spacer-bottom">
@@ -104,7 +104,7 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
       </p>
 
       <div className="huge-spacer-bottom">
-        <h2 className="big-spacer-bottom">{translate('audit_logs.download')}</h2>
+        <h3 className="big-spacer-bottom">{translate('audit_logs.download')}</h3>
 
         <ul>
           {getRangeOptions(housekeepingPolicy).map((option) => (
@@ -134,6 +134,6 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
         onStartDownload={props.handleStartDownload}
         selection={selection}
       />
-    </div>
+    </main>
   );
 }

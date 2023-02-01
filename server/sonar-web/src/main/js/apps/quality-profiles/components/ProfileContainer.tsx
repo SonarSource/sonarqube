@@ -64,7 +64,9 @@ export default function ProfileContainer() {
         isComparable={filteredProfiles.length > 1}
         updateProfiles={context.updateProfiles}
       />
-      <Outlet context={{ profile, ...context }} />
+      <main>
+        <Outlet context={{ profile, ...context }} />
+      </main>
     </div>
   );
 }

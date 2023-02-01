@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: loaded 1`] = `
-<div
+<main
   className="page page-limited"
   id="marketplace-page"
 >
@@ -23,11 +23,11 @@ exports[`should render correctly: loaded 1`] = `
   <header
     className="page-header"
   >
-    <h1
+    <h2
       className="page-title"
     >
       marketplace.page.plugins
-    </h1>
+    </h2>
     <div
       className="page-description"
     >
@@ -94,11 +94,11 @@ exports[`should render correctly: loaded 1`] = `
       total={1}
     />
   </DeferredSpinner>
-</div>
+</main>
 `;
 
 exports[`should render correctly: loading 1`] = `
-<div
+<main
   className="page page-limited"
   id="marketplace-page"
 >
@@ -120,11 +120,11 @@ exports[`should render correctly: loading 1`] = `
   <header
     className="page-header"
   >
-    <h1
+    <h2
       className="page-title"
     >
       marketplace.page.plugins
-    </h1>
+    </h2>
     <div
       className="page-description"
     >
@@ -170,11 +170,11 @@ exports[`should render correctly: loading 1`] = `
   >
     marketplace.plugin_list.no_plugins.all
   </DeferredSpinner>
-</div>
+</main>
 `;
 
 exports[`should render correctly: not readonly 1`] = `
-<div
+<main
   className="page page-limited"
   id="marketplace-page"
 >
@@ -196,11 +196,11 @@ exports[`should render correctly: not readonly 1`] = `
   <header
     className="page-header"
   >
-    <h1
+    <h2
       className="page-title"
     >
       marketplace.page.plugins
-    </h1>
+    </h2>
     <div
       className="page-description"
     >
@@ -250,5 +250,5 @@ exports[`should render correctly: not readonly 1`] = `
       total={1}
     />
   </DeferredSpinner>
-</div>
+</main>
 `;

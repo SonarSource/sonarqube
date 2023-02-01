@@ -28,7 +28,7 @@ interface Props {
 export default function Header({ currentEdition }: Props) {
   return (
     <header className="page-header" id="marketplace-header">
-      <h1 className="page-title">{translate('marketplace.page')}</h1>
+      <h2 className="page-title">{translate('marketplace.page')}</h2>
       {currentEdition && (
         <h3 className="page-description">
           {translate('marketplace.page.you_are_running', currentEdition)}

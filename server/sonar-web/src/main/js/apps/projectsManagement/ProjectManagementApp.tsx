@@ -204,7 +204,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
     const { currentUser } = this.props;
     const { defaultProjectVisibility } = this.state;
     return (
-      <div className="page page-limited" id="projects-management-page">
+      <main className="page page-limited" id="projects-management-page">
         <Suggestions suggestions="projects_management" />
         <Helmet defer={false} title={translate('projects_management')} />
 
@@ -258,7 +258,7 @@ export class ProjectManagementApp extends React.PureComponent<Props, State> {
             onProjectCreated={this.requestProjects}
           />
         )}
-      </div>
+      </main>
     );
   }
 }

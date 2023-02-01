@@ -5,11 +5,11 @@ exports[`should render with installed editions 1`] = `
   className="page-header"
   id="marketplace-header"
 >
-  <h1
+  <h2
     className="page-title"
   >
     marketplace.page
-  </h1>
+  </h2>
   <h3
     className="page-description"
   >
@@ -28,11 +28,11 @@ exports[`should render with installed editions 2`] = `
   className="page-header"
   id="marketplace-header"
 >
-  <h1
+  <h2
     className="page-title"
   >
     marketplace.page
-  </h1>
+  </h2>
   <h3
     className="page-description"
   >

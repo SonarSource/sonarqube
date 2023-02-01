@@ -19,7 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import BranchOverview from '../../branches/BranchOverview';
+import PullRequestOverview from '../../pullRequests/PullRequestOverview';
 import { App } from '../App';
 
 const component = {
@@ -33,6 +35,9 @@ const component = {
 
 it('should render BranchOverview', () => {
   expect(getWrapper().find(BranchOverview).exists()).toBe(true);
+  expect(getWrapper({ branchLike: mockPullRequest() }).find(PullRequestOverview).exists()).toBe(
+    true
+  );
 });
 
 function getWrapper(props = {}) {

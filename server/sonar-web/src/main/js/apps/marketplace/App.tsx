@@ -156,13 +156,13 @@ export class App extends React.PureComponent<Props, State> {
       riskConsent === RiskConsent.Accepted;
 
     return (
-      <div className="page page-limited" id="marketplace-page">
+      <main className="page page-limited" id="marketplace-page">
         <Suggestions suggestions="marketplace" />
         <Helmet title={translate('marketplace.page')} />
         <Header currentEdition={currentEdition} />
         <EditionBoxes currentEdition={currentEdition} />
         <header className="page-header">
-          <h1 className="page-title">{translate('marketplace.page.plugins')}</h1>
+          <h2 className="page-title">{translate('marketplace.page.plugins')}</h2>
           <div className="page-description">
             <p>{translate('marketplace.page.plugins.description')}</p>
             {currentEdition !== EditionKey.community && (
@@ -209,7 +209,7 @@ export class App extends React.PureComponent<Props, State> {
             </>
           )}
         </DeferredSpinner>
-      </div>
+      </main>
     );
   }
 }

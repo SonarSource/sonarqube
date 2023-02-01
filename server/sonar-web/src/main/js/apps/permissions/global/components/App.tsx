@@ -281,7 +281,7 @@ export class App extends React.PureComponent<Props, State> {
       'global_permissions'
     );
     return (
-      <div className="page page-limited">
+      <main className="page page-limited">
         <Suggestions suggestions="global_permissions" />
         <Helmet defer={false} title={translate('global_permissions.permission')} />
         <PageHeader loading={loading} />
@@ -302,7 +302,7 @@ export class App extends React.PureComponent<Props, State> {
           users={users}
           usersPaging={usersPaging}
         />
-      </div>
+      </main>
     );
   }
 }

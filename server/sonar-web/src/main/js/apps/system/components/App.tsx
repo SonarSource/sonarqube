@@ -123,7 +123,7 @@ export class App extends React.PureComponent<Props, State> {
   render() {
     const { loading, sysInfoData } = this.state;
     return (
-      <div className="page page-limited">
+      <main className="page page-limited">
         <Suggestions suggestions="system_info" />
         <Helmet defer={false} title={translate('system_info.page')} />
         <div className="page-notifs">
@@ -143,7 +143,7 @@ export class App extends React.PureComponent<Props, State> {
           />
         )}
         {this.renderSysInfo()}
-      </div>
+      </main>
     );
   }
 }
