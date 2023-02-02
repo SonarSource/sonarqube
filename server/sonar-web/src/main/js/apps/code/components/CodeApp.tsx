@@ -35,7 +35,7 @@ import { isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
+import { ComponentQualifier, isApplication, isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Issue, Metric } from '../../../types/types';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import '../code.css';
@@ -282,15 +282,12 @@ export class CodeApp extends React.Component<Props, State> {
     );
     const metrics = metricKeys.map((metric) => this.props.metrics[metric]);
 
-    const defaultTitle =
-      baseComponent &&
-      [
-        ComponentQualifier.Application,
-        ComponentQualifier.Portfolio,
-        ComponentQualifier.SubPortfolio,
-      ].includes(baseComponent.qualifier as ComponentQualifier)
-        ? translate('projects.page')
-        : translate('code.page');
+    let defaultTitle = translate('code.page');
+    if (isApplication(baseComponent?.qualifier)) {
+      defaultTitle = translate('projects.page');
+    } else if (isPortfolioLike(baseComponent?.qualifier)) {
+      defaultTitle = translate('portfolio_breakdown.page');
+    }
 
     const isPortfolio = isPortfolioLike(qualifier);
 
