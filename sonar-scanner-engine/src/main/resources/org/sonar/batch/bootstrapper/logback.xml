@@ -19,47 +19,28 @@
   </appender>
 
   <!-- BeanUtils generate too many DEBUG logs when sonar.verbose is set -->
-  <logger name="org.apache.commons.beanutils.converters">
-    <level value="WARN"/>
-  </logger>
+  <logger name="org.apache.commons.beanutils.converters" level="WARN"/>
 
   <!-- FileSnapshot generate too many DEBUG logs when sonar.verbose is set -->
-  <logger name="org.eclipse.jgit.internal.storage.file">
-    <level value="INFO"/>
-  </logger>
+  <logger name="org.eclipse.jgit.internal.storage.file" level="INFO"/>
 
   <!-- Spring generates too many DEBUG logs when sonar.verbose is set -->
-  <logger name="org.springframework">
-    <level value="INFO"/>
-  </logger>
+  <logger name="org.springframework" level="INFO"/>
 
   <!-- AbstractApplicationContext generate too verbose warning if warn is Enabled -->
-  <logger name="org.springframework.context.annotation.AnnotationConfigApplicationContext">
-    <level value="ERROR"/>
-  </logger>
+  <logger name="org.springframework.context.annotation.AnnotationConfigApplicationContext" level="ERROR"/>
 
-  <logger name="org.sonar.core.platform.PriorityBeanFactory">
-    <level value="INFO"/>
-  </logger>
+  <logger name="org.sonar.core.platform.PriorityBeanFactory" level="INFO"/>
 
   <!-- sonar.showSql -->
   <!-- see also org.sonar.db.MyBatis#configureLogback() -->
-  <logger name="org.mybatis">
-    <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
-  </logger>
-  <logger name="org.apache.ibatis">
-    <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
-  </logger>
-  <logger name="java.sql">
-    <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
-  </logger>
-  <logger name="java.sql.ResultSet">
-    <level value="WARN"/>
-  </logger>
+  <logger name="org.mybatis" level="${SQL_LOGGER_LEVEL:-WARN}"/>
+  <logger name="org.apache.ibatis" level="${SQL_LOGGER_LEVEL:-WARN}"/>
+  <logger name="java.sql" level="${SQL_LOGGER_LEVEL:-WARN}"/>
+  <logger name="java.sql.ResultSet" level="WARN"/>
 
-  <root>
+  <root level="${ROOT_LOGGER_LEVEL}">
     <!-- sonar.verbose -->
-    <level value="${ROOT_LOGGER_LEVEL}"/>
     <appender-ref ref="STDOUT"/>
   </root>
 

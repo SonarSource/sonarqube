@@ -29,16 +29,11 @@
     </encoder>
   </appender>
 
-  <logger name="org.sonar">
-    <level value="DEBUG"/>
-  </logger>
+  <logger name="org.sonar" level="DEBUG"/>
 
-  <logger name="org.apache.directory">
-    <level value="ERROR"/>
-  </logger>
+  <logger name="org.apache.directory" level="ERROR"/>
 
-  <root>
-    <level value="INFO"/>
+  <root level="INFO">
     <appender-ref ref="STDOUT"/>
   </root>
 

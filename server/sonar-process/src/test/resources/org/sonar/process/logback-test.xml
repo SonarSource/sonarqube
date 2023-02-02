@@ -14,13 +14,10 @@
     </encoder>
   </appender>
 
-  <root>
-    <level value="INFO"/>
+  <root level="INFO">
     <appender-ref ref="CONSOLE" />
     <appender-ref ref="TESTING" />
   </root>
 
-  <logger name="ch.qos.logback">
-    <level value="WARN"/>
-  </logger>
+  <logger name="ch.qos.logback" level="WARN"/>
 </configuration>

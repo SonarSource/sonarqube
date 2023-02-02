@@ -15,13 +15,10 @@
   </appender>
 
   <!-- BeanUtils generate to many DEBUG logs when sonar.verbose is set -->
-  <logger name="org.apache.commons.beanutils.converters">
-    <level value="WARN"/>
-  </logger>
+  <logger name="org.apache.commons.beanutils.converters" level="WARN"/>
 
-  <root>
+  <root level="${ROOT_LOGGER_LEVEL}">
     <!-- sonar.verbose -->
-    <level value="${ROOT_LOGGER_LEVEL}"/>
     <appender-ref ref="STDOUT"/>
   </root>
 
