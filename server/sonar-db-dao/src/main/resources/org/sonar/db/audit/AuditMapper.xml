@@ -93,21 +93,31 @@
       a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
   </select>
 
-  <delete id="purge" parameterType="long">
-    delete from audits
-    where uuid in (select a.uuid from audits a where a.created_at &lt; #{threshold,jdbcType=BIGINT}
-    order by a.created_at limit 100000)
-  </delete>
+  <select id="selectUuidsOlderThan" parameterType="long" resultType="string">
+    select a.uuid
+    from audits a
+    where a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
+    order by a.created_at
+    limit 100000
+  </select>
 
-  <delete id="purge" parameterType="long" databaseId="mssql">
-    delete from audits
-    where uuid in (select top 100000 a.uuid from audits a where a.created_at &lt; #{threshold,jdbcType=BIGINT}
-      order by a.created_at)
-  </delete>
+    <select id="selectUuidsOlderThan" parameterType="long" resultType="string" databaseId="mssql">
+    select top 100000 a.uuid
+    from audits a
+    where a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
+    order by a.created_at
+  </select>
 
-    <delete id="purge" parameterType="long" databaseId="oracle">
-    delete from audits
-    where uuid in (select a.uuid from audits a where a.created_at &lt; #{threshold,jdbcType=BIGINT}
-      order by a.created_at fetch first 100000 rows only)
+    <select id="selectUuidsOlderThan" parameterType="long" resultType="string" databaseId="oracle">
+    select a.uuid
+    from audits a
+    where a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
+    order by a.created_at
+    fetch first 100000 rows only
+  </select>
+
+  <delete id="purgeUuids" parameterType="string">
+    delete from audits where uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
   </delete>
 </mapper>

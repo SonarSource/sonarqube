@@ -19,6 +19,7 @@
  */
 package org.sonar.db.audit;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.Pagination;
@@ -31,5 +32,7 @@ public interface AuditMapper {
 
   List<AuditDto> selectOlderThan(@Param("beforeTimestamp") long beforeTimestamp);
 
-  long purge(long threshold);
+  List<String> selectUuidsOlderThan(@Param("beforeTimestamp") long beforeTimestamp);
+
+  void purgeUuids(@Param("uuids") Collection<String> uuids);
 }
