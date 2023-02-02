@@ -44,7 +44,7 @@ interface Props {
   showAnalysisDate?: boolean;
 }
 
-export class Component extends React.PureComponent<Props> {
+class Component extends React.PureComponent<Props> {
   render() {
     const {
       branchLike,

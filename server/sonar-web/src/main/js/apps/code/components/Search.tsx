@@ -28,7 +28,7 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isView } from '../../../types/component';
 import { ComponentMeasure } from '../../../types/types';
 
 interface Props {
@@ -47,7 +47,7 @@ interface State {
   loading: boolean;
 }
 
-export class Search extends React.PureComponent<Props, State> {
+class Search extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     query: '',
@@ -99,11 +99,7 @@ export class Search extends React.PureComponent<Props, State> {
         });
       }
 
-      const qualifiers = [
-        ComponentQualifier.Portfolio,
-        ComponentQualifier.SubPortfolio,
-        ComponentQualifier.Application,
-      ].includes(component.qualifier as ComponentQualifier)
+      const qualifiers = isView(component.qualifier)
         ? [ComponentQualifier.SubPortfolio, ComponentQualifier.Project].join(',')
         : [ComponentQualifier.TestFile, ComponentQualifier.File].join(',');
 
@@ -144,11 +140,11 @@ export class Search extends React.PureComponent<Props, State> {
   render() {
     const { component, newCodeSelected } = this.props;
     const { loading, query } = this.state;
-    const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
+    const isViewLike = isView(component.qualifier);
 
     return (
       <div className="code-search" id="code-search">
-        {isPortfolio && (
+        {isViewLike && (
           <span className="big-spacer-right">
             <ButtonToggle
               disabled={!isEmpty(query)}
@@ -172,7 +168,7 @@ export class Search extends React.PureComponent<Props, State> {
           onChange={this.handleQueryChange}
           onKeyDown={this.handleKeyDown}
           placeholder={translate(
-            isPortfolio ? 'code.search_placeholder.portfolio' : 'code.search_placeholder'
+            isViewLike ? 'code.search_placeholder.portfolio' : 'code.search_placeholder'
           )}
           value={this.state.query}
         />

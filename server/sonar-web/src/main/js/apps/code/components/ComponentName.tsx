@@ -100,7 +100,7 @@ export default function ComponentName({
   }
   return (
     <span
-      className="max-width-100 display-inline-block text-ellipsis"
+      className="max-width-100 text-ellipsis"
       title={getTooltip(component)}
       aria-label={ariaLabel}
     >

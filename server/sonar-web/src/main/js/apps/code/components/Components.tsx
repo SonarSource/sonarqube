@@ -39,7 +39,7 @@ interface ComponentsProps {
   showAnalysisDate?: boolean;
 }
 
-export function Components(props: ComponentsProps) {
+function Components(props: ComponentsProps) {
   const {
     baseComponent,
     branchLike,

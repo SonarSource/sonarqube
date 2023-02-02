@@ -32,7 +32,7 @@ export interface SourceViewerWrapperProps {
   onIssueChange?: (issue: Issue) => void;
 }
 
-export function SourceViewerWrapper(props: SourceViewerWrapperProps) {
+function SourceViewerWrapper(props: SourceViewerWrapperProps) {
   const { branchLike, component, componentMeasures, location } = props;
   const { line } = location.query;
   const finalLine = line ? Number(line) : undefined;

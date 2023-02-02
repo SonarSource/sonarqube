@@ -29,6 +29,18 @@
   margin-top: -50px;
 }
 
+.code-components .boxed-group.search-results li {
+  padding: var(--gridSize) calc(2 * var(--gridSize));
+  border-width: 0 0 0 2px;
+  border-style: solid;
+  border-color: transparent;
+}
+
+.code-components .boxed-group.search-results li.selected {
+  background-color: var(--info100);
+  border-left-color: var(--info500);
+}
+
 .code-components .table-wrapper {
   margin: 0 20px;
 }

@@ -48,6 +48,7 @@ import {
 import Breadcrumbs from './Breadcrumbs';
 import Components from './Components';
 import Search from './Search';
+import SearchResults from './SearchResults';
 import SourceViewerWrapper from './SourceViewerWrapper';
 
 interface Props {
@@ -72,7 +73,7 @@ interface State {
   newCodeSelected: boolean;
 }
 
-export class CodeApp extends React.Component<Props, State> {
+class CodeApp extends React.Component<Props, State> {
   mounted = false;
   state: State;
 
@@ -266,10 +267,9 @@ export class CodeApp extends React.Component<Props, State> {
 
     const hasComponents = components.length > 0 || searchResults !== undefined;
 
-    const shouldShowBreadcrumbs = breadcrumbs.length > 1 && !showSearch;
+    const showBreadcrumbs = breadcrumbs.length > 1 && !showSearch;
 
-    const shouldShowComponentList =
-      sourceViewer === undefined && components.length > 0 && !showSearch;
+    const showComponentList = sourceViewer === undefined && components.length > 0 && !showSearch;
 
     const componentsClassName = classNames('boxed-group', 'spacer-top', {
       'new-loading': loading,
@@ -333,7 +333,7 @@ export class CodeApp extends React.Component<Props, State> {
               </span>
             </div>
           )}
-          {shouldShowBreadcrumbs && (
+          {showBreadcrumbs && (
             <Breadcrumbs
               branchLike={branchLike}
               breadcrumbs={breadcrumbs}
@@ -341,41 +341,43 @@ export class CodeApp extends React.Component<Props, State> {
             />
           )}
 
-          {shouldShowComponentList && (
-            <>
-              <div className={componentsClassName}>
-                <Components
-                  baseComponent={baseComponent}
-                  branchLike={branchLike}
-                  components={components}
-                  cycle={true}
-                  metrics={metrics}
-                  onEndOfList={this.handleLoadMore}
-                  onGoToParent={this.handleGoToParent}
-                  onHighlight={this.handleHighlight}
-                  onSelect={this.handleSelect}
-                  rootComponent={component}
-                  selected={highlighted}
-                  newCodeSelected={newCodeSelected}
-                  showAnalysisDate={isPortfolio}
-                />
-              </div>
-              <ListFooter count={components.length} loadMore={this.handleLoadMore} total={total} />
-            </>
-          )}
-
-          {showSearch && searchResults && (
-            <div className={componentsClassName}>
+          <div className={componentsClassName}>
+            {showComponentList && (
               <Components
+                baseComponent={baseComponent}
+                branchLike={branchLike}
+                components={components}
+                cycle={true}
+                metrics={metrics}
+                onEndOfList={this.handleLoadMore}
+                onGoToParent={this.handleGoToParent}
+                onHighlight={this.handleHighlight}
+                onSelect={this.handleSelect}
+                rootComponent={component}
+                selected={highlighted}
+                newCodeSelected={newCodeSelected}
+                showAnalysisDate={isPortfolio}
+              />
+            )}
+
+            {showSearch && (
+              <SearchResults
                 branchLike={this.props.branchLike}
                 components={searchResults}
-                metrics={[]}
                 onHighlight={this.handleHighlight}
                 onSelect={this.handleSelect}
                 rootComponent={component}
                 selected={highlighted}
               />
+            )}
+
+            <div role="status" className={showSearch ? 'text-center big-padded-bottom' : undefined}>
+              {searchResults?.length === 0 && translate('no_results')}
             </div>
+          </div>
+
+          {showComponentList && (
+            <ListFooter count={components.length} loadMore={this.handleLoadMore} total={total} />
           )}
 
           {sourceViewer !== undefined && !showSearch && (
@@ -396,6 +398,7 @@ export class CodeApp extends React.Component<Props, State> {
     );
   }
 }
+
 const StyledAlert = styled(Alert)`
   display: inline-flex;
   margin-bottom: 15px;

@@ -62,12 +62,9 @@ export interface TreeComponentWithPath extends TreeComponent {
 export function isPortfolioLike(
   componentQualifier?: string | ComponentQualifier
 ): componentQualifier is ComponentQualifier.Portfolio | ComponentQualifier.SubPortfolio {
-  return Boolean(
-    componentQualifier &&
-      [
-        ComponentQualifier.Portfolio.toString(),
-        ComponentQualifier.SubPortfolio.toString(),
-      ].includes(componentQualifier)
+  return (
+    componentQualifier === ComponentQualifier.Portfolio ||
+    componentQualifier === ComponentQualifier.SubPortfolio
   );
 }
 
@@ -83,18 +80,21 @@ export function isProject(
   return componentQualifier === ComponentQualifier.Project;
 }
 
-export function isFile(componentQualifier?: string | ComponentQualifier): boolean {
+export function isFile(
+  componentQualifier?: string | ComponentQualifier
+): componentQualifier is ComponentQualifier.File {
   return [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
     componentQualifier as ComponentQualifier
   );
 }
 
-export function isView(componentQualifier?: string | ComponentQualifier): boolean {
-  return [
-    ComponentQualifier.Portfolio,
-    ComponentQualifier.SubPortfolio,
-    ComponentQualifier.Application,
-  ].includes(componentQualifier as ComponentQualifier);
+export function isView(
+  componentQualifier?: string | ComponentQualifier
+): componentQualifier is
+  | ComponentQualifier.Application
+  | ComponentQualifier.Portfolio
+  | ComponentQualifier.SubPortfolio {
+  return isPortfolioLike(componentQualifier) || isApplication(componentQualifier);
 }
 
 export interface ComponentContextShape {

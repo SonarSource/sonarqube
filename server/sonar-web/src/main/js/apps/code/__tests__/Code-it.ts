@@ -120,7 +120,7 @@ it('should behave correctly when using search', async () => {
 
   // Search with results that are deeper than the current level.
   await ui.searchForComponent('out');
-  expect(ui.childComponent(/out\.tsx/).get()).toBeInTheDocument();
+  expect(ui.searchResult(/out\.tsx/).get()).toBeInTheDocument();
 
   // Search with no results.
   await ui.searchForComponent('nonexistent');
@@ -141,7 +141,7 @@ it('should behave correctly when using search', async () => {
   await act(async () => {
     await ui.arrowLeft();
   });
-  expect(await ui.childComponent(/folderA/).find()).toBeInTheDocument();
+  expect(await ui.searchResult(/folderA/).find()).toBeInTheDocument();
 });
 
 it('should correcly handle long lists of components', async () => {
@@ -370,6 +370,7 @@ function getPageObject(user: UserEvent) {
   const ui = {
     componentName: (name: string) => byText(name),
     childComponent: (name: string | RegExp) => byRole('cell', { name, exact: false }),
+    searchResult: (name: string | RegExp) => byRole('link', { name, exact: false }),
     componentIsEmptyTxt: (qualifier: ComponentQualifier) =>
       byText(`code_viewer.no_source_code_displayed_due_to_empty_analysis.${qualifier}`),
     searchInput: byRole('searchbox'),
