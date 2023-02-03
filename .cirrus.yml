@@ -395,6 +395,15 @@ qa_gitlab_task:
   <<: *GRADLE_CACHE_TEMPLATE
   depends_on:
     - build
+  env:
+    QA_CATEGORY: GITLAB
+  matrix:
+    - name: qa_gitlab_latest
+      env:
+        - GITLAB_VERSION: latest
+    - name: qa_gitlab_oldest
+      env:
+        - GITLAB_VERSION: 15.6.2-ce.0
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 2.4
@@ -407,9 +416,7 @@ qa_gitlab_task:
           - 443
         cpu: 2
         memory: 5Gb
-        matrix:
-          - image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:latest
-          - image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:15.6.2-ce.0
+        image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:${GITLAB_VERSION}
         env:
           - GITLAB_POST_RECONFIGURE_SCRIPT: |-
               { cat >/tmp/setup.rb <<-'EOF'
@@ -427,8 +434,6 @@ qa_gitlab_task:
               } && gitlab-rails runner /tmp/setup.rb && \
               echo 'from_file "/etc/gitlab/external_gitlab.rb"' >> /etc/gitlab/gitlab.rb && \
               gitlab-ctl reconfigure
-  env:
-    QA_CATEGORY: GITLAB
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
