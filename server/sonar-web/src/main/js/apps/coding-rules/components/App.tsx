@@ -34,7 +34,7 @@ import BackIcon from '../../../components/icons/BackIcon';
 import '../../../components/search-navigator.css';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
@@ -562,7 +562,14 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <>
         <Suggestions suggestions="coding_rules" />
-        <Helmet defer={false} title={translate('coding_rules.page')}>
+        <Helmet
+          defer={false}
+          title={
+            openRule
+              ? translateWithParameters('coding_rule.page', openRule.langName, openRule.name)
+              : translate('coding_rules.page')
+          }
+        >
           <meta content="noindex" name="robots" />
         </Helmet>
         <div className="layout-page" id="coding-rules-page">

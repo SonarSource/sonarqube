@@ -69,6 +69,7 @@ it('should show open rule with default description section', async () => {
   expect(
     await screen.findByRole('heading', { level: 3, name: 'Awsome java rule' })
   ).toBeInTheDocument();
+  expect(document.title).toEqual('coding_rule.page.Java.Awsome java rule');
   expect(screen.getByText('Why')).toBeInTheDocument();
   expect(screen.getByText('Because')).toBeInTheDocument();
 });
