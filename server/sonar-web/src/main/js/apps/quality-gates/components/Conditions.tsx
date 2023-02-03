@@ -177,21 +177,18 @@ export class Conditions extends React.PureComponent<Props, State> {
             </h4>
             <div className="cayc-warning-description">
               <FormattedMessage
-                id="quality_gates.cayc.banner.description"
-                defaultMessage={translate('quality_gates.cayc.banner.description')}
+                id="quality_gates.cayc.banner.description1"
+                defaultMessage={translate('quality_gates.cayc.banner.description1')}
                 values={{
                   cayc_link: (
                     <DocLink to="/user-guide/clean-as-you-code/">
                       {translate('quality_gates.cayc')}
                     </DocLink>
                   ),
-                  new_code_link: (
-                    <DocLink to="/project-administration/defining-new-code/">
-                      {translate('quality_gates.cayc.new_code')}
-                    </DocLink>
-                  ),
                 }}
               />
+              <br />
+              {translate('quality_gates.cayc.banner.description2')}
             </div>
             <ul className="big-spacer-top big-spacer-left spacer-bottom cayc-warning-description">
               <li>{translate('quality_gates.cayc.banner.list_item1')}</li>
@@ -199,6 +196,7 @@ export class Conditions extends React.PureComponent<Props, State> {
               <li>{translate('quality_gates.cayc.banner.list_item3')}</li>
               <li>{translate('quality_gates.cayc.banner.list_item4')}</li>
               <li>{translate('quality_gates.cayc.banner.list_item5')}</li>
+              <li>{translate('quality_gates.cayc.banner.list_item6')}</li>
             </ul>
           </Alert>
         )}
@@ -208,11 +206,10 @@ export class Conditions extends React.PureComponent<Props, State> {
             <h4 className="spacer-bottom cayc-over-compliant-header">
               {translate('quality_gates.cayc_over_compliant.banner.title')}
             </h4>
-            <p>{translate('quality_gates.cayc_over_compliant.banner.description1')}</p>
             <div className="cayc-warning-description spacer-top">
               <FormattedMessage
-                id="quality_gates.cayc_over_compliant.banner.description2"
-                defaultMessage={translate('quality_gates.cayc_over_compliant.banner.description2')}
+                id="quality_gates.cayc_over_compliant.banner.description"
+                defaultMessage={translate('quality_gates.cayc_over_compliant.banner.description')}
                 values={{
                   link: (
                     <DocLink to="/user-guide/clean-as-you-code/#potential-drawbacks">
