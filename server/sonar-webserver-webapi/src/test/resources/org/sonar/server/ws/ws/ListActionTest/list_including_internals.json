@@ -72,6 +72,26 @@
       "since": "4.2",
       "actions": [
         {
+          "key": "action",
+          "internal": false,
+          "post": false,
+          "hasResponseExample": false,
+          "changelog": [
+            {
+              "description": "Ten",
+              "version": "10.0"
+            },
+            {
+              "description": "Second",
+              "version": "2.0"
+            },
+            {
+              "description": "Initial",
+              "version": "1.0"
+            }
+          ]
+        },
+        {
           "key": "list",
           "since": "4.2",
           "description": "List web services",

@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.stream.MoreCollectors;
 
@@ -144,7 +145,7 @@ public class ListAction implements WebServicesWsAction {
   private static void writeChangelog(JsonWriter writer, WebService.Action action) {
     writer.name("changelog").beginArray();
     action.changelog().stream()
-      .sorted(Comparator.comparing(Change::getVersion).reversed())
+      .sorted(Comparator.comparing((Change change) -> Version.parse(change.getVersion())).reversed())
       .forEach(changelog -> {
         writer.beginObject();
         writer.prop("description", changelog.getDescription());
