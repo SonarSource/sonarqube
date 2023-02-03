@@ -20,14 +20,12 @@
 import * as React from 'react';
 import Issue from '../../../components/issue/Issue';
 import { BranchLike } from '../../../types/branch-like';
-import { Component, Issue as TypeIssue } from '../../../types/types';
+import { Issue as TypeIssue } from '../../../types/types';
 import { Query } from '../utils';
-import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 
 interface Props {
   branchLike: BranchLike | undefined;
   checked: boolean;
-  component: Component | undefined;
   issue: TypeIssue;
   onChange: (issue: TypeIssue) => void;
   onCheck: ((issueKey: string) => void) | undefined;
@@ -35,7 +33,6 @@ interface Props {
   onFilterChange: (changes: Partial<Query>) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup: string | undefined;
-  previousIssue: TypeIssue | undefined;
   selected: boolean;
 }
 
@@ -102,20 +99,10 @@ export default class ListItem extends React.PureComponent<Props> {
   };
 
   render() {
-    const { branchLike, component, issue, previousIssue } = this.props;
-
-    const displayComponent =
-      !previousIssue ||
-      previousIssue.component !== issue.component ||
-      previousIssue.branch !== issue.branch;
+    const { branchLike, issue } = this.props;
 
     return (
       <li className="issues-workspace-list-item" ref={(node) => (this.nodeRef = node)}>
-        {displayComponent && (
-          <div className="issues-workspace-list-component note">
-            <ComponentBreadcrumbs component={component} issue={this.props.issue} />
-          </div>
-        )}
         <Issue
           branchLike={branchLike}
           checked={this.props.checked}

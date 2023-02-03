@@ -25,10 +25,12 @@ import { BranchLike } from '../../../types/branch-like';
 import { RuleStatus } from '../../../types/rules';
 import { Issue } from '../../../types/types';
 import Link from '../../common/Link';
+import { ButtonPlain } from '../../controls/buttons';
 import { IssueMessageHighlighting } from '../IssueMessageHighlighting';
 import IssueMessageTags from './IssueMessageTags';
 
 export interface IssueMessageProps {
+  onClick?: () => void;
   issue: Issue;
   branchLike?: BranchLike;
   displayWhyIsThisAnIssue?: boolean;
@@ -50,9 +52,15 @@ export default function IssueMessage(props: IssueMessageProps) {
   return (
     <>
       <div className="display-inline-flex-center issue-message break-word">
-        <span className="spacer-right">
-          <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
-        </span>
+        {props.onClick ? (
+          <ButtonPlain preventDefault={true} className="spacer-right" onClick={props.onClick}>
+            <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+          </ButtonPlain>
+        ) : (
+          <span className="spacer-right">
+            <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+          </span>
+        )}
         <IssueMessageTags
           engine={externalRuleEngine}
           quickFixAvailable={quickFixAvailable}

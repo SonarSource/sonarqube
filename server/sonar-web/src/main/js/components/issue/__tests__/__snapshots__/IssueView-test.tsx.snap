@@ -40,6 +40,7 @@ exports[`should render hotspots correctly 1`] = `
         "type": "SECURITY_HOTSPOT",
       }
     }
+    onClick={[Function]}
     togglePopup={[MockFunction]}
   />
   <IssueActionsBar
@@ -137,6 +138,7 @@ exports[`should render issues correctly 1`] = `
         "type": "BUG",
       }
     }
+    onClick={[Function]}
     togglePopup={[MockFunction]}
   />
   <IssueActionsBar

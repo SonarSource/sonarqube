@@ -34,6 +34,7 @@ import SimilarIssuesFilter from './SimilarIssuesFilter';
 
 export interface IssueTitleBarProps {
   branchLike?: BranchLike;
+  onClick?: () => void;
   currentPopup?: string;
   displayWhyIsThisAnIssue?: boolean;
   displayLocationsCount?: boolean;
@@ -78,6 +79,7 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
         issue={issue}
         branchLike={props.branchLike}
         displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
+        onClick={props.onClick}
       />
       <div className="issue-row-meta">
         <div className="issue-meta-list">

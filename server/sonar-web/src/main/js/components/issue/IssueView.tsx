@@ -53,9 +53,15 @@ export default class IssueView extends React.PureComponent<Props> {
     }
   };
 
-  handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  handleBoxClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!isClickable(event.target as HTMLElement) && this.props.onClick) {
       event.preventDefault();
+      this.handleDetailClick();
+    }
+  };
+
+  handleDetailClick = () => {
+    if (this.props.onClick) {
       this.props.onClick(this.props.issue.key);
     }
   };
@@ -91,7 +97,7 @@ export default class IssueView extends React.PureComponent<Props> {
     return (
       <div
         className={issueClass}
-        onClick={this.handleClick}
+        onClick={this.handleBoxClick}
         role="region"
         aria-label={issue.message}
       >
@@ -106,6 +112,7 @@ export default class IssueView extends React.PureComponent<Props> {
         )}
         <IssueTitleBar
           branchLike={branchLike}
+          onClick={this.handleDetailClick}
           currentPopup={currentPopup}
           displayLocationsCount={displayLocationsCount}
           displayLocationsLink={displayLocationsLink}

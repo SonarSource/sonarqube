@@ -20,7 +20,6 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockIssue } from '../../../../helpers/testMocks';
 import ListItem from '../ListItem';
 
@@ -34,7 +33,6 @@ function shallowRender(props: Partial<ListItem['props']> = {}) {
     <ListItem
       branchLike={mockBranch()}
       checked={false}
-      component={mockComponent()}
       issue={mockIssue()}
       onChange={jest.fn()}
       onCheck={jest.fn()}
@@ -42,7 +40,6 @@ function shallowRender(props: Partial<ListItem['props']> = {}) {
       onFilterChange={jest.fn()}
       onPopupToggle={jest.fn()}
       openPopup={undefined}
-      previousIssue={mockIssue(false, { branch: 'branch-8.7' })}
       selected={false}
       {...props}
     />

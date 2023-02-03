@@ -58,6 +58,13 @@
   white-space: nowrap;
 }
 
+.issue-message .button-plain {
+  line-height: 18px;
+  font-size: var(--baseFontSize);
+  font-weight: 600;
+  text-align: left;
+}
+
 .issue-message {
   flex: 1;
   padding-left: var(--gridSize);
@@ -266,7 +273,6 @@
 }
 
 .issue-message-box.secondary-issue:hover,
-.issue:focus-within,
 .issue:hover {
   border: 2px dashed var(--blue);
   outline: 0;

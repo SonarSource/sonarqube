@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { groupBy } from 'lodash';
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
 import { Component, Issue } from '../../../types/types';
 import { Query } from '../utils';
+import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 import ListItem from './ListItem';
 
 interface Props {
@@ -58,8 +60,38 @@ export default class IssuesList extends React.PureComponent<Props, State> {
     }
   }
 
+  renderIssueComponentList = (issues: Issue[], index: number) => {
+    const { branchLike, checked, component, openPopup, selectedIssue } = this.props;
+    return (
+      <React.Fragment key={index}>
+        <li>
+          <div className="issues-workspace-list-component note">
+            <ComponentBreadcrumbs component={component} issue={issues[0]} />
+          </div>
+        </li>
+        <ul>
+          {issues.map((issue) => (
+            <ListItem
+              branchLike={branchLike}
+              checked={checked.includes(issue.key)}
+              issue={issue}
+              key={issue.key}
+              onChange={this.props.onIssueChange}
+              onCheck={this.props.onIssueCheck}
+              onClick={this.props.onIssueClick}
+              onFilterChange={this.props.onFilterChange}
+              onPopupToggle={this.props.onPopupToggle}
+              openPopup={openPopup && openPopup.issue === issue.key ? openPopup.name : undefined}
+              selected={selectedIssue != null && selectedIssue.key === issue.key}
+            />
+          ))}
+        </ul>
+      </React.Fragment>
+    );
+  };
+
   render() {
-    const { branchLike, checked, component, issues, openPopup, selectedIssue } = this.props;
+    const { issues } = this.props;
     const { prerender } = this.state;
 
     if (prerender) {
@@ -70,26 +102,8 @@ export default class IssuesList extends React.PureComponent<Props, State> {
       );
     }
 
-    return (
-      <ul>
-        {issues.map((issue, index) => (
-          <ListItem
-            branchLike={branchLike}
-            checked={checked.includes(issue.key)}
-            component={component}
-            issue={issue}
-            key={issue.key}
-            onChange={this.props.onIssueChange}
-            onCheck={this.props.onIssueCheck}
-            onClick={this.props.onIssueClick}
-            onFilterChange={this.props.onFilterChange}
-            onPopupToggle={this.props.onPopupToggle}
-            openPopup={openPopup && openPopup.issue === issue.key ? openPopup.name : undefined}
-            previousIssue={index > 0 ? issues[index - 1] : undefined}
-            selected={selectedIssue != null && selectedIssue.key === issue.key}
-          />
-        ))}
-      </ul>
-    );
+    const issuesByComponent = groupBy(issues, (issue) => `(${issue.component} : ${issue.branch})`);
+
+    return <ul>{Object.values(issuesByComponent).map(this.renderIssueComponentList)}</ul>;
   }
 }

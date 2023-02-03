@@ -196,23 +196,15 @@
 }
 
 .issues-workspace-list-component {
-  padding: 10px 0 6px;
+  padding: 15px 0 6px;
 }
 
 .issues-workspace-list-item + .issues-workspace-list-item {
   margin-top: 5px;
 }
 
-.issues-workspace-list-component + .issues-workspace-list-item {
-  margin-top: 10px;
-}
-
-.issues-workspace-list-item:first-child .issues-workspace-list-component {
+li:first-child .issues-workspace-list-component {
   padding-top: 0;
-}
-
-.issues-workspace-list-component + .issues-workspace-list-item {
-  margin-top: 0;
 }
 
 .issues-predefined-periods {
