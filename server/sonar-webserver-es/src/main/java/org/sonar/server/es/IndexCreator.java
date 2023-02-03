@@ -36,17 +36,14 @@ import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.api.Startable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.metadata.EsDbCompatibility;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.es.newindex.BuiltIndex;
 import org.sonar.server.es.newindex.NewIndex;
-import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static org.sonar.server.es.metadata.MetadataIndexDefinition.DESCRIPTOR;
 import static org.sonar.server.es.metadata.MetadataIndexDefinition.TYPE_METADATA;
@@ -62,20 +59,16 @@ public class IndexCreator implements Startable {
   private final MetadataIndexDefinition metadataIndexDefinition;
   private final MetadataIndex metadataIndex;
   private final EsClient client;
-  private final MigrationEsClient migrationEsClient;
   private final IndexDefinitions definitions;
   private final EsDbCompatibility esDbCompatibility;
-  private final Configuration configuration;
 
   public IndexCreator(EsClient client, IndexDefinitions definitions, MetadataIndexDefinition metadataIndexDefinition,
-    MetadataIndex metadataIndex, MigrationEsClient migrationEsClient, EsDbCompatibility esDbCompatibility, Configuration configuration) {
+    MetadataIndex metadataIndex, EsDbCompatibility esDbCompatibility) {
     this.client = client;
     this.definitions = definitions;
     this.metadataIndexDefinition = metadataIndexDefinition;
     this.metadataIndex = metadataIndex;
-    this.migrationEsClient = migrationEsClient;
     this.esDbCompatibility = esDbCompatibility;
-    this.configuration = configuration;
   }
 
   @Override
@@ -168,23 +161,11 @@ public class IndexCreator implements Startable {
   }
 
   private void updateIndex(BuiltIndex<?> index) {
-    boolean blueGreen = configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
     String indexName = index.getMainType().getIndex().getName();
 
-    if (blueGreen) {
-      // SonarCloud
-      if (migrationEsClient.getUpdatedIndices().contains(indexName)) {
-        LOGGER.info("Resetting definition hash of Elasticsearch index [{}]", indexName);
-        metadataIndex.setHash(index.getMainType().getIndex(), IndexDefinitionHash.of(index));
-      } else {
-        throw new IllegalStateException("Blue/green deployment is not supported. Elasticsearch index [" + indexName + "] changed and needs to be dropped.");
-      }
-    } else {
-      // SonarQube
-      LOGGER.info("Delete Elasticsearch index {} (structure changed)", indexName);
-      deleteIndex(indexName);
-      createIndex(index, true);
-    }
+    LOGGER.info("Delete Elasticsearch index {} (structure changed)", indexName);
+    deleteIndex(indexName);
+    createIndex(index, true);
   }
 
   private boolean hasDefinitionChange(BuiltIndex<?> index) {

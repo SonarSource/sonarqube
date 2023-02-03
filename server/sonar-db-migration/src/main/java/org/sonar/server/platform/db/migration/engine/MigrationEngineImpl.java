@@ -21,36 +21,27 @@ package org.sonar.server.platform.db.migration.engine;
 
 import java.util.List;
 import java.util.Optional;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.core.platform.SpringComponentContainer;
-import org.sonar.process.ProcessProperties;
-import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
-import static java.lang.String.format;
-
 public class MigrationEngineImpl implements MigrationEngine {
   private final MigrationHistory migrationHistory;
   private final SpringComponentContainer serverContainer;
   private final MigrationSteps migrationSteps;
-  private final Configuration configuration;
 
-  public MigrationEngineImpl(MigrationHistory migrationHistory, SpringComponentContainer serverContainer, MigrationSteps migrationSteps, Configuration configuration) {
+  public MigrationEngineImpl(MigrationHistory migrationHistory, SpringComponentContainer serverContainer, MigrationSteps migrationSteps) {
     this.migrationHistory = migrationHistory;
     this.serverContainer = serverContainer;
     this.migrationSteps = migrationSteps;
-    this.configuration = configuration;
   }
 
   @Override
   public void execute() {
     MigrationContainer migrationContainer = new MigrationContainerImpl(serverContainer, MigrationStepsExecutorImpl.class);
-    boolean blueGreen = configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
     try {
       MigrationStepsExecutor stepsExecutor = migrationContainer.getComponentByType(MigrationStepsExecutor.class);
       Optional<Long> lastMigrationNumber = migrationHistory.getLastMigrationNumber();
@@ -59,23 +50,11 @@ public class MigrationEngineImpl implements MigrationEngine {
         .map(i -> migrationSteps.readFrom(i + 1))
         .orElse(migrationSteps.readAll());
 
-      if (blueGreen) {
-        ensureSupportBlueGreen(steps);
-      }
 
       stepsExecutor.execute(steps);
 
     } finally {
       migrationContainer.cleanup();
-    }
-  }
-
-  private static void ensureSupportBlueGreen(List<RegisteredMigrationStep> steps) {
-    for (RegisteredMigrationStep step : steps) {
-      if (AnnotationUtils.getAnnotation(step.getStepClass(), SupportsBlueGreen.class) == null) {
-        throw new IllegalStateException(format("All migrations canceled. #%d does not support blue/green deployment: %s",
-          step.getMigrationNumber(), step.getDescription()));
-      }
     }
   }
 }

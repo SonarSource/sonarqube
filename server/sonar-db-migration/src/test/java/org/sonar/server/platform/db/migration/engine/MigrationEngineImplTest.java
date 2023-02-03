@@ -24,10 +24,8 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.SpringComponentContainer;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
@@ -35,10 +33,8 @@ import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,7 +46,7 @@ public class MigrationEngineImplTest {
   private final MigrationSteps migrationSteps = mock(MigrationSteps.class);
   private final StepRegistry stepRegistry = new StepRegistry();
   private final MapSettings settings = new MapSettings();
-  private final MigrationEngineImpl underTest = new MigrationEngineImpl(migrationHistory, serverContainer, migrationSteps, new ConfigurationBridge(settings));
+  private final MigrationEngineImpl underTest = new MigrationEngineImpl(migrationHistory, serverContainer, migrationSteps);
 
   @Before
   public void before() {
@@ -83,38 +79,6 @@ public class MigrationEngineImplTest {
 
     verify(migrationSteps).readFrom(51);
     assertThat(stepRegistry.stepRan).isTrue();
-  }
-
-  @Test
-  public void execute_steps_in_blue_green_mode() {
-    settings.setProperty(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey(), true);
-    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.of(50L));
-    List<RegisteredMigrationStep> steps = singletonList(new RegisteredMigrationStep(1, "doo", TestBlueGreenMigrationStep.class));
-    when(migrationSteps.readFrom(51)).thenReturn(steps);
-    when(migrationSteps.readAll()).thenReturn(steps);
-
-    underTest.execute();
-
-    verify(migrationSteps).readFrom(51);
-    assertThat(stepRegistry.stepRan).isTrue();
-  }
-
-  @Test
-  public void fail_blue_green_execution_if_some_migrations_are_not_compatible() {
-    settings.setProperty(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey(), true);
-    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.of(50L));
-    List<RegisteredMigrationStep> steps = asList(
-      new RegisteredMigrationStep(1, "foo", TestBlueGreenMigrationStep.class),
-      new RegisteredMigrationStep(2, "bar", TestMigrationStep.class));
-    when(migrationSteps.readFrom(51)).thenReturn(steps);
-
-    try {
-      underTest.execute();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("All migrations canceled. #2 does not support blue/green deployment: bar");
-      assertThat(stepRegistry.stepRan).isFalse();
-    }
   }
 
   private static class NoOpExecutor implements MigrationStepsExecutor {

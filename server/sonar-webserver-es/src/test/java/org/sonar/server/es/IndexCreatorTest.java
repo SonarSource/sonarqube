@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
@@ -42,12 +41,8 @@ import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.es.metadata.MetadataIndexImpl;
 import org.sonar.server.es.newindex.NewRegularIndex;
 import org.sonar.server.es.newindex.SettingsConfiguration;
-import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.server.es.IndexType.main;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
@@ -66,7 +61,6 @@ public class IndexCreatorTest {
   private final MetadataIndex metadataIndex = new MetadataIndexImpl(es.client());
   private final TestEsDbCompatibility esDbCompatibility = new TestEsDbCompatibility();
   private final MapSettings settings = new MapSettings();
-  private final MigrationEsClient migrationEsClient = mock(MigrationEsClient.class);
 
   @Test
   public void create_index() {
@@ -78,15 +72,6 @@ public class IndexCreatorTest {
     // of course do not delete indices on stop
     underTest.stop();
     assertThat(mappings()).isNotEmpty();
-  }
-
-  @Test
-  public void creation_of_new_index_is_supported_in_blue_green_deployment() {
-    enableBlueGreenDeployment();
-
-    run(new FakeIndexDefinition());
-
-    verifyFakeIndexV1();
   }
 
   @Test
@@ -110,34 +95,6 @@ public class IndexCreatorTest {
     assertThat(field(mapping, "newField")).containsEntry("type", "integer");
 
     assertThat(es.client().get(new GetRequest(fakeIndexType.getIndex().getName()).id(id)).isExists()).isFalse();
-  }
-
-  @Test
-  public void fail_to_recreate_index_on_definition_changes_if_blue_green_deployment() {
-    enableBlueGreenDeployment();
-
-    // v1
-    run(new FakeIndexDefinition());
-
-    // v2
-    FakeIndexDefinitionV2 definitionV2 = new FakeIndexDefinitionV2();
-    assertThatThrownBy(() -> run(definitionV2))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Blue/green deployment is not supported. Elasticsearch index [fakes] changed and needs to be dropped.");
-  }
-
-  @Test
-  public void reset_definition_hash_if_change_applied_during_migration_of_blue_green_deployment() {
-    enableBlueGreenDeployment();
-
-    // v1
-    run(new FakeIndexDefinition());
-
-    // v2
-    when(migrationEsClient.getUpdatedIndices()).thenReturn(Sets.newHashSet(FakeIndexDefinition.INDEX_TYPE.getIndex().getName()));
-    run(new FakeIndexDefinitionV2());
-    // index has not been dropped-and-recreated
-    verifyFakeIndexV1();
   }
 
   @Test
@@ -218,10 +175,6 @@ public class IndexCreatorTest {
     es.client().putSettings(new UpdateSettingsRequest().indices(mainType.getIndex().getName()).settings(builder.build()));
   }
 
-  private void enableBlueGreenDeployment() {
-    settings.setProperty("sonar.blueGreenEnabled", "true");
-  }
-
   private void testDeleteOnDbChange(String expectedLog, Consumer<TestEsDbCompatibility> afterFirstStart) {
     run(new FakeIndexDefinition());
     assertThat(logTester.logs(LoggerLevel.INFO))
@@ -262,7 +215,7 @@ public class IndexCreatorTest {
   private IndexCreator run(IndexDefinition... definitions) {
     IndexDefinitions defs = new IndexDefinitions(definitions, new MapSettings().asConfig());
     defs.start();
-    IndexCreator creator = new IndexCreator(es.client(), defs, metadataIndexDefinition, metadataIndex, migrationEsClient, esDbCompatibility, settings.asConfig());
+    IndexCreator creator = new IndexCreator(es.client(), defs, metadataIndexDefinition, metadataIndex, esDbCompatibility);
     creator.start();
     return creator;
   }

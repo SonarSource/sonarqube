@@ -70,16 +70,6 @@ public class CeQueueCleanerTest {
   }
 
   @Test
-  public void start_does_not_clear_queue_if_version_upgrade_but_blue_green_deployment() {
-    when(serverUpgradeStatus.isUpgraded()).thenReturn(true);
-    settings.setProperty(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey(), true);
-
-    runCleaner();
-
-    verify(queue, never()).clear();
-  }
-
-  @Test
   public void start_deletes_orphan_report_files() {
     // analysis reports are persisted but the associated
     // task is not in the queue
@@ -114,7 +104,7 @@ public class CeQueueCleanerTest {
   }
 
   private void runCleaner() {
-    CeQueueCleaner cleaner = new CeQueueCleaner(dbTester.getDbClient(), serverUpgradeStatus, queue, settings.asConfig());
+    CeQueueCleaner cleaner = new CeQueueCleaner(dbTester.getDbClient(), serverUpgradeStatus, queue);
     cleaner.start();
   }
 }

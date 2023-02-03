@@ -22,10 +22,7 @@ package org.sonar.db;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import javax.sql.DataSource;
 import org.apache.commons.io.output.NullWriter;
 import org.apache.ibatis.io.Resources;
@@ -45,7 +42,6 @@ import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.engine.MigrationContainer;
 import org.sonar.server.platform.db.migration.engine.MigrationContainerImpl;
-import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationStepExecutionException;
@@ -153,7 +149,6 @@ public class SQDatabase extends DefaultDatabase {
     container.add(UuidFactoryFast.getInstance());
     container.add(System2.INSTANCE);
     container.add(MapSettings.class);
-    container.add(createMockMigrationEsClient());
 
     container.startComponents();
     MigrationContainer migrationContainer = new MigrationContainerImpl(container, H2StepExecutor.class);
@@ -161,25 +156,6 @@ public class SQDatabase extends DefaultDatabase {
     MigrationStepsExecutor executor = migrationContainer.getComponentByType(MigrationStepsExecutor.class);
 
     executor.execute(migrationSteps.readAll());
-  }
-
-  private static MigrationEsClient createMockMigrationEsClient() {
-    return new MigrationEsClient() {
-      @Override
-      public void deleteIndexes(String name, String... otherNames) {
-        //No ES operation required for database tests
-      }
-
-      @Override
-      public void addMappingToExistingIndex(String index, String type, String mappingName, String mappingType, Map<String, String> options) {
-        //No ES operation required for database tests
-      }
-
-      @Override
-      public Set<String> getUpdatedIndices() {
-        return Collections.emptySet();
-      }
-    };
   }
 
   private void createMigrationHistoryTable(NoopDatabase noopDatabase) {

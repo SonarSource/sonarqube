@@ -78,19 +78,6 @@ public class DefaultServerUpgradeStatusTest {
   }
 
   @Test
-  public void isBlueGreen() {
-    settings.clear();
-    assertThat(underTest.isBlueGreen()).isFalse();
-
-    settings.setProperty("sonar.blueGreenEnabled", true);
-    assertThat(underTest.isBlueGreen()).isTrue();
-
-    settings.setProperty("sonar.blueGreenEnabled", false);
-    assertThat(underTest.isBlueGreen()).isFalse();
-  }
-
-
-  @Test
   public void isAutoDbUpgrade() {
     settings.clear();
     assertThat(underTest.isAutoDbUpgrade()).isFalse();

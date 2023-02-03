@@ -70,10 +70,6 @@ public class DefaultServerUpgradeStatus implements ServerUpgradeStatus, Startabl
     return (int) initialDbVersion;
   }
 
-  public boolean isBlueGreen() {
-    return configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
-  }
-
   public boolean isAutoDbUpgrade() {
     return configuration.getBoolean(ProcessProperties.Property.AUTO_DATABASE_UPGRADE.getKey()).orElse(false);
   }

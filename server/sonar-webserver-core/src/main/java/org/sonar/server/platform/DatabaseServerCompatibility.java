@@ -21,11 +21,9 @@ package org.sonar.server.platform;
 
 import java.util.Optional;
 import org.sonar.api.Startable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
@@ -35,11 +33,9 @@ public class DatabaseServerCompatibility implements Startable {
   private static final String HIGHLIGHTER = "################################################################################";
 
   private final DatabaseVersion version;
-  private final Configuration configuration;
 
-  public DatabaseServerCompatibility(DatabaseVersion version, Configuration configuration) {
+  public DatabaseServerCompatibility(DatabaseVersion version) {
     this.version = version;
-    this.configuration = configuration;
   }
 
   @Override
@@ -54,16 +50,14 @@ public class DatabaseServerCompatibility implements Startable {
       if (currentVersion.isPresent() && currentVersion.get() < DatabaseVersion.MIN_UPGRADE_VERSION) {
         throw MessageException.of("The version of SonarQube is too old. Please upgrade to the Long Term Support version first.");
       }
-      boolean blueGreen = configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
-      if (!blueGreen) {
-        String msg = "The database must be manually upgraded. Please backup the database and browse /setup. "
-          + "For more information: https://docs.sonarqube.org/latest/setup/upgrading";
-        Loggers.get(DatabaseServerCompatibility.class).warn(msg);
-        Logger logger = Loggers.get(STARTUP_LOGGER_NAME);
-        logger.warn(HIGHLIGHTER);
-        logger.warn(msg);
-        logger.warn(HIGHLIGHTER);
-      }
+
+      String msg = "The database must be manually upgraded. Please backup the database and browse /setup. "
+        + "For more information: https://docs.sonarqube.org/latest/setup/upgrading";
+      Loggers.get(DatabaseServerCompatibility.class).warn(msg);
+      Logger logger = Loggers.get(STARTUP_LOGGER_NAME);
+      logger.warn(HIGHLIGHTER);
+      logger.warn(msg);
+      logger.warn(HIGHLIGHTER);
     }
   }
 

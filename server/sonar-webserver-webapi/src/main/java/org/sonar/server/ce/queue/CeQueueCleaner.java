@@ -29,7 +29,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.process.ProcessProperties;
 
 /**
  * Cleans-up the Compute Engine queue.
@@ -42,25 +41,19 @@ public class CeQueueCleaner implements Startable {
   private final DbClient dbClient;
   private final ServerUpgradeStatus serverUpgradeStatus;
   private final CeQueue queue;
-  private final Configuration configuration;
 
-  public CeQueueCleaner(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, CeQueue queue, Configuration configuration) {
+  public CeQueueCleaner(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, CeQueue queue) {
     this.dbClient = dbClient;
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.queue = queue;
-    this.configuration = configuration;
   }
 
   @Override
   public void start() {
-    if (serverUpgradeStatus.isUpgraded() && !isBlueGreenDeployment()) {
+    if (serverUpgradeStatus.isUpgraded()) {
       cleanOnUpgrade();
     }
     cleanUpTaskInputOrphans();
-  }
-
-  private boolean isBlueGreenDeployment() {
-    return configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
   }
 
   private void cleanOnUpgrade() {

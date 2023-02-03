@@ -89,30 +89,6 @@ public class AutoDbMigrationTest {
   }
 
   @Test
-  public void start_runs_MigrationEngine_if_blue_green_upgrade() {
-    mockFreshInstall(false);
-    when(serverUpgradeStatus.isUpgraded()).thenReturn(true);
-    when(serverUpgradeStatus.isBlueGreen()).thenReturn(true);
-
-    underTest.start();
-
-    verify(migrationEngine).execute();
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Automatically perform DB migration on blue/green deployment");
-  }
-
-  @Test
-  public void start_does_nothing_if_blue_green_but_no_upgrade() {
-    mockFreshInstall(false);
-    when(serverUpgradeStatus.isUpgraded()).thenReturn(false);
-    when(serverUpgradeStatus.isBlueGreen()).thenReturn(true);
-
-    underTest.start();
-
-    verifyNoInteractions(migrationEngine);
-    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
-  }
-
-  @Test
   public void start_runs_MigrationEngine_if_autoDbMigration_enabled() {
     mockFreshInstall(false);
     when(serverUpgradeStatus.isUpgraded()).thenReturn(true);
