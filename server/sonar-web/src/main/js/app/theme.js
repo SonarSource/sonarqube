@@ -204,6 +204,7 @@ module.exports = {
     smallFontSize: '12px',
     mediumFontSize: '14px',
     bigFontSize: '16px',
+    veryBigFontSize: '18px',
     hugeFontSize: '24px',
     giganticFontSize: '36px',
 

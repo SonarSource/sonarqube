@@ -82,6 +82,10 @@
   margin-top: 0;
 }
 
+.coding-rules-detail-header {
+  font-size: var(--veryBigFontSize);
+}
+
 .coding-rules-detail-properties {
   display: flex;
   flex-wrap: wrap;

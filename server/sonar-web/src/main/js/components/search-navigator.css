@@ -257,6 +257,10 @@ button.search-navigator-facet:focus,
   align-items: center;
 }
 
+.search-navigator-facet-header-wrapper:not(.expandable-header) .search-navigator-facet-header {
+  padding-left: 21px;
+}
+
 .search-navigator-facet-list {
   padding-bottom: var(--gridSize);
   font-size: 0;

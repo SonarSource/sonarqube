@@ -52,7 +52,7 @@ it('should select rules with keyboard navigation', async () => {
   listitem = await screen.findByRole('listitem', { current: true });
   expect(within(listitem).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
   await user.keyboard('{ArrowRight}');
-  expect(screen.getByRole('heading', { level: 3, name: 'Awsome java rule' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: 'Awsome java rule' })).toBeInTheDocument();
   await user.keyboard('{ArrowLeft}');
   listitem = await screen.findByRole('listitem', { current: true });
   expect(within(listitem).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
@@ -67,7 +67,7 @@ it('should open with permalink', async () => {
 it('should show open rule with default description section', async () => {
   renderCodingRulesApp(undefined, 'coding_rules?open=rule1');
   expect(
-    await screen.findByRole('heading', { level: 3, name: 'Awsome java rule' })
+    await screen.findByRole('heading', { level: 1, name: 'Awsome java rule' })
   ).toBeInTheDocument();
   expect(document.title).toEqual('coding_rule.page.Java.Awsome java rule');
   expect(screen.getByText('Why')).toBeInTheDocument();
@@ -77,7 +77,7 @@ it('should show open rule with default description section', async () => {
 it('should show open rule with no description', async () => {
   renderCodingRulesApp(undefined, 'coding_rules?open=rule6');
   expect(
-    await screen.findByRole('heading', { level: 3, name: 'Bad Python rule' })
+    await screen.findByRole('heading', { level: 1, name: 'Bad Python rule' })
   ).toBeInTheDocument();
   expect(screen.getByText('issue.external_issue_description.Bad Python rule')).toBeInTheDocument();
 });
@@ -85,7 +85,7 @@ it('should show open rule with no description', async () => {
 it('should show hotspot rule section', async () => {
   const user = userEvent.setup();
   renderCodingRulesApp(undefined, 'coding_rules?open=rule2');
-  expect(await screen.findByRole('heading', { level: 3, name: 'Hot hotspot' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { level: 1, name: 'Hot hotspot' })).toBeInTheDocument();
   expect(screen.getByText('Introduction to this rule')).toBeInTheDocument();
   expect(
     screen.getByRole('tab', {
@@ -115,7 +115,7 @@ it('should show rule advanced section', async () => {
   const user = userEvent.setup();
   renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
   expect(
-    await screen.findByRole('heading', { level: 3, name: 'Awsome Python rule' })
+    await screen.findByRole('heading', { level: 1, name: 'Awsome Python rule' })
   ).toBeInTheDocument();
   expect(screen.getByText('Introduction to this rule')).toBeInTheDocument();
   expect(
@@ -141,7 +141,7 @@ it('should show rule advanced section with context', async () => {
   const user = userEvent.setup();
   renderCodingRulesApp(undefined, 'coding_rules?open=rule7');
   expect(
-    await screen.findByRole('heading', { level: 3, name: 'Python rule with context' })
+    await screen.findByRole('heading', { level: 1, name: 'Python rule with context' })
   ).toBeInTheDocument();
   expect(
     screen.getByRole('tab', {
@@ -189,7 +189,7 @@ it('should be able to extend the rule description', async () => {
   handler.setIsAdmin();
   renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
   expect(
-    await screen.findByRole('heading', { level: 3, name: 'Awsome Python rule' })
+    await screen.findByRole('heading', { level: 1, name: 'Awsome Python rule' })
   ).toBeInTheDocument();
 
   // Add
@@ -381,7 +381,7 @@ it('should show notification for rule advanced section and remove it after user 
   const user = userEvent.setup();
   renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
   await screen.findByRole('heading', {
-    level: 3,
+    level: 1,
     name: 'Awesome Python rule with education principles',
   });
   expect(
@@ -426,7 +426,7 @@ it('should show notification for rule advanced section and removes it when user 
   renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
 
   await screen.findByRole('heading', {
-    level: 3,
+    level: 1,
     name: 'Awesome Python rule with education principles',
   });
   expect(

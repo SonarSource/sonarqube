@@ -244,9 +244,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
               <SimilarRulesFilter onFilterChange={this.props.onFilterChange} rule={ruleDetails} />
             )}
           </div>
-          <h3 className="page-title coding-rules-detail-header">
-            <big>{ruleDetails.name}</big>
-          </h3>
+          <h1 className="page-title coding-rules-detail-header">{ruleDetails.name}</h1>
         </div>
 
         {hasTypeData && (

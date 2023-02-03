@@ -46,13 +46,11 @@ exports[`should display right meta info 1`] = `
         }
       />
     </div>
-    <h3
+    <h1
       className="page-title coding-rules-detail-header"
     >
-      <big>
-        Deprecated code should be removed
-      </big>
-    </h3>
+      Deprecated code should be removed
+    </h1>
   </div>
   <ul
     className="coding-rules-detail-properties"
@@ -145,13 +143,11 @@ exports[`should display right meta info 2`] = `
         xoo:OneExternalIssuePerLine
       </span>
     </div>
-    <h3
+    <h1
       className="page-title coding-rules-detail-header"
     >
-      <big>
-        xoo:OneExternalIssuePerLine
-      </big>
-    </h3>
+      xoo:OneExternalIssuePerLine
+    </h1>
   </div>
 </div>
 `;
@@ -172,13 +168,11 @@ exports[`should display right meta info 3`] = `
         xoo:OneExternalIssueWithDetailsPerLine
       </span>
     </div>
-    <h3
+    <h1
       className="page-title coding-rules-detail-header"
     >
-      <big>
-        One external issue per line
-      </big>
-    </h3>
+      One external issue per line
+    </h1>
   </div>
   <ul
     className="coding-rules-detail-properties"

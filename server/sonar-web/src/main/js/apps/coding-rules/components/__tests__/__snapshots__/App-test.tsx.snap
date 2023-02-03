@@ -101,7 +101,8 @@ exports[`renderBulkButton should show bulk change button when user has global ad
 `;
 
 exports[`should render correctly: loaded (ScreenPositionHelper) 1`] = `
-<div
+<section
+  aria-label="filters"
   className="layout-page-side"
   style={
     {
@@ -177,7 +178,7 @@ exports[`should render correctly: loaded (ScreenPositionHelper) 1`] = `
       />
     </div>
   </div>
-</div>
+</section>
 `;
 
 exports[`should render correctly: loaded 1`] = `
@@ -267,6 +268,11 @@ exports[`should render correctly: loaded 1`] = `
       <div
         className="layout-page-main-inner"
       >
+        <h2
+          className="a11y-hidden"
+        >
+          list_of_rules
+        </h2>
         <ul>
           <RuleListItem
             isLoggedIn={true}
@@ -387,6 +393,11 @@ exports[`should render correctly: loading 1`] = `
       <div
         className="layout-page-main-inner"
       >
+        <h2
+          className="a11y-hidden"
+        >
+          list_of_rules
+        </h2>
         <ul />
       </div>
     </main>

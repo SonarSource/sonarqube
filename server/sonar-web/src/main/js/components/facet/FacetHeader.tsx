@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { Button, ButtonLink } from '../../components/controls/buttons';
 import HelpTooltip from '../../components/controls/HelpTooltip';
@@ -85,7 +86,11 @@ export default class FacetHeader extends React.PureComponent<Props> {
       name
     );
     return (
-      <div className="search-navigator-facet-header-wrapper display-flex-center">
+      <div
+        className={classNames('search-navigator-facet-header-wrapper display-flex-center', {
+          'expandable-header': this.props.onClick,
+        })}
+      >
         {this.props.onClick ? (
           <span className="search-navigator-facet-header display-flex-center">
             <button
