@@ -37,6 +37,7 @@ exports[`should render correctly 1`] = `
         JavaScript
         , 
         <ForwardRef(Link)
+          aria-label="quality_profile.lang_deprecated_x_rules.JavaScript.4"
           className="link-no-underline"
           to={
             {
@@ -83,6 +84,7 @@ exports[`should render correctly 1`] = `
         JavaScript
         , 
         <ForwardRef(Link)
+          aria-label="quality_profile.lang_deprecated_x_rules.JavaScript.3"
           className="link-no-underline"
           to={
             {
@@ -122,6 +124,7 @@ exports[`should render correctly 1`] = `
         JavaScript
         , 
         <ForwardRef(Link)
+          aria-label="quality_profile.lang_deprecated_x_rules.JavaScript.2"
           className="link-no-underline"
           to={
             {
@@ -154,6 +157,7 @@ exports[`should render correctly 1`] = `
         JavaScript
         , 
         <ForwardRef(Link)
+          aria-label="quality_profile.lang_deprecated_x_rules.JavaScript.2"
           className="link-no-underline"
           to={
             {
