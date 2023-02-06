@@ -81,7 +81,7 @@ public class EsSettings {
     this.clusterName = props.nonNullValue(CLUSTER_NAME.getKey());
     this.clusterEnabled = props.valueAsBoolean(CLUSTER_ENABLED.getKey());
     if (this.clusterEnabled) {
-      this.nodeName = props.value(CLUSTER_NODE_NAME.getKey(), "sonarqube-" + UUID.randomUUID().toString());
+      this.nodeName = props.value(CLUSTER_NODE_NAME.getKey(), "sonarqube-" + UUID.randomUUID());
     } else {
       this.nodeName = STANDALONE_NODE_NAME;
     }
@@ -123,6 +123,9 @@ public class EsSettings {
       builder.put("xpack.security.transport.ssl.verification_mode", "certificate");
       builder.put("xpack.security.transport.ssl.keystore.path", clusterESKeystoreFileName);
       builder.put("xpack.security.transport.ssl.truststore.path", clusterESTruststoreFileName);
+    } else {
+      builder.put("xpack.security.autoconfiguration.enabled", Boolean.FALSE.toString());
+      builder.put("xpack.security.enabled", Boolean.FALSE.toString());
     }
   }
 
@@ -151,8 +154,7 @@ public class EsSettings {
       int searchPort = Integer.parseInt(props.nonNullValue(SEARCH_PORT.getKey()));
       builder.put(ES_HTTP_HOST_KEY, searchHost.getHostAddress());
       builder.put(ES_HTTP_PORT_KEY, valueOf(searchPort));
-      builder.put("discovery.seed_hosts", searchHost.getHostAddress());
-      builder.put("cluster.initial_master_nodes", searchHost.getHostAddress());
+      builder.put("discovery.type", "single-node");
 
       int transportPort = Integer.parseInt(props.nonNullValue(ES_PORT.getKey()));
 
@@ -225,22 +227,20 @@ public class EsSettings {
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
     builder.put("node.attr.rack_id", nodeName);
     builder.put("node.name", nodeName);
-    builder.put("node.data", valueOf(true));
-    builder.put("node.master", valueOf(true));
   }
 
   private void configureOthers(Map<String, String> builder) {
     builder.put("action.auto_create_index", String.valueOf(false));
-    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-D" + SECCOMP_PROPERTY + "=false")) {
-      builder.put(SECCOMP_PROPERTY, "false");
+    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-D" + SECCOMP_PROPERTY + "=" + Boolean.FALSE)) {
+      builder.put(SECCOMP_PROPERTY, Boolean.FALSE.toString());
     }
 
-    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-Dnode.store.allow_mmapfs=false")) {
+    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-Dnode.store.allow_mmapfs=" + Boolean.FALSE)) {
       throw new MessageException("Property 'node.store.allow_mmapfs' is no longer supported. Use 'node.store.allow_mmap' instead.");
     }
 
-    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-D" + ALLOW_MMAP + "=false")) {
-      builder.put(ALLOW_MMAP, "false");
+    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-D" + ALLOW_MMAP + "=" + Boolean.FALSE)) {
+      builder.put(ALLOW_MMAP, Boolean.FALSE.toString());
     }
   }
 }

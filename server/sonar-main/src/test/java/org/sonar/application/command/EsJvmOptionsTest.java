@@ -75,7 +75,8 @@ public class EsJvmOptionsTest {
         "-Dlog4j2.formatMsgNoLookups=true",
         "-Djava.locale.providers=COMPAT",
         "-Dcom.redhat.fips=false",
-        "-Des.enforce.bootstrap.checks=true");
+        "-Des.enforce.bootstrap.checks=true",
+        "-Xlog:disable");
   }
 
   @Test
@@ -193,6 +194,7 @@ public class EsJvmOptionsTest {
         "-XX:+UseG1GC\n" +
         "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath() + "\n" +
         "-XX:ErrorFile=" + Paths.get("path_to_logs/es_hs_err_pid%p.log").toAbsolutePath() + "\n" +
+        "-Xlog:disable\n" +
         "-Des.networkaddress.cache.ttl=60\n" +
         "-Des.networkaddress.cache.negative.ttl=10\n" +
         "-XX:+AlwaysPreTouch\n" +

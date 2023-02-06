@@ -91,23 +91,31 @@ task verifySonarProperties(type: Verify) {
   }
 }
 
+def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
+def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+
 task verifyElasticSearchDownload(type: Verify) {
-  src new File(buildDir, "$elasticsearchDownloadUrlFile")
-  algorithm 'SHA-512'
-  checksum elasticsearchDownloadSha512
+  if (artifactoryUsername && artifactoryPassword) {
+    src new File(buildDir, "$elasticsearchDownloadUrlFileNoJdk")
+    algorithm 'SHA-512'
+    checksum elasticsearchDownloadSha512NoJdk
+  } else {
+    src new File(buildDir, "$elasticsearchDownloadUrlFileJdk")
+    algorithm 'SHA-512'
+    checksum elasticsearchDownloadSha512Jdk
+  }
 }
 
 task downloadElasticSearch(type: Download) {
-  def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
-  def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
   if (artifactoryUsername && artifactoryPassword) {
-    src "$elasticsearchDownloadRepoxUrlPath$elasticsearchDownloadUrlFile"
+    src "$elasticsearchDownloadRepoxUrlPath$elasticsearchDownloadUrlFileNoJdk"
     username artifactoryUsername
     password artifactoryPassword
+    dest "$buildDir/$elasticsearchDownloadUrlFileNoJdk"
   } else {
-    src "$elasticsearchDownloadUrlPath$elasticsearchDownloadUrlFile"
+    src "$elasticsearchDownloadUrlPath$elasticsearchDownloadUrlFileJdk"
+    dest "$buildDir/$elasticsearchDownloadUrlFileJdk"
   }
-  dest "$buildDir/$elasticsearchDownloadUrlFile"
   onlyIfModified true
   finalizedBy verifyElasticSearchDownload
 }
@@ -148,7 +156,6 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
       exclude 'conf/sonar.properties'
       exclude 'bin/windows-x86-64/lib/SonarServiceWrapperTemplate.xml'
       exclude 'bin/windows-x86-64/StartSonar.bat'
-      exclude 'elasticsearch-patch'
       exclude 'bin/linux-x86-64/sonar.sh'
       exclude 'bin/macosx-universal-64/sonar.sh'
     }
@@ -161,36 +168,16 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
       fcd.relativePath = new RelativePath(true, *path)
     }
     into("${archiveDir}/elasticsearch")
-    filesMatching('**/bin/elasticsearch-env') {
-      // to avoid warning logs
-      filter { line -> line.replaceAll('echo "warning: no-jdk distributions.*', ':') }
-    }
-    // elasticsearch script will be replaced by patched version below
-    exclude '**/bin/elasticsearch'
-    exclude '**/bin/elasticsearch-certgen'
-    exclude '**/bin/elasticsearch-certutil'
-    exclude '**/bin/elasticsearch-cli'
-    exclude '**/bin/elasticsearch-croneval'
-    exclude '**/bin/elasticsearch-geoip'
-    exclude '**/bin/elasticsearch-keystore'
-    exclude '**/bin/elasticsearch-migrate'
-    exclude '**/bin/elasticsearch-node'
-    exclude '**/bin/elasticsearch-plugin'
-    exclude '**/bin/elasticsearch-saml-metadata'
-    exclude '**/bin/elasticsearch-service-tokens'
-    exclude '**/bin/elasticsearch-setup-passwords'
-    exclude '**/bin/elasticsearch-shard'
-    exclude '**/bin/elasticsearch-sql-cli*'
-    exclude '**/bin/elasticsearch-syskeygen'
-    exclude '**/bin/elasticsearch-users'
-    exclude '**/bin/x-pack-env'
-    exclude '**/bin/x-pack-security-env'
-    exclude '**/bin/x-pack-watcher-env'
+    exclude '**/bin/**'
     exclude '**/jdk/**'
-    exclude '**/lib/tools/**'
+    exclude '**/lib/tools/plugin-cli'
+    exclude '**/lib/tools/geoip-cli'
+    exclude '**/lib/tools/ansi-console'
     exclude '**/modules/aggs-matrix-stats/**'
     exclude '**/modules/constant-keyword/**'
+    exclude '**/modules/data-streams/**'
     exclude '**/modules/frozen-indices/**'
+    exclude '**/modules/ingest-attachment/**'
     exclude '**/modules/ingest-common/**'
     exclude '**/modules/ingest-geoip/**'
     exclude '**/modules/ingest-user-agent/**'
@@ -203,11 +190,15 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
     exclude '**/modules/percolator/**'
     exclude '**/modules/rank-eval/**'
     exclude '**/modules/repositories-metering-api/**'
+    exclude '**/modules/repository-azure/**'
     exclude '**/modules/repository-encrypted/**'
+    exclude '**/modules/repository-gcs/**'
+    exclude '**/modules/repository-s3/**'
     exclude '**/modules/repository-url/**'
     exclude '**/modules/runtime-fields-common/**'
     exclude '**/modules/search-business-rules/**'
     exclude '**/modules/searchable-snapshots/**'
+    exclude '**/modules/snapshot-based-recoveries/**'
     exclude '**/modules/snapshot-repo-test-kit/**'
     exclude '**/modules/spatial/**'
     exclude '**/modules/transform/**'
@@ -215,7 +206,31 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
     exclude '**/modules/vector-tile/**'
     exclude '**/modules/vectors/**'
     exclude '**/modules/wildcard/**'
-    exclude '**/modules/x-pack-*/**'
+    exclude '**/modules/x-pack-aggregate-metric'
+    exclude '**/modules/x-pack-analytics/**'
+    exclude '**/modules/x-pack-async/**'
+    exclude '**/modules/x-pack-async-search/**'
+    exclude '**/modules/x-pack-autoscaling/**'
+    exclude '**/modules/x-pack-ccr/**'
+    exclude '**/modules/x-pack-deprecation/**'
+    exclude '**/modules/x-pack-enrich/**'
+    exclude '**/modules/x-pack-eql/**'
+    exclude '**/modules/x-pack-fleet/**'
+    exclude '**/modules/x-pack-graph/**'
+    exclude '**/modules/x-pack-identity-provider/**'
+    exclude '**/modules/x-pack-ilm/**'
+    exclude '**/modules/x-pack-logstash/**'
+    exclude '**/modules/x-pack-monitoring/**'
+    exclude '**/modules/x-pack-ql/**'
+    exclude '**/modules/x-pack-rollup/**'
+    exclude '**/modules/x-pack-ml/**'
+    exclude '**/modules/x-pack-shutdown/**'
+    exclude '**/modules/x-pack-sql/**'
+    exclude '**/modules/x-pack-stack/**'
+    exclude '**/modules/x-pack-text-structure/**'
+    exclude '**/modules/x-pack-voting-only-node/**'
+    exclude '**/modules/x-pack-watcher/**'
+    exclude '**/modules/x-pack-write-load-forecaster/**'
     includeEmptyDirs = false
   }
 
@@ -257,11 +272,6 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElastic
     filter(ReplaceTokens, tokens: [
             'sqversion': version
     ])
-  }
-
-  into("${archiveDir}/elasticsearch/") {
-    from file('src/main/assembly/elasticsearch-patch')
-      include 'bin/elasticsearch'
   }
   // Create the empty dir (plugins) required by elasticsearch
   into("${archiveDir}/elasticsearch/") {
@@ -311,8 +321,8 @@ zip.doFirst {
 }
 // Check the size of the archive
 zip.doLast {
-  def minLength = 272000000
-  def maxLength = 297000000
+  def minLength = 320000000
+  def maxLength = 345000000
 
   def length = archiveFile.get().asFile.length()
   if (length < minLength)

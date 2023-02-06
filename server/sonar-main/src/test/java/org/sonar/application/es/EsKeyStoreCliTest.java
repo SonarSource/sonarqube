@@ -63,21 +63,22 @@ public class EsKeyStoreCliTest {
 
     JavaCommand<?> executedCommand = process.getExecutedCommand();
 
-    String expectedHomeLibPath = Paths.get(homeDir.toString(), "lib") + "/*";
-    String expectedHomeKeystorePath = Paths.get(homeDir.toString(), "lib", "tools", "keystore-cli") + "/*";
+    String expectedHomeLibPath = Paths.get(homeDir.toString(), "lib", "*").toString();
+    String expectedHomeKeystorePath = Paths.get(homeDir.toString(), "lib", "cli-launcher", "*").toString();
 
-    assertThat(executedCommand.getClassName()).isEqualTo("org.elasticsearch.common.settings.KeyStoreCli");
+    assertThat(executedCommand.getClassName()).isEqualTo("org.elasticsearch.launcher.CliToolLauncher");
     assertThat(executedCommand.getClasspath())
       .containsExactly(expectedHomeLibPath, expectedHomeKeystorePath);
     assertThat(executedCommand.getParameters()).containsExactly("add", "-x", "-f", "test.property1", "test.property2", "test.property3");
     assertThat(executedCommand.getJvmOptions().getAll()).containsExactly(
-      "-Xshare:auto",
       "-Xms4m",
       "-Xmx64m",
+      "-XX:+UseSerialGC",
+      "-Dcli.name=",
+      "-Dcli.script=bin/elasticsearch-keystore",
+      "-Dcli.libs=lib/tools/keystore-cli",
       "-Des.path.home=" + homeDir.toPath(),
-      "-Des.path.conf=" + confDir.toPath(),
-      "-Des.distribution=default",
-      "-Des.distribution.type=tar");
+      "-Des.path.conf=" + confDir.toPath());
 
     verify(process.getOutputStream()).write(argThat(new ArrayContainsMatcher("value1\nvalue2\nvalue3\n")), eq(0), eq(21));
     verify(process.getOutputStream(), atLeastOnce()).flush();

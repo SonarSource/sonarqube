@@ -74,8 +74,8 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     // res.put("-XX:HeapDumpPath", "data");
     // specify an alternative path for JVM fatal error logs (ES 6.6.1 default is "logs/hs_err_pid%p.log")
     var path = Paths.get(props.value("sonar.path.logs", "logs"), "es_hs_err_pid%p.log");
-    res.put("-XX:ErrorFile=",  path.toAbsolutePath().toString());
-
+    res.put("-XX:ErrorFile=", path.toAbsolutePath().toString());
+    res.put("-Xlog:disable", "");
   }
 
   /**

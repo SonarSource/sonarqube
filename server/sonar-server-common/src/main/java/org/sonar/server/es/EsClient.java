@@ -266,11 +266,11 @@ public class EsClient implements Closeable {
     private static final int SOCKET_TIMEOUT = 60000;
 
     public MinimalRestHighLevelClient(@Nullable String searchPassword, HttpHost... hosts) {
-      super(buildHttpClient(searchPassword, hosts));
+      super(buildHttpClient(searchPassword, hosts).build(), RestClient::close, Lists.newArrayList(), true);
     }
 
     MinimalRestHighLevelClient(RestClient restClient) {
-      super(restClient, RestClient::close, Lists.newArrayList());
+      super(restClient, RestClient::close, Lists.newArrayList(), true);
     }
 
     @NotNull

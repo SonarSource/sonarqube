@@ -67,7 +67,7 @@ public abstract class FieldAware<U extends FieldAware<U>> {
   public U createDateTimeField(String fieldName) {
     Map<String, String> hash = new TreeMap<>();
     hash.put("type", "date");
-    hash.put("format", "date_time||epoch_second");
+    hash.put("format", "date_time||epoch_millis");
     return setField(fieldName, hash);
   }
 

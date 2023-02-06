@@ -43,7 +43,6 @@ import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.CommandFactory;
-import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.TestAppSettings;
@@ -75,7 +74,7 @@ public class SchedulerImplTest {
 
   private Level initialLevel;
 
-  private EsScriptCommand esScriptCommand;
+  private JavaCommand esCommand;
   private JavaCommand webLeaderCommand;
   private JavaCommand webFollowerCommand;
   private JavaCommand ceCommand;
@@ -91,7 +90,7 @@ public class SchedulerImplTest {
   @Before
   public void setUp() throws Exception {
     File tempDir = temporaryFolder.newFolder();
-    esScriptCommand = new EsScriptCommand(ELASTICSEARCH, tempDir);
+    esCommand = new JavaCommand(ELASTICSEARCH, tempDir);
     webLeaderCommand = new JavaCommand(WEB_SERVER, tempDir);
     webFollowerCommand = new JavaCommand(WEB_SERVER, tempDir);
     ceCommand = new JavaCommand(COMPUTE_ENGINE, tempDir);
@@ -348,7 +347,7 @@ public class SchedulerImplTest {
     TestManagedProcess es = processLauncher.waitForProcess(ELASTICSEARCH);
     assertThat(es.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(1);
-    assertThat(processLauncher.commands).containsExactly(esScriptCommand);
+    assertThat(processLauncher.commands).containsExactly(esCommand);
 
     // elasticsearch becomes operational -> web leader is starting
     es.signalAsOperational();
@@ -356,7 +355,7 @@ public class SchedulerImplTest {
     TestManagedProcess web = processLauncher.waitForProcess(WEB_SERVER);
     assertThat(web.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(2);
-    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand);
+    assertThat(processLauncher.commands).containsExactly(esCommand, webLeaderCommand);
 
     // web becomes operational -> CE is starting
     web.signalAsOperational();
@@ -364,7 +363,7 @@ public class SchedulerImplTest {
     TestManagedProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE).signalAsOperational();
     assertThat(ce.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(3);
-    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand, ceCommand);
+    assertThat(processLauncher.commands).containsExactly(esCommand, webLeaderCommand, ceCommand);
 
     // all processes are up
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
@@ -402,8 +401,8 @@ public class SchedulerImplTest {
 
   private class TestCommandFactory implements CommandFactory {
     @Override
-    public EsScriptCommand createEsCommand() {
-      return esScriptCommand;
+    public JavaCommand createEsCommand() {
+      return esCommand;
     }
 
     @Override

@@ -164,15 +164,8 @@ public abstract class BaseDoc {
       .source(getFields());
   }
 
-  public static long epochMillisToEpochSeconds(long epochMillis) {
-    return epochMillis / 1000L;
-  }
-
   private static Date epochSecondsToDate(Number value) {
     return new Date(value.longValue() * 1000L);
   }
 
-  public static long dateToEpochSeconds(Date date) {
-    return epochMillisToEpochSeconds(date.getTime());
-  }
 }

@@ -37,7 +37,6 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.command.AbstractCommand;
-import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.EsConnectorImpl;
@@ -54,7 +53,6 @@ import org.sonar.process.sharedmemoryfile.ProcessCommands;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.application.es.EsKeyStoreCli.BOOTSTRAP_PASSWORD_PROPERTY_KEY;
 import static org.sonar.application.es.EsKeyStoreCli.KEYSTORE_PASSWORD_PROPERTY_KEY;
 import static org.sonar.application.es.EsKeyStoreCli.TRUSTSTORE_PASSWORD_PROPERTY_KEY;
@@ -93,10 +91,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
 
     Process process;
-    if (command instanceof EsScriptCommand esScriptCommand) {
-      process = launchExternal(esScriptCommand);
-    } else if (command instanceof JavaCommand) {
-      process = launchJava((JavaCommand<?>) command);
+    if (command instanceof JavaCommand<?> javaCommand) {
+      process = launchJava(javaCommand);
     } else {
       throw new IllegalStateException("Unexpected type of command: " + command.getClass());
     }
@@ -118,16 +114,6 @@ public class ProcessLauncherImpl implements ProcessLauncher {
         process.destroyForcibly();
       }
       throw new IllegalStateException(format("Fail to launch monitor of process [%s]", processId.getHumanReadableName()), e);
-    }
-  }
-
-  private Process launchExternal(EsScriptCommand esScriptCommand) {
-    try {
-      ProcessBuilder processBuilder = create(esScriptCommand);
-      logLaunchedCommand(esScriptCommand, processBuilder);
-      return processBuilder.start();
-    } catch (Exception e) {
-      throw new IllegalStateException(format("Fail to launch process [%s]", esScriptCommand.getProcessId().getHumanReadableName()), e);
     }
   }
 
@@ -204,7 +190,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     try {
       Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
-      throw new IllegalStateException("Could not copy file: " + from.toString(), e);
+      throw new IllegalStateException("Could not copy file: " + from, e);
     }
   }
 
@@ -234,16 +220,6 @@ public class ProcessLauncherImpl implements ProcessLauncher {
         command.getWorkDir().getAbsolutePath(),
         String.join(" ", processBuilder.command()));
     }
-  }
-
-  private ProcessBuilder create(EsScriptCommand esScriptCommand) {
-    List<String> commands = new ArrayList<>();
-    EsInstallation esInstallation = esScriptCommand.getEsInstallation();
-    requireNonNull(esInstallation, () -> "No Elasticsearch installation configuration is available for the command of type " + esScriptCommand.getClass());
-    commands.add(esInstallation.getExecutable().getAbsolutePath());
-    commands.addAll(esScriptCommand.getOptions());
-
-    return create(esScriptCommand, commands);
   }
 
   private <T extends JvmOptions> ProcessBuilder create(JavaCommand<T> javaCommand) {

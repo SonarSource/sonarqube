@@ -21,10 +21,10 @@ package org.sonar.application.command;
 
 public interface CommandFactory {
 
-  AbstractCommand createEsCommand();
+  JavaCommand<EsServerCliJvmOptions> createEsCommand();
 
-  JavaCommand createWebCommand(boolean leader);
+  JavaCommand<WebJvmOptions> createWebCommand(boolean leader);
 
-  JavaCommand createCeCommand();
+  JavaCommand<CeJvmOptions> createCeCommand();
 
 }

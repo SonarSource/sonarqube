@@ -32,7 +32,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.application.command.EsJvmOptions;
-import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.EsInstallation;
@@ -239,7 +238,7 @@ public class ProcessLauncherImplTest {
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new);
-    EsScriptCommand command = createEsScriptCommand(tempDir, homeDir, dataDir, logDir);
+    JavaCommand command = createEsCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");
     assertThat(outdatedEsDir.mkdir()).isTrue();
@@ -257,7 +256,7 @@ public class ProcessLauncherImplTest {
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new);
-    EsScriptCommand command = createEsScriptCommand(tempDir, homeDir, dataDir, logDir);
+    JavaCommand command = createEsCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");
     assertThat(outdatedEsDir).doesNotExist();
@@ -280,13 +279,14 @@ public class ProcessLauncherImplTest {
       .hasMessage("Fail to launch process [%s]", ProcessId.ELASTICSEARCH.getHumanReadableName());
   }
 
-  private EsScriptCommand createEsScriptCommand(File tempDir, File homeDir, File dataDir, File logDir) throws IOException {
-    EsScriptCommand command = new EsScriptCommand(ProcessId.ELASTICSEARCH, temp.newFolder());
+  private JavaCommand<?> createEsCommand(File tempDir, File homeDir, File dataDir, File logDir) throws IOException {
+    JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH, temp.newFolder());
     Props props = new Props(new Properties());
     props.set("sonar.path.temp", tempDir.getAbsolutePath());
     props.set("sonar.path.home", homeDir.getAbsolutePath());
     props.set("sonar.path.data", dataDir.getAbsolutePath());
     props.set("sonar.path.logs", logDir.getAbsolutePath());
+    command.setJvmOptions(mock(JvmOptions.class));
     command.setEsInstallation(new EsInstallation(props)
       .setEsYmlSettings(mock(EsYmlSettings.class))
       .setEsJvmOptions(mock(EsJvmOptions.class))

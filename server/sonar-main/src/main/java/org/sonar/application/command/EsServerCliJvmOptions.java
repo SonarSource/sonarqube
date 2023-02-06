@@ -19,27 +19,27 @@
  */
 package org.sonar.application.command;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.process.ProcessId;
-import org.sonar.process.System2;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.sonar.application.es.EsInstallation;
 
-public class EsScriptCommand extends AbstractCommand<EsScriptCommand> {
-  private List<String> options = new ArrayList<>();
+class EsServerCliJvmOptions extends JvmOptions<EsServerCliJvmOptions> {
 
-  public EsScriptCommand(ProcessId id, File workDir) {
-    super(id, workDir, System2.INSTANCE);
+  public EsServerCliJvmOptions(EsInstallation esInstallation) {
+    super(mandatoryOptions(esInstallation));
   }
 
-  public List<String> getOptions() {
-    return options;
-  }
-
-  public EsScriptCommand addOption(String s) {
-    if (!s.isEmpty()) {
-      options.add(s);
-    }
-    return this;
+  private static Map<String, String> mandatoryOptions(EsInstallation esInstallation) {
+    Map<String, String> res = new LinkedHashMap<>(9);
+    res.put("-Xms4m", "");
+    res.put("-Xmx64m", "");
+    res.put("-XX:+UseSerialGC", "");
+    res.put("-Dcli.name=", "server");
+    res.put("-Dcli.script=", "./bin/elasticsearch");
+    res.put("-Dcli.libs=", "lib/tools/server-cli");
+    res.put("-Des.path.home=", esInstallation.getHomeDirectory().getAbsolutePath());
+    res.put("-Des.path.conf=", esInstallation.getConfDirectory().getAbsolutePath());
+    res.put("-Des.distribution.type=", "tar");
+    return res;
   }
 }

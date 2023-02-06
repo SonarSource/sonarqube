@@ -154,8 +154,9 @@ public class EsSettingsTest {
       // no cluster, but cluster and node names are set though
       .containsEntry("cluster.name", "sonarqube")
       .containsEntry("node.name", "sonarqube")
-      .containsEntry("discovery.seed_hosts", "127.0.0.1")
-      .containsEntry("cluster.initial_master_nodes", "127.0.0.1");
+      .containsEntry("discovery.type", "single-node")
+      .doesNotContainKey("discovery.seed_hosts")
+      .doesNotContainKey("cluster.initial_master_nodes");
 
     assertThat(generated.get("path.data")).isNotNull();
     assertThat(generated.get("path.logs")).isNotNull();
