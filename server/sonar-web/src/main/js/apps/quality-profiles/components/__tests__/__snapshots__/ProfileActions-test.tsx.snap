@@ -3,6 +3,7 @@
 exports[`renders correctly: all permissions 1`] = `
 <Fragment>
   <ActionsDropdown
+    disabled={false}
     label="quality_profiles.actions.name.JavaScript"
   >
     <ActionsDropdownItem
@@ -77,6 +78,7 @@ exports[`renders correctly: all permissions 1`] = `
 exports[`renders correctly: copy modal 1`] = `
 <Fragment>
   <ActionsDropdown
+    disabled={false}
     label="quality_profiles.actions.name.JavaScript"
   >
     <ActionsDropdownItem
@@ -127,6 +129,7 @@ exports[`renders correctly: copy modal 1`] = `
 exports[`renders correctly: delete modal 1`] = `
 <Fragment>
   <ActionsDropdown
+    disabled={false}
     label="quality_profiles.actions.name.JavaScript"
   >
     <ActionsDropdownItem
@@ -176,6 +179,7 @@ exports[`renders correctly: delete modal 1`] = `
 exports[`renders correctly: edit only 1`] = `
 <Fragment>
   <ActionsDropdown
+    disabled={false}
     label="quality_profiles.actions.name.JavaScript"
   >
     <ActionsDropdownItem
@@ -220,6 +224,7 @@ exports[`renders correctly: edit only 1`] = `
 exports[`renders correctly: extend modal 1`] = `
 <Fragment>
   <ActionsDropdown
+    disabled={false}
     label="quality_profiles.actions.name.JavaScript"
   >
     <ActionsDropdownItem
@@ -270,6 +275,7 @@ exports[`renders correctly: extend modal 1`] = `
 exports[`renders correctly: no permissions 1`] = `
 <Fragment>
   <ActionsDropdown
+    disabled={false}
     label="quality_profiles.actions.name.JavaScript"
   >
     <ActionsDropdownItem
@@ -297,6 +303,7 @@ exports[`renders correctly: no permissions 1`] = `
 exports[`renders correctly: rename modal 1`] = `
 <Fragment>
   <ActionsDropdown
+    disabled={false}
     label="quality_profiles.actions.name.JavaScript"
   >
     <ActionsDropdownItem
@@ -347,6 +354,7 @@ exports[`renders correctly: rename modal 1`] = `
 exports[`should not allow to set a profile as the default if the profile has no active rules 1`] = `
 <Fragment>
   <ActionsDropdown
+    disabled={false}
     label="quality_profiles.actions.name.JavaScript"
   >
     <ActionsDropdownItem

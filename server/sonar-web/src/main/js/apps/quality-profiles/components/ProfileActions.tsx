@@ -202,6 +202,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             profile.name,
             profile.languageName
           )}
+          disabled={!hasAnyAction}
         >
           {actions.edit && (
             <ActionsDropdownItem

@@ -36,6 +36,7 @@ export interface ActionsDropdownProps {
   overlayPlacement?: PopupPlacement;
   small?: boolean;
   toggleClassName?: string;
+  disabled?: boolean;
 }
 
 export default function ActionsDropdown(props: ActionsDropdownProps) {
@@ -52,6 +53,7 @@ export default function ActionsDropdown(props: ActionsDropdownProps) {
         className={classNames('dropdown-toggle', toggleClassName, {
           'button-small': small,
         })}
+        disabled={props.disabled}
       >
         <SettingsIcon size={small ? 12 : 14} />
         <DropdownIcon className="little-spacer-left" />
