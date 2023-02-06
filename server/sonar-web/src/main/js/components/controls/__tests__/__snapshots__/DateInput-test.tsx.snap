@@ -258,110 +258,39 @@ exports[`should render 3`] = `
             </ButtonIcon>
           </fieldset>
           <DayPicker
-            canChangeMonth={true}
-            captionElement={<NullComponent />}
-            classNames={
+            components={
               {
-                "body": "DayPicker-Body",
-                "caption": "DayPicker-Caption",
-                "container": "DayPicker",
-                "day": "DayPicker-Day",
-                "disabled": "disabled",
-                "footer": "DayPicker-Footer",
-                "interactionDisabled": "DayPicker--interactionDisabled",
-                "month": "DayPicker-Month",
-                "months": "DayPicker-Months",
-                "navBar": "DayPicker-NavBar",
-                "navButtonInteractionDisabled": "DayPicker-NavButton--interactionDisabled",
-                "navButtonNext": "DayPicker-NavButton DayPicker-NavButton--next",
-                "navButtonPrev": "DayPicker-NavButton DayPicker-NavButton--prev",
-                "outside": "outside",
-                "selected": "selected",
-                "today": "today",
-                "todayButton": "DayPicker-TodayButton",
-                "week": "DayPicker-Week",
-                "weekNumber": "DayPicker-WeekNumber",
-                "weekday": "DayPicker-Weekday",
-                "weekdays": "DayPicker-Weekdays",
-                "weekdaysRow": "DayPicker-WeekdaysRow",
-                "wrapper": "DayPicker-wrapper",
+                "CaptionLabel": [Function],
               }
             }
-            disabledDays={
+            disableNavigation={true}
+            disabled={
               {
                 "after": 2018-02-05T00:00:00.000Z,
                 "before": 2018-01-17T00:00:00.000Z,
               }
             }
-            enableOutsideDaysClick={true}
-            firstDayOfWeek={1}
-            fixedWeeks={false}
-            labels={
+            formatters={
               {
-                "nextMonth": "Next Month",
-                "previousMonth": "Previous Month",
+                "formatWeekdayName": [Function],
               }
             }
-            locale="en"
-            localeUtils={
+            mode="default"
+            modifiers={
               {
-                "default": {
-                  "formatDay": [Function],
-                  "formatMonthTitle": [Function],
-                  "formatWeekdayLong": [Function],
-                  "formatWeekdayShort": [Function],
-                  "getFirstDayOfWeek": [Function],
-                  "getMonths": [Function],
-                },
-                "formatDay": [Function],
-                "formatMonthTitle": [Function],
-                "formatWeekdayLong": [Function],
-                "formatWeekdayShort": [Function],
-                "getFirstDayOfWeek": [Function],
-                "getMonths": [Function],
+                "highlighted": false,
+              }
+            }
+            modifiersClassNames={
+              {
+                "highlighted": "highlighted",
               }
             }
             month={2018-01-17T00:00:00.000Z}
-            navbarElement={<NullComponent />}
-            numberOfMonths={1}
             onDayClick={[Function]}
             onDayMouseEnter={[Function]}
-            pagedNavigation={false}
-            renderDay={[Function]}
-            renderWeek={[Function]}
-            reverseMonths={false}
-            selectedDays={
-              [
-                2018-01-17T00:00:00.000Z,
-              ]
-            }
-            showOutsideDays={false}
-            showWeekDays={true}
-            showWeekNumbers={false}
-            tabIndex={0}
-            weekdayElement={<Weekday />}
-            weekdaysLong={
-              [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
-              ]
-            }
-            weekdaysShort={
-              [
-                "Sun",
-                "Mon",
-                "Tue",
-                "Wed",
-                "Thu",
-                "Fri",
-                "Sat",
-              ]
-            }
+            selected={2018-01-17T00:00:00.000Z}
+            weekStartsOn={1}
           />
         </form>
       </span>

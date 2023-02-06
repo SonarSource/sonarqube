@@ -46,7 +46,7 @@ exports[`should render correctly 1`] = `
       href="#"
       onClick={[Function]}
     >
-      Done
+      done
     </a>
   </footer>
 </Modal>

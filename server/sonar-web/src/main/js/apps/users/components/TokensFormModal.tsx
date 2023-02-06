@@ -52,7 +52,7 @@ export default function TokensFormModal(props: Props) {
         />
       </div>
       <footer className="modal-foot">
-        <ResetButtonLink onClick={props.onClose}>{translate('Done')}</ResetButtonLink>
+        <ResetButtonLink onClick={props.onClose}>{translate('done')}</ResetButtonLink>
       </footer>
     </Modal>
   );

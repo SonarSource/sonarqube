@@ -20,6 +20,7 @@
 import { addDays, setMonth, setYear, subDays, subMonths } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { DayPicker } from 'react-day-picker';
 import { parseDate } from '../../../helpers/dates';
 import DateInput from '../DateInput';
 
@@ -65,11 +66,11 @@ it('should select a day', () => {
   const { wrapper, instance } = shallowRender({ onChange });
   wrapper.setState({ open: true });
 
-  instance.handleDayClick(dateA, { disabled: true, outside: undefined, today: undefined });
+  instance.handleDayClick(dateA, { disabled: true });
   expect(onChange).not.toHaveBeenCalled();
   expect(wrapper.state().open).toBe(true);
 
-  instance.handleDayClick(dateA, { outside: undefined, today: undefined });
+  instance.handleDayClick(dateA, {});
   expect(onChange).toHaveBeenLastCalledWith(dateA);
   wrapper.update();
   expect(wrapper.state().open).toBe(false);
@@ -84,11 +85,10 @@ it('should hightlightFrom range', () => {
   wrapper.setState({ open: true });
 
   const dateC = addDays(dateA, 3);
-  instance.handleDayMouseEnter(dateC, { outside: undefined, today: undefined });
+  instance.handleDayMouseEnter(dateC, {});
   wrapper.update();
-  const dayPicker = wrapper.find('DayPicker');
-  expect(dayPicker.prop('modifiers')).toEqual({ highlighted: { from: dateA, to: dateC } });
-  expect(dayPicker.prop('selectedDays')).toEqual([dateA]);
+  const dayPicker = wrapper.find(DayPicker);
+  expect(dayPicker.props().modifiers).toEqual({ highlighted: { from: dateA, to: dateC } });
 });
 
 it('should hightlightTo range', () => {
@@ -96,11 +96,10 @@ it('should hightlightTo range', () => {
   wrapper.setState({ open: true });
 
   const dateC = subDays(dateB, 5);
-  instance.handleDayMouseEnter(dateC, { outside: undefined, today: undefined });
+  instance.handleDayMouseEnter(dateC, {});
   wrapper.update();
-  const dayPicker = wrapper.find('DayPicker');
-  expect(dayPicker.prop('modifiers')).toEqual({ highlighted: { from: dateC, to: dateB } });
-  expect(dayPicker.prop('selectedDays')).toEqual([dateB]);
+  const dayPicker = wrapper.find(DayPicker);
+  expect(dayPicker.props().modifiers).toEqual({ highlighted: { from: dateC, to: dateB } });
 });
 
 it('should announce the proper month and year for next/previous buttons aria label', () => {

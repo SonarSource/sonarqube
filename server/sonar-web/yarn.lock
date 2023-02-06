@@ -2907,7 +2907,7 @@ __metadata:
     postcss-custom-properties: 12.1.11
     prettier: 2.8.3
     react: 16.14.0
-    react-day-picker: 7.4.10
+    react-day-picker: 8.5.1
     react-dom: 16.14.0
     react-draggable: 4.4.5
     react-helmet-async: 1.3.0
@@ -8464,14 +8464,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-day-picker@npm:7.4.10":
-  version: 7.4.10
-  resolution: "react-day-picker@npm:7.4.10"
-  dependencies:
-    prop-types: ^15.6.2
+"react-day-picker@npm:8.5.1":
+  version: 8.5.1
+  resolution: "react-day-picker@npm:8.5.1"
   peerDependencies:
-    react: ~0.13.x || ~0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 33a4614bb4d457a3e72462d092fa131d3d7ec1ba858ac7e70d65b59e464606ffc039afdd226db37ead1326e248ca9a103007ee0bb829b277cd7297e5f5807ad1
+    date-fns: ^2.28.0
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 0d444710bccf07db869673f19975e68962b44a1de8a176710e2a0297e0c7d98e610b7d7e5b24a19dc695dac7e3745191cfef3f656d87f6fbafc1ecc8833a212c
   languageName: node
   linkType: hard
 

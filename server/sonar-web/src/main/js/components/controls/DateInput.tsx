@@ -21,7 +21,8 @@ import classNames from 'classnames';
 import { addMonths, setMonth, setYear, subMonths } from 'date-fns';
 import { range } from 'lodash';
 import * as React from 'react';
-import DayPicker, { DayModifiers, Modifier, Modifiers } from 'react-day-picker';
+import { ActiveModifiers, DayPicker, Matcher } from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
 import { injectIntl, WrappedComponentProps } from 'react-intl';
 import { ButtonIcon, ClearButton } from '../../components/controls/buttons';
 import OutsideClickHandler from '../../components/controls/OutsideClickHandler';
@@ -32,15 +33,13 @@ import {
   getMonthName,
   getShortMonthName,
   getShortWeekDayName,
-  getWeekDayName,
   translate,
   translateWithParameters,
 } from '../../helpers/l10n';
-import './DayPicker.css';
+import './DateInput.css';
 import EscKeydownHandler from './EscKeydownHandler';
 import FocusOutHandler from './FocusOutHandler';
 import Select from './Select';
-import './styles.css';
 
 interface Props {
   alignRight?: boolean;
@@ -64,9 +63,8 @@ interface State {
   lastHovered?: Date;
 }
 
-type Week = [string, string, string, string, string, string, string];
-
-const MONTH_IN_YEAR = 12;
+const MONTHS_IN_YEAR = 12;
+const YEARS_TO_DISPLAY = 10;
 
 export default class DateInput extends React.PureComponent<Props, State> {
   input?: HTMLInputElement | null;
@@ -100,14 +98,14 @@ export default class DateInput extends React.PureComponent<Props, State> {
     this.setState({ open: false });
   };
 
-  handleDayClick = (day: Date, modifiers: DayModifiers) => {
+  handleDayClick = (day: Date, modifiers: ActiveModifiers) => {
     if (!modifiers.disabled) {
       this.closeCalendar();
       this.props.onChange(day);
     }
   };
 
-  handleDayMouseEnter = (day: Date, modifiers: DayModifiers) => {
+  handleDayMouseEnter = (day: Date, modifiers: ActiveModifiers) => {
     this.setState({ lastHovered: modifiers.disabled ? undefined : day });
   };
 
@@ -129,24 +127,24 @@ export default class DateInput extends React.PureComponent<Props, State> {
 
   getPreviousMonthAriaLabel = () => {
     const { currentMonth } = this.state;
-    const previous = (currentMonth.getMonth() + MONTH_IN_YEAR - 1) % MONTH_IN_YEAR;
+    const previous = (currentMonth.getMonth() + MONTHS_IN_YEAR - 1) % MONTHS_IN_YEAR;
 
     return translateWithParameters(
       'show_month_x_of_year_y',
       getMonthName(previous),
-      currentMonth.getFullYear() - Math.floor(previous / (MONTH_IN_YEAR - 1))
+      currentMonth.getFullYear() - Math.floor(previous / (MONTHS_IN_YEAR - 1))
     );
   };
 
   getNextMonthAriaLabel = () => {
     const { currentMonth } = this.state;
 
-    const next = (currentMonth.getMonth() + MONTH_IN_YEAR + 1) % MONTH_IN_YEAR;
+    const next = (currentMonth.getMonth() + MONTHS_IN_YEAR + 1) % MONTHS_IN_YEAR;
 
     return translateWithParameters(
       'show_month_x_of_year_y',
       getMonthName(next),
-      currentMonth.getFullYear() + 1 - Math.ceil(next / (MONTH_IN_YEAR - 1))
+      currentMonth.getFullYear() + 1 - Math.ceil(next / (MONTHS_IN_YEAR - 1))
     );
   };
 
@@ -156,7 +154,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
       highlightFrom,
       highlightTo,
       minDate,
-      value,
+      value: selectedDay,
       name,
       className,
       inputClassName,
@@ -167,30 +165,21 @@ export default class DateInput extends React.PureComponent<Props, State> {
 
     const after = this.props.maxDate || new Date();
 
-    const months = range(MONTH_IN_YEAR);
-    const years = range(new Date().getFullYear() - 10, new Date().getFullYear() + 1);
-
-    const selectedDays: Modifier[] = value ? [value] : [];
-    let modifiers: Partial<Modifiers> | undefined;
-    const lastHoveredOrValue = lastHovered || value;
-
-    if (highlightFrom && lastHoveredOrValue) {
-      modifiers = { highlighted: { from: highlightFrom, to: lastHoveredOrValue } };
-      selectedDays.push(highlightFrom);
-    }
-    if (highlightTo && lastHoveredOrValue) {
-      modifiers = { highlighted: { from: lastHoveredOrValue, to: highlightTo } };
-      selectedDays.push(highlightTo);
-    }
-
-    const weekdaysLong = range(7).map(getWeekDayName) as Week;
-    const weekdaysShort = range(7).map(getShortWeekDayName) as Week;
-
-    const monthOptions = months.map((month) => ({
+    const years = range(new Date().getFullYear() - YEARS_TO_DISPLAY, new Date().getFullYear() + 1);
+    const yearOptions = years.map((year) => ({ label: String(year), value: year }));
+    const monthOptions = range(MONTHS_IN_YEAR).map((month) => ({
       label: getShortMonthName(month),
       value: month,
     }));
-    const yearOptions = years.map((year) => ({ label: String(year), value: year }));
+
+    let highlighted: Matcher = false;
+    const lastHoveredOrValue = lastHovered || selectedDay;
+    if (highlightFrom && lastHoveredOrValue) {
+      highlighted = { from: highlightFrom, to: lastHoveredOrValue };
+    }
+    if (highlightTo && lastHoveredOrValue) {
+      highlighted = { from: lastHoveredOrValue, to: highlightTo };
+    }
 
     return (
       <FocusOutHandler onFocusOut={this.closeCalendar}>
@@ -199,7 +188,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
             <span className={classNames('date-input-control', className)}>
               <InputWrapper
                 className={classNames('date-input-control-input', inputClassName, {
-                  'is-filled': value !== undefined,
+                  'is-filled': selectedDay !== undefined,
                 })}
                 id={id}
                 innerRef={(node: HTMLInputElement | null) => (this.input = node)}
@@ -208,10 +197,10 @@ export default class DateInput extends React.PureComponent<Props, State> {
                 placeholder={placeholder}
                 readOnly={true}
                 type="text"
-                value={value}
+                value={selectedDay}
               />
               <CalendarIcon className="date-input-control-icon" fill="" />
-              {value !== undefined && (
+              {selectedDay !== undefined && (
                 <ClearButton
                   aria-label={translate('reset_date')}
                   className="button-tiny date-input-control-reset"
@@ -264,17 +253,20 @@ export default class DateInput extends React.PureComponent<Props, State> {
                     </ButtonIcon>
                   </fieldset>
                   <DayPicker
-                    captionElement={<NullComponent />}
-                    disabledDays={{ after, before: minDate }}
-                    firstDayOfWeek={1}
-                    modifiers={modifiers}
+                    mode="default"
+                    disableNavigation={true}
+                    components={{ CaptionLabel: () => null }}
+                    disabled={{ after, before: minDate }}
+                    weekStartsOn={1}
+                    formatters={{
+                      formatWeekdayName: (date) => getShortWeekDayName(date.getDay()),
+                    }}
+                    modifiers={{ highlighted }}
+                    modifiersClassNames={{ highlighted: 'highlighted' }}
                     month={currentMonth}
-                    navbarElement={<NullComponent />}
+                    selected={selectedDay}
                     onDayClick={this.handleDayClick}
                     onDayMouseEnter={this.handleDayMouseEnter}
-                    selectedDays={selectedDays}
-                    weekdaysLong={weekdaysLong}
-                    weekdaysShort={weekdaysShort}
                   />
                 </form>
               )}
@@ -284,10 +276,6 @@ export default class DateInput extends React.PureComponent<Props, State> {
       </FocusOutHandler>
     );
   }
-}
-
-function NullComponent() {
-  return null;
 }
 
 type InputWrapperProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value'> &

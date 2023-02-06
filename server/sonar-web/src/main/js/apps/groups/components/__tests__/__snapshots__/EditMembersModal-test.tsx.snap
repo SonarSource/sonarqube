@@ -40,7 +40,7 @@ exports[`should render modal properly 1`] = `
     <ResetButtonLink
       onClick={[MockFunction]}
     >
-      Done
+      done
     </ResetButtonLink>
   </footer>
 </Modal>

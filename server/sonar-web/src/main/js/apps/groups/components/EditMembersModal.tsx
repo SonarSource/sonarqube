@@ -165,7 +165,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
         </div>
 
         <footer className="modal-foot">
-          <ResetButtonLink onClick={this.props.onClose}>{translate('Done')}</ResetButtonLink>
+          <ResetButtonLink onClick={this.props.onClose}>{translate('done')}</ResetButtonLink>
         </footer>
       </Modal>
     );

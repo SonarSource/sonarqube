@@ -175,7 +175,7 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
 
         <footer className="modal-foot">
           <a className="js-modal-close" href="#" onClick={this.handleCloseClick}>
-            {translate('Done')}
+            {translate('done')}
           </a>
         </footer>
       </Modal>
