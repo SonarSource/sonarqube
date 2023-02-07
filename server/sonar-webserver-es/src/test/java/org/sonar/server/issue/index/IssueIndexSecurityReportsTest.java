@@ -664,24 +664,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
       .map(SecurityStandardCategoryStatistics::getCategory)
       .collect(toList());
 
-    assertThat(listOfYears).contains("2019", "2020", "2021");
-
-    SecurityStandardCategoryStatistics cwe2019 = cweTop25Reports.stream()
-      .filter(s -> s.getCategory().equals("2019"))
-      .findAny().get();
-    assertThat(cwe2019.getChildren()).hasSize(25);
-    assertThat(findRuleInCweByYear(cwe2019, "119")).isNotNull()
-      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
-      .containsExactlyInAnyOrder(1L, 0L, 0L);
-    assertThat(findRuleInCweByYear(cwe2019, "89")).isNotNull()
-      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
-      .containsExactlyInAnyOrder(0L, 1L, 0L);
-    assertThat(findRuleInCweByYear(cwe2019, "862")).isNull();
-    assertThat(findRuleInCweByYear(cwe2019, "999")).isNull();
+    assertThat(listOfYears).contains("2020", "2021", "2022");
 
     SecurityStandardCategoryStatistics cwe2020 = cweTop25Reports.stream()
       .filter(s -> s.getCategory().equals("2020"))
@@ -720,6 +703,23 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
       .containsExactlyInAnyOrder(0L, 1L, 0L);
     assertThat(findRuleInCweByYear(cwe2021, "295")).isNull();
     assertThat(findRuleInCweByYear(cwe2021, "999")).isNull();
+
+    SecurityStandardCategoryStatistics cwe2022 = cweTop25Reports.stream()
+      .filter(s -> s.getCategory().equals("2022"))
+      .findAny().get();
+    assertThat(cwe2022.getChildren()).hasSize(25);
+    assertThat(findRuleInCweByYear(cwe2022, "119")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(1L, 0L, 0L);
+    assertThat(findRuleInCweByYear(cwe2022, "89")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(0L, 1L, 0L);
+    assertThat(findRuleInCweByYear(cwe2022, "950")).isNull();
+    assertThat(findRuleInCweByYear(cwe2022, "999")).isNull();
   }
 
   @Test
@@ -748,24 +748,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
       .map(SecurityStandardCategoryStatistics::getCategory)
       .collect(toList());
 
-    assertThat(listOfYears).contains("2019", "2020", "2021");
-
-    SecurityStandardCategoryStatistics cwe2019 = cweTop25Reports.stream()
-      .filter(s -> s.getCategory().equals("2019"))
-      .findAny().get();
-    assertThat(cwe2019.getChildren()).hasSize(25);
-    assertThat(findRuleInCweByYear(cwe2019, "119")).isNotNull()
-      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
-      .containsExactlyInAnyOrder(2L, 0L, 0L);
-    assertThat(findRuleInCweByYear(cwe2019, "89")).isNotNull()
-      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
-      .containsExactlyInAnyOrder(0L, 1L, 0L);
-    assertThat(findRuleInCweByYear(cwe2019, "862")).isNull();
-    assertThat(findRuleInCweByYear(cwe2019, "999")).isNull();
+    assertThat(listOfYears).contains("2020", "2021", "2022");
 
     SecurityStandardCategoryStatistics cwe2020 = cweTop25Reports.stream()
       .filter(s -> s.getCategory().equals("2020"))
@@ -804,6 +787,25 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
       .containsExactlyInAnyOrder(0L, 1L, 0L);
     assertThat(findRuleInCweByYear(cwe2021, "295")).isNull();
     assertThat(findRuleInCweByYear(cwe2021, "999")).isNull();
+
+
+    SecurityStandardCategoryStatistics cwe2022 = cweTop25Reports.stream()
+      .filter(s -> s.getCategory().equals("2022"))
+      .findAny().get();
+    assertThat(cwe2022.getChildren()).hasSize(25);
+    assertThat(findRuleInCweByYear(cwe2022, "119")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(2L, 0L, 0L);
+    assertThat(findRuleInCweByYear(cwe2022, "89")).isNotNull()
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      .containsExactlyInAnyOrder(0L, 1L, 0L);
+    assertThat(findRuleInCweByYear(cwe2022, "295")).isNull();
+    assertThat(findRuleInCweByYear(cwe2022, "999")).isNull();
+
   }
 
   private SecurityStandardCategoryStatistics findRuleInCweByYear(SecurityStandardCategoryStatistics statistics, String cweId) {
