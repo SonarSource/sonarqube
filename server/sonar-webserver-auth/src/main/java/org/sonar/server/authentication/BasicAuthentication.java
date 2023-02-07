@@ -93,7 +93,7 @@ public class BasicAuthentication {
         return userAuthResult.get().getUserDto();
       } else {
         throw AuthenticationException.newBuilder()
-          .setSource(AuthenticationEvent.Source.local(AuthenticationEvent.Method.BASIC_TOKEN))
+          .setSource(AuthenticationEvent.Source.local(AuthenticationEvent.Method.SONARQUBE_TOKEN))
           .setMessage("User doesn't exist")
           .build();
       }

@@ -46,9 +46,9 @@ public interface AuthenticationEvent {
      */
     BASIC,
     /**
-     * HTTP basic authentication with a security token.
+     * Authentication with SonarQube token passed either as basic credentials or bearer token.
      */
-    BASIC_TOKEN,
+    SONARQUBE_TOKEN,
     /**
      * SQ login form authentication with a login and password.
      */

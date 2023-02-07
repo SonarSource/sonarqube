@@ -44,9 +44,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.SONARQUBE_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class BasicAuthenticationTest {
 
@@ -161,7 +161,7 @@ public class BasicAuthenticationTest {
     assertThatThrownBy(() -> underTest.authenticate(request))
       .hasMessage("User doesn't exist")
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
+      .hasFieldOrPropertyWithValue("source", Source.local(SONARQUBE_TOKEN));
 
     verifyNoInteractions(authenticationEvent);
     verify(request, times(0)).setAttribute(anyString(), anyString());
@@ -170,7 +170,7 @@ public class BasicAuthenticationTest {
   @Test
   public void does_not_authenticate_from_user_token_when_token_does_not_match_existing_user() {
     when(userTokenAuthentication.authenticate(request)).thenThrow(AuthenticationException.newBuilder()
-      .setSource(AuthenticationEvent.Source.local(AuthenticationEvent.Method.BASIC_TOKEN))
+      .setSource(AuthenticationEvent.Source.local(AuthenticationEvent.Method.SONARQUBE_TOKEN))
       .setMessage("User doesn't exist")
       .build());
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64("token:"));
@@ -178,7 +178,7 @@ public class BasicAuthenticationTest {
     assertThatThrownBy(() -> underTest.authenticate(request))
       .hasMessageContaining("User doesn't exist")
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
+      .hasFieldOrPropertyWithValue("source", Source.local(SONARQUBE_TOKEN));
 
     verifyNoInteractions(authenticationEvent);
   }

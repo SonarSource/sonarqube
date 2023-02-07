@@ -44,7 +44,7 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.CredentialsAuthentication.ERROR_PASSWORD_CANNOT_BE_NULL;
 import static org.sonar.server.authentication.CredentialsLocalAuthentication.ERROR_UNKNOWN_HASH_METHOD;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.SONARQUBE_TOKEN;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class CredentialsAuthenticationTest {
@@ -135,20 +135,20 @@ public class CredentialsAuthenticationTest {
 
   @Test
   public void fail_to_authenticate_external_user_when_no_external_and_ldap_authentication() {
-    when(externalAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN)).thenReturn(Optional.empty());
-    when(ldapCredentialsAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN)).thenReturn(Optional.empty());
+    when(externalAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, SONARQUBE_TOKEN)).thenReturn(Optional.empty());
+    when(ldapCredentialsAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, SONARQUBE_TOKEN)).thenReturn(Optional.empty());
     insertUser(newUserDto()
       .setLogin(LOGIN)
       .setLocal(false));
 
-    assertThatThrownBy(() -> executeAuthenticate(BASIC_TOKEN))
+    assertThatThrownBy(() -> executeAuthenticate(SONARQUBE_TOKEN))
       .hasMessage("User is not local")
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN))
+      .hasFieldOrPropertyWithValue("source", Source.local(SONARQUBE_TOKEN))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
-    verify(externalAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN);
-    verify(ldapCredentialsAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN);
+    verify(externalAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, SONARQUBE_TOKEN);
+    verify(ldapCredentialsAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, SONARQUBE_TOKEN);
     verifyNoInteractions(authenticationEvent);
   }
 
@@ -179,10 +179,10 @@ public class CredentialsAuthenticationTest {
       .setHashMethod(CredentialsLocalAuthentication.HashMethod.PBKDF2.name())
       .setLocal(true));
 
-    assertThatThrownBy(() -> executeAuthenticate(BASIC_TOKEN))
+    assertThatThrownBy(() -> executeAuthenticate(SONARQUBE_TOKEN))
       .hasMessage("null salt")
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN))
+      .hasFieldOrPropertyWithValue("source", Source.local(SONARQUBE_TOKEN))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
     verifyNoInteractions(authenticationEvent);
@@ -197,10 +197,10 @@ public class CredentialsAuthenticationTest {
       .setHashMethod(DEPRECATED_HASH_METHOD)
       .setLocal(true));
 
-    assertThatThrownBy(() -> executeAuthenticate(BASIC_TOKEN))
+    assertThatThrownBy(() -> executeAuthenticate(SONARQUBE_TOKEN))
       .hasMessage(format(ERROR_UNKNOWN_HASH_METHOD, DEPRECATED_HASH_METHOD))
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN))
+      .hasFieldOrPropertyWithValue("source", Source.local(SONARQUBE_TOKEN))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
     verify(localAuthentication).generateHashToAvoidEnumerationAttack();
@@ -217,7 +217,7 @@ public class CredentialsAuthenticationTest {
       .setLocal(true));
 
     Credentials credentials = new Credentials(LOGIN, null);
-    assertThatThrownBy(() -> underTest.authenticate(credentials, request, BASIC_TOKEN))
+    assertThatThrownBy(() -> underTest.authenticate(credentials, request, SONARQUBE_TOKEN))
       .hasMessage(ERROR_PASSWORD_CANNOT_BE_NULL)
       .isInstanceOf(IllegalArgumentException.class);
 

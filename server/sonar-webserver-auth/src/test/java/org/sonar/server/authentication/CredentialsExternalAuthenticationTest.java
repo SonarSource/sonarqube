@@ -44,7 +44,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.SONARQUBE_TOKEN;
 
 public class CredentialsExternalAuthenticationTest {
 
@@ -218,10 +218,10 @@ public class CredentialsExternalAuthenticationTest {
 
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(new UserDetails());
 
-    assertThatThrownBy(() -> underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN))
+    assertThatThrownBy(() -> underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, SONARQUBE_TOKEN))
       .hasMessage(expectedMessage)
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", Source.realm(BASIC_TOKEN, REALM_NAME))
+      .hasFieldOrPropertyWithValue("source", Source.realm(SONARQUBE_TOKEN, REALM_NAME))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
     verifyNoInteractions(authenticationEvent);

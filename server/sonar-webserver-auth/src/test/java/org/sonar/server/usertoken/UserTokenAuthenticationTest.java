@@ -19,6 +19,9 @@
  */
 package org.sonar.server.usertoken;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Base64;
@@ -27,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
@@ -49,9 +53,9 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.db.user.TokenType.USER_TOKEN;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
-import static org.sonar.server.usertoken.UserTokenAuthentication.isTokenBasedAuthentication;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Method.SONARQUBE_TOKEN;
 
+@RunWith(DataProviderRunner.class)
 public class UserTokenAuthenticationTest {
 
   private static final Base64.Encoder BASE64_ENCODER = Base64.getEncoder();
@@ -80,6 +84,7 @@ public class UserTokenAuthenticationTest {
   @Before
   public void before() {
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64("token:"));
+    when(request.getServletPath()).thenReturn("/api/anypath");
     when(tokenGenerator.hash(EXAMPLE_OLD_USER_TOKEN)).thenReturn(OLD_USER_TOKEN_HASH);
     when(tokenGenerator.hash(EXAMPLE_NEW_USER_TOKEN)).thenReturn(NEW_USER_TOKEN_HASH);
     when(tokenGenerator.hash(EXAMPLE_PROJECT_ANALYSIS_TOKEN)).thenReturn(PROJECT_ANALYSIS_TOKEN_HASH);
@@ -87,7 +92,7 @@ public class UserTokenAuthenticationTest {
   }
 
   @Test
-  public void return_login_when_token_hash_found_in_db() {
+  public void return_login_when_token_hash_found_in_db_and_basic_auth_used() {
     String token = "known-token";
     String tokenHash = "123456789";
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64(token + ":"));
@@ -105,6 +110,50 @@ public class UserTokenAuthenticationTest {
       .isNotNull()
       .contains(user1.getUuid());
     verify(userLastConnectionDatesUpdater).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
+  }
+
+  @DataProvider
+  public static Object[][] bearerHeaderName() {
+    return new Object[][] {
+      {"bearer"},
+      {"BEARER"},
+      {"Bearer"},
+      {"bEarer"},
+    };
+  }
+
+  @Test
+  @UseDataProvider("bearerHeaderName")
+  public void authenticate_withDifferentBearerHeaderNameCase_succeeds(String headerName) {
+    String token = setUpValidAuthToken();
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn(headerName + " " + token);
+
+    Optional<UserAuthResult> result = underTest.authenticate(request);
+
+    assertThat(result).isPresent();
+    verify(userLastConnectionDatesUpdater).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
+  }
+
+  @Test
+  public void authenticate_withValidCamelcaseBearerTokenForMetricsAction_fails() {
+    String token = setUpValidAuthToken();
+    when(request.getServletPath()).thenReturn("/api/monitoring/metrics");
+    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Bearer " + token);
+
+    Optional<UserAuthResult> result = underTest.authenticate(request);
+
+    assertThat(result).isEmpty();
+  }
+
+  private String setUpValidAuthToken() {
+    String token = "known-token";
+    String tokenHash = "123456789";
+    when(tokenGenerator.hash(token)).thenReturn(tokenHash);
+    UserDto user1 = db.users().insertUser();
+    UserTokenDto userTokenDto = db.users().insertToken(user1, t -> t.setTokenHash(tokenHash));
+    UserDto user2 = db.users().insertUser();
+    db.users().insertToken(user2, t -> t.setTokenHash("another-token-hash"));
+    return token;
   }
 
   @Test
@@ -181,8 +230,8 @@ public class UserTokenAuthenticationTest {
     assertThat(result).isPresent();
     assertThat(result.get().getTokenDto().getUuid()).isNotNull();
     assertThat(result.get().getTokenDto().getType()).isEqualTo(GLOBAL_ANALYSIS_TOKEN.name());
-    verify(authenticationEvent).loginSuccess(request, user.getLogin(), AuthenticationEvent.Source.local(BASIC_TOKEN));
-    verify(request).setAttribute("TOKEN_NAME",tokenName);
+    verify(authenticationEvent).loginSuccess(request, user.getLogin(), AuthenticationEvent.Source.local(SONARQUBE_TOKEN));
+    verify(request).setAttribute("TOKEN_NAME", tokenName);
   }
 
   @Test
@@ -196,8 +245,8 @@ public class UserTokenAuthenticationTest {
     assertThat(result).isPresent();
     assertThat(result.get().getTokenDto().getUuid()).isNotNull();
     assertThat(result.get().getTokenDto().getType()).isEqualTo(USER_TOKEN.name());
-    verify(authenticationEvent).loginSuccess(request, user.getLogin(), AuthenticationEvent.Source.local(BASIC_TOKEN));
-    verify(request).setAttribute("TOKEN_NAME",tokenName);
+    verify(authenticationEvent).loginSuccess(request, user.getLogin(), AuthenticationEvent.Source.local(SONARQUBE_TOKEN));
+    verify(request).setAttribute("TOKEN_NAME", tokenName);
   }
 
   @Test
@@ -214,10 +263,9 @@ public class UserTokenAuthenticationTest {
     assertThat(result.get().getTokenDto().getUuid()).isNotNull();
     assertThat(result.get().getTokenDto().getType()).isEqualTo(PROJECT_ANALYSIS_TOKEN.name());
     assertThat(result.get().getTokenDto().getProjectKey()).isEqualTo("project-key");
-    verify(authenticationEvent).loginSuccess(request, user.getLogin(), AuthenticationEvent.Source.local(BASIC_TOKEN));
-    verify(request).setAttribute("TOKEN_NAME",tokenName);
+    verify(authenticationEvent).loginSuccess(request, user.getLogin(), AuthenticationEvent.Source.local(SONARQUBE_TOKEN));
+    verify(request).setAttribute("TOKEN_NAME", tokenName);
   }
-
 
   @Test
   public void does_not_authenticate_from_user_token_when_token_does_not_match_active_user() {
@@ -229,7 +277,7 @@ public class UserTokenAuthenticationTest {
     assertThatThrownBy(() -> underTest.authenticate(request))
       .hasMessageContaining("User doesn't exist")
       .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("source", AuthenticationEvent.Source.local(BASIC_TOKEN));
+      .hasFieldOrPropertyWithValue("source", AuthenticationEvent.Source.local(SONARQUBE_TOKEN));
 
     verifyNoInteractions(authenticationEvent);
   }
@@ -248,15 +296,21 @@ public class UserTokenAuthenticationTest {
   }
 
   @Test
-  public void identifies_if_request_uses_token_based_authentication() {
-    when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64("token:"));
-    assertThat(isTokenBasedAuthentication(request)).isTrue();
-
+  public void return_login_when_token_hash_found_in_db2() {
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn("Basic " + toBase64("login:password"));
-    assertThat(isTokenBasedAuthentication(request)).isFalse();
 
+    Optional<UserAuthResult> result = underTest.authenticate(request);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void return_login_when_token_hash_found_in_db3() {
     when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn(null);
-    assertThat(isTokenBasedAuthentication(request)).isFalse();
+
+    Optional<UserAuthResult> result = underTest.authenticate(request);
+
+    assertThat(result).isEmpty();
   }
 
   private static String toBase64(String text) {
