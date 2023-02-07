@@ -36,7 +36,7 @@
 a.badge:hover,
 a.badge:focus,
 a.badge:active {
-  color: #ffffff;
+  text-decoration: underline;
 }
 a.badge {
   border-bottom: none;
