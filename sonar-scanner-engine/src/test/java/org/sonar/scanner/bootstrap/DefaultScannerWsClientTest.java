@@ -127,7 +127,7 @@ public class DefaultScannerWsClientTest {
     assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, true,
       new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings).call(request))
         .isInstanceOf(MessageException.class)
-        .hasMessage("You're not authorized to run analysis. Please contact the project administrator.");
+        .hasMessage("You're not authorized to analyze this project or the project doesn't exist on SonarQube and you're not authorized to create it. Please contact an administrator.");
   }
 
   @Test

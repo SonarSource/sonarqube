@@ -113,7 +113,8 @@ public class DefaultScannerWsClient implements ScannerWsClient {
         + "Please provide a user token in %s or other credentials in %s and %s.", CoreProperties.LOGIN, CoreProperties.LOGIN, CoreProperties.PASSWORD));
     }
     if (code == HTTP_FORBIDDEN) {
-      throw MessageException.of("You're not authorized to run analysis. Please contact the project administrator.");
+      throw MessageException.of("You're not authorized to analyze this project or the project doesn't exist on SonarQube" +
+        " and you're not authorized to create it. Please contact an administrator.");
     }
     if (code == HTTP_BAD_REQUEST) {
       String jsonMsg = tryParseAsJsonError(response.content());
