@@ -22,6 +22,7 @@ import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import { byRole } from 'testing-library-selector';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
+import { mockRule } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import routes from '../routes';
 
@@ -87,6 +88,8 @@ const ui = {
     byRole('heading', {
       name: `quality_profiles.x_rules_have_different_configuration.${rulesQuantity}`,
     }),
+  newRuleLink: byRole('link', { name: 'Recently Added Rule' }),
+  seeAllNewRulesLink: byRole('link', { name: 'see_all 20 quality_profiles.latest_new_rules' }),
 };
 
 it('should list Quality Profiles and filter by language', async () => {
@@ -108,6 +111,18 @@ it('should list Quality Profiles and filter by language', async () => {
   await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileName);
 
   expect(ui.createButton.get(ui.popup.get())).toBeEnabled();
+});
+
+it('should list recently added rules', async () => {
+  serviceMock.setAdmin();
+  serviceMock.setRulesSearchResponse({
+    rules: [mockRule({ name: 'Recently Added Rule' })],
+    total: 20,
+  });
+
+  renderQualityProfiles();
+  expect(await ui.newRuleLink.find()).toBeInTheDocument();
+  expect(ui.seeAllNewRulesLink.get()).toBeInTheDocument();
 });
 
 it('should be able to extend Quality Profile', async () => {

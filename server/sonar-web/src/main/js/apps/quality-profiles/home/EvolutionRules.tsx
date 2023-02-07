@@ -91,19 +91,27 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
   }
 
   render() {
-    if (!this.state.latestRulesTotal || !this.state.latestRules) {
+    const { latestRulesTotal, latestRules } = this.state;
+
+    if (!latestRulesTotal || !latestRules) {
       return null;
     }
 
+    const newRulesTitle = translate('quality_profiles.latest_new_rules');
     const newRulesUrl = getRulesUrl({ available_since: this.periodStartDate });
+    const seeAllRulesText = `${translate('see_all')} ${formatMeasure(
+      latestRulesTotal,
+      'SHORT_INT',
+      null
+    )}`;
 
     return (
       <div className="boxed-group boxed-group-inner quality-profiles-evolution-rules">
         <div className="clearfix">
-          <strong className="pull-left">{translate('quality_profiles.latest_new_rules')}</strong>
+          <strong className="pull-left">{newRulesTitle}</strong>
         </div>
         <ul>
-          {this.state.latestRules.map((rule) => (
+          {latestRules.map((rule) => (
             <li className="spacer-top" key={rule.key}>
               <div className="text-ellipsis">
                 <Link className="link-no-underline" to={getRulesUrl({ rule_key: rule.key })}>
@@ -126,10 +134,14 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
             </li>
           ))}
         </ul>
-        {this.state.latestRulesTotal > RULES_LIMIT && (
+        {latestRulesTotal > RULES_LIMIT && (
           <div className="spacer-top">
-            <Link className="small" to={newRulesUrl}>
-              {translate('see_all')} {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT', null)}
+            <Link
+              className="small"
+              to={newRulesUrl}
+              aria-label={`${seeAllRulesText} ${newRulesTitle}`}
+            >
+              {seeAllRulesText}
             </Link>
           </div>
         )}

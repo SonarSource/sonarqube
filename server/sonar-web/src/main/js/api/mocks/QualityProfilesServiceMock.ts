@@ -48,6 +48,12 @@ export default class QualityProfilesServiceMock {
   };
 
   comparisonResult: CompareResponse = mockCompareResult();
+  searchRulesResponse: SearchRulesResponse = {
+    p: 0,
+    ps: 500,
+    total: 0,
+    rules: [],
+  };
 
   constructor() {
     this.resetQualityProfile();
@@ -97,6 +103,15 @@ export default class QualityProfilesServiceMock {
 
   resetComparisonResult() {
     this.comparisonResult = mockCompareResult();
+  }
+
+  resetSearchRulesResponse() {
+    this.searchRulesResponse = {
+      p: 0,
+      ps: 500,
+      total: 0,
+      rules: [],
+    };
   }
 
   handleGetImporters = () => {
@@ -207,12 +222,7 @@ export default class QualityProfilesServiceMock {
   };
 
   handleSearchRules = (): Promise<SearchRulesResponse> => {
-    return this.reply({
-      p: 0,
-      ps: 500,
-      total: 0,
-      rules: [],
-    });
+    return this.reply(this.searchRulesResponse);
   };
 
   handleSearchQualityProfiles = (
@@ -277,10 +287,18 @@ export default class QualityProfilesServiceMock {
     this.isAdmin = true;
   }
 
+  setRulesSearchResponse(overrides: Partial<SearchRulesResponse>) {
+    this.searchRulesResponse = {
+      ...this.searchRulesResponse,
+      ...overrides,
+    };
+  }
+
   reset() {
     this.isAdmin = false;
     this.resetQualityProfile();
     this.resetComparisonResult();
+    this.resetSearchRulesResponse();
   }
 
   reply<T>(response: T): Promise<T> {
