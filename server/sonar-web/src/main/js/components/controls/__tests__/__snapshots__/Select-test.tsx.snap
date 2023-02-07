@@ -11,6 +11,7 @@ exports[`Select should render clearIndicator correctly 1`] = `
         "size": 12,
       }
     }
+    tabIndex={-1}
   />
 </div>
 `;

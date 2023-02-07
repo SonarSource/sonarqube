@@ -70,7 +70,9 @@ export function clearIndicator<
   const { innerProps } = props;
   return (
     <div {...innerProps} className="spacer-left spacer-right">
-      <ClearButton className="button-tiny" iconProps={{ size: 12 }} />
+      {/* We use tabindex="-1" to prevent the clear button from being focused via tabbing.*/}
+      {/* This is done to align with react-select default behavior and because backspace already clears the select value. */}
+      <ClearButton className="button-tiny" iconProps={{ size: 12 }} tabIndex={-1} />
     </div>
   );
 }
