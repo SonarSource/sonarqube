@@ -24,6 +24,7 @@ exports[`renderOption should render correctly: branch doesn't exist 1`] = `
     {
       "isInvalid": true,
       "isMain": false,
+      "label": "branch-nope",
       "value": "branch-nope",
     }
   }

@@ -292,16 +292,24 @@ describe('security page', () => {
 
       // eslint-disable-next-line jest/no-conditional-in-test
       if (tokenTypeOption === TokenType.Project) {
-        await selectEvent.select(screen.getAllByRole('textbox')[1], [tokenTypeLabel]);
+        await selectEvent.select(screen.getByRole('combobox', { name: 'users.tokens.type' }), [
+          tokenTypeLabel,
+        ]);
         // eslint-disable-next-line jest/no-conditional-expect
         expect(generateButton).toBeDisabled();
         // eslint-disable-next-line jest/no-conditional-expect
-        expect(screen.getAllByRole('textbox')).toHaveLength(4);
-        await selectEvent.select(screen.getAllByRole('textbox')[2], ['Project Name 1']);
+        expect(screen.getByRole('textbox', { name: 'users.tokens.name' })).toBeInTheDocument();
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(screen.getAllByRole('combobox')).toHaveLength(3);
+        await selectEvent.select(screen.getByRole('combobox', { name: 'users.tokens.project' }), [
+          'Project Name 1',
+        ]);
         // eslint-disable-next-line jest/no-conditional-expect
         expect(generateButton).toBeEnabled();
       } else {
-        await selectEvent.select(screen.getAllByRole('textbox')[1], [tokenTypeLabel]);
+        await selectEvent.select(screen.getByRole('combobox', { name: 'users.tokens.type' }), [
+          tokenTypeLabel,
+        ]);
         // eslint-disable-next-line jest/no-conditional-expect
         expect(generateButton).toBeEnabled();
       }
@@ -389,7 +397,7 @@ describe('security page', () => {
       securityPagePath
     );
 
-    selectEvent.openMenu(screen.getAllByRole('textbox')[1]);
+    selectEvent.openMenu(screen.getByRole('combobox', { name: 'users.tokens.type' }));
     expect(screen.queryByText(`users.tokens.${TokenType.Project}`)).not.toBeInTheDocument();
   });
 
@@ -417,7 +425,7 @@ describe('security page', () => {
       securityPagePath
     );
 
-    await selectEvent.select(screen.getAllByRole('textbox')[1], [
+    await selectEvent.select(screen.getByRole('combobox', { name: 'users.tokens.type' }), [
       `users.tokens.${TokenType.Project}`,
     ]);
 

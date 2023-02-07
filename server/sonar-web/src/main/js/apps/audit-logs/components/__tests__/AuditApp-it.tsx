@@ -67,6 +67,8 @@ const ui = {
   downloadSentenceStart: byText('audit_logs.download_start.sentence.1'),
   startDateInput: byPlaceholderText('start_date'),
   endDateInput: byPlaceholderText('end_date'),
+  dateInputMonthSelect: byRole('combobox', { name: 'select_month' }),
+  dateInputYearSelect: byRole('combobox', { name: 'select_year' }),
 };
 
 let handler: SettingsServiceMock;
@@ -115,21 +117,13 @@ it('should handle download button click', async () => {
   expect(ui.downloadButton.get()).toHaveAttribute('aria-disabled', 'true');
   await user.click(ui.startDateInput.get());
 
-  await selectEvent.select(screen.getByRole('textbox', { name: 'select_month' }), [
-    getShortMonthName(getMonth(startDay)),
-  ]);
-  await selectEvent.select(screen.getByRole('textbox', { name: 'select_year' }), [
-    getYear(startDay),
-  ]);
+  await selectEvent.select(ui.dateInputMonthSelect.get(), [getShortMonthName(getMonth(startDay))]);
+  await selectEvent.select(ui.dateInputYearSelect.get(), [getYear(startDay)]);
   await user.click(screen.getByText(getDate(startDay)));
   await user.click(ui.endDateInput.get());
 
-  await selectEvent.select(screen.getByRole('textbox', { name: 'select_month' }), [
-    getShortMonthName(getMonth(endDate)),
-  ]);
-  await selectEvent.select(screen.getByRole('textbox', { name: 'select_year' }), [
-    getYear(endDate),
-  ]);
+  await selectEvent.select(ui.dateInputMonthSelect.get(), [getShortMonthName(getMonth(endDate))]);
+  await selectEvent.select(ui.dateInputYearSelect.get(), [getYear(endDate)]);
   await user.click(screen.getByText(getDate(endDate)));
 
   expect(await ui.downloadButton.find()).toHaveAttribute('aria-disabled', 'false');

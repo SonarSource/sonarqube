@@ -1,18 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Select should render clearIndicator correctly 1`] = `
-<ClearButton
-  className="button-tiny spacer-left spacer-right text-middle"
-  iconProps={
-    {
-      "size": 12,
+<div
+  className="spacer-left spacer-right"
+>
+  <ClearButton
+    className="button-tiny"
+    iconProps={
+      {
+        "size": 12,
+      }
     }
-  }
-/>
+  />
+</div>
 `;
 
 exports[`Select should render complex select component: other props 1`] = `
-<StateManager
+<ForwardRef
   className="react-select"
   classNamePrefix="react-select"
   components={
@@ -23,15 +27,13 @@ exports[`Select should render complex select component: other props 1`] = `
       "MultiValueRemove": [Function],
     }
   }
-  defaultInputValue=""
-  defaultMenuIsOpen={false}
-  defaultValue={null}
   isClearable={true}
   isLoading={true}
   styles={
     {
       "container": [Function],
       "control": [Function],
+      "indicatorSeparator": [Function],
       "indicatorsContainer": [Function],
       "input": [Function],
       "loadingIndicator": [Function],
@@ -52,7 +54,7 @@ exports[`Select should render complex select component: other props 1`] = `
 `;
 
 exports[`Select should render correctly: default 1`] = `
-<StateManager
+<ForwardRef
   className="react-select"
   classNamePrefix="react-select"
   components={
@@ -62,13 +64,11 @@ exports[`Select should render correctly: default 1`] = `
       "MultiValueRemove": [Function],
     }
   }
-  defaultInputValue=""
-  defaultMenuIsOpen={false}
-  defaultValue={null}
   styles={
     {
       "container": [Function],
       "control": [Function],
+      "indicatorSeparator": [Function],
       "indicatorsContainer": [Function],
       "input": [Function],
       "loadingIndicator": [Function],
@@ -97,137 +97,2228 @@ exports[`Select should render loadingIndicator correctly 1`] = `
 `;
 
 exports[`Select should render multiValueRemove correctly 1`] = `
-<div>
+<MultiValueRemove
+  innerProps={{}}
+>
   ×
-</div>
+</MultiValueRemove>
 `;
 
 exports[`should render CreatableSelect correctly 1`] = `
-<Creatable
-  allowCreateWhileLoading={false}
-  cacheOptions={false}
-  components={
+<SelectContainer
+  clearValue={[Function]}
+  cx={[Function]}
+  getClassNames={[Function]}
+  getStyles={[Function]}
+  getValue={[Function]}
+  hasValue={false}
+  innerProps={
     {
-      "ClearIndicator": [Function],
-      "DropdownIndicator": [Function],
-      "LoadingIndicator": [Function],
-      "MultiValueRemove": [Function],
+      "id": undefined,
+      "onKeyDown": [Function],
     }
   }
-  createOptionPosition="last"
-  defaultOptions={false}
-  filterOption={null}
-  formatCreateLabel={[Function]}
-  getNewOptionData={[Function]}
-  getOptionLabel={[Function]}
-  getOptionValue={[Function]}
-  inputValue=""
-  isLoading={false}
-  isValidNewOption={[Function]}
-  menuIsOpen={false}
-  onChange={[Function]}
-  onInputChange={[Function]}
-  onMenuClose={[Function]}
-  onMenuOpen={[Function]}
+  isDisabled={false}
+  isFocused={false}
+  isMulti={false}
+  isRtl={false}
   options={[]}
-  styles={
+  selectOption={[Function]}
+  selectProps={
     {
-      "container": [Function],
-      "control": [Function],
-      "indicatorsContainer": [Function],
-      "input": [Function],
-      "loadingIndicator": [Function],
-      "menu": [Function],
-      "menuList": [Function],
-      "menuPortal": [Function],
-      "multiValue": [Function],
-      "multiValueLabel": [Function],
-      "multiValueRemove": [Function],
+      "aria-live": "polite",
+      "backspaceRemovesValue": true,
+      "blurInputOnSelect": true,
+      "captureMenuScroll": false,
+      "classNames": {},
+      "closeMenuOnScroll": false,
+      "closeMenuOnSelect": true,
+      "components": {
+        "ClearIndicator": [Function],
+        "DropdownIndicator": [Function],
+        "LoadingIndicator": [Function],
+        "MultiValueRemove": [Function],
+      },
+      "controlShouldRenderValue": true,
+      "escapeClearsValue": false,
+      "filterOption": null,
+      "formatGroupLabel": [Function],
+      "getOptionLabel": [Function],
+      "getOptionValue": [Function],
+      "inputValue": "",
+      "isDisabled": false,
+      "isLoading": false,
+      "isMulti": false,
+      "isOptionDisabled": [Function],
+      "isRtl": false,
+      "isSearchable": true,
+      "loadingMessage": [Function],
+      "maxMenuHeight": 300,
+      "menuIsOpen": false,
+      "menuPlacement": "bottom",
+      "menuPosition": "absolute",
+      "menuShouldBlockScroll": false,
+      "menuShouldScrollIntoView": true,
+      "minMenuHeight": 140,
       "noOptionsMessage": [Function],
-      "option": [Function],
-      "placeholder": [Function],
-      "singleValue": [Function],
-      "valueContainer": [Function],
+      "onChange": [Function],
+      "onInputChange": [Function],
+      "onMenuClose": [Function],
+      "onMenuOpen": [Function],
+      "openMenuOnClick": true,
+      "openMenuOnFocus": false,
+      "options": [],
+      "pageSize": 5,
+      "placeholder": "Select...",
+      "screenReaderStatus": [Function],
+      "styles": {
+        "container": [Function],
+        "control": [Function],
+        "indicatorSeparator": [Function],
+        "indicatorsContainer": [Function],
+        "input": [Function],
+        "loadingIndicator": [Function],
+        "menu": [Function],
+        "menuList": [Function],
+        "menuPortal": [Function],
+        "multiValue": [Function],
+        "multiValueLabel": [Function],
+        "multiValueRemove": [Function],
+        "noOptionsMessage": [Function],
+        "option": [Function],
+        "placeholder": [Function],
+        "singleValue": [Function],
+        "valueContainer": [Function],
+      },
+      "tabIndex": 0,
+      "tabSelectsValue": true,
+      "unstyled": false,
+      "value": null,
     }
   }
-  value={null}
-/>
+  setValue={[Function]}
+  theme={
+    {
+      "borderRadius": 4,
+      "colors": {
+        "danger": "#DE350B",
+        "dangerLight": "#FFBDAD",
+        "neutral0": "hsl(0, 0%, 100%)",
+        "neutral10": "hsl(0, 0%, 90%)",
+        "neutral20": "hsl(0, 0%, 80%)",
+        "neutral30": "hsl(0, 0%, 70%)",
+        "neutral40": "hsl(0, 0%, 60%)",
+        "neutral5": "hsl(0, 0%, 95%)",
+        "neutral50": "hsl(0, 0%, 50%)",
+        "neutral60": "hsl(0, 0%, 40%)",
+        "neutral70": "hsl(0, 0%, 30%)",
+        "neutral80": "hsl(0, 0%, 20%)",
+        "neutral90": "hsl(0, 0%, 10%)",
+        "primary": "#2684FF",
+        "primary25": "#DEEBFF",
+        "primary50": "#B2D4FF",
+        "primary75": "#4C9AFF",
+      },
+      "spacing": {
+        "baseUnit": 4,
+        "controlHeight": 38,
+        "menuGutter": 8,
+      },
+    }
+  }
+>
+  <LiveRegion
+    ariaSelection={null}
+    clearValue={[Function]}
+    cx={[Function]}
+    focusableOptions={[]}
+    focusedOption={null}
+    focusedValue={null}
+    getClassNames={[Function]}
+    getStyles={[Function]}
+    getValue={[Function]}
+    hasValue={false}
+    id="react-select-2-live-region"
+    isFocused={false}
+    isMulti={false}
+    isRtl={false}
+    options={[]}
+    selectOption={[Function]}
+    selectProps={
+      {
+        "aria-live": "polite",
+        "backspaceRemovesValue": true,
+        "blurInputOnSelect": true,
+        "captureMenuScroll": false,
+        "classNames": {},
+        "closeMenuOnScroll": false,
+        "closeMenuOnSelect": true,
+        "components": {
+          "ClearIndicator": [Function],
+          "DropdownIndicator": [Function],
+          "LoadingIndicator": [Function],
+          "MultiValueRemove": [Function],
+        },
+        "controlShouldRenderValue": true,
+        "escapeClearsValue": false,
+        "filterOption": null,
+        "formatGroupLabel": [Function],
+        "getOptionLabel": [Function],
+        "getOptionValue": [Function],
+        "inputValue": "",
+        "isDisabled": false,
+        "isLoading": false,
+        "isMulti": false,
+        "isOptionDisabled": [Function],
+        "isRtl": false,
+        "isSearchable": true,
+        "loadingMessage": [Function],
+        "maxMenuHeight": 300,
+        "menuIsOpen": false,
+        "menuPlacement": "bottom",
+        "menuPosition": "absolute",
+        "menuShouldBlockScroll": false,
+        "menuShouldScrollIntoView": true,
+        "minMenuHeight": 140,
+        "noOptionsMessage": [Function],
+        "onChange": [Function],
+        "onInputChange": [Function],
+        "onMenuClose": [Function],
+        "onMenuOpen": [Function],
+        "openMenuOnClick": true,
+        "openMenuOnFocus": false,
+        "options": [],
+        "pageSize": 5,
+        "placeholder": "Select...",
+        "screenReaderStatus": [Function],
+        "styles": {
+          "container": [Function],
+          "control": [Function],
+          "indicatorSeparator": [Function],
+          "indicatorsContainer": [Function],
+          "input": [Function],
+          "loadingIndicator": [Function],
+          "menu": [Function],
+          "menuList": [Function],
+          "menuPortal": [Function],
+          "multiValue": [Function],
+          "multiValueLabel": [Function],
+          "multiValueRemove": [Function],
+          "noOptionsMessage": [Function],
+          "option": [Function],
+          "placeholder": [Function],
+          "singleValue": [Function],
+          "valueContainer": [Function],
+        },
+        "tabIndex": 0,
+        "tabSelectsValue": true,
+        "unstyled": false,
+        "value": null,
+      }
+    }
+    selectValue={[]}
+    setValue={[Function]}
+    theme={
+      {
+        "borderRadius": 4,
+        "colors": {
+          "danger": "#DE350B",
+          "dangerLight": "#FFBDAD",
+          "neutral0": "hsl(0, 0%, 100%)",
+          "neutral10": "hsl(0, 0%, 90%)",
+          "neutral20": "hsl(0, 0%, 80%)",
+          "neutral30": "hsl(0, 0%, 70%)",
+          "neutral40": "hsl(0, 0%, 60%)",
+          "neutral5": "hsl(0, 0%, 95%)",
+          "neutral50": "hsl(0, 0%, 50%)",
+          "neutral60": "hsl(0, 0%, 40%)",
+          "neutral70": "hsl(0, 0%, 30%)",
+          "neutral80": "hsl(0, 0%, 20%)",
+          "neutral90": "hsl(0, 0%, 10%)",
+          "primary": "#2684FF",
+          "primary25": "#DEEBFF",
+          "primary50": "#B2D4FF",
+          "primary75": "#4C9AFF",
+        },
+        "spacing": {
+          "baseUnit": 4,
+          "controlHeight": 38,
+          "menuGutter": 8,
+        },
+      }
+    }
+  />
+  <Control
+    clearValue={[Function]}
+    cx={[Function]}
+    getClassNames={[Function]}
+    getStyles={[Function]}
+    getValue={[Function]}
+    hasValue={false}
+    innerProps={
+      {
+        "onMouseDown": [Function],
+        "onTouchEnd": [Function],
+      }
+    }
+    innerRef={[Function]}
+    isDisabled={false}
+    isFocused={false}
+    isMulti={false}
+    isRtl={false}
+    menuIsOpen={false}
+    options={[]}
+    selectOption={[Function]}
+    selectProps={
+      {
+        "aria-live": "polite",
+        "backspaceRemovesValue": true,
+        "blurInputOnSelect": true,
+        "captureMenuScroll": false,
+        "classNames": {},
+        "closeMenuOnScroll": false,
+        "closeMenuOnSelect": true,
+        "components": {
+          "ClearIndicator": [Function],
+          "DropdownIndicator": [Function],
+          "LoadingIndicator": [Function],
+          "MultiValueRemove": [Function],
+        },
+        "controlShouldRenderValue": true,
+        "escapeClearsValue": false,
+        "filterOption": null,
+        "formatGroupLabel": [Function],
+        "getOptionLabel": [Function],
+        "getOptionValue": [Function],
+        "inputValue": "",
+        "isDisabled": false,
+        "isLoading": false,
+        "isMulti": false,
+        "isOptionDisabled": [Function],
+        "isRtl": false,
+        "isSearchable": true,
+        "loadingMessage": [Function],
+        "maxMenuHeight": 300,
+        "menuIsOpen": false,
+        "menuPlacement": "bottom",
+        "menuPosition": "absolute",
+        "menuShouldBlockScroll": false,
+        "menuShouldScrollIntoView": true,
+        "minMenuHeight": 140,
+        "noOptionsMessage": [Function],
+        "onChange": [Function],
+        "onInputChange": [Function],
+        "onMenuClose": [Function],
+        "onMenuOpen": [Function],
+        "openMenuOnClick": true,
+        "openMenuOnFocus": false,
+        "options": [],
+        "pageSize": 5,
+        "placeholder": "Select...",
+        "screenReaderStatus": [Function],
+        "styles": {
+          "container": [Function],
+          "control": [Function],
+          "indicatorSeparator": [Function],
+          "indicatorsContainer": [Function],
+          "input": [Function],
+          "loadingIndicator": [Function],
+          "menu": [Function],
+          "menuList": [Function],
+          "menuPortal": [Function],
+          "multiValue": [Function],
+          "multiValueLabel": [Function],
+          "multiValueRemove": [Function],
+          "noOptionsMessage": [Function],
+          "option": [Function],
+          "placeholder": [Function],
+          "singleValue": [Function],
+          "valueContainer": [Function],
+        },
+        "tabIndex": 0,
+        "tabSelectsValue": true,
+        "unstyled": false,
+        "value": null,
+      }
+    }
+    setValue={[Function]}
+    theme={
+      {
+        "borderRadius": 4,
+        "colors": {
+          "danger": "#DE350B",
+          "dangerLight": "#FFBDAD",
+          "neutral0": "hsl(0, 0%, 100%)",
+          "neutral10": "hsl(0, 0%, 90%)",
+          "neutral20": "hsl(0, 0%, 80%)",
+          "neutral30": "hsl(0, 0%, 70%)",
+          "neutral40": "hsl(0, 0%, 60%)",
+          "neutral5": "hsl(0, 0%, 95%)",
+          "neutral50": "hsl(0, 0%, 50%)",
+          "neutral60": "hsl(0, 0%, 40%)",
+          "neutral70": "hsl(0, 0%, 30%)",
+          "neutral80": "hsl(0, 0%, 20%)",
+          "neutral90": "hsl(0, 0%, 10%)",
+          "primary": "#2684FF",
+          "primary25": "#DEEBFF",
+          "primary50": "#B2D4FF",
+          "primary75": "#4C9AFF",
+        },
+        "spacing": {
+          "baseUnit": 4,
+          "controlHeight": 38,
+          "menuGutter": 8,
+        },
+      }
+    }
+  >
+    <ValueContainer
+      clearValue={[Function]}
+      cx={[Function]}
+      getClassNames={[Function]}
+      getStyles={[Function]}
+      getValue={[Function]}
+      hasValue={false}
+      isDisabled={false}
+      isMulti={false}
+      isRtl={false}
+      options={[]}
+      selectOption={[Function]}
+      selectProps={
+        {
+          "aria-live": "polite",
+          "backspaceRemovesValue": true,
+          "blurInputOnSelect": true,
+          "captureMenuScroll": false,
+          "classNames": {},
+          "closeMenuOnScroll": false,
+          "closeMenuOnSelect": true,
+          "components": {
+            "ClearIndicator": [Function],
+            "DropdownIndicator": [Function],
+            "LoadingIndicator": [Function],
+            "MultiValueRemove": [Function],
+          },
+          "controlShouldRenderValue": true,
+          "escapeClearsValue": false,
+          "filterOption": null,
+          "formatGroupLabel": [Function],
+          "getOptionLabel": [Function],
+          "getOptionValue": [Function],
+          "inputValue": "",
+          "isDisabled": false,
+          "isLoading": false,
+          "isMulti": false,
+          "isOptionDisabled": [Function],
+          "isRtl": false,
+          "isSearchable": true,
+          "loadingMessage": [Function],
+          "maxMenuHeight": 300,
+          "menuIsOpen": false,
+          "menuPlacement": "bottom",
+          "menuPosition": "absolute",
+          "menuShouldBlockScroll": false,
+          "menuShouldScrollIntoView": true,
+          "minMenuHeight": 140,
+          "noOptionsMessage": [Function],
+          "onChange": [Function],
+          "onInputChange": [Function],
+          "onMenuClose": [Function],
+          "onMenuOpen": [Function],
+          "openMenuOnClick": true,
+          "openMenuOnFocus": false,
+          "options": [],
+          "pageSize": 5,
+          "placeholder": "Select...",
+          "screenReaderStatus": [Function],
+          "styles": {
+            "container": [Function],
+            "control": [Function],
+            "indicatorSeparator": [Function],
+            "indicatorsContainer": [Function],
+            "input": [Function],
+            "loadingIndicator": [Function],
+            "menu": [Function],
+            "menuList": [Function],
+            "menuPortal": [Function],
+            "multiValue": [Function],
+            "multiValueLabel": [Function],
+            "multiValueRemove": [Function],
+            "noOptionsMessage": [Function],
+            "option": [Function],
+            "placeholder": [Function],
+            "singleValue": [Function],
+            "valueContainer": [Function],
+          },
+          "tabIndex": 0,
+          "tabSelectsValue": true,
+          "unstyled": false,
+          "value": null,
+        }
+      }
+      setValue={[Function]}
+      theme={
+        {
+          "borderRadius": 4,
+          "colors": {
+            "danger": "#DE350B",
+            "dangerLight": "#FFBDAD",
+            "neutral0": "hsl(0, 0%, 100%)",
+            "neutral10": "hsl(0, 0%, 90%)",
+            "neutral20": "hsl(0, 0%, 80%)",
+            "neutral30": "hsl(0, 0%, 70%)",
+            "neutral40": "hsl(0, 0%, 60%)",
+            "neutral5": "hsl(0, 0%, 95%)",
+            "neutral50": "hsl(0, 0%, 50%)",
+            "neutral60": "hsl(0, 0%, 40%)",
+            "neutral70": "hsl(0, 0%, 30%)",
+            "neutral80": "hsl(0, 0%, 20%)",
+            "neutral90": "hsl(0, 0%, 10%)",
+            "primary": "#2684FF",
+            "primary25": "#DEEBFF",
+            "primary50": "#B2D4FF",
+            "primary75": "#4C9AFF",
+          },
+          "spacing": {
+            "baseUnit": 4,
+            "controlHeight": 38,
+            "menuGutter": 8,
+          },
+        }
+      }
+    >
+      <Placeholder
+        clearValue={[Function]}
+        cx={[Function]}
+        getClassNames={[Function]}
+        getStyles={[Function]}
+        getValue={[Function]}
+        hasValue={false}
+        innerProps={
+          {
+            "id": "react-select-2-placeholder",
+          }
+        }
+        isDisabled={false}
+        isFocused={false}
+        isMulti={false}
+        isRtl={false}
+        key="placeholder"
+        options={[]}
+        selectOption={[Function]}
+        selectProps={
+          {
+            "aria-live": "polite",
+            "backspaceRemovesValue": true,
+            "blurInputOnSelect": true,
+            "captureMenuScroll": false,
+            "classNames": {},
+            "closeMenuOnScroll": false,
+            "closeMenuOnSelect": true,
+            "components": {
+              "ClearIndicator": [Function],
+              "DropdownIndicator": [Function],
+              "LoadingIndicator": [Function],
+              "MultiValueRemove": [Function],
+            },
+            "controlShouldRenderValue": true,
+            "escapeClearsValue": false,
+            "filterOption": null,
+            "formatGroupLabel": [Function],
+            "getOptionLabel": [Function],
+            "getOptionValue": [Function],
+            "inputValue": "",
+            "isDisabled": false,
+            "isLoading": false,
+            "isMulti": false,
+            "isOptionDisabled": [Function],
+            "isRtl": false,
+            "isSearchable": true,
+            "loadingMessage": [Function],
+            "maxMenuHeight": 300,
+            "menuIsOpen": false,
+            "menuPlacement": "bottom",
+            "menuPosition": "absolute",
+            "menuShouldBlockScroll": false,
+            "menuShouldScrollIntoView": true,
+            "minMenuHeight": 140,
+            "noOptionsMessage": [Function],
+            "onChange": [Function],
+            "onInputChange": [Function],
+            "onMenuClose": [Function],
+            "onMenuOpen": [Function],
+            "openMenuOnClick": true,
+            "openMenuOnFocus": false,
+            "options": [],
+            "pageSize": 5,
+            "placeholder": "Select...",
+            "screenReaderStatus": [Function],
+            "styles": {
+              "container": [Function],
+              "control": [Function],
+              "indicatorSeparator": [Function],
+              "indicatorsContainer": [Function],
+              "input": [Function],
+              "loadingIndicator": [Function],
+              "menu": [Function],
+              "menuList": [Function],
+              "menuPortal": [Function],
+              "multiValue": [Function],
+              "multiValueLabel": [Function],
+              "multiValueRemove": [Function],
+              "noOptionsMessage": [Function],
+              "option": [Function],
+              "placeholder": [Function],
+              "singleValue": [Function],
+              "valueContainer": [Function],
+            },
+            "tabIndex": 0,
+            "tabSelectsValue": true,
+            "unstyled": false,
+            "value": null,
+          }
+        }
+        setValue={[Function]}
+        theme={
+          {
+            "borderRadius": 4,
+            "colors": {
+              "danger": "#DE350B",
+              "dangerLight": "#FFBDAD",
+              "neutral0": "hsl(0, 0%, 100%)",
+              "neutral10": "hsl(0, 0%, 90%)",
+              "neutral20": "hsl(0, 0%, 80%)",
+              "neutral30": "hsl(0, 0%, 70%)",
+              "neutral40": "hsl(0, 0%, 60%)",
+              "neutral5": "hsl(0, 0%, 95%)",
+              "neutral50": "hsl(0, 0%, 50%)",
+              "neutral60": "hsl(0, 0%, 40%)",
+              "neutral70": "hsl(0, 0%, 30%)",
+              "neutral80": "hsl(0, 0%, 20%)",
+              "neutral90": "hsl(0, 0%, 10%)",
+              "primary": "#2684FF",
+              "primary25": "#DEEBFF",
+              "primary50": "#B2D4FF",
+              "primary75": "#4C9AFF",
+            },
+            "spacing": {
+              "baseUnit": 4,
+              "controlHeight": 38,
+              "menuGutter": 8,
+            },
+          }
+        }
+      >
+        Select...
+      </Placeholder>
+      <Input
+        aria-autocomplete="list"
+        aria-describedby="react-select-2-placeholder"
+        aria-expanded={false}
+        aria-haspopup={true}
+        autoCapitalize="none"
+        autoComplete="off"
+        autoCorrect="off"
+        clearValue={[Function]}
+        cx={[Function]}
+        getClassNames={[Function]}
+        getStyles={[Function]}
+        getValue={[Function]}
+        hasValue={false}
+        id="react-select-2-input"
+        innerRef={[Function]}
+        isDisabled={false}
+        isHidden={false}
+        isMulti={false}
+        isRtl={false}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        options={[]}
+        role="combobox"
+        selectOption={[Function]}
+        selectProps={
+          {
+            "aria-live": "polite",
+            "backspaceRemovesValue": true,
+            "blurInputOnSelect": true,
+            "captureMenuScroll": false,
+            "classNames": {},
+            "closeMenuOnScroll": false,
+            "closeMenuOnSelect": true,
+            "components": {
+              "ClearIndicator": [Function],
+              "DropdownIndicator": [Function],
+              "LoadingIndicator": [Function],
+              "MultiValueRemove": [Function],
+            },
+            "controlShouldRenderValue": true,
+            "escapeClearsValue": false,
+            "filterOption": null,
+            "formatGroupLabel": [Function],
+            "getOptionLabel": [Function],
+            "getOptionValue": [Function],
+            "inputValue": "",
+            "isDisabled": false,
+            "isLoading": false,
+            "isMulti": false,
+            "isOptionDisabled": [Function],
+            "isRtl": false,
+            "isSearchable": true,
+            "loadingMessage": [Function],
+            "maxMenuHeight": 300,
+            "menuIsOpen": false,
+            "menuPlacement": "bottom",
+            "menuPosition": "absolute",
+            "menuShouldBlockScroll": false,
+            "menuShouldScrollIntoView": true,
+            "minMenuHeight": 140,
+            "noOptionsMessage": [Function],
+            "onChange": [Function],
+            "onInputChange": [Function],
+            "onMenuClose": [Function],
+            "onMenuOpen": [Function],
+            "openMenuOnClick": true,
+            "openMenuOnFocus": false,
+            "options": [],
+            "pageSize": 5,
+            "placeholder": "Select...",
+            "screenReaderStatus": [Function],
+            "styles": {
+              "container": [Function],
+              "control": [Function],
+              "indicatorSeparator": [Function],
+              "indicatorsContainer": [Function],
+              "input": [Function],
+              "loadingIndicator": [Function],
+              "menu": [Function],
+              "menuList": [Function],
+              "menuPortal": [Function],
+              "multiValue": [Function],
+              "multiValueLabel": [Function],
+              "multiValueRemove": [Function],
+              "noOptionsMessage": [Function],
+              "option": [Function],
+              "placeholder": [Function],
+              "singleValue": [Function],
+              "valueContainer": [Function],
+            },
+            "tabIndex": 0,
+            "tabSelectsValue": true,
+            "unstyled": false,
+            "value": null,
+          }
+        }
+        setValue={[Function]}
+        spellCheck="false"
+        tabIndex={0}
+        theme={
+          {
+            "borderRadius": 4,
+            "colors": {
+              "danger": "#DE350B",
+              "dangerLight": "#FFBDAD",
+              "neutral0": "hsl(0, 0%, 100%)",
+              "neutral10": "hsl(0, 0%, 90%)",
+              "neutral20": "hsl(0, 0%, 80%)",
+              "neutral30": "hsl(0, 0%, 70%)",
+              "neutral40": "hsl(0, 0%, 60%)",
+              "neutral5": "hsl(0, 0%, 95%)",
+              "neutral50": "hsl(0, 0%, 50%)",
+              "neutral60": "hsl(0, 0%, 40%)",
+              "neutral70": "hsl(0, 0%, 30%)",
+              "neutral80": "hsl(0, 0%, 20%)",
+              "neutral90": "hsl(0, 0%, 10%)",
+              "primary": "#2684FF",
+              "primary25": "#DEEBFF",
+              "primary50": "#B2D4FF",
+              "primary75": "#4C9AFF",
+            },
+            "spacing": {
+              "baseUnit": 4,
+              "controlHeight": 38,
+              "menuGutter": 8,
+            },
+          }
+        }
+        type="text"
+        value=""
+      />
+    </ValueContainer>
+    <IndicatorsContainer
+      clearValue={[Function]}
+      cx={[Function]}
+      getClassNames={[Function]}
+      getStyles={[Function]}
+      getValue={[Function]}
+      hasValue={false}
+      isDisabled={false}
+      isMulti={false}
+      isRtl={false}
+      options={[]}
+      selectOption={[Function]}
+      selectProps={
+        {
+          "aria-live": "polite",
+          "backspaceRemovesValue": true,
+          "blurInputOnSelect": true,
+          "captureMenuScroll": false,
+          "classNames": {},
+          "closeMenuOnScroll": false,
+          "closeMenuOnSelect": true,
+          "components": {
+            "ClearIndicator": [Function],
+            "DropdownIndicator": [Function],
+            "LoadingIndicator": [Function],
+            "MultiValueRemove": [Function],
+          },
+          "controlShouldRenderValue": true,
+          "escapeClearsValue": false,
+          "filterOption": null,
+          "formatGroupLabel": [Function],
+          "getOptionLabel": [Function],
+          "getOptionValue": [Function],
+          "inputValue": "",
+          "isDisabled": false,
+          "isLoading": false,
+          "isMulti": false,
+          "isOptionDisabled": [Function],
+          "isRtl": false,
+          "isSearchable": true,
+          "loadingMessage": [Function],
+          "maxMenuHeight": 300,
+          "menuIsOpen": false,
+          "menuPlacement": "bottom",
+          "menuPosition": "absolute",
+          "menuShouldBlockScroll": false,
+          "menuShouldScrollIntoView": true,
+          "minMenuHeight": 140,
+          "noOptionsMessage": [Function],
+          "onChange": [Function],
+          "onInputChange": [Function],
+          "onMenuClose": [Function],
+          "onMenuOpen": [Function],
+          "openMenuOnClick": true,
+          "openMenuOnFocus": false,
+          "options": [],
+          "pageSize": 5,
+          "placeholder": "Select...",
+          "screenReaderStatus": [Function],
+          "styles": {
+            "container": [Function],
+            "control": [Function],
+            "indicatorSeparator": [Function],
+            "indicatorsContainer": [Function],
+            "input": [Function],
+            "loadingIndicator": [Function],
+            "menu": [Function],
+            "menuList": [Function],
+            "menuPortal": [Function],
+            "multiValue": [Function],
+            "multiValueLabel": [Function],
+            "multiValueRemove": [Function],
+            "noOptionsMessage": [Function],
+            "option": [Function],
+            "placeholder": [Function],
+            "singleValue": [Function],
+            "valueContainer": [Function],
+          },
+          "tabIndex": 0,
+          "tabSelectsValue": true,
+          "unstyled": false,
+          "value": null,
+        }
+      }
+      setValue={[Function]}
+      theme={
+        {
+          "borderRadius": 4,
+          "colors": {
+            "danger": "#DE350B",
+            "dangerLight": "#FFBDAD",
+            "neutral0": "hsl(0, 0%, 100%)",
+            "neutral10": "hsl(0, 0%, 90%)",
+            "neutral20": "hsl(0, 0%, 80%)",
+            "neutral30": "hsl(0, 0%, 70%)",
+            "neutral40": "hsl(0, 0%, 60%)",
+            "neutral5": "hsl(0, 0%, 95%)",
+            "neutral50": "hsl(0, 0%, 50%)",
+            "neutral60": "hsl(0, 0%, 40%)",
+            "neutral70": "hsl(0, 0%, 30%)",
+            "neutral80": "hsl(0, 0%, 20%)",
+            "neutral90": "hsl(0, 0%, 10%)",
+            "primary": "#2684FF",
+            "primary25": "#DEEBFF",
+            "primary50": "#B2D4FF",
+            "primary75": "#4C9AFF",
+          },
+          "spacing": {
+            "baseUnit": 4,
+            "controlHeight": 38,
+            "menuGutter": 8,
+          },
+        }
+      }
+    >
+      <IndicatorSeparator
+        clearValue={[Function]}
+        cx={[Function]}
+        getClassNames={[Function]}
+        getStyles={[Function]}
+        getValue={[Function]}
+        hasValue={false}
+        isDisabled={false}
+        isFocused={false}
+        isMulti={false}
+        isRtl={false}
+        options={[]}
+        selectOption={[Function]}
+        selectProps={
+          {
+            "aria-live": "polite",
+            "backspaceRemovesValue": true,
+            "blurInputOnSelect": true,
+            "captureMenuScroll": false,
+            "classNames": {},
+            "closeMenuOnScroll": false,
+            "closeMenuOnSelect": true,
+            "components": {
+              "ClearIndicator": [Function],
+              "DropdownIndicator": [Function],
+              "LoadingIndicator": [Function],
+              "MultiValueRemove": [Function],
+            },
+            "controlShouldRenderValue": true,
+            "escapeClearsValue": false,
+            "filterOption": null,
+            "formatGroupLabel": [Function],
+            "getOptionLabel": [Function],
+            "getOptionValue": [Function],
+            "inputValue": "",
+            "isDisabled": false,
+            "isLoading": false,
+            "isMulti": false,
+            "isOptionDisabled": [Function],
+            "isRtl": false,
+            "isSearchable": true,
+            "loadingMessage": [Function],
+            "maxMenuHeight": 300,
+            "menuIsOpen": false,
+            "menuPlacement": "bottom",
+            "menuPosition": "absolute",
+            "menuShouldBlockScroll": false,
+            "menuShouldScrollIntoView": true,
+            "minMenuHeight": 140,
+            "noOptionsMessage": [Function],
+            "onChange": [Function],
+            "onInputChange": [Function],
+            "onMenuClose": [Function],
+            "onMenuOpen": [Function],
+            "openMenuOnClick": true,
+            "openMenuOnFocus": false,
+            "options": [],
+            "pageSize": 5,
+            "placeholder": "Select...",
+            "screenReaderStatus": [Function],
+            "styles": {
+              "container": [Function],
+              "control": [Function],
+              "indicatorSeparator": [Function],
+              "indicatorsContainer": [Function],
+              "input": [Function],
+              "loadingIndicator": [Function],
+              "menu": [Function],
+              "menuList": [Function],
+              "menuPortal": [Function],
+              "multiValue": [Function],
+              "multiValueLabel": [Function],
+              "multiValueRemove": [Function],
+              "noOptionsMessage": [Function],
+              "option": [Function],
+              "placeholder": [Function],
+              "singleValue": [Function],
+              "valueContainer": [Function],
+            },
+            "tabIndex": 0,
+            "tabSelectsValue": true,
+            "unstyled": false,
+            "value": null,
+          }
+        }
+        setValue={[Function]}
+        theme={
+          {
+            "borderRadius": 4,
+            "colors": {
+              "danger": "#DE350B",
+              "dangerLight": "#FFBDAD",
+              "neutral0": "hsl(0, 0%, 100%)",
+              "neutral10": "hsl(0, 0%, 90%)",
+              "neutral20": "hsl(0, 0%, 80%)",
+              "neutral30": "hsl(0, 0%, 70%)",
+              "neutral40": "hsl(0, 0%, 60%)",
+              "neutral5": "hsl(0, 0%, 95%)",
+              "neutral50": "hsl(0, 0%, 50%)",
+              "neutral60": "hsl(0, 0%, 40%)",
+              "neutral70": "hsl(0, 0%, 30%)",
+              "neutral80": "hsl(0, 0%, 20%)",
+              "neutral90": "hsl(0, 0%, 10%)",
+              "primary": "#2684FF",
+              "primary25": "#DEEBFF",
+              "primary50": "#B2D4FF",
+              "primary75": "#4C9AFF",
+            },
+            "spacing": {
+              "baseUnit": 4,
+              "controlHeight": 38,
+              "menuGutter": 8,
+            },
+          }
+        }
+      />
+      <dropdownIndicator
+        clearValue={[Function]}
+        cx={[Function]}
+        getClassNames={[Function]}
+        getStyles={[Function]}
+        getValue={[Function]}
+        hasValue={false}
+        innerProps={
+          {
+            "aria-hidden": "true",
+            "onMouseDown": [Function],
+            "onTouchEnd": [Function],
+          }
+        }
+        isDisabled={false}
+        isFocused={false}
+        isMulti={false}
+        isRtl={false}
+        options={[]}
+        selectOption={[Function]}
+        selectProps={
+          {
+            "aria-live": "polite",
+            "backspaceRemovesValue": true,
+            "blurInputOnSelect": true,
+            "captureMenuScroll": false,
+            "classNames": {},
+            "closeMenuOnScroll": false,
+            "closeMenuOnSelect": true,
+            "components": {
+              "ClearIndicator": [Function],
+              "DropdownIndicator": [Function],
+              "LoadingIndicator": [Function],
+              "MultiValueRemove": [Function],
+            },
+            "controlShouldRenderValue": true,
+            "escapeClearsValue": false,
+            "filterOption": null,
+            "formatGroupLabel": [Function],
+            "getOptionLabel": [Function],
+            "getOptionValue": [Function],
+            "inputValue": "",
+            "isDisabled": false,
+            "isLoading": false,
+            "isMulti": false,
+            "isOptionDisabled": [Function],
+            "isRtl": false,
+            "isSearchable": true,
+            "loadingMessage": [Function],
+            "maxMenuHeight": 300,
+            "menuIsOpen": false,
+            "menuPlacement": "bottom",
+            "menuPosition": "absolute",
+            "menuShouldBlockScroll": false,
+            "menuShouldScrollIntoView": true,
+            "minMenuHeight": 140,
+            "noOptionsMessage": [Function],
+            "onChange": [Function],
+            "onInputChange": [Function],
+            "onMenuClose": [Function],
+            "onMenuOpen": [Function],
+            "openMenuOnClick": true,
+            "openMenuOnFocus": false,
+            "options": [],
+            "pageSize": 5,
+            "placeholder": "Select...",
+            "screenReaderStatus": [Function],
+            "styles": {
+              "container": [Function],
+              "control": [Function],
+              "indicatorSeparator": [Function],
+              "indicatorsContainer": [Function],
+              "input": [Function],
+              "loadingIndicator": [Function],
+              "menu": [Function],
+              "menuList": [Function],
+              "menuPortal": [Function],
+              "multiValue": [Function],
+              "multiValueLabel": [Function],
+              "multiValueRemove": [Function],
+              "noOptionsMessage": [Function],
+              "option": [Function],
+              "placeholder": [Function],
+              "singleValue": [Function],
+              "valueContainer": [Function],
+            },
+            "tabIndex": 0,
+            "tabSelectsValue": true,
+            "unstyled": false,
+            "value": null,
+          }
+        }
+        setValue={[Function]}
+        theme={
+          {
+            "borderRadius": 4,
+            "colors": {
+              "danger": "#DE350B",
+              "dangerLight": "#FFBDAD",
+              "neutral0": "hsl(0, 0%, 100%)",
+              "neutral10": "hsl(0, 0%, 90%)",
+              "neutral20": "hsl(0, 0%, 80%)",
+              "neutral30": "hsl(0, 0%, 70%)",
+              "neutral40": "hsl(0, 0%, 60%)",
+              "neutral5": "hsl(0, 0%, 95%)",
+              "neutral50": "hsl(0, 0%, 50%)",
+              "neutral60": "hsl(0, 0%, 40%)",
+              "neutral70": "hsl(0, 0%, 30%)",
+              "neutral80": "hsl(0, 0%, 20%)",
+              "neutral90": "hsl(0, 0%, 10%)",
+              "primary": "#2684FF",
+              "primary25": "#DEEBFF",
+              "primary50": "#B2D4FF",
+              "primary75": "#4C9AFF",
+            },
+            "spacing": {
+              "baseUnit": 4,
+              "controlHeight": 38,
+              "menuGutter": 8,
+            },
+          }
+        }
+      />
+    </IndicatorsContainer>
+  </Control>
+</SelectContainer>
 `;
 
 exports[`should render SearchSelect correctly 1`] = `
-<Select
-  aria-live="polite"
-  backspaceRemovesValue={true}
-  blurInputOnSelect={true}
-  cacheOptions={false}
-  captureMenuScroll={false}
+<SelectContainer
   className="react-select"
-  classNamePrefix="react-select"
-  closeMenuOnScroll={false}
-  closeMenuOnSelect={true}
-  components={
+  clearValue={[Function]}
+  cx={[Function]}
+  getClassNames={[Function]}
+  getStyles={[Function]}
+  getValue={[Function]}
+  hasValue={false}
+  innerProps={
     {
-      "ClearIndicator": [Function],
-      "DropdownIndicator": [Function],
-      "LoadingIndicator": [Function],
-      "MultiValueRemove": [Function],
+      "id": undefined,
+      "onKeyDown": [Function],
     }
   }
-  controlShouldRenderValue={true}
-  defaultOptions={false}
-  escapeClearsValue={false}
-  filterOption={null}
-  formatGroupLabel={[Function]}
-  getOptionLabel={[Function]}
-  getOptionValue={[Function]}
-  inputValue=""
   isDisabled={false}
-  isLoading={false}
+  isFocused={false}
   isMulti={false}
-  isOptionDisabled={[Function]}
   isRtl={false}
-  isSearchable={true}
-  loadingMessage={[Function]}
-  maxMenuHeight={300}
-  menuIsOpen={false}
-  menuPlacement="bottom"
-  menuPosition="absolute"
-  menuShouldBlockScroll={false}
-  menuShouldScrollIntoView={true}
-  minMenuHeight={140}
-  noOptionsMessage={[Function]}
-  onChange={[Function]}
-  onInputChange={[Function]}
-  onMenuClose={[Function]}
-  onMenuOpen={[Function]}
-  openMenuOnClick={true}
-  openMenuOnFocus={false}
   options={[]}
-  pageSize={5}
-  placeholder="Select..."
-  screenReaderStatus={[Function]}
-  styles={
+  selectOption={[Function]}
+  selectProps={
     {
-      "container": [Function],
-      "control": [Function],
-      "indicatorsContainer": [Function],
-      "input": [Function],
-      "loadingIndicator": [Function],
-      "menu": [Function],
-      "menuList": [Function],
-      "menuPortal": [Function],
-      "multiValue": [Function],
-      "multiValueLabel": [Function],
-      "multiValueRemove": [Function],
+      "aria-live": "polite",
+      "backspaceRemovesValue": true,
+      "blurInputOnSelect": true,
+      "captureMenuScroll": false,
+      "className": "react-select",
+      "classNamePrefix": "react-select",
+      "classNames": {},
+      "closeMenuOnScroll": false,
+      "closeMenuOnSelect": true,
+      "components": {
+        "ClearIndicator": [Function],
+        "DropdownIndicator": [Function],
+        "LoadingIndicator": [Function],
+        "MultiValueRemove": [Function],
+      },
+      "controlShouldRenderValue": true,
+      "escapeClearsValue": false,
+      "filterOption": null,
+      "formatGroupLabel": [Function],
+      "getOptionLabel": [Function],
+      "getOptionValue": [Function],
+      "inputValue": "",
+      "isDisabled": false,
+      "isLoading": false,
+      "isMulti": false,
+      "isOptionDisabled": [Function],
+      "isRtl": false,
+      "isSearchable": true,
+      "loadingMessage": [Function],
+      "maxMenuHeight": 300,
+      "menuIsOpen": false,
+      "menuPlacement": "bottom",
+      "menuPosition": "absolute",
+      "menuShouldBlockScroll": false,
+      "menuShouldScrollIntoView": true,
+      "minMenuHeight": 140,
       "noOptionsMessage": [Function],
-      "option": [Function],
-      "placeholder": [Function],
-      "singleValue": [Function],
-      "valueContainer": [Function],
+      "onChange": [Function],
+      "onInputChange": [Function],
+      "onMenuClose": [Function],
+      "onMenuOpen": [Function],
+      "openMenuOnClick": true,
+      "openMenuOnFocus": false,
+      "options": [],
+      "pageSize": 5,
+      "placeholder": "Select...",
+      "screenReaderStatus": [Function],
+      "styles": {
+        "container": [Function],
+        "control": [Function],
+        "indicatorSeparator": [Function],
+        "indicatorsContainer": [Function],
+        "input": [Function],
+        "loadingIndicator": [Function],
+        "menu": [Function],
+        "menuList": [Function],
+        "menuPortal": [Function],
+        "multiValue": [Function],
+        "multiValueLabel": [Function],
+        "multiValueRemove": [Function],
+        "noOptionsMessage": [Function],
+        "option": [Function],
+        "placeholder": [Function],
+        "singleValue": [Function],
+        "valueContainer": [Function],
+      },
+      "tabIndex": 0,
+      "tabSelectsValue": true,
+      "unstyled": false,
+      "value": null,
     }
   }
-  tabIndex="0"
-  tabSelectsValue={true}
-  value={null}
-/>
+  setValue={[Function]}
+  theme={
+    {
+      "borderRadius": 4,
+      "colors": {
+        "danger": "#DE350B",
+        "dangerLight": "#FFBDAD",
+        "neutral0": "hsl(0, 0%, 100%)",
+        "neutral10": "hsl(0, 0%, 90%)",
+        "neutral20": "hsl(0, 0%, 80%)",
+        "neutral30": "hsl(0, 0%, 70%)",
+        "neutral40": "hsl(0, 0%, 60%)",
+        "neutral5": "hsl(0, 0%, 95%)",
+        "neutral50": "hsl(0, 0%, 50%)",
+        "neutral60": "hsl(0, 0%, 40%)",
+        "neutral70": "hsl(0, 0%, 30%)",
+        "neutral80": "hsl(0, 0%, 20%)",
+        "neutral90": "hsl(0, 0%, 10%)",
+        "primary": "#2684FF",
+        "primary25": "#DEEBFF",
+        "primary50": "#B2D4FF",
+        "primary75": "#4C9AFF",
+      },
+      "spacing": {
+        "baseUnit": 4,
+        "controlHeight": 38,
+        "menuGutter": 8,
+      },
+    }
+  }
+>
+  <LiveRegion
+    ariaSelection={null}
+    clearValue={[Function]}
+    cx={[Function]}
+    focusableOptions={[]}
+    focusedOption={null}
+    focusedValue={null}
+    getClassNames={[Function]}
+    getStyles={[Function]}
+    getValue={[Function]}
+    hasValue={false}
+    id="react-select-3-live-region"
+    isFocused={false}
+    isMulti={false}
+    isRtl={false}
+    options={[]}
+    selectOption={[Function]}
+    selectProps={
+      {
+        "aria-live": "polite",
+        "backspaceRemovesValue": true,
+        "blurInputOnSelect": true,
+        "captureMenuScroll": false,
+        "className": "react-select",
+        "classNamePrefix": "react-select",
+        "classNames": {},
+        "closeMenuOnScroll": false,
+        "closeMenuOnSelect": true,
+        "components": {
+          "ClearIndicator": [Function],
+          "DropdownIndicator": [Function],
+          "LoadingIndicator": [Function],
+          "MultiValueRemove": [Function],
+        },
+        "controlShouldRenderValue": true,
+        "escapeClearsValue": false,
+        "filterOption": null,
+        "formatGroupLabel": [Function],
+        "getOptionLabel": [Function],
+        "getOptionValue": [Function],
+        "inputValue": "",
+        "isDisabled": false,
+        "isLoading": false,
+        "isMulti": false,
+        "isOptionDisabled": [Function],
+        "isRtl": false,
+        "isSearchable": true,
+        "loadingMessage": [Function],
+        "maxMenuHeight": 300,
+        "menuIsOpen": false,
+        "menuPlacement": "bottom",
+        "menuPosition": "absolute",
+        "menuShouldBlockScroll": false,
+        "menuShouldScrollIntoView": true,
+        "minMenuHeight": 140,
+        "noOptionsMessage": [Function],
+        "onChange": [Function],
+        "onInputChange": [Function],
+        "onMenuClose": [Function],
+        "onMenuOpen": [Function],
+        "openMenuOnClick": true,
+        "openMenuOnFocus": false,
+        "options": [],
+        "pageSize": 5,
+        "placeholder": "Select...",
+        "screenReaderStatus": [Function],
+        "styles": {
+          "container": [Function],
+          "control": [Function],
+          "indicatorSeparator": [Function],
+          "indicatorsContainer": [Function],
+          "input": [Function],
+          "loadingIndicator": [Function],
+          "menu": [Function],
+          "menuList": [Function],
+          "menuPortal": [Function],
+          "multiValue": [Function],
+          "multiValueLabel": [Function],
+          "multiValueRemove": [Function],
+          "noOptionsMessage": [Function],
+          "option": [Function],
+          "placeholder": [Function],
+          "singleValue": [Function],
+          "valueContainer": [Function],
+        },
+        "tabIndex": 0,
+        "tabSelectsValue": true,
+        "unstyled": false,
+        "value": null,
+      }
+    }
+    selectValue={[]}
+    setValue={[Function]}
+    theme={
+      {
+        "borderRadius": 4,
+        "colors": {
+          "danger": "#DE350B",
+          "dangerLight": "#FFBDAD",
+          "neutral0": "hsl(0, 0%, 100%)",
+          "neutral10": "hsl(0, 0%, 90%)",
+          "neutral20": "hsl(0, 0%, 80%)",
+          "neutral30": "hsl(0, 0%, 70%)",
+          "neutral40": "hsl(0, 0%, 60%)",
+          "neutral5": "hsl(0, 0%, 95%)",
+          "neutral50": "hsl(0, 0%, 50%)",
+          "neutral60": "hsl(0, 0%, 40%)",
+          "neutral70": "hsl(0, 0%, 30%)",
+          "neutral80": "hsl(0, 0%, 20%)",
+          "neutral90": "hsl(0, 0%, 10%)",
+          "primary": "#2684FF",
+          "primary25": "#DEEBFF",
+          "primary50": "#B2D4FF",
+          "primary75": "#4C9AFF",
+        },
+        "spacing": {
+          "baseUnit": 4,
+          "controlHeight": 38,
+          "menuGutter": 8,
+        },
+      }
+    }
+  />
+  <Control
+    clearValue={[Function]}
+    cx={[Function]}
+    getClassNames={[Function]}
+    getStyles={[Function]}
+    getValue={[Function]}
+    hasValue={false}
+    innerProps={
+      {
+        "onMouseDown": [Function],
+        "onTouchEnd": [Function],
+      }
+    }
+    innerRef={[Function]}
+    isDisabled={false}
+    isFocused={false}
+    isMulti={false}
+    isRtl={false}
+    menuIsOpen={false}
+    options={[]}
+    selectOption={[Function]}
+    selectProps={
+      {
+        "aria-live": "polite",
+        "backspaceRemovesValue": true,
+        "blurInputOnSelect": true,
+        "captureMenuScroll": false,
+        "className": "react-select",
+        "classNamePrefix": "react-select",
+        "classNames": {},
+        "closeMenuOnScroll": false,
+        "closeMenuOnSelect": true,
+        "components": {
+          "ClearIndicator": [Function],
+          "DropdownIndicator": [Function],
+          "LoadingIndicator": [Function],
+          "MultiValueRemove": [Function],
+        },
+        "controlShouldRenderValue": true,
+        "escapeClearsValue": false,
+        "filterOption": null,
+        "formatGroupLabel": [Function],
+        "getOptionLabel": [Function],
+        "getOptionValue": [Function],
+        "inputValue": "",
+        "isDisabled": false,
+        "isLoading": false,
+        "isMulti": false,
+        "isOptionDisabled": [Function],
+        "isRtl": false,
+        "isSearchable": true,
+        "loadingMessage": [Function],
+        "maxMenuHeight": 300,
+        "menuIsOpen": false,
+        "menuPlacement": "bottom",
+        "menuPosition": "absolute",
+        "menuShouldBlockScroll": false,
+        "menuShouldScrollIntoView": true,
+        "minMenuHeight": 140,
+        "noOptionsMessage": [Function],
+        "onChange": [Function],
+        "onInputChange": [Function],
+        "onMenuClose": [Function],
+        "onMenuOpen": [Function],
+        "openMenuOnClick": true,
+        "openMenuOnFocus": false,
+        "options": [],
+        "pageSize": 5,
+        "placeholder": "Select...",
+        "screenReaderStatus": [Function],
+        "styles": {
+          "container": [Function],
+          "control": [Function],
+          "indicatorSeparator": [Function],
+          "indicatorsContainer": [Function],
+          "input": [Function],
+          "loadingIndicator": [Function],
+          "menu": [Function],
+          "menuList": [Function],
+          "menuPortal": [Function],
+          "multiValue": [Function],
+          "multiValueLabel": [Function],
+          "multiValueRemove": [Function],
+          "noOptionsMessage": [Function],
+          "option": [Function],
+          "placeholder": [Function],
+          "singleValue": [Function],
+          "valueContainer": [Function],
+        },
+        "tabIndex": 0,
+        "tabSelectsValue": true,
+        "unstyled": false,
+        "value": null,
+      }
+    }
+    setValue={[Function]}
+    theme={
+      {
+        "borderRadius": 4,
+        "colors": {
+          "danger": "#DE350B",
+          "dangerLight": "#FFBDAD",
+          "neutral0": "hsl(0, 0%, 100%)",
+          "neutral10": "hsl(0, 0%, 90%)",
+          "neutral20": "hsl(0, 0%, 80%)",
+          "neutral30": "hsl(0, 0%, 70%)",
+          "neutral40": "hsl(0, 0%, 60%)",
+          "neutral5": "hsl(0, 0%, 95%)",
+          "neutral50": "hsl(0, 0%, 50%)",
+          "neutral60": "hsl(0, 0%, 40%)",
+          "neutral70": "hsl(0, 0%, 30%)",
+          "neutral80": "hsl(0, 0%, 20%)",
+          "neutral90": "hsl(0, 0%, 10%)",
+          "primary": "#2684FF",
+          "primary25": "#DEEBFF",
+          "primary50": "#B2D4FF",
+          "primary75": "#4C9AFF",
+        },
+        "spacing": {
+          "baseUnit": 4,
+          "controlHeight": 38,
+          "menuGutter": 8,
+        },
+      }
+    }
+  >
+    <ValueContainer
+      clearValue={[Function]}
+      cx={[Function]}
+      getClassNames={[Function]}
+      getStyles={[Function]}
+      getValue={[Function]}
+      hasValue={false}
+      isDisabled={false}
+      isMulti={false}
+      isRtl={false}
+      options={[]}
+      selectOption={[Function]}
+      selectProps={
+        {
+          "aria-live": "polite",
+          "backspaceRemovesValue": true,
+          "blurInputOnSelect": true,
+          "captureMenuScroll": false,
+          "className": "react-select",
+          "classNamePrefix": "react-select",
+          "classNames": {},
+          "closeMenuOnScroll": false,
+          "closeMenuOnSelect": true,
+          "components": {
+            "ClearIndicator": [Function],
+            "DropdownIndicator": [Function],
+            "LoadingIndicator": [Function],
+            "MultiValueRemove": [Function],
+          },
+          "controlShouldRenderValue": true,
+          "escapeClearsValue": false,
+          "filterOption": null,
+          "formatGroupLabel": [Function],
+          "getOptionLabel": [Function],
+          "getOptionValue": [Function],
+          "inputValue": "",
+          "isDisabled": false,
+          "isLoading": false,
+          "isMulti": false,
+          "isOptionDisabled": [Function],
+          "isRtl": false,
+          "isSearchable": true,
+          "loadingMessage": [Function],
+          "maxMenuHeight": 300,
+          "menuIsOpen": false,
+          "menuPlacement": "bottom",
+          "menuPosition": "absolute",
+          "menuShouldBlockScroll": false,
+          "menuShouldScrollIntoView": true,
+          "minMenuHeight": 140,
+          "noOptionsMessage": [Function],
+          "onChange": [Function],
+          "onInputChange": [Function],
+          "onMenuClose": [Function],
+          "onMenuOpen": [Function],
+          "openMenuOnClick": true,
+          "openMenuOnFocus": false,
+          "options": [],
+          "pageSize": 5,
+          "placeholder": "Select...",
+          "screenReaderStatus": [Function],
+          "styles": {
+            "container": [Function],
+            "control": [Function],
+            "indicatorSeparator": [Function],
+            "indicatorsContainer": [Function],
+            "input": [Function],
+            "loadingIndicator": [Function],
+            "menu": [Function],
+            "menuList": [Function],
+            "menuPortal": [Function],
+            "multiValue": [Function],
+            "multiValueLabel": [Function],
+            "multiValueRemove": [Function],
+            "noOptionsMessage": [Function],
+            "option": [Function],
+            "placeholder": [Function],
+            "singleValue": [Function],
+            "valueContainer": [Function],
+          },
+          "tabIndex": 0,
+          "tabSelectsValue": true,
+          "unstyled": false,
+          "value": null,
+        }
+      }
+      setValue={[Function]}
+      theme={
+        {
+          "borderRadius": 4,
+          "colors": {
+            "danger": "#DE350B",
+            "dangerLight": "#FFBDAD",
+            "neutral0": "hsl(0, 0%, 100%)",
+            "neutral10": "hsl(0, 0%, 90%)",
+            "neutral20": "hsl(0, 0%, 80%)",
+            "neutral30": "hsl(0, 0%, 70%)",
+            "neutral40": "hsl(0, 0%, 60%)",
+            "neutral5": "hsl(0, 0%, 95%)",
+            "neutral50": "hsl(0, 0%, 50%)",
+            "neutral60": "hsl(0, 0%, 40%)",
+            "neutral70": "hsl(0, 0%, 30%)",
+            "neutral80": "hsl(0, 0%, 20%)",
+            "neutral90": "hsl(0, 0%, 10%)",
+            "primary": "#2684FF",
+            "primary25": "#DEEBFF",
+            "primary50": "#B2D4FF",
+            "primary75": "#4C9AFF",
+          },
+          "spacing": {
+            "baseUnit": 4,
+            "controlHeight": 38,
+            "menuGutter": 8,
+          },
+        }
+      }
+    >
+      <Placeholder
+        clearValue={[Function]}
+        cx={[Function]}
+        getClassNames={[Function]}
+        getStyles={[Function]}
+        getValue={[Function]}
+        hasValue={false}
+        innerProps={
+          {
+            "id": "react-select-3-placeholder",
+          }
+        }
+        isDisabled={false}
+        isFocused={false}
+        isMulti={false}
+        isRtl={false}
+        key="placeholder"
+        options={[]}
+        selectOption={[Function]}
+        selectProps={
+          {
+            "aria-live": "polite",
+            "backspaceRemovesValue": true,
+            "blurInputOnSelect": true,
+            "captureMenuScroll": false,
+            "className": "react-select",
+            "classNamePrefix": "react-select",
+            "classNames": {},
+            "closeMenuOnScroll": false,
+            "closeMenuOnSelect": true,
+            "components": {
+              "ClearIndicator": [Function],
+              "DropdownIndicator": [Function],
+              "LoadingIndicator": [Function],
+              "MultiValueRemove": [Function],
+            },
+            "controlShouldRenderValue": true,
+            "escapeClearsValue": false,
+            "filterOption": null,
+            "formatGroupLabel": [Function],
+            "getOptionLabel": [Function],
+            "getOptionValue": [Function],
+            "inputValue": "",
+            "isDisabled": false,
+            "isLoading": false,
+            "isMulti": false,
+            "isOptionDisabled": [Function],
+            "isRtl": false,
+            "isSearchable": true,
+            "loadingMessage": [Function],
+            "maxMenuHeight": 300,
+            "menuIsOpen": false,
+            "menuPlacement": "bottom",
+            "menuPosition": "absolute",
+            "menuShouldBlockScroll": false,
+            "menuShouldScrollIntoView": true,
+            "minMenuHeight": 140,
+            "noOptionsMessage": [Function],
+            "onChange": [Function],
+            "onInputChange": [Function],
+            "onMenuClose": [Function],
+            "onMenuOpen": [Function],
+            "openMenuOnClick": true,
+            "openMenuOnFocus": false,
+            "options": [],
+            "pageSize": 5,
+            "placeholder": "Select...",
+            "screenReaderStatus": [Function],
+            "styles": {
+              "container": [Function],
+              "control": [Function],
+              "indicatorSeparator": [Function],
+              "indicatorsContainer": [Function],
+              "input": [Function],
+              "loadingIndicator": [Function],
+              "menu": [Function],
+              "menuList": [Function],
+              "menuPortal": [Function],
+              "multiValue": [Function],
+              "multiValueLabel": [Function],
+              "multiValueRemove": [Function],
+              "noOptionsMessage": [Function],
+              "option": [Function],
+              "placeholder": [Function],
+              "singleValue": [Function],
+              "valueContainer": [Function],
+            },
+            "tabIndex": 0,
+            "tabSelectsValue": true,
+            "unstyled": false,
+            "value": null,
+          }
+        }
+        setValue={[Function]}
+        theme={
+          {
+            "borderRadius": 4,
+            "colors": {
+              "danger": "#DE350B",
+              "dangerLight": "#FFBDAD",
+              "neutral0": "hsl(0, 0%, 100%)",
+              "neutral10": "hsl(0, 0%, 90%)",
+              "neutral20": "hsl(0, 0%, 80%)",
+              "neutral30": "hsl(0, 0%, 70%)",
+              "neutral40": "hsl(0, 0%, 60%)",
+              "neutral5": "hsl(0, 0%, 95%)",
+              "neutral50": "hsl(0, 0%, 50%)",
+              "neutral60": "hsl(0, 0%, 40%)",
+              "neutral70": "hsl(0, 0%, 30%)",
+              "neutral80": "hsl(0, 0%, 20%)",
+              "neutral90": "hsl(0, 0%, 10%)",
+              "primary": "#2684FF",
+              "primary25": "#DEEBFF",
+              "primary50": "#B2D4FF",
+              "primary75": "#4C9AFF",
+            },
+            "spacing": {
+              "baseUnit": 4,
+              "controlHeight": 38,
+              "menuGutter": 8,
+            },
+          }
+        }
+      >
+        Select...
+      </Placeholder>
+      <Input
+        aria-autocomplete="list"
+        aria-describedby="react-select-3-placeholder"
+        aria-expanded={false}
+        aria-haspopup={true}
+        autoCapitalize="none"
+        autoComplete="off"
+        autoCorrect="off"
+        clearValue={[Function]}
+        cx={[Function]}
+        getClassNames={[Function]}
+        getStyles={[Function]}
+        getValue={[Function]}
+        hasValue={false}
+        id="react-select-3-input"
+        innerRef={[Function]}
+        isDisabled={false}
+        isHidden={false}
+        isMulti={false}
+        isRtl={false}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        options={[]}
+        role="combobox"
+        selectOption={[Function]}
+        selectProps={
+          {
+            "aria-live": "polite",
+            "backspaceRemovesValue": true,
+            "blurInputOnSelect": true,
+            "captureMenuScroll": false,
+            "className": "react-select",
+            "classNamePrefix": "react-select",
+            "classNames": {},
+            "closeMenuOnScroll": false,
+            "closeMenuOnSelect": true,
+            "components": {
+              "ClearIndicator": [Function],
+              "DropdownIndicator": [Function],
+              "LoadingIndicator": [Function],
+              "MultiValueRemove": [Function],
+            },
+            "controlShouldRenderValue": true,
+            "escapeClearsValue": false,
+            "filterOption": null,
+            "formatGroupLabel": [Function],
+            "getOptionLabel": [Function],
+            "getOptionValue": [Function],
+            "inputValue": "",
+            "isDisabled": false,
+            "isLoading": false,
+            "isMulti": false,
+            "isOptionDisabled": [Function],
+            "isRtl": false,
+            "isSearchable": true,
+            "loadingMessage": [Function],
+            "maxMenuHeight": 300,
+            "menuIsOpen": false,
+            "menuPlacement": "bottom",
+            "menuPosition": "absolute",
+            "menuShouldBlockScroll": false,
+            "menuShouldScrollIntoView": true,
+            "minMenuHeight": 140,
+            "noOptionsMessage": [Function],
+            "onChange": [Function],
+            "onInputChange": [Function],
+            "onMenuClose": [Function],
+            "onMenuOpen": [Function],
+            "openMenuOnClick": true,
+            "openMenuOnFocus": false,
+            "options": [],
+            "pageSize": 5,
+            "placeholder": "Select...",
+            "screenReaderStatus": [Function],
+            "styles": {
+              "container": [Function],
+              "control": [Function],
+              "indicatorSeparator": [Function],
+              "indicatorsContainer": [Function],
+              "input": [Function],
+              "loadingIndicator": [Function],
+              "menu": [Function],
+              "menuList": [Function],
+              "menuPortal": [Function],
+              "multiValue": [Function],
+              "multiValueLabel": [Function],
+              "multiValueRemove": [Function],
+              "noOptionsMessage": [Function],
+              "option": [Function],
+              "placeholder": [Function],
+              "singleValue": [Function],
+              "valueContainer": [Function],
+            },
+            "tabIndex": 0,
+            "tabSelectsValue": true,
+            "unstyled": false,
+            "value": null,
+          }
+        }
+        setValue={[Function]}
+        spellCheck="false"
+        tabIndex={0}
+        theme={
+          {
+            "borderRadius": 4,
+            "colors": {
+              "danger": "#DE350B",
+              "dangerLight": "#FFBDAD",
+              "neutral0": "hsl(0, 0%, 100%)",
+              "neutral10": "hsl(0, 0%, 90%)",
+              "neutral20": "hsl(0, 0%, 80%)",
+              "neutral30": "hsl(0, 0%, 70%)",
+              "neutral40": "hsl(0, 0%, 60%)",
+              "neutral5": "hsl(0, 0%, 95%)",
+              "neutral50": "hsl(0, 0%, 50%)",
+              "neutral60": "hsl(0, 0%, 40%)",
+              "neutral70": "hsl(0, 0%, 30%)",
+              "neutral80": "hsl(0, 0%, 20%)",
+              "neutral90": "hsl(0, 0%, 10%)",
+              "primary": "#2684FF",
+              "primary25": "#DEEBFF",
+              "primary50": "#B2D4FF",
+              "primary75": "#4C9AFF",
+            },
+            "spacing": {
+              "baseUnit": 4,
+              "controlHeight": 38,
+              "menuGutter": 8,
+            },
+          }
+        }
+        type="text"
+        value=""
+      />
+    </ValueContainer>
+    <IndicatorsContainer
+      clearValue={[Function]}
+      cx={[Function]}
+      getClassNames={[Function]}
+      getStyles={[Function]}
+      getValue={[Function]}
+      hasValue={false}
+      isDisabled={false}
+      isMulti={false}
+      isRtl={false}
+      options={[]}
+      selectOption={[Function]}
+      selectProps={
+        {
+          "aria-live": "polite",
+          "backspaceRemovesValue": true,
+          "blurInputOnSelect": true,
+          "captureMenuScroll": false,
+          "className": "react-select",
+          "classNamePrefix": "react-select",
+          "classNames": {},
+          "closeMenuOnScroll": false,
+          "closeMenuOnSelect": true,
+          "components": {
+            "ClearIndicator": [Function],
+            "DropdownIndicator": [Function],
+            "LoadingIndicator": [Function],
+            "MultiValueRemove": [Function],
+          },
+          "controlShouldRenderValue": true,
+          "escapeClearsValue": false,
+          "filterOption": null,
+          "formatGroupLabel": [Function],
+          "getOptionLabel": [Function],
+          "getOptionValue": [Function],
+          "inputValue": "",
+          "isDisabled": false,
+          "isLoading": false,
+          "isMulti": false,
+          "isOptionDisabled": [Function],
+          "isRtl": false,
+          "isSearchable": true,
+          "loadingMessage": [Function],
+          "maxMenuHeight": 300,
+          "menuIsOpen": false,
+          "menuPlacement": "bottom",
+          "menuPosition": "absolute",
+          "menuShouldBlockScroll": false,
+          "menuShouldScrollIntoView": true,
+          "minMenuHeight": 140,
+          "noOptionsMessage": [Function],
+          "onChange": [Function],
+          "onInputChange": [Function],
+          "onMenuClose": [Function],
+          "onMenuOpen": [Function],
+          "openMenuOnClick": true,
+          "openMenuOnFocus": false,
+          "options": [],
+          "pageSize": 5,
+          "placeholder": "Select...",
+          "screenReaderStatus": [Function],
+          "styles": {
+            "container": [Function],
+            "control": [Function],
+            "indicatorSeparator": [Function],
+            "indicatorsContainer": [Function],
+            "input": [Function],
+            "loadingIndicator": [Function],
+            "menu": [Function],
+            "menuList": [Function],
+            "menuPortal": [Function],
+            "multiValue": [Function],
+            "multiValueLabel": [Function],
+            "multiValueRemove": [Function],
+            "noOptionsMessage": [Function],
+            "option": [Function],
+            "placeholder": [Function],
+            "singleValue": [Function],
+            "valueContainer": [Function],
+          },
+          "tabIndex": 0,
+          "tabSelectsValue": true,
+          "unstyled": false,
+          "value": null,
+        }
+      }
+      setValue={[Function]}
+      theme={
+        {
+          "borderRadius": 4,
+          "colors": {
+            "danger": "#DE350B",
+            "dangerLight": "#FFBDAD",
+            "neutral0": "hsl(0, 0%, 100%)",
+            "neutral10": "hsl(0, 0%, 90%)",
+            "neutral20": "hsl(0, 0%, 80%)",
+            "neutral30": "hsl(0, 0%, 70%)",
+            "neutral40": "hsl(0, 0%, 60%)",
+            "neutral5": "hsl(0, 0%, 95%)",
+            "neutral50": "hsl(0, 0%, 50%)",
+            "neutral60": "hsl(0, 0%, 40%)",
+            "neutral70": "hsl(0, 0%, 30%)",
+            "neutral80": "hsl(0, 0%, 20%)",
+            "neutral90": "hsl(0, 0%, 10%)",
+            "primary": "#2684FF",
+            "primary25": "#DEEBFF",
+            "primary50": "#B2D4FF",
+            "primary75": "#4C9AFF",
+          },
+          "spacing": {
+            "baseUnit": 4,
+            "controlHeight": 38,
+            "menuGutter": 8,
+          },
+        }
+      }
+    >
+      <IndicatorSeparator
+        clearValue={[Function]}
+        cx={[Function]}
+        getClassNames={[Function]}
+        getStyles={[Function]}
+        getValue={[Function]}
+        hasValue={false}
+        isDisabled={false}
+        isFocused={false}
+        isMulti={false}
+        isRtl={false}
+        options={[]}
+        selectOption={[Function]}
+        selectProps={
+          {
+            "aria-live": "polite",
+            "backspaceRemovesValue": true,
+            "blurInputOnSelect": true,
+            "captureMenuScroll": false,
+            "className": "react-select",
+            "classNamePrefix": "react-select",
+            "classNames": {},
+            "closeMenuOnScroll": false,
+            "closeMenuOnSelect": true,
+            "components": {
+              "ClearIndicator": [Function],
+              "DropdownIndicator": [Function],
+              "LoadingIndicator": [Function],
+              "MultiValueRemove": [Function],
+            },
+            "controlShouldRenderValue": true,
+            "escapeClearsValue": false,
+            "filterOption": null,
+            "formatGroupLabel": [Function],
+            "getOptionLabel": [Function],
+            "getOptionValue": [Function],
+            "inputValue": "",
+            "isDisabled": false,
+            "isLoading": false,
+            "isMulti": false,
+            "isOptionDisabled": [Function],
+            "isRtl": false,
+            "isSearchable": true,
+            "loadingMessage": [Function],
+            "maxMenuHeight": 300,
+            "menuIsOpen": false,
+            "menuPlacement": "bottom",
+            "menuPosition": "absolute",
+            "menuShouldBlockScroll": false,
+            "menuShouldScrollIntoView": true,
+            "minMenuHeight": 140,
+            "noOptionsMessage": [Function],
+            "onChange": [Function],
+            "onInputChange": [Function],
+            "onMenuClose": [Function],
+            "onMenuOpen": [Function],
+            "openMenuOnClick": true,
+            "openMenuOnFocus": false,
+            "options": [],
+            "pageSize": 5,
+            "placeholder": "Select...",
+            "screenReaderStatus": [Function],
+            "styles": {
+              "container": [Function],
+              "control": [Function],
+              "indicatorSeparator": [Function],
+              "indicatorsContainer": [Function],
+              "input": [Function],
+              "loadingIndicator": [Function],
+              "menu": [Function],
+              "menuList": [Function],
+              "menuPortal": [Function],
+              "multiValue": [Function],
+              "multiValueLabel": [Function],
+              "multiValueRemove": [Function],
+              "noOptionsMessage": [Function],
+              "option": [Function],
+              "placeholder": [Function],
+              "singleValue": [Function],
+              "valueContainer": [Function],
+            },
+            "tabIndex": 0,
+            "tabSelectsValue": true,
+            "unstyled": false,
+            "value": null,
+          }
+        }
+        setValue={[Function]}
+        theme={
+          {
+            "borderRadius": 4,
+            "colors": {
+              "danger": "#DE350B",
+              "dangerLight": "#FFBDAD",
+              "neutral0": "hsl(0, 0%, 100%)",
+              "neutral10": "hsl(0, 0%, 90%)",
+              "neutral20": "hsl(0, 0%, 80%)",
+              "neutral30": "hsl(0, 0%, 70%)",
+              "neutral40": "hsl(0, 0%, 60%)",
+              "neutral5": "hsl(0, 0%, 95%)",
+              "neutral50": "hsl(0, 0%, 50%)",
+              "neutral60": "hsl(0, 0%, 40%)",
+              "neutral70": "hsl(0, 0%, 30%)",
+              "neutral80": "hsl(0, 0%, 20%)",
+              "neutral90": "hsl(0, 0%, 10%)",
+              "primary": "#2684FF",
+              "primary25": "#DEEBFF",
+              "primary50": "#B2D4FF",
+              "primary75": "#4C9AFF",
+            },
+            "spacing": {
+              "baseUnit": 4,
+              "controlHeight": 38,
+              "menuGutter": 8,
+            },
+          }
+        }
+      />
+      <dropdownIndicator
+        clearValue={[Function]}
+        cx={[Function]}
+        getClassNames={[Function]}
+        getStyles={[Function]}
+        getValue={[Function]}
+        hasValue={false}
+        innerProps={
+          {
+            "aria-hidden": "true",
+            "onMouseDown": [Function],
+            "onTouchEnd": [Function],
+          }
+        }
+        isDisabled={false}
+        isFocused={false}
+        isMulti={false}
+        isRtl={false}
+        options={[]}
+        selectOption={[Function]}
+        selectProps={
+          {
+            "aria-live": "polite",
+            "backspaceRemovesValue": true,
+            "blurInputOnSelect": true,
+            "captureMenuScroll": false,
+            "className": "react-select",
+            "classNamePrefix": "react-select",
+            "classNames": {},
+            "closeMenuOnScroll": false,
+            "closeMenuOnSelect": true,
+            "components": {
+              "ClearIndicator": [Function],
+              "DropdownIndicator": [Function],
+              "LoadingIndicator": [Function],
+              "MultiValueRemove": [Function],
+            },
+            "controlShouldRenderValue": true,
+            "escapeClearsValue": false,
+            "filterOption": null,
+            "formatGroupLabel": [Function],
+            "getOptionLabel": [Function],
+            "getOptionValue": [Function],
+            "inputValue": "",
+            "isDisabled": false,
+            "isLoading": false,
+            "isMulti": false,
+            "isOptionDisabled": [Function],
+            "isRtl": false,
+            "isSearchable": true,
+            "loadingMessage": [Function],
+            "maxMenuHeight": 300,
+            "menuIsOpen": false,
+            "menuPlacement": "bottom",
+            "menuPosition": "absolute",
+            "menuShouldBlockScroll": false,
+            "menuShouldScrollIntoView": true,
+            "minMenuHeight": 140,
+            "noOptionsMessage": [Function],
+            "onChange": [Function],
+            "onInputChange": [Function],
+            "onMenuClose": [Function],
+            "onMenuOpen": [Function],
+            "openMenuOnClick": true,
+            "openMenuOnFocus": false,
+            "options": [],
+            "pageSize": 5,
+            "placeholder": "Select...",
+            "screenReaderStatus": [Function],
+            "styles": {
+              "container": [Function],
+              "control": [Function],
+              "indicatorSeparator": [Function],
+              "indicatorsContainer": [Function],
+              "input": [Function],
+              "loadingIndicator": [Function],
+              "menu": [Function],
+              "menuList": [Function],
+              "menuPortal": [Function],
+              "multiValue": [Function],
+              "multiValueLabel": [Function],
+              "multiValueRemove": [Function],
+              "noOptionsMessage": [Function],
+              "option": [Function],
+              "placeholder": [Function],
+              "singleValue": [Function],
+              "valueContainer": [Function],
+            },
+            "tabIndex": 0,
+            "tabSelectsValue": true,
+            "unstyled": false,
+            "value": null,
+          }
+        }
+        setValue={[Function]}
+        theme={
+          {
+            "borderRadius": 4,
+            "colors": {
+              "danger": "#DE350B",
+              "dangerLight": "#FFBDAD",
+              "neutral0": "hsl(0, 0%, 100%)",
+              "neutral10": "hsl(0, 0%, 90%)",
+              "neutral20": "hsl(0, 0%, 80%)",
+              "neutral30": "hsl(0, 0%, 70%)",
+              "neutral40": "hsl(0, 0%, 60%)",
+              "neutral5": "hsl(0, 0%, 95%)",
+              "neutral50": "hsl(0, 0%, 50%)",
+              "neutral60": "hsl(0, 0%, 40%)",
+              "neutral70": "hsl(0, 0%, 30%)",
+              "neutral80": "hsl(0, 0%, 20%)",
+              "neutral90": "hsl(0, 0%, 10%)",
+              "primary": "#2684FF",
+              "primary25": "#DEEBFF",
+              "primary50": "#B2D4FF",
+              "primary75": "#4C9AFF",
+            },
+            "spacing": {
+              "baseUnit": 4,
+              "controlHeight": 38,
+              "menuGutter": 8,
+            },
+          }
+        }
+      />
+    </IndicatorsContainer>
+  </Control>
+</SelectContainer>
 `;

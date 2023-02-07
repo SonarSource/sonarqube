@@ -41,7 +41,7 @@ it('should open the regulatory report page', async () => {
   expect(screen.getByText('regulatory_report.description1')).toBeInTheDocument();
   expect(screen.getByText('regulatory_report.description2')).toBeInTheDocument();
 
-  const branchSelect = screen.getByRole('textbox');
+  const branchSelect = screen.getByRole('combobox', { name: 'regulatory_page.select_branch' });
   expect(branchSelect).toBeInTheDocument();
 
   await user.click(branchSelect);

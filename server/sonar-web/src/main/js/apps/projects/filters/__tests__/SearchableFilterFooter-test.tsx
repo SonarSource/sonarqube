@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { SelectComponentsProps } from 'react-select/src/Select';
 import Select from '../../../../components/controls/Select';
 import SearchableFilterFooter from '../SearchableFilterFooter';
 
@@ -38,7 +37,7 @@ it('should render items without the ones in the facet', () => {
       query={{ languages: ['java'] }}
     />
   );
-  expect(wrapper.find<SelectComponentsProps>(Select).props().options).toMatchSnapshot();
+  expect(wrapper.find(Select).props().options).toMatchSnapshot();
 });
 
 it('should properly handle a change of the facet value', () => {

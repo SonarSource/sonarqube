@@ -22,20 +22,17 @@ import classNames from 'classnames';
 import { omit } from 'lodash';
 import * as React from 'react';
 import ReactSelect, {
+  ClearIndicatorProps,
   components,
-  GroupTypeBase,
-  IndicatorProps,
-  NamedProps,
-  OptionProps,
-  OptionTypeBase,
+  DropdownIndicatorProps,
+  GroupBase,
+  LoadingIndicatorProps,
+  MultiValueRemoveProps,
+  Props as NamedProps,
   StylesConfig,
 } from 'react-select';
 import AsyncReactSelect, { AsyncProps } from 'react-select/async';
-import AsyncCreatableReactSelect, {
-  Props as AsyncCreatableProps,
-} from 'react-select/async-creatable';
-import { LoadingIndicatorProps } from 'react-select/src/components/indicators';
-import { MultiValueRemoveProps } from 'react-select/src/components/MultiValue';
+import AsyncCreatableReactSelect, { AsyncCreatableProps } from 'react-select/async-creatable';
 import { colors, others, sizes, zIndexes } from '../../app/theme';
 import { ClearButton } from './buttons';
 
@@ -48,9 +45,9 @@ const ArrowSpan = styled.span`
   width: 0;
 `;
 
-export interface BasicSelectOption {
+export interface LabelValueSelectOption<V = string> {
   label: string;
-  value: string;
+  value: V;
 }
 
 interface StyleExtensionProps {
@@ -58,31 +55,30 @@ interface StyleExtensionProps {
 }
 
 export function dropdownIndicator<
-  Option extends OptionTypeBase,
-  IsMulti extends boolean = false,
-  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
->({ innerProps }: IndicatorProps<Option, IsMulti, Group>) {
+  Option = LabelValueSelectOption,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>
+>({ innerProps }: DropdownIndicatorProps<Option, IsMulti, Group>) {
   return <ArrowSpan {...innerProps} />;
 }
 
 export function clearIndicator<
-  Option extends OptionTypeBase,
-  IsMulti extends boolean = false,
-  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
->({ innerProps }: IndicatorProps<Option, IsMulti, Group>) {
+  Option = LabelValueSelectOption,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>
+>(props: ClearIndicatorProps<Option, IsMulti, Group>) {
+  const { innerProps } = props;
   return (
-    <ClearButton
-      className="button-tiny spacer-left spacer-right text-middle"
-      iconProps={{ size: 12 }}
-      {...innerProps}
-    />
+    <div {...innerProps} className="spacer-left spacer-right">
+      <ClearButton className="button-tiny" iconProps={{ size: 12 }} />
+    </div>
   );
 }
 
 export function loadingIndicator<
-  Option extends OptionTypeBase,
-  IsMulti extends boolean,
-  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
+  Option = LabelValueSelectOption,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>
 >({ innerProps }: LoadingIndicatorProps<Option, IsMulti, Group>) {
   return (
     <i className={classNames('deferred-spinner spacer-left spacer-right', innerProps.className)} />
@@ -90,27 +86,22 @@ export function loadingIndicator<
 }
 
 export function multiValueRemove<
-  Option extends OptionTypeBase,
-  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
->(props: MultiValueRemoveProps<Option, Group>) {
-  return <div {...props.innerProps}>×</div>;
+  Option = LabelValueSelectOption,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>
+>(props: MultiValueRemoveProps<Option, IsMulti, Group>) {
+  return <components.MultiValueRemove {...props}>&times;</components.MultiValueRemove>;
 }
-
-export type SelectOptionProps<T extends OptionTypeBase, IsMulti extends boolean> = OptionProps<
-  T,
-  IsMulti
->;
-export const SelectOption = components.Option;
 
 /* Keeping it as a class to simplify a dozen tests */
 export default class Select<
-  Option extends OptionTypeBase,
-  IsMulti extends boolean = false,
-  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
+  Option = LabelValueSelectOption,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>
 > extends React.Component<NamedProps<Option, IsMulti, Group> & StyleExtensionProps> {
   render() {
     return (
-      <ReactSelect
+      <ReactSelect<Option, IsMulti, Group>
         {...omit(this.props, 'className', 'large')}
         styles={selectStyle<Option, IsMulti, Group>(this.props)}
         className={classNames('react-select', this.props.className)}
@@ -127,14 +118,14 @@ export default class Select<
 }
 
 export function CreatableSelect<
-  Option extends OptionTypeBase,
-  isMulti extends boolean,
-  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
->(props: AsyncCreatableProps<Option, isMulti, Group>) {
+  Option = LabelValueSelectOption,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>
+>(props: AsyncCreatableProps<Option, IsMulti, Group>) {
   return (
-    <AsyncCreatableReactSelect
+    <AsyncCreatableReactSelect<Option, IsMulti, Group>
       {...props}
-      styles={selectStyle<Option, isMulti, Group>()}
+      styles={selectStyle<Option, IsMulti, Group>()}
       components={{
         ...props.components,
         DropdownIndicator: dropdownIndicator,
@@ -147,12 +138,16 @@ export function CreatableSelect<
 }
 
 export function SearchSelect<
-  Option extends OptionTypeBase,
-  IsMulti extends boolean,
-  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
->(props: NamedProps<Option, IsMulti, Group> & AsyncProps<Option, Group> & StyleExtensionProps) {
+  Option = LabelValueSelectOption,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>
+>(
+  props: NamedProps<Option, IsMulti, Group> &
+    AsyncProps<Option, IsMulti, Group> &
+    StyleExtensionProps
+) {
   return (
-    <AsyncReactSelect
+    <AsyncReactSelect<Option, IsMulti, Group>
       {...omit(props, 'className', 'large')}
       styles={selectStyle<Option, IsMulti, Group>(props)}
       className={classNames('react-select', props.className)}
@@ -169,11 +164,13 @@ export function SearchSelect<
 }
 
 export function selectStyle<
-  Option extends OptionTypeBase,
-  IsMulti extends boolean,
-  Group extends GroupTypeBase<Option>
+  Option = LabelValueSelectOption,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>
 >(
-  props?: NamedProps<Option, IsMulti, Group> & AsyncProps<Option, Group> & StyleExtensionProps
+  props?: NamedProps<Option, IsMulti, Group> &
+    AsyncProps<Option, IsMulti, Group> &
+    StyleExtensionProps
 ): StylesConfig<Option, IsMulti, Group> {
   return {
     container: () => ({
@@ -247,6 +244,12 @@ export function selectStyle<
       width: '20px',
       paddingRight: '5px',
       flex: 1,
+      display: 'flex',
+      justifyContent: 'end',
+      alignItems: 'center',
+    }),
+    indicatorSeparator: () => ({
+      display: 'none',
     }),
     multiValue: () => ({
       display: 'inline-block',

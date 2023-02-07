@@ -27,7 +27,7 @@ import Checkbox from '../../components/controls/Checkbox';
 import DateInput from '../../components/controls/DateInput';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import SearchBox from '../../components/controls/SearchBox';
-import Select from '../../components/controls/Select';
+import Select, { LabelValueSelectOption } from '../../components/controls/Select';
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
@@ -64,7 +64,6 @@ interface State {
 const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP'];
 
 export class Search extends React.PureComponent<Props, State> {
-  mounted = false;
   state: State = { bulkApplyTemplateModal: false, deleteModal: false };
 
   getQualifierOptions = () => {
@@ -104,17 +103,19 @@ export class Search extends React.PureComponent<Props, State> {
     this.setState({ bulkApplyTemplateModal: false });
   };
 
-  handleQualifierChange = ({ value }: { value: string }) => this.props.onQualifierChanged(value);
+  handleQualifierChange = ({ value }: LabelValueSelectOption) =>
+    this.props.onQualifierChanged(value);
 
-  handleVisibilityChange = ({ value }: { value: string }) => this.props.onVisibilityChanged(value);
+  handleVisibilityChange = ({ value }: LabelValueSelectOption) =>
+    this.props.onVisibilityChanged(value);
 
-  optionRenderer = (props: OptionProps<{ value: string }, false>) => (
+  optionRenderer = (props: OptionProps<LabelValueSelectOption, false>) => (
     <components.Option {...props}>{this.renderQualifierOption(props.data)}</components.Option>
   );
 
-  singleValueRenderer = (props: SingleValueProps<{ value: string }>) => (
+  singleValueRenderer = (props: SingleValueProps<LabelValueSelectOption, false>) => (
     <components.SingleValue {...props}>
-      {this.renderQualifierOption(props.data as { value: string; label: string })}
+      {this.renderQualifierOption(props.data)}
     </components.SingleValue>
   );
 
@@ -137,7 +138,7 @@ export class Search extends React.PureComponent<Props, State> {
     );
   };
 
-  renderQualifierOption = (option: { label: string; value: string }) => (
+  renderQualifierOption = (option: LabelValueSelectOption) => (
     <div className="display-flex-center">
       <QualifierIcon className="little-spacer-right" qualifier={option.value} />
       {option.label}

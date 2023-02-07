@@ -30,7 +30,7 @@
     "react-intl": "3.12.1",
     "react-modal": "3.16.1",
     "react-router-dom": "6.7.0",
-    "react-select": "4.3.1",
+    "react-select": "5.7.0",
     "react-virtualized": "9.22.3",
     "regenerator-runtime": "0.13.11",
     "valid-url": "1.0.9"
@@ -61,7 +61,6 @@
     "@types/react-dom": "16.9.17",
     "@types/react-helmet": "6.1.6",
     "@types/react-modal": "3.13.1",
-    "@types/react-select": "4.0.18",
     "@types/react-virtualized": "9.21.21",
     "@types/valid-url": "1.0.3",
     "@typescript-eslint/eslint-plugin": "5.49.0",

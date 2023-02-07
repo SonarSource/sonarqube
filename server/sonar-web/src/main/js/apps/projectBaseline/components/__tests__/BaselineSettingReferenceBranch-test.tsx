@@ -95,7 +95,7 @@ describe('renderOption', () => {
     expect(
       renderBranchOption({
         ...props,
-        data: { value: 'branch-nope', isMain: false, isInvalid: true },
+        data: { label: 'branch-nope', value: 'branch-nope', isMain: false, isInvalid: true },
       })
     ).toMatchSnapshot("branch doesn't exist");
   });

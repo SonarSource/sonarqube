@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { GroupTypeBase } from 'react-select';
+import { GroupBase } from 'react-select';
 import { mockReactSelectOptionProps } from '../../../../helpers/mocks/react-select';
 import { click } from '../../../../helpers/testUtils';
 import ProjectsSortingSelect, { Option } from '../ProjectsSortingSelect';
@@ -44,7 +44,7 @@ it('should render option correctly', () => {
   expect(
     shallow(
       <SortOption
-        {...mockReactSelectOptionProps<Option, false, GroupTypeBase<Option>>({
+        {...mockReactSelectOptionProps<Option, false, GroupBase<Option>>({
           label: 'foo',
           value: 'foo',
           short: 'fo',
@@ -55,7 +55,7 @@ it('should render option correctly', () => {
   expect(
     shallow(
       <SortOption
-        {...mockReactSelectOptionProps<Option, false, GroupTypeBase<Option>>({
+        {...mockReactSelectOptionProps<Option, false, GroupBase<Option>>({
           label: 'foo',
           value: 'foo',
         })}

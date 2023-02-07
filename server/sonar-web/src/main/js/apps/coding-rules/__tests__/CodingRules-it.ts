@@ -19,6 +19,7 @@
  */
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { byRole } from 'testing-library-selector';
 import CodingRulesMock from '../../../api/mocks/CodingRulesMock';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
@@ -29,6 +30,11 @@ jest.mock('../../../api/rules');
 jest.mock('../../../api/issues');
 jest.mock('../../../api/users');
 jest.mock('../../../api/quality-profiles');
+
+const ui = {
+  activateInSelectOption: byRole('combobox', { name: 'coding_rules.activate_in' }),
+  deactivateInSelectOption: byRole('combobox', { name: 'coding_rules.deactivate_in' }),
+};
 
 let handler: CodingRulesMock;
 
@@ -276,7 +282,7 @@ it('no quality profile for bulk cahnge base on language search', async () => {
 
   expect(dialog).toBeInTheDocument();
   const dialogScreen = within(dialog);
-  await user.click(dialogScreen.getByRole('textbox', { name: 'coding_rules.activate_in' }));
+  await user.click(ui.activateInSelectOption.get());
   expect(dialogScreen.getByText('coding_rules.bulk_change.no_quality_profile')).toBeInTheDocument();
 });
 
@@ -297,7 +303,7 @@ it('should be able to bulk activate quality profile', async () => {
   expect(dialog).toBeInTheDocument();
 
   let dialogScreen = within(dialog);
-  await user.click(dialogScreen.getByRole('textbox', { name: 'coding_rules.activate_in' }));
+  await user.click(ui.activateInSelectOption.get());
   await user.click(
     dialogScreen.getByText(`${selectQPSuccess.name} - ${selectQPSuccess.languageName}`)
   );
@@ -326,7 +332,7 @@ it('should be able to bulk activate quality profile', async () => {
       name: `coding_rules.activate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`,
     })
   );
-  await user.click(dialogScreen.getByRole('textbox', { name: 'coding_rules.activate_in' }));
+  await user.click(ui.activateInSelectOption.get());
   await user.click(
     dialogScreen.getByText(`${selectQPWarning.name} - ${selectQPWarning.languageName}`)
   );
@@ -354,7 +360,7 @@ it('should be able to bulk deactivate quality profile', async () => {
       name: `coding_rules.deactivate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`,
     })
   );
-  await user.click(dialogScreen.getByRole('textbox', { name: 'coding_rules.deactivate_in' }));
+  await user.click(ui.deactivateInSelectOption.get());
 
   await user.click(dialogScreen.getByText(`${selectQP.name} - ${selectQP.languageName}`));
   await user.click(dialogScreen.getByRole('button', { name: 'apply' }));

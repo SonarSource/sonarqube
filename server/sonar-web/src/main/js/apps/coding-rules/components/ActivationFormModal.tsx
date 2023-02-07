@@ -19,11 +19,10 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { OptionTypeBase } from 'react-select';
 import { activateRule, Profile } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
+import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
@@ -141,7 +140,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     this.setState({ profile });
   };
 
-  handleSeverityChange = ({ value }: OptionTypeBase) => {
+  handleSeverityChange = ({ value }: LabelValueSelectOption) => {
     this.setState({ severity: value });
   };
 
@@ -176,7 +175,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                 isClearable={false}
                 isDisabled={submitting || profilesWithDepth.length === 1}
                 onChange={this.handleProfileChange}
-                getOptionLabel={(p) => '   '.repeat(p.depth) + p.name}
+                getOptionLabel={(p: ProfileWithDeph) => '   '.repeat(p.depth) + p.name}
                 options={profilesWithDepth}
                 value={profile}
               />

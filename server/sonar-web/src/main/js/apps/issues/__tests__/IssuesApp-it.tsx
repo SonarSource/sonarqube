@@ -94,7 +94,7 @@ it('should be able to bulk change', async () => {
   await user.keyboard('New Comment');
   expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
 
-  await selectEvent.select(screen.getByRole('textbox', { name: 'issue.set_type' }), [
+  await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_type' }), [
     'issue.type.BUG',
   ]);
   await user.click(screen.getByRole('button', { name: 'apply' }));

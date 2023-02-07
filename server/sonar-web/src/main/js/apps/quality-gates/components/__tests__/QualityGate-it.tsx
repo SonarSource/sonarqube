@@ -189,7 +189,7 @@ it('should be able to add a condition', async () => {
   let dialog = within(screen.getByRole('dialog'));
 
   await user.click(dialog.getByRole('radio', { name: 'quality_gates.conditions.new_code' }));
-  await selectEvent.select(dialog.getByRole('textbox'), ['Issues']);
+  await selectEvent.select(dialog.getByRole('combobox'), ['Issues']);
   await user.click(dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' }));
   await user.keyboard('12{Enter}');
 
@@ -201,7 +201,7 @@ it('should be able to add a condition', async () => {
   await user.click(await screen.findByText('quality_gates.add_condition'));
 
   dialog = within(screen.getByRole('dialog'));
-  await selectEvent.select(dialog.getByRole('textbox'), ['Info Issues']);
+  await selectEvent.select(dialog.getByRole('combobox'), ['Info Issues']);
   await user.click(dialog.getByRole('radio', { name: 'quality_gates.conditions.overall_code' }));
   await user.click(dialog.getByLabelText('quality_gates.conditions.operator'));
 
@@ -219,7 +219,7 @@ it('should be able to add a condition', async () => {
 
   dialog = within(screen.getByRole('dialog'));
   await user.click(dialog.getByRole('radio', { name: 'quality_gates.conditions.overall_code' }));
-  await selectEvent.select(dialog.getByRole('textbox'), ['Maintainability Rating']);
+  await selectEvent.select(dialog.getByRole('combobox'), ['Maintainability Rating']);
   await user.click(dialog.getByLabelText('quality_gates.conditions.value'));
   await user.click(dialog.getByText('B'));
   await user.click(dialog.getByRole('button', { name: 'quality_gates.add_condition' }));
@@ -555,7 +555,9 @@ describe('The Permissions section', () => {
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
-    const searchUserInput = within(popup).getByRole('textbox');
+    const searchUserInput = within(popup).getByRole('combobox', {
+      name: 'quality_gates.permissions.search',
+    });
     expect(searchUserInput).toBeInTheDocument();
     const addUserButton = screen.getByRole('button', {
       name: 'add_verb',
@@ -603,7 +605,9 @@ describe('The Permissions section', () => {
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
-    const searchUserInput = within(popup).getByRole('textbox');
+    const searchUserInput = within(popup).getByRole('combobox', {
+      name: 'quality_gates.permissions.search',
+    });
     const addUserButton = screen.getByRole('button', {
       name: 'add_verb',
     });
@@ -635,7 +639,9 @@ describe('The Permissions section', () => {
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
-    const searchUserInput = within(popup).getByRole('textbox');
+    const searchUserInput = within(popup).getByRole('combobox', {
+      name: 'quality_gates.permissions.search',
+    });
     await user.click(searchUserInput);
 
     expect(screen.getByText('no_results')).toBeInTheDocument();

@@ -27,7 +27,7 @@ function optionRenderer(props: OptionProps<AlmSettingsInstance, false>) {
   return <components.Option {...props}>{customOptions(props.data)}</components.Option>;
 }
 
-function singleValueRenderer(props: SingleValueProps<AlmSettingsInstance>) {
+function singleValueRenderer(props: SingleValueProps<AlmSettingsInstance, false>) {
   return <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>;
 }
 

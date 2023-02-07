@@ -63,10 +63,12 @@ it('renders optionrenderer and singlevaluerenderer', () => {
   const OptionRendererer = wrapper.instance().optionRenderer;
   const SingleValueRendererer = wrapper.instance().singleValueRenderer;
   expect(
-    shallow(<OptionRendererer {...mockReactSelectOptionProps({ value: 'val' })} />)
+    shallow(<OptionRendererer {...mockReactSelectOptionProps({ label: 'Val', value: 'val' })} />)
   ).toMatchSnapshot('option renderer');
   expect(
-    shallow(<SingleValueRendererer {...mockReactSelectOptionProps({ value: 'val' })} />)
+    shallow(
+      <SingleValueRendererer {...mockReactSelectOptionProps({ label: 'Val', value: 'val' })} />
+    )
   ).toMatchSnapshot('single value renderer');
 });
 

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { components, OptionProps, OptionTypeBase, SingleValueProps } from 'react-select';
+import { components, OptionProps, SingleValueProps } from 'react-select';
 import { createRule, updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
+import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import { Alert } from '../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
@@ -33,7 +33,7 @@ import { csvEscape } from '../../../helpers/csv';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { latinize } from '../../../helpers/strings';
-import { Dict, RuleDetails, RuleParameter } from '../../../types/types';
+import { Dict, RuleDetails, RuleParameter, RuleType } from '../../../types/types';
 import { SeveritySelect } from './SeveritySelect';
 
 interface Props {
@@ -144,11 +144,12 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   handleDescriptionChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) =>
     this.setState({ description: event.currentTarget.value });
 
-  handleTypeChange = ({ value }: { value: string }) => this.setState({ type: value });
+  handleTypeChange = ({ value }: LabelValueSelectOption<RuleType>) =>
+    this.setState({ type: value });
 
   handleSeverityChange = ({ value }: { value: string }) => this.setState({ severity: value });
 
-  handleStatusChange = ({ value }: { value: string }) => this.setState({ status: value });
+  handleStatusChange = ({ value }: LabelValueSelectOption) => this.setState({ status: value });
 
   handleParameterChange = (event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.currentTarget;
@@ -213,7 +214,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     </div>
   );
 
-  renderTypeOption = (props: OptionProps<OptionTypeBase, false>) => {
+  renderTypeOption = (props: OptionProps<LabelValueSelectOption<RuleType>, false>) => {
     return (
       <components.Option {...props}>
         <TypeHelper type={props.data.value} />
@@ -221,7 +222,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     );
   };
 
-  renderTypeSingleValue = (props: SingleValueProps<OptionTypeBase>) => {
+  renderTypeSingleValue = (props: SingleValueProps<LabelValueSelectOption<RuleType>, false>) => {
     return (
       <components.SingleValue {...props}>
         <TypeHelper className="display-flex-center" type={props.data.value} />
@@ -230,7 +231,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   };
 
   renderTypeField = () => {
-    const ruleTypeOption = RULE_TYPES.map((type) => ({
+    const ruleTypeOption: LabelValueSelectOption<RuleType>[] = RULE_TYPES.map((type) => ({
       label: translate('issue.type', type),
       value: type,
     }));

@@ -309,6 +309,7 @@ exports[`renders optionrenderer and singlevaluerenderer: option renderer 1`] = `
 <Option
   data={
     {
+      "label": "Val",
       "value": "val",
     }
   }
@@ -320,6 +321,7 @@ exports[`renders optionrenderer and singlevaluerenderer: option renderer 1`] = `
       className="little-spacer-right"
       qualifier="val"
     />
+    Val
   </div>
 </Option>
 `;
@@ -328,6 +330,7 @@ exports[`renders optionrenderer and singlevaluerenderer: single value renderer 1
 <SingleValue
   data={
     {
+      "label": "Val",
       "value": "val",
     }
   }
@@ -339,6 +342,7 @@ exports[`renders optionrenderer and singlevaluerenderer: single value renderer 1
       className="little-spacer-right"
       qualifier="val"
     />
+    Val
   </div>
 </SingleValue>
 `;

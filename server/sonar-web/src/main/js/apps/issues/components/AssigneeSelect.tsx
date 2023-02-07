@@ -20,7 +20,7 @@
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { components, OptionProps, SingleValueProps } from 'react-select';
-import { BasicSelectOption, SearchSelect } from '../../../components/controls/Select';
+import { LabelValueSelectOption, SearchSelect } from '../../../components/controls/Select';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
@@ -31,7 +31,7 @@ const DEBOUNCE_DELAY = 250;
 // exported for test
 export const MIN_QUERY_LENGTH = 2;
 
-export interface AssigneeOption extends BasicSelectOption {
+export interface AssigneeOption extends LabelValueSelectOption {
   avatar?: string;
   email?: string;
   label: string;
@@ -113,7 +113,7 @@ export default class AssigneeSelect extends React.Component<AssigneeSelectProps>
     <components.Option {...props}>{this.renderAssignee(props.data)}</components.Option>
   );
 
-  renderSingleAssignee = (props: SingleValueProps<AssigneeOption>) => (
+  renderSingleAssignee = (props: SingleValueProps<AssigneeOption, false>) => (
     <components.SingleValue {...props}>{this.renderAssignee(props.data)}</components.SingleValue>
   );
 

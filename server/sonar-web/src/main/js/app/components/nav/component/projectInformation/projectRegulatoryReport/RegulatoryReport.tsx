@@ -18,20 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { orderBy } from 'lodash';
 import * as React from 'react';
-import { BranchLike } from '../../../../../../types/branch-like';
 import { getBranches } from '../../../../../../api/branches';
 import { getRegulatoryReportUrl } from '../../../../../../api/regulatory-report';
 import { ButtonLink } from '../../../../../../components/controls/buttons';
-import Select, { BasicSelectOption } from '../../../../../../components/controls/Select';
+import Select, { LabelValueSelectOption } from '../../../../../../components/controls/Select';
 import {
   getBranchLikeDisplayName,
   isBranch,
   isMainBranch,
 } from '../../../../../../helpers/branch-like';
 import { translate } from '../../../../../../helpers/l10n';
+import { BranchLike } from '../../../../../../types/branch-like';
 import { Component } from '../../../../../../types/types';
-import { orderBy } from 'lodash';
 
 interface Props {
   component: Pick<Component, 'key' | 'name'>;
@@ -42,7 +42,7 @@ interface Props {
 interface State {
   downloadStarted: boolean;
   selectedBranch: string;
-  branchLikesOptions: BasicSelectOption[];
+  branchLikesOptions: LabelValueSelectOption[];
 }
 
 export default class RegulatoryReport extends React.PureComponent<Props, State> {
@@ -87,7 +87,7 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
       });
   }
 
-  onBranchSelect = (newOption: BasicSelectOption) => {
+  onBranchSelect = (newOption: LabelValueSelectOption) => {
     this.setState({ selectedBranch: newOption.value, downloadStarted: false });
   };
 

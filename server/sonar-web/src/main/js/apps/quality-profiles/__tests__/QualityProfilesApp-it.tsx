@@ -50,7 +50,7 @@ const ui = {
   }),
   createButton: byRole('button', { name: 'create' }),
   compareButton: byRole('link', { name: 'compare' }),
-  compareDropdown: byRole('textbox', { name: 'quality_profiles.compare_with' }),
+  compareDropdown: byRole('combobox', { name: 'quality_profiles.compare_with' }),
   changelogLink: byRole('link', { name: 'changelog' }),
   popup: byRole('dialog'),
   copyRadio: byRole('radio', {
@@ -65,7 +65,7 @@ const ui = {
     }),
   activateConfirmButton: byRole('button', { name: 'coding_rules.activate' }),
   namePropupInput: byRole('textbox', { name: 'quality_profiles.new_name field_required' }),
-  filterByLang: byRole('textbox', { name: 'quality_profiles.filter_by:' }),
+  filterByLang: byRole('combobox', { name: 'quality_profiles.filter_by:' }),
   listLinkCQualityProfile: byRole('link', { name: 'c quality profile' }),
   listLinkNewCQualityProfile: byRole('link', { name: 'New c quality profile' }),
   listLinkNewCQualityProfileFromCreateButton: byRole('link', {
@@ -73,11 +73,11 @@ const ui = {
   }),
   listLinkJavaQualityProfile: byRole('link', { name: 'java quality profile' }),
   returnToList: byRole('link', { name: 'quality_profiles.page' }),
-  languageSelect: byRole('textbox', { name: 'language field_required' }),
-  profileExtendSelect: byRole('textbox', {
+  languageSelect: byRole('combobox', { name: 'language field_required' }),
+  profileExtendSelect: byRole('combobox', {
     name: 'quality_profiles.creation.choose_parent_quality_profile field_required',
   }),
-  profileCopySelect: byRole('textbox', {
+  profileCopySelect: byRole('combobox', {
     name: 'quality_profiles.creation.choose_copy_quality_profile field_required',
   }),
   nameCreatePopupInput: byRole('textbox', { name: 'name field_required' }),

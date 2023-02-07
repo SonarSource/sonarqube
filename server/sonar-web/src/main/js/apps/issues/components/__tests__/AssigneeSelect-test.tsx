@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Props as ReactSelectAsyncProps } from 'react-select/async';
+import { GroupBase } from 'react-select';
+import { AsyncProps } from 'react-select/async';
 import { SearchSelect } from '../../../../components/controls/Select';
 import Avatar from '../../../../components/ui/Avatar';
 import { mockCurrentUser, mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
@@ -97,12 +98,12 @@ it('should render options correctly', () => {
 it('should render noOptionsMessage correctly', () => {
   const wrapper = shallowRender();
   expect(
-    wrapper.find<ReactSelectAsyncProps<AssigneeOption, false>>(SearchSelect).props()
+    wrapper.find<AsyncProps<AssigneeOption, false, GroupBase<AssigneeOption>>>(SearchSelect).props()
       .noOptionsMessage!({ inputValue: 'a' })
   ).toBe(`select2.tooShort.${MIN_QUERY_LENGTH}`);
 
   expect(
-    wrapper.find<ReactSelectAsyncProps<AssigneeOption, false>>(SearchSelect).props()
+    wrapper.find<AsyncProps<AssigneeOption, false, GroupBase<AssigneeOption>>>(SearchSelect).props()
       .noOptionsMessage!({ inputValue: 'droids' })
   ).toBe('select2.noMatches');
 });

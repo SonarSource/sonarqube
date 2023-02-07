@@ -56,8 +56,11 @@ export default function QualityGatePermissionsAddModalRenderer(
       <form onSubmit={props.onSubmit}>
         <div className="modal-body">
           <div className="modal-field">
-            <label>{translate('quality_gates.permissions.search')}</label>
+            <label htmlFor="quality-gate-permissions-add-modal-select-input">
+              {translate('quality_gates.permissions.search')}
+            </label>
             <SearchSelect
+              inputId="quality-gate-permissions-add-modal-select-input"
               autoFocus={true}
               isClearable={false}
               placeholder=""
@@ -103,7 +106,7 @@ function optionRenderer(props: OptionProps<OptionWithValue, false>) {
   return <components.Option {...props}>{customOptions(props.data)}</components.Option>;
 }
 
-function singleValueRenderer(props: SingleValueProps<OptionWithValue>) {
+function singleValueRenderer(props: SingleValueProps<OptionWithValue, false>) {
   return <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>;
 }
 

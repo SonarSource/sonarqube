@@ -80,7 +80,7 @@ export default class MeasureViewSelect extends React.PureComponent<Props> {
     </components.Option>
   );
 
-  renderValue = (props: SingleValueProps<ViewOption>) => (
+  renderValue = (props: SingleValueProps<ViewOption, false>) => (
     <components.SingleValue {...props} className="display-flex-center">
       {props.data.icon}
       <span className="little-spacer-left">{props.data.label}</span>

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select, { BasicSelectOption } from '../../../components/controls/Select';
+import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { ALL_TYPES } from '../constants';
 
@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default class TypesFilter extends React.PureComponent<Props> {
-  handleChange = ({ value }: BasicSelectOption) => {
+  handleChange = ({ value }: LabelValueSelectOption) => {
     this.props.onChange(value);
   };
 
@@ -43,7 +43,7 @@ export default class TypesFilter extends React.PureComponent<Props> {
       };
     });
 
-    const allOptions: BasicSelectOption[] = [
+    const allOptions: LabelValueSelectOption[] = [
       { value: ALL_TYPES, label: translate('background_task.type.ALL') },
       ...options,
     ];

@@ -53,7 +53,7 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
     return <components.Option {...props}>{customOptions(data)}</components.Option>;
   }
 
-  singleValueRenderer = (props: SingleValueProps<OptionWithValue>) => (
+  singleValueRenderer = (props: SingleValueProps<OptionWithValue, false>) => (
     <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>
   );
 

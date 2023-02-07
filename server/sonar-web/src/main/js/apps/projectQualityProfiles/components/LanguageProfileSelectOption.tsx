@@ -21,11 +21,11 @@ import * as React from 'react';
 import { components, OptionProps } from 'react-select';
 import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
 import Link from '../../../components/common/Link';
-import { BasicSelectOption } from '../../../components/controls/Select';
+import { LabelValueSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 
-export interface ProfileOption extends BasicSelectOption {
+export interface ProfileOption extends LabelValueSelectOption {
   language: string;
   isDisabled: boolean;
 }

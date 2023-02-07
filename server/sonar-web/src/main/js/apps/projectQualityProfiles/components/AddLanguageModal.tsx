@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Select, { BasicSelectOption } from '../../../components/controls/Select';
+import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { translate } from '../../../helpers/l10n';
 import { Languages } from '../../../types/languages';
@@ -47,7 +47,7 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
 
   const header = translate('project_quality_profile.add_language_modal.title');
 
-  const languageOptions: BasicSelectOption[] = difference(
+  const languageOptions: LabelValueSelectOption[] = difference(
     Object.keys(profilesByLanguage),
     unavailableLanguages
   ).map((l) => ({ value: l, label: languages[l].name }));
@@ -90,7 +90,7 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                   className="abs-width-300"
                   isDisabled={submitting}
                   id="language"
-                  onChange={({ value }: BasicSelectOption) => {
+                  onChange={({ value }: LabelValueSelectOption) => {
                     setSelected({ language: value, key: undefined });
                   }}
                   options={languageOptions}

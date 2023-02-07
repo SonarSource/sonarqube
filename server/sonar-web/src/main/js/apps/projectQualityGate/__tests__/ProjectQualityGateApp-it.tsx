@@ -42,7 +42,7 @@ const ui = {
     name: /project_quality_gate.always_use_default/,
   }),
   specificRadioQualityGate: byRole('radio', { name: /project_quality_gate.always_use_specific/ }),
-  qualityGatesSelect: byRole('textbox', { name: 'project_quality_gate.select_specific_qg' }),
+  qualityGatesSelect: byRole('combobox', { name: 'project_quality_gate.select_specific_qg' }),
   QGWithoutConditionsOptionLabel: byRole('radio', {
     name: /option QG without conditions selected/,
   }),

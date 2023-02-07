@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { components, OptionProps, OptionTypeBase, SingleValueProps } from 'react-select';
-import Select from '../../../components/controls/Select';
+import { components, OptionProps, SingleValueProps } from 'react-select';
+import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
@@ -28,7 +28,23 @@ export interface SeveritySelectProps {
   isDisabled: boolean;
   severity: string;
   ariaLabelledby: string;
-  onChange: (value: OptionTypeBase) => void;
+  onChange: (value: LabelValueSelectOption) => void;
+}
+
+function Option(props: OptionProps<LabelValueSelectOption, false>) {
+  return (
+    <components.Option {...props}>
+      <SeverityHelper className="display-flex-center" severity={props.data.value} />
+    </components.Option>
+  );
+}
+
+function SingleValue(props: SingleValueProps<LabelValueSelectOption, false>) {
+  return (
+    <components.SingleValue {...props}>
+      <SeverityHelper className="display-flex-center" severity={props.data.value} />
+    </components.SingleValue>
+  );
 }
 
 export function SeveritySelect(props: SeveritySelectProps) {
@@ -37,22 +53,6 @@ export function SeveritySelect(props: SeveritySelectProps) {
     label: translate('severity', severity),
     value: severity,
   }));
-
-  function Option(props: OptionProps<OptionTypeBase, false>) {
-    return (
-      <components.Option {...props}>
-        <SeverityHelper className="display-flex-center" severity={props.data.value} />
-      </components.Option>
-    );
-  }
-
-  function SingleValue(props: SingleValueProps<OptionTypeBase>) {
-    return (
-      <components.SingleValue {...props}>
-        <SeverityHelper className="display-flex-center" severity={props.data.value} />
-      </components.SingleValue>
-    );
-  }
 
   return (
     <Select

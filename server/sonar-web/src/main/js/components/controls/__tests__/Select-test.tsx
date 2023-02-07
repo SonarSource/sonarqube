@@ -21,14 +21,16 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
   components,
-  GroupTypeBase,
+  GroupBase,
   InputProps,
-  OptionTypeBase,
+  LoadingIndicatorProps,
+  MultiValueRemoveProps,
   Props as ReactSelectProps,
 } from 'react-select';
-import { LoadingIndicatorProps } from 'react-select/src/components/indicators';
-import { MultiValueRemoveProps } from 'react-select/src/components/MultiValue';
-import { mockReactSelectIndicatorProps } from '../../../helpers/mocks/react-select';
+import {
+  mockReactSelectClearIndicatorProps,
+  mockReactSelectDropdownIndicatorProps,
+} from '../../../helpers/mocks/react-select';
 import Select, {
   clearIndicator,
   CreatableSelect,
@@ -60,11 +62,13 @@ describe('Select', () => {
   });
 
   it('should render clearIndicator correctly', () => {
-    expect(clearIndicator(mockReactSelectIndicatorProps({ value: '' }))).toMatchSnapshot();
+    expect(clearIndicator(mockReactSelectClearIndicatorProps({ value: '' }))).toMatchSnapshot();
   });
 
   it('should render dropdownIndicator correctly', () => {
-    expect(dropdownIndicator(mockReactSelectIndicatorProps({ value: '' }))).toMatchSnapshot();
+    expect(
+      dropdownIndicator(mockReactSelectDropdownIndicatorProps({ value: '' }))
+    ).toMatchSnapshot();
   });
 
   it('should render loadingIndicator correctly', () => {
@@ -81,9 +85,9 @@ describe('Select', () => {
   });
 
   function shallowRender<
-    Option extends OptionTypeBase,
-    IsMulti extends boolean = false,
-    Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
+    Option = unknown,
+    IsMulti extends boolean = boolean,
+    Group extends GroupBase<Option> = GroupBase<Option>
   >(props: Partial<ReactSelectProps<Option, IsMulti, Group>> = {}) {
     return shallow<ReactSelectProps<Option, IsMulti, Group>>(<Select {...props} />);
   }

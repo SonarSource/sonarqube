@@ -20,7 +20,6 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Props as ReactSelectProps } from 'react-select';
-import { SelectComponentsProps } from 'react-select/src/Select';
 import { searchIssueTags } from '../../../../api/issues';
 import { SubmitButton } from '../../../../components/controls/buttons';
 import Select, { CreatableSelect, SearchSelect } from '../../../../components/controls/Select';
@@ -72,7 +71,7 @@ it.each([
   const wrapper = getWrapper([mockIssue(false, { actions: [action] })]);
   await waitAndUpdate(wrapper);
 
-  const { Option, SingleValue } = wrapper.find<SelectComponentsProps>(Select).props().components;
+  const { Option, SingleValue } = wrapper.find(Select).props().components;
 
   expect(Option({ data: { label: 'label', value: 'value' } })).toMatchSnapshot('Option');
   expect(SingleValue({ data: { label: 'label', value: 'value' } })).toMatchSnapshot('SingleValue');

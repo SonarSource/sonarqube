@@ -27,7 +27,7 @@ import { Button } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
 import Radio from '../../../components/controls/Radio';
 import SearchBox from '../../../components/controls/SearchBox';
-import Select, { BasicSelectOption } from '../../../components/controls/Select';
+import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
 import CheckIcon from '../../../components/icons/CheckIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { Alert } from '../../../components/ui/Alert';
@@ -265,7 +265,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
                 inputId="github-choose-organization"
                 className="input-super-large"
                 options={organizations.map(orgToOption)}
-                onChange={({ value }: BasicSelectOption) => props.onSelectOrganization(value)}
+                onChange={({ value }: LabelValueSelectOption) => props.onSelectOrganization(value)}
                 value={selectedOrganization ? orgToOption(selectedOrganization) : null}
               />
             ) : (

@@ -27,7 +27,7 @@ import Link from '../../components/common/Link';
 import { SubmitButton } from '../../components/controls/buttons';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import Radio from '../../components/controls/Radio';
-import Select, { BasicSelectOption } from '../../components/controls/Select';
+import Select, { LabelValueSelectOption } from '../../components/controls/Select';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
@@ -51,7 +51,7 @@ function hasConditionOnNewCode(qualityGate: QualityGate): boolean {
   return !!qualityGate.conditions?.some((condition) => isDiffMetric(condition.metric));
 }
 
-interface QualityGateOption extends BasicSelectOption {
+interface QualityGateOption extends LabelValueSelectOption {
   isDisabled: boolean;
 }
 
