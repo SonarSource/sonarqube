@@ -405,6 +405,15 @@ qa_gitlab_task:
   depends_on:
     - build
     - docker_gitlab_container_build
+  env:
+    QA_CATEGORY: GITLAB
+  matrix:
+    - name: qa_gitlab_latest
+      env:
+        - GITLAB_VERSION: latest
+    - name: qa_gitlab_oldest
+      env:
+        - GITLAB_VERSION: 15.6.2-ce.0
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -417,11 +426,7 @@ qa_gitlab_task:
           - 443
         cpu: 2
         memory: 5Gb
-        matrix:
-          - image: us.gcr.io/sonarqube-team/sq-gitlab:latest
-          - image: us.gcr.io/sonarqube-team/sq-gitlab:15.6.2-ce.0
-  env:
-    QA_CATEGORY: GITLAB
+        image: us.gcr.io/sonarqube-team/sq-gitlab:${GITLAB_VERSION}
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
