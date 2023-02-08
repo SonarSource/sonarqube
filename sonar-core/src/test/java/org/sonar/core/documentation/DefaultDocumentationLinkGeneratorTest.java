@@ -19,16 +19,20 @@
  */
 package org.sonar.core.documentation;
 
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.SonarQubeVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.config.CorePropertyDefinitions.DOCUMENTATION_BASE_URL;
+import static org.sonar.core.documentation.DefaultDocumentationLinkGenerator.DOCUMENTATION_PUBLIC_URL;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultDocumentationLinkGeneratorTest {
@@ -36,6 +40,8 @@ public class DefaultDocumentationLinkGeneratorTest {
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private SonarQubeVersion sonarQubeVersion;
+  @Mock
+  private Configuration configuration;
 
   private DefaultDocumentationLinkGenerator documentationLinkGenerator;
 
@@ -43,20 +49,54 @@ public class DefaultDocumentationLinkGeneratorTest {
   public void setUp() {
     when(sonarQubeVersion.get().major()).thenReturn(100);
     when(sonarQubeVersion.get().minor()).thenReturn(1000);
-    documentationLinkGenerator = new DefaultDocumentationLinkGenerator(sonarQubeVersion);
+    when(configuration.get(DOCUMENTATION_BASE_URL)).thenReturn(Optional.empty());
+    documentationLinkGenerator = new DefaultDocumentationLinkGenerator(sonarQubeVersion, configuration);
   }
 
   @Test
   public void getDocumentationLink_whenSuffixProvided_concatenatesIt() {
     String generatedLink = documentationLinkGenerator.getDocumentationLink(TEST_SUFFIX);
 
-    assertThat(generatedLink).isEqualTo("https://docs.sonarqube.org/100.1000/documentation/analyzing-source-code/scm-integration/");
+    assertThat(generatedLink).isEqualTo(DOCUMENTATION_PUBLIC_URL + "100.1000/documentation/analyzing-source-code/scm-integration/");
   }
 
   @Test
   public void getDocumentationLink_whenSuffixNotProvided_returnsBaseUrl() {
     String generatedLink = documentationLinkGenerator.getDocumentationLink(null);
 
-    assertThat(generatedLink).isEqualTo("https://docs.sonarqube.org/100.1000");
+    assertThat(generatedLink).isEqualTo(DOCUMENTATION_PUBLIC_URL + "100.1000");
+  }
+
+  @Test
+  public void getDocumentationLink_suffixProvided_withPropertyOverride() {
+    String propertyValue = "https://new-url.sonarqube.org/";
+    when(configuration.get(DOCUMENTATION_BASE_URL)).thenReturn(Optional.of(propertyValue));
+    documentationLinkGenerator = new DefaultDocumentationLinkGenerator(sonarQubeVersion, configuration);
+
+    String generatedLink = documentationLinkGenerator.getDocumentationLink(TEST_SUFFIX);
+
+    assertThat(generatedLink).isEqualTo(propertyValue + "100.1000/documentation/analyzing-source-code/scm-integration/");
+  }
+
+  @Test
+  public void getDocumentationLink_suffixNotProvided_withPropertyOverride() {
+    String propertyValue = "https://new-url.sonarqube.org/";
+    when(configuration.get(DOCUMENTATION_BASE_URL)).thenReturn(Optional.of(propertyValue));
+    documentationLinkGenerator = new DefaultDocumentationLinkGenerator(sonarQubeVersion, configuration);
+
+    String generatedLink = documentationLinkGenerator.getDocumentationLink(null);
+
+    assertThat(generatedLink).isEqualTo(propertyValue + "100.1000");
+  }
+
+  @Test
+  public void getDocumentationLink_suffixNotProvided_withPropertyOverride_missingSlash() {
+    String propertyValue = "https://new-url.sonarqube.org";
+    when(configuration.get(DOCUMENTATION_BASE_URL)).thenReturn(Optional.of(propertyValue));
+    documentationLinkGenerator = new DefaultDocumentationLinkGenerator(sonarQubeVersion, configuration);
+
+    String generatedLink = documentationLinkGenerator.getDocumentationLink(null);
+
+    assertThat(generatedLink).isEqualTo(propertyValue + "/100.1000");
   }
 }

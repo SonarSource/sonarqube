@@ -21,17 +21,28 @@ package org.sonar.core.documentation;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.Version;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.platform.SonarQubeVersion;
 
 public class DefaultDocumentationLinkGenerator implements DocumentationLinkGenerator {
-  private static final String DOCUMENTATION_PUBLIC_URL = "https://docs.sonarqube.org/";
+  public static final String DOCUMENTATION_PUBLIC_URL = "https://docs.sonarqube.org/";
 
   private final String documentationBaseUrl;
 
-  public DefaultDocumentationLinkGenerator(SonarQubeVersion sonarQubeVersion) {
-    Version version = sonarQubeVersion.get();
-    this.documentationBaseUrl = DOCUMENTATION_PUBLIC_URL + version.major() + "." + version.minor();
+  public DefaultDocumentationLinkGenerator(SonarQubeVersion sonarQubeVersion, Configuration configuration) {
+    this.documentationBaseUrl = completeUrl(configuration.get(CorePropertyDefinitions.DOCUMENTATION_BASE_URL)
+      .orElse(DOCUMENTATION_PUBLIC_URL), sonarQubeVersion.get());
+  }
+
+  private static String completeUrl(String baseUrl, Version version) {
+    String url = baseUrl;
+    if (!url.endsWith("/")) {
+      url += "/";
+    }
+    url += version.major() + "." + version.minor();
+    return url;
   }
 
   @Override

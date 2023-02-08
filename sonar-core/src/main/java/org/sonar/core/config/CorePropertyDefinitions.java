@@ -28,6 +28,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.PluginRiskConsent;
 
 import static java.util.Arrays.asList;
@@ -47,6 +48,9 @@ public class CorePropertyDefinitions {
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
 
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
+
+  public static final String DOCUMENTATION_BASE_URL = "sonar.documentation.baseUrl";
+
   public static final String SUBCATEGORY_PROJECT_CREATION = "subProjectCreation";
 
   private CorePropertyDefinitions() {
@@ -117,6 +121,13 @@ public class CorePropertyDefinitions {
         .options(Arrays.stream(PluginRiskConsent.values()).map(Enum::name).collect(Collectors.toList()))
         .hidden()
         .type(SINGLE_SELECT_LIST)
+        .build(),
+      PropertyDefinition.builder(DOCUMENTATION_BASE_URL)
+        .name("Base URL of the documentation")
+        .description("Base URL to be used in SonarQube documentation links, such as <i>https://docs.sonarqube.org/</i>")
+        .defaultValue(DefaultDocumentationLinkGenerator.DOCUMENTATION_PUBLIC_URL)
+        .hidden()
+        .type(STRING)
         .build(),
 
       // WEB LOOK&FEEL
