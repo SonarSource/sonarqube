@@ -64,15 +64,7 @@ public class EsLoggingTest {
       "appender.file_es.strategy.action.condition.nested_condition.type", "IfAccumulatedFileCount",
       "appender.file_es.strategy.action.condition.nested_condition.exceeds", "7",
       "rootLogger.level", "INFO",
-      "rootLogger.appenderRef.file_es.ref", "file_es",
-      "loggers", "DEPRECATION,org.elasticsearch.client.RestClient,org.elasticsearch.deprecation",
-      "logger.org.elasticsearch.client.RestClient.name", "org.elasticsearch.client.RestClient",
-      "logger.org.elasticsearch.deprecation.level", "ERROR",
-      "logger.org.elasticsearch.deprecation.name", "org.elasticsearch.deprecation",
-      "logger.DEPRECATION.level", "ERROR",
-      "logger.DEPRECATION.name", "DEPRECATION",
-      "logger.org.elasticsearch.client.RestClient.level", "ERROR"
-
+      "rootLogger.appenderRef.file_es.ref", "file_es"
     );
   }
 
