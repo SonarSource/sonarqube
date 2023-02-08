@@ -49,14 +49,12 @@ exports[`should render correctly 1`] = `
           quality_profile.x_rules.4
         </ForwardRef(Link)>
         <div
-          className="muted"
           key="qp-2"
         >
            
           coding_rules.filters.inheritance.x_inherited_from_y.2.Quality Profile 2
         </div>
         <div
-          className="muted"
           key="qp-4"
         >
            
@@ -96,7 +94,6 @@ exports[`should render correctly 1`] = `
           quality_profile.x_rules.3
         </ForwardRef(Link)>
         <div
-          className="muted"
           key="qp-2"
         >
            
@@ -169,7 +166,6 @@ exports[`should render correctly 1`] = `
           quality_profile.x_rules.2
         </ForwardRef(Link)>
         <div
-          className="muted"
           key="qp-2"
         >
            
