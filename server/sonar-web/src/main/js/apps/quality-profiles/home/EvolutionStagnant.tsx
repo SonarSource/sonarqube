@@ -37,9 +37,7 @@ export default function EvolutionStagnant(props: Props) {
 
   return (
     <div className="boxed-group boxed-group-inner quality-profiles-evolution-stagnant">
-      <div className="spacer-bottom">
-        <strong>{translate('quality_profiles.stagnant_profiles')}</strong>
-      </div>
+      <h2 className="h4 spacer-bottom">{translate('quality_profiles.stagnant_profiles')}</h2>
       <div className="spacer-bottom">
         {translate('quality_profiles.not_updated_more_than_year')}
       </div>

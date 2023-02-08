@@ -4,13 +4,11 @@ exports[`should render correctly 1`] = `
 <div
   className="boxed-group boxed-group-inner quality-profiles-evolution-deprecated"
 >
-  <div
-    className="spacer-bottom"
+  <h2
+    className="h4 spacer-bottom"
   >
-    <strong>
-      quality_profiles.deprecated_rules
-    </strong>
-  </div>
+    quality_profiles.deprecated_rules
+  </h2>
   <div
     className="spacer-bottom"
   >

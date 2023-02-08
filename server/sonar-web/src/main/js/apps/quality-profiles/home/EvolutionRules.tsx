@@ -107,9 +107,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
 
     return (
       <div className="boxed-group boxed-group-inner quality-profiles-evolution-rules">
-        <div className="clearfix">
-          <strong className="pull-left">{newRulesTitle}</strong>
-        </div>
+        <h2 className="h4 spacer-bottom">{newRulesTitle}</h2>
         <ul>
           {latestRules.map((rule) => (
             <li className="spacer-top" key={rule.key}>

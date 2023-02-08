@@ -93,6 +93,12 @@
   background-color: var(--alertBackgroundWarning);
 }
 
+.quality-profiles-evolution-deprecated h2,
+.quality-profiles-evolution-stagnant h2,
+.quality-profiles-evolution-rules h2 {
+  padding: 0;
+}
+
 .quality-profile-comparison-table {
   table-layout: fixed;
 }
