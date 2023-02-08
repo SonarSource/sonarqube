@@ -201,12 +201,27 @@ public class ScimUserDaoTest {
   }
 
   @Test
-  public void deleteFromUserUuid_shouldDeleteScimUser() {
+  public void deleteByUserUuid_shouldDeleteScimUser() {
     ScimUserTestData scimUserTestData = insertScimUser("scimUser");
 
     scimUserDao.deleteByUserUuid(dbSession, scimUserTestData.getUserUuid());
 
     assertThat(scimUserDao.findAll(dbSession)).isEmpty();
+  }
+
+  @Test
+  public void deleteByScimUuid_shouldDeleteScimUser() {
+    ScimUserTestData scimUserTestData = insertScimUser("scimUser");
+    ScimUserTestData scimUserTestData2 = insertScimUser("scimUser2");
+
+    scimUserDao.deleteByScimUuid(dbSession, scimUserTestData.getScimUserUuid());
+
+    List<ScimUserDto> remainingUsers = scimUserDao.findAll(dbSession);
+    assertThat(remainingUsers).hasSize(1);
+
+    ScimUserDto remainingUser = remainingUsers.get(0);
+    assertThat(remainingUser.getScimUserUuid()).isEqualTo(scimUserTestData2.scimUserUuid);
+    assertThat(remainingUser.getUserUuid()).isEqualTo(scimUserTestData2.userUuid);
   }
 
   @Test

@@ -41,4 +41,6 @@ public interface ScimUserMapper {
   int countScimUsers(@Param("query") ScimUserQuery scimUserQuery);
 
   void deleteByUserUuid(@Param("userUuid") String userUuid);
+
+  void deleteByScimUuid(@Param("scimUuid") String scimUuid);
 }

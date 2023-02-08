@@ -66,4 +66,8 @@ public class ScimUserDao implements Dao {
   public void deleteByUserUuid(DbSession dbSession, String userUuid) {
     mapper(dbSession).deleteByUserUuid(userUuid);
   }
+
+  public void deleteByScimUuid(DbSession dbSession, String scimUuid) {
+    mapper(dbSession).deleteByScimUuid(scimUuid);
+  }
 }

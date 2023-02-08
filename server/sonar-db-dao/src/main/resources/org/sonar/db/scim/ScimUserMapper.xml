@@ -64,5 +64,9 @@
     delete from scim_users where user_uuid = #{userUuid, jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteByScimUuid" parameterType="String">
+    delete from scim_users where scim_uuid = #{scimUuid, jdbcType=VARCHAR}
+  </delete>
+
 </mapper>
 
