@@ -51,6 +51,6 @@ public interface WsRequest {
   Headers getHeaders();
 
   enum Method {
-    GET, POST
+    GET, POST, PATCH
   }
 }

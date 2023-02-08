@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class SecurityServletFilter implements Filter {
 
-  private static final Set<String> ALLOWED_HTTP_METHODS = Set.of("DELETE", "GET", "HEAD", "POST", "PUT");
+  private static final Set<String> ALLOWED_HTTP_METHODS = Set.of("DELETE", "GET", "HEAD", "POST", "PUT", "PATCH");
 
   @Override
   public void init(FilterConfig filterConfig) {

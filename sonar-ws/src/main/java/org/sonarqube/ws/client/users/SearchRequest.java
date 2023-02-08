@@ -33,6 +33,7 @@ public class SearchRequest {
   private String p;
   private String ps;
   private String q;
+  private Boolean deactivated;
 
   /**
    * Example value: "42"
@@ -67,5 +68,14 @@ public class SearchRequest {
 
   public String getQ() {
     return q;
+  }
+
+  public Boolean getDeactivated() {
+    return deactivated;
+  }
+
+  public SearchRequest setDeactivated(Boolean deactivated) {
+    this.deactivated = deactivated;
+    return this;
   }
 }

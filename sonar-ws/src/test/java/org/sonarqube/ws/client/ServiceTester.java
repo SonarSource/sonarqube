@@ -147,7 +147,7 @@ public class ServiceTester<T extends BaseService> extends ExternalResource {
     return new RequestAssert<>(getRequest);
   }
 
-  public RequestAssert<PostRequest> assertThat(PostRequest postRequest) {
+  public RequestAssert<?> assertThat(PostRequest postRequest) {
     return new RequestAssert<>(postRequest);
   }
 
@@ -163,7 +163,7 @@ public class ServiceTester<T extends BaseService> extends ExternalResource {
 
   public PostRequest getPostRequest() {
     assertSinglePostCall();
-    return postCalls.iterator().next().getRequest();
+    return (PostRequest) postCalls.iterator().next().getRequest();
   }
 
   @CheckForNull
@@ -198,7 +198,7 @@ public class ServiceTester<T extends BaseService> extends ExternalResource {
   }
 
   @Immutable
-  public static final class PostCall extends CallWithParser<PostRequest> {
+  public static final class PostCall extends CallWithParser<RequestWithPayload<PostRequest>> {
 
     public PostCall(PostRequest postRequest, @Nullable Parser<?> parser) {
       super(postRequest, parser);

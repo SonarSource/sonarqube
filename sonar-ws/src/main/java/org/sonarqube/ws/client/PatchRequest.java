@@ -24,22 +24,22 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 /**
- * @since 5.3
+ * @since 10.0
  */
-public class PostRequest extends RequestWithPayload<PostRequest> {
+public class PatchRequest extends RequestWithPayload<PatchRequest> {
 
-  public PostRequest(String path) {
+  public PatchRequest(String path) {
     super(path);
   }
 
   @Override
   Function<Request.Builder, Request.Builder> addVerbToBuilder(RequestBody body) {
-    return builder -> builder.post(body);
+    return builder -> builder.patch(body);
   }
 
   @Override
   public Method getMethod() {
-    return Method.POST;
+    return Method.PATCH;
   }
 
 }
