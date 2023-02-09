@@ -85,10 +85,12 @@ function importAsGlobals(mapping) {
 module.exports = {
   getCustomProperties,
   importAsGlobals,
-  /* NOTE: esbuild will transpile the _syntax_ down to what the TARGET_BROWSERS understand.    */
-  /* It will _not_, however, polyfill missing API methods, such as String.prototype.replaceAll */
-  /* This is why we also import core-js.                                                       */
-  ESBUILD_TARGET_BROWSERS: ['chrome58', 'firefox57', 'safari11', 'edge18'],
-  /*                                                                                           */
-  AUTOPREFIXER_BROWSER_LIST: ['chrome>=58', 'firefox>=57', 'safari>=11', 'edge>=18']
+  // NOTE: esbuild will transpile the _syntax_ down to what the TARGET_BROWSERS understand.
+  // It will _not_, however, polyfill missing API methods, such as String.prototype.replaceAll
+  // This is why we also import core-js.
+  //
+  // This browser version list is based on our requirements to support ES6
+  // and javascript module via script tag (See https://caniuse.com/?search=modules%20es6)
+  ESBUILD_TARGET_BROWSERS: ['chrome61', 'firefox60', 'safari11', 'edge18'],
+  AUTOPREFIXER_BROWSER_LIST: ['chrome>=61', 'firefox>=60', 'safari>=11', 'edge>=18'],
 };
