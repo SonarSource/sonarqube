@@ -162,6 +162,12 @@ table.data th.small {
   white-space: nowrap;
 }
 
+table.data > caption {
+  padding: 8px 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
 table.data > thead > tr > th {
   position: relative;
   vertical-align: top;

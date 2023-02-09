@@ -99,10 +99,6 @@
   padding: 0;
 }
 
-.quality-profile-comparison-table {
-  table-layout: fixed;
-}
-
 .quality-profile-changelog-rule-cell {
   line-height: 1.5;
 }
@@ -110,6 +106,12 @@
 .quality-profile-changelog-parameter {
   max-width: 270px;
   word-break: break-word;
+}
+
+.quality-profile-compare-right-table:not(.has-first-column) td,
+.quality-profile-compare-right-table:not(.has-first-column) th {
+  /* Aligns the first column with the second one (50%) and add usual cell padding */
+  padding-left: calc(50% + 10px);
 }
 
 #create-profile-form .radio-card {

@@ -77,11 +77,6 @@ export default class ComparisonResultActivation extends React.PureComponent<Prop
   render() {
     const { profile } = this.props;
 
-    const canActivate = !profile.isBuiltIn && profile.actions && profile.actions.edit;
-    if (!canActivate) {
-      return null;
-    }
-
     return (
       <DeferredSpinner loading={this.state.state === 'opening'}>
         <Tooltip

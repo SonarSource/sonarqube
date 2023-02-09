@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { CompareResponse, Profile } from '../../../api/quality-profiles';
 import Link from '../../../components/common/Link';
 import ChevronLeftIcon from '../../../components/icons/ChevronLeftIcon';
 import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
 import SeverityIcon from '../../../components/icons/SeverityIcon';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Dict } from '../../../types/types';
 import ComparisonEmpty from './ComparisonEmpty';
@@ -38,6 +39,10 @@ interface Props extends CompareResponse {
 }
 
 export default class ComparisonResults extends React.PureComponent<Props> {
+  canActivate(profile: Profile) {
+    return !profile.isBuiltIn && profile.actions && profile.actions.edit;
+  }
+
   renderRule(rule: { key: string; name: string }, severity: string) {
     return (
       <div>
@@ -70,38 +75,43 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     if (this.props.inLeft.length === 0) {
       return null;
     }
+
+    const renderSecondColumn = this.props.rightProfile && this.canActivate(this.props.rightProfile);
+
     return (
-      <>
-        <tr>
-          <td>
-            <h6>
+      <table className="data fixed zebra">
+        <thead>
+          <tr>
+            <th>
               {translateWithParameters(
                 'quality_profiles.x_rules_only_in',
                 this.props.inLeft.length
               )}{' '}
               {this.props.left.name}
-            </h6>
-          </td>
-          <td>&nbsp;</td>
-        </tr>
-        {this.props.inLeft.map((rule) => (
-          <tr className="js-comparison-in-left" key={`left-${rule.key}`}>
-            <td>{this.renderRule(rule, rule.severity)}</td>
-            <td>
-              {this.props.rightProfile && (
-                <ComparisonResultActivation
-                  key={rule.key}
-                  onDone={this.props.refresh}
-                  profile={this.props.rightProfile}
-                  ruleKey={rule.key}
-                >
-                  <ChevronRightIcon />
-                </ComparisonResultActivation>
-              )}
-            </td>
+            </th>
+            {renderSecondColumn && <th aria-label={translate('actions')}>&nbsp;</th>}
           </tr>
-        ))}
-      </>
+        </thead>
+        <tbody>
+          {this.props.inLeft.map((rule) => (
+            <tr key={`left-${rule.key}`}>
+              <td>{this.renderRule(rule, rule.severity)}</td>
+              {renderSecondColumn && (
+                <td>
+                  <ComparisonResultActivation
+                    key={rule.key}
+                    onDone={this.props.refresh}
+                    profile={this.props.rightProfile as Profile}
+                    ruleKey={rule.key}
+                  >
+                    <ChevronRightIcon />
+                  </ComparisonResultActivation>
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     );
   }
 
@@ -109,36 +119,47 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     if (this.props.inRight.length === 0) {
       return null;
     }
+
+    const renderFirstColumn = this.props.leftProfile && this.canActivate(this.props.leftProfile);
+
     return (
-      <>
-        <tr>
-          <td>&nbsp;</td>
-          <td>
-            <h6>
+      <table
+        className={classNames('data fixed zebra quality-profile-compare-right-table', {
+          'has-first-column': renderFirstColumn,
+        })}
+      >
+        <thead>
+          <tr>
+            {renderFirstColumn && <th aria-label={translate('actions')}>&nbsp;</th>}
+            <th>
               {translateWithParameters(
                 'quality_profiles.x_rules_only_in',
                 this.props.inRight.length
               )}{' '}
               {this.props.right.name}
-            </h6>
-          </td>
-        </tr>
-        {this.props.inRight.map((rule) => (
-          <tr className="js-comparison-in-right" key={`right-${rule.key}`}>
-            <td className="text-right">
-              <ComparisonResultActivation
-                key={rule.key}
-                onDone={this.props.refresh}
-                profile={this.props.leftProfile}
-                ruleKey={rule.key}
-              >
-                <ChevronLeftIcon />
-              </ComparisonResultActivation>
-            </td>
-            <td>{this.renderRule(rule, rule.severity)}</td>
+            </th>
           </tr>
-        ))}
-      </>
+        </thead>
+        <tbody>
+          {this.props.inRight.map((rule) => (
+            <tr key={`right-${rule.key}`}>
+              {renderFirstColumn && (
+                <td className="text-right">
+                  <ComparisonResultActivation
+                    key={rule.key}
+                    onDone={this.props.refresh}
+                    profile={this.props.leftProfile}
+                    ruleKey={rule.key}
+                  >
+                    <ChevronLeftIcon />
+                  </ComparisonResultActivation>
+                </td>
+              )}
+              <td>{this.renderRule(rule, rule.severity)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     );
   }
 
@@ -147,38 +168,34 @@ export default class ComparisonResults extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <>
-        <tr>
-          <td className="text-center" colSpan={2}>
-            <h6>
-              {translateWithParameters(
-                'quality_profiles.x_rules_have_different_configuration',
-                this.props.modified.length
-              )}
-            </h6>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <h6>{this.props.left.name}</h6>
-          </td>
-          <td>
-            <h6>{this.props.right.name}</h6>
-          </td>
-        </tr>
-        {this.props.modified.map((rule) => (
-          <tr className="js-comparison-modified" key={`modified-${rule.key}`}>
-            <td>
-              {this.renderRule(rule, rule.left.severity)}
-              {this.renderParameters(rule.left.params)}
-            </td>
-            <td>
-              {this.renderRule(rule, rule.right.severity)}
-              {this.renderParameters(rule.right.params)}
-            </td>
+      <table className="data fixed zebra zebra-inversed">
+        <caption>
+          {translateWithParameters(
+            'quality_profiles.x_rules_have_different_configuration',
+            this.props.modified.length
+          )}
+        </caption>
+        <thead>
+          <tr>
+            <th>{this.props.left.name}</th>
+            <th>{this.props.right.name}</th>
           </tr>
-        ))}
-      </>
+        </thead>
+        <tbody>
+          {this.props.modified.map((rule) => (
+            <tr key={`modified-${rule.key}`}>
+              <td>
+                {this.renderRule(rule, rule.left.severity)}
+                {this.renderParameters(rule.left.params)}
+              </td>
+              <td>
+                {this.renderRule(rule, rule.right.severity)}
+                {this.renderParameters(rule.right.params)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     );
   }
 
@@ -188,13 +205,11 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     }
 
     return (
-      <table className="data zebra quality-profile-comparison-table">
-        <tbody>
-          {this.renderLeft()}
-          {this.renderRight()}
-          {this.renderModified()}
-        </tbody>
-      </table>
+      <>
+        {this.renderLeft()}
+        {this.renderRight()}
+        {this.renderModified()}
+      </>
     );
   }
 }

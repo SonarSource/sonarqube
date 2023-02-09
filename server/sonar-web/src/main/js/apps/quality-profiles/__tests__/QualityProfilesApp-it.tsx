@@ -83,9 +83,11 @@ const ui = {
   }),
   nameCreatePopupInput: byRole('textbox', { name: 'name field_required' }),
   comparisonDiffTableHeading: (rulesQuantity: number, profileName: string) =>
-    byRole('heading', { name: `quality_profiles.x_rules_only_in.${rulesQuantity} ${profileName}` }),
+    byRole('columnheader', {
+      name: `quality_profiles.x_rules_only_in.${rulesQuantity} ${profileName}`,
+    }),
   comparisonModifiedTableHeading: (rulesQuantity: number) =>
-    byRole('heading', {
+    byRole('table', {
       name: `quality_profiles.x_rules_have_different_configuration.${rulesQuantity}`,
     }),
   newRuleLink: byRole('link', { name: 'Recently Added Rule' }),
