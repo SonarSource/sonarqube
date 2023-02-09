@@ -150,7 +150,11 @@ public class AsyncIssueIndexingImplTest {
 
     underTest.triggerOnIndexCreation();
 
-    assertCeTasks(reportTaskUuid);
+    assertThat(dbClient.ceQueueDao().selectAllInAscOrder(dbTester.getSession())).extracting("uuid").containsExactly(reportTaskUuid);
+    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), BRANCH_ISSUE_SYNC)).isEmpty();
+    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
+    assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(List.of("uuid_2")))).isEmpty();
+
     assertThat(logTester.logs(LoggerLevel.INFO))
       .contains(
         "1 pending indexation task found to be deleted...",
@@ -167,17 +171,36 @@ public class AsyncIssueIndexingImplTest {
     ProjectDto projectDto = dbTester.components().insertPrivateProjectDto();
     String branchUuid = "branch_uuid";
     dbTester.components().insertProjectBranch(projectDto, b -> b.setBranchType(BRANCH).setUuid(branchUuid));
+
     CeQueueDto mainBranchTask = new CeQueueDto().setUuid("uuid_2").setTaskType(BRANCH_ISSUE_SYNC)
       .setMainComponentUuid(projectDto.getUuid()).setComponentUuid(projectDto.getUuid());
+    dbClient.ceQueueDao().insert(dbTester.getSession(), mainBranchTask);
+
     CeQueueDto branchTask = new CeQueueDto().setUuid("uuid_3").setTaskType(BRANCH_ISSUE_SYNC)
       .setMainComponentUuid(projectDto.getUuid()).setComponentUuid(branchUuid);
-    dbClient.ceQueueDao().insert(dbTester.getSession(), mainBranchTask);
     dbClient.ceQueueDao().insert(dbTester.getSession(), branchTask);
+
+    ProjectDto anotherProjectDto = dbTester.components().insertPrivateProjectDto();
+    CeQueueDto taskOnAnotherProject = new CeQueueDto().setUuid("uuid_4").setTaskType(BRANCH_ISSUE_SYNC)
+      .setMainComponentUuid(anotherProjectDto.getUuid()).setComponentUuid("another-branchUuid");
+    CeActivityDto canceledTaskOnAnotherProject = new CeActivityDto(taskOnAnotherProject).setStatus(Status.CANCELED);
+    dbClient.ceActivityDao().insert(dbTester.getSession(), canceledTaskOnAnotherProject);
+
     dbTester.commit();
 
     underTest.triggerForProject(projectDto.getUuid());
 
-    assertCeTasks(reportTaskUuid);
+    assertThat(dbClient.ceQueueDao().selectAllInAscOrder(dbTester.getSession())).extracting("uuid")
+      .containsExactly(reportTaskUuid);
+    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
+    assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(List.of("uuid_2")))).isEmpty();
+
+    // verify that the canceled tasks on anotherProject is still here, and was not removed by the project reindexation
+    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), BRANCH_ISSUE_SYNC))
+      .hasSize(1)
+      .extracting(CeActivityDto::getMainComponentUuid)
+      .containsExactly(anotherProjectDto.getUuid());
+
     assertThat(logTester.logs(LoggerLevel.INFO))
       .contains(
         "2 pending indexation task found to be deleted...",
@@ -325,14 +348,6 @@ public class AsyncIssueIndexingImplTest {
     reportActivity.setStatus(Status.SUCCESS);
     dbClient.ceActivityDao().insert(dbTester.getSession(), reportActivity);
     return reportTask.getUuid();
-  }
-
-  private void assertCeTasks(String reportTaskUuid) {
-    assertThat(dbClient.ceQueueDao().selectAllInAscOrder(dbTester.getSession())).extracting("uuid")
-      .containsExactly(reportTaskUuid);
-    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), BRANCH_ISSUE_SYNC)).isEmpty();
-    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
-    assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(List.of("uuid_2")))).isEmpty();
   }
 
 }
