@@ -46,6 +46,15 @@ ol.list-styled {
   list-style: none;
 }
 
+.list-breadcrumbs > li {
+  display: inline-block;
+}
+
+.list-breadcrumbs > li:not(:first-of-type)::before {
+  content: '/' / '';
+  margin-inline: 3px;
+}
+
 ul.list-inline > li,
 div.list-inline > div {
   display: inline-block;

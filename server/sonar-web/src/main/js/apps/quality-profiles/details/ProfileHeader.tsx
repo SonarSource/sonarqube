@@ -65,13 +65,18 @@ export default function ProfileHeader(props: Props) {
           )}
         />
       )}
-      <div className="note spacer-bottom">
-        <NavLink end={true} to={PROFILE_PATH}>
-          {translate('quality_profiles.page')}
-        </NavLink>
-        {' / '}
-        <Link to={getProfilesForLanguagePath(profile.language)}>{profile.languageName}</Link>
-      </div>
+      <nav className="note spacer-bottom" aria-label={translate('breadcrumbs')}>
+        <ul className="list-breadcrumbs">
+          <li>
+            <NavLink end={true} to={PROFILE_PATH}>
+              {translate('quality_profiles.page')}
+            </NavLink>
+          </li>
+          <li>
+            <Link to={getProfilesForLanguagePath(profile.language)}>{profile.languageName}</Link>
+          </li>
+        </ul>
+      </nav>
 
       <h1 className="page-title">
         <ProfileLink language={profile.language} name={profile.name}>
