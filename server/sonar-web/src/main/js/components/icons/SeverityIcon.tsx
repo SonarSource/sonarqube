@@ -84,7 +84,7 @@ function MinorSeverityIcon(iconProps: IconProps) {
     <Icon {...iconProps}>
       <path
         d="M8 2c3.311 0 6 2.689 6 6s-2.689 6-6 6-6-2.689-6-6 2.689-6 6-6zm1 6.586V4H7v4.586L5.107 6.693a1.178 1.178 0 0 0-.165-.134 1.041 1.041 0 0 0-.662-.152 1 1 0 0 0-.587 1.7c1.212 1.212 2.394 2.456 3.638 3.636.094.08.195.146.311.191a1.008 1.008 0 0 0 1.065-.227c1.213-1.212 2.457-2.394 3.637-3.639a.994.994 0 0 0 .051-1.275 1.012 1.012 0 0 0-.888-.389 1.041 1.041 0 0 0-.535.218c-.04.034-.04.034-.079.071L9 8.586z"
-        style={{ fill: colors.lightGreen }}
+        style={{ fill: colors.green }}
       />
     </Icon>
   );
@@ -95,7 +95,7 @@ function InfoSeverityIcon(iconProps: IconProps) {
     <Icon {...iconProps}>
       <path
         d="M8 2c3.311 0 6 2.689 6 6s-2.689 6-6 6-6-2.689-6-6 2.689-6 6-6zm1 5H7v5h2V7zm0-3H7v2h2V4z"
-        style={{ fill: colors.blue }}
+        style={{ fill: colors.darkBlue }}
       />
     </Icon>
   );
