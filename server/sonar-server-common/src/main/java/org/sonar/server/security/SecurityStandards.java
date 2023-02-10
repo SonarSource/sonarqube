@@ -89,11 +89,14 @@ public final class SecurityStandards {
   public static final List<String> CWE_TOP25_2022 = List.of("787", "79", "89", "20", "125", "78", "416", "22", "352", "434", "476", "502", "190", "287", "798",
     "862", "77", "306", "119", "276", "918", "362", "400", "611", "94");
 
+  public static final String CWE_YEAR_2020 = "2020";
+  public static final String CWE_YEAR_2021 = "2021";
+  public static final String CWE_YEAR_2022 = "2022";
 
   public static final Map<String, List<String>> CWES_BY_CWE_TOP_25 = Map.of(
-    "2020", CWE_TOP25_2020,
-    "2021", CWE_TOP25_2021,
-    "2022", CWE_TOP25_2022);
+    CWE_YEAR_2020, CWE_TOP25_2020,
+    CWE_YEAR_2021, CWE_TOP25_2021,
+    CWE_YEAR_2022, CWE_TOP25_2022);
 
   public static final List<String> OWASP_ASVS_40_LEVEL_1 = List.of("2.1.1", "2.1.10", "2.1.11", "2.1.12", "2.1.2", "2.1.3", "2.1.4", "2.1.5", "2.1.6", "2.1.7", "2.1.8", "2.1.9",
     "2.10.1", "2.10.2", "2.10.3", "2.10.4", "2.2.1", "2.2.2", "2.2.3", "2.3.1", "2.5.1", "2.5.2", "2.5.3", "2.5.4", "2.5.5", "2.5.6", "2.7.1", "2.7.2", "2.7.3", "2.7.4", "2.8.1",
