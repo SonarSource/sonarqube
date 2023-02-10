@@ -109,8 +109,8 @@ public class HttpConnector implements WsConnector {
 
   @Override
   public WsResponse call(WsRequest httpRequest) {
-    if (httpRequest instanceof GetRequest) {
-      return get((GetRequest) httpRequest);
+    if (httpRequest instanceof RequestWithoutPayload) {
+      return executeRequest((RequestWithoutPayload) httpRequest);
     }
     if (httpRequest instanceof RequestWithPayload) {
       return executeRequest((RequestWithPayload) httpRequest);
@@ -118,12 +118,13 @@ public class HttpConnector implements WsConnector {
     throw new IllegalArgumentException(format("Unsupported implementation: %s", httpRequest.getClass()));
   }
 
-  private WsResponse get(GetRequest getRequest) {
-    HttpUrl.Builder urlBuilder = prepareUrlBuilder(getRequest);
-    completeUrlQueryParameters(getRequest, urlBuilder);
+  private WsResponse executeRequest(RequestWithoutPayload<?> request) {
+    HttpUrl.Builder urlBuilder = prepareUrlBuilder(request);
+    completeUrlQueryParameters(request, urlBuilder);
 
-    Request.Builder okRequestBuilder = prepareOkRequestBuilder(getRequest, urlBuilder).get();
-    return new OkHttpResponse(doCall(prepareOkHttpClient(okHttpClient, getRequest), okRequestBuilder.build()));
+    Request.Builder okRequestBuilder = prepareOkRequestBuilder(request, urlBuilder);
+    okRequestBuilder = request.addVerbToBuilder().apply(okRequestBuilder);
+    return new OkHttpResponse(doCall(prepareOkHttpClient(okHttpClient, request), okRequestBuilder.build()));
   }
 
   private WsResponse executeRequest(RequestWithPayload<?> request) {

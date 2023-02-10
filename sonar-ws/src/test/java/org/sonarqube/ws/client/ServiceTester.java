@@ -140,10 +140,10 @@ public class ServiceTester<T extends BaseService> extends ExternalResource {
   @CheckForNull
   public GetRequest getGetRequest() {
     assertSingleGetCall();
-    return getCalls.iterator().next().getRequest();
+    return (GetRequest) getCalls.iterator().next().getRequest();
   }
 
-  public RequestAssert<GetRequest> assertThat(GetRequest getRequest) {
+  public RequestAssert<?> assertThat(GetRequest getRequest) {
     return new RequestAssert<>(getRequest);
   }
 
@@ -189,7 +189,7 @@ public class ServiceTester<T extends BaseService> extends ExternalResource {
   }
 
   @Immutable
-  public static final class GetCall extends CallWithParser<GetRequest> {
+  public static final class GetCall extends CallWithParser<RequestWithoutPayload<GetRequest>> {
 
     public GetCall(GetRequest getRequest, @Nullable Parser<?> parser) {
       super(getRequest, parser);

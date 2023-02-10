@@ -19,38 +19,22 @@
  */
 package org.sonarqube.ws.client;
 
-import java.util.Map;
-import java.util.OptionalInt;
+import org.junit.Test;
 
-/**
- * @since 5.3
- */
-public interface WsRequest {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  Method getMethod();
+public class DeleteRequestTest {
 
-  String getPath();
+  private DeleteRequest deleteRequest = new DeleteRequest("path");
 
-  String getMediaType();
+  @Test
+  public void getMethod_shouldReturnDelete() {
+    assertThat(deleteRequest.getMethod()).isEqualTo(WsRequest.Method.DELETE);
+  }
 
-  OptionalInt getTimeOutInMs();
 
-  OptionalInt getWriteTimeOutInMs();
-
-  /**
-   *
-   * In case of multi value parameters, returns the first value
-   *
-   * @deprecated since 6.1. Use {@link #getParameters()} instead
-   */
-  @Deprecated
-  Map<String, String> getParams();
-
-  Parameters getParameters();
-
-  Headers getHeaders();
-
-  enum Method {
-    GET, POST, PATCH, DELETE
+  @Test
+  public void addVerbToBuilder_shouldReturnNonNullResult() {
+    assertThat(deleteRequest.addVerbToBuilder()).isNotNull();
   }
 }

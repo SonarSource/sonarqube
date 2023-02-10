@@ -19,38 +19,22 @@
  */
 package org.sonarqube.ws.client;
 
-import java.util.Map;
-import java.util.OptionalInt;
+import org.junit.Test;
 
-/**
- * @since 5.3
- */
-public interface WsRequest {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  Method getMethod();
+public class GetRequestTest {
 
-  String getPath();
+  private GetRequest getRequest = new GetRequest("path");
 
-  String getMediaType();
-
-  OptionalInt getTimeOutInMs();
-
-  OptionalInt getWriteTimeOutInMs();
-
-  /**
-   *
-   * In case of multi value parameters, returns the first value
-   *
-   * @deprecated since 6.1. Use {@link #getParameters()} instead
-   */
-  @Deprecated
-  Map<String, String> getParams();
-
-  Parameters getParameters();
-
-  Headers getHeaders();
-
-  enum Method {
-    GET, POST, PATCH, DELETE
+  @Test
+  public void getMethod_shouldReturnGet() {
+    assertThat(getRequest.getMethod()).isEqualTo(WsRequest.Method.GET);
   }
+
+  @Test
+  public void addVerbToBuilder_shouldReturnNonNullResult() {
+    assertThat(getRequest.addVerbToBuilder()).isNotNull();
+  }
+
 }

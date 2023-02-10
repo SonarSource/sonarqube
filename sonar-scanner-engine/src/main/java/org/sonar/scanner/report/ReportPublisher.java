@@ -55,6 +55,7 @@ import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.RequestWithPayload.Part;
 import org.sonarqube.ws.client.WsResponse;
 
 import static java.net.URLEncoder.encode;
@@ -201,7 +202,7 @@ public class ReportPublisher implements Startable {
   String upload(File report) {
     LOG.debug("Upload report");
     long startTime = System.currentTimeMillis();
-    PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, report);
+    Part filePart = new Part(MediaTypes.ZIP, report);
     PostRequest post = new PostRequest("api/ce/submit")
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("projectKey", moduleHierarchy.root().key())

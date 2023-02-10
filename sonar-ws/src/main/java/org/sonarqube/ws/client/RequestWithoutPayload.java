@@ -19,38 +19,18 @@
  */
 package org.sonarqube.ws.client;
 
-import java.util.Map;
-import java.util.OptionalInt;
+import java.util.function.Function;
+import okhttp3.Request;
 
 /**
  * @since 5.3
  */
-public interface WsRequest {
+public abstract class RequestWithoutPayload<T extends BaseRequest<RequestWithoutPayload<T>>> extends BaseRequest<RequestWithoutPayload<T>> {
 
-  Method getMethod();
-
-  String getPath();
-
-  String getMediaType();
-
-  OptionalInt getTimeOutInMs();
-
-  OptionalInt getWriteTimeOutInMs();
-
-  /**
-   *
-   * In case of multi value parameters, returns the first value
-   *
-   * @deprecated since 6.1. Use {@link #getParameters()} instead
-   */
-  @Deprecated
-  Map<String, String> getParams();
-
-  Parameters getParameters();
-
-  Headers getHeaders();
-
-  enum Method {
-    GET, POST, PATCH, DELETE
+  protected RequestWithoutPayload(String path) {
+    super(path);
   }
+
+  abstract Function<Request.Builder, Request.Builder> addVerbToBuilder();
+
 }

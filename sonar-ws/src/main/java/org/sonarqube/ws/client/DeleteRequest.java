@@ -19,38 +19,24 @@
  */
 package org.sonarqube.ws.client;
 
-import java.util.Map;
-import java.util.OptionalInt;
+import java.util.function.Function;
+import okhttp3.Request;
 
 /**
  * @since 5.3
  */
-public interface WsRequest {
+public class DeleteRequest extends RequestWithoutPayload<DeleteRequest> {
+  public DeleteRequest(String path) {
+    super(path);
+  }
 
-  Method getMethod();
+  @Override
+  public Method getMethod() {
+    return Method.DELETE;
+  }
 
-  String getPath();
-
-  String getMediaType();
-
-  OptionalInt getTimeOutInMs();
-
-  OptionalInt getWriteTimeOutInMs();
-
-  /**
-   *
-   * In case of multi value parameters, returns the first value
-   *
-   * @deprecated since 6.1. Use {@link #getParameters()} instead
-   */
-  @Deprecated
-  Map<String, String> getParams();
-
-  Parameters getParameters();
-
-  Headers getHeaders();
-
-  enum Method {
-    GET, POST, PATCH, DELETE
+  @Override
+  Function<Request.Builder, Request.Builder> addVerbToBuilder() {
+    return Request.Builder::delete;
   }
 }

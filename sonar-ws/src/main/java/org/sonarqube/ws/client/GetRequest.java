@@ -19,10 +19,13 @@
  */
 package org.sonarqube.ws.client;
 
+import java.util.function.Function;
+import okhttp3.Request;
+
 /**
  * @since 5.3
  */
-public class GetRequest extends BaseRequest<GetRequest> {
+public class GetRequest extends RequestWithoutPayload<GetRequest> {
   public GetRequest(String path) {
     super(path);
   }
@@ -30,5 +33,10 @@ public class GetRequest extends BaseRequest<GetRequest> {
   @Override
   public Method getMethod() {
     return Method.GET;
+  }
+
+  @Override
+  Function<Request.Builder, Request.Builder> addVerbToBuilder() {
+    return Request.Builder::get;
   }
 }
