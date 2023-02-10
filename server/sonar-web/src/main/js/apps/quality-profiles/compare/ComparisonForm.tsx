@@ -63,12 +63,12 @@ export default class ComparisonForm extends React.PureComponent<Props> {
       .map((p) => ({ value: p.key, label: p.name, isDefault: p.isDefault }));
 
     return (
-      <div className="display-inline-block">
+      <div>
         <label htmlFor="quality-profiles-comparision-input" className="spacer-right">
           {translate('quality_profiles.compare_with')}
         </label>
         <Select
-          className="input-large"
+          className="input-super-large"
           autoFocus={true}
           isClearable={false}
           id="quality-profiles-comparision"
@@ -91,14 +91,14 @@ function renderValue(p: Omit<Option, 'label' | 'isDefault'>, options: Option[]) 
   const selectedOption = options.find((o) => o.value === p.value);
   if (selectedOption !== undefined) {
     return (
-      <div>
+      <>
         <span>{selectedOption.label}</span>
         {selectedOption.isDefault && (
           <Tooltip overlay={translate('quality_profiles.list.default.help')}>
             <span className="spacer-left badge">{translate('default')}</span>
           </Tooltip>
         )}
-      </div>
+      </>
     );
   }
 }
