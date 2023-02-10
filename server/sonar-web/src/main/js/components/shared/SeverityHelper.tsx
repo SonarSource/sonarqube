@@ -32,7 +32,7 @@ export default function SeverityHelper({ className, severity }: Props) {
   }
   return (
     <span className={className}>
-      <SeverityIcon className="little-spacer-right" severity={severity} />
+      <SeverityIcon className="little-spacer-right" severity={severity} aria-hidden={true} />
       {translate('severity', severity)}
     </span>
   );

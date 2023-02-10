@@ -38,7 +38,7 @@ export default function SetSeverityPopup({ issue, onSelect }: Props) {
       <SelectList currentItem={issue.severity} items={SEVERITY} onSelect={onSelect}>
         {SEVERITY.map((severity) => (
           <SelectListItem className="display-flex-center" item={severity} key={severity}>
-            <SeverityIcon className="little-spacer-right" severity={severity} />
+            <SeverityIcon className="little-spacer-right" severity={severity} aria-hidden={true} />
             {translate('severity', severity)}
           </SelectListItem>
         ))}

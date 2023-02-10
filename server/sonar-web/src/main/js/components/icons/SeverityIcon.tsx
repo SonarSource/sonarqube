@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { colors } from '../../app/theme';
+import { translate } from '../../helpers/l10n';
 import { Dict } from '../../types/types';
 import Icon, { IconProps } from './Icon';
 
@@ -34,13 +35,15 @@ const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
   info: InfoSeverityIcon,
 };
 
-export default function SeverityIcon({ severity, ...iconProps }: Props) {
+export default function SeverityIcon({ severity, ariaLabel, ...iconProps }: Props) {
   if (!severity) {
     return null;
   }
 
   const DesiredIcon = severityIcons[severity.toLowerCase()];
-  return DesiredIcon ? <DesiredIcon {...iconProps} /> : null;
+  return DesiredIcon ? (
+    <DesiredIcon {...iconProps} ariaLabel={ariaLabel ?? translate('severity', severity)} />
+  ) : null;
 }
 
 function BlockerSeverityIcon(iconProps: IconProps) {

@@ -52,7 +52,7 @@ jest.mock('../helpers/lines', () => {
 
 const ui = {
   codeSmellTypeButton: byRole('button', { name: 'issue.type.CODE_SMELL' }),
-  minorSeverityButton: byRole('button', { name: 'severity.MINOR' }),
+  minorSeverityButton: byRole('button', { name: /severity.MINOR/ }),
 };
 
 const componentsHandler = new ComponentsServiceMock();
