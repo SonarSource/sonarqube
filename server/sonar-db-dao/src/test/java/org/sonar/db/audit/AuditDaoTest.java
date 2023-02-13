@@ -19,6 +19,8 @@
  */
 package org.sonar.db.audit;
 
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,6 +28,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.dialect.PostgreSql;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,6 +65,14 @@ public class AuditDaoTest {
   @Test
   public void purge_has_limit() {
     prepareRowsWithDeterministicCreatedAt(100_001);
+    //SONAR-18386 In order to prevent database to hang forever, we let it digest the inserted data
+    if (db.getDbClient().getDatabase().getDialect().getId().equals(PostgreSql.ID)) {
+      try (Statement statement = db.getSession().getSqlSession().getConnection().createStatement()) {
+        statement.execute("ANALYZE audits");
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    }
     long purged = testAuditDao.deleteBefore(dbSession, 200_000);
     assertThat(purged).isEqualTo(100_000);
     assertThat(db.countRowsOfTable(dbSession, "audits")).isOne();
@@ -73,6 +84,14 @@ public class AuditDaoTest {
   @Test
   public void purge_with_threshold() {
     prepareRowsWithDeterministicCreatedAt(100_000);
+    //SONAR-18386 In order to prevent database to hang forever, we let it digest the inserted data
+    if (db.getDbClient().getDatabase().getDialect().getId().equals(PostgreSql.ID)) {
+      try (Statement statement = db.getSession().getSqlSession().getConnection().createStatement()) {
+        statement.execute("ANALYZE audits");
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    }
     long purged = testAuditDao.deleteBefore(dbSession, 50_000);
     assertThat(purged).isEqualTo(49_999);
     assertThat(db.countRowsOfTable(dbSession, "audits")).isEqualTo(50_001);
@@ -141,5 +160,6 @@ public class AuditDaoTest {
       AuditDto auditDto = AuditTesting.newAuditDto(i);
       testAuditDao.insert(dbSession, auditDto);
     }
+    dbSession.commit();
   }
 }
