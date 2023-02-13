@@ -28,7 +28,7 @@ const paths = require('../config/paths');
 
 const getConfig = require('../config/esbuild-config');
 
-const release = process.argv.findIndex(val => val === 'release') >= 0;
+const release = process.argv.findIndex((val) => val === 'release') >= 0;
 
 function clean() {
   fs.emptyDirSync(paths.appBuild);

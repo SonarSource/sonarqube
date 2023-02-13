@@ -28,6 +28,8 @@ const httpProxy = require('http-proxy');
 const getConfig = require('../config/esbuild-config');
 const { handleL10n } = require('./utils');
 const paths = require('../config/paths');
+const { spawn } = require('child_process');
+const { buildDesignSystem } = require('./build-design-system');
 
 const STATUS_OK = 200;
 const STATUS_ERROR = 500;
@@ -119,4 +121,4 @@ async function run() {
     .catch((e) => console.error(e));
 }
 
-run();
+buildDesignSystem(run);

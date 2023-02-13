@@ -22,6 +22,7 @@ const postCssPlugin = require('./esbuild-postcss-plugin');
 const postcss = require('postcss');
 const postCssCalc = require('postcss-calc');
 const postCssCustomProperties = require('postcss-custom-properties');
+const tailwindcss = require('tailwindcss');
 const htmlPlugin = require('./esbuild-html-plugin');
 const htmlTemplate = require('./indexHtmlTemplate');
 const {
@@ -40,6 +41,7 @@ module.exports = (release) => {
           preserve: false,
         }),
         postCssCalc,
+        tailwindcss('./tailwind.config.js'),
       ],
       postcss,
     }),

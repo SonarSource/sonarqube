@@ -1,0 +1,32 @@
+{
+  "name": "design-system",
+  "version": "1.0.0",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "build": "yarn lint && vite build",
+    "build-release": "yarn install --immutable && yarn build",
+    "lint": "npx eslint --ext js,ts,tsx,snap --quiet src"
+  },
+  "devDependencies": {
+    "@babel/core": "7.20.5",
+    "@babel/plugin-transform-react-jsx": "7.20.13",
+    "@emotion/babel-plugin-jsx-pragmatic": "0.2.0",
+    "@vitejs/plugin-react": "3.1.0",
+    "eslint-plugin-header": "3.1.1",
+    "eslint-plugin-typescript-sort-keys": "2.1.0",
+    "twin.macro": "3.1.0",
+    "vite": "4.1.1",
+    "vite-plugin-dts": "1.7.2"
+  },
+  "peerDependencies": {
+    "@emotion/react": "11.10.5",
+    "@emotion/styled": "11.10.5",
+    "@typescript-eslint/parser": "5.49.0",
+    "eslint": "8.32.0",
+    "react": "16.14.0",
+    "react-dom": "16.14.0",
+    "tailwindcss": "3.2.6",
+    "typescript": "4.9.4"
+  }
+}

@@ -13,7 +13,21 @@ sonar {
 
 def webappDir = "${buildDir}/webapp"
 
+task "yarn_design-system"(type: Exec) {
+  inputs.dir('design-system/src')
+  workingDir "design-system"
+  commandLine osAdaptiveCommand(['npm', 'run', 'build-release'])
+  outputs.dir("design-system/lib")
+  outputs.cacheIf { true }
+}
+
 task yarn_run(type: Exec) {
+  dependsOn "yarn_design-system"
+
+  tasks."yarn_design-system".getOutputs().getFiles().each {
+    inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
+  }
+
   ['config', 'public', 'scripts', 'src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
@@ -42,6 +56,8 @@ task "yarn_lint-report-ci"(type: Exec) {
 }
 
 task "yarn_validate-ci"(type: Exec) {
+  dependsOn "yarn_design-system"
+  
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src/main/js'].each {
     inputs.dir(it)
@@ -56,6 +72,8 @@ task "yarn_validate-ci"(type: Exec) {
 }
 
 task "yarn_check-ci"(type: Exec) {
+  dependsOn "yarn_design-system"
+  
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src'].each {
     inputs.dir(it)

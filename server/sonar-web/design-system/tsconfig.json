@@ -1,0 +1,21 @@
+{
+  "extends": "../tsconfig.base",
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "lib": ["dom", "dom.iterable", "es2022"],
+    "module": "commonjs",
+    "noEmit": true,
+    "paths": {
+      "~components/*": ["src/components/*"],
+      "~helpers/*": ["src/helpers/*"],
+      "~icons/*": ["src/icons/*"],
+      "~types/*": ["src/types/*"],
+      "~utils/*": ["src/utils/*"],
+    },
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+  }
+}
