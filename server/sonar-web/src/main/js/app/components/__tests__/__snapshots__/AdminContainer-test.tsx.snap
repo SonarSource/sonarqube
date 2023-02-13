@@ -3,11 +3,10 @@
 exports[`should render correctly 1`] = `
 <div>
   <Helmet
-    defaultTitle="layout.settings"
     defer={false}
     encodeSpecialCharacters={true}
     prioritizeSeoTags={false}
-    titleTemplate="%s - layout.settings"
+    titleTemplate="page_title.template.with_category.layout.settings"
   />
   <WithLocation
     extensions={[]}

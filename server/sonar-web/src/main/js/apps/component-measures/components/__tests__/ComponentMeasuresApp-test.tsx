@@ -27,7 +27,7 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockIssue, mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
-import { App } from '../App';
+import { ComponentMeasuresApp } from '../ComponentMeasuresApp';
 
 jest.mock('../../../../api/metrics', () => ({
   getAllMetrics: jest.fn().mockResolvedValue([
@@ -151,9 +151,9 @@ it.each([
   }
 );
 
-function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(
-    <App
+function shallowRender(props: Partial<ComponentMeasuresApp['props']> = {}) {
+  return shallow<ComponentMeasuresApp>(
+    <ComponentMeasuresApp
       branchLike={mockMainBranch()}
       component={mockComponent({ key: 'foo', name: 'Foo' })}
       fetchBranchStatus={jest.fn()}

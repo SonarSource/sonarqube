@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet, useSearchParams } from 'react-router-dom';
 import { useLocation } from '../../../components/hoc/withRouter';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import ProfileHeader from '../details/ProfileHeader';
 import { useQualityProfilesContext } from '../qualityProfilesContext';
 import ProfileNotFound from './ProfileNotFound';
@@ -58,7 +59,14 @@ export default function ProfileContainer() {
 
   return (
     <div id="quality-profile">
-      <Helmet defer={false} title={profile.name} />
+      <Helmet
+        defer={false}
+        title={profile.name}
+        titleTemplate={translateWithParameters(
+          'page_title.template.with_category',
+          translate('quality_profiles.page')
+        )}
+      />
       <ProfileHeader
         profile={profile}
         isComparable={filteredProfiles.length > 1}

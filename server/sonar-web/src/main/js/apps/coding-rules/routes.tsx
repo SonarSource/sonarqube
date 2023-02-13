@@ -20,7 +20,7 @@
 import React, { useEffect } from 'react';
 import { Route, useLocation, useNavigate } from 'react-router-dom';
 import { RawQuery } from '../../types/types';
-import App from './components/App';
+import CodingRulesApp from './components/CodingRulesApp';
 import { parseQuery, serializeQuery } from './query';
 
 const EXPECTED_SPLIT_PARTS = 2;
@@ -56,7 +56,7 @@ function HashEditWrapper() {
     }
   }, [location, navigate]);
 
-  return <App />;
+  return <CodingRulesApp />;
 }
 
 const routes = () => <Route path="coding_rules" element={<HashEditWrapper />} />;

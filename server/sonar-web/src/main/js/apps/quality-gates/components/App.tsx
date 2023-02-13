@@ -25,7 +25,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
@@ -113,11 +113,16 @@ class App extends React.PureComponent<Props, State> {
   render() {
     const { name } = this.props;
     const { canCreate, qualityGates } = this.state;
-    const defaultTitle = translate('quality_gates.page');
 
     return (
       <>
-        <Helmet defaultTitle={defaultTitle} defer={false} titleTemplate={`%s - ${defaultTitle}`} />
+        <Helmet
+          defer={false}
+          titleTemplate={translateWithParameters(
+            'page_title.template.with_category',
+            translate('quality_gates.page')
+          )}
+        />
         <div className="layout-page" id="quality-gates-page">
           <Suggestions suggestions="quality_gates" />
 

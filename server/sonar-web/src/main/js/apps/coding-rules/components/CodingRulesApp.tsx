@@ -96,7 +96,7 @@ interface State {
   rules: Rule[];
 }
 
-export class App extends React.PureComponent<Props, State> {
+export class CodingRulesApp extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -562,16 +562,20 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <>
         <Suggestions suggestions="coding_rules" />
-        <Helmet
-          defer={false}
-          title={
-            openRule
-              ? translateWithParameters('coding_rule.page', openRule.langName, openRule.name)
-              : translate('coding_rules.page')
-          }
-        >
-          <meta content="noindex" name="robots" />
-        </Helmet>
+        {openRule ? (
+          <Helmet
+            defer={false}
+            title={translateWithParameters('coding_rule.page', openRule.langName, openRule.name)}
+            titleTemplate={translateWithParameters(
+              'page_title.template.with_category',
+              translate('coding_rules.page')
+            )}
+          />
+        ) : (
+          <Helmet defer={false} title={translate('coding_rules.page')}>
+            <meta content="noindex" name="robots" />
+          </Helmet>
+        )}
         <div className="layout-page" id="coding-rules-page">
           <ScreenPositionHelper className="layout-page-side-outer">
             {({ top }) => (
@@ -715,4 +719,4 @@ function parseFacets(rawFacets: { property: string; values: { count: number; val
   return facets;
 }
 
-export default withRouter(withCurrentUserContext(App));
+export default withRouter(withCurrentUserContext(CodingRulesApp));

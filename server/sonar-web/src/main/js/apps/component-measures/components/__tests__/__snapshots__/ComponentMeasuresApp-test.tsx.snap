@@ -11,7 +11,7 @@ exports[`should not render drilldown for estimated duplications 1`] = `
     defer={false}
     encodeSpecialCharacters={true}
     prioritizeSeoTags={false}
-    title="Coverage"
+    title="layout.measures"
   />
   <div
     className="layout-page"
@@ -49,7 +49,7 @@ exports[`should render a message when there are no measures 1`] = `
     defer={false}
     encodeSpecialCharacters={true}
     prioritizeSeoTags={false}
-    title="Coverage"
+    title="layout.measures"
   />
   <MeasuresEmpty />
 </div>
@@ -123,7 +123,7 @@ exports[`should render correctly 1`] = `
     defer={false}
     encodeSpecialCharacters={true}
     prioritizeSeoTags={false}
-    title="Coverage"
+    title="layout.measures"
   />
   <div
     className="layout-page"

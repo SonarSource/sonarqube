@@ -22,11 +22,11 @@ import { Navigate, Route, useParams, useSearchParams } from 'react-router-dom';
 import NavigateWithParams from '../../app/utils/NavigateWithParams';
 import { omitNil } from '../../helpers/request';
 import { searchParamsToQuery } from '../../helpers/urls';
-import App from './components/App';
+import ComponentMeasuresApp from './components/ComponentMeasuresApp';
 
 const routes = () => (
   <Route path="component_measures">
-    <Route index={true} element={<App />} />
+    <Route index={true} element={<ComponentMeasuresApp />} />
     <Route
       path="domain/:domainName"
       element={

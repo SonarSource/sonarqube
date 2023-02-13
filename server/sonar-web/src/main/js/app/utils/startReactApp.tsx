@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { render } from 'react-dom';
-import { HelmetProvider } from 'react-helmet-async';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import accountRoutes from '../../apps/account/routes';
@@ -57,6 +57,7 @@ import tutorialsRoutes from '../../apps/tutorials/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
+import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { AppState } from '../../types/appstate';
 import { Feature } from '../../types/features';
@@ -185,6 +186,7 @@ export default function startReactApp(
             <IntlProvider defaultLocale={lang} locale={lang}>
               <GlobalMessagesContainer />
               <BrowserRouter basename={getBaseUrl()}>
+                <Helmet titleTemplate={translate('page_title.template.default')} />
                 <Routes>
                   {renderRedirects()}
 

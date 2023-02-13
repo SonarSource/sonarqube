@@ -29,7 +29,7 @@ import {
   mockRouter,
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { App } from '../App';
+import { CodingRulesApp } from '../CodingRulesApp';
 
 jest.mock('../../../../components/common/ScreenPositionHelper');
 
@@ -105,9 +105,9 @@ describe('renderBulkButton', () => {
   });
 });
 
-function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(
-    <App
+function shallowRender(props: Partial<CodingRulesApp['props']> = {}) {
+  return shallow<CodingRulesApp>(
+    <CodingRulesApp
       currentUser={mockCurrentUser({
         isLoggedIn: true,
       })}

@@ -24,7 +24,7 @@ import { getSettingsNavigation } from '../../api/navigation';
 import { getPendingPlugins } from '../../api/plugins';
 import { getSystemStatus, waitSystemUPStatus } from '../../api/system';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { AdminPagesContext } from '../../types/admin';
 import { AppState } from '../../types/appstate';
 import { PendingPluginResult } from '../../types/plugins';
@@ -119,13 +119,17 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
     }
 
     const { pendingPlugins, systemStatus } = this.state;
-    const defaultTitle = translate('layout.settings');
-
     const adminPagesContext: AdminPagesContext = { adminPages };
 
     return (
       <div>
-        <Helmet defaultTitle={defaultTitle} defer={false} titleTemplate={`%s - ${defaultTitle}`} />
+        <Helmet
+          defer={false}
+          titleTemplate={translateWithParameters(
+            'page_title.template.with_category',
+            translate('layout.settings')
+          )}
+        />
         <SettingsNav
           extensions={adminPages}
           fetchPendingPlugins={this.fetchPendingPlugins}

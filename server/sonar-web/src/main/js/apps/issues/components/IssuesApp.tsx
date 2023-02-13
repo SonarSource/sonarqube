@@ -1164,7 +1164,18 @@ export class App extends React.PureComponent<Props, State> {
         id="issues-page"
       >
         <Suggestions suggestions="issues" />
-        <Helmet defer={false} title={openIssue ? openIssue.message : translate('issues.page')} />
+        {openIssue ? (
+          <Helmet
+            defer={false}
+            title={openIssue.message}
+            titleTemplate={translateWithParameters(
+              'page_title.template.with_category',
+              translate('issues.page')
+            )}
+          />
+        ) : (
+          <Helmet defer={false} title={translate('issues.page')} />
+        )}
 
         <h1 className="a11y-hidden">{translate('issues.page')}</h1>
 

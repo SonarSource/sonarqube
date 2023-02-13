@@ -33,11 +33,7 @@ import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
 import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
-import {
-  getLocalizedMetricDomain,
-  translate,
-  translateWithParameters,
-} from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
@@ -64,7 +60,6 @@ import {
   hasFullMeasures,
   hasTree,
   hasTreemap,
-  isProjectOverview,
   parseQuery,
   Query,
   serializeQuery,
@@ -89,7 +84,7 @@ interface State {
   metrics: Dict<Metric>;
 }
 
-export class App extends React.PureComponent<Props, State> {
+export class ComponentMeasuresApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State;
 
@@ -173,18 +168,6 @@ export class App extends React.PureComponent<Props, State> {
       }
     );
   }
-
-  getHelmetTitle = (query: Query, displayOverview: boolean, metric?: Metric) => {
-    if (displayOverview && query.metric) {
-      return isProjectOverview(query.metric)
-        ? translate('component_measures.overview.project_overview.facet')
-        : translateWithParameters(
-            'component_measures.domain_x_overview',
-            getLocalizedMetricDomain(query.metric)
-          );
-    }
-    return metric ? metric.name : translate('layout.measures');
-  };
 
   getSelectedMetric = (query: Query, displayOverview: boolean) => {
     if (displayOverview) {
@@ -310,7 +293,7 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div id="component-measures">
         <Suggestions suggestions="component_measures" />
-        <Helmet defer={false} title={this.getHelmetTitle(query, displayOverview, metric)} />
+        <Helmet defer={false} title={translate('layout.measures')} />
         {measures.length > 0 ? (
           <div className="layout-page">
             <ScreenPositionHelper className="layout-page-side-outer">
@@ -368,7 +351,7 @@ const AlertContent = styled.div`
  * is that we can't use the usual withComponentContext HOC, because the type
  * of `component` isn't the same. It probably used to work because of the lazy loading
  */
-const WrappedApp = withRouter(withBranchStatusActions(App));
+const WrappedApp = withRouter(withBranchStatusActions(ComponentMeasuresApp));
 
 function AppWithComponentContext() {
   const { branchLike, component } = React.useContext(ComponentContext);
