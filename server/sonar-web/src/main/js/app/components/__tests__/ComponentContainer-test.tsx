@@ -32,7 +32,7 @@ import { HttpStatus } from '../../../helpers/request';
 import { mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { AlmKeys } from '../../../types/alm-settings';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, Visibility } from '../../../types/component';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import { Component } from '../../../types/types';
 import handleRequiredAuthorization from '../../utils/handleRequiredAuthorization';
@@ -98,12 +98,18 @@ it('changes component', () => {
   const wrapper = shallowRender();
   wrapper.setState({
     branchLikes: [mockMainBranch()],
-    component: { qualifier: 'TRK', visibility: 'public' } as Component,
+    component: {
+      qualifier: ComponentQualifier.Project,
+      visibility: Visibility.Public,
+    } as Component,
     loading: false,
   });
 
-  wrapper.instance().handleComponentChange({ visibility: 'private' });
-  expect(wrapper.state().component).toEqual({ qualifier: 'TRK', visibility: 'private' });
+  wrapper.instance().handleComponentChange({ visibility: Visibility.Private });
+  expect(wrapper.state().component).toEqual({
+    qualifier: ComponentQualifier.Project,
+    visibility: Visibility.Private,
+  });
 });
 
 it('loads the project binding, if any', async () => {
@@ -151,7 +157,7 @@ it('updates branches on change', async () => {
   wrapper.setState({
     branchLikes: [mockMainBranch()],
     component: mockComponent({
-      breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: 'TRK' }],
+      breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: ComponentQualifier.Project }],
     }),
     loading: false,
   });

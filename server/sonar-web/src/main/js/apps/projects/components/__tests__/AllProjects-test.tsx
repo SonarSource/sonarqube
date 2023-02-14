@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { get, save } from '../../../../helpers/storage';
 import { mockAppState, mockLocation } from '../../../../helpers/testMocks';
-import { ComponentQualifier } from '../../../../types/component';
+import { ComponentQualifier, Visibility } from '../../../../types/component';
 import { AllProjects, LS_PROJECTS_SORT, LS_PROJECTS_VIEW } from '../AllProjects';
 
 jest.mock(
@@ -170,7 +170,7 @@ function shallowRender(
         name: 'Foo',
         qualifier: ComponentQualifier.Project,
         tags: [],
-        visibility: 'public',
+        visibility: Visibility.Public,
       },
     ],
     total: 0,

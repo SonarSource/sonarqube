@@ -19,11 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier, Visibility } from '../../../types/component';
 import Projects from '../Projects';
 
 const projects = [
-  { key: 'a', name: 'A', qualifier: 'TRK', visibility: 'public' },
-  { key: 'b', name: 'B', qualifier: 'TRK', visibility: 'public' },
+  { key: 'a', name: 'A', qualifier: ComponentQualifier.Project, visibility: Visibility.Public },
+  { key: 'b', name: 'B', qualifier: ComponentQualifier.Project, visibility: Visibility.Public },
 ];
 const selection = ['a'];
 

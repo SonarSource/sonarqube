@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleDescriptionSection } from '../apps/coding-rules/rule';
-import { ComponentQualifier } from './component';
+import { ComponentQualifier, Visibility } from './component';
 import { MessageFormatting } from './issues';
 import { UserActive, UserBase } from './users';
 
@@ -771,8 +771,6 @@ export interface TextRange {
 export interface UserSelected extends UserActive {
   selected: boolean;
 }
-
-export type Visibility = 'public' | 'private';
 
 export namespace WebApi {
   export interface Action {

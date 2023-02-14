@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, Visibility } from '../../../types/component';
 import PrivacyBadge from '../PrivacyBadgeContainer';
 
 it('renders', () => {
@@ -27,11 +27,15 @@ it('renders', () => {
 });
 
 it('do not render', () => {
-  expect(getWrapper({ visibility: 'public' })).toMatchSnapshot();
+  expect(getWrapper({ visibility: Visibility.Public })).toMatchSnapshot();
 });
 
 function getWrapper(props = {}) {
   return shallow(
-    <PrivacyBadge qualifier={ComponentQualifier.Project} visibility="private" {...props} />
+    <PrivacyBadge
+      qualifier={ComponentQualifier.Project}
+      visibility={Visibility.Private}
+      {...props}
+    />
   );
 }

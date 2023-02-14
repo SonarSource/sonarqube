@@ -22,7 +22,7 @@ import * as React from 'react';
 import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadgeContainer';
 import TagsList from '../../../../../components/tags/TagsList';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
-import { ComponentQualifier } from '../../../../../types/component';
+import { ComponentQualifier, Visibility } from '../../../../../types/component';
 import { CurrentUser } from '../../../../../types/users';
 import { Project } from '../../../types';
 import ProjectCard from '../ProjectCard';
@@ -42,7 +42,7 @@ const PROJECT: Project = {
   name: 'Foo',
   qualifier: ComponentQualifier.Project,
   tags: [],
-  visibility: 'public',
+  visibility: Visibility.Public,
 };
 
 const USER_LOGGED_OUT = mockCurrentUser();
@@ -63,7 +63,7 @@ it('should display tags', () => {
 });
 
 it('should display private badge', () => {
-  const project: Project = { ...PROJECT, visibility: 'private' };
+  const project: Project = { ...PROJECT, visibility: Visibility.Private };
   expect(shallowRender(project).find(PrivacyBadgeContainer).exists()).toBe(true);
 });
 

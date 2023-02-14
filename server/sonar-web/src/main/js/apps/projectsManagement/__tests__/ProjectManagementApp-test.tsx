@@ -24,6 +24,7 @@ import { changeProjectDefaultVisibility } from '../../../api/permissions';
 import { getValue } from '../../../api/settings';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
+import { ComponentQualifier, Visibility } from '../../../types/component';
 import { ProjectManagementApp, Props } from '../ProjectManagementApp';
 
 jest.mock('lodash', () => {
@@ -60,9 +61,12 @@ beforeEach(() => {
 it('fetches all projects on mount', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(getComponents).toHaveBeenLastCalledWith({ ...defaultSearchParameters, qualifiers: 'TRK' });
+  expect(getComponents).toHaveBeenLastCalledWith({
+    ...defaultSearchParameters,
+    qualifiers: ComponentQualifier.Project,
+  });
   expect(getValue).toHaveBeenCalled();
-  expect(wrapper.state().defaultProjectVisibility).toBe('public');
+  expect(wrapper.state().defaultProjectVisibility).toBe(Visibility.Public);
 });
 
 it('selects provisioned', () => {
@@ -109,12 +113,12 @@ it('should handle default project visibility change', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(wrapper.state().defaultProjectVisibility).toBe('public');
-  wrapper.instance().handleDefaultProjectVisibilityChange('private');
+  expect(wrapper.state().defaultProjectVisibility).toBe(Visibility.Public);
+  wrapper.instance().handleDefaultProjectVisibilityChange(Visibility.Private);
 
-  expect(changeProjectDefaultVisibility).toHaveBeenCalledWith('private');
+  expect(changeProjectDefaultVisibility).toHaveBeenCalledWith(Visibility.Private);
   await waitAndUpdate(wrapper);
-  expect(wrapper.state().defaultProjectVisibility).toBe('private');
+  expect(wrapper.state().defaultProjectVisibility).toBe(Visibility.Private);
 });
 
 it('loads more', () => {

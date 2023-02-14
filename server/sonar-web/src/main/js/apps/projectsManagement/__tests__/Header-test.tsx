@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from '../../../helpers/testUtils';
+import { Visibility } from '../../../types/component';
 import Header, { Props } from '../Header';
 
 jest.mock('../../../helpers/system', () => ({
@@ -27,10 +28,8 @@ jest.mock('../../../helpers/system', () => ({
 }));
 
 it('renders', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ defaultProjectVisibility: undefined })).toMatchSnapshot(
-    'undefined visibility'
-  );
+  expect(shallowRender()).toMatchSnapshot('undefined visibility');
+  expect(shallowRender({ defaultProjectVisibility: Visibility.Public })).toMatchSnapshot('default');
 });
 
 it('creates project', () => {
@@ -48,8 +47,8 @@ it('changes default visibility', () => {
 
   const modalWrapper = wrapper.find('ChangeDefaultVisibilityForm');
   expect(modalWrapper).toMatchSnapshot();
-  modalWrapper.prop<Function>('onConfirm')('private');
-  expect(onChangeDefaultProjectVisibility).toHaveBeenCalledWith('private');
+  modalWrapper.prop<Function>('onConfirm')(Visibility.Private);
+  expect(onChangeDefaultProjectVisibility).toHaveBeenCalledWith(Visibility.Private);
 
   modalWrapper.prop<Function>('onClose')();
   wrapper.update();
@@ -59,7 +58,6 @@ it('changes default visibility', () => {
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
   return shallow(
     <Header
-      defaultProjectVisibility="public"
       hasProvisionPermission={true}
       onChangeDefaultProjectVisibility={jest.fn()}
       onProjectCreate={jest.fn()}

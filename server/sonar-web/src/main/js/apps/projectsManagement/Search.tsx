@@ -31,7 +31,7 @@ import Select, { LabelValueSelectOption } from '../../components/controls/Select
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
-import { Visibility } from '../../types/types';
+import { Visibility } from '../../types/component';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
 
@@ -172,8 +172,8 @@ export class Search extends React.PureComponent<Props, State> {
   renderVisibilityFilter = () => {
     const options = [
       { value: 'all', label: translate('visibility.both') },
-      { value: 'public', label: translate('visibility.public') },
-      { value: 'private', label: translate('visibility.private') },
+      { value: Visibility.Public, label: translate('visibility.public') },
+      { value: Visibility.Private, label: translate('visibility.private') },
     ];
     return (
       <td className="thin nowrap text-middle">

@@ -30,8 +30,8 @@ import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
+import { Visibility } from '../../types/component';
 import { GlobalSettingKeys } from '../../types/settings';
-import { Visibility } from '../../types/types';
 
 interface Props {
   defaultProjectVisibility?: Visibility;

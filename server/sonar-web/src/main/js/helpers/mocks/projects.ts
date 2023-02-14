@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Project } from '../../apps/projects/types';
-import { ComponentQualifier } from '../../types/component';
+import { ComponentQualifier, Visibility } from '../../types/component';
 
 export function mockProject(overrides: Partial<Project> = {}): Project {
   return {
@@ -27,7 +27,7 @@ export function mockProject(overrides: Partial<Project> = {}): Project {
     measures: {},
     qualifier: ComponentQualifier.Project,
     tags: [],
-    visibility: 'public',
+    visibility: Visibility.Public,
     ...overrides,
   };
 }

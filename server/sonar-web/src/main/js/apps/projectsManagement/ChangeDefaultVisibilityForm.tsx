@@ -23,7 +23,7 @@ import Modal from '../../components/controls/Modal';
 import Radio from '../../components/controls/Radio';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
-import { Visibility } from '../../types/types';
+import { Visibility } from '../../types/component';
 
 export interface Props {
   defaultVisibility: Visibility;
@@ -58,7 +58,7 @@ export default class ChangeDefaultVisibilityForm extends React.PureComponent<Pro
         </header>
 
         <div className="modal-body">
-          {['public', 'private'].map((visibility) => (
+          {Object.values(Visibility).map((visibility) => (
             <div className="big-spacer-bottom" key={visibility}>
               <Radio
                 value={visibility}

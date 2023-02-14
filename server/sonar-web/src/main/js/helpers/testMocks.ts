@@ -42,11 +42,6 @@ import {
   Metric,
   Paging,
   Period,
-  Permission,
-  PermissionGroup,
-  PermissionTemplate,
-  PermissionTemplateGroup,
-  PermissionUser,
   ProfileInheritanceDetails,
   Rule,
   RuleActivation,
@@ -760,53 +755,4 @@ export function mockDumpStatus(props: Partial<DumpStatus> = {}): DumpStatus {
 
 export function mockRuleRepository(override: Partial<RuleRepository> = {}) {
   return { key: 'css', language: 'css', name: 'SonarQube', ...override };
-}
-
-export function mockPermission(override: Partial<Permission> = {}) {
-  return {
-    key: 'admin',
-    name: 'Admin',
-    description: 'Can do anything he/she wants',
-    ...override,
-  };
-}
-
-export function mockPermissionTemplateGroup(override: Partial<PermissionTemplateGroup> = {}) {
-  return {
-    groupsCount: 1,
-    usersCount: 1,
-    key: 'admin',
-    withProjectCreator: true,
-    ...override,
-  };
-}
-
-export function mockPermissionTemplate(override: Partial<PermissionTemplate> = {}) {
-  return {
-    id: 'template1',
-    name: 'Permission Template 1',
-    createdAt: '',
-    defaultFor: [],
-    permissions: [mockPermissionTemplateGroup()],
-    ...override,
-  };
-}
-
-export function mockTemplateUser(override: Partial<PermissionUser> = {}) {
-  return {
-    login: 'admin',
-    name: 'Admin Admin',
-    permissions: ['admin', 'codeviewer'],
-    ...override,
-  };
-}
-
-export function mockTemplateGroup(override: Partial<PermissionGroup> = {}) {
-  return {
-    id: 'Anyone',
-    name: 'Anyone',
-    description: 'everyone',
-    permissions: ['admin', 'codeviewer'],
-    ...override,
-  };
 }

@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import Tooltip from '../../components/controls/Tooltip';
 import { translate } from '../../helpers/l10n';
-import { Visibility } from '../../types/types';
+import { Visibility } from '../../types/component';
 
 interface PrivacyBadgeContainerProps {
   className?: string;
@@ -34,7 +34,7 @@ export default function PrivacyBadgeContainer({
   qualifier,
   visibility,
 }: PrivacyBadgeContainerProps) {
-  if (visibility !== 'private') {
+  if (visibility !== Visibility.Private) {
     return null;
   }
 

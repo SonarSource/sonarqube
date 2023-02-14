@@ -19,8 +19,9 @@
  */
 import * as React from 'react';
 import { Button } from '../../../../components/controls/buttons';
+import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
-import { isApplication, isPortfolioLike } from '../../../../types/component';
+import { ComponentQualifier, isApplication, isPortfolioLike } from '../../../../types/component';
 import { Component } from '../../../../types/types';
 import ApplyTemplate from './ApplyTemplate';
 
@@ -70,7 +71,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
     }
 
     const visibilityDescription =
-      component.qualifier === 'TRK' && component.visibility
+      component.qualifier === ComponentQualifier.Project && component.visibility
         ? translate('visibility', component.visibility, 'description', component.qualifier)
         : undefined;
 
@@ -78,7 +79,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
       <header className="page-header">
         <h1 className="page-title">{translate('permissions.page')}</h1>
 
-        {this.props.loading && <i className="spinner" />}
+        <DeferredSpinner loading={this.props.loading} />
 
         {canApplyPermissionTemplate && (
           <div className="page-actions">

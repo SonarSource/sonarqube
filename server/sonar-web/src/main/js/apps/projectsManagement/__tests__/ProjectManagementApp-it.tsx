@@ -20,7 +20,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getComponents, SearchProjectsParameters } from '../../../api/components';
-import PermissionTemplateServiceMock from '../../../api/mocks/PermissionTemplateServiceMock';
+import PermissionsServiceMock from '../../../api/mocks/PermissionsServiceMock';
 import { renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
 import { ComponentQualifier, Visibility } from '../../../types/component';
 import routes from '../routes';
@@ -38,13 +38,13 @@ jest.mock('../../../api/settings', () => ({
 
 const components = mockComponents(11);
 
-let permissionTemplateMock: PermissionTemplateServiceMock;
+let serviceMock: PermissionsServiceMock;
 beforeAll(() => {
-  permissionTemplateMock = new PermissionTemplateServiceMock();
+  serviceMock = new PermissionsServiceMock();
 });
 
 afterEach(() => {
-  permissionTemplateMock.reset();
+  serviceMock.reset();
 });
 
 describe('Bulk Apply', () => {

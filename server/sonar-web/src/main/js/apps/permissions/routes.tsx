@@ -20,12 +20,12 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import GlobalPermissionsApp from './global/components/App';
-import ProjectPermissionsApp from './project/components/App';
+import PermissionsProjectApp from './project/components/PermissionsProjectApp';
 
 export const globalPermissionsRoutes = () => (
   <Route path="permissions" element={<GlobalPermissionsApp />} />
 );
 
 export const projectPermissionsRoutes = () => (
-  <Route path="project_roles" element={<ProjectPermissionsApp />} />
+  <Route path="project_roles" element={<PermissionsProjectApp />} />
 );

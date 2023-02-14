@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser, mockMetric } from '../../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../../helpers/testUtils';
-import { ComponentQualifier } from '../../../../../../types/component';
+import { ComponentQualifier, Visibility } from '../../../../../../types/component';
 import ProjectBadges from '../badges/ProjectBadges';
 import { ProjectInformation } from '../ProjectInformation';
 import { ProjectInformationPages } from '../ProjectInformationPages';
@@ -37,9 +37,9 @@ jest.mock('../../../../../../api/measures', () => {
 it('should render correctly', async () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot('logged in user');
-  expect(shallowRender({ component: mockComponent({ visibility: 'private' }) })).toMatchSnapshot(
-    'private'
-  );
+  expect(
+    shallowRender({ component: mockComponent({ visibility: Visibility.Private }) })
+  ).toMatchSnapshot('private');
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('measures loaded');

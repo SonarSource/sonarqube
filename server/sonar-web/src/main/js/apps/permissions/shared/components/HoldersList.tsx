@@ -42,7 +42,6 @@ interface Props {
   permissions: PermissionDefinitions;
   query?: string;
   selectedPermission?: string;
-  showPublicProjectsWarning?: boolean;
   users: PermissionUser[];
 }
 
@@ -124,15 +123,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const {
-      permissions,
-      users,
-      groups,
-      loading,
-      children,
-      selectedPermission,
-      showPublicProjectsWarning,
-    } = this.props;
+    const { permissions, users, groups, loading, children, selectedPermission } = this.props;
     const items = [...groups, ...users];
     const [itemWithPermissions, itemWithoutPermissions] = partition(items, (item) =>
       this.getItemInitialPermissionsCount(item)
@@ -152,7 +143,6 @@ export default class HoldersList extends React.PureComponent<Props, State> {
                   onSelectPermission={this.props.onSelectPermission}
                   permission={permission}
                   selectedPermission={selectedPermission}
-                  showPublicProjectsWarning={showPublicProjectsWarning}
                 />
               ))}
             </tr>

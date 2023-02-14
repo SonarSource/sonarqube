@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
+import { ComponentQualifier, Visibility } from '../../../../../../types/component';
 import {
   ProjectInformationRenderer,
   ProjectInformationRendererProps,
@@ -43,7 +44,9 @@ it('should render correctly', () => {
 });
 
 it('should render a private project correctly', () => {
-  expect(shallowRender({ component: mockComponent({ visibility: 'private' }) })).toMatchSnapshot();
+  expect(
+    shallowRender({ component: mockComponent({ visibility: Visibility.Private }) })
+  ).toMatchSnapshot();
 });
 
 it('should render an app correctly', () => {
@@ -87,7 +90,10 @@ function shallowRender(props: Partial<ProjectInformationRendererProps> = {}) {
       hasFeature={jest.fn().mockReturnValue(true)}
       canConfigureNotifications={true}
       canUseBadges={true}
-      component={mockComponent({ qualifier: 'TRK', visibility: 'public' })}
+      component={mockComponent({
+        qualifier: ComponentQualifier.Project,
+        visibility: Visibility.Public,
+      })}
       onComponentChange={jest.fn()}
       onPageChange={jest.fn()}
       {...props}

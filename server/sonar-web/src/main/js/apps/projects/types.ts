@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from '../../types/component';
-import { Dict, Visibility } from '../../types/types';
+import { ComponentQualifier, Visibility } from '../../types/component';
+import { Dict } from '../../types/types';
 
 export interface Project {
   analysisDate?: string;

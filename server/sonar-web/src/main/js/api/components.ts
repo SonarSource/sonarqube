@@ -20,7 +20,12 @@
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
-import { ComponentQualifier, TreeComponent, TreeComponentWithPath } from '../types/component';
+import {
+  ComponentQualifier,
+  TreeComponent,
+  TreeComponentWithPath,
+  Visibility,
+} from '../types/component';
 import {
   ComponentMeasure,
   Dict,
@@ -31,7 +36,6 @@ import {
   Paging,
   SourceLine,
   SourceViewerFile,
-  Visibility,
 } from '../types/types';
 
 export interface BaseSearchProjectsParameters {

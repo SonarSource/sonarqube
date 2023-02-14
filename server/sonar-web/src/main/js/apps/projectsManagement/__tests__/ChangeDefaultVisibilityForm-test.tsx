@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Radio from '../../../components/controls/Radio';
 import { click } from '../../../helpers/testUtils';
+import { Visibility } from '../../../types/component';
 import ChangeDefaultVisibilityForm from '../ChangeDefaultVisibilityForm';
 
 it('closes', () => {
@@ -35,17 +36,17 @@ it('changes visibility', () => {
   const wrapper = shallowRender({ onConfirm });
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find(Radio).first().props().onCheck('private');
+  wrapper.find(Radio).first().props().onCheck(Visibility.Private);
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.js-confirm'));
-  expect(onConfirm).toHaveBeenCalledWith('private');
+  expect(onConfirm).toHaveBeenCalledWith(Visibility.Private);
 });
 
 function shallowRender(props: Partial<ChangeDefaultVisibilityForm['props']> = {}) {
   return shallow(
     <ChangeDefaultVisibilityForm
-      defaultVisibility="public"
+      defaultVisibility={Visibility.Public}
       onClose={jest.fn()}
       onConfirm={jest.fn()}
       {...props}

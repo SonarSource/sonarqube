@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { PermissionGroup, PermissionUser } from '../../types/types';
+import {
+  Permission,
+  PermissionGroup,
+  PermissionTemplate,
+  PermissionTemplateGroup,
+  PermissionUser,
+} from '../../types/types';
 import { mockUser } from '../testMocks';
 
 export function mockPermissionGroup(overrides: Partial<PermissionGroup> = {}): PermissionGroup {
@@ -35,5 +41,54 @@ export function mockPermissionUser(overrides: Partial<PermissionUser> = {}): Per
     name: 'johndoe',
     permissions: ['provisioning'],
     ...overrides,
+  };
+}
+
+export function mockPermission(override: Partial<Permission> = {}) {
+  return {
+    key: 'admin',
+    name: 'Admin',
+    description: 'Can do anything he/she wants',
+    ...override,
+  };
+}
+
+export function mockPermissionTemplateGroup(override: Partial<PermissionTemplateGroup> = {}) {
+  return {
+    groupsCount: 1,
+    usersCount: 1,
+    key: 'admin',
+    withProjectCreator: true,
+    ...override,
+  };
+}
+
+export function mockPermissionTemplate(override: Partial<PermissionTemplate> = {}) {
+  return {
+    id: 'template1',
+    name: 'Permission Template 1',
+    createdAt: '',
+    defaultFor: [],
+    permissions: [mockPermissionTemplateGroup()],
+    ...override,
+  };
+}
+
+export function mockTemplateUser(override: Partial<PermissionUser> = {}) {
+  return {
+    login: 'admin',
+    name: 'Admin Admin',
+    permissions: ['admin', 'codeviewer'],
+    ...override,
+  };
+}
+
+export function mockTemplateGroup(override: Partial<PermissionGroup> = {}) {
+  return {
+    id: 'Anyone',
+    name: 'Anyone',
+    description: 'everyone',
+    permissions: ['admin', 'codeviewer'],
+    ...override,
   };
 }

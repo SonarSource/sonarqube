@@ -20,34 +20,35 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import Radio from '../../../components/controls/Radio';
-import VisibilitySelector from '../VisibilitySelector';
+import { Visibility } from '../../../types/component';
+import VisibilitySelector, { VisibilitySelectorProps } from '../VisibilitySelector';
 
 it('changes visibility', () => {
   const onChange = jest.fn();
   const wrapper = shallowRender({ onChange });
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find(Radio).first().props().onCheck('private');
-  expect(onChange).toHaveBeenCalledWith('private');
+  wrapper.find(Radio).first().props().onCheck(Visibility.Private);
+  expect(onChange).toHaveBeenCalledWith(Visibility.Private);
 
-  wrapper.setProps({ visibility: 'private' });
+  wrapper.setProps({ visibility: Visibility.Private });
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find(Radio).first().props().onCheck('public');
-  expect(onChange).toHaveBeenCalledWith('public');
+  wrapper.find(Radio).first().props().onCheck(Visibility.Public);
+  expect(onChange).toHaveBeenCalledWith(Visibility.Public);
 });
 
 it('renders disabled', () => {
   expect(shallowRender({ canTurnToPrivate: false })).toMatchSnapshot();
 });
 
-function shallowRender(props?: Partial<VisibilitySelector['props']>) {
-  return shallow<VisibilitySelector>(
+function shallowRender(props?: Partial<VisibilitySelectorProps>) {
+  return shallow<VisibilitySelectorProps>(
     <VisibilitySelector
       className="test-classname"
       canTurnToPrivate={true}
       onChange={jest.fn()}
-      visibility="public"
+      visibility={Visibility.Public}
       {...props}
     />
   );

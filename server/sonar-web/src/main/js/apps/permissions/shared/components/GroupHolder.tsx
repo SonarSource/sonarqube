@@ -99,7 +99,6 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
           return (
             <PermissionCell
               disabled={group.name === ANYONE && (isComponentPrivate || isAdminPermission)}
-              isGroupItem={true}
               key={permissionKey}
               loading={this.state.loading}
               onCheck={this.handleCheck}

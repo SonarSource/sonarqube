@@ -83,8 +83,6 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
           this.setState({ done: true });
         }
       });
-    } else {
-      return Promise.reject(undefined);
     }
   };
 
@@ -94,7 +92,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
 
   render() {
     const header = translateWithParameters(
-      'projects_role.apply_template_to_xxx',
+      'projects_role.apply_template_to_x',
       this.props.project.name
     );
 

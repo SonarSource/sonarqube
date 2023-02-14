@@ -18,34 +18,42 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { translate } from '../../helpers/l10n';
+import { Permissions } from '../../types/permissions';
 import { Dict, PermissionDefinition, PermissionDefinitionGroup } from '../../types/types';
 
 export const PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE = [
-  'user',
-  'codeviewer',
-  'issueadmin',
-  'securityhotspotadmin',
-  'admin',
-  'scan',
+  Permissions.Browse,
+  Permissions.CodeViewer,
+  Permissions.IssueAdmin,
+  Permissions.SecurityHotspotAdmin,
+  Permissions.Admin,
+  Permissions.Scan,
 ];
 
 export const PERMISSIONS_ORDER_GLOBAL = [
-  'admin',
-  { category: 'administer', permissions: ['gateadmin', 'profileadmin'] },
-  'scan',
-  { category: 'creator', permissions: ['provisioning', 'applicationcreator', 'portfoliocreator'] },
+  Permissions.Admin,
+  {
+    category: 'administer',
+    permissions: [Permissions.QualityGateAdmin, Permissions.QualityProfileAdmin],
+  },
+  Permissions.Scan,
+  {
+    category: 'creator',
+    permissions: [
+      Permissions.ProjectCreation,
+      Permissions.ApplicationCreation,
+      Permissions.PortfolioCreation,
+    ],
+  },
 ];
 
-export const PERMISSIONS_ORDER_FOR_VIEW = ['user', 'admin'];
-
-export const PERMISSIONS_ORDER_FOR_DEV = ['user', 'admin'];
+export const PERMISSIONS_ORDER_FOR_VIEW = [Permissions.Browse, Permissions.Admin];
 
 export const PERMISSIONS_ORDER_BY_QUALIFIER: Dict<string[]> = {
   TRK: PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
   VW: PERMISSIONS_ORDER_FOR_VIEW,
   SVW: PERMISSIONS_ORDER_FOR_VIEW,
   APP: PERMISSIONS_ORDER_FOR_VIEW,
-  DEV: PERMISSIONS_ORDER_FOR_DEV,
 };
 
 function convertToPermissionDefinition(permission: string, l10nPrefix: string) {
@@ -60,7 +68,7 @@ function convertToPermissionDefinition(permission: string, l10nPrefix: string) {
 }
 
 export function filterPermissions(
-  permissions: Array<string | { category: string; permissions: string[] }>,
+  permissions: Array<Permissions | { category: string; permissions: Permissions[] }>,
   hasApplicationsEnabled: boolean,
   hasPortfoliosEnabled: boolean
 ) {
@@ -70,9 +78,9 @@ export function filterPermissions(
         ...permission,
         permissions: permission.permissions.filter((p) => {
           return (
-            p === 'provisioning' ||
-            (p === 'portfoliocreator' && hasPortfoliosEnabled) ||
-            (p === 'applicationcreator' && hasApplicationsEnabled)
+            p === Permissions.ProjectCreation ||
+            (p === Permissions.PortfolioCreation && hasPortfoliosEnabled) ||
+            (p === Permissions.ApplicationCreation && hasApplicationsEnabled)
           );
         }),
       };

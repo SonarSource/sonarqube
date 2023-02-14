@@ -21,38 +21,38 @@ import classNames from 'classnames';
 import * as React from 'react';
 import Radio from '../../components/controls/Radio';
 import { translate } from '../../helpers/l10n';
-import { Visibility } from '../../types/types';
+import { Visibility } from '../../types/component';
 
-interface Props {
+export interface VisibilitySelectorProps {
   canTurnToPrivate?: boolean;
   className?: string;
   onChange: (visibility: Visibility) => void;
   showDetails?: boolean;
   visibility?: Visibility;
+  loading?: boolean;
 }
 
-export default class VisibilitySelector extends React.PureComponent<Props> {
-  render() {
-    return (
-      <div className={classNames(this.props.className)}>
-        {['public', 'private'].map((visibility) => (
-          <Radio
-            className={`huge-spacer-right visibility-${visibility}`}
-            key={visibility}
-            value={visibility}
-            checked={this.props.visibility === visibility}
-            onCheck={this.props.onChange}
-            disabled={visibility === 'private' && !this.props.canTurnToPrivate}
-          >
-            <div>
-              {translate('visibility', visibility)}
-              {this.props.showDetails && (
-                <p className="note">{translate('visibility', visibility, 'description.long')}</p>
-              )}
-            </div>
-          </Radio>
-        ))}
-      </div>
-    );
-  }
+export default function VisibilitySelector(props: VisibilitySelectorProps) {
+  const { className, canTurnToPrivate, visibility, showDetails, loading = false } = props;
+  return (
+    <div className={classNames(className)}>
+      {Object.values(Visibility).map((v) => (
+        <Radio
+          className={`huge-spacer-right visibility-${v}`}
+          key={v}
+          value={v}
+          checked={v === visibility}
+          onCheck={props.onChange}
+          disabled={(v === Visibility.Private && !canTurnToPrivate) || loading}
+        >
+          <div>
+            {translate('visibility', v)}
+            {showDetails && (
+              <p className="note">{translate('visibility', v, 'description.long')}</p>
+            )}
+          </div>
+        </Radio>
+      ))}
+    </div>
+  );
 }

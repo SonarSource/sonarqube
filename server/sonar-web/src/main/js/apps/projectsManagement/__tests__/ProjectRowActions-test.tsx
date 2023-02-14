@@ -22,6 +22,7 @@ import * as React from 'react';
 import { getComponentNavigation } from '../../../api/navigation';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { click, waitAndUpdate } from '../../../helpers/testUtils';
+import { ComponentQualifier, Visibility } from '../../../types/component';
 import ProjectRowActions, { Props } from '../ProjectRowActions';
 
 jest.mock('../../../api/navigation', () => ({
@@ -123,8 +124,8 @@ function shallowRender(props: Partial<Props> = {}) {
         id: 'foo',
         key: 'foo',
         name: 'Foo',
-        qualifier: 'TRK',
-        visibility: 'private',
+        qualifier: ComponentQualifier.Project,
+        visibility: Visibility.Private,
       }}
       {...props}
     />

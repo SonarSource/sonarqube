@@ -22,7 +22,6 @@ import * as React from 'react';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import Tooltip from '../../../../components/controls/Tooltip';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { PermissionDefinition, PermissionDefinitionGroup } from '../../../../types/types';
 import { isPermissionDefinitionGroup } from '../../utils';
@@ -31,7 +30,6 @@ interface Props {
   onSelectPermission?: (permission: string) => void;
   permission: PermissionDefinition | PermissionDefinitionGroup;
   selectedPermission?: string;
-  showPublicProjectsWarning?: boolean;
 }
 
 export default class PermissionHeader extends React.PureComponent<Props> {
@@ -55,19 +53,9 @@ export default class PermissionHeader extends React.PureComponent<Props> {
           <br />
         </React.Fragment>
       ));
-    } else {
-      if (this.props.showPublicProjectsWarning && ['user', 'codeviewer'].includes(permission.key)) {
-        return (
-          <div>
-            <InstanceMessage message={permission.description} />
-            <Alert className="spacer-top" variant="warning">
-              {translate('projects_role.public_projects_warning')}
-            </Alert>
-          </div>
-        );
-      }
-      return <InstanceMessage message={permission.description} />;
     }
+
+    return <InstanceMessage message={permission.description} />;
   };
 
   render() {

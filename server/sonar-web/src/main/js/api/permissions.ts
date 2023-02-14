@@ -19,13 +19,13 @@
  */
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { Visibility } from '../types/component';
 import {
   Paging,
   Permission,
   PermissionGroup,
   PermissionTemplate,
   PermissionUser,
-  Visibility,
 } from '../types/types';
 import { BaseSearchProjectsParameters } from './components';
 
@@ -93,7 +93,7 @@ export function setDefaultPermissionTemplate(templateId: string, qualifier: stri
   return post('/api/permissions/set_default_template', { templateId, qualifier });
 }
 
-export function applyTemplateToProject(data: RequestData) {
+export function applyTemplateToProject(data: { projectKey: string; templateId: string }) {
   return post('/api/permissions/apply_template', data).catch(throwGlobalError);
 }
 

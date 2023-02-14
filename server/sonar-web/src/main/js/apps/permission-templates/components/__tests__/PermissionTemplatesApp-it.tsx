@@ -20,12 +20,14 @@
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { byRole } from 'testing-library-selector';
-import PermissionTemplateServiceMock from '../../../../api/mocks/PermissionTemplateServiceMock';
+import PermissionsServiceMock from '../../../../api/mocks/PermissionsServiceMock';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { ComponentQualifier } from '../../../../types/component';
+import { Permissions } from '../../../../types/permissions';
 import PermissionTemplatesApp from '../PermissionTemplatesApp';
 
-const serviceMock = new PermissionTemplateServiceMock();
+const serviceMock = new PermissionsServiceMock();
 
 beforeEach(() => {
   serviceMock.reset();
@@ -33,37 +35,11 @@ beforeEach(() => {
 
 const ui = {
   templateLink1: byRole('link', { name: 'Permission Template 1' }),
-  adminUserBrowseCheckboxChecked: byRole('checkbox', {
-    name: `checked permission 'projects_role.user' for user 'Admin Admin'`,
-  }),
-  adminUserBrowseCheckboxUnchecked: byRole('checkbox', {
-    name: `unchecked permission 'projects_role.user' for user 'Admin Admin'`,
-  }),
-  adminUserAdministerCheckboxChecked: byRole('checkbox', {
-    name: `checked permission 'projects_role.admin' for user 'Admin Admin'`,
-  }),
-  adminUserAdministerCheckboxUnchecked: byRole('checkbox', {
-    name: `unchecked permission 'projects_role.admin' for user 'Admin Admin'`,
-  }),
-
-  anyoneGroupBrowseCheckboxChecked: byRole('checkbox', {
-    name: `checked permission 'projects_role.user' for group 'Anyone'`,
-  }),
-  anyoneGroupBrowseCheckboxUnchecked: byRole('checkbox', {
-    name: `unchecked permission 'projects_role.user' for group 'Anyone'`,
-  }),
-
-  anyoneGroupCodeviewCheckboxChecked: byRole('checkbox', {
-    name: `checked permission 'projects_role.codeviewer' for group 'Anyone'`,
-  }),
-  anyoneGroupCodeviewCheckboxUnchecked: byRole('checkbox', {
-    name: `unchecked permission 'projects_role.codeviewer' for group 'Anyone'`,
-  }),
-
+  permissionCheckbox: (target: string, permission: Permissions) =>
+    byRole('checkbox', {
+      name: `permission.assign_x_to_y.projects_role.${permission}.${target}`,
+    }),
   showMoreButton: byRole('button', { name: 'show_more' }),
-  whiteUserBrowseCheckbox: byRole('checkbox', {
-    name: `unchecked permission 'projects_role.user' for user 'White'`,
-  }),
 };
 
 it('grants/revokes permission from users or groups', async () => {
@@ -73,36 +49,33 @@ it('grants/revokes permission from users or groups', async () => {
   await user.click(await ui.templateLink1.find());
 
   // User
-  expect(ui.adminUserBrowseCheckboxUnchecked.get()).not.toBeChecked();
-  await user.click(ui.adminUserBrowseCheckboxUnchecked.get());
-  expect(ui.adminUserBrowseCheckboxChecked.get()).toBeChecked();
+  expect(ui.permissionCheckbox('Admin Admin', Permissions.Browse).get()).not.toBeChecked();
+  await user.click(ui.permissionCheckbox('Admin Admin', Permissions.Browse).get());
+  expect(ui.permissionCheckbox('Admin Admin', Permissions.Browse).get()).toBeChecked();
 
-  expect(ui.adminUserAdministerCheckboxChecked.get()).toBeChecked();
-  await user.click(ui.adminUserAdministerCheckboxChecked.get());
-  expect(ui.adminUserAdministerCheckboxUnchecked.get()).not.toBeChecked();
+  expect(ui.permissionCheckbox('Admin Admin', Permissions.Admin).get()).toBeChecked();
+  await user.click(ui.permissionCheckbox('Admin Admin', Permissions.Admin).get());
+  expect(ui.permissionCheckbox('Admin Admin', Permissions.Admin).get()).not.toBeChecked();
 
   // Group
-  expect(ui.anyoneGroupBrowseCheckboxUnchecked.get()).not.toBeChecked();
-  await user.click(ui.anyoneGroupBrowseCheckboxUnchecked.get());
-  expect(ui.anyoneGroupBrowseCheckboxChecked.get()).toBeChecked();
+  expect(ui.permissionCheckbox('Anyone', Permissions.Browse).get()).not.toBeChecked();
+  await user.click(ui.permissionCheckbox('Anyone', Permissions.Browse).get());
+  expect(ui.permissionCheckbox('Anyone', Permissions.Browse).get()).toBeChecked();
 
-  expect(ui.anyoneGroupCodeviewCheckboxChecked.get()).toBeChecked();
-  await user.click(ui.anyoneGroupCodeviewCheckboxChecked.get());
-  expect(ui.anyoneGroupCodeviewCheckboxUnchecked.get()).not.toBeChecked();
+  expect(ui.permissionCheckbox('Anyone', Permissions.CodeViewer).get()).toBeChecked();
+  await user.click(ui.permissionCheckbox('Anyone', Permissions.CodeViewer).get());
+  expect(ui.permissionCheckbox('Anyone', Permissions.CodeViewer).get()).not.toBeChecked();
 
   // Handles error on permission change
   serviceMock.updatePermissionChangeAllowance(false);
-  await user.click(ui.adminUserBrowseCheckboxChecked.get());
-  expect(ui.adminUserBrowseCheckboxChecked.get()).toBeChecked();
+  await user.click(ui.permissionCheckbox('Admin Admin', Permissions.Browse).get());
+  expect(ui.permissionCheckbox('Admin Admin', Permissions.Browse).get()).toBeChecked();
 
-  await user.click(ui.anyoneGroupCodeviewCheckboxUnchecked.get());
-  expect(ui.anyoneGroupCodeviewCheckboxUnchecked.get()).not.toBeChecked();
+  await user.click(ui.permissionCheckbox('Anyone', Permissions.CodeViewer).get());
+  expect(ui.permissionCheckbox('Anyone', Permissions.CodeViewer).get()).not.toBeChecked();
 
-  await user.click(ui.adminUserBrowseCheckboxChecked.get());
-  expect(ui.adminUserBrowseCheckboxChecked.get()).toBeChecked();
-
-  await user.click(ui.adminUserAdministerCheckboxUnchecked.get());
-  expect(ui.adminUserAdministerCheckboxUnchecked.get()).not.toBeChecked();
+  await user.click(ui.permissionCheckbox('Admin Admin', Permissions.Admin).get());
+  expect(ui.permissionCheckbox('Admin Admin', Permissions.Admin).get()).not.toBeChecked();
 });
 
 it('loads more items on Show More', async () => {
@@ -111,13 +84,13 @@ it('loads more items on Show More', async () => {
 
   await user.click(await ui.templateLink1.find());
 
-  expect(ui.whiteUserBrowseCheckbox.query()).not.toBeInTheDocument();
+  expect(ui.permissionCheckbox('White', Permissions.Browse).query()).not.toBeInTheDocument();
   await user.click(ui.showMoreButton.get());
-  expect(ui.whiteUserBrowseCheckbox.get()).toBeInTheDocument();
+  expect(ui.permissionCheckbox('White', Permissions.Browse).get()).toBeInTheDocument();
 });
 
 function renderPermissionTemplatesApp() {
   renderApp('admin/permission_templates', <PermissionTemplatesApp />, {
-    appState: mockAppState({ qualifiers: ['TRK'] }),
+    appState: mockAppState({ qualifiers: [ComponentQualifier.Project] }),
   });
 }
