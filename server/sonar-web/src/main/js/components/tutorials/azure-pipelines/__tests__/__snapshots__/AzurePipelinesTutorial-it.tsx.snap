@@ -31,12 +31,16 @@ exports[`should render correctly and allow navigating between the different step
 "# Additional properties that will be passed to the scanner,
 # Put one key=value per line, example:
 # sonar.exclusions=**/*.bin
-sonar.projectKey=foo"
+sonar.projectKey=foo
+sonar.projectName=MyProject
+"
 `;
 
 exports[`should render correctly and allow navigating between the different steps: maven, copy additional properties 1`] = `
 "# Additional properties that will be passed to the scanner,
 # Put one key=value per line, example:
 # sonar.exclusions=**/*.bin
-sonar.projectKey=foo"
+sonar.projectKey=foo
+sonar.projectName=MyProject
+"
 `;

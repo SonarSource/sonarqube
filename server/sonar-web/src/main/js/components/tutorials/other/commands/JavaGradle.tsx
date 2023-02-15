@@ -42,6 +42,7 @@ export default function JavaGradle(props: JavaGradleProps) {
   const command = [
     './gradlew sonar',
     `-Dsonar.projectKey=${component.key}`,
+    `-Dsonar.projectName='${component.name}'`,
     `-Dsonar.host.url=${baseUrl}`,
     `-Dsonar.login=${token}`,
   ];

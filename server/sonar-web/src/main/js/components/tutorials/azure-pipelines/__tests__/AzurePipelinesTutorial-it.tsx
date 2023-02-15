@@ -27,6 +27,7 @@ import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderApp, RenderContext } from '../../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../../types/permissions';
 import { TokenType } from '../../../../types/token';
+import { getCopyToClipboardValue } from '../../test-utils';
 import { OSs } from '../../types';
 import AzurePipelinesTutorial, { AzurePipelinesTutorialProps } from '../AzurePipelinesTutorial';
 
@@ -249,8 +250,4 @@ async function clickButton(user: UserEvent, name: string, context?: HTMLElement)
 
 async function goToNextStep(user: UserEvent) {
   await clickButton(user, 'continue');
-}
-
-function getCopyToClipboardValue(i = 0, name = 'copy_to_clipboard') {
-  return screen.getAllByRole('button', { name })[i].getAttribute('data-clipboard-text');
 }

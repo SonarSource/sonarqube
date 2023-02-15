@@ -45,7 +45,7 @@ export default function Gradle(props: LanguageProps) {
           filename="build.gradle"
           translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2"
         />
-        <CodeSnippet snippet={buildGradleSnippet(component.key)} />
+        <CodeSnippet snippet={buildGradleSnippet(component.key, component.name)} />
       </li>
       <CreateJenkinsfileBulletPoint snippet={JENKINSFILE_SNIPPET} />
       <FinishButton onClick={props.onDone} />

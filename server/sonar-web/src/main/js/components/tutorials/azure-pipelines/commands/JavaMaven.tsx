@@ -28,10 +28,11 @@ import PublishSteps from './PublishSteps';
 
 export interface JavaMavenProps {
   projectKey: string;
+  projectName: string;
 }
 
 export default function JavaMaven(props: JavaMavenProps) {
-  const { projectKey } = props;
+  const { projectKey, projectName } = props;
   return (
     <>
       <AlertClassicEditor />
@@ -45,6 +46,7 @@ export default function JavaMaven(props: JavaMavenProps) {
             buildTool={BuildTools.Gradle}
             kind={PrepareType.JavaMavenGradle}
             projectKey={projectKey}
+            projectName={projectName}
           />
         </li>
 

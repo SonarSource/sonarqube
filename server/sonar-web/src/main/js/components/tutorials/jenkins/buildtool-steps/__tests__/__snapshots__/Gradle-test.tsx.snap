@@ -17,6 +17,7 @@ exports[`should render correctly 1`] = `
 sonar {
   properties {
     property "sonar.projectKey", "my-project"
+    property "sonar.projectName", "MyProject"
   }
 }"
     />

@@ -79,7 +79,7 @@ export default function Gradle(props: GradleProps) {
             sq: <code className="rule">org.sonarqube</code>,
           }}
         />
-        <CodeSnippet snippet={buildGradleSnippet(component.key)} />
+        <CodeSnippet snippet={buildGradleSnippet(component.key, component.name)} />
       </li>
       <CreateYmlFile
         yamlFileName=".github/workflows/build.yml"

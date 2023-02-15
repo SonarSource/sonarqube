@@ -36,6 +36,7 @@ exports[`should render correctly 1`] = `
 sonar {
   properties {
     property "sonar.projectKey", "my-project"
+    property "sonar.projectName", "MyProject"
   }
 }"
     />
@@ -124,6 +125,7 @@ exports[`should render correctly: without branch enabled 1`] = `
 sonar {
   properties {
     property "sonar.projectKey", "my-project"
+    property "sonar.projectName", "MyProject"
   }
 }"
     />

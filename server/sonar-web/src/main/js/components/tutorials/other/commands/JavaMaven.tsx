@@ -37,6 +37,7 @@ export default function JavaMaven(props: JavaMavenProps) {
   const command = [
     'mvn clean verify sonar:sonar',
     `-Dsonar.projectKey=${component.key}`,
+    `-Dsonar.projectName='${component.name}'`,
     `-Dsonar.host.url=${baseUrl}`,
     `-Dsonar.login=${token}`,
   ];

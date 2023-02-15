@@ -27,12 +27,13 @@ import Other from './Other';
 
 export interface AnalysisCommandProps {
   projectKey: string;
+  projectName: string;
   buildTool?: BuildTools;
   onStepValidationChange: (isValid: boolean) => void;
 }
 
 export default function AnalysisCommand(props: AnalysisCommandProps) {
-  const { buildTool, projectKey } = props;
+  const { buildTool, projectKey, projectName } = props;
 
   React.useEffect(() => {
     if (buildTool && buildTool !== BuildTools.CFamily) {
@@ -45,10 +46,10 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
   }
   switch (buildTool) {
     case BuildTools.Maven:
-      return <JavaMaven projectKey={projectKey} />;
+      return <JavaMaven projectKey={projectKey} projectName={projectName} />;
 
     case BuildTools.Gradle:
-      return <JavaGradle projectKey={projectKey} />;
+      return <JavaGradle projectKey={projectKey} projectName={projectName} />;
 
     case BuildTools.DotNet:
       return <DotNet projectKey={projectKey} />;

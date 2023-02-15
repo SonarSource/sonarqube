@@ -27,14 +27,15 @@ export interface PipeCommandProps {
   buildTool: BuildTools;
   mainBranchName: string;
   projectKey: string;
+  projectName: string;
 }
 
 const BUILD_TOOL_SPECIFIC = {
   [BuildTools.Gradle]: { image: 'gradle:jre11-slim', script: () => 'gradle sonar' },
   [BuildTools.Maven]: {
     image: 'maven:3.6.3-jdk-11',
-    script: (projectKey: string) => `
-    - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}`,
+    script: (projectKey: string, projectName: string) => `
+    - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'`,
   },
   [BuildTools.DotNet]: {
     image: 'mcr.microsoft.com/dotnet/core/sdk:latest',
@@ -57,7 +58,7 @@ const BUILD_TOOL_SPECIFIC = {
 };
 
 export default function PipeCommand(props: PipeCommandProps) {
-  const { projectKey, branchesEnabled, buildTool, mainBranchName } = props;
+  const { projectKey, branchesEnabled, buildTool, mainBranchName, projectName } = props;
   let command: string;
   if (buildTool === BuildTools.CFamily) {
     command = `image: <image ready for your build toolchain>
@@ -108,7 +109,7 @@ sonarqube-check:
     key: "\${CI_JOB_NAME}"
     paths:
       - .sonar/cache
-  script: ${script(projectKey)}
+  script: ${script(projectKey, projectName)}
   allow_failure: true
   rules:
     ${onlyBlock}

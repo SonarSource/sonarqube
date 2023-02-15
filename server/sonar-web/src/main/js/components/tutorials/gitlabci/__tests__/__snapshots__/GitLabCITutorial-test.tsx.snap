@@ -80,7 +80,6 @@ exports[`should render correctly 1`] = `
     onDone={[Function]}
     onOpen={[Function]}
     open={false}
-    projectKey="my-project"
   />
   <AllSetStep
     alm="gitlab"

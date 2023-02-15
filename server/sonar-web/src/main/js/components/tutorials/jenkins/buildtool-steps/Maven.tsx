@@ -22,7 +22,7 @@ import FinishButton from '../../components/FinishButton';
 import { LanguageProps } from '../JenkinsfileStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
-function jenkinsfileSnippet(projectKey: string) {
+function jenkinsfileSnippet(projectKey: string, projectName: string) {
   return `node {
   stage('SCM') {
     checkout scm
@@ -30,7 +30,7 @@ function jenkinsfileSnippet(projectKey: string) {
   stage('SonarQube Analysis') {
     def mvn = tool 'Default Maven';
     withSonarQubeEnv() {
-      sh "\${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=${projectKey}"
+      sh "\${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'"
     }
   }
 }`;
@@ -41,7 +41,7 @@ export default function Maven({ component, onDone }: LanguageProps) {
     <>
       <CreateJenkinsfileBulletPoint
         alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step3"
-        snippet={jenkinsfileSnippet(component.key)}
+        snippet={jenkinsfileSnippet(component.key, component.name)}
       />
       <FinishButton onClick={onDone} />
     </>

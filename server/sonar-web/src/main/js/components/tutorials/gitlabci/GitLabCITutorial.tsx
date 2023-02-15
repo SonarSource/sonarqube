@@ -68,7 +68,6 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
         onDone={() => setStep(Steps.ALL_SET)}
         onOpen={() => setStep(Steps.YML)}
         open={step === Steps.YML}
-        projectKey={component.key}
       />
 
       <AllSetStep

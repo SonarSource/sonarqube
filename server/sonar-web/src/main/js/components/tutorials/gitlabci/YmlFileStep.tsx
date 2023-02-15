@@ -43,7 +43,6 @@ export interface YmlFileStepProps extends WithAvailableFeaturesProps {
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
-  projectKey: string;
   mainBranchName: string;
 }
 
@@ -51,13 +50,14 @@ const mavenSnippet = () => `<properties>
   <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 </properties>`;
 
-const gradleSnippet = (key: string) => `plugins {
+const gradleSnippet = (key: string, name: string) => `plugins {
   id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
 }
 
 sonar {
   properties {
     property "sonar.projectKey", "${key}"
+    property "sonar.projectName", "${name}"
     property "sonar.qualitygate.wait", true 
   }
 }`;
@@ -81,7 +81,7 @@ const filenameForBuildTool = {
 };
 
 export function YmlFileStep(props: YmlFileStepProps) {
-  const { open, finished, projectKey, mainBranchName, hasCLanguageFeature, component } = props;
+  const { open, finished, mainBranchName, hasCLanguageFeature, component } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   const [buildTool, setBuildTool] = React.useState<BuildTools>();
@@ -130,7 +130,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
                 ),
               }}
             />
-            <CodeSnippet snippet={snippetForBuildTool[buildTool](component.key)} />
+            <CodeSnippet snippet={snippetForBuildTool[buildTool](component.key, component.name)} />
           </li>
         )}
         {buildTool && (
@@ -159,7 +159,8 @@ export function YmlFileStep(props: YmlFileStepProps) {
                 buildTool={buildTool}
                 branchesEnabled={branchSupportEnabled}
                 mainBranchName={mainBranchName}
-                projectKey={projectKey}
+                projectKey={component.key}
+                projectName={component.name}
               />
             </div>
             <p className="little-spacer-bottom">

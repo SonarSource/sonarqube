@@ -402,7 +402,7 @@ definitions:
           - maven
           - sonar
         script:
-          - mvn verify sonar:sonar -Dsonar.projectKey=my-project
+          - mvn verify sonar:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'
   caches:
     sonar: ~/.sonar
 
@@ -457,7 +457,7 @@ definitions:
           - maven
           - sonar
         script:
-          - mvn verify sonar:sonar -Dsonar.projectKey=my-project
+          - mvn verify sonar:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'
   caches:
     sonar: ~/.sonar
 

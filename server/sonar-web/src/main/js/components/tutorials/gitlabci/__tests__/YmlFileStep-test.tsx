@@ -36,7 +36,6 @@ function shallowRender(props: Partial<YmlFileStepProps> = {}) {
       component={mockComponent()}
       hasFeature={jest.fn().mockReturnValue(true)}
       open={true}
-      projectKey="test"
       finished={true}
       mainBranchName="main"
       onDone={jest.fn()}

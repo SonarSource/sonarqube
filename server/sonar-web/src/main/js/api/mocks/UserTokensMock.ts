@@ -22,9 +22,6 @@ import { mockUserToken } from '../../helpers/mocks/token';
 import { NewUserToken, TokenType, UserToken } from '../../types/token';
 import { generateToken, getTokens, revokeToken } from '../user-tokens';
 
-const RANDOM_RADIX = 36;
-const RANDOM_PREFIX = 2;
-
 const defaultTokens = [
   mockUserToken({
     name: 'local-scanner',
@@ -77,7 +74,7 @@ export default class UserTokensMock {
       type,
       projectKey,
       isExpired: false,
-      token: Math.random().toString(RANDOM_RADIX).slice(RANDOM_PREFIX),
+      token: `generatedtoken${this.tokens.length}`,
       createdAt: '2022-04-04T04:04:04+0000',
       expirationDate,
     };

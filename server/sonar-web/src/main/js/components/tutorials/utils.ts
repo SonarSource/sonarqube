@@ -26,7 +26,7 @@ export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;
 }
 
-export function buildGradleSnippet(key: string) {
+export function buildGradleSnippet(key: string, name: string) {
   return `plugins {
   id "org.sonarqube" version "${GRADLE_SCANNER_VERSION}"
 }
@@ -34,6 +34,7 @@ export function buildGradleSnippet(key: string) {
 sonar {
   properties {
     property "sonar.projectKey", "${key}"
+    property "sonar.projectName", "${name}"
   }
 }`;
 }

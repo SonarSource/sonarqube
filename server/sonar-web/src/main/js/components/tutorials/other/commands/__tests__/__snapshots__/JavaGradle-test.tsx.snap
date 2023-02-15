@@ -48,6 +48,7 @@ exports[`renders correctly 1`] = `
       [
         "./gradlew sonar",
         "-Dsonar.projectKey=projectKey",
+        "-Dsonar.projectName='MyProject'",
         "-Dsonar.host.url=host",
         "-Dsonar.login=token",
       ]

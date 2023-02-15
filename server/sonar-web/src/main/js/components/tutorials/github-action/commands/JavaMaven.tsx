@@ -31,7 +31,7 @@ export interface JavaMavenProps {
   onDone: () => void;
 }
 
-function mavenYamlSteps(projectKey: string) {
+function mavenYamlSteps(projectKey: string, projectName: string) {
   return `
       - name: Set up JDK 11
         uses: actions/setup-java@v1
@@ -54,7 +54,7 @@ function mavenYamlSteps(projectKey: string) {
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${projectKey}`;
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'`;
 }
 
 export default function JavaMaven(props: JavaMavenProps) {
@@ -67,7 +67,7 @@ export default function JavaMaven(props: JavaMavenProps) {
           mainBranchName,
           !!branchesEnabled,
           GITHUB_ACTIONS_RUNS_ON_LINUX,
-          mavenYamlSteps(component.key)
+          mavenYamlSteps(component.key, component.name)
         )}
       />
       <FinishButton onClick={props.onDone} />

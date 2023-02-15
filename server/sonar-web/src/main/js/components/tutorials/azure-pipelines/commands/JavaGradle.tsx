@@ -28,10 +28,11 @@ import PublishSteps from './PublishSteps';
 
 export interface JavaGradleProps {
   projectKey: string;
+  projectName: string;
 }
 
 export default function JavaGradle(props: JavaGradleProps) {
-  const { projectKey } = props;
+  const { projectKey, projectName } = props;
 
   return (
     <>
@@ -46,6 +47,7 @@ export default function JavaGradle(props: JavaGradleProps) {
             buildTool={BuildTools.Gradle}
             kind={PrepareType.JavaMavenGradle}
             projectKey={projectKey}
+            projectName={projectName}
           />
         </li>
 

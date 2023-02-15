@@ -41,7 +41,12 @@ export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
 }
 
 const YamlTemplate: Dictionary<
-  (branchesEnabled?: boolean, mainBranchName?: string, projectKey?: string) => string
+  (
+    branchesEnabled?: boolean,
+    mainBranchName?: string,
+    projectKey?: string,
+    projectName?: string
+  ) => string
 > = {
   [BuildTools.Gradle]: gradleExample,
   [BuildTools.Maven]: mavenExample,
@@ -58,7 +63,12 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
     return null;
   }
 
-  const yamlTemplate = YamlTemplate[buildTool](branchSupportEnabled, mainBranchName, component.key);
+  const yamlTemplate = YamlTemplate[buildTool](
+    branchSupportEnabled,
+    mainBranchName,
+    component.key,
+    component.name
+  );
 
   return (
     <>

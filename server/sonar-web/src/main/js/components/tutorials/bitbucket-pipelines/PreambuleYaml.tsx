@@ -51,7 +51,7 @@ export function PreambuleYaml(props: PreambuleYamlProps) {
               sq: <code className="rule">org.sonarqube</code>,
             }}
           />
-          <CodeSnippet snippet={buildGradleSnippet(component.key)} />
+          <CodeSnippet snippet={buildGradleSnippet(component.key, component.name)} />
         </li>
       );
     case BuildTools.CFamily:

@@ -20,7 +20,8 @@
 export default function mavenExample(
   branchesEnabled: boolean,
   mainBranchName: string,
-  projectKey: string
+  projectKey: string,
+  projectName: string
 ) {
   return `image: maven:3-openjdk-11
 
@@ -32,7 +33,7 @@ definitions:
           - maven
           - sonar
         script:
-          - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}
+          - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'
   caches:
     sonar: ~/.sonar
 

@@ -62,6 +62,7 @@ export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
         onStepValidationChange={onStepValidationChange}
         buildTool={buildTechnology}
         projectKey={component.key}
+        projectName={component.name}
       />
     </>
   );

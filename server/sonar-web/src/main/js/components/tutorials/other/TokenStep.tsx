@@ -323,7 +323,11 @@ export default class TokenStep extends React.PureComponent<Props, State> {
             {loading ? (
               <i className="spinner text-middle" />
             ) : (
-              <DeleteButton className="button-small text-middle" onClick={this.handleTokenRevoke} />
+              <DeleteButton
+                className="button-small text-middle"
+                aria-label={translate('onboarding.token.delete')}
+                onClick={this.handleTokenRevoke}
+              />
             )}
           </form>
         ) : (

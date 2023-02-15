@@ -195,7 +195,7 @@ exports[`should render correctly for maven: branches enabled 1`] = `
     paths:
       - .sonar/cache
   script: 
-    - mvn verify sonar:sonar -Dsonar.projectKey=test
+    - mvn verify sonar:sonar -Dsonar.projectKey=test -Dsonar.projectName='Test Project'
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
@@ -219,7 +219,7 @@ exports[`should render correctly for maven: branches not enabled 1`] = `
     paths:
       - .sonar/cache
   script: 
-    - mvn verify sonar:sonar -Dsonar.projectKey=test
+    - mvn verify sonar:sonar -Dsonar.projectKey=test -Dsonar.projectName='Test Project'
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'

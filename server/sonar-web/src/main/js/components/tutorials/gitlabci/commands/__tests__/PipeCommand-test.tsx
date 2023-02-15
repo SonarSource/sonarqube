@@ -36,6 +36,7 @@ it.each([
         branchesEnabled={true}
         mainBranchName="main"
         projectKey="test"
+        projectName="Test Project"
       />
     )
   ).toMatchSnapshot('branches enabled');
@@ -46,6 +47,7 @@ it.each([
         branchesEnabled={true}
         mainBranchName="main"
         projectKey="test"
+        projectName="Test Project"
       />
     )
   ).toMatchSnapshot('branches not enabled');
