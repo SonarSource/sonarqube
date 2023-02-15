@@ -49,8 +49,8 @@ public class DbVersion100 implements DbVersion {
       .add(10_0_005, "Drop column 'b_module_uuid_path' in the 'Components' table", DropBModuleUuidPathInComponents.class)
       .add(10_0_006, "Drop index 'projects_root_uuid' in the 'Components' table", DropIndexProjectsRootUuidInComponents.class)
       .add(10_0_007, "Drop column 'root_uuid' in the 'Components' table", DropRootUuidInComponents.class)
-
-
+      .add(10_0_008, "Update value of 'user_local' in the 'users' table", UpdateUserLocalValueInUsers.class)
+      .add(10_0_009, "Make column 'user_local' not nullable in the 'users' table", MakeColumnUserLocalNotNullableInUsers.class)
     ;
   }
 }
