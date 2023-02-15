@@ -158,6 +158,7 @@ subprojects {
 
   ext {
     protobufVersion = '3.21.12'
+    springVersion = '5.3.23'
   }
 
   sonar {
@@ -329,6 +330,7 @@ subprojects {
       dependency('org.mockito:mockito-core:5.0.0') {
         exclude 'org.hamcrest:hamcrest-core'
       }
+      dependency "org.springframework:spring-test:${springVersion}"
       dependency 'org.mybatis:mybatis:3.5.11'
       dependencySet(group: 'org.slf4j', version: '2.0.6') {
         entry 'jcl-over-slf4j'
@@ -341,9 +343,13 @@ subprojects {
       dependency 'org.simpleframework:simple:5.1.6'
       dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.40.0.183'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.29.0.1000'
-      dependency('org.springframework:spring-context:5.3.23') {
+      dependency("org.springframework:spring-context:${springVersion}") {
         exclude 'commons-logging:commons-logging'
       }
+      dependency ("org.springframework:spring-webmvc:${springVersion}") {
+          exclude 'commons-logging:commons-logging'
+      }
+      dependency 'org.springdoc:springdoc-openapi-ui:1.6.14'
       dependency 'org.subethamail:subethasmtp:3.1.7'
       dependency 'org.yaml:snakeyaml:1.33'
 

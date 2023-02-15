@@ -20,18 +20,39 @@
 package org.sonar.server.v2.common;
 
 import java.util.Optional;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class RestResponseEntityExceptionHandler {
 
+  @ExceptionHandler(IllegalStateException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  protected ResponseEntity<Object> handleIllegalStateException(IllegalStateException illegalStateException) {
+    return new ResponseEntity<>(illegalStateException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(ForbiddenException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  protected ResponseEntity<Object> handleForbiddenException(ForbiddenException forbiddenException) {
+    return handleServerException(forbiddenException);
+  }
+
+  @ExceptionHandler(UnauthorizedException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  protected ResponseEntity<Object> handleUnauthorizedException(UnauthorizedException unauthorizedException) {
+    return handleServerException(unauthorizedException);
+  }
+
+
   @ExceptionHandler(ServerException.class)
   protected ResponseEntity<Object> handleServerException(ServerException serverException) {
     return new ResponseEntity<>(serverException.getMessage(), Optional.ofNullable(HttpStatus.resolve(serverException.httpCode())).orElse(HttpStatus.INTERNAL_SERVER_ERROR));
   }
-
 }

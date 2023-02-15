@@ -31,7 +31,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.core.platform.SpringComponentContainer;
-import org.sonar.server.platform.web.ApiV2Servlet;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.platformlevel.PlatformLevel;
@@ -41,7 +40,7 @@ import org.sonar.server.platform.platformlevel.PlatformLevel3;
 import org.sonar.server.platform.platformlevel.PlatformLevel4;
 import org.sonar.server.platform.platformlevel.PlatformLevelSafeMode;
 import org.sonar.server.platform.platformlevel.PlatformLevelStartup;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.sonar.server.platform.web.ApiV2Servlet;
 
 import static org.sonar.process.ProcessId.WEB_SERVER;
 
@@ -63,12 +62,11 @@ public class PlatformImpl implements Platform {
   private PlatformLevel level3 = null;
   private PlatformLevel level4 = null;
   private PlatformLevel currentLevel = null;
-  private AnnotationConfigWebApplicationContext springMvcContext = null;
   private boolean dbConnected = false;
   private boolean started = false;
   private final List<Object> level4AddedComponents = new ArrayList<>();
   private final Profiler profiler = Profiler.createIfTrace(Loggers.get(PlatformImpl.class));
-  private ApiV2Servlet servlet;
+  private ApiV2Servlet servlet = null;
 
   public static PlatformImpl getInstance() {
     return INSTANCE;

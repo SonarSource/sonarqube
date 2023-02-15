@@ -13,12 +13,6 @@ dependencies {
   api 'io.prometheus:simpleclient_common'
   api 'io.prometheus:simpleclient_servlet'
 
-  api 'org.springframework:spring-webmvc:5.3.23'
-  api 'org.springframework:spring-web:5.3.23'
-  api 'org.springframework:spring-context:5.3.23'
-  api 'org.springframework:spring-core:5.3.23'
-  testImplementation 'org.springframework:spring-test:5.3.23'
-
   api project(':server:sonar-ce-common')
   api project(':server:sonar-ce-task')
   api project(':server:sonar-db-dao')

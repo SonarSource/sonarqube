@@ -19,18 +19,35 @@
  */
 package org.sonar.server.v2.config;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @EnableWebMvc
+@ComponentScan(basePackages = {"org.springdoc"})
+@PropertySource("classpath:springdoc.properties")
 public class CommonWebConfig {
 
   @Bean
   public RestResponseEntityExceptionHandler restResponseEntityExceptionHandler() {
     return new RestResponseEntityExceptionHandler();
+  }
+
+  @Bean
+  public OpenAPI customOpenAPI() {
+    return new OpenAPI()
+      .info(
+        new Info()
+          .title("SonarQube Web API")
+          .version("0.0.1 alpha")
+          .description("Documentation of SonarQube Web API")
+      );
   }
 
 }
