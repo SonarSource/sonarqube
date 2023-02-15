@@ -32,7 +32,7 @@ import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import BackIcon from '../../../components/icons/BackIcon';
 import '../../../components/search-navigator.css';
-import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
+import { isDatePicker, isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
@@ -150,13 +150,19 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
   }
 
   attachShortcuts = () => {
-    document.addEventListener('keydown', this.handleKeyPress);
+    document.addEventListener('keydown', this.handleKeyDown);
   };
 
-  handleKeyPress = (event: KeyboardEvent) => {
+  handleKeyDown = (event: KeyboardEvent) => {
     if (isInput(event) || isShortcut(event)) {
-      return true;
+      return;
     }
+
+    // Ignore if date picker is open (to be removed when upgrading to React 17+)
+    if (isDatePicker(event)) {
+      return;
+    }
+
     switch (event.key) {
       case KeyboardKeys.LeftArrow:
         event.preventDefault();
@@ -178,7 +184,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
   };
 
   detachShortcuts = () => {
-    document.removeEventListener('keydown', this.handleKeyPress);
+    document.removeEventListener('keydown', this.handleKeyDown);
   };
 
   getOpenRule = (rules: Rule[]) => {

@@ -53,7 +53,7 @@ import {
 } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
+import { isDatePicker, isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
@@ -265,7 +265,12 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     if (isInput(event) || isShortcut(event)) {
-      return true;
+      return;
+    }
+
+    // Ignore if date picker is open (to be removed when upgrading to React 17+)
+    if (isDatePicker(event)) {
+      return;
     }
 
     if (event.key === KeyboardKeys.Alt) {
