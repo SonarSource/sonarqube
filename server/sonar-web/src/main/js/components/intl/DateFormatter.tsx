@@ -43,7 +43,7 @@ export const longFormatterOption: FormatDateOptions = {
 export default function DateFormatter({ children, date, long }: DateFormatterProps) {
   return (
     <FormattedDate value={parseDate(date)} {...(long ? longFormatterOption : formatterOption)}>
-      {children}
+      {children ? (d) => <>{children(d)}</> : undefined}
     </FormattedDate>
   );
 }

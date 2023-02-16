@@ -25,6 +25,7 @@ import { ParsableDate } from '../../types/dates';
 interface Props {
   children?: (formattedDate: string) => React.ReactNode;
   date: ParsableDate;
+  timeZone?: string;
 }
 
 export const formatterOption: FormatDateOptions = {
@@ -35,10 +36,10 @@ export const formatterOption: FormatDateOptions = {
   minute: 'numeric',
 };
 
-export default function DateTimeFormatter({ children, date }: Props) {
+export default function DateTimeFormatter({ children, date, ...rest }: Props) {
   return (
-    <FormattedDate value={parseDate(date)} {...formatterOption}>
-      {children}
+    <FormattedDate {...rest} value={parseDate(date)} {...formatterOption}>
+      {children ? (d) => <>{children(d)}</> : undefined}
     </FormattedDate>
   );
 }

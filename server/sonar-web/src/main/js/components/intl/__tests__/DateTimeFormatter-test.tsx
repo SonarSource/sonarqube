@@ -17,18 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import DateTimeFormatter from '../DateTimeFormatter';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('standard');
+  renderDateTimeFormatter();
+  expect(screen.getByText('February 20, 2020, 8:20 PM')).toBeInTheDocument();
+
+  renderDateTimeFormatter((formatted: string) => <span>Nice date: {formatted}</span>);
+  expect(screen.getByText('Nice date: February 20, 2020, 8:20 PM')).toBeInTheDocument();
 });
 
-function shallowRender() {
-  return shallow(
-    <DateTimeFormatter date={new Date('2020-02-20T20:20:20Z')}>
-      {(formatted) => <span>{formatted}</span>}
+function renderDateTimeFormatter(children?: (d: string) => React.ReactNode) {
+  return renderComponent(
+    <DateTimeFormatter date={new Date('2020-02-20T20:20:20Z')} timeZone="UTC">
+      {children}
     </DateTimeFormatter>
   );
 }

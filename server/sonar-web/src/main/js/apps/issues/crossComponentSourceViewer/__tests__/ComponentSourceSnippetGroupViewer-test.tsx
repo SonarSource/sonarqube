@@ -177,7 +177,7 @@ it.each([
 
     await waitAndUpdate(wrapper);
 
-    expect(wrapper.find<FormattedMessage>(FormattedMessage).prop('id')).toEqual(expectedLabel);
+    expect(wrapper.find(FormattedMessage).prop('id')).toEqual(expectedLabel);
     expect(wrapper.find('ContextConsumer').exists()).toBe(false);
   }
 );

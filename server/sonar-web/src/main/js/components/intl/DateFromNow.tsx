@@ -58,7 +58,7 @@ export default function DateFromNow(props: DateFromNowProps) {
       {(formattedDate) => (
         <span title={formattedDate}>
           <FormattedRelativeTime {...relativeTimeProps}>
-            {children as FormattedRelativeTime['props']['children']}
+            {(d) => <>{children(d)}</>}
           </FormattedRelativeTime>
         </span>
       )}

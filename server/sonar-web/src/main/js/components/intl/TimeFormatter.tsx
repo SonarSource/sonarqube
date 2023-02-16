@@ -26,6 +26,7 @@ export interface TimeFormatterProps {
   children?: (formattedDate: string) => React.ReactNode;
   date: ParsableDate;
   long?: boolean;
+  timeZone?: string;
 }
 
 export const formatterOption: FormatDateOptions = { hour: 'numeric', minute: 'numeric' };
@@ -36,10 +37,14 @@ export const longFormatterOption: FormatDateOptions = {
   second: 'numeric',
 };
 
-export default function TimeFormatter({ children, date, long }: TimeFormatterProps) {
+export default function TimeFormatter({ children, date, long, ...rest }: TimeFormatterProps) {
   return (
-    <FormattedTime value={parseDate(date)} {...(long ? longFormatterOption : formatterOption)}>
-      {children}
+    <FormattedTime
+      {...rest}
+      value={parseDate(date)}
+      {...(long ? longFormatterOption : formatterOption)}
+    >
+      {children ? (d) => <>{children(d)}</> : undefined}
     </FormattedTime>
   );
 }

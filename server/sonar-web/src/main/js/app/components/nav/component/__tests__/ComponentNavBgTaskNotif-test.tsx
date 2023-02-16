@@ -279,7 +279,7 @@ it.each([
         pathname: onBackgroudTaskPage ? '/project/background_tasks' : '/foo/bar',
       }),
     });
-    const messageProps = wrapper.find<FormattedMessage>(FormattedMessage).props();
+    const messageProps = wrapper.find(FormattedMessage).props();
 
     // Translation key.
     expect(messageProps.defaultMessage).toBe(expectedMessage);
