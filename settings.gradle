@@ -61,7 +61,7 @@ include 'ut-monitoring'
 ext.isCiServer = System.getenv().containsKey("CIRRUS_CI")
 
 // use Settings.getRootDir() so that it doesn't matter which directory you are executing from
-File extraSettings = new File(rootDir, 'private/settings.gradle')
+File extraSettings = new File(rootDir, 'private/private-settings.gradle')
 if (extraSettings.exists()) {
   apply from: extraSettings
 }
