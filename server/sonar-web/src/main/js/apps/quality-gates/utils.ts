@@ -19,7 +19,13 @@
  */
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
+import { MetricKey } from '../../types/metrics';
 import { CaycStatus, Condition, Dict, Metric, QualityGate } from '../../types/types';
+
+interface GroupedByMetricConditions {
+  overallCodeConditions: Condition[];
+  newCodeConditions: Condition[];
+}
 
 const CAYC_CONDITIONS: { [key: string]: Condition } = {
   new_reliability_rating: {
@@ -59,6 +65,17 @@ const CAYC_CONDITIONS: { [key: string]: Condition } = {
     error: '3',
   },
 };
+
+const CAYC_CONDITION_ORDER_PRIORITIES: Dict<number> = [
+  MetricKey.new_reliability_rating,
+  MetricKey.new_security_rating,
+  MetricKey.new_security_hotspots_reviewed,
+  MetricKey.new_maintainability_rating,
+  MetricKey.new_coverage,
+  MetricKey.new_duplicated_lines_density,
+]
+  .reverse()
+  .reduce((acc, key, i) => ({ ...acc, [key.toString()]: i + 1 }), {} as Dict<number>);
 
 export const CAYC_CONDITIONS_WITHOUT_FIXED_VALUE = ['new_duplicated_lines_density', 'new_coverage'];
 export const CAYC_CONDITIONS_WITH_FIXED_VALUE = [
@@ -102,6 +119,45 @@ export function getCaycConditionsWithCorrectValue(conditions: Condition[]) {
     }
     return CAYC_CONDITIONS[key];
   });
+}
+
+export function groupConditionsByMetric(conditions: Condition[]): GroupedByMetricConditions {
+  return conditions.reduce(
+    (result, condition) => {
+      const isNewCode = isDiffMetric(condition.metric);
+      result[isNewCode ? 'newCodeConditions' : 'overallCodeConditions'].push(condition);
+
+      return result;
+    },
+    {
+      overallCodeConditions: [] as Condition[],
+      newCodeConditions: [] as Condition[],
+    }
+  );
+}
+
+export function groupAndSortByPriorityConditions(
+  conditions: Condition[],
+  metrics: Dict<Metric>
+): GroupedByMetricConditions {
+  const groupedConditions = groupConditionsByMetric(conditions);
+
+  function sortFn(a: Condition, b: Condition) {
+    const priorityA = CAYC_CONDITION_ORDER_PRIORITIES[a.metric] ?? 0;
+    const priorityB = CAYC_CONDITION_ORDER_PRIORITIES[b.metric] ?? 0;
+    const diff = priorityB - priorityA;
+    if (diff !== 0) {
+      return diff;
+    }
+    return metrics[a.metric].name.localeCompare(metrics[b.metric].name, undefined, {
+      sensitivity: 'base',
+    });
+  }
+
+  groupedConditions.newCodeConditions.sort(sortFn);
+  groupedConditions.overallCodeConditions.sort(sortFn);
+
+  return groupedConditions;
 }
 
 export function getCorrectCaycCondition(condition: Condition) {

@@ -17,14 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockMetric } from '../../../helpers/testMocks';
-import { getLocalizedMetricNameNoDiffMetric } from '../utils';
+import { mockCondition, mockMetric } from '../../../helpers/testMocks';
+import { MetricKey } from '../../../types/metrics';
+import { Condition } from '../../../types/types';
+import { getLocalizedMetricNameNoDiffMetric, groupAndSortByPriorityConditions } from '../utils';
 
 const METRICS = {
-  bugs: mockMetric({ key: 'bugs', name: 'Bugs' }),
   existing_metric: mockMetric(),
-  new_maintainability_rating: mockMetric(),
-  sqale_rating: mockMetric({ key: 'sqale_rating', name: 'Maintainability Rating' }),
+  [MetricKey.new_maintainability_rating]: mockMetric({ name: 'New Maintainability Rating' }),
+  [MetricKey.sqale_rating]: mockMetric({
+    name: 'Maintainability Rating',
+  }),
+  [MetricKey.coverage]: mockMetric({ name: 'Coverage' }),
+  [MetricKey.bugs]: mockMetric({ name: 'Bugs' }),
+  [MetricKey.new_coverage]: mockMetric({ name: 'New Code Coverage' }),
+  [MetricKey.new_reliability_rating]: mockMetric({ name: 'New Reliability Rating' }),
+  [MetricKey.new_bugs]: mockMetric({ name: 'New Bugs' }),
+  [MetricKey.code_smells]: mockMetric({ name: 'Code Smells' }),
+  [MetricKey.duplicated_lines_density]: mockMetric({ name: 'Duplicated lines (%)' }),
 };
 
 describe('getLocalizedMetricNameNoDiffMetric', () => {
@@ -42,5 +52,38 @@ describe('getLocalizedMetricNameNoDiffMetric', () => {
     expect(
       getLocalizedMetricNameNoDiffMetric(mockMetric({ key: 'new_maintainability_rating' }), METRICS)
     ).toBe('Maintainability Rating');
+  });
+});
+
+describe('groupAndSortByPriorityConditions', () => {
+  const conditions = [
+    mockCondition(),
+    mockCondition({ metric: MetricKey.bugs }),
+    mockCondition({ metric: MetricKey.new_coverage }),
+    mockCondition({ metric: MetricKey.new_reliability_rating }),
+    mockCondition({ metric: MetricKey.code_smells }),
+    mockCondition({ metric: MetricKey.duplicated_lines_density }),
+    mockCondition({ metric: MetricKey.new_bugs }),
+  ];
+  const expectedConditionsOrderNewCode = [
+    MetricKey.new_reliability_rating,
+    MetricKey.new_coverage,
+    MetricKey.new_bugs,
+  ];
+  const expectConditionsOrderOverallCode = [
+    MetricKey.bugs,
+    MetricKey.code_smells,
+    MetricKey.coverage,
+    MetricKey.duplicated_lines_density,
+  ];
+
+  it('should return grouped conditions by overall/new code and sort them by CAYC order', () => {
+    const result = groupAndSortByPriorityConditions(conditions, METRICS);
+    const conditionsMap = ({ metric }: Condition) => metric;
+
+    expect(result.newCodeConditions.map(conditionsMap)).toEqual(expectedConditionsOrderNewCode);
+    expect(result.overallCodeConditions.map(conditionsMap)).toEqual(
+      expectConditionsOrderOverallCode
+    );
   });
 });
