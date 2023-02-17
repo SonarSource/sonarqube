@@ -42,5 +42,4 @@ public interface MeasureMapper {
 
   void insert(MeasureDto measureDto);
 
-  List<ProjectMeasureDto> selectLastMeasureForAllProjects(@Param("metricKey") String metricKey);
 }

@@ -26,41 +26,6 @@
     s.islast= ${_true}
   </select>
 
-
-  <select id="selectLastMeasureForAllProjects" parameterType="map" resultType="ProjectMeasure">
-    select tie_breaker.projectUuid as projectUuid,
-    s.build_date as lastAnalysis,
-    ncloc as loc,
-    pm.text_value as textValue
-      from
-        (select counter.projectUuid as projectUuid,
-          counter.maxncloc ncloc,
-          min(br.uuid) as branchUuid,
-          counter.projectName,
-          counter.projectKey
-          from
-            (select b.project_uuid as projectUuid,
-              p.name as projectName,
-              p.kee as projectKey,
-              max(lm.value) as maxncloc
-                from live_measures lm
-                inner join metrics m on m.uuid = lm.metric_uuid
-                inner join project_branches b on b.uuid = lm.component_uuid
-                inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
-                where m.name = 'ncloc'
-                group by b.project_uuid, p.name, p.kee) counter
-          inner join live_measures lmo on lmo.value = counter.maxncloc
-          inner join project_branches br on br.project_uuid = counter.projectUuid and br.uuid = lmo.component_uuid
-          inner join components c on c.uuid = br.uuid
-          group by counter.projectUuid, counter.maxncloc, counter.projectName, counter.projectKey) tie_breaker
-      inner join project_branches pb on tie_breaker.branchUuid = pb.uuid
-      inner join project_measures pm on pb.uuid = pm.component_uuid
-      inner join snapshots s on s.component_uuid = pb.uuid and s.islast = ${_true}
-      inner join metrics m on m.name = #{metricKey,jdbcType=VARCHAR} and m.uuid = pm.metric_uuid
-      where pm.analysis_uuid = s.uuid
-      order by ncloc desc
-  </select>
-
   <select id="selectMeasure" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/>
     from project_measures pm

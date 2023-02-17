@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,8 +47,9 @@ import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.ProjectAlmKeyAndProject;
 import org.sonar.db.component.AnalysisPropertyValuePerProject;
 import org.sonar.db.component.PrBranchAnalyzedLanguageCountByProjectDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
-import org.sonar.db.measure.ProjectMeasureDto;
+import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -64,6 +66,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.internal.apachecommons.lang.StringUtils.startsWithIgnoreCase;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
@@ -222,17 +225,35 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   }
 
   private void resolveProjects(TelemetryData.Builder data, DbSession dbSession) {
-    List<ProjectMeasureDto> measures = dbClient.measureDao().selectLastMeasureForAllProjects(dbSession, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
-    List<TelemetryData.Project> projects = new ArrayList<>();
-    for (ProjectMeasureDto measure : measures) {
-      for (String measureTextValue : measure.getTextValue().split(";")) {
-        String[] languageAndLoc = measureTextValue.split("=");
-        String language = languageAndLoc[0];
-        Long loc = Long.parseLong(languageAndLoc[1]);
-        projects.add(new TelemetryData.Project(measure.getProjectUuid(), measure.getLastAnalysis(), language, loc));
-      }
-    }
-    data.setProjects(projects);
+    Map<String, String> metricUuidMap = getNclocMetricUuidMap(dbSession);
+    String nclocUuid = metricUuidMap.get(NCLOC_KEY);
+    String nclocDistributionUuid = metricUuidMap.get(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+    List<ProjectLocDistributionDto> branchesWithLargestNcloc = dbClient.liveMeasureDao().selectLargestBranchesLocDistribution(dbSession, nclocUuid, nclocDistributionUuid);
+    List<String> branchUuids = branchesWithLargestNcloc.stream().map(ProjectLocDistributionDto::branchUuid).toList();
+    Map<String, Long> latestSnapshotMap = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, branchUuids)
+      .stream()
+      .collect(toMap(SnapshotDto::getComponentUuid, SnapshotDto::getBuildDate));
+    data.setProjects(buildProjectsList(branchesWithLargestNcloc, latestSnapshotMap));
+  }
+
+  private static List<TelemetryData.Project> buildProjectsList(List<ProjectLocDistributionDto> branchesWithLargestNcloc,
+    Map<String, Long> latestSnapshotMap) {
+    return branchesWithLargestNcloc.stream()
+      .flatMap(measure -> Arrays.stream(measure.locDistribution().split(";"))
+        .map(languageAndLoc -> languageAndLoc.split("="))
+        .map(languageAndLoc -> new TelemetryData.Project(
+          measure.projectUuid(),
+          latestSnapshotMap.get(measure.branchUuid()),
+          languageAndLoc[0],
+          Long.parseLong(languageAndLoc[1])
+        ))
+      ).toList();
+  }
+
+  private Map<String, String> getNclocMetricUuidMap(DbSession dbSession) {
+    return dbClient.metricDao().selectByKeys(dbSession, asList(NCLOC_KEY, NCLOC_LANGUAGE_DISTRIBUTION_KEY))
+      .stream()
+      .collect(toMap(MetricDto::getKey, MetricDto::getUuid));
   }
 
   private void resolveQualityGates(TelemetryData.Builder data, DbSession dbSession) {
