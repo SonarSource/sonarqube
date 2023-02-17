@@ -20,10 +20,12 @@
 package org.sonar.server.v2.config;
 
 import org.sonar.server.health.DbConnectionNodeCheck;
+import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.ws.LivenessChecker;
 import org.sonar.server.platform.ws.SafeModeLivenessCheckerImpl;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.v2.controller.DefautLivenessController;
+import org.sonar.server.v2.controller.HealthController;
 import org.sonar.server.v2.controller.LivenessController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,5 +45,10 @@ public class SafeModeWebConfig {
   @Bean
   public LivenessController livenessController(LivenessChecker livenessChecker, SystemPasscode systemPasscode) {
     return new DefautLivenessController(livenessChecker, systemPasscode, null);
+  }
+
+  @Bean
+  public HealthController healthController(HealthChecker healthChecker, SystemPasscode systemPasscode) {
+    return new HealthController(healthChecker, systemPasscode);
   }
 }

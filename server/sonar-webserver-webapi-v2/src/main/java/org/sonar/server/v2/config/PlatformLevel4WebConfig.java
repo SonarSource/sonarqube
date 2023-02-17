@@ -22,12 +22,15 @@ package org.sonar.server.v2.config;
 import org.sonar.server.health.CeStatusNodeCheck;
 import org.sonar.server.health.DbConnectionNodeCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
+import org.sonar.server.health.HealthChecker;
 import org.sonar.server.health.WebServerStatusNodeCheck;
+import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.platform.ws.LivenessChecker;
 import org.sonar.server.platform.ws.LivenessCheckerImpl;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.controller.DefautLivenessController;
+import org.sonar.server.v2.controller.HealthController;
 import org.sonar.server.v2.controller.LivenessController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,5 +49,11 @@ public class PlatformLevel4WebConfig {
   @Bean
   public LivenessController livenessController(LivenessChecker livenessChecker, UserSession userSession, SystemPasscode systemPasscode) {
     return new DefautLivenessController(livenessChecker, systemPasscode, userSession);
+  }
+
+  @Bean
+  public HealthController healthController(HealthChecker healthChecker, SystemPasscode systemPasscode, NodeInformation nodeInformation,
+    UserSession userSession) {
+    return new HealthController(healthChecker, systemPasscode, nodeInformation, userSession);
   }
 }

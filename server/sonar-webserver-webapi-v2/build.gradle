@@ -13,9 +13,9 @@ dependencies {
     // We are not suppose to have a v1 dependency. The ideal would be to have another common module between webapi and webapi-v2 but that needs a lot of refactoring.
     api project(':server:sonar-webserver-webapi')
 
-
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.springframework:spring-test'
+    testImplementation 'org.skyscreamer:jsonassert:1.5.1'
 
     testImplementation testFixtures(project(':server:sonar-server-common'))
 

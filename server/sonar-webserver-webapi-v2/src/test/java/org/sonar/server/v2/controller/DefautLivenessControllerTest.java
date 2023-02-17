@@ -33,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.Mockito.when;
+import static org.sonar.server.user.SystemPasscodeImpl.PASSCODE_HTTP_HEADER;
 import static org.sonar.server.v2.WebApiEndpoints.LIVENESS_ENDPOINT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,13 +51,23 @@ public class DefautLivenessControllerTest {
   @InjectMocks
   private DefautLivenessController defautLivenessController;
 
-  MockMvc mockMvc;
+  private MockMvc mockMvc;
 
   @Before
   public void setUp() {
-    this.mockMvc = MockMvcBuilders.standaloneSetup(defautLivenessController)
+    mockMvc = MockMvcBuilders.standaloneSetup(defautLivenessController)
       .setControllerAdvice(RestResponseEntityExceptionHandler.class)
       .build();
+  }
+
+  @Test
+  public void livenessCheck_inSafeModeWithoutUserSessionAndPasscode_returnsForbidden() throws Exception {
+    LivenessController safeModeLivenessController = new DefautLivenessController(livenessChecker, systemPasscode, null);
+    MockMvc mockMvcSafeMode = MockMvcBuilders.standaloneSetup(safeModeLivenessController)
+      .setControllerAdvice(RestResponseEntityExceptionHandler.class)
+      .build();
+    mockMvcSafeMode.perform(get(LIVENESS_ENDPOINT))
+      .andExpect(status().isForbidden());
   }
 
   @Test
@@ -69,7 +80,7 @@ public class DefautLivenessControllerTest {
   public void livenessCheck_should_returnForbiddenWithWrongPasscodeAndNoAdminCredentials() throws Exception {
     when(systemPasscode.isValidPasscode(PASSCODE)).thenReturn(false);
     when(userSession.isSystemAdministrator()).thenReturn(false);
-    mockMvc.perform(get(LIVENESS_ENDPOINT).header("X-Sonar-Passcode", PASSCODE))
+    mockMvc.perform(get(LIVENESS_ENDPOINT).header(PASSCODE_HTTP_HEADER, PASSCODE))
       .andExpect(status().isForbidden());
   }
 
@@ -77,7 +88,7 @@ public class DefautLivenessControllerTest {
   public void livenessCheck_should_returnNoContentWithSystemPasscode() throws Exception {
     when(systemPasscode.isValidPasscode(PASSCODE)).thenReturn(true);
     when(livenessChecker.liveness()).thenReturn(true);
-    mockMvc.perform(get(LIVENESS_ENDPOINT).header("X-Sonar-Passcode", PASSCODE))
+    mockMvc.perform(get(LIVENESS_ENDPOINT).header(PASSCODE_HTTP_HEADER, PASSCODE))
       .andExpect(status().isNoContent());
   }
 
@@ -85,7 +96,7 @@ public class DefautLivenessControllerTest {
   public void livenessCheck_should_returnNoContentWithWhenUserIsAdmin() throws Exception {
     when(userSession.isSystemAdministrator()).thenReturn(true);
     when(livenessChecker.liveness()).thenReturn(true);
-    mockMvc.perform(get(LIVENESS_ENDPOINT).header("X-Sonar-Passcode", PASSCODE))
+    mockMvc.perform(get(LIVENESS_ENDPOINT).header(PASSCODE_HTTP_HEADER, PASSCODE))
       .andExpect(status().isNoContent());
   }
 
@@ -93,7 +104,7 @@ public class DefautLivenessControllerTest {
   public void livenessCheck_should_returnServerErrorWhenLivenessCheckFails() throws Exception {
     when(systemPasscode.isValidPasscode(PASSCODE)).thenReturn(true);
     when(livenessChecker.liveness()).thenReturn(false);
-    mockMvc.perform(get(LIVENESS_ENDPOINT).header("X-Sonar-Passcode", PASSCODE))
+    mockMvc.perform(get(LIVENESS_ENDPOINT).header(PASSCODE_HTTP_HEADER, PASSCODE))
       .andExpect(status().isInternalServerError());
   }
 
