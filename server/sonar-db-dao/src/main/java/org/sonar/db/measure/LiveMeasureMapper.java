@@ -64,6 +64,8 @@ public interface LiveMeasureMapper {
 
   List<LargestBranchNclocDto> getLargestBranchNclocPerProject();
 
+  List<ProjectLocDistributionDto> selectLargestBranchesLocDistribution(@Param("nclocUuid") String nclocUuid, @Param("nclocDistributionUuid") String nclocDistributionUuid);
+
   Long countProjectsHavingMeasure(
     @Param("metric") String metric);
 

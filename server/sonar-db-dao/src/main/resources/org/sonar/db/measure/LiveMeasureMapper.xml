@@ -112,6 +112,24 @@
       order by ncloc desc
   </select>
 
+  <select id="selectLargestBranchesLocDistribution" parameterType="map" resultType="ProjectLocDistribution">
+    select top_branches.project_uuid as projectUuid,
+    top_branches.uuid as branchUuid,
+    lm2.text_value as locDistribution from (
+    SELECT loc_grouped_branches.uuid, loc_grouped_branches.project_uuid
+      FROM (
+       SELECT b.uuid, b.project_uuid, ROW_NUMBER() OVER (PARTITION BY
+       b.project_uuid ORDER BY lm.value desc, b.uuid asc) row_number
+       from live_measures lm
+          inner join project_branches b on b.uuid = lm.component_uuid
+          inner join projects p on p.uuid = b.project_uuid
+          where lm.metric_uuid = #{nclocUuid, jdbcType=VARCHAR}
+          and p.qualifier ='TRK'
+      ) loc_grouped_branches
+    WHERE loc_grouped_branches.row_number = 1) as top_branches
+    inner join live_measures lm2 on lm2.component_uuid = top_branches.uuid
+    where lm2.metric_uuid = #{nclocDistributionUuid, jdbcType=VARCHAR}
+  </select>
 
   <select id="countProjectsHavingMeasure" parameterType="map" resultType="long">
     select count(1)

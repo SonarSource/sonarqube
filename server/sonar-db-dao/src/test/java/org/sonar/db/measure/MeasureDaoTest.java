@@ -46,6 +46,7 @@ public class MeasureDaoTest {
   private MetricDto coverage;
   private MetricDto complexity;
   private MetricDto ncloc;
+  private MetricDto nclocDistribution;
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -59,6 +60,7 @@ public class MeasureDaoTest {
     coverage = db.measures().insertMetric(m -> m.setKey("coverage"));
     complexity = db.measures().insertMetric(m -> m.setKey("complexity"));
     ncloc = db.measures().insertMetric(m -> m.setKey("ncloc"));
+    nclocDistribution = db.measures().insertMetric(m -> m.setKey("ncloc_language_distribution"));
   }
 
   @Test

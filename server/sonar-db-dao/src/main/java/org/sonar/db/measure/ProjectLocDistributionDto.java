@@ -19,47 +19,9 @@
  */
 package org.sonar.db.measure;
 
-public class ProjectMeasureDto {
-
-  private String projectUuid;
-  private Long lastAnalysis;
-  private long loc;
-  private String textValue;
-
-  public String getProjectUuid() {
-    return projectUuid;
-  }
-
-  public ProjectMeasureDto setProjectUuid(String projectUuid) {
-    this.projectUuid = projectUuid;
-    return this;
-  }
-
-  public String getTextValue() {
-    return textValue;
-  }
-
-  public ProjectMeasureDto setTextValue(String textValue) {
-    this.textValue = textValue;
-    return this;
-  }
-
-  public long getLoc() {
-    return loc;
-  }
-
-  public ProjectMeasureDto setLoc(long loc) {
-    this.loc = loc;
-    return this;
-  }
-
-  public Long getLastAnalysis() {
-    return lastAnalysis;
-  }
-
-  public ProjectMeasureDto setLastAnalysis(Long lastAnalysis) {
-    this.lastAnalysis = lastAnalysis;
-    return this;
-  }
+/**
+ * Loc distribution per language for the largest branch in a project.
+ */
+public record ProjectLocDistributionDto(String projectUuid, String branchUuid, String locDistribution) {
 
 }
