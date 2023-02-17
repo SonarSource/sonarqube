@@ -5,6 +5,7 @@ sonar {
     property "sonar.exclusions", "src/**/__tests__/**,src/types/**,src/@types/**,src/helpers/testUtils.tsx"
     property "sonar.tests", "src"
     property "sonar.test.inclusions", "src/**/__tests__/**"
+    property "sonar.eslint.reportPaths", "eslint-report/eslint-report.json"
     property "sonar.javascript.lcov.reportPaths", "./coverage/lcov.info"
   }
 }

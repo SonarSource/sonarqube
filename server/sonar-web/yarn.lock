@@ -4503,6 +4503,7 @@ __metadata:
     eslint-plugin-jest: 27.2.1
     eslint-plugin-jest-dom: 4.0.3
     eslint-plugin-jsx-a11y: 6.7.1
+    eslint-plugin-local-rules: 1.3.2
     eslint-plugin-promise: 6.1.1
     eslint-plugin-react: 7.32.1
     eslint-plugin-react-hooks: 4.6.0
@@ -6206,6 +6207,7 @@ __metadata:
     autoprefixer: 10.4.13
     eslint: 8.32.0
     eslint-plugin-header: 3.1.1
+    eslint-plugin-local-rules: 1.3.2
     eslint-plugin-typescript-sort-keys: 2.1.0
     history: 5.3.0
     jest: 29.3.1
@@ -7096,6 +7098,13 @@ __metadata:
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
   checksum: f166dd5fe7257c7b891c6692e6a3ede6f237a14043ae3d97581daf318fc5833ddc6b4871aa34ab7656187430170500f6d806895747ea17ecdf8231a666c3c2fd
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-local-rules@npm:1.3.2":
+  version: 1.3.2
+  resolution: "eslint-plugin-local-rules@npm:1.3.2"
+  checksum: d1d94c0832d7a5e1686c4d685614c407998e7a60318893a405fb8c97c3856b05a8d9479c20ad2799667a59ebfebc4c4f3268528d21d849d2062dee2041b9e909
   languageName: node
   linkType: hard
 

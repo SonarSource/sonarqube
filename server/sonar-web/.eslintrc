@@ -1,9 +1,19 @@
 {
   "extends": ["sonarqube", "./.eslintrc-typescript"],
+  "plugins": ["eslint-plugin-local-rules"],
+  "ignorePatterns": ["eslint-local-rules/**/*"],
   "rules": {
     "camelcase": "off",
     "promise/no-return-wrap": "warn",
     "react/jsx-curly-brace-presence": "warn",
-    "testing-library/render-result-naming-convention": "off"
+    "testing-library/render-result-naming-convention": "off",
+    /* Local rules, defined in ./eslint-local-rules/ */
+    "local-rules/use-componentqualifier-enum": "warn",
+    "local-rules/use-metrickey-enum": "warn",
+    "local-rules/use-metrictype-enum": "warn",
+    "local-rules/use-visibility-enum": "warn",
+    "local-rules/convert-class-to-function-component": "warn",
+    "local-rules/no-conditional-rendering-of-deferredspinner": "warn",
+    "local-rules/use-jest-mocked": "warn"
   }
 }

@@ -1,6 +1,6 @@
 {
   "extends": ["sonarqube", "../.eslintrc-typescript"],
-  "plugins": ["header", "typescript-sort-keys"],
+  "plugins": ["header", "typescript-sort-keys", "eslint-plugin-local-rules"],
   "rules": {
     // Custom SonarCloud config that differs from eslint-config-sonarqube
     "camelcase": "off",
@@ -13,6 +13,15 @@
     "testing-library/no-node-access": ["error", { "allowContainerFirstChild": true }],
     "no-implicit-coercion": [2, { "boolean": true, "number": true, "string": true }],
     "jest/no-large-snapshots": ["warn", { "maxSize": 200 }],
+
+    // Local rules
+    "local-rules/use-componentqualifier-enum": "warn",
+    "local-rules/use-metrickey-enum": "warn",
+    "local-rules/use-metrictype-enum": "warn",
+    "local-rules/use-visibility-enum": "warn",
+    "local-rules/convert-class-to-function-component": "warn",
+    "local-rules/no-conditional-rendering-of-deferredspinner": "warn",
+    "local-rules/use-jest-mocked": "warn",
 
     // New rules added after updating eslint packages to more recent versions than eslint-config-sonarqube
     "jest/prefer-mock-promise-shorthand": "error",
