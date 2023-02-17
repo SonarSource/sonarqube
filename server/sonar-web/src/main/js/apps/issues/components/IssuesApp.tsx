@@ -967,7 +967,7 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <ScreenPositionHelper className="layout-page-side-outer">
         {({ top }) => (
-          <section
+          <nav
             aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
             className="layout-page-side"
             style={{ top }}
@@ -1001,7 +1001,7 @@ export class App extends React.PureComponent<Props, State> {
 
               {openIssue ? this.renderConciseIssuesList() : this.renderFacets()}
             </div>
-          </section>
+          </nav>
         )}
       </ScreenPositionHelper>
     );

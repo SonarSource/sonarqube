@@ -26,8 +26,11 @@ interface Props extends NavBarProps {
   className?: string;
   id?: string;
   height: number;
+  label: string;
 }
 
-export default function ContextNavBar({ className, ...other }: Props) {
-  return <NavBar className={classNames('navbar-context', className)} {...other} />;
+export default function ContextNavBar({ className, label, ...other }: Props) {
+  return (
+    <NavBar aria-label={label} className={classNames('navbar-context', className)} {...other} />
+  );
 }

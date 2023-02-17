@@ -31,7 +31,7 @@ export default function SimpleContainer({ children }: { children?: React.ReactNo
   return (
     <div className="global-container">
       <div className="page-wrapper" id="container">
-        <NavBar className="navbar-global" height={rawSizes.globalNavHeightRaw} />
+        <NavBar className="global-navbar" height={rawSizes.globalNavHeightRaw} />
         {children !== undefined ? children : <Outlet />}
       </div>
       <GlobalFooter />

@@ -348,7 +348,7 @@ export class Search extends React.PureComponent<Props, State> {
 
   render() {
     const search = (
-      <div className="navbar-search dropdown">
+      <div role="search" className="navbar-search dropdown">
         <DeferredSpinner className="navbar-search-icon" loading={this.state.loading} />
 
         <SearchBox

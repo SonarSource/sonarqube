@@ -28,6 +28,7 @@ exports[`should render correctly when governance is active 1`] = `
 <ContextNavBar
   height={72}
   id="context-navigation"
+  label="settings"
 >
   <div
     className="navbar-context-header"
@@ -181,6 +182,7 @@ exports[`should work with extensions 1`] = `
 <ContextNavBar
   height={72}
   id="context-navigation"
+  label="settings"
 >
   <div
     className="navbar-context-header"

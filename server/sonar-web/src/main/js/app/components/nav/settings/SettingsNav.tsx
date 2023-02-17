@@ -259,6 +259,7 @@ export class SettingsNav extends React.PureComponent<Props> {
       <ContextNavBar
         height={notifComponent ? contextNavHeight + ALERT_HEIGHT : contextNavHeight}
         id="context-navigation"
+        label={translate('settings')}
         notif={notifComponent}
       >
         <div className="navbar-context-header">

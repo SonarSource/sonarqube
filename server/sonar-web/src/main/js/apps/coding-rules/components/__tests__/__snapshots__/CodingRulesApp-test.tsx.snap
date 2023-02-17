@@ -101,7 +101,7 @@ exports[`renderBulkButton should show bulk change button when user has global ad
 `;
 
 exports[`should render correctly: loaded (ScreenPositionHelper) 1`] = `
-<section
+<nav
   aria-label="filters"
   className="layout-page-side"
   style={
@@ -178,7 +178,7 @@ exports[`should render correctly: loaded (ScreenPositionHelper) 1`] = `
       />
     </div>
   </div>
-</section>
+</nav>
 `;
 
 exports[`should render correctly: loaded 1`] = `

@@ -17,14 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.navbar-global,
-.navbar-global .navbar-inner {
+.global-navbar,
+.global-navbar .global-navbar-inner {
   background-color: var(--globalNavBarBg);
   z-index: 421;
 }
 
-.navbar-global .navbar-limited {
+.global-navbar .navbar-limited {
   display: flex;
+}
+
+.global-navbar {
+  position: fixed;
+  width: 100%;
+}
+
+.global-navbar .global-navbar-inner {
+  position: static;
+  display: flex;
+  max-width: var(--maxPageWidth);
+  min-width: var(--minPageWidth);
+  padding-left: var(--pagePadding);
+  padding-right: var(--pagePadding);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .navbar-brand {
@@ -66,6 +82,7 @@
 .global-navbar-menu {
   display: flex;
   align-items: center;
+  margin-left: auto;
   height: var(--globalNavHeight);
 }
 
@@ -101,19 +118,8 @@
   margin-left: calc(5 * var(--gridSize));
 }
 
-.global-navbar-menu-right .navbar-search {
-  flex: 0 1 240px; /* Workaround for SONAR-10971 */
-  min-width: 0;
-}
-
-.global-navbar-menu-right .navbar-search .search-box,
-.global-navbar-menu-right .navbar-search .search-box-input {
-  min-width: 0;
-  width: 100%;
-}
-
 @media print {
-  .navbar-global {
+  .global-navbar {
     display: none !important;
   }
 }
