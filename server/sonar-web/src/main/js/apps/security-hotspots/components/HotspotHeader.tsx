@@ -37,9 +37,9 @@ export function HotspotHeader(props: HotspotHeaderProps) {
   return (
     <div className="huge-spacer-bottom hotspot-header">
       <div className="display-flex-column big-spacer-bottom">
-        <div className="big text-bold">
+        <h2 className="big text-bold">
           <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
-        </div>
+        </h2>
         <div className="spacer-top">
           <span className="note padded-right">{rule.name}</span>
           <Link className="small" to={getRuleUrl(rule.key)} target="_blank">
