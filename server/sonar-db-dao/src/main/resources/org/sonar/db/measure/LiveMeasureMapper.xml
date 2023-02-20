@@ -82,34 +82,28 @@
   </select>
 
   <select id="getLargestBranchNclocPerProject" parameterType="map" resultType="LargestBranchNclocDto">
-    select tie_breaker.projectUuid,
-    tie_breaker.projectName,
-    tie_breaker.projectKey,
-    ncloc as loc,
-    pb.kee as branchName,
-    pb.branch_type as branchType
-      from
-        (select counter.projectUuid as projectUuid,
-          counter.maxncloc ncloc,
-          min(br.uuid) as branchUuid,
-          counter.projectName,
-          counter.projectKey
-          from
-            (select b.project_uuid as projectUuid,
-              p.name as projectName,
-              p.kee as projectKey,
-              max(lm.value) as maxncloc
-                from live_measures lm
-                inner join metrics m on m.uuid = lm.metric_uuid
-                inner join project_branches b on b.uuid = lm.component_uuid
-                inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
-                where m.name = 'ncloc'
-                group by b.project_uuid, p.name, p.kee) counter
-          inner join live_measures lmo on lmo.value = counter.maxncloc
-          inner join project_branches br on br.project_uuid = counter.projectUuid and br.uuid = lmo.component_uuid
-          group by counter.projectUuid, counter.maxncloc, counter.projectName, counter.projectKey) tie_breaker
-      inner join project_branches pb on tie_breaker.branchUuid = pb.uuid
-      order by ncloc desc
+    select loc_grouped_branches.projectUuid,
+        loc_grouped_branches.projectName,
+        loc_grouped_branches.projectKey,
+        loc_grouped_branches.ncloc as loc,
+        loc_grouped_branches.branchName,
+        loc_grouped_branches.branchType
+    from (
+       select pb.project_uuid as projectUuid,
+       p.name as projectName,
+       p.kee as projectKey,
+       pb.kee as branchName,
+       pb.branch_type as branchType,
+       lm.value as ncloc,
+       row_number() over (partition by pb.project_uuid order by lm.value desc, pb.uuid asc) row_number
+       from live_measures lm
+          inner join project_branches pb on pb.uuid = lm.component_uuid
+          inner join projects p on p.uuid = pb.project_uuid
+          where lm.metric_uuid = #{nclocUuid, jdbcType=VARCHAR}
+          and p.qualifier ='TRK'
+      ) loc_grouped_branches
+    where loc_grouped_branches.row_number = 1
+    order by ncloc desc
   </select>
 
   <select id="selectLargestBranchesLocDistribution" parameterType="map" resultType="ProjectLocDistribution">
@@ -126,7 +120,7 @@
           where lm.metric_uuid = #{nclocUuid, jdbcType=VARCHAR}
           and p.qualifier ='TRK'
       ) loc_grouped_branches
-    WHERE loc_grouped_branches.row_number = 1) as top_branches
+    WHERE loc_grouped_branches.row_number = 1) top_branches
     inner join live_measures lm2 on lm2.component_uuid = top_branches.uuid
     where lm2.metric_uuid = #{nclocDistributionUuid, jdbcType=VARCHAR}
   </select>

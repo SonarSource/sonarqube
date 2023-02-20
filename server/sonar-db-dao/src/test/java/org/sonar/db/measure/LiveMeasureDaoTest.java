@@ -376,9 +376,10 @@ public class LiveMeasureDaoTest {
   @Test
   public void get_branch_with_max_ncloc_per_project() {
     Map<String, MetricDto> metrics = setupMetrics();
-    setupProjectsWithLoc(metrics.get("ncloc"), metrics.get("ncloc_language_distribution"), metrics.get("lines"));
+    MetricDto ncloc = metrics.get("ncloc");
+    setupProjectsWithLoc(ncloc, metrics.get("ncloc_language_distribution"), metrics.get("lines"));
 
-    List<LargestBranchNclocDto> results = underTest.getLargestBranchNclocPerProject(db.getSession());
+    List<LargestBranchNclocDto> results = underTest.getLargestBranchNclocPerProject(db.getSession(), ncloc.getUuid());
 
     assertThat(results).hasSize(5);
     assertLocForProject(results.get(0), "projectWithTieOnBranchSize", DEFAULT_MAIN_BRANCH_NAME, 250);

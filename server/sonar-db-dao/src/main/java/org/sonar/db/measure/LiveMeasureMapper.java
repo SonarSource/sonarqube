@@ -62,7 +62,7 @@ public interface LiveMeasureMapper {
     @Param("private") Boolean privateProject,
     @Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
 
-  List<LargestBranchNclocDto> getLargestBranchNclocPerProject();
+  List<LargestBranchNclocDto> getLargestBranchNclocPerProject(@Param("nclocUuid") String nclocUuid);
 
   List<ProjectLocDistributionDto> selectLargestBranchesLocDistribution(@Param("nclocUuid") String nclocUuid, @Param("nclocDistributionUuid") String nclocDistributionUuid);
 
