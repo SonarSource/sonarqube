@@ -24,10 +24,10 @@ import DateTimeFormatter from '../DateTimeFormatter';
 
 it('should render correctly', () => {
   renderDateTimeFormatter();
-  expect(screen.getByText('February 20, 2020, 8:20 PM')).toBeInTheDocument();
+  expect(screen.getByText(/February 20, 2020(\sat|,) 8:20 PM/)).toBeInTheDocument();
 
   renderDateTimeFormatter((formatted: string) => <span>Nice date: {formatted}</span>);
-  expect(screen.getByText('Nice date: February 20, 2020, 8:20 PM')).toBeInTheDocument();
+  expect(screen.getByText(/Nice date: February 20, 2020(\sat|,) 8:20 PM/)).toBeInTheDocument();
 });
 
 function renderDateTimeFormatter(children?: (d: string) => React.ReactNode) {
