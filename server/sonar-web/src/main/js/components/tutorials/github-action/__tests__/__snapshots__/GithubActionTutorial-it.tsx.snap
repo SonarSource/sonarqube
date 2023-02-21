@@ -1,0 +1,325 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should follow and complete all steps: .NET: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.11
+      - name: Cache SonarQube packages
+        uses: actions/cache@v1
+        with:
+          path: ~\\sonar\\cache
+          key: \${{ runner.os }}-sonar
+          restore-keys: \${{ runner.os }}-sonar
+      - name: Cache SonarQube scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v1
+        with:
+          path: .\\.sonar\\scanner
+          key: \${{ runner.os }}-sonar-scanner
+          restore-keys: \${{ runner.os }}-sonar-scanner
+      - name: Install SonarQube scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path .\\.sonar\\scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path .\\.sonar\\scanner
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        shell: powershell
+        run: |
+          .\\.sonar\\scanner\\dotnet-sonarscanner begin /k:"my-project" /d:sonar.login="\${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="\${{ secrets.SONAR_HOST_URL }}"
+          dotnet build
+          .\\.sonar\\scanner\\dotnet-sonarscanner end /d:sonar.login="\${{ secrets.SONAR_TOKEN }}""
+`;
+
+exports[`should follow and complete all steps: CFamily Linux: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build
+    runs-on: <image ready for your build toolchain>
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Download and install the build wrapper, build the project
+        run: |
+          mkdir $HOME/.sonar
+          curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-linux-x86.zip
+          unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
+          $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+        env:
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+
+      - name: Download and install the SonarScanner
+        env:
+          SONAR_SCANNER_VERSION: 4.6.2.2472
+        run: |
+          curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${{ env.SONAR_SCANNER_VERSION }}-linux.zip
+          unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
+          echo "$HOME/.sonar/sonar-scanner-\${{ env.SONAR_SCANNER_VERSION }}-linux/bin" >> $GITHUB_PATH
+
+      - name: SonarQube analysis
+        run: |
+          sonar-scanner --define sonar.cfamily.build-wrapper-output=bw-output  
+        env:
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}"
+`;
+
+exports[`should follow and complete all steps: CFamily MacOS: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build
+    runs-on: <image ready for your build toolchain>
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Download and install the build wrapper
+        run: |
+          mkdir $HOME/.sonar
+          curl -sSLo $HOME/.sonar/build-wrapper-macosx-x86.zip \${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-macosx-x86.zip
+          unzip -o $HOME/.sonar/build-wrapper-macosx-x86.zip -d $HOME/.sonar/
+        env:
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+
+      - name: Download and install the SonarScanner
+        run: |
+          curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-macosx.zip
+          unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
+
+      - name: Build and analyse the project
+        run: |
+          # Potential improvement : add these paths to the PATH env var.
+          $HOME/.sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
+          $HOME/.sonar/sonar-scanner-4.6.2.2472-macosx/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
+        env:
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}"
+`;
+
+exports[`should follow and complete all steps: CFamily Windows: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build
+    runs-on: <image ready for your build toolchain>
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Download and install the build wrapper
+        shell: powershell
+        run: |
+          $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
+          mkdir $HOME/.sonar
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          (New-Object System.Net.WebClient).DownloadFile("\${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-win-x86.zip", $path)
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
+        env:
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+
+      - name: Download and install the SonarScanner
+        shell: powershell
+        run: |
+          $path = "$HOME/.sonar/sonar-scanner-cli-4.6.2.2472-windows.zip"
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          (New-Object System.Net.WebClient).DownloadFile("https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-windows.zip", $path)
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
+
+      - name: Build and analyse the project
+        shell: powershell
+        run: |
+          $env:Path += ";$HOME/.sonar/build-wrapper-win-x86;$HOME/.sonar/sonar-scanner-4.6.2.2472-windows/bin"
+          build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
+          sonar-scanner.bat "-Dsonar.cfamily.build-wrapper-output=bw-output"
+        env:
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}"
+`;
+
+exports[`should follow and complete all steps: CFamily: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
+
+exports[`should follow and complete all steps: Gradle: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Cache SonarQube packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: \${{ runner.os }}-sonar
+          restore-keys: \${{ runner.os }}-sonar
+      - name: Cache Gradle packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: \${{ runner.os }}-gradle-\${{ hashFiles('**/*.gradle') }}
+          restore-keys: \${{ runner.os }}-gradle
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+        run: ./gradlew build sonar --info"
+`;
+
+exports[`should follow and complete all steps: Gradle: build.gradle 1`] = `
+"plugins {
+  id "org.sonarqube" version "3.5.0.2730"
+}
+
+sonar {
+  properties {
+    property "sonar.projectKey", "my-project"
+    property "sonar.projectName", "MyProject"
+  }
+}"
+`;
+
+exports[`should follow and complete all steps: Maven: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Cache SonarQube packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: \${{ runner.os }}-sonar
+          restore-keys: \${{ runner.os }}-sonar
+      - name: Cache Maven packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: \${{ runner.os }}-m2-\${{ hashFiles('**/pom.xml') }}
+          restore-keys: \${{ runner.os }}-m2
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'"
+`;
+
+exports[`should follow and complete all steps: Other: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # We do not recommend to use this in a pull request. Prefer using pull request
+      # decoration instead.
+      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}"
+`;
+
+exports[`should follow and complete all steps: Other: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
+
+exports[`should follow and complete all steps: sonar token key 1`] = `"SONAR_TOKEN"`;
+
+exports[`should follow and complete all steps: sonarqube host url key 1`] = `"SONAR_HOST_URL"`;
+
+exports[`should follow and complete all steps: sonarqube host url value 1`] = `"http://localhost:9000"`;

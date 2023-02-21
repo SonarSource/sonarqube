@@ -17,28 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
+import { byLabelText, byRole } from 'testing-library-selector';
+import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
+import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
-import { mockProjectAzureBindingResponse } from '../../../../helpers/mocks/alm-settings';
-import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { TutorialsApp, TutorialsAppProps } from '../TutorialsApp';
+import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
+import { Permissions } from '../../../../types/permissions';
+import routes from '../../routes';
+
+jest.mock('../../../../api/settings');
+jest.mock('../../../../api/user-tokens');
 
 jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ projectBinding: mockProjectAzureBindingResponse() })).toMatchSnapshot();
+let settingsMock: SettingsServiceMock;
+let tokenMock: UserTokensMock;
+
+beforeAll(() => {
+  settingsMock = new SettingsServiceMock();
+  tokenMock = new UserTokensMock();
+});
+
+afterEach(() => {
+  tokenMock.reset();
+  settingsMock.reset();
+});
+
+beforeEach(jest.clearAllMocks);
+
+const ui = {
+  loading: byLabelText('loading'),
+  localScanButton: byRole('button', { name: 'onboarding.tutorial.choose_method.local' }),
+};
+
+it('renders tutorials page', async () => {
+  renderTutorialsApp(mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }));
+  expect(ui.loading.get()).toBeInTheDocument();
+  expect(await ui.localScanButton.find()).toBeInTheDocument();
 });
 
 it('should redirect if user is not logged in', () => {
-  shallowRender({ currentUser: mockCurrentUser() });
+  renderTutorialsApp();
   expect(handleRequiredAuthentication).toHaveBeenCalled();
+  expect(ui.loading.query()).not.toBeInTheDocument();
+  expect(ui.localScanButton.query()).not.toBeInTheDocument();
 });
 
-function shallowRender(overrides: Partial<TutorialsAppProps> = {}) {
-  return shallow(
-    <TutorialsApp component={mockComponent()} currentUser={mockLoggedInUser()} {...overrides} />
-  );
+function renderTutorialsApp(currentUser = mockCurrentUser()) {
+  return renderAppRoutes('tutorials', routes, {
+    currentUser,
+  });
 }

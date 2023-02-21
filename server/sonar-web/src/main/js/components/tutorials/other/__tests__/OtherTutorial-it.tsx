@@ -26,7 +26,11 @@ import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderApp, RenderContext } from '../../../../helpers/testReactTestingUtils';
-import { getCopyToClipboardValue, getTutorialBuildButtons } from '../../test-utils';
+import {
+  getCopyToClipboardValue,
+  getTutorialActionButtons,
+  getTutorialBuildButtons,
+} from '../../test-utils';
 import OtherTutorial from '../OtherTutorial';
 
 jest.mock('../../../../api/user-tokens');
@@ -48,11 +52,9 @@ const ui = {
   existingTokenRadio: byRole('radio', { name: 'onboarding.token.use_existing_token' }),
   tokenNameInput: byRole('textbox', { name: 'onboarding.token.name.label' }),
   expiresInSelect: byRole('combobox', { name: '' }),
-  generateTokenButton: byRole('button', { name: 'onboarding.token.generate' }),
-  deleteTokenButton: byRole('button', { name: 'onboarding.token.delete' }),
   tokenValueInput: byRole('textbox', { name: 'onboarding.token.use_existing_token.label' }),
   invalidTokenValueMessage: byText('onboarding.token.invalid_format'),
-  continueButton: byRole('button', { name: 'continue' }),
+  ...getTutorialActionButtons(),
   ...getTutorialBuildButtons(),
 };
 

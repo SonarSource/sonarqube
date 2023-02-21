@@ -18,17 +18,51 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-import { ShallowWrapper } from 'enzyme';
-import { byRole } from 'testing-library-selector';
-import Step from './components/Step';
-import { BuildTools, OSs } from './types';
+import { byRole, byText } from 'testing-library-selector';
+import { BuildTools, OSs, TutorialModes } from './types';
 
-export function renderStepContent(wrapper: ShallowWrapper<React.ReactNode>, n = 0) {
-  return wrapper.find(Step).at(n).props().renderForm();
-}
+const CI_TRANSLATE_MAP: Partial<Record<TutorialModes, string>> = {
+  [TutorialModes.BitbucketPipelines]: 'bitbucket_pipelines',
+  [TutorialModes.GitHubActions]: 'github_action',
+  [TutorialModes.GitLabCI]: 'gitlab_ci',
+};
 
 export function getCopyToClipboardValue(i = 0, name = 'copy_to_clipboard') {
   return screen.getAllByRole('button', { name })[i].getAttribute('data-clipboard-text');
+}
+
+export function getCommonNodes(ci: TutorialModes) {
+  return {
+    secretsStepTitle: byRole('heading', {
+      name: `onboarding.tutorial.with.${CI_TRANSLATE_MAP[ci]}.${
+        ci === TutorialModes.GitHubActions ? 'create_secret' : 'variables'
+      }.title`,
+    }),
+    ymlFileStepTitle: byRole('heading', {
+      name: `onboarding.tutorial.with.${CI_TRANSLATE_MAP[ci]}.yaml.title`,
+    }),
+    genTokenDialogButton: byRole('button', {
+      name: 'onboarding.token.generate.long',
+    }),
+    tokenNameInput: byRole('textbox', { name: 'onboarding.token.name.label' }),
+    expiresInSelect: byRole('combobox', { name: '' }),
+    tokenValue: byText('generatedtoken2'),
+    linkToRepo: byRole('link', {
+      name: `onboarding.tutorial.with.${CI_TRANSLATE_MAP[ci]}.${
+        ci === TutorialModes.GitHubActions ? 'secret' : 'variables'
+      }.intro.link`,
+    }),
+    allSetSentence: byText('onboarding.tutorial.ci_outro.all_set.sentence'),
+  };
+}
+
+export function getTutorialActionButtons() {
+  return {
+    continueButton: byRole('button', { name: 'continue' }),
+    generateTokenButton: byRole('button', { name: 'onboarding.token.generate' }),
+    deleteTokenButton: byRole('button', { name: 'onboarding.token.delete' }),
+    finishTutorialButton: byRole('button', { name: 'tutorials.finish' }),
+  };
 }
 
 export function getTutorialBuildButtons() {
@@ -39,9 +73,20 @@ export function getTutorialBuildButtons() {
     dotnetBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.DotNet}` }),
     cFamilyBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.CFamily}` }),
     otherBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.Other}` }),
-    dotnetCoreButton: byRole('button', { name: 'onboarding.build.dotnet.variant.dotnet_core' }),
+    windowsDotnetCoreButton: byRole('button', {
+      name: `onboarding.build.${BuildTools.DotNet}.win_core`,
+    }),
+    windowsDotnetFrameworkButton: byRole('button', {
+      name: `onboarding.build.${BuildTools.DotNet}.win_msbuild`,
+    }),
+    linuxDotnetCoreButton: byRole('button', {
+      name: `onboarding.build.${BuildTools.DotNet}.linux_core`,
+    }),
+    dotnetCoreButton: byRole('button', {
+      name: `onboarding.build.${BuildTools.DotNet}.variant.dotnet_core`,
+    }),
     dotnetFrameworkButton: byRole('button', {
-      name: 'onboarding.build.dotnet.variant.dotnet_framework',
+      name: `onboarding.build.${BuildTools.DotNet}.variant.dotnet_framework`,
     }),
     linuxButton: byRole('button', { name: `onboarding.build.other.os.${OSs.Linux}` }),
     windowsButton: byRole('button', { name: `onboarding.build.other.os.${OSs.Windows}` }),

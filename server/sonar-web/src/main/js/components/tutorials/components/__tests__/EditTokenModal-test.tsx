@@ -87,7 +87,7 @@ it('should behave correctly', async () => {
   expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
 
   // Revoke token.
-  await clickButton(user, 'users.tokens.revoke_token');
+  await clickButton(user, 'onboarding.token.delete');
   expect(tokenMock.tokens.map((t) => t.name)).not.toContain(lastToken.name);
 
   // Generate a new token.

@@ -137,17 +137,17 @@ export function YmlFileStep(props: YmlFileStepProps) {
           <li className="abs-width-600">
             <div className="big-spacer-bottom">
               <FormattedMessage
-                defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.yml.description')}
-                id="onboarding.tutorial.with.gitlab_ci.yml.description"
+                defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.yaml.description')}
+                id="onboarding.tutorial.with.gitlab_ci.yaml.description"
                 values={{
                   filename: (
                     <>
                       <code className="rule">
-                        {translate('onboarding.tutorial.with.gitlab_ci.yml.filename')}
+                        {translate('onboarding.tutorial.with.gitlab_ci.yaml.filename')}
                       </code>
                       <ClipboardIconButton
                         className="little-spacer-left"
-                        copyValue={translate('onboarding.tutorial.with.gitlab_ci.yml.filename')}
+                        copyValue={translate('onboarding.tutorial.with.gitlab_ci.yaml.filename')}
                       />
                     </>
                   ),
@@ -165,10 +165,10 @@ export function YmlFileStep(props: YmlFileStepProps) {
             </div>
             <p className="little-spacer-bottom">
               {branchSupportEnabled
-                ? translate('onboarding.tutorial.with.gitlab_ci.yml.baseconfig')
-                : translate('onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches')}
+                ? translate('onboarding.tutorial.with.gitlab_ci.yaml.baseconfig')
+                : translate('onboarding.tutorial.with.gitlab_ci.yaml.baseconfig.no_branches')}
             </p>
-            <p>{translate('onboarding.tutorial.with.gitlab_ci.yml.existing')}</p>
+            <p>{translate('onboarding.tutorial.with.gitlab_ci.yaml.existing')}</p>
             <FinishButton onClick={props.onDone} />
           </li>
         )}
@@ -183,7 +183,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
       open={open}
       renderForm={renderForm}
       stepNumber={2}
-      stepTitle={translate('onboarding.tutorial.with.gitlab_ci.yml.title')}
+      stepTitle={translate('onboarding.tutorial.with.gitlab_ci.yaml.title')}
     />
   );
 }

@@ -80,7 +80,7 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
           />
         )}
         stepNumber={Steps.REPOSITORY_VARIABLES}
-        stepTitle={translate('onboarding.tutorial.with.bitbucket_pipelines.create_secret.title')}
+        stepTitle={translate('onboarding.tutorial.with.bitbucket_pipelines.variables.title')}
       />
       <Step
         finished={step > Steps.YAML}

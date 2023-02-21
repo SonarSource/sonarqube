@@ -41,10 +41,6 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
   const { buildTool, component, mainBranchName } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
-  if (!buildTool) {
-    return null;
-  }
-
   switch (buildTool) {
     case BuildTools.Maven:
       return (

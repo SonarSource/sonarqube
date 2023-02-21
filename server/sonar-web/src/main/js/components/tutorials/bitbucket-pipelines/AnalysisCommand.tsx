@@ -59,10 +59,6 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
   const { buildTool, mainBranchName, component } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
-  if (!buildTool) {
-    return null;
-  }
-
   const yamlTemplate = YamlTemplate[buildTool](
     branchSupportEnabled,
     mainBranchName,

@@ -196,7 +196,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
                     <ClipboardIconButton copyValue={token} />
 
                     <DeleteButton
-                      aria-label={translate('users.tokens.revoke_token')}
+                      aria-label={translate('onboarding.token.delete')}
                       onClick={this.handleTokenRevoke}
                     />
                   </div>

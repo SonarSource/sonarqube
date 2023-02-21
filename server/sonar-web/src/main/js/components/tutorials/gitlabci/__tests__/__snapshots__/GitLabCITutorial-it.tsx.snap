@@ -1,0 +1,151 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should follow and complete all steps: .NET: gitlab-ci.yml 1`] = `
+"sonarqube-check:
+  image: mcr.microsoft.com/dotnet/core/sdk:latest
+  variables:
+    SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "\${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script: 
+      - "apt-get update"
+      - "apt-get install --yes openjdk-11-jre"
+      - "dotnet tool install --global dotnet-sonarscanner"
+      - "export PATH=\\"$PATH:$HOME/.dotnet/tools\\""
+      - "dotnet sonarscanner begin /k:\\"my-project\\" /d:sonar.login=\\"$SONAR_TOKEN\\" /d:\\"sonar.host.url=$SONAR_HOST_URL\\" "
+      - "dotnet build"
+      - "dotnet sonarscanner end /d:sonar.login=\\"$SONAR_TOKEN\\""
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+"
+`;
+
+exports[`should follow and complete all steps: CFamily: gitlab-ci.yml 1`] = `
+"image: <image ready for your build toolchain>
+
+cache:
+  paths:
+    - .sonar
+
+stages:
+  - download
+  - build
+  - scan
+
+download:
+  stage: download
+  script:
+      - mkdir -p .sonar
+      - curl -sSLo build-wrapper-linux-x86.zip  $SONAR_HOST_URL/static/cpp/build-wrapper-linux-x86.zip
+      - unzip -o build-wrapper-linux-x86.zip -d .sonar
+
+build:
+  stage: build
+  script:
+      - .sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir .sonar/bw-output <your clean build command>
+
+sonarqube-check:
+  stage: scan
+  script: 
+    - curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+    - unzip -o sonar-scanner.zip -d .sonar
+    - .sonar/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=.sonar/bw-output
+  allow_failure: true"
+`;
+
+exports[`should follow and complete all steps: CFamily: sonar-project.properties 1`] = `
+"sonar.projectKey=my-project
+sonar.qualitygate.wait=true
+"
+`;
+
+exports[`should follow and complete all steps: Gradle: build.gradle 1`] = `
+"plugins {
+  id "org.sonarqube" version "3.5.0.2730"
+}
+
+sonar {
+  properties {
+    property "sonar.projectKey", "my-project"
+    property "sonar.projectName", "MyProject"
+    property "sonar.qualitygate.wait", true 
+  }
+}"
+`;
+
+exports[`should follow and complete all steps: Gradle: gitlab-ci.yml 1`] = `
+"sonarqube-check:
+  image: gradle:jre11-slim
+  variables:
+    SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "\${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script: gradle sonar
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+"
+`;
+
+exports[`should follow and complete all steps: Maven: gitlab-ci.yml 1`] = `
+"sonarqube-check:
+  image: maven:3.6.3-jdk-11
+  variables:
+    SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "\${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script: 
+    - mvn verify sonar:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+"
+`;
+
+exports[`should follow and complete all steps: Maven: pom.xml 1`] = `
+"<properties>
+  <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+</properties>"
+`;
+
+exports[`should follow and complete all steps: Other: gitlab-ci.yml 1`] = `
+"sonarqube-check:
+  image: 
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "\${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script: 
+    - sonar-scanner
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+"
+`;
+
+exports[`should follow and complete all steps: Other: sonar-project.properties 1`] = `
+"sonar.projectKey=my-project
+sonar.qualitygate.wait=true
+"
+`;
+
+exports[`should follow and complete all steps: sonar token key 1`] = `"SONAR_TOKEN"`;
+
+exports[`should follow and complete all steps: sonarqube host url key 1`] = `"SONAR_HOST_URL"`;
+
+exports[`should follow and complete all steps: sonarqube host url value 1`] = `"http://localhost:9000"`;

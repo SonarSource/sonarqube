@@ -84,7 +84,7 @@ it.each([
   [TutorialModes.AzurePipelines, 'onboarding.tutorial.with.azure_pipelines.title'],
   [
     TutorialModes.BitbucketPipelines,
-    'onboarding.tutorial.with.bitbucket_pipelines.create_secret.title',
+    'onboarding.tutorial.with.bitbucket_pipelines.variables.title',
   ],
   [TutorialModes.GitHubActions, 'onboarding.tutorial.with.github_action.create_secret.title'],
   [TutorialModes.GitLabCI, 'onboarding.tutorial.with.gitlab_ci.title'],
