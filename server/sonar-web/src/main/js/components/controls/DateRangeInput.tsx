@@ -53,7 +53,7 @@ export default class DateRangeInput extends React.PureComponent<Props> {
       if (from && !this.to && this.toDateInput) {
         this.toDateInput.focus();
       }
-    }, 0);
+    });
   };
 
   handleToChange = (to: Date | undefined) => {

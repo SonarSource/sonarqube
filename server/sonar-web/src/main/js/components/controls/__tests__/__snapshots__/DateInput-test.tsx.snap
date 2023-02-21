@@ -109,161 +109,11 @@ exports[`should render 3`] = `
           }
           onClick={[Function]}
         />
-        <form
+        <div
           className="date-input-calendar"
         >
-          <fieldset
-            aria-label="date.select_month_and_year_x.January, 2018"
-            className="date-input-calendar-nav"
-          >
-            <ButtonIcon
-              aria-label="show_month_x_of_year_y.December.2017"
-              className="button-small"
-              onClick={[Function]}
-            >
-              <ChevronLeftIcon />
-            </ButtonIcon>
-            <div
-              className="date-input-calender-month"
-            >
-              <Select
-                aria-label="select_month"
-                className="date-input-calender-month-select"
-                onChange={[Function]}
-                options={
-                  [
-                    {
-                      "label": "Jan",
-                      "value": 0,
-                    },
-                    {
-                      "label": "Feb",
-                      "value": 1,
-                    },
-                    {
-                      "label": "Mar",
-                      "value": 2,
-                    },
-                    {
-                      "label": "Apr",
-                      "value": 3,
-                    },
-                    {
-                      "label": "May",
-                      "value": 4,
-                    },
-                    {
-                      "label": "Jun",
-                      "value": 5,
-                    },
-                    {
-                      "label": "Jul",
-                      "value": 6,
-                    },
-                    {
-                      "label": "Aug",
-                      "value": 7,
-                    },
-                    {
-                      "label": "Sep",
-                      "value": 8,
-                    },
-                    {
-                      "label": "Oct",
-                      "value": 9,
-                    },
-                    {
-                      "label": "Nov",
-                      "value": 10,
-                    },
-                    {
-                      "label": "Dec",
-                      "value": 11,
-                    },
-                  ]
-                }
-                value={
-                  {
-                    "label": "Jan",
-                    "value": 0,
-                  }
-                }
-              />
-              <Select
-                aria-label="select_year"
-                className="date-input-calender-month-select spacer-left"
-                onChange={[Function]}
-                options={
-                  [
-                    {
-                      "label": "2008",
-                      "value": 2008,
-                    },
-                    {
-                      "label": "2009",
-                      "value": 2009,
-                    },
-                    {
-                      "label": "2010",
-                      "value": 2010,
-                    },
-                    {
-                      "label": "2011",
-                      "value": 2011,
-                    },
-                    {
-                      "label": "2012",
-                      "value": 2012,
-                    },
-                    {
-                      "label": "2013",
-                      "value": 2013,
-                    },
-                    {
-                      "label": "2014",
-                      "value": 2014,
-                    },
-                    {
-                      "label": "2015",
-                      "value": 2015,
-                    },
-                    {
-                      "label": "2016",
-                      "value": 2016,
-                    },
-                    {
-                      "label": "2017",
-                      "value": 2017,
-                    },
-                    {
-                      "label": "2018",
-                      "value": 2018,
-                    },
-                  ]
-                }
-                value={
-                  {
-                    "label": "2018",
-                    "value": 2018,
-                  }
-                }
-              />
-            </div>
-            <ButtonIcon
-              aria-label="show_month_x_of_year_y.February.2018"
-              className="button-small"
-              onClick={[Function]}
-            >
-              <ChevronRightIcon />
-            </ButtonIcon>
-          </fieldset>
           <DayPicker
-            components={
-              {
-                "CaptionLabel": [Function],
-              }
-            }
-            disableNavigation={true}
+            captionLayout="dropdown-buttons"
             disabled={
               {
                 "after": 2018-02-05T00:00:00.000Z,
@@ -275,6 +125,7 @@ exports[`should render 3`] = `
                 "formatWeekdayName": [Function],
               }
             }
+            fromYear={2018}
             mode="default"
             modifiers={
               {
@@ -289,10 +140,12 @@ exports[`should render 3`] = `
             month={2018-01-17T00:00:00.000Z}
             onDayClick={[Function]}
             onDayMouseEnter={[Function]}
+            onMonthChange={[Function]}
             selected={2018-01-17T00:00:00.000Z}
+            toYear={2018}
             weekStartsOn={1}
           />
-        </form>
+        </div>
       </span>
     </EscKeydownHandler>
   </OutsideClickHandler>

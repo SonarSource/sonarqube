@@ -18,28 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { addMonths, setMonth, setYear, subMonths } from 'date-fns';
-import { range } from 'lodash';
 import * as React from 'react';
 import { ActiveModifiers, DayPicker, Matcher } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { injectIntl, WrappedComponentProps } from 'react-intl';
-import { ButtonIcon, ClearButton } from '../../components/controls/buttons';
+import { ClearButton } from '../../components/controls/buttons';
 import OutsideClickHandler from '../../components/controls/OutsideClickHandler';
 import CalendarIcon from '../../components/icons/CalendarIcon';
-import ChevronLeftIcon from '../../components/icons/ChevronLeftIcon';
-import ChevronRightIcon from '../../components/icons/ChevronRightIcon';
-import {
-  getMonthName,
-  getShortMonthName,
-  getShortWeekDayName,
-  translate,
-  translateWithParameters,
-} from '../../helpers/l10n';
+import { getShortWeekDayName, translate } from '../../helpers/l10n';
 import './DateInput.css';
 import EscKeydownHandler from './EscKeydownHandler';
 import FocusOutHandler from './FocusOutHandler';
-import Select from './Select';
+
+// When no minDate is given, year dropdown will show year options up to PAST_MAX_YEARS in the past
+const YEARS_TO_DISPLAY = 10;
 
 interface Props {
   alignRight?: boolean;
@@ -63,14 +55,12 @@ interface State {
   lastHovered?: Date;
 }
 
-const MONTHS_IN_YEAR = 12;
-const YEARS_TO_DISPLAY = 10;
-
 export default class DateInput extends React.PureComponent<Props, State> {
   input?: HTMLInputElement | null;
 
   constructor(props: Props) {
     super(props);
+
     this.state = { currentMonth: props.value || props.currentMonth || new Date(), open: false };
   }
 
@@ -109,51 +99,13 @@ export default class DateInput extends React.PureComponent<Props, State> {
     this.setState({ lastHovered: modifiers.disabled ? undefined : day });
   };
 
-  handleCurrentMonthChange = ({ value }: { value: number }) => {
-    this.setState((state: State) => ({ currentMonth: setMonth(state.currentMonth, value) }));
-  };
-
-  handleCurrentYearChange = ({ value }: { value: number }) => {
-    this.setState((state) => ({ currentMonth: setYear(state.currentMonth, value) }));
-  };
-
-  handlePreviousMonthClick = () => {
-    this.setState((state) => ({ currentMonth: subMonths(state.currentMonth, 1) }));
-  };
-
-  handleNextMonthClick = () => {
-    this.setState((state) => ({ currentMonth: addMonths(state.currentMonth, 1) }));
-  };
-
-  getPreviousMonthAriaLabel = () => {
-    const { currentMonth } = this.state;
-    const previous = (currentMonth.getMonth() + MONTHS_IN_YEAR - 1) % MONTHS_IN_YEAR;
-
-    return translateWithParameters(
-      'show_month_x_of_year_y',
-      getMonthName(previous),
-      currentMonth.getFullYear() - Math.floor(previous / (MONTHS_IN_YEAR - 1))
-    );
-  };
-
-  getNextMonthAriaLabel = () => {
-    const { currentMonth } = this.state;
-
-    const next = (currentMonth.getMonth() + MONTHS_IN_YEAR + 1) % MONTHS_IN_YEAR;
-
-    return translateWithParameters(
-      'show_month_x_of_year_y',
-      getMonthName(next),
-      currentMonth.getFullYear() + 1 - Math.ceil(next / (MONTHS_IN_YEAR - 1))
-    );
-  };
-
   render() {
     const {
       alignRight,
       highlightFrom,
       highlightTo,
       minDate,
+      maxDate = new Date(),
       value: selectedDay,
       name,
       className,
@@ -163,14 +115,9 @@ export default class DateInput extends React.PureComponent<Props, State> {
     } = this.props;
     const { lastHovered, currentMonth, open } = this.state;
 
-    const after = this.props.maxDate || new Date();
-
-    const years = range(new Date().getFullYear() - YEARS_TO_DISPLAY, new Date().getFullYear() + 1);
-    const yearOptions = years.map((year) => ({ label: String(year), value: year }));
-    const monthOptions = range(MONTHS_IN_YEAR).map((month) => ({
-      label: getShortMonthName(month),
-      value: month,
-    }));
+    // Infer start and end dropdown year from min/max dates, if set
+    const fromYear = minDate ? minDate.getFullYear() : new Date().getFullYear() - YEARS_TO_DISPLAY;
+    const toYear = maxDate ? maxDate.getFullYear() : new Date().getFullYear() + 1;
 
     let highlighted: Matcher = false;
     const lastHoveredOrValue = lastHovered || selectedDay;
@@ -209,54 +156,13 @@ export default class DateInput extends React.PureComponent<Props, State> {
                 />
               )}
               {open && (
-                <form className={classNames('date-input-calendar', { 'align-right': alignRight })}>
-                  <fieldset
-                    className="date-input-calendar-nav"
-                    aria-label={translateWithParameters(
-                      'date.select_month_and_year_x',
-                      `${getMonthName(currentMonth.getMonth())}, ${currentMonth.getFullYear()}`
-                    )}
-                  >
-                    <ButtonIcon
-                      className="button-small"
-                      aria-label={this.getPreviousMonthAriaLabel()}
-                      onClick={this.handlePreviousMonthClick}
-                    >
-                      <ChevronLeftIcon />
-                    </ButtonIcon>
-                    <div className="date-input-calender-month">
-                      <Select
-                        aria-label={translate('select_month')}
-                        className="date-input-calender-month-select"
-                        onChange={this.handleCurrentMonthChange}
-                        options={monthOptions}
-                        value={monthOptions.find(
-                          (month) => month.value === currentMonth.getMonth()
-                        )}
-                      />
-                      <Select
-                        aria-label={translate('select_year')}
-                        className="date-input-calender-month-select spacer-left"
-                        onChange={this.handleCurrentYearChange}
-                        options={yearOptions}
-                        value={yearOptions.find(
-                          (year) => year.value === currentMonth.getFullYear()
-                        )}
-                      />
-                    </div>
-                    <ButtonIcon
-                      className="button-small"
-                      aria-label={this.getNextMonthAriaLabel()}
-                      onClick={this.handleNextMonthClick}
-                    >
-                      <ChevronRightIcon />
-                    </ButtonIcon>
-                  </fieldset>
+                <div className={classNames('date-input-calendar', { 'align-right': alignRight })}>
                   <DayPicker
                     mode="default"
-                    disableNavigation={true}
-                    components={{ CaptionLabel: () => null }}
-                    disabled={{ after, before: minDate }}
+                    captionLayout="dropdown-buttons"
+                    fromYear={fromYear}
+                    toYear={toYear}
+                    disabled={{ after: maxDate, before: minDate }}
                     weekStartsOn={1}
                     formatters={{
                       formatWeekdayName: (date) => getShortWeekDayName(date.getDay()),
@@ -264,11 +170,12 @@ export default class DateInput extends React.PureComponent<Props, State> {
                     modifiers={{ highlighted }}
                     modifiersClassNames={{ highlighted: 'highlighted' }}
                     month={currentMonth}
+                    onMonthChange={(currentMonth) => this.setState({ currentMonth })}
                     selected={selectedDay}
                     onDayClick={this.handleDayClick}
                     onDayMouseEnter={this.handleDayMouseEnter}
                   />
-                </form>
+                </div>
               )}
             </span>
           </EscKeydownHandler>
@@ -279,10 +186,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
 }
 
 type InputWrapperProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value'> &
-  WrappedComponentProps & {
-    innerRef: React.Ref<HTMLInputElement>;
-    value: Date | undefined;
-  };
+  WrappedComponentProps & { innerRef: React.Ref<HTMLInputElement>; value: Date | undefined };
 
 const InputWrapper = injectIntl(({ innerRef, intl, value, ...other }: InputWrapperProps) => {
   const formattedValue =

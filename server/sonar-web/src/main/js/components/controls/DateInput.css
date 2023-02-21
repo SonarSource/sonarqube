@@ -20,7 +20,14 @@
 
 .rdp {
   --rdp-cell-size: 30px;
-  --rdp-outline: none;
+  /* Ensures the month/year dropdowns do not move on click, but rdp outline is not shown */
+  --rdp-outline: 2px solid transparent;
+  --rdp-outline-selected: 2px solid transparent;
+}
+
+.rdp-caption_label {
+  /* Avoid calendar width to change when we cycle through months */
+  font-size: 115%;
 }
 
 .rdp-day_selected {
@@ -78,22 +85,4 @@
 .date-input-calendar.align-right {
   left: initial;
   right: 0;
-}
-
-.date-input-calendar-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: var(--gridSize);
-  padding-left: var(--gridSize);
-  padding-right: var(--gridSize);
-}
-
-.date-input-calender-month {
-  display: flex;
-  justify-content: center;
-}
-
-.date-input-calender-month .date-input-calender-month-select {
-  width: 70px;
 }

@@ -20,11 +20,10 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getDate, getMonth, getYear, subDays } from 'date-fns';
-import selectEvent from 'react-select-event';
 import { byPlaceholderText, byRole, byText } from 'testing-library-selector';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { now } from '../../../../helpers/dates';
-import { getShortMonthName } from '../../../../helpers/l10n';
+import { getMonthName } from '../../../../helpers/l10n';
 import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
 import { AdminPageExtension } from '../../../../types/extension';
 import { SettingsKey } from '../../../../types/settings';
@@ -67,8 +66,8 @@ const ui = {
   downloadSentenceStart: byText('audit_logs.download_start.sentence.1'),
   startDateInput: byPlaceholderText('start_date'),
   endDateInput: byPlaceholderText('end_date'),
-  dateInputMonthSelect: byRole('combobox', { name: 'select_month' }),
-  dateInputYearSelect: byRole('combobox', { name: 'select_year' }),
+  dateInputMonthSelect: byRole('combobox', { name: 'Month:' }),
+  dateInputYearSelect: byRole('combobox', { name: 'Year:' }),
 };
 
 let handler: SettingsServiceMock;
@@ -117,13 +116,13 @@ it('should handle download button click', async () => {
   expect(ui.downloadButton.get()).toHaveAttribute('aria-disabled', 'true');
   await user.click(ui.startDateInput.get());
 
-  await selectEvent.select(ui.dateInputMonthSelect.get(), [getShortMonthName(getMonth(startDay))]);
-  await selectEvent.select(ui.dateInputYearSelect.get(), [getYear(startDay)]);
+  await user.selectOptions(ui.dateInputMonthSelect.get(), getMonthName(getMonth(startDay)));
+  await user.selectOptions(ui.dateInputYearSelect.get(), getYear(startDay).toString());
   await user.click(screen.getByText(getDate(startDay)));
   await user.click(ui.endDateInput.get());
 
-  await selectEvent.select(ui.dateInputMonthSelect.get(), [getShortMonthName(getMonth(endDate))]);
-  await selectEvent.select(ui.dateInputYearSelect.get(), [getYear(endDate)]);
+  await user.selectOptions(ui.dateInputMonthSelect.get(), getMonthName(getMonth(endDate)));
+  await user.selectOptions(ui.dateInputYearSelect.get(), getYear(endDate).toString());
   await user.click(screen.getByText(getDate(endDate)));
 
   expect(await ui.downloadButton.find()).toHaveAttribute('aria-disabled', 'false');

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { addDays, setMonth, setYear, subDays, subMonths } from 'date-fns';
+import { addDays, subDays } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { DayPicker } from 'react-day-picker';
@@ -32,7 +32,6 @@ const dateA = parseDate('2018-01-17T00:00:00.000Z');
 const dateB = parseDate('2018-02-05T00:00:00.000Z');
 
 it('should render', () => {
-  // pass `maxDate` and `minDate` to avoid differences in snapshots
   const { wrapper } = shallowRender();
 
   expect(wrapper).toMatchSnapshot();
@@ -42,23 +41,6 @@ it('should render', () => {
 
   wrapper.setState({ open: true });
   expect(wrapper).toMatchSnapshot();
-});
-
-it('should change current month', () => {
-  const { wrapper, instance } = shallowRender();
-  expect(wrapper.state().currentMonth).toEqual(dateA);
-
-  instance.handlePreviousMonthClick();
-  expect(wrapper.state().currentMonth).toEqual(subMonths(dateA, 1));
-
-  instance.handleNextMonthClick();
-  expect(wrapper.state().currentMonth).toEqual(dateA);
-
-  instance.handleCurrentMonthChange({ value: 5 });
-  expect(wrapper.state().currentMonth).toEqual(setMonth(dateA, 5));
-
-  instance.handleCurrentYearChange({ value: 2015 });
-  expect(wrapper.state().currentMonth).toEqual(setYear(setMonth(dateA, 5), 2015));
 });
 
 it('should select a day', () => {
@@ -102,21 +84,11 @@ it('should hightlightTo range', () => {
   expect(dayPicker.props().modifiers).toEqual({ highlighted: { from: dateC, to: dateB } });
 });
 
-it('should announce the proper month and year for next/previous buttons aria label', () => {
-  const { wrapper, instance } = shallowRender();
-  expect(wrapper.state().currentMonth).toEqual(dateA);
-  expect(instance.getPreviousMonthAriaLabel()).toEqual('show_month_x_of_year_y.December.2017');
-  expect(instance.getNextMonthAriaLabel()).toEqual('show_month_x_of_year_y.February.2018');
-
-  instance.handleCurrentMonthChange({ value: 11 });
-  expect(instance.getPreviousMonthAriaLabel()).toEqual('show_month_x_of_year_y.November.2018');
-  expect(instance.getNextMonthAriaLabel()).toEqual('show_month_x_of_year_y.January.2019');
-});
-
 function shallowRender(props?: Partial<DateInput['props']>) {
   const wrapper = shallow<DateInput>(
     <DateInput
       currentMonth={dateA}
+      // pass `maxDate` and `minDate` to avoid differences in snapshots
       maxDate={dateB}
       minDate={dateA}
       onChange={jest.fn()}
