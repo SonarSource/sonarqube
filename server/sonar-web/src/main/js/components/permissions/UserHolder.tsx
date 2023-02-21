@@ -19,28 +19,24 @@
  */
 import { without } from 'lodash';
 import * as React from 'react';
-import GroupIcon from '../../../../components/icons/GroupIcon';
-import { translate } from '../../../../helpers/l10n';
-import { Permissions } from '../../../../types/permissions';
-import { PermissionDefinitions, PermissionGroup } from '../../../../types/types';
-import { isPermissionDefinitionGroup } from '../../utils';
+import { translate } from '../../helpers/l10n';
+import { isPermissionDefinitionGroup } from '../../helpers/permissions';
+import { PermissionDefinitions, PermissionUser } from '../../types/types';
+import Avatar from '../ui/Avatar';
 import PermissionCell from './PermissionCell';
 
 interface Props {
-  group: PermissionGroup;
-  isComponentPrivate?: boolean;
-  onToggle: (group: PermissionGroup, permission: string) => Promise<void>;
+  onToggle: (user: PermissionUser, permission: string) => Promise<void>;
   permissions: PermissionDefinitions;
   selectedPermission?: string;
+  user: PermissionUser;
 }
 
 interface State {
   loading: string[];
 }
 
-export const ANYONE = 'Anyone';
-
-export default class GroupHolder extends React.PureComponent<Props, State> {
+export default class UserHolder extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: [] };
 
@@ -61,7 +57,7 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
   handleCheck = (_checked: boolean, permission?: string) => {
     if (permission !== undefined) {
       this.setState((state) => ({ loading: [...state.loading, permission] }));
-      this.props.onToggle(this.props.group, permission).then(
+      this.props.onToggle(this.props.user, permission).then(
         () => this.stopLoading(permission),
         () => this.stopLoading(permission)
       );
@@ -69,45 +65,54 @@ export default class GroupHolder extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { group, isComponentPrivate, permissions, selectedPermission } = this.props;
+    const { user } = this.props;
+    const permissionCells = this.props.permissions.map((permission) => (
+      <PermissionCell
+        key={isPermissionDefinitionGroup(permission) ? permission.category : permission.key}
+        loading={this.state.loading}
+        onCheck={this.handleCheck}
+        permission={permission}
+        permissionItem={user}
+        selectedPermission={this.props.selectedPermission}
+      />
+    ));
+
+    if (user.login === '<creator>') {
+      return (
+        <tr>
+          <td className="nowrap text-middle">
+            <div>
+              <strong>{user.name}</strong>
+            </div>
+            <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
+              {translate('permission_templates.project_creators.explanation')}
+            </div>
+          </td>
+          {permissionCells}
+        </tr>
+      );
+    }
 
     return (
       <tr>
         <td className="nowrap text-middle">
           <div className="display-flex-center">
-            <GroupIcon className="big-spacer-right" />
+            <Avatar
+              className="text-middle big-spacer-right flex-0"
+              hash={user.avatar}
+              name={user.name}
+              size={36}
+            />
             <div className="max-width-100">
               <div className="max-width-100 text-ellipsis">
-                <strong>{group.name}</strong>
-                {group.name === ANYONE && (
-                  <span className="spacer-left badge badge-error">{translate('deprecated')}</span>
-                )}
+                <strong>{user.name}</strong>
+                <span className="note spacer-left">{user.login}</span>
               </div>
-              <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
-                {group.name === ANYONE
-                  ? translate('user_groups.anyone.description')
-                  : group.description}
-              </div>
+              <div className="little-spacer-top max-width-100 text-ellipsis">{user.email}</div>
             </div>
           </div>
         </td>
-        {permissions.map((permission) => {
-          const isPermissionGroup = isPermissionDefinitionGroup(permission);
-          const permissionKey = isPermissionGroup ? permission.category : permission.key;
-          const isAdminPermission = !isPermissionGroup && permissionKey === Permissions.Admin;
-
-          return (
-            <PermissionCell
-              disabled={group.name === ANYONE && (isComponentPrivate || isAdminPermission)}
-              key={permissionKey}
-              loading={this.state.loading}
-              onCheck={this.handleCheck}
-              permission={permission}
-              permissionItem={group}
-              selectedPermission={selectedPermission}
-            />
-          );
-        })}
+        {permissionCells}
       </tr>
     );
   }

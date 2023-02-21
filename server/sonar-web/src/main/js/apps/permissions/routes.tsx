@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import GlobalPermissionsApp from './global/components/App';
+import GlobalPermissionsApp from './global/components/PermissionsGlobalApp';
 import PermissionsProjectApp from './project/components/PermissionsProjectApp';
 
 export const globalPermissionsRoutes = () => (

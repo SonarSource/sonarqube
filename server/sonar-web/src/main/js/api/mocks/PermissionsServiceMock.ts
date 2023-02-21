@@ -35,6 +35,8 @@ import {
   applyTemplateToProject,
   bulkApplyTemplate,
   changeProjectVisibility,
+  getGlobalPermissionsGroups,
+  getGlobalPermissionsUsers,
   getPermissionsGroupsForComponent,
   getPermissionsUsersForComponent,
   getPermissionTemplateGroups,
@@ -115,21 +117,21 @@ const DEFAULT_PAGE = 1;
 jest.mock('../permissions');
 
 export default class PermissionsServiceMock {
-  permissionTemplates: PermissionTemplate[] = [];
-  permissions: Permission[];
-  defaultTemplates: Array<{ templateId: string; qualifier: string }>;
-  groups: PermissionGroup[];
-  users: PermissionUser[];
-  isAllowedPermissionChange = true;
+  #permissionTemplates: PermissionTemplate[] = [];
+  #permissions: Permission[];
+  #defaultTemplates: Array<{ templateId: string; qualifier: string }>;
+  #groups: PermissionGroup[];
+  #users: PermissionUser[];
+  #isAllowedToChangePermissions = true;
 
   constructor() {
-    this.permissionTemplates = cloneDeep(defaultPermissionTemplates);
-    this.defaultTemplates = [
+    this.#permissionTemplates = cloneDeep(defaultPermissionTemplates);
+    this.#defaultTemplates = [
       ComponentQualifier.Project,
       ComponentQualifier.Application,
       ComponentQualifier.Portfolio,
-    ].map((qualifier) => ({ templateId: this.permissionTemplates[0].id, qualifier }));
-    this.permissions = [
+    ].map((qualifier) => ({ templateId: this.#permissionTemplates[0].id, qualifier }));
+    this.#permissions = [
       Permissions.Admin,
       Permissions.CodeViewer,
       Permissions.IssueAdmin,
@@ -137,8 +139,8 @@ export default class PermissionsServiceMock {
       Permissions.Scan,
       Permissions.Browse,
     ].map((key) => mockPermission({ key, name: key }));
-    this.groups = cloneDeep(defaultGroups);
-    this.users = cloneDeep(defaultUsers);
+    this.#groups = cloneDeep(defaultGroups);
+    this.#users = cloneDeep(defaultUsers);
 
     jest.mocked(getPermissionTemplates).mockImplementation(this.handleGetPermissionTemplates);
     jest.mocked(bulkApplyTemplate).mockImplementation(this.handleBulkApplyTemplate);
@@ -156,6 +158,8 @@ export default class PermissionsServiceMock {
     jest.mocked(grantTemplatePermissionToUser).mockImplementation(this.handlePermissionChange);
     jest.mocked(revokeTemplatePermissionFromUser).mockImplementation(this.handlePermissionChange);
     jest.mocked(changeProjectVisibility).mockImplementation(this.handleChangeProjectVisibility);
+    jest.mocked(getGlobalPermissionsUsers).mockImplementation(this.handleGetPermissionUsers);
+    jest.mocked(getGlobalPermissionsGroups).mockImplementation(this.handleGetPermissionGroups);
     jest
       .mocked(getPermissionsGroupsForComponent)
       .mockImplementation(this.handleGetPermissionGroupsForComponent);
@@ -170,9 +174,9 @@ export default class PermissionsServiceMock {
 
   handleGetPermissionTemplates = () => {
     return this.reply({
-      permissionTemplates: this.permissionTemplates,
-      defaultTemplates: this.defaultTemplates,
-      permissions: this.permissions,
+      permissionTemplates: this.#permissionTemplates,
+      defaultTemplates: this.#defaultTemplates,
+      permissions: this.#permissions,
     });
   };
 
@@ -238,33 +242,7 @@ export default class PermissionsServiceMock {
     return this.reply(undefined);
   };
 
-  handleGetPermissionGroupsForComponent = (data: {
-    projectKey: string;
-    q?: string;
-    permission?: string;
-    p?: number;
-    ps?: number;
-  }) => {
-    const { ps = PAGE_SIZE, p = DEFAULT_PAGE, q, permission } = data;
-
-    const groups =
-      q && q.length >= MIN_QUERY_LENGTH
-        ? this.groups.filter((group) => group.name.toLowerCase().includes(q.toLowerCase()))
-        : this.groups;
-
-    const groupsChunked = chunk(
-      permission ? groups.filter((g) => g.permissions.includes(permission)) : groups,
-      ps
-    );
-
-    return this.reply({
-      paging: { pageSize: ps, total: groups.length, pageIndex: p },
-      groups: groupsChunked[p - 1] ?? [],
-    });
-  };
-
-  handleGetPermissionUsersForComponent = (data: {
-    projectKey: string;
+  handleGetPermissionUsers = (data: {
     q?: string;
     permission?: string;
     p?: number;
@@ -274,8 +252,8 @@ export default class PermissionsServiceMock {
 
     const users =
       q && q.length >= MIN_QUERY_LENGTH
-        ? this.users.filter((user) => user.name.toLowerCase().includes(q.toLowerCase()))
-        : this.users;
+        ? this.#users.filter((user) => user.name.toLowerCase().includes(q.toLowerCase()))
+        : this.#users;
 
     const usersChunked = chunk(
       permission ? users.filter((u) => u.permissions.includes(permission)) : users,
@@ -288,17 +266,61 @@ export default class PermissionsServiceMock {
     });
   };
 
+  handleGetPermissionGroups = (data: {
+    q?: string;
+    permission?: string;
+    p?: number;
+    ps?: number;
+  }) => {
+    const { ps = PAGE_SIZE, p = DEFAULT_PAGE, q, permission } = data;
+
+    const groups =
+      q && q.length >= MIN_QUERY_LENGTH
+        ? this.#groups.filter((group) => group.name.toLowerCase().includes(q.toLowerCase()))
+        : this.#groups;
+
+    const groupsChunked = chunk(
+      permission ? groups.filter((g) => g.permissions.includes(permission)) : groups,
+      ps
+    );
+
+    return this.reply({
+      paging: { pageSize: ps, total: groups.length, pageIndex: p },
+      groups: groupsChunked[p - 1] ?? [],
+    });
+  };
+
+  handleGetPermissionGroupsForComponent = (data: {
+    projectKey: string;
+    q?: string;
+    permission?: string;
+    p?: number;
+    ps?: number;
+  }) => {
+    return this.handleGetPermissionGroups(data);
+  };
+
+  handleGetPermissionUsersForComponent = (data: {
+    projectKey: string;
+    q?: string;
+    permission?: string;
+    p?: number;
+    ps?: number;
+  }) => {
+    return this.handleGetPermissionUsers(data);
+  };
+
   handleGrantPermissionToGroup = (data: {
     projectKey?: string;
     groupName: string;
     permission: string;
   }) => {
-    if (!this.isAllowedPermissionChange) {
+    if (!this.#isAllowedToChangePermissions) {
       return Promise.reject();
     }
 
     const { groupName, permission } = data;
-    const group = this.groups.find((g) => g.name === groupName);
+    const group = this.#groups.find((g) => g.name === groupName);
     if (group === undefined) {
       throw new Error(`Could not find group with name ${groupName}`);
     }
@@ -311,12 +333,12 @@ export default class PermissionsServiceMock {
     groupName: string;
     permission: string;
   }) => {
-    if (!this.isAllowedPermissionChange) {
+    if (!this.#isAllowedToChangePermissions) {
       return Promise.reject();
     }
 
     const { groupName, permission } = data;
-    const group = this.groups.find((g) => g.name === groupName);
+    const group = this.#groups.find((g) => g.name === groupName);
     if (group === undefined) {
       throw new Error(`Could not find group with name ${groupName}`);
     }
@@ -329,12 +351,12 @@ export default class PermissionsServiceMock {
     login: string;
     permission: string;
   }) => {
-    if (!this.isAllowedPermissionChange) {
+    if (!this.#isAllowedToChangePermissions) {
       return Promise.reject();
     }
 
     const { login, permission } = data;
-    const user = this.users.find((u) => u.login === login);
+    const user = this.#users.find((u) => u.login === login);
     if (user === undefined) {
       throw new Error(`Could not find user with login ${login}`);
     }
@@ -347,12 +369,12 @@ export default class PermissionsServiceMock {
     login: string;
     permission: string;
   }) => {
-    if (!this.isAllowedPermissionChange) {
+    if (!this.#isAllowedToChangePermissions) {
       return Promise.reject();
     }
 
     const { login, permission } = data;
-    const user = this.users.find((u) => u.login === login);
+    const user = this.#users.find((u) => u.login === login);
     if (user === undefined) {
       throw new Error(`Could not find user with name ${login}`);
     }
@@ -361,26 +383,26 @@ export default class PermissionsServiceMock {
   };
 
   handlePermissionChange = () => {
-    return this.isAllowedPermissionChange ? Promise.resolve() : Promise.reject();
+    return this.#isAllowedToChangePermissions ? Promise.resolve() : Promise.reject();
   };
 
-  updatePermissionChangeAllowance = (val: boolean) => {
-    this.isAllowedPermissionChange = val;
+  setIsAllowedToChangePermissions = (val: boolean) => {
+    this.#isAllowedToChangePermissions = val;
   };
 
   setGroups = (groups: PermissionGroup[]) => {
-    this.groups = groups;
+    this.#groups = groups;
   };
 
   setUsers = (users: PermissionUser[]) => {
-    this.users = users;
+    this.#users = users;
   };
 
   reset = () => {
-    this.permissionTemplates = cloneDeep(defaultPermissionTemplates);
-    this.groups = cloneDeep(defaultGroups);
-    this.users = cloneDeep(defaultUsers);
-    this.updatePermissionChangeAllowance(true);
+    this.#permissionTemplates = cloneDeep(defaultPermissionTemplates);
+    this.#groups = cloneDeep(defaultGroups);
+    this.#users = cloneDeep(defaultUsers);
+    this.setIsAllowedToChangePermissions(true);
   };
 
   reply<T>(response: T): Promise<T> {

@@ -19,14 +19,9 @@
  */
 import { partition } from 'lodash';
 import * as React from 'react';
-import { translate } from '../../../../helpers/l10n';
-import {
-  Dict,
-  PermissionDefinitions,
-  PermissionGroup,
-  PermissionUser,
-} from '../../../../types/types';
-import { isPermissionDefinitionGroup } from '../../utils';
+import { translate } from '../../helpers/l10n';
+import { isPermissionDefinitionGroup } from '../../helpers/permissions';
+import { Dict, PermissionDefinitions, PermissionGroup, PermissionUser } from '../../types/types';
 import GroupHolder from './GroupHolder';
 import PermissionHeader from './PermissionHeader';
 import UserHolder from './UserHolder';

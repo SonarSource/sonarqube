@@ -21,14 +21,14 @@ import { without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as api from '../../../api/permissions';
+import AllHoldersList from '../../../components/permissions/AllHoldersList';
+import { FilterOption } from '../../../components/permissions/SearchForm';
 import { translate } from '../../../helpers/l10n';
-import { Paging, PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
-import AllHoldersList from '../../permissions/shared/components/AllHoldersList';
-import { FilterOption } from '../../permissions/shared/components/SearchForm';
 import {
   convertToPermissionDefinitions,
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
-} from '../../permissions/utils';
+} from '../../../helpers/permissions';
+import { Paging, PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
 import TemplateDetails from './TemplateDetails';
 import TemplateHeader from './TemplateHeader';
 
@@ -316,8 +316,8 @@ export default class Template extends React.PureComponent<Props, State> {
 
         <AllHoldersList
           filter={filter}
-          grantPermissionToGroup={this.grantPermissionToGroup}
-          grantPermissionToUser={this.grantPermissionToUser}
+          onGrantPermissionToGroup={this.grantPermissionToGroup}
+          onGrantPermissionToUser={this.grantPermissionToUser}
           groups={groups}
           groupsPaging={groupsPaging}
           loading={loading}
@@ -325,8 +325,8 @@ export default class Template extends React.PureComponent<Props, State> {
           onLoadMore={this.onLoadMore}
           onQuery={this.handleSearch}
           query={query}
-          revokePermissionFromGroup={this.revokePermissionFromGroup}
-          revokePermissionFromUser={this.revokePermissionFromUser}
+          onRevokePermissionFromGroup={this.revokePermissionFromGroup}
+          onRevokePermissionFromUser={this.revokePermissionFromUser}
           users={allUsers}
           usersPaging={usersPagingWithCreator}
           permissions={permissions}

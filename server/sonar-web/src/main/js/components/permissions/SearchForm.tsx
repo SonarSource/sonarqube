@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ButtonToggle from '../../../../components/controls/ButtonToggle';
-import SearchBox from '../../../../components/controls/SearchBox';
-import { translate } from '../../../../helpers/l10n';
+import { translate } from '../../helpers/l10n';
+import ButtonToggle from '../controls/ButtonToggle';
+import SearchBox from '../controls/SearchBox';
 
 export type FilterOption = 'all' | 'users' | 'groups';
 interface Props {

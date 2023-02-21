@@ -23,20 +23,22 @@ import { Helmet } from 'react-helmet-async';
 import * as api from '../../../../api/permissions';
 import withComponentContext from '../../../../app/components/componentContext/withComponentContext';
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
+import AllHoldersList from '../../../../components/permissions/AllHoldersList';
+import { FilterOption } from '../../../../components/permissions/SearchForm';
 import { translate } from '../../../../helpers/l10n';
-import { Visibility } from '../../../../types/component';
+import {
+  convertToPermissionDefinitions,
+  PERMISSIONS_ORDER_BY_QUALIFIER,
+} from '../../../../helpers/permissions';
+import { ComponentContextShape, Visibility } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
 import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
-import AllHoldersList from '../../shared/components/AllHoldersList';
-import { FilterOption } from '../../shared/components/SearchForm';
 import '../../styles.css';
-import { convertToPermissionDefinitions, PERMISSIONS_ORDER_BY_QUALIFIER } from '../../utils';
 import PageHeader from './PageHeader';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 
-interface Props {
+interface Props extends ComponentContextShape {
   component: Component;
-  onComponentChange: (changes: Partial<Component>) => void;
 }
 
 interface State {
@@ -51,7 +53,7 @@ interface State {
   usersPaging?: Paging;
 }
 
-export class PermissionsProjectApp extends React.PureComponent<Props, State> {
+class PermissionsProjectApp extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -117,7 +119,7 @@ export class PermissionsProjectApp extends React.PureComponent<Props, State> {
     }, this.stopLoading);
   };
 
-  onLoadMore = () => {
+  handleLoadMore = () => {
     const { usersPaging, groupsPaging } = this.state;
     this.setState({ loading: true });
     return this.loadUsersAndGroups(
@@ -192,88 +194,76 @@ export class PermissionsProjectApp extends React.PureComponent<Props, State> {
     );
   };
 
-  grantPermissionToGroup = (group: string, permission: string) => {
-    if (this.mounted) {
-      this.setState({ loading: true });
-      return api
-        .grantPermissionToGroup({
-          projectKey: this.props.component.key,
-          groupName: group,
-          permission,
-        })
-        .then(() => {
-          if (this.mounted) {
-            this.setState({
-              loading: false,
-              groups: this.addPermissionToGroup(group, permission),
-            });
-          }
-        }, this.stopLoading);
-    }
-    return Promise.resolve();
+  handleGrantPermissionToGroup = (group: string, permission: string) => {
+    this.setState({ loading: true });
+    return api
+      .grantPermissionToGroup({
+        projectKey: this.props.component.key,
+        groupName: group,
+        permission,
+      })
+      .then(() => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            groups: this.addPermissionToGroup(group, permission),
+          });
+        }
+      }, this.stopLoading);
   };
 
-  grantPermissionToUser = (user: string, permission: string) => {
-    if (this.mounted) {
-      this.setState({ loading: true });
-      return api
-        .grantPermissionToUser({
-          projectKey: this.props.component.key,
-          login: user,
-          permission,
-        })
-        .then(() => {
-          if (this.mounted) {
-            this.setState({
-              loading: false,
-              users: this.addPermissionToUser(user, permission),
-            });
-          }
-        }, this.stopLoading);
-    }
-    return Promise.resolve();
+  handleGrantPermissionToUser = (user: string, permission: string) => {
+    this.setState({ loading: true });
+    return api
+      .grantPermissionToUser({
+        projectKey: this.props.component.key,
+        login: user,
+        permission,
+      })
+      .then(() => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            users: this.addPermissionToUser(user, permission),
+          });
+        }
+      }, this.stopLoading);
   };
 
-  revokePermissionFromGroup = (group: string, permission: string) => {
-    if (this.mounted) {
-      this.setState({ loading: true });
-      return api
-        .revokePermissionFromGroup({
-          projectKey: this.props.component.key,
-          groupName: group,
-          permission,
-        })
-        .then(() => {
-          if (this.mounted) {
-            this.setState({
-              loading: false,
-              groups: this.removePermissionFromGroup(group, permission),
-            });
-          }
-        }, this.stopLoading);
-    }
-    return Promise.resolve();
+  handleRevokePermissionFromGroup = (group: string, permission: string) => {
+    this.setState({ loading: true });
+    return api
+      .revokePermissionFromGroup({
+        projectKey: this.props.component.key,
+        groupName: group,
+        permission,
+      })
+      .then(() => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            groups: this.removePermissionFromGroup(group, permission),
+          });
+        }
+      }, this.stopLoading);
   };
 
-  revokePermissionFromUser = (user: string, permission: string) => {
-    if (this.mounted) {
-      this.setState({ loading: true });
-      return api
-        .revokePermissionFromUser({
-          projectKey: this.props.component.key,
-          login: user,
-          permission,
-        })
-        .then(() => {
-          if (this.mounted) {
-            this.setState({
-              loading: false,
-              users: this.removePermissionFromUser(user, permission),
-            });
-          }
-        }, this.stopLoading);
-    }
-    return Promise.resolve();
+  handleRevokePermissionFromUser = (user: string, permission: string) => {
+    this.setState({ loading: true });
+    return api
+      .revokePermissionFromUser({
+        projectKey: this.props.component.key,
+        login: user,
+        permission,
+      })
+      .then(() => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            users: this.removePermissionFromUser(user, permission),
+          });
+        }
+      }, this.stopLoading);
   };
 
   handleVisibilityChange = (visibility: string) => {
@@ -284,7 +274,7 @@ export class PermissionsProjectApp extends React.PureComponent<Props, State> {
     }
   };
 
-  turnProjectToPublic = () => {
+  handleTurnProjectToPublic = () => {
     this.setState({ loading: true });
     return api.changeProjectVisibility(this.props.component.key, Visibility.Public).then(() => {
       this.props.onComponentChange({ visibility: Visibility.Public });
@@ -306,7 +296,7 @@ export class PermissionsProjectApp extends React.PureComponent<Props, State> {
     }
   };
 
-  closeDisclaimer = () => {
+  handleCloseDisclaimer = () => {
     if (this.mounted) {
       this.setState({ disclaimer: false });
     }
@@ -341,7 +331,7 @@ export class PermissionsProjectApp extends React.PureComponent<Props, State> {
     const permissions = convertToPermissionDefinitions(order, 'projects_role');
 
     return (
-      <div className="page page-limited" id="project-permissions-page">
+      <main className="page page-limited" id="project-permissions-page">
         <Helmet defer={false} title={translate('permissions.page')} />
 
         <PageHeader component={component} loadHolders={this.loadHolders} loading={loading} />
@@ -356,30 +346,30 @@ export class PermissionsProjectApp extends React.PureComponent<Props, State> {
           {disclaimer && (
             <PublicProjectDisclaimer
               component={component}
-              onClose={this.closeDisclaimer}
-              onConfirm={this.turnProjectToPublic}
+              onClose={this.handleCloseDisclaimer}
+              onConfirm={this.handleTurnProjectToPublic}
             />
           )}
         </div>
         <AllHoldersList
           filter={filter}
-          grantPermissionToGroup={this.grantPermissionToGroup}
-          grantPermissionToUser={this.grantPermissionToUser}
+          onGrantPermissionToGroup={this.handleGrantPermissionToGroup}
+          onGrantPermissionToUser={this.handleGrantPermissionToUser}
           groups={groups}
           groupsPaging={groupsPaging}
           onFilter={this.handleFilterChange}
-          onLoadMore={this.onLoadMore}
+          onLoadMore={this.handleLoadMore}
           onSelectPermission={this.handlePermissionSelect}
           onQuery={this.handleQueryChange}
           query={query}
-          revokePermissionFromGroup={this.revokePermissionFromGroup}
-          revokePermissionFromUser={this.revokePermissionFromUser}
+          onRevokePermissionFromGroup={this.handleRevokePermissionFromGroup}
+          onRevokePermissionFromUser={this.handleRevokePermissionFromUser}
           selectedPermission={selectedPermission}
           users={users}
           usersPaging={usersPaging}
           permissions={permissions}
         />
-      </div>
+      </main>
     );
   }
 }

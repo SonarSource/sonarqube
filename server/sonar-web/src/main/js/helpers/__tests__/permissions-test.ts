@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { convertToPermissionDefinitions } from '../utils';
+import { convertToPermissionDefinitions } from '../permissions';
 
-jest.mock('../../../helpers/l10nBundle', () => ({
+jest.mock('../l10nBundle', () => ({
   getMessages: jest.fn().mockReturnValue({}),
 }));
 

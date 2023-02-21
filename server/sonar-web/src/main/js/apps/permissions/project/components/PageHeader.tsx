@@ -79,7 +79,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
       <header className="page-header">
         <h1 className="page-title">{translate('permissions.page')}</h1>
 
-        <DeferredSpinner loading={this.props.loading} />
+        <DeferredSpinner className="spacer-left" loading={this.props.loading} />
 
         {canApplyPermissionTemplate && (
           <div className="page-actions">

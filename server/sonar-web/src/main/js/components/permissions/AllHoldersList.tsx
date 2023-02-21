@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ListFooter from '../../../../components/controls/ListFooter';
 import {
   Paging,
   PermissionDefinition,
   PermissionDefinitionGroup,
   PermissionGroup,
   PermissionUser,
-} from '../../../../types/types';
-import HoldersList from '../../shared/components/HoldersList';
-import SearchForm, { FilterOption } from '../../shared/components/SearchForm';
+} from '../../types/types';
+import ListFooter from '../controls/ListFooter';
+import HoldersList from './HoldersList';
+import SearchForm, { FilterOption } from './SearchForm';
 
 interface Props {
   filter: FilterOption;
@@ -36,12 +36,12 @@ interface Props {
   onQuery: (query: string) => void;
   groups: PermissionGroup[];
   groupsPaging?: Paging;
-  revokePermissionFromGroup: (group: string, permission: string) => Promise<void>;
-  grantPermissionToGroup: (group: string, permission: string) => Promise<void>;
+  onRevokePermissionFromGroup: (group: string, permission: string) => Promise<void>;
+  onGrantPermissionToGroup: (group: string, permission: string) => Promise<void>;
   users: PermissionUser[];
   usersPaging?: Paging;
-  revokePermissionFromUser: (user: string, permission: string) => Promise<void>;
-  grantPermissionToUser: (user: string, permission: string) => Promise<void>;
+  onRevokePermissionFromUser: (user: string, permission: string) => Promise<void>;
+  onGrantPermissionToUser: (user: string, permission: string) => Promise<void>;
   permissions: Array<PermissionDefinition | PermissionDefinitionGroup>;
   onLoadMore: () => void;
   selectedPermission?: string;
@@ -54,19 +54,19 @@ export default class AllHoldersList extends React.PureComponent<Props> {
     const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
-      return this.props.revokePermissionFromUser(user.login, permission);
+      return this.props.onRevokePermissionFromUser(user.login, permission);
     }
-    return this.props.grantPermissionToUser(user.login, permission);
+    return this.props.onGrantPermissionToUser(user.login, permission);
   };
 
   handleToggleGroup = (group: PermissionGroup, permission: string) => {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {
-      return this.props.revokePermissionFromGroup(group.name, permission);
+      return this.props.onRevokePermissionFromGroup(group.name, permission);
     }
 
-    return this.props.grantPermissionToGroup(group.name, permission);
+    return this.props.onGrantPermissionToGroup(group.name, permission);
   };
 
   getPaging = () => {

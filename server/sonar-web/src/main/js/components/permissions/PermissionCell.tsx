@@ -19,15 +19,15 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import Checkbox from '../../../../components/controls/Checkbox';
-import { translateWithParameters } from '../../../../helpers/l10n';
+import { translateWithParameters } from '../../helpers/l10n';
+import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import {
   PermissionDefinition,
   PermissionDefinitionGroup,
   PermissionGroup,
   PermissionUser,
-} from '../../../../types/types';
-import { isPermissionDefinitionGroup } from '../../utils';
+} from '../../types/types';
+import Checkbox from '../controls/Checkbox';
 
 export interface PermissionCellProps {
   disabled?: boolean;

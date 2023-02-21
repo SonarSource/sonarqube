@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { render, RenderResult } from '@testing-library/react';
+import { omit } from 'lodash';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
@@ -35,8 +36,9 @@ import { useLocation } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import { ComponentContextShape } from '../types/component';
 import { Feature } from '../types/features';
-import { Dict, Extension, Languages, Metric, SysStatus } from '../types/types';
+import { Component, Dict, Extension, Languages, Metric, SysStatus } from '../types/types';
 import { CurrentUser } from '../types/users';
+import { mockComponent } from './mocks/component';
 import { DEFAULT_METRICS } from './mocks/metrics';
 import { mockAppState, mockCurrentUser } from './testMocks';
 
@@ -107,16 +109,22 @@ export function renderAppWithComponentContext(
   indexPath: string,
   routes: () => JSX.Element,
   context: RenderContext = {},
-  componentContext?: Partial<ComponentContextShape>
+  componentContext: Partial<ComponentContextShape> = {}
 ) {
   function MockComponentContainer() {
+    const [realComponent, setRealComponent] = React.useState(
+      componentContext?.component ?? mockComponent()
+    );
     return (
       <ComponentContext.Provider
         value={{
           branchLikes: [],
           onBranchesChange: jest.fn(),
-          onComponentChange: jest.fn(),
-          ...componentContext,
+          onComponentChange: (changes: Partial<Component>) => {
+            setRealComponent({ ...realComponent, ...changes });
+          },
+          component: realComponent,
+          ...omit(componentContext, 'component'),
         }}
       >
         <Outlet />

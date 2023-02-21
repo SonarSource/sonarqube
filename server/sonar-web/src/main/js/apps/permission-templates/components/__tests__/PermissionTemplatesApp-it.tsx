@@ -67,7 +67,7 @@ it('grants/revokes permission from users or groups', async () => {
   expect(ui.permissionCheckbox('Anyone', Permissions.CodeViewer).get()).not.toBeChecked();
 
   // Handles error on permission change
-  serviceMock.updatePermissionChangeAllowance(false);
+  serviceMock.setIsAllowedToChangePermissions(false);
   await user.click(ui.permissionCheckbox('Admin Admin', Permissions.Browse).get());
   expect(ui.permissionCheckbox('Admin Admin', Permissions.Browse).get()).toBeChecked();
 

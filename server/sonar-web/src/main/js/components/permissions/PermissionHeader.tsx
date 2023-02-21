@@ -19,12 +19,12 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import InstanceMessage from '../../../../components/common/InstanceMessage';
-import HelpTooltip from '../../../../components/controls/HelpTooltip';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { PermissionDefinition, PermissionDefinitionGroup } from '../../../../types/types';
-import { isPermissionDefinitionGroup } from '../../utils';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import { isPermissionDefinitionGroup } from '../../helpers/permissions';
+import { PermissionDefinition, PermissionDefinitionGroup } from '../../types/types';
+import InstanceMessage from '../common/InstanceMessage';
+import HelpTooltip from '../controls/HelpTooltip';
+import Tooltip from '../controls/Tooltip';
 
 interface Props {
   onSelectPermission?: (permission: string) => void;

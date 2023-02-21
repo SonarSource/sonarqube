@@ -18,20 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import * as React from 'react';
-import selectEvent from 'react-select-event';
-import { byLabelText, byRole, byText } from 'testing-library-selector';
 import PermissionsServiceMock from '../../../../../api/mocks/PermissionsServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
-import { renderApp } from '../../../../../helpers/testReactTestingUtils';
+import { mockPermissionGroup, mockPermissionUser } from '../../../../../helpers/mocks/permissions';
+import {
+  PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
+  PERMISSIONS_ORDER_FOR_VIEW,
+} from '../../../../../helpers/permissions';
+import { renderAppWithComponentContext } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier, Visibility } from '../../../../../types/component';
 import { Permissions } from '../../../../../types/permissions';
-import { Component } from '../../../../../types/types';
-import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE, PERMISSIONS_ORDER_FOR_VIEW } from '../../../utils';
-import { PermissionsProjectApp } from '../PermissionsProjectApp';
+import { Component, PermissionGroup, PermissionUser } from '../../../../../types/types';
+import { projectPermissionsRoutes } from '../../../routes';
+import { getPageObject } from '../../../test-utils';
 
 let serviceMock: PermissionsServiceMock;
 beforeAll(() => {
@@ -59,7 +60,7 @@ describe('rendering', () => {
 
     expect(screen.getByText(description)).toBeInTheDocument();
     permissions.forEach((permission) => {
-      expect(ui.permissionCheckbox('johndoe', permission).get()).toBeInTheDocument();
+      expect(ui.projectPermissionCheckbox('johndoe', permission).get()).toBeInTheDocument();
     });
   });
 });
@@ -105,6 +106,8 @@ describe('filtering', () => {
     expect(screen.getAllByRole('row').length).toBe(7);
     await ui.toggleFilterByPermission(Permissions.Admin);
     expect(screen.getAllByRole('row').length).toBe(2);
+    await ui.toggleFilterByPermission(Permissions.Admin);
+    expect(screen.getAllByRole('row').length).toBe(7);
   });
 });
 
@@ -131,13 +134,15 @@ describe('assigning/revoking permissions', () => {
 
     expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
     expect(
-      ui.permissionCheckbox('sonar-users', Permissions.Browse).query()
+      ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).query()
     ).not.toBeInTheDocument();
     await act(async () => {
       await ui.turnProjectPrivate();
     });
     expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
-    expect(ui.permissionCheckbox('sonar-users', Permissions.Browse).get()).toBeInTheDocument();
+    expect(
+      ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()
+    ).toBeInTheDocument();
 
     await ui.turnProjectPublic();
     expect(ui.makePublicDisclaimer.get()).toBeInTheDocument();
@@ -153,15 +158,15 @@ describe('assigning/revoking permissions', () => {
     renderPermissionsProjectApp();
     await ui.appLoaded();
 
-    expect(ui.permissionCheckbox('sonar-users', Permissions.Admin).get()).not.toBeChecked();
+    expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Admin).get()).not.toBeChecked();
 
-    await ui.togglePermission('sonar-users', Permissions.Admin);
+    await ui.toggleProjectPermission('sonar-users', Permissions.Admin);
     await ui.appLoaded();
-    expect(ui.permissionCheckbox('sonar-users', Permissions.Admin).get()).toBeChecked();
+    expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Admin).get()).toBeChecked();
 
-    await ui.togglePermission('sonar-users', Permissions.Admin);
+    await ui.toggleProjectPermission('sonar-users', Permissions.Admin);
     await ui.appLoaded();
-    expect(ui.permissionCheckbox('sonar-users', Permissions.Admin).get()).not.toBeChecked();
+    expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Admin).get()).not.toBeChecked();
   });
 
   it('should add and remove permissions to/from a user', async () => {
@@ -170,118 +175,65 @@ describe('assigning/revoking permissions', () => {
     renderPermissionsProjectApp();
     await ui.appLoaded();
 
-    expect(ui.permissionCheckbox('johndoe', Permissions.Scan).get()).not.toBeChecked();
+    expect(ui.projectPermissionCheckbox('johndoe', Permissions.Scan).get()).not.toBeChecked();
 
-    await ui.togglePermission('johndoe', Permissions.Scan);
+    await ui.toggleProjectPermission('johndoe', Permissions.Scan);
     await ui.appLoaded();
-    expect(ui.permissionCheckbox('johndoe', Permissions.Scan).get()).toBeChecked();
+    expect(ui.projectPermissionCheckbox('johndoe', Permissions.Scan).get()).toBeChecked();
 
-    await ui.togglePermission('johndoe', Permissions.Scan);
+    await ui.toggleProjectPermission('johndoe', Permissions.Scan);
     await ui.appLoaded();
-    expect(ui.permissionCheckbox('johndoe', Permissions.Scan).get()).not.toBeChecked();
+    expect(ui.projectPermissionCheckbox('johndoe', Permissions.Scan).get()).not.toBeChecked();
+  });
+
+  it('should handle errors correctly', async () => {
+    serviceMock.setIsAllowedToChangePermissions(false);
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    renderPermissionsProjectApp();
+    await ui.appLoaded();
+
+    expect(ui.projectPermissionCheckbox('johndoe', Permissions.Scan).get()).not.toBeChecked();
+    await ui.toggleProjectPermission('johndoe', Permissions.Scan);
+    await ui.appLoaded();
+    expect(ui.projectPermissionCheckbox('johndoe', Permissions.Scan).get()).not.toBeChecked();
   });
 });
 
-function getPageObject(user: UserEvent) {
-  const ui = {
-    loading: byLabelText('loading'),
-    permissionCheckbox: (target: string, permission: Permissions) =>
-      byRole('checkbox', {
-        name: `permission.assign_x_to_y.projects_role.${permission}.${target}`,
-      }),
-    visibilityRadio: (visibility: Visibility) =>
-      byRole('radio', { name: `visibility.${visibility}` }),
-    makePublicDisclaimer: byText(
-      'projects_role.are_you_sure_to_turn_project_to_public.warning.TRK'
-    ),
-    confirmPublicBtn: byRole('button', { name: 'projects_role.turn_project_to_public.TRK' }),
-    openModalBtn: byRole('button', { name: 'projects_role.apply_template' }),
-    closeModalBtn: byRole('button', { name: 'close' }),
-    templateSelect: byRole('combobox', { name: /template/ }),
-    templateSuccessfullyApplied: byText('projects_role.apply_template.success'),
-    confirmApplyTemplateBtn: byRole('button', { name: 'apply' }),
-    tableHeaderFilter: (permission: Permissions) =>
-      byRole('link', { name: `projects_role.${permission}` }),
-    onlyUsersBtn: byRole('button', { name: 'users.page' }),
-    onlyGroupsBtn: byRole('button', { name: 'user_groups.page' }),
-    showAllBtn: byRole('button', { name: 'all' }),
-    searchInput: byRole('searchbox', { name: 'search.search_for_users_or_groups' }),
-  };
+it('should correctly handle pagination', async () => {
+  const groups: PermissionGroup[] = [];
+  const users: PermissionUser[] = [];
+  Array.from(Array(20).keys()).forEach((i) => {
+    groups.push(mockPermissionGroup({ name: `Group ${i}` }));
+    users.push(mockPermissionUser({ login: `user-${i}` }));
+  });
+  serviceMock.setGroups(groups);
+  serviceMock.setUsers(users);
 
-  return {
-    ...ui,
-    async appLoaded() {
-      await waitFor(() => {
-        expect(ui.loading.query()).not.toBeInTheDocument();
-      });
-    },
-    async togglePermission(target: string, permission: Permissions) {
-      await user.click(ui.permissionCheckbox(target, permission).get());
-    },
-    async turnProjectPrivate() {
-      await user.click(ui.visibilityRadio(Visibility.Private).get());
-    },
-    async turnProjectPublic() {
-      await user.click(ui.visibilityRadio(Visibility.Public).get());
-    },
-    async confirmTurnProjectPublic() {
-      await user.click(ui.confirmPublicBtn.get());
-    },
-    async openTemplateModal() {
-      await user.click(ui.openModalBtn.get());
-    },
-    async closeTemplateModal() {
-      await user.click(ui.closeModalBtn.get());
-    },
-    async chooseTemplate(name: string) {
-      await selectEvent.select(ui.templateSelect.get(), [name]);
-      await user.click(ui.confirmApplyTemplateBtn.get());
-    },
-    async toggleFilterByPermission(permission: Permissions) {
-      await user.click(ui.tableHeaderFilter(permission).get());
-    },
-    async showOnlyUsers() {
-      await user.click(ui.onlyUsersBtn.get());
-    },
-    async showOnlyGroups() {
-      await user.click(ui.onlyGroupsBtn.get());
-    },
-    async showAll() {
-      await user.click(ui.showAllBtn.get());
-    },
-    async searchFor(name: string) {
-      await user.type(ui.searchInput.get(), name);
-    },
-    async clearSearch() {
-      await user.clear(ui.searchInput.get());
-    },
-  };
-}
+  const user = userEvent.setup();
+  const ui = getPageObject(user);
+  renderPermissionsProjectApp();
+  await ui.appLoaded();
+
+  expect(screen.getAllByRole('row').length).toBe(11);
+  await ui.clickLoadMore();
+  expect(screen.getAllByRole('row').length).toBe(21);
+});
 
 function renderPermissionsProjectApp(override?: Partial<Component>) {
-  function App({ component }: { component: Component }) {
-    const [realComponent, setRealComponent] = React.useState(component);
-    return (
-      <PermissionsProjectApp
-        component={realComponent}
-        onComponentChange={(changes: Partial<Component>) => {
-          setRealComponent({ ...realComponent, ...changes });
-        }}
-      />
-    );
-  }
-
-  return renderApp(
-    '/',
-    <App
-      component={mockComponent({
+  return renderAppWithComponentContext(
+    'project_roles',
+    projectPermissionsRoutes,
+    {},
+    {
+      component: mockComponent({
         visibility: Visibility.Public,
         configuration: {
           canUpdateProjectVisibilityToPrivate: true,
           canApplyPermissionTemplate: true,
         },
         ...override,
-      })}
-    />
+      }),
+    }
   );
 }
