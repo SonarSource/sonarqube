@@ -6,6 +6,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "lib": ["dom", "dom.iterable", "es2022"],
+    "jsx": "react-jsx",
     "module": "commonjs",
     "noEmit": true,
     "paths": {
@@ -13,9 +14,10 @@
       "~helpers/*": ["src/helpers/*"],
       "~icons/*": ["src/icons/*"],
       "~types/*": ["src/types/*"],
-      "~utils/*": ["src/utils/*"],
+      "~utils/*": ["src/utils/*"]
     },
     "resolveJsonModule": true,
-    "skipLibCheck": true,
-  }
+    "skipLibCheck": true
+  },
+  "include": ["./src/**/*"]
 }

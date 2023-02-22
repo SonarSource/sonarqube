@@ -17,40 +17,71 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { SuggestionLink } from '../../../types/types';
-import EmbedDocsPopup from '../EmbedDocsPopup';
-import { SuggestionsContext } from '../SuggestionsContext';
+import EmbedDocsPopupHelper from '../EmbedDocsPopupHelper';
+import Suggestions from '../Suggestions';
+import SuggestionsProvider from '../SuggestionsProvider';
 
-it('should render with no suggestions', () => {
+it('should render with no suggestions', async () => {
+  const user = userEvent.setup();
   renderEmbedDocsPopup();
 
-  expect(screen.queryByText(suggestions[0].text)).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'help' }));
+
+  expect(screen.getByText('docs.documentation')).toBeInTheDocument();
+  expect(screen.queryByText('docs.suggestion')).not.toBeInTheDocument();
+
   expect(screen.getByText('docs.documentation')).toHaveFocus();
 });
 
-it('should render with suggestions', () => {
-  renderEmbedDocsPopup(suggestions);
+it('should be able to render with suggestions and remove them', async () => {
+  const user = userEvent.setup();
+  renderEmbedDocsPopup();
 
-  suggestions.forEach((suggestion) => {
-    expect(screen.getByText(suggestion.text)).toBeInTheDocument();
-  });
-  expect(screen.getByText(suggestions[0].text)).toHaveFocus();
+  await user.click(screen.getByRole('button', { name: 'help' }));
+  await user.click(screen.getByRole('button', { name: 'add.suggestion' }));
+
+  await user.click(screen.getByRole('button', { name: 'help' }));
+
+  expect(screen.getByText('docs.suggestion')).toBeInTheDocument();
+  expect(screen.getByText('About Background Tasks')).toBeInTheDocument();
+
+  expect(screen.getByText('About Background Tasks')).toHaveFocus();
+
+  await user.click(screen.getByRole('button', { name: 'remove.suggestion' }));
+  await user.click(screen.getByRole('button', { name: 'help' }));
+  expect(screen.queryByText('docs.suggestion')).not.toBeInTheDocument();
+
+  expect(screen.getByText('docs.documentation')).toHaveFocus();
 });
 
-const suggestions = [
-  { link: '/docs/awesome-doc', text: 'mindblowing' },
-  { link: '/docs/whocares', text: 'boring' },
-];
+function renderEmbedDocsPopup() {
+  function Test() {
+    const [suggestions, setSuggestions] = React.useState<string[]>(['account']);
 
-function renderEmbedDocsPopup(suggestions: SuggestionLink[] = []) {
-  return renderComponent(
-    <SuggestionsContext.Provider
-      value={{ addSuggestions: jest.fn(), removeSuggestions: jest.fn(), suggestions }}
-    >
-      <EmbedDocsPopup onClose={jest.fn()} />
-    </SuggestionsContext.Provider>
-  );
+    const addSuggestion = () => {
+      setSuggestions([...suggestions, 'background_tasks']);
+    };
+
+    return (
+      <SuggestionsProvider>
+        <button onClick={addSuggestion} type="button">
+          add.suggestion
+        </button>
+        <button onClick={() => setSuggestions([])} type="button">
+          remove.suggestion
+        </button>
+        <EmbedDocsPopupHelper />
+        {suggestions.map((suggestion) => (
+          <Suggestions key={suggestion} suggestions={suggestion} />
+        ))}
+      </SuggestionsProvider>
+    );
+  }
+
+  return renderComponent(<Test />);
 }

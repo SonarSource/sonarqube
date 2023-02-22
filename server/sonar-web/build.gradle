@@ -31,7 +31,7 @@ task yarn_run(type: Exec) {
   ['config', 'public', 'scripts', 'src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
-  ['package.json', 'tsconfig.json', 'yarn.lock'].each {
+  ['package.json', 'tsconfig.json', 'yarn.lock', 'tailwind.config.js', 'tailwind.base.config.js'].each {
     inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
   outputs.dir(webappDir)

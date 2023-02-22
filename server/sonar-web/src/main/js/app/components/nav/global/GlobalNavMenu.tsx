@@ -18,19 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { MainMenu, MainMenuItem } from 'design-system';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import { isMySet } from '../../../../apps/issues/utils';
 import Link from '../../../../components/common/Link';
-import Dropdown from '../../../../components/controls/Dropdown';
-import DropdownIcon from '../../../../components/icons/DropdownIcon';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { AppState } from '../../../../types/appstate';
 import { ComponentQualifier } from '../../../../types/component';
-import { Extension } from '../../../../types/types';
 import { CurrentUser } from '../../../../types/users';
 import withAppStateContext from '../../app-state/withAppStateContext';
+import GlobalNavMore from './GlobalNavMore';
 
 interface Props {
   appState: AppState;
@@ -39,14 +38,15 @@ interface Props {
 }
 
 const ACTIVE_CLASS_NAME = 'active';
-export class GlobalNavMenu extends React.PureComponent<Props> {
+
+class GlobalNavMenu extends React.PureComponent<Props> {
   renderProjects() {
     const active =
       this.props.location.pathname.startsWith('/projects') &&
       this.props.location.pathname !== '/projects/create';
 
     return (
-      <li>
+      <MainMenuItem>
         <Link
           aria-current={active ? 'page' : undefined}
           className={classNames({ active })}
@@ -54,17 +54,17 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
         >
           {translate('projects.page')}
         </Link>
-      </li>
+      </MainMenuItem>
     );
   }
 
   renderPortfolios() {
     return (
-      <li>
+      <MainMenuItem>
         <NavLink className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')} to="/portfolios">
           {translate('portfolios.page')}
         </NavLink>
-      </li>
+      </MainMenuItem>
     );
   }
 
@@ -76,50 +76,50 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
     ).toString();
 
     return (
-      <li>
+      <MainMenuItem>
         <NavLink
           className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
           to={{ pathname: '/issues', search }}
         >
           {translate('issues.page')}
         </NavLink>
-      </li>
+      </MainMenuItem>
     );
   }
 
   renderRulesLink() {
     return (
-      <li>
+      <MainMenuItem>
         <NavLink
           className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
           to="/coding_rules"
         >
           {translate('coding_rules.page')}
         </NavLink>
-      </li>
+      </MainMenuItem>
     );
   }
 
   renderProfilesLink() {
     return (
-      <li>
+      <MainMenuItem>
         <NavLink className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')} to="/profiles">
           {translate('quality_profiles.page')}
         </NavLink>
-      </li>
+      </MainMenuItem>
     );
   }
 
   renderQualityGatesLink() {
     return (
-      <li>
+      <MainMenuItem>
         <NavLink
           className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
           to={getQualityGatesUrl()}
         >
           {translate('quality_gates.page')}
         </NavLink>
-      </li>
+      </MainMenuItem>
     );
   }
 
@@ -129,51 +129,14 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
     }
 
     return (
-      <li>
+      <MainMenuItem>
         <NavLink
           className={({ isActive }) => (isActive ? ACTIVE_CLASS_NAME : '')}
           to="/admin/settings"
         >
           {translate('layout.settings')}
         </NavLink>
-      </li>
-    );
-  }
-
-  renderGlobalPageLink = ({ key, name }: Extension) => {
-    return (
-      <li key={key}>
-        <Link to={`/extension/${key}`}>{name}</Link>
-      </li>
-    );
-  };
-
-  renderMore() {
-    const { globalPages = [] } = this.props.appState;
-    const withoutPortfolios = globalPages.filter((page) => page.key !== 'governance/portfolios');
-    if (withoutPortfolios.length === 0) {
-      return null;
-    }
-    return (
-      <Dropdown
-        overlay={<ul className="menu">{withoutPortfolios.map(this.renderGlobalPageLink)}</ul>}
-        tagName="li"
-      >
-        {({ onToggleClick, open }) => (
-          <a
-            aria-expanded={open}
-            aria-haspopup="menu"
-            role="button"
-            className={classNames('dropdown-toggle', { active: open })}
-            href="#"
-            id="global-navigation-more"
-            onClick={onToggleClick}
-          >
-            {translate('more')}
-            <DropdownIcon className="little-spacer-left text-middle" />
-          </a>
-        )}
-      </Dropdown>
+      </MainMenuItem>
     );
   }
 
@@ -184,7 +147,7 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
 
     return (
       <nav aria-label={translate('global')}>
-        <ul className="global-navbar-menu">
+        <MainMenu>
           {this.renderProjects()}
           {governanceInstalled && this.renderPortfolios()}
           {this.renderIssuesLink()}
@@ -192,8 +155,8 @@ export class GlobalNavMenu extends React.PureComponent<Props> {
           {this.renderProfilesLink()}
           {this.renderQualityGatesLink()}
           {this.renderAdministrationLink()}
-          {this.renderMore()}
-        </ul>
+          <GlobalNavMore />
+        </MainMenu>
       </nav>
     );
   }

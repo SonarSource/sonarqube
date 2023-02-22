@@ -18,4 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './DummyComponent';
+export * from './Avatar';
+export * from './buttons';
+export { default as DeferredSpinner } from './DeferredSpinner';
+export { default as Dropdown } from './Dropdown';
+export * from './DropdownMenu';
+export { default as DropdownToggler } from './DropdownToggler';
+export * from './GenericAvatar';
+export * from './icons';
+export { default as InputSearch } from './InputSearch';
+export * from './InteractiveIcon';
+export { default as Link } from './Link';
+export * from './MainAppBar';
+export * from './MainMenu';
+export { MainMenuItem } from './MainMenuItem';
+export * from './popups';
+export * from './SonarQubeLogo';
+export * from './Text';
+export { default as Tooltip } from './Tooltip';

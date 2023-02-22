@@ -20,13 +20,11 @@
 import * as React from 'react';
 import EmbedDocsPopupHelper from '../../../../components/embed-docs-modal/EmbedDocsPopupHelper';
 import { CurrentUser } from '../../../../types/users';
-import { sizes } from '../../../theme';
 import withCurrentUserContext from '../../current-user/withCurrentUserContext';
-import Search from '../../search/Search';
-import './GlobalNav.css';
-import GlobalNavBranding from './GlobalNavBranding';
+import GlobalSearch from '../../global-search/GlobalSearch';
 import GlobalNavMenu from './GlobalNavMenu';
-import GlobalNavUser from './GlobalNavUser';
+import { GlobalNavUser } from './GlobalNavUser';
+import MainSonarQubeBar from './MainSonarQubeBar';
 
 export interface GlobalNavProps {
   currentUser: CurrentUser;
@@ -36,21 +34,23 @@ export interface GlobalNavProps {
 export function GlobalNav(props: GlobalNavProps) {
   const { currentUser, location } = props;
   return (
-    <div style={{ height: sizes.globalNavHeight }}>
-      <div className="navbar global-navbar" id="global-navigation">
-        <div className="global-navbar-inner">
-          <GlobalNavBranding />
-
+    <MainSonarQubeBar>
+      <div className="sw-flex" id="global-navigation">
+        <div className="it__global-navbar-menu sw-flex sw-justify-start sw-items-center sw-flex-1">
           <GlobalNavMenu currentUser={currentUser} location={location} />
+          <div className="sw-px-8 sw-flex-1">
+            <GlobalSearch />
+          </div>
+        </div>
 
-          <div className="global-navbar-menu global-navbar-menu-right">
-            <EmbedDocsPopupHelper />
-            <Search />
-            <GlobalNavUser currentUser={currentUser} />
+        <div className="sw-flex sw-items-center sw-ml-2">
+          <EmbedDocsPopupHelper />
+          <div className="sw-ml-4">
+            <GlobalNavUser />
           </div>
         </div>
       </div>
-    </div>
+    </MainSonarQubeBar>
   );
 }
 

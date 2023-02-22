@@ -20,8 +20,8 @@
 import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockAppState, mockCurrentUser } from '../../../../../helpers/testMocks';
-import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { GlobalNavMenu } from '../GlobalNavMenu';
+import { renderApp } from '../../../../../helpers/testReactTestingUtils';
+import GlobalNavMenu from '../GlobalNavMenu';
 
 it('should work with extensions', () => {
   const appState = mockAppState({
@@ -56,8 +56,8 @@ function renderGlobalNavMenu({
   appState = mockAppState(),
   currentUser = mockCurrentUser(),
   location = { pathname: '' },
-}: Partial<GlobalNavMenu['props']>) {
-  renderComponent(
-    <GlobalNavMenu appState={appState} currentUser={currentUser} location={location} />
-  );
+}) {
+  renderApp('/', <GlobalNavMenu currentUser={currentUser} location={location} />, {
+    appState,
+  });
 }

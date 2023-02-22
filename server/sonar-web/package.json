@@ -10,6 +10,7 @@
   "dependencies": {
     "@emotion/react": "11.10.5",
     "@emotion/styled": "11.10.5",
+    "@primer/octicons-react": "17.11.1",
     "classnames": "2.3.2",
     "clipboard": "2.0.11",
     "core-js": "3.27.2",
@@ -97,7 +98,7 @@
     "postcss-custom-properties": "12.1.11",
     "prettier": "2.8.3",
     "react-select-event": "5.5.1",
-    "tailwindcss": "3.2.6",
+    "tailwindcss": "2.2.19",
     "testing-library-selector": "0.2.1",
     "turbo": "1.7.4",
     "typescript": "4.9.4",

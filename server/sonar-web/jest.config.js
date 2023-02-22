@@ -17,11 +17,17 @@ module.exports = {
     '<rootDir>/config/polyfills.ts',
     '<rootDir>/config/jest/SetupEnzyme.ts',
     '<rootDir>/config/jest/SetupTestEnvironment.ts',
+    '<rootDir>/config/jest/SetupTheme.js',
   ],
   setupFilesAfterEnv: ['<rootDir>/config/jest/SetupReactTestingLibrary.ts'],
   snapshotSerializers: ['enzyme-to-json/serializer', '@emotion/jest/serializer'],
   testEnvironment: 'jsdom',
-  testPathIgnorePatterns: ['<rootDir>/config', '<rootDir>/node_modules', '<rootDir>/scripts'],
+  testPathIgnorePatterns: [
+    '<rootDir>/config',
+    '<rootDir>/design-system',
+    '<rootDir>/node_modules',
+    '<rootDir>/scripts',
+  ],
   testRegex: '(/__tests__/.*|\\-test)\\.(ts|tsx|js)$',
   transform: {
     '^.+\\.(t|j)sx?$': [

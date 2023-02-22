@@ -36,7 +36,7 @@ const customProperties = getCustomProperties();
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve('src', 'components/index.ts'),
+      entry: resolve('src', 'index.ts'),
       name: 'MIUI',
       formats: ['es'],
       fileName: (_format) => `index.js`,
@@ -73,7 +73,7 @@ export default defineConfig({
       babel: babelConfig,
     }),
     dts({
-      include: ['src/components/'],
+      entryRoot: 'src',
     }),
   ],
 });
