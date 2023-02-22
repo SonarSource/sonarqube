@@ -99,6 +99,7 @@ public final class SqTables {
     "rule_repositories",
     "scanner_analysis_cache",
     "schema_migrations",
+    "scim_groups",
     "scim_users",
     "session_tokens",
     "snapshots",

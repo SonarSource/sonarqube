@@ -81,6 +81,7 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
+import org.sonar.db.scim.ScimGroupDao;
 import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.GroupDao;
@@ -174,6 +175,7 @@ public class DbClient {
   private final ProjectBadgeTokenDao projectBadgeTokenDao;
   private final ScannerAnalysisCacheDao scannerAnalysisCacheDao;
   private final ScimUserDao scimUserDao;
+  private final ScimGroupDao scimGroupDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -257,6 +259,7 @@ public class DbClient {
     applicationProjectsDao = getDao(map, ApplicationProjectsDao.class);
     scannerAnalysisCacheDao = getDao(map, ScannerAnalysisCacheDao.class);
     scimUserDao = getDao(map, ScimUserDao.class);
+    scimGroupDao = getDao(map, ScimGroupDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -568,4 +571,9 @@ public class DbClient {
   public ScimUserDao scimUserDao() {
     return scimUserDao;
   }
+
+  public ScimGroupDao scimGroupDao() {
+    return scimGroupDao;
+  }
 }
+

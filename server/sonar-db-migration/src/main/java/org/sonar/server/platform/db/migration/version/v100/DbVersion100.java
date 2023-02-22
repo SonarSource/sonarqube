@@ -51,6 +51,8 @@ public class DbVersion100 implements DbVersion {
       .add(10_0_007, "Drop column 'root_uuid' in the 'Components' table", DropRootUuidInComponents.class)
       .add(10_0_008, "Update value of 'user_local' in the 'users' table", UpdateUserLocalValueInUsers.class)
       .add(10_0_009, "Make column 'user_local' not nullable in the 'users' table", MakeColumnUserLocalNotNullableInUsers.class)
+      .add(10_0_010, "Create 'scim_groups' table", CreateScimGroupsTable.class)
+      .add(10_0_011, "Create unique index on scim_groups.group_uuid", CreateUniqueIndexForScimGroupsUuid.class)
     ;
   }
 }
