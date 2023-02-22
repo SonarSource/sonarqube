@@ -19,12 +19,12 @@
  */
 package org.sonar.db.ce;
 
-import java.util.Random;
 import org.junit.Test;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.db.ce.CeTaskMessageDto.MAX_MESSAGE_SIZE;
 
 public class CeTaskMessageDtoTest {
 
@@ -46,19 +46,18 @@ public class CeTaskMessageDtoTest {
 
   @Test
   public void setMessage_accept_argument_of_size_4000() {
-    String str = repeat("a", 4000);
+    String str = repeat("a", MAX_MESSAGE_SIZE);
     underTest.setMessage(str);
 
     assertThat(underTest.getMessage()).isEqualTo(str);
   }
 
   @Test
-  public void setMessage_fails_with_IAE_if_argument_has_size_bigger_then_4000() {
-    int size = 4000 + 1 + new Random().nextInt(100);
-    String str = repeat("a", size);
+  public void setMessage_truncates_the_message_if_argument_has_size_bigger_then_4000() {
+    String str = repeat("a", MAX_MESSAGE_SIZE) + "extra long tail!!!";
 
-    assertThatThrownBy(() -> underTest.setMessage(str))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("message is too long: " + size);
+    underTest.setMessage(str);
+
+    assertThat(underTest.getMessage()).isEqualTo(repeat("a", MAX_MESSAGE_SIZE - 3) + "...");
   }
 }

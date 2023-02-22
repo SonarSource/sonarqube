@@ -19,9 +19,14 @@
  */
 package org.sonar.db.ce;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.abbreviate;
 
 public class CeTaskMessageDto {
+  @VisibleForTesting
+  static final int MAX_MESSAGE_SIZE = 4000;
   /**
    * Unique identifier of each message. Not null
    */
@@ -67,8 +72,7 @@ public class CeTaskMessageDto {
 
   public CeTaskMessageDto setMessage(String message) {
     checkArgument(message != null && !message.isEmpty(), "message can't be null nor empty");
-    checkArgument(message.length() <= 4000, "message is too long: %s", message.length());
-    this.message = message;
+    this.message = abbreviate(message, MAX_MESSAGE_SIZE);
     return this;
   }
 
