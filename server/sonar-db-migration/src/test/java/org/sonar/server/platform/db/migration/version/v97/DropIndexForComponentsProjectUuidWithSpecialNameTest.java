@@ -29,7 +29,7 @@ import static org.sonar.db.CoreDbTester.createForSchema;
 public class DropIndexForComponentsProjectUuidWithSpecialNameTest {
 
   private static final String TABLE = "components";
-  private static final String INDEX = "idx_1234_projects_project_uuid";
+  private static final String INDEX = "idx_123456789123456789_projects_project_uuid";
 
   @Rule
   public final CoreDbTester db = createForSchema(DropIndexForComponentsProjectUuidWithSpecialNameTest.class, "schema.sql");
