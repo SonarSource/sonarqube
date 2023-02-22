@@ -546,7 +546,7 @@ promote_task:
   <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   depends_on:
     - build
-    - sq_analysis
+#    - sq_analysis
     - qa
     - qa_saml
     - qa_ldap
