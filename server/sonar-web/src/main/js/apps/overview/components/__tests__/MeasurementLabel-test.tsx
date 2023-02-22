@@ -17,78 +17,91 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { MetricKey } from '../../../../types/metrics';
 import { MeasurementType } from '../../utils';
 import MeasurementLabel from '../MeasurementLabel';
 
-it('should render correctly for coverage', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(
-    shallowRender({
-      measures: [
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.coverage }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.lines_to_cover }) }),
-      ],
-    })
-  ).toMatchSnapshot();
-  expect(
-    shallowRender({
-      measures: [
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_coverage }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_lines_to_cover }) }),
-      ],
-      useDiffMetric: true,
-    })
-  ).toMatchSnapshot();
+it('should render correctly for coverage', async () => {
+  renderMeasurementLabel();
+  expect(await screen.findByText('metric.coverage.name')).toBeInTheDocument();
+
+  renderMeasurementLabel({
+    measures: [
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.coverage }) }),
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.lines_to_cover }) }),
+    ],
+  });
+  expect(await screen.findByText('metric.coverage.name')).toBeInTheDocument();
+  expect(await screen.findByText('overview.coverage_on_X_lines')).toBeInTheDocument();
+
+  renderMeasurementLabel({
+    measures: [
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_coverage }) }),
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_lines_to_cover }) }),
+    ],
+    useDiffMetric: true,
+  });
+  expect(screen.getByRole('link', { name: /.*new_coverage.*/ })).toBeInTheDocument();
+  expect(await screen.findByText('overview.coverage_on_X_lines')).toBeInTheDocument();
+  expect(await screen.findByText('overview.coverage_on_X_new_lines')).toBeInTheDocument();
 });
 
-it('should render correctly for duplications', () => {
+it('should render correctly for duplications', async () => {
+  renderMeasurementLabel({
+    measures: [
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.duplicated_lines_density }) }),
+    ],
+    type: MeasurementType.Duplication,
+  });
   expect(
-    shallowRender({
-      measures: [
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.duplicated_lines_density }) }),
-      ],
-      type: MeasurementType.Duplication,
+    screen.getByRole('link', {
+      name: 'overview.see_more_details_on_x_of_y.1.0%.metric.duplicated_lines_density.name',
     })
-  ).toMatchSnapshot();
+  ).toBeInTheDocument();
+  expect(await screen.findByText('metric.duplicated_lines_density.short_name')).toBeInTheDocument();
+
+  renderMeasurementLabel({
+    measures: [
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.duplicated_lines_density }) }),
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.ncloc }) }),
+    ],
+    type: MeasurementType.Duplication,
+  });
+  expect(await screen.findByText('metric.duplicated_lines_density.short_name')).toBeInTheDocument();
+  expect(await screen.findByText('overview.duplications_on_X_lines')).toBeInTheDocument();
+
+  renderMeasurementLabel({
+    measures: [
+      mockMeasureEnhanced({
+        metric: mockMetric({ key: MetricKey.new_duplicated_lines_density }),
+      }),
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_lines }) }),
+    ],
+    type: MeasurementType.Duplication,
+    useDiffMetric: true,
+  });
+
   expect(
-    shallowRender({
-      measures: [
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.duplicated_lines_density }) }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.ncloc }) }),
-      ],
-      type: MeasurementType.Duplication,
+    screen.getByRole('link', {
+      name: 'overview.see_more_details_on_x_of_y.1.0%.metric.new_duplicated_lines_density.name',
     })
-  ).toMatchSnapshot();
-  expect(
-    shallowRender({
-      measures: [
-        mockMeasureEnhanced({
-          metric: mockMetric({ key: MetricKey.new_duplicated_lines_density }),
-        }),
-        mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_lines }) }),
-      ],
-      type: MeasurementType.Duplication,
-      useDiffMetric: true,
-    })
-  ).toMatchSnapshot();
+  ).toBeInTheDocument();
+  expect(await screen.findByText('overview.duplications_on_X_new_lines')).toBeInTheDocument();
 });
 
-it('should render correctly with no value', () => {
-  expect(shallowRender({ measures: [] })).toMatchSnapshot();
+it('should render correctly with no value', async () => {
+  renderMeasurementLabel({ measures: [] });
+  expect(await screen.findByText('metric.coverage.name')).toBeInTheDocument();
 });
 
-it('should render correctly when centered', () => {
-  expect(shallowRender({ centered: true })).toMatchSnapshot();
-});
-
-function shallowRender(props: Partial<MeasurementLabel['props']> = {}) {
-  return shallow(
+function renderMeasurementLabel(props: Partial<MeasurementLabel['props']> = {}) {
+  return renderComponent(
     <MeasurementLabel
       branchLike={mockPullRequest()}
       component={mockComponent()}

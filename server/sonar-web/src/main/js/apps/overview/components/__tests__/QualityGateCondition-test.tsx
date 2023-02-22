@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockQualityGateStatusConditionEnhanced } from '../../../../helpers/mocks/quality-gates';
 import { mockMetric } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { MetricKey } from '../../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../../types/quality-gates';
 import QualityGateCondition from '../QualityGateCondition';
@@ -36,17 +37,32 @@ it.each([
   [quickMock(MetricKey.new_maintainability_rating, 'RATING', true)],
   [quickMock(MetricKey.security_hotspots_reviewed)],
   [quickMock(MetricKey.new_security_hotspots_reviewed, 'RATING', true)],
-])('should render correclty', (condition) => {
-  expect(shallowRender({ condition })).toMatchSnapshot();
+])('should render correclty', async (condition) => {
+  renderQualityGateCondition({ condition });
+  expect(
+    await screen.findByText(`metric.${condition.measure.metric.name}.name`)
+  ).toBeInTheDocument();
+
+  expect(
+    await screen.findByText(`quality_gates.operator.${condition.op}`, { exact: false })
+  ).toBeInTheDocument();
+  // if (condition.measure.metric.type === 'RATING') {
+  //   expect(await screen.findByText('.rating', { exact: false })).toBeInTheDocument();
+  // }
 });
 
-it('should work with branch', () => {
+it('should work with branch', async () => {
   const condition = quickMock(MetricKey.new_maintainability_rating);
-  expect(shallowRender({ branchLike: mockBranch(), condition })).toMatchSnapshot();
+  renderQualityGateCondition({ branchLike: mockBranch(), condition });
+
+  expect(await screen.findByText('metric.new_maintainability_rating.name')).toBeInTheDocument();
+  expect(
+    await screen.findByText('quality_gates.operator.GT.rating', { exact: false })
+  ).toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<QualityGateCondition['props']>) {
-  return shallow(
+function renderQualityGateCondition(props: Partial<QualityGateCondition['props']>) {
+  return renderComponent(
     <QualityGateCondition
       component={{ key: 'abcd-key' }}
       condition={mockQualityGateStatusConditionEnhanced()}

@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
@@ -45,7 +44,9 @@ export function EmptyOverview(props: EmptyOverviewProps) {
   if (component.qualifier === ComponentQualifier.Application) {
     return (
       <div className="page page-limited">
-        <Alert variant="warning">{translate('provisioning.no_analysis.application')}</Alert>
+        <Alert variant="warning" aria-label={translate('provisioning.no_analysis.application')}>
+          {translate('provisioning.no_analysis.application')}
+        </Alert>
       </div>
     );
   } else if (!isBranch(branchLike)) {
@@ -62,25 +63,15 @@ export function EmptyOverview(props: EmptyOverviewProps) {
 
   let warning;
   if (isLoggedIn(currentUser) && showWarning && hasBadBranchConfig) {
-    warning = (
-      <FormattedMessage
-        defaultMessage={translate('provisioning.no_analysis_on_main_branch.bad_configuration')}
-        id="provisioning.no_analysis_on_main_branch.bad_configuration"
-        values={{
-          branchName: getBranchLikeDisplayName(branchLike),
-          branchType: translate('branches.main_branch'),
-        }}
-      />
+    warning = translateWithParameters(
+      'provisioning.no_analysis_on_main_branch.bad_configuration',
+      getBranchLikeDisplayName(branchLike),
+      translate('branches.main_branch')
     );
   } else {
-    warning = (
-      <FormattedMessage
-        defaultMessage={translate('provisioning.no_analysis_on_main_branch')}
-        id="provisioning.no_analysis_on_main_branch"
-        values={{
-          branchName: getBranchLikeDisplayName(branchLike),
-        }}
-      />
+    warning = translateWithParameters(
+      'provisioning.no_analysis_on_main_branch',
+      getBranchLikeDisplayName(branchLike)
     );
   }
 
@@ -88,7 +79,11 @@ export function EmptyOverview(props: EmptyOverviewProps) {
     <div className="page page-limited">
       {isLoggedIn(currentUser) ? (
         <>
-          {showWarning && <Alert variant="warning">{warning}</Alert>}
+          {showWarning && (
+            <Alert variant="warning" aria-label={warning}>
+              {warning}
+            </Alert>
+          )}
           {showTutorial && (
             <TutorialSelection
               component={component}
@@ -99,7 +94,9 @@ export function EmptyOverview(props: EmptyOverviewProps) {
           )}
         </>
       ) : (
-        <Alert variant="warning">{warning}</Alert>
+        <Alert variant="warning" aria-label={warning}>
+          {warning}
+        </Alert>
       )}
     </div>
   );

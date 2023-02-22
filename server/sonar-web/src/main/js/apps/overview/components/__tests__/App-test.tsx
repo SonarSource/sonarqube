@@ -17,36 +17,66 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
-import BranchOverview from '../../branches/BranchOverview';
-import PullRequestOverview from '../../pullRequests/PullRequestOverview';
+import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
+import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockCurrentUser } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { ComponentQualifier } from '../../../../types/component';
 import { App } from '../App';
 
-const component = {
-  key: 'foo',
-  analysisDate: '2016-01-01',
-  breadcrumbs: [],
-  name: 'Foo',
-  qualifier: 'TRK',
-  version: '0.0.1',
-};
+it('should render Empty Overview for Application with no analysis', async () => {
+  renderApp({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
 
-it('should render BranchOverview', () => {
-  expect(getWrapper().find(BranchOverview).exists()).toBe(true);
-  expect(getWrapper({ branchLike: mockPullRequest() }).find(PullRequestOverview).exists()).toBe(
-    true
-  );
+  expect(
+    await screen.findByRole('alert', { name: 'provisioning.no_analysis.application' })
+  ).toBeInTheDocument();
 });
 
-function getWrapper(props = {}) {
-  return shallow(
-    <App
-      hasFeature={jest.fn().mockReturnValue(false)}
-      branchLikes={[]}
-      component={component}
-      {...props}
-    />
+it('should render Empty Overview on main branch with no analysis', async () => {
+  renderApp({}, mockCurrentUser());
+
+  expect(
+    await screen.findByRole('alert', { name: 'provisioning.no_analysis_on_main_branch.master' })
+  ).toBeInTheDocument();
+});
+
+it('should render Empty Overview on main branch with multiple branches with bad configuration', async () => {
+  renderApp({ branchLikes: [mockBranch(), mockBranch()] });
+
+  expect(
+    await screen.findByRole('alert', {
+      name: 'provisioning.no_analysis_on_main_branch.bad_configuration.master.branches.main_branch',
+    })
+  ).toBeInTheDocument();
+});
+
+it('should not render for portfolios and subportfolios', () => {
+  const rtl = renderApp({
+    component: mockComponent({ qualifier: ComponentQualifier.Portfolio }),
+  });
+  expect(rtl.container).toBeEmptyDOMElement();
+
+  rtl.unmount();
+
+  renderApp({
+    component: mockComponent({ qualifier: ComponentQualifier.Portfolio }),
+  });
+  expect(rtl.container).toBeEmptyDOMElement();
+});
+
+function renderApp(props = {}, userProps = {}) {
+  return renderComponent(
+    <CurrentUserContextProvider currentUser={mockCurrentUser({ isLoggedIn: true, ...userProps })}>
+      <App
+        hasFeature={jest.fn().mockReturnValue(false)}
+        branchLikes={[]}
+        branchLike={mockMainBranch()}
+        component={mockComponent()}
+        {...props}
+      />
+    </CurrentUserContextProvider>
   );
 }

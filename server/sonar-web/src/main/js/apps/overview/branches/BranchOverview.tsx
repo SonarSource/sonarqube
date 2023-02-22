@@ -33,7 +33,6 @@ import {
   getBranchLikeDisplayName,
   getBranchLikeQuery,
   isMainBranch,
-  isSameBranchLike,
 } from '../../../helpers/branch-like';
 import { parseDate, toNotSoISOString } from '../../../helpers/dates';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
@@ -96,16 +95,6 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     this.mounted = true;
     this.loadStatus();
     this.loadHistory();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      this.props.component.key !== prevProps.component.key ||
-      !isSameBranchLike(this.props.branch, prevProps.branch)
-    ) {
-      this.loadStatus();
-      this.loadHistory();
-    }
   }
 
   componentWillUnmount() {

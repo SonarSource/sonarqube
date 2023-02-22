@@ -31,9 +31,8 @@ export interface LeakPeriodInfoProps {
 export function LeakPeriodInfo({ leakPeriod }: LeakPeriodInfoProps) {
   if (isApplicationPeriod(leakPeriod)) {
     return <ApplicationLeakPeriodInfo leakPeriod={leakPeriod} />;
-  } else {
-    return <ProjectLeakPeriodInfo leakPeriod={leakPeriod} />;
   }
+  return <ProjectLeakPeriodInfo leakPeriod={leakPeriod} />;
 }
 
 export default React.memo(LeakPeriodInfo);

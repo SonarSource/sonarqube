@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { screen } from '@testing-library/react';
 import { differenceInDays } from 'date-fns';
-import { shallow } from 'enzyme';
 import * as React from 'react';
 import { IntlShape } from 'react-intl';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { Period } from '../../../../types/types';
 import { LeakPeriodLegend } from '../LeakPeriodLegend';
 
@@ -29,40 +30,90 @@ jest.mock('date-fns', () => {
   return { ...actual, differenceInDays: jest.fn().mockReturnValue(10) };
 });
 
-it('10 days', () => {
-  expect(getWrapper({ mode: 'days', parameter: '10' })).toMatchSnapshot();
-});
+it('10 days', async () => {
+  renderLeakPeriodLegend({ mode: 'days', parameter: '10' });
 
-it('date', () => {
-  expect(getWrapper({ mode: 'date', parameter: '2013-01-01' })).toMatchSnapshot();
-});
-
-it('version', () => {
-  expect(findLegend(getWrapper({ mode: 'version', parameter: '0.1' }))).toMatchSnapshot();
-});
-
-it('previous_version', () => {
-  expect(findLegend(getWrapper({ mode: 'previous_version' }))).toMatchSnapshot();
-});
-
-it('previous_analysis', () => {
-  expect(findLegend(getWrapper({ mode: 'previous_analysis' }))).toMatchSnapshot();
-});
-
-it('manual_baseline', () => {
-  expect(findLegend(getWrapper({ mode: 'manual_baseline' }))).toMatchSnapshot();
-  expect(findLegend(getWrapper({ mode: 'manual_baseline', parameter: '1.1.2' }))).toMatchSnapshot();
-});
-
-it('should render a more precise date', () => {
-  (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
   expect(
-    getWrapper({ date: '2018-08-17T00:00:00+0200', mode: 'previous_version' })
-  ).toMatchSnapshot();
+    await screen.findByText('overview.new_code_period_x.overview.period.days.10')
+  ).toBeInTheDocument();
 });
 
-function getWrapper(period: Partial<Period> = {}) {
-  return shallow(
+it('date', async () => {
+  renderLeakPeriodLegend({ mode: 'date', parameter: '2013-01-01' });
+
+  expect(
+    await screen.findByText('overview.new_code_period_x.overview.period.date.formatted.2013-01-01')
+  ).toBeInTheDocument();
+  expect(await screen.findByText('overview.started_x.9 years ago')).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_on_x\..*/)).toBeInTheDocument();
+});
+
+it('version', async () => {
+  renderLeakPeriodLegend({ mode: 'version', parameter: '0.1' });
+
+  expect(
+    await screen.findByText('overview.new_code_period_x.overview.period.version.0.1')
+  ).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_x\..*/)).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_on_x\..*/)).toBeInTheDocument();
+});
+
+it('previous_version', async () => {
+  renderLeakPeriodLegend({ mode: 'previous_version' });
+
+  expect(
+    await screen.findByText('overview.new_code_period_x.overview.period.previous_version_only_date')
+  ).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_x\..*/)).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_on_x\..*/)).toBeInTheDocument();
+});
+
+it('previous_analysis', async () => {
+  renderLeakPeriodLegend({ mode: 'previous_analysis' });
+
+  expect(
+    await screen.findByText('overview.new_code_period_x.overview.period.previous_analysis.')
+  ).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.previous_analysis_x\..*/)).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.previous_analysis_x\..*/)).toBeInTheDocument();
+});
+
+it('manual_baseline', async () => {
+  const rtl = renderLeakPeriodLegend({ mode: 'manual_baseline' });
+
+  expect(
+    await screen.findByText(
+      /overview\.new_code_period_x\.overview\.period\.manual_baseline\.formattedTime\..*/
+    )
+  ).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_x\..*/)).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_on_x\..*/)).toBeInTheDocument();
+
+  rtl.unmount();
+  renderLeakPeriodLegend({ mode: 'manual_baseline', parameter: '1.1.2' });
+
+  expect(
+    await screen.findByText('overview.new_code_period_x.overview.period.manual_baseline.1.1.2')
+  ).toBeInTheDocument();
+  expect(
+    await screen.findByText('overview.new_code_period_x.overview.period.manual_baseline.1.1.2')
+  ).toBeInTheDocument();
+});
+
+it('should render a more precise date', async () => {
+  (differenceInDays as jest.Mock<any>).mockReturnValueOnce(0);
+
+  renderLeakPeriodLegend({ date: '2018-08-17T00:00:00+0200', mode: 'previous_version' });
+
+  expect(
+    await screen.findByText('overview.new_code_period_x.overview.period.previous_version_only_date')
+  ).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_x\..*/)).toBeInTheDocument();
+  expect(await screen.findByText(/overview\.started_on_x\..*/)).toBeInTheDocument();
+});
+
+function renderLeakPeriodLegend(period: Partial<Period> = {}) {
+  return renderComponent(
     <LeakPeriodLegend
       intl={
         {
@@ -78,8 +129,4 @@ function getWrapper(period: Partial<Period> = {}) {
       }}
     />
   );
-}
-
-function findLegend(wrapper: any) {
-  return wrapper.find('.overview-legend');
 }

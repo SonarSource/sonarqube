@@ -33,7 +33,7 @@ import BranchOverview from '../branches/BranchOverview';
 import PullRequestOverview from '../pullRequests/PullRequestOverview';
 import EmptyOverview from './EmptyOverview';
 
-interface Props extends WithAvailableFeaturesProps {
+interface AppProps extends WithAvailableFeaturesProps {
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
   component: Component;
@@ -42,49 +42,43 @@ interface Props extends WithAvailableFeaturesProps {
   projectBinding?: ProjectAlmBindingResponse;
 }
 
-export class App extends React.PureComponent<Props> {
-  isPortfolio = () => {
-    return isPortfolioLike(this.props.component.qualifier);
-  };
+export function App(props: AppProps) {
+  const { branchLike, branchLikes, component, projectBinding, isPending, isInProgress } = props;
+  const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
-  render() {
-    const { branchLike, branchLikes, component, projectBinding } = this.props;
-    const branchSupportEnabled = this.props.hasFeature(Feature.BranchSupport);
-
-    if (this.isPortfolio()) {
-      return null;
-    }
-
-    return isPullRequest(branchLike) ? (
-      <main>
-        <Suggestions suggestions="pull_requests" />
-        <PullRequestOverview branchLike={branchLike} component={component} />
-      </main>
-    ) : (
-      <main>
-        <Suggestions suggestions="overview" />
-
-        {!component.analysisDate && (
-          <EmptyOverview
-            branchLike={branchLike}
-            branchLikes={branchLikes}
-            component={component}
-            hasAnalyses={this.props.isPending || this.props.isInProgress}
-            projectBinding={projectBinding}
-          />
-        )}
-
-        {component.analysisDate && (
-          <BranchOverview
-            branch={branchLike}
-            branchesEnabled={branchSupportEnabled}
-            component={component}
-            projectBinding={projectBinding}
-          />
-        )}
-      </main>
-    );
+  if (isPortfolioLike(component.qualifier)) {
+    return null;
   }
+
+  return isPullRequest(branchLike) ? (
+    <main>
+      <Suggestions suggestions="pull_requests" />
+      <PullRequestOverview branchLike={branchLike} component={component} />
+    </main>
+  ) : (
+    <main>
+      <Suggestions suggestions="overview" />
+
+      {!component.analysisDate && (
+        <EmptyOverview
+          branchLike={branchLike}
+          branchLikes={branchLikes}
+          component={component}
+          hasAnalyses={isPending || isInProgress}
+          projectBinding={projectBinding}
+        />
+      )}
+
+      {component.analysisDate && (
+        <BranchOverview
+          branch={branchLike}
+          branchesEnabled={branchSupportEnabled}
+          component={component}
+          projectBinding={projectBinding}
+        />
+      )}
+    </main>
+  );
 }
 
 export default withComponentContext(withAvailableFeatures(App));

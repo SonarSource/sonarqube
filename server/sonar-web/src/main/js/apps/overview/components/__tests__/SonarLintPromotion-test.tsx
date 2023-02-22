@@ -17,25 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockQualityGateStatusCondition } from '../../../../helpers/mocks/quality-gates';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { MetricKey } from '../../../../types/metrics';
 import { SonarLintPromotion, SonarLintPromotionProps } from '../SonarLintPromotion';
 
 it('should render correctly', () => {
-  expect(shallowRender().type()).toBeNull();
+  renderSonarLintPromotion();
   expect(
-    shallowRender({ currentUser: mockCurrentUser({ usingSonarLintConnectedMode: true }) }).type()
-  ).toBeNull();
+    screen.queryByText('overview.fix_failed_conditions_with_sonarlint')
+  ).not.toBeInTheDocument();
+
+  renderSonarLintPromotion({ currentUser: mockCurrentUser({ usingSonarLintConnectedMode: true }) });
   expect(
-    shallowRender({
-      qgConditions: [
-        mockQualityGateStatusCondition({ metric: MetricKey.new_bugs, level: 'ERROR' }),
-      ],
-    })
-  ).toMatchSnapshot('has failed condition');
+    screen.queryByText('overview.fix_failed_conditions_with_sonarlint')
+  ).not.toBeInTheDocument();
 });
 
 it.each(
@@ -53,13 +52,16 @@ it.each(
     MetricKey.new_maintainability_rating,
     MetricKey.new_reliability_rating,
   ].map(Array.of)
-)('should show message for %s', (metric) => {
-  const wrapper = shallowRender({
+)('should show message for %s', async (metric) => {
+  renderSonarLintPromotion({
     qgConditions: [mockQualityGateStatusCondition({ metric: metric as string })],
   });
-  expect(wrapper.type()).not.toBeNull();
+
+  expect(
+    await screen.findByText('overview.fix_failed_conditions_with_sonarlint')
+  ).toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<SonarLintPromotionProps> = {}) {
-  return shallow(<SonarLintPromotion currentUser={mockCurrentUser()} {...props} />);
+function renderSonarLintPromotion(props: Partial<SonarLintPromotionProps> = {}) {
+  return renderComponent(<SonarLintPromotion currentUser={mockCurrentUser()} {...props} />);
 }
