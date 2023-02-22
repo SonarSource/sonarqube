@@ -22,7 +22,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import selectEvent from 'react-select-event';
-import { byRole, byTestId, byText } from 'testing-library-selector';
+import { byDisplayValue, byRole, byTestId, byText } from 'testing-library-selector';
 import SecurityHotspotServiceMock from '../../../api/mocks/SecurityHotspotServiceMock';
 import { getSecurityHotspots, setSecurityHotspotStatus } from '../../../api/security-hotspots';
 import { searchUsers } from '../../../api/users';
@@ -60,6 +60,11 @@ const ui = {
   hotspotTitle: (name: string | RegExp) => byRole('heading', { name }),
   hotspotStatus: byRole('heading', { name: 'status: hotspots.status_option.FIXED' }),
   hotpostListTitle: byRole('heading', { name: 'hotspots.list_title.TO_REVIEW.2' }),
+  hotspotCommentBox: byRole('textbox', { name: 'hotspots.comment.field' }),
+  commentSubmitButton: byRole('button', { name: 'hotspots.comment.submit' }),
+  commentEditButton: byRole('button', { name: 'issue.comment.edit' }),
+  commentDeleteButton: byRole('button', { name: 'issue.comment.delete' }),
+  textboxWithText: (value: string) => byDisplayValue(value),
   activeAssignee: byTestId('assignee-name'),
   successGlobalMessage: byRole('status'),
   currentUserSelectionItem: byText('foo'),
@@ -175,6 +180,12 @@ it('should be able to change the status of a hotspot', async () => {
   expect(ui.hotspotStatus.get()).toBeInTheDocument();
 });
 
+it('should not be able to change the status if does not have edit permissions', async () => {
+  handler.setHotspotChangeStatusPermission(false);
+  renderSecurityHotspotsApp();
+  expect(await ui.selectStatus.find()).toBeDisabled();
+});
+
 it('should remember the comment when toggling change status panel for the same security hotspot', async () => {
   const user = userEvent.setup();
   renderSecurityHotspotsApp();
@@ -195,6 +206,40 @@ it('should remember the comment when toggling change status panel for the same s
   await user.click(ui.selectStatusButton.get());
 
   expect(await screen.findByText(comment)).toBeInTheDocument();
+});
+
+it('should be able to add, edit and remove own comments', async () => {
+  const uiComment = {
+    saveButton: byRole('button', { name: 'save' }),
+    deleteButton: byRole('button', { name: 'delete' }),
+  };
+  const user = userEvent.setup();
+  const comment = 'This is a comment from john doe';
+  renderSecurityHotspotsApp();
+
+  const commentSection = await ui.hotspotCommentBox.find();
+  const submitButton = ui.commentSubmitButton.get();
+
+  // Add a new comment
+  await user.click(commentSection);
+  await user.keyboard(comment);
+  await user.click(submitButton);
+
+  expect(await screen.findByText(comment)).toBeInTheDocument();
+
+  // Edit the comment
+  await user.click(ui.commentEditButton.get());
+  await user.click(ui.textboxWithText(comment).get());
+  await user.keyboard(' test');
+  await user.click(uiComment.saveButton.get());
+
+  expect(await byText(`${comment} test`).find()).toBeInTheDocument();
+
+  // Delete the comment
+  await user.click(ui.commentDeleteButton.get());
+  await user.click(uiComment.deleteButton.get());
+
+  expect(screen.queryByText(`${comment} test`)).not.toBeInTheDocument();
 });
 
 function renderSecurityHotspotsApp(navigateTo?: string) {

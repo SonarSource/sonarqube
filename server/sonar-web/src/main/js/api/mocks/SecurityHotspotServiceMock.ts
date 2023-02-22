@@ -17,8 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep, range, times } from 'lodash';
-import { mockHotspot, mockRawHotspot, mockStandards } from '../../helpers/mocks/security-hotspots';
+import { cloneDeep, times } from 'lodash';
+import {
+  mockHotspot,
+  mockHotspotComment,
+  mockRawHotspot,
+  mockStandards,
+} from '../../helpers/mocks/security-hotspots';
 import { mockSourceLine } from '../../helpers/mocks/sources';
 import { getStandards } from '../../helpers/security-standard';
 import { mockPaging, mockRuleDetails, mockUser } from '../../helpers/testMocks';
@@ -26,6 +31,7 @@ import { BranchParameters } from '../../types/branch-like';
 import {
   Hotspot,
   HotspotAssignRequest,
+  HotspotComment,
   HotspotResolution,
   HotspotStatus,
 } from '../../types/security-hotspots';
@@ -34,6 +40,9 @@ import { getMeasures } from '../measures';
 import { getRuleDetails } from '../rules';
 import {
   assignSecurityHotspot,
+  commentSecurityHotspot,
+  deleteSecurityHotspotComment,
+  editSecurityHotspotComment,
   getSecurityHotspotDetails,
   getSecurityHotspotList,
   getSecurityHotspots,
@@ -42,11 +51,12 @@ import {
 import { searchUsers } from '../users';
 
 const NUMBER_OF_LINES = 20;
-const MAX_END_RANGE = 10;
 
 export default class SecurityHotspotServiceMock {
   hotspots: Hotspot[] = [];
   nextAssignee: string | undefined;
+  canChangeStatus: boolean = true;
+  hotspotsComments: HotspotComment[] = [];
 
   constructor() {
     this.reset();
@@ -67,13 +77,40 @@ export default class SecurityHotspotServiceMock {
         })
       )
     );
+    jest.mocked(commentSecurityHotspot).mockImplementation(this.handleCommentSecurityHotspot);
+    jest
+      .mocked(deleteSecurityHotspotComment)
+      .mockImplementation(this.handleDeleteSecurityHotspotComment);
+    jest
+      .mocked(editSecurityHotspotComment)
+      .mockImplementation(this.handleEditSecurityHotspotComment);
     jest.mocked(getStandards).mockImplementation(this.handleGetStandards);
   }
 
-  handleGetSources = (data: { key: string; from?: number; to?: number } & BranchParameters) => {
-    return this.reply(
-      range(data.from || 1, data.to || MAX_END_RANGE).map((line) => mockSourceLine({ line }))
-    );
+  handleCommentSecurityHotspot = () => {
+    this.hotspotsComments = [
+      mockHotspotComment({
+        htmlText: 'This is a comment from john doe',
+        markdown: 'This is a comment from john doe',
+        updatable: true,
+      }),
+    ];
+    return Promise.resolve();
+  };
+
+  handleDeleteSecurityHotspotComment = () => {
+    this.hotspotsComments = [];
+    return Promise.resolve();
+  };
+
+  handleEditSecurityHotspotComment = () => {
+    const response = mockHotspotComment({
+      htmlText: 'This is a comment from john doe test',
+      markdown: 'This is a comment from john doe test',
+      updatable: true,
+    });
+    this.hotspotsComments = [response];
+    return Promise.resolve(response);
   };
 
   handleGetStandards = () => {
@@ -87,9 +124,9 @@ export default class SecurityHotspotServiceMock {
   handleSearchUsers = () => {
     return this.reply({
       users: [
-        mockUser({ name: 'User John' }),
-        mockUser({ name: 'User Doe' }),
-        mockUser({ name: 'User Foo' }),
+        mockUser({ name: 'User John', login: 'user.john' }),
+        mockUser({ name: 'User Doe', login: 'user.doe' }),
+        mockUser({ name: 'User Foo', login: 'user.foo' }),
       ],
       paging: mockPaging(),
     });
@@ -177,7 +214,8 @@ export default class SecurityHotspotServiceMock {
       this.nextAssignee = undefined;
     }
 
-    hotspot.canChangeStatus = true;
+    hotspot.canChangeStatus = this.canChangeStatus;
+    hotspot.comment = this.hotspotsComments;
 
     return this.reply(hotspot);
   };
@@ -199,6 +237,8 @@ export default class SecurityHotspotServiceMock {
     return Promise.resolve();
   };
 
+  setHotspotChangeStatusPermission = (value: boolean) => (this.canChangeStatus = value);
+
   reply<T>(response: T): Promise<T> {
     return Promise.resolve(cloneDeep(response));
   }
@@ -212,5 +252,6 @@ export default class SecurityHotspotServiceMock {
         message: "'2' is a magic number.",
       }),
     ];
+    this.canChangeStatus = true;
   };
 }

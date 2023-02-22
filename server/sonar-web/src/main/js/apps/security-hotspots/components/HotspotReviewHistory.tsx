@@ -130,6 +130,7 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
                           }
                         >
                           <EditButton
+                            title="issue.comment.edit"
                             className="button-small"
                             onClick={() => setEditedCommentKey(key)}
                           />
@@ -150,7 +151,7 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
                         }
                         overlayPlacement={PopupPlacement.BottomRight}
                       >
-                        <DeleteButton className="button-small" />
+                        <DeleteButton title="issue.comment.delete" className="button-small" />
                       </Dropdown>
                     </div>
                   )}
