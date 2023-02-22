@@ -130,7 +130,7 @@ public class GitHubSettings {
         .build(),
       PropertyDefinition.builder(GROUPS_SYNC)
         .name("Synchronize teams as groups")
-        .description("For each team they belong to, the user will be associated to a group named 'Organisation/Team' (if it exists) in SonarQube.")
+        .description("For each team they belong to, the user will be associated to a group named 'Organization/Team' (if it exists) in SonarQube.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(BOOLEAN)
