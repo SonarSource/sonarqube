@@ -21,6 +21,7 @@ package org.sonar.db.scim;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.ibatis.session.RowBounds;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -36,12 +37,20 @@ public class ScimGroupDao implements Dao {
     return mapper(dbSession).findAll();
   }
 
+  public List<ScimGroupDto> findScimGroups(DbSession dbSession, int offset, int limit) {
+    return mapper(dbSession).findScimGroups(new RowBounds(offset, limit));
+  }
+
   public Optional<ScimGroupDto> findByScimUuid(DbSession dbSession, String scimGroupUuid) {
     return Optional.ofNullable(mapper(dbSession).findByScimUuid(scimGroupUuid));
   }
 
   public Optional<ScimGroupDto> findByGroupUuid(DbSession dbSession, String groupUuid) {
     return Optional.ofNullable(mapper(dbSession).findByGroupUuid(groupUuid));
+  }
+
+  public int countScimGroups(DbSession dbSession) {
+    return mapper(dbSession).countScimGroups();
   }
 
   public ScimGroupDto enableScimForGroup(DbSession dbSession, String groupUuid) {

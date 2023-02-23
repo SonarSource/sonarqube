@@ -19,8 +19,14 @@
  */
 package org.sonar.db.scim;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +62,68 @@ public class ScimGroupDaoTest {
         tuple(scimGroup1.getGroupUuid(), scimGroup1.getScimGroupUuid()),
         tuple(scimGroup2.getGroupUuid(), scimGroup2.getScimGroupUuid())
       );
+  }
+
+  @Test
+  public void countScimGroups_shouldReturnTheTotalNumberOfScimGroups() {
+    int totalScimGroups = 15;
+    generateScimGroups(totalScimGroups);
+
+    assertThat(scimGroupDao.countScimGroups(db.getSession())).isEqualTo(totalScimGroups);
+  }
+
+  @Test
+  public void countScimGroups_shouldReturnZero_whenNoScimGroups() {
+    assertThat(scimGroupDao.countScimGroups(db.getSession())).isZero();
+  }
+
+  @DataProvider
+  public static Object[][] paginationData() {
+    return new Object[][] {
+      {5, 0, 20, List.of("1", "2", "3", "4", "5")},
+      {9, 0, 5, List.of("1", "2", "3", "4", "5")},
+      {9, 3, 3, List.of("4", "5", "6")},
+      {9, 7, 3, List.of("8", "9")},
+      {5, 5, 20, List.of()},
+      {5, 0, 0, List.of()}
+    };
+  }
+
+  @Test
+  @UseDataProvider("paginationData")
+  public void findScimGroups_whenPaginationAndStartIndex_shouldReturnTheCorrectNumberOfScimGroups(int totalScimGroups, int offset, int pageSize, List<String> expectedScimGroupUuids) {
+    generateScimGroups(totalScimGroups);
+
+    List<ScimGroupDto> scimUserDtos = scimGroupDao.findScimGroups(db.getSession(), offset, pageSize);
+
+    List<String> scimGroupsUuids = toScimGroupsUuids(scimUserDtos);
+    assertThat(scimGroupsUuids).containsExactlyElementsOf(expectedScimGroupUuids);
+  }
+
+  private void generateScimGroups(int totalScimGroups) {
+    List<ScimGroupDto> allScimGroups = Stream.iterate(1, i -> i + 1)
+      .map(i -> insertScimGroup(i.toString()))
+      .limit(totalScimGroups)
+      .collect(Collectors.toList());
+    assertThat(allScimGroups).hasSize(totalScimGroups);
+  }
+
+  private ScimGroupDto insertScimGroup(String scimGroupUuid) {
+    return insertScimGroup(scimGroupUuid, randomAlphanumeric(40));
+  }
+
+  private ScimGroupDto insertScimGroup(String scimGroupUuid, String groupUuid) {
+    ScimGroupDto scimGroupDto = new ScimGroupDto(scimGroupUuid, groupUuid);
+    Map<String, Object> data = Map.of("scim_uuid", scimGroupDto.getScimGroupUuid(), "group_uuid", scimGroupDto.getGroupUuid());
+    db.executeInsert("scim_groups", data);
+
+    return scimGroupDto;
+  }
+
+  private static List<String> toScimGroupsUuids(Collection<ScimGroupDto> scimGroupDtos) {
+    return scimGroupDtos.stream()
+      .map(ScimGroupDto::getScimGroupUuid)
+      .collect(Collectors.toList());
   }
 
   @Test

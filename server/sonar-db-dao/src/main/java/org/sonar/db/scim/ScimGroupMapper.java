@@ -22,6 +22,7 @@ package org.sonar.db.scim;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
 public interface ScimGroupMapper {
 
@@ -32,6 +33,10 @@ public interface ScimGroupMapper {
 
   @CheckForNull
   ScimGroupDto findByGroupUuid(@Param("groupUuid") String groupUuid);
+
+  List<ScimGroupDto> findScimGroups(RowBounds rowBounds);
+
+  int countScimGroups();
 
   void insert(@Param("scimGroupDto") ScimGroupDto scimGroupDto);
 

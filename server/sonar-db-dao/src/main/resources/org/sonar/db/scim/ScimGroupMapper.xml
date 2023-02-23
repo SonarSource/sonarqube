@@ -30,6 +30,18 @@
       group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="findScimGroups" resultType="org.sonar.db.scim.ScimGroupDto">
+    select
+    <include refid="scimGroupsColumns"/>
+    from scim_groups s
+    order by s.scim_uuid asc
+  </select>
+
+  <select id="countScimGroups" resultType="int">
+    select count(1)
+    from scim_groups
+  </select>
+
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
     insert into scim_groups (
       scim_uuid,
