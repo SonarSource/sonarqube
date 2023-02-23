@@ -42,6 +42,16 @@ public class DropIndexProjectsModuleUuidInComponentsTest {
   }
 
   @Test
+  public void execute_whenIndexNameWithPrefix_shouldStillDelete() throws SQLException {
+    String alteredIndexName = "idx_1234567891345678916456789_" + INDEX_NAME;
+    db.executeUpdateSql(String.format("ALTER INDEX %s RENAME TO %s;", INDEX_NAME, alteredIndexName));
+    db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
+    db.assertIndex(TABLE_NAME, alteredIndexName, COLUMN_NAME);
+    underTest.execute();
+    db.assertIndexDoesNotExist(TABLE_NAME, alteredIndexName);
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
     underTest.execute();
