@@ -18,10 +18,10 @@ env:
   # to trigger docs deployment
   ELASTIC_PWD: VAULT[development/team/sonarqube/kv/data/elasticsearch-cloud data.password]
   CIRRUS_LOG_TIMESTAMP: true
-  BRANCH_MAIN: 'master'
-  BRANCH_NIGHTLY: 'branch-nightly-build'
-  BRANCH_PATTERN_MAINTENANCE: 'branch-.*'
-  BRANCH_PATTERN_PUBLIC: 'public_.*'
+  BRANCH_MAIN: "master"
+  BRANCH_NIGHTLY: "branch-nightly-build"
+  BRANCH_PATTERN_MAINTENANCE: "branch-.*"
+  BRANCH_PATTERN_PUBLIC: "public_.*"
 
 auto_cancellation: $CIRRUS_BRANCH != $BRANCH_MAIN && $CIRRUS_BRANCH !=~ $BRANCH_PATTERN_MAINTENANCE
 
@@ -55,7 +55,7 @@ ldap_nightly_task_template: &LDAP_NIGHTLY_TASK_TEMPLATE
 github_nightly_task_template: &GITHUB_NIGHTLY_TASK_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
-    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/*.java')    
+    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/*.java')
 
 docker_build_container_template: &CONTAINER_TEMPLATE
   region: eu-central-1
@@ -291,8 +291,8 @@ qa_task:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
     matrix:
-    # QA name should not exceed 13 characters to be properly reported on wallboard by burgr
-    # QA name cannot contain "_"
+      # QA name should not exceed 13 characters to be properly reported on wallboard by burgr
+      # QA name cannot contain "_"
       - QA_CATEGORY: Cat1
       - QA_CATEGORY: Cat2
       - QA_CATEGORY: Cat3
@@ -357,8 +357,8 @@ qa_bb_cloud_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 2.4
-    memory: 5Gb
+    cpu: 5
+    memory: 8Gb
   env:
     QA_CATEGORY: BITBUCKET_CLOUD
     BBC_CLIENT_ID: VAULT[development/team/sonarqube/kv/data/bitbucket-cloud data.client_id]
@@ -406,8 +406,8 @@ qa_gitlab_task:
         - GITLAB_VERSION: 15.6.2-ce.0
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 2.4
-    memory: 5Gb
+    cpu: 5
+    memory: 8Gb
     use_in_memory_disk: true
     additional_containers:
       - name: gitlab
@@ -415,7 +415,7 @@ qa_gitlab_task:
           - 80
           - 443
         cpu: 2
-        memory: 5Gb
+        memory: 8Gb
         image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:${GITLAB_VERSION}
         env:
           - GITLAB_POST_RECONFIGURE_SCRIPT: |-
@@ -446,8 +446,8 @@ qa_gitlab_cloud_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 2.4
-    memory: 5Gb
+    cpu: 5
+    memory: 8Gb
     use_in_memory_disk: true
   env:
     QA_CATEGORY: GITLAB_CLOUD
@@ -468,8 +468,8 @@ qa_azure_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 2.4
-    memory: 5Gb
+    cpu: 5
+    memory: 8Gb
   env:
     QA_CATEGORY: AZURE
     AZURE_USERNAME_LOGIN: VAULT[development/team/sonarqube/kv/data/azure-instance data.username]
@@ -487,8 +487,8 @@ qa_github_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 2.4
-    memory: 5Gb
+    cpu: 5
+    memory: 8Gb
   env:
     QA_CATEGORY: GITHUB
     GITHUB_COM_CODE_SCANNING_ALERTS_TECHNICAL_USER_USERNAME: QA-task
