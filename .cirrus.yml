@@ -357,8 +357,8 @@ qa_bb_cloud_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 5
-    memory: 8Gb
+    cpu: 2.4
+    memory: 7Gb
   env:
     QA_CATEGORY: BITBUCKET_CLOUD
     BBC_CLIENT_ID: VAULT[development/team/sonarqube/kv/data/bitbucket-cloud data.client_id]
@@ -406,8 +406,8 @@ qa_gitlab_task:
         - GITLAB_VERSION: 15.6.2-ce.0
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 5
-    memory: 8Gb
+    cpu: 2.4
+    memory: 7Gb
     use_in_memory_disk: true
     additional_containers:
       - name: gitlab
@@ -415,7 +415,7 @@ qa_gitlab_task:
           - 80
           - 443
         cpu: 2
-        memory: 8Gb
+        memory: 5Gb
         image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:${GITLAB_VERSION}
         env:
           - GITLAB_POST_RECONFIGURE_SCRIPT: |-
@@ -446,8 +446,8 @@ qa_gitlab_cloud_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 5
-    memory: 8Gb
+    cpu: 2.4
+    memory: 7Gb
     use_in_memory_disk: true
   env:
     QA_CATEGORY: GITLAB_CLOUD
@@ -468,8 +468,8 @@ qa_azure_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 5
-    memory: 8Gb
+    cpu: 2.4
+    memory: 7Gb
   env:
     QA_CATEGORY: AZURE
     AZURE_USERNAME_LOGIN: VAULT[development/team/sonarqube/kv/data/azure-instance data.username]
@@ -487,8 +487,8 @@ qa_github_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 5
-    memory: 8Gb
+    cpu: 2.4
+    memory: 7Gb
   env:
     QA_CATEGORY: GITHUB
     GITHUB_COM_CODE_SCANNING_ALERTS_TECHNICAL_USER_USERNAME: QA-task
