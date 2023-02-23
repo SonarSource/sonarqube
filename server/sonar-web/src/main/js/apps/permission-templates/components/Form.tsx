@@ -88,9 +88,9 @@ export default class Form extends React.PureComponent<Props, State> {
       >
         {({ onCloseClick, onFormSubmit, submitting }) => (
           <form id="permission-template-form" onSubmit={onFormSubmit}>
-            <header className="modal-head">
+            <div className="modal-head">
               <h2>{this.props.header}</h2>
-            </header>
+            </div>
 
             <div className="modal-body">
               <MandatoryFieldsExplanation className="modal-field" />
@@ -140,7 +140,7 @@ export default class Form extends React.PureComponent<Props, State> {
               </div>
             </div>
 
-            <footer className="modal-foot">
+            <div className="modal-foot">
               <DeferredSpinner className="spacer-right" loading={submitting} />
               <SubmitButton disabled={submitting} id="permission-template-submit">
                 {this.props.confirmButtonText}
@@ -152,7 +152,7 @@ export default class Form extends React.PureComponent<Props, State> {
               >
                 {translate('cancel')}
               </ResetButtonLink>
-            </footer>
+            </div>
           </form>
         )}
       </SimpleModal>

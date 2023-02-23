@@ -22,10 +22,10 @@ import {
   mockPermission,
   mockPermissionGroup,
   mockPermissionTemplate,
+  mockPermissionTemplateGroup,
   mockPermissionUser,
-  mockTemplateGroup,
-  mockTemplateUser,
 } from '../../helpers/mocks/permissions';
+import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE } from '../../helpers/permissions';
 import { ComponentQualifier, Visibility } from '../../types/component';
 import { Permissions } from '../../types/permissions';
 import { Permission, PermissionGroup, PermissionTemplate, PermissionUser } from '../../types/types';
@@ -35,6 +35,8 @@ import {
   applyTemplateToProject,
   bulkApplyTemplate,
   changeProjectVisibility,
+  createPermissionTemplate,
+  deletePermissionTemplate,
   getGlobalPermissionsGroups,
   getGlobalPermissionsUsers,
   getPermissionsGroupsForComponent,
@@ -51,55 +53,42 @@ import {
   revokePermissionFromUser,
   revokeTemplatePermissionFromGroup,
   revokeTemplatePermissionFromUser,
+  setDefaultPermissionTemplate,
+  updatePermissionTemplate,
 } from '../permissions';
 
 const MAX_PROJECTS_TO_APPLY_PERMISSION_TEMPLATE = 10;
 
-const defaultPermissionTemplates: PermissionTemplate[] = [
-  mockPermissionTemplate(),
-  mockPermissionTemplate({
-    id: 'template2',
-    name: 'Permission Template 2',
-  }),
-];
-
-const templateUsers = [
-  mockTemplateUser(),
-  mockTemplateUser({
+const defaultUsers = [
+  mockPermissionUser(),
+  mockPermissionUser({
     login: 'gooduser1',
     name: 'John',
-    permissions: ['issueadmin', 'securityhotspotadmin', 'user'],
+    permissions: [Permissions.IssueAdmin, Permissions.SecurityHotspotAdmin, Permissions.Browse],
   }),
-  mockTemplateUser({
+  mockPermissionUser({
     login: 'gooduser2',
     name: 'Alexa',
-    permissions: ['issueadmin', 'user'],
+    permissions: [Permissions.IssueAdmin, Permissions.Browse],
   }),
-  mockTemplateUser({
+  mockPermissionUser({
     name: 'Siri',
     login: 'gooduser3',
   }),
-  mockTemplateUser({
+  mockPermissionUser({
     login: 'gooduser4',
     name: 'Cool',
-    permissions: ['user'],
+    permissions: [Permissions.Browse],
   }),
-  mockTemplateUser({
+  mockPermissionUser({
     name: 'White',
     login: 'baduser1',
   }),
-  mockTemplateUser({
+  mockPermissionUser({
     name: 'Green',
     login: 'baduser2',
   }),
 ];
-
-const templateGroups = [
-  mockTemplateGroup(),
-  mockTemplateGroup({ id: 'admins', name: 'admins', permissions: [] }),
-];
-
-const defaultUsers = [mockPermissionUser()];
 
 const defaultGroups = [
   mockPermissionGroup({ name: 'sonar-users', permissions: [Permissions.Browse] }),
@@ -108,6 +97,39 @@ const defaultGroups = [
     permissions: [Permissions.Admin, Permissions.Browse],
   }),
   mockPermissionGroup({ name: 'sonar-losers', permissions: [] }),
+];
+
+const defaultTemplates: PermissionTemplate[] = [
+  mockPermissionTemplate({
+    id: 'template1',
+    name: 'Permission Template 1',
+    description: 'This is permission template 1',
+    defaultFor: [
+      ComponentQualifier.Project,
+      ComponentQualifier.Application,
+      ComponentQualifier.Portfolio,
+    ],
+    permissions: PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.map((key) =>
+      mockPermissionTemplateGroup({
+        key,
+        groupsCount: defaultGroups.filter((g) => g.permissions.includes(key)).length,
+        usersCount: defaultUsers.filter((g) => g.permissions.includes(key)).length,
+        withProjectCreator: false,
+      })
+    ),
+  }),
+  mockPermissionTemplate({
+    id: 'template2',
+    name: 'Permission Template 2',
+    permissions: PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.map((key) =>
+      mockPermissionTemplateGroup({
+        key,
+        groupsCount: 0,
+        usersCount: 0,
+        withProjectCreator: [Permissions.Browse, Permissions.CodeViewer].includes(key),
+      })
+    ),
+  }),
 ];
 
 const PAGE_SIZE = 5;
@@ -119,28 +141,19 @@ jest.mock('../permissions');
 export default class PermissionsServiceMock {
   #permissionTemplates: PermissionTemplate[] = [];
   #permissions: Permission[];
-  #defaultTemplates: Array<{ templateId: string; qualifier: string }>;
+  #defaultTemplates: Array<{ templateId: string; qualifier: string }> = [];
   #groups: PermissionGroup[];
   #users: PermissionUser[];
   #isAllowedToChangePermissions = true;
 
   constructor() {
-    this.#permissionTemplates = cloneDeep(defaultPermissionTemplates);
-    this.#defaultTemplates = [
-      ComponentQualifier.Project,
-      ComponentQualifier.Application,
-      ComponentQualifier.Portfolio,
-    ].map((qualifier) => ({ templateId: this.#permissionTemplates[0].id, qualifier }));
-    this.#permissions = [
-      Permissions.Admin,
-      Permissions.CodeViewer,
-      Permissions.IssueAdmin,
-      Permissions.SecurityHotspotAdmin,
-      Permissions.Scan,
-      Permissions.Browse,
-    ].map((key) => mockPermission({ key, name: key }));
+    this.#permissionTemplates = cloneDeep(defaultTemplates);
+    this.#permissions = PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.map((key) =>
+      mockPermission({ key, name: key })
+    );
     this.#groups = cloneDeep(defaultGroups);
     this.#users = cloneDeep(defaultUsers);
+    this.updateDefaults();
 
     jest.mocked(getPermissionTemplates).mockImplementation(this.handleGetPermissionTemplates);
     jest.mocked(bulkApplyTemplate).mockImplementation(this.handleBulkApplyTemplate);
@@ -157,6 +170,12 @@ export default class PermissionsServiceMock {
     jest.mocked(revokeTemplatePermissionFromGroup).mockImplementation(this.handlePermissionChange);
     jest.mocked(grantTemplatePermissionToUser).mockImplementation(this.handlePermissionChange);
     jest.mocked(revokeTemplatePermissionFromUser).mockImplementation(this.handlePermissionChange);
+    jest.mocked(createPermissionTemplate).mockImplementation(this.handleCreatePermissionTemplate);
+    jest.mocked(updatePermissionTemplate).mockImplementation(this.handleUpdatePermissionTemplate);
+    jest.mocked(deletePermissionTemplate).mockImplementation(this.handleDeletePermissionTemplate);
+    jest
+      .mocked(setDefaultPermissionTemplate)
+      .mockImplementation(this.handleSetDefaultPermissionTemplate);
     jest.mocked(changeProjectVisibility).mockImplementation(this.handleChangeProjectVisibility);
     jest.mocked(getGlobalPermissionsUsers).mockImplementation(this.handleGetPermissionUsers);
     jest.mocked(getGlobalPermissionsGroups).mockImplementation(this.handleGetPermissionGroups);
@@ -198,44 +217,24 @@ export default class PermissionsServiceMock {
     return Promise.resolve();
   };
 
-  handleGetPermissionTemplateUsers = (data: { q?: string | null; p?: number; ps?: number }) => {
-    const { ps = PAGE_SIZE, p = DEFAULT_PAGE, q } = data;
-
-    const users =
-      q && q.length >= MIN_QUERY_LENGTH
-        ? templateUsers.filter((user) =>
-            [user.login, user.name].some((key) => key.toLowerCase().includes(q.toLowerCase()))
-          )
-        : templateUsers;
-
-    const usersChunks = chunk(users, ps);
-
-    return this.reply({
-      paging: { pageSize: ps, total: users.length, pageIndex: p },
-      users: usersChunks[p - 1] ?? [],
-    });
-  };
-
-  handleGetPermissionTemplateGroups = (data: {
+  handleGetPermissionTemplateUsers = (data: {
     templateId: string;
-    q?: string | null;
+    q?: string;
     permission?: string;
     p?: number;
     ps?: number;
   }) => {
-    const { ps = PAGE_SIZE, p = DEFAULT_PAGE, q } = data;
+    return this.handleGetPermissionUsers(data);
+  };
 
-    const groups =
-      q && q.length >= MIN_QUERY_LENGTH
-        ? templateGroups.filter((group) => group.name.toLowerCase().includes(q.toLowerCase()))
-        : templateGroups;
-
-    const groupsChunks = chunk(groups, ps);
-
-    return this.reply({
-      paging: { pageSize: ps, total: groups.length, pageIndex: p },
-      groups: groupsChunks[p - 1] ?? [],
-    });
+  handleGetPermissionTemplateGroups = (data: {
+    templateId: string;
+    q?: string;
+    permission?: string;
+    p?: number;
+    ps?: number;
+  }) => {
+    return this.handleGetPermissionGroups(data);
   };
 
   handleChangeProjectVisibility = (_project: string, _visibility: Visibility) => {
@@ -386,6 +385,58 @@ export default class PermissionsServiceMock {
     return this.#isAllowedToChangePermissions ? Promise.resolve() : Promise.reject();
   };
 
+  handleCreatePermissionTemplate = (data: {
+    name: string;
+    description?: string;
+    projectKeyPattern?: string;
+  }) => {
+    const newTemplate = mockPermissionTemplate({
+      id: `template-${this.#permissionTemplates.length + 1}`,
+      ...data,
+    });
+    this.#permissionTemplates.push(newTemplate);
+    return this.reply({ permissionTemplate: newTemplate });
+  };
+
+  handleUpdatePermissionTemplate = (data: {
+    id: string;
+    description?: string;
+    name?: string;
+    projectKeyPattern?: string;
+  }) => {
+    const { id } = data;
+    const template = this.#permissionTemplates.find((t) => t.id === id);
+    if (template === undefined) {
+      throw new Error(`Couldn't find template with id ${id}`);
+    }
+    Object.assign(template, data);
+
+    return this.reply(undefined);
+  };
+
+  handleDeletePermissionTemplate = (data: { templateId?: string; templateName?: string }) => {
+    const { templateId } = data;
+    this.#permissionTemplates = this.#permissionTemplates.filter((t) => t.id !== templateId);
+    return this.reply(undefined);
+  };
+
+  handleSetDefaultPermissionTemplate = (templateId: string, qualifier: ComponentQualifier) => {
+    this.#permissionTemplates = this.#permissionTemplates.map((t) => ({
+      ...t,
+      defaultFor: t.defaultFor.filter((q) => q !== qualifier),
+    }));
+
+    const template = this.#permissionTemplates.find((t) => t.id === templateId);
+    if (template === undefined) {
+      throw new Error(`Couldn't find template with id ${templateId}`);
+    }
+    template.defaultFor = uniq([...template.defaultFor, qualifier]);
+
+    this.updateDefaults();
+
+    return this.reply(undefined);
+  };
+
   setIsAllowedToChangePermissions = (val: boolean) => {
     this.#isAllowedToChangePermissions = val;
   };
@@ -398,8 +449,25 @@ export default class PermissionsServiceMock {
     this.#users = users;
   };
 
+  getTemplates = () => {
+    return this.#permissionTemplates;
+  };
+
+  updateDefaults = () => {
+    this.#defaultTemplates = [
+      ComponentQualifier.Project,
+      ComponentQualifier.Application,
+      ComponentQualifier.Portfolio,
+    ].map((qualifier) => ({
+      templateId:
+        this.#permissionTemplates.find((t) => t.defaultFor.includes(qualifier))?.id ??
+        this.#permissionTemplates[0].id,
+      qualifier,
+    }));
+  };
+
   reset = () => {
-    this.#permissionTemplates = cloneDeep(defaultPermissionTemplates);
+    this.#permissionTemplates = cloneDeep(defaultTemplates);
     this.#groups = cloneDeep(defaultGroups);
     this.#users = cloneDeep(defaultUsers);
     this.setIsAllowedToChangePermissions(true);

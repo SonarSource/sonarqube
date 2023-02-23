@@ -42,7 +42,7 @@ interface State {
   permissionTemplates: PermissionTemplate[];
 }
 
-export class PermissionTemplatesApp extends React.PureComponent<Props, State> {
+class PermissionTemplatesApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     ready: false,
@@ -52,16 +52,15 @@ export class PermissionTemplatesApp extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.requestPermissions();
+    this.handleRefresh();
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  requestPermissions = async () => {
+  handleRefresh = async () => {
     const { permissions, defaultTemplates, permissionTemplates } = await getPermissionTemplates();
-
     if (this.mounted) {
       const sortedPerm = sortPermissions(permissions);
       const permissionTemplatesMerged = mergeDefaultsToTemplates(
@@ -77,46 +76,46 @@ export class PermissionTemplatesApp extends React.PureComponent<Props, State> {
   };
 
   renderTemplate(id: string) {
-    if (!this.state.ready) {
+    const { permissionTemplates, ready } = this.state;
+    if (!ready) {
       return null;
     }
 
-    const template = this.state.permissionTemplates.find((t) => t.id === id);
+    const template = permissionTemplates.find((t) => t.id === id);
     if (!template) {
       return null;
     }
 
     return (
       <Template
-        refresh={this.requestPermissions}
+        refresh={this.handleRefresh}
         template={template}
         topQualifiers={this.props.appState.qualifiers}
       />
     );
   }
 
-  renderHome() {
-    return (
-      <Home
-        permissionTemplates={this.state.permissionTemplates}
-        permissions={this.state.permissions}
-        ready={this.state.ready}
-        refresh={this.requestPermissions}
-        topQualifiers={this.props.appState.qualifiers}
-      />
-    );
-  }
-
   render() {
-    const { id } = this.props.location.query;
+    const { appState, location } = this.props;
+    const { id } = location.query;
+    const { permissionTemplates, permissions, ready } = this.state;
     return (
-      <main>
+      <>
         <Suggestions suggestions="permission_templates" />
         <Helmet defer={false} title={translate('permission_templates.page')} />
 
-        {id && this.renderTemplate(id)}
-        {!id && this.renderHome()}
-      </main>
+        {id === undefined ? (
+          <Home
+            permissionTemplates={permissionTemplates}
+            permissions={permissions}
+            ready={ready}
+            refresh={this.handleRefresh}
+            topQualifiers={appState.qualifiers}
+          />
+        ) : (
+          this.renderTemplate(id)
+        )}
+      </>
     );
   }
 }

@@ -39,12 +39,14 @@ export default function Home(props: Props) {
 
       <Header ready={props.ready} refresh={props.refresh} />
 
-      <List
-        permissionTemplates={props.permissionTemplates}
-        permissions={props.permissions}
-        refresh={props.refresh}
-        topQualifiers={props.topQualifiers}
-      />
+      <main>
+        <List
+          permissionTemplates={props.permissionTemplates}
+          permissions={props.permissions}
+          refresh={props.refresh}
+          topQualifiers={props.topQualifiers}
+        />
+      </main>
     </div>
   );
 }

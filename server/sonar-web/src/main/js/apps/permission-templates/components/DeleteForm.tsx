@@ -37,9 +37,9 @@ export default function DeleteForm({ onClose, onSubmit, permissionTemplate: t }:
     <SimpleModal header={header} onClose={onClose} onSubmit={onSubmit}>
       {({ onCloseClick, onFormSubmit, submitting }) => (
         <form onSubmit={onFormSubmit}>
-          <header className="modal-head">
+          <div className="modal-head">
             <h2>{header}</h2>
-          </header>
+          </div>
 
           <div className="modal-body">
             {translateWithParameters(
@@ -48,7 +48,7 @@ export default function DeleteForm({ onClose, onSubmit, permissionTemplate: t }:
             )}
           </div>
 
-          <footer className="modal-foot">
+          <div className="modal-foot">
             <DeferredSpinner className="spacer-right" loading={submitting} />
             <SubmitButton className="button-red" disabled={submitting}>
               {translate('delete')}
@@ -56,7 +56,7 @@ export default function DeleteForm({ onClose, onSubmit, permissionTemplate: t }:
             <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
               {translate('cancel')}
             </ResetButtonLink>
-          </footer>
+          </div>
         </form>
       )}
     </SimpleModal>

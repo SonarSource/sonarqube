@@ -103,11 +103,11 @@ describe('filtering', () => {
     renderPermissionsProjectApp();
     await ui.appLoaded();
 
-    expect(screen.getAllByRole('row').length).toBe(7);
+    expect(screen.getAllByRole('row').length).toBe(11);
     await ui.toggleFilterByPermission(Permissions.Admin);
     expect(screen.getAllByRole('row').length).toBe(2);
     await ui.toggleFilterByPermission(Permissions.Admin);
-    expect(screen.getAllByRole('row').length).toBe(7);
+    expect(screen.getAllByRole('row').length).toBe(11);
   });
 });
 

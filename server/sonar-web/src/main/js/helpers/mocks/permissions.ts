@@ -73,22 +73,3 @@ export function mockPermissionTemplate(override: Partial<PermissionTemplate> = {
     ...override,
   };
 }
-
-export function mockTemplateUser(override: Partial<PermissionUser> = {}) {
-  return {
-    login: 'admin',
-    name: 'Admin Admin',
-    permissions: ['admin', 'codeviewer'],
-    ...override,
-  };
-}
-
-export function mockTemplateGroup(override: Partial<PermissionGroup> = {}) {
-  return {
-    id: 'Anyone',
-    name: 'Anyone',
-    description: 'everyone',
-    permissions: ['admin', 'codeviewer'],
-    ...override,
-  };
-}
