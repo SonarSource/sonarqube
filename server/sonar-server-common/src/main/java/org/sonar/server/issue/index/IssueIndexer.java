@@ -104,14 +104,21 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   public void indexAllIssues() {
     try (IssueIterator issues = issueIteratorFactory.createForAll()) {
-      doIndex(issues, Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
+      doIndex(issues, Set.of());
     }
   }
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
     try (IssueIterator issues = issueIteratorFactory.createForBranch(branchUuid)) {
-      doIndex(issues, Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
+      doIndex(issues, Set.of());
+    }
+  }
+
+  @Override
+  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
+    try (IssueIterator issues = issueIteratorFactory.createForBranch(branchUuid)) {
+      doIndex(issues, unchangedComponentUuids);
     }
   }
 
@@ -185,7 +192,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
       return new IndexingResult();
     }
     IndexingListener listener = new OneToOneResilientIndexingListener(dbClient, dbSession, itemsByIssueKey.values());
-    BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, listener);
+    BulkIndexer bulkIndexer = createBulkIndexer(listener);
     bulkIndexer.start();
 
     try (IssueIterator issues = issueIteratorFactory.createForIssueKeys(itemsByIssueKey.keySet())) {
@@ -211,7 +218,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
     // one project, referenced by es_queue.doc_id = many issues
     IndexingListener listener = new OneToManyResilientIndexingListener(dbClient, dbSession, itemsByProjectUuid.values());
-    BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, listener);
+    BulkIndexer bulkIndexer = createBulkIndexer(listener);
     bulkIndexer.start();
 
     for (String projectUuid : itemsByProjectUuid.keySet()) {
@@ -239,7 +246,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
       return;
     }
 
-    BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
+    BulkIndexer bulkIndexer = createBulkIndexer(IndexingListener.FAIL_ON_ERROR);
     bulkIndexer.start();
     issueKeys.forEach(issueKey -> bulkIndexer.addDeletion(TYPE_ISSUE.getMainType(), issueKey, AuthorizationDoc.idOf(projectUuid)));
     bulkIndexer.stop();
@@ -247,17 +254,23 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   @VisibleForTesting
   protected void index(Iterator<IssueDoc> issues) {
-    doIndex(issues, Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
+    doIndex(issues, Set.of());
   }
 
-  private void doIndex(Iterator<IssueDoc> issues, Size size, IndexingListener listener) {
-    BulkIndexer bulk = createBulkIndexer(size, listener);
+  private void doIndex(Iterator<IssueDoc> issues, Set<String> unchangedComponentUuids) {
+    BulkIndexer bulk = createBulkIndexer(IndexingListener.FAIL_ON_ERROR);
     bulk.start();
     while (issues.hasNext()) {
       IssueDoc issue = issues.next();
-      bulk.add(newIndexRequest(issue));
+      if (shouldReindexIssue(issue, unchangedComponentUuids)) {
+        bulk.add(newIndexRequest(issue));
+      }
     }
     bulk.stop();
+  }
+
+  private static boolean shouldReindexIssue(IssueDoc issue, Set<String> unchangedComponentUuids) {
+    return issue.getFields().get(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID) == null || !unchangedComponentUuids.contains(issue.componentUuid());
   }
 
   private static IndexRequest newIndexRequest(IssueDoc issue) {
@@ -279,7 +292,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
     return EsQueueDto.create(TYPE_ISSUE.format(), docId, docIdType, AuthorizationDoc.idOf(projectUuid));
   }
 
-  private BulkIndexer createBulkIndexer(Size size, IndexingListener listener) {
-    return new BulkIndexer(esClient, TYPE_ISSUE, size, listener);
+  private BulkIndexer createBulkIndexer(IndexingListener listener) {
+    return new BulkIndexer(esClient, TYPE_ISSUE, Size.REGULAR, listener);
   }
 }

@@ -19,17 +19,27 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+
 import java.util.Set;
 
-public interface FileStatuses {
-  /**
-   * A file is unchanged compared to the last analysis if it was detected as unchanged by the scanner and
-   * it's confirmed to be unchanged by the CE, by comparing file hashes.
-   */
-  boolean isUnchanged(Component component);
+/**
+ * No operation implementation of {@link FileStatuses}
+ */
+public final class NopFileStatuses implements FileStatuses {
 
-  boolean isDataUnchanged(Component component);
 
-  Set<String> getFileUuidsMarkedAsUnchanged();
+  @Override
+  public boolean isUnchanged(Component component) {
+    return false;
+  }
 
+  @Override
+  public boolean isDataUnchanged(Component component) {
+    return false;
+  }
+
+  @Override
+  public Set<String> getFileUuidsMarkedAsUnchanged() {
+    return Set.of();
+  }
 }

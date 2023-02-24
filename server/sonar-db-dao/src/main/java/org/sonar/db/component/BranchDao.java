@@ -177,4 +177,10 @@ public class BranchDao implements Dao {
     }
     return false;
   }
+
+  public boolean isBranchNeedIssueSync(DbSession session, String branchUuid) {
+    return selectByUuid(session, branchUuid)
+      .map(BranchDto::isNeedIssueSync)
+      .orElse(false);
+  }
 }

@@ -79,6 +79,11 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
+    indexOnAnalysis(branchUuid, Set.of());
+  }
+
+  @Override
+  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
     doIndexByProjectUuid(branchUuid, Size.REGULAR);
   }
 

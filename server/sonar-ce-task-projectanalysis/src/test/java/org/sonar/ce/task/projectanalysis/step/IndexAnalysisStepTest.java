@@ -19,19 +19,26 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.Set;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.FileStatuses;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDao;
 import org.sonar.server.es.ProjectIndexer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
 
@@ -45,17 +52,36 @@ public class IndexAnalysisStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  private ProjectIndexer componentIndexer = mock(ProjectIndexer.class);
-  private IndexAnalysisStep underTest = new IndexAnalysisStep(treeRootHolder, componentIndexer);
+  private final DbClient dbClient = mock(DbClient.class);
+
+  private final FileStatuses fileStatuses = mock(FileStatuses.class);
+
+  private final ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
+
+  private final DbSession dbSession = mock(DbSession.class);
+
+  private final BranchDao branchDao = mock(BranchDao.class);
+
+  private final IndexAnalysisStep underTest = new IndexAnalysisStep(treeRootHolder, fileStatuses, dbClient, projectIndexer);
+
+  private TestComputationStepContext testComputationStepContext;
+
+  @Before
+  public void init() {
+    testComputationStepContext = new TestComputationStepContext();
+
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.branchDao()).thenReturn(branchDao);
+  }
 
   @Test
   public void call_indexByProjectUuid_of_indexer_for_project() {
     Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
 
-    underTest.execute(new TestComputationStepContext());
+    underTest.execute(testComputationStepContext);
 
-    verify(componentIndexer).indexOnAnalysis(PROJECT_UUID);
+    verify(projectIndexer).indexOnAnalysis(PROJECT_UUID, Set.of());
   }
 
   @Test
@@ -63,9 +89,32 @@ public class IndexAnalysisStepTest extends BaseStepTest {
     Component view = ViewsComponent.builder(VIEW, PROJECT_KEY).setUuid(PROJECT_UUID).build();
     treeRootHolder.setRoot(view);
 
-    underTest.execute(new TestComputationStepContext());
+    underTest.execute(testComputationStepContext);
 
-    verify(componentIndexer).indexOnAnalysis(PROJECT_UUID);
+    verify(projectIndexer).indexOnAnalysis(PROJECT_UUID, Set.of());
+  }
+
+  @Test
+  public void execute_whenMarkAsUnchangedFlagActivated_shouldCallIndexOnAnalysisWithChangedComponents() {
+    Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
+    treeRootHolder.setRoot(project);
+    Set<String> anyUuids = Set.of("any-uuid");
+    when(fileStatuses.getFileUuidsMarkedAsUnchanged()).thenReturn(anyUuids);
+
+    underTest.execute(testComputationStepContext);
+
+    verify(projectIndexer).indexOnAnalysis(PROJECT_UUID, anyUuids);
+  }
+
+  @Test
+  public void execute_whenBranchIsNeedIssueSync_shouldReindexEverything() {
+    Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
+    treeRootHolder.setRoot(project);
+    when(branchDao.isBranchNeedIssueSync(dbSession, PROJECT_UUID)).thenReturn(true);
+
+    underTest.execute(testComputationStepContext);
+
+    verify(projectIndexer).indexOnAnalysis(PROJECT_UUID);
   }
 
   @Override

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
@@ -42,6 +43,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
@@ -138,11 +140,11 @@ public class IssueIndexerTest {
 
   @Test
   public void verify_security_standards_indexation() {
-    RuleDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863","owaspAsvs-4.0:2.1.1"))));
+    RuleDto rule = db.rules().insert(r -> r.setSecurityStandards(new HashSet<>(Arrays.asList("cwe:123", "owaspTop10:a3", "cwe:863", "owaspAsvs-4.0:2.1.1"))));
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
-    IssueDto issue = db.issues().insert(rule, project, file);
+    db.issues().insert(rule, project, file);
 
     underTest.indexAllIssues();
 
@@ -158,15 +160,13 @@ public class IssueIndexerTest {
     es.lockWrites(TYPE_ISSUE);
     db.issues().insert();
 
-    try {
-      // FIXME : test also message
-      assertThatThrownBy(() -> underTest.indexOnStartup(emptySet()))
-        .isInstanceOf(IllegalStateException.class);
-    } finally {
-      assertThatIndexHasSize(0);
-      assertThatEsQueueTableHasSize(0);
-      es.unlockWrites(TYPE_ISSUE);
-    }
+    Set<IndexType> uninitializedIndexTypes = emptySet();
+    assertThatThrownBy(() -> underTest.indexOnStartup(uninitializedIndexTypes))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("SYNCHRONE StartupIndexer must implement indexOnStartup");
+    assertThatIndexHasSize(0);
+    assertThatEsQueueTableHasSize(0);
+    es.unlockWrites(TYPE_ISSUE);
   }
 
   @Test
@@ -176,7 +176,7 @@ public class IssueIndexerTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = db.issues().insert(rule, project, file);
     ComponentDto otherProject = db.components().insertPrivateProject();
-    ComponentDto fileOnOtherProject = db.components().insertComponent(newFileDto(otherProject));
+    db.components().insertComponent(newFileDto(otherProject));
 
     underTest.indexOnAnalysis(project.uuid());
 
@@ -209,15 +209,13 @@ public class IssueIndexerTest {
     es.lockWrites(TYPE_ISSUE);
     IssueDto issue = db.issues().insert();
 
-    try {
-      // FIXME : test also message
-      assertThatThrownBy(() -> underTest.indexOnAnalysis(issue.getProjectUuid()))
-        .isInstanceOf(IllegalStateException.class);
-    } finally {
-      assertThatIndexHasSize(0);
-      assertThatEsQueueTableHasSize(0);
-      es.unlockWrites(TYPE_ISSUE);
-    }
+    String projectUuid = issue.getProjectUuid();
+    assertThatThrownBy(() -> underTest.indexOnAnalysis(projectUuid))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unrecoverable indexation failures: 1 errors among 1 requests. Check Elasticsearch logs for further details.");
+    assertThatIndexHasSize(0);
+    assertThatEsQueueTableHasSize(0);
+    es.unlockWrites(TYPE_ISSUE);
   }
 
   @Test
@@ -394,8 +392,8 @@ public class IssueIndexerTest {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    IssueDto issue1 = db.issues().insert(rule, project, file);
-    IssueDto issue2 = db.issues().insert(rule, project, file);
+    db.issues().insert(rule, project, file);
+    db.issues().insert(rule, project, file);
 
     es.lockWrites(TYPE_ISSUE);
 
@@ -443,15 +441,13 @@ public class IssueIndexerTest {
     addIssueToIndex("P1", "Issue1");
     es.lockWrites(TYPE_ISSUE);
 
-    try {
-      // FIXME : test also message
-      assertThatThrownBy(() -> underTest.deleteByKeys("P1", asList("Issue1")))
-        .isInstanceOf(IllegalStateException.class);
-    } finally {
-      assertThatIndexHasOnly("Issue1");
-      assertThatEsQueueTableHasSize(0);
-      es.unlockWrites(TYPE_ISSUE);
-    }
+    List<String> issues = List.of("Issue1");
+    assertThatThrownBy(() -> underTest.deleteByKeys("P1", issues))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unrecoverable indexation failures: 1 errors among 1 requests. Check Elasticsearch logs for further details.");
+    assertThatIndexHasOnly("Issue1");
+    assertThatEsQueueTableHasSize(0);
+    es.unlockWrites(TYPE_ISSUE);
   }
 
   @Test
@@ -547,6 +543,48 @@ public class IssueIndexerTest {
   @Test
   public void getType() {
     Assertions.assertThat(underTest.getType()).isEqualTo(StartupIndexer.Type.ASYNCHRONOUS);
+  }
+
+  @Test
+  public void indexOnAnalysis_whenChangedComponents_shouldReindexOnlyChangedComponents() {
+    RuleDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto changedComponent1 = db.components().insertComponent(newFileDto(project));
+    ComponentDto unchangedComponent = db.components().insertComponent(newFileDto(project));
+    ComponentDto ChangedComponent2 = db.components().insertComponent(newFileDto(project));
+    IssueDto changedIssue1 = db.issues().insert(rule, project, changedComponent1);
+    IssueDto changedIssue2 = db.issues().insert(rule, project, changedComponent1);
+    IssueDto changedIssue3 = db.issues().insert(rule, project, ChangedComponent2);
+    db.issues().insert(rule, project, unchangedComponent);
+    db.issues().insert(rule, project, unchangedComponent);
+
+    underTest.indexOnAnalysis(project.uuid(), Set.of(unchangedComponent.uuid()));
+
+    assertThatIndexHasOnly(changedIssue1, changedIssue2, changedIssue3);
+  }
+
+  @Test
+  public void indexOnAnalysis_whenEmptyUnchangedComponents_shouldReindexEverything() {
+    RuleDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto changedComponent = db.components().insertComponent(newFileDto(project));
+    IssueDto changedIssue1 = db.issues().insert(rule, project, changedComponent);
+    IssueDto changedIssue2 = db.issues().insert(rule, project, changedComponent);
+
+    underTest.indexOnAnalysis(project.uuid(), Set.of());
+
+    assertThatIndexHasOnly(changedIssue1, changedIssue2);
+  }
+
+  @Test
+  public void indexOnAnalysis_whenChangedComponentWithoutIssue_shouldReindexNothing() {
+    db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertComponent(newFileDto(project));
+
+    underTest.indexOnAnalysis(project.uuid(), Set.of());
+
+    assertThat(es.getDocuments(TYPE_ISSUE)).isEmpty();
   }
 
   private void addIssueToIndex(String projectUuid, String issueKey) {

@@ -104,6 +104,11 @@ public class PermissionIndexer implements ProjectIndexer {
   }
 
   @Override
+  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
+    // nothing to do, permissions don't change during an analysis
+  }
+
+  @Override
   public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
     return switch (cause) {
       case MEASURE_CHANGE, PROJECT_KEY_UPDATE, PROJECT_TAGS_UPDATE ->

@@ -27,6 +27,7 @@ import org.sonar.ce.task.projectanalysis.source.SourceHashRepository;
 import org.sonar.db.source.FileHashesDto;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Collections.unmodifiableSet;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class FileStatusesImpl implements FileStatuses {
@@ -85,6 +86,12 @@ public class FileStatusesImpl implements FileStatuses {
   public boolean isDataUnchanged(Component component) {
     failIfNotInitialized();
     return fileUuidsMarkedAsUnchanged.contains(component.getUuid());
+  }
+
+  @Override
+  public Set<String> getFileUuidsMarkedAsUnchanged() {
+    failIfNotInitialized();
+    return unmodifiableSet(fileUuidsMarkedAsUnchanged);
   }
 
   private boolean hashEquals(Component component) {

@@ -49,11 +49,6 @@ public class ProjectIndexersTest {
     assertThat(indexer2.calledItems).containsExactlyInAnyOrder(item2);
   }
 
-  @Test
-  public void commitAndIndex_restricts_indexing_to_projects() {
-    // TODO
-  }
-
   private static class FakeIndexer implements ProjectIndexer {
 
     private final List<EsQueueDto> items;
@@ -86,6 +81,11 @@ public class ProjectIndexersTest {
 
     @Override
     public void indexOnAnalysis(String branchUuid) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
       throw new UnsupportedOperationException();
     }
   }

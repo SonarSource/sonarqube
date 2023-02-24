@@ -19,17 +19,29 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import java.util.Set;
+import org.junit.Test;
+import org.mockito.Mockito;
 
-public interface FileStatuses {
-  /**
-   * A file is unchanged compared to the last analysis if it was detected as unchanged by the scanner and
-   * it's confirmed to be unchanged by the CE, by comparing file hashes.
-   */
-  boolean isUnchanged(Component component);
+import static org.assertj.core.api.Assertions.assertThat;
 
-  boolean isDataUnchanged(Component component);
+public class NopFileStatusesTest {
 
-  Set<String> getFileUuidsMarkedAsUnchanged();
+  private final NopFileStatuses nopFileStatuses = new NopFileStatuses();
 
+  private final Component component = Mockito.mock(Component.class);
+
+  @Test
+  public void isUnchanged() {
+    assertThat(nopFileStatuses.isUnchanged(component)).isFalse();
+  }
+
+  @Test
+  public void isDataUnchanged() {
+    assertThat(nopFileStatuses.isDataUnchanged(component)).isFalse();
+  }
+
+  @Test
+  public void getFileUuidsMarkedAsUnchanged() {
+    assertThat(nopFileStatuses.getFileUuidsMarkedAsUnchanged()).isEmpty();
+  }
 }

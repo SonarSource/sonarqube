@@ -20,6 +20,7 @@
 package org.sonar.server.es;
 
 import java.util.Collection;
+import java.util.Set;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
 
@@ -51,6 +52,8 @@ public interface ProjectIndexer extends ResilientIndexer {
    *                   a non-main branch
    */
   void indexOnAnalysis(String branchUuid);
+
+  void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids);
 
   Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause);
 }

@@ -50,6 +50,11 @@ public class FooIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
+    indexOnAnalysis(branchUuid, Set.of());
+  }
+
+  @Override
+  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
     addToIndex(branchUuid, "bar");
     addToIndex(branchUuid, "baz");
   }

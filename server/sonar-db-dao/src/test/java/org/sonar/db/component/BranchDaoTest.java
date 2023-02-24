@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -775,5 +776,27 @@ public class BranchDaoTest {
     componentKeys.add(project.getKey());
 
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys)).isTrue();
+  }
+
+  @DataProvider
+  public static Object[][] booleanValues() {
+    return new Object[][] {
+      {true},
+      {false}
+    };
+  }
+
+  @Test
+  @UseDataProvider("booleanValues")
+  public void isBranchNeedIssueSync_shouldReturnCorrectValue(boolean needIssueSync) {
+    ComponentDto project = db.components().insertPrivateProject();
+    String branchUuid = db.components().insertProjectBranch(project, branch -> branch.setBranchType(BranchType.BRANCH).setNeedIssueSync(needIssueSync)).uuid();
+
+    assertThat(underTest.isBranchNeedIssueSync(dbSession, branchUuid)).isEqualTo(needIssueSync);
+  }
+
+  @Test
+  public void isBranchNeedIssueSync_whenNoBranch_shouldReturnFalse() {
+    assertThat(underTest.isBranchNeedIssueSync(dbSession, "unknown")).isFalse();
   }
 }

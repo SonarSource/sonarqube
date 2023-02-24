@@ -83,6 +83,11 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
 
   @Override
   public void indexOnAnalysis(String projectUuid) {
+    indexOnAnalysis(projectUuid, Set.of());
+  }
+
+  @Override
+  public void indexOnAnalysis(String projectUuid, Set<String> unchangedComponentUuids) {
     doIndex(Size.REGULAR, projectUuid);
   }
 
