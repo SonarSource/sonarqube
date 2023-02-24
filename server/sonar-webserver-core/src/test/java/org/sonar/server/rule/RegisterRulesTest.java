@@ -1137,7 +1137,7 @@ public class RegisterRulesTest {
   private void execute(RulesDefinition... defs) {
     ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
     when(pluginRepository.getPluginKey(any(RulesDefinition.class))).thenReturn(FAKE_PLUGIN_KEY);
-    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(CommonRuleDefinitionsImpl.class), pluginRepository, defs);
+    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(pluginRepository, defs);
     Languages languages = mock(Languages.class);
     when(languages.get(any())).thenReturn(mock(Language.class));
     reset(webServerRuleFinder);

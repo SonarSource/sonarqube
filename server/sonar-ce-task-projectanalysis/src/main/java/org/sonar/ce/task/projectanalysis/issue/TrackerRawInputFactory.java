@@ -34,7 +34,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.CommonRuleEngine;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
@@ -58,18 +57,16 @@ public class TrackerRawInputFactory {
   private static final long DEFAULT_EXTERNAL_ISSUE_EFFORT = 0L;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
-  private final CommonRuleEngine commonRuleEngine;
   private final IssueFilter issueFilter;
   private final SourceLinesHashRepository sourceLinesHash;
   private final RuleRepository ruleRepository;
   private final ActiveRulesHolder activeRulesHolder;
 
-  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesHashRepository sourceLinesHash, CommonRuleEngine commonRuleEngine,
+  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesHashRepository sourceLinesHash,
     IssueFilter issueFilter, RuleRepository ruleRepository, ActiveRulesHolder activeRulesHolder) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.sourceLinesHash = sourceLinesHash;
-    this.commonRuleEngine = commonRuleEngine;
     this.issueFilter = issueFilter;
     this.ruleRepository = ruleRepository;
     this.activeRulesHolder = activeRulesHolder;
@@ -98,12 +95,6 @@ public class TrackerRawInputFactory {
     @Override
     protected List<DefaultIssue> loadIssues() {
       List<DefaultIssue> result = new ArrayList<>();
-
-      for (DefaultIssue commonRuleIssue : commonRuleEngine.process(component)) {
-        if (issueFilter.accept(commonRuleIssue, component)) {
-          result.add(init(commonRuleIssue, STATUS_OPEN));
-        }
-      }
 
       if (component.getReportAttributes().getRef() == null) {
         return result;

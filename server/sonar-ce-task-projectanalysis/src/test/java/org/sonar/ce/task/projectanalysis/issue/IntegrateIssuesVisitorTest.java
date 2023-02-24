@@ -42,7 +42,6 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitor;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.CommonRuleEngineImpl;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
@@ -149,7 +148,7 @@ public class IntegrateIssuesVisitorTest {
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.empty());
 
     DbClient dbClient = dbTester.getDbClient();
-    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(), issueFilter,
+    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, issueFilter,
       ruleRepositoryRule, activeRulesHolder);
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository);
     TrackerTargetBranchInputFactory targetInputFactory = new TrackerTargetBranchInputFactory(issuesLoader, targetBranchComponentUuids, dbClient, movedFilesRepository);

@@ -95,13 +95,6 @@ import org.sonar.ce.task.projectanalysis.issue.TrackerReferenceBranchInputFactor
 import org.sonar.ce.task.projectanalysis.issue.TrackerSourceBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerTargetBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.BranchCoverageRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.CommentDensityRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.CommonRuleEngineImpl;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.DuplicatedBlockRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.LineCoverageRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.SkippedTestRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.TestErrorRule;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.language.LanguageRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.locations.flow.FlowGenerator;
@@ -258,15 +251,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       FlowGenerator.class,
       // push events
       PushEventFactory.class,
-
-      // common rules
-      CommonRuleEngineImpl.class,
-      BranchCoverageRule.class,
-      LineCoverageRule.class,
-      CommentDensityRule.class,
-      DuplicatedBlockRule.class,
-      TestErrorRule.class,
-      SkippedTestRule.class,
 
       // order is important: RuleTypeCopier must be the first one. And DebtAggregator must be before NewDebtAggregator (new debt requires
       // debt)

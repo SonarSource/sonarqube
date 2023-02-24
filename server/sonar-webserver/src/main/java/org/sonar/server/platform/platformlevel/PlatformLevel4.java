@@ -210,7 +210,6 @@ import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.builtin.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
-import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleDescriptionFormatter;
@@ -334,7 +333,6 @@ public class PlatformLevel4 extends PlatformLevel {
       AnnotationRuleParser.class,
       WebServerRuleFinderImpl.class,
       RuleDefinitionsLoader.class,
-      CommonRuleDefinitionsImpl.class,
       RulesDefinitionXmlLoader.class,
       RuleUpdater.class,
       RuleCreator.class,

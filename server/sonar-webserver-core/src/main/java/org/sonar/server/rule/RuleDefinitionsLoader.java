@@ -30,13 +30,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class RuleDefinitionsLoader {
 
-  private final CommonRuleDefinitions coreCommonDefs;
   private final RulesDefinition[] pluginDefs;
   private final ServerPluginRepository serverPluginRepository;
 
   @Autowired(required = false)
-  public RuleDefinitionsLoader(CommonRuleDefinitions coreCommonDefs, ServerPluginRepository serverPluginRepository, RulesDefinition[] pluginDefs) {
-    this.coreCommonDefs = coreCommonDefs;
+  public RuleDefinitionsLoader(ServerPluginRepository serverPluginRepository, RulesDefinition[] pluginDefs) {
     this.serverPluginRepository = serverPluginRepository;
     this.pluginDefs = pluginDefs;
   }
@@ -45,8 +43,8 @@ public class RuleDefinitionsLoader {
    * Used when no definitions at all.
    */
   @Autowired(required = false)
-  public RuleDefinitionsLoader(CommonRuleDefinitions coreCommonDefs, ServerPluginRepository serverPluginRepository) {
-    this(coreCommonDefs, serverPluginRepository, new RulesDefinition[0]);
+  public RuleDefinitionsLoader(ServerPluginRepository serverPluginRepository) {
+    this(serverPluginRepository, new RulesDefinition[0]);
   }
 
   public RulesDefinition.Context load() {
@@ -56,7 +54,6 @@ public class RuleDefinitionsLoader {
       pluginDefinition.define(context);
     }
     context.setCurrentPluginKey(null);
-    coreCommonDefs.define(context);
     return context;
   }
 }

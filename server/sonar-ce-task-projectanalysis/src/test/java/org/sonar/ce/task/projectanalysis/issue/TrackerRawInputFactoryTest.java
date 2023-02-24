@@ -38,7 +38,6 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.ce.task.projectanalysis.issue.commonrule.CommonRuleEngine;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
@@ -90,10 +89,9 @@ public class TrackerRawInputFactoryTest {
   private static final ReportComponent PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).addChildren(FILE, ANOTHER_FILE).build();
 
   private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
-  private final CommonRuleEngine commonRuleEngine = mock(CommonRuleEngine.class);
   private final IssueFilter issueFilter = mock(IssueFilter.class);
   private final TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash,
-    commonRuleEngine, issueFilter, ruleRepository, activeRulesHolder);
+    issueFilter, ruleRepository, activeRulesHolder);
 
   @Before
   public void before() {
@@ -441,38 +439,6 @@ public class TrackerRawInputFactoryTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
-
-    Input<DefaultIssue> input = underTest.create(FILE);
-
-    assertThat(input.getIssues()).isEmpty();
-  }
-
-  @Test
-  public void load_issues_of_compute_engine_common_rules() {
-    RuleKey ruleKey = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage");
-    markRuleAsActive(ruleKey);
-    DefaultIssue ceIssue = new DefaultIssue()
-      .setRuleKey(ruleKey)
-      .setMessage("not enough coverage")
-      .setGap(10.0);
-    when(commonRuleEngine.process(FILE)).thenReturn(singletonList(ceIssue));
-
-    Input<DefaultIssue> input = underTest.create(FILE);
-
-    assertThat(input.getIssues()).containsOnly(ceIssue);
-    assertInitializedIssue(input.getIssues().iterator().next());
-  }
-
-  @Test
-  public void filter_exclude_issues_on_common_rule() {
-    RuleKey ruleKey = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage");
-    markRuleAsActive(ruleKey);
-    when(issueFilter.accept(any(), eq(FILE))).thenReturn(false);
-    DefaultIssue ceIssue = new DefaultIssue()
-      .setRuleKey(ruleKey)
-      .setMessage("not enough coverage")
-      .setGap(10.0);
-    when(commonRuleEngine.process(FILE)).thenReturn(singletonList(ceIssue));
 
     Input<DefaultIssue> input = underTest.create(FILE);
 
