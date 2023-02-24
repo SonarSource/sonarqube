@@ -37,6 +37,7 @@ import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { SEVERITIES } from '../../../helpers/constants';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Component, Dict, Issue, IssueType, Paging } from '../../../types/types';
@@ -370,8 +371,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const severities = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
-    const options: LabelValueSelectOption[] = severities.map((severity) => ({
+    const options: LabelValueSelectOption[] = SEVERITIES.map((severity) => ({
       label: translate('severity', severity),
       value: severity,
     }));

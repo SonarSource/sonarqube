@@ -66,6 +66,7 @@ import { serializeDate } from '../../../helpers/query';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import {
+  ASSIGNEE_ME,
   Facet,
   FetchIssuesPromise,
   ReferencedComponent,
@@ -469,7 +470,7 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     if (myIssues) {
-      Object.assign(parameters, { assignees: '__me__' });
+      Object.assign(parameters, { assignees: ASSIGNEE_ME });
     }
 
     return this.fetchIssuesHelper(parameters);
@@ -688,7 +689,7 @@ export class App extends React.PureComponent<Props, State> {
     };
 
     if (myIssues) {
-      Object.assign(parameters, { assignees: '__me__' });
+      Object.assign(parameters, { assignees: ASSIGNEE_ME });
     }
 
     return this.fetchIssuesHelper(parameters).then(({ facets }) => parseFacets(facets)[property]);

@@ -30,6 +30,7 @@ import {
   mockRuleDetails,
 } from '../../helpers/testMocks';
 import {
+  ASSIGNEE_ME,
   IssueType,
   RawFacet,
   RawIssue,
@@ -103,6 +104,7 @@ export default class IssuesServiceMock {
           key: 'issue101',
           component: 'foo:test1.js',
           message: 'Issue with no location message',
+          type: IssueType.Vulnerability,
           rule: 'simpleRuleId',
           textRange: {
             startLine: 10,
@@ -160,6 +162,7 @@ export default class IssuesServiceMock {
           key: 'issue11',
           component: 'foo:test1.js',
           message: 'FlowIssue',
+          type: IssueType.CodeSmell,
           rule: 'simpleRuleId',
           textRange: {
             startLine: 10,
@@ -252,6 +255,8 @@ export default class IssuesServiceMock {
           key: 'issue0',
           component: 'foo:test1.js',
           message: 'Issue on file',
+          assignee: mockLoggedInUser().login,
+          type: IssueType.Vulnerability,
           rule: 'simpleRuleId',
           textRange: undefined,
           line: undefined,
@@ -263,6 +268,7 @@ export default class IssuesServiceMock {
           key: 'issue1',
           component: 'foo:test1.js',
           message: 'Fix this',
+          type: IssueType.Vulnerability,
           rule: 'simpleRuleId',
           textRange: {
             startLine: 10,
@@ -397,6 +403,17 @@ export default class IssuesServiceMock {
           'component.key'
         ),
       },
+      {
+        issue: mockRawIssue(false, {
+          key: 'issue1101',
+          component: 'foo:test5.js',
+          message: 'Issue on page 2',
+          rule: 'simpleRuleId',
+          textRange: undefined,
+          line: undefined,
+        }),
+        snippets: {},
+      },
     ];
 
     this.list = cloneDeep(this.defaultList);
@@ -524,18 +541,60 @@ export default class IssuesServiceMock {
       if (name === 'owaspTop10-2021') {
         return this.owasp2021FacetList();
       }
+      if (name === 'languages') {
+        return {
+          property: name,
+          values: [
+            {
+              val: 'java',
+              count: 25211,
+            },
+            {
+              val: 'ts',
+              count: 3174,
+            },
+          ],
+        };
+      }
       return {
         property: name,
         values: [],
       };
     });
+
+    // Filter list (only supports assignee, type and severity)
+    const filteredList = this.list
+      .filter((item) => {
+        if (!query.assignees) {
+          return true;
+        }
+        if (query.assignees === ASSIGNEE_ME) {
+          return item.issue.assignee === mockLoggedInUser().login;
+        }
+        return query.assignees.split(',').includes(item.issue.assignee);
+      })
+      .filter((item) => !query.types || query.types.split(',').includes(item.issue.type))
+      .filter(
+        (item) => !query.severities || query.severities.split(',').includes(item.issue.severity)
+      );
+
+    // Splice list items according to paging using a fixed page size
+    const pageIndex = query.p || 1;
+    const pageSize = 7;
+    const listItems = filteredList.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
+
+    // Generate response
     return this.reply({
-      components: generateReferenceComponentsForIssues(this.list),
+      components: generateReferenceComponentsForIssues(filteredList),
       effortTotal: 199629,
       facets,
-      issues: this.list.map((line) => line.issue),
+      issues: listItems.map((line) => line.issue),
       languages: [],
-      paging: mockPaging(),
+      paging: mockPaging({
+        pageIndex,
+        pageSize,
+        total: filteredList.length,
+      }),
     });
   };
 

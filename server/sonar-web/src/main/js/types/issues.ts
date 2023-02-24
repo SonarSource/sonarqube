@@ -20,6 +20,8 @@
 import { Issue, Paging, TextRange } from './types';
 import { UserBase } from './users';
 
+export const ASSIGNEE_ME = '__me__';
+
 export enum IssueType {
   CodeSmell = 'CODE_SMELL',
   Vulnerability = 'VULNERABILITY',
