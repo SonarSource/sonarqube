@@ -25,6 +25,7 @@ import { BranchParameters } from '../types/branch-like';
 import {
   ExtendedSettingDefinition,
   SettingDefinition,
+  SettingType,
   SettingValue,
   SettingValueResponse,
 } from '../types/settings';
@@ -71,12 +72,12 @@ export function setSettingValue(
   const { key } = definition;
   const data: RequestData = { key, component };
 
-  if (isCategoryDefinition(definition) && definition.multiValues) {
-    data.values = value;
-  } else if (definition.type === 'PROPERTY_SET') {
+  if (definition.type === SettingType.PROPERTY_SET) {
     data.fieldValues = value
       .map((fields: any) => omitBy(fields, (value) => value == null))
       .map(JSON.stringify);
+  } else if (isCategoryDefinition(definition) && definition.multiValues) {
+    data.values = value;
   } else {
     data.value = value;
   }

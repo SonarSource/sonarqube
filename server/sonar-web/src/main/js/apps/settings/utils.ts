@@ -86,10 +86,10 @@ export function getUniqueName(definition: SettingDefinition, index?: string) {
 
 export function getSettingValue(definition: SettingDefinition, settingValue?: SettingValue) {
   const { fieldValues, value, values } = settingValue || {};
-  if (isCategoryDefinition(definition) && definition.multiValues) {
-    return values;
-  } else if (definition.type === SettingType.PROPERTY_SET) {
+  if (definition.type === SettingType.PROPERTY_SET) {
     return fieldValues;
+  } else if (isCategoryDefinition(definition) && definition.multiValues) {
+    return values;
   } else if (definition.type === SettingType.FORMATTED_TEXT) {
     return values ? values[0] : undefined;
   }
@@ -151,14 +151,14 @@ export function isCategoryDefinition(item: SettingDefinition): item is ExtendedS
 
 export function getEmptyValue(item: SettingDefinition | ExtendedSettingDefinition): any {
   if (isCategoryDefinition(item)) {
-    if (item.multiValues) {
-      return [getEmptyValue({ ...item, multiValues: false })];
-    }
-
-    if (item.type === 'PROPERTY_SET') {
+    if (item.type === SettingType.PROPERTY_SET) {
       const value: Dict<string> = {};
       item.fields.forEach((field) => (value[field.key] = getEmptyValue(field)));
       return [value];
+    }
+
+    if (item.multiValues) {
+      return [getEmptyValue({ ...item, multiValues: false })];
     }
   }
 
@@ -193,7 +193,11 @@ export function getDefaultValue(setting: Setting) {
     return parentValues.join(', ');
   }
 
-  if (definition.type === 'PROPERTY_SET' && parentFieldValues && parentFieldValues.length > 0) {
+  if (
+    definition.type === SettingType.PROPERTY_SET &&
+    parentFieldValues &&
+    parentFieldValues.length > 0
+  ) {
     return translate('settings.default.complex_value');
   }
 
