@@ -180,6 +180,22 @@ public class DeleteActionIT {
     assertThat(db.countRowsOfTable("qgate_group_permissions")).isZero();
   }
 
+  @Test
+  public void delete_scim_group() {
+    addAdmin();
+    insertDefaultGroup();
+    GroupDto group = db.users().insertGroup();
+    db.users().insertScimGroup(group);
+
+    loginAsAdmin();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .execute();
+
+    assertThat(db.countRowsOfTable("scim_groups")).isZero();
+  }
+
 
   @Test
   public void fail_to_delete_default_group() {

@@ -45,8 +45,8 @@ public class ScimGroupDaoTest {
 
   @Test
   public void findAll_returnsAllEntries() {
-    ScimGroupDto scimGroup1 = insertScimGroup();
-    ScimGroupDto scimGroup2 = insertScimGroup();
+    ScimGroupDto scimGroup1 = db.users().insertScimGroup(db.users().insertGroup());
+    ScimGroupDto scimGroup2 = db.users().insertScimGroup(db.users().insertGroup());
 
     List<ScimGroupDto> underTest = scimGroupDao.findAll(db.getSession());
 
@@ -65,8 +65,8 @@ public class ScimGroupDaoTest {
 
   @Test
   public void findByScimUuid_whenScimUuidFound_shouldReturnDto() {
-    ScimGroupDto scimGroupDto = insertScimGroup();
-    insertScimGroup();
+    ScimGroupDto scimGroupDto = db.users().insertScimGroup(db.users().insertGroup());
+    db.users().insertScimGroup(db.users().insertGroup());
 
     ScimGroupDto underTest = scimGroupDao.findByScimUuid(db.getSession(), scimGroupDto.getScimGroupUuid())
       .orElseGet(() -> fail("Group not found"));
@@ -82,8 +82,8 @@ public class ScimGroupDaoTest {
 
   @Test
   public void findByGroupUuid_whenScimUuidFound_shouldReturnDto() {
-    ScimGroupDto scimGroupDto = insertScimGroup();
-    insertScimGroup();
+    ScimGroupDto scimGroupDto = db.users().insertScimGroup(db.users().insertGroup());
+    db.users().insertScimGroup(db.users().insertGroup());
 
     ScimGroupDto underTest = scimGroupDao.findByGroupUuid(db.getSession(), scimGroupDto.getGroupUuid())
       .orElseGet(() -> fail("Group not found"));
@@ -104,7 +104,7 @@ public class ScimGroupDaoTest {
 
   @Test
   public void deleteByGroupUuid_shouldDeleteScimGroup() {
-    ScimGroupDto scimGroupDto = insertScimGroup();
+    ScimGroupDto scimGroupDto = db.users().insertScimGroup(db.users().insertGroup());
 
     scimGroupDao.deleteByGroupUuid(db.getSession(), scimGroupDto.getGroupUuid());
 
@@ -113,8 +113,8 @@ public class ScimGroupDaoTest {
 
   @Test
   public void deleteByScimUuid_shouldDeleteScimGroup() {
-    ScimGroupDto scimGroupDto1 = insertScimGroup();
-    ScimGroupDto scimGroupDto2 = insertScimGroup();
+    ScimGroupDto scimGroupDto1 = db.users().insertScimGroup(db.users().insertGroup());
+    ScimGroupDto scimGroupDto2 = db.users().insertScimGroup(db.users().insertGroup());
 
     scimGroupDao.deleteByScimUuid(db.getSession(), scimGroupDto1.getScimGroupUuid());
 
@@ -131,7 +131,4 @@ public class ScimGroupDaoTest {
     assertThatCode(() -> scimGroupDao.deleteByGroupUuid(db.getSession(), randomAlphanumeric(6))).doesNotThrowAnyException();
   }
 
-  private ScimGroupDto insertScimGroup() {
-    return scimGroupDao.enableScimForGroup(db.getSession(), randomAlphanumeric(40));
-  }
 }

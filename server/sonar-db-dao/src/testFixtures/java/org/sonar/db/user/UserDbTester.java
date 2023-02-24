@@ -38,6 +38,7 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.scim.ScimGroupDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.stream;
@@ -134,6 +135,12 @@ public class UserDbTester {
     db.getDbClient().groupDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
+  }
+
+  public ScimGroupDto insertScimGroup(GroupDto dto) {
+    ScimGroupDto result = db.getDbClient().scimGroupDao().enableScimForGroup(db.getSession(), dto.getUuid());
+    db.commit();
+    return result;
   }
 
   public GroupDto insertDefaultGroup() {
