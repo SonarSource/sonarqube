@@ -27,7 +27,6 @@ import {
 import { mockSourceLine } from '../../helpers/mocks/sources';
 import { getStandards } from '../../helpers/security-standard';
 import { mockPaging, mockRuleDetails, mockUser } from '../../helpers/testMocks';
-import { BranchParameters } from '../../types/branch-like';
 import {
   Hotspot,
   HotspotAssignRequest,
@@ -132,10 +131,46 @@ export default class SecurityHotspotServiceMock {
     });
   };
 
-  handleGetSecurityHotspotList = () => {
+  handleGetSecurityHotspotList = (
+    hotspotKeys: string[],
+    data: {
+      projectKey: string;
+      branch?: string;
+    }
+  ) => {
+    if (data?.branch === 'b1') {
+      return this.reply({
+        paging: mockPaging(),
+        hotspots: [
+          mockRawHotspot({
+            assignee: 'John Doe',
+            key: 'b1-test-1',
+            message: "'F' is a magic number.",
+          }),
+          mockRawHotspot({ assignee: 'John Doe', key: 'b1-test-2' }),
+        ].filter((h) => hotspotKeys.includes(h.key) || hotspotKeys.length === 0),
+        components: [
+          {
+            key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed:index.php',
+            qualifier: 'FIL',
+            name: 'index.php',
+            longName: 'index.php',
+            path: 'index.php',
+          },
+          {
+            key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
+            qualifier: 'TRK',
+            name: 'benflix',
+            longName: 'benflix',
+          },
+        ],
+      });
+    }
     return this.reply({
       paging: mockPaging(),
-      hotspots: [mockRawHotspot({ assignee: 'John Doe' })],
+      hotspots: this.mockRawHotspots(false).filter(
+        (h) => hotspotKeys.includes(h.key) || hotspotKeys.length === 0
+      ),
       components: [
         {
           key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed:index.php',
@@ -154,17 +189,45 @@ export default class SecurityHotspotServiceMock {
     });
   };
 
-  handleGetSecurityHotspots = (
-    data: {
-      projectKey: string;
-      p: number;
-      ps: number;
-      status?: HotspotStatus;
-      resolution?: HotspotResolution;
-      onlyMine?: boolean;
-      inNewCodePeriod?: boolean;
-    } & BranchParameters
-  ) => {
+  handleGetSecurityHotspots = (data: {
+    projectKey: string;
+    p: number;
+    ps: number;
+    status?: HotspotStatus;
+    resolution?: HotspotResolution;
+    onlyMine?: boolean;
+    inNewCodePeriod?: boolean;
+    branch?: string;
+  }) => {
+    if (data?.branch === 'b1') {
+      return this.reply({
+        paging: mockPaging({ pageIndex: 1, pageSize: data.ps, total: 2 }),
+        hotspots: [
+          mockRawHotspot({
+            assignee: 'John Doe',
+            key: 'b1-test-1',
+            message: "'F' is a magic number.",
+          }),
+          mockRawHotspot({ assignee: 'John Doe', key: 'b1-test-2' }),
+        ],
+        components: [
+          {
+            key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed:index.php',
+            qualifier: 'FIL',
+            name: 'index.php',
+            longName: 'index.php',
+            path: 'index.php',
+          },
+          {
+            key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
+            qualifier: 'TRK',
+            name: 'benflix',
+            longName: 'benflix',
+          },
+        ],
+      });
+    }
+
     return this.reply({
       paging: mockPaging({ pageIndex: 1, pageSize: data.ps, total: this.hotspots.length }),
       hotspots: this.mockRawHotspots(data.onlyMine),
@@ -245,6 +308,12 @@ export default class SecurityHotspotServiceMock {
 
   reset = () => {
     this.hotspots = [
+      mockHotspot({
+        assignee: 'John Doe',
+        key: 'b1-test-1',
+        message: "'F' is a magic number.",
+      }),
+      mockHotspot({ assignee: 'John Doe', key: 'b1-test-2' }),
       mockHotspot({ key: 'test-1', status: HotspotStatus.TO_REVIEW }),
       mockHotspot({
         key: 'test-2',

@@ -26,10 +26,11 @@ import { byDisplayValue, byRole, byTestId, byText } from 'testing-library-select
 import SecurityHotspotServiceMock from '../../../api/mocks/SecurityHotspotServiceMock';
 import { getSecurityHotspots, setSecurityHotspotStatus } from '../../../api/security-hotspots';
 import { searchUsers } from '../../../api/users';
-import { mockMainBranch } from '../../../helpers/mocks/branch-like';
+import { mockBranch, mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
+import { ComponentContextShape } from '../../../types/component';
 import SecurityHotspotsApp from '../SecurityHotspotsApp';
 
 jest.mock('../../../api/measures');
@@ -59,7 +60,7 @@ const ui = {
   changeStatus: byRole('button', { name: 'hotspots.status.change_status' }),
   hotspotTitle: (name: string | RegExp) => byRole('heading', { name }),
   hotspotStatus: byRole('heading', { name: 'status: hotspots.status_option.FIXED' }),
-  hotpostListTitle: byRole('heading', { name: 'hotspots.list_title.TO_REVIEW.2' }),
+  hotpostListTitle: byRole('heading', { name: 'hotspots.list_title.TO_REVIEW.4' }),
   hotspotCommentBox: byRole('textbox', { name: 'hotspots.comment.field' }),
   commentSubmitButton: byRole('button', { name: 'hotspots.comment.submit' }),
   commentEditButton: byRole('button', { name: 'issue.comment.edit' }),
@@ -79,6 +80,24 @@ beforeEach(() => {
 
 afterEach(() => {
   handler.reset();
+});
+
+it('should navigate when comming from SonarLint', async () => {
+  // On main branch
+  const rtl = renderSecurityHotspotsApp(
+    'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=test-1'
+  );
+
+  expect(await ui.hotspotTitle(/'3' is a magic number./).find()).toBeInTheDocument();
+
+  // On specific branch
+  rtl.unmount();
+  renderSecurityHotspotsApp(
+    'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=b1-test-1&branch=b1',
+    { branchLike: mockBranch({ name: 'b1' }) }
+  );
+
+  expect(await ui.hotspotTitle(/'F' is a magic number./).find()).toBeInTheDocument();
 });
 
 it('should be able to self-assign a hotspot', async () => {
@@ -242,8 +261,11 @@ it('should be able to add, edit and remove own comments', async () => {
   expect(screen.queryByText(`${comment} test`)).not.toBeInTheDocument();
 });
 
-function renderSecurityHotspotsApp(navigateTo?: string) {
-  renderAppWithComponentContext(
+function renderSecurityHotspotsApp(
+  navigateTo?: string,
+  component?: Partial<ComponentContextShape>
+) {
+  return renderAppWithComponentContext(
     'security_hotspots',
     () => <Route path="security_hotspots" element={<SecurityHotspotsApp />} />,
     {
@@ -261,6 +283,7 @@ function renderSecurityHotspotsApp(navigateTo?: string) {
         key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
         name: 'benflix',
       }),
+      ...component,
     }
   );
 }
