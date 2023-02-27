@@ -77,6 +77,12 @@ public class UserDbTester {
     return insertUser(dto);
   }
 
+  public ScimUserDto insertScimUser(UserDto userDto) {
+    ScimUserDto scimUserDto = dbClient.scimUserDao().enableScimForUser(db.getSession(), userDto.getUuid());
+    db.commit();
+    return scimUserDto;
+  }
+
   @SafeVarargs
   public final UserDto insertDisabledUser(Consumer<UserDto>... populators) {
     UserDto dto = UserTesting.newDisabledUser();

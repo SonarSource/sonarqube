@@ -3,6 +3,29 @@
 
 <mapper namespace="org.sonar.db.user.UserGroupMapper">
 
+    <sql id="userColumns">
+      u.uuid as uuid,
+      u.login as login,
+      u.name as name,
+      u.email as email,
+      u.active as "active",
+      u.scm_accounts as "scmAccounts",
+      u.salt as "salt",
+      u.crypted_password as "cryptedPassword",
+      u.hash_method as "hashMethod",
+      u.external_id as "externalId",
+      u.external_login as "externalLogin",
+      u.external_identity_provider as "externalIdentityProvider",
+      u.user_local as "local",
+      u.reset_password as "resetPassword",
+      u.homepage_type as "homepageType",
+      u.homepage_parameter as "homepageParameter",
+      u.last_connection_date as "lastConnectionDate",
+      u.last_sonarlint_connection as "lastSonarlintConnectionDate",
+      u.created_at as "createdAt",
+      u.updated_at as "updatedAt"
+    </sql>
+
   <insert id="insert" parameterType="UserGroup" useGeneratedKeys="false">
     insert into groups_users (
     user_uuid,
@@ -17,6 +40,15 @@
     select gu.user_uuid
     from groups_users gu
     where gu.group_uuid=#{groupUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectScimMembersByGroupUuid" parameterType="string" resultType="User">
+    select
+    <include refid="userColumns"/>
+    from users u
+    inner join scim_users su on su.user_uuid = u.uuid
+    inner join groups_users gu on gu.user_uuid = u.uuid
+    where gu.group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </select>
 
   <delete id="delete" parameterType="map">
@@ -34,4 +66,15 @@
     DELETE FROM groups_users WHERE user_uuid=#{userUuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteFromGroupByUserUuids" parameterType="string">
+    delete
+    from
+      groups_users
+    where
+      group_uuid = #{groupUuid, jdbcType=VARCHAR}
+    and user_uuid in
+    <foreach collection="userUuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid, jdbcType=VARCHAR}
+    </foreach>
+  </delete>
 </mapper>

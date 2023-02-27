@@ -66,7 +66,22 @@ public class UserGroupDao implements Dao {
     }
   }
 
+  public void deleteFromGroupByUserUuids(DbSession dbSession, GroupDto groupDto, Set<UserDto> userDtos) {
+    int deletedRows = mapper(dbSession).deleteFromGroupByUserUuids(groupDto.getUuid(), userDtos.stream()
+      .map(UserDto::getUuid)
+      .toList());
+
+    if (deletedRows > 0) {
+      userDtos.forEach(userDto -> auditPersister.deleteUserFromGroup(dbSession, new UserGroupNewValue(userDto)));
+    }
+  }
+
+  public Set<UserDto> selectScimMembersByGroupUuid(DbSession dbSession, GroupDto groupDto) {
+    return mapper(dbSession).selectScimMembersByGroupUuid(groupDto.getUuid());
+  }
+
   private static UserGroupMapper mapper(DbSession session) {
     return session.getMapper(UserGroupMapper.class);
   }
+
 }

@@ -35,7 +35,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -54,7 +53,8 @@ public class DeleteActionIT {
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
 
   private final ComponentDbTester componentTester = new ComponentDbTester(db);
-  private final WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, newGroupWsSupport()));
+  private final GroupService groupService = new GroupService(db.getDbClient());
+  private final WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, groupService));
 
   @Test
   public void verify_definition() {
@@ -280,9 +280,4 @@ public class DeleteActionIT {
   private TestRequest newRequest() {
     return ws.newRequest();
   }
-
-  private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()));
-  }
-
 }
