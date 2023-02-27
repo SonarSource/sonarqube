@@ -289,6 +289,8 @@ qa_task:
     memory: 7Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+  name: QA $QA_CATEGORY
+  alias: qa
   env:
     matrix:
       # QA name should not exceed 13 characters to be properly reported on wallboard by burgr
