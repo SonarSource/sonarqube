@@ -57,7 +57,7 @@ public class AddColumnsBuilderTest {
   @Test
   public void add_columns_on_mssql() {
     assertThat(createSampleBuilder(new MsSql()).build())
-      .isEqualTo("ALTER TABLE issues ADD date_in_ms BIGINT NULL, name NVARCHAR (10) NOT NULL, col_with_default BIT DEFAULT 0 NOT NULL, varchar_col_with_default NVARCHAR (3) DEFAULT 'foo' NOT NULL");
+      .isEqualTo("ALTER TABLE issues ADD date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL, col_with_default BIT DEFAULT 0 NOT NULL, varchar_col_with_default VARCHAR (3) DEFAULT 'foo' NOT NULL");
   }
 
   @Test
