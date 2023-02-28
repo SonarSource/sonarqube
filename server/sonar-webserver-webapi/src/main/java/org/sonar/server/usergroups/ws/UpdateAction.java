@@ -24,7 +24,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.user.UserGroupValidation;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
@@ -96,32 +95,16 @@ public class UpdateAction implements UserGroupsWsAction {
       String currentName = request.mandatoryParam(PARAM_GROUP_CURRENT_NAME);
 
       GroupDto group = dbClient.groupDao().selectByName(dbSession, currentName)
-          .orElseThrow(() -> new NotFoundException(format("Could not find a user group with name '%s'.", currentName)));
+        .orElseThrow(() -> new NotFoundException(format("Could not find a user group with name '%s'.", currentName)));
 
       userSession.checkPermission(ADMINISTER);
-      support.checkGroupIsNotDefault(dbSession, group);
-
-      boolean changed = false;
       String newName = request.param(PARAM_GROUP_NAME);
-      if (newName != null) {
-        changed = true;
-        UserGroupValidation.validateGroupName(newName);
-        support.checkNameDoesNotExist(dbSession, newName);
-        group.setName(newName);
-      }
-
       String description = request.param(PARAM_GROUP_DESCRIPTION);
-      if (description != null) {
-        changed = true;
-        group.setDescription(description);
-      }
 
-      if (changed) {
-        dbClient.groupDao().update(dbSession, group);
-        dbSession.commit();
-      }
+      GroupDto updatedGroup = support.updateGroup(dbSession, group, newName, description);
+      dbSession.commit();
 
-      writeResponse(dbSession, request, response, group);
+      writeResponse(dbSession, request, response, updatedGroup);
     }
   }
 

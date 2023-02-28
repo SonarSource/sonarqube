@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
@@ -176,7 +177,7 @@ public class UpdateActionIT {
       .setParam(PARAM_GROUP_NAME, "");
 
     assertThatThrownBy(request::execute)
-      .isInstanceOf(IllegalArgumentException.class)
+      .isInstanceOf(BadRequestException.class)
       .hasMessage("Group name cannot be empty");
   }
 
@@ -201,7 +202,7 @@ public class UpdateActionIT {
       .setParam(PARAM_GROUP_NAME, "AnYoNe");
 
     assertThatThrownBy(request::execute)
-      .isInstanceOf(IllegalArgumentException.class)
+      .isInstanceOf(BadRequestException.class)
       .hasMessage("Anyone group cannot be used");
   }
 
