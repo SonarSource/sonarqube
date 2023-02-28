@@ -19,6 +19,7 @@
  */
 import { DEFAULT_GRAPH } from '../../../components/activity-graph/utils';
 import { parseDate } from '../../../helpers/dates';
+import { ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import * as actions from '../actions';
 
 const ANALYSES = [
@@ -28,7 +29,7 @@ const ANALYSES = [
     events: [
       {
         key: 'E1',
-        category: 'VERSION',
+        category: ProjectAnalysisEventCategory.Version,
         name: '6.5-SNAPSHOT',
       },
     ],
@@ -44,12 +45,12 @@ const ANALYSES = [
     events: [
       {
         key: 'E2',
-        category: 'OTHER',
+        category: ProjectAnalysisEventCategory.Other,
         name: 'foo',
       },
       {
         key: 'E3',
-        category: 'OTHER',
+        category: ProjectAnalysisEventCategory.Other,
         name: 'foo',
       },
     ],
@@ -59,7 +60,7 @@ const ANALYSES = [
 const newEvent = {
   key: 'Enew',
   name: 'Foo',
-  category: 'Custom',
+  category: ProjectAnalysisEventCategory.Other,
 };
 
 const emptyState = {
@@ -100,12 +101,18 @@ describe('deleteEvent', () => {
 describe('changeEvent', () => {
   it('should correctly update an event', () => {
     expect(
-      actions.changeEvent('A1', { key: 'E1', name: 'changed', category: 'VERSION' })(state)
-        .analyses[0]
+      actions.changeEvent('A1', {
+        key: 'E1',
+        name: 'changed',
+        category: ProjectAnalysisEventCategory.Version,
+      })(state).analyses[0]
     ).toMatchSnapshot();
     expect(
-      actions.changeEvent('A2', { key: 'E2', name: 'foo', category: 'VERSION' })(state).analyses[1]
-        .events
+      actions.changeEvent('A2', {
+        key: 'E2',
+        name: 'foo',
+        category: ProjectAnalysisEventCategory.Version,
+      })(state).analyses[1].events
     ).toHaveLength(0);
   });
 });

@@ -43,9 +43,6 @@ export interface Query {
   to?: Date;
 }
 
-export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
-export const APPLICATION_EVENT_TYPES = ['QUALITY_GATE', 'DEFINITION_CHANGE', 'OTHER'];
-
 export function activityQueryChanged(prevQuery: Query, nextQuery: Query) {
   return prevQuery.category !== nextQuery.category || datesQueryChanged(prevQuery, nextQuery);
 }
@@ -60,10 +57,6 @@ export function datesQueryChanged(prevQuery: Query, nextQuery: Query) {
 
 export function historyQueryChanged(prevQuery: Query, nextQuery: Query) {
   return prevQuery.graph !== nextQuery.graph;
-}
-
-export function selectedDateQueryChanged(prevQuery: Query, nextQuery: Query) {
-  return !isEqual(prevQuery.selectedDate, nextQuery.selectedDate);
 }
 
 interface AnalysesByDay {

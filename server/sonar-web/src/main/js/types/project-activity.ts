@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Status } from './types';
+
 interface BaseAnalysis {
   buildString?: string;
   detectedCI?: string;
@@ -35,19 +37,19 @@ export interface ParsedAnalysis extends BaseAnalysis {
 }
 
 export interface AnalysisEvent {
-  category: string;
+  category: ProjectAnalysisEventCategory | ApplicationAnalysisEventCategory;
   description?: string;
   key: string;
   name: string;
   qualityGate?: {
     failing: Array<{ branch: string; key: string; name: string }>;
-    status: string;
+    status: Status;
     stillFailing: boolean;
   };
   definitionChange?: {
     projects: Array<{
       branch?: string;
-      changeType: string;
+      changeType: DefinitionChangeType;
       key: string;
       name: string;
       newBranch?: string;
@@ -61,6 +63,25 @@ export enum GraphType {
   coverage = 'coverage',
   duplications = 'duplications',
   custom = 'custom',
+}
+
+export enum ProjectAnalysisEventCategory {
+  Version = 'VERSION',
+  QualityGate = 'QUALITY_GATE',
+  QualityProfile = 'QUALITY_PROFILE',
+  Other = 'OTHER',
+}
+
+export enum ApplicationAnalysisEventCategory {
+  QualityGate = 'QUALITY_GATE',
+  DefinitionChange = 'DEFINITION_CHANGE',
+  Other = 'OTHER',
+}
+
+export enum DefinitionChangeType {
+  Added = 'ADDED',
+  Removed = 'REMOVED',
+  BranchChanged = 'BRANCH_CHANGED',
 }
 
 export interface HistoryItem {

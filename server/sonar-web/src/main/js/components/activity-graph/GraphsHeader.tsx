@@ -28,35 +28,29 @@ import './styles.css';
 import { getGraphTypes, isCustomGraph } from './utils';
 
 interface Props {
-  addCustomMetric?: (metric: string) => void;
+  onAddCustomMetric?: (metric: string) => void;
   className?: string;
-  removeCustomMetric?: (metric: string) => void;
+  onRemoveCustomMetric?: (metric: string) => void;
   graph: GraphType;
   metrics: Metric[];
   metricsTypeFilter?: string[];
   selectedMetrics?: string[];
-  updateGraph: (graphType: string) => void;
+  onUpdateGraph: (graphType: string) => void;
 }
 
 export default class GraphsHeader extends React.PureComponent<Props> {
   handleGraphChange = (option: { value: string }) => {
     if (option.value !== this.props.graph) {
-      this.props.updateGraph(option.value);
+      this.props.onUpdateGraph(option.value);
     }
   };
 
   render() {
-    const {
-      addCustomMetric,
-      className,
-      graph,
-      metrics,
-      metricsTypeFilter,
-      removeCustomMetric,
-      selectedMetrics = [],
-    } = this.props;
+    const { className, graph, metrics, metricsTypeFilter, selectedMetrics = [] } = this.props;
 
-    const types = getGraphTypes(addCustomMetric === undefined || removeCustomMetric === undefined);
+    const types = getGraphTypes(
+      this.props.onAddCustomMetric === undefined || this.props.onRemoveCustomMetric === undefined
+    );
 
     const selectOptions = types.map((type) => ({
       label: translate('project_activity.graphs', type),
@@ -80,13 +74,13 @@ export default class GraphsHeader extends React.PureComponent<Props> {
             />
           </div>
           {isCustomGraph(graph) &&
-            addCustomMetric !== undefined &&
-            removeCustomMetric !== undefined && (
+            this.props.onAddCustomMetric !== undefined &&
+            this.props.onRemoveCustomMetric !== undefined && (
               <AddGraphMetric
-                addMetric={addCustomMetric}
+                onAddMetric={this.props.onAddCustomMetric}
                 metrics={metrics}
                 metricsTypeFilter={metricsTypeFilter}
-                removeMetric={removeCustomMetric}
+                onRemoveMetric={this.props.onRemoveCustomMetric}
                 selectedMetrics={selectedMetrics}
               />
             )}

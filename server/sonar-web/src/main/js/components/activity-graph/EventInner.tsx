@@ -42,9 +42,8 @@ export default function EventInner({ event, readonly }: EventInnerProps) {
       </ComponentContext.Consumer>
     );
   }
-
   return (
-    <Tooltip overlay={event.description || null}>
+    <Tooltip overlay={event.description}>
       <span className="text-middle">
         <span className="note little-spacer-right">
           {translate('event.category', event.category)}:

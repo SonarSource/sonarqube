@@ -34,7 +34,7 @@ exports[`should render correctly 1`] = `
                 },
               ]
             }
-            updateGraph={[MockFunction]}
+            onUpdateGraph={[MockFunction]}
           />
           <GraphsHistory
             analyses={[]}
@@ -204,7 +204,7 @@ exports[`should render correctly 2`] = `
                 },
               ]
             }
-            updateGraph={[MockFunction]}
+            onUpdateGraph={[MockFunction]}
           />
           <GraphsHistory
             analyses={[]}

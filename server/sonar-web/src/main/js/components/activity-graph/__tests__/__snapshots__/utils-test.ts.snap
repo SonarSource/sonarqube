@@ -56,7 +56,7 @@ exports[`generateSeries should correctly generate the series 1`] = `
       },
     ],
     "name": "lines_to_cover",
-    "translatedName": "Line to Cover",
+    "translatedName": "lines_to_cover",
     "type": "PERCENT",
   },
 ]

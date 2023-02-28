@@ -19,7 +19,6 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { times } from 'lodash';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
@@ -40,42 +39,77 @@ const MAX_SERIES_PER_GRAPH = 3;
 const HISTORY_COUNT = 10;
 const START_DATE = '2016-01-01T00:00:00+0200';
 
-it('should render correctly when loading', async () => {
-  renderActivityGraph({ loading: true });
-  expect(await screen.findByText('loading')).toBeInTheDocument();
+describe('rendering', () => {
+  it('should render correctly when loading', async () => {
+    renderActivityGraph({ loading: true });
+    expect(await screen.findByText('loading')).toBeInTheDocument();
+  });
+
+  it('should show the correct legend items', async () => {
+    const { ui, user } = getPageObject();
+    renderActivityGraph();
+
+    // Static legend items, which aren't interactive.
+    expect(ui.legendRemoveMetricBtn(MetricKey.bugs).query()).not.toBeInTheDocument();
+    expect(ui.getLegendItem(MetricKey.bugs)).toBeInTheDocument();
+
+    // Switch to custom graph.
+    await ui.changeGraphType(GraphType.custom);
+    await ui.openAddMetrics();
+    await ui.clickOnMetric(MetricKey.bugs);
+    await ui.clickOnMetric(MetricKey.test_failures);
+    await user.keyboard('{Escape}');
+
+    // These legend items are interactive (interaction tested below).
+    expect(ui.legendRemoveMetricBtn(MetricKey.bugs).get()).toBeInTheDocument();
+    expect(ui.legendRemoveMetricBtn(MetricKey.test_failures).get()).toBeInTheDocument();
+
+    // Shows warning for metrics with no data.
+    const li = ui.getLegendItem(MetricKey.test_failures);
+    // eslint-disable-next-line jest/no-conditional-in-test
+    if (li) {
+      li.focus();
+    }
+    expect(ui.noDataWarningTooltip.get()).toBeInTheDocument();
+  });
 });
 
-it('should show the correct legend items', async () => {
-  const user = userEvent.setup();
-  const ui = getPageObject(user);
-  renderActivityGraph();
+describe('data table modal', () => {
+  it('shows the same data in a table', async () => {
+    const { ui } = getPageObject();
+    renderActivityGraph();
 
-  // Static legend items, which aren't interactive.
-  expect(ui.legendRemoveMetricBtn(MetricKey.bugs).query()).not.toBeInTheDocument();
-  expect(ui.getLegendItem(MetricKey.bugs)).toBeInTheDocument();
+    await ui.openDataTable();
+    expect(ui.dataTable.get()).toBeInTheDocument();
+    expect(ui.dataTableColHeaders.getAll()).toHaveLength(5);
+    expect(ui.dataTableRows.getAll()).toHaveLength(HISTORY_COUNT + 1);
 
-  // Switch to custom graph.
-  await ui.changeGraphType(GraphType.custom);
-  await ui.openAddMetrics();
-  await ui.clickOnMetric(MetricKey.bugs);
-  await ui.clickOnMetric(MetricKey.test_failures);
-  await user.keyboard('{Escape}');
+    // Change graph type and dates, check table updates correctly.
+    await ui.closeDataTable();
+    await ui.changeGraphType(GraphType.coverage);
 
-  // These legend items are interactive (interaction tested below).
-  expect(ui.legendRemoveMetricBtn(MetricKey.bugs).get()).toBeInTheDocument();
-  expect(ui.legendRemoveMetricBtn(MetricKey.test_failures).get()).toBeInTheDocument();
+    await ui.openDataTable();
+    expect(ui.dataTable.get()).toBeInTheDocument();
+    expect(ui.dataTableColHeaders.getAll()).toHaveLength(4);
+    expect(ui.dataTableRows.getAll()).toHaveLength(HISTORY_COUNT + 1);
+  });
 
-  // Shows warning for metrics with no data.
-  const li = ui.getLegendItem(MetricKey.test_failures);
-  // eslint-disable-next-line jest/no-conditional-in-test
-  if (li) {
-    li.focus();
-  }
-  expect(ui.noDataWarningTooltip.get()).toBeInTheDocument();
+  it('shows the same data in a table when filtered by date', async () => {
+    const { ui } = getPageObject();
+    renderActivityGraph({
+      graphStartDate: parseDate('2017-01-01'),
+      graphEndDate: parseDate('2019-01-01'),
+    });
+
+    await ui.openDataTable();
+    expect(ui.dataTable.get()).toBeInTheDocument();
+    expect(ui.dataTableColHeaders.getAll()).toHaveLength(5);
+    expect(ui.dataTableRows.getAll()).toHaveLength(2);
+  });
 });
 
 it('should correctly handle adding/removing custom metrics', async () => {
-  const ui = getPageObject(userEvent.setup());
+  const { ui } = getPageObject();
   renderActivityGraph();
 
   // Change graph type to "Custom".
@@ -132,41 +166,8 @@ it('should correctly handle adding/removing custom metrics', async () => {
   expect(ui.noDataText.get()).toBeInTheDocument();
 });
 
-describe('data table modal', () => {
-  it('shows the same data in a table', async () => {
-    const ui = getPageObject(userEvent.setup());
-    renderActivityGraph();
-
-    await ui.openDataTable();
-    expect(ui.dataTable.get()).toBeInTheDocument();
-    expect(ui.dataTableColHeaders.getAll()).toHaveLength(5);
-    expect(ui.dataTableRows.getAll()).toHaveLength(HISTORY_COUNT + 1);
-
-    // Change graph type and dates, check table updates correctly.
-    await ui.closeDataTable();
-    await ui.changeGraphType(GraphType.coverage);
-
-    await ui.openDataTable();
-    expect(ui.dataTable.get()).toBeInTheDocument();
-    expect(ui.dataTableColHeaders.getAll()).toHaveLength(4);
-    expect(ui.dataTableRows.getAll()).toHaveLength(HISTORY_COUNT + 1);
-  });
-
-  it('shows the same data in a table when filtered by date', async () => {
-    const ui = getPageObject(userEvent.setup());
-    renderActivityGraph({
-      graphStartDate: parseDate('2017-01-01'),
-      graphEndDate: parseDate('2019-01-01'),
-    });
-
-    await ui.openDataTable();
-    expect(ui.dataTable.get()).toBeInTheDocument();
-    expect(ui.dataTableColHeaders.getAll()).toHaveLength(5);
-    expect(ui.dataTableRows.getAll()).toHaveLength(2);
-  });
-});
-
-function getPageObject(user: UserEvent) {
+function getPageObject() {
+  const user = userEvent.setup();
   const ui = {
     // Graph types.
     graphTypeSelect: byLabelText('project_activity.graphs.choose_type'),
@@ -195,11 +196,6 @@ function getPageObject(user: UserEvent) {
     graphs: byLabelText('project_activity.graphs.explanation_x', { exact: false }),
     noDataText: byText('project_activity.graphs.custom.no_history'),
 
-    // Date filters.
-    fromDateInput: byLabelText('from_date'),
-    toDateInput: byLabelText('to_date'),
-    submitDatesBtn: byRole('button', { name: 'Submit dates' }),
-
     // Data in table.
     openInTableBtn: byRole('button', { name: 'project_activity.graphs.open_in_table' }),
     closeDataTableBtn: byRole('button', { name: 'close' }),
@@ -212,27 +208,30 @@ function getPageObject(user: UserEvent) {
   };
 
   return {
-    ...ui,
-    async changeGraphType(type: GraphType) {
-      await selectEvent.select(ui.graphTypeSelect.get(), [`project_activity.graphs.${type}`]);
-    },
-    async openAddMetrics() {
-      await user.click(ui.addMetricBtn.get());
-    },
-    async searchForMetric(text: string) {
-      await user.type(ui.filterMetrics.get(), text);
-    },
-    async clickOnMetric(name: MetricKey) {
-      await user.click(screen.getByRole('checkbox', { name }));
-    },
-    async removeMetric(metric: MetricKey) {
-      await user.click(ui.legendRemoveMetricBtn(metric).get());
-    },
-    async openDataTable() {
-      await user.click(ui.openInTableBtn.get());
-    },
-    async closeDataTable() {
-      await user.click(ui.closeDataTableBtn.get());
+    user,
+    ui: {
+      ...ui,
+      async changeGraphType(type: GraphType) {
+        await selectEvent.select(ui.graphTypeSelect.get(), [`project_activity.graphs.${type}`]);
+      },
+      async openAddMetrics() {
+        await user.click(ui.addMetricBtn.get());
+      },
+      async searchForMetric(text: string) {
+        await user.type(ui.filterMetrics.get(), text);
+      },
+      async clickOnMetric(name: MetricKey) {
+        await user.click(screen.getByRole('checkbox', { name }));
+      },
+      async removeMetric(metric: MetricKey) {
+        await user.click(ui.legendRemoveMetricBtn(metric).get());
+      },
+      async openDataTable() {
+        await user.click(ui.openInTableBtn.get());
+      },
+      async closeDataTable() {
+        await user.click(ui.closeDataTableBtn.get());
+      },
     },
   };
 }
@@ -244,11 +243,6 @@ function renderActivityGraph(
   function ActivityGraph() {
     const [selectedMetrics, setSelectedMetrics] = React.useState<string[]>([]);
     const [graph, setGraph] = React.useState(graphsHistoryProps.graph || GraphType.issues);
-    const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-      graphsHistoryProps.selectedDate
-    );
-    const [fromDate, setFromDate] = React.useState<Date | undefined>(undefined);
-    const [toDate, setToDate] = React.useState<Date | undefined>(undefined);
 
     const measuresHistory: MeasureHistory[] = [];
     const metrics: Metric[] = [];
@@ -327,40 +321,26 @@ function renderActivityGraph(
       setGraph(graphType as GraphType);
     };
 
-    const updateSelectedDate = (date?: Date) => {
-      setSelectedDate(date);
-    };
-
-    const updateFromToDates = (from?: Date, to?: Date) => {
-      setFromDate(from);
-      setToDate(to);
-    };
-
     return (
       <>
         <GraphsHeader
-          addCustomMetric={addCustomMetric}
+          onAddCustomMetric={addCustomMetric}
           graph={graph}
           metrics={metrics}
           metricsTypeFilter={metricsTypeFilter}
-          removeCustomMetric={removeCustomMetric}
+          onRemoveCustomMetric={removeCustomMetric}
           selectedMetrics={selectedMetrics}
-          updateGraph={updateGraph}
+          onUpdateGraph={updateGraph}
           {...graphsHeaderProps}
         />
         <GraphsHistory
           analyses={[]}
           graph={graph}
-          graphEndDate={toDate}
-          graphStartDate={fromDate}
           graphs={graphs}
           loading={false}
           measuresHistory={[]}
           removeCustomMetric={removeCustomMetric}
-          selectedDate={selectedDate}
           series={series}
-          updateGraphZoom={updateFromToDates}
-          updateSelectedDate={updateSelectedDate}
           {...graphsHistoryProps}
         />
       </>

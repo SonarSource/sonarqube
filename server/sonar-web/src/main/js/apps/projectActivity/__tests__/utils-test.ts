@@ -19,7 +19,7 @@
  */
 import { DEFAULT_GRAPH } from '../../../components/activity-graph/utils';
 import * as dates from '../../../helpers/dates';
-import { GraphType } from '../../../types/project-activity';
+import { GraphType, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import * as utils from '../utils';
 
 jest.mock('date-fns', () => {
@@ -38,13 +38,21 @@ const ANALYSES = [
   {
     key: 'AVyMjlK1HjR_PLDzRbB9',
     date: dates.parseDate('2017-06-09T13:06:10.000Z'),
-    events: [{ key: 'AVyM9oI1HjR_PLDzRciU', category: 'VERSION', name: '1.1-SNAPSHOT' }],
+    events: [
+      {
+        key: 'AVyM9oI1HjR_PLDzRciU',
+        category: ProjectAnalysisEventCategory.Version,
+        name: '1.1-SNAPSHOT',
+      },
+    ],
   },
   { key: 'AVyM9n3cHjR_PLDzRciT', date: dates.parseDate('2017-06-09T11:12:27.000Z'), events: [] },
   {
     key: 'AVyMjlK1HjR_PLDzRbB9',
     date: dates.parseDate('2017-06-09T11:12:27.000Z'),
-    events: [{ key: 'AVyM9oI1HjR_PLDzRciU', category: 'VERSION', name: '1.1' }],
+    events: [
+      { key: 'AVyM9oI1HjR_PLDzRciU', category: ProjectAnalysisEventCategory.Version, name: '1.1' },
+    ],
   },
   {
     key: 'AVxZtCpH7841nF4RNEMI',
@@ -52,7 +60,7 @@ const ANALYSES = [
     events: [
       {
         key: 'AVxZtC-N7841nF4RNEMJ',
-        category: 'QUALITY_PROFILE',
+        category: ProjectAnalysisEventCategory.QualityProfile,
         name: 'Changes in "Default - SonarSource conventions" (Java)',
       },
     ],
@@ -62,10 +70,10 @@ const ANALYSES = [
     key: 'AVwQF7kwl-nNFgFWOJ3V',
     date: dates.parseDate('2017-05-16T07:09:59.000Z'),
     events: [
-      { key: 'AVyM9oI1HjR_PLDzRciU', category: 'VERSION', name: '1.0' },
+      { key: 'AVyM9oI1HjR_PLDzRciU', category: ProjectAnalysisEventCategory.Version, name: '1.0' },
       {
         key: 'AVwQF7zXl-nNFgFWOJ3W',
-        category: 'QUALITY_PROFILE',
+        category: ProjectAnalysisEventCategory.QualityProfile,
         name: 'Changes in "Default - SonarSource conventions" (Java)',
       },
     ],

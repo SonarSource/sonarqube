@@ -30,7 +30,11 @@ import {
 import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { MetricKey } from '../../../types/metrics';
-import { GraphType, MeasureHistory } from '../../../types/project-activity';
+import {
+  GraphType,
+  MeasureHistory,
+  ProjectAnalysisEventCategory,
+} from '../../../types/project-activity';
 import { Metric } from '../../../types/types';
 import DataTableModal, { DataTableModalProps, MAX_DATA_TABLE_ROWS } from '../DataTableModal';
 import { generateSeries, getDisplayedHistoryMetrics } from '../utils';
@@ -47,7 +51,9 @@ it('should render correctly if there are events', () => {
     analyses: [
       mockParsedAnalysis({
         date: parseDate('2016-01-01T00:00:00+0200'),
-        events: [mockAnalysisEvent({ key: '1', category: 'QUALITY_GATE' })],
+        events: [
+          mockAnalysisEvent({ key: '1', category: ProjectAnalysisEventCategory.QualityGate }),
+        ],
       }),
     ],
   });

@@ -38,22 +38,22 @@ import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 
 export interface ProjectActivityAnalysisProps extends WrappedComponentProps {
-  addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
-  addVersion: (analysis: string, version: string) => Promise<void>;
+  onAddCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
+  onAddVersion: (analysis: string, version: string) => Promise<void>;
   analysis: ParsedAnalysis;
   canAdmin?: boolean;
   canDeleteAnalyses?: boolean;
   canCreateVersion: boolean;
-  changeEvent: (event: string, name: string) => Promise<void>;
-  deleteAnalysis: (analysis: string) => Promise<void>;
-  deleteEvent: (analysis: string, event: string) => Promise<void>;
+  onChangeEvent: (event: string, name: string) => Promise<void>;
+  onDeleteAnalysis: (analysis: string) => Promise<void>;
+  onDeleteEvent: (analysis: string, event: string) => Promise<void>;
   isBaseline: boolean;
   isFirst: boolean;
   selected: boolean;
-  updateSelectedDate: (date: Date) => void;
+  onUpdateSelectedDate: (date: Date) => void;
 }
 
-export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
+function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
   let node: HTMLLIElement | null = null;
 
   const {
@@ -89,7 +89,7 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
       className={classNames('project-activity-analysis bordered-top bordered-bottom', {
         selected,
       })}
-      onClick={() => props.updateSelectedDate(analysis.date)}
+      onClick={() => props.onUpdateSelectedDate(analysis.date)}
       ref={(ref) => (node = ref)}
     >
       <div className="display-flex-center display-flex-space-between">
@@ -102,7 +102,7 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
                   'project_activity.show_analysis_X_on_graph',
                   analysis.buildString || formatDate(parsedDate, formatterOption)
                 )}
-                onClick={() => props.updateSelectedDate(analysis.date)}
+                onClick={() => props.onUpdateSelectedDate(analysis.date)}
               >
                 <time className="text-middle" dateTime={parsedDate.toISOString()}>
                   {formattedTime}
@@ -163,7 +163,7 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
 
               {addVersionForm && (
                 <AddEventForm
-                  addEvent={props.addVersion}
+                  addEvent={props.onAddVersion}
                   addEventButtonText="project_activity.add_version"
                   analysis={analysis}
                   onClose={() => setAddVersionForm(false)}
@@ -172,7 +172,7 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
 
               {addEventForm && (
                 <AddEventForm
-                  addEvent={props.addCustomEvent}
+                  addEvent={props.onAddCustomEvent}
                   addEventButtonText="project_activity.add_custom_event"
                   analysis={analysis}
                   onClose={() => setAddEventForm(false)}
@@ -182,7 +182,7 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
               {removeAnalysisForm && (
                 <RemoveAnalysisForm
                   analysis={analysis}
-                  deleteAnalysis={props.deleteAnalysis}
+                  deleteAnalysis={props.onDeleteAnalysis}
                   onClose={() => setRemoveAnalysisForm(false)}
                 />
               )}
@@ -197,8 +197,8 @@ export function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
           canAdmin={canAdmin}
           events={analysis.events}
           isFirst={isFirst}
-          onChange={props.changeEvent}
-          onDelete={props.deleteEvent}
+          onChange={props.onChangeEvent}
+          onDelete={props.onDeleteEvent}
         />
       )}
 

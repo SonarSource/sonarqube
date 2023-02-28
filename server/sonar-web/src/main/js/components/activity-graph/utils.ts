@@ -21,7 +21,7 @@ import { chunk, flatMap, groupBy, sortBy } from 'lodash';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { localizeMetric } from '../../helpers/measures';
 import { get, save } from '../../helpers/storage';
-import { MetricKey } from '../../types/metrics';
+import { MetricKey, MetricType } from '../../types/metrics';
 import { GraphType, MeasureHistory, ParsedAnalysis, Serie } from '../../types/project-activity';
 import { Dict, Metric } from '../../types/types';
 
@@ -64,7 +64,7 @@ export function hasHistoryData(series: Serie[]) {
 }
 
 export function getSeriesMetricType(series: Serie[]) {
-  return series.length > 0 ? series[0].type : 'INT';
+  return series.length > 0 ? series[0].type : MetricType.Integer;
 }
 
 export function getDisplayedHistoryMetrics(graph: GraphType, customMetrics: string[]) {
@@ -89,7 +89,7 @@ export function splitSeriesInGraphs(series: Serie[], maxGraph: number, maxSeries
 export function generateCoveredLinesMetric(
   uncoveredLines: MeasureHistory,
   measuresHistory: MeasureHistory[]
-) {
+): Serie {
   const linesToCover = measuresHistory.find(
     (measure) => measure.metric === MetricKey.lines_to_cover
   );
@@ -102,14 +102,14 @@ export function generateCoveredLinesMetric(
       : [],
     name: 'covered_lines',
     translatedName: translate('project_activity.custom_metric.covered_lines'),
-    type: 'INT',
+    type: MetricType.Integer,
   };
 }
 
 export function generateSeries(
   measuresHistory: MeasureHistory[],
   graph: GraphType,
-  metrics: Metric[] | Dict<Metric>,
+  metrics: Metric[],
   displayedMetrics: string[]
 ): Serie[] {
   if (displayedMetrics.length <= 0 || measuresHistory === undefined) {
@@ -126,11 +126,11 @@ export function generateSeries(
         return {
           data: measure.history.map((analysis) => ({
             x: analysis.date,
-            y: metric && metric.type === 'LEVEL' ? analysis.value : Number(analysis.value),
+            y: metric && metric.type === MetricType.Level ? analysis.value : Number(analysis.value),
           })),
           name: measure.metric,
           translatedName: metric ? getLocalizedMetricName(metric) : localizeMetric(measure.metric),
-          type: metric ? metric.type : 'INT',
+          type: metric ? metric.type : MetricType.Integer,
         };
       }),
     (serie) =>
@@ -171,9 +171,6 @@ export function getAnalysisEventsForDate(analyses: ParsedAnalysis[], date?: Date
   return [];
 }
 
-function findMetric(key: string, metrics: Metric[] | Dict<Metric>) {
-  if (Array.isArray(metrics)) {
-    return metrics.find((metric) => metric.key === key);
-  }
-  return metrics[key];
+function findMetric(key: string, metrics: Metric[]) {
+  return metrics.find((metric) => metric.key === key);
 }

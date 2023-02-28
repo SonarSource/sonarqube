@@ -95,7 +95,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
         <div className="display-flex-row">
           <div className="display-flex-column flex-1">
             <div className="overview-panel-padded display-flex-column flex-1">
-              <GraphsHeader graph={graph} metrics={metrics} updateGraph={props.onGraphChange} />
+              <GraphsHeader graph={graph} metrics={metrics} onUpdateGraph={props.onGraphChange} />
               <GraphsHistory
                 analyses={[]}
                 ariaLabel={translateWithParameters(

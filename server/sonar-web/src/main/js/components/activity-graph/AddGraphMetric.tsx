@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { find, sortBy } from 'lodash';
+import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Button } from '../../components/controls/buttons';
 import Dropdown from '../../components/controls/Dropdown';
@@ -28,10 +28,10 @@ import { Metric } from '../../types/types';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 
 interface Props {
-  addMetric: (metric: string) => void;
   metrics: Metric[];
   metricsTypeFilter?: string[];
-  removeMetric: (metric: string) => void;
+  onAddMetric: (metric: string) => void;
+  onRemoveMetric: (metric: string) => void;
   selectedMetrics: string[];
 }
 
@@ -77,13 +77,14 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
       .map((metric) => metric.key);
   };
 
-  getSelectedMetricsElements = (metrics: Metric[], selectedMetrics?: string[]) => {
-    const selected = selectedMetrics || this.props.selectedMetrics;
-    return metrics.filter((metric) => selected.includes(metric.key)).map((metric) => metric.key);
+  getSelectedMetricsElements = (metrics: Metric[], selectedMetrics: string[]) => {
+    return metrics
+      .filter((metric) => selectedMetrics.includes(metric.key))
+      .map((metric) => metric.key);
   };
 
   getLocalizedMetricNameFromKey = (key: string) => {
-    const metric = find(this.props.metrics, { key });
+    const metric = this.props.metrics.find((m) => m.key === key);
     return metric === undefined ? key : getLocalizedMetricName(metric);
   };
 
@@ -93,7 +94,7 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
   };
 
   onSelect = (metric: string) => {
-    this.props.addMetric(metric);
+    this.props.onAddMetric(metric);
     this.setState((state) => {
       return {
         selectedMetrics: sortBy([...state.selectedMetrics, metric]),
@@ -103,7 +104,7 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
   };
 
   onUnselect = (metric: string) => {
-    this.props.removeMetric(metric);
+    this.props.onRemoveMetric(metric);
     this.setState((state) => {
       return {
         metrics: sortBy([...state.metrics, metric]),

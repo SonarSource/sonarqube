@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAnalysisEvent, mockParsedAnalysis } from '../../../../helpers/mocks/project-activity';
+import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
 import BranchAnalysisListRenderer, {
   BranchAnalysisListRendererProps,
 } from '../BranchAnalysisListRenderer';
@@ -58,7 +59,7 @@ const analyses = [
     date: new Date('2017-03-02T08:36:01Z'),
     events: [
       mockAnalysisEvent(),
-      mockAnalysisEvent({ category: 'VERSION', qualityGate: undefined }),
+      mockAnalysisEvent({ category: ProjectAnalysisEventCategory.Version, qualityGate: undefined }),
     ],
     projectVersion: '4.1',
   }),

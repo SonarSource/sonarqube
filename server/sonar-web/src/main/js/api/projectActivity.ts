@@ -20,7 +20,11 @@
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
-import { Analysis } from '../types/project-activity';
+import {
+  Analysis,
+  ApplicationAnalysisEventCategory,
+  ProjectAnalysisEventCategory,
+} from '../types/project-activity';
 import { Paging } from '../types/types';
 
 export enum ProjectActivityStatuses {
@@ -46,7 +50,7 @@ interface CreateEventResponse {
   analysis: string;
   key: string;
   name: string;
-  category: string;
+  category: ProjectAnalysisEventCategory | ApplicationAnalysisEventCategory;
   description?: string;
 }
 

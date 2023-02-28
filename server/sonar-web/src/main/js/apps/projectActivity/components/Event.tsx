@@ -21,7 +21,7 @@ import * as React from 'react';
 import EventInner from '../../../components/activity-graph/EventInner';
 import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { AnalysisEvent } from '../../../types/project-activity';
+import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import ChangeEventForm from './forms/ChangeEventForm';
 import RemoveEventForm from './forms/RemoveEventForm';
 
@@ -34,14 +34,14 @@ export interface EventProps {
   onDelete?: (analysisKey: string, event: string) => Promise<void>;
 }
 
-export function Event(props: EventProps) {
+function Event(props: EventProps) {
   const { analysisKey, event, canAdmin, isFirst } = props;
 
   const [changing, setChanging] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
 
-  const isOther = event.category === 'OTHER';
-  const isVersion = event.category === 'VERSION';
+  const isOther = event.category === ProjectAnalysisEventCategory.Other;
+  const isVersion = event.category === ProjectAnalysisEventCategory.Version;
   const canChange = (isOther || isVersion) && props.onChange;
   const canDelete = (isOther || (isVersion && !isFirst)) && props.onDelete;
   const showActions = canAdmin && (canChange || canDelete);

@@ -19,7 +19,6 @@
  */
 import classNames from 'classnames';
 import { isEqual } from 'date-fns';
-import { throttle } from 'lodash';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
@@ -31,103 +30,35 @@ import { activityQueryChanged, getAnalysesByVersionByDay, Query } from '../utils
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 
 interface Props {
-  addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
-  addVersion: (analysis: string, version: string) => Promise<void>;
+  onAddCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
+  onAddVersion: (analysis: string, version: string) => Promise<void>;
   analyses: ParsedAnalysis[];
   analysesLoading: boolean;
   canAdmin?: boolean;
   canDeleteAnalyses?: boolean;
-  changeEvent: (event: string, name: string) => Promise<void>;
-  deleteAnalysis: (analysis: string) => Promise<void>;
-  deleteEvent: (analysis: string, event: string) => Promise<void>;
+  onChangeEvent: (event: string, name: string) => Promise<void>;
+  onDeleteAnalysis: (analysis: string) => Promise<void>;
+  onDeleteEvent: (analysis: string, event: string) => Promise<void>;
   initializing: boolean;
   leakPeriodDate?: Date;
   project: { qualifier: string };
   query: Query;
-  updateQuery: (changes: Partial<Query>) => void;
+  onUpdateQuery: (changes: Partial<Query>) => void;
 }
 
-const LIST_MARGIN_TOP = 36;
+const LIST_MARGIN_TOP = 24;
 
 export default class ProjectActivityAnalysesList extends React.PureComponent<Props> {
-  analyses?: HTMLCollectionOf<HTMLElement>;
-  badges?: HTMLCollectionOf<HTMLElement>;
   scrollContainer?: HTMLUListElement | null;
 
-  constructor(props: Props) {
-    super(props);
-    this.handleScroll = throttle(this.handleScroll, 20);
-  }
-
-  componentDidMount() {
-    this.badges = document.getElementsByClassName(
-      'project-activity-version-badge'
-    ) as HTMLCollectionOf<HTMLElement>;
-    this.analyses = document.getElementsByClassName(
-      'project-activity-analysis'
-    ) as HTMLCollectionOf<HTMLElement>;
-  }
-
   componentDidUpdate(prevProps: Props) {
-    if (!this.scrollContainer) {
-      return;
-    }
-    if (activityQueryChanged(prevProps.query, this.props.query)) {
-      this.resetScrollTop(0, true);
+    if (this.scrollContainer && activityQueryChanged(prevProps.query, this.props.query)) {
+      this.scrollContainer.scrollTop = 0;
     }
   }
 
-  handleScroll = () => this.updateStickyBadges(true);
-
-  resetScrollTop = (newScrollTop: number, forceBadgeAlignement?: boolean) => {
-    if (this.scrollContainer) {
-      this.scrollContainer.scrollTop = newScrollTop;
-    }
-    if (this.badges) {
-      for (let i = 1; i < this.badges.length; i++) {
-        this.badges[i].removeAttribute('originOffsetTop');
-        this.badges[i].classList.remove('sticky');
-      }
-    }
-    this.updateStickyBadges(forceBadgeAlignement);
-  };
-
-  updateStickyBadges = (forceBadgeAlignement?: boolean) => {
-    if (!this.scrollContainer || !this.badges) {
-      return;
-    }
-
-    const { scrollTop } = this.scrollContainer;
-    if (scrollTop == null) {
-      return;
-    }
-
-    let newScrollTop;
-    for (let i = 1; i < this.badges.length; i++) {
-      const badge = this.badges[i];
-      let originOffsetTop = badge.getAttribute('originOffsetTop');
-      if (originOffsetTop == null) {
-        // Set the originOffsetTop attribute, to avoid using getBoundingClientRect
-        originOffsetTop = String(badge.offsetTop);
-        badge.setAttribute('originOffsetTop', originOffsetTop);
-      }
-      if (Number(originOffsetTop) < scrollTop + 18 + i * 2) {
-        if (forceBadgeAlignement && !badge.classList.contains('sticky')) {
-          newScrollTop = originOffsetTop;
-        }
-        badge.classList.add('sticky');
-      } else {
-        badge.classList.remove('sticky');
-      }
-    }
-
-    if (forceBadgeAlignement && newScrollTop != null) {
-      this.scrollContainer.scrollTop = Number(newScrollTop) - 6;
-    }
-  };
-
-  updateSelectedDate = (date: Date) => {
-    this.props.updateQuery({ selectedDate: date });
+  handleUpdateSelectedDate = (date: Date) => {
+    this.props.onUpdateQuery({ selectedDate: date });
   };
 
   shouldRenderBaselineMarker(analysis: ParsedAnalysis): boolean {
@@ -143,20 +74,20 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
 
     return (
       <ProjectActivityAnalysis
-        addCustomEvent={this.props.addCustomEvent}
-        addVersion={this.props.addVersion}
+        onAddCustomEvent={this.props.onAddCustomEvent}
+        onAddVersion={this.props.onAddVersion}
         analysis={analysis}
         canAdmin={this.props.canAdmin}
         canCreateVersion={this.props.project.qualifier === ComponentQualifier.Project}
         canDeleteAnalyses={this.props.canDeleteAnalyses}
-        changeEvent={this.props.changeEvent}
-        deleteAnalysis={this.props.deleteAnalysis}
-        deleteEvent={this.props.deleteEvent}
+        onChangeEvent={this.props.onChangeEvent}
+        onDeleteAnalysis={this.props.onDeleteAnalysis}
+        onDeleteEvent={this.props.onDeleteEvent}
         isBaseline={this.shouldRenderBaselineMarker(analysis)}
         isFirst={analysis.key === firstAnalysisKey}
         key={analysis.key}
         selected={analysis.date.valueOf() === selectedDate}
-        updateSelectedDate={this.updateSelectedDate}
+        onUpdateSelectedDate={this.handleUpdateSelectedDate}
       />
     );
   }
@@ -183,7 +114,6 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
     return (
       <ul
         className="project-activity-versions-list"
-        onScroll={this.handleScroll}
         ref={(element) => (this.scrollContainer = element)}
         style={{
           marginTop:

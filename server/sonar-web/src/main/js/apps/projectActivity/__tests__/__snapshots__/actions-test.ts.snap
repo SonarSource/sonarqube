@@ -5,7 +5,7 @@ exports[`addCustomEvent should correctly add a custom event 1`] = `
   "date": 2016-10-27T10:21:15.000Z,
   "events": [
     {
-      "category": "Custom",
+      "category": "OTHER",
       "key": "Enew",
       "name": "Foo",
     },

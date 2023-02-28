@@ -18,8 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as dates from '../../../helpers/dates';
-import { MetricKey } from '../../../types/metrics';
-import { GraphType, Serie } from '../../../types/project-activity';
+import { mockMeasureHistory, mockSerie } from '../../../helpers/mocks/project-activity';
+import { get, save } from '../../../helpers/storage';
+import { mockMetric } from '../../../helpers/testMocks';
+import { MetricKey, MetricType } from '../../../types/metrics';
+import { GraphType } from '../../../types/project-activity';
 import * as utils from '../utils';
 
 jest.mock('date-fns', () => {
@@ -34,37 +37,36 @@ jest.mock('date-fns', () => {
   };
 });
 
+jest.mock('../../../helpers/storage', () => ({
+  save: jest.fn(),
+  get: jest.fn(),
+}));
+
 const HISTORY = [
-  {
+  mockMeasureHistory({
     metric: MetricKey.lines_to_cover,
     history: [
       { date: dates.parseDate('2017-04-27T08:21:32.000Z'), value: '100' },
       { date: dates.parseDate('2017-04-30T23:06:24.000Z'), value: '100' },
     ],
-  },
-  {
+  }),
+  mockMeasureHistory({
     metric: MetricKey.uncovered_lines,
     history: [
       { date: dates.parseDate('2017-04-27T08:21:32.000Z'), value: '12' },
       { date: dates.parseDate('2017-04-30T23:06:24.000Z'), value: '50' },
     ],
-  },
+  }),
 ];
 
 const METRICS = [
-  { id: '1', key: MetricKey.uncovered_lines, name: 'Uncovered Lines', type: 'INT' },
-  { id: '2', key: MetricKey.lines_to_cover, name: 'Line to Cover', type: 'PERCENT' },
+  mockMetric({ key: MetricKey.uncovered_lines, type: MetricType.Integer }),
+  mockMetric({ key: MetricKey.lines_to_cover, type: MetricType.Percent }),
 ];
 
-const SERIE: Serie = {
-  data: [
-    { x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
-    { x: dates.parseDate('2017-04-28T08:21:32.000Z'), y: 2 },
-  ],
-  name: 'foo',
-  translatedName: 'Foo',
-  type: 'PERCENT',
-};
+const SERIE = mockSerie({
+  type: MetricType.Percent,
+});
 
 describe('generateCoveredLinesMetric', () => {
   it('should correctly generate covered lines metric', () => {
@@ -129,46 +131,25 @@ describe('getHistoryMetrics', () => {
 
 describe('hasHistoryData', () => {
   it('should correctly detect if there is history data', () => {
+    expect(utils.hasHistoryData([mockSerie()])).toBe(true);
     expect(
       utils.hasHistoryData([
-        {
-          name: 'foo',
-          translatedName: 'foo',
-          type: 'INT',
-          data: [
-            { x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
-            { x: dates.parseDate('2017-04-30T23:06:24.000Z'), y: 2 },
-          ],
-        },
-      ])
-    ).toBe(true);
-    expect(
-      utils.hasHistoryData([
-        {
-          name: 'foo',
-          translatedName: 'foo',
-          type: 'INT',
+        mockSerie({
           data: [],
-        },
-        {
+        }),
+        mockSerie({
           name: 'bar',
           translatedName: 'bar',
-          type: 'INT',
-          data: [
-            { x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 },
-            { x: dates.parseDate('2017-04-30T23:06:24.000Z'), y: 2 },
-          ],
-        },
+        }),
       ])
     ).toBe(true);
     expect(
       utils.hasHistoryData([
-        {
+        mockSerie({
           name: 'bar',
           translatedName: 'bar',
-          type: 'INT',
           data: [{ x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 }],
-        },
+        }),
       ])
     ).toBe(false);
   });
@@ -190,8 +171,8 @@ describe('hasDataValues', () => {
 
 describe('getSeriesMetricType', () => {
   it('should return the correct type', () => {
-    expect(utils.getSeriesMetricType([SERIE])).toBe('PERCENT');
-    expect(utils.getSeriesMetricType([])).toBe('INT');
+    expect(utils.getSeriesMetricType([SERIE])).toBe(MetricType.Percent);
+    expect(utils.getSeriesMetricType([])).toBe(MetricType.Integer);
   });
 });
 
@@ -199,5 +180,67 @@ describe('hasHistoryDataValue', () => {
   it('should return the correct type', () => {
     expect(utils.hasHistoryDataValue([SERIE])).toBe(true);
     expect(utils.hasHistoryDataValue([])).toBe(false);
+  });
+});
+
+describe('saveActivityGraph', () => {
+  it('should correctly store data for standard graph types', () => {
+    utils.saveActivityGraph('foo', 'bar', GraphType.issues);
+    expect(save).toHaveBeenCalledWith('foo', GraphType.issues, 'bar');
+  });
+
+  it.each([undefined, [MetricKey.bugs, MetricKey.alert_status]])(
+    'should correctly store data for custom graph types',
+    (metrics) => {
+      utils.saveActivityGraph('foo', 'bar', GraphType.custom, metrics);
+      expect(save).toHaveBeenCalledWith('foo', GraphType.custom, 'bar');
+      // eslint-disable-next-line jest/no-conditional-in-test
+      expect(save).toHaveBeenCalledWith('foo.custom', metrics ? metrics.join(',') : '', 'bar');
+    }
+  );
+});
+
+describe('getActivityGraph', () => {
+  it('should correctly retrieve data for standard graph types', () => {
+    jest.mocked(get).mockImplementation((key) => {
+      // eslint-disable-next-line jest/no-conditional-in-test
+      if (key.includes('.custom')) {
+        return null;
+      }
+      return GraphType.coverage;
+    });
+
+    expect(utils.getActivityGraph('foo', 'bar')).toEqual({
+      graph: GraphType.coverage,
+      customGraphs: [],
+    });
+  });
+
+  it.each([null, 'bugs,code_smells'])(
+    'should correctly retrieve data for custom graph types',
+    (data) => {
+      jest.mocked(get).mockImplementation((key) => {
+        // eslint-disable-next-line jest/no-conditional-in-test
+        if (key.includes('.custom')) {
+          return data;
+        }
+        return GraphType.custom;
+      });
+
+      expect(utils.getActivityGraph('foo', 'bar')).toEqual({
+        graph: GraphType.custom,
+        // eslint-disable-next-line jest/no-conditional-in-test
+        customGraphs: data ? [MetricKey.bugs, MetricKey.code_smells] : [],
+      });
+    }
+  );
+
+  it('should correctly retrieve data for unknown graphs', () => {
+    jest.mocked(get).mockReturnValue(null);
+
+    expect(utils.getActivityGraph('foo', 'bar')).toEqual({
+      graph: GraphType.issues,
+      customGraphs: [],
+    });
   });
 });

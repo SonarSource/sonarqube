@@ -24,6 +24,7 @@ import { getProjectActivity } from '../../../../api/projectActivity';
 import { toShortNotSoISOString } from '../../../../helpers/dates';
 import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/mocks/project-activity';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
 import BranchAnalysisList from '../BranchAnalysisList';
 
 jest.mock('date-fns', () => {
@@ -70,7 +71,10 @@ it('should render correctly', async () => {
         date: '2017-03-02T08:36:01',
         events: [
           mockAnalysisEvent(),
-          mockAnalysisEvent({ category: 'VERSION', qualityGate: undefined }),
+          mockAnalysisEvent({
+            category: ProjectAnalysisEventCategory.Version,
+            qualityGate: undefined,
+          }),
         ],
         projectVersion: '4.1',
       }),

@@ -24,6 +24,7 @@ import { getProjectUrl } from '../../helpers/urls';
 import { AnalysisEvent } from '../../types/project-activity';
 import Link from '../common/Link';
 import { ResetButtonLink } from '../controls/buttons';
+import ClickEventBoundary from '../controls/ClickEventBoundary';
 import DropdownIcon from '../icons/DropdownIcon';
 import Level from '../ui/Level';
 
@@ -44,10 +45,6 @@ interface State {
 
 export class RichQualityGateEventInner extends React.PureComponent<Props, State> {
   state: State = { expanded: false };
-
-  stopPropagation = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.stopPropagation();
-  };
 
   toggleProjectsList = () => {
     this.setState((state) => ({ expanded: !state.expanded }));
@@ -93,15 +90,13 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
                   small={true}
                 />
                 <div className="flex-1 text-ellipsis">
-                  <Link
-                    onClick={this.stopPropagation}
-                    title={project.name}
-                    to={getProjectUrl(project.key, project.branch)}
-                  >
-                    <span aria-label={translateWithParameters('project_x', project.name)}>
-                      {project.name}
-                    </span>
-                  </Link>
+                  <ClickEventBoundary>
+                    <Link title={project.name} to={getProjectUrl(project.key, project.branch)}>
+                      <span aria-label={translateWithParameters('project_x', project.name)}>
+                        {project.name}
+                      </span>
+                    </Link>
+                  </ClickEventBoundary>
                 </div>
               </li>
             ))}

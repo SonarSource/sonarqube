@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAnalysis } from '../../../../helpers/mocks/project-activity';
 import { ComponentQualifier } from '../../../../types/component';
+import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
 import { Analysis, AnalysisProps } from '../Analysis';
 
 it('should render correctly', () => {
@@ -33,8 +34,8 @@ function shallowRender(props: Partial<AnalysisProps> = {}) {
     <Analysis
       analysis={mockAnalysis({
         events: [
-          { key: '1', category: 'OTHER', name: 'test' },
-          { key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' },
+          { key: '1', category: ProjectAnalysisEventCategory.Other, name: 'test' },
+          { key: '2', category: ProjectAnalysisEventCategory.Version, name: '6.5-SNAPSHOT' },
         ],
       })}
       qualifier={ComponentQualifier.Project}

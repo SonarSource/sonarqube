@@ -43,7 +43,12 @@ import { serializeStringArray } from '../../../helpers/query';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
-import { GraphType, MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
+import {
+  GraphType,
+  MeasureHistory,
+  ParsedAnalysis,
+  ProjectAnalysisEventCategory,
+} from '../../../types/project-activity';
 import { Component, Dict, Metric, Paging, RawQuery } from '../../../types/types';
 import * as actions from '../actions';
 import {
@@ -77,7 +82,7 @@ export const PROJECT_ACTIVITY_GRAPH = 'sonar_project_activity.graph';
 const ACTIVITY_PAGE_SIZE_FIRST_BATCH = 100;
 const ACTIVITY_PAGE_SIZE = 500;
 
-export class ProjectActivityApp extends React.PureComponent<Props, State> {
+class ProjectActivityApp extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -116,7 +121,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  addCustomEvent = (analysisKey: string, name: string, category?: string) => {
+  handleAddCustomEvent = (analysisKey: string, name: string, category?: string) => {
     return createEvent(analysisKey, name, category).then(({ analysis, ...event }) => {
       if (this.mounted) {
         this.setState(actions.addCustomEvent(analysis, event));
@@ -124,11 +129,11 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
     });
   };
 
-  addVersion = (analysis: string, version: string) => {
-    return this.addCustomEvent(analysis, version, 'VERSION');
+  handleAddVersion = (analysis: string, version: string) => {
+    return this.handleAddCustomEvent(analysis, version, ProjectAnalysisEventCategory.Version);
   };
 
-  changeEvent = (eventKey: string, name: string) => {
+  handleChangeEvent = (eventKey: string, name: string) => {
     return changeEvent(eventKey, name).then(({ analysis, ...event }) => {
       if (this.mounted) {
         this.setState(actions.changeEvent(analysis, event));
@@ -136,7 +141,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
     });
   };
 
-  deleteAnalysis = (analysis: string) => {
+  handleDeleteAnalysis = (analysis: string) => {
     return deleteAnalysis(analysis).then(() => {
       if (this.mounted) {
         this.updateGraphData(
@@ -148,7 +153,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
     });
   };
 
-  deleteEvent = (analysis: string, event: string) => {
+  handleDeleteEvent = (analysis: string, event: string) => {
     return deleteEvent(event).then(() => {
       if (this.mounted) {
         this.setState(actions.deleteEvent(analysis, event));
@@ -334,7 +339,7 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
     );
   };
 
-  updateQuery = (newQuery: Query) => {
+  handleUpdateQuery = (newQuery: Query) => {
     const query = serializeUrlQuery({
       ...this.state.query,
       ...newQuery,
@@ -353,20 +358,20 @@ export class ProjectActivityApp extends React.PureComponent<Props, State> {
     const metrics = this.filterMetrics();
     return (
       <ProjectActivityAppRenderer
-        addCustomEvent={this.addCustomEvent}
-        addVersion={this.addVersion}
+        onAddCustomEvent={this.handleAddCustomEvent}
+        onAddVersion={this.handleAddVersion}
         analyses={this.state.analyses}
         analysesLoading={this.state.analysesLoading}
-        changeEvent={this.changeEvent}
-        deleteAnalysis={this.deleteAnalysis}
-        deleteEvent={this.deleteEvent}
+        onChangeEvent={this.handleChangeEvent}
+        onDeleteAnalysis={this.handleDeleteAnalysis}
+        onDeleteEvent={this.handleDeleteEvent}
         graphLoading={!this.state.initialized || this.state.graphLoading}
         initializing={!this.state.initialized}
         measuresHistory={this.state.measuresHistory}
         metrics={metrics}
         project={this.props.component}
         query={this.state.query}
-        updateQuery={this.updateQuery}
+        onUpdateQuery={this.handleUpdateQuery}
       />
     );
   }

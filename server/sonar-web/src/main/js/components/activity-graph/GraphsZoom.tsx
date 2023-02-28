@@ -31,11 +31,20 @@ interface GraphsZoomProps {
   metricsType: string;
   series: Serie[];
   showAreas?: boolean;
-  updateGraphZoom: (from?: Date, to?: Date) => void;
+  onUpdateGraphZoom: (from?: Date, to?: Date) => void;
 }
 
+const ZOOM_TIMELINE_PADDING_TOP = 0;
+const ZOOM_TIMELINE_PADDING_RIGHT = 10;
+const ZOOM_TIMELINE_PADDING_BOTTOM = 18;
+const ZOOM_TIMELINE_PADDING_LEFT = 60;
+const ZOOM_TIMELINE_HEIGHT = 64;
+
 export default function GraphsZoom(props: GraphsZoomProps) {
-  if (props.loading || !hasHistoryData(props.series)) {
+  const { loading, series, graphEndDate, leakPeriodDate, metricsType, showAreas, graphStartDate } =
+    props;
+
+  if (loading || !hasHistoryData(series)) {
     return null;
   }
 
@@ -45,15 +54,20 @@ export default function GraphsZoom(props: GraphsZoomProps) {
       <AutoSizer disableHeight={true}>
         {({ width }) => (
           <ZoomTimeLine
-            endDate={props.graphEndDate}
-            height={64}
-            leakPeriodDate={props.leakPeriodDate}
-            metricType={props.metricsType}
-            padding={[0, 10, 18, 60]}
-            series={props.series}
-            showAreas={props.showAreas}
-            startDate={props.graphStartDate}
-            updateZoom={props.updateGraphZoom}
+            endDate={graphEndDate}
+            height={ZOOM_TIMELINE_HEIGHT}
+            leakPeriodDate={leakPeriodDate}
+            metricType={metricsType}
+            padding={[
+              ZOOM_TIMELINE_PADDING_TOP,
+              ZOOM_TIMELINE_PADDING_RIGHT,
+              ZOOM_TIMELINE_PADDING_BOTTOM,
+              ZOOM_TIMELINE_PADDING_LEFT,
+            ]}
+            series={series}
+            showAreas={showAreas}
+            startDate={graphStartDate}
+            updateZoom={props.onUpdateGraphZoom}
             width={width}
           />
         )}

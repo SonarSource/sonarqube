@@ -19,7 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { AnalysisEvent } from '../../../types/project-activity';
+import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import Event from './Event';
 
 export interface EventsProps {
@@ -31,13 +31,13 @@ export interface EventsProps {
   onDelete?: (analysis: string, event: string) => Promise<void>;
 }
 
-export function Events(props: EventsProps) {
+function Events(props: EventsProps) {
   const { analysisKey, canAdmin, events, isFirst } = props;
 
   const sortedEvents = sortBy(
     events,
     // versions last
-    (event) => (event.category === 'VERSION' ? 1 : 0),
+    (event) => (event.category === ProjectAnalysisEventCategory.Version ? 1 : 0),
     // then the rest sorted by category
     'category'
   );

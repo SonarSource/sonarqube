@@ -20,9 +20,13 @@
 import * as React from 'react';
 import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
+import {
+  ApplicationAnalysisEventCategory,
+  ProjectAnalysisEventCategory,
+} from '../../../types/project-activity';
 import { Component } from '../../../types/types';
-import { APPLICATION_EVENT_TYPES, EVENT_TYPES, Query } from '../utils';
+import { Query } from '../utils';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
 
 interface ProjectActivityPageFiltersProps {
@@ -37,7 +41,9 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
   const { project, category, from, to, updateQuery } = props;
 
   const isApp = project.qualifier === ComponentQualifier.Application;
-  const eventTypes = isApp ? APPLICATION_EVENT_TYPES : EVENT_TYPES;
+  const eventTypes = isApp
+    ? Object.values(ApplicationAnalysisEventCategory)
+    : Object.values(ProjectAnalysisEventCategory);
   const options = eventTypes.map((category) => ({
     label: translate('event.category', category),
     value: category,
@@ -52,14 +58,15 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
 
   return (
     <div className="page-header display-flex-start">
-      {!([ComponentQualifier.Portfolio, ComponentQualifier.SubPortfolio] as string[]).includes(
-        project.qualifier
-      ) && (
+      {!isPortfolioLike(project.qualifier) && (
         <div className="display-flex-column big-spacer-right">
           <label className="text-bold little-spacer-bottom" htmlFor="filter-events">
             {translate('project_activity.filter_events')}
           </label>
           <Select
+            // For some reason, not setting this aria-label makes some tests fail. They cannot seem to link
+            // the label above with this input.
+            aria-label={translate('project_activity.filter_events')}
             className={isApp ? 'input-large' : 'input-medium'}
             id="filter-events"
             isClearable={true}

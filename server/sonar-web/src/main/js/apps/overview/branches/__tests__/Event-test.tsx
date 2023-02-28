@@ -19,24 +19,30 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { AnalysisEvent } from '../../../../types/project-activity';
+import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../../../types/project-activity';
 import { Event } from '../Event';
 
 it('should render an event correctly', () => {
   expect(
-    shallow(<Event event={{ key: '1', category: 'OTHER', name: 'test' }} />)
+    shallow(
+      <Event event={{ key: '1', category: ProjectAnalysisEventCategory.Other, name: 'test' }} />
+    )
   ).toMatchSnapshot();
 });
 
 it('should render a version correctly', () => {
   expect(
-    shallow(<Event event={{ key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' }} />)
+    shallow(
+      <Event
+        event={{ key: '2', category: ProjectAnalysisEventCategory.Version, name: '6.5-SNAPSHOT' }}
+      />
+    )
   ).toMatchSnapshot();
 });
 
 it('should render rich quality gate event', () => {
   const event: AnalysisEvent = {
-    category: 'QUALITY_GATE',
+    category: ProjectAnalysisEventCategory.QualityGate,
     key: 'foo1234',
     name: '',
     qualityGate: {

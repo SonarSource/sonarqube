@@ -55,8 +55,7 @@
   overflow: auto;
   flex-grow: 1;
   flex-shrink: 0;
-  padding: calc(2 * var(--gridSize)) calc(2 * var(--gridSize)) calc(2 * var(--gridSize))
-    calc(1.5 * var(--gridSize));
+  padding: 0 calc(2 * var(--gridSize)) calc(2 * var(--gridSize)) calc(1.5 * var(--gridSize));
 }
 
 .project-activity-day {
@@ -140,24 +139,20 @@
 }
 
 .project-activity-version-badge {
-  margin-left: calc(-1.5 * var(--gridSize));
-  padding-top: var(--gridSize);
-  padding-bottom: var(--gridSize);
-  background-color: white;
-}
-
-.project-activity-version-badge.sticky,
-.project-activity-version-badge.first {
-  position: absolute;
-  top: 0;
+  position: sticky;
+  top: calc(-3 * var(--gridSize));
   left: calc(1.5 * var(--gridSize));
   right: calc(2 * var(--gridSize));
+  margin-left: calc(-1.5 * var(--gridSize));
+  background-color: white;
   padding-top: calc(3 * var(--gridSize));
+  padding-bottom: var(--gridSize);
   z-index: var(--belowNormalZIndex);
 }
 
-.project-activity-version-badge.sticky + .project-activity-days-list {
-  padding-top: 36px;
+.project-activity-version-badge.first {
+  top: 0;
+  padding-top: 0;
 }
 
 .project-activity-version-badge .analysis-version {

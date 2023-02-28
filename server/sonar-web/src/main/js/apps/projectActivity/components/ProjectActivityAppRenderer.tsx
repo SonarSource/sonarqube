@@ -23,6 +23,7 @@ import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
+import { ComponentQualifier } from '../../../types/component';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
 import { Component, Metric } from '../../../types/types';
 import { Query } from '../utils';
@@ -32,27 +33,28 @@ import ProjectActivityGraphs from './ProjectActivityGraphs';
 import ProjectActivityPageFilters from './ProjectActivityPageFilters';
 
 interface Props {
-  addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
-  addVersion: (analysis: string, version: string) => Promise<void>;
+  onAddCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
+  onAddVersion: (analysis: string, version: string) => Promise<void>;
   analyses: ParsedAnalysis[];
   analysesLoading: boolean;
-  changeEvent: (event: string, name: string) => Promise<void>;
-  deleteAnalysis: (analysis: string) => Promise<void>;
-  deleteEvent: (analysis: string, event: string) => Promise<void>;
+  onChangeEvent: (event: string, name: string) => Promise<void>;
+  onDeleteAnalysis: (analysis: string) => Promise<void>;
+  onDeleteEvent: (analysis: string, event: string) => Promise<void>;
   graphLoading: boolean;
   initializing: boolean;
   project: Pick<Component, 'configuration' | 'key' | 'leakPeriodDate' | 'qualifier'>;
   metrics: Metric[];
   measuresHistory: MeasureHistory[];
   query: Query;
-  updateQuery: (changes: Partial<Query>) => void;
+  onUpdateQuery: (changes: Partial<Query>) => void;
 }
 
 export default function ProjectActivityAppRenderer(props: Props) {
   const { analyses, measuresHistory, query } = props;
   const { configuration } = props.project;
   const canAdmin =
-    (props.project.qualifier === 'TRK' || props.project.qualifier === 'APP') &&
+    (props.project.qualifier === ComponentQualifier.Project ||
+      props.project.qualifier === ComponentQualifier.Application) &&
     (configuration ? configuration.showHistory : false);
   const canDeleteAnalyses = configuration ? configuration.showHistory : false;
   return (
@@ -67,28 +69,28 @@ export default function ProjectActivityAppRenderer(props: Props) {
         from={query.from}
         project={props.project}
         to={query.to}
-        updateQuery={props.updateQuery}
+        updateQuery={props.onUpdateQuery}
       />
 
       <div className="layout-page project-activity-page">
         <div className="layout-page-side-outer project-activity-page-side-outer boxed-group">
           <ProjectActivityAnalysesList
-            addCustomEvent={props.addCustomEvent}
-            addVersion={props.addVersion}
+            onAddCustomEvent={props.onAddCustomEvent}
+            onAddVersion={props.onAddVersion}
             analyses={analyses}
             analysesLoading={props.analysesLoading}
             canAdmin={canAdmin}
             canDeleteAnalyses={canDeleteAnalyses}
-            changeEvent={props.changeEvent}
-            deleteAnalysis={props.deleteAnalysis}
-            deleteEvent={props.deleteEvent}
+            onChangeEvent={props.onChangeEvent}
+            onDeleteAnalysis={props.onDeleteAnalysis}
+            onDeleteEvent={props.onDeleteEvent}
             initializing={props.initializing}
             leakPeriodDate={
               props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
             }
             project={props.project}
             query={query}
-            updateQuery={props.updateQuery}
+            onUpdateQuery={props.onUpdateQuery}
           />
         </div>
         <div className="project-activity-layout-page-main">
@@ -102,7 +104,7 @@ export default function ProjectActivityAppRenderer(props: Props) {
             metrics={props.metrics}
             project={props.project.key}
             query={query}
-            updateQuery={props.updateQuery}
+            updateQuery={props.onUpdateQuery}
           />
         </div>
       </div>

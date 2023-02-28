@@ -24,9 +24,14 @@ import { translate } from '../../helpers/l10n';
 import { limitComponentName } from '../../helpers/path';
 import { getProjectUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
-import { AnalysisEvent } from '../../types/project-activity';
+import {
+  AnalysisEvent,
+  ApplicationAnalysisEventCategory,
+  DefinitionChangeType,
+} from '../../types/project-activity';
 import Link from '../common/Link';
 import { ButtonLink } from '../controls/buttons';
+import ClickEventBoundary from '../controls/ClickEventBoundary';
 import BranchIcon from '../icons/BranchIcon';
 import DropdownIcon from '../icons/DropdownIcon';
 
@@ -34,7 +39,10 @@ export type DefinitionChangeEvent = AnalysisEvent &
   Required<Pick<AnalysisEvent, 'definitionChange'>>;
 
 export function isDefinitionChangeEvent(event: AnalysisEvent): event is DefinitionChangeEvent {
-  return event.category === 'DEFINITION_CHANGE' && event.definitionChange !== undefined;
+  return (
+    event.category === ApplicationAnalysisEventCategory.DefinitionChange &&
+    event.definitionChange !== undefined
+  );
 }
 
 interface Props {
@@ -47,25 +55,21 @@ interface State {
   expanded: boolean;
 }
 
+const NAME_MAX_LENGTH = 28;
+
 export class DefinitionChangeEventInner extends React.PureComponent<Props, State> {
   state: State = { expanded: false };
-
-  stopPropagation = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.stopPropagation();
-  };
 
   toggleProjectsList = () => {
     this.setState((state) => ({ expanded: !state.expanded }));
   };
 
   renderProjectLink = (project: { key: string; name: string }, branch: string | undefined) => (
-    <Link
-      onClick={this.stopPropagation}
-      title={project.name}
-      to={getProjectUrl(project.key, branch)}
-    >
-      {limitComponentName(project.name, 28)}
-    </Link>
+    <ClickEventBoundary>
+      <Link title={project.name} to={getProjectUrl(project.key, branch)}>
+        {limitComponentName(project.name, NAME_MAX_LENGTH)}
+      </Link>
+    </ClickEventBoundary>
   );
 
   renderBranch = (branch = translate('branches.main_branch')) => (
@@ -76,7 +80,7 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
   );
 
   renderProjectChange(project: {
-    changeType: string;
+    changeType: DefinitionChangeType;
     key: string;
     name: string;
     branch?: string;
@@ -85,52 +89,56 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
   }) {
     const mainBranch = !this.props.branchLike || isMainBranch(this.props.branchLike);
 
-    if (project.changeType === 'ADDED') {
-      const message = mainBranch
-        ? 'event.definition_change.added'
-        : 'event.definition_change.branch_added';
-      return (
-        <div className="text-ellipsis">
+    switch (project.changeType) {
+      case DefinitionChangeType.Added: {
+        const message = mainBranch
+          ? 'event.definition_change.added'
+          : 'event.definition_change.branch_added';
+        return (
+          <div className="text-ellipsis">
+            <FormattedMessage
+              defaultMessage={translate(message)}
+              id={message}
+              values={{
+                project: this.renderProjectLink(project, project.branch),
+                branch: this.renderBranch(project.branch),
+              }}
+            />
+          </div>
+        );
+      }
+
+      case DefinitionChangeType.Removed: {
+        const message = mainBranch
+          ? 'event.definition_change.removed'
+          : 'event.definition_change.branch_removed';
+        return (
+          <div className="text-ellipsis">
+            <FormattedMessage
+              defaultMessage={translate(message)}
+              id={message}
+              values={{
+                project: this.renderProjectLink(project, project.branch),
+                branch: this.renderBranch(project.branch),
+              }}
+            />
+          </div>
+        );
+      }
+
+      case DefinitionChangeType.BranchChanged:
+        return (
           <FormattedMessage
-            defaultMessage={translate(message)}
-            id={message}
+            defaultMessage={translate('event.definition_change.branch_replaced')}
+            id="event.definition_change.branch_replaced"
             values={{
-              project: this.renderProjectLink(project, project.branch),
-              branch: this.renderBranch(project.branch),
+              project: this.renderProjectLink(project, project.newBranch),
+              oldBranch: this.renderBranch(project.oldBranch),
+              newBranch: this.renderBranch(project.newBranch),
             }}
           />
-        </div>
-      );
-    } else if (project.changeType === 'REMOVED') {
-      const message = mainBranch
-        ? 'event.definition_change.removed'
-        : 'event.definition_change.branch_removed';
-      return (
-        <div className="text-ellipsis">
-          <FormattedMessage
-            defaultMessage={translate(message)}
-            id={message}
-            values={{
-              project: this.renderProjectLink(project, project.branch),
-              branch: this.renderBranch(project.branch),
-            }}
-          />
-        </div>
-      );
-    } else if (project.changeType === 'BRANCH_CHANGED') {
-      return (
-        <FormattedMessage
-          defaultMessage={translate('event.definition_change.branch_replaced')}
-          id="event.definition_change.branch_replaced"
-          values={{
-            project: this.renderProjectLink(project, project.newBranch),
-            oldBranch: this.renderBranch(project.oldBranch),
-            newBranch: this.renderBranch(project.newBranch),
-          }}
-        />
-      );
+        );
     }
-    return null;
   }
 
   render() {
