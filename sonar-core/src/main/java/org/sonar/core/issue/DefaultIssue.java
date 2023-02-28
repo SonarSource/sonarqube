@@ -503,10 +503,10 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
         currentChange.setCreationDate(context.date());
         currentChange.setWebhookSource(context.getWebhookSource());
         currentChange.setExternalUser(context.getExternalUser());
+        addChange(currentChange);
       }
       currentChange.setDiff(field, oldValue, newValue);
     }
-    addChange(currentChange);
     return this;
   }
 

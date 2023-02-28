@@ -207,6 +207,25 @@ public class DefaultIssueTest {
   }
 
   @Test
+  public void setFieldChange_whenAddingChange_shouldUpdateCurrentChange() {
+    IssueChangeContext issueChangeContext = mock(IssueChangeContext.class);
+    DefaultIssue issue = new DefaultIssue().setKey("AAA");
+
+    issue.setFieldChange(issueChangeContext, "actionPlan", "1.0", "1.1");
+    assertThat(issue.changes()).hasSize(1);
+    FieldDiffs currentChange = issue.currentChange();
+    assertThat(currentChange).isNotNull();
+    assertThat(currentChange.get("actionPlan")).isNotNull();
+    assertThat(currentChange.get("authorLogin")).isNull();
+
+    issue.setFieldChange(issueChangeContext, "authorLogin", null, "testuser");
+    assertThat(issue.changes()).hasSize(1);
+    assertThat(currentChange.get("actionPlan")).isNotNull();
+    assertThat(currentChange.get("authorLogin")).isNotNull();
+    assertThat(currentChange.get("authorLogin").newValue()).isEqualTo("testuser");
+  }
+
+  @Test
   public void adding_null_change_has_no_effect() {
     DefaultIssue issue = new DefaultIssue();
 
