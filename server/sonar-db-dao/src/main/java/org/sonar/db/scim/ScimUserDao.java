@@ -19,12 +19,17 @@
  */
 package org.sonar.db.scim;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import org.sonar.core.util.UuidFactory;
+import java.util.function.BiFunction;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+
+import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class ScimUserDao implements Dao {
   private final UuidFactory uuidFactory;
@@ -45,6 +50,7 @@ public class ScimUserDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).findByUserUuid(userUuid));
   }
 
+
   public ScimUserDto enableScimForUser(DbSession dbSession, String userUuid) {
     ScimUserDto scimUserDto = new ScimUserDto(uuidFactory.create(), userUuid);
     mapper(dbSession).insert(scimUserDto);
@@ -52,7 +58,35 @@ public class ScimUserDao implements Dao {
   }
 
   public List<ScimUserDto> findScimUsers(DbSession dbSession, ScimUserQuery scimUserQuery, int offset, int limit) {
+    checkState(scimUserQuery.getUserUuids() == null || scimUserQuery.getScimUserUuids() == null,
+      "Only one of userUuids & scimUserUuids request parameter is supported.");
+    if (scimUserQuery.getScimUserUuids() != null) {
+      return executeLargeInputs(
+        scimUserQuery.getScimUserUuids(),
+        partialSetOfUsers -> createPartialQuery(scimUserQuery, partialSetOfUsers,
+          (builder, scimUserUuids) -> builder.scimUserUuids(new HashSet<>(scimUserUuids)),
+          dbSession, offset, limit)
+      );
+    }
+    if (scimUserQuery.getUserUuids() != null) {
+      return executeLargeInputs(
+        scimUserQuery.getUserUuids(),
+        partialSetOfUsers -> createPartialQuery(scimUserQuery, partialSetOfUsers,
+          (builder, userUuids) -> builder.userUuids(new HashSet<>(userUuids)),
+          dbSession, offset, limit)
+      );
+    }
     return mapper(dbSession).findScimUsers(scimUserQuery, new RowBounds(offset, limit));
+  }
+
+  private static List<ScimUserDto> createPartialQuery(ScimUserQuery completeQuery, List<String> strings,
+    BiFunction<ScimUserQuery.ScimUserQueryBuilder, List<String>, ScimUserQuery.ScimUserQueryBuilder> queryModifier,
+    DbSession dbSession, int offset, int limit) {
+
+    ScimUserQuery.ScimUserQueryBuilder partialScimUserQuery = ScimUserQuery.builder()
+      .userName(completeQuery.getUserName());
+    partialScimUserQuery = queryModifier.apply(partialScimUserQuery, strings);
+    return mapper(dbSession).findScimUsers(partialScimUserQuery.build(), new RowBounds(offset, limit));
   }
 
   public int countScimUsers(DbSession dbSession, ScimUserQuery scimUserQuery) {

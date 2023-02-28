@@ -22,6 +22,17 @@
       scim_uuid = #{scimUserUuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByLogins" parameterType="string" resultType="User">
+    select
+    <include refid="scimUsersColumns"/>
+      from scim_users
+    where
+      scim_uuid in
+        <foreach collection="list" open="(" close=")" item="login" separator=",">
+            #{scimUserUuid, jdbcType=VARCHAR}
+        </foreach>
+  </select>
+
   <select id="findByUserUuid" parameterType="String" resultType="org.sonar.db.scim.ScimUserDto">
     select
     <include refid="scimUsersColumns"/>
@@ -40,23 +51,36 @@
     )
   </insert>
 
-  <select id="findScimUsers" resultType="org.sonar.db.scim.ScimUserDto">
+  <select id="findScimUsers" parameterType="map" resultType="org.sonar.db.scim.ScimUserDto">
     select
     <include refid="scimUsersColumns"/>
     <include refid="sqlSelectByQuery"/>
     order by s.scim_uuid asc
   </select>
 
-  <select id="countScimUsers" resultType="int">
+  <select id="countScimUsers" parameterType="map" resultType="int">
     select count(1)
     <include refid="sqlSelectByQuery"/>
   </select>
 
   <sql id="sqlSelectByQuery">
     from scim_users s
+    inner join users u on u.uuid=s.user_uuid
+    where 1=1
     <if test="query.userName != null">
-      inner join users u on u.uuid=s.user_uuid
-        where lower(u.external_id) like lower(#{query.userName,jdbcType=VARCHAR}) escape '/'
+        and lower(u.external_id) like lower(#{query.userName,jdbcType=VARCHAR}) escape '/'
+    </if>
+    <if test="query.scimUserUuids != null">
+        and s.scim_uuid in
+        <foreach collection="query.scimUserUuids" open="(" close=")" item="scimUserUuid" separator=",">
+            #{scimUserUuid, jdbcType=VARCHAR}
+        </foreach>
+    </if>
+    <if test="query.userUuids != null">
+        and s.user_uuid in
+        <foreach collection="query.userUuids" open="(" close=")" item="userUuid" separator=",">
+            #{userUuid, jdbcType=VARCHAR}
+        </foreach>
     </if>
   </sql>
 

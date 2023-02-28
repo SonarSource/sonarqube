@@ -26,9 +26,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +64,6 @@ public class ScimUserDaoIT {
     assertThat(scimUserDtos).hasSize(2)
       .map(scimUserDto -> new ScimUserTestData(scimUserDto.getScimUserUuid(), scimUserDto.getUserUuid()))
       .containsExactlyInAnyOrder(scimUser1TestData, scimUser2TestData);
-
   }
 
   @Test
@@ -109,7 +108,7 @@ public class ScimUserDaoIT {
       {9, 3, 3, List.of("4", "5", "6")},
       {9, 7, 3, List.of("8", "9")},
       {5, 5, 20, List.of()},
-      {5, 0, 0, List.of()}
+      {5, 0, 0, List.of()},
     };
   }
 
@@ -154,18 +153,17 @@ public class ScimUserDaoIT {
 
   @Test
   public void countScimUsers_shoudReturnCorrectNumberOfScimUser_whenFilteredByScimUserName() {
-    inserScimUsersWithUsers(List.of("TEST_A", "TEST_B", "TEST_B_BIS", "TEST_C", "TEST_D"));
+    insertScimUsersWithUsers(List.of("TEST_A", "TEST_B", "TEST_B_BIS", "TEST_C", "TEST_D"));
     ScimUserQuery scimUserQuery = ScimUserQuery.builder().userName("test_b").build();
 
     assertThat(scimUserDao.countScimUsers(dbSession, scimUserQuery)).isEqualTo(1);
   }
 
-  private void generateScimUsers(int totalScimUsers) {
-    List<ScimUserTestData> allScimUsers = Stream.iterate(1, i -> i + 1)
-      .map(i -> insertScimUser(i.toString()))
-      .limit(totalScimUsers)
+  private List<ScimUserTestData> generateScimUsers(int totalScimUsers) {
+    List<String> userNames = IntStream.range(0, totalScimUsers)
+      .mapToObj(i -> "username_" + i)
       .collect(Collectors.toList());
-    assertThat(allScimUsers).hasSize(totalScimUsers);
+    return insertScimUsersWithUsers(userNames);
   }
 
   @Test
@@ -191,13 +189,88 @@ public class ScimUserDaoIT {
   @Test
   @UseDataProvider("filterData")
   public void findScimUsers_whenFilteringByUserName_shouldReturnTheExpectedScimUsers(String search, List<String> userLogins, List<String> expectedScimUserUuids) {
-    inserScimUsersWithUsers(userLogins);
+    insertScimUsersWithUsers(userLogins);
     ScimUserQuery query = ScimUserQuery.builder().userName(search).build();
 
     List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, 0, 100);
 
     List<String> scimUsersUuids = toScimUsersUuids(scimUsersByQuery);
     assertThat(scimUsersUuids).containsExactlyElementsOf(expectedScimUserUuids);
+  }
+
+  @Test
+  public void findScimUsers_whenFilteringByScimUuidsWithLongRange_shouldReturnTheExpectedScimUsers() {
+    generateScimUsers(3000);
+    Set<String> expectedScimUserUuids = generateStrings(1, 2050);
+
+    ScimUserQuery query = ScimUserQuery.builder().scimUserUuids(expectedScimUserUuids).build();
+
+    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, 0, Integer.MAX_VALUE);
+
+    List<String> scimUsersUuids = toScimUsersUuids(scimUsersByQuery);
+    assertThat(scimUsersByQuery)
+      .hasSameSizeAs(scimUsersUuids)
+      .extracting(ScimUserDto::getScimUserUuid)
+      .containsAll(expectedScimUserUuids);
+  }
+
+  @Test
+  public void findScimUsers_whenFilteringByScimUuidsAndUserName_shouldReturnTheExpectedScimUser() {
+    Set<String> scimUserUuids = generateScimUsers(10).stream()
+      .map(ScimUserTestData::getScimUserUuid)
+      .collect(Collectors.toSet());
+
+    ScimUserQuery query = ScimUserQuery.builder().scimUserUuids(scimUserUuids).userName("username_5").build();
+
+    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, 0, Integer.MAX_VALUE);
+
+    assertThat(scimUsersByQuery).hasSize(1)
+      .extracting(ScimUserDto::getScimUserUuid)
+      .contains("6");
+  }
+
+  @Test
+  public void findScimUsers_whenFilteringByUserUuidsWithLongRange_shouldReturnTheExpectedScimUsers() {
+    List<ScimUserTestData> scimUsersTestData = generateScimUsers(3000);
+    Set<String> allUsersUuid = scimUsersTestData.stream()
+      .map(ScimUserTestData::getUserUuid)
+      .collect(Collectors.toSet());
+
+    ScimUserQuery query = ScimUserQuery.builder().userUuids(allUsersUuid).build();
+
+    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, 0, Integer.MAX_VALUE);
+
+    assertThat(scimUsersByQuery)
+      .hasSameSizeAs(allUsersUuid)
+      .extracting(ScimUserDto::getUserUuid)
+      .containsAll(allUsersUuid);
+  }
+
+  @Test
+  public void findScimUsers_whenFilteringByUserUuidsAndUserName_shouldReturnTheExpectedScimUser() {
+    List<ScimUserTestData> scimUsersTestData = generateScimUsers(10);
+    Set<String> allUsersUuid = scimUsersTestData.stream()
+      .map(ScimUserTestData::getUserUuid)
+      .collect(Collectors.toSet());
+
+    ScimUserQuery query = ScimUserQuery.builder().userUuids(allUsersUuid).userName("username_5").build();
+
+    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, 0, Integer.MAX_VALUE);
+
+    assertThat(scimUsersByQuery).hasSize(1)
+      .extracting(ScimUserDto::getScimUserUuid)
+      .contains("6");
+  }
+
+  private static Set<String> generateStrings(int startInclusive, int endExclusive) {
+    return generateStrings(startInclusive, endExclusive, "");
+  }
+
+  private static Set<String> generateStrings(int startInclusive, int endExclusive, String prefix) {
+    return IntStream.range(startInclusive, endExclusive)
+      .mapToObj(String::valueOf)
+      .map(string -> prefix + string)
+      .collect(Collectors.toSet());
   }
 
   @Test
@@ -229,14 +302,15 @@ public class ScimUserDaoIT {
     assertThatCode(() -> scimUserDao.deleteByUserUuid(dbSession, randomAlphanumeric(6))).doesNotThrowAnyException();
   }
 
-  private void inserScimUsersWithUsers(List<String> userLogins) {
-    IntStream.range(0, userLogins.size())
-      .forEachOrdered(i -> insertScimUserWithUser(userLogins.get(i), String.valueOf(i + 1)));
+  private List<ScimUserTestData> insertScimUsersWithUsers(List<String> userLogins) {
+    return IntStream.range(0, userLogins.size())
+      .mapToObj(i -> insertScimUserWithUser(userLogins.get(i), String.valueOf(i + 1)))
+      .collect(Collectors.toList());
   }
 
-  private void insertScimUserWithUser(String userLogin, String scimUuid) {
+  private ScimUserTestData insertScimUserWithUser(String userLogin, String scimUuid) {
     UserDto userDto = db.users().insertUser(u -> u.setExternalId(userLogin));
-    insertScimUser(scimUuid, userDto.getUuid());
+    return insertScimUser(scimUuid, userDto.getUuid());
   }
 
   private ScimUserTestData insertScimUser(String scimUserUuid) {
@@ -247,7 +321,6 @@ public class ScimUserDaoIT {
     ScimUserTestData scimUserTestData = new ScimUserTestData(scimUserUuid, userUuid);
     Map<String, Object> data = Map.of("scim_uuid", scimUserTestData.getScimUserUuid(), "user_uuid", scimUserTestData.getUserUuid());
     db.executeInsert("scim_users", data);
-
     return scimUserTestData;
   }
 

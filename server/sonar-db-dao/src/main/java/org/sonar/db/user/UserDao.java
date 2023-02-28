@@ -78,6 +78,7 @@ public class UserDao implements Dao {
   /**
    * Select users by uuids, including disabled users. An empty list is returned
    * if list of uuids is empty, without any db round trips.
+   * @return
    */
   public List<UserDto> selectByUuids(DbSession session, Collection<String> uuids) {
     return executeLargeInputs(uuids, mapper(session)::selectByUuids);

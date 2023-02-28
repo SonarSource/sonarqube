@@ -20,6 +20,7 @@
 package org.sonar.db.scim;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
@@ -33,14 +34,28 @@ public class ScimUserQuery {
   private static final String UNSUPPORTED_FILTER = "Unsupported filter value: %s. Format should be 'userName eq \"username\"'";
 
   private final String userName;
+  private final Set<String> scimUserUuids;
+  private final Set<String> userUuids;
 
-  private ScimUserQuery(String userName) {
+  private ScimUserQuery(@Nullable String userName, @Nullable Set<String> scimUserUuids, @Nullable Set<String> userUuids) {
     this.userName = userName;
+    this.scimUserUuids = scimUserUuids;
+    this.userUuids = userUuids;
   }
 
   @CheckForNull
   public String getUserName() {
     return userName;
+  }
+
+  @CheckForNull
+  public Set<String> getScimUserUuids() {
+    return scimUserUuids;
+  }
+
+  @CheckForNull
+  public Set<String> getUserUuids() {
+    return userUuids;
   }
 
   public static ScimUserQuery empty() {
@@ -72,18 +87,30 @@ public class ScimUserQuery {
   public static final class ScimUserQueryBuilder {
 
     private String userName;
+    private Set<String> scimUserUuids;
+    private Set<String> userUuids;
 
     private ScimUserQueryBuilder() {
     }
 
-    public ScimUserQueryBuilder userName(String userName) {
+    public ScimUserQueryBuilder userName(@Nullable String userName) {
       this.userName = userName;
       return this;
     }
 
-    public ScimUserQuery build() {
-      return new ScimUserQuery(userName);
+
+    public ScimUserQueryBuilder scimUserUuids(Set<String> scimUserUuids) {
+      this.scimUserUuids = scimUserUuids;
+      return this;
     }
 
+    public ScimUserQueryBuilder userUuids(Set<String> userUuids) {
+      this.userUuids = userUuids;
+      return this;
+    }
+
+    public ScimUserQuery build() {
+      return new ScimUserQuery(userName, scimUserUuids, userUuids);
+    }
   }
 }

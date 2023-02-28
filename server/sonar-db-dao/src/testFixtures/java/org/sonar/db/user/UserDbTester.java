@@ -39,6 +39,7 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.scim.ScimGroupDto;
+import org.sonar.db.scim.ScimUserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.stream;
@@ -87,6 +88,12 @@ public class UserDbTester {
     UserDto updatedUser = dbClient.userDao().insert(db.getSession(), userDto);
     db.commit();
     return updatedUser;
+  }
+
+  public ScimUserDto enableScimForUser(UserDto userDto) {
+    ScimUserDto scimUSerDto = db.getDbClient().scimUserDao().enableScimForUser(db.getSession(), userDto.getUuid());
+    db.commit();
+    return scimUSerDto;
   }
 
   public UserDto insertAdminByUserPermission() {
@@ -173,6 +180,11 @@ public class UserDbTester {
       db.getDbClient().userGroupDao().insert(db.getSession(), dto, group.getName(), user.getLogin());
     });
     db.commit();
+  }
+
+  public List<UserDto> findMembers(GroupDto group) {
+    Set<String> userUuidsInGroup = db.getDbClient().userGroupDao().selectUserUuidsInGroup(db.getSession(), group.getUuid());
+    return db.getDbClient().userDao().selectByUuids(db.getSession(), userUuidsInGroup);
   }
 
   public List<String> selectGroupUuidsOfUser(UserDto user) {
