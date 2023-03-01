@@ -474,7 +474,7 @@ public class CreateTableBuilderTest {
 
   @Test
   public void build_adds_DEFAULT_clause_on_varchar_column_on_MSSQL() {
-    verifyDefaultClauseOnVarcharColumn(MS_SQL, "CREATE TABLE table_42 (status VARCHAR (1) DEFAULT 'P' NOT NULL)");
+    verifyDefaultClauseOnVarcharColumn(MS_SQL, "CREATE TABLE table_42 (status NVARCHAR (1) DEFAULT 'P' NOT NULL)");
   }
 
   @Test

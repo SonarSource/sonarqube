@@ -56,13 +56,13 @@ public class AlterColumnsBuilderTest {
     assertThat(createSampleBuilder(new MsSql()).build())
       .containsOnly(
         "ALTER TABLE issues ALTER COLUMN value DECIMAL (30,20) NULL",
-        "ALTER TABLE issues ALTER COLUMN name VARCHAR (10) NULL");
+        "ALTER TABLE issues ALTER COLUMN name NVARCHAR (10) NULL");
   }
 
   @Test
   public void update_not_nullable_column_on_mssql() {
     assertThat(createNotNullableBuilder(new MsSql()).build())
-      .containsOnly("ALTER TABLE issues ALTER COLUMN name VARCHAR (10) NOT NULL");
+      .containsOnly("ALTER TABLE issues ALTER COLUMN name NVARCHAR (10) NOT NULL");
   }
 
   @Test

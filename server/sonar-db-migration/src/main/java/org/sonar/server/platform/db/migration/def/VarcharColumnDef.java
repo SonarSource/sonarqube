@@ -23,6 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.Oracle;
 
 import static java.lang.String.format;
@@ -73,10 +74,14 @@ public class VarcharColumnDef extends AbstractColumnDef {
 
   @Override
   public String generateSqlType(Dialect dialect) {
-    if (dialect.getId().equals(Oracle.ID)) {
-      return format("VARCHAR2 (%d%s)", columnSize, ignoreOracleUnit ? "" : " CHAR");
+    switch (dialect.getId()) {
+      case MsSql.ID:
+        return format("NVARCHAR (%d)", columnSize);
+      case Oracle.ID:
+        return format("VARCHAR2 (%d%s)", columnSize, ignoreOracleUnit ? "" : " CHAR");
+      default:
+        return format("VARCHAR (%d)", columnSize);
     }
-    return format("VARCHAR (%d)", columnSize);
   }
 
   public static class Builder {

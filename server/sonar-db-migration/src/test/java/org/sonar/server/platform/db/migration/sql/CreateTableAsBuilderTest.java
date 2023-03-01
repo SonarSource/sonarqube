@@ -39,7 +39,7 @@ public class CreateTableAsBuilderTest {
     String selectInto = "SELECT rule_uuid INTO issues_copy FROM issues";
 
     verifySql(new H2(), createTableAs, "ALTER TABLE issues_copy ALTER COLUMN rule_uuid VARCHAR (40) NOT NULL");
-    verifySql(new MsSql(), selectInto, "ALTER TABLE issues_copy ALTER COLUMN rule_uuid VARCHAR (40) NOT NULL");
+    verifySql(new MsSql(), selectInto, "ALTER TABLE issues_copy ALTER COLUMN rule_uuid NVARCHAR (40) NOT NULL");
     verifySql(new Oracle(), createTableAs, "ALTER TABLE issues_copy MODIFY (rule_uuid VARCHAR2 (40 CHAR) NOT NULL)");
     verifySql(new PostgreSql(), createTableAs, "ALTER TABLE issues_copy ALTER COLUMN rule_uuid TYPE VARCHAR (40), ALTER COLUMN rule_uuid SET NOT NULL");
   }
@@ -48,8 +48,8 @@ public class CreateTableAsBuilderTest {
   public void create_table_with_cast() {
     verifySqlWithCast(new H2(), "CREATE TABLE issues_copy (rule_uuid) AS (SELECT CAST (rule_id AS VARCHAR (40)) AS rule_uuid FROM issues)",
       "ALTER TABLE issues_copy ALTER COLUMN rule_uuid VARCHAR (40) NOT NULL");
-    verifySqlWithCast(new MsSql(), "SELECT CAST (rule_id AS VARCHAR (40)) AS rule_uuid INTO issues_copy FROM issues",
-      "ALTER TABLE issues_copy ALTER COLUMN rule_uuid VARCHAR (40) NOT NULL");
+    verifySqlWithCast(new MsSql(), "SELECT CAST (rule_id AS NVARCHAR (40)) AS rule_uuid INTO issues_copy FROM issues",
+      "ALTER TABLE issues_copy ALTER COLUMN rule_uuid NVARCHAR (40) NOT NULL");
     verifySqlWithCast(new Oracle(), "CREATE TABLE issues_copy (rule_uuid) AS (SELECT CAST (rule_id AS VARCHAR2 (40 CHAR)) AS rule_uuid FROM issues)",
       "ALTER TABLE issues_copy MODIFY (rule_uuid VARCHAR2 (40 CHAR) NOT NULL)");
     verifySqlWithCast(new PostgreSql(), "CREATE TABLE issues_copy (rule_uuid) AS (SELECT CAST (rule_id AS VARCHAR (40)) AS rule_uuid FROM issues)",
