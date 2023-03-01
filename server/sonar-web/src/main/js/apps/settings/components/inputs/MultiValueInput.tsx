@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { DeleteButton } from '../../../../components/controls/buttons';
-import { DefaultSpecializedInputProps, getEmptyValue } from '../../utils';
+import { translateWithParameters } from '../../../../helpers/l10n';
+import { DefaultSpecializedInputProps, getEmptyValue, getPropertyName } from '../../utils';
 import PrimitiveInput from './PrimitiveInput';
 
 export default class MultiValueInput extends React.PureComponent<DefaultSpecializedInputProps> {
@@ -56,6 +57,11 @@ export default class MultiValueInput extends React.PureComponent<DefaultSpeciali
           <div className="display-inline-block spacer-left">
             <DeleteButton
               className="js-remove-value"
+              aria-label={translateWithParameters(
+                'settings.definition.delete_value',
+                getPropertyName(setting.definition),
+                value
+              )}
               onClick={() => this.handleDeleteValue(index)}
             />
           </div>

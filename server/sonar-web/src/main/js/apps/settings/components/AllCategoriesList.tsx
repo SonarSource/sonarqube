@@ -38,7 +38,7 @@ export interface CategoriesListProps extends WithAvailableFeaturesProps {
   selectedCategory: string;
 }
 
-export function CategoriesList(props: CategoriesListProps) {
+function CategoriesList(props: CategoriesListProps) {
   const { categories, component, defaultCategory, selectedCategory } = props;
 
   const categoriesWithName = categories

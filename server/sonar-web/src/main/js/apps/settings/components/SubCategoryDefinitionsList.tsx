@@ -36,7 +36,7 @@ export interface SubCategoryDefinitionsListProps {
   displaySubCategoryTitle?: boolean;
 }
 
-export class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefinitionsListProps> {
+class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefinitionsListProps> {
   componentDidUpdate(prevProps: SubCategoryDefinitionsListProps) {
     const { hash } = this.props.location;
     if (hash && prevProps.location.hash !== hash) {

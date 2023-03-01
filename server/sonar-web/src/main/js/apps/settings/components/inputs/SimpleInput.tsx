@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
-import { DefaultSpecializedInputProps } from '../../utils';
+import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 export interface SimpleInputProps extends DefaultSpecializedInputProps {
   value: string | number;
@@ -40,7 +40,7 @@ export default class SimpleInput extends React.PureComponent<SimpleInputProps> {
   };
 
   render() {
-    const { autoComplete, autoFocus, className, name, value = '', type } = this.props;
+    const { autoComplete, autoFocus, className, name, value = '', setting, type } = this.props;
     return (
       <input
         autoComplete={autoComplete}
@@ -51,6 +51,7 @@ export default class SimpleInput extends React.PureComponent<SimpleInputProps> {
         onKeyDown={this.handleKeyDown}
         type={type}
         value={value}
+        aria-label={getPropertyName(setting.definition)}
       />
     );
   }

@@ -19,61 +19,178 @@
  */
 import { cloneDeep } from 'lodash';
 import { HousekeepingPolicy } from '../../apps/audit-logs/utils';
+import { mockDefinition } from '../../helpers/mocks/settings';
 import { BranchParameters } from '../../types/branch-like';
-import { SettingsKey, SettingValue } from '../../types/settings';
-import { getAllValues, getValue, getValues } from '../settings';
+import {
+  ExtendedSettingDefinition,
+  SettingDefinition,
+  SettingsKey,
+  SettingType,
+  SettingValue,
+} from '../../types/settings';
+import {
+  getAllValues,
+  getDefinitions,
+  getValue,
+  getValues,
+  resetSettingValue,
+  setSettingValue,
+} from '../settings';
+
+const isEmptyString = (i: string) => i.trim() === '';
+
+export const DEFAULT_DEFINITIONS_MOCK = [
+  mockDefinition({
+    category: 'general',
+    key: 'sonar.announcement.message',
+    subCategory: 'Announcement',
+    name: 'Announcement message',
+    description: 'Enter message',
+    defaultValue: '.js,.jsx,.cjs,.vue,.mjs',
+    type: SettingType.TEXT,
+  }),
+  mockDefinition({
+    category: 'general',
+    key: 'sonar.ce.parallelProjectTasks',
+    subCategory: 'Compute Engine',
+    name: 'Run analysis in paralel',
+    description: 'Enter message',
+    defaultValue: '.js,.jsx,.cjs,.vue,.mjs',
+    type: SettingType.TEXT,
+  }),
+  mockDefinition({
+    category: 'javascript',
+    key: 'sonar.javascript.globals',
+    subCategory: 'General',
+    name: 'Global Variables',
+    description: 'List of Global variables',
+    multiValues: true,
+    defaultValue: 'angular,google,d3',
+  }),
+  mockDefinition({
+    category: 'javascript',
+    key: 'sonar.javascript.file.suffixes',
+    subCategory: 'General',
+    name: 'JavaScript File Suffixes',
+    description: 'List of suffixes for files to analyze',
+    multiValues: true,
+    defaultValue: '.js,.jsx,.cjs,.vue,.mjs',
+  }),
+  mockDefinition({
+    category: 'External Analyzers',
+    key: 'sonar.androidLint.reportPaths',
+    subCategory: 'Android',
+    name: 'Android Lint Report Files',
+    description: 'Paths to xml files',
+    multiValues: true,
+  }),
+];
 
 export default class SettingsServiceMock {
-  settingValues: SettingValue[];
-  defaultValues: SettingValue[] = [
+  #defaultValues: SettingValue[] = [
     {
       key: SettingsKey.AuditHouseKeeping,
       value: HousekeepingPolicy.Weekly,
     },
+    {
+      key: 'sonar.javascript.globals',
+      values: ['angular', 'google', 'd3'],
+    },
   ];
 
+  #settingValues: SettingValue[] = cloneDeep(this.#defaultValues);
+
+  #definitions: ExtendedSettingDefinition[] = cloneDeep(DEFAULT_DEFINITIONS_MOCK);
+
   constructor() {
-    this.settingValues = cloneDeep(this.defaultValues);
-    (getValue as jest.Mock).mockImplementation(this.handleGetValue);
-    (getValues as jest.Mock).mockImplementation(this.handleGetValues);
-    (getAllValues as jest.Mock).mockImplementation(this.handleGetAllValues);
+    jest.mocked(getDefinitions).mockImplementation(this.handleGetDefinitions);
+    jest.mocked(getValue).mockImplementation(this.handleGetValue);
+    jest.mocked(getValues).mockImplementation(this.handleGetValues);
+    jest.mocked(getAllValues).mockImplementation(this.handleGetAllValues);
+    jest.mocked(setSettingValue).mockImplementation(this.handleSetSettingValue);
+    jest.mocked(resetSettingValue).mockImplementation(this.handleResetSettingValue);
   }
 
   handleGetValue = (data: { key: string; component?: string } & BranchParameters) => {
-    const setting = this.settingValues.find((s) => s.key === data.key);
+    const setting = this.#settingValues.find((s) => s.key === data.key) as SettingValue;
     return this.reply(setting);
   };
 
   handleGetValues = (data: { keys: string[]; component?: string } & BranchParameters) => {
-    const settings = this.settingValues.filter((s) => data.keys.includes(s.key));
+    const settings = this.#settingValues.filter((s) => data.keys.includes(s.key));
     return this.reply(settings);
   };
 
   handleGetAllValues = () => {
-    return this.reply(this.settingValues);
+    return this.reply(this.#settingValues);
+  };
+
+  handleGetDefinitions = () => {
+    return this.reply(this.#definitions);
+  };
+
+  handleSetSettingValue = (definition: SettingDefinition, value: any): Promise<void> => {
+    if (
+      (typeof value === 'string' && isEmptyString(value)) ||
+      (value instanceof Array && value.some(isEmptyString))
+    ) {
+      throw new ResponseError('validation error', {
+        errors: [{ msg: 'A non empty value must be provided' }],
+      });
+    }
+
+    this.set(definition.key, value);
+
+    return this.reply(undefined);
+  };
+
+  handleResetSettingValue = (data: { keys: string; component?: string } & BranchParameters) => {
+    const setting = this.#settingValues.find((s) => s.key === data.keys) as SettingValue;
+    const definition = this.#definitions.find(
+      (d) => d.key === data.keys
+    ) as ExtendedSettingDefinition;
+    if (definition.multiValues === true) {
+      setting.values = definition.defaultValue?.split(',') ?? [];
+    } else {
+      setting.value = definition.defaultValue ?? '';
+    }
+
+    return this.reply(undefined);
   };
 
   emptySettings = () => {
-    this.settingValues = [];
+    this.#settingValues = [];
     return this;
   };
 
-  set = (key: SettingsKey, value: string) => {
-    const setting = this.settingValues.find((s) => s.key === key);
+  set = (key: string | SettingsKey, value: any) => {
+    const setting = this.#settingValues.find((s) => s.key === key);
     if (setting) {
       setting.value = value;
+      setting.values = value;
     } else {
-      this.settingValues.push({ key, value });
+      this.#settingValues.push({ key, value });
     }
     return this;
   };
 
   reset = () => {
-    this.settingValues = cloneDeep(this.defaultValues);
+    this.#settingValues = cloneDeep(this.#defaultValues);
+    this.#definitions = cloneDeep(DEFAULT_DEFINITIONS_MOCK);
     return this;
   };
 
   reply<T>(response: T): Promise<T> {
     return Promise.resolve(cloneDeep(response));
   }
+}
+
+class ResponseError extends Error {
+  #response: any;
+  constructor(name: string, response: any) {
+    super(name);
+    this.#response = response;
+  }
+
+  json = () => Promise.resolve(this.#response);
 }

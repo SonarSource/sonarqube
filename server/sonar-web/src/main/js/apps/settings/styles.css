@@ -200,6 +200,16 @@
   overflow-x: hidden;
 }
 
+.settings-search-results > li > a:hover {
+  background-color: unset;
+  border-left-color: unset;
+}
+
+.settings-search-results > li.active > a {
+  background-color: var(--neutral50);
+  border-left-color: var(--blacka60);
+}
+
 .fixed-footer {
   position: sticky;
   bottom: 0px;

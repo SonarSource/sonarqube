@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { Button, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Setting } from '../../../types/settings';
-import { getDefaultValue, isEmptyValue } from '../utils';
+import { getDefaultValue, getPropertyName, isEmptyValue } from '../utils';
 
 type Props = {
   changedValue?: string;
@@ -100,7 +100,14 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
           )}
 
           {showReset && (
-            <Button className="spacer-right" onClick={this.handleReset}>
+            <Button
+              className="spacer-right"
+              aria-label={translateWithParameters(
+                'settings.definition.reset',
+                getPropertyName(setting.definition)
+              )}
+              onClick={this.handleReset}
+            >
               {translate('reset_verb')}
             </Button>
           )}

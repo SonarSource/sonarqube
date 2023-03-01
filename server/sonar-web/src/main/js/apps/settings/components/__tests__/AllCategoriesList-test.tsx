@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { AdditionalCategory } from '../AdditionalCategories';
-import { CategoriesList, CategoriesListProps } from '../AllCategoriesList';
+import CategoriesList, { CategoriesListProps } from '../AllCategoriesList';
 
 jest.mock('../AdditionalCategories', () => ({
   ADDITIONAL_CATEGORIES: [

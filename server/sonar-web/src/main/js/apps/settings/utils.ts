@@ -56,7 +56,11 @@ export interface DefaultInputProps {
 
 export function getPropertyName(definition: SettingDefinition) {
   const key = `property.${definition.key}.name`;
-  return hasMessage(key) ? translate(key) : definition.name;
+  if (hasMessage(key)) {
+    return translate(key);
+  }
+
+  return definition.name ?? definition.key;
 }
 
 export function getPropertyDescription(definition: SettingDefinition) {

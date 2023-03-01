@@ -40,7 +40,7 @@ interface State {
   loading: boolean;
 }
 
-export class SettingsApp extends React.PureComponent<Props, State> {
+class SettingsApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { definitions: [], loading: true };
 

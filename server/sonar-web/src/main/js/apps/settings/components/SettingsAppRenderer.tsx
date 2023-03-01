@@ -40,7 +40,7 @@ export interface SettingsAppRendererProps {
   location: Location;
 }
 
-export function SettingsAppRenderer(props: SettingsAppRendererProps) {
+function SettingsAppRenderer(props: SettingsAppRendererProps) {
   const { definitions, component, loading, location } = props;
 
   const categories = React.useMemo(() => {
@@ -92,7 +92,7 @@ export function SettingsAppRenderer(props: SettingsAppRendererProps) {
           <div className="layout-page-main-inner">
             {/* Adding a key to force re-rendering of the category content, so that it resets the scroll position */}
             <div className="big-padded" key={selectedCategory}>
-              {foundAdditionalCategory && shouldRenderAdditionalCategory ? (
+              {shouldRenderAdditionalCategory ? (
                 foundAdditionalCategory.renderComponent({
                   categories,
                   component,
