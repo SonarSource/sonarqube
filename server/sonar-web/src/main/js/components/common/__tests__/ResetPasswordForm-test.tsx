@@ -22,11 +22,17 @@ import * as React from 'react';
 import { changePassword } from '../../../api/users';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { mockEvent, waitAndUpdate } from '../../../helpers/testUtils';
+import { ChangePasswordResults } from '../../../types/users';
+import { Alert } from '../../ui/Alert';
 import ResetPasswordForm from '../ResetPasswordForm';
 
 jest.mock('../../../api/users', () => ({
   changePassword: jest.fn().mockResolvedValue({}),
 }));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 it('should trigger on password change prop', () => {
   const onPasswordChange = jest.fn();
@@ -48,6 +54,30 @@ it('should not trigger password change', () => {
   wrapper.instance().handleChangePassword(mockEvent());
   expect(changePassword).not.toHaveBeenCalled();
   expect(wrapper.state().errors).toBeDefined();
+});
+
+it('should not change password if new password is same as old', async () => {
+  jest.mocked(changePassword).mockRejectedValueOnce(ChangePasswordResults.NewPasswordSameAsOld);
+
+  const wrapper = shallowRender();
+  wrapper.instance().oldPassword = { value: 'testold' } as HTMLInputElement;
+  wrapper.instance().password = { value: 'test', focus: () => {} } as HTMLInputElement;
+  wrapper.instance().passwordConfirmation = { value: 'test' } as HTMLInputElement;
+  wrapper.instance().handleChangePassword(mockEvent());
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find(Alert)).toMatchSnapshot();
+});
+
+it('should not change password if old password is incorrect', async () => {
+  jest.mocked(changePassword).mockRejectedValueOnce(ChangePasswordResults.OldPasswordIncorrect);
+
+  const wrapper = shallowRender();
+  wrapper.instance().oldPassword = { value: 'testold' } as HTMLInputElement;
+  wrapper.instance().password = { value: 'test', focus: () => {} } as HTMLInputElement;
+  wrapper.instance().passwordConfirmation = { value: 'test' } as HTMLInputElement;
+  wrapper.instance().handleChangePassword(mockEvent());
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find(Alert)).toMatchSnapshot();
 });
 
 it('should trigger password change', async () => {

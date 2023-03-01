@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON } from '../helpers/request';
+import { getJSON, HttpStatus, parseJSON, post, postJSON } from '../helpers/request';
 import { IdentityProvider, Paging } from '../types/types';
-import { CurrentUser, HomePage, NoticeType, User } from '../types/users';
+import { ChangePasswordResults, CurrentUser, HomePage, NoticeType, User } from '../types/users';
 
 export function getCurrentUser(): Promise<CurrentUser> {
   return getJSON('/api/users/current', undefined, true);
@@ -35,7 +35,14 @@ export function changePassword(data: {
   password: string;
   previousPassword?: string;
 }) {
-  return post('/api/users/change_password', data).catch(throwGlobalError);
+  return post('/api/users/change_password', data).catch(async (response) => {
+    if (response.status === HttpStatus.BadRequest) {
+      const { result } = await parseJSON(response);
+      return Promise.reject<ChangePasswordResults>(result);
+    }
+
+    return throwGlobalError(response);
+  });
 }
 
 export interface UserGroup {

@@ -89,6 +89,11 @@ export interface UserBase {
   name?: string;
 }
 
+export const enum ChangePasswordResults {
+  OldPasswordIncorrect = 'old_password_incorrect',
+  NewPasswordSameAsOld = 'new_password_same_as_old',
+}
+
 export function isUserActive(user: UserBase): user is UserActive {
   return user.active !== false && Boolean(user.name);
 }

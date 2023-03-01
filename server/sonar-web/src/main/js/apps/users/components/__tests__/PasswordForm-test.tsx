@@ -21,6 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { changePassword } from '../../../../api/users';
 import { mockUser } from '../../../../helpers/testMocks';
+import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
+import { ChangePasswordResults } from '../../../../types/users';
 import PasswordForm from '../PasswordForm';
 
 const password = 'new password asdf';
@@ -38,38 +40,51 @@ it('should handle password change', async () => {
   const wrapper = shallowRender({ onClose });
 
   wrapper.setState({ newPassword: password, confirmPassword: password });
-  wrapper.instance().handleChangePassword({ preventDefault: jest.fn() } as any);
+  wrapper.instance().handleChangePassword(mockEvent({ preventDefault: jest.fn() }));
 
-  await new Promise(setImmediate);
+  await waitAndUpdate(wrapper);
 
   expect(onClose).toHaveBeenCalled();
 });
 
-it('should handle password change error', async () => {
+it('should handle password change error when new password is same as old', async () => {
   const wrapper = shallowRender();
 
-  (changePassword as jest.Mock).mockRejectedValue(new Response(undefined, { status: 400 }));
+  jest.mocked(changePassword).mockRejectedValue(ChangePasswordResults.NewPasswordSameAsOld);
+  wrapper.setState({ newPassword: password, confirmPassword: password });
+  wrapper.instance().mounted = true;
+  wrapper.instance().handleChangePassword(mockEvent({ preventDefault: jest.fn() }));
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().errorTranslationKey).toBe('user.new_password_same_as_old');
+});
+
+it('should handle password change error when old password is incorrect', async () => {
+  const wrapper = shallowRender();
+
+  jest.mocked(changePassword).mockRejectedValue(ChangePasswordResults.OldPasswordIncorrect);
 
   wrapper.setState({ newPassword: password, confirmPassword: password });
   wrapper.instance().mounted = true;
-  wrapper.instance().handleChangePassword({ preventDefault: jest.fn() } as any);
+  wrapper.instance().handleChangePassword(mockEvent({ preventDefault: jest.fn() }));
 
-  await new Promise(setImmediate);
+  await waitAndUpdate(wrapper);
 
-  expect(wrapper.state('error')).toBe('default_error_message');
+  expect(wrapper.state().errorTranslationKey).toBe('user.old_password_incorrect');
 });
 
 it('should handle form changes', () => {
   const wrapper = shallowRender();
 
-  wrapper.instance().handleConfirmPasswordChange({ currentTarget: { value: 'pwd' } } as any);
-  expect(wrapper.state('confirmPassword')).toBe('pwd');
+  wrapper.instance().handleConfirmPasswordChange(mockEvent({ currentTarget: { value: 'pwd' } }));
+  expect(wrapper.state().confirmPassword).toBe('pwd');
 
-  wrapper.instance().handleNewPasswordChange({ currentTarget: { value: 'pwd' } } as any);
-  expect(wrapper.state('newPassword')).toBe('pwd');
+  wrapper.instance().handleNewPasswordChange(mockEvent({ currentTarget: { value: 'pwd' } }));
+  expect(wrapper.state().newPassword).toBe('pwd');
 
-  wrapper.instance().handleOldPasswordChange({ currentTarget: { value: 'pwd' } } as any);
-  expect(wrapper.state('oldPassword')).toBe('pwd');
+  wrapper.instance().handleOldPasswordChange(mockEvent({ currentTarget: { value: 'pwd' } }));
+  expect(wrapper.state().oldPassword).toBe('pwd');
 });
 
 function shallowRender(props: Partial<PasswordForm['props']> = {}) {

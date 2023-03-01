@@ -24,11 +24,9 @@ import Modal from '../../../components/controls/Modal';
 import { Alert } from '../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { throwGlobalError } from '../../../helpers/error';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
-import { parseError } from '../../../helpers/request';
-import { User } from '../../../types/users';
+import { ChangePasswordResults, User } from '../../../types/users';
 
 interface Props {
   isCurrentUser: boolean;
@@ -38,7 +36,7 @@ interface Props {
 
 interface State {
   confirmPassword: string;
-  error?: string;
+  errorTranslationKey?: string;
   newPassword: string;
   oldPassword: string;
   submitting: boolean;
@@ -61,14 +59,13 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleError = (response: Response) => {
-    if (!this.mounted || response.status !== 400) {
-      return throwGlobalError(response);
-    } else {
-      return parseError(response).then(
-        (errorMsg) => this.setState({ error: errorMsg, submitting: false }),
-        throwGlobalError
-      );
+  handleError = (result: ChangePasswordResults) => {
+    if (this.mounted) {
+      if (result === ChangePasswordResults.OldPasswordIncorrect) {
+        this.setState({ errorTranslationKey: 'user.old_password_incorrect', submitting: false });
+      } else if (result === ChangePasswordResults.NewPasswordSameAsOld) {
+        this.setState({ errorTranslationKey: 'user.new_password_same_as_old', submitting: false });
+      }
     }
   };
 
@@ -100,7 +97,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { error, submitting, newPassword, confirmPassword } = this.state;
+    const { errorTranslationKey, submitting, newPassword, confirmPassword } = this.state;
 
     const header = translate('my_profile.password.title');
     return (
@@ -110,7 +107,7 @@ export default class PasswordForm extends React.PureComponent<Props, State> {
             <h2>{header}</h2>
           </header>
           <div className="modal-body">
-            {error && <Alert variant="error">{error}</Alert>}
+            {errorTranslationKey && <Alert variant="error">{translate(errorTranslationKey)}</Alert>}
 
             <MandatoryFieldsExplanation className="modal-field" />
 

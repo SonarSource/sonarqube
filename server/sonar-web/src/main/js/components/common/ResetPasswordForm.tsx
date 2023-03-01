@@ -24,7 +24,7 @@ import { Alert } from '../../components/ui/Alert';
 import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
-import { LoggedInUser } from '../../types/users';
+import { ChangePasswordResults, LoggedInUser } from '../../types/users';
 
 interface Props {
   className?: string;
@@ -76,12 +76,15 @@ export default class ResetPasswordForm extends React.Component<Props, State> {
       this.password.focus();
       this.setErrors([translate('user.password_doesnt_match_confirmation')]);
     } else {
-      changePassword({ login: user.login, password, previousPassword }).then(
-        this.handleSuccessfulChange,
-        () => {
-          // error already reported.
-        }
-      );
+      changePassword({ login: user.login, password, previousPassword })
+        .then(this.handleSuccessfulChange)
+        .catch((result: ChangePasswordResults) => {
+          if (result === ChangePasswordResults.OldPasswordIncorrect) {
+            this.setErrors([translate('user.old_password_incorrect')]);
+          } else if (result === ChangePasswordResults.NewPasswordSameAsOld) {
+            this.setErrors([translate('user.new_password_same_as_old')]);
+          }
+        });
     }
   };
 
@@ -94,9 +97,8 @@ export default class ResetPasswordForm extends React.Component<Props, State> {
         {success && <Alert variant="success">{translate('my_profile.password.changed')}</Alert>}
 
         {errors &&
-          errors.map((e, i) => (
-            /* eslint-disable-next-line react/no-array-index-key */
-            <Alert key={i} variant="error">
+          errors.map((e) => (
+            <Alert key={e} variant="error">
               {e}
             </Alert>
           ))}
