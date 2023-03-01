@@ -118,11 +118,12 @@
     from
       live_measures lm
     inner join
+      projects p on (p.uuid = lm.project_uuid and p.uuid = lm.component_uuid)
+    inner join
       metrics m on m.uuid = lm.metric_uuid
     where
       m.name = 'ncloc_language_distribution'
-      and lm.component_uuid = lm.project_uuid
-      and lm.project_uuid not in (select project_uuid from project_qprofiles)
+      and p.uuid not in (select project_uuid from project_qprofiles)
       and
       <foreach collection="languageFilters" index="index" item="languageFilter" open="(" separator=" or " close=")">
         lm.text_value like #{languageFilter, jdbcType=VARCHAR} escape '/'
