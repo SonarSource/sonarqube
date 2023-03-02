@@ -63,12 +63,11 @@ public class EsKeyStoreCliTest {
 
     JavaCommand<?> executedCommand = process.getExecutedCommand();
 
-    String expectedHomeLibPath = Paths.get(homeDir.toString(), "lib", "*").toString();
-    String expectedHomeKeystorePath = Paths.get(homeDir.toString(), "lib", "cli-launcher", "*").toString();
+    String expectedHomeLibPath = Paths.get(homeDir.toString(), "lib") + File.separator + "*";
+    String expectedHomeKeystorePath = Paths.get(homeDir.toString(), "lib", "cli-launcher") + File.separator + "*";
 
     assertThat(executedCommand.getClassName()).isEqualTo("org.elasticsearch.launcher.CliToolLauncher");
-    assertThat(executedCommand.getClasspath())
-      .containsExactly(expectedHomeLibPath, expectedHomeKeystorePath);
+    assertThat(executedCommand.getClasspath()).containsExactly(expectedHomeLibPath, expectedHomeKeystorePath);
     assertThat(executedCommand.getParameters()).containsExactly("add", "-x", "-f", "test.property1", "test.property2", "test.property3");
     assertThat(executedCommand.getJvmOptions().getAll()).containsExactly(
       "-Xms4m",
