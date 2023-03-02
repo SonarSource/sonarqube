@@ -79,7 +79,6 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
           className="concise-issue-box-message"
           aria-current={selected}
           innerRef={(node) => (this.messageElement = node)}
-          onClick={this.handleClick}
         >
           <IssueMessageHighlighting
             message={issue.message}

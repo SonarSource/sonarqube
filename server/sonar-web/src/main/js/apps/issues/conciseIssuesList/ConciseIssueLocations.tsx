@@ -32,10 +32,10 @@ interface State {
   collapsed: boolean;
 }
 
-const LIMIT = 8;
+export const COLLAPSE_LIMIT = 8;
 
 export default class ConciseIssueLocations extends React.PureComponent<Props, State> {
-  state: State = { collapsed: true };
+  state = { collapsed: true };
 
   handleExpandClick = () => {
     this.setState({ collapsed: false });
@@ -78,13 +78,13 @@ export default class ConciseIssueLocations extends React.PureComponent<Props, St
       );
     });
 
-    if (!this.state.collapsed || badges.length <= LIMIT) {
+    if (!this.state.collapsed || badges.length <= COLLAPSE_LIMIT) {
       return badges;
     }
 
     return (
       <>
-        {badges.slice(0, LIMIT - 1)}
+        {badges.slice(0, COLLAPSE_LIMIT - 1)}
         {this.renderExpandButton()}
       </>
     );

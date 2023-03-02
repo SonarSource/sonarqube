@@ -314,7 +314,7 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
   };
 }
 
-export function mockIssue(withLocations = false, overrides: Partial<Issue> = {}) {
+export function mockIssue(withLocations = false, overrides: Partial<Issue> = {}): Issue {
   const issue: Issue = {
     actions: [],
     component: 'main.js',
