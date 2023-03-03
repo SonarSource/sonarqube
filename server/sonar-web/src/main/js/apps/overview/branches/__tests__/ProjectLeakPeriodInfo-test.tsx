@@ -23,7 +23,7 @@ import * as React from 'react';
 import { IntlShape } from 'react-intl';
 import { mockPeriod } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { Period } from '../../../../types/types';
+import { NewCodePeriodSettingType, Period } from '../../../../types/types';
 import { ProjectLeakPeriodInfo } from '../ProjectLeakPeriodInfo';
 
 jest.mock('date-fns', () => {
@@ -62,7 +62,7 @@ it('should render correctly for "previous_analysis"', async () => {
 
 it('should render correctly for "REFERENCE_BRANCH"', async () => {
   renderProjectLeakPeriodInfo({
-    mode: 'REFERENCE_BRANCH',
+    mode: NewCodePeriodSettingType.REFERENCE_BRANCH,
     parameter: 'master',
   });
   expect(await screen.findByText('overview.period.reference_branch.master')).toBeInTheDocument();

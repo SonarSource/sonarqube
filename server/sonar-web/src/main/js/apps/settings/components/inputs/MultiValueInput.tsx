@@ -72,6 +72,7 @@ export default class MultiValueInput extends React.PureComponent<DefaultSpeciali
 
   render() {
     const displayedValue = [...this.ensureValue(), ...getEmptyValue(this.props.setting.definition)];
+
     return (
       <div>
         <ul>

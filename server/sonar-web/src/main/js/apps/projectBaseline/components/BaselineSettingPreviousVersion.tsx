@@ -34,7 +34,7 @@ export default function BaselineSettingPreviousVersion(props: Props) {
   return (
     <RadioCard
       disabled={disabled}
-      onClick={() => onSelect('PREVIOUS_VERSION')}
+      onClick={() => onSelect(NewCodePeriodSettingType.PREVIOUS_VERSION)}
       selected={selected}
       title={
         translate('baseline.previous_version') + (isDefault ? ` (${translate('default')})` : '')

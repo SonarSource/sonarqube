@@ -36,6 +36,7 @@ import { Branch, BranchLike } from '../../../types/branch-like';
 import { Feature } from '../../../types/features';
 import { ParsedAnalysis } from '../../../types/project-activity';
 import { Component, NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
+import { DEFAULT_GENERAL_SETTING_TYPE } from '../constants';
 import '../styles.css';
 import { getSettingValue } from '../utils';
 import AppHeader from './AppHeader';
@@ -66,11 +67,7 @@ interface State {
 
 const DEFAULT_NUMBER_OF_DAYS = '30';
 
-const DEFAULT_GENERAL_SETTING: { type: NewCodePeriodSettingType } = {
-  type: 'PREVIOUS_VERSION',
-};
-
-export class App extends React.PureComponent<Props, State> {
+export class ProjectBaselineApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     branchList: [],
@@ -107,7 +104,8 @@ export class App extends React.PureComponent<Props, State> {
     const { referenceBranch } = this.state;
 
     const defaultDays =
-      (generalSetting.type === 'NUMBER_OF_DAYS' && generalSetting.value) || DEFAULT_NUMBER_OF_DAYS;
+      (generalSetting.type === NewCodePeriodSettingType.NUMBER_OF_DAYS && generalSetting.value) ||
+      DEFAULT_NUMBER_OF_DAYS;
 
     return {
       loading: false,
@@ -116,10 +114,15 @@ export class App extends React.PureComponent<Props, State> {
       generalSetting,
       selected: currentSetting || generalSetting.type,
       overrideGeneralSetting: Boolean(currentSetting),
-      days: (currentSetting === 'NUMBER_OF_DAYS' && currentSettingValue) || defaultDays,
-      analysis: (currentSetting === 'SPECIFIC_ANALYSIS' && currentSettingValue) || '',
+      days:
+        (currentSetting === NewCodePeriodSettingType.NUMBER_OF_DAYS && currentSettingValue) ||
+        defaultDays,
+      analysis:
+        (currentSetting === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && currentSettingValue) ||
+        '',
       referenceBranch:
-        (currentSetting === 'REFERENCE_BRANCH' && currentSettingValue) || referenceBranch,
+        (currentSetting === NewCodePeriodSettingType.REFERENCE_BRANCH && currentSettingValue) ||
+        referenceBranch,
     };
   }
 
@@ -143,10 +146,12 @@ export class App extends React.PureComponent<Props, State> {
       ([generalSetting, setting]) => {
         if (this.mounted) {
           if (!generalSetting.type) {
-            generalSetting = DEFAULT_GENERAL_SETTING;
+            generalSetting = { type: DEFAULT_GENERAL_SETTING_TYPE };
           }
           const currentSettingValue = setting.value;
-          const currentSetting = setting.inherited ? undefined : setting.type || 'PREVIOUS_VERSION';
+          const currentSetting = setting.inherited
+            ? undefined
+            : setting.type || DEFAULT_GENERAL_SETTING_TYPE;
 
           this.setState(
             this.getUpdatedState({
@@ -191,8 +196,11 @@ export class App extends React.PureComponent<Props, State> {
 
   handleCancel = () =>
     this.setState(
-      ({ generalSetting = DEFAULT_GENERAL_SETTING, currentSetting, currentSettingValue }) =>
-        this.getUpdatedState({ generalSetting, currentSetting, currentSettingValue })
+      ({
+        generalSetting = { type: DEFAULT_GENERAL_SETTING_TYPE },
+        currentSetting,
+        currentSettingValue,
+      }) => this.getUpdatedState({ generalSetting, currentSetting, currentSettingValue })
     );
 
   handleSelectSetting = (selected?: NewCodePeriodSettingType) => this.setState({ selected });
@@ -322,4 +330,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withComponentContext(withAvailableFeatures(withAppStateContext(App)));
+export default withComponentContext(withAvailableFeatures(withAppStateContext(ProjectBaselineApp)));

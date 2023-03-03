@@ -74,7 +74,6 @@ export interface SettingDefinition {
 }
 
 export interface SettingFieldDefinition extends SettingDefinition {
-  description: string;
   name: string;
 }
 

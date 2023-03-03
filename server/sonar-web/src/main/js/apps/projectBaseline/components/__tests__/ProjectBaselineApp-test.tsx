@@ -28,7 +28,8 @@ import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
-import { App } from '../App';
+import { NewCodePeriodSettingType } from '../../../../types/types';
+import { ProjectBaselineApp } from '../ProjectBaselineApp';
 
 jest.mock('../../../../api/newCodePeriod', () => ({
   getNewCodePeriod: jest.fn().mockResolvedValue({}),
@@ -75,12 +76,12 @@ it('should save correctly', async () => {
   const component = mockComponent();
   const wrapper = shallowRender({ component });
   await waitAndUpdate(wrapper);
-  wrapper.setState({ selected: 'NUMBER_OF_DAYS', days: '23' });
+  wrapper.setState({ selected: NewCodePeriodSettingType.NUMBER_OF_DAYS, days: '23' });
   wrapper.instance().handleSubmit(mockEvent());
   await waitAndUpdate(wrapper);
   expect(setNewCodePeriod).toHaveBeenCalledWith({
     project: component.key,
-    type: 'NUMBER_OF_DAYS',
+    type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
     value: '23',
   });
   expect(wrapper.state('currentSetting')).toEqual(wrapper.state('selected'));
@@ -92,7 +93,7 @@ it('should handle errors gracefully', async () => {
   (resetNewCodePeriod as jest.Mock).mockRejectedValue('error');
 
   const wrapper = shallowRender();
-  wrapper.setState({ selected: 'PREVIOUS_VERSION' });
+  wrapper.setState({ selected: NewCodePeriodSettingType.PREVIOUS_VERSION });
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state('loading')).toBe(false);
@@ -104,9 +105,9 @@ it('should handle errors gracefully', async () => {
   expect(wrapper.state('saving')).toBe(false);
 });
 
-function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(
-    <App
+function shallowRender(props: Partial<ProjectBaselineApp['props']> = {}) {
+  return shallow<ProjectBaselineApp>(
+    <ProjectBaselineApp
       branchLike={mockBranch()}
       branchLikes={[mockMainBranch()]}
       appState={mockAppState({ canAdmin: true })}

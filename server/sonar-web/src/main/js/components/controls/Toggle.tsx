@@ -19,7 +19,6 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { translate } from '../../helpers/l10n';
 import CheckIcon from '../icons/CheckIcon';
 import { Button } from './buttons';
 import './Toggle.css';
@@ -32,10 +31,14 @@ interface Props {
   value: boolean | string;
 }
 
+export function getToggleValue(value: string | boolean) {
+  return typeof value === 'string' ? value === 'true' : value;
+}
+
 export default class Toggle extends React.PureComponent<Props> {
   getValue = () => {
     const { value } = this.props;
-    return typeof value === 'string' ? value === 'true' : value;
+    return getToggleValue(value);
   };
 
   handleClick = () => {
@@ -51,11 +54,16 @@ export default class Toggle extends React.PureComponent<Props> {
     const className = classNames('boolean-toggle', { 'boolean-toggle-on': value });
 
     return (
-      <Button className={className} disabled={disabled} name={name} onClick={this.handleClick}>
-        <div
-          aria-label={ariaLabel ?? translate(value ? 'on' : 'off')}
-          className="boolean-toggle-handle"
-        >
+      <Button
+        className={className}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        name={name}
+        onClick={this.handleClick}
+        role="switch"
+        aria-checked={value}
+      >
+        <div className="boolean-toggle-handle">
           <CheckIcon size={12} />
         </div>
       </Button>

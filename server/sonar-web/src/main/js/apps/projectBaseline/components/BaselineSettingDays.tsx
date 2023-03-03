@@ -41,7 +41,7 @@ export default function BaselineSettingDays(props: Props) {
     <RadioCard
       className={className}
       disabled={disabled}
-      onClick={() => onSelect('NUMBER_OF_DAYS')}
+      onClick={() => onSelect(NewCodePeriodSettingType.NUMBER_OF_DAYS)}
       selected={selected}
       title={translate('baseline.number_days')}
     >

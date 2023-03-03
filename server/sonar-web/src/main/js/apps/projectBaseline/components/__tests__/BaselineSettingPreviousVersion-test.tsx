@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { NewCodePeriodSettingType } from '../../../../types/types';
 import BaselineSettingPreviousVersion, { Props } from '../BaselineSettingPreviousVersion';
 
 it('should render correctly', () => {
@@ -31,7 +32,7 @@ it('should callback when clicked', () => {
   const wrapper = shallowRender({ onSelect, selected: false });
 
   wrapper.find('RadioCard').first().simulate('click');
-  expect(onSelect).toHaveBeenCalledWith('PREVIOUS_VERSION');
+  expect(onSelect).toHaveBeenCalledWith(NewCodePeriodSettingType.PREVIOUS_VERSION);
 });
 
 function shallowRender(props: Partial<Props> = {}) {

@@ -32,7 +32,7 @@ export default function BaselineSettingAnalysis({ disabled, onSelect, selected }
   return (
     <RadioCard
       disabled={disabled}
-      onClick={() => onSelect('SPECIFIC_ANALYSIS')}
+      onClick={() => onSelect(NewCodePeriodSettingType.SPECIFIC_ANALYSIS)}
       selected={selected}
       title={translate('baseline.specific_analysis')}
     >

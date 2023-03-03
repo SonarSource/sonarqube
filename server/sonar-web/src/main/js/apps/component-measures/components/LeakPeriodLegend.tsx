@@ -27,7 +27,7 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter, { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
-import { ComponentMeasure, Period } from '../../../types/types';
+import { ComponentMeasure, NewCodePeriodSettingType, Period } from '../../../types/types';
 
 interface Props {
   className?: string;
@@ -65,7 +65,7 @@ export class LeakPeriodLegend extends React.PureComponent<Props & WrappedCompone
       </div>
     );
 
-    if (period.mode === 'days' || period.mode === 'NUMBER_OF_DAYS') {
+    if (period.mode === 'days' || period.mode === NewCodePeriodSettingType.NUMBER_OF_DAYS) {
       return label;
     }
 

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NewCodePeriodSettingType } from '../../types/types';
 import { getPeriodLabel } from '../periods';
 import { mockPeriod } from '../testMocks';
 
@@ -85,21 +86,27 @@ describe('getPeriodLabel', () => {
 
   it('should handle SPECIFIC_ANALYSIS', () => {
     expect(
-      getPeriodLabel(mockPeriod({ mode: 'SPECIFIC_ANALYSIS', parameter: '7.1' }), formatter)
+      getPeriodLabel(
+        mockPeriod({ mode: NewCodePeriodSettingType.SPECIFIC_ANALYSIS, parameter: '7.1' }),
+        formatter
+      )
     ).toBe('overview.period.specific_analysis.2019-04-23T02:12:32+0100');
-    expect(getPeriodLabel(mockPeriod({ mode: 'SPECIFIC_ANALYSIS' }), formatter)).toBe(
-      'overview.period.specific_analysis.2019-04-23T02:12:32+0100'
-    );
+    expect(
+      getPeriodLabel(mockPeriod({ mode: NewCodePeriodSettingType.SPECIFIC_ANALYSIS }), formatter)
+    ).toBe('overview.period.specific_analysis.2019-04-23T02:12:32+0100');
     expect(formatter).toHaveBeenCalledTimes(2);
   });
 
   it('should handle PREVIOUS_VERSION', () => {
     expect(
-      getPeriodLabel(mockPeriod({ mode: 'PREVIOUS_VERSION', modeParam: 'A658678DE' }), formatter)
+      getPeriodLabel(
+        mockPeriod({ mode: NewCodePeriodSettingType.PREVIOUS_VERSION, modeParam: 'A658678DE' }),
+        formatter
+      )
     ).toBe('overview.period.previous_version.A658678DE');
-    expect(getPeriodLabel(mockPeriod({ mode: 'PREVIOUS_VERSION' }), formatter)).toBe(
-      'overview.period.previous_version.2019-04-23T02:12:32+0100'
-    );
+    expect(
+      getPeriodLabel(mockPeriod({ mode: NewCodePeriodSettingType.PREVIOUS_VERSION }), formatter)
+    ).toBe('overview.period.previous_version.2019-04-23T02:12:32+0100');
     expect(formatter).toHaveBeenCalledTimes(1);
   });
 });

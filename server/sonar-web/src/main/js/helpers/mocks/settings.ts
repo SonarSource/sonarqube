@@ -20,6 +20,7 @@
 import {
   ExtendedSettingDefinition,
   Setting,
+  SettingFieldDefinition,
   SettingType,
   SettingValue,
   SettingWithCategory,
@@ -36,6 +37,12 @@ export function mockDefinition(
     subCategory: 'foo subCat',
     ...overrides,
   };
+}
+
+export function mockSettingFieldDefinition(
+  overrides: Partial<SettingFieldDefinition> = {}
+): SettingFieldDefinition {
+  return { key: 'name', name: 'Name', options: [], ...overrides };
 }
 
 export function mockSetting(overrides: Partial<Setting> = {}): Setting {

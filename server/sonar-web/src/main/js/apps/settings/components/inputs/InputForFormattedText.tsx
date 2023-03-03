@@ -23,7 +23,7 @@ import { Button } from '../../../../components/controls/buttons';
 import EditIcon from '../../../../components/icons/EditIcon';
 import { translate } from '../../../../helpers/l10n';
 import { sanitizeUserInput } from '../../../../helpers/sanitize';
-import { DefaultSpecializedInputProps } from '../../utils';
+import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 export default function InputForFormattedText(props: DefaultSpecializedInputProps) {
   const { isEditing, setting, name, value } = props;
@@ -41,6 +41,7 @@ export default function InputForFormattedText(props: DefaultSpecializedInputProp
       {editMode ? (
         <div className="display-flex-row">
           <textarea
+            aria-label={getPropertyName(setting.definition)}
             className="settings-large-input text-top spacer-right"
             name={name}
             onChange={handleInputChange}

@@ -17,156 +17,378 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { getValue, resetSettingValue, setSettingValue } from '../../../../api/settings';
-import { mockDefinition, mockSettingValue } from '../../../../helpers/mocks/settings';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { SettingType } from '../../../../types/settings';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { last } from 'lodash';
+import React from 'react';
+import selectEvent from 'react-select-event';
+import { byLabelText, byRole, byText } from 'testing-library-selector';
+import SettingsServiceMock, {
+  DEFAULT_DEFINITIONS_MOCK,
+} from '../../../../api/mocks/SettingsServiceMock';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockDefinition } from '../../../../helpers/mocks/settings';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { ExtendedSettingDefinition, SettingType, SettingValue } from '../../../../types/settings';
+import { Component } from '../../../../types/types';
 import Definition from '../Definition';
 
-jest.mock('../../../../api/settings', () => ({
-  getValue: jest.fn().mockResolvedValue({}),
-  resetSettingValue: jest.fn().mockResolvedValue(undefined),
-  setSettingValue: jest.fn().mockResolvedValue(undefined),
-}));
+jest.mock('../../../../api/settings');
+
+let settingsMock: SettingsServiceMock;
 
 beforeAll(() => {
-  jest.useFakeTimers();
+  settingsMock = new SettingsServiceMock();
 });
 
-afterAll(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
+afterEach(() => {
+  settingsMock.reset();
 });
 
-beforeEach(() => {
-  jest.clearAllMocks();
+beforeEach(jest.clearAllMocks);
+
+const ui = {
+  nameHeading: (name: string) => byRole('heading', { name }),
+  announcementInput: byLabelText('property.sonar.announcement.message.name'),
+  securedInput: byRole('textbox', { name: 'property.sonar.announcement.message.secured.name' }),
+  multiValuesInput: byRole('textbox', { name: 'property.sonar.javascript.globals.name' }),
+  urlKindInput: byRole('textbox', { name: /sonar.auth.gitlab.url/ }),
+  fieldsInput: (name: string) => byRole('textbox', { name: `property.${name}.name` }),
+  savedMsg: byText('settings.state.saved'),
+  validationMsg: byText(/settings.state.validation_failed/),
+  jsonFormatStatus: byRole('status', { name: 'alert.tooltip.info' }),
+  jsonFormatButton: byRole('button', { name: 'settings.json.format' }),
+  toggleButton: byRole('switch'),
+  selectOption: (value: string) => byText(value),
+  saveButton: byRole('button', { name: 'save' }),
+  cancelButton: byRole('button', { name: 'cancel' }),
+  changeButton: byRole('button', { name: 'change_verb' }),
+  resetButton: (name: string | RegExp = 'reset_verb') => byRole('button', { name }),
+  deleteValueButton: byRole('button', {
+    name: /settings.definition.delete_value/,
+  }),
+  deleteFieldsButton: byRole('button', {
+    name: /settings.definitions.delete_fields/,
+  }),
+};
+
+it.each([
+  SettingType.TEXT,
+  SettingType.STRING,
+  SettingType.PASSWORD,
+  SettingType.INTEGER,
+  SettingType.LONG,
+  SettingType.FLOAT,
+  'uknown type',
+])(
+  'renders definition for SettingType = %s and can do operations',
+  async (settingType: SettingType) => {
+    const user = userEvent.setup();
+    renderDefinition({ type: settingType });
+
+    expect(
+      await ui.nameHeading('property.sonar.announcement.message.name').find()
+    ).toBeInTheDocument();
+
+    // Should see no empty validation message
+    await user.type(ui.announcementInput.get(), ' ');
+    await user.click(ui.saveButton.get());
+    expect(await ui.validationMsg.find()).toBeInTheDocument();
+
+    // Should save variable
+    await user.type(ui.announcementInput.get(), 'Testing');
+    await user.click(await ui.saveButton.find());
+    expect(ui.validationMsg.query()).not.toBeInTheDocument();
+    expect(ui.announcementInput.get()).toHaveValue(' Testing');
+    expect(ui.savedMsg.get()).toBeInTheDocument();
+
+    // Validation message when clearing input to empty
+    await user.clear(ui.announcementInput.get());
+    expect(ui.validationMsg.get()).toBeInTheDocument();
+
+    // Should reset to previous state on clicking cancel
+    await user.type(ui.announcementInput.get(), 'Testing2');
+    await user.click(ui.cancelButton.get());
+    expect(ui.announcementInput.get()).toHaveValue(' Testing');
+
+    // Clicking reset opens dialog and reset to default on confirm
+    await user.click(
+      ui.resetButton('settings.definition.reset.property.sonar.announcement.message.name').get()
+    );
+    await user.click(ui.resetButton().get());
+    expect(ui.announcementInput.get()).toHaveValue('');
+  }
+);
+
+it('renders definition for SettingType = JSON and can do operations', async () => {
+  const user = userEvent.setup();
+  renderDefinition({ type: SettingType.JSON });
+
+  expect(
+    await ui.nameHeading('property.sonar.announcement.message.name').find()
+  ).toBeInTheDocument();
+
+  // Should show error message if JSON format is not valid
+  await user.type(ui.announcementInput.get(), 'invalid format');
+  expect(ui.validationMsg.get()).toBeInTheDocument();
+  await user.click(ui.jsonFormatButton.get());
+  expect(ui.jsonFormatStatus.get()).toBeInTheDocument();
+
+  // Can save valid json and format it
+  await user.clear(ui.announcementInput.get());
+  await user.type(ui.announcementInput.get(), '1');
+  await user.click(ui.jsonFormatButton.get());
+  expect(ui.jsonFormatStatus.query()).not.toBeInTheDocument();
+
+  await user.click(ui.saveButton.get());
+  expect(ui.savedMsg.get()).toBeInTheDocument();
 });
 
-describe('Handle change (and check)', () => {
-  it.each([
-    ['empty, no default', mockDefinition(), '', 'settings.state.value_cant_be_empty_no_default'],
-    [
-      'empty, default',
-      mockDefinition({ defaultValue: 'dflt' }),
-      '',
-      'settings.state.value_cant_be_empty',
-    ],
-    [
-      'invalid url',
-      mockDefinition({ key: 'sonar.core.serverBaseURL' }),
-      '%invalid',
-      'settings.state.url_not_valid.%invalid',
-    ],
-    [
-      'valid url',
-      mockDefinition({ key: 'sonar.core.serverBaseURL' }),
-      'http://www.sonarqube.org',
-      undefined,
-    ],
-    [
-      'invalid JSON',
-      mockDefinition({ type: SettingType.JSON }),
-      '{{broken: "json}',
-      'Unexpected token { in JSON at position 1',
-    ],
-    ['valid JSON', mockDefinition({ type: SettingType.JSON }), '{"validJson": true}', undefined],
-  ])(
-    'should handle change (and check value): %s',
-    (_caseName, definition, changedValue, expectedValidationMessage) => {
-      const wrapper = shallowRender({ definition });
+it('renders definition for SettingType = BOOLEAN and can do operations', async () => {
+  const user = userEvent.setup();
+  renderDefinition({
+    type: SettingType.BOOLEAN,
+  });
 
-      wrapper.instance().handleChange(changedValue);
+  expect(
+    await ui.nameHeading('property.sonar.announcement.message.name').find()
+  ).toBeInTheDocument();
 
-      expect(wrapper.state().changedValue).toBe(changedValue);
-      expect(wrapper.state().success).toBe(false);
-      expect(wrapper.state().validationMessage).toBe(expectedValidationMessage);
-    }
+  // Can toggle
+  await user.click(ui.toggleButton.get());
+  expect(ui.toggleButton.get()).toBeChecked();
+
+  // Can cancel toggle
+  await user.click(ui.cancelButton.get());
+  expect(ui.toggleButton.get()).not.toBeChecked();
+
+  // Can save toggle
+  await user.click(ui.toggleButton.get());
+  await user.click(ui.saveButton.get());
+  expect(ui.toggleButton.get()).toBeChecked();
+  expect(ui.savedMsg.get()).toBeInTheDocument();
+
+  // Can reset toggle
+  await user.click(
+    ui.resetButton('settings.definition.reset.property.sonar.announcement.message.name').get()
   );
+  await user.click(ui.resetButton().get());
+  expect(ui.toggleButton.get()).not.toBeChecked();
 });
 
-it('should handle cancel', () => {
-  const wrapper = shallowRender();
-  wrapper.setState({ changedValue: 'whatever', validationMessage: 'something wrong' });
-
-  wrapper.instance().handleCancel();
-
-  expect(wrapper.state().changedValue).toBeUndefined();
-  expect(wrapper.state().validationMessage).toBeUndefined();
-});
-
-describe('handleSave', () => {
-  it('should ignore when value unchanged', () => {
-    const wrapper = shallowRender();
-
-    wrapper.instance().handleSave();
-
-    expect(wrapper.state().loading).toBe(false);
-    expect(setSettingValue).not.toHaveBeenCalled();
+it('renders definition for SettingType = SINGLE_SELECT_LIST and can do operations', async () => {
+  const user = userEvent.setup();
+  renderDefinition({
+    type: SettingType.SINGLE_SELECT_LIST,
+    options: ['first', 'second'],
   });
 
-  it('should handle an empty value', () => {
-    const wrapper = shallowRender();
+  expect(
+    await ui.nameHeading('property.sonar.announcement.message.name').find()
+  ).toBeInTheDocument();
 
-    wrapper.setState({ changedValue: '' });
+  // Can select option
+  expect(ui.selectOption('Select...').get()).toBeInTheDocument();
+  await selectEvent.select(ui.announcementInput.get(), 'first');
+  expect(ui.selectOption('first').get()).toBeInTheDocument();
 
-    wrapper.instance().handleSave();
+  // Can cancel action
+  await user.click(ui.cancelButton.get());
+  expect(ui.selectOption('Select...').get()).toBeInTheDocument();
 
-    expect(wrapper.state().loading).toBe(false);
-    expect(wrapper.state().validationMessage).toBe('settings.state.value_cant_be_empty');
-    expect(setSettingValue).not.toHaveBeenCalled();
-  });
+  // Can save
+  await selectEvent.select(ui.announcementInput.get(), 'second');
+  await user.click(ui.saveButton.get());
+  expect(ui.savedMsg.get()).toBeInTheDocument();
 
-  it('should save and update setting value', async () => {
-    const settingValue = mockSettingValue();
-    (getValue as jest.Mock).mockResolvedValueOnce(settingValue);
-    const definition = mockDefinition();
-    const wrapper = shallowRender({ definition });
-
-    wrapper.setState({ changedValue: 'new value' });
-
-    wrapper.instance().handleSave();
-
-    expect(wrapper.state().loading).toBe(true);
-
-    await waitAndUpdate(wrapper);
-
-    expect(setSettingValue).toHaveBeenCalledWith(definition, 'new value', undefined);
-    expect(getValue).toHaveBeenCalledWith({ key: definition.key, component: undefined });
-    expect(wrapper.state().changedValue).toBeUndefined();
-    expect(wrapper.state().loading).toBe(false);
-    expect(wrapper.state().success).toBe(true);
-    expect(wrapper.state().settingValue).toBe(settingValue);
-
-    jest.runAllTimers();
-    expect(wrapper.state().success).toBe(false);
-  });
+  // Can reset
+  await user.click(
+    ui.resetButton('settings.definition.reset.property.sonar.announcement.message.name').get()
+  );
+  await user.click(ui.resetButton().get());
+  expect(ui.selectOption('Select...').get()).toBeInTheDocument();
 });
 
-it('should reset and update setting value', async () => {
-  const settingValue = mockSettingValue();
-  (getValue as jest.Mock).mockResolvedValueOnce(settingValue);
-  const definition = mockDefinition();
-  const wrapper = shallowRender({ definition });
+it('renders definition for SettingType = FORMATTED_TEXT and can do operations', async () => {
+  const user = userEvent.setup();
+  renderDefinition({
+    type: SettingType.FORMATTED_TEXT,
+  });
 
-  wrapper.instance().handleReset();
+  expect(
+    await ui.nameHeading('property.sonar.announcement.message.name').find()
+  ).toBeInTheDocument();
 
-  expect(wrapper.state().loading).toBe(true);
+  // Should see no empty validation message
+  await user.type(ui.announcementInput.get(), ' ');
+  await user.click(ui.saveButton.get());
+  expect(await ui.validationMsg.find()).toBeInTheDocument();
 
-  await waitAndUpdate(wrapper);
+  // Can cancel message
+  await user.clear(ui.announcementInput.get());
+  await user.type(ui.announcementInput.get(), 'msg');
+  await user.click(ui.cancelButton.get());
+  expect(ui.announcementInput.get()).toHaveValue('');
 
-  expect(resetSettingValue).toHaveBeenCalledWith({ keys: definition.key, component: undefined });
-  expect(getValue).toHaveBeenCalledWith({ key: definition.key, component: undefined });
-  expect(wrapper.state().changedValue).toBeUndefined();
-  expect(wrapper.state().loading).toBe(false);
-  expect(wrapper.state().success).toBe(true);
-  expect(wrapper.state().settingValue).toBe(settingValue);
-
-  jest.runAllTimers();
-  expect(wrapper.state().success).toBe(false);
+  // Can save formatted message
+  await user.type(ui.announcementInput.get(), 'https://ok.com');
+  await user.click(ui.saveButton.get());
+  expect(ui.savedMsg.get()).toBeInTheDocument();
+  expect(ui.announcementInput.query()).not.toBeInTheDocument();
 });
 
-function shallowRender(props: Partial<Definition['props']> = {}) {
-  return shallow<Definition>(<Definition definition={mockDefinition()} {...props} />);
+it('renders definition for multiValues type and can do operations', async () => {
+  const user = userEvent.setup();
+  renderDefinition(
+    DEFAULT_DEFINITIONS_MOCK[2],
+    {
+      key: DEFAULT_DEFINITIONS_MOCK[2].key,
+      values: DEFAULT_DEFINITIONS_MOCK[2].defaultValue?.split(','),
+    },
+    mockComponent()
+  );
+
+  expect(await ui.nameHeading('property.sonar.javascript.globals.name').find()).toBeInTheDocument();
+  expect(ui.multiValuesInput.getAll()).toHaveLength(4);
+
+  // Should show validation message if no values
+  await user.click(ui.deleteValueButton.getAll()[0]);
+  await user.click(ui.deleteValueButton.getAll()[0]);
+  await user.click(ui.deleteValueButton.getAll()[0]);
+
+  expect(await ui.multiValuesInput.findAll()).toHaveLength(1);
+  expect(ui.validationMsg.get()).toBeInTheDocument();
+
+  // Can cancel and return to previous
+  await user.click(ui.cancelButton.get());
+  expect(ui.multiValuesInput.getAll()).toHaveLength(4);
+
+  // Can update values and save
+  await user.type(last(ui.multiValuesInput.getAll()) as HTMLElement, 'new value');
+  await user.click(ui.saveButton.get());
+  expect(ui.savedMsg.get()).toBeInTheDocument();
+  expect(ui.multiValuesInput.getAll()).toHaveLength(5);
+
+  // Can reset to default
+  await user.click(
+    ui.resetButton('settings.definition.reset.property.sonar.javascript.globals.name').get()
+  );
+  await user.click(ui.resetButton().get());
+  expect(ui.multiValuesInput.getAll()).toHaveLength(4);
+});
+
+it('renders definition for SettingType = PROPERTY_SET and can do operations', async () => {
+  const user = userEvent.setup();
+  renderDefinition(DEFAULT_DEFINITIONS_MOCK[5]);
+
+  expect(
+    await ui.nameHeading('property.sonar.cobol.compilationConstants.name').find()
+  ).toBeInTheDocument();
+  expect(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
+  expect(screen.getByRole('columnheader', { name: 'Value' })).toBeInTheDocument();
+
+  // Should type new values
+  await user.type(ui.fieldsInput('name').get(), 'any name');
+  expect(ui.fieldsInput('name').getAll()).toHaveLength(2);
+
+  // Can cancel changes
+  await user.click(ui.cancelButton.get());
+  expect(ui.fieldsInput('name').getAll()).toHaveLength(1);
+  expect(ui.fieldsInput('name').get()).toHaveValue('');
+
+  // Can save new values
+  await user.type(ui.fieldsInput('name').get(), 'any name');
+  await user.type(ui.fieldsInput('value').getAll()[0], 'any value');
+  await user.click(ui.saveButton.get());
+
+  expect(ui.savedMsg.get()).toBeInTheDocument();
+  expect(ui.fieldsInput('name').getAll()[0]).toHaveValue('any name');
+  expect(ui.fieldsInput('value').getAll()[0]).toHaveValue('any value');
+
+  // Deleting previous value show validation message
+  await user.click(ui.deleteFieldsButton.get());
+  expect(ui.validationMsg.get()).toBeInTheDocument();
+
+  // Can reset to default
+  await user.click(ui.resetButton(/settings.definition.reset/).get());
+  await user.click(ui.resetButton().get());
+
+  expect(ui.savedMsg.get()).toBeInTheDocument();
+  expect(ui.fieldsInput('name').get()).toHaveValue('');
+  expect(ui.fieldsInput('value').get()).toHaveValue('');
+});
+
+it('renders secured definition and can do operations', async () => {
+  const user = userEvent.setup();
+  const key = `${DEFAULT_DEFINITIONS_MOCK[0].key}.secured`;
+  settingsMock.setDefinition(
+    mockDefinition({
+      ...DEFAULT_DEFINITIONS_MOCK[0],
+      key,
+    })
+  );
+  renderDefinition({
+    key,
+  });
+
+  expect(
+    await ui.nameHeading('property.sonar.announcement.message.secured.name').find()
+  ).toBeInTheDocument();
+
+  // Can type new value and cancel change
+  await user.type(ui.securedInput.get(), 'Anything');
+  expect(ui.securedInput.get()).toHaveValue('Anything');
+
+  // Can see validation message
+  await user.clear(ui.securedInput.get());
+  expect(ui.validationMsg.get()).toBeInTheDocument();
+
+  // Can cancel change
+  await user.click(ui.cancelButton.get());
+  expect(ui.securedInput.get()).toHaveValue('');
+
+  // Can save new value
+  await user.type(ui.securedInput.get(), 'Anything');
+  await user.click(ui.saveButton.get());
+  expect(ui.savedMsg.get()).toBeInTheDocument();
+  expect(ui.securedInput.query()).not.toBeInTheDocument();
+
+  // Can change value by unlocking input
+  await user.click(ui.changeButton.get());
+  expect(ui.securedInput.get()).toBeInTheDocument();
+
+  // Cam reset to default
+  await user.click(ui.resetButton(/settings.definition.reset/).get());
+  await user.click(ui.resetButton().get());
+
+  expect(ui.savedMsg.get()).toBeInTheDocument();
+});
+
+it('renders correctly for URL kind definition', async () => {
+  const user = userEvent.setup();
+  renderDefinition({ key: 'sonar.auth.gitlab.url' });
+
+  // Show validation message
+  await user.type(ui.urlKindInput.get(), 'wrongurl');
+  expect(ui.validationMsg.get()).toBeInTheDocument();
+  expect(ui.saveButton.get()).toBeDisabled();
+
+  // Hides validation msg with correct url
+  await user.type(ui.urlKindInput.get(), 'http://hi.there');
+  expect(ui.validationMsg.query()).not.toBeInTheDocument();
+  expect(ui.saveButton.get()).toBeEnabled();
+});
+
+function renderDefinition(
+  definition: Partial<ExtendedSettingDefinition> = {},
+  initialSetting?: SettingValue,
+  component?: Component
+) {
+  return renderComponent(
+    <Definition
+      definition={{ ...DEFAULT_DEFINITIONS_MOCK[0], ...definition }}
+      initialSettingValue={initialSetting}
+      component={component}
+    />
+  );
 }

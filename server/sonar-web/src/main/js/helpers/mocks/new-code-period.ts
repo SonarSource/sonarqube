@@ -17,30 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockDefinition, mockSetting } from '../../../../../helpers/mocks/settings';
-import { SettingType } from '../../../../../types/settings';
-import { DefaultSpecializedInputProps } from '../../../utils';
-import PrimitiveInput from '../PrimitiveInput';
 
-it.each(Object.values(SettingType).map(Array.of))(
-  'should render correctly for %s',
-  (type: SettingType) => {
-    const setting = mockSetting({ definition: mockDefinition({ type }) });
-    expect(shallowRender({ setting })).toMatchSnapshot();
-  }
-);
+import { NewCodePeriod, NewCodePeriodSettingType } from '../../types/types';
 
-function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
-  return shallow(
-    <PrimitiveInput
-      isDefault={true}
-      name="name"
-      onChange={jest.fn()}
-      setting={mockSetting()}
-      value={['foo']}
-      {...props}
-    />
-  );
+export function mockNewCodePeriod(overrides: Partial<NewCodePeriod> = {}) {
+  return {
+    type: NewCodePeriodSettingType.PREVIOUS_VERSION,
+    ...overrides,
+  };
 }

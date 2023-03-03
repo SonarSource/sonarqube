@@ -98,7 +98,7 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
     <RadioCard
       className={className}
       disabled={disabled}
-      onClick={() => props.onSelect('REFERENCE_BRANCH')}
+      onClick={() => props.onSelect(NewCodePeriodSettingType.REFERENCE_BRANCH)}
       selected={selected}
       title={translate('baseline.reference_branch')}
     >

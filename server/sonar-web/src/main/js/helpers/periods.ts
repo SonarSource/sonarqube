@@ -20,7 +20,7 @@
 import { parseDate } from '../helpers/dates';
 import { translate, translateWithParameters } from '../helpers/l10n';
 import { ApplicationPeriod } from '../types/application';
-import { Period } from '../types/types';
+import { NewCodePeriodSettingType, Period } from '../types/types';
 
 export function getPeriodLabel(
   period: Period | undefined,
@@ -33,10 +33,10 @@ export function getPeriodLabel(
   let parameter = period.modeParam || period.parameter || '';
 
   switch (period.mode) {
-    case 'SPECIFIC_ANALYSIS':
+    case NewCodePeriodSettingType.SPECIFIC_ANALYSIS:
       parameter = dateFormatter(period.date);
       break;
-    case 'PREVIOUS_VERSION':
+    case NewCodePeriodSettingType.PREVIOUS_VERSION:
       parameter = parameter || dateFormatter(period.date);
       break;
     /*

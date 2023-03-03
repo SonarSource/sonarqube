@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Button } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
-import { DefaultSpecializedInputProps } from '../../utils';
+import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 const JSON_SPACE_SIZE = 4;
 
@@ -49,15 +49,18 @@ export default class InputForJSON extends React.PureComponent<DefaultSpecialized
   };
 
   render() {
+    const { value, name, setting } = this.props;
     const { formatError } = this.state;
+
     return (
       <div className="display-flex-end">
         <textarea
           className="settings-large-input text-top monospaced spacer-right"
-          name={this.props.name}
+          name={name}
           onChange={this.handleInputChange}
           rows={5}
-          value={this.props.value || ''}
+          value={value || ''}
+          aria-label={getPropertyName(setting.definition)}
         />
         <div>
           {formatError && <Alert variant="info">{translate('settings.json.format_error')} </Alert>}

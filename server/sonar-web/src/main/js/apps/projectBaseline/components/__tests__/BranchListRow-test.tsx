@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { ActionsDropdownItem } from '../../../../components/controls/ActionsDropdown';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { NewCodePeriodSettingType } from '../../../../types/types';
 import BranchListRow, { BranchListRowProps } from '../BranchListRow';
 
 it('should render correctly', () => {
@@ -28,17 +29,23 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       branch: mockBranch({ name: 'branch-7.3' }),
-      inheritedSetting: { type: 'REFERENCE_BRANCH', value: 'branch-7.3' },
+      inheritedSetting: { type: NewCodePeriodSettingType.REFERENCE_BRANCH, value: 'branch-7.3' },
     })
   ).toMatchSnapshot('faulty branch');
   expect(
     shallowRender({
-      branch: { ...mockBranch(), newCodePeriod: { type: 'NUMBER_OF_DAYS', value: '21' } },
+      branch: {
+        ...mockBranch(),
+        newCodePeriod: { type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '21' },
+      },
     })
   ).toMatchSnapshot('branch with number of days');
   expect(
     shallowRender({
-      branch: { ...mockBranch(), newCodePeriod: { type: 'PREVIOUS_VERSION' } },
+      branch: {
+        ...mockBranch(),
+        newCodePeriod: { type: NewCodePeriodSettingType.PREVIOUS_VERSION },
+      },
     })
   ).toMatchSnapshot('branch with previous version');
   expect(
@@ -46,7 +53,7 @@ it('should render correctly', () => {
       branch: {
         ...mockBranch(),
         newCodePeriod: {
-          type: 'SPECIFIC_ANALYSIS',
+          type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
           value: 'A85835',
           effectiveValue: '2018-12-02T13:01:12',
         },
@@ -55,7 +62,10 @@ it('should render correctly', () => {
   ).toMatchSnapshot('branch with specific analysis');
   expect(
     shallowRender({
-      branch: { ...mockBranch(), newCodePeriod: { type: 'REFERENCE_BRANCH', value: 'master' } },
+      branch: {
+        ...mockBranch(),
+        newCodePeriod: { type: NewCodePeriodSettingType.REFERENCE_BRANCH, value: 'master' },
+      },
     })
   ).toMatchSnapshot('branch with reference branch');
 });
@@ -74,7 +84,10 @@ it('should callback to reset when clicked', () => {
   const resetToDefault = jest.fn();
   const branchName = 'branch-6.5';
   const wrapper = shallowRender({
-    branch: { ...mockBranch({ name: branchName }), newCodePeriod: { type: 'REFERENCE_BRANCH' } },
+    branch: {
+      ...mockBranch({ name: branchName }),
+      newCodePeriod: { type: NewCodePeriodSettingType.REFERENCE_BRANCH },
+    },
     onResetToDefault: resetToDefault,
   });
 

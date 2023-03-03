@@ -24,6 +24,7 @@ import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { Branch, BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { Component, NewCodePeriod } from '../../../types/types';
+import { DEFAULT_GENERAL_SETTING_TYPE } from '../constants';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';
 import BranchListRow from './BranchListRow';
 
@@ -74,7 +75,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
           if (!newCodePeriod) {
             return b;
           }
-          const { type = 'PREVIOUS_VERSION', value, effectiveValue } = newCodePeriod;
+          const { type = DEFAULT_GENERAL_SETTING_TYPE, value, effectiveValue } = newCodePeriod;
           return {
             ...b,
             newCodePeriod: { type, value, effectiveValue },

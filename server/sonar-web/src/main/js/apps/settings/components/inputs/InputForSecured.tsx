@@ -25,6 +25,7 @@ import { translate } from '../../../../helpers/l10n';
 import {
   DefaultInputProps,
   DefaultSpecializedInputProps,
+  getPropertyName,
   getUniqueName,
   isDefaultOrInherited,
 } from '../../utils';
@@ -73,6 +74,7 @@ export default class InputForSecured extends React.PureComponent<Props, State> {
       <>
         <input className="hidden" type="password" />
         <Input
+          aria-label={getPropertyName(setting.definition)}
           autoComplete="off"
           className="js-setting-input settings-large-input"
           isDefault={isDefaultOrInherited(setting)}

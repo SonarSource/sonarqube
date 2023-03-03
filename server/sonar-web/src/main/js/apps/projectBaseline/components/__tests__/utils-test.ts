@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NewCodePeriodSettingType } from '../../../../types/types';
 import { getSettingValue, validateSetting } from '../../utils';
 
 describe('getSettingValue', () => {
@@ -27,19 +28,27 @@ describe('getSettingValue', () => {
   };
 
   it('should work for Days', () => {
-    expect(getSettingValue({ ...state, type: 'NUMBER_OF_DAYS' })).toBe(state.days);
+    expect(getSettingValue({ ...state, type: NewCodePeriodSettingType.NUMBER_OF_DAYS })).toBe(
+      state.days
+    );
   });
 
   it('should work for Analysis', () => {
-    expect(getSettingValue({ ...state, type: 'SPECIFIC_ANALYSIS' })).toBe(state.analysis);
+    expect(getSettingValue({ ...state, type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS })).toBe(
+      state.analysis
+    );
   });
 
   it('should work for Previous version', () => {
-    expect(getSettingValue({ ...state, type: 'PREVIOUS_VERSION' })).toBeUndefined();
+    expect(
+      getSettingValue({ ...state, type: NewCodePeriodSettingType.PREVIOUS_VERSION })
+    ).toBeUndefined();
   });
 
   it('should work for Reference branch', () => {
-    expect(getSettingValue({ ...state, type: 'REFERENCE_BRANCH' })).toBe(state.referenceBranch);
+    expect(getSettingValue({ ...state, type: NewCodePeriodSettingType.REFERENCE_BRANCH })).toBe(
+      state.referenceBranch
+    );
   });
 });
 
@@ -48,68 +57,68 @@ describe('validateSettings', () => {
     expect(validateSetting({ days: '' })).toEqual({ isChanged: false, isValid: false });
     expect(
       validateSetting({
-        currentSetting: 'PREVIOUS_VERSION',
+        currentSetting: NewCodePeriodSettingType.PREVIOUS_VERSION,
         days: '12',
-        selected: 'NUMBER_OF_DAYS',
+        selected: NewCodePeriodSettingType.NUMBER_OF_DAYS,
       })
     ).toEqual({ isChanged: true, isValid: true });
     expect(
       validateSetting({
-        currentSetting: 'PREVIOUS_VERSION',
+        currentSetting: NewCodePeriodSettingType.PREVIOUS_VERSION,
         days: 'nope',
-        selected: 'NUMBER_OF_DAYS',
+        selected: NewCodePeriodSettingType.NUMBER_OF_DAYS,
       })
     ).toEqual({ isChanged: true, isValid: false });
     expect(
       validateSetting({
-        currentSetting: 'NUMBER_OF_DAYS',
+        currentSetting: NewCodePeriodSettingType.NUMBER_OF_DAYS,
         currentSettingValue: '15',
         days: '15',
-        selected: 'NUMBER_OF_DAYS',
+        selected: NewCodePeriodSettingType.NUMBER_OF_DAYS,
       })
     ).toEqual({ isChanged: false, isValid: true });
     expect(
       validateSetting({
-        currentSetting: 'NUMBER_OF_DAYS',
+        currentSetting: NewCodePeriodSettingType.NUMBER_OF_DAYS,
         currentSettingValue: '15',
         days: '13',
-        selected: 'NUMBER_OF_DAYS',
+        selected: NewCodePeriodSettingType.NUMBER_OF_DAYS,
       })
     ).toEqual({ isChanged: true, isValid: true });
     expect(
       validateSetting({
         analysis: 'analysis1',
-        currentSetting: 'SPECIFIC_ANALYSIS',
+        currentSetting: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
         currentSettingValue: 'analysis1',
         days: '',
-        selected: 'SPECIFIC_ANALYSIS',
+        selected: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
       })
     ).toEqual({ isChanged: false, isValid: true });
     expect(
       validateSetting({
         analysis: 'analysis2',
-        currentSetting: 'SPECIFIC_ANALYSIS',
+        currentSetting: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
         currentSettingValue: 'analysis1',
         days: '',
-        selected: 'SPECIFIC_ANALYSIS',
+        selected: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
       })
     ).toEqual({ isChanged: true, isValid: true });
     expect(
       validateSetting({
-        currentSetting: 'REFERENCE_BRANCH',
+        currentSetting: NewCodePeriodSettingType.REFERENCE_BRANCH,
         currentSettingValue: 'master',
         days: '',
         referenceBranch: 'master',
-        selected: 'REFERENCE_BRANCH',
+        selected: NewCodePeriodSettingType.REFERENCE_BRANCH,
       })
     ).toEqual({ isChanged: false, isValid: true });
     expect(
       validateSetting({
-        currentSetting: 'REFERENCE_BRANCH',
+        currentSetting: NewCodePeriodSettingType.REFERENCE_BRANCH,
         currentSettingValue: 'master',
         days: '',
         referenceBranch: '',
-        selected: 'REFERENCE_BRANCH',
+        selected: NewCodePeriodSettingType.REFERENCE_BRANCH,
       })
     ).toEqual({ isChanged: true, isValid: false });
   });
@@ -125,7 +134,7 @@ describe('validateSettings', () => {
     });
     expect(
       validateSetting({
-        currentSetting: 'PREVIOUS_VERSION',
+        currentSetting: NewCodePeriodSettingType.PREVIOUS_VERSION,
         days: '',
         overrideGeneralSetting: false,
       })

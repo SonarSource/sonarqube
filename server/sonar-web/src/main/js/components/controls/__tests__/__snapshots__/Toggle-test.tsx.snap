@@ -2,13 +2,14 @@
 
 exports[`should render correctly: disabled 1`] = `
 <Button
+  aria-checked={true}
   className="boolean-toggle boolean-toggle-on"
   disabled={true}
   name="toggle-name"
   onClick={[Function]}
+  role="switch"
 >
   <div
-    aria-label="on"
     className="boolean-toggle-handle"
   >
     <CheckIcon
@@ -20,13 +21,14 @@ exports[`should render correctly: disabled 1`] = `
 
 exports[`should render correctly: off 1`] = `
 <Button
+  aria-checked={false}
   className="boolean-toggle"
   disabled={true}
   name="toggle-name"
   onClick={[Function]}
+  role="switch"
 >
   <div
-    aria-label="off"
     className="boolean-toggle-handle"
   >
     <CheckIcon
@@ -38,13 +40,14 @@ exports[`should render correctly: off 1`] = `
 
 exports[`should render correctly: on 1`] = `
 <Button
+  aria-checked={true}
   className="boolean-toggle boolean-toggle-on"
   disabled={true}
   name="toggle-name"
   onClick={[Function]}
+  role="switch"
 >
   <div
-    aria-label="on"
     className="boolean-toggle-handle"
   >
     <CheckIcon

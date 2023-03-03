@@ -75,7 +75,7 @@ afterEach(() => handler.resetValues());
 const ui = {
   saveButton: byRole('button', { name: 'settings.authentication.saml.form.save' }),
   customMessageInformation: byText('settings.authentication.custom_message_information'),
-  enabledToggle: byRole('button', { name: 'off' }),
+  enabledToggle: byRole('switch'),
   testButton: byText('settings.authentication.saml.form.test'),
   textbox1: byRole('textbox', { name: 'test1' }),
   textbox2: byRole('textbox', { name: 'test2' }),
@@ -172,7 +172,7 @@ describe('SAML tab', () => {
     await user.keyboard('new certificate');
     // enable the configuration
     await user.click(ui.enabledToggle.get());
-    expect(screen.getByRole('button', { name: 'on' })).toBeInTheDocument();
+    expect(ui.enabledToggle.get()).toBeChecked();
 
     await user.click(ui.saveButton.get());
     expect(screen.getByText('settings.authentication.saml.form.save_success')).toBeInTheDocument();
@@ -180,7 +180,7 @@ describe('SAML tab', () => {
     await user.click(screen.getByRole('tab', { name: 'github GitHub' }));
     await user.click(screen.getByRole('tab', { name: 'SAML' }));
 
-    expect(screen.getByRole('button', { name: 'on' })).toBeInTheDocument();
+    expect(ui.enabledToggle.get()).toBeChecked();
   });
 
   it('should handle and show errors to the user', async () => {

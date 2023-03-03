@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { NewCodePeriodSettingType } from '../../../../types/types';
 import BaselineSettingDays, { Props } from '../BaselineSettingDays';
 
 it('should render correctly', () => {
@@ -37,7 +38,7 @@ it('should callback when clicked', () => {
   const wrapper = shallowRender({ onSelect, selected: false });
 
   wrapper.find('RadioCard').first().simulate('click');
-  expect(onSelect).toHaveBeenCalledWith('NUMBER_OF_DAYS');
+  expect(onSelect).toHaveBeenCalledWith(NewCodePeriodSettingType.NUMBER_OF_DAYS);
 });
 
 it('should callback when changing days', () => {

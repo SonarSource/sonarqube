@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import { HousekeepingPolicy } from '../../apps/audit-logs/utils';
-import { mockDefinition } from '../../helpers/mocks/settings';
+import { mockDefinition, mockSettingFieldDefinition } from '../../helpers/mocks/settings';
 import { BranchParameters } from '../../types/branch-like';
 import {
   ExtendedSettingDefinition,
@@ -37,7 +37,8 @@ import {
   setSettingValue,
 } from '../settings';
 
-const isEmptyString = (i: string) => i.trim() === '';
+const isEmptyField = (o: any) => isObject(o) && Object.values(o).some(isEmptyString);
+const isEmptyString = (i: any) => isString(i) && i.trim() === '';
 
 export const DEFAULT_DEFINITIONS_MOCK = [
   mockDefinition({
@@ -46,7 +47,6 @@ export const DEFAULT_DEFINITIONS_MOCK = [
     subCategory: 'Announcement',
     name: 'Announcement message',
     description: 'Enter message',
-    defaultValue: '.js,.jsx,.cjs,.vue,.mjs',
     type: SettingType.TEXT,
   }),
   mockDefinition({
@@ -55,7 +55,6 @@ export const DEFAULT_DEFINITIONS_MOCK = [
     subCategory: 'Compute Engine',
     name: 'Run analysis in paralel',
     description: 'Enter message',
-    defaultValue: '.js,.jsx,.cjs,.vue,.mjs',
     type: SettingType.TEXT,
   }),
   mockDefinition({
@@ -83,6 +82,18 @@ export const DEFAULT_DEFINITIONS_MOCK = [
     name: 'Android Lint Report Files',
     description: 'Paths to xml files',
     multiValues: true,
+  }),
+  mockDefinition({
+    category: 'COBOL',
+    key: 'sonar.cobol.compilationConstants',
+    subCategory: 'Preprocessor',
+    name: 'Compilation Constants',
+    description: 'Lets do it',
+    type: SettingType.PROPERTY_SET,
+    fields: [
+      mockSettingFieldDefinition(),
+      mockSettingFieldDefinition({ key: 'value', name: 'Value' }),
+    ],
   }),
 ];
 
@@ -131,8 +142,9 @@ export default class SettingsServiceMock {
 
   handleSetSettingValue = (definition: SettingDefinition, value: any): Promise<void> => {
     if (
-      (typeof value === 'string' && isEmptyString(value)) ||
-      (value instanceof Array && value.some(isEmptyString))
+      isEmptyString(value) ||
+      (isArray(value) && value.some(isEmptyString)) ||
+      isEmptyField(value)
     ) {
       throw new ResponseError('validation error', {
         errors: [{ msg: 'A non empty value must be provided' }],
@@ -149,7 +161,9 @@ export default class SettingsServiceMock {
     const definition = this.#definitions.find(
       (d) => d.key === data.keys
     ) as ExtendedSettingDefinition;
-    if (definition.multiValues === true) {
+    if (definition.type === SettingType.PROPERTY_SET) {
+      setting.fieldValues = [];
+    } else if (definition.multiValues === true) {
       setting.values = definition.defaultValue?.split(',') ?? [];
     } else {
       setting.value = definition.defaultValue ?? '';
@@ -168,10 +182,15 @@ export default class SettingsServiceMock {
     if (setting) {
       setting.value = value;
       setting.values = value;
+      setting.fieldValues = value;
     } else {
-      this.#settingValues.push({ key, value });
+      this.#settingValues.push({ key, value, values: value, fieldValues: value });
     }
     return this;
+  };
+
+  setDefinition = (definition: ExtendedSettingDefinition) => {
+    this.#definitions.push(definition);
   };
 
   reset = () => {

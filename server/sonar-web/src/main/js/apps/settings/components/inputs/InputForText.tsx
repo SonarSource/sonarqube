@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { DefaultSpecializedInputProps } from '../../utils';
+import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 export default class InputForText extends React.PureComponent<DefaultSpecializedInputProps> {
   handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -26,13 +26,15 @@ export default class InputForText extends React.PureComponent<DefaultSpecialized
   };
 
   render() {
+    const { setting, name, value } = this.props;
     return (
       <textarea
         className="settings-large-input text-top"
-        name={this.props.name}
+        name={name}
         onChange={this.handleInputChange}
         rows={5}
-        value={this.props.value || ''}
+        value={value || ''}
+        aria-label={getPropertyName(setting.definition)}
       />
     );
   }

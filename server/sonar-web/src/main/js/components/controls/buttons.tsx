@@ -41,6 +41,7 @@ type AllowedButtonAttributes = Pick<
   | 'onMouseOver'
   | 'onMouseLeave'
   | 'tabIndex'
+  | 'role'
 >;
 
 interface ButtonProps extends AllowedButtonAttributes {

@@ -405,11 +405,12 @@ export interface NewCodePeriodBranch {
   effectiveValue?: string;
 }
 
-export type NewCodePeriodSettingType =
-  | 'PREVIOUS_VERSION'
-  | 'NUMBER_OF_DAYS'
-  | 'SPECIFIC_ANALYSIS'
-  | 'REFERENCE_BRANCH';
+export enum NewCodePeriodSettingType {
+  PREVIOUS_VERSION = 'PREVIOUS_VERSION',
+  NUMBER_OF_DAYS = 'NUMBER_OF_DAYS',
+  SPECIFIC_ANALYSIS = 'SPECIFIC_ANALYSIS',
+  REFERENCE_BRANCH = 'REFERENCE_BRANCH',
+}
 
 export interface Paging {
   pageIndex: number;

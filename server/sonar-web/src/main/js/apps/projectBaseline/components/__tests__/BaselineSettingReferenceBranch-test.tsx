@@ -22,6 +22,7 @@ import * as React from 'react';
 import { OptionProps, Props as ReactSelectProps } from 'react-select';
 import RadioCard from '../../../../components/controls/RadioCard';
 import Select from '../../../../components/controls/Select';
+import { NewCodePeriodSettingType } from '../../../../types/types';
 import BaselineSettingReferenceBranch, {
   BaselineSettingReferenceBranchProps,
   BranchOption,
@@ -49,7 +50,7 @@ it('should callback when clicked', () => {
   const wrapper = shallowRender({ onSelect, selected: false });
 
   wrapper.find(RadioCard).first().simulate('click');
-  expect(onSelect).toHaveBeenCalledWith('REFERENCE_BRANCH');
+  expect(onSelect).toHaveBeenCalledWith(NewCodePeriodSettingType.REFERENCE_BRANCH);
 });
 
 it('should callback when changing selection', () => {

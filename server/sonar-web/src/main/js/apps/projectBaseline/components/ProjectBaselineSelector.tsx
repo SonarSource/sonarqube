@@ -60,7 +60,7 @@ export interface ProjectBaselineSelectorProps {
 function renderGeneralSetting(generalSetting: NewCodePeriod) {
   let setting: string;
   let description: string;
-  if (generalSetting.type === 'NUMBER_OF_DAYS') {
+  if (generalSetting.type === NewCodePeriodSettingType.NUMBER_OF_DAYS) {
     setting = `${translate('baseline.number_days')} (${translateWithParameters(
       'duration.days',
       generalSetting.value || '?'
@@ -137,7 +137,9 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
           <BaselineSettingPreviousVersion
             disabled={!overrideGeneralSetting}
             onSelect={props.onSelectSetting}
-            selected={overrideGeneralSetting && selected === 'PREVIOUS_VERSION'}
+            selected={
+              overrideGeneralSetting && selected === NewCodePeriodSettingType.PREVIOUS_VERSION
+            }
           />
           <BaselineSettingDays
             days={days}
@@ -146,7 +148,9 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
             isValid={isValid}
             onChangeDays={props.onSelectDays}
             onSelect={props.onSelectSetting}
-            selected={overrideGeneralSetting && selected === 'NUMBER_OF_DAYS'}
+            selected={
+              overrideGeneralSetting && selected === NewCodePeriodSettingType.NUMBER_OF_DAYS
+            }
           />
           {branchesEnabled ? (
             <BaselineSettingReferenceBranch
@@ -155,18 +159,22 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
               onChangeReferenceBranch={props.onSelectReferenceBranch}
               onSelect={props.onSelectSetting}
               referenceBranch={referenceBranch || ''}
-              selected={overrideGeneralSetting && selected === 'REFERENCE_BRANCH'}
+              selected={
+                overrideGeneralSetting && selected === NewCodePeriodSettingType.REFERENCE_BRANCH
+              }
               settingLevel="project"
             />
           ) : (
             <BaselineSettingAnalysis
               disabled={!overrideGeneralSetting}
               onSelect={props.onSelectSetting}
-              selected={overrideGeneralSetting && selected === 'SPECIFIC_ANALYSIS'}
+              selected={
+                overrideGeneralSetting && selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS
+              }
             />
           )}
         </div>
-        {selected === 'SPECIFIC_ANALYSIS' && (
+        {selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && (
           <BranchAnalysisList
             analysis={analysis || ''}
             branch={branch.name}

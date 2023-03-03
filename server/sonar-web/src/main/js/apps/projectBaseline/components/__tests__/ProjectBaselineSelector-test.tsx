@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { NewCodePeriodSettingType } from '../../../../types/types';
 import ProjectBaselineSelector, { ProjectBaselineSelectorProps } from '../ProjectBaselineSelector';
 
 it('should render correctly', () => {
@@ -27,18 +28,21 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       branchesEnabled: false,
-      generalSetting: { type: 'NUMBER_OF_DAYS', value: '23' },
+      generalSetting: { type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '23' },
     })
   ).toMatchSnapshot();
   expect(
-    shallowRender({ branchesEnabled: false, generalSetting: { type: 'NUMBER_OF_DAYS', value: '' } })
+    shallowRender({
+      branchesEnabled: false,
+      generalSetting: { type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '' },
+    })
   ).toMatchSnapshot();
 });
 
 it('should not show save button when unchanged', () => {
   const wrapper = shallowRender({
-    currentSetting: 'PREVIOUS_VERSION',
-    selected: 'PREVIOUS_VERSION',
+    currentSetting: NewCodePeriodSettingType.PREVIOUS_VERSION,
+    selected: NewCodePeriodSettingType.PREVIOUS_VERSION,
     overrideGeneralSetting: true,
   });
   expect(wrapper.find('SubmitButton').parent().hasClass('invisible')).toBe(true);
@@ -46,8 +50,8 @@ it('should not show save button when unchanged', () => {
 
 it('should show save button when changed', () => {
   const wrapper = shallowRender({
-    currentSetting: 'PREVIOUS_VERSION',
-    selected: 'NUMBER_OF_DAYS',
+    currentSetting: NewCodePeriodSettingType.PREVIOUS_VERSION,
+    selected: NewCodePeriodSettingType.NUMBER_OF_DAYS,
     overrideGeneralSetting: true,
   });
   expect(wrapper.find('SubmitButton')).toHaveLength(1);
@@ -55,10 +59,10 @@ it('should show save button when changed', () => {
 
 it('should show save button when value changed', () => {
   const wrapper = shallowRender({
-    currentSetting: 'NUMBER_OF_DAYS',
+    currentSetting: NewCodePeriodSettingType.NUMBER_OF_DAYS,
     currentSettingValue: '23',
     days: '25',
-    selected: 'NUMBER_OF_DAYS',
+    selected: NewCodePeriodSettingType.NUMBER_OF_DAYS,
     overrideGeneralSetting: true,
   });
   expect(wrapper.find('SubmitButton')).toHaveLength(1);
@@ -66,10 +70,10 @@ it('should show save button when value changed', () => {
 
 it('should disable the save button when saving', () => {
   const wrapper = shallowRender({
-    currentSetting: 'NUMBER_OF_DAYS',
+    currentSetting: NewCodePeriodSettingType.NUMBER_OF_DAYS,
     currentSettingValue: '25',
     saving: true,
-    selected: 'PREVIOUS_VERSION',
+    selected: NewCodePeriodSettingType.PREVIOUS_VERSION,
     overrideGeneralSetting: true,
   });
 
@@ -78,9 +82,9 @@ it('should disable the save button when saving', () => {
 
 it('should disable the save button when date is invalid', () => {
   const wrapper = shallowRender({
-    currentSetting: 'PREVIOUS_VERSION',
+    currentSetting: NewCodePeriodSettingType.PREVIOUS_VERSION,
     days: 'hello',
-    selected: 'NUMBER_OF_DAYS',
+    selected: NewCodePeriodSettingType.NUMBER_OF_DAYS,
     overrideGeneralSetting: true,
   });
 

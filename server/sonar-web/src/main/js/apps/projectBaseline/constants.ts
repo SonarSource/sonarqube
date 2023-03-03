@@ -17,26 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockSetting } from '../../../../../helpers/mocks/settings';
-import InputForString from '../InputForString';
-import SimpleInput from '../SimpleInput';
 
-it('should render SimpleInput', () => {
-  const onChange = jest.fn();
-  const simpleInput = shallow(
-    <InputForString
-      isDefault={false}
-      name="foo"
-      onChange={onChange}
-      setting={mockSetting()}
-      value="bar"
-    />
-  ).find(SimpleInput);
-  expect(simpleInput.length).toBe(1);
-  expect(simpleInput.prop('name')).toBe('foo');
-  expect(simpleInput.prop('value')).toBe('bar');
-  expect(simpleInput.prop('type')).toBe('text');
-  expect(simpleInput.prop('onChange')).toBeDefined();
-});
+import { NewCodePeriodSettingType } from '../../types/types';
+
+export const DEFAULT_GENERAL_SETTING_TYPE: NewCodePeriodSettingType =
+  NewCodePeriodSettingType.PREVIOUS_VERSION;

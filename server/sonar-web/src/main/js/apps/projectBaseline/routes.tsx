@@ -19,8 +19,8 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import App from './components/App';
+import ProjectBaselineApp from './components/ProjectBaselineApp';
 
-const routes = () => <Route path="baseline" element={<App />} />;
+const routes = () => <Route path="baseline" element={<ProjectBaselineApp />} />;
 
 export default routes;

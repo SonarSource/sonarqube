@@ -24,7 +24,7 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
-import { Period } from '../../../types/types';
+import { NewCodePeriodSettingType, Period } from '../../../types/types';
 
 export interface ProjectLeakPeriodInfoProps extends WrappedComponentProps {
   leakPeriod: Period;
@@ -38,7 +38,7 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
 
   const leakPeriodLabel = getPeriodLabel(
     leakPeriod,
-    ['manual_baseline', 'SPECIFIC_ANALYSIS'].includes(leakPeriod.mode)
+    ['manual_baseline', NewCodePeriodSettingType.SPECIFIC_ANALYSIS].includes(leakPeriod.mode)
       ? (date: string) => formatTime(date, formatterOption)
       : (date: string) => formatDate(date, longFormatterOption)
   );
@@ -49,8 +49,8 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
 
   if (
     leakPeriod.mode === 'days' ||
-    leakPeriod.mode === 'NUMBER_OF_DAYS' ||
-    leakPeriod.mode === 'REFERENCE_BRANCH'
+    leakPeriod.mode === NewCodePeriodSettingType.NUMBER_OF_DAYS ||
+    leakPeriod.mode === NewCodePeriodSettingType.REFERENCE_BRANCH
   ) {
     return <div className="note spacer-top">{leakPeriodLabel} </div>;
   }

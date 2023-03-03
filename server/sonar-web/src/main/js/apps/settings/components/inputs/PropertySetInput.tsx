@@ -19,9 +19,11 @@
  */
 import * as React from 'react';
 import { DeleteButton } from '../../../../components/controls/buttons';
+import { translateWithParameters } from '../../../../helpers/l10n';
 import {
   DefaultSpecializedInputProps,
   getEmptyValue,
+  getPropertyName,
   getUniqueName,
   isCategoryDefinition,
 } from '../../utils';
@@ -75,6 +77,11 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
         <td className="thin nowrap text-middle">
           {!isLast && (
             <DeleteButton
+              aria-label={translateWithParameters(
+                'settings.definitions.delete_fields',
+                getPropertyName(setting.definition),
+                index
+              )}
               className="js-remove-value"
               onClick={() => this.handleDeleteValue(index)}
             />

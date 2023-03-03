@@ -18,19 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Toggle from '../../../../components/controls/Toggle';
+import Toggle, { getToggleValue } from '../../../../components/controls/Toggle';
 import { translate } from '../../../../helpers/l10n';
-import { DefaultSpecializedInputProps } from '../../utils';
+import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 interface Props extends DefaultSpecializedInputProps {
   value: string | boolean | undefined;
 }
 
-export default function InputForBoolean({ onChange, name, value }: Props) {
-  const displayedValue = value != null ? value : false;
+export default function InputForBoolean({ onChange, name, value, setting }: Props) {
+  const toggleValue = getToggleValue(value != null ? value : false);
+
   return (
     <div className="display-inline-block text-top">
-      <Toggle name={name} onChange={onChange} value={displayedValue} />
+      <Toggle
+        name={name}
+        onChange={onChange}
+        value={toggleValue}
+        ariaLabel={getPropertyName(setting.definition)}
+      />
       {value == null && <span className="spacer-left note">{translate('settings.not_set')}</span>}
     </div>
   );

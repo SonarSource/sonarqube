@@ -17,110 +17,76 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { getNewCodePeriod, setNewCodePeriod } from '../../../../api/newCodePeriod';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { byRole, byText } from 'testing-library-selector';
+import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import NewCodePeriod from '../NewCodePeriod';
 
-jest.mock('../../../../api/newCodePeriod', () => ({
-  getNewCodePeriod: jest.fn().mockResolvedValue({}),
-  setNewCodePeriod: jest.fn(() => Promise.resolve()),
-}));
+let newCodeMock: NewCodePeriodsServiceMock;
 
-beforeEach(() => {
-  jest.clearAllMocks();
+beforeAll(() => {
+  newCodeMock = new NewCodePeriodsServiceMock();
 });
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+afterEach(() => {
+  newCodeMock.reset();
 });
 
-it('should load the current new code period on mount', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(getNewCodePeriod).toHaveBeenCalledTimes(1);
-  expect(wrapper.state('currentSetting')).toBe('PREVIOUS_VERSION');
+const ui = {
+  newCodeTitle: byRole('heading', { name: 'settings.new_code_period.title' }),
+  savedMsg: byText('settings.state.saved'),
+  prevVersionRadio: byRole('radio', { name: /baseline.previous_version/ }),
+  daysNumberRadio: byRole('radio', { name: /baseline.number_days/ }),
+  daysInput: byRole('textbox'),
+  saveButton: byRole('button', { name: 'save' }),
+  cancelButton: byRole('button', { name: 'cancel' }),
+};
+
+it('renders and behaves as expected', async () => {
+  const user = userEvent.setup();
+  renderNewCodePeriod();
+
+  expect(await ui.newCodeTitle.find()).toBeInTheDocument();
+  // Previous version should be checked by default
+  expect(ui.prevVersionRadio.get()).toBeChecked();
+
+  // Can select number of days
+  await user.click(ui.daysNumberRadio.get());
+  expect(ui.daysNumberRadio.get()).toBeChecked();
+
+  // Save should be disabled for zero or NaN
+  expect(ui.daysInput.get()).toHaveValue('30');
+  await user.clear(ui.daysInput.get());
+  await user.type(ui.daysInput.get(), '0');
+  expect(await ui.saveButton.find()).toBeDisabled();
+  await user.clear(ui.daysInput.get());
+  await user.type(ui.daysInput.get(), 'asdas');
+  expect(ui.saveButton.get()).toBeDisabled();
+  await user.clear(ui.daysInput.get());
+
+  // Save enabled for valid days number
+  await user.type(ui.daysInput.get(), '10');
+  expect(ui.saveButton.get()).toBeEnabled();
+
+  // Can cancel action
+  await user.click(ui.cancelButton.get());
+  expect(ui.prevVersionRadio.get()).toBeChecked();
+
+  // Can save change
+  await user.click(ui.daysNumberRadio.get());
+  await user.type(ui.daysInput.get(), '10');
+  await user.click(ui.saveButton.get());
+  expect(ui.savedMsg.get()).toBeInTheDocument();
+
+  await user.click(ui.prevVersionRadio.get());
+  await user.click(ui.cancelButton.get());
+  await user.click(ui.prevVersionRadio.get());
+  await user.click(ui.saveButton.get());
+  expect(ui.savedMsg.get()).toBeInTheDocument();
 });
 
-it('should load the current new code period with value on mount', async () => {
-  (getNewCodePeriod as jest.Mock).mockResolvedValue({ type: 'NUMBER_OF_DAYS', value: '42' });
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(getNewCodePeriod).toHaveBeenCalledTimes(1);
-  expect(wrapper.state('currentSetting')).toBe('NUMBER_OF_DAYS');
-  expect(wrapper.state('days')).toBe('42');
-});
-
-it('should only show the save button after changing the setting', async () => {
-  (getNewCodePeriod as jest.Mock).mockResolvedValue({ type: 'PREVIOUS_VERSION' });
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.state('selected')).toBe('PREVIOUS_VERSION');
-  expect(wrapper.find('SubmitButton')).toHaveLength(0);
-
-  wrapper.instance().onSelectSetting('NUMBER_OF_DAYS');
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.find('SubmitButton')).toHaveLength(1);
-});
-
-it('should disable the button if the days are invalid', async () => {
-  (getNewCodePeriod as jest.Mock).mockResolvedValue({ type: 'NUMBER_OF_DAYS', value: '42' });
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  wrapper.instance().onSelectDays('asd');
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.find('SubmitButton').first().prop('disabled')).toBe(true);
-
-  wrapper.instance().onSelectDays('23');
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.find('SubmitButton').first().prop('disabled')).toBe(false);
-});
-
-it('should submit correctly', async () => {
-  (getNewCodePeriod as jest.Mock).mockResolvedValue({ type: 'NUMBER_OF_DAYS', value: '42' });
-
-  const preventDefault = jest.fn();
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  wrapper.instance().onSelectSetting('PREVIOUS_VERSION');
-  await waitAndUpdate(wrapper);
-
-  wrapper.find('form').simulate('submit', { preventDefault });
-
-  expect(preventDefault).toHaveBeenCalledTimes(1);
-  expect(setNewCodePeriod).toHaveBeenCalledWith({ type: 'PREVIOUS_VERSION', value: undefined });
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state('currentSetting')).toEqual(wrapper.state('selected'));
-});
-
-it('should submit correctly with days', async () => {
-  (getNewCodePeriod as jest.Mock).mockResolvedValue({ type: 'NUMBER_OF_DAYS', value: '42' });
-
-  const preventDefault = jest.fn();
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  wrapper.instance().onSelectDays('66');
-  await waitAndUpdate(wrapper);
-
-  wrapper.find('form').simulate('submit', { preventDefault });
-
-  expect(preventDefault).toHaveBeenCalledTimes(1);
-  expect(setNewCodePeriod).toHaveBeenCalledWith({ type: 'NUMBER_OF_DAYS', value: '66' });
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state('currentSetting')).toEqual(wrapper.state('selected'));
-});
-
-function shallowRender() {
-  return shallow<NewCodePeriod>(<NewCodePeriod />);
+function renderNewCodePeriod() {
+  return renderComponent(<NewCodePeriod />);
 }

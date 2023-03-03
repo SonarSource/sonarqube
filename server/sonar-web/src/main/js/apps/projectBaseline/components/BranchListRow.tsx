@@ -25,7 +25,7 @@ import WarningIcon from '../../../components/icons/WarningIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchWithNewCodePeriod } from '../../../types/branch-like';
-import { NewCodePeriod } from '../../../types/types';
+import { NewCodePeriod, NewCodePeriodSettingType } from '../../../types/types';
 
 export interface BranchListRowProps {
   branch: BranchWithNewCodePeriod;
@@ -37,7 +37,7 @@ export interface BranchListRowProps {
 
 function renderNewCodePeriodSetting(newCodePeriod: NewCodePeriod) {
   switch (newCodePeriod.type) {
-    case 'SPECIFIC_ANALYSIS':
+    case NewCodePeriodSettingType.SPECIFIC_ANALYSIS:
       return (
         <>
           {`${translate('baseline.specific_analysis')}: `}
@@ -48,11 +48,11 @@ function renderNewCodePeriodSetting(newCodePeriod: NewCodePeriod) {
           )}
         </>
       );
-    case 'NUMBER_OF_DAYS':
+    case NewCodePeriodSettingType.NUMBER_OF_DAYS:
       return `${translate('baseline.number_days')}: ${newCodePeriod.value}`;
-    case 'PREVIOUS_VERSION':
+    case NewCodePeriodSettingType.PREVIOUS_VERSION:
       return translate('baseline.previous_version');
-    case 'REFERENCE_BRANCH':
+    case NewCodePeriodSettingType.REFERENCE_BRANCH:
       return `${translate('baseline.reference_branch')}: ${newCodePeriod.value}`;
     default:
       return newCodePeriod.type;
@@ -65,7 +65,7 @@ function branchInheritsItselfAsReference(
 ) {
   return (
     !branch.newCodePeriod &&
-    inheritedSetting.type === 'REFERENCE_BRANCH' &&
+    inheritedSetting.type === NewCodePeriodSettingType.REFERENCE_BRANCH &&
     branch.name === inheritedSetting.value
   );
 }
@@ -77,7 +77,7 @@ function referenceBranchDoesNotExist(
   return (
     branch.newCodePeriod &&
     branch.newCodePeriod.value &&
-    branch.newCodePeriod.type === 'REFERENCE_BRANCH' &&
+    branch.newCodePeriod.type === NewCodePeriodSettingType.REFERENCE_BRANCH &&
     !existingBranches.includes(branch.newCodePeriod.value)
   );
 }

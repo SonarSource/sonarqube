@@ -23,6 +23,7 @@ import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../../api/n
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { NewCodePeriodSettingType } from '../../../../types/types';
 import BranchBaselineSettingModal from '../BranchBaselineSettingModal';
 import BranchList from '../BranchList';
 
@@ -35,7 +36,7 @@ const newCodePeriods = [
   {
     projectKey: '',
     branchKey: 'master',
-    type: 'NUMBER_OF_DAYS',
+    type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
     value: '27',
   },
 ];
@@ -73,7 +74,9 @@ it('should toggle popup', async () => {
   expect(nodes).toHaveLength(1);
   expect(nodes.first().props().branch).toEqual(mockMainBranch());
 
-  wrapper.instance().closeEditModal('master', { type: 'NUMBER_OF_DAYS', value: '23' });
+  wrapper
+    .instance()
+    .closeEditModal('master', { type: NewCodePeriodSettingType.NUMBER_OF_DAYS, value: '23' });
 
   expect(wrapper.find('BranchBaselineSettingModal')).toHaveLength(0);
   expect(wrapper.state().branches.find((b) => b.name === 'master')).toEqual({
@@ -82,7 +85,7 @@ it('should toggle popup', async () => {
     isMain: true,
     name: 'master',
     newCodePeriod: {
-      type: 'NUMBER_OF_DAYS',
+      type: NewCodePeriodSettingType.NUMBER_OF_DAYS,
       value: '23',
     },
   });
@@ -93,7 +96,7 @@ function shallowRender(props: Partial<BranchList['props']> = {}) {
     <BranchList
       branchList={[]}
       component={mockComponent()}
-      inheritedSetting={{ type: 'PREVIOUS_VERSION' }}
+      inheritedSetting={{ type: NewCodePeriodSettingType.PREVIOUS_VERSION }}
       {...props}
     />
   );

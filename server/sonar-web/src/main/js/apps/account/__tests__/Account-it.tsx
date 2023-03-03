@@ -236,7 +236,7 @@ describe('profile page', () => {
     const user = userEvent.setup();
     renderAccountApp(mockLoggedInUser());
 
-    const toggle = screen.getByRole('button', {
+    const toggle = screen.getByRole('switch', {
       name: 'my_account.preferences.keyboard_shortcuts.enabled',
     });
     expect(toggle).toBeInTheDocument();

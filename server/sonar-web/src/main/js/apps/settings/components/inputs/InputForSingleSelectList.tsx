@@ -20,7 +20,7 @@
 import * as React from 'react';
 import Select from '../../../../components/controls/Select';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
-import { DefaultSpecializedInputProps } from '../../utils';
+import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 type Props = DefaultSpecializedInputProps & Pick<ExtendedSettingDefinition, 'options'>;
 
@@ -30,7 +30,7 @@ export default class InputForSingleSelectList extends React.PureComponent<Props>
   };
 
   render() {
-    const { options: opts, name, value } = this.props;
+    const { options: opts, name, value, setting } = this.props;
 
     const options = opts.map((option) => ({
       label: option,
@@ -42,6 +42,7 @@ export default class InputForSingleSelectList extends React.PureComponent<Props>
         className="settings-large-input"
         name={name}
         onChange={this.handleInputChange}
+        aria-label={getPropertyName(setting.definition)}
         options={options}
         value={options.find((option) => option.value === value)}
       />

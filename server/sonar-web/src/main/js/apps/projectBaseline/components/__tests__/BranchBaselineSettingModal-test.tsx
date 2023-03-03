@@ -22,6 +22,7 @@ import * as React from 'react';
 import { setNewCodePeriod } from '../../../../api/newCodePeriod';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
+import { NewCodePeriodSettingType } from '../../../../types/types';
 import BranchBaselineSettingModal from '../BranchBaselineSettingModal';
 
 jest.mock('../../../../api/newCodePeriod', () => ({
@@ -38,7 +39,7 @@ it('should render correctly', () => {
 it('should display the branch analysis list when necessary', () => {
   const wrapper = shallowRender();
 
-  wrapper.setState({ selected: 'SPECIFIC_ANALYSIS' });
+  wrapper.setState({ selected: NewCodePeriodSettingType.SPECIFIC_ANALYSIS });
 
   expect(wrapper.find('BranchAnalysisList')).toHaveLength(1);
 });
@@ -51,7 +52,10 @@ it('should save correctly', async () => {
     component,
   });
 
-  wrapper.setState({ analysis: 'analysis572893', selected: 'SPECIFIC_ANALYSIS' });
+  wrapper.setState({
+    analysis: 'analysis572893',
+    selected: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
+  });
   await waitAndUpdate(wrapper);
 
   wrapper.instance().handleSubmit(mockEvent());
@@ -59,7 +63,7 @@ it('should save correctly', async () => {
 
   expect(setNewCodePeriod).toHaveBeenCalledWith({
     project: component,
-    type: 'SPECIFIC_ANALYSIS',
+    type: NewCodePeriodSettingType.SPECIFIC_ANALYSIS,
     value: 'analysis572893',
     branch: 'branchname',
   });

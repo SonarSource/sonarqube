@@ -60,9 +60,10 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
     const defaultBranch = otherBranches.length > 0 ? otherBranches[0].name : '';
 
     this.state = {
-      analysis: this.getValueFromProps('SPECIFIC_ANALYSIS') || '',
-      days: this.getValueFromProps('NUMBER_OF_DAYS') || '30',
-      referenceBranch: this.getValueFromProps('REFERENCE_BRANCH') || defaultBranch,
+      analysis: this.getValueFromProps(NewCodePeriodSettingType.SPECIFIC_ANALYSIS) || '',
+      days: this.getValueFromProps(NewCodePeriodSettingType.NUMBER_OF_DAYS) || '30',
+      referenceBranch:
+        this.getValueFromProps(NewCodePeriodSettingType.REFERENCE_BRANCH) || defaultBranch,
       saving: false,
       selected: this.props.branch.newCodePeriod && this.props.branch.newCodePeriod.type,
     };
@@ -164,7 +165,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
               <BaselineSettingPreviousVersion
                 isDefault={false}
                 onSelect={this.handleSelectSetting}
-                selected={selected === 'PREVIOUS_VERSION'}
+                selected={selected === NewCodePeriodSettingType.PREVIOUS_VERSION}
               />
               <BaselineSettingDays
                 days={days}
@@ -172,22 +173,22 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
                 isValid={isValid}
                 onChangeDays={this.handleSelectDays}
                 onSelect={this.handleSelectSetting}
-                selected={selected === 'NUMBER_OF_DAYS'}
+                selected={selected === NewCodePeriodSettingType.NUMBER_OF_DAYS}
               />
               <BaselineSettingAnalysis
                 onSelect={this.handleSelectSetting}
-                selected={selected === 'SPECIFIC_ANALYSIS'}
+                selected={selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS}
               />
               <BaselineSettingReferenceBranch
                 branchList={branchList.map(this.branchToOption)}
                 onChangeReferenceBranch={this.handleSelectReferenceBranch}
                 onSelect={this.handleSelectSetting}
                 referenceBranch={referenceBranch}
-                selected={selected === 'REFERENCE_BRANCH'}
+                selected={selected === NewCodePeriodSettingType.REFERENCE_BRANCH}
                 settingLevel="branch"
               />
             </div>
-            {selected === 'SPECIFIC_ANALYSIS' && (
+            {selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && (
               <BranchAnalysisList
                 analysis={analysis}
                 branch={branch.name}

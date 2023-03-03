@@ -90,10 +90,9 @@ export default class Definition extends React.PureComponent<Props, State> {
         settingValue,
       });
 
-      this.timeout = window.setTimeout(
-        () => this.setState({ success: false }),
-        SAFE_SET_STATE_DELAY
-      );
+      this.timeout = window.setTimeout(() => {
+        this.setState({ success: false });
+      }, SAFE_SET_STATE_DELAY);
     } catch (e) {
       const validationMessage = await parseError(e as Response);
       this.setState({ loading: false, validationMessage });
@@ -179,10 +178,9 @@ export default class Definition extends React.PureComponent<Props, State> {
           settingValue,
         });
 
-        this.timeout = window.setTimeout(
-          () => this.setState({ success: false }),
-          SAFE_SET_STATE_DELAY
-        );
+        this.timeout = window.setTimeout(() => {
+          this.setState({ success: false });
+        }, SAFE_SET_STATE_DELAY);
       } catch (e) {
         const validationMessage = await parseError(e as Response);
         this.setState({ loading: false, validationMessage });

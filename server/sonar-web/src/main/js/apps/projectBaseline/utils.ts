@@ -37,11 +37,11 @@ export function getSettingValue({
   type?: NewCodePeriodSettingType;
 }) {
   switch (type) {
-    case 'NUMBER_OF_DAYS':
+    case NewCodePeriodSettingType.NUMBER_OF_DAYS:
       return days;
-    case 'REFERENCE_BRANCH':
+    case NewCodePeriodSettingType.REFERENCE_BRANCH:
       return referenceBranch;
-    case 'SPECIFIC_ANALYSIS':
+    case NewCodePeriodSettingType.SPECIFIC_ANALYSIS:
       return analysis;
     default:
       return undefined;
@@ -74,17 +74,19 @@ export function validateSetting(state: {
     isChanged =
       overrideGeneralSetting === false ||
       selected !== currentSetting ||
-      (selected === 'NUMBER_OF_DAYS' && days !== currentSettingValue) ||
-      (selected === 'SPECIFIC_ANALYSIS' && analysis !== currentSettingValue) ||
-      (selected === 'REFERENCE_BRANCH' && referenceBranch !== currentSettingValue);
+      (selected === NewCodePeriodSettingType.NUMBER_OF_DAYS && days !== currentSettingValue) ||
+      (selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS &&
+        analysis !== currentSettingValue) ||
+      (selected === NewCodePeriodSettingType.REFERENCE_BRANCH &&
+        referenceBranch !== currentSettingValue);
   }
 
   const isValid =
     overrideGeneralSetting === false ||
-    selected === 'PREVIOUS_VERSION' ||
-    (selected === 'SPECIFIC_ANALYSIS' && analysis.length > 0) ||
-    (selected === 'NUMBER_OF_DAYS' && validateDays(days)) ||
-    (selected === 'REFERENCE_BRANCH' && referenceBranch.length > 0);
+    selected === NewCodePeriodSettingType.PREVIOUS_VERSION ||
+    (selected === NewCodePeriodSettingType.SPECIFIC_ANALYSIS && analysis.length > 0) ||
+    (selected === NewCodePeriodSettingType.NUMBER_OF_DAYS && validateDays(days)) ||
+    (selected === NewCodePeriodSettingType.REFERENCE_BRANCH && referenceBranch.length > 0);
 
   return { isChanged, isValid };
 }
