@@ -29,6 +29,7 @@ import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -68,6 +69,7 @@ public class GlobalActionTest {
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final WebAnalyticsLoader webAnalyticsLoader = mock(WebAnalyticsLoader.class);
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier = mock(DefaultAdminCredentialsVerifier.class);
+  private final DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
 
   private WsActionTester ws;
 
@@ -282,6 +284,7 @@ public class GlobalActionTest {
     when(dbClient.getDatabase().getDialect()).thenReturn(new PostgreSql());
     when(nodeInformation.isStandalone()).thenReturn(true);
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+    when(documentationLinkGenerator.getDocumentationLink(null)).thenReturn("http://docs.example.com/10.0");
 
     String result = call();
     assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
@@ -324,6 +327,16 @@ public class GlobalActionTest {
     assertJson(json).isSimilarTo("{\"webAnalyticsJsPath\":\"" + path + "\"}");
   }
 
+  @Test
+  public void call_shouldReturnDocumentationUrl() {
+    init();
+    String url = "https://docs.sonarqube.org/10.0";
+    when(documentationLinkGenerator.getDocumentationLink(null)).thenReturn(url);
+
+    String json = call();
+    assertJson(json).isSimilarTo("{\"documentationUrl\":\"" + url + "\"}");
+  }
+
   private void init() {
     init(new org.sonar.api.web.page.Page[] {}, new ResourceTypeTree[] {});
   }
@@ -344,7 +357,7 @@ public class GlobalActionTest {
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
       nodeInformation, dbClient, userSession, editionProvider, webAnalyticsLoader,
-      indexSyncProgressChecker, defaultAdminCredentialsVerifier);
+      indexSyncProgressChecker, defaultAdminCredentialsVerifier, documentationLinkGenerator);
     ws = new WsActionTester(wsAction);
     wsAction.start();
   }

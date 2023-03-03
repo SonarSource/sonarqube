@@ -33,6 +33,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
+import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -76,11 +77,12 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final WebAnalyticsLoader webAnalyticsLoader;
   private final IssueIndexSyncProgressChecker issueIndexSyncChecker;
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier;
+  private final DocumentationLinkGenerator documentationLinkGenerator;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
-    NodeInformation nodeInformation, DbClient dbClient, UserSession userSession, PlatformEditionProvider editionProvider,
-    WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker,
-    DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier) {
+                      NodeInformation nodeInformation, DbClient dbClient, UserSession userSession, PlatformEditionProvider editionProvider,
+                      WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker,
+                      DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier, DocumentationLinkGenerator documentationLinkGenerator) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;
@@ -93,6 +95,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.systemSettingValuesByKey = new HashMap<>();
     this.issueIndexSyncChecker = issueIndexSyncChecker;
     this.defaultAdminCredentialsVerifier = defaultAdminCredentialsVerifier;
+    this.documentationLinkGenerator = documentationLinkGenerator;
   }
 
   @Override
@@ -131,6 +134,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeNeedIssueSync(json);
       json.prop("standalone", nodeInformation.isStandalone());
       writeWebAnalytics(json);
+      writeDocumentationUrl(json);
       json.endObject();
     }
   }
@@ -193,5 +197,9 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeWebAnalytics(JsonWriter json) {
     webAnalyticsLoader.getUrlPathToJs().ifPresent(p -> json.prop("webAnalyticsJsPath", p));
+  }
+
+  private void writeDocumentationUrl(JsonWriter json) {
+    json.prop("documentationUrl", documentationLinkGenerator.getDocumentationLink(null));
   }
 }

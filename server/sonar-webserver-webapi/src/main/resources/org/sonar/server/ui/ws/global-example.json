@@ -27,5 +27,6 @@
   "productionDatabase": true,
   "canAdmin": false,
   "standalone": true,
-  "edition": "community"
+  "edition": "community",
+  "documentationUrl": "http://docs.example.com/10.0"
 }
