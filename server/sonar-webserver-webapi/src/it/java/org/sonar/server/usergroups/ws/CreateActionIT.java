@@ -28,10 +28,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +45,7 @@ public class CreateActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private final CreateAction underTest = new CreateAction(db.getDbClient(), userSession, newGroupWsSupport(), new SequenceUuidFactory());
+  private final CreateAction underTest = new CreateAction(db.getDbClient(), userSession, newGroupService());
   private final WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -143,7 +143,7 @@ public class CreateActionIT {
         .setParam("name", "AnYoNe")
         .execute();
     })
-      .isInstanceOf(IllegalArgumentException.class);
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -177,7 +177,7 @@ public class CreateActionIT {
     userSession.logIn().addPermission(ADMINISTER);
   }
 
-  private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()));
+  private GroupService newGroupService() {
+    return new GroupService(db.getDbClient(), new SequenceUuidFactory());
   }
 }

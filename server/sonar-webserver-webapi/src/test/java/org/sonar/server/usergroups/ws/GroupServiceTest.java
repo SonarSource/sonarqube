@@ -19,15 +19,22 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.AuthorizationDao;
@@ -41,26 +48,39 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDao;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(DataProviderRunner.class)
 public class GroupServiceTest {
+
   private static final String GROUP_NAME = "GROUP_NAME";
   private static final String GROUP_UUID = "GROUP_UUID";
+  private static final String DEFAULT_GROUP_NAME = "sonar-users";
+  private static final String DEFAULT_GROUP_UUID = "DEFAULT_GROUP_UUID";
   @Mock
   private DbSession dbSession;
   @Mock
   private DbClient dbClient;
+  @Mock
+  private UuidFactory uuidFactory;
   @InjectMocks
   private GroupService groupService;
+
+  @Rule
+  public MockitoRule rule = MockitoJUnit.rule();
 
   @Before
   public void setUp() {
@@ -145,6 +165,144 @@ public class GroupServiceTest {
     verify(dbClient.userGroupDao()).deleteFromGroupByUserUuids(dbSession, groupDto, userDtos);
   }
 
+  @Test
+  public void updateGroup_updatesGroupNameAndDescription() {
+    GroupDto group = mockGroupDto();
+    GroupDto groupWithUpdatedName = mockGroupDto();
+    mockDefaultGroup();
+    when(dbClient.groupDao().update(dbSession, group)).thenReturn(groupWithUpdatedName);
+
+    groupService.updateGroup(dbSession, group, "new-name", "New Description");
+    verify(group).setName("new-name");
+    verify(groupWithUpdatedName).setDescription("New Description");
+    verify(dbClient.groupDao()).update(dbSession, group);
+    verify(dbClient.groupDao()).update(dbSession, groupWithUpdatedName);
+  }
+
+  @Test
+  public void updateGroup_updatesGroupName() {
+    GroupDto group = mockGroupDto();
+    mockDefaultGroup();
+
+    groupService.updateGroup(dbSession, group, "new-name");
+    verify(group).setName("new-name");
+    verify(dbClient.groupDao()).update(dbSession, group);
+  }
+
+  @Test
+  public void updateGroup_whenGroupIsDefault_throws() {
+    GroupDto defaultGroup = mockDefaultGroup();
+    when(dbClient.groupDao().selectByName(dbSession, DEFAULT_GROUP_NAME)).thenReturn(Optional.of(defaultGroup));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> groupService.updateGroup(dbSession, defaultGroup, "new-name", "New Description"))
+      .withMessage("Default group 'sonar-users' cannot be used to perform this action");
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> groupService.updateGroup(dbSession, defaultGroup, "new-name"))
+      .withMessage("Default group 'sonar-users' cannot be used to perform this action");
+  }
+
+  @Test
+  public void updateGroup_whenGroupNameDoesntChange_succeedsWithDescription() {
+    GroupDto group = mockGroupDto();
+    mockDefaultGroup();
+
+    groupService.updateGroup(dbSession, group, group.getName(), "New Description");
+    verify(group).setDescription("New Description");
+    verify(dbClient.groupDao()).update(dbSession, group);
+  }
+
+  @Test
+  public void updateGroup_whenGroupNameDoesntChange_succeeds() {
+    GroupDto group = mockGroupDto();
+    mockDefaultGroup();
+
+    assertThatNoException()
+      .isThrownBy(() -> groupService.updateGroup(dbSession, group, group.getName()));
+
+    verify(dbClient.groupDao(), never()).update(dbSession, group);
+  }
+
+  @Test
+  public void updateGroup_whenGroupExist_throws() {
+    GroupDto group = mockGroupDto();
+    GroupDto group2 = mockGroupDto();
+    mockDefaultGroup();
+    String group2Name = GROUP_NAME + "2";
+
+    when(dbClient.groupDao().selectByName(dbSession, group2Name)).thenReturn(Optional.of(group2));
+
+    assertThatExceptionOfType(BadRequestException.class)
+      .isThrownBy(() -> groupService.updateGroup(dbSession, group, group2Name, "New Description"))
+      .withMessage("Group '" + group2Name + "' already exists");
+
+    assertThatExceptionOfType(BadRequestException.class)
+      .isThrownBy(() -> groupService.updateGroup(dbSession, group, group2Name))
+      .withMessage("Group '" + group2Name + "' already exists");
+  }
+
+  @Test
+  @UseDataProvider("invalidGroupNames")
+  public void updateGroup_whenGroupNameIsInvalid_throws(String groupName, String errorMessage) {
+    GroupDto group = mockGroupDto();
+    mockDefaultGroup();
+
+    assertThatExceptionOfType(BadRequestException.class)
+      .isThrownBy(() -> groupService.updateGroup(dbSession, group, groupName, "New Description"))
+      .withMessage(errorMessage);
+
+    assertThatExceptionOfType(BadRequestException.class)
+      .isThrownBy(() -> groupService.updateGroup(dbSession, group, groupName))
+      .withMessage(errorMessage);
+  }
+
+  @Test
+  public void createGroup_whenNameAndDescriptionIsProvided_createsGroup() {
+
+    when(uuidFactory.create()).thenReturn("1234");
+    groupService.createGroup(dbSession, "Name", "Description");
+
+    ArgumentCaptor<GroupDto> groupCaptor = ArgumentCaptor.forClass(GroupDto.class);
+    verify(dbClient.groupDao()).insert(eq(dbSession), groupCaptor.capture());
+    GroupDto createdGroup = groupCaptor.getValue();
+    assertThat(createdGroup.getName()).isEqualTo("Name");
+    assertThat(createdGroup.getDescription()).isEqualTo("Description");
+    assertThat(createdGroup.getUuid()).isEqualTo("1234");
+  }
+
+  @Test
+  public void createGroup_whenGroupExist_throws() {
+    GroupDto group = mockGroupDto();
+
+    when(dbClient.groupDao().selectByName(dbSession, GROUP_NAME)).thenReturn(Optional.of(group));
+
+    assertThatExceptionOfType(BadRequestException.class)
+      .isThrownBy(() -> groupService.createGroup(dbSession, GROUP_NAME, "New Description"))
+      .withMessage("Group '" + GROUP_NAME + "' already exists");
+
+  }
+
+  @Test
+  @UseDataProvider("invalidGroupNames")
+  public void createGroup_whenGroupNameIsInvalid_throws(String groupName, String errorMessage) {
+    mockDefaultGroup();
+
+    assertThatExceptionOfType(BadRequestException.class)
+      .isThrownBy(() -> groupService.createGroup(dbSession, groupName, "Description"))
+      .withMessage(errorMessage);
+
+  }
+
+  @DataProvider
+  public static Object[][] invalidGroupNames() {
+    return new Object[][] {
+      {"", "Group name cannot be empty"},
+      {randomAlphanumeric(256), "Group name cannot be longer than 255 characters"},
+      {"Anyone", "Anyone group cannot be used"},
+    };
+  }
+
   private void mockNeededDaos() {
     when(dbClient.authorizationDao()).thenReturn(mock(AuthorizationDao.class));
     when(dbClient.roleDao()).thenReturn(mock(RoleDao.class));
@@ -161,6 +319,14 @@ public class GroupServiceTest {
     when(groupDto.getName()).thenReturn(GROUP_NAME);
     when(groupDto.getUuid()).thenReturn(GROUP_UUID);
     return groupDto;
+  }
+
+  private GroupDto mockDefaultGroup() {
+    GroupDto defaultGroup = mock(GroupDto.class);
+    when(defaultGroup.getName()).thenReturn(DEFAULT_GROUP_NAME);
+    when(defaultGroup.getUuid()).thenReturn(DEFAULT_GROUP_UUID);
+    when(dbClient.groupDao().selectByName(dbSession, DEFAULT_GROUP_NAME)).thenReturn(Optional.of(defaultGroup));
+    return defaultGroup;
   }
 
   private void verifyNoGroupDelete(DbSession dbSession, GroupDto groupDto) {

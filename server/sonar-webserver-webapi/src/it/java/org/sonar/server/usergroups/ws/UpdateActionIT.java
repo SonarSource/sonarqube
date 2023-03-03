@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -32,7 +33,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
@@ -52,7 +52,7 @@ public class UpdateActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private final WsActionTester ws = new WsActionTester(
-    new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()))));
+    new UpdateAction(db.getDbClient(), userSession, new GroupService(db.getDbClient(), UuidFactoryImpl.INSTANCE)));
 
   @Test
   public void verify_definition() {

@@ -47,12 +47,12 @@ public class UpdateAction implements UserGroupsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final GroupWsSupport support;
+  private final GroupService groupService;
 
-  public UpdateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
+  public UpdateAction(DbClient dbClient, UserSession userSession, GroupService groupService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.support = support;
+    this.groupService = groupService;
   }
 
   @Override
@@ -101,7 +101,7 @@ public class UpdateAction implements UserGroupsWsAction {
       String newName = request.param(PARAM_GROUP_NAME);
       String description = request.param(PARAM_GROUP_DESCRIPTION);
 
-      GroupDto updatedGroup = support.updateGroup(dbSession, group, newName, description);
+      GroupDto updatedGroup = groupService.updateGroup(dbSession, group, newName, description);
       dbSession.commit();
 
       writeResponse(dbSession, request, response, updatedGroup);

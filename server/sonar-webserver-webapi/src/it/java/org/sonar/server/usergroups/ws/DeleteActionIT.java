@@ -25,6 +25,7 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
@@ -53,7 +54,7 @@ public class DeleteActionIT {
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
 
   private final ComponentDbTester componentTester = new ComponentDbTester(db);
-  private final GroupService groupService = new GroupService(db.getDbClient());
+  private final GroupService groupService = new GroupService(db.getDbClient(), UuidFactoryImpl.INSTANCE);
   private final WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, groupService));
 
   @Test
@@ -195,7 +196,6 @@ public class DeleteActionIT {
 
     assertThat(db.countRowsOfTable("scim_groups")).isZero();
   }
-
 
   @Test
   public void fail_to_delete_default_group() {

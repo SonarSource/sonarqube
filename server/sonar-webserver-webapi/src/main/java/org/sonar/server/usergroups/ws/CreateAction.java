@@ -24,8 +24,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.user.UserGroupValidation;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
@@ -45,14 +43,12 @@ public class CreateAction implements UserGroupsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final GroupWsSupport support;
-  private final UuidFactory uuidFactory;
+  private final GroupService groupService;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, UuidFactory uuidFactory) {
+  public CreateAction(DbClient dbClient, UserSession userSession, GroupService groupService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.support = support;
-    this.uuidFactory = uuidFactory;
+    this.groupService = groupService;
   }
 
   @Override
@@ -85,18 +81,11 @@ public class CreateAction implements UserGroupsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       userSession.checkPermission(ADMINISTER);
-      GroupDto group = new GroupDto()
-        .setUuid(uuidFactory.create())
-        .setName(request.mandatoryParam(PARAM_GROUP_NAME))
-        .setDescription(request.param(PARAM_GROUP_DESCRIPTION));
 
-      // validations
-      UserGroupValidation.validateGroupName(group.getName());
-      support.checkNameDoesNotExist(dbSession, group.getName());
-
-      dbClient.groupDao().insert(dbSession, group);
+      String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
+      String groupDescription = request.param(PARAM_GROUP_DESCRIPTION);
+      GroupDto group = groupService.createGroup(dbSession, groupName, groupDescription);
       dbSession.commit();
-
       writeResponse(request, response, group);
     }
   }
