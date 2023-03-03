@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  addNoFooterPageClass,
   addSideBarClass,
   addWhitePageClass,
-  removeNoFooterPageClass,
   removeSideBarClass,
   removeWhitePageClass,
 } from '../pages';
@@ -29,7 +27,6 @@ import {
 describe('class adders', () => {
   it.each([
     [addSideBarClass, 'sidebar-page'],
-    [addNoFooterPageClass, 'no-footer-page'],
     [addWhitePageClass, 'white-page'],
   ])('%s should add the class', (fct, cls) => {
     const toggle = jest.spyOn(document.body.classList, 'toggle');
@@ -41,7 +38,6 @@ describe('class adders', () => {
 describe('class removers', () => {
   it.each([
     [removeSideBarClass, 'sidebar-page'],
-    [removeNoFooterPageClass, 'no-footer-page'],
     [removeWhitePageClass, 'white-page'],
   ])('%s should add the class', (fct, cls) => {
     const toggle = jest.spyOn(document.body.classList, 'toggle');
