@@ -19,7 +19,6 @@
  */
 package org.sonar.db.user;
 
-import java.util.List;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
@@ -119,46 +118,4 @@ public class UserGroupDaoIT {
     assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user2.getUuid())).containsOnly(group1.getUuid(), group2.getUuid());
   }
 
-  @Test
-  public void deleteFromGroupByUserUuids_shouldOnlyRemoveSpecificUsersFromOneGroup() {
-    GroupDto group1 = dbTester.users().insertGroup();
-    GroupDto group2 = dbTester.users().insertGroup();
-
-    UserDto user1 = dbTester.users().insertUser();
-    UserDto user2 = dbTester.users().insertUser();
-    UserDto user3 = dbTester.users().insertUser();
-
-    dbTester.users().insertMembers(group1, user1, user2, user3);
-    dbTester.users().insertMembers(group2, user1, user2, user3);
-
-    underTest.deleteFromGroupByUserUuids(dbSession, group1, Set.of(user1, user2));
-
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user1.getUuid())).containsOnly(group2.getUuid());
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user2.getUuid())).containsOnly(group2.getUuid());
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user3.getUuid())).containsAll(List.of(group1.getUuid(), group2.getUuid()));
-  }
-
-  @Test
-  public void selectAllScimUsersByGroupUuid_shouldOnlySelectScimUsersFromOneSpecificGroup() {
-    GroupDto scimGroup = dbTester.users().insertGroup();
-    dbTester.users().insertScimGroup(scimGroup);
-    GroupDto nonScimGroup = dbTester.users().insertGroup();
-
-    UserDto scimUser1 = dbTester.users().insertUser();
-    dbTester.users().insertScimUser(scimUser1);
-    UserDto scimUser2 = dbTester.users().insertUser();
-    dbTester.users().insertScimUser(scimUser2);
-    UserDto scimUser3 = dbTester.users().insertUser();
-    dbTester.users().insertScimUser(scimUser3);
-    UserDto nonScimUser = dbTester.users().insertUser();
-
-    dbTester.users().insertMembers(scimGroup, scimUser1, scimUser2, nonScimUser);
-    dbTester.users().insertMembers(nonScimGroup, scimUser3, nonScimUser);
-
-    Set<UserDto> scimUserDtos = underTest.selectScimMembersByGroupUuid(dbSession, scimGroup);
-    assertThat(scimUserDtos.stream().map(UserDto::getUuid).toList()).containsOnly(scimUser1.getUuid(), scimUser2.getUuid());
-
-    Set<UserDto> nonScimUserDtos = underTest.selectScimMembersByGroupUuid(dbSession, nonScimGroup);
-    assertThat(nonScimUserDtos.stream().map(UserDto::getUuid).toList()).containsOnly(scimUser3.getUuid());
-  }
 }

@@ -23,7 +23,6 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,7 +45,6 @@ import org.sonar.db.scim.ScimGroupDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.RoleDao;
-import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -85,6 +83,17 @@ public class GroupServiceTest {
   @Before
   public void setUp() {
     mockNeededDaos();
+  }
+
+  private void mockNeededDaos() {
+    when(dbClient.authorizationDao()).thenReturn(mock(AuthorizationDao.class));
+    when(dbClient.roleDao()).thenReturn(mock(RoleDao.class));
+    when(dbClient.permissionTemplateDao()).thenReturn(mock(PermissionTemplateDao.class));
+    when(dbClient.userGroupDao()).thenReturn(mock(UserGroupDao.class));
+    when(dbClient.qProfileEditGroupsDao()).thenReturn(mock(QProfileEditGroupsDao.class));
+    when(dbClient.qualityGateGroupPermissionsDao()).thenReturn(mock(QualityGateGroupPermissionsDao.class));
+    when(dbClient.scimGroupDao()).thenReturn(mock(ScimGroupDao.class));
+    when(dbClient.groupDao()).thenReturn(mock(GroupDao.class));
   }
 
   @Test
@@ -150,19 +159,6 @@ public class GroupServiceTest {
       .hasMessage("The last system admin group cannot be deleted");
 
     verifyNoGroupDelete(dbSession, groupDto);
-  }
-
-  @Test
-  public void deleteAllScimUsersByGroup_() {
-    GroupDto groupDto = mockGroupDto();
-    Set<UserDto> userDtos = Set.of(new UserDto(), new UserDto());
-
-    when(dbClient.userGroupDao().selectScimMembersByGroupUuid(dbSession, groupDto))
-      .thenReturn(userDtos);
-
-    groupService.deleteScimMembersByGroup(dbSession, groupDto);
-
-    verify(dbClient.userGroupDao()).deleteFromGroupByUserUuids(dbSession, groupDto, userDtos);
   }
 
   @Test
@@ -301,17 +297,6 @@ public class GroupServiceTest {
       {randomAlphanumeric(256), "Group name cannot be longer than 255 characters"},
       {"Anyone", "Anyone group cannot be used"},
     };
-  }
-
-  private void mockNeededDaos() {
-    when(dbClient.authorizationDao()).thenReturn(mock(AuthorizationDao.class));
-    when(dbClient.roleDao()).thenReturn(mock(RoleDao.class));
-    when(dbClient.permissionTemplateDao()).thenReturn(mock(PermissionTemplateDao.class));
-    when(dbClient.userGroupDao()).thenReturn(mock(UserGroupDao.class));
-    when(dbClient.qProfileEditGroupsDao()).thenReturn(mock(QProfileEditGroupsDao.class));
-    when(dbClient.qualityGateGroupPermissionsDao()).thenReturn(mock(QualityGateGroupPermissionsDao.class));
-    when(dbClient.scimGroupDao()).thenReturn(mock(ScimGroupDao.class));
-    when(dbClient.groupDao()).thenReturn(mock(GroupDao.class));
   }
 
   private static GroupDto mockGroupDto() {
