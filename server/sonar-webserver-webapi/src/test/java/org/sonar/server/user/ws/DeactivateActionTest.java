@@ -26,12 +26,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.project.ProjectDto;
@@ -62,11 +64,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
@@ -184,10 +181,10 @@ public class DeactivateActionTest {
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
-    db.users().insertPermissionOnUser(user, SCAN);
-    db.users().insertPermissionOnUser(user, ADMINISTER_QUALITY_PROFILES);
-    db.users().insertProjectPermissionOnUser(user, USER, project);
-    db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
 
     deactivate(user.getLogin());
 
@@ -202,8 +199,8 @@ public class DeactivateActionTest {
     UserDto user = db.users().insertUser();
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
     PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate();
-    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), USER, template.getName(), user.getLogin());
-    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), CODEVIEWER, anotherTemplate.getName(), user.getLogin());
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER, template.getName(), user.getLogin());
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), UserRole.CODEVIEWER, anotherTemplate.getName(), user.getLogin());
 
     deactivate(user.getLogin());
 
@@ -392,7 +389,7 @@ public class DeactivateActionTest {
   @Test
   public void fail_to_deactivate_last_administrator() {
     UserDto admin = db.users().insertUser();
-    db.users().insertPermissionOnUser(admin, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(admin, GlobalPermission.ADMINISTER);
     logInAsSystemAdministrator();
 
     assertThatThrownBy(() -> {
@@ -496,7 +493,7 @@ public class DeactivateActionTest {
 
   private UserDto createAdminUser() {
     UserDto admin = db.users().insertUser();
-    db.users().insertPermissionOnUser(admin, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(admin, GlobalPermission.ADMINISTER);
     db.commit();
     return admin;
   }

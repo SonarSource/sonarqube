@@ -26,7 +26,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
@@ -51,6 +50,7 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateGroupDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -362,7 +362,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
     assertThatThrownBy(() ->  {
       newRequest()
-        .setParam(PARAM_PERMISSION, GlobalPermissions.QUALITY_GATE_ADMIN)
+        .setParam(PARAM_PERMISSION, ADMINISTER_QUALITY_GATES.getKey())
         .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
         .execute();
     })

@@ -24,13 +24,13 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import okhttp3.HttpUrl;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.web.UserRole;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 
 public class WebhookSupport {
 
@@ -45,11 +45,11 @@ public class WebhookSupport {
   }
 
   void checkPermission(ProjectDto projectDto) {
-    userSession.checkProjectPermission(ADMIN, projectDto);
+    userSession.checkProjectPermission(UserRole.ADMIN, projectDto);
   }
 
   void checkPermission() {
-    userSession.checkPermission(ADMINISTER);
+    userSession.checkPermission(GlobalPermission.ADMINISTER);
   }
 
   void checkUrlPattern(String url, String message, Object... messageArguments) {

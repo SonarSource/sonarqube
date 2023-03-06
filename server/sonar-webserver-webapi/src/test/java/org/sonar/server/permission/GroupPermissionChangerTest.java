@@ -27,7 +27,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
@@ -44,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 
 public class GroupPermissionChangerTest {
@@ -69,18 +69,18 @@ public class GroupPermissionChangerTest {
   public void apply_adds_global_permission_to_group() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.QUALITY_GATE_ADMIN, null, groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, ADMINISTER_QUALITY_PROFILES.getKey(), null, groupUuid, permissionService));
 
-    assertThat(db.users().selectGroupPermissions(group, null)).containsOnly(GlobalPermissions.QUALITY_GATE_ADMIN);
+    assertThat(db.users().selectGroupPermissions(group, null)).containsOnly(ADMINISTER_QUALITY_PROFILES.getKey());
   }
 
   @Test
   public void apply_adds_global_permission_to_group_AnyOne() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.QUALITY_GATE_ADMIN, null, groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, ADMINISTER_QUALITY_PROFILES.getKey(), null, groupUuid, permissionService));
 
-    assertThat(db.users().selectAnyonePermissions(null)).containsOnly(GlobalPermissions.QUALITY_GATE_ADMIN);
+    assertThat(db.users().selectAnyonePermissions(null)).containsOnly(ADMINISTER_QUALITY_PROFILES.getKey());
   }
 
   @Test
@@ -134,7 +134,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void apply_adds_permission_SCAN_EXECUTION_to_group_on_private_project() {
-    applyAddsPermissionToGroupOnPrivateProject(GlobalPermissions.SCAN_EXECUTION);
+    applyAddsPermissionToGroupOnPrivateProject(GlobalPermission.SCAN.getKey());
   }
 
   private void applyAddsPermissionToGroupOnPrivateProject(String permission) {
@@ -168,7 +168,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void apply_removes_permission_SCAN_EXECUTION_from_on_private_project() {
-    applyRemovesPermissionFromGroupOnPrivateProject(GlobalPermissions.SCAN_EXECUTION);
+    applyRemovesPermissionFromGroupOnPrivateProject(GlobalPermission.SCAN.getKey());
   }
 
   private void applyRemovesPermissionFromGroupOnPrivateProject(String permission) {
@@ -220,9 +220,9 @@ public class GroupPermissionChangerTest {
   public void apply_adds_permission_SCAN_EXECUTION_to_group_AnyOne_on_a_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.SCAN_EXECUTION, publicProject, groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermission.SCAN.getKey(), publicProject, groupUuid, permissionService));
 
-    assertThat(db.users().selectAnyonePermissions(publicProject)).containsOnly(GlobalPermissions.SCAN_EXECUTION);
+    assertThat(db.users().selectAnyonePermissions(publicProject)).containsOnly(GlobalPermission.SCAN.getKey());
   }
 
   @Test
@@ -255,7 +255,7 @@ public class GroupPermissionChangerTest {
 
   @Test
   public void apply_removes_SCAN_EXECUTION_permission_from_group_AnyOne_on_a_public_project() {
-    applyRemovesPermissionFromGroupAnyOneOnAPublicProject(GlobalPermissions.SCAN_EXECUTION);
+    applyRemovesPermissionFromGroupAnyOneOnAPublicProject(GlobalPermission.SCAN.getKey());
   }
 
   private void applyRemovesPermissionFromGroupAnyOneOnAPublicProject(String permission) {
@@ -289,10 +289,10 @@ public class GroupPermissionChangerTest {
   public void add_permission_to_anyone() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.QUALITY_GATE_ADMIN, null, groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, ADMINISTER_QUALITY_PROFILES.getKey(), null, groupUuid, permissionService));
 
     assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
-    assertThat(db.users().selectAnyonePermissions(null)).containsOnly(GlobalPermissions.QUALITY_GATE_ADMIN);
+    assertThat(db.users().selectAnyonePermissions(null)).containsOnly(ADMINISTER_QUALITY_PROFILES.getKey());
   }
 
   @Test
@@ -311,7 +311,7 @@ public class GroupPermissionChangerTest {
 
     permissionService.getGlobalPermissions().stream()
       .map(GlobalPermission::getKey)
-      .filter(perm -> !UserRole.ADMIN.equals(perm) && !GlobalPermissions.SCAN_EXECUTION.equals(perm))
+      .filter(perm -> !UserRole.ADMIN.equals(perm) && !GlobalPermission.SCAN.getKey().equals(perm))
       .forEach(perm -> {
         try {
           new GroupPermissionChange(PermissionChange.Operation.ADD, perm, privateProject, groupUuid, permissionService);
@@ -329,7 +329,7 @@ public class GroupPermissionChangerTest {
 
     permissionService.getGlobalPermissions().stream()
       .map(GlobalPermission::getKey)
-      .filter(perm -> !UserRole.ADMIN.equals(perm) && !GlobalPermissions.SCAN_EXECUTION.equals(perm))
+      .filter(perm -> !UserRole.ADMIN.equals(perm) && !GlobalPermission.SCAN.getKey().equals(perm))
       .forEach(perm -> {
         try {
           new GroupPermissionChange(PermissionChange.Operation.ADD, perm, publicProject, groupUuid, permissionService);
@@ -347,7 +347,7 @@ public class GroupPermissionChangerTest {
 
     permissionService.getAllProjectPermissions()
       .stream()
-      .filter(perm -> !GlobalPermissions.SCAN_EXECUTION.equals(perm) && !GlobalPermission.ADMINISTER.getKey().equals(perm))
+      .filter(perm -> !GlobalPermission.SCAN.getKey().equals(perm) && !GlobalPermission.ADMINISTER.getKey().equals(perm))
       .forEach(permission -> {
         try {
           new GroupPermissionChange(PermissionChange.Operation.ADD, permission, null, groupUuid, permissionService);
@@ -407,7 +407,7 @@ public class GroupPermissionChangerTest {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
     db.users().insertPermissionOnGroup(group, ADMINISTER);
     UserDto admin = db.users().insertUser();
-    db.users().insertPermissionOnUser(admin, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(admin, ADMINISTER);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, ADMINISTER.getKey(), null, groupUuid, permissionService));
 

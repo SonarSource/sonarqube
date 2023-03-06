@@ -95,7 +95,7 @@ public class TokenUserSessionTest {
 
     UserDto user = db.users().insertUser();
 
-    db.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
 
     TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
 
@@ -106,7 +106,7 @@ public class TokenUserSessionTest {
   @Test
   public void test_hasGlobalPermission_for_UserToken() {
     UserDto user = db.users().insertUser();
-    db.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
 
     TokenUserSession userSession = mockTokenUserSession(user);
 
@@ -123,7 +123,7 @@ public class TokenUserSessionTest {
     db.users().insertProjectPermissionOnUser(user, SCAN, project1);
     db.users().insertProjectPermissionOnUser(user, SCAN, project2);
 
-    db.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
 
     TokenUserSession userSession = mockProjectAnalysisTokenUserSession(user,project1);
 
@@ -136,7 +136,7 @@ public class TokenUserSessionTest {
 
     UserDto user = db.users().insertUser();
 
-    db.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
 
     TokenUserSession userSession = mockGlobalAnalysisTokenUserSession(user);
 
@@ -148,8 +148,8 @@ public class TokenUserSessionTest {
   public void test_hasProvisionProjectsGlobalPermission_for_GlobalAnalysisToken_returnsTrueIfUserIsGranted() {
     UserDto user = db.users().insertUser();
 
-    db.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
-    db.users().insertPermissionOnUser(user, GlobalPermission.PROVISION_PROJECTS);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.PROVISION_PROJECTS);
 
     TokenUserSession userSession = mockGlobalAnalysisTokenUserSession(user);
 
@@ -160,7 +160,7 @@ public class TokenUserSessionTest {
   public void test_hasProvisionProjectsGlobalPermission_for_GlobalAnalysisToken_returnsFalseIfUserIsNotGranted() {
     UserDto user = db.users().insertUser();
 
-    db.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
 
     TokenUserSession userSession = mockGlobalAnalysisTokenUserSession(user);
 
@@ -171,7 +171,7 @@ public class TokenUserSessionTest {
   public void test_hasAdministerGlobalPermission_for_GlobalAnalysisToken_returnsFalse() {
     UserDto user = db.users().insertUser();
 
-    db.users().insertPermissionOnUser(user, GlobalPermission.ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.ADMINISTER);
 
     TokenUserSession userSession = mockGlobalAnalysisTokenUserSession(user);
 

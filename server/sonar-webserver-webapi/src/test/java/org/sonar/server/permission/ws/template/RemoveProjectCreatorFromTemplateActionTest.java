@@ -26,7 +26,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
@@ -44,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -119,7 +119,7 @@ public class RemoveProjectCreatorFromTemplateActionTest extends BasePermissionWs
   public void fail_if_permission_is_not_a_project_permission() {
     assertThatThrownBy(() ->  {
       newRequest()
-        .setParam(PARAM_PERMISSION, GlobalPermissions.QUALITY_GATE_ADMIN)
+        .setParam(PARAM_PERMISSION, ADMINISTER_QUALITY_GATES.getKey())
         .setParam(PARAM_TEMPLATE_ID, template.getUuid())
         .execute();
     })

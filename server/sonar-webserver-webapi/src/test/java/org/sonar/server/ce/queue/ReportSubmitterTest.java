@@ -65,7 +65,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -140,7 +139,7 @@ public class ReportSubmitterTest {
   public void submit_a_report_on_existing_project() {
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, project);
+    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
 
     underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8));
@@ -250,7 +249,7 @@ public class ReportSubmitterTest {
   @Test
   public void submit_a_report_on_existing_project_with_project_scan_permission() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(SCAN_EXECUTION, project);
+    userSession.addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
 
     underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}"));
@@ -261,7 +260,7 @@ public class ReportSubmitterTest {
   @Test
   public void fail_if_component_is_not_a_project() {
     ComponentDto component = db.components().insertPublicPortfolio();
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, component);
+    userSession.logIn().addProjectPermission(SCAN.getKey(), component);
     mockSuccessfulPrepareSubmitCall();
 
     String dbKey = component.getKey();
@@ -277,7 +276,7 @@ public class ReportSubmitterTest {
   public void fail_if_project_key_already_exists_as_other_component() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
+    userSession.logIn().addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
 
     String dirDbKey = dir.getKey();
@@ -304,7 +303,7 @@ public class ReportSubmitterTest {
   @Test
   public void fail_with_forbidden_exception_on_new_project_when_only_project_scan_permission() {
     ComponentDto component = db.components().insertPrivateProject(PROJECT_UUID);
-    userSession.addProjectPermission(SCAN_EXECUTION, component);
+    userSession.addProjectPermission(SCAN.getKey(), component);
     mockSuccessfulPrepareSubmitCall();
 
     Map<String, String> emptyMap = emptyMap();

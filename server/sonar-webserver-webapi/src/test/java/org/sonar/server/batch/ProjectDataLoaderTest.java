@@ -21,7 +21,6 @@ package org.sonar.server.batch;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
@@ -43,8 +42,8 @@ import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class ProjectDataLoaderTest {
   @Rule
@@ -54,15 +53,13 @@ public class ProjectDataLoaderTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private int uuidCounter = 0;
   private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private MapSettings settings = new MapSettings();
   private ProjectDataLoader underTest = new ProjectDataLoader(dbClient, userSession, new ComponentFinder(dbClient, resourceTypes));
 
   @Test
   public void throws_NotFoundException_when_branch_does_not_exist() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
+    userSession.logIn().addProjectPermission(SCAN.getKey(), project);
 
     assertThatThrownBy(() -> {
       underTest.load(ProjectDataQuery.create()
@@ -76,7 +73,7 @@ public class ProjectDataLoaderTest {
   @Test
   public void return_file_data_from_single_project() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
+    userSession.logIn().addProjectPermission(SCAN.getKey(), project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(file).setSrcHash("123456"));
     db.commit();
@@ -92,7 +89,7 @@ public class ProjectDataLoaderTest {
   public void return_file_data_from_branch() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
+    userSession.logIn().addProjectPermission(SCAN.getKey(), project);
     // File on branch
     ComponentDto projectFile = db.components().insertComponent(newFileDto(branch));
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(projectFile).setSrcHash("123456"));

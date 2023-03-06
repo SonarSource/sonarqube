@@ -45,7 +45,6 @@ import org.sonar.db.user.UserDto;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -53,7 +52,6 @@ import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 public class AuthorizationDaoTest {
 
   private static final String PROJECT_UUID = "uuid";
-  private static final int MISSING_ID = -1;
   private static final String MISSING_UUID = "unknown";
   private static final String A_PERMISSION = "a-permission";
   private static final String DOES_NOT_EXIST = "does-not-exist";
@@ -207,7 +205,7 @@ public class AuthorizationDaoTest {
     db.users().insertPermissionOnGroup(group1, PROVISION_PROJECTS);
     db.users().insertMember(group1, user1);
     db.users().insertMember(group1, user2);
-    db.users().insertPermissionOnUser(user3, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user3, ADMINISTER);
     db.users().insertPermissionOnAnyone(ADMINISTER);
 
     assertThat(underTest.selectUserUuidsWithGlobalPermission(db.getSession(), ADMINISTER.getKey()))
@@ -869,10 +867,10 @@ public class AuthorizationDaoTest {
   @Test
   public void selectQualityProfileAdministratorLogins_return_users_with_quality_profile_administrator_permission() {
     UserDto user1 = db.users().insertUser(withEmail("user1"));
-    db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertGlobalPermissionOnUser(user1, ADMINISTER_QUALITY_PROFILES);
 
     UserDto user2 = db.users().insertUser(withEmail("user2"));
-    db.users().insertPermissionOnUser(user2, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertGlobalPermissionOnUser(user2, ADMINISTER_QUALITY_PROFILES);
 
     Set<EmailSubscriberDto> subscribers = underTest.selectQualityProfileAdministratorLogins(dbSession);
 
@@ -898,7 +896,7 @@ public class AuthorizationDaoTest {
   @Test
   public void selectQualityProfileAdministratorLogins_does_not_return_non_quality_profile_administrator() {
     UserDto user1 = db.users().insertUser(withEmail("user1"));
-    db.users().insertPermissionOnUser(user1, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user1, ADMINISTER);
     db.users().insertUser(withoutEmail("user2"));
 
     Set<EmailSubscriberDto> subscribers = underTest.selectQualityProfileAdministratorLogins(dbSession);
@@ -909,9 +907,9 @@ public class AuthorizationDaoTest {
   @Test
   public void selectQualityProfileAdministratorLogins_does_not_return_quality_profile_administrator_without_email() {
     UserDto user1NoEmail = db.users().insertUser(withoutEmail("user1NoEmail"));
-    db.users().insertPermissionOnUser(user1NoEmail, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertGlobalPermissionOnUser(user1NoEmail, ADMINISTER_QUALITY_PROFILES);
     UserDto user1WithEmail = db.users().insertUser(withEmail("user1WithEmail"));
-    db.users().insertPermissionOnUser(user1WithEmail, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertGlobalPermissionOnUser(user1WithEmail, ADMINISTER_QUALITY_PROFILES);
     GroupDto qualityProfileAdministratorGroup1 = db.users().insertGroup();
     db.users().insertPermissionOnGroup(qualityProfileAdministratorGroup1, ADMINISTER_QUALITY_PROFILES);
     UserDto user2NoEmail = db.users().insertUser(withoutEmail("user2NoEmail"));
@@ -926,13 +924,13 @@ public class AuthorizationDaoTest {
     UserDto user3WithEmail = db.users().insertUser(withEmail("user3WithEmail"));
     db.users().insertMember(qualityProfileAdministratorGroup2, user3WithEmail);
     UserDto user4NoEmail = db.users().insertUser(withoutEmail("user4NoEmail"));
-    db.users().insertPermissionOnUser(user4NoEmail, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertGlobalPermissionOnUser(user4NoEmail, ADMINISTER_QUALITY_PROFILES);
     UserDto user4WithEmail = db.users().insertUser(withEmail("user4WithEmail"));
-    db.users().insertPermissionOnUser(user4WithEmail, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertGlobalPermissionOnUser(user4WithEmail, ADMINISTER_QUALITY_PROFILES);
     UserDto user5NoEmail = db.users().insertUser(withoutEmail("user5NoEmail"));
-    db.users().insertPermissionOnUser(user5NoEmail, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertGlobalPermissionOnUser(user5NoEmail, ADMINISTER_QUALITY_PROFILES);
     UserDto user5WithEmail = db.users().insertUser(withEmail("user5WithEmail"));
-    db.users().insertPermissionOnUser(user5WithEmail, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertGlobalPermissionOnUser(user5WithEmail, ADMINISTER_QUALITY_PROFILES);
     db.users().insertUser(withoutEmail("user6NoEmail"));
     db.users().insertUser(withEmail("user6WithEmail"));
 
@@ -950,10 +948,10 @@ public class AuthorizationDaoTest {
   @Test
   public void selectGlobalAdministerEmailSubscribers_returns_only_global_administers() {
     UserDto user1 = db.users().insertUser(withEmail("user1"));
-    db.users().insertPermissionOnUser(user1, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user1, ADMINISTER);
 
     UserDto user2 = db.users().insertUser(withEmail("user2"));
-    db.users().insertPermissionOnUser(user2, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user2, ADMINISTER);
 
     // user3 is global administer via a group
     GroupDto administratorGroup2 = db.users().insertGroup();
@@ -962,7 +960,7 @@ public class AuthorizationDaoTest {
     db.users().insertMember(administratorGroup2, user3);
     // user4 has another global permission via a group
     GroupDto administratorGroup3 = db.users().insertGroup();
-    db.users().insertPermissionOnGroup(administratorGroup3, QUALITY_PROFILE_ADMIN);
+    db.users().insertPermissionOnGroup(administratorGroup3, ADMINISTER_QUALITY_PROFILES);
     UserDto user4 = db.users().insertUser(withEmail("user4"));
     db.users().insertMember(administratorGroup3, user4);
 
@@ -974,7 +972,7 @@ public class AuthorizationDaoTest {
     db.users().insertProjectPermissionOnUser(user5, "admin", project);
     // user6 has other global permission
     UserDto user6 = db.users().insertUser(withEmail("user6"));
-    db.users().insertPermissionOnUser(user6, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertGlobalPermissionOnUser(user6, ADMINISTER_QUALITY_PROFILES);
     // user7 has no permission
     db.users().insertUser(withEmail("user7"));
 
@@ -990,14 +988,14 @@ public class AuthorizationDaoTest {
   public void selectGlobalAdministerEmailSubscribers_ignores_global_administers_without_email() {
     // user1 and user1NoEmail are global administers
     UserDto user1 = db.users().insertUser(withEmail("user1"));
-    db.users().insertPermissionOnUser(user1, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user1, ADMINISTER);
     UserDto user1NoEmail = db.users().insertUser(withoutEmail("user1NoEmail"));
-    db.users().insertPermissionOnUser(user1NoEmail, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user1NoEmail, ADMINISTER);
     // user2 and user2NoEmail are global administers
     UserDto user2 = db.users().insertUser(withEmail("user2"));
-    db.users().insertPermissionOnUser(user2, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user2, ADMINISTER);
     UserDto user2NoEmail = db.users().insertUser(withoutEmail("user2NoEmail"));
-    db.users().insertPermissionOnUser(user2NoEmail, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user2NoEmail, ADMINISTER);
 
     // user3 and user3NoEmail are global administer via a group
     GroupDto administratorGroup2 = db.users().insertGroup();

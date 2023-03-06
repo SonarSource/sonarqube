@@ -201,7 +201,7 @@ public class AnonymizeActionTest {
 
   private UserDto createAdminUser() {
     UserDto admin = db.users().insertUser();
-    db.users().insertPermissionOnUser(admin, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(admin, ADMINISTER);
     db.commit();
     return admin;
   }

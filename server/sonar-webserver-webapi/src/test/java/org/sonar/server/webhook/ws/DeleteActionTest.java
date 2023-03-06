@@ -24,10 +24,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDeliveryDao;
@@ -46,9 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
@@ -94,7 +94,7 @@ public class DeleteActionTest {
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
 
-    userSession.logIn().addProjectPermission(ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
       .setParam(KEY_PARAM, dto.getUuid())
@@ -114,7 +114,7 @@ public class DeleteActionTest {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
     TestResponse response = wsActionTester.newRequest()
       .setParam(KEY_PARAM, dto.getUuid())
       .execute();
@@ -129,7 +129,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_if_webhook_does_not_exist() {
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
     TestRequest request = wsActionTester.newRequest()
       .setParam(KEY_PARAM, "inexistent-webhook-uuid");
 

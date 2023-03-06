@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -185,7 +184,7 @@ public class RemoveUserActionTest {
   public void fail_to_remove_the_last_administrator() {
     db.users().insertDefaultGroup();
     GroupDto adminGroup = db.users().insertGroup("sonar-admins");
-    db.users().insertPermissionOnGroup(adminGroup, GlobalPermissions.SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(adminGroup, ADMINISTER);
     UserDto adminUser = db.users().insertUser("the-single-admin");
     db.users().insertMember(adminGroup, adminUser);
     loginAsAdmin();

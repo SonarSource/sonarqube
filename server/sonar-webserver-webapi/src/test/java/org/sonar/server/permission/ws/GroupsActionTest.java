@@ -26,9 +26,11 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -44,12 +46,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -76,10 +73,10 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     group1 = db.users().insertGroup("group-1-name");
     group2 = db.users().insertGroup("group-2-name");
     GroupDto group3 = db.users().insertGroup("group-3-name");
-    db.users().insertPermissionOnGroup(group1, SCAN);
-    db.users().insertPermissionOnGroup(group2, SCAN);
-    db.users().insertPermissionOnGroup(group3, ADMINISTER);
-    db.users().insertPermissionOnAnyone(SCAN);
+    db.users().insertPermissionOnGroup(group1, GlobalPermission.SCAN);
+    db.users().insertPermissionOnGroup(group2, GlobalPermission.SCAN);
+    db.users().insertPermissionOnGroup(group3, GlobalPermission.ADMINISTER);
+    db.users().insertPermissionOnAnyone(GlobalPermission.SCAN);
     db.commit();
   }
 
@@ -100,7 +97,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     loginAsAdmin();
 
     String json = newRequest()
-      .setParam(PARAM_PERMISSION, SCAN.getKey())
+      .setParam(PARAM_PERMISSION, GlobalPermission.SCAN.getKey())
       .execute()
       .getInput();
     assertJson(json).isSimilarTo("{\n" +
@@ -138,7 +135,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void search_with_selection() {
     loginAsAdmin();
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, SCAN.getKey())
+      .setParam(PARAM_PERMISSION, GlobalPermission.SCAN.getKey())
       .execute()
       .getInput();
 
@@ -149,7 +146,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void search_groups_with_pagination() {
     loginAsAdmin();
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, SCAN.getKey())
+      .setParam(PARAM_PERMISSION, GlobalPermission.SCAN.getKey())
       .setParam(PAGE_SIZE, "1")
       .setParam(PAGE, "3")
       .execute()
@@ -164,7 +161,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void search_groups_with_query() {
     loginAsAdmin();
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, SCAN.getKey())
+      .setParam(PARAM_PERMISSION, GlobalPermission.SCAN.getKey())
       .setParam(TEXT_QUERY, "group-")
       .execute()
       .getInput();
@@ -178,17 +175,17 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void search_groups_with_project_permissions() {
     ComponentDto project = db.components().insertPrivateProject();
     GroupDto group = db.users().insertGroup("project-group-name");
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, project);
 
     ComponentDto anotherProject = db.components().insertPrivateProject();
     GroupDto anotherGroup = db.users().insertGroup("another-project-group-name");
-    db.users().insertProjectPermissionOnGroup(anotherGroup, ISSUE_ADMIN, anotherProject);
+    db.users().insertProjectPermissionOnGroup(anotherGroup, UserRole.ISSUE_ADMIN, anotherProject);
 
     GroupDto groupWithoutPermission = db.users().insertGroup("group-without-permission");
 
-    userSession.logIn().addProjectPermission(ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute()
       .getInput();
@@ -202,14 +199,14 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void return_also_groups_without_permission_when_search_query() {
     ComponentDto project = db.components().insertPrivateProject();
     GroupDto group = db.users().insertGroup("group-with-permission");
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, project);
 
     GroupDto groupWithoutPermission = db.users().insertGroup("group-without-permission");
     GroupDto anotherGroup = db.users().insertGroup("another-group");
 
     loginAsAdmin();
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(TEXT_QUERY, "group-with")
       .execute()
@@ -224,13 +221,13 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void return_only_groups_with_permission_when_no_search_query() {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto("project-uuid"));
     GroupDto group = db.users().insertGroup("project-group-name");
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, project);
 
     GroupDto groupWithoutPermission = db.users().insertGroup("group-without-permission");
 
     loginAsAdmin();
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute()
       .getInput();
@@ -243,7 +240,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void return_anyone_group_when_search_query_and_no_param_permission() {
     ComponentDto project = db.components().insertPrivateProject();
     GroupDto group = db.users().insertGroup("group-with-permission");
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, project);
 
     loginAsAdmin();
     String result = newRequest()
@@ -259,11 +256,11 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   public void search_groups_on_views() {
     ComponentDto view = db.components().insertComponent(ComponentTesting.newPortfolio("view-uuid").setKey("view-key"));
     GroupDto group = db.users().insertGroup("project-group-name");
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, view);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, view);
 
     loginAsAdmin();
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "view-uuid")
       .execute()
       .getInput();
@@ -280,7 +277,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       userSession.anonymous();
 
       newRequest()
-        .setParam(PARAM_PERMISSION, SCAN.getKey())
+        .setParam(PARAM_PERMISSION, GlobalPermission.SCAN.getKey())
         .execute();
     })
       .isInstanceOf(UnauthorizedException.class);
@@ -291,7 +288,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     assertThatThrownBy(() ->  {
       userSession.logIn("login");
       newRequest()
-        .setParam(PARAM_PERMISSION, SCAN.getKey())
+        .setParam(PARAM_PERMISSION, GlobalPermission.SCAN.getKey())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
@@ -304,7 +301,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     assertThatThrownBy(() ->  {
       loginAsAdmin();
       newRequest()
-        .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+        .setParam(PARAM_PERMISSION, GlobalPermission.SCAN.getKey())
         .setParam(PARAM_PROJECT_ID, project.uuid())
         .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
@@ -317,12 +314,12 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
     GroupDto group = db.users().insertGroup();
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, project);
     loginAsAdmin();
 
     assertThatThrownBy(() ->  {
       newRequest()
-        .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+        .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
         .setParam(PARAM_PROJECT_ID, branch.uuid())
         .execute();
     })

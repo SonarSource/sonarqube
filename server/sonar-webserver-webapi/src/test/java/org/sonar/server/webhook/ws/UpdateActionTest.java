@@ -25,9 +25,11 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDto;
@@ -45,9 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonar.server.ws.KeyExamples.NAME_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
@@ -90,7 +90,7 @@ public class UpdateActionTest {
   public void update_a_project_webhook_with_required_fields() {
     ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-    userSession.logIn().addProjectPermission(ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
@@ -111,7 +111,7 @@ public class UpdateActionTest {
   public void update_a_project_webhook_with_all_fields() {
     ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-    userSession.logIn().addProjectPermission(ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     TestResponse response = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
@@ -132,7 +132,7 @@ public class UpdateActionTest {
   @Test
   public void update_a_global_webhook() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     TestResponse response = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
@@ -152,7 +152,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_webhook_does_not_exist() {
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
     TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", "inexistent-webhook-uuid")
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
@@ -209,7 +209,7 @@ public class UpdateActionTest {
   public void fail_if_url_is_not_valid() {
     ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-    userSession.logIn().addProjectPermission(ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
@@ -223,7 +223,7 @@ public class UpdateActionTest {
   public void fail_if_credential_in_url_is_have_a_wrong_format() {
     ProjectDto project = componentDbTester.insertPrivateProjectDto();
     WebhookDto dto = webhookDbTester.insertWebhook(project);
-    userSession.logIn().addProjectPermission(ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     TestRequest request = wsActionTester.newRequest()
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)

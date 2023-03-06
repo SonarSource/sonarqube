@@ -56,12 +56,10 @@ import static java.util.Comparator.comparing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
@@ -522,7 +520,7 @@ public class ValuesActionTest {
   public void return_component_secured_settings_when_not_authenticated_but_with_project_scan_permission() {
     userSession
       .addProjectPermission(USER, project)
-      .addProjectPermission(SCAN_EXECUTION, project);
+      .addProjectPermission(SCAN.getKey(), project);
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("global.secret.secured").build(),
@@ -543,7 +541,7 @@ public class ValuesActionTest {
   public void return_component_secured_settings_even_if_not_defined_when_not_authenticated_but_with_scan_permission() {
     userSession
       .addProjectPermission(USER, project)
-      .addProjectPermission(SCAN_EXECUTION, project);
+      .addProjectPermission(SCAN.getKey(), project);
     db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("not-defined.secured").setValue("123"));
 

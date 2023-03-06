@@ -69,7 +69,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -108,7 +107,7 @@ public class BranchReportSubmitterTest {
   public void submit_does_not_use_delegate_if_characteristics_are_empty() {
     ComponentDto project = db.components().insertPublicProject();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, project);
+    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
 
@@ -122,7 +121,7 @@ public class BranchReportSubmitterTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, project);
+    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project);
     Map<String, String> randomCharacteristics = randomNonEmptyMap();
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(project.getKey(), "branch1");
     when(branchSupportDelegate.createComponentKey(project.getKey(), randomCharacteristics)).thenReturn(componentKey);
@@ -145,7 +144,7 @@ public class BranchReportSubmitterTest {
     ComponentDto existingProject = db.components().insertPublicProject();
     BranchDto exitingProjectMainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), existingProject.uuid()).get();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, existingProject);
+    userSession.logIn(user).addProjectPermission(SCAN.getKey(), existingProject);
     Map<String, String> randomCharacteristics = randomNonEmptyMap();
     ComponentDto createdBranch = createButDoNotInsertBranch(existingProject);
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(existingProject.getKey(), "branch1");
@@ -200,7 +199,7 @@ public class BranchReportSubmitterTest {
   public void submit_fails_if_branch_support_delegate_createComponentKey_throws_an_exception() {
     ComponentDto project = db.components().insertPublicProject();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, project);
+    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project);
     Map<String, String> randomCharacteristics = randomNonEmptyMap();
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
     RuntimeException expected = new RuntimeException("Faking an exception thrown by branchSupportDelegate");
@@ -218,7 +217,7 @@ public class BranchReportSubmitterTest {
   public void submit_report_on_missing_branch_of_missing_project_fails_with_ForbiddenException_if_only_scan_permission() {
     ComponentDto nonExistingProject = newPrivateProjectDto();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, nonExistingProject);
+    userSession.logIn(user).addProjectPermission(SCAN.getKey(), nonExistingProject);
     Map<String, String> randomCharacteristics = randomNonEmptyMap();
     ComponentDto createdBranch = createButDoNotInsertBranch(nonExistingProject);
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(nonExistingProject.getKey());

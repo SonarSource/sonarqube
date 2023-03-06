@@ -43,7 +43,6 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 
@@ -200,7 +199,7 @@ public class DeleteActionTest {
   public void cannot_delete_last_system_admin_group() {
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
-    db.users().insertPermissionOnGroup(group, SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(group, ADMINISTER.getKey());
     loginAsAdmin();
     TestRequest request = newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName());
@@ -215,7 +214,7 @@ public class DeleteActionTest {
     // admin users are part of the group to be deleted
     db.users().insertDefaultGroup();
     GroupDto adminGroup = db.users().insertGroup("admins");
-    db.users().insertPermissionOnGroup(adminGroup, SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(adminGroup, ADMINISTER.getKey());
     UserDto bigBoss = db.users().insertUser();
     db.users().insertMember(adminGroup, bigBoss);
     loginAsAdmin();
@@ -231,9 +230,9 @@ public class DeleteActionTest {
   public void delete_admin_group_succeeds_if_other_groups_have_administrators() {
     db.users().insertDefaultGroup();
     GroupDto adminGroup1 = db.users().insertGroup("admins");
-    db.users().insertPermissionOnGroup(adminGroup1, SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(adminGroup1, ADMINISTER.getKey());
     GroupDto adminGroup2 = db.users().insertGroup("admins2");
-    db.users().insertPermissionOnGroup(adminGroup2, SYSTEM_ADMIN);
+    db.users().insertPermissionOnGroup(adminGroup2, ADMINISTER.getKey());
     UserDto bigBoss = db.users().insertUser();
     db.users().insertMember(adminGroup2, bigBoss);
     loginAsAdmin();
@@ -251,7 +250,7 @@ public class DeleteActionTest {
 
   private void addAdmin() {
     UserDto admin = db.users().insertUser();
-    db.users().insertPermissionOnUser(admin, SYSTEM_ADMIN);
+    db.users().insertGlobalPermissionOnUser(admin, ADMINISTER);
   }
 
   private void loginAsAdmin() {

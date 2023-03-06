@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -45,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -129,7 +129,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
-      newRequest(user.getLogin(), template.getUuid(), GlobalPermissions.PROVISIONING);
+      newRequest(user.getLogin(), template.getUuid(), PROVISION_PROJECTS.getKey());
     })
       .isInstanceOf(IllegalArgumentException.class);
   }

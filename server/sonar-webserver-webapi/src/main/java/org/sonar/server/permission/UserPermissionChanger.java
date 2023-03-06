@@ -20,14 +20,14 @@
 package org.sonar.server.permission;
 
 import java.util.List;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.UserPermissionDto;
 
-import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
@@ -75,7 +75,7 @@ public class UserPermissionChanger {
   private static boolean isAttemptToAddPublicPermissionToPublicComponent(UserPermissionChange change, ComponentDto project) {
     return !project.isPrivate()
       && change.getOperation() == ADD
-      && PUBLIC_PERMISSIONS.contains(change.getPermission());
+      && UserRole.PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
 
   private static void ensureConsistencyWithVisibility(UserPermissionChange change) {
@@ -89,7 +89,7 @@ public class UserPermissionChanger {
   private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(UserPermissionChange change, ComponentDto projectUuid) {
     return !projectUuid.isPrivate()
       && change.getOperation() == REMOVE
-      && PUBLIC_PERMISSIONS.contains(change.getPermission());
+      && UserRole.PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
 
   private boolean addPermission(DbSession dbSession, UserPermissionChange change) {
@@ -125,9 +125,9 @@ public class UserPermissionChanger {
   }
 
   private void checkOtherAdminsExist(DbSession dbSession, UserPermissionChange change) {
-    if (SYSTEM_ADMIN.equals(change.getPermission()) && change.getProjectUuid() == null) {
+    if (GlobalPermission.ADMINISTER.getKey().equals(change.getPermission()) && change.getProjectUuid() == null) {
       int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUserPermission(dbSession, change.getPermission(), change.getUserId().getUuid());
-      checkRequest(remaining > 0, "Last user with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN);
+      checkRequest(remaining > 0, "Last user with permission '%s'. Permission cannot be removed.", GlobalPermission.ADMINISTER.getKey());
     }
   }
 }

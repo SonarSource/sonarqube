@@ -30,11 +30,13 @@ import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -51,11 +53,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.Settings.Definition.CategoryOneOfCase.CATEGORYONEOF_NOT_SET;
 import static org.sonarqube.ws.Settings.Definition.DefaultValueOneOfCase.DEFAULTVALUEONEOF_NOT_SET;
@@ -348,7 +345,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_secured_settings_when_not_authenticated_but_with_scan_permission() {
-    userSession.anonymous().addPermission(SCAN);
+    userSession.anonymous().addPermission(GlobalPermission.SCAN);
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build()));
@@ -384,7 +381,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void fail_when_user_has_not_project_browse_permission() {
-    userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
+    userSession.logIn("project-admin").addProjectPermission(UserRole.CODEVIEWER, project);
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     assertThatThrownBy(() -> executeRequest(project.getKey()))
@@ -480,17 +477,17 @@ public class ListDefinitionsActionTest {
   }
 
   private void logInAsProjectUser() {
-    userSession.logIn().addProjectPermission(USER, project);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
   }
 
   private void logInAsAdmin() {
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
   }
 
   private void logInAsProjectAdmin() {
     userSession.logIn()
-      .addProjectPermission(ADMIN, project)
-      .addProjectPermission(USER, project);
+      .addProjectPermission(UserRole.ADMIN, project)
+      .addProjectPermission(UserRole.USER, project);
   }
 
 }

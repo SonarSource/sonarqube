@@ -42,13 +42,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 
 public class GroupPermissionDaoTest {
@@ -71,19 +64,19 @@ public class GroupPermissionDaoTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     ComponentDto project3 = db.components().insertPrivateProject();
 
-    db.users().insertProjectPermissionOnGroup(group1, ISSUE_ADMIN, project1);
-    db.users().insertProjectPermissionOnGroup(group1, ADMIN, project2);
-    db.users().insertProjectPermissionOnGroup(group2, ADMIN, project2);
-    db.users().insertProjectPermissionOnGroup(group3, ADMIN, project2);
-    db.users().insertProjectPermissionOnGroup(group1, USER, project2);
-    db.users().insertProjectPermissionOnGroup(group1, USER, project3);
+    db.users().insertProjectPermissionOnGroup(group1, UserRole.ISSUE_ADMIN, project1);
+    db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, project2);
+    db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, project2);
+    db.users().insertProjectPermissionOnGroup(group3, UserRole.ADMIN, project2);
+    db.users().insertProjectPermissionOnGroup(group1, UserRole.USER, project2);
+    db.users().insertProjectPermissionOnGroup(group1, UserRole.USER, project3);
 
     final List<CountPerProjectPermission> result = new ArrayList<>();
     underTest.groupsCountByComponentUuidAndPermission(dbSession, asList(project2.uuid(), project3.uuid(), "789"),
       context -> result.add(context.getResultObject()));
 
     assertThat(result).hasSize(3);
-    assertThat(result).extracting("permission").containsOnly(ADMIN, USER);
+    assertThat(result).extracting("permission").containsOnly(UserRole.ADMIN, UserRole.USER);
     assertThat(result).extracting("componentUuid").containsOnly(project2.uuid(), project3.uuid());
     assertThat(result).extracting("count").containsOnly(3, 1);
   }
@@ -121,8 +114,8 @@ public class GroupPermissionDaoTest {
     GroupDto group2 = db.users().insertGroup("Group-2");
     GroupDto group3 = db.users().insertGroup("Group-3");
     GroupDto group1 = db.users().insertGroup("Group-1");
-    db.users().insertPermissionOnAnyone(SCAN);
-    db.users().insertPermissionOnGroup(group3, SCAN);
+    db.users().insertPermissionOnAnyone(GlobalPermission.SCAN);
+    db.users().insertPermissionOnGroup(group3, GlobalPermission.SCAN);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession, newQuery().build()))
       .containsExactly(ANYONE, group3.getName(), group1.getName(), group2.getName());
@@ -134,10 +127,10 @@ public class GroupPermissionDaoTest {
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       GroupDto group = db.users().insertGroup("Group-" + i);
       // Add permission on project to be sure projects are excluded
-      db.users().insertProjectPermissionOnGroup(group, SCAN.getKey(), project);
+      db.users().insertProjectPermissionOnGroup(group, GlobalPermission.SCAN.getKey(), project);
     });
     String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
-    db.users().insertPermissionOnGroup(db.users().selectGroup(lastGroupName).get(), SCAN);
+    db.users().insertPermissionOnGroup(db.users().selectGroup(lastGroupName).get(), GlobalPermission.SCAN);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession, newQuery().build()))
       .hasSize(DEFAULT_PAGE_SIZE)
@@ -149,11 +142,11 @@ public class GroupPermissionDaoTest {
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       GroupDto group = db.users().insertGroup("Group-" + i);
       // Add global permission to be sure they are excluded
-      db.users().insertPermissionOnGroup(group, SCAN.getKey());
+      db.users().insertPermissionOnGroup(group, GlobalPermission.SCAN.getKey());
     });
     ComponentDto project = db.components().insertPrivateProject();
     String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
-    db.users().insertProjectPermissionOnGroup(db.users().selectGroup(lastGroupName).get(), SCAN.getKey(), project);
+    db.users().insertProjectPermissionOnGroup(db.users().selectGroup(lastGroupName).get(), GlobalPermission.SCAN.getKey(), project);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession, newQuery()
       .setComponent(project)
@@ -167,13 +160,13 @@ public class GroupPermissionDaoTest {
     GroupDto group1 = db.users().insertGroup("Group-1");
     db.users().insertGroup("Group-2");
     db.users().insertGroup("Group-3");
-    db.users().insertPermissionOnAnyone(SCAN);
-    db.users().insertPermissionOnGroup(group1, PROVISION_PROJECTS);
+    db.users().insertPermissionOnAnyone(GlobalPermission.SCAN);
+    db.users().insertPermissionOnGroup(group1, GlobalPermission.PROVISION_PROJECTS);
 
     assertThat(underTest.countGroupsByQuery(dbSession,
       newQuery().build())).isEqualTo(4);
     assertThat(underTest.countGroupsByQuery(dbSession,
-      newQuery().setPermission(PROVISION_PROJECTS.getKey()).build())).isOne();
+      newQuery().setPermission(GlobalPermission.PROVISION_PROJECTS.getKey()).build())).isOne();
     assertThat(underTest.countGroupsByQuery(dbSession,
       newQuery().withAtLeastOnePermission().build())).isEqualTo(2);
     assertThat(underTest.countGroupsByQuery(dbSession,
@@ -190,20 +183,20 @@ public class GroupPermissionDaoTest {
 
     ComponentDto project = db.components().insertPrivateProject();
 
-    db.users().insertPermissionOnAnyone(SCAN);
-    db.users().insertPermissionOnAnyone(PROVISION_PROJECTS);
-    db.users().insertPermissionOnGroup(group1, SCAN);
-    db.users().insertPermissionOnGroup(group3, ADMINISTER);
+    db.users().insertPermissionOnAnyone(GlobalPermission.SCAN);
+    db.users().insertPermissionOnAnyone(GlobalPermission.PROVISION_PROJECTS);
+    db.users().insertPermissionOnGroup(group1, GlobalPermission.SCAN);
+    db.users().insertPermissionOnGroup(group3, GlobalPermission.ADMINISTER);
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, project);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      newQuery().setPermission(SCAN.getKey()).build())).containsExactly(ANYONE, group1.getName());
+      newQuery().setPermission(GlobalPermission.SCAN.getKey()).build())).containsExactly(ANYONE, group1.getName());
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      newQuery().setPermission(ADMINISTER.getKey()).build())).containsExactly(group3.getName());
+      newQuery().setPermission(GlobalPermission.ADMINISTER.getKey()).build())).containsExactly(group3.getName());
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      newQuery().setPermission(PROVISION_PROJECTS.getKey()).build())).containsExactly(ANYONE);
+      newQuery().setPermission(GlobalPermission.PROVISION_PROJECTS.getKey()).build())).containsExactly(ANYONE);
   }
 
   @Test
@@ -243,21 +236,21 @@ public class GroupPermissionDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto anotherProject = db.components().insertPrivateProject();
 
-    db.users().insertProjectPermissionOnGroup(group1, SCAN.getKey(), project);
-    db.users().insertProjectPermissionOnGroup(group1, PROVISION_PROJECTS.getKey(), project);
+    db.users().insertProjectPermissionOnGroup(group1, GlobalPermission.SCAN.getKey(), project);
+    db.users().insertProjectPermissionOnGroup(group1, GlobalPermission.PROVISION_PROJECTS.getKey(), project);
 
-    db.users().insertProjectPermissionOnGroup(group1, ADMIN, anotherProject);
+    db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, anotherProject);
     db.users().insertProjectPermissionOnGroup(group3, UserRole.SCAN, anotherProject);
-    db.users().insertPermissionOnGroup(group2, SCAN);
+    db.users().insertPermissionOnGroup(group2, GlobalPermission.SCAN);
 
     PermissionQuery.Builder builderOnComponent = newQuery()
       .setComponent(project);
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
       builderOnComponent.withAtLeastOnePermission().build())).containsOnlyOnce(group1.getName());
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      builderOnComponent.setPermission(SCAN_EXECUTION).build())).containsOnlyOnce(group1.getName());
+      builderOnComponent.setPermission(GlobalPermission.SCAN.getKey()).build())).containsOnlyOnce(group1.getName());
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
-      builderOnComponent.setPermission(USER).build())).isEmpty();
+      builderOnComponent.setPermission(UserRole.USER).build())).isEmpty();
   }
 
   @Test
@@ -273,7 +266,7 @@ public class GroupPermissionDaoTest {
   public void selectGroupNamesByQuery_with_search_query() {
     GroupDto group = db.users().insertGroup("group-anyone");
     db.users().insertGroup("unknown");
-    db.users().insertPermissionOnGroup(group, SCAN);
+    db.users().insertPermissionOnGroup(group, GlobalPermission.SCAN);
 
     assertThat(underTest.selectGroupNamesByQuery(dbSession,
       newQuery().setSearchQuery("any").build())).containsOnlyOnce(ANYONE, group.getName());
@@ -292,34 +285,34 @@ public class GroupPermissionDaoTest {
   @Test
   public void selectByGroupUuids_on_global_permissions() {
     GroupDto group1 = db.users().insertGroup("Group-1");
-    db.users().insertPermissionOnGroup(group1, SCAN);
+    db.users().insertPermissionOnGroup(group1, GlobalPermission.SCAN);
 
     GroupDto group2 = db.users().insertGroup("Group-2");
     ComponentDto project = db.components().insertPrivateProject();
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, project);
 
     GroupDto group3 = db.users().insertGroup("Group-3");
-    db.users().insertPermissionOnGroup(group3, ADMINISTER);
+    db.users().insertPermissionOnGroup(group3, GlobalPermission.ADMINISTER);
 
     // Anyone
-    db.users().insertPermissionOnAnyone(SCAN);
-    db.users().insertPermissionOnAnyone(PROVISION_PROJECTS);
+    db.users().insertPermissionOnAnyone(GlobalPermission.SCAN);
+    db.users().insertPermissionOnAnyone(GlobalPermission.PROVISION_PROJECTS);
 
     assertThat(underTest.selectByGroupUuids(dbSession, asList(group1.getUuid()), null))
       .extracting(GroupPermissionDto::getGroupUuid, GroupPermissionDto::getRole, GroupPermissionDto::getComponentUuid)
-      .containsOnly(tuple(group1.getUuid(), SCAN_EXECUTION, null));
+      .containsOnly(tuple(group1.getUuid(), GlobalPermission.SCAN.getKey(), null));
 
     assertThat(underTest.selectByGroupUuids(dbSession, asList(group2.getUuid()), null)).isEmpty();
 
     assertThat(underTest.selectByGroupUuids(dbSession, asList(group3.getUuid()), null))
       .extracting(GroupPermissionDto::getGroupUuid, GroupPermissionDto::getRole, GroupPermissionDto::getComponentUuid)
-      .containsOnly(tuple(group3.getUuid(), ADMINISTER.getKey(), null));
+      .containsOnly(tuple(group3.getUuid(), GlobalPermission.ADMINISTER.getKey(), null));
 
     assertThat(underTest.selectByGroupUuids(dbSession, asList(ANYONE_UUID), null))
       .extracting(GroupPermissionDto::getGroupUuid, GroupPermissionDto::getRole, GroupPermissionDto::getComponentUuid)
       .containsOnly(
-        tuple(ANYONE_UUID, SCAN.getKey(), null),
-        tuple(ANYONE_UUID, PROVISION_PROJECTS.getKey(), null));
+        tuple(ANYONE_UUID, GlobalPermission.SCAN.getKey(), null),
+        tuple(ANYONE_UUID, GlobalPermission.PROVISION_PROJECTS.getKey(), null));
 
     assertThat(underTest.selectByGroupUuids(dbSession, asList(group1.getUuid(), group2.getUuid(), ANYONE_UUID), null)).hasSize(3);
     assertThat(underTest.selectByGroupUuids(dbSession, asList(MISSING_UUID), null)).isEmpty();
@@ -365,27 +358,27 @@ public class GroupPermissionDaoTest {
   @Test
   public void selectByGroupUuids_on_private_projects() {
     GroupDto group1 = db.users().insertGroup("Group-1");
-    db.users().insertPermissionOnGroup(group1, PROVISION_PROJECTS);
+    db.users().insertPermissionOnGroup(group1, GlobalPermission.PROVISION_PROJECTS);
 
     GroupDto group2 = db.users().insertGroup("Group-2");
     ComponentDto project = db.components().insertPrivateProject();
-    db.users().insertProjectPermissionOnGroup(group2, USER, project);
+    db.users().insertProjectPermissionOnGroup(group2, UserRole.USER, project);
 
     GroupDto group3 = db.users().insertGroup("Group-3");
-    db.users().insertProjectPermissionOnGroup(group3, USER, project);
+    db.users().insertProjectPermissionOnGroup(group3, UserRole.USER, project);
 
     // Anyone group
-    db.users().insertPermissionOnAnyone(SCAN);
+    db.users().insertPermissionOnAnyone(GlobalPermission.SCAN);
 
     assertThat(underTest.selectByGroupUuids(dbSession, singletonList(group1.getUuid()), project.uuid())).isEmpty();
 
     assertThat(underTest.selectByGroupUuids(dbSession, singletonList(group2.getUuid()), project.uuid()))
       .extracting(GroupPermissionDto::getGroupUuid, GroupPermissionDto::getRole, GroupPermissionDto::getComponentUuid)
-      .containsOnly(tuple(group2.getUuid(), USER, project.uuid()));
+      .containsOnly(tuple(group2.getUuid(), UserRole.USER, project.uuid()));
 
     assertThat(underTest.selectByGroupUuids(dbSession, singletonList(group3.getUuid()), project.uuid()))
       .extracting(GroupPermissionDto::getGroupUuid, GroupPermissionDto::getRole, GroupPermissionDto::getComponentUuid)
-      .containsOnly(tuple(group3.getUuid(), USER, project.uuid()));
+      .containsOnly(tuple(group3.getUuid(), UserRole.USER, project.uuid()));
 
     assertThat(underTest.selectByGroupUuids(dbSession, singletonList(ANYONE_UUID), project.uuid()))
       .isEmpty();

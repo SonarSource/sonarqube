@@ -26,10 +26,12 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDeliveryDbTester;
@@ -48,9 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
 import static org.sonar.db.webhook.WebhookTesting.newGlobalWebhook;
 import static org.sonar.server.tester.UserSessionRule.standalone;
@@ -105,7 +105,7 @@ public class ListActionTest {
     webhookDeliveryDbTester.insert(newDto("WH2-DELIVERY-1-UUID", webhook2.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
     webhookDeliveryDbTester.insert(newDto("WH2-DELIVERY-2-UUID", webhook2.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
 
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest().executeProtobuf(ListResponse.class);
 
@@ -128,7 +128,7 @@ public class ListActionTest {
     WebhookDto webhook1 = webhookDbTester.insert(newGlobalWebhook("aaa"), null, null);
     WebhookDto webhook2 = webhookDbTester.insert(newGlobalWebhook("bbb"), null, null);
 
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest().executeProtobuf(ListResponse.class);
 
@@ -153,7 +153,7 @@ public class ListActionTest {
     webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-2-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
     webhookDbTester.insert(newGlobalWebhook("bbb", t -> t.setUrl(url)), null, null);
 
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest().executeProtobuf(ListResponse.class);
 
@@ -171,7 +171,7 @@ public class ListActionTest {
     // insert a project-specific webhook, that should not be returned when listing global webhooks
     webhookDbTester.insertWebhook(componentDbTester.insertPrivateProjectDto());
 
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest()
       .executeProtobuf(ListResponse.class);
@@ -186,7 +186,7 @@ public class ListActionTest {
   @Test
   public void list_project_webhooks_when_project_key_param_is_provided() {
     ProjectDto project1 = componentDbTester.insertPrivateProjectDto();
-    userSession.logIn().addProjectPermission(ADMIN, project1);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project1);
 
     WebhookDto dto1 = webhookDbTester.insertWebhook(project1);
     WebhookDto dto2 = webhookDbTester.insertWebhook(project1);
@@ -206,7 +206,7 @@ public class ListActionTest {
   public void list_global_webhooks_if_project_key_param_missing() {
     WebhookDto dto1 = webhookDbTester.insertGlobalWebhook();
     WebhookDto dto2 = webhookDbTester.insertGlobalWebhook();
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest()
       .executeProtobuf(ListResponse.class);

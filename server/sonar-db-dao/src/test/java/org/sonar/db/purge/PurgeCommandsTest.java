@@ -743,7 +743,7 @@ public class PurgeCommandsTest {
 
     UserDto user = dbTester.users().insertUser();
     dbTester.users().insertProjectPermissionOnUser(user, "doh", root);
-    dbTester.users().insertPermissionOnUser(user, GlobalPermission.SCAN);
+    dbTester.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(root.isPrivate() ? 2 : 4);
     assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(2);

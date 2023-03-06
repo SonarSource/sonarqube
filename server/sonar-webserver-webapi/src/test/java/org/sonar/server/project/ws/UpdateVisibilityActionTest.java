@@ -575,7 +575,7 @@ public class UpdateVisibilityActionTest {
       .forEach(globalPermission -> {
         dbTester.users().insertPermissionOnAnyone(globalPermission);
         dbTester.users().insertPermissionOnGroup(group, globalPermission);
-        dbTester.users().insertPermissionOnUser(user, globalPermission);
+        dbTester.users().insertGlobalPermissionOnUser(user, globalPermission);
       });
     permissionService.getAllProjectPermissions()
       .forEach(permission -> {

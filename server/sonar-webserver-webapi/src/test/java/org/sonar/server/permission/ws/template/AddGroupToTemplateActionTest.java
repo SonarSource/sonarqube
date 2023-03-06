@@ -28,7 +28,6 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -49,6 +48,7 @@ import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -139,7 +139,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   public void fail_if_not_a_project_permission() {
     loginAsAdmin();
 
-    assertThatThrownBy(() -> newRequest(group.getName(), template.getUuid(), GlobalPermissions.PROVISIONING))
+    assertThatThrownBy(() -> newRequest(group.getName(), template.getUuid(), PROVISION_PROJECTS.getKey()))
       .isInstanceOf(IllegalArgumentException.class);
   }
 

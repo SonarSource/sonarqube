@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -44,13 +45,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -75,10 +69,10 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
     UserDto user2 = db.users().insertUser(newUserDto().setLogin("adam.west").setName("Adam West").setEmail("adamwest@adamwest.com"));
     UserDto user3 = db.users().insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
-    db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_PROFILES);
-    db.users().insertPermissionOnUser(user1, ADMINISTER);
-    db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_GATES);
-    db.users().insertPermissionOnUser(user3, SCAN);
+    db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+    db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.ADMINISTER_QUALITY_GATES);
+    db.users().insertGlobalPermissionOnUser(user3, GlobalPermission.SCAN);
 
     loginAsAdmin();
     String result = newRequest().execute().getInput();
@@ -101,19 +95,19 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User has permission on project
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser(newUserDto());
-    db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
 
     // User has permission on another project
     ComponentDto anotherProject = db.components().insertPrivateProject();
     UserDto userHavePermissionOnAnotherProject = db.users().insertUser(newUserDto());
-    db.users().insertProjectPermissionOnUser(userHavePermissionOnAnotherProject, ISSUE_ADMIN, anotherProject);
+    db.users().insertProjectPermissionOnUser(userHavePermissionOnAnotherProject, UserRole.ISSUE_ADMIN, anotherProject);
 
     // User has no permission
     UserDto withoutPermission = db.users().insertUser(newUserDto());
 
-    userSession.logIn().addProjectPermission(SYSTEM_ADMIN, project);
+    userSession.logIn().addProjectPermission(GlobalPermission.ADMINISTER.getKey(), project);
     String result = newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute()
       .getInput();
@@ -128,7 +122,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User with permission on project
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
-    db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
 
     // User without permission
     UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
@@ -149,7 +143,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User with permission on project
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
-    db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
 
     // User without permission
     UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
@@ -166,7 +160,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     // User with permission on project
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
-    db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
 
     // User without permission
     UserDto withoutPermission = db.users().insertUser(newUserDto("without-permission-login", "without-permission-name", "without-permission-email"));
@@ -210,8 +204,8 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void search_for_users_is_paginated() {
     for (int i = 9; i >= 0; i--) {
       UserDto user = db.users().insertUser(newUserDto().setName("user-" + i));
-      db.users().insertPermissionOnUser(user, ADMINISTER);
-      db.users().insertPermissionOnUser(user, ADMINISTER_QUALITY_GATES);
+      db.users().insertGlobalPermissionOnUser(user, GlobalPermission.ADMINISTER);
+      db.users().insertGlobalPermissionOnUser(user, GlobalPermission.ADMINISTER_QUALITY_GATES);
     }
     loginAsAdmin();
 
@@ -252,8 +246,8 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     loginAsAdmin();
     for (int i = 0; i < 30; i++) {
       UserDto user = db.users().insertUser(newUserDto().setLogin("user-" + i));
-      db.users().insertPermissionOnUser(user, SCAN);
-      db.users().insertPermissionOnUser(user, PROVISION_PROJECTS);
+      db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
+      db.users().insertGlobalPermissionOnUser(user, GlobalPermission.PROVISION_PROJECTS);
     }
 
     String result = newRequest()
@@ -283,7 +277,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam("permission", SYSTEM_ADMIN)
+        .setParam("permission", GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
@@ -295,7 +289,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam("permission", SYSTEM_ADMIN)
+        .setParam("permission", GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(UnauthorizedException.class);
@@ -308,7 +302,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .setParam(PARAM_PROJECT_ID, project.uuid())
         .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
@@ -331,14 +325,14 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     UserDto user = db.users().insertUser(newUserDto());
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_PROJECT_ID, branch.uuid())
         .setParam(PARAM_USER_LOGIN, user.getLogin())
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
@@ -349,9 +343,9 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     UserDto user1 = db.users().insertUser(newUserDto("login-1", "name-1", "email-1"));
     UserDto user2 = db.users().insertUser(newUserDto("login-2", "name-2", "email-2"));
     UserDto user3 = db.users().insertUser(newUserDto("login-3", "name-3", "email-3"));
-    db.users().insertPermissionOnUser(user1, SCAN);
-    db.users().insertPermissionOnUser(user2, SCAN);
-    db.users().insertPermissionOnUser(user3, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.SCAN);
+    db.users().insertGlobalPermissionOnUser(user2, GlobalPermission.SCAN);
+    db.users().insertGlobalPermissionOnUser(user3, GlobalPermission.ADMINISTER);
   }
 
 }

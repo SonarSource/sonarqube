@@ -39,8 +39,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 
 public class UserPermissionDaoWithPersisterTest {
@@ -56,7 +56,7 @@ public class UserPermissionDaoWithPersisterTest {
   @Test
   public void userGlobalPermissionInsertAndDeleteArePersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), null);
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), ADMINISTER.getKey(), user.getUuid(), null);
     underTest.insert(dbSession, dto, null, user, null);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
@@ -64,7 +64,7 @@ public class UserPermissionDaoWithPersisterTest {
     assertNewValue(newValue, dto.getUuid(), user.getUuid(), user.getLogin(), null, dto.getPermission(), null, null, null);
     assertThat(newValue.toString()).doesNotContain("projectUuid");
 
-    underTest.deleteGlobalPermission(dbSession, user, SYSTEM_ADMIN);
+    underTest.deleteGlobalPermission(dbSession, user, ADMINISTER.getKey());
 
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
@@ -77,7 +77,7 @@ public class UserPermissionDaoWithPersisterTest {
     PermissionTemplateDto templateDto = newPermissionTemplateDto();
     db.getDbClient().permissionTemplateDao().insert(db.getSession(), templateDto);
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), null);
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), ADMINISTER.getKey(), user.getUuid(), null);
     underTest.insert(dbSession, dto, null, user, templateDto);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
@@ -96,7 +96,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void userProjectPermissionInsertAndDeleteArePersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), project.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), ADMINISTER.getKey(), user.getUuid(), project.uuid());
     underTest.insert(dbSession, dto, project, user, null);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
@@ -105,7 +105,7 @@ public class UserPermissionDaoWithPersisterTest {
       project.getKey(), project.name(), "TRK");
     assertThat(newValue.toString()).contains("componentUuid");
 
-    underTest.deleteProjectPermission(dbSession, user, SYSTEM_ADMIN, project);
+    underTest.deleteProjectPermission(dbSession, user, ADMINISTER.getKey(), project);
 
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
     newValue = newValueCaptor.getValue();
@@ -119,7 +119,7 @@ public class UserPermissionDaoWithPersisterTest {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
 
-    underTest.deleteProjectPermission(dbSession, user, SYSTEM_ADMIN, project);
+    underTest.deleteProjectPermission(dbSession, user, ADMINISTER.getKey(), project);
 
     verify(auditPersister).addUser(any(), any());
     verify(auditPersister).addComponent(any(), any());
@@ -130,7 +130,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void userPortfolioPermissionIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto portfolio = db.components().insertPublicPortfolio();
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), portfolio.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), ADMINISTER.getKey(), user.getUuid(), portfolio.uuid());
     underTest.insert(dbSession, dto, portfolio, user, null);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
@@ -144,7 +144,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void userApplicationPermissionIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto application = db.components().insertPublicApplication();
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), application.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), ADMINISTER.getKey(), user.getUuid(), application.uuid());
     underTest.insert(dbSession, dto, application, user, null);
 
     verify(auditPersister).addUserPermission(eq(dbSession), newValueCaptor.capture());
@@ -158,9 +158,9 @@ public class UserPermissionDaoWithPersisterTest {
   public void deleteUserPermissionOfAnyUserIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SCAN_EXECUTION, user.getUuid(), project.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SCAN.getKey(), user.getUuid(), project.uuid());
     underTest.insert(dbSession, dto, project, user, null);
-    underTest.deleteProjectPermissionOfAnyUser(dbSession, SCAN_EXECUTION, project);
+    underTest.deleteProjectPermissionOfAnyUser(dbSession, SCAN.getKey(), project);
 
     verify(auditPersister).deleteUserPermission(eq(dbSession), newValueCaptor.capture());
     UserPermissionNewValue newValue = newValueCaptor.getValue();
@@ -173,7 +173,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void deleteUserPermissionOfAnyUserWithoutAffectedRowsIsNotPersisted() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    underTest.deleteProjectPermissionOfAnyUser(dbSession, SCAN_EXECUTION, project);
+    underTest.deleteProjectPermissionOfAnyUser(dbSession, SCAN.getKey(), project);
 
     verify(auditPersister).addComponent(any(), any());
     verifyNoMoreInteractions(auditPersister);
@@ -183,7 +183,7 @@ public class UserPermissionDaoWithPersisterTest {
   public void deleteUserPermissionByUserUuidIsPersisted() {
     UserDto user = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     ComponentDto project = db.components().insertPrivateProject();
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), SYSTEM_ADMIN, user.getUuid(), project.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), ADMINISTER.getKey(), user.getUuid(), project.uuid());
     underTest.insert(dbSession, dto, project, user, null);
     underTest.deleteByUserUuid(dbSession, user);
 

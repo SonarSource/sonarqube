@@ -42,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -125,7 +124,7 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, QUALITY_GATE_ADMIN)
+        .setParam(PARAM_PERMISSION, ADMINISTER_QUALITY_GATES.getKey())
         .setParam(PARAM_TEMPLATE_ID, template.getUuid())
         .execute();
     })

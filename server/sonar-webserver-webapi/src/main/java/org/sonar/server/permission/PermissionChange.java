@@ -21,8 +21,8 @@ package org.sonar.server.permission;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.component.ComponentDto;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.toList;

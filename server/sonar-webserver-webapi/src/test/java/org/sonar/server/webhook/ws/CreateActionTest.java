@@ -24,12 +24,14 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.server.component.ComponentFinder;
@@ -46,9 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM;
@@ -98,7 +98,7 @@ public class CreateActionTest {
     String longProjectKey = generateStringWithLength(400);
     ComponentDto project = componentDbTester.insertPrivateProject(componentDto -> componentDto.setKey(longProjectKey));
 
-    userSession.logIn().addProjectPermission(ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     CreateWsResponse response = wsActionTester.newRequest()
       .setParam("project", longProjectKey)
@@ -116,7 +116,7 @@ public class CreateActionTest {
 
   @Test
   public void create_a_webhook_with_secret() {
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     CreateWsResponse response = wsActionTester.newRequest()
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
@@ -133,7 +133,7 @@ public class CreateActionTest {
 
   @Test
   public void create_a_global_webhook() {
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     CreateWsResponse response = wsActionTester.newRequest()
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
@@ -151,7 +151,7 @@ public class CreateActionTest {
   public void create_a_webhook_on_project() {
     ComponentDto project = componentDbTester.insertPrivateProject();
 
-    userSession.logIn().addProjectPermission(ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     CreateWsResponse response = wsActionTester.newRequest()
       .setParam("project", project.getKey())
@@ -185,7 +185,7 @@ public class CreateActionTest {
     for (int i = 0; i < 10; i++) {
       webhookDbTester.insertWebhook(project);
     }
-    userSession.logIn().addProjectPermission(ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     TestRequest request = wsActionTester.newRequest()
       .setParam(PROJECT_KEY_PARAM, project.getKey())
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
@@ -201,7 +201,7 @@ public class CreateActionTest {
     for (int i = 0; i < 10; i++) {
       webhookDbTester.insertGlobalWebhook();
     }
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
     TestRequest request = wsActionTester.newRequest()
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
       .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001);
@@ -213,7 +213,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_url_is_not_valid() {
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
     TestRequest request = wsActionTester.newRequest()
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
       .setParam(URL_PARAM, "htp://www.wrong-protocol.com/");
@@ -224,7 +224,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_credential_in_url_is_have_a_wrong_format() {
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
     TestRequest request = wsActionTester.newRequest()
       .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
       .setParam(URL_PARAM, "http://:www.wrong-protocol.com/");
@@ -272,7 +272,7 @@ public class CreateActionTest {
   @Test
   public void throw_IllegalArgumentException_if_project_key_greater_than_400() {
     String longProjectKey = generateStringWithLength(401);
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
     TestRequest request = wsActionTester.newRequest()
       .setParam("project", longProjectKey)
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)

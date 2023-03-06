@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
@@ -56,7 +55,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.SCAN;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.component.BranchType.BRANCH;
@@ -300,7 +298,7 @@ public class TaskActionTest {
   @Test
   public void get_project_queue_task_with_scan_permission_on_project() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(GlobalPermissions.SCAN_EXECUTION, privateProject);
+    userSession.logIn(user).addProjectPermission(GlobalPermission.SCAN.getKey(), privateProject);
     CeQueueDto task = createAndPersistQueueTask(privateProject, user);
 
     call(task.getUuid());
@@ -331,7 +329,7 @@ public class TaskActionTest {
   @Test
   public void get_project_queue_task_on_public_project() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN_EXECUTION, privateProject);
+    userSession.logIn(user).addProjectPermission(GlobalPermission.SCAN.getKey(), privateProject);
     CeQueueDto task = createAndPersistQueueTask(privateProject, user);
 
     call(task.getUuid());
@@ -379,7 +377,7 @@ public class TaskActionTest {
 
   @Test
   public void get_project_archived_task_with_scan_permission_on_project() {
-    userSession.logIn().addProjectPermission(GlobalPermissions.SCAN_EXECUTION, privateProject);
+    userSession.logIn().addProjectPermission(GlobalPermission.SCAN.getKey(), privateProject);
     CeActivityDto task = createAndPersistArchivedTask(privateProject);
 
     call(task.getUuid());
@@ -458,7 +456,7 @@ public class TaskActionTest {
 
   @Test
   public void get_warnings_on_private_project_archived_task_if_scan() {
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, privateProject);
+    userSession.logIn().addProjectPermission(GlobalPermission.SCAN.getKey(), privateProject);
 
     getWarningsImpl(createAndPersistArchivedTask(privateProject));
   }

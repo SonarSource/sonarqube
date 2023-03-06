@@ -56,10 +56,10 @@ import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ListActionTest {
@@ -141,7 +141,7 @@ public class ListActionTest {
     db.issues().insert(rule, branch, branch, i -> i.setType(BUG).setResolution(null));
     indexIssues();
 
-    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
+    userSession.logIn().addProjectPermission(SCAN.getKey(), project);
 
     String json = ws.newRequest()
       .setParam("project", project.getKey())

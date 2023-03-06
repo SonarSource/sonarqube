@@ -28,6 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -41,17 +42,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -90,7 +84,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
-      .setParam(PARAM_PERMISSION, ADMINISTER.getKey())
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .execute();
 
     assertThat(db.users().selectGroupPermissions(group, null)).containsOnly("admin");
@@ -103,7 +97,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
+      .setParam(PARAM_PERMISSION, GlobalPermission.PROVISION_PROJECTS.getKey())
       .execute();
 
     assertThat(db.users().selectGroupPermissions(group, null)).containsOnly("provisioning");
@@ -119,11 +113,11 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_ID, A_PROJECT_UUID)
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .execute();
 
     assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
-    assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(GlobalPermission.ADMINISTER.getKey());
   }
 
   @Test
@@ -135,11 +129,11 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_KEY, A_PROJECT_KEY)
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .execute();
 
     assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
-    assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(GlobalPermission.ADMINISTER.getKey());
   }
 
   @Test
@@ -151,11 +145,11 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_ID, portfolio.uuid())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .execute();
 
     assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
-    assertThat(db.users().selectGroupPermissions(group, portfolio)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGroupPermissions(group, portfolio)).containsOnly(GlobalPermission.ADMINISTER.getKey());
   }
 
   @Test
@@ -167,7 +161,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PROJECT_ID, "not-found")
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(NotFoundException.class);
@@ -205,7 +199,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PROJECT_ID, file.uuid())
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
@@ -234,7 +228,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
         .setParam(PARAM_PROJECT_ID, file.uuid())
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(BadRequestException.class);
@@ -248,7 +242,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       newRequest()
         .setMethod("GET")
         .setParam(PARAM_GROUP_NAME, "sonar-administrators")
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(ServerException.class);
@@ -260,7 +254,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -302,7 +296,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .setParam(PARAM_PROJECT_ID, project.uuid())
         .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
@@ -314,12 +308,12 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   @Test
   public void adding_global_permission_fails_if_not_administrator() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    userSession.logIn().addPermission(SCAN);
+    userSession.logIn().addPermission(GlobalPermission.SCAN);
 
     assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
-        .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
+        .setParam(PARAM_PERMISSION, GlobalPermission.PROVISION_PROJECTS.getKey())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
@@ -334,7 +328,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_GROUP_NAME, group.getName())
-        .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
+        .setParam(PARAM_PERMISSION, GlobalPermission.PROVISION_PROJECTS.getKey())
         .setParam(PARAM_PROJECT_KEY, project.getKey())
         .execute();
     })
@@ -353,10 +347,10 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
 
-    assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(ISSUE_ADMIN);
+    assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(UserRole.ISSUE_ADMIN);
   }
 
   @Test
@@ -387,7 +381,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, "anyone")
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PERMISSION, USER)
+      .setParam(PARAM_PERMISSION, UserRole.USER)
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project)).isEmpty();
@@ -401,7 +395,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, "anyone")
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER)
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project)).isEmpty();
@@ -416,7 +410,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PERMISSION, USER)
+      .setParam(PARAM_PERMISSION, UserRole.USER)
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project)).isEmpty();
@@ -431,7 +425,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER)
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project)).isEmpty();
@@ -448,7 +442,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
       newRequest()
         .setParam(PARAM_PROJECT_ID, branch.uuid())
         .setParam(PARAM_GROUP_NAME, group.getName())
-        .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+        .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
         .execute();
     })
       .isInstanceOf(NotFoundException.class)

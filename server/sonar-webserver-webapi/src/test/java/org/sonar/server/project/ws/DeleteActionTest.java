@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDbTester;
@@ -38,7 +39,6 @@ import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
@@ -53,8 +53,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.component.TestComponentFinder.from;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
@@ -85,7 +83,7 @@ public class DeleteActionTest {
   @Test
   public void global_administrator_deletes_project_by_key() {
     ComponentDto project = componentDbTester.insertPrivateProject();
-    userSessionRule.logIn().addPermission(ADMINISTER);
+    userSessionRule.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
 
@@ -96,7 +94,7 @@ public class DeleteActionTest {
   @Test
   public void project_administrator_deletes_the_project_by_key() {
     ComponentDto project = componentDbTester.insertPrivateProject();
-    userSessionRule.logIn().addProjectPermission(ADMIN, project);
+    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
 
@@ -110,7 +108,7 @@ public class DeleteActionTest {
     UserDto insert = dbClient.userDao().insert(dbSession,
       newUserDto().setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
     dbSession.commit();
-    userSessionRule.logIn().addProjectPermission(ADMIN, project);
+    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
     DeleteAction underTest = new DeleteAction(
       new ComponentCleanerService(dbClient, mockResourceTypes, new TestProjectIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
@@ -133,7 +131,7 @@ public class DeleteActionTest {
     webhookDbTester.insertWebhook(project);
     webhookDbTester.insertWebhook(project);
 
-    userSessionRule.logIn().addProjectPermission(ADMIN, project);
+    userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
     DeleteAction underTest = new DeleteAction(
       new ComponentCleanerService(dbClient, mockResourceTypes, new TestProjectIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);

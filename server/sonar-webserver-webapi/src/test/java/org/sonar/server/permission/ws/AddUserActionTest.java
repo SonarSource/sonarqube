@@ -28,6 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -41,14 +42,9 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -78,10 +74,10 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .execute();
 
-    assertThat(db.users().selectPermissionsOfUser(user)).containsOnly(ADMINISTER);
+    assertThat(db.users().selectPermissionsOfUser(user)).containsOnly(GlobalPermission.ADMINISTER);
   }
 
   @Test
@@ -92,11 +88,11 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .execute();
 
     assertThat(db.users().selectPermissionsOfUser(user)).isEmpty();
-    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(GlobalPermission.ADMINISTER.getKey());
   }
 
   @Test
@@ -107,11 +103,11 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .execute();
 
     assertThat(db.users().selectPermissionsOfUser(user)).isEmpty();
-    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(GlobalPermission.ADMINISTER.getKey());
   }
 
   @Test
@@ -122,11 +118,11 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, view.uuid())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .execute();
 
     assertThat(db.users().selectPermissionsOfUser(user)).isEmpty();
-    assertThat(db.users().selectProjectPermissionsOfUser(user, view)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectProjectPermissionsOfUser(user, view)).containsOnly(GlobalPermission.ADMINISTER.getKey());
   }
 
   @Test
@@ -137,7 +133,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       newRequest()
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(NotFoundException.class);
@@ -174,7 +170,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       newRequest()
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PROJECT_ID, file.uuid())
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
@@ -204,7 +200,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       newRequest()
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PROJECT_ID, "file-uuid")
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(BadRequestException.class);
@@ -218,7 +214,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       newRequest()
         .setMethod("GET")
         .setParam(PARAM_USER_LOGIN, "george.orwell")
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(ServerException.class);
@@ -230,7 +226,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class);
@@ -255,7 +251,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PROJECT_ID, "project-uuid")
         .setParam(PARAM_PROJECT_KEY, "project-key")
@@ -272,7 +268,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_USER_LOGIN, user.getLogin())
-        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
@@ -285,7 +281,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     TestRequest request = newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .setParam(PARAM_PROJECT_KEY, project.getKey());
 
     assertThatThrownBy(() -> request.execute())
@@ -299,7 +295,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
     TestRequest request = newRequest()
       .setParam(PARAM_USER_LOGIN, "unknown")
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .setParam(PARAM_PROJECT_KEY, project.getKey());
     assertThatThrownBy(() -> request.execute())
       .isInstanceOf(ForbiddenException.class);
@@ -311,7 +307,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     userSession.logIn();
 
     TestRequest request = newRequest()
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
       .setParam(PARAM_PROJECT_KEY, project.getKey());
 
     assertThatThrownBy(() -> request.execute())
@@ -333,7 +329,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
 
-    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(ISSUE_ADMIN);
+    assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(UserRole.ISSUE_ADMIN);
   }
 
   @Test
@@ -344,7 +340,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PERMISSION, USER)
+      .setParam(PARAM_PERMISSION, UserRole.USER)
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project)).isEmpty();
@@ -358,7 +354,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER)
       .execute();
 
     assertThat(db.users().selectAnyonePermissions(project)).isEmpty();
@@ -373,7 +369,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     TestRequest request = newRequest()
       .setParam(PARAM_PROJECT_ID, branch.uuid())
       .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN);
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
 
     assertThatThrownBy(() -> request.execute())
       .isInstanceOf(NotFoundException.class)

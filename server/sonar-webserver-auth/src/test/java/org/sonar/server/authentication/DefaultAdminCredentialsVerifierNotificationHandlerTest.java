@@ -61,8 +61,8 @@ public class DefaultAdminCredentialsVerifierNotificationHandlerTest {
     // Users granted admin permission directly
     UserDto admin1 = db.users().insertUser(u -> u.setEmail("admin1"));
     UserDto adminWithNoEmail = db.users().insertUser(u -> u.setEmail(null));
-    db.users().insertPermissionOnUser(admin1, ADMINISTER);
-    db.users().insertPermissionOnUser(adminWithNoEmail, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(admin1, ADMINISTER);
+    db.users().insertGlobalPermissionOnUser(adminWithNoEmail, ADMINISTER);
     // User granted admin permission by group membership
     UserDto admin2 = db.users().insertUser(u -> u.setEmail("admin2"));
     GroupDto adminGroup = db.users().insertGroup();
