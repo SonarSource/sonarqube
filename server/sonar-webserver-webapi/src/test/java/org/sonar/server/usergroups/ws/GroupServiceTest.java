@@ -47,7 +47,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -103,8 +102,7 @@ public class GroupServiceTest {
     when(dbClient.groupDao().selectByName(dbSession, GROUP_NAME))
       .thenReturn(Optional.of(groupDto));
 
-    assertThat(groupService.findGroupDtoOrThrow(dbSession, GROUP_NAME))
-      .isEqualTo(groupDto);
+    assertThat(groupService.findGroup(dbSession, GROUP_NAME)).contains(groupDto);
   }
 
   @Test
@@ -112,9 +110,7 @@ public class GroupServiceTest {
     when(dbClient.groupDao().selectByName(dbSession, GROUP_NAME))
       .thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> groupService.findGroupDtoOrThrow(dbSession, GROUP_NAME))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("No group with name '%s'", GROUP_NAME));
+    assertThat(groupService.findGroup(dbSession, GROUP_NAME)).isEmpty();
   }
 
   @Test

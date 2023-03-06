@@ -28,6 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -67,11 +68,17 @@ public class DeleteAction implements UserGroupsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       userSession.checkPermission(GlobalPermission.ADMINISTER);
 
-      GroupDto groupDto = groupService.findGroupDtoOrThrow(dbSession, request.mandatoryParam(PARAM_GROUP_NAME));
-      groupService.delete(dbSession, groupDto);
+      GroupDto group = findGroupOrThrow(request, dbSession);
+      groupService.delete(dbSession, group);
 
       dbSession.commit();
       response.noContent();
     }
+  }
+
+  private GroupDto findGroupOrThrow(Request request, DbSession dbSession) {
+    String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
+    return groupService.findGroup(dbSession, groupName)
+      .orElseThrow(() -> new NotFoundException(format("No group with name '%s'", groupName)));
   }
 }

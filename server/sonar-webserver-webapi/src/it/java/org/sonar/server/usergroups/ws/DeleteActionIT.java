@@ -35,12 +35,14 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
@@ -95,6 +97,19 @@ public class DeleteActionIT {
       .execute();
 
     assertThat(db.users().selectGroupByUuid(group.getUuid())).isNull();
+  }
+
+  @Test
+  public void delete_ifNotGroupFound_throwsNotFoundException() {
+    addAdmin();
+    insertDefaultGroup();
+    GroupDto group = db.users().insertGroup();
+    loginAsAdmin();
+
+    TestRequest groupDeletionRequest = newRequest().setParam(PARAM_GROUP_NAME, group.getName() + "_toto");
+    assertThatExceptionOfType(NotFoundException.class)
+      .isThrownBy(groupDeletionRequest::execute)
+      .withMessageStartingWith("No group with name ");
   }
 
   @Test

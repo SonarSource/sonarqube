@@ -19,6 +19,8 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
@@ -29,10 +31,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
@@ -46,10 +46,8 @@ public class GroupService {
     this.uuidFactory = uuidFactory;
   }
 
-  public GroupDto findGroupDtoOrThrow(DbSession dbSession, String groupName) {
-    return dbClient.groupDao()
-      .selectByName(dbSession, groupName)
-      .orElseThrow(() -> new NotFoundException(format("No group with name '%s'", groupName)));
+  public Optional<GroupDto> findGroup(DbSession dbSession, String groupName) {
+    return dbClient.groupDao().selectByName(dbSession, groupName);
   }
 
   public void delete(DbSession dbSession, GroupDto group) {
