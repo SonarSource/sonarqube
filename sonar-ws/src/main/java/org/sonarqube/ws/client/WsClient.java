@@ -55,7 +55,6 @@ import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.projectpullrequests.ProjectPullRequestsService;
 import org.sonarqube.ws.client.projects.ProjectsService;
 import org.sonarqube.ws.client.projecttags.ProjectTagsService;
-import org.sonarqube.ws.client.properties.PropertiesService;
 import org.sonarqube.ws.client.push.SonarLintServerPushService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
@@ -68,7 +67,6 @@ import org.sonarqube.ws.client.settings.SettingsService;
 import org.sonarqube.ws.client.sources.SourcesService;
 import org.sonarqube.ws.client.support.SupportService;
 import org.sonarqube.ws.client.system.SystemService;
-import org.sonarqube.ws.client.timemachine.TimemachineService;
 import org.sonarqube.ws.client.updatecenter.UpdatecenterService;
 import org.sonarqube.ws.client.usergroups.UserGroupsService;
 import org.sonarqube.ws.client.users.UsersService;
@@ -166,8 +164,6 @@ public interface WsClient {
 
   ProjectsService projects();
 
-  PropertiesService properties();
-
   QualitygatesService qualitygates();
 
   QualityprofilesService qualityprofiles();
@@ -185,8 +181,6 @@ public interface WsClient {
   SupportService support();
 
   SystemService system();
-
-  TimemachineService timemachine();
 
   UpdatecenterService updatecenter();
 

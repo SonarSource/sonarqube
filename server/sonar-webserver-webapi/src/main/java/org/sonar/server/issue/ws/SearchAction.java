@@ -79,7 +79,6 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
-import static org.sonar.server.issue.index.IssueQuery.SORT_BY_ASSIGNEE;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
 import static org.sonar.server.issue.index.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
@@ -194,6 +193,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.0", format("Deprecated value 'ASSIGNEE' in parameter '%s' is dropped", Param.SORT)),
         new Change("10.0", format("Parameter 'sinceLeakPeriod' is removed, please use '%s' instead", PARAM_IN_NEW_CODE_PERIOD)),
         new Change("9.8", "Add message formatting to issue and locations response"),
         new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
@@ -226,7 +226,7 @@ public class SearchAction implements IssuesWsAction {
         new Change("7.3", "response field 'fromHotspot' added to issues that are security hotspots"),
         new Change("7.3", "added facets 'sansTop25', 'owaspTop10' and 'cwe'"),
         new Change("7.2", "response field 'externalRuleEngine' added to issues that have been imported from an external rule engine"),
-        new Change("7.2", format("value '%s' in parameter '%s' is deprecated, it won't have any effect", SORT_BY_ASSIGNEE, Param.SORT)),
+        new Change("7.2", format("value 'ASSIGNEE' in parameter '%s' is deprecated, it won't have any effect", Param.SORT)),
         new Change("6.5", "parameters 'projects', 'projectUuids', 'moduleUuids', 'directories', 'fileUuids' are marked as internal"),
         new Change("6.3", "response field 'email' is renamed 'avatar'"),
         new Change("5.5", "response fields 'reporter' and 'actionPlan' are removed (drop of action plan and manual issue features)"),

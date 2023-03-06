@@ -47,7 +47,6 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.DESCRI
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateInitialSchema extends DdlChange {
@@ -252,7 +251,7 @@ public class CreateInitialSchema extends DdlChange {
   private void createProjectAlmSettings(Context context) {
     String tableName = "project_alm_settings";
     VarcharColumnDef almSettingUuidCol = newVarcharColumnDefBuilder("alm_setting_uuid").setIsNullable(false).setLimit(UUID_SIZE).build();
-    VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder(PROJECT_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_VARCHAR_SIZE).build();
+    VarcharColumnDef projectUuidCol = newVarcharColumnDefBuilder(PROJECT_UUID_COL_NAME).setIsNullable(false).setLimit(OLD_UUID_VARCHAR_SIZE).build();
     VarcharColumnDef almRepoCol = newVarcharColumnDefBuilder("alm_repo").setIsNullable(true).setLimit(256).build();
     VarcharColumnDef almSlugCol = newVarcharColumnDefBuilder("alm_slug").setIsNullable(true).setLimit(256).build();
     BooleanColumnDef summaryCommentEnabledCol = newBooleanColumnDefBuilder("summary_comment_enabled").setIsNullable(true).build();

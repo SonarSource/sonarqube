@@ -50,7 +50,7 @@ public class ExceptionHandlingMediumTest {
         new EnvironmentInformation("mediumTest", "1.0"));
 
     if (verbose) {
-      builder.setBootstrapProperties(Collections.singletonMap("sonar.verbose", "true"));
+      builder.setGlobalProperties(Collections.singletonMap("sonar.verbose", "true"));
     }
     batch = builder.build();
   }

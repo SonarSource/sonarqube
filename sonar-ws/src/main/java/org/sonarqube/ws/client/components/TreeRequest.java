@@ -34,7 +34,6 @@ public class TreeRequest {
   private String asc;
   private String branch;
   private String component;
-  private String componentId;
   private String p;
   private String ps;
   private String pullRequest;
@@ -84,20 +83,6 @@ public class TreeRequest {
 
   public String getComponent() {
     return component;
-  }
-
-  /**
-   * Example value: "AU-TpxcA-iU5OvuD2FLz"
-   * @deprecated since 6.4
-   */
-  @Deprecated
-  public TreeRequest setComponentId(String componentId) {
-    this.componentId = componentId;
-    return this;
-  }
-
-  public String getComponentId() {
-    return componentId;
   }
 
   /**

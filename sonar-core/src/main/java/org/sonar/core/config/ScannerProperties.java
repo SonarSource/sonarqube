@@ -33,8 +33,6 @@ public class ScannerProperties {
   public static final String BRANCHES_DOC_LINK = "https://docs.sonarqube.org/latest/analyzing-source-code/branches/branch-analysis/";
 
   public static final String BRANCH_NAME = "sonar.branch.name";
-  @Deprecated
-  public static final String BRANCH_TARGET = "sonar.branch.target";
 
   public static final String PULL_REQUEST_KEY = "sonar.pullrequest.key";
   public static final String PULL_REQUEST_BRANCH = "sonar.pullrequest.branch";

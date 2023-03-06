@@ -39,23 +39,6 @@ public class UpdatecenterService extends BaseService {
   /**
    *
    * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/updatecenter/installed_plugins">Further information about this action online (including a response example)</a>
-   * @since 2.10
-   * @deprecated since 6.3
-   */
-  @Deprecated
-  public String installedPlugins(InstalledPluginsRequest request) {
-    return call(
-      new GetRequest(path("installed_plugins"))
-        .setParam("format", request.getFormat())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/updatecenter/upload">Further information about this action online (including a response example)</a>
    * @since 6.0

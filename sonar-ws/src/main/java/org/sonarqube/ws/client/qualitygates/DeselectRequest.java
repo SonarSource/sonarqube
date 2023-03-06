@@ -30,22 +30,7 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class DeselectRequest {
 
-  private String projectId;
   private String projectKey;
-
-  /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.1
-   */
-  @Deprecated
-  public DeselectRequest setProjectId(String projectId) {
-    this.projectId = projectId;
-    return this;
-  }
-
-  public String getProjectId() {
-    return projectId;
-  }
 
   /**
    * Example value: "my_project"

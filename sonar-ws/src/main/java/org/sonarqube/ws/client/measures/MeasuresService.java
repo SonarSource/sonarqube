@@ -52,9 +52,6 @@ public class MeasuresService extends BaseService {
         .setParam("additionalFields", request.getAdditionalFields() == null ? null : request.getAdditionalFields().stream().collect(Collectors.joining(",")))
         .setParam("branch", request.getBranch())
         .setParam("component", request.getComponent())
-        .setParam("componentId", request.getComponentId())
-        .setParam("developerId", request.getDeveloperId())
-        .setParam("developerKey", request.getDeveloperKey())
         .setParam("metricKeys", request.getMetricKeys() == null ? null : request.getMetricKeys().stream().collect(Collectors.joining(",")))
         .setParam("pullRequest", request.getPullRequest()),
       ComponentWsResponse.parser());
@@ -72,11 +69,8 @@ public class MeasuresService extends BaseService {
       new GetRequest(path("component_tree"))
         .setParam("additionalFields", request.getAdditionalFields() == null ? null : request.getAdditionalFields().stream().collect(Collectors.joining(",")))
         .setParam("asc", request.getAsc())
-        .setParam("baseComponentId", request.getBaseComponentId())
         .setParam("branch", request.getBranch())
         .setParam("component", request.getComponent())
-        .setParam("developerId", request.getDeveloperId())
-        .setParam("developerKey", request.getDeveloperKey())
         .setParam("metricKeys", request.getMetricKeys() == null ? null : request.getMetricKeys().stream().collect(Collectors.joining(",")))
         .setParam("metricPeriodSort", request.getMetricPeriodSort())
         .setParam("metricSort", request.getMetricSort())

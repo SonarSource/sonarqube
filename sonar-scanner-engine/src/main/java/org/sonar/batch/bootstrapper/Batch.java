@@ -76,28 +76,6 @@ public final class Batch {
     return this;
   }
 
-  /**
-   * @since 4.4
-   * @deprecated since 6.6 use {@link #execute()}
-   */
-  @Deprecated
-  public synchronized Batch start() {
-    return this;
-  }
-
-  /**
-   * @since 4.4
-   * @deprecated since 6.6 use {@link #execute()}
-   */
-  @Deprecated
-  public Batch executeTask(Map<String, String> analysisProperties, Object... components) {
-    Map<String, String> mergedProps = new HashMap<>(this.globalProperties);
-    mergedProps.putAll(analysisProperties);
-    List<Object> mergedComponents = new ArrayList<>(this.components);
-    mergedComponents.addAll(Arrays.asList(components));
-    return doExecute(mergedProps, mergedComponents);
-  }
-
   private RuntimeException handleException(RuntimeException t) {
     if (loggingConfig.isVerbose()) {
       return t;
@@ -112,14 +90,6 @@ public final class Batch {
     } while (y != null);
 
     return t;
-  }
-
-  /**
-   * @since 4.4
-   * @deprecated since 6.6 use {@link #execute()}
-   */
-  @Deprecated
-  public synchronized void stop() {
   }
 
   private void configureLogging() {
@@ -160,15 +130,6 @@ public final class Batch {
 
     public Builder setGlobalProperties(Map<String, String> globalProperties) {
       this.globalProperties = globalProperties;
-      return this;
-    }
-
-    /**
-     * @deprecated since 6.6 use {@link #setGlobalProperties(Map)}
-     */
-    @Deprecated
-    public Builder setBootstrapProperties(Map<String, String> bootstrapProperties) {
-      this.globalProperties = bootstrapProperties;
       return this;
     }
 

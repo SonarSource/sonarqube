@@ -38,7 +38,6 @@ public class SearchRequest {
   private List<String> author;
   private String branch;
   private List<String> componentKeys;
-  private List<String> componentUuids;
   private String createdAfter;
   private String createdAt;
   private String createdBefore;
@@ -173,20 +172,6 @@ public class SearchRequest {
 
   public List<String> getComponentKeys() {
     return componentKeys;
-  }
-
-  /**
-   * Example value: "584a89f2-8037-4f7b-b82c-8b45d2d63fb2"
-   * @deprecated since 6.5
-   */
-  @Deprecated
-  public SearchRequest setComponentUuids(List<String> componentUuids) {
-    this.componentUuids = componentUuids;
-    return this;
-  }
-
-  public List<String> getComponentUuids() {
-    return componentUuids;
   }
 
   /**

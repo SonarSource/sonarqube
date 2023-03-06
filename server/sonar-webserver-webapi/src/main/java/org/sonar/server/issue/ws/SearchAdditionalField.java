@@ -31,11 +31,6 @@ import org.sonar.server.issue.SearchRequest;
 public enum SearchAdditionalField {
 
   ACTIONS("actions"),
-  /**
-   * @deprecated since 5.5, action plan feature has been removed
-   */
-  @Deprecated
-  DEPRECATED_ACTION_PLANS("actionPlans"),
   COMMENTS("comments"),
   LANGUAGES("languages"),
   RULES("rules"),

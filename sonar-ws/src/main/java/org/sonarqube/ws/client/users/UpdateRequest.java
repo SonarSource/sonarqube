@@ -85,16 +85,6 @@ public class UpdateRequest {
     return scmAccount;
   }
 
-  /**
-   * Example value: "myscmaccount1,myscmaccount2"
-   * @deprecated since 6.1
-   */
-  @Deprecated
-  public UpdateRequest setScmAccounts(String scmAccounts) {
-    this.scmAccounts = scmAccounts;
-    return this;
-  }
-
   public String getScmAccounts() {
     return scmAccounts;
   }

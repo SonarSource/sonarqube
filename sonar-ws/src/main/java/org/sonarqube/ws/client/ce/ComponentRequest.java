@@ -45,16 +45,6 @@ public class ComponentRequest {
     return component;
   }
 
-  /**
-   * Example value: "AU-Tpxb--iU5OvuD2FLy"
-   * @deprecated since 6.6
-   */
-  @Deprecated
-  public ComponentRequest setComponentId(String componentId) {
-    this.componentId = componentId;
-    return this;
-  }
-
   public String getComponentId() {
     return componentId;
   }

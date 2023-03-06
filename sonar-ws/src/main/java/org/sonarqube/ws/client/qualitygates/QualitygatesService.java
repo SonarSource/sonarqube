@@ -125,7 +125,6 @@ public class QualitygatesService extends BaseService {
   public void deselect(DeselectRequest request) {
     call(
       new PostRequest(path("deselect"))
-        .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
         .setMediaType(MediaTypes.JSON)).content();
   }

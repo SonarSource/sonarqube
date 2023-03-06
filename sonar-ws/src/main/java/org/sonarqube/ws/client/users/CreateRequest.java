@@ -119,16 +119,6 @@ public class CreateRequest {
     return scmAccount;
   }
 
-  /**
-   * Example value: "myscmaccount1,myscmaccount2"
-   * @deprecated since 6.1
-   */
-  @Deprecated
-  public CreateRequest setScmAccounts(List<String> scmAccounts) {
-    this.scmAccounts = scmAccounts;
-    return this;
-  }
-
   public List<String> getScmAccounts() {
     return scmAccounts;
   }

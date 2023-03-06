@@ -36,11 +36,6 @@ import static org.sonar.server.platform.db.migration.def.Validations.validateCol
 @Immutable
 public class VarcharColumnDef extends AbstractColumnDef {
   public static final int MAX_SIZE = 4_000;
-  /**
-   * @deprecated use {@link #UUID_SIZE} instead
-   */
-  @Deprecated
-  public static final int UUID_VARCHAR_SIZE = 50;
   public static final int UUID_SIZE = 40;
 
   public static final int DESCRIPTION_SECTION_KEY_SIZE = 50;

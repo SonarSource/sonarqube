@@ -222,7 +222,6 @@ public class IssuesService extends BaseService {
         .setParam("author", request.getAuthor())
         .setParam("branch", request.getBranch())
         .setParam("componentKeys", request.getComponentKeys() == null ? null : request.getComponentKeys().stream().collect(Collectors.joining(",")))
-        .setParam("componentUuids", request.getComponentUuids() == null ? null : request.getComponentUuids().stream().collect(Collectors.joining(",")))
         .setParam("createdAfter", request.getCreatedAfter())
         .setParam("createdAt", request.getCreatedAt())
         .setParam("createdBefore", request.getCreatedBefore())
