@@ -88,6 +88,11 @@ describe('Global Settings', () => {
       expect(ui.categoryLink(name).get()).toBeInTheDocument();
     });
 
+    // Visible only for project
+    expect(
+      ui.categoryLink('settings.pr_decoration.binding.category').query()
+    ).not.toBeInTheDocument();
+
     expect(await ui.announcementHeading.find()).toBeInTheDocument();
 
     // Navigating to Languages category
@@ -167,6 +172,9 @@ describe('Project Settings', () => {
     projectCategories.forEach((name) => {
       expect(ui.categoryLink(name).get()).toBeInTheDocument();
     });
+
+    // Visible only for global settings
+    expect(ui.categoryLink('property.category.almintegration').query()).not.toBeInTheDocument();
 
     expect(await ui.announcementHeading.find()).toBeInTheDocument();
 
