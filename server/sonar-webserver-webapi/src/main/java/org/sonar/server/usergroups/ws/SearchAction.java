@@ -35,9 +35,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.api.utils.Paging.forPageIndex;
@@ -52,16 +54,19 @@ public class SearchAction implements UserGroupsWsAction {
   private static final String FIELD_NAME = "name";
   private static final String FIELD_DESCRIPTION = "description";
   private static final String FIELD_MEMBERS_COUNT = "membersCount";
-  private static final List<String> ALL_FIELDS = Arrays.asList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_MEMBERS_COUNT);
+  private static final String FIELD_IS_MANAGED = "managed";
+  private static final List<String> ALL_FIELDS = Arrays.asList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_MEMBERS_COUNT, FIELD_IS_MANAGED);
 
   private final DbClient dbClient;
   private final UserSession userSession;
   private final DefaultGroupFinder defaultGroupFinder;
+  private final ManagedInstanceService managedInstanceService;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, DefaultGroupFinder defaultGroupFinder) {
+  public SearchAction(DbClient dbClient, UserSession userSession, DefaultGroupFinder defaultGroupFinder, ManagedInstanceService managedInstanceService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultGroupFinder = defaultGroupFinder;
+    this.managedInstanceService = managedInstanceService;
   }
 
   @Override
@@ -76,6 +81,7 @@ public class SearchAction implements UserGroupsWsAction {
       .addPagingParams(100, MAX_PAGE_SIZE)
       .addSearchQuery("sonar-users", "names")
       .setChangelog(
+        new Change("10.0", "Response includes 'managed' field."),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
         new Change("6.4", "Paging response fields moved to a Paging object"),
         new Change("6.4", "'default' response field has been added"));
@@ -99,8 +105,9 @@ public class SearchAction implements UserGroupsWsAction {
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(limit);
       List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, query, options.getOffset(), pageSize);
       List<String> groupUuids = groups.stream().map(GroupDto::getUuid).collect(MoreCollectors.toList(groups.size()));
+      Map<String, Boolean> groupUuidToIsManaged = managedInstanceService.getGroupUuidToManaged(dbSession, new HashSet<>(groupUuids));
       Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupUuids);
-      writeProtobuf(buildResponse(groups, userCountByGroup, fields, paging, defaultGroup), request, response);
+      writeProtobuf(buildResponse(groups, userCountByGroup, groupUuidToIsManaged, fields, paging, defaultGroup), request, response);
     }
   }
 
@@ -115,10 +122,11 @@ public class SearchAction implements UserGroupsWsAction {
     return fields;
   }
 
-  private static SearchWsResponse buildResponse(List<GroupDto> groups, Map<String, Integer> userCountByGroup, Set<String> fields, Paging paging, GroupDto defaultGroup) {
+  private static SearchWsResponse buildResponse(List<GroupDto> groups, Map<String, Integer> userCountByGroup,
+    Map<String, Boolean> groupUuidToIsManaged, Set<String> fields, Paging paging, GroupDto defaultGroup) {
     SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     groups.forEach(group -> responseBuilder
-      .addGroups(toWsGroup(group, userCountByGroup.get(group.getName()), fields, defaultGroup.getUuid().equals(group.getUuid()))));
+      .addGroups(toWsGroup(group, userCountByGroup.get(group.getName()), groupUuidToIsManaged.get(group.getUuid()), fields, defaultGroup.getUuid().equals(group.getUuid()))));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())
@@ -127,7 +135,7 @@ public class SearchAction implements UserGroupsWsAction {
     return responseBuilder.build();
   }
 
-  private static Group toWsGroup(GroupDto group, Integer memberCount, Set<String> fields, boolean isDefault) {
+  private static Group toWsGroup(GroupDto group, Integer memberCount, Boolean isManaged, Set<String> fields, boolean isDefault) {
     Group.Builder groupBuilder = Group.newBuilder()
       .setId(group.getUuid())
       .setDefault(isDefault);
@@ -139,6 +147,9 @@ public class SearchAction implements UserGroupsWsAction {
     }
     if (fields.contains(FIELD_MEMBERS_COUNT)) {
       groupBuilder.setMembersCount(memberCount);
+    }
+    if (fields.contains(FIELD_IS_MANAGED)) {
+      groupBuilder.setManaged(TRUE.equals(isManaged));
     }
     return groupBuilder.build();
   }

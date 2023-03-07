@@ -11,7 +11,8 @@
       "email": "email-1",
       "permissions": [
         "scan"
-      ]
+      ],
+      "managed": true
     },
     {
       "login": "login-2",
@@ -19,7 +20,8 @@
       "email": "email-2",
       "permissions": [
         "scan"
-      ]
+      ],
+      "managed": false
     }
   ]
 }

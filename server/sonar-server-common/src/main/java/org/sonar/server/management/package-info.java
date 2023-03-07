@@ -18,18 +18,3 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.sonar.server.management;
-
-import java.util.Map;
-import java.util.Set;
-import org.sonar.db.DbSession;
-
-public interface ManagedInstanceService {
-
-  int DELEGATING_INSTANCE_PRIORITY = 1;
-
-  boolean isInstanceExternallyManaged();
-
-  Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids);
-
-  Map<String, Boolean> getGroupUuidToManaged(DbSession dbSession, Set<String> groupUuids);
-}

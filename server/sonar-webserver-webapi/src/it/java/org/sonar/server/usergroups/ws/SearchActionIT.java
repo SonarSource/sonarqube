@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.Change;
@@ -28,6 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -35,10 +37,15 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -57,9 +64,10 @@ public class SearchActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
   private final WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession,
-    new DefaultGroupFinder(db.getDbClient())));
+    new DefaultGroupFinder(db.getDbClient()), managedInstanceService));
 
   @Test
   public void define_search_action() {
@@ -69,6 +77,7 @@ public class SearchActionIT {
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(4);
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.0", "Response includes 'managed' field."),
       tuple("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
       tuple("6.4", "Paging response fields moved to a Paging object"),
       tuple("6.4", "'default' response field has been added"));
@@ -91,6 +100,26 @@ public class SearchActionIT {
       tuple("customer2", "Customer2", 0),
       tuple("customer3", "Customer3", 0),
       tuple("sonar-users", "Users", 0));
+  }
+
+  @Test
+  public void search_returnsCorrectlyIsManagedFlag() {
+    insertDefaultGroup(0);
+    insertGroup("admins", 0);
+    insertGroup("customer1", 0);
+    GroupDto customer2group = insertGroup("customer2", 0);
+    GroupDto customer3group = insertGroup("customer3", 0);
+    mockGroupAsManaged(customer2group.getUuid(), customer3group.getUuid());
+    loginAsAdmin();
+
+    SearchWsResponse response = call(ws.newRequest());
+
+    assertThat(response.getGroupsList()).extracting(Group::getName, Group::getManaged).containsOnly(
+      tuple("admins", false),
+      tuple("customer1", false),
+      tuple("customer2", true),
+      tuple("customer3", true),
+      tuple("sonar-users", false));
   }
 
   @Test
@@ -161,16 +190,24 @@ public class SearchActionIT {
     insertDefaultGroup(0);
     loginAsAdmin();
 
-    assertThat(call(ws.newRequest()).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
-      .containsOnly(tuple(true, true, true, true));
-    assertThat(call(ws.newRequest().setParam(FIELDS, "")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
-      .containsOnly(tuple(true, true, true, true));
-    assertThat(call(ws.newRequest().setParam(FIELDS, "name")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
-      .containsOnly(tuple(true, true, false, false));
-    assertThat(call(ws.newRequest().setParam(FIELDS, "description")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
-      .containsOnly(tuple(true, false, true, false));
-    assertThat(call(ws.newRequest().setParam(FIELDS, "membersCount")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
-      .containsOnly(tuple(true, false, false, true));
+    assertThat(call(ws.newRequest()).getGroupsList())
+      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(true, true, true, true, true));
+    assertThat(call(ws.newRequest().setParam(FIELDS, "")).getGroupsList())
+      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(true, true, true, true, true));
+    assertThat(call(ws.newRequest().setParam(FIELDS, "name")).getGroupsList())
+      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(true, true, false, false, false));
+    assertThat(call(ws.newRequest().setParam(FIELDS, "description")).getGroupsList())
+      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(true, false, true, false, false));
+    assertThat(call(ws.newRequest().setParam(FIELDS, "membersCount")).getGroupsList())
+      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(true, false, false, true, false));
+    assertThat(call(ws.newRequest().setParam(FIELDS, "managed")).getGroupsList())
+      .extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount, Group::hasManaged)
+      .containsOnly(tuple(true, false, false, false, true));
   }
 
   @Test
@@ -196,7 +233,8 @@ public class SearchActionIT {
   @Test
   public void test_json_example() {
     insertDefaultGroup(17);
-    insertGroup("administrators", 2);
+    GroupDto groupDto = insertGroup("administrators", 2);
+    mockGroupAsManaged(groupDto.getUuid());
     loginAsAdmin();
 
     String response = ws.newRequest().setMediaType(MediaTypes.JSON).execute().getInput();
@@ -215,7 +253,7 @@ public class SearchActionIT {
 
     assertThat(action.params()).extracting(WebService.Param::key).containsOnly("p", "q", "ps", "f");
 
-    assertThat(action.param("f").possibleValues()).containsOnly("name", "description", "membersCount");
+    assertThat(action.param("f").possibleValues()).containsOnly("name", "description", "membersCount", "managed");
   }
 
   private SearchWsResponse call(TestRequest request) {
@@ -227,10 +265,22 @@ public class SearchActionIT {
     addMembers(group, numberOfMembers);
   }
 
-  private void insertGroup(String name, int numberOfMembers) {
+  private GroupDto insertGroup(String name, int numberOfMembers) {
     GroupDto group = newGroupDto().setName(name).setDescription(capitalize(name));
     db.users().insertGroup(group);
     addMembers(group, numberOfMembers);
+    return group;
+  }
+
+  private void mockGroupAsManaged(String... groupUuids) {
+    when(managedInstanceService.getGroupUuidToManaged(any(), any())).thenAnswer(invocation ->
+      {
+        @SuppressWarnings("unchecked")
+        Set<String> allGroupUuids = (Set<String>) invocation.getArgument(1, Set.class);
+        return allGroupUuids.stream()
+          .collect(toMap(identity(), userUuid -> Set.of(groupUuids).contains(userUuid)));
+      }
+    );
   }
 
   private void addMembers(GroupDto group, int numberOfMembers) {

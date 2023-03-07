@@ -19,9 +19,18 @@
  */
 package org.sonar.server.management;
 
+import com.google.common.collect.MoreCollectors;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Priority;
 import org.sonar.api.server.ServerSide;
+import org.sonar.db.DbSession;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static org.sonar.api.utils.Preconditions.checkState;
 
 @ServerSide
 @Priority(ManagedInstanceService.DELEGATING_INSTANCE_PRIORITY)
@@ -35,5 +44,33 @@ public class DelegatingManagedInstanceService implements ManagedInstanceService 
 
   public final boolean isInstanceExternallyManaged() {
     return delegates.stream().anyMatch(ManagedInstanceService::isInstanceExternallyManaged);
+  }
+
+  @Override
+  public Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids) {
+    return findManagedInstanceService()
+      .map(managedInstanceService -> managedInstanceService.getUserUuidToManaged(dbSession, userUuids))
+      .orElse(returnNonManagedForAllGroups(userUuids));
+  }
+
+  @Override
+  public Map<String, Boolean> getGroupUuidToManaged(DbSession dbSession, Set<String> groupUuids) {
+    return findManagedInstanceService()
+      .map(managedInstanceService -> managedInstanceService.getGroupUuidToManaged(dbSession, groupUuids))
+      .orElse(returnNonManagedForAllGroups(groupUuids));
+  }
+
+  private Optional<ManagedInstanceService> findManagedInstanceService() {
+    Set<ManagedInstanceService> managedInstanceServices = delegates.stream()
+      .filter(ManagedInstanceService::isInstanceExternallyManaged)
+      .collect(toSet());
+
+    checkState(managedInstanceServices.size() < 2,
+      "The instance can't be managed by more than one identity provider and %s were found.", managedInstanceServices.size());
+    return managedInstanceServices.stream().collect(MoreCollectors.toOptional());
+  }
+
+  private static Map<String, Boolean> returnNonManagedForAllGroups(Set<String> resourcesUuid) {
+    return resourcesUuid.stream().collect(toMap(identity(), any -> false));
   }
 }

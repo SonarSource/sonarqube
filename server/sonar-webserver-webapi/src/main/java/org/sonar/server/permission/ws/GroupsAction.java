@@ -24,7 +24,9 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
 import com.google.common.io.Resources;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
@@ -40,12 +42,14 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.Group;
 import org.sonarqube.ws.Permissions.WsGroupsResponse;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
@@ -58,12 +62,15 @@ public class GroupsAction implements PermissionsWsAction {
   private final UserSession userSession;
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
+  private final ManagedInstanceService managedInstanceService;
 
-  public GroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, WsParameters wsParameters) {
+  public GroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, WsParameters wsParameters,
+    ManagedInstanceService managedInstanceService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
+    this.managedInstanceService = managedInstanceService;
   }
 
   @Override
@@ -81,6 +88,7 @@ public class GroupsAction implements PermissionsWsAction {
         "</ul>")
       .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
       .setChangelog(
+        new Change("10.0", "Response includes 'managed' field."),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
         new Change("7.4", "The response list is returning all groups even those without permissions, the groups with permission are at the top of the list."))
       .setResponseExample(Resources.getResource(getClass(), "groups-example.json"))
@@ -104,10 +112,15 @@ public class GroupsAction implements PermissionsWsAction {
       List<GroupDto> groups = findGroups(dbSession, query);
       int total = dbClient.groupPermissionDao().countGroupsByQuery(dbSession, query);
       List<GroupPermissionDto> groupsWithPermission = findGroupPermissions(dbSession, groups, project.orElse(null));
+      Map<String, Boolean> groupUuidToIsManaged = managedInstanceService.getGroupUuidToManaged(dbSession, getUserUuids(groups));
       Paging paging = Paging.forPageIndex(request.mandatoryParamAsInt(Param.PAGE)).withPageSize(query.getPageSize()).andTotal(total);
-      WsGroupsResponse groupsResponse = buildResponse(groups, groupsWithPermission, paging);
+      WsGroupsResponse groupsResponse = buildResponse(groups, groupsWithPermission, groupUuidToIsManaged, paging);
       writeProtobuf(groupsResponse, request, response);
     }
+  }
+
+  private static Set<String> getUserUuids(List<GroupDto> groups) {
+    return groups.stream().map(GroupDto::getUuid).collect(toSet());
   }
 
   private static PermissionQuery buildPermissionQuery(Request request, @Nullable ComponentDto project) {
@@ -123,7 +136,8 @@ public class GroupsAction implements PermissionsWsAction {
     return permissionQuery.build();
   }
 
-  private static WsGroupsResponse buildResponse(List<GroupDto> groups, List<GroupPermissionDto> groupPermissions, Paging paging) {
+  private static WsGroupsResponse buildResponse(List<GroupDto> groups, List<GroupPermissionDto> groupPermissions,
+    Map<String, Boolean> groupUuidToIsManaged, Paging paging) {
     Multimap<String, String> permissionsByGroupUuid = TreeMultimap.create();
     groupPermissions.forEach(groupPermission -> permissionsByGroupUuid.put(groupPermission.getGroupUuid(), groupPermission.getRole()));
     WsGroupsResponse.Builder response = WsGroupsResponse.newBuilder();
@@ -136,6 +150,7 @@ public class GroupsAction implements PermissionsWsAction {
       }
       ofNullable(group.getDescription()).ifPresent(wsGroup::setDescription);
       wsGroup.addAllPermissions(permissionsByGroupUuid.get(group.getUuid()));
+      wsGroup.setManaged(groupUuidToIsManaged.getOrDefault(group.getUuid(), false));
     });
 
     response.getPagingBuilder()

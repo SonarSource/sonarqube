@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.AvatarResolverImpl;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
@@ -41,8 +43,13 @@ import org.sonarqube.ws.Users.SearchWsResponse.User;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -57,9 +64,10 @@ public class SearchActionIT {
   @Rule
   public DbTester db = DbTester.create();
 
+  private ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
   private UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, index, db.getDbClient(), new AvatarResolverImpl()));
+  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, index, db.getDbClient(), new AvatarResolverImpl(), managedInstanceService));
 
   @Test
   public void search_for_all_active_users() {
@@ -137,6 +145,25 @@ public class SearchActionIT {
     assertThat(response.getUsersList())
       .extracting(User::getLogin, User::getAvatar)
       .containsExactlyInAnyOrder(tuple(user.getLogin(), "6a6c19fea4a3676970167ce51f39e6ee"));
+  }
+
+  @Test
+  public void return_isManaged() {
+    UserDto nonManagedUser = db.users().insertUser(u -> u.setEmail("john@doe.com"));
+    UserDto managedUser = db.users().insertUser(u -> u.setEmail("externalUser@doe.com"));
+    mockUsersAsManaged(managedUser.getUuid());
+    userIndexer.indexAll();
+    userSession.logIn().setSystemAdministrator();
+
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getManaged)
+      .containsExactlyInAnyOrder(
+        tuple(managedUser.getLogin(), true),
+        tuple(nonManagedUser.getLogin(), false)
+      );
   }
 
   @Test
@@ -273,8 +300,8 @@ public class SearchActionIT {
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getUsersList())
-      .extracting(User::getLogin, User::getName, User::hasTokensCount, User::hasScmAccounts, User::hasAvatar, User::hasGroups)
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getName(), false, false, false, false));
+      .extracting(User::getLogin, User::getName, User::hasTokensCount, User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::hasManaged)
+      .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getName(), false, false, false, false, false));
   }
 
   @Test
@@ -310,9 +337,9 @@ public class SearchActionIT {
     assertThat(ws.newRequest().setParam("q", user.getLogin())
       .executeProtobuf(SearchWsResponse.class).getUsersList())
       .extracting(User::getLogin, User::getName, User::getEmail, User::getExternalIdentity, User::getExternalProvider,
-        User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::getTokensCount, User::hasLastConnectionDate)
+        User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::getTokensCount, User::hasLastConnectionDate, User::hasManaged)
       .containsExactlyInAnyOrder(
-        tuple(user.getLogin(), user.getName(), user.getEmail(), user.getExternalLogin(), user.getExternalIdentityProvider(), true, true, true, 2, true));
+        tuple(user.getLogin(), user.getName(), user.getEmail(), user.getExternalLogin(), user.getExternalIdentityProvider(), true, true, true, 2, true, true));
 
     userSession.logIn(otherUser);
     assertThat(ws.newRequest().setParam("q", user.getLogin())
@@ -374,6 +401,8 @@ public class SearchActionIT {
       .setExternalLogin("sbrandhof@ldap.com")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(asList("simon.brandhof", "s.brandhof@company.tld")));
+    mockUsersAsManaged(simon.getUuid());
+
     GroupDto sonarUsers = db.users().insertGroup("sonar-users");
     GroupDto sonarAdministrators = db.users().insertGroup("sonar-administrators");
     db.users().insertMember(sonarUsers, simon);
@@ -398,6 +427,17 @@ public class SearchActionIT {
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(4);
+  }
+
+  private void mockUsersAsManaged(String... userUuids) {
+    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation ->
+      {
+        Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
+        return allUsersUuids.stream()
+          .map(userUuid -> (String) userUuid)
+          .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
+      }
+    );
   }
 
 }

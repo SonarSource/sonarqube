@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -37,6 +39,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -47,6 +50,7 @@ import org.sonarqube.ws.Users.SearchWsResponse;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
+import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -68,12 +72,15 @@ public class SearchAction implements UsersWsAction {
   private final UserIndex userIndex;
   private final DbClient dbClient;
   private final AvatarResolver avatarResolver;
+  private final ManagedInstanceService managedInstanceService;
 
-  public SearchAction(UserSession userSession, UserIndex userIndex, DbClient dbClient, AvatarResolver avatarResolver) {
+  public SearchAction(UserSession userSession, UserIndex userIndex, DbClient dbClient, AvatarResolver avatarResolver,
+    ManagedInstanceService managedInstanceService) {
     this.userSession = userSession;
     this.userIndex = userIndex;
     this.dbClient = dbClient;
     this.avatarResolver = avatarResolver;
+    this.managedInstanceService = managedInstanceService;
   }
 
   @Override
@@ -92,6 +99,7 @@ public class SearchAction implements UsersWsAction {
         "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.0", "Response includes 'managed' field."),
         new Change("9.7", "New parameter 'deactivated' to optionally search for deactivated users"),
         new Change("7.7", "New field 'lastConnectionDate' is added to response"),
         new Change("7.4", "External identity is only returned to system administrators"),
@@ -139,14 +147,22 @@ public class SearchAction implements UsersWsAction {
       Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
       List<UserDto> users = dbClient.userDao().selectByOrderedLogins(dbSession, logins);
       Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByUsers(dbSession, users);
+      Map<String, Boolean> userUuidToIsManaged = managedInstanceService.getUserUuidToManaged(dbSession, getUserUuids(users));
       Paging paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal((int) result.getTotal());
-      return buildResponse(users, groupsByLogin, tokenCountsByLogin, paging);
+      return buildResponse(users, groupsByLogin, tokenCountsByLogin, userUuidToIsManaged, paging);
     }
   }
 
-  private SearchWsResponse buildResponse(List<UserDto> users, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin, Paging paging) {
+  private static Set<String> getUserUuids(List<UserDto> users) {
+    return users.stream().map(UserDto::getUuid).collect(Collectors.toSet());
+  }
+
+  private SearchWsResponse buildResponse(List<UserDto> users, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin,
+    Map<String, Boolean> userUuidToIsManaged, Paging paging) {
     SearchWsResponse.Builder responseBuilder = newBuilder();
-    users.forEach(user -> responseBuilder.addUsers(towsUser(user, firstNonNull(tokenCountsByLogin.get(user.getUuid()), 0), groupsByLogin.get(user.getLogin()))));
+    users.forEach(user -> responseBuilder.addUsers(
+      towsUser(user, firstNonNull(tokenCountsByLogin.get(user.getUuid()), 0), groupsByLogin.get(user.getLogin()), userUuidToIsManaged.get(user.getUuid()))
+    ));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())
@@ -155,7 +171,7 @@ public class SearchAction implements UsersWsAction {
     return responseBuilder.build();
   }
 
-  private User towsUser(UserDto user, @Nullable Integer tokensCount, Collection<String> groups) {
+  private User towsUser(UserDto user, @Nullable Integer tokensCount, Collection<String> groups, Boolean isManaged) {
     User.Builder userBuilder = User.newBuilder().setLogin(user.getLogin());
     ofNullable(user.getName()).ifPresent(userBuilder::setName);
     if (userSession.isLoggedIn()) {
@@ -175,6 +191,7 @@ public class SearchAction implements UsersWsAction {
       ofNullable(user.getExternalLogin()).ifPresent(userBuilder::setExternalIdentity);
       ofNullable(tokensCount).ifPresent(userBuilder::setTokensCount);
       ofNullable(user.getLastConnectionDate()).ifPresent(date -> userBuilder.setLastConnectionDate(formatDateTime(date)));
+      userBuilder.setManaged(TRUE.equals(isManaged));
     }
     return userBuilder.build();
   }

@@ -121,6 +121,7 @@ message User {
   optional string email = 3;
   repeated string permissions = 4;
   optional string avatar = 5;
+  optional bool managed = 6;
 }
 
 message OldGroup {
@@ -135,4 +136,5 @@ message Group {
   optional string name = 2;
   optional string description = 3;
   repeated string permissions = 4;
+  optional bool managed = 5;
 }

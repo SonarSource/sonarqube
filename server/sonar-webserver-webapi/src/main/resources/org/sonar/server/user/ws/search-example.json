@@ -18,7 +18,8 @@
       "local": true,
       "externalIdentity": "fmallet",
       "externalProvider": "sonarqube",
-      "avatar": "2f9dff586d3f74f825b059e3798a3bbb"
+      "avatar": "2f9dff586d3f74f825b059e3798a3bbb",
+      "managed": false
     },
     {
       "login": "sbrandhof",
@@ -36,7 +37,8 @@
       "local": false,
       "externalIdentity": "sbrandhof@ldap.com",
       "externalProvider": "sonarqube",
-      "avatar": "3930ad855bc7fe48db8e9a663174cdd3"
+      "avatar": "3930ad855bc7fe48db8e9a663174cdd3",
+      "managed": true
     }
   ]
 }

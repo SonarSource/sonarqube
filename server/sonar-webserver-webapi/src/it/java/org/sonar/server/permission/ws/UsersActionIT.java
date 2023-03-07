@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws;
 
+import java.util.Set;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
@@ -34,14 +35,20 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.AvatarResolverImpl;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.RequestValidator;
 
 import static java.lang.String.format;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang.StringUtils.countMatches;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -58,10 +65,11 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
   private WsParameters wsParameters = new WsParameters(permissionService);
   private RequestValidator requestValidator = new RequestValidator(permissionService);
+  private ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
   @Override
   protected UsersAction buildWsAction() {
-    return new UsersAction(db.getDbClient(), userSession, newPermissionWsSupport(), new AvatarResolverImpl(), wsParameters, requestValidator);
+    return new UsersAction(db.getDbClient(), userSession, newPermissionWsSupport(), new AvatarResolverImpl(), wsParameters, requestValidator, managedInstanceService);
   }
 
   @Test
@@ -73,6 +81,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
     db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.ADMINISTER);
     db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.ADMINISTER_QUALITY_GATES);
     db.users().insertGlobalPermissionOnUser(user3, GlobalPermission.SCAN);
+    mockUsersAsManaged(user3.getUuid());
 
     loginAsAdmin();
     String result = newRequest().execute().getInput();
@@ -346,6 +355,17 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
     db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.SCAN);
     db.users().insertGlobalPermissionOnUser(user2, GlobalPermission.SCAN);
     db.users().insertGlobalPermissionOnUser(user3, GlobalPermission.ADMINISTER);
+    mockUsersAsManaged(user1.getUuid());
   }
 
+  private void mockUsersAsManaged(String... userUuids) {
+    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation ->
+      {
+        Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
+        return allUsersUuids.stream()
+          .map(userUuid -> (String) userUuid)
+          .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
+      }
+    );
+  }
 }

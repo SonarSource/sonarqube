@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.Change;
@@ -31,14 +32,20 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
@@ -50,8 +57,11 @@ public class UsersActionIT {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
+  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
+
   private final WsActionTester ws = new WsActionTester(
-    new UsersAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()))));
+    new UsersAction(db.getDbClient(), userSession, managedInstanceService, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()))));
 
   @Test
   public void verify_definition() {
@@ -61,6 +71,7 @@ public class UsersActionIT {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isFalse();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.0", "Field 'managed' added to the payload."),
       tuple("10.0", "Parameter 'id' is removed. Use 'name' instead."),
       tuple("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead."),
       tuple("9.8", "The field 'paging' has been added to the response."),
@@ -133,6 +144,31 @@ public class UsersActionIT {
         "users": [
           {"login": "ada.login", "name": "Ada Lovelace", "selected": true},
           {"login": "grace", "name": "Grace Hopper", "selected": false}
+        ]
+      }
+      """);
+  }
+
+  @Test
+  public void test_isManagedFlag() {
+    GroupDto group = db.users().insertGroup();
+    UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
+    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    mockUsersAsManaged(hopper.getUuid());
+    db.users().insertMember(group, hopper);
+    db.users().insertMember(group, lovelace);
+    loginAsAdmin();
+
+    String result = newUsersRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .execute()
+      .getInput();
+
+    assertJson(result).isSimilarTo("""
+      {
+        "users": [
+          {"login": "ada.login", "name": "Ada Lovelace", "managed": false},
+          {"login": "grace", "name": "Grace Hopper", "managed": true}
         ]
       }
       """);
@@ -327,6 +363,7 @@ public class UsersActionIT {
     db.users().insertMember(group, admin);
     UserDto george = db.users().insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell"));
     db.users().insertMember(group, george);
+    mockUsersAsManaged(george.getUuid());
     loginAsAdmin();
 
     String result = newUsersRequest()
@@ -344,6 +381,17 @@ public class UsersActionIT {
 
   private void loginAsAdmin() {
     userSession.logIn().addPermission(ADMINISTER);
+  }
+
+  private void mockUsersAsManaged(String... userUuids) {
+    when(managedInstanceService.getUserUuidToManaged(any(), any())).thenAnswer(invocation ->
+      {
+        Set<?> allUsersUuids = invocation.getArgument(1, Set.class);
+        return allUsersUuids.stream()
+          .map(userUuid -> (String) userUuid)
+          .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
+      }
+    );
   }
 
 }

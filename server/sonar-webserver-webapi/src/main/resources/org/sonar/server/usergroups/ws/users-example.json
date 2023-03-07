@@ -3,12 +3,14 @@
     {
       "login": "admin",
       "name": "Administrator",
-      "selected": true
+      "selected": true,
+      "managed": false
     },
     {
       "login": "george.orwell",
       "name": "George Orwell",
-      "selected": true
+      "selected": true,
+      "managed": true
     }
   ],
   "paging": {

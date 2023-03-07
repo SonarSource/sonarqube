@@ -1,0 +1,17 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 20,
+    "total": 2
+  },
+  "groups": [
+    {
+      "name": "local-group",
+      "managed": false
+    },
+    {
+      "name": "managed-group",
+      "managed": true
+    }
+  ]
+}
