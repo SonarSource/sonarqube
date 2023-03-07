@@ -65,7 +65,7 @@ sonar.qualitygate.wait=true
 
 exports[`should follow and complete all steps: Gradle: build.gradle 1`] = `
 "plugins {
-  id "org.sonarqube" version "3.5.0.2730"
+  id "org.sonarqube" version "4.0.0.2929"
 }
 
 sonar {
