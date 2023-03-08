@@ -75,11 +75,6 @@ function smoothScrollTop(parent: Element | Window, position: number) {
   return smoothScroll(position, scroll.y, (position) => scrollElement(parent, scroll.x, position));
 }
 
-function smoothScrollLeft(parent: Element | Window, position: number) {
-  const scroll = getScroll(parent);
-  return smoothScroll(position, scroll.x, (position) => scrollElement(parent, position, scroll.y));
-}
-
 /**
  * @deprecated use scrollIntoView instead
  */
@@ -120,48 +115,6 @@ export function scrollToElement(
       addToScrollQueue(smoothScrollTop, parent, goal);
     } else {
       addToScrollQueue(scrollElement, parent, scroll.x, goal);
-    }
-  }
-}
-
-/**
- * @deprecated use scrollIntoView instead
- */
-export function scrollHorizontally(
-  element: Element,
-  options: {
-    leftOffset?: number;
-    rightOffset?: number;
-    parent?: Element;
-    smooth?: boolean;
-  }
-): void {
-  const opts = { leftOffset: 0, rightOffset: 0, parent: window, smooth: true, ...options };
-  const { parent } = opts;
-
-  const { left, right } = element.getBoundingClientRect();
-
-  const scroll = getScroll(parent);
-
-  const { left: parentLeft, width } = isWindow(parent)
-    ? { left: 0, width: window.innerWidth }
-    : parent.getBoundingClientRect();
-
-  if (left - parentLeft < opts.leftOffset) {
-    const goal = scroll.x - opts.leftOffset + left - parentLeft;
-    if (opts.smooth) {
-      addToScrollQueue(smoothScrollLeft, parent, goal);
-    } else {
-      addToScrollQueue(scrollElement, parent, goal, scroll.y);
-    }
-  }
-
-  if (right - parentLeft > width - opts.rightOffset) {
-    const goal = scroll.x + right - parentLeft - width + opts.rightOffset;
-    if (opts.smooth) {
-      addToScrollQueue(smoothScrollLeft, parent, goal);
-    } else {
-      addToScrollQueue(scrollElement, parent, goal, scroll.y);
     }
   }
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { scrollHorizontally, scrollToElement } from '../scrolling';
+import { scrollToElement } from '../scrolling';
 
 beforeAll(() => {
   jest.useFakeTimers();
@@ -106,112 +106,6 @@ describe('scrollToElement', () => {
 
     expect(window.scrollTo).toHaveBeenCalledTimes(10);
   });
-});
-
-describe('scrollHorizontally', () => {
-  it('should scroll parent left to element', () => {
-    const element = document.createElement('a');
-    element.getBoundingClientRect = mockGetBoundingClientRect({ left: 25, right: 42 });
-
-    const parent = document.createElement('div');
-    parent.getBoundingClientRect = mockGetBoundingClientRect({ width: 67, left: 46 });
-    parent.scrollTop = 12;
-    parent.scrollLeft = 38;
-    parent.appendChild(element);
-
-    document.body.appendChild(parent);
-
-    scrollHorizontally(element, { parent, smooth: false });
-
-    expect(parent.scrollTop).toEqual(12);
-    expect(parent.scrollLeft).toEqual(17);
-  });
-
-  it('should scroll parent right to element', () => {
-    const element = document.createElement('a');
-    element.getBoundingClientRect = mockGetBoundingClientRect({ left: 25, right: 99 });
-
-    const parent = document.createElement('div');
-    parent.getBoundingClientRect = mockGetBoundingClientRect({ width: 67, left: 20 });
-    parent.scrollTop = 12;
-    parent.scrollLeft = 20;
-    parent.appendChild(element);
-
-    document.body.appendChild(parent);
-
-    scrollHorizontally(element, { parent, smooth: false });
-
-    expect(parent.scrollTop).toEqual(12);
-    expect(parent.scrollLeft).toEqual(32);
-  });
-
-  it('should scroll window right to element', () => {
-    const element = document.createElement('a');
-    element.getBoundingClientRect = mockGetBoundingClientRect({ left: 840, right: 845 });
-
-    Object.defineProperty(window, 'innerWidth', { value: 400 });
-    window.scrollTo = jest.fn();
-
-    document.body.appendChild(element);
-
-    scrollHorizontally(element, { smooth: false });
-
-    expect(window.scrollTo).toHaveBeenCalledWith(445, 0);
-  });
-
-  it('should scroll window left to element', () => {
-    const element = document.createElement('a');
-    element.getBoundingClientRect = mockGetBoundingClientRect({ left: -10, right: 10 });
-
-    Object.defineProperty(window, 'innerWidth', { value: 50 });
-    window.scrollTo = jest.fn();
-
-    document.body.appendChild(element);
-
-    scrollHorizontally(element, { smooth: false });
-
-    expect(window.scrollTo).toHaveBeenCalledWith(-10, 0);
-  });
-
-  it('should scroll window right to element smoothly', () => {
-    const element = document.createElement('a');
-    element.getBoundingClientRect = mockGetBoundingClientRect({ left: 840, right: 845 });
-
-    Object.defineProperty(window, 'innerWidth', { value: 400 });
-    window.scrollTo = jest.fn();
-
-    document.body.appendChild(element);
-
-    scrollHorizontally(element, {});
-
-    jest.runAllTimers();
-
-    expect(window.scrollTo).toHaveBeenCalledTimes(10);
-  });
-});
-
-it('correctly queues and processes multiple scroll calls', async () => {
-  const element1 = document.createElement('a');
-  const element2 = document.createElement('a');
-  document.body.appendChild(element1);
-  document.body.appendChild(element2);
-  element1.getBoundingClientRect = mockGetBoundingClientRect({ left: 840, right: 845 });
-  element2.getBoundingClientRect = mockGetBoundingClientRect({ top: -10, bottom: 10 });
-
-  window.scrollTo = jest.fn();
-
-  scrollHorizontally(element1, {});
-  scrollToElement(element2, { smooth: false });
-
-  jest.runAllTimers();
-  await Promise.resolve(setImmediate);
-  await Promise.resolve(setImmediate);
-
-  expect(window.scrollTo).toHaveBeenCalledTimes(11);
-
-  scrollHorizontally(element1, {});
-  jest.runAllTimers();
-  expect(window.scrollTo).toHaveBeenCalledTimes(21);
 });
 
 const mockGetBoundingClientRect = (overrides: Partial<ClientRect>) => () =>
