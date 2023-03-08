@@ -109,28 +109,37 @@ const StyledAlert = styled.div<{ isInline: boolean; variantInfo: AlertVariantInf
 function getAlertVariantInfo(variant: AlertVariant): AlertVariantInformation {
   const variantList: Dict<AlertVariantInformation> = {
     error: {
-      icon: <AlertErrorIcon fill={colors.alertIconError} />,
+      icon: (
+        <AlertErrorIcon label={translate('alert.tooltip.error')} fill={colors.alertIconError} />
+      ),
       color: colors.alertTextError,
       borderColor: colors.alertBorderError,
       backGroundColor: colors.alertBackgroundError,
       role: 'alert',
     },
     warning: {
-      icon: <AlertWarnIcon fill={colors.alertIconWarning} />,
+      icon: (
+        <AlertWarnIcon label={translate('alert.tooltip.warning')} fill={colors.alertIconWarning} />
+      ),
       color: colors.alertTextWarning,
       borderColor: colors.alertBorderWarning,
       backGroundColor: colors.alertBackgroundWarning,
       role: 'alert',
     },
     success: {
-      icon: <AlertSuccessIcon fill={colors.alertIconSuccess} />,
+      icon: (
+        <AlertSuccessIcon
+          label={translate('alert.tooltip.success')}
+          fill={colors.alertIconSuccess}
+        />
+      ),
       color: colors.alertTextSuccess,
       borderColor: colors.alertBorderSuccess,
       backGroundColor: colors.alertBackgroundSuccess,
       role: 'status',
     },
     info: {
-      icon: <InfoIcon fill={colors.alertIconInfo} />,
+      icon: <InfoIcon label={translate('alert.tooltip.info')} fill={colors.alertIconInfo} />,
       color: colors.alertTextInfo,
       borderColor: colors.alertBorderInfo,
       backGroundColor: colors.alertBackgroundInfo,
@@ -159,7 +168,6 @@ export function Alert(props: AlertProps & React.HTMLAttributes<HTMLDivElement>) 
       className={classNames('alert', className)}
       isInline={isInline}
       role={variantInfo.role}
-      aria-label={translate('alert.tooltip', variant)}
       variantInfo={variantInfo}
       {...domProps}
     >

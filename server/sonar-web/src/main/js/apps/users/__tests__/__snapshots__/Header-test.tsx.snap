@@ -1,15 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<header
-  className="page-header"
-  id="users-header"
+<div
+  className="page-header null-spacer-bottom"
 >
-  <h1
+  <h2
     className="page-title"
   >
     users.page
-  </h1>
+  </h2>
   <DeferredSpinner
     loading={true}
   />
@@ -17,6 +16,7 @@ exports[`should render correctly 1`] = `
     className="page-actions"
   >
     <Button
+      disabled={false}
       id="users-create"
       onClick={[Function]}
     >
@@ -28,5 +28,5 @@ exports[`should render correctly 1`] = `
   >
     users.page.description
   </p>
-</header>
+</div>
 `;

@@ -82,13 +82,13 @@ describe('issues app', () => {
         canBrowseAllChildProjects: false,
         qualifier: ComponentQualifier.Portfolio,
       });
-      expect(screen.getByRole('alert', { name: 'alert.tooltip.warning' })).toBeInTheDocument();
+      expect(screen.getByText('issues.not_all_issue_show')).toBeInTheDocument();
 
       await act(async () => {
         await user.keyboard('{ArrowRight}');
       });
 
-      expect(screen.getByRole('alert', { name: 'alert.tooltip.warning' })).toBeInTheDocument();
+      expect(screen.getByText('issues.not_all_issue_show')).toBeInTheDocument();
     });
 
     it('should support OWASP Top 10 version 2021', async () => {
@@ -637,8 +637,8 @@ describe('issues item', () => {
 
     // open severity popup on key press 'i'
     await user.keyboard('i');
-    expect(screen.getByText('severity.MINOR')).toBeInTheDocument();
-    expect(screen.getByText('severity.INFO')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'severity.MINOR' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'severity.INFO' })).toBeInTheDocument();
 
     // open status popup on key press 'f'
     await user.keyboard('f');

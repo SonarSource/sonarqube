@@ -35,14 +35,14 @@ const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
   info: InfoSeverityIcon,
 };
 
-export default function SeverityIcon({ severity, ariaLabel, ...iconProps }: Props) {
+export default function SeverityIcon({ severity, ...iconProps }: Omit<Props, 'label'>) {
   if (!severity) {
     return null;
   }
 
   const DesiredIcon = severityIcons[severity.toLowerCase()];
   return DesiredIcon ? (
-    <DesiredIcon {...iconProps} ariaLabel={ariaLabel ?? translate('severity', severity)} />
+    <DesiredIcon {...iconProps} label={translate('severity', severity)} />
   ) : null;
 }
 

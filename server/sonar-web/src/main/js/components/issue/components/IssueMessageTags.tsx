@@ -64,7 +64,7 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
           <SonarLintIcon
             className="it__issues-sonarlint-quick-fix spacer-right"
             size={15}
-            ariaLabel="sonar-lint-icon"
+            label="sonar-lint-icon"
           />
         </Tooltip>
       )}

@@ -69,10 +69,7 @@ export default function ValidationInput(props: ValidationInputProps) {
       <>
         {children}
         {showValidIcon && isValid && (
-          <AlertSuccessIcon
-            ariaLabel={translate('valid_input')}
-            className="spacer-left text-middle"
-          />
+          <AlertSuccessIcon label={translate('valid_input')} className="spacer-left text-middle" />
         )}
         {isInvalid && <AlertErrorIcon className="spacer-left text-middle" />}
         {hasError && <span className="little-spacer-left text-danger text-middle">{error}</span>}
@@ -83,10 +80,7 @@ export default function ValidationInput(props: ValidationInputProps) {
       <>
         {children}
         {showValidIcon && isValid && (
-          <AlertSuccessIcon
-            ariaLabel={translate('valid_input')}
-            className="spacer-left text-middle"
-          />
+          <AlertSuccessIcon label={translate('valid_input')} className="spacer-left text-middle" />
         )}
         <div className="spacer-top" style={{ display: 'flex' }}>
           {isInvalid && <AlertErrorIcon className="text-middle" />}

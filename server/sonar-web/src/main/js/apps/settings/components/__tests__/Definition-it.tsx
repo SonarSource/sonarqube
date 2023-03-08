@@ -56,7 +56,7 @@ const ui = {
   fieldsInput: (name: string) => byRole('textbox', { name: `property.${name}.name` }),
   savedMsg: byText('settings.state.saved'),
   validationMsg: byText(/settings.state.validation_failed/),
-  jsonFormatStatus: byRole('status', { name: 'alert.tooltip.info' }),
+  jsonFormatStatus: byText('settings.json.format_error'),
   jsonFormatButton: byRole('button', { name: 'settings.json.format' }),
   toggleButton: byRole('switch'),
   selectOption: (value: string) => byText(value),

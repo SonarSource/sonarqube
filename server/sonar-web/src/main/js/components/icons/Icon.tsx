@@ -23,7 +23,7 @@ export interface IconProps extends React.AriaAttributes {
   className?: string;
   fill?: string;
   size?: number;
-  ariaLabel?: string;
+  label?: string;
 }
 
 interface Props extends React.AriaAttributes {
@@ -31,7 +31,7 @@ interface Props extends React.AriaAttributes {
   className?: string;
   size?: number;
   style?: React.CSSProperties;
-  ariaLabel?: string;
+  label?: string;
 
   // try to avoid using these:
   width?: number;
@@ -47,13 +47,13 @@ export default function Icon({
   height = size,
   width = size,
   viewBox = '0 0 16 16',
-  ariaLabel,
+  label,
+  'aria-hidden': hidden,
   ...iconProps
 }: Props) {
   return (
     <svg
       className={className}
-      aria-label={ariaLabel}
       height={height}
       style={{
         fillRule: 'evenodd',
@@ -69,6 +69,7 @@ export default function Icon({
       xmlSpace="preserve"
       {...iconProps}
     >
+      {label && !hidden && <title>{label}</title>}
       {children}
     </svg>
   );

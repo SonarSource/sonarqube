@@ -97,7 +97,7 @@ it('should validate form input', async () => {
   expect(
     screen.getByRole('textbox', { name: 'onboarding.create_project.display_name field_required' })
   ).toHaveValue('');
-  expect(screen.getByLabelText('valid_input')).toBeInTheDocument();
+  expect(screen.getByText('valid_input')).toBeInTheDocument();
   expect(
     screen.getByText('onboarding.create_project.display_name.error.empty')
   ).toBeInTheDocument();

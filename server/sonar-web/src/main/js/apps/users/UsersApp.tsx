@@ -19,13 +19,14 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { getSystemInfo } from '../../api/system';
 import { getIdentityProviders, searchUsers } from '../../api/users';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import ListFooter from '../../components/controls/ListFooter';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
-import { IdentityProvider, Paging } from '../../types/types';
+import { IdentityProvider, Paging, SysInfoCluster } from '../../types/types';
 import { CurrentUser, User } from '../../types/users';
 import Header from './Header';
 import Search from './Search';
@@ -40,6 +41,7 @@ interface Props {
 
 interface State {
   identityProviders: IdentityProvider[];
+  manageProvider?: string;
   loading: boolean;
   paging?: Paging;
   users: User[];
@@ -52,6 +54,7 @@ export class UsersApp extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchIdentityProviders();
+    this.fetchManageInstance();
     this.fetchUsers();
   }
 
@@ -70,6 +73,15 @@ export class UsersApp extends React.PureComponent<Props, State> {
       this.setState({ loading: false });
     }
   };
+
+  async fetchManageInstance() {
+    const info = (await getSystemInfo()) as SysInfoCluster;
+    if (this.mounted) {
+      this.setState({
+        manageProvider: info.System['External Users and Groups Provisioning'],
+      });
+    }
+  }
 
   fetchIdentityProviders = () =>
     getIdentityProviders().then(({ identityProviders }) => {
@@ -116,12 +128,12 @@ export class UsersApp extends React.PureComponent<Props, State> {
 
   render() {
     const query = parseQuery(this.props.location.query);
-    const { loading, paging, users } = this.state;
+    const { loading, paging, users, manageProvider } = this.state;
     return (
       <main className="page page-limited" id="users-page">
         <Suggestions suggestions="users" />
         <Helmet defer={false} title={translate('users.page')} />
-        <Header loading={loading} onUpdateUsers={this.fetchUsers} />
+        <Header loading={loading} onUpdateUsers={this.fetchUsers} manageProvider={manageProvider} />
         <Search query={query} updateQuery={this.updateQuery} />
         <UsersList
           currentUser={this.props.currentUser}

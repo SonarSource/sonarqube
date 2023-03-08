@@ -35,8 +35,10 @@ it('should correctly render a link that opens in a new window, but is not consid
 
 it('should correctly render an external link', () => {
   renderLink({ target: '_blank', to: 'http://example.com' });
-  expect(screen.getByRole('link')).toHaveAttribute('rel', 'noopener noreferrer');
-  expect(screen.getByLabelText('opens_in_new_window')).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'opens_in_new_window click me' })).toHaveAttribute(
+    'rel',
+    'noopener noreferrer'
+  );
 });
 
 function renderLink(props: Partial<LinkProps> = {}) {

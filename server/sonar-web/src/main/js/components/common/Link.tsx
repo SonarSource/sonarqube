@@ -45,7 +45,7 @@ function Link({ children, size, ...props }: LinkProps, ref: React.ForwardedRef<H
       >
         {anchorProps.target === '_blank' && (
           <DetachIcon
-            ariaLabel={translate('opens_in_new_window')}
+            label={translate('opens_in_new_window')}
             size={size || DEFAULT_ICON_SIZE}
             className="little-spacer-right"
           />
