@@ -21,7 +21,6 @@ package org.sonar.db;
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -286,25 +285,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   public Map<String, Object> selectFirst(DbSession dbSession, String selectSql) {
     return super.selectFirst(selectSql, new DbSessionConnectionSupplier(dbSession));
-  }
-
-  @Deprecated
-  public MyBatis myBatis() {
-    return db.getMyBatis();
-  }
-
-  @Deprecated
-  public Connection openConnection() throws SQLException {
-    return getConnection();
-  }
-
-  private Connection getConnection() throws SQLException {
-    return db.getDatabase().getDataSource().getConnection();
-  }
-
-  @Deprecated
-  public Database database() {
-    return db.getDatabase();
   }
 
   public String getUrl() {

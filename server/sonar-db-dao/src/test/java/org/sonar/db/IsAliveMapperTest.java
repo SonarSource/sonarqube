@@ -36,7 +36,7 @@ public class IsAliveMapperTest {
 
   @Before
   public void setUp() {
-    session = dbTester.myBatis().openSession(false);
+    session = dbTester.getSession();
     underTest = session.getMapper(IsAliveMapper.class);
   }
 
