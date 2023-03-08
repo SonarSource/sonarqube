@@ -27,11 +27,11 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
-import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserQuery;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.EsUtils;
@@ -187,7 +187,7 @@ public class AnonymizeActionIT {
   }
 
   private void verifyThatUserIsAnonymized(String uuid) {
-    List<UserDto> users = dbClient.userDao().selectUsers(db.getSession(), UserQuery.builder().includeDeactivated().build());
+    List<UserDto> users = dbClient.userDao().selectUsers(db.getSession(), UserQuery.builder().isActive(false).build());
     assertThat(users).hasSize(1);
 
     UserDto anonymized = dbClient.userDao().selectByUuid(db.getSession(), uuid);

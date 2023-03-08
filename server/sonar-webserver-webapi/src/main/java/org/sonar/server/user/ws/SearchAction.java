@@ -36,20 +36,18 @@ import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserQuery;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserQuery;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.SearchWsResponse;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Comparator.comparing;
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -69,15 +67,13 @@ public class SearchAction implements UsersWsAction {
   private static final int MAX_PAGE_SIZE = 500;
 
   private final UserSession userSession;
-  private final UserIndex userIndex;
   private final DbClient dbClient;
   private final AvatarResolver avatarResolver;
   private final ManagedInstanceService managedInstanceService;
 
-  public SearchAction(UserSession userSession, UserIndex userIndex, DbClient dbClient, AvatarResolver avatarResolver,
+  public SearchAction(UserSession userSession, DbClient dbClient, AvatarResolver avatarResolver,
     ManagedInstanceService managedInstanceService) {
     this.userSession = userSession;
-    this.userIndex = userIndex;
     this.dbClient = dbClient;
     this.avatarResolver = avatarResolver;
     this.managedInstanceService = managedInstanceService;
@@ -99,6 +95,7 @@ public class SearchAction implements UsersWsAction {
         "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.0", "'q' parameter values is now always performing a case insensitive match"),
         new Change("10.0", "Response includes 'managed' field."),
         new Change("9.7", "New parameter 'deactivated' to optionally search for deactivated users"),
         new Change("7.7", "New field 'lastConnectionDate' is added to response"),
@@ -114,17 +111,7 @@ public class SearchAction implements UsersWsAction {
     action.createParam(TEXT_QUERY)
       .setMinimumLength(2)
       .setDescription("Filter on login, name and email.<br />" +
-        "This parameter can either be case sensitive and perform an exact match, or case insensitive and perform a partial match (contains), depending on the scenario:<br />" +
-        "<ul>" +
-        "  <li>" +
-        "    If the search query is <em>less or equal to 15 characters</em>, then the query is <em>case insensitive</em>, and will match any login, name, or email, that " +
-        "    <em>contains</em> the search query." +
-        "  </li>" +
-        "  <li>" +
-        "    If the search query is <em>greater than 15 characters</em>, then the query becomes <em>case sensitive</em>, and will match any login, name, or email, that " +
-        "    <em>exactly matches</em> the search query." +
-        "  </li>" +
-        "</ul>");
+        "This parameter can either perform an exact match, or a partial match (contains), it is case insensitive.");
     action.createParam(DEACTIVATED_PARAM)
       .setSince("9.7")
       .setDescription("Return deactivated users instead of active users")
@@ -140,21 +127,36 @@ public class SearchAction implements UsersWsAction {
   }
 
   private Users.SearchWsResponse doHandle(SearchRequest request) {
-    SearchOptions options = new SearchOptions().setPage(request.getPage(), request.getPageSize());
-    SearchResult<UserDoc> result = userIndex.search(UserQuery.builder().setActive(!request.isDeactivated()).setTextQuery(request.getQuery()).build(), options);
+    UserQuery userQuery = buildUserQuery(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<String> logins = result.getDocs().stream().map(UserDoc::login).collect(toList());
+      List<UserDto> users = fetchUsersAndSortByLogin(request, dbSession, userQuery);
+      int totalUsers = dbClient.userDao().countUsers(dbSession, userQuery);
+
+      List<String> logins = users.stream().map(UserDto::getLogin).collect(toList());
       Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
-      List<UserDto> users = dbClient.userDao().selectByOrderedLogins(dbSession, logins);
       Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByUsers(dbSession, users);
       Map<String, Boolean> userUuidToIsManaged = managedInstanceService.getUserUuidToManaged(dbSession, getUserUuids(users));
-      Paging paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal((int) result.getTotal());
+      Paging paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(totalUsers);
       return buildResponse(users, groupsByLogin, tokenCountsByLogin, userUuidToIsManaged, paging);
     }
   }
 
   private static Set<String> getUserUuids(List<UserDto> users) {
     return users.stream().map(UserDto::getUuid).collect(Collectors.toSet());
+  }
+
+  private static UserQuery buildUserQuery(SearchRequest request) {
+    return UserQuery.builder()
+      .isActive(!request.isDeactivated())
+      .searchText(request.getQuery())
+      .build();
+  }
+
+  private List<UserDto> fetchUsersAndSortByLogin(SearchRequest request, DbSession dbSession, UserQuery userQuery) {
+    return dbClient.userDao().selectUsers(dbSession, userQuery, request.getPage(), request.getPageSize())
+      .stream()
+      .sorted(comparing(UserDto::getLogin))
+      .toList();
   }
 
   private SearchWsResponse buildResponse(List<UserDto> users, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin,
@@ -220,12 +222,10 @@ public class SearchAction implements UsersWsAction {
       this.deactivated = builder.deactivated;
     }
 
-    @CheckForNull
     public Integer getPage() {
       return page;
     }
 
-    @CheckForNull
     public Integer getPageSize() {
       return pageSize;
     }
@@ -254,12 +254,12 @@ public class SearchAction implements UsersWsAction {
       // enforce factory method use
     }
 
-    public Builder setPage(@Nullable Integer page) {
+    public Builder setPage(Integer page) {
       this.page = page;
       return this;
     }
 
-    public Builder setPageSize(@Nullable Integer pageSize) {
+    public Builder setPageSize(Integer pageSize) {
       this.pageSize = pageSize;
       return this;
     }

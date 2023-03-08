@@ -25,16 +25,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Users.SearchWsResponse;
@@ -56,18 +52,13 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class SearchActionIT {
 
   @Rule
-  public EsTester es = EsTester.create();
-
-  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
   public DbTester db = DbTester.create();
 
   private ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
-  private UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
-  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, index, db.getDbClient(), new AvatarResolverImpl(), managedInstanceService));
+  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, db.getDbClient(), new AvatarResolverImpl(), managedInstanceService));
 
   @Test
   public void search_for_all_active_users() {
@@ -75,7 +66,6 @@ public class SearchActionIT {
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser(u -> u.setActive(false));
 
-    userIndexer.indexAll();
     userSession.logIn();
 
     SearchWsResponse response = ws.newRequest()
@@ -92,7 +82,6 @@ public class SearchActionIT {
   public void search_deactivated_users() {
     UserDto user1 = db.users().insertUser(u -> u.setActive(false));
     UserDto user2 = db.users().insertUser(u -> u.setActive(true));
-    userIndexer.indexAll();
     userSession.logIn();
 
     SearchWsResponse response = ws.newRequest()
@@ -114,7 +103,6 @@ public class SearchActionIT {
       .setEmail("user@mail.com")
       .setLocal(true)
       .setScmAccounts(singletonList("user1")));
-    userIndexer.indexAll();
 
     assertThat(ws.newRequest()
       .setParam("q", "user-%_%-")
@@ -136,7 +124,6 @@ public class SearchActionIT {
   @Test
   public void return_avatar() {
     UserDto user = db.users().insertUser(u -> u.setEmail("john@doe.com"));
-    userIndexer.indexAll();
     userSession.logIn();
 
     SearchWsResponse response = ws.newRequest()
@@ -152,7 +139,6 @@ public class SearchActionIT {
     UserDto nonManagedUser = db.users().insertUser(u -> u.setEmail("john@doe.com"));
     UserDto managedUser = db.users().insertUser(u -> u.setEmail("externalUser@doe.com"));
     mockUsersAsManaged(managedUser.getUuid());
-    userIndexer.indexAll();
     userSession.logIn().setSystemAdministrator();
 
     SearchWsResponse response = ws.newRequest()
@@ -169,7 +155,7 @@ public class SearchActionIT {
   @Test
   public void return_scm_accounts() {
     UserDto user = db.users().insertUser(u -> u.setScmAccounts(asList("john1", "john2")));
-    userIndexer.indexAll();
+
     userSession.logIn();
 
     SearchWsResponse response = ws.newRequest()
@@ -185,7 +171,6 @@ public class SearchActionIT {
     UserDto user = db.users().insertUser();
     db.users().insertToken(user);
     db.users().insertToken(user);
-    userIndexer.indexAll();
 
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
@@ -203,7 +188,6 @@ public class SearchActionIT {
   @Test
   public void return_email_only_when_system_administer() {
     UserDto user = db.users().insertUser();
-    userIndexer.indexAll();
 
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
@@ -221,7 +205,6 @@ public class SearchActionIT {
   @Test
   public void return_user_not_having_email() {
     UserDto user = db.users().insertUser(u -> u.setEmail(null));
-    userIndexer.indexAll();
     userSession.logIn().setSystemAdministrator();
 
     SearchWsResponse response = ws.newRequest()
@@ -240,7 +223,6 @@ public class SearchActionIT {
     GroupDto group3 = db.users().insertGroup("group3");
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
-    userIndexer.indexAll();
 
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
@@ -258,7 +240,6 @@ public class SearchActionIT {
   @Test
   public void return_external_information() {
     UserDto user = db.users().insertUser();
-    userIndexer.indexAll();
     userSession.logIn().setSystemAdministrator();
 
     SearchWsResponse response = ws.newRequest()
@@ -272,7 +253,6 @@ public class SearchActionIT {
   @Test
   public void return_external_identity_only_when_system_administer() {
     UserDto user = db.users().insertUser();
-    userIndexer.indexAll();
 
     userSession.logIn().setSystemAdministrator();
     assertThat(ws.newRequest()
@@ -293,7 +273,6 @@ public class SearchActionIT {
     db.users().insertToken(user);
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
-    userIndexer.indexAll();
     userSession.anonymous();
 
     SearchWsResponse response = ws.newRequest()
@@ -309,7 +288,6 @@ public class SearchActionIT {
     UserDto userWithLastConnectionDate = db.users().insertUser();
     db.users().updateLastConnectionDate(userWithLastConnectionDate, 10_000_000_000L);
     UserDto userWithoutLastConnectionDate = db.users().insertUser();
-    userIndexer.indexAll();
     userSession.logIn().setSystemAdministrator();
 
     SearchWsResponse response = ws.newRequest()
@@ -331,7 +309,6 @@ public class SearchActionIT {
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
     UserDto otherUser = db.users().insertUser();
-    userIndexer.indexAll();
 
     userSession.logIn(user);
     assertThat(ws.newRequest().setParam("q", user.getLogin())
@@ -351,10 +328,22 @@ public class SearchActionIT {
   }
 
   @Test
+  public void search_whenNoPagingInformationProvided_setsDefaultValues() {
+    userSession.logIn();
+    IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertUser(u -> u.setLogin("user-" + i).setName("User " + i)));
+
+    SearchWsResponse response = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getPaging().getTotal()).isEqualTo(10);
+    assertThat(response.getPaging().getPageIndex()).isEqualTo(1);
+    assertThat(response.getPaging().getPageSize()).isEqualTo(50);
+  }
+
+  @Test
   public void search_with_paging() {
     userSession.logIn();
     IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertUser(u -> u.setLogin("user-" + i).setName("User " + i)));
-    userIndexer.indexAll();
 
     SearchWsResponse response = ws.newRequest()
       .setParam(Param.PAGE_SIZE, "5")
@@ -412,7 +401,6 @@ public class SearchActionIT {
     db.users().insertToken(simon);
     db.users().insertToken(simon);
     db.users().insertToken(fmallet);
-    userIndexer.indexAll();
     userSession.logIn().setSystemAdministrator();
 
     String response = ws.newRequest().execute().getInput();

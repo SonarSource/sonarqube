@@ -23,7 +23,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.user.UserQuery;
+import org.sonar.db.Pagination;
 
 public interface UserMapper {
 
@@ -46,7 +46,9 @@ public interface UserMapper {
   @CheckForNull
   UserDto selectUserByLogin(String login);
 
-  List<UserDto> selectUsers(UserQuery query);
+  List<UserDto> selectUsers(@Param("query") UserQuery query, @Param("pagination") Pagination pagination);
+
+  int countByQuery(@Param("query") UserQuery query);
 
   List<UserTelemetryDto> selectUsersForTelemetry();
 

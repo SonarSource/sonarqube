@@ -87,22 +87,101 @@
         SELECT
         <include refid="userColumns"/>
         FROM users u
-        <where>
-            <if test="logins != null and logins.size() > 0">
-                u.login IN
-                <foreach item="login" index="index" collection="logins" open="(" separator="," close=")">
-                    #{login, jdbcType=VARCHAR}
-                </foreach>
+        <include refid="searchByQueryWhereClause"/>
+        ORDER BY u.login
+        limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectUsers" parameterType="map" resultType="User" databaseId="mssql">
+        SELECT
+            <include refid="userColumns"/>
+        FROM
+            (SELECT
+                    u.uuid,
+                    u.login,
+                    u.name,
+                    u.email,
+                    u.active,
+                    u.scm_accounts,
+                    u.salt,
+                    u.crypted_password,
+                    u.hash_method,
+                    u.external_id,
+                    u.external_login,
+                    u.external_identity_provider,
+                    u.user_local,
+                    u.reset_password,
+                    u.homepage_type,
+                    u.homepage_parameter,
+                    u.last_connection_date,
+                    u.last_sonarlint_connection,
+                    u.created_at,
+                    u.updated_at
+            FROM users u
+            <include refid="searchByQueryWhereClause"/>
+            ORDER BY u.login
+            offset #{pagination.offset} rows
+            fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+            ) u
+    </select>
+
+    <select id="selectUsers" parameterType="map" resultType="User" databaseId="oracle">
+        SELECT
+            <include refid="userColumns"/>
+        FROM
+            (SELECT rownum as rn, t.* from (
+                SELECT
+                    u.uuid,
+                    u.login,
+                    u.name,
+                    u.email,
+                    u.active,
+                    u.scm_accounts,
+                    u.salt,
+                    u.crypted_password,
+                    u.hash_method,
+                    u.external_id,
+                    u.external_login,
+                    u.external_identity_provider,
+                    u.user_local,
+                    u.reset_password,
+                    u.homepage_type,
+                    u.homepage_parameter,
+                    u.last_connection_date,
+                    u.last_sonarlint_connection,
+                    u.created_at,
+                    u.updated_at
+                FROM users u
+                <include refid="searchByQueryWhereClause"/>
+                ORDER BY u.login ASC
+                ) t
+            ) u
+        WHERE
+        u.rn BETWEEN #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+	      ORDER BY u.rn ASC
+    </select>
+
+    <select id="countByQuery" parameterType="map" resultType="int">
+        SELECT count(1)
+            FROM users u
+        <include refid="searchByQueryWhereClause"/>
+    </select>
+
+    <sql id="searchByQueryWhereClause">
+             <where>
+            <if test="query.isActive != null">
+                u.active=#{query.isActive, jdbcType=BOOLEAN}
             </if>
-            <if test="includeDeactivated==false">
-                AND u.active=${_true}
-            </if>
-            <if test="searchText != null">
-                AND (u.login LIKE #{searchTextSql, jdbcType=VARCHAR} ESCAPE '/' OR u.name LIKE #{searchTextSql, jdbcType=VARCHAR} ESCAPE '/')
+            <if test="query.searchText != null">
+                AND (
+                    (lower(u.login) LIKE lower(#{query.searchText, jdbcType=VARCHAR}) ESCAPE '/')
+                    OR (lower(u.name) LIKE lower(#{query.searchText, jdbcType=VARCHAR}) ESCAPE '/')
+                    OR (lower(u.email) LIKE lower(#{query.searchText, jdbcType=VARCHAR}) ESCAPE '/')
+                )
             </if>
         </where>
-        ORDER BY u.name
-    </select>
+
+    </sql>
 
     <select id="selectUsersForTelemetry" parameterType="map" resultType="UserTelemetry">
         SELECT

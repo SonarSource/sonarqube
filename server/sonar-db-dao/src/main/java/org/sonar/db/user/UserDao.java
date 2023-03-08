@@ -28,11 +28,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserNewValue;
 import org.sonar.db.component.ComponentDto;
@@ -99,7 +99,15 @@ public class UserDao implements Dao {
   }
 
   public List<UserDto> selectUsers(DbSession dbSession, UserQuery query) {
-    return mapper(dbSession).selectUsers(query);
+    return mapper(dbSession).selectUsers(query, Pagination.all());
+  }
+
+  public List<UserDto> selectUsers(DbSession dbSession, UserQuery query, int offset, int limit) {
+    return mapper(dbSession).selectUsers(query, Pagination.forPage(offset).andSize(limit));
+  }
+
+  public int countUsers(DbSession dbSession, UserQuery userQuery) {
+    return mapper(dbSession).countByQuery(userQuery);
   }
 
   public List<UserTelemetryDto> selectUsersForTelemetry(DbSession dbSession) {

@@ -19,16 +19,22 @@
  */
 package org.sonar.db.user;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
@@ -39,7 +45,10 @@ import org.sonar.db.scim.ScimUserDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -146,7 +155,7 @@ public class UserDaoIT {
     db.users().insertUser(user -> user.setLogin("user").setName("User"));
     db.users().insertUser(user -> user.setLogin("inactive_user").setName("Disabled").setActive(false));
 
-    List<UserDto> users = underTest.selectUsers(session, UserQuery.builder().includeDeactivated().build());
+    List<UserDto> users = underTest.selectUsers(session, UserQuery.builder().build());
 
     assertThat(users).hasSize(2);
   }
@@ -156,39 +165,48 @@ public class UserDaoIT {
     db.users().insertUser(user -> user.setLogin("user").setName("User"));
     db.users().insertUser(user -> user.setLogin("inactive_user").setName("Disabled").setActive(false));
 
-    List<UserDto> users = underTest.selectUsers(session, UserQuery.ALL_ACTIVES);
+    List<UserDto> users = underTest.selectUsers(session, UserQuery.builder().isActive(true).build());
 
     assertThat(users).extracting(UserDto::getName).containsExactlyInAnyOrder("User");
   }
 
   @Test
-  public void selectUsersByQuery_filter_by_login() {
-    db.users().insertUser(user -> user.setLogin("user").setName("User"));
-    db.users().insertUser(user -> user.setLogin("inactive_user").setName("Disabled").setActive(false));
+  public void selectUsersByQuery_whenSearchTextMatchPartOfTheLoginCaseInsensitively_findsTheRightResults() {
+    db.users().insertUser(user -> user.setLogin("tata"));
+    UserDto userToFind = db.users().insertUser(user -> user.setLogin("simon"));
+    UserDto userToFind2 = db.users().insertUser(user -> user.setLogin("ToSimonTo"));
 
-    List<UserDto> users = underTest.selectUsers(session, UserQuery.builder().logins("user", "john").build());
+    UserQuery query = UserQuery.builder().searchText("Simon").build();
+    List<UserDto> users = underTest.selectUsers(session, query);
 
-    assertThat(users).extracting(UserDto::getName).containsExactlyInAnyOrder("User");
+    assertThat(users).usingRecursiveFieldByFieldElementComparator().containsOnly(userToFind, userToFind2);
+    assertThat(underTest.countUsers(session, query)).isEqualTo(2);
   }
 
   @Test
-  public void selectUsersByQuery_search_by_login_text() {
-    db.users().insertUser(user -> user.setLogin("user").setName("User"));
-    db.users().insertUser(user -> user.setLogin("sbrandhof").setName("Simon Brandhof"));
+  public void selectUsersByQuery_whenSearchTextMatchPartOfTheNameCaseInsensitively_findsTheRightResults() {
+    db.users().insertUser(user -> user.setName("tata"));
+    UserDto userToFind = db.users().insertUser(user -> user.setName("simon"));
+    UserDto userToFind2 = db.users().insertUser(user -> user.setName("ToSimonTo"));
 
-    List<UserDto> users = underTest.selectUsers(session, UserQuery.builder().searchText("sbr").build());
+    UserQuery query = UserQuery.builder().searchText("Simon").build();
+    List<UserDto> users = underTest.selectUsers(session, query);
 
-    assertThat(users).extracting(UserDto::getLogin).containsExactlyInAnyOrder("sbrandhof");
+    assertThat(users).usingRecursiveFieldByFieldElementComparator().containsOnly(userToFind, userToFind2);
+    assertThat(underTest.countUsers(session, query)).isEqualTo(2);
   }
 
   @Test
-  public void selectUsersByQuery_search_by_name_text() {
-    db.users().insertUser(user -> user.setLogin("user").setName("User"));
-    db.users().insertUser(user -> user.setLogin("sbrandhof").setName("Simon Brandhof"));
+  public void selectUsersByQuery_whenSearchTextMatchPartOfTheEmailCaseInsensitively_findsTheRightResults() {
+    db.users().insertUser(user -> user.setEmail("user@user.com"));
+    UserDto userToFind = db.users().insertUser(user -> user.setEmail("simon@brandhof.com"));
+    UserDto userToFind2 = db.users().insertUser(user -> user.setEmail("tagadasimon2@brandhof.com"));
 
-    List<UserDto> users = underTest.selectUsers(session, UserQuery.builder().searchText("Simon").build());
+    UserQuery query = UserQuery.builder().searchText("Simon").build();
+    List<UserDto> users = underTest.selectUsers(session, query);
 
-    assertThat(users).extracting(UserDto::getLogin).containsExactlyInAnyOrder("sbrandhof");
+    assertThat(users).usingRecursiveFieldByFieldElementComparator().containsOnly(userToFind, userToFind2);
+    assertThat(underTest.countUsers(session, query)).isEqualTo(2);
   }
 
   @Test
@@ -203,6 +221,47 @@ public class UserDaoIT {
     assertThat(users).isEmpty();
   }
 
+  @DataProvider
+  public static Object[][] paginationTestCases() {
+    return new Object[][] {
+      {100, 1, 5},
+      {100, 3, 18},
+      {2075, 41, 50},
+      {0, 2, 5},
+    };
+  }
+
+  @Test
+  @UseDataProvider("paginationTestCases")
+  public void selectUsers_whenUsingPagination_findsTheRightResults(int numberOfUsersToGenerate, int offset, int limit) {
+    Map<String, UserDto> allUsers = generateUsers(numberOfUsersToGenerate);
+
+    UserQuery query = UserQuery.builder().build();
+    List<UserDto> users = underTest.selectUsers(session, query, offset, limit);
+
+    Set<UserDto> expectedUsers = getExpectedUsers(offset, limit, allUsers);
+
+    assertThat(users).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrderElementsOf(expectedUsers);
+    assertThat(underTest.countUsers(session, query)).isEqualTo(numberOfUsersToGenerate);
+  }
+
+  private Map<String, UserDto> generateUsers(int numberOfUsersToGenerate) {
+    if (numberOfUsersToGenerate == 0) {
+      return emptyMap();
+    }
+    return IntStream.range(1000, 1000 + numberOfUsersToGenerate)
+      .mapToObj(i -> db.users().insertUser(user -> user.setLogin(i + "_user").setName(i + "_name")))
+      .collect(toMap(UserDto::getName, Function.identity()));
+  }
+
+  private static Set<UserDto> getExpectedUsers(int offset, int limit, Map<String, UserDto> allUsers) {
+    if (allUsers.isEmpty()) {
+      return emptySet();
+    }
+    return IntStream.range(1000 + (offset - 1) * limit, 1000 + offset * limit)
+      .mapToObj(i -> allUsers.get(i + "_name"))
+      .collect(Collectors.toSet());
+  }
 
   @Test
   public void insert_user_with_default_values() {
