@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserGroups;
 
@@ -49,10 +50,13 @@ public class UpdateAction implements UserGroupsWsAction {
   private final UserSession userSession;
   private final GroupService groupService;
 
-  public UpdateAction(DbClient dbClient, UserSession userSession, GroupService groupService) {
+  private final ManagedInstanceChecker managedInstanceChecker;
+
+  public UpdateAction(DbClient dbClient, UserSession userSession, GroupService groupService, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.groupService = groupService;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -92,12 +96,13 @@ public class UpdateAction implements UserGroupsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      userSession.checkPermission(ADMINISTER);
+      managedInstanceChecker.throwIfInstanceIsManaged();
       String currentName = request.mandatoryParam(PARAM_GROUP_CURRENT_NAME);
 
       GroupDto group = dbClient.groupDao().selectByName(dbSession, currentName)
         .orElseThrow(() -> new NotFoundException(format("Could not find a user group with name '%s'.", currentName)));
 
-      userSession.checkPermission(ADMINISTER);
       String newName = request.param(PARAM_GROUP_NAME);
       String description = request.param(PARAM_GROUP_DESCRIPTION);
 

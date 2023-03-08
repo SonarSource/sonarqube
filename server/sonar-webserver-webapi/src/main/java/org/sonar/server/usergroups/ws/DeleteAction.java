@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.Set;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -28,7 +29,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -40,11 +43,13 @@ public class DeleteAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupService groupService;
+  private final ManagedInstanceService managedInstanceService;
 
-  public DeleteAction(DbClient dbClient, UserSession userSession, GroupService groupService) {
+  public DeleteAction(DbClient dbClient, UserSession userSession, GroupService groupService, ManagedInstanceService managedInstanceService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.groupService = groupService;
+    this.managedInstanceService = managedInstanceService;
   }
 
   @Override
@@ -67,12 +72,19 @@ public class DeleteAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       userSession.checkPermission(GlobalPermission.ADMINISTER);
-
       GroupDto group = findGroupOrThrow(request, dbSession);
+      checkIfInstanceAndGroupAreManaged(dbSession, group);
       groupService.delete(dbSession, group);
 
       dbSession.commit();
       response.noContent();
+    }
+  }
+
+  private void checkIfInstanceAndGroupAreManaged(DbSession dbSession, GroupDto group) {
+    boolean isGroupManaged = managedInstanceService.getGroupUuidToManaged(dbSession, Set.of(group.getUuid())).getOrDefault(group.getUuid(), false);
+    if (isGroupManaged) {
+      throw BadRequestException.create("Deleting managed groups is not allowed.");
     }
   }
 

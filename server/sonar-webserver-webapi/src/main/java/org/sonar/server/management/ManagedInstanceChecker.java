@@ -17,28 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.usergroups.ws;
+package org.sonar.server.management;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.exceptions.BadRequestException;
 
-public class UserGroupsModule extends Module {
+public class ManagedInstanceChecker {
 
-  @Override
-  protected void configureModule() {
-    add(
-      UserGroupsWs.class,
-      GroupWsSupport.class,
-      ManagedInstanceChecker.class,
-      GroupService.class,
-      // actions
-      SearchAction.class,
-      CreateAction.class,
-      DeleteAction.class,
-      UpdateAction.class,
-      UsersAction.class,
-      AddUserAction.class,
-      RemoveUserAction.class);
+  private final ManagedInstanceService managedInstanceService;
+
+  public ManagedInstanceChecker(ManagedInstanceService managedInstanceService) {
+    this.managedInstanceService = managedInstanceService;
   }
 
+  public void throwIfInstanceIsManaged() {
+    BadRequestException.checkRequest(!managedInstanceService.isInstanceExternallyManaged(), "Operation not allowed when the instance is externally managed.");
+  }
 }

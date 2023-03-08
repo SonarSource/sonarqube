@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -45,10 +46,13 @@ public class RemoveUserAction implements UserGroupsWsAction {
   private final UserSession userSession;
   private final GroupWsSupport support;
 
-  public RemoveUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
+  private final ManagedInstanceChecker managedInstanceChecker;
+
+  public RemoveUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -73,8 +77,9 @@ public class RemoveUserAction implements UserGroupsWsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupDto group = support.findGroupDto(dbSession, request);
       userSession.checkPermission(GlobalPermission.ADMINISTER);
+      managedInstanceChecker.throwIfInstanceIsManaged();
+      GroupDto group = support.findGroupDto(dbSession, request);
       support.checkGroupIsNotDefault(dbSession, group);
 
       String login = request.mandatoryParam(PARAM_LOGIN);

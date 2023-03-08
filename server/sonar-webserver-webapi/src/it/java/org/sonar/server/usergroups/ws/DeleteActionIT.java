@@ -19,6 +19,8 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.Map;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -26,6 +28,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
@@ -35,7 +38,9 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -45,6 +50,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 
@@ -57,7 +66,9 @@ public class DeleteActionIT {
 
   private final ComponentDbTester componentTester = new ComponentDbTester(db);
   private final GroupService groupService = new GroupService(db.getDbClient(), UuidFactoryImpl.INSTANCE);
-  private final WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, groupService));
+
+  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
+  private final WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, groupService, managedInstanceService));
 
   @Test
   public void verify_definition() {
@@ -271,6 +282,46 @@ public class DeleteActionIT {
     executeDeleteGroupRequest(adminGroup1);
 
     assertThat(db.users().selectGroupPermissions(adminGroup2, null)).hasSize(1);
+  }
+
+  @Test
+  public void delete_local_group_when_instance_is_managed_shouldSucceed() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+
+    addAdmin();
+    insertDefaultGroup();
+    GroupDto group = insertGroupAndMockIsManaged(false);
+
+    loginAsAdmin();
+    TestResponse response = newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(204);
+  }
+
+  @Test
+  public void fail_to_delete_managed_group_when_instance_is_managed() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    addAdmin();
+    insertDefaultGroup();
+    GroupDto group = insertGroupAndMockIsManaged(true);
+
+    loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Deleting managed groups is not allowed.");
+
+  }
+
+  private GroupDto insertGroupAndMockIsManaged(boolean isManaged) {
+    GroupDto group = db.users().insertGroup();
+    when(managedInstanceService.getGroupUuidToManaged(any(DbSession.class), eq(Set.of(group.getUuid()))))
+      .thenReturn(Map.of(group.getUuid(), isManaged));
+    return group;
   }
 
   private void executeDeleteGroupRequest(GroupDto adminGroup1) {

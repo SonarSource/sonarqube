@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -44,11 +45,13 @@ public class AddUserAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public AddUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
+  public AddUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -71,8 +74,9 @@ public class AddUserAction implements UserGroupsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupDto group = support.findGroupDto(dbSession, request);
       userSession.checkLoggedIn().checkPermission(ADMINISTER);
+      managedInstanceChecker.throwIfInstanceIsManaged();
+      GroupDto group = support.findGroupDto(dbSession, request);
 
       String login = request.mandatoryParam(PARAM_LOGIN);
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);

@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserGroups;
 
@@ -44,11 +45,13 @@ public class CreateAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupService groupService;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, GroupService groupService) {
+  public CreateAction(DbClient dbClient, UserSession userSession, GroupService groupService, ManagedInstanceChecker managedInstanceService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.groupService = groupService;
+    this.managedInstanceChecker = managedInstanceService;
   }
 
   @Override
@@ -81,7 +84,7 @@ public class CreateAction implements UserGroupsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       userSession.checkPermission(ADMINISTER);
-
+      managedInstanceChecker.throwIfInstanceIsManaged();
       String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
       String groupDescription = request.param(PARAM_GROUP_DESCRIPTION);
       GroupDto group = groupService.createGroup(dbSession, groupName, groupDescription);

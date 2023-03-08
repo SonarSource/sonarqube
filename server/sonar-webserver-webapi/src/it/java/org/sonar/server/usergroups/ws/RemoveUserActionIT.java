@@ -30,6 +30,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -40,6 +41,8 @@ import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
@@ -51,8 +54,9 @@ public class RemoveUserActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  private ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
   private final WsActionTester ws = new WsActionTester(
-    new RemoveUserAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()))));
+    new RemoveUserAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient())), managedInstanceChecker));
 
   @Test
   public void verify_definition() {
@@ -210,6 +214,16 @@ public class RemoveUserActionIT {
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
+  }
+
+  @Test
+  public void fail_if_instance_is_externally_managed() {
+    loginAsAdmin();
+    BadRequestException exception = BadRequestException.create("Not allowed");
+    doThrow(exception).when(managedInstanceChecker).throwIfInstanceIsManaged();
+    TestRequest testRequest = newRequest();
+    assertThatThrownBy(testRequest::execute)
+      .isEqualTo(exception);
   }
 
   private TestRequest newRequest() {

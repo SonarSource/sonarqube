@@ -32,12 +32,15 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_CURRENT_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
@@ -51,8 +54,10 @@ public class UpdateActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  private ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
+
   private final WsActionTester ws = new WsActionTester(
-    new UpdateAction(db.getDbClient(), userSession, new GroupService(db.getDbClient(), UuidFactoryImpl.INSTANCE)));
+    new UpdateAction(db.getDbClient(), userSession, new GroupService(db.getDbClient(), UuidFactoryImpl.INSTANCE), managedInstanceChecker));
 
   @Test
   public void verify_definition() {
@@ -187,6 +192,7 @@ public class UpdateActionIT {
     TestRequest request = newRequest()
       .setParam(PARAM_GROUP_NAME, "newname");
 
+    loginAsAdmin();
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'currentName' parameter is missing");
@@ -257,6 +263,16 @@ public class UpdateActionIT {
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
+  }
+
+  @Test
+  public void fail_if_instance_is_externally_managed() {
+    loginAsAdmin();
+    BadRequestException exception = BadRequestException.create("Not allowed");
+    doThrow(exception).when(managedInstanceChecker).throwIfInstanceIsManaged();
+    TestRequest testRequest = newRequest();
+    assertThatThrownBy(testRequest::execute)
+      .isEqualTo(exception);
   }
 
   private TestRequest newRequest() {
