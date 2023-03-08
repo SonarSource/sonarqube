@@ -27,12 +27,16 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -40,7 +44,10 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class UpdateLoginActionIT {
 
@@ -53,8 +60,9 @@ public class UpdateLoginActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
 
+  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
   private final WsActionTester ws = new WsActionTester(new UpdateLoginAction(db.getDbClient(), userSession,
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()), null, null, null, null)));
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()), null, null, null, null), managedInstanceChecker));
 
   @Test
   public void update_login_from_sonarqube_account_when_user_is_local() {
@@ -202,6 +210,29 @@ public class UpdateLoginActionIT {
 
     assertThat(response.getStatus()).isEqualTo(204);
     assertThat(response.getInput()).isEmpty();
+  }
+
+  @Test
+  public void handle_whenInstanceManaged_shouldThrowBadRequestException() {
+    BadRequestException badRequestException = BadRequestException.create("message");
+    doThrow(badRequestException).when(managedInstanceChecker).throwIfInstanceIsManaged();
+
+    TestRequest request = ws.newRequest();
+
+    assertThatThrownBy(request::execute)
+      .isEqualTo(badRequestException);
+  }
+
+  @Test
+  public void handle_whenInstanceManagedAndNotSystemAdministrator_shouldThrowUnauthorizedException() {
+    userSession.anonymous();
+
+    TestRequest request = ws.newRequest();
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
+    verify(managedInstanceChecker, never()).throwIfInstanceIsManaged();
   }
 
   @Test

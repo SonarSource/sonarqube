@@ -51,6 +51,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -64,6 +65,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
@@ -85,7 +90,8 @@ public class DeactivateActionIT {
   private final DbSession dbSession = db.getSession();
   private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient(), () -> "anonymized");
   private final UserDeactivator userDeactivator = new UserDeactivator(dbClient, userIndexer, userSession, userAnonymizer);
-  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userSession, new UserJsonWriter(userSession), userDeactivator));
+  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
+  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userSession, new UserJsonWriter(userSession), userDeactivator, managedInstanceChecker));
 
   @Test
   public void deactivate_user_and_delete_their_related_data() {
@@ -446,6 +452,30 @@ public class DeactivateActionIT {
     deactivate(user.getLogin(), true);
 
     assertThat(db.getDbClient().scimUserDao().findByUserUuid(dbSession, user.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void handle_whenUserManagedAndInstanceManaged_shouldThrowBadRequestException() {
+    BadRequestException badRequestException = BadRequestException.create("message");
+    doThrow(badRequestException).when(managedInstanceChecker).throwIfInstanceIsManaged();
+
+    createAdminUser();
+    logInAsSystemAdministrator();
+    UserDto user = db.users().insertUser(u -> u.setLocal(false));
+
+    assertThatThrownBy(() -> deactivate(user.getLogin()))
+      .isEqualTo(badRequestException);
+  }
+
+  @Test
+  public void handle_whenInstanceManagedAndNotSystemAdministrator_shouldThrowUnauthorizedException() {
+    UserDto userDto = db.users().insertUser();
+    String login = userDto.getLogin();
+
+    assertThatThrownBy(() -> deactivate(login))
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
+    verify(managedInstanceChecker, never()).throwIfInstanceIsManaged();
   }
 
   private void logInAsSystemAdministrator() {

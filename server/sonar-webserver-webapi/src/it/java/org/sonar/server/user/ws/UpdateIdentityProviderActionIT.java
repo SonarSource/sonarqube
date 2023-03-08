@@ -22,7 +22,6 @@ package org.sonar.server.user.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.auth.ldap.LdapSettingsManager;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -31,9 +30,11 @@ import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.IdentityProviderRepositoryRule;
 import org.sonar.server.authentication.TestIdentityProvider;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -45,7 +46,10 @@ import org.sonar.server.ws.WsActionTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UpdateIdentityProviderActionIT {
@@ -69,11 +73,11 @@ public class UpdateIdentityProviderActionIT {
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(dbClient, settings.asConfig());
 
-  private final LdapSettingsManager ldapSettingsManager = mock(LdapSettingsManager.class);
+  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
   private final WsActionTester underTest = new WsActionTester(new UpdateIdentityProviderAction(dbClient, identityProviderRepository,
     new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), null, localAuthentication),
-    userSession));
+    userSession, managedInstanceChecker));
 
   @Test
   public void change_identity_provider_of_a_local_user_all_params() {
@@ -221,6 +225,29 @@ public class UpdateIdentityProviderActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
+  public void handle_whenInstanceManaged_shouldThrowBadRequestException() {
+    BadRequestException badRequestException = BadRequestException.create("message");
+    doThrow(badRequestException).when(managedInstanceChecker).throwIfInstanceIsManaged();
+
+    TestRequest request = underTest.newRequest();
+
+    assertThatThrownBy(request::execute)
+      .isEqualTo(badRequestException);
+  }
+
+  @Test
+  public void handle_whenInstanceManagedAndNotSystemAdministrator_shouldThrowUnauthorizedException() {
+    userSession.anonymous();
+
+    TestRequest request = underTest.newRequest();
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
+    verify(managedInstanceChecker, never()).throwIfInstanceIsManaged();
   }
 
   private void createUser(boolean local, String login, String externalLogin, String externalIdentityProvider) {

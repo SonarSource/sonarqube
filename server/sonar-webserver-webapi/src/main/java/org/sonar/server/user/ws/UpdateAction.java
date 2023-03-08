@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
@@ -62,12 +63,15 @@ public class UpdateAction implements UsersWsAction {
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
   private final DbClient dbClient;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public UpdateAction(UserUpdater userUpdater, UserSession userSession, UserJsonWriter userWriter, DbClient dbClient) {
+  public UpdateAction(UserUpdater userUpdater, UserSession userSession, UserJsonWriter userWriter, DbClient dbClient,
+    ManagedInstanceChecker managedInstanceChecker) {
     this.userUpdater = userUpdater;
     this.userSession = userSession;
     this.userWriter = userWriter;
     this.dbClient = dbClient;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -106,6 +110,7 @@ public class UpdateAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
+    managedInstanceChecker.throwIfInstanceIsManaged();
     UpdateRequest updateRequest = toWsRequest(request);
     checkArgument(isValidIfPresent(updateRequest.getEmail()), "Email '%s' is not valid", updateRequest.getEmail());
     try (DbSession dbSession = dbClient.openSession(false)) {

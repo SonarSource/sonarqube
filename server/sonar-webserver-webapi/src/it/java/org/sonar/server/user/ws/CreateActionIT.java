@@ -36,7 +36,10 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -56,7 +59,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_LOGIN;
@@ -78,8 +84,10 @@ public class CreateActionIT {
   private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private GroupDto defaultGroup;
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
+
+  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
   private final WsActionTester tester = new WsActionTester(new CreateAction(db.getDbClient(), new UserUpdater(mock(NewUserNotifier.class),
-    db.getDbClient(), userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), new NoOpAuditPersister(), localAuthentication), userSessionRule));
+    db.getDbClient(), userIndexer, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), new NoOpAuditPersister(), localAuthentication), userSessionRule, managedInstanceChecker));
 
   @Before
   public void setUp() {
@@ -352,6 +360,37 @@ public class CreateActionIT {
     assertThatThrownBy(() -> executeRequest("john"))
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  public void handle_whenInstanceManaged_shouldThrowBadRequestException() {
+    BadRequestException badRequestException = BadRequestException.create("message");
+    doThrow(badRequestException).when(managedInstanceChecker).throwIfInstanceIsManaged();
+
+    logInAsSystemAdministrator();
+
+    CreateRequest request = CreateRequest.builder()
+      .setLogin("pipo")
+      .setName("John")
+      .setPassword("1234")
+      .build();
+
+    assertThatThrownBy(() -> call(request))
+      .isEqualTo(badRequestException);
+  }
+
+  @Test
+  public void handle_whenInstanceManagedAndNotSystemAdministrator_shouldThrowUnauthorizedException() {
+    CreateRequest request = CreateRequest.builder()
+      .setLogin("pipo")
+      .setName("John")
+      .setPassword("1234")
+      .build();
+
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
+    verify(managedInstanceChecker, never()).throwIfInstanceIsManaged();
   }
 
   @Test

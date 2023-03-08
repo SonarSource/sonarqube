@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
@@ -52,15 +53,16 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
 
   private final DbClient dbClient;
   private final IdentityProviderRepository identityProviderRepository;
-
   private final UserUpdater userUpdater;
   private final UserSession userSession;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public UpdateIdentityProviderAction(DbClient dbClient, IdentityProviderRepository identityProviderRepository, UserUpdater userUpdater, UserSession userSession) {
+  public UpdateIdentityProviderAction(DbClient dbClient, IdentityProviderRepository identityProviderRepository, UserUpdater userUpdater, UserSession userSession, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.identityProviderRepository = identityProviderRepository;
     this.userUpdater = userUpdater;
     this.userSession = userSession;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -98,6 +100,7 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
+    managedInstanceChecker.throwIfInstanceIsManaged();
     UpdateIdentityProviderRequest wsRequest = toWsRequest(request);
     doHandle(wsRequest);
     response.noContent();

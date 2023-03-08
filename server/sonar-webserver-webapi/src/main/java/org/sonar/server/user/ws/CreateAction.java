@@ -31,6 +31,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserSession;
@@ -62,11 +63,13 @@ public class CreateAction implements UsersWsAction {
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final UserSession userSession;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public CreateAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession) {
+  public CreateAction(DbClient dbClient, UserUpdater userUpdater, UserSession userSession, ManagedInstanceChecker managedInstanceService) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.userSession = userSession;
+    this.managedInstanceChecker = managedInstanceService;
   }
 
   @Override
@@ -120,6 +123,7 @@ public class CreateAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
+    managedInstanceChecker.throwIfInstanceIsManaged();
     CreateRequest createRequest = toWsRequest(request);
     checkArgument(isValidIfPresent(createRequest.getEmail()), "Email '%s' is not valid", createRequest.getEmail());
     writeProtobuf(doHandle(createRequest), request, response);

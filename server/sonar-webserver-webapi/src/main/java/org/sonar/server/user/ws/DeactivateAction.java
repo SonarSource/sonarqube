@@ -29,6 +29,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
@@ -44,13 +45,15 @@ public class DeactivateAction implements UsersWsAction {
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
   private final UserDeactivator userDeactivator;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
   public DeactivateAction(DbClient dbClient, UserSession userSession, UserJsonWriter userWriter,
-    UserDeactivator userDeactivator) {
+    UserDeactivator userDeactivator, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.userWriter = userWriter;
     this.userDeactivator = userDeactivator;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -78,17 +81,23 @@ public class DeactivateAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     String login;
-
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     login = request.mandatoryParam(PARAM_LOGIN);
     checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
-
     try (DbSession dbSession = dbClient.openSession(false)) {
+      preventManagedUserDeactivationIfManagedInstance(dbSession, login);
       boolean shouldAnonymize = request.mandatoryParamAsBoolean(PARAM_ANONYMIZE);
       UserDto userDto = shouldAnonymize
         ? userDeactivator.deactivateUserWithAnonymization(dbSession, login)
         : userDeactivator.deactivateUser(dbSession, login);
       writeResponse(response, userDto.getLogin());
+    }
+  }
+
+  private void preventManagedUserDeactivationIfManagedInstance(DbSession dbSession, String login) {
+    UserDto userDto = dbClient.userDao().selectByLogin(dbSession, login);
+    if (userDto != null && !userDto.isLocal()) {
+      managedInstanceChecker.throwIfInstanceIsManaged();
     }
   }
 

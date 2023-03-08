@@ -26,6 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
@@ -42,11 +43,14 @@ public class UpdateLoginAction implements UsersWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final UserUpdater userUpdater;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public UpdateLoginAction(DbClient dbClient, UserSession userSession, UserUpdater userUpdater) {
+  public UpdateLoginAction(DbClient dbClient, UserSession userSession, UserUpdater userUpdater,
+    ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.userUpdater = userUpdater;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -74,6 +78,7 @@ public class UpdateLoginAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
+    managedInstanceChecker.throwIfInstanceIsManaged();
     String login = request.mandatoryParam(PARAM_LOGIN);
     String newLogin = request.mandatoryParam(PARAM_NEW_LOGIN);
     try (DbSession dbSession = dbClient.openSession(false)) {
