@@ -73,6 +73,7 @@ exports[`#UserListItemIdentity should render correctly 1`] = `
         "lastConnectionDate": "2019-01-18T15:06:33+0100",
         "local": false,
         "login": "obi",
+        "managed": false,
         "name": "One",
         "scmAccounts": [],
       }

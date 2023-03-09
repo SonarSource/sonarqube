@@ -651,6 +651,7 @@ export function mockUser(overrides: Partial<User> = {}): User {
     local: true,
     login: 'john.doe',
     name: 'John Doe',
+    managed: false,
     ...overrides,
   };
 }

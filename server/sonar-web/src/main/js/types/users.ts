@@ -77,6 +77,7 @@ export interface User extends UserBase {
   groups?: string[];
   lastConnectionDate?: string;
   local: boolean;
+  managed: boolean;
   scmAccounts?: string[];
   tokensCount?: number;
 }

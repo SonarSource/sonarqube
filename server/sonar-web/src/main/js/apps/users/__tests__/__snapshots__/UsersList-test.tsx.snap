@@ -52,6 +52,7 @@ exports[`should render correctly 1`] = `
             "active": true,
             "local": false,
             "login": "luke",
+            "managed": false,
             "name": "Luke",
             "scmAccounts": [],
           }
@@ -67,6 +68,7 @@ exports[`should render correctly 1`] = `
             "active": true,
             "local": false,
             "login": "obi",
+            "managed": false,
             "name": "One",
             "scmAccounts": [],
           }

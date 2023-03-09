@@ -28,6 +28,7 @@ const users = [
     active: true,
     scmAccounts: [],
     local: false,
+    managed: false,
   },
   {
     login: 'obi',
@@ -35,6 +36,7 @@ const users = [
     active: true,
     scmAccounts: [],
     local: false,
+    managed: false,
   },
 ];
 
@@ -57,6 +59,7 @@ function getWrapper(props = {}) {
       onUpdateUsers={jest.fn()}
       updateTokensCount={jest.fn()}
       users={users}
+      manageProvider={undefined}
       {...props}
     />
   );

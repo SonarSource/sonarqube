@@ -71,6 +71,7 @@ export function searchUsers(data: {
   p?: number;
   ps?: number;
   q?: string;
+  managed?: boolean;
 }): Promise<{ paging: Paging; users: User[] }> {
   data.q = data.q || undefined;
   return getJSON('/api/users/search', data).catch(throwGlobalError);

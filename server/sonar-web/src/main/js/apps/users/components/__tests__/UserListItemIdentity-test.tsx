@@ -44,6 +44,7 @@ describe('#UserListItemIdentity', () => {
           login: 'obi',
           name: 'One',
           scmAccounts: [],
+          managed: false,
         }}
         {...props}
       />
@@ -78,6 +79,7 @@ describe('#ExternalProvider', () => {
           login: 'obi',
           name: 'One',
           scmAccounts: [],
+          managed: false,
         }}
         {...props}
       />

@@ -28,6 +28,7 @@ const user = {
   active: true,
   scmAccounts: [],
   local: false,
+  managed: false,
 };
 
 it('should render correctly', () => {

@@ -31,67 +31,66 @@ import UserGroups from './UserGroups';
 import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
 
-interface Props {
+export interface UserListItemProps {
   identityProvider?: IdentityProvider;
   isCurrentUser: boolean;
   onUpdateUsers: () => void;
   updateTokensCount: (login: string, tokensCount: number) => void;
   user: User;
+  manageProvider: string | undefined;
 }
 
-interface State {
-  openTokenForm: boolean;
-}
+export default function UserListItem(props: UserListItemProps) {
+  const [openTokenForm, setOpenTokenForm] = React.useState(false);
 
-export default class UserListItem extends React.PureComponent<Props, State> {
-  state: State = { openTokenForm: false };
+  const {
+    identityProvider,
+    onUpdateUsers,
+    user,
+    manageProvider,
+    isCurrentUser,
+    updateTokensCount,
+  } = props;
 
-  handleOpenTokensForm = () => this.setState({ openTokenForm: true });
-  handleCloseTokensForm = () => this.setState({ openTokenForm: false });
-
-  render() {
-    const { identityProvider, onUpdateUsers, user } = this.props;
-
-    return (
-      <tr>
-        <td className="thin nowrap text-middle">
-          <Avatar hash={user.avatar} name={user.name} size={36} />
-        </td>
-        <UserListItemIdentity identityProvider={identityProvider} user={user} />
-        <td className="thin nowrap text-middle">
-          <UserScmAccounts scmAccounts={user.scmAccounts || []} />
-        </td>
-        <td className="thin nowrap text-middle">
-          <DateFromNow date={user.lastConnectionDate} hourPrecision={true} />
-        </td>
-        <td className="thin nowrap text-middle">
-          <UserGroups groups={user.groups || []} onUpdateUsers={onUpdateUsers} user={user} />
-        </td>
-        <td className="thin nowrap text-middle">
-          {user.tokensCount}
-          <ButtonIcon
-            className="js-user-tokens spacer-left button-small"
-            onClick={this.handleOpenTokensForm}
-            tooltip={translate('users.update_tokens')}
-          >
-            <BulletListIcon />
-          </ButtonIcon>
-        </td>
-        <td className="thin nowrap text-right text-middle">
-          <UserActions
-            isCurrentUser={this.props.isCurrentUser}
-            onUpdateUsers={onUpdateUsers}
-            user={user}
-          />
-        </td>
-        {this.state.openTokenForm && (
-          <TokensFormModal
-            onClose={this.handleCloseTokensForm}
-            updateTokensCount={this.props.updateTokensCount}
-            user={user}
-          />
-        )}
-      </tr>
-    );
-  }
+  return (
+    <tr>
+      <td className="thin nowrap text-middle">
+        <Avatar hash={user.avatar} name={user.name} size={36} />
+      </td>
+      <UserListItemIdentity
+        identityProvider={identityProvider}
+        user={user}
+        manageProvider={manageProvider}
+      />
+      <td className="thin nowrap text-middle">
+        <UserScmAccounts scmAccounts={user.scmAccounts || []} />
+      </td>
+      <td className="thin nowrap text-middle">
+        <DateFromNow date={user.lastConnectionDate} hourPrecision={true} />
+      </td>
+      <td className="thin nowrap text-middle">
+        <UserGroups groups={user.groups || []} onUpdateUsers={onUpdateUsers} user={user} />
+      </td>
+      <td className="thin nowrap text-middle">
+        {user.tokensCount}
+        <ButtonIcon
+          className="js-user-tokens spacer-left button-small"
+          onClick={() => setOpenTokenForm(true)}
+          tooltip={translate('users.update_tokens')}
+        >
+          <BulletListIcon />
+        </ButtonIcon>
+      </td>
+      <td className="thin nowrap text-right text-middle">
+        <UserActions isCurrentUser={isCurrentUser} onUpdateUsers={onUpdateUsers} user={user} />
+      </td>
+      {openTokenForm && (
+        <TokensFormModal
+          onClose={() => setOpenTokenForm(false)}
+          updateTokensCount={updateTokensCount}
+          user={user}
+        />
+      )}
+    </tr>
+  );
 }

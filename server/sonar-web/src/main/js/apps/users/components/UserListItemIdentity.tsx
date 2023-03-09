@@ -21,6 +21,7 @@
 import { getTextColor } from 'design-system';
 import * as React from 'react';
 import { colors } from '../../../app/theme';
+import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { IdentityProvider } from '../../../types/types';
 import { User } from '../../../types/users';
@@ -28,9 +29,10 @@ import { User } from '../../../types/users';
 export interface Props {
   identityProvider?: IdentityProvider;
   user: User;
+  manageProvider?: string;
 }
 
-export default function UserListItemIdentity({ identityProvider, user }: Props) {
+export default function UserListItemIdentity({ identityProvider, user, manageProvider }: Props) {
   return (
     <td className="text-middle">
       <div>
@@ -41,11 +43,14 @@ export default function UserListItemIdentity({ identityProvider, user }: Props) 
       {!user.local && user.externalProvider !== 'sonarqube' && (
         <ExternalProvider identityProvider={identityProvider} user={user} />
       )}
+      {user.managed === false && manageProvider !== undefined && (
+        <span className="badge">{translate('users.local')}</span>
+      )}
     </td>
   );
 }
 
-export function ExternalProvider({ identityProvider, user }: Props) {
+export function ExternalProvider({ identityProvider, user }: Omit<Props, 'manageProvider'>) {
   if (!identityProvider) {
     return (
       <div className="js-user-identity-provider little-spacer-top">

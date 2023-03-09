@@ -23,11 +23,13 @@ import { RawQuery } from '../../types/types';
 
 export interface Query {
   search: string;
+  managed?: boolean;
 }
 
 export const parseQuery = memoize(
   (urlQuery: RawQuery): Query => ({
     search: parseAsString(urlQuery['search']),
+    managed: urlQuery['managed'] !== undefined ? urlQuery['managed'] === 'true' : undefined,
   })
 );
 
@@ -35,5 +37,6 @@ export const serializeQuery = memoize(
   (query: Query): RawQuery =>
     cleanQuery({
       search: query.search ? serializeString(query.search) : undefined,
+      managed: query.managed,
     })
 );

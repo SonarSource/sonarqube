@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { byRole, byText } from 'testing-library-selector';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
@@ -33,24 +34,82 @@ const ui = {
   createUserButton: byRole('button', { name: 'users.create_user' }),
   infoManageMode: byText(/users\.page\.managed_description/),
   description: byText('users.page.description'),
+  allFilter: byRole('button', { name: 'all' }),
+  managedFilter: byRole('button', { name: 'users.managed' }),
+  localFilter: byRole('button', { name: 'users.local' }),
+  aliceRow: byRole('row', { name: 'AM Alice Merveille alice.merveille never' }),
+  aliceRowWithLocalBadge: byRole('row', {
+    name: 'AM Alice Merveille alice.merveille users.local never',
+  }),
+  bobRow: byRole('row', { name: 'BM Bob Marley bob.marley never' }),
 };
 
-it('should render list of user in non manage mode', async () => {
-  handler.setIsManaged(false);
-  renderUsersApp();
+describe('in non managed mode', () => {
+  beforeEach(() => {
+    handler.setIsManaged(false);
+  });
 
-  expect(await ui.description.find()).toBeInTheDocument();
-  expect(ui.createUserButton.get()).toBeEnabled();
+  it('should allow the creation of user', async () => {
+    renderUsersApp();
+
+    expect(await ui.description.find()).toBeInTheDocument();
+    expect(ui.createUserButton.get()).toBeEnabled();
+  });
+
+  it('should render all users', async () => {
+    renderUsersApp();
+
+    expect(ui.aliceRowWithLocalBadge.query()).not.toBeInTheDocument();
+    expect(await ui.aliceRow.find()).toBeInTheDocument();
+    expect(await ui.bobRow.find()).toBeInTheDocument();
+  });
 });
 
-it('should render list of user in manage mode', async () => {
-  handler.setIsManaged(true);
-  renderUsersApp();
+describe('in manage mode', () => {
+  beforeEach(() => {
+    handler.setIsManaged(true);
+  });
 
-  expect(await ui.infoManageMode.find()).toBeInTheDocument();
-  expect(ui.createUserButton.get()).toBeDisabled();
+  it('should not be able to create a user"', async () => {
+    renderUsersApp();
+    expect(await ui.createUserButton.get()).toBeDisabled();
+    expect(await ui.infoManageMode.find()).toBeInTheDocument();
+  });
+
+  it('should render list of all users', async () => {
+    renderUsersApp();
+
+    expect(await ui.allFilter.find()).toBeInTheDocument();
+
+    expect(ui.aliceRowWithLocalBadge.get()).toBeInTheDocument();
+    expect(ui.bobRow.get()).toBeInTheDocument();
+  });
+
+  it('should render list of managed users', async () => {
+    const user = userEvent.setup();
+    renderUsersApp();
+
+    // The click downs't work without this line
+    expect(await ui.managedFilter.find()).toBeInTheDocument();
+    await user.click(await ui.managedFilter.get());
+
+    expect(ui.aliceRowWithLocalBadge.query()).not.toBeInTheDocument();
+    expect(ui.bobRow.get()).toBeInTheDocument();
+  });
+
+  it('should render list of local users', async () => {
+    const user = userEvent.setup();
+    renderUsersApp();
+
+    // The click downs't work without this line
+    expect(await ui.localFilter.find()).toBeInTheDocument();
+    await user.click(await ui.localFilter.get());
+
+    expect(ui.aliceRowWithLocalBadge.get()).toBeInTheDocument();
+    expect(ui.bobRow.query()).not.toBeInTheDocument();
+  });
 });
 
 function renderUsersApp() {
-  renderApp('admin/users', <UsersApp />);
+  return renderApp('admin/users', <UsersApp />);
 }

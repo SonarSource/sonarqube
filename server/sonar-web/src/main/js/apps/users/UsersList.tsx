@@ -29,6 +29,7 @@ interface Props {
   onUpdateUsers: () => void;
   updateTokensCount: (login: string, tokensCount: number) => void;
   users: User[];
+  manageProvider: string | undefined;
 }
 
 export default function UsersList({
@@ -37,6 +38,7 @@ export default function UsersList({
   onUpdateUsers,
   updateTokensCount,
   users,
+  manageProvider,
 }: Props) {
   return (
     <div className="boxed-group boxed-group-inner">
@@ -63,6 +65,7 @@ export default function UsersList({
               onUpdateUsers={onUpdateUsers}
               updateTokensCount={updateTokensCount}
               user={user}
+              manageProvider={manageProvider}
             />
           ))}
         </tbody>

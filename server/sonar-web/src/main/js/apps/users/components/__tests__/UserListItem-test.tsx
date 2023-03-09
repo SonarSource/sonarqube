@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from '../../../../helpers/testUtils';
 import { User } from '../../../../types/users';
-import UserListItem from '../UserListItem';
+import UserListItem, { UserListItemProps } from '../UserListItem';
 
 jest.mock('../../../../components/intl/DateFromNow');
 jest.mock('../../../../components/intl/DateTimeFormatter');
@@ -33,6 +33,7 @@ const user: User = {
   login: 'obi',
   name: 'One',
   scmAccounts: [],
+  managed: false,
 };
 
 it('should render correctly', () => {
@@ -49,13 +50,14 @@ it('should open the correct forms', () => {
   expect(wrapper.find('TokensFormModal').exists()).toBe(true);
 });
 
-function shallowRender(props: Partial<UserListItem['props']> = {}) {
+function shallowRender(props: Partial<UserListItemProps> = {}) {
   return shallow(
     <UserListItem
       isCurrentUser={false}
       onUpdateUsers={jest.fn()}
       updateTokensCount={jest.fn()}
       user={user}
+      manageProvider={undefined}
       {...props}
     />
   );

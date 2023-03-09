@@ -22,14 +22,15 @@ import { Helmet } from 'react-helmet-async';
 import { getSystemInfo } from '../../api/system';
 import { getIdentityProviders, searchUsers } from '../../api/users';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
+import ButtonToggle from '../../components/controls/ButtonToggle';
 import ListFooter from '../../components/controls/ListFooter';
+import SearchBox from '../../components/controls/SearchBox';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
 import { IdentityProvider, Paging, SysInfoCluster } from '../../types/types';
 import { CurrentUser, User } from '../../types/users';
 import Header from './Header';
-import Search from './Search';
 import UsersList from './UsersList';
 import { parseQuery, Query, serializeQuery } from './utils';
 
@@ -59,7 +60,10 @@ export class UsersApp extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.location.query.search !== this.props.location.query.search) {
+    if (
+      prevProps.location.query.search !== this.props.location.query.search ||
+      prevProps.location.query.managed !== this.props.location.query.managed
+    ) {
       this.fetchUsers();
     }
   }
@@ -91,9 +95,12 @@ export class UsersApp extends React.PureComponent<Props, State> {
     });
 
   fetchUsers = () => {
-    const { location } = this.props;
+    const { search, managed } = parseQuery(this.props.location.query);
     this.setState({ loading: true });
-    searchUsers({ q: parseQuery(location.query).search }).then(({ paging, users }) => {
+    searchUsers({
+      q: search,
+      managed,
+    }).then(({ paging, users }) => {
       if (this.mounted) {
         this.setState({ loading: false, paging, users });
       }
@@ -103,10 +110,12 @@ export class UsersApp extends React.PureComponent<Props, State> {
   fetchMoreUsers = () => {
     const { paging } = this.state;
     if (paging) {
+      const { search, managed } = parseQuery(this.props.location.query);
       this.setState({ loading: true });
       searchUsers({
         p: paging.pageIndex + 1,
-        q: parseQuery(this.props.location.query).search,
+        q: search,
+        managed,
       }).then(({ paging, users }) => {
         if (this.mounted) {
           this.setState((state) => ({ loading: false, users: [...state.users, ...users], paging }));
@@ -127,20 +136,48 @@ export class UsersApp extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const query = parseQuery(this.props.location.query);
+    const { search, managed } = parseQuery(this.props.location.query);
     const { loading, paging, users, manageProvider } = this.state;
+    // What if we have ONLY managed users? Should we not display the filter toggle?
     return (
       <main className="page page-limited" id="users-page">
         <Suggestions suggestions="users" />
         <Helmet defer={false} title={translate('users.page')} />
         <Header loading={loading} onUpdateUsers={this.fetchUsers} manageProvider={manageProvider} />
-        <Search query={query} updateQuery={this.updateQuery} />
+        <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
+          {manageProvider !== undefined && (
+            <div className="big-spacer-right">
+              <ButtonToggle
+                value={managed === undefined ? 'all' : managed}
+                options={[
+                  { label: translate('all'), value: 'all' },
+                  { label: translate('users.managed'), value: true },
+                  { label: translate('users.local'), value: false },
+                ]}
+                onCheck={(filterOption) => {
+                  if (filterOption === 'all') {
+                    this.updateQuery({ managed: undefined });
+                  } else {
+                    this.updateQuery({ managed: filterOption as boolean });
+                  }
+                }}
+              />
+            </div>
+          )}
+          <SearchBox
+            id="users-search"
+            onChange={(search: string) => this.updateQuery({ search })}
+            placeholder={translate('search.search_by_login_or_name')}
+            value={search}
+          />
+        </div>
         <UsersList
           currentUser={this.props.currentUser}
           identityProviders={this.state.identityProviders}
           onUpdateUsers={this.fetchUsers}
           updateTokensCount={this.updateTokensCount}
           users={users}
+          manageProvider={manageProvider}
         />
         {paging !== undefined && (
           <ListFooter
