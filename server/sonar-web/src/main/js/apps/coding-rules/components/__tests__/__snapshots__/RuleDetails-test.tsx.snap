@@ -22,11 +22,6 @@ exports[`should render correctly: loaded 1`] = `
       ruleDetails={
         {
           "createdAt": "2014-12-16T17:26:54+0100",
-          "debtOverloaded": false,
-          "debtRemFnOffset": "5min",
-          "debtRemFnType": "CONSTANT_ISSUE",
-          "defaultDebtRemFnOffset": "5min",
-          "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
           "descriptionSections": [
@@ -64,11 +59,6 @@ exports[`should render correctly: loaded 1`] = `
       ruleDetails={
         {
           "createdAt": "2014-12-16T17:26:54+0100",
-          "debtOverloaded": false,
-          "debtRemFnOffset": "5min",
-          "debtRemFnType": "CONSTANT_ISSUE",
-          "defaultDebtRemFnOffset": "5min",
-          "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
           "descriptionSections": [
@@ -137,11 +127,6 @@ exports[`should render correctly: loaded 1`] = `
       ruleDetails={
         {
           "createdAt": "2014-12-16T17:26:54+0100",
-          "debtOverloaded": false,
-          "debtRemFnOffset": "5min",
-          "debtRemFnType": "CONSTANT_ISSUE",
-          "defaultDebtRemFnOffset": "5min",
-          "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
           "descriptionSections": [
@@ -178,11 +163,6 @@ exports[`should render correctly: loaded 1`] = `
       ruleDetails={
         {
           "createdAt": "2014-12-16T17:26:54+0100",
-          "debtOverloaded": false,
-          "debtRemFnOffset": "5min",
-          "debtRemFnType": "CONSTANT_ISSUE",
-          "defaultDebtRemFnOffset": "5min",
-          "defaultDebtRemFnType": "CONSTANT_ISSUE",
           "defaultRemFnBaseEffort": "5min",
           "defaultRemFnType": "CONSTANT_ISSUE",
           "descriptionSections": [

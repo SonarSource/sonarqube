@@ -570,17 +570,11 @@ export interface RulesUpdateRequest {
 
 export interface RuleDetails extends Rule {
   createdAt: string;
-  debtOverloaded?: boolean;
-  debtRemFnCoeff?: string;
-  debtRemFnOffset?: string;
-  debtRemFnType?: string;
-  defaultDebtRemFnOffset?: string;
-  defaultDebtRemFnType?: string;
   defaultRemFnBaseEffort?: string;
   defaultRemFnType?: string;
   descriptionSections?: RuleDescriptionSection[];
   educationPrinciples?: string[];
-  effortToFixDescription?: string;
+  gapDescription?: string;
   htmlDesc?: string;
   htmlNote?: string;
   internalKey?: string;
@@ -588,6 +582,7 @@ export interface RuleDetails extends Rule {
   mdDesc?: string;
   mdNote?: string;
   remFnBaseEffort?: string;
+  remFnGapMultiplier?: string;
   remFnOverloaded?: boolean;
   remFnType?: string;
   repo: string;

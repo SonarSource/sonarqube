@@ -33,10 +33,14 @@ exports[`should display right meta info 1`] = `
           {
             "createdAt": "2013-07-26T09:40:51+0200",
             "descriptionSections": [],
+            "gapDescription": "per test",
             "key": "squid:S1133",
             "lang": "java",
             "langName": "Java",
             "name": "Deprecated code should be removed",
+            "remFnBaseEffort": "1min",
+            "remFnGapMultiplier": "2min",
+            "remFnType": "LINEAR_OFFSET",
             "repo": "squid",
             "scope": "MAIN",
             "severity": "INFO",
@@ -123,6 +127,20 @@ exports[`should display right meta info 1`] = `
         date="2013-07-26T09:40:51+0200"
       />
     </li>
+    <Tooltip
+      overlay="coding_rules.remediation_function"
+    >
+      <li
+        className="coding-rules-detail-property"
+        data-meta="remediation-function"
+      >
+        coding_rules.remediation_function.LINEAR_OFFSET
+        :
+         1min
+         +2min
+         per test
+      </li>
+    </Tooltip>
   </ul>
 </div>
 `;

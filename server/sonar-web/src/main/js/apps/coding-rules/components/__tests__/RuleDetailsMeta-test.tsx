@@ -35,6 +35,10 @@ const RULE: RuleDetails = {
   langName: 'Java',
   scope: 'MAIN',
   type: 'CODE_SMELL',
+  remFnType: 'LINEAR_OFFSET',
+  remFnBaseEffort: '1min',
+  remFnGapMultiplier: '2min',
+  gapDescription: 'per test',
 };
 
 const EXTERNAL_RULE: RuleDetails = {

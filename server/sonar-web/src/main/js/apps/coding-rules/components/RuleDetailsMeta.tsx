@@ -179,18 +179,17 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
 
   renderRemediation = () => {
     const { ruleDetails } = this.props;
-    if (!ruleDetails.debtRemFnType) {
+    if (!ruleDetails.remFnType) {
       return null;
     }
     return (
       <Tooltip overlay={translate('coding_rules.remediation_function')}>
         <li className="coding-rules-detail-property" data-meta="remediation-function">
-          {translate('coding_rules.remediation_function', ruleDetails.debtRemFnType)}
+          {translate('coding_rules.remediation_function', ruleDetails.remFnType)}
           {':'}
-          {ruleDetails.debtRemFnOffset !== undefined && ` ${ruleDetails.debtRemFnOffset}`}
-          {ruleDetails.debtRemFnCoeff !== undefined && ` +${ruleDetails.debtRemFnCoeff}`}
-          {ruleDetails.effortToFixDescription !== undefined &&
-            ` ${ruleDetails.effortToFixDescription}`}
+          {ruleDetails.remFnBaseEffort !== undefined && ` ${ruleDetails.remFnBaseEffort}`}
+          {ruleDetails.remFnGapMultiplier !== undefined && ` +${ruleDetails.remFnGapMultiplier}`}
+          {ruleDetails.gapDescription !== undefined && ` ${ruleDetails.gapDescription}`}
         </li>
       </Tooltip>
     );
