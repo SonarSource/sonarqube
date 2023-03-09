@@ -68,31 +68,29 @@ public class RulesWsParameters {
   public static final String FIELD_HTML_NOTE = "htmlNote";
 
   /**
-   * @deprecated since 5.5, replaced by {@link #FIELD_DEFAULT_REM_FUNCTION}
+   * Value for 'f' parameter which is used to return all the "defaultDebtRemFn" fields.
+   *
+   * @deprecated since 10.0, replaced by {@link #FIELD_DEFAULT_REM_FUNCTION}
    */
-  @Deprecated
+  @Deprecated(since = "10.0")
   public static final String FIELD_DEFAULT_DEBT_REM_FUNCTION = "defaultDebtRemFn";
+  /**
+   * Value for 'f' parameter which is used to return all the "defaultRemFn" fields.
+   */
   public static final String FIELD_DEFAULT_REM_FUNCTION = "defaultRemFn";
 
   /**
-   * @deprecated since 5.5, replaced by {@link #FIELD_REM_FUNCTION}
+   * Value for 'f' parameter which is used to return all the "debtRemFn" fields.
+   *
+   * @deprecated since 10.0, replaced by {@link #FIELD_REM_FUNCTION}
    */
-  @Deprecated
+  @Deprecated(since = "10.0")
   public static final String FIELD_DEBT_REM_FUNCTION = "debtRemFn";
+  /**
+   * Value for 'f' parameter which is used to return all the "remFn" fields.
+   */
   public static final String FIELD_REM_FUNCTION = "remFn";
-
-  /**
-   * @deprecated since 5.5, replaced by {@link #FIELD_GAP_DESCRIPTION}
-   */
-  @Deprecated
-  public static final String FIELD_EFFORT_TO_FIX_DESCRIPTION = "effortToFixDescription";
   public static final String FIELD_GAP_DESCRIPTION = "gapDescription";
-
-  /**
-   * @deprecated since 5.5, replaced by {@link #FIELD_REM_FUNCTION_OVERLOADED}
-   */
-  @Deprecated
-  public static final String FIELD_DEBT_OVERLOADED = "debtOverloaded";
   public static final String FIELD_REM_FUNCTION_OVERLOADED = "remFnOverloaded";
 
   /**
@@ -108,7 +106,7 @@ public class RulesWsParameters {
   public static final Set<String> OPTIONAL_FIELDS = Set.of(FIELD_REPO, FIELD_NAME, FIELD_CREATED_AT, FIELD_UPDATED_AT, FIELD_SEVERITY, FIELD_STATUS, FIELD_INTERNAL_KEY,
     FIELD_IS_EXTERNAL, FIELD_IS_TEMPLATE, FIELD_TEMPLATE_KEY, FIELD_TAGS, FIELD_SYSTEM_TAGS, FIELD_LANGUAGE, FIELD_LANGUAGE_NAME, FIELD_HTML_DESCRIPTION,
     FIELD_MARKDOWN_DESCRIPTION, FIELD_DESCRIPTION_SECTIONS, FIELD_NOTE_LOGIN, FIELD_MARKDOWN_NOTE, FIELD_HTML_NOTE,
-    FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_EFFORT_TO_FIX_DESCRIPTION, FIELD_DEBT_OVERLOADED, FIELD_DEBT_REM_FUNCTION,
+    FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_DEBT_REM_FUNCTION,
     FIELD_DEFAULT_REM_FUNCTION, FIELD_GAP_DESCRIPTION, FIELD_REM_FUNCTION_OVERLOADED, FIELD_REM_FUNCTION,
     FIELD_PARAMS, FIELD_ACTIVES, FIELD_SCOPE, FIELD_DEPRECATED_KEYS, FIELD_EDUCATION_PRINCIPLES);
 

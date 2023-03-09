@@ -312,7 +312,7 @@ public class SearchActionTest {
     Rules.SearchResponse response = ws.newRequest().executeProtobuf(Rules.SearchResponse.class);
     Rules.Rule result = response.getRules(0);
     assertThat(result.getCreatedAt()).isNotEmpty();
-    assertThat(result.getEffortToFixDescription()).isNotEmpty();
+    assertThat(result.getGapDescription()).isNotEmpty();
     assertThat(result.getHtmlDesc()).isNotEmpty();
     assertThat(result.hasIsTemplate()).isTrue();
     assertThat(result.getLang()).isEqualTo(rule.getLanguage());
@@ -343,7 +343,7 @@ public class SearchActionTest {
     assertThat(result.getEducationPrinciples().getEducationPrinciplesList()).containsExactlyElementsOf(rule.getEducationPrinciples());
 
     // not returned fields
-    assertThat(result.hasEffortToFixDescription()).isFalse();
+    assertThat(result.hasGapDescription()).isFalse();
     assertThat(result.hasHtmlDesc()).isFalse();
     assertThat(result.hasIsTemplate()).isFalse();
     assertThat(result.hasLang()).isFalse();
@@ -566,7 +566,7 @@ public class SearchActionTest {
     indexRules();
 
     SearchResponse result = ws.newRequest()
-      .setParam("f", "debtRemFn,debtOverloaded,defaultDebtRemFn")
+      .setParam("f", "debtRemFn,remFnOverloaded,defaultDebtRemFn")
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
     assertThat(result.getPaging().getTotal()).isOne();
@@ -575,15 +575,15 @@ public class SearchActionTest {
 
     Rule searchedRule = result.getRules(0);
     assertThat(searchedRule).isNotNull();
-    assertThat(searchedRule.getDefaultDebtRemFnCoeff()).isEqualTo("1h");
-    assertThat(searchedRule.getDefaultDebtRemFnOffset()).isEqualTo("15min");
+    assertThat(searchedRule.getDefaultRemFnGapMultiplier()).isEqualTo("1h");
+    assertThat(searchedRule.getDefaultRemFnBaseEffort()).isEqualTo("15min");
     assertThat(searchedRule.getDefaultDebtRemFnType()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(searchedRule.getDefaultRemFnBaseEffort()).isEqualTo("15min");
     assertThat(searchedRule.getDefaultRemFnGapMultiplier()).isEqualTo("1h");
     assertThat(searchedRule.getDefaultRemFnType()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
-    assertThat(searchedRule.getDebtOverloaded()).isTrue();
-    assertThat(searchedRule.getDebtRemFnCoeff()).isEqualTo("2h");
-    assertThat(searchedRule.getDebtRemFnOffset()).isEqualTo("25min");
+    assertThat(searchedRule.getRemFnOverloaded()).isTrue();
+    assertThat(searchedRule.getRemFnGapMultiplier()).isEqualTo("2h");
+    assertThat(searchedRule.getRemFnBaseEffort()).isEqualTo("25min");
     assertThat(searchedRule.getDebtRemFnType()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
   }
 
@@ -600,7 +600,7 @@ public class SearchActionTest {
     indexRules();
 
     SearchResponse result = ws.newRequest()
-      .setParam("f", "debtRemFn,debtOverloaded,defaultDebtRemFn")
+      .setParam("f", "debtRemFn,remFnOverloaded,defaultDebtRemFn")
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
     assertThat(result.getPaging().getTotal()).isOne();
@@ -609,15 +609,15 @@ public class SearchActionTest {
 
     Rule searchedRule = result.getRules(0);
     assertThat(searchedRule).isNotNull();
-    assertThat(searchedRule.getDefaultDebtRemFnCoeff()).isEqualTo("1h");
-    assertThat(searchedRule.getDefaultDebtRemFnOffset()).isEqualTo("15min");
+    assertThat(searchedRule.getDefaultRemFnGapMultiplier()).isEqualTo("1h");
+    assertThat(searchedRule.getDefaultRemFnBaseEffort()).isEqualTo("15min");
     assertThat(searchedRule.getDefaultDebtRemFnType()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(searchedRule.getDefaultRemFnBaseEffort()).isEqualTo("15min");
     assertThat(searchedRule.getDefaultRemFnGapMultiplier()).isEqualTo("1h");
     assertThat(searchedRule.getDefaultRemFnType()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
-    assertThat(searchedRule.getDebtOverloaded()).isTrue();
-    assertThat(searchedRule.getDebtRemFnCoeff()).isEmpty();
-    assertThat(searchedRule.getDebtRemFnOffset()).isEqualTo("5min");
+    assertThat(searchedRule.getRemFnOverloaded()).isTrue();
+    assertThat(searchedRule.getRemFnGapMultiplier()).isEmpty();
+    assertThat(searchedRule.getRemFnBaseEffort()).isEqualTo("5min");
     assertThat(searchedRule.getDebtRemFnType()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
   }
 
@@ -634,7 +634,7 @@ public class SearchActionTest {
     indexRules();
 
     SearchResponse result = ws.newRequest()
-      .setParam("f", "debtRemFn,debtOverloaded,defaultDebtRemFn")
+      .setParam("f", "debtRemFn,remFnOverloaded,defaultDebtRemFn")
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getTotal()).isOne();
     assertThat(result.getPaging().getTotal()).isOne();
@@ -643,15 +643,15 @@ public class SearchActionTest {
 
     Rule searchedRule = result.getRules(0);
     assertThat(searchedRule).isNotNull();
-    assertThat(searchedRule.getDefaultDebtRemFnCoeff()).isEqualTo("1h");
-    assertThat(searchedRule.getDefaultDebtRemFnOffset()).isEqualTo("15min");
+    assertThat(searchedRule.getDefaultRemFnGapMultiplier()).isEqualTo("1h");
+    assertThat(searchedRule.getDefaultRemFnBaseEffort()).isEqualTo("15min");
     assertThat(searchedRule.getDefaultDebtRemFnType()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(searchedRule.getDefaultRemFnBaseEffort()).isEqualTo("15min");
     assertThat(searchedRule.getDefaultRemFnGapMultiplier()).isEqualTo("1h");
     assertThat(searchedRule.getDefaultRemFnType()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
-    assertThat(searchedRule.getDebtOverloaded()).isTrue();
-    assertThat(searchedRule.getDebtRemFnCoeff()).isEqualTo("1h");
-    assertThat(searchedRule.getDebtRemFnOffset()).isEmpty();
+    assertThat(searchedRule.getRemFnOverloaded()).isTrue();
+    assertThat(searchedRule.getRemFnGapMultiplier()).isEqualTo("1h");
+    assertThat(searchedRule.getRemFnBaseEffort()).isEmpty();
     assertThat(searchedRule.getDebtRemFnType()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
   }
 

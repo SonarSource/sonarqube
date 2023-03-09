@@ -69,17 +69,25 @@ public class ShowAction implements RulesWsAction {
       .setResponseExample(Resources.getResource(getClass(), "show-example.json"))
       .setHandler(this)
       .setChangelog(
-        new Change("5.5", "The field 'effortToFixDescription' has been deprecated use 'gapDescription' instead"),
-        new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated use 'remFnGapMultiplier' instead"),
-        new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated use 'defaultRemFnGapMultiplier' instead"),
-        new Change("5.5", "The field 'debtRemFnOffset' has been deprecated use 'remFnBaseEffort' instead"),
-        new Change("5.5", "The field 'defaultDebtRemFnOffset' has been deprecated use 'defaultRemFnBaseEffort' instead"),
-        new Change("5.5", "The field 'debtOverloaded' has been deprecated use 'remFnOverloaded' instead"),
-        new Change("7.5", "The field 'scope' has been added"),
-        new Change("9.5", "The field 'htmlDesc' has been deprecated use 'descriptionSections' instead"),
-        new Change("9.5", "The field 'descriptionSections' has been added to the payload"),
-        new Change("9.6", "'descriptionSections' can optionally embed a context field"),
-        new Change("9.6", "'educationPrinciples' has been added")
+        new Change("5.5", "The field 'effortToFixDescription' in the response has been deprecated, it becomes 'gapDescription'."),
+        new Change("5.5", "The field 'debtRemFnCoeff' in the response has been deprecated, it becomes 'remFnGapMultiplier'."),
+        new Change("5.5", "The field 'defaultDebtRemFnCoeff' in the response has been deprecated, it becomes 'defaultRemFnGapMultiplier'."),
+        new Change("5.5", "The field 'debtRemFnOffset' in the response has been deprecated, it becomes 'remFnBaseEffort'."),
+        new Change("5.5", "The field 'defaultDebtRemFnOffset' in the response has been deprecated, it becomes 'defaultRemFnBaseEffort'."),
+        new Change("5.5", "The field 'debtOverloaded' in the response has been deprecated, it becomes 'remFnOverloaded'."),
+        new Change("7.1", "The field 'scope' has been added."),
+        new Change("9.5", "The field 'htmlDesc' in the response has been deprecated, it becomes 'descriptionSections'."),
+        new Change("9.5", "The field 'descriptionSections' has been added to the payload."),
+        new Change("9.6", "'descriptionSections' can optionally embed a context field."),
+        new Change("9.6", "'educationPrinciples' has been added."),
+        new Change("10.0", "The deprecated field 'effortToFixDescription' has been removed, use 'gapDescription' instead."),
+        new Change("10.0", "The deprecated field 'debtRemFnCoeff' has been removed, use 'remFnGapMultiplier' instead."),
+        new Change("10.0", "The deprecated field 'defaultDebtRemFnCoeff' has been removed, use 'defaultRemFnGapMultiplier' instead."),
+        new Change("10.0", "The deprecated field 'debtRemFnOffset' has been removed, use 'remFnBaseEffort' instead."),
+        new Change("10.0", "The deprecated field 'defaultDebtRemFnOffset' has been removed, use 'defaultRemFnBaseEffort' instead."),
+        new Change("10.0", "The deprecated field 'debtOverloaded' has been removed, use 'remFnOverloaded' instead."),
+        new Change("10.0", "The field 'defaultDebtRemFnType' has been deprecated, use 'defaultRemFnType' instead"),
+        new Change("10.0", "The field 'debtRemFnType' has been deprecated, use 'remFnType' instead")
       );
 
     action

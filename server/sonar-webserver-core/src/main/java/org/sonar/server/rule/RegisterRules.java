@@ -547,7 +547,7 @@ public class RegisterRules implements Startable {
   }
 
   private static boolean mergeDebtDefinitions(RuleDto dto, @Nullable String remediationFunction,
-    @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String effortToFixDescription) {
+    @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String gapDescription) {
     boolean changed = false;
 
     if (!Objects.equals(dto.getDefRemediationFunction(), remediationFunction)) {
@@ -562,8 +562,8 @@ public class RegisterRules implements Startable {
       dto.setDefRemediationBaseEffort(remediationOffset);
       changed = true;
     }
-    if (!Objects.equals(dto.getGapDescription(), effortToFixDescription)) {
-      dto.setGapDescription(effortToFixDescription);
+    if (!Objects.equals(dto.getGapDescription(), gapDescription)) {
+      dto.setGapDescription(gapDescription);
       changed = true;
     }
     return changed;
@@ -809,7 +809,7 @@ public class RegisterRules implements Startable {
     return changes;
   }
 
-  private Set<String> getExistingAndRenamedRepositories(RegisterRulesContext recorder, Collection<RulesDefinition.Repository> context) {
+  private static Set<String> getExistingAndRenamedRepositories(RegisterRulesContext recorder, Collection<RulesDefinition.Repository> context) {
     return Stream.concat(
         context.stream().map(RulesDefinition.ExtendedRepository::key),
         recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))

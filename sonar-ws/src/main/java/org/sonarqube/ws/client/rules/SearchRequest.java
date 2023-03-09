@@ -158,11 +158,9 @@ public class SearchRequest {
    * <ul>
    *   <li>"actives"</li>
    *   <li>"createdAt"</li>
-   *   <li>"debtOverloaded"</li>
    *   <li>"debtRemFn"</li>
    *   <li>"defaultDebtRemFn"</li>
    *   <li>"defaultRemFn"</li>
-   *   <li>"effortToFixDescription"</li>
    *   <li>"gapDescription"</li>
    *   <li>"htmlDesc"</li>
    *   <li>"htmlNote"</li>

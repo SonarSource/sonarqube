@@ -21,7 +21,6 @@
       "defaultValue":"**/Sonar*","type":"STRING"
     }
     ],
-    "debtOverloaded":false,
     "remFnOverloaded":false,
     "scope":"MAIN",
     "isExternal":false,

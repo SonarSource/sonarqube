@@ -20,7 +20,6 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -99,7 +98,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
 
-  private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
+  private static final Collection<String> DEFAULT_FACETS = Set.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
   private static final String[] POSSIBLE_FACETS = new String[]{
     FACET_LANGUAGES,
     FACET_REPOSITORIES,
@@ -140,21 +139,32 @@ public class SearchAction implements RulesWsAction {
       .setChangelog(
         new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
         new Change("9.8", "The field 'paging' has been added to the response"),
-        new Change("5.5", "The field 'effortToFixDescription' has been deprecated use 'gapDescription' instead"),
-        new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated use 'remFnGapMultiplier' instead"),
-        new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated use 'defaultRemFnGapMultiplier' instead"),
-        new Change("5.5", "The field 'debtRemFnOffset' has been deprecated use 'remFnBaseEffort' instead"),
-        new Change("5.5", "The field 'defaultDebtRemFnOffset' has been deprecated use 'defaultRemFnBaseEffort' instead"),
+        new Change("5.5", "The field 'effortToFixDescription' has been deprecated, use 'gapDescription' instead"),
+        new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated, use 'remFnGapMultiplier' instead"),
+        new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated, use 'defaultRemFnGapMultiplier' instead"),
+        new Change("5.5", "The field 'debtRemFnOffset' has been deprecated, use 'remFnBaseEffort' instead"),
+        new Change("5.5", "The field 'defaultDebtRemFnOffset' has been deprecated, use 'defaultRemFnBaseEffort' instead"),
+        new Change("5.5", "The field 'debtOverloaded' has been deprecated, use 'remFnOverloaded' instead"),
         new Change("7.1", "The field 'scope' has been added to the response"),
         new Change("7.1", "The field 'scope' has been added to the 'f' parameter"),
         new Change("7.2", "The field 'isExternal' has been added to the response"),
         new Change("7.2", "The field 'includeExternal' has been added to the 'f' parameter"),
         new Change("7.5", "The field 'updatedAt' has been added to the 'f' parameter"),
-        new Change("9.5", "The field 'htmlDesc' has been deprecated use 'descriptionSections' instead"),
+        new Change("9.5", "The field 'htmlDesc' has been deprecated, use 'descriptionSections' instead"),
         new Change("9.5", "The field 'descriptionSections' has been added to the payload"),
         new Change("9.5", "The field 'descriptionSections' has been added to the 'f' parameter"),
         new Change("9.6", "'descriptionSections' can optionally embed a context field"),
-        new Change("9.6", "The field 'educationPrinciples' has been added to the 'f' parameter")
+        new Change("9.6", "The field 'educationPrinciples' has been added to the 'f' parameter"),
+        new Change("10.0", "The deprecated field 'effortToFixDescription' has been removed, use 'gapDescription' instead."),
+        new Change("10.0", "The deprecated field 'debtRemFnCoeff' has been removed, use 'remFnGapMultiplier' instead."),
+        new Change("10.0", "The deprecated field 'defaultDebtRemFnCoeff' has been removed, use 'defaultRemFnGapMultiplier' instead."),
+        new Change("10.0", "The deprecated field 'debtRemFnOffset' has been removed, use 'remFnBaseEffort' instead."),
+        new Change("10.0", "The deprecated field 'defaultDebtRemFnOffset' has been removed, use 'defaultRemFnBaseEffort' instead."),
+        new Change("10.0", "The deprecated field 'debtOverloaded' has been removed, use 'remFnOverloaded' instead."),
+        new Change("10.0", "The field 'defaultDebtRemFnType' has been deprecated, use 'defaultRemFnType' instead"),
+        new Change("10.0", "The field 'debtRemFnType' has been deprecated, use 'remFnType' instead"),
+        new Change("10.0", "The value 'debtRemFn' for the 'f' parameter has been deprecated, use 'remFn' instead"),
+        new Change("10.0", "The value 'defaultDebtRemFn' for the 'f' parameter has been deprecated, use 'defaultRemFn' instead")
       );
 
     action.createParam(FACETS)

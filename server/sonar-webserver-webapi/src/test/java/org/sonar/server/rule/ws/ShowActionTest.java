@@ -287,13 +287,13 @@ public class ShowActionTest {
 
     Rule resultRule = result.getRule();
     assertThat(resultRule.getDefaultRemFnType()).isEqualTo("LINEAR_OFFSET");
-    assertThat(resultRule.getDefaultDebtRemFnCoeff()).isEqualTo("5d");
-    assertThat(resultRule.getDefaultDebtRemFnOffset()).isEqualTo("10h");
-    assertThat(resultRule.getEffortToFixDescription()).isEqualTo("gap desc");
+    assertThat(resultRule.getDefaultRemFnGapMultiplier()).isEqualTo("5d");
+    assertThat(resultRule.getDefaultRemFnBaseEffort()).isEqualTo("10h");
+    assertThat(resultRule.getGapDescription()).isEqualTo("gap desc");
     assertThat(resultRule.getDebtRemFnType()).isEqualTo("CONSTANT_ISSUE");
-    assertThat(resultRule.hasDebtRemFnCoeff()).isFalse();
-    assertThat(resultRule.getDebtRemFnOffset()).isEqualTo("15h");
-    assertThat(resultRule.getDebtOverloaded()).isTrue();
+    assertThat(resultRule.hasRemFnGapMultiplier()).isFalse();
+    assertThat(resultRule.getRemFnBaseEffort()).isEqualTo("15h");
+    assertThat(resultRule.getRemFnOverloaded()).isTrue();
     assertThat(resultRule.hasDeprecatedKeys()).isFalse();
   }
 

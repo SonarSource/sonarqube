@@ -1,9 +1,0 @@
-{
-  "rules": [
-    {
-      "key": "xoo:x1",
-      "name": "Rule x1",
-      "type": "CODE_SMELL"
-    }
-  ]
-}

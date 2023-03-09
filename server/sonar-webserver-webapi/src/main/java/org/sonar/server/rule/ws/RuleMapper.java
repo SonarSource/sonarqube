@@ -53,14 +53,12 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CREATED_AT;
-import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEBT_OVERLOADED;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEPRECATED_KEYS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DESCRIPTION_SECTIONS;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_EDUCATION_PRINCIPLES;
-import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_EFFORT_TO_FIX_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_GAP_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_HTML_DESCRIPTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_INTERNAL_KEY;
@@ -136,7 +134,7 @@ public class RuleMapper {
     setIsExternal(ruleResponse, ruleDto, fieldsToReturn);
     setTemplateKey(ruleResponse, ruleDto, result, fieldsToReturn);
     setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDto, fieldsToReturn);
-    setEffortToFixDescription(ruleResponse, ruleDto, fieldsToReturn);
+    setGapDescription(ruleResponse, ruleDto, fieldsToReturn);
     setScope(ruleResponse, ruleDto, fieldsToReturn);
     setDeprecatedKeys(ruleResponse, ruleDto, fieldsToReturn, deprecatedRuleKeysByRuleUuid);
 
@@ -235,18 +233,16 @@ public class RuleMapper {
     }
   }
 
-  private static void setEffortToFixDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+  private static void setGapDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     String gapDescription = ruleDto.getGapDescription();
-    if ((shouldReturnField(fieldsToReturn, FIELD_EFFORT_TO_FIX_DESCRIPTION) || shouldReturnField(fieldsToReturn, FIELD_GAP_DESCRIPTION))
+    if (shouldReturnField(fieldsToReturn, FIELD_GAP_DESCRIPTION)
       && gapDescription != null) {
-      ruleResponse.setEffortToFixDescription(gapDescription);
       ruleResponse.setGapDescription(gapDescription);
     }
   }
 
   private static void setIsRemediationFunctionOverloaded(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_DEBT_OVERLOADED) || shouldReturnField(fieldsToReturn, FIELD_REM_FUNCTION_OVERLOADED)) {
-      ruleResponse.setDebtOverloaded(isRemediationFunctionOverloaded(ruleDto));
+    if (shouldReturnField(fieldsToReturn, FIELD_REM_FUNCTION_OVERLOADED)) {
       ruleResponse.setRemFnOverloaded(isRemediationFunctionOverloaded(ruleDto));
     }
   }
@@ -258,14 +254,10 @@ public class RuleMapper {
         String gapMultiplier = defaultDebtRemediationFunction.gapMultiplier();
         if (gapMultiplier != null) {
           ruleResponse.setDefaultRemFnGapMultiplier(gapMultiplier);
-          // Set deprecated field
-          ruleResponse.setDefaultDebtRemFnCoeff(gapMultiplier);
         }
         String baseEffort = defaultDebtRemediationFunction.baseEffort();
         if (baseEffort != null) {
           ruleResponse.setDefaultRemFnBaseEffort(baseEffort);
-          // Set deprecated field
-          ruleResponse.setDefaultDebtRemFnOffset(baseEffort);
         }
         if (defaultDebtRemediationFunction.type() != null) {
           ruleResponse.setDefaultRemFnType(defaultDebtRemediationFunction.type().name());
@@ -289,14 +281,10 @@ public class RuleMapper {
         String gapMultiplier = debtRemediationFunction.gapMultiplier();
         if (gapMultiplier != null) {
           ruleResponse.setRemFnGapMultiplier(gapMultiplier);
-          // Set deprecated field
-          ruleResponse.setDebtRemFnCoeff(gapMultiplier);
         }
         String baseEffort = debtRemediationFunction.baseEffort();
         if (baseEffort != null) {
           ruleResponse.setRemFnBaseEffort(baseEffort);
-          // Set deprecated field
-          ruleResponse.setDebtRemFnOffset(baseEffort);
         }
       }
     }

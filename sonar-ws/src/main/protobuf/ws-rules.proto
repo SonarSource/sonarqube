@@ -96,22 +96,16 @@ message Rule {
   optional string unusedDebtCharName = 27;
   optional string unusedDebtSubCharName = 28;
 
-  // Deprecated since 5.5, replaced by defaultRemFnType
-  optional string defaultDebtRemFnType = 29;
-  // Deprecated since 5.5, replaced by defaultRemFnGapMultiplier
-  optional string defaultDebtRemFnCoeff = 30;
-  // Deprecated since 5.5, replaced by defaultRemFnBaseEffort
-  optional string defaultDebtRemFnOffset = 31;
-  // Deprecated since 5.5, replaced by gapDescription
-  optional string effortToFixDescription = 32;
-  // Deprecated since 5.5, replaced by remFnOverloaded
-  optional bool debtOverloaded = 33;
-  // Deprecated since 5.5, replaced by remFnType
-  optional string debtRemFnType = 34;
-  // Deprecated since 5.5, replaced by remFnGapMultiplier
-  optional string debtRemFnCoeff = 35;
-  // Deprecated since 5.5, replaced by remFnBaseEffort
-  optional string debtRemFnOffset = 36;
+  // Deprecated since 10.0, replaced by defaultRemFnType
+  optional string defaultDebtRemFnType = 29 [deprecated=true];
+  reserved 30;
+  reserved 31;
+  reserved 32;
+  reserved 33;
+  // Deprecated since 10.0, replaced by remFnType
+  optional string debtRemFnType = 34 [deprecated=true];
+  reserved 35;
+  reserved 36;
   optional sonarqube.ws.commons.RuleType type = 37;
   optional string defaultRemFnType = 38;
   optional string defaultRemFnGapMultiplier = 39;
