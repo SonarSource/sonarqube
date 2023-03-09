@@ -59,7 +59,6 @@ import static java.util.Collections.singletonMap;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_COMPONENT;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_METRICS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIOD;
-import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_ADDITIONAL_PERIODS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
@@ -97,6 +96,8 @@ public class ComponentAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("10.0", "the response field periods under measures field is removed."),
+        new Change("10.0", "the option `periods` of 'additionalFields' request field is removed."),
         new Change("9.3", "When the new code period is set to 'reference branch', the response field 'date' under the 'period' field has been removed"),
         new Change("9.3", format("The use of the following metrics in 'metricKeys' parameter is deprecated: %s",
           MeasuresWsModule.getDeprecatedMetrics())),
@@ -269,11 +270,6 @@ public class ComponentAction implements MeasuresWsAction {
         for (MetricDto metric : metrics) {
           response.getMetricsBuilder().addMetrics(metricDtoToWsMetric(metric));
         }
-      }
-
-      // backward compatibility
-      if (additionalFields.contains(DEPRECATED_ADDITIONAL_PERIODS) && period.isPresent()) {
-        response.getPeriodsBuilder().addPeriods(period.get());
       }
 
       if (additionalFields.contains(ADDITIONAL_PERIOD) && period.isPresent()) {

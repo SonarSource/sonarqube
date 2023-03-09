@@ -3,62 +3,65 @@
     {
       "metric": "complexity",
       "value": "12",
-      "component": "MY_PROJECT_1"
+      "component": "MY_PROJECT_1",
+      "bestValue": false
     },
     {
       "metric": "complexity",
       "value": "35",
-      "component": "MY_PROJECT_2"
+      "component": "MY_PROJECT_2",
+      "bestValue": false
     },
     {
       "metric": "complexity",
       "value": "42",
-      "component": "MY_PROJECT_3"
+      "component": "MY_PROJECT_3",
+      "bestValue": false
     },
     {
       "metric": "ncloc",
       "value": "114",
-      "component": "MY_PROJECT_1"
+      "component": "MY_PROJECT_1",
+      "bestValue": false
     },
     {
       "metric": "ncloc",
       "value": "217",
-      "component": "MY_PROJECT_2"
+      "component": "MY_PROJECT_2",
+      "bestValue": false
     },
     {
       "metric": "ncloc",
       "value": "1984",
-      "component": "MY_PROJECT_3"
+      "component": "MY_PROJECT_3",
+      "bestValue": false
     },
     {
       "metric": "new_violations",
-      "periods": [
-        {
-          "index": 1,
-          "value": "25"
-        }
-      ],
-      "component": "MY_PROJECT_1"
+      "component": "MY_PROJECT_1",
+      "period": {
+        "index": 1,
+        "value": "25",
+        "bestValue": false
+      }
     },
     {
       "metric": "new_violations",
-      "periods": [
-        {
-          "index": 1,
-          "value": "25"
-        }
-      ],
-      "component": "MY_PROJECT_2"
+      "component": "MY_PROJECT_2",
+      "period": {
+        "index": 1,
+        "value": "25",
+        "bestValue": false
+      }
     },
     {
       "metric": "new_violations",
-      "periods": [
-        {
-          "index": 1,
-          "value": "255"
-        }
-      ],
-      "component": "MY_PROJECT_3"
+      "component": "MY_PROJECT_3",
+      "period": {
+        "index": 1,
+        "value": "255",
+        "bestValue": false
+      }
     }
   ]
 }

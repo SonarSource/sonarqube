@@ -19,7 +19,9 @@
  */
 package org.sonar.server.measure.ws;
 
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -42,9 +44,11 @@ import org.sonarqube.ws.Measures.Component;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
 
 import static java.lang.Double.parseDouble;
+import static java.util.function.Predicate.not;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.InstanceOfAssertFactories.OPTIONAL;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
@@ -94,7 +98,6 @@ public class ComponentActionTest {
 
     assertThat(response.getMetrics().getMetricsCount()).isOne();
     assertThat(response.hasPeriod()).isFalse();
-    assertThat(response.getPeriods().getPeriodsCount()).isZero();
     assertThat(response.getComponent().getKey()).isEqualTo(project.getKey());
   }
 
@@ -203,12 +206,11 @@ public class ComponentActionTest {
     assertThat(response.getComponent()).extracting(Component::getKey, Component::getPullRequest)
       .containsExactlyInAnyOrder(file.getKey(), "pr-123");
 
-    Function<Measures.Measure, Double> extractVariation = m -> {
-      if (m.getPeriods().getPeriodsValueCount() > 0) {
-        return parseDouble(m.getPeriods().getPeriodsValue(0).getValue());
-      }
-      return null;
-    };
+    Function<Measures.Measure, Double> extractVariation = m -> Optional.ofNullable(m.getPeriod())
+      .map(Measures.PeriodValue::getValue)
+      .filter(not(String::isEmpty))
+      .map(Double::parseDouble)
+      .orElse(null);
     assertThat(response.getComponent().getMeasuresList())
       .extracting(Measures.Measure::getMetric, extractVariation, m -> m.getValue().isEmpty() ? null : parseDouble(m.getValue()))
       .containsExactlyInAnyOrder(
@@ -448,7 +450,7 @@ public class ComponentActionTest {
     String response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
       .setParam(PARAM_METRIC_KEYS, "ncloc, complexity, new_violations")
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,period,periods")
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,period")
       .execute()
       .getInput();
 
@@ -459,7 +461,7 @@ public class ComponentActionTest {
     return ws.newRequest()
       .setParam(PARAM_COMPONENT, componentKey)
       .setParam(PARAM_METRIC_KEYS, metricKeys)
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,period,periods")
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,period")
       .executeProtobuf(ComponentWsResponse.class);
   }
 }

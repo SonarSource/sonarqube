@@ -85,7 +85,6 @@ import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_COMPONENT_TREE;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_METRICS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIOD;
-import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_ADDITIONAL_PERIODS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
@@ -106,8 +105,8 @@ import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeri
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -179,6 +178,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.0", "the response field periods under measures field is removed."),
+        new Change("10.0", "the option `periods` of 'additionalFields' request field is removed."),
         new Change("9.3", format("The use of the following metrics in 'metricKeys' parameter is deprecated: %s",
           MeasuresWsModule.getDeprecatedMetrics())),
         new Change("8.8", "parameter 'component' is now required"),
@@ -317,10 +318,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
     }
 
     List<String> additionalFields = Optional.ofNullable(request.getAdditionalFields()).orElse(Collections.emptyList());
-    // backward compatibility
-    if (additionalFields.contains(DEPRECATED_ADDITIONAL_PERIODS) && data.getPeriod() != null) {
-      response.getPeriodsBuilder().addPeriods(data.getPeriod());
-    }
 
     if (additionalFields.contains(ADDITIONAL_PERIOD) && data.getPeriod() != null) {
       response.setPeriod(data.getPeriod());

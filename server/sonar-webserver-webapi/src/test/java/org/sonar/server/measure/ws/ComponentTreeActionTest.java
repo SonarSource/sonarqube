@@ -77,7 +77,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIOD;
-import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_ADDITIONAL_PERIODS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
@@ -162,7 +161,7 @@ public class ComponentTreeActionTest {
     String response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
       .setParam(PARAM_METRIC_KEYS, "ncloc, complexity, new_violations")
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,period,periods")
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,period")
       .execute()
       .getInput();
 
@@ -183,7 +182,6 @@ public class ComponentTreeActionTest {
     assertThat(response.getComponentsList()).isEmpty();
     assertThat(response.getMetrics().getMetricsList()).isEmpty();
     assertThat(response.hasPeriod()).isFalse();
-    assertThat(response.getPeriods().getPeriodsList()).isEmpty();
   }
 
   @Test
@@ -209,7 +207,7 @@ public class ComponentTreeActionTest {
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
       .setParam(PARAM_METRIC_KEYS, "ncloc,coverage")
-      .setParam(PARAM_ADDITIONAL_FIELDS, DEPRECATED_ADDITIONAL_PERIODS + "," + ADDITIONAL_PERIOD)
+      .setParam(PARAM_ADDITIONAL_FIELDS, ADDITIONAL_PERIOD)
       .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getComponentsList().get(0).getMeasuresList()).extracting("metric").containsOnly("coverage");
@@ -218,7 +216,6 @@ public class ComponentTreeActionTest {
     assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage");
     assertThat(fileMeasures).extracting("value").containsOnly("5", "15.5");
     assertThat(response.getPeriod().getMode()).isEqualTo("last_version");
-    assertThat(response.getPeriods().getPeriodsList()).extracting("mode").containsOnly("last_version");
   }
 
   @Test
@@ -300,12 +297,6 @@ public class ComponentTreeActionTest {
 
     // verify backward compatibility
     List<Measure> fileMeasures = response.getComponentsList().get(0).getMeasuresList();
-    assertThat(fileMeasures)
-      .extracting(Measure::getMetric, m -> m.getPeriods().getPeriodsValueList())
-      .containsExactlyInAnyOrder(
-        tuple(matchingBestValue.getKey(), singletonList(PeriodValue.newBuilder().setIndex(1).setValue("100").setBestValue(true).build())),
-        tuple(doesNotMatchBestValue.getKey(), singletonList(PeriodValue.newBuilder().setIndex(1).setValue("10").setBestValue(false).build())),
-        tuple(noBestValue.getKey(), singletonList(PeriodValue.newBuilder().setIndex(1).setValue("42").build())));
 
     assertThat(fileMeasures)
       .extracting(Measure::getMetric, Measure::getPeriod)
@@ -342,10 +333,10 @@ public class ComponentTreeActionTest {
       .executeProtobuf(ComponentTreeWsResponse.class);
 
     // directory
-    assertThat(response.getComponentsList().get(0).getMeasuresList().get(0).getPeriods().getPeriodsValue(0).getValue()).isEqualTo("2.0");
+    assertThat(response.getComponentsList().get(0).getMeasuresList().get(0).getPeriod().getValue()).isEqualTo("2.0");
     assertThat(response.getComponentsList().get(0).getMeasuresList().get(0).getPeriod().getValue()).isEqualTo("2.0");
     // file measures
-    assertThat(response.getComponentsList().get(1).getMeasuresList().get(0).getPeriods().getPeriodsValue(0).getValue()).isEqualTo("1.0");
+    assertThat(response.getComponentsList().get(1).getMeasuresList().get(0).getPeriod().getValue()).isEqualTo("1.0");
     assertThat(response.getComponentsList().get(1).getMeasuresList().get(0).getPeriod().getValue()).isEqualTo("1.0");
   }
 
@@ -631,7 +622,7 @@ public class ComponentTreeActionTest {
     assertThat(response.getBaseComponent()).extracting(Component::getKey, Component::getPullRequest)
       .containsExactlyInAnyOrder(file.getKey(), "pr-123");
     assertThat(response.getBaseComponent().getMeasuresList())
-      .extracting(Measure::getMetric, m -> parseDouble(m.getPeriods().getPeriodsValue(0).getValue()), Measure::getValue)
+      .extracting(Measure::getMetric, m -> parseDouble(m.getPeriod().getValue()), Measure::getValue)
       .containsExactlyInAnyOrder(tuple(newBug.getKey(), measure.getValue(), ""));
 
     assertThat(response.getBaseComponent().getMeasuresList())

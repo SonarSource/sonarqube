@@ -156,9 +156,7 @@ public class SearchActionTest {
     Measure measure = measures.get(0);
     assertThat(measure.getMetric()).isEqualTo(coverage.getKey());
     assertThat(measure.getValue()).isEmpty();
-    assertThat(measure.getPeriods().getPeriodsValueList())
-      .extracting(Measures.PeriodValue::getIndex, Measures.PeriodValue::getValue)
-      .containsOnly(tuple(1, "10.0"));
+    assertThat(measure.getPeriod().getValue()).isEqualTo("10.0");
   }
 
   @Test
