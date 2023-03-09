@@ -20,26 +20,16 @@
 package org.sonar.server.platform.monitoring;
 
 import com.google.common.base.Joiner;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
-import org.sonar.api.security.SecurityRealm;
-import org.sonar.api.server.authentication.IdentityProvider;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.BaseSectionMBean;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.StatisticsSupport;
-import org.sonar.server.user.SecurityRealmFactory;
 
-import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
@@ -51,28 +41,25 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
   private final Configuration config;
-  private final SecurityRealmFactory securityRealmFactory;
-  private final IdentityProviderRepository identityProviderRepository;
   private final Server server;
   private final ServerLogging serverLogging;
   private final OfficialDistribution officialDistribution;
   private final DockerSupport dockerSupport;
   private final StatisticsSupport statisticsSupport;
-
   private final SonarRuntime sonarRuntime;
+  private final CommonSystemInformation commonSystemInformation;
 
-  public StandaloneSystemSection(Configuration config, SecurityRealmFactory securityRealmFactory,
-    IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
-    OfficialDistribution officialDistribution, DockerSupport dockerSupport, StatisticsSupport statisticsSupport, SonarRuntime sonarRuntime) {
+  public StandaloneSystemSection(Configuration config, Server server, ServerLogging serverLogging,
+    OfficialDistribution officialDistribution, DockerSupport dockerSupport, StatisticsSupport statisticsSupport,
+    SonarRuntime sonarRuntime, CommonSystemInformation commonSystemInformation) {
     this.config = config;
-    this.securityRealmFactory = securityRealmFactory;
-    this.identityProviderRepository = identityProviderRepository;
     this.server = server;
     this.serverLogging = serverLogging;
     this.officialDistribution = officialDistribution;
     this.dockerSupport = dockerSupport;
     this.statisticsSupport = statisticsSupport;
     this.sonarRuntime = sonarRuntime;
+    this.commonSystemInformation = commonSystemInformation;
   }
 
   @Override
@@ -88,33 +75,6 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
   @Override
   public String getLogLevel() {
     return serverLogging.getRootLoggerLevel().name();
-  }
-
-  @CheckForNull
-  private String getExternalUserAuthentication() {
-    SecurityRealm realm = securityRealmFactory.getRealm();
-    return realm == null ? null : realm.getName();
-  }
-
-  private List<String> getEnabledIdentityProviders() {
-    return identityProviderRepository.getAllEnabledAndSorted()
-      .stream()
-      .filter(IdentityProvider::isEnabled)
-      .map(IdentityProvider::getName)
-      .collect(MoreCollectors.toList());
-  }
-
-  private List<String> getAllowsToSignUpEnabledIdentityProviders() {
-    return identityProviderRepository.getAllEnabledAndSorted()
-      .stream()
-      .filter(IdentityProvider::isEnabled)
-      .filter(IdentityProvider::allowsUsersToSignUp)
-      .map(IdentityProvider::getName)
-      .collect(MoreCollectors.toList());
-  }
-
-  private boolean getForceAuthentication() {
-    return config.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE);
   }
 
   @Override
@@ -133,22 +93,18 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
     setAttribute(protobuf, "Edition", sonarRuntime.getEdition().getLabel());
     setAttribute(protobuf, NCLOC.getName(), statisticsSupport.getLinesOfCode());
     setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
-    setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
-    addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());
-    addIfNotEmpty(protobuf, "External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders());
+    setAttribute(protobuf, "External Users and Groups Provisioning", commonSystemInformation.getManagedProvider());
+    setAttribute(protobuf, "External User Authentication", commonSystemInformation.getExternalUserAuthentication());
+    setAttribute(protobuf, "Accepted external identity providers", COMMA_JOINER.join(commonSystemInformation.getEnabledIdentityProviders()));
+    setAttribute(protobuf, "External identity providers whose users are allowed to sign themselves up",
+      COMMA_JOINER.join(commonSystemInformation.getAllowsToSignUpEnabledIdentityProviders()));
     setAttribute(protobuf, "High Availability", false);
     setAttribute(protobuf, "Official Distribution", officialDistribution.check());
-    setAttribute(protobuf, "Force authentication", getForceAuthentication());
+    setAttribute(protobuf, "Force authentication", commonSystemInformation.getForceAuthentication());
     setAttribute(protobuf, "Home Dir", config.get(PATH_HOME.getKey()).orElse(null));
     setAttribute(protobuf, "Data Dir", config.get(PATH_DATA.getKey()).orElse(null));
     setAttribute(protobuf, "Temp Dir", config.get(PATH_TEMP.getKey()).orElse(null));
     setAttribute(protobuf, "Processors", Runtime.getRuntime().availableProcessors());
     return protobuf.build();
-  }
-
-  private static void addIfNotEmpty(ProtobufSystemInfo.Section.Builder protobuf, String key, @Nullable List<String> values) {
-    if (values != null && !values.isEmpty()) {
-      setAttribute(protobuf, key, COMMA_JOINER.join(values));
-    }
   }
 }
