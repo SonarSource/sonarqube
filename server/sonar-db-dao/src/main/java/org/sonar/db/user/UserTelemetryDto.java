@@ -30,6 +30,8 @@ public class UserTelemetryDto {
   private Long lastConnectionDate = null;
   @Nullable
   private Long lastSonarlintConnectionDate = null;
+  @Nullable
+  private String scimUuid = null;
 
   public String getUuid() {
     return uuid;
@@ -76,5 +78,15 @@ public class UserTelemetryDto {
   public UserTelemetryDto setLastSonarlintConnectionDate(@Nullable Long lastSonarlintConnectionDate) {
     this.lastSonarlintConnectionDate = lastSonarlintConnectionDate;
     return this;
+  }
+
+  public UserTelemetryDto setScimUuid(@Nullable String scimUuid) {
+    this.scimUuid = scimUuid;
+    return this;
+  }
+
+  @Nullable
+  public String getScimUuid() {
+    return scimUuid;
   }
 }

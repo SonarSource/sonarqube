@@ -110,8 +110,10 @@
             u.active as "active",
             u.external_identity_provider as "externalIdentityProvider",
             u.last_connection_date as "lastConnectionDate",
-            u.last_sonarlint_connection as "lastSonarlintConnectionDate"
+            u.last_sonarlint_connection as "lastSonarlintConnectionDate",
+            su.scim_uuid as "scimUuid"
         FROM users u
+        LEFT JOIN scim_users su on su.user_uuid = u.uuid
         ORDER BY u.uuid
     </select>
 

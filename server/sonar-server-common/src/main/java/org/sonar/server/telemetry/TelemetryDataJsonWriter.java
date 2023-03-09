@@ -118,6 +118,7 @@ public class TelemetryDataJsonWriter {
         if (user.getLastSonarlintConnectionDate() != null) {
           json.prop("lastSonarlintActivity", toUtc(user.getLastSonarlintConnectionDate()));
         }
+        json.prop("managed", user.getScimUuid() != null);
 
         json.endObject();
       });

@@ -307,21 +307,24 @@ public class TelemetryDataJsonWriterTest {
             "status": "active",
             "identityProvider": "gitlab",
             "lastActivity": "1970-01-01T00:00:00+0000",
-            "lastSonarlintActivity": "1970-01-01T00:00:00+0000"
+            "lastSonarlintActivity": "1970-01-01T00:00:00+0000",
+            "managed": true
           },
           {
             "userUuid": "%s",
             "status": "inactive",
             "identityProvider": "gitlab",
             "lastActivity": "1970-01-01T00:00:00+0000",
-            "lastSonarlintActivity": "1970-01-01T00:00:00+0000"
+            "lastSonarlintActivity": "1970-01-01T00:00:00+0000",
+            "managed": false
           },
           {
             "userUuid": "%s",
             "status": "active",
             "identityProvider": "gitlab",
             "lastActivity": "1970-01-01T00:00:00+0000",
-            "lastSonarlintActivity": "1970-01-01T00:00:00+0000"
+            "lastSonarlintActivity": "1970-01-01T00:00:00+0000",
+            "managed": true
           }
         ]
       }
@@ -482,7 +485,8 @@ public class TelemetryDataJsonWriterTest {
   private static List<UserTelemetryDto> attachUsers() {
     return IntStream.range(0, 3)
       .mapToObj(
-        i -> new UserTelemetryDto().setUuid("uuid-" + i).setActive(i % 2 == 0).setLastConnectionDate(1L).setLastSonarlintConnectionDate(2L).setExternalIdentityProvider("gitlab"))
+        i -> new UserTelemetryDto().setUuid("uuid-" + i).setActive(i % 2 == 0).setLastConnectionDate(1L)
+          .setLastSonarlintConnectionDate(2L).setExternalIdentityProvider("gitlab").setScimUuid(i % 2 == 0 ? "scim-uuid-" + i : null))
       .collect(Collectors.toList());
   }
 

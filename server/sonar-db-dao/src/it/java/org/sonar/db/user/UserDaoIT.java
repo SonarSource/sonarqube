@@ -35,6 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.scim.ScimUserDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -593,10 +594,11 @@ public class UserDaoIT {
     List<UserTelemetryDto> result = underTest.selectUsersForTelemetry(db.getSession());
 
     assertThat(result)
-      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate)
+      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate, UserTelemetryDto::getScimUuid)
       .containsExactlyInAnyOrder(
-        tuple(u1.getUuid(), u1.isActive(), u1.getLastConnectionDate(), u1.getLastSonarlintConnectionDate()),
-        tuple(u2.getUuid(), u2.isActive(), u2.getLastConnectionDate(), u2.getLastSonarlintConnectionDate()));
+        tuple(u1.getUuid(), u1.isActive(), u1.getLastConnectionDate(), u1.getLastSonarlintConnectionDate(), null),
+        tuple(u2.getUuid(), u2.isActive(), u2.getLastConnectionDate(), u2.getLastSonarlintConnectionDate(), null)
+      );
   }
 
   @Test
@@ -620,6 +622,22 @@ public class UserDaoIT {
         tuple(u2.getUuid(), u2.isActive(), 20_000_000_000L, u2.getLastSonarlintConnectionDate()));
   }
 
+  @Test
+  public void selectUserTelemetryWithScim() {
+    UserDto u1 = insertUser(true);
+    UserDto u2 = insertUser(false);
+    ScimUserDto scimUser1 = enableScimForUser(u1);
+
+    List<UserTelemetryDto> result = underTest.selectUsersForTelemetry(db.getSession());
+
+    assertThat(result)
+      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate, UserTelemetryDto::getScimUuid)
+      .containsExactlyInAnyOrder(
+        tuple(u1.getUuid(), u1.isActive(), u1.getLastConnectionDate(), u1.getLastSonarlintConnectionDate(), scimUser1.getScimUserUuid()),
+        tuple(u2.getUuid(), u2.isActive(), u2.getLastConnectionDate(), u2.getLastSonarlintConnectionDate(), null)
+      );
+  }
+
   private UserDto insertActiveUser() {
     return insertUser(true);
   }
@@ -628,6 +646,11 @@ public class UserDaoIT {
     UserDto dto = newUserDto().setActive(active);
     underTest.insert(session, dto);
     return dto;
+  }
+
+
+  private ScimUserDto enableScimForUser(UserDto userDto) {
+    return dbClient.scimUserDao().enableScimForUser(db.getSession(), userDto.getUuid());
   }
 
   private UserGroupDto insertUserGroup(UserDto user) {
