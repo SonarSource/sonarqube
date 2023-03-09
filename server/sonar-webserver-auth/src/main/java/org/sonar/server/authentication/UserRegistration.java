@@ -19,9 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.server.authentication.event.AuthenticationEvent;
@@ -33,11 +30,13 @@ public class UserRegistration {
   private final UserIdentity userIdentity;
   private final IdentityProvider provider;
   private final AuthenticationEvent.Source source;
+  private final boolean managed;
 
   UserRegistration(Builder builder) {
     this.userIdentity = builder.userIdentity;
     this.provider = builder.provider;
     this.source = builder.source;
+    this.managed = builder.managed;
   }
 
   public UserIdentity getUserIdentity() {
@@ -52,6 +51,10 @@ public class UserRegistration {
     return source;
   }
 
+  public boolean managed() {
+    return managed;
+  }
+
   public static UserRegistration.Builder builder() {
     return new Builder();
   }
@@ -60,6 +63,7 @@ public class UserRegistration {
     private UserIdentity userIdentity;
     private IdentityProvider provider;
     private AuthenticationEvent.Source source;
+    private boolean managed = false;
 
     public Builder setUserIdentity(UserIdentity userIdentity) {
       this.userIdentity = userIdentity;
@@ -73,6 +77,11 @@ public class UserRegistration {
 
     public Builder setSource(AuthenticationEvent.Source source) {
       this.source = source;
+      return this;
+    }
+
+    public Builder setManaged(boolean managed) {
+      this.managed = managed;
       return this;
     }
 

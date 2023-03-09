@@ -42,6 +42,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
@@ -64,11 +65,14 @@ public class UserRegistrarImpl implements UserRegistrar {
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final DefaultGroupFinder defaultGroupFinder;
+  private final ManagedInstanceService managedInstanceService;
 
-  public UserRegistrarImpl(DbClient dbClient, UserUpdater userUpdater, DefaultGroupFinder defaultGroupFinder) {
+  public UserRegistrarImpl(DbClient dbClient, UserUpdater userUpdater, DefaultGroupFinder defaultGroupFinder,
+    ManagedInstanceService managedInstanceService) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.defaultGroupFinder = defaultGroupFinder;
+    this.managedInstanceService = managedInstanceService;
   }
 
   @Override
@@ -159,12 +163,24 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private UserDto registerNewUser(DbSession dbSession, @Nullable UserDto disabledUser, UserRegistration authenticatorParameters) {
+    blockUnmanagedUserCreationOnManagedInstance(authenticatorParameters);
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters, disabledUser != null ? disabledUser.getUuid() : null);
     NewUser newUser = createNewUser(authenticatorParameters);
     if (disabledUser == null) {
       return userUpdater.createAndCommit(dbSession, newUser, beforeCommit(dbSession, authenticatorParameters), toArray(otherUserToIndex));
     }
     return userUpdater.reactivateAndCommit(dbSession, disabledUser, newUser, beforeCommit(dbSession, authenticatorParameters), toArray(otherUserToIndex));
+  }
+
+  private void blockUnmanagedUserCreationOnManagedInstance(UserRegistration userRegistration) {
+    if (managedInstanceService.isInstanceExternallyManaged() && !userRegistration.managed()) {
+      throw AuthenticationException.newBuilder()
+        .setMessage("No account found for this user. As the instance is managed, make sure to provision the user from your IDP.")
+        .setPublicMessage("You have no account on SonarQube. Please make sure with your administrator that your account is provisioned.")
+        .setLogin(userRegistration.getUserIdentity().getProviderLogin())
+        .setSource(userRegistration.getSource())
+        .build();
+    }
   }
 
   private UserDto registerExistingUser(DbSession dbSession, UserDto userDto, UserRegistration authenticatorParameters) {

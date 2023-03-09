@@ -39,6 +39,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
@@ -51,6 +52,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.UserRegistrarImpl.GITHUB_PROVIDER;
 import static org.sonar.server.authentication.UserRegistrarImpl.GITLAB_PROVIDER;
 import static org.sonar.server.authentication.UserRegistrarImpl.LDAP_PROVIDER_PREFIX;
@@ -88,9 +90,10 @@ public class UserRegistrarImplTest {
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final DefaultGroupFinder groupFinder = new DefaultGroupFinder(db.getDbClient());
   private final AuditPersister auditPersister = mock(AuditPersister.class);
+  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
   private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, groupFinder, settings.asConfig(), auditPersister, localAuthentication);
 
-  private final UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, groupFinder);
+  private final UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, groupFinder, managedInstanceService);
   private GroupDto defaultGroup;
 
   @Before
@@ -232,6 +235,37 @@ public class UserRegistrarImplTest {
       .hasFieldOrPropertyWithValue("source", source)
       .hasFieldOrPropertyWithValue("login", USER_IDENTITY.getProviderLogin())
       .hasFieldOrPropertyWithValue("publicMessage", "'github' users are not allowed to sign up");
+  }
+
+  @Test
+  public void register_whenNewUnmanagedUserAndManagedInstance_shouldThrow() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+
+    TestIdentityProvider identityProvider = composeIdentityProvider("saml", "Okta", true, true);
+    Source source = realm(AuthenticationEvent.Method.FORM, identityProvider.getName());
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, identityProvider, source);
+
+    assertThatThrownBy(() -> underTest.register(registration))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("No account found for this user. As the instance is managed, make sure to provision the user from your IDP.")
+      .hasFieldOrPropertyWithValue("source", source)
+      .hasFieldOrPropertyWithValue("login", USER_IDENTITY.getProviderLogin());
+  }
+
+  @Test
+  public void register_whenNewManagedUserAndManagedInstance_shouldCreateAndReturnUser() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+
+    TestIdentityProvider identityProvider = composeIdentityProvider("saml", "Okta", true, true);
+    Source source = realm(AuthenticationEvent.Method.FORM, identityProvider.getName());
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, identityProvider, source, true);
+
+    UserDto userDto = underTest.register(registration);
+
+    assertThat(userDto.getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
+    assertThat(userDto.getExternalLogin()).isEqualTo(USER_IDENTITY.getProviderLogin());
+    assertThat(userDto.getName()).isEqualTo(USER_IDENTITY.getName());
+    assertThat(userDto.getEmail()).isEqualTo(USER_IDENTITY.getEmail());
   }
 
   @Test
@@ -594,12 +628,17 @@ public class UserRegistrarImplTest {
       .setAllowsUsersToSignUp(allowsUsersToSignUp);
   }
 
-  private static UserRegistration composeUserRegistration(UserIdentity userIdentity, IdentityProvider identityProvider, Source source) {
+  private static UserRegistration composeUserRegistration(UserIdentity userIdentity, IdentityProvider identityProvider, Source source, Boolean managed) {
     return UserRegistration.builder()
       .setUserIdentity(userIdentity)
       .setProvider(identityProvider)
       .setSource(source)
+      .setManaged(managed)
       .build();
+  }
+
+  private static UserRegistration composeUserRegistration(UserIdentity userIdentity, IdentityProvider identityProvider, Source source) {
+    return composeUserRegistration(userIdentity, identityProvider, source, false);
   }
 
 }
