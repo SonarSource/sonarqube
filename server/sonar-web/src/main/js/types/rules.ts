@@ -44,7 +44,6 @@ export interface SearchRulesQuery {
   repositories?: string;
   rule_key?: string;
   s?: string;
-  sansTop25?: string;
   severities?: string;
   sonarsourceSecurity?: string;
   statuses?: string;

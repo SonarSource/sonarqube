@@ -39,7 +39,6 @@ exports[`should render correctly 1`] = `
     fetchingCwe={false}
     fetchingOwaspTop10={false}
     fetchingOwaspTop10-2021={false}
-    fetchingSansTop25={false}
     fetchingSonarSourceSecurity={false}
     onChange={[MockFunction]}
     onToggle={[MockFunction]}
@@ -47,7 +46,6 @@ exports[`should render correctly 1`] = `
     owaspTop10-2021Open={false}
     owaspTop10Open={false}
     query={{}}
-    sansTop25Open={false}
     sonarsourceSecurityOpen={false}
   />
   <injectIntl(AvailableSinceFacet)

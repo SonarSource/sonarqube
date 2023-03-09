@@ -22,7 +22,6 @@ import { Dict } from './types';
 export enum SecurityStandard {
   OWASP_TOP10_2021 = 'owaspTop10-2021',
   OWASP_TOP10 = 'owaspTop10',
-  SANS_TOP25 = 'sansTop25',
   SONARSOURCE = 'sonarsourceSecurity',
   CWE = 'cwe',
   PCI_DSS_3_2 = 'pciDss-3.2',

@@ -45,7 +45,6 @@ export interface Query {
   profile: string | undefined;
   repositories: string[];
   ruleKey: string | undefined;
-  sansTop25: string[];
   searchQuery: string | undefined;
   severities: string[];
   sonarsourceSecurity: string[];
@@ -90,7 +89,6 @@ export function parseQuery(query: RawQuery): Query {
     profile: parseAsOptionalString(query.qprofile),
     repositories: parseAsArray(query.repositories, parseAsString),
     ruleKey: parseAsOptionalString(query.rule_key),
-    sansTop25: parseAsArray(query.sansTop25, parseAsString),
     searchQuery: parseAsOptionalString(query.q),
     severities: parseAsArray(query.severities, parseAsString),
     sonarsourceSecurity: parseAsArray(query.sonarsourceSecurity, parseAsString),
@@ -117,7 +115,6 @@ export function serializeQuery(query: Query): RawQuery {
     qprofile: serializeString(query.profile),
     repositories: serializeStringArray(query.repositories),
     rule_key: serializeString(query.ruleKey),
-    sansTop25: serializeStringArray(query.sansTop25),
     severities: serializeStringArray(query.severities),
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),
@@ -138,7 +135,6 @@ export function shouldRequestFacet(facet: string): facet is FacetKey {
     'owaspTop10',
     'owaspTop10-2021',
     'repositories',
-    'sansTop25',
     'severities',
     'sonarsourceSecurity',
     'standard',

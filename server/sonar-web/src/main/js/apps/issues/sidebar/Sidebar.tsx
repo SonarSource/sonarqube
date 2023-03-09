@@ -195,7 +195,6 @@ export class Sidebar extends React.PureComponent<Props> {
           fetchingCwe={this.props.loadingFacets.cwe === true}
           fetchingOwaspTop10={this.props.loadingFacets.owaspTop10 === true}
           fetchingOwaspTop10-2021={this.props.loadingFacets['owaspTop10-2021'] === true}
-          fetchingSansTop25={this.props.loadingFacets.sansTop25 === true}
           fetchingSonarSourceSecurity={this.props.loadingFacets.sonarsourceSecurity === true}
           loadSearchResultCount={this.props.loadSearchResultCount}
           onChange={this.props.onFilterChange}
@@ -208,9 +207,6 @@ export class Sidebar extends React.PureComponent<Props> {
           owaspTop10-2021Open={!!openFacets['owaspTop10-2021']}
           owaspTop10-2021Stats={facets['owaspTop10-2021']}
           query={query}
-          sansTop25={query.sansTop25}
-          sansTop25Open={!!openFacets.sansTop25}
-          sansTop25Stats={facets.sansTop25}
           sonarsourceSecurity={query.sonarsourceSecurity}
           sonarsourceSecurityOpen={!!openFacets.sonarsourceSecurity}
           sonarsourceSecurityStats={facets.sonarsourceSecurity}

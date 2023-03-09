@@ -63,7 +63,6 @@ export interface Query {
   resolutions: string[];
   resolved: boolean;
   rules: string[];
-  sansTop25: string[];
   scopes: string[];
   severities: string[];
   inNewCodePeriod: boolean;
@@ -105,7 +104,6 @@ export function parseQuery(query: RawQuery): Query {
     resolutions: parseAsArray(query.resolutions, parseAsString),
     resolved: parseAsBoolean(query.resolved),
     rules: parseAsArray(query.rules, parseAsString),
-    sansTop25: parseAsArray(query.sansTop25, parseAsString),
     scopes: parseAsArray(query.scopes, parseAsString),
     severities: parseAsArray(query.severities, parseAsString),
     sonarsourceSecurity: parseAsArray(query.sonarsourceSecurity, parseAsString),
@@ -152,7 +150,6 @@ export function serializeQuery(query: Query): RawQuery {
     resolved: query.resolved ? undefined : 'false',
     rules: serializeStringArray(query.rules),
     s: serializeString(query.sort),
-    sansTop25: serializeStringArray(query.sansTop25),
     scopes: serializeStringArray(query.scopes),
     severities: serializeStringArray(query.severities),
     inNewCodePeriod: query.inNewCodePeriod ? 'true' : undefined,
@@ -265,7 +262,6 @@ export function shouldOpenStandardsChildFacet(
     | SecurityStandard.CWE
     | SecurityStandard.OWASP_TOP10
     | SecurityStandard.OWASP_TOP10_2021
-    | SecurityStandard.SANS_TOP25
     | SecurityStandard.SONARSOURCE
 ): boolean {
   const filter = query[standardType];
@@ -292,18 +288,12 @@ function isFilteredBySecurityIssueTypes(query: Partial<Query>): boolean {
 }
 
 function isOneStandardChildFacetOpen(openFacets: Dict<boolean>, query: Partial<Query>): boolean {
-  return [
-    SecurityStandard.OWASP_TOP10,
-    SecurityStandard.SANS_TOP25,
-    SecurityStandard.CWE,
-    SecurityStandard.SONARSOURCE,
-  ].some(
+  return [SecurityStandard.OWASP_TOP10, SecurityStandard.CWE, SecurityStandard.SONARSOURCE].some(
     (
       standardType:
         | SecurityStandard.CWE
         | SecurityStandard.OWASP_TOP10
         | SecurityStandard.OWASP_TOP10_2021
-        | SecurityStandard.SANS_TOP25
         | SecurityStandard.SONARSOURCE
     ) => shouldOpenStandardsChildFacet(openFacets, query, standardType)
   );

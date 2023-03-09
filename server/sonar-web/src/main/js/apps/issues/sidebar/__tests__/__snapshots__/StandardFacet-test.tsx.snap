@@ -17,11 +17,11 @@ exports[`should render closed 1`] = `
 exports[`should render empty sub-facet 1`] = `
 <FacetBox
   className="is-inner"
-  property="sansTop25"
+  property="owaspTop10-2021"
 >
   <FacetHeader
     fetching={false}
-    name="issues.facet.sansTop25"
+    name="issues.facet.owaspTop10_2021"
     onClick={[Function]}
     open={true}
     values={[]}
@@ -51,7 +51,6 @@ exports[`should render sub-facets 1`] = `
       [
         "SONAR SQL Injection",
         "OWASP A3",
-        "SANS Risky Resource Management",
         "CWE-42 - cwe-42 title",
       ]
     }
@@ -138,50 +137,6 @@ exports[`should render sub-facets 1`] = `
         stat="5"
         tooltip="A3"
         value="a3"
-      />
-    </FacetItemsList>
-    <MultipleSelectionHint
-      options={2}
-      values={1}
-    />
-  </FacetBox>
-  <FacetBox
-    className="is-inner"
-    property="sansTop25"
-  >
-    <FacetHeader
-      fetching={false}
-      name="issues.facet.sansTop25"
-      onClick={[Function]}
-      open={true}
-      values={
-        [
-          "Risky Resource Management",
-        ]
-      }
-    />
-    <FacetItemsList>
-      <FacetItem
-        active={false}
-        halfWidth={false}
-        key="foo"
-        loading={false}
-        name="foo"
-        onClick={[Function]}
-        stat="12"
-        tooltip="foo"
-        value="foo"
-      />
-      <FacetItem
-        active={true}
-        halfWidth={false}
-        key="risky-resource"
-        loading={false}
-        name="Risky Resource Management"
-        onClick={[Function]}
-        stat="10"
-        tooltip="Risky Resource Management"
-        value="risky-resource"
       />
     </FacetItemsList>
     <MultipleSelectionHint

@@ -25,7 +25,6 @@ import {
   renderOwaspTop10Category,
   renderPciDss32Category,
   renderPciDss40Category,
-  renderSansTop25Category,
   renderSonarSourceSecurityCategory,
 } from '../../helpers/security-standard';
 import { SecurityStandard } from '../../types/security';
@@ -54,7 +53,6 @@ export const SECURITY_STANDARDS = [
   SecurityStandard.SONARSOURCE,
   SecurityStandard.OWASP_TOP10,
   SecurityStandard.OWASP_TOP10_2021,
-  SecurityStandard.SANS_TOP25,
   SecurityStandard.CWE,
   SecurityStandard.PCI_DSS_3_2,
   SecurityStandard.PCI_DSS_4_0,
@@ -64,7 +62,6 @@ export const SECURITY_STANDARDS = [
 export const SECURITY_STANDARD_RENDERER = {
   [SecurityStandard.OWASP_TOP10]: renderOwaspTop10Category,
   [SecurityStandard.OWASP_TOP10_2021]: renderOwaspTop102021Category,
-  [SecurityStandard.SANS_TOP25]: renderSansTop25Category,
   [SecurityStandard.SONARSOURCE]: renderSonarSourceSecurityCategory,
   [SecurityStandard.CWE]: renderCWECategory,
   [SecurityStandard.PCI_DSS_3_2]: renderPciDss32Category,

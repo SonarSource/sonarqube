@@ -112,7 +112,6 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
           query,
           SecurityStandard.OWASP_TOP10_2021
         ),
-        sansTop25: shouldOpenStandardsChildFacet({}, query, SecurityStandard.SANS_TOP25),
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),
         types: true,

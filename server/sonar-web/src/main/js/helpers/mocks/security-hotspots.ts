@@ -162,17 +162,6 @@ export function mockStandards(): Standards {
         title: 'Sensitive Data Exposure',
       },
     },
-    sansTop25: {
-      'insecure-interaction': {
-        title: 'Insecure Interaction Between Components',
-      },
-      'risky-resource': {
-        title: 'Risky Resource Management',
-      },
-      'porous-defenses': {
-        title: 'Porous Defenses',
-      },
-    },
     sonarsourceSecurity: {
       'buffer-overflow': {
         title: 'Buffer Overflow',

@@ -44,11 +44,6 @@ jest.mock('../../../../helpers/security-standard', () => ({
         title: 'Broken Authentication',
       },
     },
-    sansTop25: {
-      'insecure-interaction': {
-        title: 'Insecure Interaction Between Components',
-      },
-    },
     cwe: {
       unknown: {
         title: 'No CWE associated',
@@ -88,7 +83,6 @@ it('should clear standards facet', () => {
     cwe: [],
     owaspTop10: [],
     'owaspTop10-2021': [],
-    sansTop25: [],
     sonarsourceSecurity: [],
     standards: [],
   });
@@ -104,9 +98,6 @@ it('should render sub-facets', () => {
       owaspTop10: ['a3'],
       owaspTop10Open: true,
       owaspTop10Stats: { a1: 15, a3: 5 },
-      sansTop25: ['risky-resource'],
-      sansTop25Open: true,
-      sansTop25Stats: { foo: 12, 'risky-resource': 10 },
       sonarsourceSecurity: ['sql-injection'],
       sonarsourceSecurityOpen: true,
       sonarsourceSecurityStats: { 'sql-injection': 12 },
@@ -157,9 +148,12 @@ it('should show sonarsource facet more button', () => {
 
 it('should render empty sub-facet', () => {
   expect(
-    shallowRender({ open: true, sansTop25: [], sansTop25Open: true, sansTop25Stats: {} }).find(
-      'FacetBox[property="sansTop25"]'
-    )
+    shallowRender({
+      open: true,
+      'owaspTop10-2021': [],
+      'owaspTop10-2021Open': true,
+      'owaspTop10-2021Stats': {},
+    }).find('FacetBox[property="owaspTop10-2021"]')
   ).toMatchSnapshot();
 });
 
@@ -174,9 +168,6 @@ it('should select items', () => {
     owaspTop10: ['a3'],
     owaspTop10Open: true,
     owaspTop10Stats: { a1: 15, a3: 5 },
-    sansTop25: ['risky-resource'],
-    sansTop25Open: true,
-    sansTop25Stats: { foo: 12, 'risky-resource': 10 },
     sonarsourceSecurity: ['command-injection'],
     sonarsourceSecurityOpen: true,
     sonarsourceSecurityStats: { 'sql-injection': 10 },
@@ -184,7 +175,6 @@ it('should select items', () => {
 
   selectAndCheck('owaspTop10', 'a1');
   selectAndCheck('owaspTop10', 'a1', true, ['a1', 'a3']);
-  selectAndCheck('sansTop25', 'foo');
   selectAndCheck('sonarsourceSecurity', 'sql-injection');
 
   function selectAndCheck(facet: string, value: string, multiple = false, expectedValue = [value]) {
@@ -201,8 +191,6 @@ it('should toggle sub-facets', () => {
   const wrapper = shallowRender({ onToggle, open: true });
   click(wrapper.find('FacetBox[property="owaspTop10"]').children('FacetHeader'));
   expect(onToggle).toHaveBeenLastCalledWith('owaspTop10');
-  click(wrapper.find('FacetBox[property="sansTop25"]').children('FacetHeader'));
-  expect(onToggle).toHaveBeenLastCalledWith('sansTop25');
   click(wrapper.find('FacetBox[property="sonarsourceSecurity"]').children('FacetHeader'));
   expect(onToggle).toHaveBeenLastCalledWith('sonarsourceSecurity');
 });
@@ -212,7 +200,6 @@ it('should display correct selection', () => {
     open: true,
     owaspTop10: ['a1', 'a3'],
     'owaspTop10-2021': ['a1', 'a2'],
-    sansTop25: ['risky-resource', 'foo'],
     cwe: ['42', '1111', 'unknown'],
     sonarsourceSecurity: ['sql-injection', 'others'],
   });
@@ -223,15 +210,12 @@ it('should display correct selection', () => {
     'OWASP A3',
     'OWASP A1 - a1 title',
     'OWASP A2',
-    'SANS Risky Resource Management',
-    'SANS foo',
     'CWE-42 - cwe-42 title',
     'CWE-1111',
     'Unknown CWE',
   ]);
   checkValues('owaspTop10', ['A1 - a1 title', 'A3']);
   checkValues('owaspTop10-2021', ['A1 - a1 title', 'A2']);
-  checkValues('sansTop25', ['Risky Resource Management', 'foo']);
   checkValues('sonarsourceSecurity', ['SQL Injection', 'Others']);
 
   function checkValues(property: string, values: string[]) {
@@ -250,7 +234,6 @@ function shallowRender(props: Partial<StandardFacet['props']> = {}) {
       fetchingCwe={false}
       fetchingOwaspTop10={false}
       fetchingOwaspTop10-2021={false}
-      fetchingSansTop25={false}
       fetchingSonarSourceSecurity={false}
       loadSearchResultCount={jest.fn()}
       onChange={jest.fn()}
@@ -263,9 +246,6 @@ function shallowRender(props: Partial<StandardFacet['props']> = {}) {
       owaspTop10-2021Open={false}
       owaspTop10-2021Stats={{}}
       query={{} as Query}
-      sansTop25={[]}
-      sansTop25Open={false}
-      sansTop25Stats={{}}
       sonarsourceSecurity={[]}
       sonarsourceSecurityOpen={false}
       sonarsourceSecurityStats={{}}
@@ -276,7 +256,6 @@ function shallowRender(props: Partial<StandardFacet['props']> = {}) {
     standards: {
       owaspTop10: { a1: { title: 'a1 title' } },
       'owaspTop10-2021': { a1: { title: 'a1 title' } },
-      sansTop25: { 'risky-resource': { title: 'Risky Resource Management' } },
       cwe: { 42: { title: 'cwe-42 title' }, unknown: { title: 'Unknown CWE' } },
       sonarsourceSecurity: {
         'sql-injection': { title: 'SQL Injection' },

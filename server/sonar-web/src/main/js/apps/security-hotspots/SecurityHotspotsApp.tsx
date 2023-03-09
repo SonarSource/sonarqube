@@ -95,7 +95,6 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       standards: {
         [SecurityStandard.OWASP_TOP10]: {},
         [SecurityStandard.OWASP_TOP10_2021]: {},
-        [SecurityStandard.SANS_TOP25]: {},
         [SecurityStandard.SONARSOURCE]: {},
         [SecurityStandard.CWE]: {},
         [SecurityStandard.PCI_DSS_3_2]: {},

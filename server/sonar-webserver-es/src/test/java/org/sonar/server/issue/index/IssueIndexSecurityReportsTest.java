@@ -45,9 +45,6 @@ import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
-import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
-import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
-import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.security.SecurityStandards.UNKNOWN_STANDARD;
 
 public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
@@ -469,81 +466,6 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
         tuple("a9", 0L, OptionalInt.empty(), 0L, 0L, 1),
         tuple("a10", 0L, OptionalInt.empty(), 0L, 0L, 1));
     return owaspTop10Report;
-  }
-
-  @Test
-  public void getSansTop25Report_aggregation() {
-    ComponentDto project = newPrivateProjectDto();
-    indexIssues(
-      newDoc("openvul1", project).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
-        .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
-        .setSeverity(Severity.MINOR),
-      newDoc("notopenvul", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED)
-        .setResolution(Issue.RESOLUTION_FIXED)
-        .setSeverity(Severity.BLOCKER),
-      newDoc("notsansvul", project).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT)
-        .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("toreviewhotspot2", project).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.SECURITY_HOTSPOT)
-        .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("inReviewHotspot", project).setSansTop25(List.of(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_IN_REVIEW),
-      newDoc("reviewedHotspot", project).setSansTop25(List.of(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
-        .setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("notowasphotspot", project).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
-
-    List<SecurityStandardCategoryStatistics> sansTop25Report = underTest.getSansTop25Report(project.uuid(), false, false);
-    assertThat(sansTop25Report)
-      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
-      .containsExactlyInAnyOrder(
-        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),
-        tuple(SANS_TOP_25_RISKY_RESOURCE, 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */,
-          1L /* reviewedHotspot */, 4),
-        tuple(SANS_TOP_25_POROUS_DEFENSES, 1L /* openvul2 */, OptionalInt.of(2)/* MINOR = B */, 1L/* openhotspot2 */, 0L, 5));
-
-    assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
-  }
-
-  @Test
-  public void getSansTop25Report_aggregation_on_portfolio() {
-    ComponentDto portfolio1 = db.components().insertPrivateApplication();
-    ComponentDto portfolio2 = db.components().insertPrivateApplication();
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-
-    indexIssues(
-      newDoc("openvul1", project1).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
-        .setSeverity(Severity.MAJOR),
-      newDoc("openvul2", project2).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
-        .setSeverity(Severity.MINOR),
-      newDoc("notopenvul", project1).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED)
-        .setResolution(Issue.RESOLUTION_FIXED)
-        .setSeverity(Severity.BLOCKER),
-      newDoc("notsansvul", project2).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("toreviewhotspot1", project1).setSansTop25(asList(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT)
-        .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("toreviewhotspot2", project2).setSansTop25(asList(SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)).setType(RuleType.SECURITY_HOTSPOT)
-        .setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("reviewedHotspot", project2).setSansTop25(List.of(SANS_TOP_25_RISKY_RESOURCE)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
-        .setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("notowasphotspot", project1).setSansTop25(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
-
-    indexView(portfolio1.uuid(), singletonList(project1.uuid()));
-    indexView(portfolio2.uuid(), singletonList(project2.uuid()));
-
-    List<SecurityStandardCategoryStatistics> sansTop25Report = underTest.getSansTop25Report(portfolio1.uuid(), true, false);
-    assertThat(sansTop25Report)
-      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
-      .containsExactlyInAnyOrder(
-        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),
-        tuple(SANS_TOP_25_RISKY_RESOURCE, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L/* toreviewhotspot1 */, 0L, 5),
-        tuple(SANS_TOP_25_POROUS_DEFENSES, 0L, OptionalInt.empty(), 0L, 0L, 1));
-
-    assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
   }
 
   @Test

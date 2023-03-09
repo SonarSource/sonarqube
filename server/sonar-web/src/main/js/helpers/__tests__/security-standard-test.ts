@@ -25,7 +25,6 @@ import {
   renderOwaspTop10Category,
   renderPciDss32Category,
   renderPciDss40Category,
-  renderSansTop25Category,
   renderSonarSourceSecurityCategory,
 } from '../security-standard';
 
@@ -41,7 +40,6 @@ describe('renderCWECategory', () => {
     },
     owaspTop10: {},
     'owaspTop10-2021': {},
-    sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
     'pciDss-4.0': {},
@@ -65,7 +63,6 @@ describe('renderOwaspTop10Category', () => {
       },
     },
     'owaspTop10-2021': {},
-    sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
     'pciDss-4.0': {},
@@ -88,7 +85,6 @@ describe('renderOwaspTop102021Category', () => {
         title: 'Injection',
       },
     },
-    sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
     'pciDss-4.0': {},
@@ -107,7 +103,6 @@ describe('renderPciDss32Category', () => {
     cwe: {},
     owaspTop10: {},
     'owaspTop10-2021': {},
-    sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {
       '1': {
@@ -130,7 +125,6 @@ describe('renderPciDss40Category', () => {
     cwe: {},
     owaspTop10: {},
     'owaspTop10-2021': {},
-    sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
     'pciDss-4.0': {
@@ -153,7 +147,6 @@ describe('renderOwaspAsvs40Category', () => {
     cwe: {},
     owaspTop10: {},
     'owaspTop10-2021': {},
-    sansTop25: {},
     sonarsourceSecurity: {},
     'pciDss-3.2': {},
     'pciDss-4.0': {},
@@ -173,39 +166,11 @@ describe('renderOwaspAsvs40Category', () => {
   });
 });
 
-describe('renderSansTop25Category', () => {
-  const standards: Standards = {
-    cwe: {},
-    owaspTop10: {},
-    'owaspTop10-2021': {},
-    sansTop25: {
-      'insecure-interaction': {
-        title: 'Insecure Interaction Between Components',
-      },
-    },
-    sonarsourceSecurity: {},
-    'pciDss-3.2': {},
-    'pciDss-4.0': {},
-    'owaspAsvs-4.0': {},
-  };
-  it('should render sans categories correctly', () => {
-    expect(renderSansTop25Category(standards, 'insecure-interaction')).toEqual(
-      'Insecure Interaction Between Components'
-    );
-    expect(renderSansTop25Category(standards, 'insecure-interaction', true)).toEqual(
-      'SANS Insecure Interaction Between Components'
-    );
-    expect(renderSansTop25Category(standards, 'unknown')).toEqual('unknown');
-    expect(renderSansTop25Category(standards, 'unknown', true)).toEqual('SANS unknown');
-  });
-});
-
 describe('renderSonarSourceSecurityCategory', () => {
   const standards: Standards = {
     cwe: {},
     owaspTop10: {},
     'owaspTop10-2021': {},
-    sansTop25: {},
     sonarsourceSecurity: {
       xss: {
         title: 'Cross-Site Scripting (XSS)',

@@ -62,15 +62,6 @@ function renderOwaspCategory(
   return addPrefix(`${category.toUpperCase()} - ${record.title}`, 'OWASP', withPrefix);
 }
 
-export function renderSansTop25Category(
-  standards: Standards,
-  category: string,
-  withPrefix = false
-): string {
-  const record = standards.sansTop25[category];
-  return addPrefix(record ? record.title : category, 'SANS', withPrefix);
-}
-
 export function renderSonarSourceSecurityCategory(
   standards: Standards,
   category: string,

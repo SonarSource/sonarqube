@@ -175,9 +175,6 @@ import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
 import static org.sonar.server.security.SecurityStandards.CWES_BY_CWE_TOP_25;
 import static org.sonar.server.security.SecurityStandards.OWASP_ASVS_40_REQUIREMENTS_BY_LEVEL;
-import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
-import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
-import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
@@ -1090,20 +1087,6 @@ public class IssueIndex {
           return Stream.of(new ProjectStatistics(branchBucket.getKeyAsString(), count, lastIssueDate));
         }))
       .collect(MoreCollectors.toList(projectUuids.size()));
-  }
-
-  /**
-   * @deprecated SansTop25 report is outdated and will be removed in future versions
-   */
-  @Deprecated
-  public List<SecurityStandardCategoryStatistics> getSansTop25Report(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
-    SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
-    Stream.of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE, SANS_TOP_25_POROUS_DEFENSES)
-      .forEach(sansCategory -> request.aggregation(newSecurityReportSubAggregations(
-        AggregationBuilders.filter(sansCategory, boolQuery().filter(termQuery(FIELD_ISSUE_SANS_TOP_25, sansCategory))),
-        includeCwe,
-        SecurityStandards.CWES_BY_SANS_TOP_25.get(sansCategory))));
-    return search(request, includeCwe, null);
   }
 
   public List<SecurityStandardCategoryStatistics> getCweTop25Reports(String projectUuid, boolean isViewOrApp) {

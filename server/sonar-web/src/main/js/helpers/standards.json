@@ -83,20 +83,6 @@
       "description": "Insufficient logging and monitoring, coupled with missing or ineffective integration with incident response, allows attackers to further attack systems, maintain persistence, pivot to more systems, and tamper, extract, or destroy data. Most breach studies show time to detect a breach is over 200 days, typically detected by external parties rather than internal processes or monitoring."
     }
   },
-  "sansTop25": {
-    "insecure-interaction": {
-      "title": "Insecure Interaction Between Components",
-      "description": "These weaknesses are related to insecure ways in which data is sent and received between separate components, modules, programs, processes, threads, or systems."
-    },
-    "risky-resource": {
-      "title": "Risky Resource Management",
-      "description": "The weaknesses in this category are related to ways in which software does not properly manage the creation, usage, transfer, or destruction of important system resources."
-    },
-    "porous-defenses": {
-      "title": "Porous Defenses",
-      "description": "The weaknesses in this category are related to defensive techniques that are often misused, abused, or just plain ignored."
-    }
-  },
   "cwe": {
     "5": {
       "title": "J2EE Misconfiguration: Data Transmission Without Encryption",

@@ -45,7 +45,6 @@ type FacetName =
   | 'reporters'
   | 'resolutions'
   | 'rules'
-  | 'sansTop25'
   | 'severities'
   | 'statuses'
   | 'tags'

@@ -60,7 +60,6 @@ describe('serialize/deserialize', () => {
         resolved: true,
         rules: ['a', 'b'],
         sort: 'rules',
-        sansTop25: ['a', 'b'],
         scopes: ['a', 'b'],
         severities: ['a', 'b'],
         inNewCodePeriod: true,
@@ -91,7 +90,6 @@ describe('serialize/deserialize', () => {
       resolutions: 'a,b',
       rules: 'a,b',
       s: 'rules',
-      sansTop25: 'a,b',
       scopes: 'a,b',
       severities: 'a,b',
       inNewCodePeriod: 'true',
@@ -126,11 +124,8 @@ describe('shouldOpenStandardsChildFacet', () => {
       shouldOpenStandardsChildFacet({ owaspTop10: true }, {}, SecurityStandard.OWASP_TOP10)
     ).toBe(true);
     expect(
-      shouldOpenStandardsChildFacet({ sansTop25: true }, {}, SecurityStandard.SANS_TOP25)
-    ).toBe(true);
-    expect(
       shouldOpenStandardsChildFacet(
-        { sansTop25: true },
+        { cwe: true },
         { owaspTop10: ['A1'] },
         SecurityStandard.OWASP_TOP10
       )
@@ -143,16 +138,12 @@ describe('shouldOpenStandardsChildFacet', () => {
       )
     ).toBe(true);
     expect(
-      shouldOpenStandardsChildFacet(
-        {},
-        { sansTop25: ['insecure-interactions'] },
-        SecurityStandard.SANS_TOP25
-      )
+      shouldOpenStandardsChildFacet({}, { owaspTop10: ['A1'] }, SecurityStandard.OWASP_TOP10)
     ).toBe(true);
     expect(
       shouldOpenStandardsChildFacet(
         {},
-        { sansTop25: ['insecure-interactions'], sonarsourceSecurity: ['sql-injection'] },
+        { owaspTop10: ['A1'], sonarsourceSecurity: ['sql-injection'] },
         SecurityStandard.SONARSOURCE
       )
     ).toBe(true);
@@ -162,17 +153,17 @@ describe('shouldOpenStandardsChildFacet', () => {
     expect(
       shouldOpenStandardsChildFacet({ standards: true }, {}, SecurityStandard.OWASP_TOP10)
     ).toBe(false);
+    expect(shouldOpenStandardsChildFacet({ cwe: true }, {}, SecurityStandard.OWASP_TOP10)).toBe(
+      false
+    );
     expect(
-      shouldOpenStandardsChildFacet({ sansTop25: true }, {}, SecurityStandard.OWASP_TOP10)
-    ).toBe(false);
-    expect(
-      shouldOpenStandardsChildFacet({}, { types: ['VULNERABILITY'] }, SecurityStandard.SANS_TOP25)
+      shouldOpenStandardsChildFacet({}, { types: ['VULNERABILITY'] }, SecurityStandard.OWASP_TOP10)
     ).toBe(false);
     expect(
       shouldOpenStandardsChildFacet(
         {},
-        { sansTop25: ['insecure-interactions'], sonarsourceSecurity: ['sql-injection'] },
-        SecurityStandard.OWASP_TOP10
+        { owaspTop10: ['A1'], sonarsourceSecurity: ['sql-injection'] },
+        SecurityStandard.OWASP_TOP10_2021
       )
     ).toBe(false);
   });
@@ -195,8 +186,6 @@ describe('shouldOpenSonarSourceSecurityFacet', () => {
   it('should NOT open sonarsourceSecurity facet', () => {
     expect(shouldOpenSonarSourceSecurityFacet({ standards: false }, {})).toBe(false);
     expect(shouldOpenSonarSourceSecurityFacet({ owaspTop10: true }, {})).toBe(false);
-    expect(shouldOpenSonarSourceSecurityFacet({ standards: true, sansTop25: true }, {})).toBe(
-      false
-    );
+    expect(shouldOpenSonarSourceSecurityFacet({ standards: true, cwe: true }, {})).toBe(false);
   });
 });
