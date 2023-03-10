@@ -178,6 +178,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.0", format("The use of the following metrics in 'metricKeys' parameter is not deprecated anymore: %s",
+          MeasuresWsModule.getDeprecatedMetrics())),
         new Change("10.0", "the response field periods under measures field is removed."),
         new Change("10.0", "the option `periods` of 'additionalFields' request field is removed."),
         new Change("9.3", format("The use of the following metrics in 'metricKeys' parameter is deprecated: %s",

@@ -93,6 +93,8 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("search_history-example.json"))
       .setSince("6.3")
       .setChangelog(
+        new Change("10.0", format("The use of the following metrics in 'metricKeys' parameter is not deprecated anymore: %s",
+          MeasuresWsModule.getDeprecatedMetrics())),
         new Change("9.3", format("The use of the following metrics in 'metrics' parameter is deprecated: %s",
           MeasuresWsModule.getDeprecatedMetrics())),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))

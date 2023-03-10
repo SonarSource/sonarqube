@@ -84,7 +84,10 @@ public class SearchAction implements MeasuresWsAction {
       .setSince("6.2")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this)
-      .setChangelog(new Change("9.3", format("The use of the following metrics in 'metricKeys' parameter is deprecated: %s",
+      .setChangelog(
+        new Change("10.0", format("The use of the following metrics in 'metricKeys' parameter is not deprecated anymore: %s",
+          MeasuresWsModule.getDeprecatedMetrics())),
+        new Change("9.3", format("The use of the following metrics in 'metricKeys' parameter is deprecated: %s",
         MeasuresWsModule.getDeprecatedMetrics())));
 
     createMetricKeysParameter(action);
