@@ -64,7 +64,7 @@ export default class ComparisonForm extends React.PureComponent<Props> {
 
     return (
       <div>
-        <label htmlFor="quality-profiles-comparision-input" className="spacer-right">
+        <label htmlFor="quality-profiles-comparison-input" className="spacer-right">
           {translate('quality_profiles.compare_with')}
         </label>
         <Select
@@ -72,7 +72,7 @@ export default class ComparisonForm extends React.PureComponent<Props> {
           autoFocus={true}
           isClearable={false}
           id="quality-profiles-comparision"
-          inputId="quality-profiles-comparision-input"
+          inputId="quality-profiles-comparison-input"
           onChange={this.handleChange}
           options={options}
           isSearchable={true}
