@@ -60,7 +60,7 @@ public class IssueTesting {
     return new IssueDto()
       .setKee("uuid_" + randomAlphabetic(5))
       .setRule(rule)
-      .setType(RuleType.values()[nextInt(RuleType.values().length)])
+      .setType(rule.getType())
       .setProjectUuid(projectUuid)
       .setProjectKey(projectKey)
       .setComponent(file)
@@ -94,27 +94,6 @@ public class IssueTesting {
       .setIssueChangeCreationDate(nextLong())
       .setCreatedAt(nextLong())
       .setUpdatedAt(nextLong());
-  }
-
-  /**
-   * @deprecated use newIssue(...)
-   */
-  @Deprecated
-  public static IssueDto newDto(RuleDto rule, ComponentDto file, ComponentDto project) {
-    return new IssueDto()
-      .setKee(Uuids.createFast())
-      .setRule(rule)
-      .setType(RuleType.CODE_SMELL)
-      .setComponent(file)
-      .setProject(project)
-      .setStatus(Issue.STATUS_OPEN)
-      .setResolution(null)
-      .setSeverity(Severity.MAJOR)
-      .setEffort(10L)
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
-      .setCreatedAt(1_400_000_000_000L)
-      .setUpdatedAt(1_400_000_000_000L);
   }
 
   public static NewCodeReferenceIssueDto newCodeReferenceIssue(IssueDto issue) {

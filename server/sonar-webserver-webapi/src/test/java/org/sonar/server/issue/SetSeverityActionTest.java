@@ -32,6 +32,7 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.UserSessionRule;
@@ -44,8 +45,7 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newDto;
-import static org.sonar.db.rule.RuleTesting.newRuleDto;
+import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class SetSeverityActionTest {
 
@@ -91,7 +91,7 @@ public class SetSeverityActionTest {
 
   @Test
   public void support_only_unresolved_issues() {
-    IssueDto issueDto = newIssue().setSeverity(MAJOR);
+    IssueDto issueDto = newIssue().setSeverity(MAJOR).setChecksum(null);
     DefaultIssue issue = issueDto.toDefaultIssue();
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
@@ -128,10 +128,10 @@ public class SetSeverityActionTest {
   }
 
   private IssueDto newIssue() {
-    RuleDto rule = db.rules().insert(newRuleDto());
+    RuleDto rule = db.rules().insert(newRule());
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    return newDto(rule, file, project);
+    return IssueTesting.newIssue(rule, project, file);
   }
 
 }

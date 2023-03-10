@@ -102,7 +102,7 @@ public class RuleUpdaterTest {
 
   @Test
   public void no_changes() {
-    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
+    RuleDto ruleDto = RuleTesting.newRule(RULE_KEY)
       // the following fields are not supposed to be updated
       .setNoteData("my *note*")
       .setNoteUserUuid("me")
@@ -132,7 +132,7 @@ public class RuleUpdaterTest {
     UserDto user = db.users().insertUser();
     userSessionRule.logIn(user);
 
-    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
+    RuleDto ruleDto = RuleTesting.newRule(RULE_KEY)
       .setNoteData(null)
       .setNoteUserUuid(null)
 
@@ -163,7 +163,7 @@ public class RuleUpdaterTest {
 
   @Test
   public void remove_markdown_note() {
-    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
+    RuleDto ruleDto = RuleTesting.newRule(RULE_KEY)
       .setNoteData("my *note*")
       .setNoteUserUuid("me");
     db.rules().insert(ruleDto);
@@ -184,7 +184,7 @@ public class RuleUpdaterTest {
   @Test
   public void set_tags() {
     // insert db
-    db.rules().insert(RuleTesting.newDto(RULE_KEY)
+    db.rules().insert(RuleTesting.newRule(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
@@ -205,7 +205,7 @@ public class RuleUpdaterTest {
 
   @Test
   public void remove_tags() {
-    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
+    RuleDto ruleDto = RuleTesting.newRule(RULE_KEY)
       .setUuid("57a3af91-32f8-48b0-9e11-0eac14ffa915")
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc"));
@@ -301,7 +301,7 @@ public class RuleUpdaterTest {
 
   @Test
   public void reset_remediation_function() {
-    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY)
+    RuleDto ruleDto = RuleTesting.newRule(RULE_KEY)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefRemediationGapMultiplier("1d")
       .setDefRemediationBaseEffort("5min")

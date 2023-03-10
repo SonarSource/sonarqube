@@ -38,8 +38,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newDto;
-import static org.sonar.db.rule.RuleTesting.newRuleDto;
+import static org.sonar.db.issue.IssueTesting.newIssue;
+import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class IssueFinderTest {
 
@@ -87,10 +87,10 @@ public class IssueFinderTest {
   }
 
   private IssueDto insertIssue() {
-    RuleDto rule = ruleDbTester.insert(newRuleDto());
+    RuleDto rule = ruleDbTester.insert(newRule());
     ComponentDto project = componentDbTester.insertPrivateProject();
     ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
-    return issueDbTester.insert(newDto(rule, file, project));
+    return issueDbTester.insert(newIssue(rule, project, file));
   }
 
   private void addProjectPermission(IssueDto issueDto, String permission) {

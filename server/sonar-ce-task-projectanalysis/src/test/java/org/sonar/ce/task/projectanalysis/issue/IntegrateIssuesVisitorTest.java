@@ -31,6 +31,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -335,13 +336,12 @@ public class IntegrateIssuesVisitorTest {
     ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
     dbTester.components().insertComponents(project, file);
 
-    RuleDto ruleDto = RuleTesting.newDto(ruleKey);
+    RuleDto ruleDto = RuleTesting.newRule(ruleKey);
     dbTester.rules().insert(ruleDto);
     ruleRepositoryRule.add(ruleKey);
 
-    IssueDto issue = IssueTesting.newDto(ruleDto, file, project)
+    IssueDto issue = IssueTesting.newIssue(ruleDto, project, file)
       .setKee("ISSUE")
-      .setStatus(Issue.STATUS_OPEN)
       .setSeverity(Severity.MAJOR);
     dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
     dbTester.getSession().commit();
@@ -352,14 +352,14 @@ public class IntegrateIssuesVisitorTest {
     ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID_ON_BRANCH).setKey(FILE_KEY);
     dbTester.components().insertComponents(project, file);
 
-    RuleDto ruleDto = RuleTesting.newDto(ruleKey);
+    RuleDto ruleDto = RuleTesting.newRule(ruleKey);
     dbTester.rules().insert(ruleDto);
     ruleRepositoryRule.add(ruleKey);
 
-    IssueDto issue = IssueTesting.newDto(ruleDto, file, project)
+    IssueDto issue = IssueTesting.newIssue(ruleDto, project, file)
       .setKee("ISSUE")
-      .setStatus(Issue.STATUS_OPEN)
-      .setSeverity(Severity.MAJOR);
+      .setSeverity(Severity.MAJOR)
+      .setChecksum(null);
     dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
     dbTester.getSession().commit();
   }

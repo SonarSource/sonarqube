@@ -19,12 +19,14 @@
  */
 package org.sonar.server.rule.ws;
 
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -88,7 +90,11 @@ public class CreateActionTest {
   public void create_custom_rule() {
     logInAsQProfileAdministrator();
     // Template rule
-    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001")).setType(CODE_SMELL);
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"))
+      .setType(BUG)
+      .setTags(Set.of())
+      .setLanguage("js")
+      .setSystemTags(Set.of("systag1", "systag2"));
     db.rules().insert(templateRule);
     db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
 
@@ -112,7 +118,7 @@ public class CreateActionTest {
       "    \"severity\": \"MAJOR\",\n" +
       "    \"status\": \"BETA\",\n" +
       "    \"type\": \"BUG\",\n" +
-      "    \"internalKey\": \"InternalKeyS001\",\n" +
+      "    \"internalKey\": \"configKey_S001\",\n" +
       "    \"isTemplate\": false,\n" +
       "    \"templateKey\": \"java:S001\",\n" +
       "    \"sysTags\": [\"systag1\", \"systag2\"],\n" +

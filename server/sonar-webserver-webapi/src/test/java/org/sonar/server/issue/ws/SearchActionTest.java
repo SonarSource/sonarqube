@@ -48,7 +48,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
@@ -101,7 +100,7 @@ import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newDto;
+import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
@@ -175,7 +174,6 @@ public class SearchActionTest {
       .setStatus(STATUS_RESOLVED)
       .setResolution(RESOLUTION_FIXED)
       .setSeverity("MAJOR")
-      .setType(CODE_SMELL)
       .setAuthorLogin("John")
       .setAssigneeUuid(simon.getUuid())
       .setTags(asList("bug", "owasp"))
@@ -472,11 +470,10 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
 
-    IssueDto issue = newDto(newIssueRule(), file, project)
+    IssueDto issue = newIssue(newIssueRule(), project, file)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setAuthorLogin(fabrice.getLogin())
-      .setAssigneeUuid(simon.getUuid())
-      .setType(CODE_SMELL);
+      .setAssigneeUuid(simon.getUuid());
     dbClient.issueDao().insert(session, issue);
     session.commit();
     indexIssues();
@@ -562,7 +559,7 @@ public class SearchActionTest {
       .setKey("REMOVED_FILE_KEY")
       .setEnabled(false));
 
-    IssueDto issue = newDto(rule, removedFile, project)
+    IssueDto issue = newIssue(rule, project, removedFile)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setComponent(removedFile)
       .setStatus("OPEN").setResolution("OPEN")
@@ -585,7 +582,7 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     for (int i = 0; i < SearchOptions.MAX_PAGE_SIZE + 1; i++) {
-      IssueDto issue = newDto(rule, file, project).setAssigneeUuid(null);
+      IssueDto issue = newIssue(rule, project, file).setAssigneeUuid(null).setChecksum(null);
       dbClient.issueDao().insert(session, issue);
     }
     session.commit();
@@ -603,7 +600,7 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
-    IssueDto issue1 = newDto(rule, file, project)
+    IssueDto issue1 = newIssue(rule, project, file)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
@@ -611,7 +608,7 @@ public class SearchActionTest {
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR")
       .setAssigneeUuid(john.getUuid());
-    IssueDto issue2 = newDto(rule, file, project)
+    IssueDto issue2 = newIssue(rule, project, file)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
@@ -619,7 +616,7 @@ public class SearchActionTest {
       .setKee("7b112bd4-b650-4037-80bc-82fd47d4eac2")
       .setSeverity("MAJOR")
       .setAssigneeUuid(alice.getUuid());
-    IssueDto issue3 = newDto(rule, file, project)
+    IssueDto issue3 = newIssue(rule, project, file)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
@@ -651,21 +648,27 @@ public class SearchActionTest {
 
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
-    IssueDto issue1 = newDto(rule, file, project)
+    IssueDto issue1 = newIssue(rule, project, file)
       .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
       .setIssueUpdateDate(parseDateTime("2017-12-04T00:00:00+0100"))
       .setEffort(10L)
       .setStatus("OPEN")
+      .setMessage(null)
+      .setTags(null)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR")
+      .setChecksum(null)
       .setAssigneeUuid(john.getUuid());
-    IssueDto issue2 = newDto(rule, file, project)
+    IssueDto issue2 = newIssue(rule, project, file)
       .setIssueCreationDate(parseDateTime("2014-09-06T00:00:00+0100"))
       .setIssueUpdateDate(parseDateTime("2017-12-04T00:00:00+0100"))
       .setEffort(10L)
       .setStatus("OPEN")
+      .setMessage(null)
+      .setTags(null)
       .setKee("7b112bd4-b650-4037-80bc-82fd47d4eac2")
       .setSeverity("MAJOR")
+      .setChecksum(null)
       .setAssigneeUuid(alice.getUuid());
     dbClient.issueDao().insert(session, issue1, issue2);
     session.commit();
@@ -698,21 +701,23 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
-    IssueDto issue1 = newDto(rule, file, project)
+    IssueDto issue1 = newIssue(rule, project, file)
       .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
       .setIssueUpdateDate(parseDateTime("2017-12-04T00:00:00+0100"))
       .setEffort(10L)
       .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR")
+      .setChecksum(null)
       .setAssigneeUuid(john.getUuid());
-    IssueDto issue2 = newDto(rule, file, project)
+    IssueDto issue2 = newIssue(rule, project, file)
       .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
       .setIssueUpdateDate(parseDateTime("2017-12-04T00:00:00+0100"))
       .setEffort(10L)
       .setStatus("OPEN")
       .setKee("7b112bd4-b650-4037-80bc-82fd47d4eac2")
       .setSeverity("MAJOR")
+      .setChecksum(null)
       .setAssigneeUuid(alice.getUuid());
     dbClient.issueDao().insert(session, issue1, issue2);
     session.commit();
@@ -737,19 +742,25 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(pr, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
-    IssueDto issue1 = newDto(rule, file, pr)
+    IssueDto issue1 = newIssue(rule, pr, file)
       .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
       .setIssueUpdateDate(parseDateTime("2017-12-04T00:00:00+0100"))
       .setEffort(10L)
+      .setTags(null)
+      .setMessage(null)
       .setStatus("OPEN")
+      .setAuthorLogin("john")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR")
       .setAssigneeUuid(john.getUuid());
-    IssueDto issue2 = newDto(rule, file, pr)
+    IssueDto issue2 = newIssue(rule, pr, file)
       .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
       .setIssueUpdateDate(parseDateTime("2017-12-04T00:00:00+0100"))
       .setEffort(10L)
+      .setTags(null)
+      .setMessage(null)
       .setStatus("OPEN")
+      .setAuthorLogin("john")
       .setKee("7b112bd4-b650-4037-80bc-82fd47d4eac2")
       .setSeverity("MAJOR")
       .setAssigneeUuid(alice.getUuid());
@@ -775,7 +786,7 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
-    IssueDto issue1 = newDto(rule, file, project)
+    IssueDto issue1 = newIssue(rule, project, file)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
@@ -783,7 +794,7 @@ public class SearchActionTest {
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR")
       .setAssigneeUuid(john.getUuid());
-    IssueDto issue2 = newDto(rule, file, project)
+    IssueDto issue2 = newIssue(rule, project, file)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
@@ -791,7 +802,7 @@ public class SearchActionTest {
       .setKee("7b112bd4-b650-4037-80bc-82fd47d4eac2")
       .setSeverity("MAJOR")
       .setAssigneeUuid(alice.getUuid());
-    IssueDto issue3 = newDto(rule, file, project)
+    IssueDto issue3 = newIssue(rule, project, file)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
@@ -824,15 +835,15 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
-    IssueDto issue1 = newDto(rule, file, project)
+    IssueDto issue1 = newIssue(rule, project, file)
       .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setAssigneeUuid(john.getUuid());
-    IssueDto issue2 = newDto(rule, file, project)
+    IssueDto issue2 = newIssue(rule, project, file)
       .setStatus("OPEN")
       .setKee("7b112bd4-b650-4037-80bc-82fd47d4eac2")
       .setAssigneeUuid(alice.getUuid());
-    IssueDto issue3 = newDto(rule, file, project)
+    IssueDto issue3 = newIssue(rule, project, file)
       .setStatus("OPEN")
       .setKee("82fd47d4-4037-b650-80bc-7b112bd4eac2")
       .setAssigneeUuid(null);
@@ -888,21 +899,21 @@ public class SearchActionTest {
     ComponentDto testCodeFile = db.components().insertComponent(
       newFileDto(project, null, "ANOTHER_FILE_ID").setKey("ANOTHER_FILE_KEY").setQualifier(UNIT_TEST_FILE));
     RuleDto rule = newIssueRule();
-    IssueDto issue1 = newDto(rule, mainCodeFile, project)
+    IssueDto issue1 = newIssue(rule, project, mainCodeFile)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
       .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR");
-    IssueDto issue2 = newDto(rule, mainCodeFile, project)
+    IssueDto issue2 = newIssue(rule, project, mainCodeFile)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
       .setStatus("OPEN")
       .setKee("7b112bd4-b650-4037-80bc-82fd47d4eac2")
       .setSeverity("MAJOR");
-    IssueDto issue3 = newDto(rule, testCodeFile, project)
+    IssueDto issue3 = newIssue(rule, project, testCodeFile)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
@@ -929,24 +940,21 @@ public class SearchActionTest {
     ComponentDto testCodeFile = db.components().insertComponent(
       newFileDto(project, null, "ANOTHER_FILE_ID").setKey("ANOTHER_FILE_KEY").setQualifier(UNIT_TEST_FILE));
     RuleDto rule = newIssueRule();
-    IssueDto issue1 = newDto(rule, mainCodeFile, project)
-      .setType(CODE_SMELL)
+    IssueDto issue1 = newIssue(rule, project, mainCodeFile)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
       .setStatus("OPEN")
       .setKee("83ec1d05-9397-4137-9978-85368bcc3b90")
       .setSeverity("MAJOR");
-    IssueDto issue2 = newDto(rule, mainCodeFile, project)
-      .setType(CODE_SMELL)
+    IssueDto issue2 = newIssue(rule, project, mainCodeFile)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
       .setStatus("OPEN")
       .setKee("7b112bd4-b650-4037-80bc-82fd47d4eac2")
       .setSeverity("MAJOR");
-    IssueDto issue3 = newDto(rule, testCodeFile, project)
-      .setType(CODE_SMELL)
+    IssueDto issue3 = newIssue(rule, project, testCodeFile)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
@@ -971,16 +979,14 @@ public class SearchActionTest {
     ComponentDto mainCodeFile = db.components().insertComponent(
       newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     RuleDto rule = newIssueRule();
-    IssueDto issue1 = newDto(rule, mainCodeFile, project)
-      .setType(CODE_SMELL)
+    IssueDto issue1 = newIssue(rule, project, mainCodeFile)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
       .setStatus("OPEN")
       .setKee("83ec1d05-9397-4137-9978-85368bcc3b90")
       .setSeverity("MAJOR");
-    IssueDto issue2 = newDto(rule, mainCodeFile, project)
-      .setType(CODE_SMELL)
+    IssueDto issue2 = newIssue(rule, project, mainCodeFile)
       .setIssueCreationDate(parseDate("2014-09-04"))
       .setIssueUpdateDate(parseDate("2017-12-04"))
       .setEffort(10L)
@@ -1004,13 +1010,13 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
-    dbClient.issueDao().insert(session, newDto(rule, file, project)
+    dbClient.issueDao().insert(session, newIssue(rule, project, file)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac1")
       .setIssueUpdateDate(parseDateTime("2014-11-02T00:00:00+0100")));
-    dbClient.issueDao().insert(session, newDto(rule, file, project)
+    dbClient.issueDao().insert(session, newIssue(rule, project, file)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setIssueUpdateDate(parseDateTime("2014-11-01T00:00:00+0100")));
-    dbClient.issueDao().insert(session, newDto(rule, file, project)
+    dbClient.issueDao().insert(session, newIssue(rule, project, file)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3")
       .setIssueUpdateDate(parseDateTime("2014-11-03T00:00:00+0100")));
     session.commit();
@@ -1670,7 +1676,7 @@ public class SearchActionTest {
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
     for (int i = 0; i < 12; i++) {
-      IssueDto issue = newDto(rule, file, project);
+      IssueDto issue = newIssue(rule, project, file).setChecksum(null);
       dbClient.issueDao().insert(session, issue);
     }
     session.commit();

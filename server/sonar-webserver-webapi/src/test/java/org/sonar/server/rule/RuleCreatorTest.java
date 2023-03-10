@@ -562,7 +562,7 @@ public class RuleCreatorTest {
   }
 
   private RuleDto createTemplateRule() {
-    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"))
+    RuleDto templateRule = RuleTesting.newRule(RuleKey.of("java", "S001"))
       .setIsTemplate(true)
       .setLanguage("java")
       .setPluginKey("sonarjava")

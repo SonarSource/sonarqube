@@ -19,8 +19,6 @@
  */
 package org.sonar.db.rule;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -32,7 +30,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -64,6 +61,10 @@ public class RuleTesting {
     // only static helpers
   }
 
+
+  public static RuleDto newRule() {
+    return newRule(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)));
+  }
   public static RuleDto newRule(RuleDescriptionSectionDto... ruleDescriptionSectionDtos) {
     return newRule(randomRuleKey(), ruleDescriptionSectionDtos);
   }
@@ -92,7 +93,7 @@ public class RuleTesting {
       .setDescriptionFormat(RuleDto.Format.HTML)
       .setType(CODE_SMELL)
       .setStatus(RuleStatus.READY)
-      .setConfigKey("configKey_" + randomAlphanumeric(5))
+      .setConfigKey("configKey_" + ruleKey.rule())
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
       .setIsTemplate(false)
       .setIsExternal(false)
@@ -140,72 +141,17 @@ public class RuleTesting {
       .setCreatedAt(System.currentTimeMillis());
   }
 
-  /**
-   * @deprecated use newRule(...)
-   */
-  @Deprecated
   public static RuleDto newXooX1() {
-    return newDto(XOO_X1).setLanguage("xoo");
+    return newRule(XOO_X1).setLanguage("xoo");
   }
 
-  /**
-   * @deprecated use newRule(...)
-   */
-  @Deprecated
   public static RuleDto newXooX2() {
-    return newDto(XOO_X2).setLanguage("xoo");
+    return newRule(XOO_X2).setLanguage("xoo");
   }
 
-  /**
-   * @deprecated use newRule(...)
-   */
-  @Deprecated
-  public static RuleDto newXooX3() {
-    return newDto(XOO_X3).setLanguage("xoo");
-  }
-
-  /**
-   * @deprecated use newRule(...)
-   */
-  @Deprecated
-  public static RuleDto newDto(RuleKey ruleKey) {
-
-    return new RuleDto()
-      .setUuid("uuid_" + Uuids.createFast())
-      .setRuleKey(ruleKey.rule())
-      .setRepositoryKey(ruleKey.repository())
-      .setName("Rule " + ruleKey.rule())
-      .setDescriptionFormat(RuleDto.Format.HTML)
-      .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Description" + ruleKey.rule()))
-      .setStatus(RuleStatus.READY)
-      .setConfigKey("InternalKey" + ruleKey.rule())
-      .setSeverity(Severity.INFO)
-      .setIsTemplate(false)
-      .setSystemTags(ImmutableSet.of("systag1", "systag2"))
-      .setLanguage("js")
-      .setDefRemediationFunction("LINEAR_OFFSET")
-      .setDefRemediationGapMultiplier("5d")
-      .setDefRemediationBaseEffort("10h")
-      .setGapDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
-      .setType(CODE_SMELL)
-      .setCreatedAt(new Date().getTime())
-      .setUpdatedAt(new Date().getTime())
-      .setScope(Scope.MAIN)
-      .setTags(ImmutableSet.of("tag1", "tag2"))
-      .setRemediationFunction("LINEAR")
-      .setRemediationGapMultiplier("1h");
-  }
-
-  /**
-   * @deprecated use newRule(...)
-   */
-  @Deprecated
-  public static RuleDto newRuleDto() {
-    return newDto(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)));
-  }
 
   public static RuleDto newTemplateRule(RuleKey ruleKey) {
-    return newDto(ruleKey)
+    return newRule(ruleKey)
       .setIsTemplate(true);
   }
 
