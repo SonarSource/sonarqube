@@ -20,13 +20,14 @@
 import { omit } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { getSystemInfo } from '../../../api/system';
 import { createGroup, deleteGroup, searchUsersGroups, updateGroup } from '../../../api/user_groups';
 import ListFooter from '../../../components/controls/ListFooter';
 import SearchBox from '../../../components/controls/SearchBox';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { omitNil } from '../../../helpers/request';
-import { Group, Paging } from '../../../types/types';
+import { Group, Paging, SysInfoCluster } from '../../../types/types';
 import DeleteForm from './DeleteForm';
 import Form from './Form';
 import Header from './Header';
@@ -39,6 +40,7 @@ interface State {
   loading: boolean;
   paging?: Paging;
   query: string;
+  manageProvider?: string;
 }
 
 export default class App extends React.PureComponent<{}, State> {
@@ -48,6 +50,7 @@ export default class App extends React.PureComponent<{}, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchGroups();
+    this.fetchManageInstance();
   }
 
   componentWillUnmount() {
@@ -61,6 +64,15 @@ export default class App extends React.PureComponent<{}, State> {
       ...data,
     });
   };
+
+  async fetchManageInstance() {
+    const info = (await getSystemInfo()) as SysInfoCluster;
+    if (this.mounted) {
+      this.setState({
+        manageProvider: info.System['External Users and Groups Provisioning'],
+      });
+    }
+  }
 
   stopLoading = () => {
     if (this.mounted) {
@@ -188,7 +200,8 @@ export default class App extends React.PureComponent<{}, State> {
   };
 
   render() {
-    const { editedGroup, groupToBeDeleted, groups, loading, paging, query } = this.state;
+    const { editedGroup, groupToBeDeleted, groups, loading, paging, query, manageProvider } =
+      this.state;
 
     const showAnyone = 'anyone'.includes(query.toLowerCase());
 
@@ -197,7 +210,7 @@ export default class App extends React.PureComponent<{}, State> {
         <Suggestions suggestions="user_groups" />
         <Helmet defer={false} title={translate('user_groups.page')} />
         <main className="page page-limited" id="groups-page">
-          <Header onCreate={this.handleCreate} />
+          <Header onCreate={this.handleCreate} manageProvider={manageProvider} />
 
           <SearchBox
             className="big-spacer-bottom"

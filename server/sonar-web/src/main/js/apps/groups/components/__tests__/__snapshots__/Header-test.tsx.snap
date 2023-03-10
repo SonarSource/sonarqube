@@ -2,19 +2,20 @@
 
 exports[`should create new group 1`] = `
 <Fragment>
-  <header
+  <div
     className="page-header"
     id="groups-header"
   >
-    <h1
+    <h2
       className="page-title"
     >
       user_groups.page
-    </h1>
+    </h2>
     <div
       className="page-actions"
     >
       <Button
+        disabled={false}
         id="groups-create"
         onClick={[Function]}
       >
@@ -26,25 +27,26 @@ exports[`should create new group 1`] = `
     >
       user_groups.page.description
     </p>
-  </header>
+  </div>
 </Fragment>
 `;
 
 exports[`should create new group 2`] = `
 <Fragment>
-  <header
+  <div
     className="page-header"
     id="groups-header"
   >
-    <h1
+    <h2
       className="page-title"
     >
       user_groups.page
-    </h1>
+    </h2>
     <div
       className="page-actions"
     >
       <Button
+        disabled={false}
         id="groups-create"
         onClick={[Function]}
       >
@@ -56,12 +58,12 @@ exports[`should create new group 2`] = `
     >
       user_groups.page.description
     </p>
-  </header>
+  </div>
   <Form
     confirmButtonText="create"
     header="groups.create_group"
     onClose={[Function]}
-    onSubmit={[Function]}
+    onSubmit={[MockFunction]}
   />
 </Fragment>
 `;

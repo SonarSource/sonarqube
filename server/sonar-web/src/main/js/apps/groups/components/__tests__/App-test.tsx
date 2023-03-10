@@ -57,6 +57,10 @@ jest.mock('../../../../api/user_groups', () => ({
   updateGroup: jest.fn().mockResolvedValue({}),
 }));
 
+jest.mock('../../../../api/system', () => ({
+  getSystemInfo: jest.fn().mockResolvedValue({ System: {} }),
+}));
+
 beforeEach(() => {
   jest.clearAllMocks();
 });

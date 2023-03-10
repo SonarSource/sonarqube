@@ -18,67 +18,64 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import DocLink from '../../../components/common/DocLink';
 import { Button } from '../../../components/controls/buttons';
+import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import Form from './Form';
 
 interface Props {
   onCreate: (data: { description: string; name: string }) => Promise<void>;
+  manageProvider?: string;
 }
 
-interface State {
-  createModal: boolean;
-}
+export default function Header(props: Props) {
+  const { manageProvider } = props;
+  const [createModal, setCreateModal] = React.useState(false);
 
-export default class Header extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { createModal: false };
+  return (
+    <>
+      <div className="page-header" id="groups-header">
+        <h2 className="page-title">{translate('user_groups.page')}</h2>
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+        <div className="page-actions">
+          <Button
+            id="groups-create"
+            disabled={manageProvider !== undefined}
+            onClick={() => setCreateModal(true)}
+          >
+            {translate('groups.create_group')}
+          </Button>
+        </div>
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleCreateClick = () => {
-    this.setState({ createModal: true });
-  };
-
-  handleClose = () => {
-    if (this.mounted) {
-      this.setState({ createModal: false });
-    }
-  };
-
-  handleSubmit = (data: { name: string; description: string }) => {
-    return this.props.onCreate(data);
-  };
-
-  render() {
-    return (
-      <>
-        <header className="page-header" id="groups-header">
-          <h1 className="page-title">{translate('user_groups.page')}</h1>
-
-          <div className="page-actions">
-            <Button id="groups-create" onClick={this.handleCreateClick}>
-              {translate('groups.create_group')}
-            </Button>
-          </div>
-
+        {manageProvider === undefined ? (
           <p className="page-description">{translate('user_groups.page.description')}</p>
-        </header>
-        {this.state.createModal && (
-          <Form
-            confirmButtonText={translate('create')}
-            header={translate('groups.create_group')}
-            onClose={this.handleClose}
-            onSubmit={this.handleSubmit}
-          />
+        ) : (
+          <Alert className="page-description max-width-100 width-100" variant="info">
+            <FormattedMessage
+              defaultMessage={translate('user_groups.page.managed_description')}
+              id="user_groups.page.managed_description"
+              values={{
+                provider: manageProvider,
+                link: (
+                  <DocLink to="/instance-administration/authentication/overview/">
+                    {translate('documentation')}
+                  </DocLink>
+                ),
+              }}
+            />
+          </Alert>
         )}
-      </>
-    );
-  }
+      </div>
+      {createModal && (
+        <Form
+          confirmButtonText={translate('create')}
+          header={translate('groups.create_group')}
+          onClose={() => setCreateModal(false)}
+          onSubmit={props.onCreate}
+        />
+      )}
+    </>
+  );
 }
