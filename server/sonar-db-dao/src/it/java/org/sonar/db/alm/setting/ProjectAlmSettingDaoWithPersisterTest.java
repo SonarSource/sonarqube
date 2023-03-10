@@ -43,7 +43,6 @@ import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubProjectAlmSet
 public class ProjectAlmSettingDaoWithPersisterTest {
   private static final long A_DATE = 1_000_000_000_000L;
   private static final long A_DATE_LATER = 1_700_000_000_000L;
-  private static final String A_UUID = "SOME_UUID";
 
   private final ArgumentCaptor<DevOpsPlatformSettingNewValue> newValueCaptor = ArgumentCaptor.forClass(DevOpsPlatformSettingNewValue.class);
   private final AuditPersister auditPersister = mock(AuditPersister.class);

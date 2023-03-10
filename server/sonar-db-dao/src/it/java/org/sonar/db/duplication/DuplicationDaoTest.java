@@ -35,7 +35,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 
-import static com.google.common.collect.ImmutableList.of;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -78,7 +77,7 @@ public class DuplicationDaoTest {
       assertThat(dao.selectCandidates(dbSession, newAnalysis.getUuid(), "donut", singletonList(hash)))
         .isEmpty();
     }
-    for (List<String> hashes : Arrays.asList(of("aa", "bb"), of("bb", "aa"), of("aa", "bb", "cc"))) {
+    for (List<String> hashes : Arrays.asList(List.of("aa", "bb"), List.of("bb", "aa"), List.of("aa", "bb", "cc"))) {
       assertThat(dao.selectCandidates(dbSession, newAnalysis.getUuid(), "foo", hashes))
         .containsOnly(
           tuple(fooFile.uuid(), fooFile.getKey(), lastAnalysis.getUuid(), "aa"),

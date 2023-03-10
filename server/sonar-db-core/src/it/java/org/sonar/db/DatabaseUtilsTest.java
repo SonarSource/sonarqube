@@ -19,7 +19,6 @@
  */
 package org.sonar.db;
 
-import com.google.common.base.Function;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -33,6 +32,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,8 +42,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.dialect.Oracle;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,10 +57,18 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.DatabaseUtils.ORACLE_DRIVER_NAME;
+import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
+import static org.sonar.db.DatabaseUtils.closeQuietly;
+import static org.sonar.db.DatabaseUtils.getDriver;
+import static org.sonar.db.DatabaseUtils.log;
+import static org.sonar.db.DatabaseUtils.tableColumnExists;
+import static org.sonar.db.DatabaseUtils.tableExists;
 import static org.sonar.db.DatabaseUtils.toUniqueAndSortedList;
 
 public class DatabaseUtilsTest {
+
   private static final String DEFAULT_SCHEMA = "public";
+  private static final String SCHEMA_MIGRATIONS_TABLE = "SCHEMA_MIGRATIONS";
 
   @Rule
   public CoreDbTester dbTester = CoreDbTester.createForSchema(DatabaseUtilsTest.class, "sql.sql", false);
@@ -68,99 +76,95 @@ public class DatabaseUtilsTest {
   public LogTester logTester = new LogTester();
 
   @Test
-  public void find_index_with_lower_case() throws SQLException {
-    String tableName = "SCHEMA_MIGRATIONS";
+  public void findExistingIndex_whenTableBothInLowerAndUpperCase_shouldFindIndex() throws SQLException {
     String indexName = "lower_case_name";
     try (Connection connection = dbTester.openConnection()) {
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName, indexName)).contains(indexName);
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName.toLowerCase(Locale.US), indexName)).contains(indexName);
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE, indexName)).contains(indexName);
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE.toLowerCase(Locale.US), indexName)).contains(indexName);
     }
   }
 
   @Test
-  public void find_index_with_upper_case() throws SQLException {
-    String tableName = "SCHEMA_MIGRATIONS";
+  public void findExistingIndex_whenMixedCasesInTableAndIndexName_shouldFindIndex() throws SQLException {
     String indexName = "UPPER_CASE_NAME";
     try (Connection connection = dbTester.openConnection()) {
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName, indexName)).contains(indexName);
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName, indexName.toLowerCase(Locale.US))).contains(indexName);
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName.toLowerCase(Locale.US), indexName.toLowerCase(Locale.US))).contains(indexName);
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE, indexName)).contains(indexName);
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE, indexName.toLowerCase(Locale.US))).contains(indexName);
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE.toLowerCase(Locale.US), indexName.toLowerCase(Locale.US))).contains(indexName);
     }
   }
 
   @Test
-  public void find_index_with_special_name() throws SQLException {
-    String tableName = "SCHEMA_MIGRATIONS";
+  public void findExistingIndex_whenPassingOnlyPartOfIndexName_shouldFindIndexAndReturnFullName() throws SQLException {
     String indexName = "INDEX_NAME";
     try (Connection connection = dbTester.openConnection()) {
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName, indexName)).contains("idx_1234_index_name");
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName.toLowerCase(Locale.US), indexName)).contains("idx_1234_index_name");
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName.toLowerCase(Locale.US), indexName.toLowerCase(Locale.US))).contains("idx_1234_index_name");
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName, "index")).isEmpty();
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName, "index_name_2")).isEmpty();
-      assertThat(DatabaseUtils.findExistingIndex(connection, tableName, "index_name_")).isEmpty();
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE, indexName)).contains("idx_1234_index_name");
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE.toLowerCase(Locale.US), indexName)).contains("idx_1234_index_name");
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE.toLowerCase(Locale.US), indexName.toLowerCase(Locale.US))).contains("idx_1234_index_name");
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE, "index")).isEmpty();
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE, "index_name_2")).isEmpty();
+      assertThat(DatabaseUtils.findExistingIndex(connection, SCHEMA_MIGRATIONS_TABLE, "index_name_")).isEmpty();
     }
   }
 
   @Test
-  public void find_column_with_lower_case_table_name_and_upper_case_column_name() throws SQLException {
+  public void tableColumnExists_whenTableNameLowerCaseColumnUpperCase_shouldFindColumn() throws SQLException {
     String tableName = "tablea";
     String columnName = "COLUMNA";
     try (Connection connection = dbTester.openConnection()) {
-      assertThat(DatabaseUtils.tableColumnExists(connection, tableName, columnName)).isTrue();
+      assertThat(tableColumnExists(connection, tableName, columnName)).isTrue();
     }
   }
 
   @Test
-  public void find_column_with_upper_case_table_name_and_upper_case_column_name() throws SQLException {
+  public void tableColumnExists_whenArgumentInUpperCase_shouldFindColumn() throws SQLException {
     String tableName = "TABLEA";
     String columnName = "COLUMNA";
     try (Connection connection = dbTester.openConnection()) {
-      assertThat(DatabaseUtils.tableColumnExists(connection, tableName, columnName)).isTrue();
+      assertThat(tableColumnExists(connection, tableName, columnName)).isTrue();
     }
   }
 
   @Test
-  public void find_column_with_lower_case_table_name_and_lower_case_column_name() throws SQLException {
+  public void tableColumnExists_whenArgumentsInLowerCase_shouldFindColumn() throws SQLException {
     String tableName = "tablea";
     String columnName = "columna";
     try (Connection connection = dbTester.openConnection()) {
-      assertThat(DatabaseUtils.tableColumnExists(connection, tableName, columnName)).isTrue();
+      assertThat(tableColumnExists(connection, tableName, columnName)).isTrue();
     }
   }
 
   @Test
-  public void find_column_with_upper_case_table_name_and_lower_case_column_name() throws SQLException {
+  public void tableColumnExists_whenTableNameInUpperCaseAndColumnInLowerCase_shouldFindColumn() throws SQLException {
     String tableName = "TABLEA";
     String columnName = "columna";
     try (Connection connection = dbTester.openConnection()) {
-      assertThat(DatabaseUtils.tableColumnExists(connection, tableName, columnName)).isTrue();
+      assertThat(tableColumnExists(connection, tableName, columnName)).isTrue();
     }
   }
 
   @Test
-  public void should_close_connection() throws Exception {
+  public void closeQuietly_shouldCloseConnection() throws SQLException {
     try (Connection connection = dbTester.openConnection()) {
       assertThat(isClosed(connection)).isFalse();
 
-      DatabaseUtils.closeQuietly(connection);
+      closeQuietly(connection);
       assertThat(isClosed(connection)).isTrue();
     }
   }
 
   @Test
-  public void should_support_null_connection() {
-    DatabaseUtils.closeQuietly((Connection) null);
-    // no failure
+  public void closeQuietly_shouldNotFailOnNullArgument() {
+    assertThatCode(() -> closeQuietly((Connection) null)).doesNotThrowAnyException();
   }
 
   @Test
-  public void should_close_statement_and_resultset() throws Exception {
+  public void closeQuietly_whenStatementAndResultSetOpen_shouldCloseBoth() throws SQLException {
     try (Connection connection = dbTester.openConnection(); PreparedStatement statement = connection.prepareStatement(selectDual())) {
       ResultSet rs = statement.executeQuery();
 
-      DatabaseUtils.closeQuietly(rs);
-      DatabaseUtils.closeQuietly(statement);
+      closeQuietly(rs);
+      closeQuietly(statement);
 
       assertThat(isClosed(statement)).isTrue();
       assertThat(isClosed(rs)).isTrue();
@@ -168,72 +172,72 @@ public class DatabaseUtilsTest {
   }
 
   @Test
-  public void should_not_fail_on_connection_errors() throws SQLException {
+  public void closeQuietly_whenConnectionThrowsException_shouldNotThrowException() throws SQLException {
     Connection connection = mock(Connection.class);
     doThrow(new SQLException()).when(connection).close();
 
-    DatabaseUtils.closeQuietly(connection);
+    closeQuietly(connection);
 
     // no failure
     verify(connection).close(); // just to be sure
   }
 
   @Test
-  public void should_not_fail_on_statement_errors() throws SQLException {
+  public void closeQuietly_whenStatementThrowsException_shouldNotThrowException() throws SQLException {
     Statement statement = mock(Statement.class);
     doThrow(new SQLException()).when(statement).close();
 
-    DatabaseUtils.closeQuietly(statement);
+    closeQuietly(statement);
 
     // no failure
     verify(statement).close(); // just to be sure
   }
 
   @Test
-  public void should_not_fail_on_resulset_errors() throws SQLException {
+  public void closeQuietly_whenResultSetThrowsException_shouldNotThrowException() throws SQLException {
     ResultSet rs = mock(ResultSet.class);
     doThrow(new SQLException()).when(rs).close();
 
-    DatabaseUtils.closeQuietly(rs);
+    closeQuietly(rs);
 
     // no failure
     verify(rs).close(); // just to be sure
   }
 
   @Test
-  public void toUniqueAndSortedList_throws_NPE_if_arg_is_null() {
+  public void toUniqueAndSortedList_whenNullPassed_shouldThrowNullPointerException() {
     assertThatThrownBy(() -> toUniqueAndSortedList(null))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
-  public void toUniqueAndSortedList_throws_NPE_if_arg_contains_a_null() {
+  public void toUniqueAndSortedList_whenNullPassedInsideTheList_shouldThrowNullPointerException() {
     assertThatThrownBy(() -> toUniqueAndSortedList(List.of("A", null, "C")))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
-  public void toUniqueAndSortedList_throws_NPE_if_arg_is_a_set_containing_a_null() {
+  public void toUniqueAndSortedList_whenNullPassedInsideTheSet_shouldThrowNullPointerException() {
     assertThatThrownBy(() -> toUniqueAndSortedList(Set.of("A", null, "C")))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
-  public void toUniqueAndSortedList_enforces_natural_order() {
+  public void toUniqueAndSortedList_shouldEnforceNaturalOrder() {
     assertThat(toUniqueAndSortedList(List.of("A", "B", "C"))).containsExactly("A", "B", "C");
     assertThat(toUniqueAndSortedList(List.of("B", "A", "C"))).containsExactly("A", "B", "C");
     assertThat(toUniqueAndSortedList(List.of("B", "C", "A"))).containsExactly("A", "B", "C");
   }
 
   @Test
-  public void toUniqueAndSortedList_removes_duplicates() {
+  public void toUniqueAndSortedList_shouldRemoveDuplicates() {
     assertThat(toUniqueAndSortedList(List.of("A", "A", "A"))).containsExactly("A");
     assertThat(toUniqueAndSortedList(List.of("A", "C", "A"))).containsExactly("A", "C");
     assertThat(toUniqueAndSortedList(List.of("C", "C", "B", "B", "A", "N", "C", "A"))).containsExactly("A", "B", "C", "N");
   }
 
   @Test
-  public void toUniqueAndSortedList_removes_duplicates_and_apply_natural_order_of_any_Comparable() {
+  public void toUniqueAndSortedList_shouldRemoveDuplicatesAndEnforceNaturalOrder() {
     assertThat(
       toUniqueAndSortedList(List.of(myComparable(2), myComparable(5), myComparable(2), myComparable(4), myComparable(-1), myComparable(10))))
       .containsExactly(
@@ -241,70 +245,216 @@ public class DatabaseUtilsTest {
   }
 
   @Test
-  public void can_not_determine_database_driver() throws SQLException {
+  public void getDriver_whenIssuesWithDriver_shouldLeaveAMessageInTheLogs() throws SQLException {
     Connection connection = mock(Connection.class);
     DatabaseMetaData metaData = mock(DatabaseMetaData.class);
     when(connection.getMetaData()).thenReturn(metaData);
     when(metaData.getDriverName()).thenThrow(new SQLException());
-    DatabaseUtils.getDriver(connection);
+
+    getDriver(connection);
+
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Fail to determine database driver.");
   }
 
   @Test
-  public void result_set_throw_exception() throws SQLException {
+  public void findExistingIndex_whenResultSetThrowsException_shouldThrowExceptionToo() throws SQLException {
     String indexName = "idx";
     String schema = "TEST-SONAR";
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenThrow(new SQLException());
+
     assertThatThrownBy(() -> findExistingIndex(indexName, schema, resultSet, true))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Can not check that table test_table exists");
   }
 
   @Test
-  public void find_existing_index_on_oracle_double_quoted_schema() throws SQLException {
+  public void findExistingIndex_whenExistingIndexOnOracleDoubleQuotedSchema_shouldReturnIndex() throws SQLException {
     String indexName = "idx";
     String schema = "TEST-SONAR";
     ResultSet resultSet = newResultSet(true, indexName, schema);
+
     Optional<String> foundIndex = findExistingIndex(indexName, schema, resultSet, true);
+
     assertThat(foundIndex).hasValue(indexName);
   }
 
   @Test
-  public void find_existing_index_on_oracle_standard_schema() throws SQLException {
+  public void findExistingIndex_whenExistingIndexOnDefaultSchema_shouldReturnIndex() throws SQLException {
     String indexName = "idx";
     String schema = DEFAULT_SCHEMA;
     ResultSet resultSet = newResultSet(true, indexName, schema);
+
     Optional<String> foundIndex = findExistingIndex(indexName, schema, resultSet, true);
+
     assertThat(foundIndex).hasValue(indexName);
   }
 
   @Test
-  public void no_existing_index_on_oracle_double_quoted_schema() throws SQLException {
+  public void findExistingIndex_whenNoExistingIndexOnOracleDoubleQuotedSchema_shouldNotReturnIndex() throws SQLException {
     String indexName = "idx";
     String schema = "TEST-SONAR";
     ResultSet resultSet = newResultSet(false, null, null);
+
     Optional<String> foundIndex = findExistingIndex(indexName, schema, resultSet, true);
+
     assertThat(foundIndex).isEmpty();
   }
 
   @Test
-  public void no_matching_index_on_oracle_double_quoted_schema() throws SQLException {
+  public void findExistingIndex_whenNoMatchingIndexOnOracleDoubleQuotedSchema_shouldNotReturnIndex() throws SQLException {
     String indexName = "idx";
     String schema = "TEST-SONAR";
     ResultSet resultSet = newResultSet(true, "different", "different");
+
     Optional<String> foundIndex = findExistingIndex(indexName, schema, resultSet, true);
+
     assertThat(foundIndex).isEmpty();
   }
 
   @Test
-  public void find_existing_index_on_default_schema() throws SQLException {
+  public void findExistingIndex_whenExistingIndexAndSchemaPassed_shouldFindIndex() throws SQLException {
     String indexName = "idx";
     String schema = DEFAULT_SCHEMA;
     ResultSet resultSet = newResultSet(true, indexName, schema);
+
     Optional<String> foundIndex = findExistingIndex(indexName, schema, resultSet, false);
+
     assertThat(foundIndex).hasValue(indexName);
   }
+
+  @Test
+  public void executeLargeInputs_whenALotOfElementsPassed_shouldProcessAllItems() {
+    List<Integer> inputs = new ArrayList<>();
+    List<String> expectedOutputs = new ArrayList<>();
+    for (int i = 0; i < 2010; i++) {
+      inputs.add(i);
+      expectedOutputs.add(Integer.toString(i));
+    }
+
+    List<String> outputs = DatabaseUtils.executeLargeInputs(inputs, input -> {
+      // Check that each partition is only done on 1000 elements max
+      assertThat(input).hasSizeLessThanOrEqualTo(1000);
+      return input.stream().map(String::valueOf).collect(MoreCollectors.toList());
+    });
+
+    assertThat(outputs).isEqualTo(expectedOutputs);
+  }
+
+  @Test
+  public void executeLargeInputsWithFunctionAsInput_whenEmptyList_shouldReturnEmpty() {
+    List<String> outputs = DatabaseUtils.executeLargeInputs(Collections.emptyList(), (Function<List<Integer>, List<String>>) input -> {
+      fail("No partition should be made on empty list");
+      return Collections.emptyList();
+    });
+
+    assertThat(outputs).isEmpty();
+  }
+
+  @Test
+  public void executeLargeUpdates_whenEmptyList_shouldFail() {
+    DatabaseUtils.executeLargeUpdates(Collections.<Integer>emptyList(), input -> fail("No partition should be made on empty list"));
+  }
+
+  @Test
+  public void executeLargeInputs_whenPartitionSizeIsCustom_shouldParitionAccordingly() {
+    List<List<Integer>> partitions = new ArrayList<>();
+    List<Integer> outputs = DatabaseUtils.executeLargeInputs(
+      List.of(1, 2, 3),
+      partition -> {
+        partitions.add(partition);
+        return partition;
+      },
+      i -> i / 500);
+
+    assertThat(outputs).containsExactly(1, 2, 3);
+    assertThat(partitions).containsExactly(List.of(1, 2), List.of(3));
+  }
+
+  @Test
+  public void executeLargeUpdates_whenALotOfElementsPassed_shouldProcessAllItems() {
+    List<Integer> inputs = new ArrayList<>();
+    for (int i = 0; i < 2010; i++) {
+      inputs.add(i);
+    }
+
+    List<Integer> processed = new ArrayList<>();
+    DatabaseUtils.executeLargeUpdates(inputs, input -> {
+      assertThat(input).hasSizeLessThanOrEqualTo(1000);
+      processed.addAll(input);
+    });
+    assertThat(processed).containsExactlyElementsOf(inputs);
+  }
+
+  @Test
+  public void logging_whenSomeExceptionThrown_shouldContainThemInTheLog() {
+    SQLException root = new SQLException("this is root", "123");
+    SQLException next = new SQLException("this is next", "456");
+    root.setNextException(next);
+
+    log(Loggers.get(getClass()), root);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("SQL error: 456. Message: this is next");
+  }
+
+  @Test
+  public void tableExists_whenTableInTheMetadata_shouldReturnTrue() throws Exception {
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(tableExists("SCHEMA_MIGRATIONS", connection)).isTrue();
+      assertThat(tableExists("schema_migrations", connection)).isTrue();
+      assertThat(tableExists("schema_MIGRATIONS", connection)).isTrue();
+      assertThat(tableExists("foo", connection)).isFalse();
+    }
+  }
+
+  @Test
+  public void tableExists_whenGetSchemaThrowException_shouldNotFail() throws Exception {
+    try (Connection connection = spy(dbTester.openConnection())) {
+      doThrow(AbstractMethodError.class).when(connection).getSchema();
+      assertThat(tableExists("SCHEMA_MIGRATIONS", connection)).isTrue();
+      assertThat(tableExists("schema_migrations", connection)).isTrue();
+      assertThat(tableExists("schema_MIGRATIONS", connection)).isTrue();
+      assertThat(tableExists("foo", connection)).isFalse();
+    }
+  }
+
+  @Test//is_using_getSchema_when_not_using_h2
+  public void tableExists_whenNotUsingH2_shouldReturnTrue() throws Exception {
+    try (Connection connection = spy(dbTester.openConnection())) {
+      // DatabaseMetaData mock
+      DatabaseMetaData metaData = mock(DatabaseMetaData.class);
+      doReturn("xxx").when(metaData).getDriverName();
+
+      // ResultSet mock
+      ResultSet resultSet = mock(ResultSet.class);
+      doReturn(true, false).when(resultSet).next();
+      doReturn(SCHEMA_MIGRATIONS_TABLE).when(resultSet).getString("TABLE_NAME");
+      doReturn(resultSet).when(metaData).getTables(any(), eq("yyyy"), any(), any());
+
+      // Connection mock
+      doReturn("yyyy").when(connection).getSchema();
+      doReturn(metaData).when(connection).getMetaData();
+
+      assertThat(tableExists(SCHEMA_MIGRATIONS_TABLE, connection)).isTrue();
+    }
+  }
+
+  @Test
+  public void checkThatNotTooManyConditions_whenLessThan1000Items_shouldNotThrowException() {
+    checkThatNotTooManyConditions(null, "unused");
+    checkThatNotTooManyConditions(Collections.emptySet(), "unused");
+    checkThatNotTooManyConditions(Collections.nCopies(10, "foo"), "unused");
+    checkThatNotTooManyConditions(Collections.nCopies(1_000, "foo"), "unused");
+  }
+
+  @Test
+  public void checkThatNotTooManyConditions_whenMoreThan1000ItemsInTheList_shouldNotThrowException() {
+    List<String> list = Collections.nCopies(1_001, "foo");
+    assertThatThrownBy(() -> checkThatNotTooManyConditions(list, "the message"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("the message");
+  }
+
 
 
   private Optional<String> findExistingIndex(String indexName, String schema, ResultSet resultSet, boolean isOracle) throws SQLException {
@@ -408,138 +558,4 @@ public class DatabaseUtilsTest {
     return sql;
   }
 
-  @Test
-  public void executeLargeInputs() {
-    List<Integer> inputs = newArrayList();
-    List<String> expectedOutputs = newArrayList();
-    for (int i = 0; i < 2010; i++) {
-      inputs.add(i);
-      expectedOutputs.add(Integer.toString(i));
-    }
-
-    List<String> outputs = DatabaseUtils.executeLargeInputs(inputs, input -> {
-      // Check that each partition is only done on 1000 elements max
-      assertThat(input).hasSizeLessThanOrEqualTo(1000);
-      return input.stream().map(String::valueOf).collect(MoreCollectors.toList());
-    });
-
-    assertThat(outputs).isEqualTo(expectedOutputs);
-  }
-
-  @Test
-  public void executeLargeInputs_on_empty_list() {
-    List<String> outputs = DatabaseUtils.executeLargeInputs(Collections.emptyList(), new Function<List<Integer>, List<String>>() {
-      @Override
-      public List<String> apply(List<Integer> input) {
-        fail("No partition should be made on empty list");
-        return Collections.emptyList();
-      }
-    });
-
-    assertThat(outputs).isEmpty();
-  }
-
-  @Test
-  public void executeLargeInputs_uses_specified_partition_size_manipulations() {
-    List<List<Integer>> partitions = new ArrayList<>();
-    List<Integer> outputs = DatabaseUtils.executeLargeInputs(
-      List.of(1, 2, 3),
-      partition -> {
-        partitions.add(partition);
-        return partition;
-      },
-      i -> i / 500);
-
-    assertThat(outputs).containsExactly(1, 2, 3);
-    assertThat(partitions).containsExactly(List.of(1, 2), List.of(3));
-  }
-
-  @Test
-  public void executeLargeUpdates() {
-    List<Integer> inputs = newArrayList();
-    for (int i = 0; i < 2010; i++) {
-      inputs.add(i);
-    }
-
-    List<Integer> processed = newArrayList();
-    DatabaseUtils.executeLargeUpdates(inputs, input -> {
-      assertThat(input).hasSizeLessThanOrEqualTo(1000);
-      processed.addAll(input);
-    });
-    assertThat(processed).containsExactlyElementsOf(inputs);
-  }
-
-  @Test
-  public void executeLargeUpdates_on_empty_list() {
-    DatabaseUtils.executeLargeUpdates(Collections.<Integer>emptyList(), input -> fail("No partition should be made on empty list"));
-  }
-
-  @Test
-  public void log_all_sql_exceptions() {
-    SQLException root = new SQLException("this is root", "123");
-    SQLException next = new SQLException("this is next", "456");
-    root.setNextException(next);
-
-    DatabaseUtils.log(Loggers.get(getClass()), root);
-
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("SQL error: 456. Message: this is next");
-  }
-
-  @Test
-  public void tableExists_returns_true_if_table_is_referenced_in_db_metadata() throws Exception {
-    try (Connection connection = dbTester.openConnection()) {
-      assertThat(DatabaseUtils.tableExists("SCHEMA_MIGRATIONS", connection)).isTrue();
-      assertThat(DatabaseUtils.tableExists("schema_migrations", connection)).isTrue();
-      assertThat(DatabaseUtils.tableExists("schema_MIGRATIONS", connection)).isTrue();
-      assertThat(DatabaseUtils.tableExists("foo", connection)).isFalse();
-    }
-  }
-
-  @Test
-  public void tableExists_is_resilient_on_getSchema() throws Exception {
-    try (Connection connection = spy(dbTester.openConnection())) {
-      doThrow(AbstractMethodError.class).when(connection).getSchema();
-      assertThat(DatabaseUtils.tableExists("SCHEMA_MIGRATIONS", connection)).isTrue();
-      assertThat(DatabaseUtils.tableExists("schema_migrations", connection)).isTrue();
-      assertThat(DatabaseUtils.tableExists("schema_MIGRATIONS", connection)).isTrue();
-      assertThat(DatabaseUtils.tableExists("foo", connection)).isFalse();
-    }
-  }
-
-  @Test
-  public void tableExists_is_using_getSchema_when_not_using_h2() throws Exception {
-    try (Connection connection = spy(dbTester.openConnection())) {
-      // DatabaseMetaData mock
-      DatabaseMetaData metaData = mock(DatabaseMetaData.class);
-      doReturn("xxx").when(metaData).getDriverName();
-
-      // ResultSet mock
-      ResultSet resultSet = mock(ResultSet.class);
-      doReturn(true, false).when(resultSet).next();
-      doReturn("SCHEMA_MIGRATIONS").when(resultSet).getString(eq("TABLE_NAME"));
-      doReturn(resultSet).when(metaData).getTables(any(), eq("yyyy"), any(), any());
-
-      // Connection mock
-      doReturn("yyyy").when(connection).getSchema();
-      doReturn(metaData).when(connection).getMetaData();
-
-      assertThat(DatabaseUtils.tableExists("SCHEMA_MIGRATIONS", connection)).isTrue();
-    }
-  }
-
-  @Test
-  public void checkThatNotTooManyConditions_does_not_fail_if_less_than_1000_conditions() {
-    DatabaseUtils.checkThatNotTooManyConditions(null, "unused");
-    DatabaseUtils.checkThatNotTooManyConditions(Collections.emptySet(), "unused");
-    DatabaseUtils.checkThatNotTooManyConditions(Collections.nCopies(10, "foo"), "unused");
-    DatabaseUtils.checkThatNotTooManyConditions(Collections.nCopies(1_000, "foo"), "unused");
-  }
-
-  @Test
-  public void checkThatNotTooManyConditions_throws_IAE_if_strictly_more_than_1000_conditions() {
-    List<String> list = Collections.nCopies(1_001, "foo");
-    assertThatThrownBy(() -> DatabaseUtils.checkThatNotTooManyConditions(list, "the message"))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("the message");
-  }
 }

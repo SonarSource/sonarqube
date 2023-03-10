@@ -31,8 +31,8 @@ public class IsAliveMapperTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbSession session;
-  IsAliveMapper underTest;
+  private DbSession session;
+  private IsAliveMapper underTest;
 
   @Before
   public void setUp() {
