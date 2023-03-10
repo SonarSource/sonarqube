@@ -324,6 +324,16 @@ public class ScimUserDaoIT {
     return scimUserTestData;
   }
 
+  @Test
+  public void getManagedUserSqlFilter_isNotEmpty() {
+    String filterManagedUser = scimUserDao.getManagedUserSqlFilter(true);
+    assertThat(filterManagedUser).isNotEmpty();
+    String filterNonManagedUser = scimUserDao.getManagedUserSqlFilter(false);
+    assertThat(filterNonManagedUser).isNotEmpty();
+
+    assertThat(filterManagedUser).isNotEqualTo(filterNonManagedUser);
+  }
+
   private static class ScimUserTestData {
 
     private final String scimUserUuid;

@@ -125,6 +125,24 @@ public class DelegatingManagedInstanceServiceTest {
       .withMessage("The instance can't be managed by more than one identity provider and 2 were found.");
   }
 
+  @Test
+  public void getManagedUsersSqlFilter_whenNoDelegates_throws() {
+    Set<ManagedInstanceService> managedInstanceServices = emptySet();
+    DelegatingManagedInstanceService delegatingManagedInstanceService = new DelegatingManagedInstanceService(managedInstanceServices);
+    assertThatIllegalStateException()
+      .isThrownBy(() -> delegatingManagedInstanceService.getManagedUsersSqlFilter(true))
+      .withMessage("This instance is not managed.");
+  }
+
+  @Test
+  public void getManagedUsersSqlFilter_delegatesToRightService_andPropagateAnswer() {
+    AlwaysManagedInstanceService alwaysManagedInstanceService = new AlwaysManagedInstanceService();
+    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new NeverManagedInstanceService(), alwaysManagedInstanceService));
+
+    assertThat(managedInstanceService.getManagedUsersSqlFilter(true)).isNotNull().isEqualTo(alwaysManagedInstanceService.getManagedUsersSqlFilter(
+      true));
+  }
+
   private ManagedInstanceService getManagedInstanceService(Set<String> userUuids, Map<String, Boolean> uuidToManaged) {
     ManagedInstanceService anotherManagedInstanceService = mock(ManagedInstanceService.class);
     when(anotherManagedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
@@ -149,6 +167,11 @@ public class DelegatingManagedInstanceServiceTest {
     public Map<String, Boolean> getGroupUuidToManaged(DbSession dbSession, Set<String> groupUuids) {
       return null;
     }
+
+    @Override
+    public String getManagedUsersSqlFilter(boolean filterByManaged) {
+      return null;
+    }
   }
 
   private static class AlwaysManagedInstanceService implements ManagedInstanceService {
@@ -166,6 +189,11 @@ public class DelegatingManagedInstanceServiceTest {
     @Override
     public Map<String, Boolean> getGroupUuidToManaged(DbSession dbSession, Set<String> groupUuids) {
       return null;
+    }
+
+    @Override
+    public String getManagedUsersSqlFilter(boolean filterByManaged) {
+      return "any filter";
     }
   }
 

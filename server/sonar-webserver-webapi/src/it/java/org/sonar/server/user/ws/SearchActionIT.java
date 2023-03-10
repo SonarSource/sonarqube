@@ -25,12 +25,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
+import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Users.SearchWsResponse;
@@ -42,8 +46,10 @@ import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -135,7 +141,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void return_isManaged() {
+  public void return_isManagedFlag() {
     UserDto nonManagedUser = db.users().insertUser(u -> u.setEmail("john@doe.com"));
     UserDto managedUser = db.users().insertUser(u -> u.setEmail("externalUser@doe.com"));
     mockUsersAsManaged(managedUser.getUuid());
@@ -150,6 +156,67 @@ public class SearchActionIT {
         tuple(managedUser.getLogin(), true),
         tuple(nonManagedUser.getLogin(), false)
       );
+  }
+
+  @Test
+  public void search_whenFilteringByManagedAndInstanceNotManaged_throws() {
+    userSession.logIn().setSystemAdministrator();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam("managed", "true");
+
+    assertThatExceptionOfType(BadRequestException.class)
+      .isThrownBy(() -> testRequest.executeProtobuf(SearchWsResponse.class))
+      .withMessage("The 'managed' parameter is only available for managed instances.");
+  }
+
+  @Test
+  public void search_whenFilteringByManagedAndInstanceManaged_returnsCorrectResults() {
+    UserDto nonManagedUser = db.users().insertUser(u -> u.setEmail("john@doe.com"));
+    UserDto managedUser = db.users().insertUser(u -> u.setEmail("externalUser@doe.com"));
+    db.users().enableScimForUser(managedUser);
+    mockUsersAsManaged(managedUser.getUuid());
+    mockInstanceExternallyManagedAndFilterForManagedUsers();
+    userSession.logIn().setSystemAdministrator();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam("managed", "true")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getManaged)
+      .containsExactlyInAnyOrder(
+        tuple(managedUser.getLogin(), true)
+      );
+  }
+
+  @Test
+  public void search_whenFilteringByNonManagedAndInstanceManaged_returnsCorrectResults() {
+    UserDto nonManagedUser = db.users().insertUser(u -> u.setEmail("john@doe.com"));
+    UserDto managedUser = db.users().insertUser(u -> u.setEmail("externalUser@doe.com"));
+    db.users().enableScimForUser(managedUser);
+    mockUsersAsManaged(managedUser.getUuid());
+    mockInstanceExternallyManagedAndFilterForManagedUsers();
+    userSession.logIn().setSystemAdministrator();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam("managed", "false")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting(User::getLogin, User::getManaged)
+      .containsExactlyInAnyOrder(
+        tuple(nonManagedUser.getLogin(), false)
+      );
+  }
+
+  private void mockInstanceExternallyManagedAndFilterForManagedUsers() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(managedInstanceService.getManagedUsersSqlFilter(anyBoolean()))
+      .thenAnswer(invocation -> {
+        Boolean managed = invocation.getArgument(0, Boolean.class);
+        return new ScimUserDao(mock(UuidFactory.class)).getManagedUserSqlFilter(managed);
+      });
   }
 
   @Test
@@ -414,7 +481,7 @@ public class SearchActionIT {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(5);
   }
 
   private void mockUsersAsManaged(String... userUuids) {

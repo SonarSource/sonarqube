@@ -60,6 +60,13 @@ public class DelegatingManagedInstanceService implements ManagedInstanceService 
       .orElse(returnNonManagedForAllGroups(groupUuids));
   }
 
+  @Override
+  public String getManagedUsersSqlFilter(boolean filterByManaged) {
+    return findManagedInstanceService()
+      .map(managedInstanceService -> managedInstanceService.getManagedUsersSqlFilter(filterByManaged))
+      .orElseThrow(() -> new IllegalStateException("This instance is not managed."));
+  }
+
   private Optional<ManagedInstanceService> findManagedInstanceService() {
     Set<ManagedInstanceService> managedInstanceServices = delegates.stream()
       .filter(ManagedInstanceService::isInstanceExternallyManaged)

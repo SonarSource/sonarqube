@@ -97,26 +97,7 @@
             <include refid="userColumns"/>
         FROM
             (SELECT
-                    u.uuid,
-                    u.login,
-                    u.name,
-                    u.email,
-                    u.active,
-                    u.scm_accounts,
-                    u.salt,
-                    u.crypted_password,
-                    u.hash_method,
-                    u.external_id,
-                    u.external_login,
-                    u.external_identity_provider,
-                    u.user_local,
-                    u.reset_password,
-                    u.homepage_type,
-                    u.homepage_parameter,
-                    u.last_connection_date,
-                    u.last_sonarlint_connection,
-                    u.created_at,
-                    u.updated_at
+                <include refid="searchByQueryInnerQueryColumns"/>
             FROM users u
             <include refid="searchByQueryWhereClause"/>
             ORDER BY u.login
@@ -131,26 +112,7 @@
         FROM
             (SELECT rownum as rn, t.* from (
                 SELECT
-                    u.uuid,
-                    u.login,
-                    u.name,
-                    u.email,
-                    u.active,
-                    u.scm_accounts,
-                    u.salt,
-                    u.crypted_password,
-                    u.hash_method,
-                    u.external_id,
-                    u.external_login,
-                    u.external_identity_provider,
-                    u.user_local,
-                    u.reset_password,
-                    u.homepage_type,
-                    u.homepage_parameter,
-                    u.last_connection_date,
-                    u.last_sonarlint_connection,
-                    u.created_at,
-                    u.updated_at
+                <include refid="searchByQueryInnerQueryColumns"/>
                 FROM users u
                 <include refid="searchByQueryWhereClause"/>
                 ORDER BY u.login ASC
@@ -167,10 +129,34 @@
         <include refid="searchByQueryWhereClause"/>
     </select>
 
+    <sql id="searchByQueryInnerQueryColumns">
+        u.uuid,
+        u.login,
+        u.name,
+        u.email,
+        u.active,
+        u.scm_accounts,
+        u.salt,
+        u.crypted_password,
+        u.hash_method,
+        u.external_id,
+        u.external_login,
+        u.external_identity_provider,
+        u.user_local,
+        u.reset_password,
+        u.homepage_type,
+        u.homepage_parameter,
+        u.last_connection_date,
+        u.last_sonarlint_connection,
+        u.created_at,
+        u.updated_at
+    </sql>
+
     <sql id="searchByQueryWhereClause">
-             <where>
+         <where>
+             1=1
             <if test="query.isActive != null">
-                u.active=#{query.isActive, jdbcType=BOOLEAN}
+                AND u.active=#{query.isActive, jdbcType=BOOLEAN}
             </if>
             <if test="query.searchText != null">
                 AND (
@@ -179,8 +165,10 @@
                     OR (lower(u.email) LIKE lower(#{query.searchText, jdbcType=VARCHAR}) ESCAPE '/')
                 )
             </if>
+            <if test="query.isManagedSqlClause != null">
+                AND ${query.isManagedSqlClause}
+            </if>
         </where>
-
     </sql>
 
     <select id="selectUsersForTelemetry" parameterType="map" resultType="UserTelemetry">

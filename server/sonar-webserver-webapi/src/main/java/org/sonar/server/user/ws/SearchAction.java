@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -38,6 +39,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserQuery;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
@@ -64,6 +66,7 @@ import static org.sonarqube.ws.Users.SearchWsResponse.newBuilder;
 
 public class SearchAction implements UsersWsAction {
   private static final String DEACTIVATED_PARAM = "deactivated";
+  private static final String MANAGED_PARAM = "managed";
   private static final int MAX_PAGE_SIZE = 500;
 
   private final UserSession userSession;
@@ -96,6 +99,7 @@ public class SearchAction implements UsersWsAction {
       .setSince("3.6")
       .setChangelog(
         new Change("10.0", "'q' parameter values is now always performing a case insensitive match"),
+        new Change("10.0", "New parameter 'managed' to optionally search by managed status"),
         new Change("10.0", "Response includes 'managed' field."),
         new Change("9.7", "New parameter 'deactivated' to optionally search for deactivated users"),
         new Change("7.7", "New field 'lastConnectionDate' is added to response"),
@@ -118,6 +122,12 @@ public class SearchAction implements UsersWsAction {
       .setRequired(false)
       .setDefaultValue(false)
       .setBooleanPossibleValues();
+    action.createParam(MANAGED_PARAM)
+      .setSince("10.0")
+      .setDescription("Return managed or non-managed users. Only available for managed instances, throws for non-managed instances.")
+      .setRequired(false)
+      .setDefaultValue(null)
+      .setBooleanPossibleValues();
   }
 
   @Override
@@ -129,7 +139,7 @@ public class SearchAction implements UsersWsAction {
   private Users.SearchWsResponse doHandle(SearchRequest request) {
     UserQuery userQuery = buildUserQuery(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<UserDto> users = fetchUsersAndSortByLogin(request, dbSession, userQuery);
+      List<UserDto> users = findUsersAndSortByLogin(request, dbSession, userQuery);
       int totalUsers = dbClient.userDao().countUsers(dbSession, userQuery);
 
       List<String> logins = users.stream().map(UserDto::getLogin).collect(toList());
@@ -145,14 +155,27 @@ public class SearchAction implements UsersWsAction {
     return users.stream().map(UserDto::getUuid).collect(Collectors.toSet());
   }
 
-  private static UserQuery buildUserQuery(SearchRequest request) {
+  private UserQuery buildUserQuery(SearchRequest request) {
+    if (managedInstanceService.isInstanceExternallyManaged()) {
+      String managedInstanceSql = Optional.ofNullable(request.isManaged())
+        .map(managedInstanceService::getManagedUsersSqlFilter)
+        .orElse(null);
+      return UserQuery.builder()
+        .isActive(!request.isDeactivated())
+        .searchText(request.getQuery())
+        .isManagedClause(managedInstanceSql)
+        .build();
+    }
+    if (request.isManaged() != null) {
+      throw BadRequestException.create("The 'managed' parameter is only available for managed instances.");
+    }
     return UserQuery.builder()
       .isActive(!request.isDeactivated())
       .searchText(request.getQuery())
       .build();
   }
 
-  private List<UserDto> fetchUsersAndSortByLogin(SearchRequest request, DbSession dbSession, UserQuery userQuery) {
+  private List<UserDto> findUsersAndSortByLogin(SearchRequest request, DbSession dbSession, UserQuery userQuery) {
     return dbClient.userDao().selectUsers(dbSession, userQuery, request.getPage(), request.getPageSize())
       .stream()
       .sorted(comparing(UserDto::getLogin))
@@ -173,7 +196,7 @@ public class SearchAction implements UsersWsAction {
     return responseBuilder.build();
   }
 
-  private User towsUser(UserDto user, @Nullable Integer tokensCount, Collection<String> groups, Boolean isManaged) {
+  private User towsUser(UserDto user, @Nullable Integer tokensCount, Collection<String> groups, Boolean managed) {
     User.Builder userBuilder = User.newBuilder().setLogin(user.getLogin());
     ofNullable(user.getName()).ifPresent(userBuilder::setName);
     if (userSession.isLoggedIn()) {
@@ -193,7 +216,7 @@ public class SearchAction implements UsersWsAction {
       ofNullable(user.getExternalLogin()).ifPresent(userBuilder::setExternalIdentity);
       ofNullable(tokensCount).ifPresent(userBuilder::setTokensCount);
       ofNullable(user.getLastConnectionDate()).ifPresent(date -> userBuilder.setLastConnectionDate(formatDateTime(date)));
-      userBuilder.setManaged(TRUE.equals(isManaged));
+      userBuilder.setManaged(TRUE.equals(managed));
     }
     return userBuilder.build();
   }
@@ -204,6 +227,7 @@ public class SearchAction implements UsersWsAction {
     return SearchRequest.builder()
       .setQuery(request.param(TEXT_QUERY))
       .setDeactivated(request.mandatoryParamAsBoolean(DEACTIVATED_PARAM))
+      .setManaged(request.paramAsBoolean(MANAGED_PARAM))
       .setPage(request.mandatoryParamAsInt(PAGE))
       .setPageSize(pageSize)
       .build();
@@ -214,12 +238,14 @@ public class SearchAction implements UsersWsAction {
     private final Integer pageSize;
     private final String query;
     private final boolean deactivated;
+    private final Boolean managed;
 
     private SearchRequest(Builder builder) {
       this.page = builder.page;
       this.pageSize = builder.pageSize;
       this.query = builder.query;
       this.deactivated = builder.deactivated;
+      this.managed = builder.managed;
     }
 
     public Integer getPage() {
@@ -239,6 +265,11 @@ public class SearchAction implements UsersWsAction {
       return deactivated;
     }
 
+    @CheckForNull
+    private Boolean isManaged() {
+      return managed;
+    }
+
     public static Builder builder() {
       return new Builder();
     }
@@ -249,6 +280,7 @@ public class SearchAction implements UsersWsAction {
     private Integer pageSize;
     private String query;
     private boolean deactivated;
+    private Boolean managed;
 
     private Builder() {
       // enforce factory method use
@@ -271,6 +303,11 @@ public class SearchAction implements UsersWsAction {
 
     public Builder setDeactivated(boolean deactivated) {
       this.deactivated = deactivated;
+      return this;
+    }
+
+    public Builder setManaged(@Nullable Boolean managed) {
+      this.managed = managed;
       return this;
     }
 

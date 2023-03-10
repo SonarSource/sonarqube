@@ -24,12 +24,15 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 
 public class UserQuery {
+  private static final String MATCH_NOTHING = "1=2";
   private final String searchText;
   private final Boolean isActive;
+  private final String isManagedSqlClause;
 
-  public UserQuery(@Nullable String searchText, @Nullable Boolean isActive) {
+  public UserQuery(@Nullable String searchText, @Nullable Boolean isActive, @Nullable String isManagedSqlClause) {
     this.searchText = searchTextToSearchTextSql(searchText);
     this.isActive = isActive;
+    this.isManagedSqlClause = isManagedSqlClause;
   }
 
   private static String searchTextToSearchTextSql(@Nullable String text) {
@@ -43,13 +46,18 @@ public class UserQuery {
   }
 
   @CheckForNull
-  private String getSearchText() {
+  public String getSearchText() {
     return searchText;
   }
 
   @CheckForNull
-  private Boolean isActive() {
+  public Boolean isActive() {
     return isActive;
+  }
+
+  @CheckForNull
+  public String getIsManagedSqlClause() {
+    return isManagedSqlClause;
   }
 
   public static UserQueryBuilder builder() {
@@ -57,8 +65,9 @@ public class UserQuery {
   }
 
   public static final class UserQueryBuilder {
-    private String searchText;
-    private Boolean isActive;
+    private String searchText = null;
+    private Boolean isActive = null;
+    private String isManagedSqlClause = null;
 
     private UserQueryBuilder() {
     }
@@ -73,8 +82,13 @@ public class UserQuery {
       return this;
     }
 
+    public UserQueryBuilder isManagedClause(@Nullable String isManagedSqlClause) {
+      this.isManagedSqlClause = isManagedSqlClause;
+      return this;
+    }
+
     public UserQuery build() {
-      return new UserQuery(searchText, isActive);
+      return new UserQuery(searchText, isActive, isManagedSqlClause);
     }
   }
 }

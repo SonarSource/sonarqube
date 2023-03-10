@@ -50,7 +50,6 @@ public class ScimUserDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).findByUserUuid(userUuid));
   }
 
-
   public ScimUserDto enableScimForUser(DbSession dbSession, String userUuid) {
     ScimUserDto scimUserDto = new ScimUserDto(uuidFactory.create(), userUuid);
     mapper(dbSession).insert(scimUserDto);
@@ -103,5 +102,9 @@ public class ScimUserDao implements Dao {
 
   public void deleteByScimUuid(DbSession dbSession, String scimUuid) {
     mapper(dbSession).deleteByScimUuid(scimUuid);
+  }
+
+  public String getManagedUserSqlFilter(boolean filterByManaged) {
+    return String.format("%s exists (select user_uuid from scim_users su where su.user_uuid = uuid)", filterByManaged ? "" : "not");
   }
 }

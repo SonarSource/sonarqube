@@ -32,4 +32,6 @@ public interface ManagedInstanceService {
   Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids);
 
   Map<String, Boolean> getGroupUuidToManaged(DbSession dbSession, Set<String> groupUuids);
+
+  String getManagedUsersSqlFilter(boolean filterByManaged);
 }
