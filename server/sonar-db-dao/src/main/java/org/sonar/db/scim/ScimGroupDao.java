@@ -70,4 +70,8 @@ public class ScimGroupDao implements Dao {
   private static ScimGroupMapper mapper(DbSession session) {
     return session.getMapper(ScimGroupMapper.class);
   }
+
+  public String getManagedGroupSqlFilter(boolean filterByManaged) {
+    return String.format("%s exists (select group_uuid from scim_groups sg where sg.group_uuid = uuid)", filterByManaged ? "" : "not");
+  }
 }

@@ -23,25 +23,28 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupQuery;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
@@ -55,6 +58,7 @@ public class SearchAction implements UserGroupsWsAction {
   private static final String FIELD_DESCRIPTION = "description";
   private static final String FIELD_MEMBERS_COUNT = "membersCount";
   private static final String FIELD_IS_MANAGED = "managed";
+  private static final String MANAGED_PARAM = "managed";
   private static final List<String> ALL_FIELDS = Arrays.asList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_MEMBERS_COUNT, FIELD_IS_MANAGED);
 
   private final DbClient dbClient;
@@ -71,7 +75,7 @@ public class SearchAction implements UserGroupsWsAction {
 
   @Override
   public void define(NewController context) {
-    context.createAction("search")
+    WebService.NewAction action = context.createAction("search")
       .setDescription("Search for user groups.<br>" +
         "Requires the following permission: 'Administer System'.")
       .setHandler(this)
@@ -81,10 +85,17 @@ public class SearchAction implements UserGroupsWsAction {
       .addPagingParams(100, MAX_PAGE_SIZE)
       .addSearchQuery("sonar-users", "names")
       .setChangelog(
+        new Change("10.0", "New parameter 'managed' to optionally search by managed status"),
         new Change("10.0", "Response includes 'managed' field."),
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
         new Change("6.4", "Paging response fields moved to a Paging object"),
         new Change("6.4", "'default' response field has been added"));
+
+    action.createParam(MANAGED_PARAM)
+      .setSince("10.0")
+      .setDescription("Return managed or non-managed groups. Only available for managed instances, throws for non-managed instances.")
+      .setRequired(false)
+      .setBooleanPossibleValues();
   }
 
   @Override
@@ -94,7 +105,7 @@ public class SearchAction implements UserGroupsWsAction {
     SearchOptions options = new SearchOptions()
       .setPage(page, pageSize);
 
-    String query = defaultIfBlank(request.param(Param.TEXT_QUERY), "");
+    GroupQuery query = buildGroupQuery(request);
     Set<String> fields = neededFields(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -104,11 +115,39 @@ public class SearchAction implements UserGroupsWsAction {
       int limit = dbClient.groupDao().countByQuery(dbSession, query);
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(limit);
       List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, query, options.getOffset(), pageSize);
-      List<String> groupUuids = groups.stream().map(GroupDto::getUuid).collect(MoreCollectors.toList(groups.size()));
+      List<String> groupUuids = extractGroupUuids(groups);
       Map<String, Boolean> groupUuidToIsManaged = managedInstanceService.getGroupUuidToManaged(dbSession, new HashSet<>(groupUuids));
       Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupUuids);
       writeProtobuf(buildResponse(groups, userCountByGroup, groupUuidToIsManaged, fields, paging, defaultGroup), request, response);
     }
+  }
+
+  private GroupQuery buildGroupQuery(Request request) {
+    String textQuery = request.param(Param.TEXT_QUERY);
+    Optional<Boolean> managed = Optional.ofNullable(request.paramAsBoolean(MANAGED_PARAM));
+
+    GroupQuery.GroupQueryBuilder queryBuilder = GroupQuery.builder()
+      .searchText(textQuery);
+
+    if (managedInstanceService.isInstanceExternallyManaged()) {
+      String managedInstanceSql = getManagedInstanceSql(managed);
+      queryBuilder.isManagedClause(managedInstanceSql);
+    } else if (managed.isPresent()) {
+      throw BadRequestException.create("The 'managed' parameter is only available for managed instances.");
+    }
+    return queryBuilder.build();
+
+  }
+
+  @Nullable
+  private String getManagedInstanceSql(Optional<Boolean> managed) {
+    return managed
+      .map(managedInstanceService::getManagedGroupsSqlFilter)
+      .orElse(null);
+  }
+
+  private static List<String> extractGroupUuids(List<GroupDto> groups) {
+    return groups.stream().map(GroupDto::getUuid).toList();
   }
 
   private static Set<String> neededFields(Request request) {

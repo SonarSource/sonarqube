@@ -334,6 +334,18 @@ public class ScimUserDaoIT {
     assertThat(filterManagedUser).isNotEqualTo(filterNonManagedUser);
   }
 
+  @Test
+  public void getManagedGroupsSqlFilter_whenFilterByManagedIsTrue_returnsCorrectQuery() {
+    String filterManagedUser = scimUserDao.getManagedUserSqlFilter(true);
+    assertThat(filterManagedUser).isEqualTo(" exists (select user_uuid from scim_users su where su.user_uuid = uuid)");
+  }
+
+  @Test
+  public void getManagedGroupsSqlFilter_whenFilterByManagedIsFalse_returnsCorrectQuery() {
+    String filterNonManagedUser = scimUserDao.getManagedUserSqlFilter(false);
+    assertThat(filterNonManagedUser).isEqualTo("not exists (select user_uuid from scim_users su where su.user_uuid = uuid)");
+  }
+
   private static class ScimUserTestData {
 
     private final String scimUserUuid;

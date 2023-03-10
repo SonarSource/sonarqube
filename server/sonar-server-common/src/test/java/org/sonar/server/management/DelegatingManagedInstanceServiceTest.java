@@ -143,6 +143,24 @@ public class DelegatingManagedInstanceServiceTest {
       true));
   }
 
+  @Test
+  public void getManagedGroupsSqlFilter_whenNoDelegates_throws() {
+    Set<ManagedInstanceService> managedInstanceServices = emptySet();
+    DelegatingManagedInstanceService delegatingManagedInstanceService = new DelegatingManagedInstanceService(managedInstanceServices);
+    assertThatIllegalStateException()
+      .isThrownBy(() -> delegatingManagedInstanceService.getManagedGroupsSqlFilter(true))
+      .withMessage("This instance is not managed.");
+  }
+
+  @Test
+  public void getManagedGroupsSqlFilter_delegatesToRightService_andPropagateAnswer() {
+    AlwaysManagedInstanceService alwaysManagedInstanceService = new AlwaysManagedInstanceService();
+    DelegatingManagedInstanceService managedInstanceService = new DelegatingManagedInstanceService(Set.of(new NeverManagedInstanceService(), alwaysManagedInstanceService));
+
+    assertThat(managedInstanceService.getManagedGroupsSqlFilter(true)).isNotNull().isEqualTo(alwaysManagedInstanceService.getManagedGroupsSqlFilter(
+      true));
+  }
+
   private ManagedInstanceService getManagedInstanceService(Set<String> userUuids, Map<String, Boolean> uuidToManaged) {
     ManagedInstanceService anotherManagedInstanceService = mock(ManagedInstanceService.class);
     when(anotherManagedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
@@ -172,6 +190,11 @@ public class DelegatingManagedInstanceServiceTest {
     public String getManagedUsersSqlFilter(boolean filterByManaged) {
       return null;
     }
+
+    @Override
+    public String getManagedGroupsSqlFilter(boolean filterByManaged) {
+      return null;
+    }
   }
 
   private static class AlwaysManagedInstanceService implements ManagedInstanceService {
@@ -193,6 +216,11 @@ public class DelegatingManagedInstanceServiceTest {
 
     @Override
     public String getManagedUsersSqlFilter(boolean filterByManaged) {
+      return "any filter";
+    }
+
+    @Override
+    public String getManagedGroupsSqlFilter(boolean filterByManaged) {
       return "any filter";
     }
   }

@@ -93,17 +93,25 @@
     select
     <include refid="groupColumns"/>
     from groups g
-    <if test="query!=null">
-      where upper(g.name) like #{query,jdbcType=VARCHAR} escape '/'
-    </if>
+    <include refid="searchByQueryWhereClause"/>
     order by upper(g.name)
   </select>
 
   <select id="countByQuery" parameterType="map" resultType="int">
     select count(1)
     from groups g
-    <if test="query!=null">
-          where upper(g.name) like #{query,jdbcType=VARCHAR} escape '/'
-    </if>
+    <include refid="searchByQueryWhereClause"/>
   </select>
+
+  <sql id="searchByQueryWhereClause">
+         <where>
+             1=1
+            <if test="query.searchText != null">
+                AND upper(g.name) like #{query.searchText,jdbcType=VARCHAR} escape '/'
+            </if>
+            <if test="query.isManagedSqlClause != null">
+                AND ${query.isManagedSqlClause}
+            </if>
+        </where>
+    </sql>
 </mapper>

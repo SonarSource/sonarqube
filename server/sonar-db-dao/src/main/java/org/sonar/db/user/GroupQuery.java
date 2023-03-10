@@ -19,29 +19,29 @@
  */
 package org.sonar.db.user;
 
+import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.db.DaoUtils;
+import org.sonar.db.WildcardPosition;
 
-public class UserQuery {
+public class GroupQuery {
   private final String searchText;
-  private final Boolean isActive;
   private final String isManagedSqlClause;
 
-  public UserQuery(@Nullable String searchText, @Nullable Boolean isActive, @Nullable String isManagedSqlClause) {
+  private GroupQuery(@Nullable String searchText, @Nullable String isManagedSqlClause) {
     this.searchText = searchTextToSearchTextSql(searchText);
-    this.isActive = isActive;
     this.isManagedSqlClause = isManagedSqlClause;
   }
 
   private static String searchTextToSearchTextSql(@Nullable String text) {
-    String sql = null;
-    if (text != null) {
-      sql = StringUtils.replace(text, "%", "/%");
-      sql = StringUtils.replace(sql, "_", "/_");
-      sql = "%" + sql + "%";
+    if (text == null) {
+      return null;
     }
-    return sql;
+
+    String upperCasedNameQuery = StringUtils.upperCase(text, Locale.ENGLISH);
+    return DaoUtils.buildLikeValue(upperCasedNameQuery, WildcardPosition.BEFORE_AND_AFTER);
   }
 
   @CheckForNull
@@ -50,44 +50,34 @@ public class UserQuery {
   }
 
   @CheckForNull
-  public Boolean isActive() {
-    return isActive;
-  }
-
-  @CheckForNull
   public String getIsManagedSqlClause() {
     return isManagedSqlClause;
   }
 
-  public static UserQueryBuilder builder() {
-    return new UserQueryBuilder();
+  public static GroupQueryBuilder builder() {
+    return new GroupQueryBuilder();
   }
 
-  public static final class UserQueryBuilder {
+  public static final class GroupQueryBuilder {
     private String searchText = null;
-    private Boolean isActive = null;
     private String isManagedSqlClause = null;
 
-    private UserQueryBuilder() {
+    private GroupQueryBuilder() {
     }
 
-    public UserQueryBuilder searchText(@Nullable String searchText) {
+    public GroupQuery.GroupQueryBuilder searchText(@Nullable String searchText) {
       this.searchText = searchText;
       return this;
     }
 
-    public UserQueryBuilder isActive(@Nullable Boolean isActive) {
-      this.isActive = isActive;
-      return this;
-    }
 
-    public UserQueryBuilder isManagedClause(@Nullable String isManagedSqlClause) {
+    public GroupQuery.GroupQueryBuilder isManagedClause(@Nullable String isManagedSqlClause) {
       this.isManagedSqlClause = isManagedSqlClause;
       return this;
     }
 
-    public UserQuery build() {
-      return new UserQuery(searchText, isActive, isManagedSqlClause);
+    public GroupQuery build() {
+      return new GroupQuery(searchText, isManagedSqlClause);
     }
   }
 }

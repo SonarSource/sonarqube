@@ -36,6 +36,7 @@ import static org.sonar.api.utils.Preconditions.checkState;
 @Priority(ManagedInstanceService.DELEGATING_INSTANCE_PRIORITY)
 public class DelegatingManagedInstanceService implements ManagedInstanceService {
 
+  private static final IllegalStateException NOT_MANAGED_INSTANCE_EXCEPTION = new IllegalStateException("This instance is not managed.");
   private final Set<ManagedInstanceService> delegates;
 
   public DelegatingManagedInstanceService(Set<ManagedInstanceService> delegates) {
@@ -64,7 +65,14 @@ public class DelegatingManagedInstanceService implements ManagedInstanceService 
   public String getManagedUsersSqlFilter(boolean filterByManaged) {
     return findManagedInstanceService()
       .map(managedInstanceService -> managedInstanceService.getManagedUsersSqlFilter(filterByManaged))
-      .orElseThrow(() -> new IllegalStateException("This instance is not managed."));
+      .orElseThrow(() -> NOT_MANAGED_INSTANCE_EXCEPTION);
+  }
+
+  @Override
+  public String getManagedGroupsSqlFilter(boolean filterByManaged) {
+    return findManagedInstanceService()
+      .map(managedInstanceService -> managedInstanceService.getManagedGroupsSqlFilter(filterByManaged))
+      .orElseThrow(() -> NOT_MANAGED_INSTANCE_EXCEPTION);
   }
 
   private Optional<ManagedInstanceService> findManagedInstanceService() {

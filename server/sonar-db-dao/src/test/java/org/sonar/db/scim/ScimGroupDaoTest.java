@@ -100,6 +100,19 @@ public class ScimGroupDaoTest {
     assertThat(scimGroupsUuids).containsExactlyElementsOf(expectedScimGroupUuids);
   }
 
+  @Test
+  public void getManagedGroupsSqlFilter_whenFilterByManagedIsTrue_returnsCorrectQuery() {
+    String filterManagedUser = scimGroupDao.getManagedGroupSqlFilter(true);
+    assertThat(filterManagedUser).isEqualTo(" exists (select group_uuid from scim_groups sg where sg.group_uuid = uuid)");
+  }
+
+  @Test
+  public void getManagedGroupsSqlFilter_whenFilterByManagedIsFalse_returnsCorrectQuery() {
+    String filterNonManagedUser = scimGroupDao.getManagedGroupSqlFilter(false);
+    assertThat(filterNonManagedUser).isEqualTo("not exists (select group_uuid from scim_groups sg where sg.group_uuid = uuid)");
+
+  }
+
   private void generateScimGroups(int totalScimGroups) {
     List<ScimGroupDto> allScimGroups = Stream.iterate(1, i -> i + 1)
       .map(i -> insertScimGroup(i.toString()))

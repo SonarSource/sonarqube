@@ -25,9 +25,13 @@ import org.junit.Test;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.scim.ScimGroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
@@ -41,9 +45,11 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
@@ -75,8 +81,9 @@ public class SearchActionIT {
     assertThat(action).isNotNull();
     assertThat(action.key()).isEqualTo("search");
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(5);
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.0", "New parameter 'managed' to optionally search by managed status"),
       tuple("10.0", "Response includes 'managed' field."),
       tuple("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
       tuple("6.4", "Paging response fields moved to a Paging object"),
@@ -139,6 +146,54 @@ public class SearchActionIT {
       tuple("customer2", "Customer2", 4),
       tuple("customer3", "Customer3", 0),
       tuple("sonar-users", "Users", 5));
+  }
+
+  @Test
+  public void search_whenFilteringByManagedAndInstanceManaged_returnsCorrectResults() {
+    insertGroupsAndMockExternallyManaged();
+
+    SearchWsResponse managedResponse = call(ws.newRequest().setParam("managed", "true"));
+
+    assertThat(managedResponse.getGroupsList()).extracting(Group::getName, Group::getManaged).containsOnly(
+      tuple("group1", true),
+      tuple("group3", true));
+    assertThat(managedResponse.getPaging().getTotal()).isEqualTo(2);
+  }
+
+  @Test
+  public void search_whenFilteringByManagedNonAndInstanceManaged_returnsCorrectResults() {
+    insertGroupsAndMockExternallyManaged();
+
+    SearchWsResponse notManagedResponse = call(ws.newRequest().setParam("managed", "false"));
+
+    assertThat(notManagedResponse.getGroupsList()).extracting(Group::getName, Group::getManaged).containsOnly(
+      tuple("group2", false),
+      tuple("group4", false),
+      tuple("sonar-users", false));
+    assertThat(notManagedResponse.getPaging().getTotal()).isEqualTo(3);
+  }
+
+  @Test
+  public void search_whenFilteringByManagedNonAndInstanceManagedAndTextParameter_returnsCorrectResults() {
+    insertGroupsAndMockExternallyManaged();
+
+    SearchWsResponse notManagedResponse = call(ws.newRequest().setParam("managed", "false").setParam("q", "sonar"));
+
+    assertThat(notManagedResponse.getGroupsList()).extracting(Group::getName, Group::getManaged).containsOnly(
+      tuple("sonar-users", false));
+    assertThat(notManagedResponse.getPaging().getTotal()).isEqualTo(1);
+  }
+
+  @Test
+  public void search_whenFilteringByManagedAndInstanceNotManaged_throws() {
+    userSession.logIn().setSystemAdministrator();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam("managed", "true");
+
+    assertThatExceptionOfType(BadRequestException.class)
+      .isThrownBy(() -> testRequest.executeProtobuf(SearchWsResponse.class))
+      .withMessage("The 'managed' parameter is only available for managed instances.");
   }
 
   @Test
@@ -251,7 +306,7 @@ public class SearchActionIT {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
-    assertThat(action.params()).extracting(WebService.Param::key).containsOnly("p", "q", "ps", "f");
+    assertThat(action.params()).extracting(WebService.Param::key).containsOnly("p", "q", "ps", "f", "managed");
 
     assertThat(action.param("f").possibleValues()).containsOnly("name", "description", "membersCount", "managed");
   }
@@ -272,15 +327,40 @@ public class SearchActionIT {
     return group;
   }
 
+  private void insertGroupsAndMockExternallyManaged() {
+    insertDefaultGroup(0);
+    GroupDto group1 = insertGroup("group1", 0);
+    insertGroup("group2", 0);
+    GroupDto group3 = insertGroup("group3", 0);
+    insertGroup("group4", 0);
+    loginAsAdmin();
+
+    mockGroupAsManaged(group1.getUuid(), group3.getUuid());
+    mockInstanceExternallyManagedAndFilterForManagedGroups();
+  }
+
+  private void mockInstanceExternallyManagedAndFilterForManagedGroups() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(managedInstanceService.getManagedGroupsSqlFilter(anyBoolean()))
+      .thenAnswer(invocation -> {
+        Boolean managed = invocation.getArgument(0, Boolean.class);
+        return new ScimGroupDao(mock(UuidFactory.class)).getManagedGroupSqlFilter(managed);
+      });
+  }
+
   private void mockGroupAsManaged(String... groupUuids) {
-    when(managedInstanceService.getGroupUuidToManaged(any(), any())).thenAnswer(invocation ->
-      {
-        @SuppressWarnings("unchecked")
-        Set<String> allGroupUuids = (Set<String>) invocation.getArgument(1, Set.class);
-        return allGroupUuids.stream()
-          .collect(toMap(identity(), userUuid -> Set.of(groupUuids).contains(userUuid)));
-      }
-    );
+    when(managedInstanceService.getGroupUuidToManaged(any(), any())).thenAnswer(invocation -> {
+      @SuppressWarnings("unchecked")
+      Set<String> allGroupUuids = (Set<String>) invocation.getArgument(1, Set.class);
+      return allGroupUuids.stream()
+        .collect(toMap(identity(), userUuid -> Set.of(groupUuids).contains(userUuid)));
+    });
+    DbSession session = db.getSession();
+    for (String groupUuid : groupUuids) {
+      db.getDbClient().scimGroupDao().enableScimForGroup(session, groupUuid);
+    }
+    session.commit();
+
   }
 
   private void addMembers(GroupDto group, int numberOfMembers) {

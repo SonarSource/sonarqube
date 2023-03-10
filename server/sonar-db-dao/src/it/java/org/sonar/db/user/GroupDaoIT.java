@@ -41,6 +41,8 @@ public class GroupDaoIT {
   private static final long NOW = 1_500_000L;
   private static final String MISSING_UUID = "unknown";
 
+  private static final GroupQuery EMPTY_QUERY = GroupQuery.builder().build();
+
   private System2 system2 = mock(System2.class);
 
   @Rule
@@ -153,29 +155,42 @@ public class GroupDaoIT {
      */
 
     // Null query
-    assertThat(underTest.selectByQuery(dbSession, null, 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 0, 10))
       .hasSize(5)
       .extracting("name").containsOnly("customers-group1", "customers-group2", "customers-group3", "SONAR-ADMINS", "sonar-users");
 
     // Empty query
-    assertThat(underTest.selectByQuery(dbSession, "", 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, textSearchQuery(""), 0, 10))
       .hasSize(5)
       .extracting("name").containsOnly("customers-group1", "customers-group2", "customers-group3", "SONAR-ADMINS", "sonar-users");
 
     // Filter on name
-    assertThat(underTest.selectByQuery(dbSession, "sonar", 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, textSearchQuery("sonar"), 0, 10))
       .hasSize(2)
       .extracting("name").containsOnly("SONAR-ADMINS", "sonar-users");
 
+    //Filter on name and additionalClause
+    assertThat(underTest.selectByQuery(dbSession, textSearchAndManagedClauseQuery("sonar", " name = 'SONAR-ADMINS'"), 0, 10))
+      .hasSize(1)
+      .extracting("name").containsOnly("SONAR-ADMINS");
+
     // Pagination
-    assertThat(underTest.selectByQuery(dbSession, null, 0, 3))
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 0, 3))
       .hasSize(3);
-    assertThat(underTest.selectByQuery(dbSession, null, 3, 3))
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 3, 3))
       .hasSize(2);
-    assertThat(underTest.selectByQuery(dbSession, null, 6, 3)).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, null, 0, 5))
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 6, 3)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 0, 5))
       .hasSize(5);
-    assertThat(underTest.selectByQuery(dbSession, null, 5, 5)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 5, 5)).isEmpty();
+  }
+
+  private static GroupQuery textSearchQuery(String query) {
+    return GroupQuery.builder().searchText(query).build();
+  }
+
+  private static GroupQuery textSearchAndManagedClauseQuery(String query, String managedClause) {
+    return GroupQuery.builder().searchText(query).isManagedClause(managedClause).build();
   }
 
   @Test
@@ -184,8 +199,8 @@ public class GroupDaoIT {
     underTest.insert(dbSession, newGroupDto().setName(groupNameWithSpecialCharacters));
     db.commit();
 
-    List<GroupDto> result = underTest.selectByQuery(dbSession, "roup%_%/nam", 0, 10);
-    int resultCount = underTest.countByQuery(dbSession, "roup%_%/nam");
+    List<GroupDto> result = underTest.selectByQuery(dbSession, textSearchQuery("roup%_%/nam"), 0, 10);
+    int resultCount = underTest.countByQuery(dbSession, textSearchQuery("roup%_%/nam"));
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getName()).isEqualTo(groupNameWithSpecialCharacters);
@@ -201,13 +216,13 @@ public class GroupDaoIT {
     db.users().insertGroup("customers-group3");
 
     // Null query
-    assertThat(underTest.countByQuery(dbSession, null)).isEqualTo(5);
+    assertThat(underTest.countByQuery(dbSession, EMPTY_QUERY)).isEqualTo(5);
 
     // Empty query
-    assertThat(underTest.countByQuery(dbSession, "")).isEqualTo(5);
+    assertThat(underTest.countByQuery(dbSession, textSearchQuery(""))).isEqualTo(5);
 
     // Filter on name
-    assertThat(underTest.countByQuery(dbSession, "sonar")).isEqualTo(2);
+    assertThat(underTest.countByQuery(dbSession, textSearchQuery("sonar"))).isEqualTo(2);
   }
 
   @Test

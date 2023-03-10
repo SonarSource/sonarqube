@@ -22,17 +22,12 @@ package org.sonar.db.user;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
-import org.sonar.db.DaoUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.WildcardPosition;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserGroupNewValue;
 
@@ -78,12 +73,12 @@ public class GroupDao implements Dao {
     }
   }
 
-  public int countByQuery(DbSession session, @Nullable String query) {
-    return mapper(session).countByQuery(groupSearchToSql(query));
+  public int countByQuery(DbSession session, GroupQuery query) {
+    return mapper(session).countByQuery(query);
   }
 
-  public List<GroupDto> selectByQuery(DbSession session, @Nullable String query, int offset, int limit) {
-    return mapper(session).selectByQuery(groupSearchToSql(query), new RowBounds(offset, limit));
+  public List<GroupDto> selectByQuery(DbSession session, GroupQuery query, int offset, int limit) {
+    return mapper(session).selectByQuery(query, new RowBounds(offset, limit));
   }
 
   public GroupDto insert(DbSession session, GroupDto item) {
@@ -104,16 +99,6 @@ public class GroupDao implements Dao {
 
   public List<GroupDto> selectByUserLogin(DbSession session, String login) {
     return mapper(session).selectByUserLogin(login);
-  }
-
-  @CheckForNull
-  private static String groupSearchToSql(@Nullable String query) {
-    if (query == null) {
-      return null;
-    }
-
-    String upperCasedNameQuery = StringUtils.upperCase(query, Locale.ENGLISH);
-    return DaoUtils.buildLikeValue(upperCasedNameQuery, WildcardPosition.BEFORE_AND_AFTER);
   }
 
   private static GroupMapper mapper(DbSession session) {
