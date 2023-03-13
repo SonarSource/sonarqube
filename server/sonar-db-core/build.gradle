@@ -4,17 +4,6 @@ sonar {
   }
 }
 
-sourceSets {
-  test {
-    resources {
-      srcDirs += ['src/it/resources']
-    }
-    java{
-      srcDirs += ['src/it/java']
-    }
-  }
-}
-
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 

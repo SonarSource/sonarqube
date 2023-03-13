@@ -167,6 +167,17 @@ subprojects {
     }
   }
 
+  sourceSets {
+    test {
+      resources {
+        srcDirs += ['src/it/resources']
+      }
+      java {
+        srcDirs += ['src/it/java']
+      }
+    }
+  }
+
   // Central place for definition dependency versions and exclusions.
   dependencyManagement {
     dependencies {
