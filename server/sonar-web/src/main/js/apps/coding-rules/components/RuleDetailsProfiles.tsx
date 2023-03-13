@@ -200,7 +200,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
     const parentActivation = activations.find((x) => x.qProfile === profile.parentKey);
 
     return (
-      <tr data-profile={profile.key} key={profile.key}>
+      <tr key={profile.key}>
         <td className="coding-rules-detail-quality-profile-name">
           <Link to={getQualityProfileUrl(profile.name, profile.language)}>{profile.name}</Link>
           {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
