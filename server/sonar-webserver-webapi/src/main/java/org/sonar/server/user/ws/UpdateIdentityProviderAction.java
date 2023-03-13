@@ -57,7 +57,8 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
   private final UserSession userSession;
   private final ManagedInstanceChecker managedInstanceChecker;
 
-  public UpdateIdentityProviderAction(DbClient dbClient, IdentityProviderRepository identityProviderRepository, UserUpdater userUpdater, UserSession userSession, ManagedInstanceChecker managedInstanceChecker) {
+  public UpdateIdentityProviderAction(DbClient dbClient, IdentityProviderRepository identityProviderRepository,
+    UserUpdater userUpdater, UserSession userSession, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.identityProviderRepository = identityProviderRepository;
     this.userUpdater = userUpdater;

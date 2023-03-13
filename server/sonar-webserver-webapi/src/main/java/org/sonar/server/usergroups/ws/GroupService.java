@@ -20,7 +20,6 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
@@ -73,7 +72,6 @@ public class GroupService {
     GroupDto withUpdatedName = updateName(dbSession, group, newName);
     return updateDescription(dbSession, withUpdatedName, newDescription);
   }
-
 
   public GroupDto createGroup(DbSession dbSession, String name, @Nullable String description) {
     validateGroupName(name);
