@@ -61,9 +61,9 @@ function dotnetYamlSteps(projectKey: string) {
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         shell: powershell
         run: |
-          .\\.sonar\\scanner\\dotnet-sonarscanner begin /k:"${projectKey}" /d:sonar.login="\${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="\${{ secrets.SONAR_HOST_URL }}"
+          .\\.sonar\\scanner\\dotnet-sonarscanner begin /k:"${projectKey}" /d:sonar.token="\${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="\${{ secrets.SONAR_HOST_URL }}"
           dotnet build
-          .\\.sonar\\scanner\\dotnet-sonarscanner end /d:sonar.login="\${{ secrets.SONAR_TOKEN }}"`;
+          .\\.sonar\\scanner\\dotnet-sonarscanner end /d:sonar.token="\${{ secrets.SONAR_TOKEN }}"`;
 }
 
 export default function DotNet(props: DotNetProps) {

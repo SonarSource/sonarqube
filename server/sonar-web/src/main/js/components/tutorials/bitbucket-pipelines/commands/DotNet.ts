@@ -36,9 +36,9 @@ definitions:
           - apt-get install --yes openjdk-11-jre
           - dotnet tool install --global dotnet-sonarscanner
           - export PATH="$PATH:/root/.dotnet/tools"
-          - dotnet sonarscanner begin /k:"${projectKey}" /d:"sonar.login=\${SONAR_TOKEN}"  /d:"sonar.host.url=\${SONAR_HOST_URL}"
+          - dotnet sonarscanner begin /k:"${projectKey}" /d:"sonar.token=\${SONAR_TOKEN}"  /d:"sonar.host.url=\${SONAR_HOST_URL}"
           - dotnet build 
-          - dotnet sonarscanner end /d:"sonar.login=\${SONAR_TOKEN}"
+          - dotnet sonarscanner end /d:"sonar.token=\${SONAR_TOKEN}"
   caches:
     sonar: ~/.sonar
 

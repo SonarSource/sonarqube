@@ -39,7 +39,7 @@ export default function JavaMaven(props: JavaMavenProps) {
     `-Dsonar.projectKey=${component.key}`,
     `-Dsonar.projectName='${component.name}'`,
     `-Dsonar.host.url=${baseUrl}`,
-    `-Dsonar.login=${token}`,
+    `-Dsonar.token=${token}`,
   ];
 
   return (

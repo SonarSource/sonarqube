@@ -47,7 +47,7 @@ export default function ExecScanner(props: ExecScannerProps) {
     '-D' + q('sonar.sources=.'),
     cfamily ? '-D' + q('sonar.cfamily.build-wrapper-output=bw-output') : undefined,
     '-D' + q(`sonar.host.url=${baseUrl}`),
-    isLocal ? '-D' + q(`sonar.login=${token}`) : undefined,
+    isLocal ? '-D' + q(`sonar.token=${token}`) : undefined,
   ];
 
   return (

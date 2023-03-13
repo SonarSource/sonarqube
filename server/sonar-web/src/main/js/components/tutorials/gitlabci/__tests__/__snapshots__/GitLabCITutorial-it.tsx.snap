@@ -15,9 +15,9 @@ exports[`should follow and complete all steps: .NET: gitlab-ci.yml 1`] = `
       - "apt-get install --yes openjdk-11-jre"
       - "dotnet tool install --global dotnet-sonarscanner"
       - "export PATH=\\"$PATH:$HOME/.dotnet/tools\\""
-      - "dotnet sonarscanner begin /k:\\"my-project\\" /d:sonar.login=\\"$SONAR_TOKEN\\" /d:\\"sonar.host.url=$SONAR_HOST_URL\\" "
+      - "dotnet sonarscanner begin /k:\\"my-project\\" /d:sonar.token=\\"$SONAR_TOKEN\\" /d:\\"sonar.host.url=$SONAR_HOST_URL\\" "
       - "dotnet build"
-      - "dotnet sonarscanner end /d:sonar.login=\\"$SONAR_TOKEN\\""
+      - "dotnet sonarscanner end /d:sonar.token=\\"$SONAR_TOKEN\\""
   allow_failure: true
   rules:
     - if: $CI_COMMIT_BRANCH == 'main'

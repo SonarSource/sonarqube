@@ -109,8 +109,8 @@ public class DefaultScannerWsClient implements ScannerWsClient {
           CoreProperties.LOGIN, CoreProperties.PASSWORD));
       }
       // not authenticated - see https://jira.sonarsource.com/browse/SONAR-4048
-      throw MessageException.of(format("Not authorized. Analyzing this project requires authentication. "
-        + "Please provide a user token in %s or other credentials in %s and %s.", CoreProperties.LOGIN, CoreProperties.LOGIN, CoreProperties.PASSWORD));
+      throw MessageException.of(format("Not authorized. Analyzing this project requires authentication. Please provide a user token in %s" +
+        " or other credentials in %s and %s.", ScannerWsClientProvider.TOKEN_PROPERTY, CoreProperties.LOGIN, CoreProperties.PASSWORD));
     }
     if (code == HTTP_FORBIDDEN) {
       throw MessageException.of("You're not authorized to analyze this project or the project doesn't exist on SonarQube" +

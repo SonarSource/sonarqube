@@ -26,13 +26,14 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.bootstrap.ScannerWsClientProvider;
 
 public class DeprecatedPropertiesWarningGenerator {
   private static final Logger LOG = Loggers.get(DeprecatedPropertiesWarningGenerator.class);
 
   @VisibleForTesting
-  public static final String PASSWORD_WARN_MESSAGE = "Property '" + CoreProperties.PASSWORD + "' is deprecated. It will not be supported " +
-    "in the future. Please instead use the 'sonar.login' parameter with a token.";
+  static final String CREDENTIALS_WARN_MESSAGE = String.format("The properties '%s' and '%s' are deprecated. They will not be supported " +
+    "in the future. Please instead use the '%s' parameter.", CoreProperties.LOGIN, CoreProperties.PASSWORD, ScannerWsClientProvider.TOKEN_PROPERTY);
 
   private final Configuration configuration;
   private final AnalysisWarnings analysisWarnings;
@@ -43,10 +44,11 @@ public class DeprecatedPropertiesWarningGenerator {
   }
 
   public void execute() {
+    Optional<String> login = configuration.get(CoreProperties.LOGIN);
     Optional<String> password = configuration.get(CoreProperties.PASSWORD);
-    if (password.isPresent()) {
-      LOG.warn(PASSWORD_WARN_MESSAGE);
-      analysisWarnings.addUnique(PASSWORD_WARN_MESSAGE);
+    if (login.isPresent() || password.isPresent()) {
+      LOG.warn(CREDENTIALS_WARN_MESSAGE);
+      analysisWarnings.addUnique(CREDENTIALS_WARN_MESSAGE);
     }
   }
 

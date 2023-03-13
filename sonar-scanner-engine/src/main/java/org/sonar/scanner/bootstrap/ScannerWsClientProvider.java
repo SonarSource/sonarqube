@@ -34,6 +34,8 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 public class ScannerWsClientProvider {
   static final int CONNECT_TIMEOUT_MS = 5_000;
   static final String READ_TIMEOUT_SEC_PROPERTY = "sonar.ws.timeout";
+  public static final String TOKEN_PROPERTY = "sonar.token";
+  private static final String TOKEN_ENV_VARIABLE = "SONAR_TOKEN";
   static final int DEFAULT_READ_TIMEOUT_SEC = 60;
 
   @Bean("DefaultScannerWsClient")
@@ -43,7 +45,8 @@ public class ScannerWsClientProvider {
     HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
 
     String timeoutSec = defaultIfBlank(scannerProps.property(READ_TIMEOUT_SEC_PROPERTY), valueOf(DEFAULT_READ_TIMEOUT_SEC));
-    String token = defaultIfBlank(system.envVariable("SONAR_TOKEN"), null);
+    String envVarToken = defaultIfBlank(system.envVariable(TOKEN_ENV_VARIABLE), null);
+    String token = defaultIfBlank(scannerProps.property(TOKEN_PROPERTY), envVarToken);
     String login = defaultIfBlank(scannerProps.property(CoreProperties.LOGIN), token);
     connectorBuilder
       .readTimeoutMilliseconds(parseInt(timeoutSec) * 1_000)

@@ -56,8 +56,7 @@ public class ScannerWsClientProviderTest {
   public void provide_client_with_custom_settings() {
     Map<String, String> props = new HashMap<>();
     props.put("sonar.host.url", "https://here/sonarqube");
-    props.put("sonar.login", "theLogin");
-    props.put("sonar.password", "thePassword");
+    props.put("sonar.token", "testToken");
     props.put("sonar.ws.timeout", "42");
     ScannerProperties settings = new ScannerProperties(props);
 

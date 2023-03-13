@@ -60,26 +60,26 @@ $env:SONAR_SCANNER_OPTS="-server"
 "
 `;
 
-exports[`can choose build tools and copy provided settings: dotnet core: execute command 1 1`] = `"dotnet sonarscanner begin /k:"my-project" /d:sonar.host.url="http://localhost:9000"  /d:sonar.login="generatedtoken2""`;
+exports[`can choose build tools and copy provided settings: dotnet core: execute command 1 1`] = `"dotnet sonarscanner begin /k:"my-project" /d:sonar.host.url="http://localhost:9000"  /d:sonar.token="generatedtoken2""`;
 
 exports[`can choose build tools and copy provided settings: dotnet core: execute command 2 1`] = `"dotnet build"`;
 
-exports[`can choose build tools and copy provided settings: dotnet core: execute command 3 1`] = `"dotnet sonarscanner end /d:sonar.login="generatedtoken2""`;
+exports[`can choose build tools and copy provided settings: dotnet core: execute command 3 1`] = `"dotnet sonarscanner end /d:sonar.token="generatedtoken2""`;
 
 exports[`can choose build tools and copy provided settings: dotnet core: install scanner globally 1`] = `"dotnet tool install --global dotnet-sonarscanner"`;
 
-exports[`can choose build tools and copy provided settings: dotnet framework: execute command 1 1`] = `"SonarScanner.MSBuild.exe begin /k:"my-project" /d:sonar.host.url="http://localhost:9000" /d:sonar.login="generatedtoken2""`;
+exports[`can choose build tools and copy provided settings: dotnet framework: execute command 1 1`] = `"SonarScanner.MSBuild.exe begin /k:"my-project" /d:sonar.host.url="http://localhost:9000" /d:sonar.token="generatedtoken2""`;
 
 exports[`can choose build tools and copy provided settings: dotnet framework: execute command 2 1`] = `"MsBuild.exe /t:Rebuild"`;
 
-exports[`can choose build tools and copy provided settings: dotnet framework: execute command 3 1`] = `"SonarScanner.MSBuild.exe end /d:sonar.login="generatedtoken2""`;
+exports[`can choose build tools and copy provided settings: dotnet framework: execute command 3 1`] = `"SonarScanner.MSBuild.exe end /d:sonar.token="generatedtoken2""`;
 
 exports[`can choose build tools and copy provided settings: gradle: execute scanner 1`] = `
 "./gradlew sonar \\
   -Dsonar.projectKey=my-project \\
   -Dsonar.projectName='MyProject' \\
   -Dsonar.host.url=http://localhost:9000 \\
-  -Dsonar.login=generatedtoken2"
+  -Dsonar.token=generatedtoken2"
 `;
 
 exports[`can choose build tools and copy provided settings: gradle: sonarqube plugin 1`] = `
@@ -93,7 +93,7 @@ exports[`can choose build tools and copy provided settings: maven: execute scann
   -Dsonar.projectKey=my-project \\
   -Dsonar.projectName='MyProject' \\
   -Dsonar.host.url=http://localhost:9000 \\
-  -Dsonar.login=generatedtoken2"
+  -Dsonar.token=generatedtoken2"
 `;
 
 exports[`can choose build tools and copy provided settings: other linux: execute scanner 1`] = `
