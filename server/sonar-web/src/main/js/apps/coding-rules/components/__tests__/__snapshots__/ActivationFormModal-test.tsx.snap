@@ -46,12 +46,12 @@ exports[`should render correctly: custom rule 1`] = `
         className="modal-field"
       >
         <label
-          id="coding-rules-severity-select"
+          id="coding-rules-severity-select-label"
         >
           severity
         </label>
         <SeveritySelect
-          ariaLabelledby="coding-rules-severity-select"
+          ariaLabelledby="coding-rules-severity-select-label"
           isDisabled={false}
           onChange={[Function]}
           severity="MAJOR"
@@ -132,12 +132,12 @@ exports[`should render correctly: default 1`] = `
         className="modal-field"
       >
         <label
-          id="coding-rules-severity-select"
+          id="coding-rules-severity-select-label"
         >
           severity
         </label>
         <SeveritySelect
-          ariaLabelledby="coding-rules-severity-select"
+          ariaLabelledby="coding-rules-severity-select-label"
           isDisabled={false}
           onChange={[Function]}
           severity="MAJOR"
@@ -253,12 +253,12 @@ exports[`should render correctly: submitting 1`] = `
         className="modal-field"
       >
         <label
-          id="coding-rules-severity-select"
+          id="coding-rules-severity-select-label"
         >
           severity
         </label>
         <SeveritySelect
-          ariaLabelledby="coding-rules-severity-select"
+          ariaLabelledby="coding-rules-severity-select-label"
           isDisabled={true}
           onChange={[Function]}
           severity="MAJOR"
@@ -372,12 +372,12 @@ exports[`should render correctly: update mode 1`] = `
         className="modal-field"
       >
         <label
-          id="coding-rules-severity-select"
+          id="coding-rules-severity-select-label"
         >
           severity
         </label>
         <SeveritySelect
-          ariaLabelledby="coding-rules-severity-select"
+          ariaLabelledby="coding-rules-severity-select-label"
           isDisabled={false}
           onChange={[Function]}
           severity="MAJOR"
@@ -527,12 +527,12 @@ exports[`should render correctly: with deep profiles 1`] = `
         className="modal-field"
       >
         <label
-          id="coding-rules-severity-select"
+          id="coding-rules-severity-select-label"
         >
           severity
         </label>
         <SeveritySelect
-          ariaLabelledby="coding-rules-severity-select"
+          ariaLabelledby="coding-rules-severity-select-label"
           isDisabled={false}
           onChange={[Function]}
           severity="MAJOR"
