@@ -21,10 +21,14 @@ package org.sonar.server.user;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -49,12 +53,14 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newLocalUser;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
+@RunWith(DataProviderRunner.class)
 public class UserUpdaterCreateTest {
 
   private static final String DEFAULT_LOGIN = "marius";
@@ -282,9 +288,34 @@ public class UserUpdaterCreateTest {
   }
 
   @Test
-  public void fail_to_create_user_with_invalid_login() {
-    NewUser newUser = newUserBuilder().setLogin("/marius/").build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+  @UseDataProvider("loginWithAuthorizedSuffix")
+  public void createAndCommit_should_createUserWithoutException_when_loginHasAuthorizedSuffix(String login) {
+    createDefaultGroup();
+
+    NewUser user = NewUser.builder().setLogin(login).setName("aName").build();
+    underTest.createAndCommit(session, user, u -> {
+    });
+
+    UserDto dto = dbClient.userDao().selectByLogin(session, login);
+    assertNotNull(dto);
+  }
+
+  @DataProvider
+  public static Object[][] loginWithAuthorizedSuffix() {
+    return new Object[][]{
+      {"1Login"},
+      {"AnotherLogin"},
+      {"alogin"},
+      {"_technicalUser"},
+      {"_.toto"}
+    };
+  }
+
+  @Test
+  public void fail_to_create_user_with_invalid_characters_in_login() {
+    NewUser newUser = newUserBuilder().setLogin("_amarius/").build();
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Login should contain only letters, numbers, and .-_@");
   }
@@ -292,7 +323,8 @@ public class UserUpdaterCreateTest {
   @Test
   public void fail_to_create_user_with_space_in_login() {
     NewUser newUser = newUserBuilder().setLogin("mari us").build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Login should contain only letters, numbers, and .-_@");
   }
@@ -300,17 +332,35 @@ public class UserUpdaterCreateTest {
   @Test
   public void fail_to_create_user_with_too_short_login() {
     NewUser newUser = newUserBuilder().setLogin("m").build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Login is too short (minimum is 2 characters)");
   }
 
+
   @Test
-  public void fail_to_create_user_login_start_with_underscore() {
-    NewUser newUser = newUserBuilder().setLogin("_marbalous").build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+  @UseDataProvider("loginWithUnauthorizedSuffix")
+  public void createAndCommit_should_ThrowBadRequestExceptionWithSpecificMessage_when_loginHasUnauthorizedSuffix(String login) {
+
+    NewUser newUser = NewUser.builder().setLogin(login).build();
+
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Login should not start with .-_@");
+      .hasMessage("Login should start with _ or alphanumeric.");
+
+  }
+
+  @DataProvider
+  public static Object[][] loginWithUnauthorizedSuffix() {
+    return new Object[][]{
+      {".Toto"},
+      {"@Toto"},
+      {"-Tutu"},
+      {" Tutut"},
+      {"#nesp"},
+    };
   }
 
   @Test
@@ -319,7 +369,8 @@ public class UserUpdaterCreateTest {
     String login = "name_with_underscores";
     NewUser newUser = newUserBuilder().setLogin(login).build();
 
-    underTest.createAndCommit(session, newUser, u -> {});
+    underTest.createAndCommit(session, newUser, u -> {
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, login)).isNotNull();
   }
@@ -327,7 +378,8 @@ public class UserUpdaterCreateTest {
   @Test
   public void fail_to_create_user_with_too_long_login() {
     NewUser newUser = newUserBuilder().setLogin(randomAlphabetic(256)).build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Login is too long (maximum is 255 characters)");
   }
@@ -339,7 +391,8 @@ public class UserUpdaterCreateTest {
       .setEmail("marius@mail.com")
       .setPassword("password")
       .build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Name can't be empty");
   }
@@ -347,7 +400,8 @@ public class UserUpdaterCreateTest {
   @Test
   public void fail_to_create_user_with_too_long_name() {
     NewUser newUser = newUserBuilder().setName(randomAlphabetic(201)).build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Name is too long (maximum is 200 characters)");
   }
@@ -355,7 +409,8 @@ public class UserUpdaterCreateTest {
   @Test
   public void fail_to_create_user_with_too_long_email() {
     NewUser newUser = newUserBuilder().setEmail(randomAlphabetic(101)).build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Email is too long (maximum is 100 characters)");
   }
@@ -370,7 +425,8 @@ public class UserUpdaterCreateTest {
       .build();
 
     try {
-      underTest.createAndCommit(session, newUser, u -> {});
+      underTest.createAndCommit(session, newUser, u -> {
+      });
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors()).containsExactlyInAnyOrder("Name can't be empty", "Password can't be empty");
@@ -382,7 +438,8 @@ public class UserUpdaterCreateTest {
     db.users().insertUser(newLocalUser("john", "John", null).setScmAccounts(singletonList("jo")));
     NewUser newUser = newUserBuilder().setScmAccounts(singletonList("jo")).build();
 
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("The scm account 'jo' is already used by user(s) : 'John (john)'");
   }
@@ -393,7 +450,8 @@ public class UserUpdaterCreateTest {
     db.users().insertUser(newLocalUser("technical-account", "Technical account", null).setScmAccounts(singletonList("john@email.com")));
     NewUser newUser = newUserBuilder().setScmAccounts(List.of("john@email.com")).build();
 
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("The scm account 'john@email.com' is already used by user(s) : 'John (john), Technical account (technical-account)'");
   }
@@ -401,15 +459,17 @@ public class UserUpdaterCreateTest {
   @Test
   public void fail_to_create_user_when_scm_account_is_user_login() {
     NewUser newUser = newUserBuilder().setLogin(DEFAULT_LOGIN).setScmAccounts(singletonList(DEFAULT_LOGIN)).build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Login and email are automatically considered as SCM accounts");
   }
 
   @Test
   public void fail_to_create_user_when_scm_account_is_user_email() {
-    NewUser newUser =  newUserBuilder().setEmail("marius2@mail.com").setScmAccounts(singletonList("marius2@mail.com")).build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    NewUser newUser = newUserBuilder().setEmail("marius2@mail.com").setScmAccounts(singletonList("marius2@mail.com")).build();
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Login and email are automatically considered as SCM accounts");
   }
@@ -420,7 +480,8 @@ public class UserUpdaterCreateTest {
     UserDto existingUser = db.users().insertUser(u -> u.setLogin("existing_login"));
 
     NewUser newUser = newUserBuilder().setLogin(existingUser.getLogin()).build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("A user with login 'existing_login' already exists");
   }
@@ -435,7 +496,8 @@ public class UserUpdaterCreateTest {
       .setName("User")
       .setExternalIdentity(new ExternalIdentity(existingUser.getExternalIdentityProvider(), existingUser.getExternalLogin(), existingUser.getExternalId()))
       .build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("A user with provider id 'existing_external_id' and identity provider 'existing_external_provider' already exists");
   }
@@ -464,7 +526,8 @@ public class UserUpdaterCreateTest {
     GroupDto defaultGroup = createDefaultGroup();
 
     NewUser newUser = newUserBuilder().build();
-    underTest.createAndCommit(session, newUser, u -> {});
+    underTest.createAndCommit(session, newUser, u -> {
+    });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, singletonList(newUser.login()));
     assertThat(groups.get(newUser.login())).containsOnly(defaultGroup.getName());
@@ -473,7 +536,8 @@ public class UserUpdaterCreateTest {
   @Test
   public void fail_to_associate_default_group_when_default_group_does_not_exist() {
     NewUser newUser = newUserBuilder().setScmAccounts(asList("u1", "u_1")).build();
-    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {}))
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Default group cannot be found");
   }

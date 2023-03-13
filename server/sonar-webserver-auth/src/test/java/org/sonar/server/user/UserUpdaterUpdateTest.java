@@ -246,7 +246,7 @@ public class UserUpdaterUpdateTest {
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project1.uuid()));
     db.properties().insertProperties(oldUser.getLogin(), project2.getKey(), project2.name(), project2.qualifier(),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project2.uuid()));
-    db.properties().insertProperties(oldUser.getLogin(), anotherProject.getKey(),anotherProject.name(), anotherProject.qualifier(),
+    db.properties().insertProperties(oldUser.getLogin(), anotherProject.getKey(), anotherProject.name(), anotherProject.qualifier(),
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setComponentUuid(anotherProject.uuid()));
     userIndexer.indexAll();
 
@@ -636,11 +636,11 @@ public class UserUpdaterUpdateTest {
     UserDto user = db.users().insertUser();
     createDefaultGroup();
 
-    UpdateUser updateUser = new UpdateUser().setLogin("_StartWithUnderscore");
+    UpdateUser updateUser = new UpdateUser().setLogin("#StartWithUnderscore");
 
     assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Login should not start with .-_@");
+      .hasMessage("Login should start with _ or alphanumeric.");
   }
 
   @Test
