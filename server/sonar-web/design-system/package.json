@@ -4,12 +4,13 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "yarn lint && vite build",
+    "build": "yarn lint && yarn ts-check && vite build",
     "build-release": "yarn install --immutable && yarn build",
     "lint": "eslint --ext js,ts,tsx,snap --quiet src",
     "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src  || yarn lint",
     "test": "jest",
-    "validate-ci": "yarn install --immutable && yarn test --coverage --ci"
+    "ts-check": "tsc --noEmit",
+    "validate-ci": "yarn install --immutable && yarn ts-check && yarn test --coverage --ci"
   },
   "devDependencies": {
     "@babel/core": "7.20.5",
