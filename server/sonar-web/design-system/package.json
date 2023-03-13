@@ -6,7 +6,7 @@
   "scripts": {
     "build": "yarn lint && yarn ts-check && vite build",
     "build-release": "yarn install --immutable && yarn build",
-    "lint": "eslint --ext js,ts,tsx,snap --quiet src",
+    "lint": "eslint --ext js,ts,tsx,snap src",
     "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src  || yarn lint",
     "test": "jest",
     "ts-check": "tsc --noEmit",

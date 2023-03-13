@@ -1,5 +1,5 @@
 {
-  "extends": "sonarqube",
+  "extends": ["sonarqube", "./.eslintrc-typescript"],
   "rules": {
     "camelcase": "off",
     "promise/no-return-wrap": "warn",

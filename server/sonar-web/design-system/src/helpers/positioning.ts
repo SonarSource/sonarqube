@@ -32,6 +32,7 @@
  * - TopLeft = above the block, horizontally left-aligned
  * - TopRight = above the block, horizontally right-aligned
  */
+
 export enum PopupPlacement {
   Bottom = 'bottom',
   BottomLeft = 'bottom-left',
@@ -83,57 +84,52 @@ export function popupPositioning(
   const toggleRect = toggleNode.getBoundingClientRect();
   const popupRect = popupNode.getBoundingClientRect();
 
-  let left = 0;
-  let top = 0;
+  let { left, top } = toggleRect;
 
   switch (placement) {
     case PopupPlacement.Bottom:
-      left = toggleRect.left + toggleRect.width / 2 - popupRect.width / 2;
-      top = toggleRect.top + toggleRect.height;
+      left += toggleRect.width / 2 - popupRect.width / 2;
+      top += toggleRect.height;
       break;
     case PopupPlacement.BottomLeft:
-      left = toggleRect.left;
-      top = toggleRect.top + toggleRect.height;
+      top += toggleRect.height;
       break;
     case PopupPlacement.BottomRight:
-      left = toggleRect.left + toggleRect.width - popupRect.width;
-      top = toggleRect.top + toggleRect.height;
+      left += toggleRect.width - popupRect.width;
+      top += toggleRect.height;
       break;
     case PopupPlacement.Left:
-      left = toggleRect.left - popupRect.width;
-      top = toggleRect.top + toggleRect.height / 2 - popupRect.height / 2;
+      left -= popupRect.width;
+      top += toggleRect.height / 2 - popupRect.height / 2;
       break;
     case PopupPlacement.LeftTop:
-      left = toggleRect.left - popupRect.width;
-      top = toggleRect.top;
+      left -= popupRect.width;
       break;
     case PopupPlacement.LeftBottom:
-      left = toggleRect.left - popupRect.width;
-      top = toggleRect.top + toggleRect.height - popupRect.height;
+      left -= popupRect.width;
+      top += toggleRect.height - popupRect.height;
       break;
     case PopupPlacement.Right:
-      left = toggleRect.left + toggleRect.width;
-      top = toggleRect.top + toggleRect.height / 2 - popupRect.height / 2;
+      left += toggleRect.width;
+      top += toggleRect.height / 2 - popupRect.height / 2;
       break;
     case PopupPlacement.RightTop:
-      left = toggleRect.left + toggleRect.width;
-      top = toggleRect.top;
+      left += toggleRect.width;
       break;
     case PopupPlacement.RightBottom:
-      left = toggleRect.left + toggleRect.width;
-      top = toggleRect.top + toggleRect.height - popupRect.height;
+      left += toggleRect.width;
+      top += toggleRect.height - popupRect.height;
       break;
     case PopupPlacement.Top:
-      left = toggleRect.left + toggleRect.width / 2 - popupRect.width / 2;
-      top = toggleRect.top - popupRect.height;
+      left += toggleRect.width / 2 - popupRect.width / 2;
+      top -= popupRect.height;
       break;
     case PopupPlacement.TopLeft:
-      left = toggleRect.left;
-      top = toggleRect.top - popupRect.height;
+      top -= popupRect.height;
       break;
     case PopupPlacement.TopRight:
-      left = toggleRect.left + toggleRect.width - popupRect.width;
-      top = toggleRect.top - popupRect.height;
+      left += toggleRect.width - popupRect.width;
+      top -= popupRect.height;
       break;
   }
 
@@ -141,6 +137,7 @@ export function popupPositioning(
     Math.max(left, getMinLeftPlacement(toggleRect)),
     getMaxLeftPlacement(toggleRect, popupRect)
   );
+
   const inBoundariesTop = Math.min(
     Math.max(top, getMinTopPlacement(toggleRect)),
     getMaxTopPlacement(toggleRect, popupRect)

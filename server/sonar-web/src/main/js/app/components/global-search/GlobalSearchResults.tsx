@@ -29,7 +29,7 @@ export interface Props {
   more: More;
   onMoreClick: (qualifier: string) => void;
   onSelect: (componentKey: string) => void;
-  renderNoResults: () => React.ReactElement<any>;
+  renderNoResults: () => React.ReactElement;
   renderResult: (component: ComponentResult) => React.ReactNode;
   results: Results;
   selected?: string;
@@ -42,8 +42,10 @@ export default function GlobalSearchResults(props: Props): React.ReactElement<Pr
 
   sortQualifiers(qualifiers).forEach((qualifier) => {
     const components = props.results[qualifier];
-    if (components.length > 0) {
+
+    if (components?.length) {
       const more = props.more[qualifier];
+
       renderedComponents.push(
         <li key={`group-${qualifier}`}>
           <ul key={`header-${qualifier}`} aria-labelledby={translate('qualifiers', qualifier)}>

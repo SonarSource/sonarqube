@@ -52,7 +52,7 @@ function PopupBase(props: PopupProps, ref: React.Ref<HTMLDivElement>) {
     <ClickEventBoundary>
       <PopupWrapper
         className={classNames(`is-${placement}`, className)}
-        ref={ref || React.createRef()}
+        ref={ref ?? React.createRef()}
         style={style}
         zLevel={zLevel}
         {...ariaProps}
@@ -237,7 +237,7 @@ const PopupWrapper = styled.div<{ zLevel: PopupZLevel }>`
 class PortalWrapper extends React.Component {
   el: HTMLElement;
 
-  constructor(props: {}) {
+  constructor(props: object) {
     super(props);
     this.el = document.createElement('div');
   }

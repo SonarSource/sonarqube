@@ -46,7 +46,7 @@ export default class DeferredSpinner extends React.PureComponent<Props, State> {
   state: State = { showSpinner: false };
 
   componentDidMount() {
-    if (this.props.loading == null || this.props.loading === true) {
+    if (this.props.loading == null || this.props.loading) {
       this.startTimer();
     }
   }
@@ -67,10 +67,9 @@ export default class DeferredSpinner extends React.PureComponent<Props, State> {
   }
 
   startTimer = () => {
-    this.timer = window.setTimeout(
-      () => this.setState({ showSpinner: true }),
-      this.props.timeout || DEFAULT_TIMEOUT
-    );
+    this.timer = window.setTimeout(() => {
+      this.setState({ showSpinner: true });
+    }, this.props.timeout ?? DEFAULT_TIMEOUT);
   };
 
   stopTimer = () => {

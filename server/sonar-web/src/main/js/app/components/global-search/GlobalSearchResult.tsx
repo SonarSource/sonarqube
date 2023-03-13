@@ -45,7 +45,9 @@ export default class GlobalSearchResult extends React.PureComponent<Props> {
         className={classNames('sw-flex sw-flex-col sw-items-start sw-space-y-1', {
           active: selected,
         })}
-        innerRef={(node: HTMLAnchorElement | null) => this.props.innerRef(component.key, node)}
+        innerRef={(node: HTMLAnchorElement | null) => {
+          this.props.innerRef(component.key, node);
+        }}
         key={component.key}
         onClick={this.props.onClose}
         onPointerEnter={this.doSelect}

@@ -120,7 +120,7 @@ export function ClipboardButton({
             icon={icon}
             innerRef={setCopyButton}
           >
-            {children || translate('copy')}
+            {children ?? translate('copy')}
           </ButtonSecondary>
         </Tooltip>
       )}

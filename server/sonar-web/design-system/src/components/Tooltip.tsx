@@ -36,7 +36,7 @@ import { themeColor, themeContrast } from '../helpers/theme';
 const MILLISECONDS_IN_A_SECOND = 1000;
 
 export interface TooltipProps {
-  children: React.ReactElement<{}>;
+  children: React.ReactElement;
   mouseEnterDelay?: number;
   mouseLeaveDelay?: number;
   onHide?: VoidFunction;
@@ -88,16 +88,19 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   constructor(props: TooltipProps) {
     super(props);
+
     this.state = {
       flipped: false,
       placement: props.placement,
       visible: props.visible !== undefined ? props.visible : false,
     };
+
     this.throttledPositionTooltip = throttle(this.positionTooltip, THROTTLE_SCROLL_DELAY);
   }
 
   componentDidMount() {
     this.mounted = true;
+
     if (this.props.visible === true) {
       this.positionTooltip();
       this.addEventListeners();
@@ -106,9 +109,9 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   componentDidUpdate(prevProps: TooltipProps, prevState: State) {
     if (this.props.placement !== prevProps.placement) {
-      this.setState({ placement: this.props.placement }, () =>
-        this.onUpdatePlacement(this.hasVisibleChanged(prevState.visible, prevProps.visible))
-      );
+      this.setState({ placement: this.props.placement }, () => {
+        this.onUpdatePlacement(this.hasVisibleChanged(prevState.visible, prevProps.visible));
+      });
     } else if (this.hasVisibleChanged(prevState.visible, prevProps.visible)) {
       this.onUpdateVisible();
     } else if (!this.state.flipped && this.needsFlipping(this.state)) {
@@ -175,18 +178,15 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   hasVisibleChanged = (prevStateVisible: boolean, prevPropsVisible?: boolean) => {
     if (this.props.visible === undefined) {
-      return prevPropsVisible || this.state.visible !== prevStateVisible;
+      return prevPropsVisible ?? this.state.visible !== prevStateVisible;
     }
+
     return this.props.visible !== prevPropsVisible;
   };
 
-  isVisible = () => {
-    return this.props.visible ?? this.state.visible;
-  };
+  isVisible = () => this.props.visible ?? this.state.visible;
 
-  getPlacement = (): PopupPlacement => {
-    return this.state.placement || PopupPlacement.Bottom;
-  };
+  getPlacement = (): PopupPlacement => this.state.placement ?? PopupPlacement.Bottom;
 
   tooltipNodeRef = (node: HTMLElement | null) => {
     this.tooltipNode = node;
@@ -217,6 +217,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
     // eslint-disable-next-line react/no-find-dom-node
     const toggleNode = findDOMNode(this);
+
     if (toggleNode && toggleNode instanceof Element && this.tooltipNode) {
       const { height, left, leftFix, top, topFix, width } = popupPositioning(
         toggleNode,
@@ -262,7 +263,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
       ) {
         this.setState({ visible: true });
       }
-    }, (this.props.mouseEnterDelay || 0) * MILLISECONDS_IN_A_SECOND);
+    }, (this.props.mouseEnterDelay ?? 0) * MILLISECONDS_IN_A_SECOND);
 
     if (this.props.onShow) {
       this.props.onShow();
@@ -280,7 +281,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
         if (this.mounted && this.props.visible === undefined && !this.mouseIn) {
           this.setState({ visible: false });
         }
-      }, (this.props.mouseLeaveDelay || 0) * MILLISECONDS_IN_A_SECOND);
+      }, (this.props.mouseLeaveDelay ?? 0) * MILLISECONDS_IN_A_SECOND);
 
       if (this.props.onHide) {
         this.props.onHide();
@@ -301,8 +302,11 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     this.handlePointerEnter();
 
     const { children } = this.props;
-    if (typeof children.props.onPointerEnter === 'function') {
-      children.props.onPointerEnter();
+
+    const props = children.props as { onPointerEnter?: VoidFunction };
+
+    if (typeof props.onPointerEnter === 'function') {
+      props.onPointerEnter();
     }
   };
 
@@ -310,8 +314,11 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     this.handlePointerLeave();
 
     const { children } = this.props;
-    if (typeof children.props.onPointerLeave === 'function') {
-      children.props.onPointerLeave();
+
+    const props = children.props as { onPointerLeave?: VoidFunction };
+
+    if (typeof props.onPointerLeave === 'function') {
+      props.onPointerLeave();
     }
   };
 
@@ -378,7 +385,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 class TooltipPortal extends React.Component {
   el: HTMLElement;
 
-  constructor(props: {}) {
+  constructor(props: object) {
     super(props);
     this.el = document.createElement('div');
   }

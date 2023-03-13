@@ -26,7 +26,7 @@ import NavLink from '../NavLink';
 
 beforeAll(() => {
   const { location } = window;
-  delete (window as any).location;
+  delete (window as { location?: Location }).location;
   window.location = { ...location, href: '' };
 });
 

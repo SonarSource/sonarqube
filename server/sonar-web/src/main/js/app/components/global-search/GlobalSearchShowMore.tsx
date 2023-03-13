@@ -54,7 +54,9 @@ export default class GlobalSearchShowMore extends React.PureComponent<Props> {
       <ItemButton
         className={classNames({ active: selected })}
         disabled={!allowMore}
-        onClick={(e: React.MouseEvent<HTMLButtonElement>) => this.handleMoreClick(e, qualifier)}
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+          this.handleMoreClick(e, qualifier);
+        }}
         onPointerEnter={() => {
           this.handleMouseEnter(qualifier);
         }}

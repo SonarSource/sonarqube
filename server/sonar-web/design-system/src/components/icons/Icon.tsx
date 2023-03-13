@@ -81,6 +81,6 @@ export function OcticonHoc(
     );
   }
 
-  IconWrapper.displayName = displayName || WrappedOcticon.displayName || WrappedOcticon.name;
+  IconWrapper.displayName = displayName ?? WrappedOcticon.displayName ?? WrappedOcticon.name;
   return IconWrapper;
 }

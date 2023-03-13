@@ -101,20 +101,21 @@ function getColor(
   }
   // Is theme color overridden by a color name ?
   const color = colorOverride ? theme.colors[colorOverride as ThemeColors] : [r, g, b];
+
   if (typeof color === 'string') {
     return color as CSSColor;
   }
 
-  return getRGBAString(color, opacityOverride ?? color[3] ?? a);
+  return getRGBAString(color, opacityOverride ?? (color[3] as number | string | undefined) ?? a);
 }
 
 // Simplified version of getColor for contrast colors, fallback to colors if contrast isn't found
 function getContrast(theme: Theme, colorOverride: ThemeContrasts | ThemeColors | CSSColor) {
   // Custom CSS property or rgb(a) color, return it directly
   if (
-    colorOverride?.startsWith('var(--') ||
-    colorOverride?.startsWith('rgb(') ||
-    colorOverride?.startsWith('rgba(')
+    colorOverride.startsWith('var(--') ||
+    colorOverride.startsWith('rgb(') ||
+    colorOverride.startsWith('rgba(')
   ) {
     return colorOverride as CSSColor;
   }

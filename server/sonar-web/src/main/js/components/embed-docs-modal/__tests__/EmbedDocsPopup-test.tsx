@@ -72,7 +72,12 @@ function renderEmbedDocsPopup() {
         <button onClick={addSuggestion} type="button">
           add.suggestion
         </button>
-        <button onClick={() => setSuggestions([])} type="button">
+        <button
+          onClick={() => {
+            setSuggestions([]);
+          }}
+          type="button"
+        >
           remove.suggestion
         </button>
         <EmbedDocsPopupHelper />

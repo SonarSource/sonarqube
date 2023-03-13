@@ -66,7 +66,7 @@ export default function Checkbox({
       <AccessibleCheckbox
         aria-label={title}
         checked={checked}
-        disabled={disabled || loading}
+        disabled={disabled ?? loading}
         id={id}
         onChange={handleChange}
         onClick={onClick}

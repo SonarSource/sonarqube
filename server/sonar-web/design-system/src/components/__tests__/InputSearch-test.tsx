@@ -37,7 +37,7 @@ it('should show clear button only when there is a value', async () => {
 });
 
 it('should attach ref', () => {
-  const ref = jest.fn();
+  const ref = jest.fn() as jest.Mock<unknown, unknown[]>;
   setupWithProps({ innerRef: ref });
   expect(ref).toHaveBeenCalled();
   expect(ref.mock.calls[0][0]).toBeInstanceOf(HTMLInputElement);

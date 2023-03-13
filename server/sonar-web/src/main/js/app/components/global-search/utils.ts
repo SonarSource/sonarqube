@@ -42,9 +42,9 @@ export interface ComponentResult {
 }
 
 export interface Results {
-  [qualifier: string]: ComponentResult[];
+  [qualifier: string]: ComponentResult[] | undefined;
 }
 
 export interface More {
-  [qualifier: string]: number;
+  [qualifier: string]: number | undefined;
 }

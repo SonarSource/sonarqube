@@ -25,6 +25,6 @@ const MainMenuUl = styled.ul`
   ${tw`sw-flex sw-gap-8 sw-items-center`}
 `;
 
-export function MainMenu({ children }: React.PropsWithChildren<{}>) {
+export function MainMenu({ children }: React.PropsWithChildren<object>) {
   return <MainMenuUl>{children}</MainMenuUl>;
 }

@@ -47,7 +47,9 @@ export function renderWithContext(
   return render(ui, { ...options, wrapper: getContextWrapper() }, userEventOptions);
 }
 
-type RenderRouterOptions = { additionalRoutes?: ReactNode };
+interface RenderRouterOptions {
+  additionalRoutes?: ReactNode;
+}
 
 export function renderWithRouter(
   ui: React.ReactElement,
@@ -55,7 +57,7 @@ export function renderWithRouter(
 ) {
   const { additionalRoutes, userEventOptions, ...renderOptions } = options;
 
-  function RouterWrapper({ children }: React.PropsWithChildren<{}>) {
+  function RouterWrapper({ children }: React.PropsWithChildren<object>) {
     return (
       <HelmetProvider>
         <MemoryRouter>
@@ -72,7 +74,7 @@ export function renderWithRouter(
 }
 
 function getContextWrapper() {
-  return function ContextWrapper({ children }: React.PropsWithChildren<{}>) {
+  return function ContextWrapper({ children }: React.PropsWithChildren<object>) {
     return (
       <HelmetProvider>
         <IntlProvider defaultLocale="en" locale="en">
@@ -92,17 +94,25 @@ export function mockComponent(name: string, transformProps: (props: any) => any 
   return MockedComponent;
 }
 
-export const debounceTimer = jest.fn().mockImplementation((callback, timeout) => {
-  let timeoutId: number;
-  const debounced = jest.fn((...args) => {
-    window.clearTimeout(timeoutId);
-    timeoutId = window.setTimeout(() => callback(...args), timeout);
+export const debounceTimer = jest
+  .fn()
+  .mockImplementation((callback: (...args: unknown[]) => void, timeout: number) => {
+    let timeoutId: number;
+
+    const debounced = jest.fn((...args: unknown[]) => {
+      window.clearTimeout(timeoutId);
+
+      timeoutId = window.setTimeout(() => {
+        callback(...args);
+      }, timeout);
+    });
+
+    (debounced as typeof debounced & { cancel: () => void }).cancel = jest.fn(() => {
+      window.clearTimeout(timeoutId);
+    });
+
+    return debounced;
   });
-  (debounced as any).cancel = jest.fn(() => {
-    window.clearTimeout(timeoutId);
-  });
-  return debounced;
-});
 
 export function flushPromises(usingFakeTime = false): Promise<void> {
   return new Promise((resolve) => {

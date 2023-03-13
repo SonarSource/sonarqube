@@ -64,7 +64,7 @@ const MIN_SEARCH_QUERY_LENGTH = 2;
 export class GlobalSearch extends React.PureComponent<Props, State> {
   input?: HTMLInputElement | null;
   node?: HTMLElement | null;
-  nodes: Dict<HTMLElement>;
+  nodes: Dict<HTMLElement | undefined>;
   mounted = false;
 
   constructor(props: Props) {
@@ -109,11 +109,9 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
   handleFocus = () => {
     if (!this.state.open) {
       // simulate click to close any other dropdowns
-      const body = document.documentElement;
-      if (body) {
-        body.click();
-      }
+      document.documentElement.click();
     }
+
     this.openSearch();
   };
 
@@ -143,7 +141,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
 
   getPlainComponentsList = (results: Results, more: More) =>
     sortQualifiers(Object.keys(results)).reduce((components, qualifier) => {
-      const next = [...components, ...results[qualifier].map((component) => component.key)];
+      const next = [...components, ...(results[qualifier] ?? []).map((component) => component.key)];
       if (more[qualifier]) {
         next.push('qualifier###' + qualifier);
       }
@@ -203,7 +201,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
           more: { ...state.more, [qualifier]: 0 },
           results: {
             ...state.results,
-            [qualifier]: uniqBy([...state.results[qualifier], ...moreResults], 'key'),
+            [qualifier]: uniqBy([...(state.results[qualifier] ?? []), ...moreResults], 'key'),
           },
           selected: moreResults.length > 0 ? moreResults[0].key : state.selected,
         }));
@@ -266,6 +264,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
   scrollToSelected = () => {
     if (this.state.selected) {
       const node = this.nodes[this.state.selected];
+
       if (node && this.node) {
         scrollToElement(node, {
           topOffset: 30,

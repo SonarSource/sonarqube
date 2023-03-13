@@ -20,13 +20,14 @@
 import React from 'react';
 
 export interface ClickEventBoundaryProps {
-  children: React.ReactElement;
+  children: React.ReactElement<{ onClick?: (e: React.SyntheticEvent<MouseEvent>) => void }>;
 }
 
 export default function ClickEventBoundary({ children }: ClickEventBoundaryProps) {
   return React.cloneElement(children, {
     onClick: (e: React.SyntheticEvent<MouseEvent>) => {
       e.stopPropagation();
+
       if (typeof children.props.onClick === 'function') {
         children.props.onClick(e);
       }

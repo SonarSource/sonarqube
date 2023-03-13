@@ -26,14 +26,14 @@ const toggleRect = {
     width: 50,
     height: 20,
   }),
-} as any;
+} as Element & { getBoundingClientRect: jest.Mock };
 
 const popupRect = {
   getBoundingClientRect: jest.fn().mockReturnValue({
     width: 200,
     height: 100,
   }),
-} as any;
+} as Element & { getBoundingClientRect: jest.Mock };
 
 beforeAll(() => {
   Object.defineProperties(document.documentElement, {
