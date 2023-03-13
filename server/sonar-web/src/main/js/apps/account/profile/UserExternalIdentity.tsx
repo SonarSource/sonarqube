@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { getTextColor } from 'design-system';
 import * as React from 'react';
 import { getIdentityProviders } from '../../../api/users';
 import { colors } from '../../../app/theme';
-import { getTextColor } from '../../../helpers/colors';
 import { getBaseUrl } from '../../../helpers/system';
 import { IdentityProvider } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';

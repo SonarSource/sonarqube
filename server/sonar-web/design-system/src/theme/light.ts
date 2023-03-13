@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { OPACITY_20_PERCENT } from '../helpers/constants';
 import COLORS from './colors';
 
 const primary = {
@@ -106,7 +108,7 @@ const lightTheme = {
     radioHover: COLORS.indigo[50],
     radioFocus: COLORS.indigo[50],
     radioFocusBorder: COLORS.indigo[300],
-    radioFocusOutline: [...COLORS.indigo[300], 0.2],
+    radioFocusOutline: [...COLORS.indigo[300], OPACITY_20_PERCENT],
     radioChecked: COLORS.indigo[50],
     radioDisabled: secondary.default,
     radioDisabledBackground: secondary.light,
@@ -158,7 +160,7 @@ const lightTheme = {
     toggle: COLORS.white,
     toggleBorder: secondary.default,
     toggleHover: secondary.light,
-    toggleFocus: [...secondary.default, 0.2],
+    toggleFocus: [...secondary.default, OPACITY_20_PERCENT],
 
     // code snippet
     codeSnippetBackground: COLORS.blueGrey[25],
@@ -240,7 +242,7 @@ const lightTheme = {
     interactiveIconHover: COLORS.indigo[50],
     interactiveIconFocus: primary.default,
     bannerIcon: 'transparent',
-    bannerIconHover: [...COLORS.red[600], 0.2],
+    bannerIconHover: [...COLORS.red[600], OPACITY_20_PERCENT],
     bannerIconFocus: danger.default,
     discreetInteractiveIcon: secondary.dark,
     destructiveIcon: 'transparent',
@@ -673,7 +675,7 @@ const lightTheme = {
   borders: {
     default: ['1px', 'solid', ...COLORS.grey[50]],
     active: ['3px', 'solid', ...primary.light],
-    focus: ['4px', 'solid', ...secondary.default, 0.2],
+    focus: ['4px', 'solid', ...secondary.default, OPACITY_20_PERCENT],
   },
 
   avatar: {

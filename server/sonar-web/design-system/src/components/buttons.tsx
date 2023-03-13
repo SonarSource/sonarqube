@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import React from 'react';
 import tw from 'twin.macro';
+import { OPACITY_20_PERCENT } from '../helpers/constants';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { ThemedProps } from '../types/theme';
 import { BaseLink, LinkProps } from './Link';
@@ -162,7 +164,7 @@ export const ButtonPrimary: React.FC<ButtonProps> = styled(Button)`
   --background: ${themeColor('button')};
   --backgroundHover: ${themeColor('buttonHover')};
   --color: ${themeContrast('primary')};
-  --focus: ${themeColor('button', 0.2)};
+  --focus: ${themeColor('button', OPACITY_20_PERCENT)};
   --border: ${themeBorder('default', 'transparent')};
 `;
 
@@ -170,7 +172,7 @@ export const ButtonSecondary: React.FC<ButtonProps> = styled(Button)`
   --background: ${themeColor('buttonSecondary')};
   --backgroundHover: ${themeColor('buttonSecondaryHover')};
   --color: ${themeContrast('buttonSecondary')};
-  --focus: ${themeColor('buttonSecondaryBorder', 0.2)};
+  --focus: ${themeColor('buttonSecondaryBorder', OPACITY_20_PERCENT)};
   --border: ${themeBorder('default', 'buttonSecondaryBorder')};
 `;
 
@@ -178,7 +180,7 @@ export const DangerButtonPrimary: React.FC<ButtonProps> = styled(Button)`
   --background: ${themeColor('dangerButton')};
   --backgroundHover: ${themeColor('dangerButtonHover')};
   --color: ${themeContrast('dangerButton')};
-  --focus: ${themeColor('dangerButtonFocus', 0.2)};
+  --focus: ${themeColor('dangerButtonFocus', OPACITY_20_PERCENT)};
   --border: ${themeBorder('default', 'transparent')};
 `;
 
@@ -186,7 +188,7 @@ export const DangerButtonSecondary: React.FC<ButtonProps> = styled(Button)`
   --background: ${themeColor('dangerButtonSecondary')};
   --backgroundHover: ${themeColor('dangerButtonSecondaryHover')};
   --color: ${themeContrast('dangerButtonSecondary')};
-  --focus: ${themeColor('dangerButtonSecondaryFocus', 0.2)};
+  --focus: ${themeColor('dangerButtonSecondaryFocus', OPACITY_20_PERCENT)};
   --border: ${themeBorder('default', 'dangerButtonSecondaryBorder')};
 `;
 
@@ -209,7 +211,7 @@ const ThirdPartyButtonStyled: React.FC<ButtonProps> = styled(Button)`
   --background: ${themeColor('thirdPartyButton')};
   --backgroundHover: ${themeColor('thirdPartyButtonHover')};
   --color: ${themeContrast('thirdPartyButton')};
-  --focus: ${themeColor('thirdPartyButtonBorder', 0.2)};
+  --focus: ${themeColor('thirdPartyButtonBorder', OPACITY_20_PERCENT)};
   --border: ${themeBorder('default', 'thirdPartyButtonBorder')};
 `;
 

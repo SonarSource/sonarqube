@@ -76,8 +76,10 @@ it('renders', () => {
 
 it('fetches projects', () => {
   shallowRender();
-  expect(fetchProjects).toHaveBeenLastCalledWith(
-    {
+
+  expect(fetchProjects).toHaveBeenLastCalledWith({
+    isFavorite: false,
+    query: {
       coverage: undefined,
       duplications: undefined,
       gate: undefined,
@@ -97,46 +99,58 @@ it('fetches projects', () => {
       tags: undefined,
       view: undefined,
     },
-    false
-  );
+  });
 });
 
 it('changes sort', () => {
   const push = jest.fn();
-  const wrapper = shallowRender({}, push);
-  wrapper.find('PageHeader').prop<Function>('onSortChange')('size', false);
+  const wrapper = shallowRender({ push });
+
+  wrapper.find('PageHeader').prop<(sort: string, desc: boolean) => void>('onSortChange')(
+    'size',
+    false
+  );
+
   expect(push).toHaveBeenLastCalledWith({ pathname: '/projects', query: { sort: 'size' } });
   expect(save).toHaveBeenLastCalledWith(LS_PROJECTS_SORT, 'size');
 });
 
 it('changes perspective to leak', () => {
   const push = jest.fn();
-  const wrapper = shallowRender({}, push);
-  wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({ view: 'leak' });
+  const wrapper = shallowRender({ push });
+
+  wrapper.find('PageHeader').prop<({ view }: { view?: string }) => void>('onPerspectiveChange')({
+    view: 'leak',
+  });
+
   expect(push).toHaveBeenLastCalledWith({
     pathname: '/projects',
     query: { view: 'leak' },
   });
+
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, undefined);
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, 'leak');
 });
 
 it('updates sorting when changing perspective from leak', () => {
   const push = jest.fn();
-  const wrapper = shallowRender({}, push);
+  const wrapper = shallowRender({ push });
   wrapper.setState({ query: { sort: 'new_coverage', view: 'leak' } });
-  wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({
+
+  wrapper.find('PageHeader').prop<({ view }: { view?: string }) => void>('onPerspectiveChange')({
     view: undefined,
   });
+
   expect(push).toHaveBeenLastCalledWith({
     pathname: '/projects',
     query: { sort: 'coverage', view: undefined },
   });
+
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, 'coverage');
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, undefined);
 });
 
-it('handles favorite projects', () => {
+it('handles updating the favorite status of a project', () => {
   const wrapper = shallowRender();
   expect(wrapper.state('projects')).toMatchSnapshot();
 
@@ -144,11 +158,28 @@ it('handles favorite projects', () => {
   expect(wrapper.state('projects')).toMatchSnapshot();
 });
 
-function shallowRender(
-  props: Partial<AllProjects['props']> = {},
-  push = jest.fn(),
-  replace = jest.fn()
-) {
+it('handles showing favorite projects on load', () => {
+  const wrapper = shallowRender({
+    props: { currentUser: { dismissedNotices: {}, isLoggedIn: false }, isFavorite: true },
+  });
+
+  expect(wrapper.state('projects')).toMatchSnapshot();
+
+  wrapper.instance().handleFavorite('foo', true);
+  expect(wrapper.state('projects')).toMatchSnapshot();
+});
+
+const defaults = { props: {}, push: () => undefined, replace: () => undefined };
+
+function shallowRender({
+  props = defaults.props,
+  push = defaults.push,
+  replace = defaults.replace,
+}: {
+  props?: Partial<AllProjects['props']>;
+  push?: () => void;
+  replace?: () => void;
+} = defaults) {
   const wrapper = shallow<AllProjects>(
     <AllProjects
       currentUser={{ isLoggedIn: true, dismissedNotices: {} }}
@@ -161,6 +192,7 @@ function shallowRender(
       {...props}
     />
   );
+
   wrapper.setState({
     loading: false,
     projects: [
@@ -175,5 +207,6 @@ function shallowRender(
     ],
     total: 0,
   });
+
   return wrapper;
 }

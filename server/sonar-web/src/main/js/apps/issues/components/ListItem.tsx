@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import Issue from '../../../components/issue/Issue';
 import { BranchLike } from '../../../types/branch-like';
@@ -59,7 +60,7 @@ export default class ListItem extends React.PureComponent<Props> {
     const issuesReset = { issues: [] };
 
     if (property.startsWith('tag###')) {
-      const tag = property.substr(6);
+      const tag = property.substring('tag###'.length);
       onFilterChange({ ...issuesReset, tags: [tag] });
     } else {
       switch (property) {

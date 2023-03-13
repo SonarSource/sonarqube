@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import React, { useEffect } from 'react';
 import { Route, useLocation, useNavigate } from 'react-router-dom';
 import { RawQuery } from '../../types/types';
@@ -44,7 +45,7 @@ function HashEditWrapper() {
   useEffect(() => {
     const { hash } = location;
     if (hash.length > 1) {
-      const query = parseHash(hash.substr(1));
+      const query = parseHash(hash.substring(1));
       const normalizedQuery = {
         ...serializeQuery(parseQuery(query)),
         open: query.open,

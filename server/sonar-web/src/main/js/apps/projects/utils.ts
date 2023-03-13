@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { invert } from 'lodash';
 import { Facet, searchProjects } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
@@ -150,22 +151,33 @@ export const LEAK_FACETS = [
 const REVERSED_FACETS = ['coverage', 'new_coverage'];
 
 export function localizeSorting(sort?: string): string {
-  return translate('projects.sort', sort || 'name');
+  return translate('projects.sort', sort ?? 'name');
 }
 
 export function parseSorting(sort: string): { sortValue: string; sortDesc: boolean } {
-  const desc = sort[0] === '-';
-  return { sortValue: desc ? sort.substr(1) : sort, sortDesc: desc };
+  const desc = sort.startsWith('-');
+
+  return { sortValue: desc ? sort.substring(1) : sort, sortDesc: desc };
 }
 
-export function fetchProjects(query: Query, isFavorite: boolean, pageIndex = 1) {
+export function fetchProjects({
+  isFavorite,
+  query,
+  pageIndex = 1,
+}: {
+  query: Query;
+  isFavorite: boolean;
+  pageIndex?: number;
+}) {
   const ps = PAGE_SIZE;
+
   const data = convertToQueryData(query, isFavorite, {
     p: pageIndex > 1 ? pageIndex : undefined,
     ps,
     facets: defineFacets(query).join(),
     f: 'analysisDate,leakPeriodDate',
   });
+
   return searchProjects(data)
     .then((response) =>
       Promise.all([fetchProjectMeasures(response.components, query), Promise.resolve(response)])
@@ -183,6 +195,7 @@ export function fetchProjects(query: Query, isFavorite: boolean, pageIndex = 1) 
                 componentMeasures[measure.metric] = value;
               }
             });
+
           return { ...component, measures: componentMeasures };
         }),
         total: paging.total,
@@ -194,6 +207,7 @@ export function defineMetrics(query: Query): string[] {
   if (query.view === 'leak') {
     return LEAK_METRICS;
   }
+
   return METRICS;
 }
 
@@ -201,6 +215,7 @@ function defineFacets(query: Query): string[] {
   if (query.view === 'leak') {
     return LEAK_FACETS;
   }
+
   return FACETS;
 }
 
@@ -212,12 +227,15 @@ function convertToQueryData(query: Query, isFavorite: boolean, defaultData = {})
   if (filter) {
     data.filter = filter;
   }
+
   if (sort.s) {
     data.s = sort.s;
   }
+
   if (sort.asc !== undefined) {
     data.asc = sort.asc;
   }
+
   return data;
 }
 
@@ -228,14 +246,17 @@ export function fetchProjectMeasures(projects: Array<{ key: string }>, query: Qu
 
   const projectKeys = projects.map((project) => project.key);
   const metrics = defineMetrics(query);
+
   return getMeasuresForProjects(projectKeys, metrics);
 }
 
 function mapFacetValues(values: Array<{ val: string; count: number }>) {
   const map: Dict<number> = {};
+
   values.forEach((value) => {
     map[value.val] = value.count;
   });
+
   return map;
 }
 
@@ -266,22 +287,27 @@ const metricToPropertyMap = invert(propertyToMetricMap);
 
 function getFacetsMap(facets: Facet[]) {
   const map: Dict<Dict<number>> = {};
+
   facets.forEach((facet) => {
     const property = metricToPropertyMap[facet.property];
     const { values } = facet;
+
     if (REVERSED_FACETS.includes(property)) {
       values.reverse();
     }
+
     map[property] = mapFacetValues(values);
   });
+
   return map;
 }
 
-function convertToSorting({ sort }: Query): { s?: string; asc?: boolean } {
-  if (sort && sort[0] === '-') {
-    return { s: propertyToMetricMap[sort.substr(1)], asc: false };
+export function convertToSorting({ sort }: Query): { s?: string; asc?: boolean } {
+  if (sort?.startsWith('-')) {
+    return { s: propertyToMetricMap[sort.substring(1)], asc: false };
   }
-  return { s: propertyToMetricMap[sort || ''] };
+
+  return { s: propertyToMetricMap[sort ?? ''] };
 }
 
 const ONE_MINUTE = 60000;
@@ -294,15 +320,18 @@ function format(periods: Array<{ value: number; label: string }>) {
   let result = '';
   let count = 0;
   let lastId = -1;
+
   for (let i = 0; i < periods.length && count < 2; i++) {
     if (periods[i].value > 0) {
       count++;
+
       if (lastId < 0 || lastId + 1 === i) {
         lastId = i;
         result += translateWithParameters(periods[i].label, periods[i].value) + ' ';
       }
     }
   }
+
   return result;
 }
 
@@ -310,15 +339,21 @@ export function formatDuration(ms: number) {
   if (ms < ONE_MINUTE) {
     return translate('duration.seconds');
   }
+
   const years = Math.floor(ms / ONE_YEAR);
   ms -= years * ONE_YEAR;
+
   const months = Math.floor(ms / ONE_MONTH);
   ms -= months * ONE_MONTH;
+
   const days = Math.floor(ms / ONE_DAY);
   ms -= days * ONE_DAY;
+
   const hours = Math.floor(ms / ONE_HOUR);
   ms -= hours * ONE_HOUR;
+
   const minutes = Math.floor(ms / ONE_MINUTE);
+
   return format([
     { value: years, label: 'duration.years' },
     { value: months, label: 'duration.months' },

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`handles favorite projects 1`] = `
+exports[`handles showing favorite projects on load 1`] = `
 [
   {
     "key": "foo",
@@ -13,7 +13,34 @@ exports[`handles favorite projects 1`] = `
 ]
 `;
 
-exports[`handles favorite projects 2`] = `
+exports[`handles showing favorite projects on load 2`] = `
+[
+  {
+    "isFavorite": true,
+    "key": "foo",
+    "measures": {},
+    "name": "Foo",
+    "qualifier": "TRK",
+    "tags": [],
+    "visibility": "public",
+  },
+]
+`;
+
+exports[`handles updating the favorite status of a project 1`] = `
+[
+  {
+    "key": "foo",
+    "measures": {},
+    "name": "Foo",
+    "qualifier": "TRK",
+    "tags": [],
+    "visibility": "public",
+  },
+]
+`;
+
+exports[`handles updating the favorite status of a project 2`] = `
 [
   {
     "isFavorite": true,

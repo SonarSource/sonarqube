@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { scaleLinear } from 'd3-scale';
 import * as React from 'react';
@@ -119,7 +120,7 @@ export default class TreeMapRect extends React.PureComponent<Props> {
                     </>
                   )}
 
-                  {this.props.label.substr(this.props.prefix.length)}
+                  {this.props.label.substring(this.props.prefix.length)}
                 </div>
 
                 <div className="treemap-text-suffix little-spacer-top">{this.props.value}</div>

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import Link from '../../../components/common/Link';
 import { ButtonLink } from '../../../components/controls/buttons';
@@ -217,7 +218,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     const EXTERNAL_PREFIX = 'external_';
     const { ruleDetails } = this.props;
     const displayedKey = ruleDetails.key.startsWith(EXTERNAL_PREFIX)
-      ? ruleDetails.key.substr(EXTERNAL_PREFIX.length)
+      ? ruleDetails.key.substring(EXTERNAL_PREFIX.length)
       : ruleDetails.key;
     return <span className="note text-middle">{displayedKey}</span>;
   }

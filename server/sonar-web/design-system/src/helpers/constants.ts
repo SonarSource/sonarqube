@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { theme } from 'twin.macro';
 
 export const DEFAULT_LOCALE = 'en';
@@ -66,3 +67,5 @@ export const LAYOUT_NOTIFICATIONSBAR_WIDTH = 350;
 export const CORE_CONCEPTS_WIDTH = 350;
 
 export const DARK_THEME_ID = 'dark-theme';
+
+export const OPACITY_20_PERCENT = 0.2;

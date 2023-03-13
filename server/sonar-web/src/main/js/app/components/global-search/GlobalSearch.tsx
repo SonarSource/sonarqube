@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   DropdownMenu,
   InputSearch,
@@ -38,7 +39,6 @@ import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getKeyboardShortcutEnabled } from '../../../helpers/preferences';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentQualifier } from '../../../types/component';
 import { Dict } from '../../../types/types';
@@ -71,6 +71,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
     super(props);
     this.nodes = {};
     this.search = debounce(this.search, 250);
+
     this.state = {
       loading: false,
       more: {},
@@ -119,6 +120,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
     if (!this.state.open && !this.state.query) {
       this.search('');
     }
+
     this.setState({ open: true });
   };
 
@@ -126,6 +128,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
     if (this.input) {
       this.input.blur();
     }
+
     if (clear) {
       this.setState({
         more: {},
@@ -145,6 +148,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
       if (more[qualifier]) {
         next.push('qualifier###' + qualifier);
       }
+
       return next;
     }, []);
 
@@ -158,6 +162,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
     if (query.length === 0 || query.length >= MIN_SEARCH_QUERY_LENGTH) {
       this.setState({ loading: true });
       const recentlyBrowsed = RecentHistory.get().map((component) => component.key);
+
       getSuggestions(query, recentlyBrowsed).then((response) => {
         // compare `this.state.query` and `query` to handle two request done almost at the same time
         // in this case only the request that matches the current query should be taken
@@ -185,16 +190,19 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
 
   searchMore = (qualifier: string) => {
     const { query } = this.state;
+
     if (query.length === 1) {
       return;
     }
 
     this.setState({ loading: true, loadingMore: qualifier });
     const recentlyBrowsed = RecentHistory.get().map((component) => component.key);
+
     getSuggestions(query, recentlyBrowsed, qualifier).then((response) => {
       if (this.mounted) {
         const group = response.results.find((group) => group.q === qualifier);
         const moreResults = (group ? group.items : []).map((item) => ({ ...item, qualifier }));
+
         this.setState((state) => ({
           loading: false,
           loadingMore: undefined,
@@ -205,6 +213,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
           },
           selected: moreResults.length > 0 ? moreResults[0].key : state.selected,
         }));
+
         this.focusInput();
       }
     }, this.stopLoading);
@@ -222,6 +231,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
         const index = list.indexOf(selected);
         return index > 0 ? { selected: list[index - 1] } : null;
       }
+
       return null;
     });
   };
@@ -233,6 +243,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
         const index = list.indexOf(selected);
         return index >= 0 && index < list.length - 1 ? { selected: list[index + 1] } : null;
       }
+
       return null;
     });
   };
@@ -245,7 +256,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
     }
 
     if (selected.startsWith('qualifier###')) {
-      this.searchMore(selected.substr(12));
+      this.searchMore(selected.substring('qualifier###'.length));
     } else {
       let qualifier = ComponentQualifier.Project;
 
@@ -266,11 +277,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
       const node = this.nodes[this.state.selected];
 
       if (node && this.node) {
-        scrollToElement(node, {
-          topOffset: 30,
-          bottomOffset: 60,
-          parent: this.node,
-        });
+        node.scrollIntoView();
       }
     }
   };
@@ -279,6 +286,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
     if (!getKeyboardShortcutEnabled() || isInput(event) || isShortcut(event)) {
       return true;
     }
+
     if (event.key === KeyboardKeys.KeyS) {
       event.preventDefault();
       this.focusInput();
@@ -348,6 +356,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
 
   render() {
     const { open, query, results, more, loadingMore, selected, loading } = this.state;
+
     if (!open && !query) {
       return (
         <Tooltip mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY} overlay={translate('search_verb')}>
@@ -364,6 +373,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
     }
 
     const list = this.getPlainComponentsList(results, more);
+
     const search = (
       <div role="search" className="sw-min-w-abs-200 sw-max-w-abs-350 sw-w-full">
         <PortalPopup

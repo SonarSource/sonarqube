@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import React from 'react';
 import tw from 'twin.macro';
+import { OPACITY_20_PERCENT } from '../helpers/constants';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { isDefined } from '../helpers/types';
 import { ThemedProps } from '../types/theme';
@@ -156,7 +158,7 @@ export const InteractiveIcon: React.FC<InteractiveIconProps> = styled(Interactiv
   --color: ${({ currentColor, theme }) =>
     currentColor ? 'currentColor' : themeContrast('interactiveIcon')({ theme })};
   --colorHover: ${themeContrast('interactiveIconHover')};
-  --focus: ${themeColor('interactiveIconFocus', 0.2)};
+  --focus: ${themeColor('interactiveIconFocus', OPACITY_20_PERCENT)};
 `;
 
 export const DiscreetInteractiveIcon: React.FC<InteractiveIconProps> = styled(InteractiveIcon)`
@@ -168,7 +170,7 @@ export const DestructiveIcon: React.FC<InteractiveIconProps> = styled(Interactiv
   --backgroundHover: ${themeColor('destructiveIconHover')};
   --color: ${themeContrast('destructiveIcon')};
   --colorHover: ${themeContrast('destructiveIconHover')};
-  --focus: ${themeColor('destructiveIconFocus', 0.2)};
+  --focus: ${themeColor('destructiveIconFocus', OPACITY_20_PERCENT)};
 `;
 
 export const DismissProductNewsIcon: React.FC<InteractiveIconProps> = styled(InteractiveIcon)`
@@ -176,7 +178,7 @@ export const DismissProductNewsIcon: React.FC<InteractiveIconProps> = styled(Int
   --backgroundHover: ${themeColor('productNewsHover')};
   --color: ${themeContrast('productNews')};
   --colorHover: ${themeContrast('productNewsHover')};
-  --focus: ${themeColor('interactiveIconFocus', 0.2)};
+  --focus: ${themeColor('interactiveIconFocus', OPACITY_20_PERCENT)};
 
   height: 28px;
 `;
