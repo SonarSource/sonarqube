@@ -36,11 +36,14 @@ public class ScimUserQuery {
   private final String userName;
   private final Set<String> scimUserUuids;
   private final Set<String> userUuids;
+  private final String groupUuid;
 
-  private ScimUserQuery(@Nullable String userName, @Nullable Set<String> scimUserUuids, @Nullable Set<String> userUuids) {
+  private ScimUserQuery(@Nullable String userName, @Nullable Set<String> scimUserUuids,
+    @Nullable Set<String> userUuids, @Nullable String groupUuid) {
     this.userName = userName;
     this.scimUserUuids = scimUserUuids;
     this.userUuids = userUuids;
+    this.groupUuid = groupUuid;
   }
 
   @CheckForNull
@@ -56,6 +59,11 @@ public class ScimUserQuery {
   @CheckForNull
   public Set<String> getUserUuids() {
     return userUuids;
+  }
+
+  @CheckForNull
+  public String getGroupUuid() {
+    return groupUuid;
   }
 
   public static ScimUserQuery empty() {
@@ -89,6 +97,7 @@ public class ScimUserQuery {
     private String userName;
     private Set<String> scimUserUuids;
     private Set<String> userUuids;
+    private String groupUuid;
 
     private ScimUserQueryBuilder() {
     }
@@ -109,8 +118,13 @@ public class ScimUserQuery {
       return this;
     }
 
+    public ScimUserQueryBuilder groupUuid(String groupUuid) {
+      this.groupUuid = groupUuid;
+      return this;
+    }
+
     public ScimUserQuery build() {
-      return new ScimUserQuery(userName, scimUserUuids, userUuids);
+      return new ScimUserQuery(userName, scimUserUuids, userUuids, groupUuid);
     }
   }
 }

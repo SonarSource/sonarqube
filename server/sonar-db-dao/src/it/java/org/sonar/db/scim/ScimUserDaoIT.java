@@ -22,11 +22,13 @@ package org.sonar.db.scim;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
@@ -34,6 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -199,6 +202,36 @@ public class ScimUserDaoIT {
   }
 
   @Test
+  public void findScimUsers_whenFilteringByGroupUuid_shouldReturnTheExpectedScimUsers() {
+    List<ScimUserTestData> scimUsersTestData = insertScimUsersWithUsers(List.of("userAInGroupA", "userBInGroupA", "userAInGroupB", "userNotInGroup"));
+    Map<String, ScimUserTestData> users = scimUsersTestData.stream()
+      .collect(Collectors.toMap(testData -> testData.getUserDto().getExternalId(), Function.identity()));
+
+    GroupDto group1dto = createGroupWithUsers(users.get("userAInGroupA"), users.get("userBInGroupA"));
+    createGroupWithUsers(users.get("userAInGroupB"));
+
+    ScimUserQuery query = ScimUserQuery.builder().groupUuid(group1dto.getUuid()).build();
+
+    List<ScimUserDto> scimUsers = scimUserDao.findScimUsers(dbSession, query, 0, 100);
+
+    List<String> scimUsersUuids = toScimUsersUuids(scimUsers);
+    assertThat(scimUsersUuids).containsExactlyInAnyOrder(
+      users.get("userAInGroupA").getScimUserUuid(),
+      users.get("userBInGroupA").getScimUserUuid()
+    );
+  }
+
+  private GroupDto createGroupWithUsers(ScimUserTestData... testUsers) {
+    GroupDto group = db.users().insertGroup();
+
+    UserDto[] userDtos = Arrays.stream(testUsers)
+      .map(ScimUserTestData::getUserDto)
+      .toArray(UserDto[]::new);
+    db.users().insertMembers(group, userDtos);
+    return group;
+  }
+
+  @Test
   public void findScimUsers_whenFilteringByScimUuidsWithLongRange_shouldReturnTheExpectedScimUsers() {
     generateScimUsers(3000);
     Set<String> expectedScimUserUuids = generateStrings(1, 2050);
@@ -310,7 +343,9 @@ public class ScimUserDaoIT {
 
   private ScimUserTestData insertScimUserWithUser(String userLogin, String scimUuid) {
     UserDto userDto = db.users().insertUser(u -> u.setExternalId(userLogin));
-    return insertScimUser(scimUuid, userDto.getUuid());
+    ScimUserTestData scimUserTestData = insertScimUser(scimUuid, userDto.getUuid());
+    scimUserTestData.setUserDto(userDto);
+    return scimUserTestData;
   }
 
   private ScimUserTestData insertScimUser(String scimUserUuid) {
@@ -350,6 +385,7 @@ public class ScimUserDaoIT {
 
     private final String scimUserUuid;
     private final String userUuid;
+    private UserDto userDto;
 
     private ScimUserTestData(String scimUserUuid, String userUuid) {
       this.scimUserUuid = scimUserUuid;
@@ -362,6 +398,14 @@ public class ScimUserDaoIT {
 
     private String getUserUuid() {
       return userUuid;
+    }
+
+    private UserDto getUserDto() {
+      return userDto;
+    }
+
+    private void setUserDto(UserDto userDto) {
+      this.userDto = userDto;
     }
 
     @Override

@@ -28,7 +28,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
-import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.api.utils.Preconditions.checkState;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class ScimUserDao implements Dao {

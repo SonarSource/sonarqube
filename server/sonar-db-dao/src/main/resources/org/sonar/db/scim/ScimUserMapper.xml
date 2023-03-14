@@ -4,20 +4,20 @@
 <mapper namespace="org.sonar.db.scim.ScimUserMapper">
 
   <sql id="scimUsersColumns">
-      scim_uuid as scimUserUuid,
-      user_uuid as userUuid
+      s.scim_uuid as scimUserUuid,
+      s.user_uuid as userUuid
   </sql>
 
   <select id="findAll" resultType="org.sonar.db.scim.ScimUserDto">
     select
     <include refid="scimUsersColumns"/>
-      from scim_users
+      from scim_users s
   </select>
 
   <select id="findByScimUuid" parameterType="String" resultType="org.sonar.db.scim.ScimUserDto">
     select
     <include refid="scimUsersColumns"/>
-      from scim_users
+      from scim_users s
     where
       scim_uuid = #{scimUserUuid,jdbcType=VARCHAR}
   </select>
@@ -25,7 +25,7 @@
   <select id="selectByLogins" parameterType="string" resultType="User">
     select
     <include refid="scimUsersColumns"/>
-      from scim_users
+      from scim_users s
     where
       scim_uuid in
         <foreach collection="list" open="(" close=")" item="login" separator=",">
@@ -36,7 +36,7 @@
   <select id="findByUserUuid" parameterType="String" resultType="org.sonar.db.scim.ScimUserDto">
     select
     <include refid="scimUsersColumns"/>
-      from scim_users
+      from scim_users s
     where
       user_uuid = #{userUuid,jdbcType=VARCHAR}
   </select>
@@ -66,6 +66,9 @@
   <sql id="sqlSelectByQuery">
     from scim_users s
     inner join users u on u.uuid=s.user_uuid
+    <if test="query.groupUuid != null">
+      left join groups_users gu on gu.user_uuid = u.uuid
+    </if>
     where 1=1
     <if test="query.userName != null">
         and lower(u.external_id) like lower(#{query.userName,jdbcType=VARCHAR}) escape '/'
@@ -81,6 +84,9 @@
         <foreach collection="query.userUuids" open="(" close=")" item="userUuid" separator=",">
             #{userUuid, jdbcType=VARCHAR}
         </foreach>
+    </if>
+    <if test="query.groupUuid != null">
+        and gu.group_uuid = #{query.groupUuid, jdbcType=VARCHAR}
     </if>
   </sql>
 
