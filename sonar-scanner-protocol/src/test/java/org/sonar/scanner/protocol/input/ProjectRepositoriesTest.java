@@ -20,7 +20,6 @@
 package org.sonar.scanner.protocol.input;
 
 import com.google.common.collect.Maps;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

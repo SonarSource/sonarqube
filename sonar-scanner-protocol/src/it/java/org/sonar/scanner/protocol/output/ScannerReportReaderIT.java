@@ -44,7 +44,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ScannerReportReaderTest {
+public class ScannerReportReaderIT {
 
   private static final int UNKNOWN_COMPONENT_REF = 123;
 
