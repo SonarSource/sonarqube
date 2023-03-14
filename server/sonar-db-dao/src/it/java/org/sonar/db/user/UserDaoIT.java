@@ -408,6 +408,16 @@ public class UserDaoIT {
   }
 
   @Test
+  public void count_active_users() {
+    db.users().insertUser();
+    db.users().insertUser();
+    db.users().insertUser();
+    db.users().insertUser(c -> c.setActive(false));
+
+    assertThat(underTest.countActiveUsers(db.getSession())).isEqualTo(3);
+  }
+
+  @Test
   public void clean_user_homepage() {
 
     UserDto user = newUserDto().setHomepageType("RANDOM").setHomepageParameter("any-string");

@@ -189,6 +189,10 @@ public class UserDao implements Dao {
     return mapper(dbSession).countActiveSonarlintUsers(threshold);
   }
 
+  public long countActiveUsers(DbSession dbSession) {
+    return mapper(dbSession).countActiveUsers();
+  }
+
   public void scrollByUuids(DbSession dbSession, Collection<String> uuids, Consumer<UserDto> consumer) {
     UserMapper mapper = mapper(dbSession);
 
