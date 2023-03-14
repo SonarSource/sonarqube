@@ -28,20 +28,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.sarif.Sarif210;
 import org.sonar.core.sarif.SarifSerializer;
 
 @ScannerSide
-public class SarifIssuesImportSensor implements Sensor {
+public class SarifIssuesImportSensor implements ProjectSensor {
 
   private static final Logger LOG = Loggers.get(SarifIssuesImportSensor.class);
   static final String SARIF_REPORT_PATHS_PROPERTY_KEY = "sonar.sarifReportPaths";
