@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Joiner;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
@@ -34,11 +33,10 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
+import static org.sonar.process.systeminfo.SystemInfoUtils.addIfNotEmpty;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 public class StandaloneSystemSection extends BaseSectionMBean implements SystemSectionMBean {
-
-  private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
   private final Configuration config;
   private final Server server;
@@ -95,9 +93,10 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
     setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
     setAttribute(protobuf, "External Users and Groups Provisioning", commonSystemInformation.getManagedProvider());
     setAttribute(protobuf, "External User Authentication", commonSystemInformation.getExternalUserAuthentication());
-    setAttribute(protobuf, "Accepted external identity providers", COMMA_JOINER.join(commonSystemInformation.getEnabledIdentityProviders()));
-    setAttribute(protobuf, "External identity providers whose users are allowed to sign themselves up",
-      COMMA_JOINER.join(commonSystemInformation.getAllowsToSignUpEnabledIdentityProviders()));
+    addIfNotEmpty(protobuf, "Accepted external identity providers",
+      commonSystemInformation.getEnabledIdentityProviders());
+    addIfNotEmpty(protobuf, "External identity providers whose users are allowed to sign themselves up",
+      commonSystemInformation.getAllowsToSignUpEnabledIdentityProviders());
     setAttribute(protobuf, "High Availability", false);
     setAttribute(protobuf, "Official Distribution", officialDistribution.check());
     setAttribute(protobuf, "Force authentication", commonSystemInformation.getForceAuthentication());

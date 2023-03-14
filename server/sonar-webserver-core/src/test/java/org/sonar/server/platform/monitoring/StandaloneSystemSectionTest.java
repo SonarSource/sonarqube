@@ -38,6 +38,7 @@ import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.platform.OfficialDistribution;
 import org.sonar.server.platform.StatisticsSupport;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -46,6 +47,7 @@ import static org.sonar.api.SonarEdition.DATACENTER;
 import static org.sonar.api.SonarEdition.DEVELOPER;
 import static org.sonar.api.SonarEdition.ENTERPRISE;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
+import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeDoesNotExist;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
 @RunWith(DataProviderRunner.class)
@@ -98,6 +100,14 @@ public class StandaloneSystemSectionTest {
   }
 
   @Test
+  public void toProtobuf_whenNoExternalUserAuthentication_shouldWriteNothing() {
+    when(commonSystemInformation.getExternalUserAuthentication()).thenReturn(null);
+
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeDoesNotExist(protobuf, "External User Authentication");
+  }
+
+  @Test
   public void toProtobuf_whenExternalUserAuthentication_shouldWriteIt() {
     when(commonSystemInformation.getExternalUserAuthentication()).thenReturn("LDAP");
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
@@ -105,11 +115,11 @@ public class StandaloneSystemSectionTest {
   }
 
   @Test
-  public void toProtobuf_whenNoExternalUserAuthentication_shouldWriteNothing() {
-    when(commonSystemInformation.getExternalUserAuthentication()).thenReturn("");
+  public void toProtobuf_whenNoIdentityProviders_shouldWriteNothing() {
+    when(commonSystemInformation.getEnabledIdentityProviders()).thenReturn(emptyList());
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    assertThatAttributeIs(protobuf, "External User Authentication", "");
+    assertThatAttributeDoesNotExist(protobuf, "Accepted external identity providers");
   }
 
   @Test
@@ -118,6 +128,14 @@ public class StandaloneSystemSectionTest {
 
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
     assertThatAttributeIs(protobuf, "Accepted external identity providers", "Bitbucket, GitHub");
+  }
+
+  @Test
+  public void toProtobuf_whenNoAllowsToSignUpEnabledIdentityProviders_shouldWriteNothing() {
+    when(commonSystemInformation.getAllowsToSignUpEnabledIdentityProviders()).thenReturn(emptyList());
+
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeDoesNotExist(protobuf, "External identity providers whose users are allowed to sign themselves up");
   }
 
   @Test
@@ -165,19 +183,19 @@ public class StandaloneSystemSectionTest {
   }
 
   @Test
-  public void toProtobuf_whenInstanceIsManaged_shouldWriteItsProviderName() {
-    when(commonSystemInformation.getManagedProvider()).thenReturn("OKTA");
-
+  public void toProtobuf_whenInstanceIsNotManaged_shouldWriteNothing() {
+    when(commonSystemInformation.getManagedProvider()).thenReturn(null);
     ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    assertThatAttributeIs(protobuf, "External Users and Groups Provisioning", "OKTA");
+
+    assertThatAttributeDoesNotExist(protobuf, "External Users and Groups Provisioning");
   }
 
   @Test
-  public void toProtobuf_whenInstanceIsNotManaged_shouldWriteNothing() {
-    when(commonSystemInformation.getManagedProvider()).thenReturn("");
-    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+  public void toProtobuf_whenInstanceIsManaged_shouldWriteItsProviderName() {
+    when(commonSystemInformation.getManagedProvider()).thenReturn("Okta");
 
-    assertThatAttributeIs(protobuf, "External Users and Groups Provisioning", "");
+    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
+    assertThatAttributeIs(protobuf, "External Users and Groups Provisioning", "Okta");
   }
 
   @DataProvider

@@ -47,4 +47,9 @@ public class SystemInfoTesting {
     assertThat(value).as(key).isNotNull();
     assertThat(value.getLongValue()).isEqualTo(expectedValue);
   }
+
+  public static void assertThatAttributeDoesNotExist(ProtobufSystemInfo.Section section, String key) {
+    ProtobufSystemInfo.Attribute value = attribute(section, key);
+    assertThat(value).as(key).isNull();
+  }
 }

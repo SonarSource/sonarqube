@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
-import com.google.common.base.Joiner;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
@@ -31,12 +30,11 @@ import org.sonar.server.platform.StatisticsSupport;
 import org.sonar.server.platform.monitoring.CommonSystemInformation;
 
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
+import static org.sonar.process.systeminfo.SystemInfoUtils.addIfNotEmpty;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 @ServerSide
 public class GlobalSystemSection implements SystemInfoSection, Global {
-
-  private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
   private final Server server;
   private final DockerSupport dockerSupport;
@@ -63,10 +61,14 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
     setAttribute(protobuf, NCLOC.getName() ,statisticsSupport.getLinesOfCode());
     setAttribute(protobuf, "Docker", dockerSupport.isRunningInDocker());
     setAttribute(protobuf, "High Availability", true);
-    setAttribute(protobuf, "External Users and Groups Provisioning", commonSystemInformation.getManagedProvider());
-    setAttribute(protobuf, "External User Authentication", commonSystemInformation.getExternalUserAuthentication());
-    setAttribute(protobuf, "Accepted external identity providers", COMMA_JOINER.join(commonSystemInformation.getEnabledIdentityProviders()));
-    setAttribute(protobuf, "External identity providers whose users are allowed to sign themselves up", COMMA_JOINER.join(commonSystemInformation.getAllowsToSignUpEnabledIdentityProviders()));
+    setAttribute(protobuf, "External Users and Groups Provisioning",
+      commonSystemInformation.getManagedProvider());
+    setAttribute(protobuf, "External User Authentication",
+      commonSystemInformation.getExternalUserAuthentication());
+    addIfNotEmpty(protobuf, "Accepted external identity providers",
+      commonSystemInformation.getEnabledIdentityProviders());
+    addIfNotEmpty(protobuf, "External identity providers whose users are allowed to sign themselves up",
+      commonSystemInformation.getAllowsToSignUpEnabledIdentityProviders());
     setAttribute(protobuf, "Force authentication", commonSystemInformation.getForceAuthentication());
     return protobuf.build();
   }

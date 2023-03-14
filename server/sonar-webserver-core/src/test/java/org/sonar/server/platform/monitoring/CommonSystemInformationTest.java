@@ -126,7 +126,7 @@ public class CommonSystemInformationTest {
     mockManagedInstance(false);
 
     assertThat(commonSystemInformation.getManagedProvider())
-      .isEmpty();
+      .isNull();
   }
 
   @Test
@@ -135,7 +135,7 @@ public class CommonSystemInformationTest {
     mockManagedInstance(true);
 
     assertThat(commonSystemInformation.getManagedProvider())
-      .isEmpty();
+      .isNull();
   }
 
   @Test
@@ -153,7 +153,7 @@ public class CommonSystemInformationTest {
   @Test
   public void getExternalUserAuthentication_whenNotDefined_shouldReturnNull() {
     assertThat(commonSystemInformation.getExternalUserAuthentication())
-      .isEmpty();
+      .isNull();
   }
 
   @Test

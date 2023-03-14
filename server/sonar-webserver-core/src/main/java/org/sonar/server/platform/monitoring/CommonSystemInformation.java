@@ -78,14 +78,14 @@ public class CommonSystemInformation {
         .filter(IdentityProvider::isEnabled)
         .findFirst()
         .map(IdentityProvider::getName)
-        .orElse("");
+        .orElse(null);
     }
-    return "";
+    return null;
   }
 
   @CheckForNull
   public String getExternalUserAuthentication() {
     SecurityRealm realm = securityRealmFactory.getRealm();
-    return realm == null ? "" : realm.getName();
+    return realm == null ? null : realm.getName();
   }
 }
