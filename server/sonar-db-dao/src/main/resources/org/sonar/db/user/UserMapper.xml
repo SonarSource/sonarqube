@@ -269,4 +269,8 @@
         where last_sonarlint_connection > #{sinceDate,jdbcType=BIGINT}
     </select>
 
+    <select id="countActiveUsers" resultType="long">
+        select count(1) from users u WHERE u.active=${_true}
+    </select>
+
 </mapper>

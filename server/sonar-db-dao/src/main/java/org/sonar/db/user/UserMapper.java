@@ -81,4 +81,6 @@ public interface UserMapper {
   void clearHomepage(@Param("login") String login, @Param("now") long now);
 
   long countActiveSonarlintUsers(@Param("sinceDate") long sinceDate);
+
+  long countActiveUsers();
 }
