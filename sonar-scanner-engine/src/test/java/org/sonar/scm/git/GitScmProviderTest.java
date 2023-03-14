@@ -54,6 +54,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
@@ -61,6 +62,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
+import org.sonar.scm.git.strategy.DefaultBlameStrategy;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
@@ -145,8 +147,8 @@ public class GitScmProviderTest {
   @Test
   public void returnImplem() {
     JGitBlameCommand jblameCommand = new JGitBlameCommand();
-    GitBlameCommand nativeBlameCommand = new GitBlameCommand(System2.INSTANCE, new ProcessWrapperFactory());
-    CompositeBlameCommand compositeBlameCommand = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jblameCommand, nativeBlameCommand);
+    NativeGitBlameCommand nativeBlameCommand = new NativeGitBlameCommand(System2.INSTANCE, new ProcessWrapperFactory());
+    CompositeBlameCommand compositeBlameCommand = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jblameCommand, nativeBlameCommand, new DefaultBlameStrategy(mock(Configuration.class)));
     GitScmProvider gitScmProvider = new GitScmProvider(compositeBlameCommand, analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator);
 
     assertThat(gitScmProvider.blameCommand()).isEqualTo(compositeBlameCommand);

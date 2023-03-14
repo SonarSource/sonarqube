@@ -1,0 +1,52 @@
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00  1) <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00  2)     <modelVersion>4.0.0</modelVersion>
+783905e3d8b3e6f89a63c573d5fcf60af7845ebe (<david@gageot.net> 2012-07-20T18:52:36+02:00  3)     <groupId>dummy-git</groupId>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00  4)     <artifactId>dummy</artifactId>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00  5)     <version>1.0</version>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00  6)     <packaging>jar</packaging>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00  7)     <name>Dummy</name>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00  8) 
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00  9)     <properties>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 10)         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 11)     </properties>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 12) 
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 13)     <build>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 14)         <pluginManagement>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 15)             <plugins>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 16)                 <plugin>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 17)                     <artifactId>maven-clean-plugin</artifactId>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 18)                     <version>2.4.1</version>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 19)                 </plugin>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 20)                 <plugin>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 21)                     <artifactId>maven-compiler-plugin</artifactId>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 22)                     <version>2.3.2</version>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 23)                 </plugin>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 24)                 <plugin>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 25)                     <artifactId>maven-resources-plugin</artifactId>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 26)                     <version>2.5</version>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 27)                 </plugin>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 28)                 <plugin>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 29)                     <artifactId>maven-source-plugin</artifactId>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 30)                     <version>2.1.2</version>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 31)                 </plugin>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 32)             </plugins>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 33)         </pluginManagement>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 34)         <plugins>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 35)             <plugin>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 36)                 <artifactId>maven-compiler-plugin</artifactId>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 37)                 <configuration>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 38)                     <source>1.5</source>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 39)                     <target>1.5</target>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 40)                 </configuration>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 41)             </plugin>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 42)         </plugins>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 43)     </build>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 44) 
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 45)     <dependencies>
+ffb55a516440d069145dd9199e4ac67976b2338b (<david@gageot.net> 2012-07-20T15:26:23+02:00 46)         <dependency>
+ffb55a516440d069145dd9199e4ac67976b2338b (<david@gageot.net> 2012-07-20T15:26:23+02:00 47)             <groupId>junit</groupId>
+ffb55a516440d069145dd9199e4ac67976b2338b (<david@gageot.net> 2012-07-20T15:26:23+02:00 48)             <artifactId>junit</artifactId>
+ffb55a516440d069145dd9199e4ac67976b2338b (<david@gageot.net> 2012-07-20T15:26:23+02:00 49)             <version>4.10</version>
+ffb55a516440d069145dd9199e4ac67976b2338b (<david@gageot.net> 2012-07-20T15:26:23+02:00 50)         </dependency>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 51)     </dependencies>
+6b3aab35a3ea32c1636fee56f996e677653c48ea (<david@gageot.net> 2012-07-17T16:12:48+02:00 52) </project>

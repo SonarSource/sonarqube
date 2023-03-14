@@ -17,27 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scm.git;
+package org.sonar.scm.git.strategy;
 
-import java.util.Arrays;
-import java.util.List;
-import org.eclipse.jgit.util.FS;
-import org.sonar.scm.git.strategy.DefaultBlameStrategy;
+public interface BlameStrategy {
 
-public final class GitScmSupport {
-  private GitScmSupport() {
-    // static only
-  }
-
-  public static List<Object> getObjects() {
-    FS.FileStoreAttributes.setBackground(true);
-    return Arrays.asList(
-      JGitBlameCommand.class,
-      CompositeBlameCommand.class,
-      NativeGitBlameCommand.class,
-      DefaultBlameStrategy.class,
-      ProcessWrapperFactory.class,
-      GitScmProvider.class,
-      GitIgnoreCommand.class);
-  }
+  DefaultBlameStrategy.BlameAlgorithmEnum getBlameAlgorithm(int availableProcessors, int numberOfFiles);
 }

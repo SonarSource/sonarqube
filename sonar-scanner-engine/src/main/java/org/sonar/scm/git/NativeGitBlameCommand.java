@@ -39,13 +39,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static java.util.Collections.emptyList;
 import static org.sonar.api.utils.Preconditions.checkState;
 
-public class GitBlameCommand {
+public class NativeGitBlameCommand {
   protected static final String BLAME_COMMAND = "blame";
   protected static final String GIT_DIR_FLAG = "--git-dir";
   protected static final String GIT_DIR_ARGUMENT = "%s/.git";
   protected static final String GIT_DIR_FORCE_FLAG = "-C";
 
-  private static final Logger LOG = Loggers.get(GitBlameCommand.class);
+  private static final Logger LOG = Loggers.get(NativeGitBlameCommand.class);
   private static final Pattern EMAIL_PATTERN = Pattern.compile("<(.*?)>");
   private static final String COMMITTER_TIME = "committer-time ";
   private static final String AUTHOR_MAIL = "author-mail ";
@@ -64,12 +64,12 @@ public class GitBlameCommand {
   private String gitCommand;
 
   @Autowired
-  public GitBlameCommand(System2 system, ProcessWrapperFactory processWrapperFactory) {
+  public NativeGitBlameCommand(System2 system, ProcessWrapperFactory processWrapperFactory) {
     this.system = system;
     this.processWrapperFactory = processWrapperFactory;
   }
 
-  GitBlameCommand(String gitCommand, System2 system, ProcessWrapperFactory processWrapperFactory) {
+  NativeGitBlameCommand(String gitCommand, System2 system, ProcessWrapperFactory processWrapperFactory) {
     this.gitCommand = gitCommand;
     this.system = system;
     this.processWrapperFactory = processWrapperFactory;

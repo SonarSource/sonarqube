@@ -34,6 +34,7 @@ dependencies {
   api 'org.slf4j:log4j-over-slf4j'
   api 'org.slf4j:slf4j-api'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
+  api 'org.sonarsource.git.blame:git-files-blame'
   api 'org.sonarsource.update-center:sonar-update-center-common'
   api 'org.springframework:spring-context'
 
@@ -60,7 +61,7 @@ dependencies {
 }
 
 license {
-  excludes(["**/Fake.java", "**/Fake.groovy", "org/sonar/scanner/cpd/ManyStatements.java"])
+  excludes(["**/Fake.java", "**/Fake.groovy", "org/sonar/scanner/cpd/ManyStatements.java", "org/sonar/scm/git/expected-blame/**/*"])
 }
 
 artifactoryPublish.skip = false

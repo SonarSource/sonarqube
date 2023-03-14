@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -53,15 +54,20 @@ public class JGitBlameCommandTest {
   public LogTester logTester = new LogTester();
 
   private final JGitBlameCommand jGitBlameCommand = new JGitBlameCommand();
+  private Path baseDir;
 
-  @Test
-  public void blame_returns_all_lines() throws IOException {
+  @Before
+  public void before() throws IOException {
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
+    baseDir = projectDir.toPath().resolve("dummy-git");
+  }
 
-    File baseDir = new File(projectDir, "dummy-git");
+  @Test
+  public void blame_returns_all_lines() {
 
-    try (Git git = loadRepository(baseDir.toPath())) {
+
+    try (Git git = loadRepository(baseDir)) {
       List<BlameLine> blameLines = jGitBlameCommand.blame(git, DUMMY_JAVA);
 
       Date revisionDate1 = DateUtils.parseDateTime("2012-07-17T16:12:48+0200");
@@ -90,10 +96,6 @@ public class JGitBlameCommandTest {
 
   @Test
   public void modified_file_returns_no_blame() throws IOException {
-    File projectDir = createNewTempFolder();
-    javaUnzip("dummy-git.zip", projectDir);
-
-    Path baseDir = projectDir.toPath().resolve("dummy-git");
 
     // Emulate a modification
     Files.write(baseDir.resolve(DUMMY_JAVA), "modification and \n some new line".getBytes());
@@ -105,16 +107,12 @@ public class JGitBlameCommandTest {
 
   @Test
   public void new_file_returns_no_blame() throws IOException {
-    File projectDir = createNewTempFolder();
-    javaUnzip("dummy-git.zip", projectDir);
-
-    File baseDir = new File(projectDir, "dummy-git");
     String relativePath2 = "src/main/java/org/dummy/Dummy2.java";
 
     // Emulate a new file
-    FileUtils.copyFile(new File(baseDir, DUMMY_JAVA), new File(baseDir, relativePath2));
+    FileUtils.copyFile(new File(baseDir.toFile(), DUMMY_JAVA), new File(baseDir.toFile(), relativePath2));
 
-    try (Git git = loadRepository(baseDir.toPath())) {
+    try (Git git = loadRepository(baseDir)) {
       assertThat(jGitBlameCommand.blame(git, DUMMY_JAVA)).hasSize(29);
       assertThat(jGitBlameCommand.blame(git, relativePath2)).isEmpty();
     }
@@ -123,10 +121,6 @@ public class JGitBlameCommandTest {
   @Test
   public void symlink_doesnt_fail() throws IOException {
     assumeTrue(!System2.INSTANCE.isOsWindows());
-    File projectDir = temp.newFolder();
-    javaUnzip("dummy-git.zip", projectDir);
-
-    Path baseDir = projectDir.toPath().resolve("dummy-git");
     String relativePath2 = "src/main/java/org/dummy/Dummy2.java";
 
     // Create symlink

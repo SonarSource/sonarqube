@@ -19,6 +19,7 @@
  */
 package org.sonar.scm.git;
 
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,6 +36,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -51,15 +53,16 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.scm.git.GitBlameCommand.BLAME_COMMAND;
-import static org.sonar.scm.git.GitBlameCommand.GIT_DIR_ARGUMENT;
-import static org.sonar.scm.git.GitBlameCommand.GIT_DIR_FLAG;
-import static org.sonar.scm.git.GitBlameCommand.GIT_DIR_FORCE_FLAG;
+import static org.sonar.scm.git.NativeGitBlameCommand.BLAME_COMMAND;
+import static org.sonar.scm.git.NativeGitBlameCommand.GIT_DIR_ARGUMENT;
+import static org.sonar.scm.git.NativeGitBlameCommand.GIT_DIR_FLAG;
+import static org.sonar.scm.git.NativeGitBlameCommand.GIT_DIR_FORCE_FLAG;
 import static org.sonar.scm.git.GitUtils.createFile;
 import static org.sonar.scm.git.GitUtils.createRepository;
 import static org.sonar.scm.git.Utils.javaUnzip;
 
-public class GitBlameCommandTest {
+@RunWith(DataProviderRunner.class)
+public class NativeGitBlameCommandTest {
   private static final String DUMMY_JAVA = "src/main/java/org/dummy/Dummy.java";
 
   @Rule
@@ -67,7 +70,7 @@ public class GitBlameCommandTest {
   @Rule
   public LogTester logTester = new LogTester();
   private final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
-  private final GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
+  private final NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(System2.INSTANCE, processWrapperFactory);
 
   @Before
   public void skipTestsIfNoGitFound() {
@@ -161,7 +164,7 @@ public class GitBlameCommandTest {
       anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
       .then(invocation -> mockProcess);
 
-    GitBlameCommand blameCommand = new GitBlameCommand(gitCommand, System2.INSTANCE, mockFactory);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(gitCommand, System2.INSTANCE, mockFactory);
     blameCommand.blame(baseDir.toPath(), DUMMY_JAVA);
 
     verify(mockFactory).create(any(), any(), eq(gitCommand),
@@ -204,27 +207,27 @@ public class GitBlameCommandTest {
 
   @Test
   public void git_should_be_detected() {
-    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(System2.INSTANCE, processWrapperFactory);
     assertThat(blameCommand.checkIfEnabled()).isTrue();
   }
 
   @Test
   public void git_should_not_be_detected() {
-    GitBlameCommand blameCommand = new GitBlameCommand("randomcmdthatwillneverbefound", System2.INSTANCE, processWrapperFactory);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand("randomcmdthatwillneverbefound", System2.INSTANCE, processWrapperFactory);
     assertThat(blameCommand.checkIfEnabled()).isFalse();
   }
 
   @Test
   public void git_should_not_be_enabled_if_version_command_is_not_found() {
     ProcessWrapperFactory mockedCmd = mockGitVersionCommand("error: unknown option `version'");
-    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, mockedCmd);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(System2.INSTANCE, mockedCmd);
     assertThat(blameCommand.checkIfEnabled()).isFalse();
   }
 
   @Test
   public void git_should_not_be_enabled_if_version_command_does_not_return_string_output() {
     ProcessWrapperFactory mockedCmd = mockGitVersionCommand(null);
-    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, mockedCmd);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(System2.INSTANCE, mockedCmd);
     assertThat(blameCommand.checkIfEnabled()).isFalse();
   }
 
@@ -244,7 +247,7 @@ public class GitBlameCommandTest {
         return mock(ProcessWrapper.class);
       });
 
-      GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, mockedCmd);
+      NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(System2.INSTANCE, mockedCmd);
       assertThat(blameCommand.checkIfEnabled()).isTrue();
     });
   }
@@ -252,14 +255,14 @@ public class GitBlameCommandTest {
   @Test
   public void git_should_not_be_enabled_if_version_is_less_than_required_minimum() {
     ProcessWrapperFactory mockFactory = mockGitVersionCommand("git version 1.9.0");
-    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, mockFactory);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(System2.INSTANCE, mockFactory);
     assertThat(blameCommand.checkIfEnabled()).isFalse();
   }
 
   @Test
   public void throw_exception_if_command_fails() throws Exception {
     Path baseDir = temp.newFolder().toPath();
-    GitBlameCommand blameCommand = new GitBlameCommand("randomcmdthatwillneverbefound", System2.INSTANCE, processWrapperFactory);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand("randomcmdthatwillneverbefound", System2.INSTANCE, processWrapperFactory);
     assertThatThrownBy(() -> blameCommand.blame(baseDir, "file")).isInstanceOf(IOException.class);
   }
 
@@ -271,7 +274,7 @@ public class GitBlameCommandTest {
     createFile(filePath, "line", baseDir);
     commitWithNoEmail(git, filePath);
 
-    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(System2.INSTANCE, processWrapperFactory);
     assertThat(blameCommand.checkIfEnabled()).isTrue();
     List<BlameLine> blame = blameCommand.blame(baseDir, filePath);
     assertThat(blame).hasSize(1);
@@ -289,7 +292,7 @@ public class GitBlameCommandTest {
     createFile(filePath, "line", baseDir);
     commit(git, filePath, "my DOT name AT server DOT com");
 
-    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(System2.INSTANCE, processWrapperFactory);
     assertThat(blameCommand.checkIfEnabled()).isTrue();
     List<BlameLine> blame = blameCommand.blame(baseDir, filePath);
     assertThat(blame).hasSize(1);
@@ -304,7 +307,7 @@ public class GitBlameCommandTest {
     createFile(filePath, "line", baseDir);
     commitWithNoEmail(git, filePath);
 
-    GitBlameCommand blameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(System2.INSTANCE, processWrapperFactory);
     assertThat(blameCommand.checkIfEnabled()).isTrue();
     List<BlameLine> blame = blameCommand.blame(baseDir, filePath);
     assertThat(blame).hasSize(1);
@@ -329,7 +332,7 @@ public class GitBlameCommandTest {
       return mockProcess;
     });
 
-    GitBlameCommand blameCommand = new GitBlameCommand(system2, mockFactory);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(system2, mockFactory);
     assertThat(blameCommand.checkIfEnabled()).isTrue();
     assertThat(logTester.logs()).contains("Found git.exe at C:\\mockGit.exe");
   }
@@ -343,7 +346,7 @@ public class GitBlameCommandTest {
     ProcessWrapperFactory mockFactory = mock(ProcessWrapperFactory.class);
     mockGitWhereOnWindows(mockFactory);
 
-    GitBlameCommand blameCommand = new GitBlameCommand(system2, mockFactory);
+    NativeGitBlameCommand blameCommand = new NativeGitBlameCommand(system2, mockFactory);
     assertThat(blameCommand.checkIfEnabled()).isFalse();
   }
 
