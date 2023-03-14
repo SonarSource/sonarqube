@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { getRuleDetails } from '../../../api/rules';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
-import { scrollToElement } from '../../../helpers/scrolling';
 import {
   Hotspot,
   HotspotStatusFilter,
@@ -48,8 +47,6 @@ interface State {
   loading: boolean;
   showStatusUpdateSuccessModal: boolean;
 }
-
-const SCROLL_TO_COMMENT_BOTTOM_OFFSET = 300;
 
 export default class HotspotViewer extends React.PureComponent<Props, State> {
   mounted = false;
@@ -110,10 +107,12 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
 
   handleScrollToCommentForm = () => {
     if (this.commentTextRef.current) {
-      this.commentTextRef.current.focus({ preventScroll: true });
-      scrollToElement(this.commentTextRef.current, {
-        bottomOffset: SCROLL_TO_COMMENT_BOTTOM_OFFSET,
+      this.commentTextRef.current.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth',
+        inline: 'center',
       });
+      this.commentTextRef.current.focus({ preventScroll: true });
     }
   };
 
