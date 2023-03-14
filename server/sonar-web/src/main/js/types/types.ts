@@ -219,6 +219,7 @@ export interface Group {
   description?: string;
   membersCount: number;
   name: string;
+  managed: boolean;
 }
 
 export type HealthType = 'RED' | 'YELLOW' | 'GREEN';

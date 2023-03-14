@@ -51,5 +51,13 @@ it('should open the groups form', () => {
 });
 
 function getWrapper(props = {}) {
-  return shallow(<UserGroups groups={groups} onUpdateUsers={jest.fn()} user={user} {...props} />);
+  return shallow(
+    <UserGroups
+      groups={groups}
+      onUpdateUsers={jest.fn()}
+      user={user}
+      manageProvider={undefined}
+      {...props}
+    />
+  );
 }

@@ -34,6 +34,7 @@ function shallowRender(overrides: Partial<ListItemProps> = {}) {
       onDelete={jest.fn()}
       onEdit={jest.fn()}
       onEditMembers={jest.fn()}
+      manageProvider={undefined}
       {...overrides}
     />
   );

@@ -69,7 +69,12 @@ export default function UserListItem(props: UserListItemProps) {
         <DateFromNow date={user.lastConnectionDate} hourPrecision={true} />
       </td>
       <td className="thin nowrap text-middle">
-        <UserGroups groups={user.groups || []} onUpdateUsers={onUpdateUsers} user={user} />
+        <UserGroups
+          groups={user.groups || []}
+          manageProvider={manageProvider}
+          onUpdateUsers={onUpdateUsers}
+          user={user}
+        />
       </td>
       <td className="thin nowrap text-middle">
         {user.tokensCount}
@@ -81,9 +86,18 @@ export default function UserListItem(props: UserListItemProps) {
           <BulletListIcon />
         </ButtonIcon>
       </td>
-      <td className="thin nowrap text-right text-middle">
-        <UserActions isCurrentUser={isCurrentUser} onUpdateUsers={onUpdateUsers} user={user} />
-      </td>
+
+      {(manageProvider === undefined || !user.managed) && (
+        <td className="thin nowrap text-right text-middle">
+          <UserActions
+            isCurrentUser={isCurrentUser}
+            onUpdateUsers={onUpdateUsers}
+            user={user}
+            manageProvider={manageProvider}
+          />
+        </td>
+      )}
+
       {openTokenForm && (
         <TokensFormModal
           onClose={() => setOpenTokenForm(false)}

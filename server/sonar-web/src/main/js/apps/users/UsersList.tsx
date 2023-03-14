@@ -51,7 +51,9 @@ export default function UsersList({
             <th className="nowrap">{translate('users.last_connection')}</th>
             <th className="nowrap">{translate('my_profile.groups')}</th>
             <th className="nowrap">{translate('users.tokens')}</th>
-            <th className="nowrap">&nbsp;</th>
+            {(manageProvider === undefined || users.some((u) => !u.managed)) && (
+              <th className="nowrap">&nbsp;</th>
+            )}
           </tr>
         </thead>
         <tbody>

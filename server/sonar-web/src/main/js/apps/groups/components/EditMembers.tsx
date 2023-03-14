@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { ButtonIcon } from '../../../components/controls/buttons';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
-import { translate } from '../../../helpers/l10n';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { Group } from '../../../types/types';
 import EditMembersModal from './EditMembersModal';
 
@@ -61,10 +61,10 @@ export default class EditMembers extends React.PureComponent<Props, State> {
     return (
       <>
         <ButtonIcon
-          aria-label={translate('groups.users.edit')}
+          aria-label={translateWithParameters('groups.users.edit', this.props.group.name)}
           className="button-small"
           onClick={this.handleMembersClick}
-          title={translate('groups.users.edit')}
+          title={translateWithParameters('groups.users.edit', this.props.group.name)}
         >
           <BulletListIcon />
         </ButtonIcon>

@@ -25,12 +25,12 @@ import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import Form from './Form';
 
-interface Props {
+interface HeaderProps {
   onCreate: (data: { description: string; name: string }) => Promise<void>;
   manageProvider?: string;
 }
 
-export default function Header(props: Props) {
+export default function Header(props: HeaderProps) {
   const { manageProvider } = props;
   const [createModal, setCreateModal] = React.useState(false);
 

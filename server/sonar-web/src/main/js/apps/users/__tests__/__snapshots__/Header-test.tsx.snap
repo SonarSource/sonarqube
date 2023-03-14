@@ -9,9 +9,6 @@ exports[`should render correctly 1`] = `
   >
     users.page
   </h2>
-  <DeferredSpinner
-    loading={true}
-  />
   <div
     className="page-actions"
   >

@@ -29,9 +29,12 @@ interface Props {
   onEdit: (group: Group) => void;
   onEditMembers: () => void;
   showAnyone: boolean;
+  manageProvider: string | undefined;
 }
 
 export default function List(props: Props) {
+  const { groups, manageProvider, showAnyone } = props;
+
   return (
     <div className="boxed-group boxed-group-inner">
       <table className="data zebra zebra-hover" id="groups-list">
@@ -46,7 +49,7 @@ export default function List(props: Props) {
           </tr>
         </thead>
         <tbody>
-          {props.showAnyone && (
+          {showAnyone && (
             <tr className="js-anyone" key="anyone">
               <td className="width-20">
                 <strong className="js-group-name">{translate('groups.anyone')}</strong>
@@ -61,13 +64,14 @@ export default function List(props: Props) {
             </tr>
           )}
 
-          {sortBy(props.groups, (group) => group.name.toLowerCase()).map((group) => (
+          {sortBy(groups, (group) => group.name.toLowerCase()).map((group) => (
             <ListItem
               group={group}
               key={group.name}
               onDelete={props.onDelete}
               onEdit={props.onEdit}
               onEditMembers={props.onEditMembers}
+              manageProvider={manageProvider}
             />
           ))}
         </tbody>

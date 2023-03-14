@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockGroup } from '../../../../helpers/testMocks';
 import List from '../List';
 
 it('should render', () => {
@@ -31,9 +32,9 @@ it('should not render "Anyone"', () => {
 
 function shallowRender(showAnyone = true) {
   const groups = [
-    { id: 1, name: 'sonar-users', description: '', membersCount: 55, default: true },
-    { id: 2, name: 'foo', description: 'foobar', membersCount: 0, default: false },
-    { id: 3, name: 'bar', description: 'barbar', membersCount: 1, default: false },
+    mockGroup({ name: 'sonar-users', description: '', membersCount: 55, default: true }),
+    mockGroup({ name: 'foo', description: 'foobar', membersCount: 0, default: false }),
+    mockGroup({ name: 'bar', description: 'barbar', membersCount: 1, default: false }),
   ];
   return shallow(
     <List
@@ -42,6 +43,7 @@ function shallowRender(showAnyone = true) {
       onEdit={jest.fn()}
       onEditMembers={jest.fn()}
       showAnyone={showAnyone}
+      manageProvider={undefined}
     />
   );
 }

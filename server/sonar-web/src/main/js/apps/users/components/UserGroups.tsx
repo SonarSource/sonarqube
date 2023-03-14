@@ -28,6 +28,7 @@ interface Props {
   groups: string[];
   onUpdateUsers: () => void;
   user: User;
+  manageProvider: string | undefined;
 }
 
 interface State {
@@ -49,7 +50,8 @@ export default class UserGroups extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { groups } = this.props;
+    const { groups, user, manageProvider } = this.props;
+    const { showMore, openForm } = this.state;
     const limit = groups.length > GROUPS_LIMIT ? GROUPS_LIMIT - 1 : GROUPS_LIMIT;
     return (
       <ul>
@@ -59,31 +61,34 @@ export default class UserGroups extends React.PureComponent<Props, State> {
           </li>
         ))}
         {groups.length > GROUPS_LIMIT &&
-          this.state.showMore &&
+          showMore &&
           groups.slice(limit).map((group) => (
             <li className="little-spacer-bottom" key={group}>
               {group}
             </li>
           ))}
         <li className="little-spacer-bottom">
-          {groups.length > GROUPS_LIMIT && !this.state.showMore && (
+          {groups.length > GROUPS_LIMIT && !showMore && (
             <a className="js-user-more-groups spacer-right" href="#" onClick={this.toggleShowMore}>
               {translateWithParameters('more_x', groups.length - limit)}
             </a>
           )}
-          <ButtonIcon
-            className="js-user-groups button-small"
-            onClick={this.handleOpenForm}
-            tooltip={translate('users.update_groups')}
-          >
-            <BulletListIcon />
-          </ButtonIcon>
+          {manageProvider === undefined && (
+            <ButtonIcon
+              aria-label={translateWithParameters('users.update_users_groups', user.login)}
+              className="js-user-groups button-small"
+              onClick={this.handleOpenForm}
+              tooltip={translate('users.update_groups')}
+            >
+              <BulletListIcon />
+            </ButtonIcon>
+          )}
         </li>
-        {this.state.openForm && (
+        {openForm && (
           <GroupsForm
             onClose={this.handleCloseForm}
             onUpdateUsers={this.props.onUpdateUsers}
-            user={this.props.user}
+            user={user}
           />
         )}
       </ul>

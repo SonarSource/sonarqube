@@ -22,7 +22,7 @@ import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isUserActive, User } from '../../../types/users';
 import DeactivateForm from './DeactivateForm';
 import PasswordForm from './PasswordForm';
@@ -32,6 +32,7 @@ interface Props {
   isCurrentUser: boolean;
   onUpdateUsers: () => void;
   user: User;
+  manageProvider: string | undefined;
 }
 
 interface State {
@@ -57,23 +58,41 @@ export default class UserActions extends React.PureComponent<Props, State> {
     this.setState({ openForm: undefined });
   };
 
+  isInstanceManaged = () => {
+    return this.props.manageProvider !== undefined;
+  };
+
+  isUserLocal = () => {
+    return this.isInstanceManaged() && !this.props.user.managed;
+  };
+
+  isUserManaged = () => {
+    return this.isInstanceManaged() && this.props.user.managed;
+  };
+
   renderActions = () => {
     const { user } = this.props;
+
     return (
-      <ActionsDropdown>
-        <ActionsDropdownItem className="js-user-update" onClick={this.handleOpenUpdateForm}>
-          {translate('update_details')}
-        </ActionsDropdownItem>
-        {user.local && (
-          <ActionsDropdownItem
-            className="js-user-change-password"
-            onClick={this.handleOpenPasswordForm}
-          >
-            {translate('my_profile.password.title')}
-          </ActionsDropdownItem>
+      <ActionsDropdown label={translateWithParameters('users.manage_user', user.login)}>
+        {!this.isInstanceManaged() && (
+          <>
+            <ActionsDropdownItem className="js-user-update" onClick={this.handleOpenUpdateForm}>
+              {translate('update_details')}
+            </ActionsDropdownItem>
+            {user.local && (
+              <ActionsDropdownItem
+                className="js-user-change-password"
+                onClick={this.handleOpenPasswordForm}
+              >
+                {translate('my_profile.password.title')}
+              </ActionsDropdownItem>
+            )}
+          </>
         )}
-        <ActionsDropdownDivider />
-        {isUserActive(user) && (
+
+        {isUserActive(user) && !this.isInstanceManaged() && <ActionsDropdownDivider />}
+        {isUserActive(user) && (!this.isInstanceManaged() || this.isUserLocal()) && (
           <ActionsDropdownItem
             className="js-user-deactivate"
             destructive={true}
@@ -89,6 +108,10 @@ export default class UserActions extends React.PureComponent<Props, State> {
   render() {
     const { openForm } = this.state;
     const { isCurrentUser, onUpdateUsers, user } = this.props;
+
+    if (this.isUserManaged()) {
+      return null;
+    }
 
     return (
       <>

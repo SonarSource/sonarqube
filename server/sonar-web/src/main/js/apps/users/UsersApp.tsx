@@ -138,21 +138,22 @@ export class UsersApp extends React.PureComponent<Props, State> {
   render() {
     const { search, managed } = parseQuery(this.props.location.query);
     const { loading, paging, users, manageProvider } = this.state;
-    // What if we have ONLY managed users? Should we not display the filter toggle?
+
     return (
       <main className="page page-limited" id="users-page">
         <Suggestions suggestions="users" />
         <Helmet defer={false} title={translate('users.page')} />
-        <Header loading={loading} onUpdateUsers={this.fetchUsers} manageProvider={manageProvider} />
+        <Header onUpdateUsers={this.fetchUsers} manageProvider={manageProvider} />
         <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
           {manageProvider !== undefined && (
             <div className="big-spacer-right">
               <ButtonToggle
                 value={managed === undefined ? 'all' : managed}
+                disabled={loading}
                 options={[
                   { label: translate('all'), value: 'all' },
-                  { label: translate('users.managed'), value: true },
-                  { label: translate('users.local'), value: false },
+                  { label: translate('managed'), value: true },
+                  { label: translate('local'), value: false },
                 ]}
                 onCheck={(filterOption) => {
                   if (filterOption === 'all') {

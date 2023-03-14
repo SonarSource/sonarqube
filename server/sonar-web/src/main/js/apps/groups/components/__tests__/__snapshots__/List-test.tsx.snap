@@ -64,7 +64,7 @@ exports[`should render 1`] = `
           {
             "default": false,
             "description": "barbar",
-            "id": 3,
+            "managed": false,
             "membersCount": 1,
             "name": "bar",
           }
@@ -79,7 +79,7 @@ exports[`should render 1`] = `
           {
             "default": false,
             "description": "foobar",
-            "id": 2,
+            "managed": false,
             "membersCount": 0,
             "name": "foo",
           }
@@ -94,7 +94,7 @@ exports[`should render 1`] = `
           {
             "default": true,
             "description": "",
-            "id": 1,
+            "managed": false,
             "membersCount": 55,
             "name": "sonar-users",
           }

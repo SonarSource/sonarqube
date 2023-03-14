@@ -24,6 +24,7 @@ exports[`should render correctly 1`] = `
     <EditMembers
       group={
         {
+          "managed": false,
           "membersCount": 1,
           "name": "Foo",
         }
@@ -41,7 +42,9 @@ exports[`should render correctly 1`] = `
   <td
     className="thin nowrap text-right"
   >
-    <ActionsDropdown>
+    <ActionsDropdown
+      label="groups.edit.Foo"
+    >
       <ActionsDropdownItem
         className="js-group-update"
         onClick={[Function]}

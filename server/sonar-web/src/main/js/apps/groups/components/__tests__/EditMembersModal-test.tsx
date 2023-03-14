@@ -21,10 +21,11 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../../api/user_groups';
 import SelectList, { SelectListFilter } from '../../../../components/controls/SelectList';
+import { mockGroup } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import EditMembersModal from '../EditMembersModal';
 
-const group = { id: 1, name: 'foo', membersCount: 1 };
+const group = mockGroup({ name: 'foo', membersCount: 1 });
 
 jest.mock('../../../../api/user_groups', () => ({
   getUsersInGroup: jest.fn().mockResolvedValue({

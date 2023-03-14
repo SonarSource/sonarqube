@@ -26,6 +26,7 @@ export function searchUsersGroups(data: {
   p?: number;
   ps?: number;
   q?: string;
+  managed: boolean | undefined;
 }): Promise<{ groups: Group[]; paging: Paging }> {
   return getJSON('/api/user_groups/search', data).catch(throwGlobalError);
 }

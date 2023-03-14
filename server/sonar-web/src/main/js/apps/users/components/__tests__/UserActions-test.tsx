@@ -55,6 +55,12 @@ it('should open the deactivate form', () => {
 
 function getWrapper(props = {}) {
   return shallow(
-    <UserActions isCurrentUser={false} onUpdateUsers={jest.fn()} user={user} {...props} />
+    <UserActions
+      isCurrentUser={false}
+      onUpdateUsers={jest.fn()}
+      user={user}
+      manageProvider={undefined}
+      {...props}
+    />
   );
 }

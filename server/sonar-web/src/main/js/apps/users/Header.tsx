@@ -22,12 +22,10 @@ import { FormattedMessage } from 'react-intl';
 import DocLink from '../../components/common/DocLink';
 import { Button } from '../../components/controls/buttons';
 import { Alert } from '../../components/ui/Alert';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 import UserForm from './components/UserForm';
 
 interface Props {
-  loading: boolean;
   onUpdateUsers: () => void;
   manageProvider?: string;
 }
@@ -35,11 +33,10 @@ interface Props {
 export default function Header(props: Props) {
   const [openUserForm, setOpenUserForm] = React.useState(false);
 
-  const { manageProvider, loading } = props;
+  const { manageProvider } = props;
   return (
     <div className="page-header null-spacer-bottom">
       <h2 className="page-title">{translate('users.page')}</h2>
-      <DeferredSpinner loading={loading} />
 
       <div className="page-actions">
         <Button

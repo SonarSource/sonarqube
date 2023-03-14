@@ -33,5 +33,5 @@ it('should open the user creation form', () => {
 });
 
 function getWrapper(props = {}) {
-  return shallow(<Header loading={true} onUpdateUsers={jest.fn()} {...props} />);
+  return shallow(<Header onUpdateUsers={jest.fn()} {...props} />);
 }

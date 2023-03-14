@@ -35,12 +35,17 @@ const ui = {
   infoManageMode: byText(/users\.page\.managed_description/),
   description: byText('users.page.description'),
   allFilter: byRole('button', { name: 'all' }),
-  managedFilter: byRole('button', { name: 'users.managed' }),
-  localFilter: byRole('button', { name: 'users.local' }),
+  managedFilter: byRole('button', { name: 'managed' }),
+  localFilter: byRole('button', { name: 'local' }),
   aliceRow: byRole('row', { name: 'AM Alice Merveille alice.merveille never' }),
   aliceRowWithLocalBadge: byRole('row', {
-    name: 'AM Alice Merveille alice.merveille users.local never',
+    name: 'AM Alice Merveille alice.merveille local never',
   }),
+  aliceUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.alice.merveille' }),
+  aliceUpdateButton: byRole('button', { name: 'users.manage_user.alice.merveille' }),
+  alicedDeactivateButton: byRole('button', { name: 'users.deactivate' }),
+  bobUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.bob.marley' }),
+  bobUpdateButton: byRole('button', { name: 'users.manage_user.bob.marley' }),
   bobRow: byRole('row', { name: 'BM Bob Marley bob.marley never' }),
 };
 
@@ -54,6 +59,20 @@ describe('in non managed mode', () => {
 
     expect(await ui.description.find()).toBeInTheDocument();
     expect(ui.createUserButton.get()).toBeEnabled();
+  });
+
+  it("should be able to add/remove user's group", async () => {
+    renderUsersApp();
+
+    expect(await ui.aliceUpdateGroupButton.find()).toBeInTheDocument();
+    expect(await ui.bobUpdateGroupButton.find()).toBeInTheDocument();
+  });
+
+  it('should be able to update / change password / deactivate a user', async () => {
+    renderUsersApp();
+
+    expect(await ui.aliceUpdateButton.find()).toBeInTheDocument();
+    expect(await ui.bobUpdateButton.find()).toBeInTheDocument();
   });
 
   it('should render all users', async () => {
@@ -76,6 +95,32 @@ describe('in manage mode', () => {
     expect(await ui.infoManageMode.find()).toBeInTheDocument();
   });
 
+  it("should not be able to add/remove a user's group", async () => {
+    renderUsersApp();
+
+    expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
+    expect(ui.aliceUpdateGroupButton.query()).not.toBeInTheDocument();
+
+    expect(await ui.bobRow.find()).toBeInTheDocument();
+    expect(ui.bobUpdateGroupButton.query()).not.toBeInTheDocument();
+  });
+
+  it('should not be able to update / change password / deactivate a managed user', async () => {
+    renderUsersApp();
+
+    expect(await ui.bobRow.find()).toBeInTheDocument();
+    expect(ui.bobUpdateButton.query()).not.toBeInTheDocument();
+  });
+
+  it('should ONLY be able to deactivate a local user', async () => {
+    const user = userEvent.setup();
+    renderUsersApp();
+
+    expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
+    await user.click(ui.aliceUpdateButton.get());
+    expect(await ui.alicedDeactivateButton.get()).toBeInTheDocument();
+  });
+
   it('should render list of all users', async () => {
     renderUsersApp();
 
@@ -89,9 +134,7 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    // The click downs't work without this line
-    expect(await ui.managedFilter.find()).toBeInTheDocument();
-    await user.click(await ui.managedFilter.get());
+    await user.click(await ui.managedFilter.find());
 
     expect(ui.aliceRowWithLocalBadge.query()).not.toBeInTheDocument();
     expect(ui.bobRow.get()).toBeInTheDocument();
@@ -101,9 +144,7 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    // The click downs't work without this line
-    expect(await ui.localFilter.find()).toBeInTheDocument();
-    await user.click(await ui.localFilter.get());
+    await user.click(await ui.localFilter.find());
 
     expect(ui.aliceRowWithLocalBadge.get()).toBeInTheDocument();
     expect(ui.bobRow.query()).not.toBeInTheDocument();

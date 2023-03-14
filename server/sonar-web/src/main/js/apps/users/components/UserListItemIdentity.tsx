@@ -43,8 +43,8 @@ export default function UserListItemIdentity({ identityProvider, user, managePro
       {!user.local && user.externalProvider !== 'sonarqube' && (
         <ExternalProvider identityProvider={identityProvider} user={user} />
       )}
-      {user.managed === false && manageProvider !== undefined && (
-        <span className="badge">{translate('users.local')}</span>
+      {!user.managed && manageProvider !== undefined && (
+        <span className="badge">{translate('local')}</span>
       )}
     </td>
   );

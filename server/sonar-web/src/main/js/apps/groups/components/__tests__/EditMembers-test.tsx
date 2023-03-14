@@ -19,11 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockGroup } from '../../../../helpers/testMocks';
 import { click } from '../../../../helpers/testUtils';
 import EditMembers from '../EditMembers';
 
 it('should edit members', () => {
-  const group = { id: 3, name: 'Foo', membersCount: 5 };
+  const group = mockGroup({ name: 'Foo', membersCount: 5 });
   const onEdit = jest.fn();
 
   const wrapper = shallow(<EditMembers group={group} onEdit={onEdit} />);

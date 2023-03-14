@@ -276,6 +276,7 @@ export function mockGroup(overrides: Partial<Group> = {}): Group {
   return {
     membersCount: 1,
     name: 'Foo',
+    managed: false,
     ...overrides,
   };
 }

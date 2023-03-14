@@ -22,7 +22,7 @@ import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Group } from '../../../types/types';
 import EditMembers from './EditMembers';
 
@@ -31,41 +31,63 @@ export interface ListItemProps {
   onDelete: (group: Group) => void;
   onEdit: (group: Group) => void;
   onEditMembers: () => void;
+  manageProvider: string | undefined;
 }
 
 export default function ListItem(props: ListItemProps) {
-  const { group } = props;
+  const { manageProvider, group } = props;
+  const { name, managed, membersCount, description } = group;
+
+  const isManaged = () => {
+    return manageProvider !== undefined;
+  };
+
+  const isGroupLocal = () => {
+    return isManaged() && !managed;
+  };
 
   return (
-    <tr data-id={group.name}>
+    <tr data-id={name}>
       <td className="width-20">
-        <strong className="js-group-name">{group.name}</strong>
+        <strong className="js-group-name">{name}</strong>
         {group.default && <span className="little-spacer-left">({translate('default')})</span>}
+        {isGroupLocal() && <span className="little-spacer-left badge">{translate('local')}</span>}
       </td>
 
-      <td className="thin text-middle text-right little-padded-right">{group.membersCount}</td>
+      <td className="thin text-middle text-right little-padded-right">{membersCount}</td>
       <td className="little-padded-left">
-        {!group.default && <EditMembers group={group} onEdit={props.onEditMembers} />}
+        {!group.default && !isManaged() && (
+          <EditMembers group={group} onEdit={props.onEditMembers} />
+        )}
       </td>
 
       <td className="width-40">
-        <span className="js-group-description">{group.description}</span>
+        <span className="js-group-description">{description}</span>
       </td>
 
       <td className="thin nowrap text-right">
-        {!group.default && (
-          <ActionsDropdown>
-            <ActionsDropdownItem className="js-group-update" onClick={() => props.onEdit(group)}>
-              {translate('update_details')}
-            </ActionsDropdownItem>
-            <ActionsDropdownDivider />
-            <ActionsDropdownItem
-              className="js-group-delete"
-              destructive={true}
-              onClick={() => props.onDelete(group)}
-            >
-              {translate('delete')}
-            </ActionsDropdownItem>
+        {!group.default && (!isManaged() || isGroupLocal()) && (
+          <ActionsDropdown label={translateWithParameters('groups.edit', group.name)}>
+            {!isManaged() && (
+              <>
+                <ActionsDropdownItem
+                  className="js-group-update"
+                  onClick={() => props.onEdit(group)}
+                >
+                  {translate('update_details')}
+                </ActionsDropdownItem>
+                <ActionsDropdownDivider />
+              </>
+            )}
+            {(!isManaged() || isGroupLocal()) && (
+              <ActionsDropdownItem
+                className="js-group-delete"
+                destructive={true}
+                onClick={() => props.onDelete(group)}
+              >
+                {translate('delete')}
+              </ActionsDropdownItem>
+            )}
           </ActionsDropdown>
         )}
       </td>
