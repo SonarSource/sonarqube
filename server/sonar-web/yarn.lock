@@ -4479,6 +4479,7 @@ __metadata:
     "@typescript-eslint/parser": 5.49.0
     autoprefixer: 10.4.13
     chalk: 4.1.2
+    chokidar: 3.5.3
     classnames: 2.3.2
     clipboard: 2.0.11
     core-js: 3.27.2
@@ -5407,7 +5408,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:^3.5.2":
+"chokidar@npm:3.5.3, chokidar@npm:^3.5.2":
   version: 3.5.3
   resolution: "chokidar@npm:3.5.3"
   dependencies:

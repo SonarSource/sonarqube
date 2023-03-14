@@ -28,15 +28,15 @@ function buildDesignSystem(callback) {
 
   const build = spawn('npx', ['turbo', 'run', 'design-system#build']);
 
-  build.stdout.on('data', function (data) {
+  build.stdout.on('data', (data) => {
     console.log(chalk.green.bold(data.toString()));
   });
 
-  build.stderr.on('data', function (data) {
+  build.stderr.on('data', (data) => {
     console.log(chalk.red.bold(data.toString()));
   });
 
-  build.on('exit', function (code) {
+  build.on('exit', (code) => {
     if (code === 0) {
       callback();
     }

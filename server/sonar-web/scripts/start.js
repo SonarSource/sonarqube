@@ -22,6 +22,7 @@ process.env.NODE_ENV = 'development';
 
 const fs = require('fs');
 const chalk = require('chalk');
+const chokidar = require('chokidar');
 const esbuild = require('esbuild');
 const http = require('http');
 const httpProxy = require('http-proxy');
@@ -122,3 +123,10 @@ async function run() {
 }
 
 buildDesignSystem(run);
+
+chokidar
+  .watch('./design-system/src', {
+    ignored: /(^|[/\\])\../, // ignore dotfiles
+    persistent: true,
+  })
+  .on('change', () => buildDesignSystem());

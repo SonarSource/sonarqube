@@ -10,7 +10,7 @@ sonar {
 }
 
 task "yarn_validate-ci"(type: Exec) {
-  dependsOn ":server:sonar-web:yarn_design-system"
+  dependsOn ":server:sonar-web:yarn_run"
 
   inputs.dir('src')
 
@@ -25,7 +25,7 @@ task "yarn_validate-ci"(type: Exec) {
 }
 
 task "yarn_lint-report-ci"(type: Exec) {
-  dependsOn ":server:sonar-web:yarn_design-system"
+  dependsOn ":server:sonar-web:yarn_run"
 
   ['src'].each {
     inputs.dir(it)

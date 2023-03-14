@@ -71,6 +71,7 @@
     "@typescript-eslint/parser": "5.49.0",
     "autoprefixer": "10.4.13",
     "chalk": "4.1.2",
+    "chokidar": "3.5.3",
     "design-system": "1.0.0",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.7",
