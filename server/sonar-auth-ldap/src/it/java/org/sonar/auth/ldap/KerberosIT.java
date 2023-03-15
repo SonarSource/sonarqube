@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
 
-public class KerberosTest {
+public class KerberosIT {
 
   static {
     System.setProperty("java.security.krb5.conf", new File("target/krb5.conf").getAbsolutePath());

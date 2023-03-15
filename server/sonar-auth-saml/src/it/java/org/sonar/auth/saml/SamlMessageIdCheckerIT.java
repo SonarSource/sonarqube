@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SamlMessageIdCheckerTest {
+public class SamlMessageIdCheckerIT {
 
   @Rule
   public DbTester db = DbTester.create();

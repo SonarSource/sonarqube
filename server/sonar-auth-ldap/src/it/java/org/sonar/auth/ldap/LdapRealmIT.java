@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE;
 import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
 
-public class LdapRealmTest {
+public class LdapRealmIT {
 
   @ClassRule
   public static LdapServer server = new LdapServer("/users.example.org.ldif");

@@ -28,7 +28,7 @@ import org.sonar.auth.ldap.server.LdapServer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class DefaultLdapUsersProviderTest {
+public class DefaultLdapUsersProviderIT {
   /**
    * A reference to the original ldif file
    */
