@@ -37,8 +37,8 @@ public class ScimGroupDao implements Dao {
     return mapper(dbSession).findAll();
   }
 
-  public List<ScimGroupDto> findScimGroups(DbSession dbSession, int offset, int limit) {
-    return mapper(dbSession).findScimGroups(new RowBounds(offset, limit));
+  public List<ScimGroupDto> findScimGroups(DbSession dbSession, ScimGroupQuery query, int offset, int limit) {
+    return mapper(dbSession).findScimGroups(query, new RowBounds(offset, limit));
   }
 
   public Optional<ScimGroupDto> findByScimUuid(DbSession dbSession, String scimGroupUuid) {
@@ -49,8 +49,8 @@ public class ScimGroupDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).findByGroupUuid(groupUuid));
   }
 
-  public int countScimGroups(DbSession dbSession) {
-    return mapper(dbSession).countScimGroups();
+  public int countScimGroups(DbSession dbSession, ScimGroupQuery query) {
+    return mapper(dbSession).countScimGroups(query);
   }
 
   public ScimGroupDto enableScimForGroup(DbSession dbSession, String groupUuid) {

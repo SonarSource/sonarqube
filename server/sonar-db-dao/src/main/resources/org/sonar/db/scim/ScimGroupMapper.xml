@@ -34,12 +34,20 @@
     select
     <include refid="scimGroupsColumns"/>
     from scim_groups s
+    <if test="query.displayName != null">
+      inner join groups g on g.uuid=s.group_uuid
+      where g.name = #{query.displayName,jdbcType=VARCHAR}
+    </if>
     order by s.scim_uuid asc
   </select>
 
   <select id="countScimGroups" resultType="int">
     select count(1)
-    from scim_groups
+    from scim_groups s
+    <if test="query.displayName != null">
+      inner join groups g on g.uuid=s.group_uuid
+      where g.name = #{query.displayName,jdbcType=VARCHAR}
+    </if>
   </select>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">

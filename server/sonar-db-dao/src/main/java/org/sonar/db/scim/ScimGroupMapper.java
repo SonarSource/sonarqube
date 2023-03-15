@@ -34,9 +34,9 @@ public interface ScimGroupMapper {
   @CheckForNull
   ScimGroupDto findByGroupUuid(@Param("groupUuid") String groupUuid);
 
-  List<ScimGroupDto> findScimGroups(RowBounds rowBounds);
+  List<ScimGroupDto> findScimGroups(@Param("query") ScimGroupQuery query, RowBounds rowBounds);
 
-  int countScimGroups();
+  int countScimGroups(@Param("query") ScimGroupQuery query);
 
   void insert(@Param("scimGroupDto") ScimGroupDto scimGroupDto);
 

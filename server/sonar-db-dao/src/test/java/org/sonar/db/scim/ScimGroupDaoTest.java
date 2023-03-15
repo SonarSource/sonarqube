@@ -26,11 +26,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +42,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 @RunWith(DataProviderRunner.class)
 public class ScimGroupDaoTest {
+  private static final String DISPLAY_NAME_FILTER = "displayName eq \"group2\"";
   @Rule
   public DbTester db = DbTester.create();
   private final ScimGroupDao scimGroupDao = db.getDbClient().scimGroupDao();
@@ -60,8 +63,7 @@ public class ScimGroupDaoTest {
       .extracting(ScimGroupDto::getGroupUuid, ScimGroupDto::getScimGroupUuid)
       .containsExactlyInAnyOrder(
         tuple(scimGroup1.getGroupUuid(), scimGroup1.getScimGroupUuid()),
-        tuple(scimGroup2.getGroupUuid(), scimGroup2.getScimGroupUuid())
-      );
+        tuple(scimGroup2.getGroupUuid(), scimGroup2.getScimGroupUuid()));
   }
 
   @Test
@@ -69,12 +71,12 @@ public class ScimGroupDaoTest {
     int totalScimGroups = 15;
     generateScimGroups(totalScimGroups);
 
-    assertThat(scimGroupDao.countScimGroups(db.getSession())).isEqualTo(totalScimGroups);
+    assertThat(scimGroupDao.countScimGroups(db.getSession(), ScimGroupQuery.ALL)).isEqualTo(totalScimGroups);
   }
 
   @Test
   public void countScimGroups_shouldReturnZero_whenNoScimGroups() {
-    assertThat(scimGroupDao.countScimGroups(db.getSession())).isZero();
+    assertThat(scimGroupDao.countScimGroups(db.getSession(), ScimGroupQuery.ALL)).isZero();
   }
 
   @DataProvider
@@ -91,13 +93,49 @@ public class ScimGroupDaoTest {
 
   @Test
   @UseDataProvider("paginationData")
-  public void findScimGroups_whenPaginationAndStartIndex_shouldReturnTheCorrectNumberOfScimGroups(int totalScimGroups, int offset, int pageSize, List<String> expectedScimGroupUuids) {
+  public void findScimGroups_whenPaginationAndStartIndex_shouldReturnTheCorrectNumberOfScimGroups(int totalScimGroups, int offset, int pageSize,
+    List<String> expectedScimGroupUuidSuffixes) {
     generateScimGroups(totalScimGroups);
 
-    List<ScimGroupDto> scimUserDtos = scimGroupDao.findScimGroups(db.getSession(), offset, pageSize);
+    List<ScimGroupDto> scimGroupDtos = scimGroupDao.findScimGroups(db.getSession(), ScimGroupQuery.ALL, offset, pageSize);
 
-    List<String> scimGroupsUuids = toScimGroupsUuids(scimUserDtos);
-    assertThat(scimGroupsUuids).containsExactlyElementsOf(expectedScimGroupUuids);
+    List<String> actualScimGroupsUuids = toScimGroupsUuids(scimGroupDtos);
+    List<String> expectedScimGroupUuids = toExpectedscimGroupUuids(expectedScimGroupUuidSuffixes);
+    assertThat(actualScimGroupsUuids).containsExactlyElementsOf(expectedScimGroupUuids);
+  }
+
+  private static List<String> toExpectedscimGroupUuids(List<String> expectedScimGroupUuidSuffixes) {
+    return expectedScimGroupUuidSuffixes.stream()
+      .map(expectedScimGroupUuidSuffix -> "scim_uuid_Scim Group" + expectedScimGroupUuidSuffix)
+      .collect(Collectors.toList());
+  }
+
+  @Test
+  public void findScimGroups_whenFilteringByDisplayName_shouldReturnTheExpectedScimGroups() {
+    insertGroupAndScimGroup("group1");
+    insertGroupAndScimGroup("group2");
+    ScimGroupQuery query = ScimGroupQuery.fromScimFilter(DISPLAY_NAME_FILTER);
+
+    List<ScimGroupDto> scimGroups = scimGroupDao.findScimGroups(db.getSession(), query, 0, 100);
+
+    assertThat(scimGroups).hasSize(1);
+    assertThat(scimGroups.get(0).getScimGroupUuid()).isEqualTo(createScimGroupUuid("group2"));
+  }
+
+  @Test
+  public void countScimGroups_whenFilteringByDisplayName_shouldReturnCorrectCount() {
+    insertGroupAndScimGroup("group1");
+    insertGroupAndScimGroup("group2");
+    ScimGroupQuery query = ScimGroupQuery.fromScimFilter(DISPLAY_NAME_FILTER);
+
+    int groupCount = scimGroupDao.countScimGroups(db.getSession(), query);
+
+    assertThat(groupCount).isEqualTo(1);
+  }
+
+  private void insertGroupAndScimGroup(String groupName) {
+    GroupDto groupDto = insertGroup(groupName);
+    insertScimGroup(createScimGroupUuid(groupName), groupDto.getUuid());
   }
 
   @Test
@@ -110,26 +148,31 @@ public class ScimGroupDaoTest {
   public void getManagedGroupsSqlFilter_whenFilterByManagedIsFalse_returnsCorrectQuery() {
     String filterNonManagedUser = scimGroupDao.getManagedGroupSqlFilter(false);
     assertThat(filterNonManagedUser).isEqualTo("not exists (select group_uuid from scim_groups sg where sg.group_uuid = uuid)");
-
   }
 
-  private void generateScimGroups(int totalScimGroups) {
-    List<ScimGroupDto> allScimGroups = Stream.iterate(1, i -> i + 1)
-      .map(i -> insertScimGroup(i.toString()))
-      .limit(totalScimGroups)
-      .collect(Collectors.toList());
-    assertThat(allScimGroups).hasSize(totalScimGroups);
+  private List<ScimGroupDto> generateScimGroups(int totalScimGroups) {
+    return IntStream.range(1, totalScimGroups + 1)
+      .mapToObj(i -> insertGroup(createGroupName(i)))
+      .map(groupDto -> insertScimGroup(createScimGroupUuid(groupDto.getName()), groupDto.getUuid()))
+      .toList();
   }
 
-  private ScimGroupDto insertScimGroup(String scimGroupUuid) {
-    return insertScimGroup(scimGroupUuid, randomAlphanumeric(40));
+  private static String createGroupName(int i) {
+    return "Scim Group" + i;
+  }
+
+  private GroupDto insertGroup(String name) {
+    return db.users().insertGroup(name);
+  }
+
+  private static String createScimGroupUuid(String groupName) {
+    return StringUtils.substring("scim_uuid_" + groupName, 0, 40);
   }
 
   private ScimGroupDto insertScimGroup(String scimGroupUuid, String groupUuid) {
     ScimGroupDto scimGroupDto = new ScimGroupDto(scimGroupUuid, groupUuid);
     Map<String, Object> data = Map.of("scim_uuid", scimGroupDto.getScimGroupUuid(), "group_uuid", scimGroupDto.getGroupUuid());
     db.executeInsert("scim_groups", data);
-
     return scimGroupDto;
   }
 
