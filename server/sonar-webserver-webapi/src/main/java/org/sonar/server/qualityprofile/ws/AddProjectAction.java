@@ -65,7 +65,6 @@ public class AddProjectAction implements QProfileWsAction {
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer Quality Profiles'</li>" +
-        "  <li>Edit right on the specified quality profile</li>" +
         "  <li>Administer right on the specified project</li>" +
         "</ul>")
       .setPost(true)

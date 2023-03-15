@@ -6337,7 +6337,7 @@
         },
         {
           "key": "add_project",
-          "description": "Associate a project with a quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li>  <li>Administer right on the specified project</li></ul>",
+          "description": "Associate a project with a quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Administer right on the specified project</li></ul>",
           "since": "5.2",
           "internal": false,
           "post": true,
