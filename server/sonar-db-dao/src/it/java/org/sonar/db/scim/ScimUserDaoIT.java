@@ -331,6 +331,16 @@ public class ScimUserDaoIT {
   }
 
   @Test
+  public void deleteAll_should_remove_all_ScimUsers(){
+    insertScimUser("scimUser");
+    insertScimUser("scimUser2");
+
+    scimUserDao.deleteAll(dbSession);
+
+    assertThat(scimUserDao.findAll(dbSession)).isEmpty();
+  }
+
+  @Test
   public void deleteFromUserUuid_shouldNotFail_whenNoUser() {
     assertThatCode(() -> scimUserDao.deleteByUserUuid(dbSession, randomAlphanumeric(6))).doesNotThrowAnyException();
   }

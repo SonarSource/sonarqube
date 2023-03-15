@@ -356,6 +356,6 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   }
 
   private boolean isScimEnabled() {
-    return this.configuration.getBoolean(SCIM_PROPERTY_ENABLED).orElse(false);
+    return this.internalProperties.read(SCIM_PROPERTY_ENABLED).map(Boolean::parseBoolean).orElse(false);
   }
 }

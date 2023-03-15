@@ -106,7 +106,7 @@ public class SamlSettings {
     return configuration.get(GROUP_NAME_ATTRIBUTE);
   }
 
-  boolean isEnabled() {
+  public boolean isEnabled() {
     return configuration.getBoolean(ENABLED).orElse(false) &&
       configuration.get(PROVIDER_ID).isPresent() &&
       configuration.get(APPLICATION_ID).isPresent() &&

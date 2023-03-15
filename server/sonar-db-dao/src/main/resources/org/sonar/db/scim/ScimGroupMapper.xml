@@ -68,5 +68,9 @@
     delete from scim_groups where scim_uuid = #{scimUuid, jdbcType=VARCHAR}
   </delete>
 
+  <update id="deleteAll">
+    delete from scim_groups
+  </update>
+
 </mapper>
 

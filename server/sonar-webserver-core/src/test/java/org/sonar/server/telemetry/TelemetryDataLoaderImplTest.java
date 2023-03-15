@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -440,13 +441,13 @@ public class TelemetryDataLoaderImplTest {
 
   @Test
   @UseDataProvider("getScimFeatureStatues")
-  public void detect_scim_feature_status(boolean isEnabled) {
+  public void detect_scim_feature_status(String isEnabled) {
     db.components().insertPublicProject();
-    when(configuration.getBoolean(SCIM_PROPERTY_ENABLED)).thenReturn(Optional.of(isEnabled));
+    when(internalProperties.read(SCIM_PROPERTY_ENABLED)).thenReturn(Optional.ofNullable(isEnabled));
 
     TelemetryData data = communityUnderTest.load();
 
-    assertThat(data.isScimEnabled()).isEqualTo(isEnabled);
+    assertThat(data.isScimEnabled()).isEqualTo(Boolean.parseBoolean(isEnabled));
   }
 
   @Test
@@ -475,7 +476,11 @@ public class TelemetryDataLoaderImplTest {
   }
 
   @DataProvider
-  public static Set<Boolean> getScimFeatureStatues() {
-    return Set.of(true, false);
+  public static Set<String> getScimFeatureStatues() {
+    HashSet<String> result = new HashSet<>();
+    result.add("true");
+    result.add("false");
+    result.add(null);
+    return result;
   }
 }

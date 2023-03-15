@@ -43,4 +43,6 @@ public interface ScimUserMapper {
   void deleteByUserUuid(@Param("userUuid") String userUuid);
 
   void deleteByScimUuid(@Param("scimUuid") String scimUuid);
+
+  void deleteAll();
 }

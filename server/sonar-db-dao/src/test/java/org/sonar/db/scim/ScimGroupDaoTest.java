@@ -255,4 +255,14 @@ public class ScimGroupDaoTest {
     assertThatCode(() -> scimGroupDao.deleteByGroupUuid(db.getSession(), randomAlphanumeric(6))).doesNotThrowAnyException();
   }
 
+
+  @Test
+  public void deleteAll_should_remove_all_ScimGroups(){
+    insertScimGroup("scim-group-uuid1", "group-uuid1");
+    insertScimGroup("scim-group-uuid2", "group-uuid2");
+
+    scimGroupDao.deleteAll(db.getSession());
+
+    assertThat(scimGroupDao.findAll(db.getSession())).isEmpty();
+  }
 }

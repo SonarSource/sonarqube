@@ -107,4 +107,8 @@ public class ScimUserDao implements Dao {
   public String getManagedUserSqlFilter(boolean filterByManaged) {
     return String.format("%s exists (select user_uuid from scim_users su where su.user_uuid = uuid)", filterByManaged ? "" : "not");
   }
+
+  public void deleteAll(DbSession dbSession) {
+    mapper(dbSession).deleteAll();
+  }
 }

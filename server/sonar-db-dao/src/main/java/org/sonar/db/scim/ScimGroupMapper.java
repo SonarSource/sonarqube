@@ -43,4 +43,6 @@ public interface ScimGroupMapper {
   void deleteByGroupUuid(@Param("groupUuid") String groupUuid);
 
   void deleteByScimUuid(@Param("scimUuid") String scimUuid);
+
+  void deleteAll();
 }

@@ -98,5 +98,9 @@
     delete from scim_users where scim_uuid = #{scimUuid, jdbcType=VARCHAR}
   </delete>
 
+  <update id="deleteAll">
+    delete from scim_users
+  </update>
+
 </mapper>
 

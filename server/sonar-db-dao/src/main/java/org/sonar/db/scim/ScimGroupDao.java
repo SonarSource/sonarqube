@@ -74,4 +74,8 @@ public class ScimGroupDao implements Dao {
   public String getManagedGroupSqlFilter(boolean filterByManaged) {
     return String.format("%s exists (select group_uuid from scim_groups sg where sg.group_uuid = uuid)", filterByManaged ? "" : "not");
   }
+
+  public void deleteAll(DbSession dbSession) {
+    mapper(dbSession).deleteAll();
+  }
 }
