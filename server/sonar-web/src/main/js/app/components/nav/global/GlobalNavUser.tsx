@@ -69,8 +69,7 @@ export function GlobalNavUser() {
       {({ a11yAttrs: { role, ...a11yAttrs }, onToggleClick, open }) => (
         <Tooltip
           mouseEnterDelay={0.2}
-          overlay={translate('global_nav.account.tooltip')}
-          visible={open ? false : undefined}
+          overlay={!open ? translate('global_nav.account.tooltip') : undefined}
         >
           <BareButton
             aria-label={translate('global_nav.account.tooltip')}

@@ -40,11 +40,7 @@ export default function EmbedDocsPopupHelper() {
         zLevel={PopupZLevel.Global}
       >
         {({ onToggleClick, open }) => (
-          <Tooltip
-            mouseLeaveDelay={0.2}
-            overlay={translate('help')}
-            visible={open ? false : undefined}
-          >
+          <Tooltip mouseLeaveDelay={0.2} overlay={!open ? translate('help') : undefined}>
             <InteractiveIcon
               Icon={MenuHelpIcon}
               aria-expanded={open}
