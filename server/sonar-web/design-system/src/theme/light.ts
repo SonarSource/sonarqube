@@ -674,7 +674,7 @@ const lightTheme = {
   // predefined borders
   borders: {
     default: ['1px', 'solid', ...COLORS.grey[50]],
-    active: ['3px', 'solid', ...primary.light],
+    active: ['4px', 'solid', ...primary.light],
     focus: ['4px', 'solid', ...secondary.default, OPACITY_20_PERCENT],
   },
 

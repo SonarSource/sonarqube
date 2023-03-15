@@ -34,7 +34,7 @@ export const MainMenuItem = styled.li`
 
     color: ${themeContrast('mainBar')};
     letter-spacing: 0.03em;
-    line-height: calc(${LAYOUT_GLOBAL_NAV_HEIGHT}px - 3px); // - 3px border bottom
+    line-height: calc(${LAYOUT_GLOBAL_NAV_HEIGHT}px - 4px); // - 4px border bottom
     border-bottom: ${themeBorder('active', 'transparent', 1)};
 
     &:visited {

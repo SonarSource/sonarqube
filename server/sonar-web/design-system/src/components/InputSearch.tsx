@@ -188,11 +188,11 @@ export const StyledInputWrapper = styled.div`
 
     ${tw`sw-rounded-2`}
     ${tw`sw-box-border`}
-  ${tw`sw-pl-10`}
-  ${tw`sw-body-sm`}
-  ${tw`sw-w-full sw-h-control`}
+    ${tw`sw-pl-10`}
+    ${tw`sw-body-sm`}
+    ${tw`sw-w-full sw-h-control`}
 
-  &::placeholder {
+    &::placeholder {
       color: ${themeColor('inputPlaceholder')};
 
       ${tw`sw-truncate`}

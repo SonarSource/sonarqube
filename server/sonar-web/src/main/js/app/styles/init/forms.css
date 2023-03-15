@@ -54,7 +54,7 @@ textarea:focus,
 select:focus {
   border-color: var(--blue);
   box-shadow: none;
-  outline: none !important;
+  outline: none;
 }
 
 input[type='text']:invalid,
