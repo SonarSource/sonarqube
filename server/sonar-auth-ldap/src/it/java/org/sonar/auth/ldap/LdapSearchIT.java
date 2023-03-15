@@ -33,7 +33,7 @@ import org.sonar.auth.ldap.server.LdapServer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class LdapSearchTest {
+public class LdapSearchIT {
 
   @ClassRule
   public static LdapServer server = new LdapServer("/users.example.org.ldif");

@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 
-public class SamlIdentityProviderTest {
+public class SamlIdentityProviderIT {
   private static final String SQ_CALLBACK_URL = "http://localhost:9000/oauth2/callback/saml";
 
   /* IDP private key (keep here for future tests with signature)
@@ -391,12 +391,13 @@ public class SamlIdentityProviderTest {
       this.response = response;
       this.expectedCallbackUrl = expectedCallbackUrl;
       Map<String, String[]> parameterMap = new HashMap<>();
-      parameterMap.put("SAMLResponse", new String[] {loadResponse(encodedResponseFile)});
+      parameterMap.put("SAMLResponse", new String[]{loadResponse(encodedResponseFile)});
       when(getRequest().getParameterMap()).thenReturn(parameterMap);
     }
 
+
     private String loadResponse(String file) {
-      try (InputStream json = getClass().getResourceAsStream("SamlIdentityProviderTest/" + file)) {
+      try (InputStream json = getClass().getResourceAsStream(SamlIdentityProviderIT.class.getSimpleName() + "/" + file)) {
         return IOUtils.toString(json, StandardCharsets.UTF_8);
       } catch (IOException e) {
         throw new IllegalStateException(e);

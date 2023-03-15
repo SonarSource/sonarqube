@@ -28,7 +28,7 @@ import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LdapReferralsTest {
+public class LdapReferralsIT {
 
   @ClassRule
   public static LdapServer server = new LdapServer("/users.example.org.ldif");
