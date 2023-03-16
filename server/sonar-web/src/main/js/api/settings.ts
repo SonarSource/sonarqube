@@ -116,3 +116,17 @@ export function encryptValue(value: string): Promise<{ encryptedValue: string }>
 export function getLoginMessage(): Promise<{ message: string }> {
   return getJSON('/api/settings/login_message').catch(throwGlobalError);
 }
+
+export function fetchIsScimEnabled(): Promise<boolean> {
+  return getJSON('/api/scim_management/status')
+    .then((r) => r.enabled)
+    .catch(throwGlobalError);
+}
+
+export function activateScim(): Promise<void> {
+  return post('/api/scim_management/enable').catch(throwGlobalError);
+}
+
+export function deactivateScim(): Promise<void> {
+  return post('/api/scim_management/disable').catch(throwGlobalError);
+}

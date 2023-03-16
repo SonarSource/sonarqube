@@ -20,27 +20,30 @@
 import React, { useEffect } from 'react';
 import { ButtonLink } from '../../../../components/controls/buttons';
 import { translate } from '../../../../helpers/l10n';
-import { ExtendedSettingDefinition, SettingValue } from '../../../../types/settings';
+import { ExtendedSettingDefinition } from '../../../../types/settings';
+import { isSecuredDefinition } from '../../utils';
 
 interface SamlToggleFieldProps {
   onFieldChange: (key: string, value: string) => void;
-  settingValue?: SettingValue;
+  settingValue?: string;
   definition: ExtendedSettingDefinition;
   optional?: boolean;
-  showTextArea: boolean;
+  isNotSet: boolean;
 }
 
 export default function SamlSecuredField(props: SamlToggleFieldProps) {
-  const { settingValue, definition, optional = true, showTextArea } = props;
-  const [showField, setShowField] = React.useState(showTextArea);
+  const { settingValue, definition, optional = true, isNotSet } = props;
+  const [showSecretField, setShowSecretField] = React.useState(
+    !isNotSet && isSecuredDefinition(definition)
+  );
 
   useEffect(() => {
-    setShowField(showTextArea);
-  }, [showTextArea]);
+    setShowSecretField(!isNotSet && isSecuredDefinition(definition));
+  }, [isNotSet, definition]);
 
   return (
     <>
-      {showField && (
+      {!showSecretField && (
         <textarea
           className="width-100"
           id={definition.key}
@@ -48,15 +51,15 @@ export default function SamlSecuredField(props: SamlToggleFieldProps) {
           onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
           required={!optional}
           rows={5}
-          value={settingValue?.value ?? ''}
+          value={settingValue ?? ''}
         />
       )}
-      {!showField && (
+      {showSecretField && (
         <div>
           <p>{translate('settings.almintegration.form.secret.field')}</p>
           <ButtonLink
             onClick={() => {
-              setShowField(true);
+              setShowSecretField(false);
             }}
           >
             {translate('settings.almintegration.form.secret.update_field')}

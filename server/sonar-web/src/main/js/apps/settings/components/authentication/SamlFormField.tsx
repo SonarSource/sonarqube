@@ -22,24 +22,24 @@ import ValidationInput, {
   ValidationInputErrorPlacement,
 } from '../../../../components/controls/ValidationInput';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
-import { ExtendedSettingDefinition, SettingType, SettingValue } from '../../../../types/settings';
+import { ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import SamlSecuredField from './SamlSecuredField';
 import SamlToggleField from './SamlToggleField';
 
 interface SamlToggleFieldProps {
-  settingValue?: SettingValue;
+  settingValue?: string | boolean;
   definition: ExtendedSettingDefinition;
   mandatory?: boolean;
   onFieldChange: (key: string, value: string | boolean) => void;
-  showSecuredTextArea?: boolean;
-  error: { [key: string]: string };
+  isNotSet: boolean;
+  error?: string;
 }
 
 export default function SamlFormField(props: SamlToggleFieldProps) {
-  const { mandatory = false, definition, settingValue, showSecuredTextArea = true, error } = props;
+  const { mandatory = false, definition, settingValue, isNotSet, error } = props;
 
   return (
-    <div className="settings-definition" key={definition.key}>
+    <div className="settings-definition">
       <div className="settings-definition-left">
         <label className="h3" htmlFor={definition.key}>
           {definition.name}
@@ -53,9 +53,9 @@ export default function SamlFormField(props: SamlToggleFieldProps) {
         {definition.type === SettingType.PASSWORD && (
           <SamlSecuredField
             definition={definition}
-            settingValue={settingValue}
+            settingValue={String(settingValue ?? '')}
             onFieldChange={props.onFieldChange}
-            showTextArea={showSecuredTextArea}
+            isNotSet={isNotSet}
           />
         )}
         {definition.type === SettingType.BOOLEAN && (
@@ -68,10 +68,10 @@ export default function SamlFormField(props: SamlToggleFieldProps) {
         )}
         {definition.type === undefined && (
           <ValidationInput
-            error={error[definition.key]}
+            error={error}
             errorPlacement={ValidationInputErrorPlacement.Bottom}
             isValid={false}
-            isInvalid={Boolean(error[definition.key])}
+            isInvalid={Boolean(error)}
           >
             <input
               className="width-100"
@@ -80,8 +80,7 @@ export default function SamlFormField(props: SamlToggleFieldProps) {
               name={definition.key}
               onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
               type="text"
-              value={settingValue?.value ?? ''}
-              aria-label={definition.key}
+              value={String(settingValue ?? '')}
             />
           </ValidationInput>
         )}

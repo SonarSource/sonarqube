@@ -42,7 +42,7 @@ export default function PageHeader({ component, definitions }: PageHeaderProps) 
     <header className="top-bar-outer">
       <div className="top-bar">
         <div className="top-bar-inner bordered-bottom big-padded-top padded-bottom">
-          <h1 className="page-title">{title}</h1>
+          <h2 className="page-title">{title}</h2>
           <div className="page-description spacer-top">{description}</div>
           <SettingsSearch
             className="big-spacer-top"

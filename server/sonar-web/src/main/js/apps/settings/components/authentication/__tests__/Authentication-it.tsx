@@ -17,52 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import React from 'react';
 import { byRole, byText } from 'testing-library-selector';
 import AuthenticationServiceMock from '../../../../../api/mocks/AuthenticationServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
-import { mockDefinition } from '../../../../../helpers/mocks/settings';
+import { definitions } from '../../../../../helpers/mocks/definitions-list';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../../../types/features';
-import { ExtendedSettingDefinition, SettingType } from '../../../../../types/settings';
 import Authentication from '../Authentication';
 
 jest.mock('../../../../../api/settings');
-
-const mockDefinitionFields = [
-  mockDefinition({
-    key: 'test1',
-    category: 'authentication',
-    subCategory: 'saml',
-    name: 'test1',
-    description: 'desc1',
-  }),
-  mockDefinition({
-    key: 'test2',
-    category: 'authentication',
-    subCategory: 'saml',
-    name: 'test2',
-    description: 'desc2',
-  }),
-  mockDefinition({
-    key: 'sonar.auth.saml.certificate.secured',
-    category: 'authentication',
-    subCategory: 'saml',
-    name: 'Certificate',
-    description: 'Secured certificate',
-    type: SettingType.PASSWORD,
-  }),
-  mockDefinition({
-    key: 'sonar.auth.saml.enabled',
-    category: 'authentication',
-    subCategory: 'saml',
-    name: 'Enabled',
-    description: 'To enable the flag',
-    type: SettingType.BOOLEAN,
-  }),
-];
 
 let handler: AuthenticationServiceMock;
 
@@ -79,11 +46,57 @@ const ui = {
   testButton: byText('settings.authentication.saml.form.test'),
   textbox1: byRole('textbox', { name: 'test1' }),
   textbox2: byRole('textbox', { name: 'test2' }),
+  saml: {
+    noSamlConfiguration: byText('settings.authentication.saml.form.not_configured'),
+    createConfigButton: byRole('button', { name: 'settings.authentication.form.create' }),
+    providerName: byRole('textbox', { name: 'Provider Name' }),
+    providerId: byRole('textbox', { name: 'Provider ID' }),
+    providerCertificate: byRole('textbox', { name: 'Identity provider certificate' }),
+    loginUrl: byRole('textbox', { name: 'SAML login url' }),
+    userLoginAttribute: byRole('textbox', { name: 'SAML user login attribute' }),
+    userNameAttribute: byRole('textbox', { name: 'SAML user name attribute' }),
+    saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
+    confirmProvisioningButton: byRole('button', { name: 'yes' }),
+    saveScim: byRole('button', { name: 'save' }),
+    groupAttribute: byRole('textbox', { name: 'property.sonar.auth.saml.group.name.name' }),
+    enableConfigButton: byRole('button', { name: 'settings.authentication.saml.form.enable' }),
+    disableConfigButton: byRole('button', { name: 'settings.authentication.saml.form.disable' }),
+    editConfigButton: byRole('button', { name: 'settings.authentication.form.edit' }),
+    enableFirstMessage: byText('settings.authentication.saml.enable_first'),
+    jitProvisioningButton: byRole('radio', {
+      name: 'settings.authentication.saml.form.provisioning_at_login',
+    }),
+    scimProvisioningButton: byRole('radio', {
+      name: 'settings.authentication.saml.form.provisioning_with_scim',
+    }),
+    fillForm: async (user: UserEvent) => {
+      const { saml } = ui;
+      await act(async () => {
+        await user.clear(saml.providerName.get());
+        await user.type(saml.providerName.get(), 'Awsome SAML config');
+        await user.type(saml.providerId.get(), 'okta-1234');
+        await user.type(saml.loginUrl.get(), 'http://test.org');
+        await user.type(saml.providerCertificate.get(), '-secret-');
+        await user.type(saml.userLoginAttribute.get(), 'login');
+        await user.type(saml.userNameAttribute.get(), 'name');
+      });
+    },
+    createConfiguration: async (user: UserEvent) => {
+      const { saml } = ui;
+      await act(async () => {
+        await user.click(await saml.createConfigButton.find());
+      });
+      await saml.fillForm(user);
+      await act(async () => {
+        await user.click(saml.saveConfigButton.get());
+      });
+    },
+  },
 };
 
 it('should render tabs and allow navigation', async () => {
   const user = userEvent.setup();
-  renderAuthentication([]);
+  renderAuthentication();
 
   expect(screen.getAllByRole('tab')).toHaveLength(4);
 
@@ -98,118 +111,87 @@ it('should render tabs and allow navigation', async () => {
   );
 });
 
+it('should not display the login message feature info box', () => {
+  renderAuthentication();
+
+  expect(ui.customMessageInformation.query()).not.toBeInTheDocument();
+});
+
+it('should display the login message feature info box', () => {
+  renderAuthentication([Feature.LoginMessage]);
+
+  expect(ui.customMessageInformation.get()).toBeInTheDocument();
+});
+
 describe('SAML tab', () => {
-  it('should allow user to test the configuration', async () => {
+  const { saml } = ui;
+
+  it('should render an empty SAML configuration', async () => {
+    renderAuthentication();
+    expect(await saml.noSamlConfiguration.find()).toBeInTheDocument();
+  });
+
+  it('should be able to create a configuration', async () => {
+    const user = userEvent.setup();
+    renderAuthentication();
+
+    await user.click(await saml.createConfigButton.find());
+
+    expect(saml.saveConfigButton.get()).toBeDisabled();
+    await saml.fillForm(user);
+    expect(saml.saveConfigButton.get()).toBeEnabled();
+
+    await act(async () => {
+      await user.click(saml.saveConfigButton.get());
+    });
+
+    expect(await saml.editConfigButton.find()).toBeInTheDocument();
+  });
+
+  it('should be able to enable/disable configuration', async () => {
+    const { saml } = ui;
+    const user = userEvent.setup();
+    renderAuthentication();
+
+    await saml.createConfiguration(user);
+    await user.click(await saml.enableConfigButton.find());
+
+    expect(await saml.disableConfigButton.find()).toBeInTheDocument();
+    await user.click(saml.disableConfigButton.get());
+    expect(saml.disableConfigButton.query()).not.toBeInTheDocument();
+
+    expect(await saml.enableConfigButton.find()).toBeInTheDocument();
+  });
+
+  it('should be able to choose provisioning', async () => {
+    const { saml } = ui;
     const user = userEvent.setup();
 
-    const definitions = [
-      mockDefinition({
-        key: 'sonar.auth.saml.certificate.secured',
-        category: 'authentication',
-        subCategory: 'saml',
-        name: 'Certificate',
-        description: 'Secured certificate',
-        type: SettingType.PASSWORD,
-      }),
-      mockDefinition({
-        key: 'sonar.auth.saml.enabled',
-        category: 'authentication',
-        subCategory: 'saml',
-        name: 'Enabled',
-        description: 'To enable the flag',
-        type: SettingType.BOOLEAN,
-      }),
-    ];
+    renderAuthentication([Feature.Scim]);
 
-    renderAuthentication(definitions);
+    await saml.createConfiguration(user);
 
-    await user.click(await screen.findByText('settings.almintegration.form.secret.update_field'));
+    expect(await saml.enableFirstMessage.find()).toBeInTheDocument();
+    await user.click(await saml.enableConfigButton.find());
 
-    await user.click(screen.getByRole('textbox', { name: 'Certificate' }));
-    await user.keyboard('new certificate');
+    expect(await saml.jitProvisioningButton.find()).toBeChecked();
 
-    expect(ui.testButton.get()).toHaveClass('disabled');
+    await user.type(saml.groupAttribute.get(), 'group');
+    expect(saml.saveScim.get()).toBeEnabled();
+    await user.click(saml.saveScim.get());
+    expect(await saml.saveScim.find()).toBeDisabled();
 
-    await user.click(ui.saveButton.get());
+    await user.click(saml.scimProvisioningButton.get());
+    expect(saml.saveScim.get()).toBeEnabled();
+    await user.click(saml.saveScim.get());
+    await user.click(saml.confirmProvisioningButton.get());
 
-    expect(ui.testButton.get()).not.toHaveClass('disabled');
-  });
-
-  it('should allow user to edit fields and save configuration', async () => {
-    const user = userEvent.setup();
-    const definitions = mockDefinitionFields;
-    renderAuthentication(definitions);
-
-    expect(ui.enabledToggle.get()).toHaveAttribute('aria-disabled', 'true');
-    // update fields
-    await user.click(ui.textbox1.get());
-    await user.keyboard('new test1');
-
-    await user.click(ui.textbox2.get());
-    await user.keyboard('new test2');
-    // check if enable is allowed after updating
-    expect(ui.enabledToggle.get()).toHaveAttribute('aria-disabled', 'false');
-
-    // reset value
-    await user.click(ui.textbox2.get());
-    await user.keyboard('{Control>}a{/Control}{Backspace}');
-    await user.click(ui.saveButton.get());
-    expect(ui.enabledToggle.get()).toHaveAttribute('aria-disabled', 'true');
-
-    await user.click(ui.textbox2.get());
-    await user.keyboard('new test2');
-    expect(ui.enabledToggle.get()).toHaveAttribute('aria-disabled', 'false');
-
-    expect(
-      screen.getByRole('button', { name: 'settings.almintegration.form.secret.update_field' })
-    ).toBeInTheDocument();
-    await user.click(
-      screen.getByRole('button', { name: 'settings.almintegration.form.secret.update_field' })
-    );
-    // check for secure fields
-    expect(screen.getByRole('textbox', { name: 'Certificate' })).toBeInTheDocument();
-    await user.click(screen.getByRole('textbox', { name: 'Certificate' }));
-    await user.keyboard('new certificate');
-    // enable the configuration
-    await user.click(ui.enabledToggle.get());
-    expect(ui.enabledToggle.get()).toBeChecked();
-
-    await user.click(ui.saveButton.get());
-    expect(screen.getByText('settings.authentication.saml.form.save_success')).toBeInTheDocument();
-    // check after switching tab that the flag is still enabled
-    await user.click(screen.getByRole('tab', { name: 'github GitHub' }));
-    await user.click(screen.getByRole('tab', { name: 'SAML' }));
-
-    expect(ui.enabledToggle.get()).toBeChecked();
-  });
-
-  it('should handle and show errors to the user', async () => {
-    const user = userEvent.setup();
-    const definitions = mockDefinitionFields;
-    renderAuthentication(definitions);
-
-    await user.click(ui.textbox1.get());
-    await user.keyboard('value');
-    await user.click(ui.textbox2.get());
-    await user.keyboard('{Control>}a{/Control}error');
-    await user.click(ui.saveButton.get());
-    expect(screen.getByText('settings.authentication.saml.form.save_partial')).toBeInTheDocument();
-  });
-
-  it('should not display the login message feature info box', () => {
-    renderAuthentication([]);
-
-    expect(ui.customMessageInformation.query()).not.toBeInTheDocument();
-  });
-
-  it('should display the login message feature info box', () => {
-    renderAuthentication([], [Feature.LoginMessage]);
-
-    expect(ui.customMessageInformation.get()).toBeInTheDocument();
+    expect(await saml.scimProvisioningButton.find()).toBeChecked();
+    expect(await saml.saveScim.find()).toBeDisabled();
   });
 });
 
-function renderAuthentication(definitions: ExtendedSettingDefinition[], features: Feature[] = []) {
+function renderAuthentication(features: Feature[] = []) {
   renderComponent(
     <AvailableFeaturesContext.Provider value={features}>
       <Authentication definitions={definitions} />

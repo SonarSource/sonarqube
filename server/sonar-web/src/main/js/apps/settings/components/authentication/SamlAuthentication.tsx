@@ -17,382 +17,297 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { keyBy } from 'lodash';
+import { isEmpty } from 'lodash';
 import React from 'react';
-import { getValues, resetSettingValue, setSettingValue } from '../../../../api/settings';
-import { SubmitButton } from '../../../../components/controls/buttons';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { Location, withRouter } from '../../../../components/hoc/withRouter';
-import AlertSuccessIcon from '../../../../components/icons/AlertSuccessIcon';
-import AlertWarnIcon from '../../../../components/icons/AlertWarnIcon';
-import DetachIcon from '../../../../components/icons/DetachIcon';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { isSuccessStatus, parseError } from '../../../../helpers/request';
+import { FormattedMessage } from 'react-intl';
+import {
+  activateScim,
+  deactivateScim,
+  resetSettingValue,
+  setSettingValue,
+} from '../../../../api/settings';
+import DocLink from '../../../../components/common/DocLink';
+import Link from '../../../../components/common/Link';
+import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
+import ConfirmModal from '../../../../components/controls/ConfirmModal';
+import RadioCard from '../../../../components/controls/RadioCard';
+import CheckIcon from '../../../../components/icons/CheckIcon';
+import DeleteIcon from '../../../../components/icons/DeleteIcon';
+import EditIcon from '../../../../components/icons/EditIcon';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
-import { ExtendedSettingDefinition, SettingType, SettingValue } from '../../../../types/settings';
-import SamlFormField from './SamlFormField';
-import SamlToggleField from './SamlToggleField';
+import { ExtendedSettingDefinition } from '../../../../types/settings';
+import { getPropertyName } from '../../utils';
+import DefinitionDescription from '../DefinitionDescription';
+import useSamlConfiguration, { SAML_ENABLED_FIELD } from './hook/useLoadSamlSettings';
+import SamlConfigurationForm from './SamlConfigurationForm';
 
 interface SamlAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
-  location: Location;
 }
 
-interface SamlAuthenticationState {
-  settingValue: Pick<SettingValue, 'key' | 'value'>[];
-  submitting: boolean;
-  dirtyFields: string[];
-  securedFieldsSubmitted: string[];
-  error: { [key: string]: string };
-  success?: boolean;
-}
+export const SAML = 'saml';
 
 const CONFIG_TEST_PATH = '/saml/validation_init';
 
-const SAML_ENABLED_FIELD = 'sonar.auth.saml.enabled';
+export default function SamlAuthentication(props: SamlAuthenticationProps) {
+  const { definitions } = props;
+  const [showEditModal, setShowEditModal] = React.useState(false);
+  const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = React.useState(false);
+  const {
+    hasScim,
+    scimStatus,
+    loading,
+    samlEnabled,
+    name,
+    groupValue,
+    url,
+    hasConfiguration,
+    values,
+    setNewValue,
+    canBeSave,
+    hasScimConfigChange,
+    newScimStatus,
+    setNewScimStatus,
+    setNewGroupSetting,
+    onReload,
+  } = useSamlConfiguration(definitions);
 
-const OPTIONAL_FIELDS = [
-  'sonar.auth.saml.sp.certificate.secured',
-  'sonar.auth.saml.sp.privateKey.secured',
-  'sonar.auth.saml.signature.enabled',
-  'sonar.auth.saml.user.email',
-  'sonar.auth.saml.group.name',
-  'sonar.scim.enabled',
-];
+  const handleDeleteConfiguration = async () => {
+    await resetSettingValue({ keys: Object.keys(values).join(',') });
+    await onReload();
+  };
 
-class SamlAuthentication extends React.PureComponent<
-  SamlAuthenticationProps,
-  SamlAuthenticationState
-> {
-  formFieldRef: React.RefObject<HTMLDivElement> = React.createRef();
+  const handleCreateConfiguration = () => {
+    setShowEditModal(true);
+  };
 
-  constructor(props: SamlAuthenticationProps) {
-    super(props);
-    const settingValue = props.definitions.map((def) => {
-      return {
-        key: def.key,
-      };
-    });
+  const handleCancelConfiguration = () => {
+    setShowEditModal(false);
+  };
 
-    this.state = {
-      settingValue,
-      submitting: false,
-      dirtyFields: [],
-      securedFieldsSubmitted: [],
-      error: {},
-    };
-  }
+  const handleToggleEnable = async () => {
+    const value = values[SAML_ENABLED_FIELD];
+    await setSettingValue(value.definition, !samlEnabled);
+    await onReload();
+  };
 
-  componentDidMount() {
-    const { definitions } = this.props;
-    const keys = definitions.map((definition) => definition.key);
-    // Added setTimeout to make sure the component gets updated before scrolling
-    setTimeout(() => {
-      if (location.hash) {
-        this.scrollToSearchedField();
+  const handleSaveGroup = async () => {
+    if (groupValue.newValue !== undefined) {
+      if (isEmpty(groupValue.newValue)) {
+        await resetSettingValue({ keys: groupValue.definition.key });
+      } else {
+        await setSettingValue(groupValue.definition, groupValue.newValue);
       }
-    });
-    this.loadSettingValues(keys);
-  }
-
-  componentDidUpdate(prevProps: SamlAuthenticationProps) {
-    const { location } = this.props;
-    if (prevProps.location.hash !== location.hash) {
-      this.scrollToSearchedField();
-    }
-  }
-
-  scrollToSearchedField = () => {
-    if (this.formFieldRef.current) {
-      this.formFieldRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'nearest',
-      });
+      await onReload();
     }
   };
 
-  onFieldChange = (id: string, value: string | boolean) => {
-    const { settingValue, dirtyFields } = this.state;
-    const updatedSettingValue = settingValue?.map((set) => {
-      if (set.key === id) {
-        set.value = String(value);
-      }
-      return set;
-    });
-
-    if (!dirtyFields.includes(id)) {
-      const updatedDirtyFields = [...dirtyFields, id];
-      this.setState({
-        dirtyFields: updatedDirtyFields,
-      });
+  const handleConfirmChangeProvisioning = async () => {
+    if (newScimStatus) {
+      await activateScim();
+    } else {
+      await deactivateScim();
+      await handleSaveGroup();
     }
-
-    this.setState({
-      settingValue: updatedSettingValue,
-    });
+    await onReload();
   };
 
-  async loadSettingValues(keys: string[]) {
-    const { settingValue, securedFieldsSubmitted } = this.state;
-    const values = await getValues({
-      keys,
-    });
-    const valuesByDefinitionKey = keyBy(values, 'key');
-    const updatedSecuredFieldsSubmitted: string[] = [...securedFieldsSubmitted];
-    const updateSettingValue = settingValue?.map((set) => {
-      if (valuesByDefinitionKey[set.key]) {
-        set.value =
-          valuesByDefinitionKey[set.key].value ?? valuesByDefinitionKey[set.key].parentValue;
-      }
+  return (
+    <div className="saml-configuration">
+      <div className="spacer-bottom display-flex-space-between display-flex-center">
+        <h4>{translate('settings.authentication.saml.configuration')}</h4>
 
-      if (
-        this.isSecuredField(set.key) &&
-        valuesByDefinitionKey[set.key] &&
-        !securedFieldsSubmitted.includes(set.key)
-      ) {
-        updatedSecuredFieldsSubmitted.push(set.key);
-      }
-
-      return set;
-    });
-
-    this.setState({
-      settingValue: updateSettingValue,
-      securedFieldsSubmitted: updatedSecuredFieldsSubmitted,
-    });
-  }
-
-  isSecuredField = (key: string) => {
-    const { definitions } = this.props;
-    const fieldDefinition = definitions.find((def) => def.key === key);
-    if (fieldDefinition && fieldDefinition.type === SettingType.PASSWORD) {
-      return true;
-    }
-    return false;
-  };
-
-  onSaveConfig = async () => {
-    const { settingValue, dirtyFields } = this.state;
-    const { definitions } = this.props;
-
-    if (dirtyFields.length === 0) {
-      return;
-    }
-
-    this.setState({ submitting: true, error: {}, success: false });
-    const promises: Promise<void>[] = [];
-
-    dirtyFields.forEach((field) => {
-      const definition = definitions.find((def) => def.key === field);
-      const value = settingValue.find((def) => def.key === field)?.value;
-      if (definition && value !== undefined) {
-        const apiCall =
-          value.length > 0
-            ? setSettingValue(definition, value)
-            : resetSettingValue({ keys: definition.key });
-
-        promises.push(apiCall);
-      }
-    });
-
-    await Promise.all(promises.map((p) => p.catch((e) => e))).then((data) => {
-      const dataWithError = data
-        .map((data, index) => ({ data, index }))
-        .filter((d) => d.data !== undefined && !isSuccessStatus(d.data.status));
-      if (dataWithError.length > 0) {
-        dataWithError.forEach(async (d) => {
-          const validationMessage = await parseError(d.data as Response);
-          const { error } = this.state;
-          this.setState({
-            error: { ...error, ...{ [dirtyFields[d.index]]: validationMessage } },
-          });
-        });
-      }
-      this.setState({ success: dirtyFields.length !== dataWithError.length });
-    });
-    await this.loadSettingValues(dirtyFields);
-    this.setState({ submitting: false, dirtyFields: [] });
-  };
-
-  allowEnabling = () => {
-    const { settingValue } = this.state;
-    const enabledFlagSettingValue = settingValue.find((set) => set.key === SAML_ENABLED_FIELD);
-
-    if (enabledFlagSettingValue && enabledFlagSettingValue.value === 'true') {
-      return true;
-    }
-
-    return this.getEmptyRequiredFields().length === 0;
-  };
-
-  onEnableFlagChange = (value: boolean) => {
-    const { settingValue, dirtyFields } = this.state;
-
-    const updatedSettingValue = settingValue?.map((set) => {
-      if (set.key === SAML_ENABLED_FIELD) {
-        set.value = String(value);
-      }
-      return set;
-    });
-
-    this.setState(
-      {
-        settingValue: updatedSettingValue,
-        dirtyFields: [...dirtyFields, SAML_ENABLED_FIELD],
-      },
-      () => {
-        this.onSaveConfig();
-      }
-    );
-  };
-
-  getTestButtonTooltipContent = (formIsIncomplete: boolean, hasDirtyFields: boolean) => {
-    if (hasDirtyFields) {
-      return translate('settings.authentication.saml.form.test.help.dirty');
-    }
-
-    if (formIsIncomplete) {
-      return translate('settings.authentication.saml.form.test.help.incomplete');
-    }
-
-    return null;
-  };
-
-  getEmptyRequiredFields = () => {
-    const { settingValue, securedFieldsSubmitted } = this.state;
-    const { definitions } = this.props;
-
-    const updatedRequiredFields: string[] = [];
-
-    for (const setting of settingValue) {
-      const isMandatory = !OPTIONAL_FIELDS.includes(setting.key);
-      const isSecured = this.isSecuredField(setting.key);
-      const isSecuredAndNotSubmitted = isSecured && !securedFieldsSubmitted.includes(setting.key);
-      const isNotSecuredAndNotSubmitted =
-        !isSecured && (setting.value === '' || setting.value === undefined);
-      if (isMandatory && (isSecuredAndNotSubmitted || isNotSecuredAndNotSubmitted)) {
-        const settingDef = definitions.find((def) => def.key === setting.key);
-
-        if (settingDef && settingDef.name) {
-          updatedRequiredFields.push(settingDef.name);
-        }
-      }
-    }
-    return updatedRequiredFields;
-  };
-
-  render() {
-    const { definitions } = this.props;
-    const { submitting, settingValue, securedFieldsSubmitted, error, dirtyFields, success } =
-      this.state;
-    const enabledFlagDefinition = definitions.find((def) => def.key === SAML_ENABLED_FIELD);
-
-    const formIsIncomplete = !this.allowEnabling();
-    const preventTestingConfig = this.getEmptyRequiredFields().length > 0 || dirtyFields.length > 0;
-
-    return (
-      <div>
-        {definitions.map((def) => {
-          if (def.key === SAML_ENABLED_FIELD) {
-            return null;
-          }
-          return (
-            <div
-              key={def.key}
-              ref={this.props.location.hash.substring(1) === def.key ? this.formFieldRef : null}
-            >
-              <SamlFormField
-                settingValue={settingValue?.find((set) => set.key === def.key)}
-                definition={def}
-                mandatory={!OPTIONAL_FIELDS.includes(def.key)}
-                onFieldChange={this.onFieldChange}
-                showSecuredTextArea={
-                  !securedFieldsSubmitted.includes(def.key) || dirtyFields.includes(def.key)
-                }
-                error={error}
-              />
-            </div>
-          );
-        })}
-        <div className="fixed-footer padded">
-          {enabledFlagDefinition && (
-            <Tooltip
-              overlay={
-                this.allowEnabling()
-                  ? null
-                  : translateWithParameters(
-                      'settings.authentication.saml.tooltip.required_fields',
-                      this.getEmptyRequiredFields().join(', ')
-                    )
-              }
-            >
-              <div className="display-inline-flex-center">
-                <label className="h3 spacer-right">{enabledFlagDefinition.name}</label>
-                <SamlToggleField
-                  definition={enabledFlagDefinition}
-                  settingValue={settingValue?.find((set) => set.key === enabledFlagDefinition.key)}
-                  toggleDisabled={formIsIncomplete}
-                  onChange={this.onEnableFlagChange}
-                />
-              </div>
-            </Tooltip>
-          )}
-          <div className="display-inline-flex-center">
-            {success && (
-              <div className="spacer-right">
-                <Tooltip
-                  overlay={
-                    Object.keys(error).length > 0
-                      ? translateWithParameters(
-                          'settings.authentication.saml.form.save_warn',
-                          Object.keys(error).length
-                        )
-                      : null
-                  }
-                >
-                  {Object.keys(error).length > 0 ? (
-                    <span>
-                      <AlertWarnIcon className="spacer-right" />
-                      {translate('settings.authentication.saml.form.save_partial')}
-                    </span>
-                  ) : (
-                    <span>
-                      <AlertSuccessIcon className="spacer-right" />
-                      {translate('settings.authentication.saml.form.save_success')}
-                    </span>
-                  )}
-                  {}
-                </Tooltip>
-              </div>
-            )}
-            <SubmitButton className="button-primary spacer-right" onClick={this.onSaveConfig}>
-              {translate('settings.authentication.saml.form.save')}
-              <DeferredSpinner className="spacer-left" loading={submitting} />
-            </SubmitButton>
-
-            <Tooltip
-              overlay={this.getTestButtonTooltipContent(formIsIncomplete, dirtyFields.length > 0)}
-            >
-              <a
-                className={classNames('button', {
-                  disabled: preventTestingConfig,
-                })}
-                href={preventTestingConfig ? undefined : `${getBaseUrl()}${CONFIG_TEST_PATH}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <DetachIcon className="spacer-right" />
-                {translate('settings.authentication.saml.form.test')}
-              </a>
-            </Tooltip>
+        {!hasConfiguration && (
+          <div>
+            <Button onClick={handleCreateConfiguration}>
+              {translate('settings.authentication.form.create')}
+            </Button>
           </div>
-        </div>
+        )}
       </div>
-    );
-  }
-}
+      {!hasConfiguration && (
+        <div className="big-padded text-center huge-spacer-bottom saml-no-config">
+          {translate('settings.authentication.saml.form.not_configured')}
+        </div>
+      )}
 
-export default withRouter(SamlAuthentication);
+      {hasConfiguration && (
+        <>
+          <div className="spacer-bottom big-padded bordered display-flex-space-between">
+            <div>
+              <h5>{name}</h5>
+              <p>{url}</p>
+              <p className="big-spacer-top big-spacer-bottom">
+                {samlEnabled ? (
+                  <span className="saml-enabled spacer-left">
+                    <CheckIcon className="spacer-right" />
+                    {translate('settings.authentication.saml.form.enabled')}
+                  </span>
+                ) : (
+                  translate('settings.authentication.saml.form.not_enabled')
+                )}
+              </p>
+              <Button className="spacer-top" disabled={scimStatus} onClick={handleToggleEnable}>
+                {samlEnabled
+                  ? translate('settings.authentication.saml.form.disable')
+                  : translate('settings.authentication.saml.form.enable')}
+              </Button>
+            </div>
+            <div>
+              <Link
+                className="button spacer-right"
+                target="_blank"
+                to={`${getBaseUrl()}${CONFIG_TEST_PATH}`}
+              >
+                {translate('settings.authentication.saml.form.test')}
+              </Link>
+              <Button className="spacer-right" onClick={handleCreateConfiguration}>
+                <EditIcon />
+                {translate('settings.authentication.form.edit')}
+              </Button>
+              <Button
+                className="button-red"
+                disabled={samlEnabled}
+                onClick={handleDeleteConfiguration}
+              >
+                <DeleteIcon />
+                {translate('settings.authentication.form.delete')}
+              </Button>
+            </div>
+          </div>
+          {hasScim && (
+            <div className="spacer-bottom big-padded bordered display-flex-space-between">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (newScimStatus !== scimStatus) {
+                    setShowConfirmProvisioningModal(true);
+                  } else {
+                    handleSaveGroup();
+                  }
+                }}
+              >
+                <fieldset className="display-flex-column big-spacer-bottom">
+                  <label className="h5">
+                    {translate('settings.authentication.saml.form.provisioning')}
+                  </label>
+                  {samlEnabled ? (
+                    <div className="display-flex-row spacer-top">
+                      <RadioCard
+                        label={translate(
+                          'settings.authentication.saml.form.provisioning_with_scim'
+                        )}
+                        title={translate(
+                          'settings.authentication.saml.form.provisioning_with_scim'
+                        )}
+                        selected={newScimStatus ?? scimStatus}
+                        onClick={() => setNewScimStatus(true)}
+                      >
+                        <p className="spacer-bottom">
+                          {translate(
+                            'settings.authentication.saml.form.provisioning_with_scim.sub'
+                          )}
+                        </p>
+                        <p>
+                          <FormattedMessage
+                            id="settings.authentication.saml.form.provisioning_with_scim.description"
+                            defaultMessage={translate(
+                              'settings.authentication.saml.form.provisioning_with_scim.description'
+                            )}
+                            values={{
+                              doc: (
+                                <DocLink to="/instance-administration/authentication/saml/scim/overview">
+                                  {translate('documentation')}
+                                </DocLink>
+                              ),
+                            }}
+                          />
+                        </p>
+                      </RadioCard>
+                      <RadioCard
+                        label={translate('settings.authentication.saml.form.provisioning_at_login')}
+                        title={translate('settings.authentication.saml.form.provisioning_at_login')}
+                        selected={!(newScimStatus ?? scimStatus)}
+                        onClick={() => setNewScimStatus(false)}
+                      >
+                        <p>
+                          {translate('settings.authentication.saml.form.provisioning_at_login.sub')}
+                        </p>
+                        {groupValue && (
+                          <div className="settings-definition">
+                            <DefinitionDescription definition={groupValue.definition} />
+                            <div className="settings-definition-right">
+                              <input
+                                id={groupValue.definition.key}
+                                maxLength={4000}
+                                name={groupValue.definition.key}
+                                onChange={(e) => setNewGroupSetting(e.currentTarget.value)}
+                                type="text"
+                                value={String(groupValue.newValue ?? groupValue.value ?? '')}
+                                aria-label={getPropertyName(groupValue.definition)}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </RadioCard>
+                    </div>
+                  ) : (
+                    <Alert className="big-spacer-top" variant="info">
+                      {translate('settings.authentication.saml.enable_first')}
+                    </Alert>
+                  )}
+                </fieldset>
+                {samlEnabled && (
+                  <>
+                    <SubmitButton disabled={!hasScimConfigChange}>{translate('save')}</SubmitButton>
+                    <ResetButtonLink
+                      className="spacer-left"
+                      onClick={() => {
+                        setNewScimStatus(undefined);
+                        setNewGroupSetting();
+                      }}
+                      disabled={!hasScimConfigChange}
+                    >
+                      {translate('cancel')}
+                    </ResetButtonLink>
+                  </>
+                )}
+                {showConfirmProvisioningModal && (
+                  <ConfirmModal
+                    onConfirm={() => handleConfirmChangeProvisioning()}
+                    header={translate(
+                      'settings.authentication.saml.confirm',
+                      newScimStatus ? 'scim' : 'jit'
+                    )}
+                    onClose={() => setShowConfirmProvisioningModal(false)}
+                    isDestructive={!newScimStatus}
+                    confirmButtonText={translate('yes')}
+                  >
+                    {translate(
+                      'settings.authentication.saml.confirm',
+                      newScimStatus ? 'scim' : 'jit',
+                      'description'
+                    )}
+                  </ConfirmModal>
+                )}
+              </form>
+            </div>
+          )}
+        </>
+      )}
+      {showEditModal && (
+        <SamlConfigurationForm
+          loading={loading}
+          values={values}
+          setNewValue={setNewValue}
+          canBeSave={canBeSave}
+          onClose={handleCancelConfiguration}
+          create={!hasConfiguration}
+          onReload={onReload}
+        />
+      )}
+    </div>
+  );
+}

@@ -229,3 +229,49 @@
   padding: 16px;
   overflow-wrap: break-word;
 }
+
+.saml-enabled {
+  color: var(--success500);
+}
+
+.saml-no-config {
+  background-color: var(--neutral50);
+  color: var(--blacka60);
+}
+
+.saml-configuration .radio-card {
+  width: 50%;
+  background-color: var(--neutral50);
+  border: 1px solid var(--neutral200);
+}
+
+.saml-configuration .radio-card.selected {
+  background-color: var(--info50);
+  border: 1px solid var(--info500);
+}
+
+.saml-configuration .radio-card:hover:not(.selected) {
+  border: 1px solid var(--info500);
+}
+
+.saml-configuration fieldset > div {
+  justify-content: space-between;
+}
+
+.saml-configuration .radio-card-header {
+  justify-content: space-around;
+}
+
+.saml-configuration .radio-card-body {
+  justify-content: flex-start;
+}
+
+.saml-configuration .settings-definition-left {
+  width: 50%;
+}
+
+.saml-configuration .settings-definition-right {
+  display: flex;
+  align-items: center;
+  width: 50%;
+}

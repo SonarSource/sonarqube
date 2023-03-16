@@ -82,13 +82,13 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
         {filteredSubCategories.map((subCategory) => (
           <li key={subCategory.key}>
             {displaySubCategoryTitle && (
-              <h2
-                className="settings-sub-category-name"
+              <h3
+                className="settings-sub-category-name h2"
                 data-key={subCategory.key}
                 ref={this.scrollToSubCategoryOrDefinition}
               >
                 {subCategory.name}
-              </h2>
+              </h3>
             )}
             {subCategory.description != null && (
               <div

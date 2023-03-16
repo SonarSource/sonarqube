@@ -19,12 +19,12 @@
  */
 import React from 'react';
 import Toggle from '../../../../components/controls/Toggle';
-import { ExtendedSettingDefinition, SettingValue } from '../../../../types/settings';
+import { ExtendedSettingDefinition } from '../../../../types/settings';
 
 interface SamlToggleFieldProps {
   toggleDisabled: boolean;
   onChange: (value: boolean) => void;
-  settingValue?: SettingValue;
+  settingValue?: string | boolean;
   definition: ExtendedSettingDefinition;
 }
 
@@ -35,7 +35,7 @@ export default function SamlToggleField(props: SamlToggleFieldProps) {
     <Toggle
       name={definition.key}
       onChange={props.onChange}
-      value={settingValue?.value ?? ''}
+      value={settingValue ?? ''}
       disabled={toggleDisabled}
     />
   );

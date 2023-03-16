@@ -21,32 +21,79 @@ import { cloneDeep } from 'lodash';
 import { mockSettingValue } from '../../helpers/mocks/settings';
 import { BranchParameters } from '../../types/branch-like';
 import { SettingDefinition, SettingValue } from '../../types/settings';
-import { getValues, resetSettingValue, setSettingValue } from '../settings';
+import {
+  activateScim,
+  deactivateScim,
+  fetchIsScimEnabled,
+  getValues,
+  resetSettingValue,
+  setSettingValue,
+} from '../settings';
 
 export default class AuthenticationServiceMock {
   settingValues: SettingValue[];
+  scimStatus: boolean;
   defaulSettingValues: SettingValue[] = [
     mockSettingValue({ key: 'test1', value: '' }),
     mockSettingValue({ key: 'test2', value: 'test2' }),
-    mockSettingValue({ key: 'sonar.auth.saml.certificate.secured' }),
-    mockSettingValue({ key: 'sonar.auth.saml.enabled', value: 'false' }),
+    {
+      key: 'sonar.auth.saml.signature.enabled',
+      value: 'false',
+      inherited: true,
+    },
+    {
+      key: 'sonar.auth.saml.enabled',
+      value: 'false',
+      inherited: true,
+    },
+    {
+      key: 'sonar.auth.saml.applicationId',
+      value: 'sonarqube',
+      inherited: true,
+    },
+    {
+      key: 'sonar.auth.saml.providerName',
+      value: 'SAML',
+      inherited: true,
+    },
   ];
 
   constructor() {
     this.settingValues = cloneDeep(this.defaulSettingValues);
-    (getValues as jest.Mock).mockImplementation(this.getValuesHandler);
-    (setSettingValue as jest.Mock).mockImplementation(this.setValueHandler);
-    (resetSettingValue as jest.Mock).mockImplementation(this.resetValueHandler);
+    this.scimStatus = false;
+    jest.mocked(getValues).mockImplementation(this.handleGetValues);
+    jest.mocked(setSettingValue).mockImplementation(this.handleSetValue);
+    jest.mocked(resetSettingValue).mockImplementation(this.handleResetValue);
+    jest.mocked(activateScim).mockImplementation(this.handleActivateScim);
+    jest.mocked(deactivateScim).mockImplementation(this.handleDeactivateScim);
+
+    jest.mocked(fetchIsScimEnabled).mockImplementation(this.handleFetchIsScimEnabled);
   }
 
-  getValuesHandler = (data: { keys: string; component?: string } & BranchParameters) => {
-    if (data.keys) {
+  handleActivateScim = () => {
+    this.scimStatus = true;
+    return Promise.resolve();
+  };
+
+  handleDeactivateScim = () => {
+    this.scimStatus = false;
+    return Promise.resolve();
+  };
+
+  handleFetchIsScimEnabled = () => {
+    return Promise.resolve(this.scimStatus);
+  };
+
+  handleGetValues = (
+    data: { keys: string[]; component?: string } & BranchParameters
+  ): Promise<SettingValue[]> => {
+    if (data.keys.length > 1) {
       return Promise.resolve(this.settingValues.filter((set) => data.keys.includes(set.key)));
     }
     return Promise.resolve(this.settingValues);
   };
 
-  setValueHandler = (definition: SettingDefinition, value: string) => {
+  handleSetValue = (definition: SettingDefinition, value: string | boolean) => {
     if (value === 'error') {
       const res = new Response('', {
         status: 400,
@@ -57,12 +104,14 @@ export default class AuthenticationServiceMock {
     }
     const updatedSettingValue = this.settingValues.find((set) => set.key === definition.key);
     if (updatedSettingValue) {
-      updatedSettingValue.value = value;
+      updatedSettingValue.value = String(value);
+    } else {
+      this.settingValues.push({ key: definition.key, value: String(value), inherited: false });
     }
     return Promise.resolve();
   };
 
-  resetValueHandler = (data: { keys: string; component?: string } & BranchParameters) => {
+  handleResetValue = (data: { keys: string; component?: string } & BranchParameters) => {
     if (data.keys) {
       this.settingValues.forEach((set) => {
         if (data.keys.includes(set.key)) {

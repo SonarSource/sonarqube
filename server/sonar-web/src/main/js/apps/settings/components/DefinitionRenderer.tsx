@@ -19,20 +19,13 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import Tooltip from '../../../components/controls/Tooltip';
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import { ExtendedSettingDefinition, SettingValue } from '../../../types/settings';
-import {
-  combineDefinitionAndSettingValue,
-  getPropertyDescription,
-  getPropertyName,
-  getSettingValue,
-  isDefaultOrInherited,
-} from '../utils';
+import { combineDefinitionAndSettingValue, getSettingValue, isDefaultOrInherited } from '../utils';
 import DefinitionActions from './DefinitionActions';
+import DefinitionDescription from './DefinitionDescription';
 import Input from './inputs/Input';
 
 export interface DefinitionRendererProps {
@@ -56,12 +49,10 @@ export default function DefinitionRenderer(props: DefinitionRendererProps) {
   const { changedValue, loading, validationMessage, settingValue, success, definition, isEditing } =
     props;
 
-  const propertyName = getPropertyName(definition);
   const hasError = validationMessage != null;
   const hasValueChanged = changedValue != null;
   const effectiveValue = hasValueChanged ? changedValue : getSettingValue(definition, settingValue);
   const isDefault = isDefaultOrInherited(settingValue);
-  const description = getPropertyDescription(definition);
 
   const settingDefinitionAndValue = combineDefinitionAndSettingValue(definition, settingValue);
 
@@ -72,25 +63,7 @@ export default function DefinitionRenderer(props: DefinitionRendererProps) {
       })}
       data-key={definition.key}
     >
-      <div className="settings-definition-left">
-        <h3 className="settings-definition-name" title={propertyName}>
-          {propertyName}
-        </h3>
-
-        {description && (
-          <div
-            className="markdown small spacer-top"
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeStringRestricted(description) }}
-          />
-        )}
-
-        <Tooltip overlay={translateWithParameters('settings.key_x', definition.key)}>
-          <div className="settings-definition-key note little-spacer-top">
-            {translateWithParameters('settings.key_x', definition.key)}
-          </div>
-        </Tooltip>
-      </div>
+      <DefinitionDescription definition={definition} />
 
       <div className="settings-definition-right">
         <div className="settings-definition-state">

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
@@ -36,7 +37,7 @@ import { Feature } from '../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { AUTHENTICATION_CATEGORY } from '../../constants';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
-import SamlAuthentication from './SamlAuthentication';
+import SamlAuthentication, { SAML } from './SamlAuthentication';
 
 interface Props {
   definitions: ExtendedSettingDefinition[];
@@ -45,7 +46,6 @@ interface Props {
 // We substract the footer height with padding (80) and the main layout padding (20)
 const HEIGHT_ADJUSTMENT = 100;
 
-const SAML = 'saml';
 export type AuthenticationTabs =
   | typeof SAML
   | AlmKeys.GitHub
@@ -114,7 +114,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
   return (
     <>
       <header className="page-header">
-        <h1 className="page-title">{translate('settings.authentication.title')}</h1>
+        <h3 className="page-title h2">{translate('settings.authentication.title')}</h3>
       </header>
 
       {props.hasFeature(Feature.LoginMessage) && (
@@ -147,48 +147,54 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
       {/* Adding a key to force re-rendering of the tab container, so that it resets the scroll position */}
       <ScreenPositionHelper>
         {({ top }) => (
-          <div
-            style={{
-              maxHeight: `calc(100vh - ${top + HEIGHT_ADJUSTMENT}px)`,
-            }}
-            className="bordered overflow-y-auto tabbed-definitions"
-            key={currentTab}
-            role="tabpanel"
-            aria-labelledby={getTabId(currentTab)}
-            id={getTabPanelId(currentTab)}
-          >
-            <div className="big-padded-top big-padded-left big-padded-right">
-              <Alert variant="info">
-                <FormattedMessage
-                  id="settings.authentication.help"
-                  defaultMessage={translate('settings.authentication.help')}
-                  values={{
-                    link: (
-                      <DocLink
-                        to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[currentTab]}/`}
-                      >
-                        {translate('settings.authentication.help.link')}
-                      </DocLink>
-                    ),
-                  }}
-                />
-              </Alert>
-              {currentTab === SAML && (
-                <SamlAuthentication
-                  definitions={definitions.filter((def) => def.subCategory === SAML)}
-                />
-              )}
+          <>
+            {tabs.map((tab) => (
+              <div
+                style={{
+                  maxHeight: tab.key !== SAML ? `calc(100vh - ${top + HEIGHT_ADJUSTMENT}px)` : '',
+                }}
+                className={classNames('bordered overflow-y-auto tabbed-definitions', {
+                  hidden: currentTab !== tab.key,
+                })}
+                key={tab.key}
+                role="tabpanel"
+                aria-labelledby={getTabId(tab.key)}
+                id={getTabPanelId(tab.key)}
+              >
+                <div className="big-padded-top big-padded-left big-padded-right">
+                  {tab.key === SAML && <SamlAuthentication definitions={definitions} />}
 
-              {currentTab !== SAML && (
-                <CategoryDefinitionsList
-                  category={AUTHENTICATION_CATEGORY}
-                  definitions={definitions}
-                  subCategory={currentTab}
-                  displaySubCategoryTitle={false}
-                />
-              )}
-            </div>
-          </div>
+                  {tab.key !== SAML && (
+                    <>
+                      <Alert variant="info">
+                        <FormattedMessage
+                          id="settings.authentication.help"
+                          defaultMessage={translate('settings.authentication.help')}
+                          values={{
+                            link: (
+                              <DocLink
+                                to={`/instance-administration/authentication/${
+                                  DOCUMENTATION_LINK_SUFFIXES[tab.key as AuthenticationTabs]
+                                }/`}
+                              >
+                                {translate('settings.authentication.help.link')}
+                              </DocLink>
+                            ),
+                          }}
+                        />
+                      </Alert>
+                      <CategoryDefinitionsList
+                        category={AUTHENTICATION_CATEGORY}
+                        definitions={definitions}
+                        subCategory={tab.key}
+                        displaySubCategoryTitle={false}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </>
         )}
       </ScreenPositionHelper>
     </>

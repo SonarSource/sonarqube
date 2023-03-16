@@ -63,6 +63,8 @@ export enum SettingType {
   SINGLE_SELECT_LIST = 'SINGLE_SELECT_LIST',
   PROPERTY_SET = 'PROPERTY_SET',
   FORMATTED_TEXT = 'FORMATTED_TEXT',
+  REGULAR_EXPRESSION = 'REGULAR_EXPRESSION',
+  USER_LOGIN = 'USER_LOGIN',
 }
 export interface SettingDefinition {
   description?: string;
