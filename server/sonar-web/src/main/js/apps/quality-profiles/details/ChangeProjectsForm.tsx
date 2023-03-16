@@ -25,6 +25,7 @@ import {
   getProfileProjects,
   ProfileProject,
 } from '../../../api/quality-profiles';
+import { ResetButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
@@ -118,11 +119,6 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
       }
     });
 
-  handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClose();
-  };
-
   renderElement = (key: string): React.ReactNode => {
     const project = find(this.state.projects, { key });
     return (
@@ -172,9 +168,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
         </div>
 
         <div className="modal-foot">
-          <a href="#" onClick={this.handleCloseClick}>
-            {translate('close')}
-          </a>
+          <ResetButtonLink onClick={this.props.onClose}>{translate('close')}</ResetButtonLink>
         </div>
       </Modal>
     );

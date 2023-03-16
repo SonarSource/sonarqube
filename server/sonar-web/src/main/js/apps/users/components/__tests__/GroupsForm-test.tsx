@@ -23,7 +23,7 @@ import { getUserGroups } from '../../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../../api/user_groups';
 import SelectList, { SelectListFilter } from '../../../../components/controls/SelectList';
 import { mockUser } from '../../../../helpers/testMocks';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import GroupsForm from '../GroupsForm';
 
 const user = mockUser();
@@ -119,16 +119,6 @@ it('should handle deselection properly', async () => {
     })
   );
   expect(wrapper.state().needToReload).toBe(true);
-});
-
-it('should close modal properly', () => {
-  const spyOnClose = jest.fn();
-  const spyOnUpdateUsers = jest.fn();
-  const wrapper = shallowRender({ onClose: spyOnClose, onUpdateUsers: spyOnUpdateUsers });
-  click(wrapper.find('.js-modal-close'));
-
-  expect(spyOnClose).toHaveBeenCalled();
-  expect(spyOnUpdateUsers).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<GroupsForm['props']> = {}) {

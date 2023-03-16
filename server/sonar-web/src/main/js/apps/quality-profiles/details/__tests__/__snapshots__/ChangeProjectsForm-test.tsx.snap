@@ -45,12 +45,11 @@ exports[`should render correctly 1`] = `
   <div
     className="modal-foot"
   >
-    <a
-      href="#"
-      onClick={[Function]}
+    <ResetButtonLink
+      onClick={[MockFunction]}
     >
       close
-    </a>
+    </ResetButtonLink>
   </div>
 </Modal>
 `;

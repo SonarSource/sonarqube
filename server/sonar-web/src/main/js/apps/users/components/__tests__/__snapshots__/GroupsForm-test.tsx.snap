@@ -41,13 +41,11 @@ exports[`should render correctly 1`] = `
   <footer
     className="modal-foot"
   >
-    <a
-      className="js-modal-close"
-      href="#"
+    <ResetButtonLink
       onClick={[Function]}
     >
       done
-    </a>
+    </ResetButtonLink>
   </footer>
 </Modal>
 `;

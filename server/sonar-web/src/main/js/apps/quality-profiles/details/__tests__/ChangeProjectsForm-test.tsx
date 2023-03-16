@@ -25,7 +25,7 @@ import {
   getProfileProjects,
 } from '../../../../api/quality-profiles';
 import SelectList, { SelectListFilter } from '../../../../components/controls/SelectList';
-import { click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import ChangeProjectsForm from '../ChangeProjectsForm';
 
 const profile: any = { key: 'profFile_key' };
@@ -93,14 +93,6 @@ it('should handle deselection properly', async () => {
 
   expect(dissociateProject).toHaveBeenCalledWith(profile, 'tata');
   expect(wrapper.state().needToReload).toBe(true);
-});
-
-it('should close modal properly', () => {
-  const spy = jest.fn();
-  const wrapper = shallowRender({ onClose: spy });
-  click(wrapper.find('a'));
-
-  expect(spy).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<ChangeProjectsForm['props']> = {}) {

@@ -21,6 +21,7 @@ import { find, without } from 'lodash';
 import * as React from 'react';
 import { getUserGroups, UserGroup } from '../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
+import { ResetButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
@@ -119,11 +120,6 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
       }
     });
 
-  handleCloseClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.handleClose();
-  };
-
   handleClose = () => {
     this.props.onUpdateUsers();
     this.props.onClose();
@@ -174,9 +170,7 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
         </div>
 
         <footer className="modal-foot">
-          <a className="js-modal-close" href="#" onClick={this.handleCloseClick}>
-            {translate('done')}
-          </a>
+          <ResetButtonLink onClick={this.handleClose}>{translate('done')}</ResetButtonLink>
         </footer>
       </Modal>
     );
