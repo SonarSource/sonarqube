@@ -17,95 +17,90 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import HomePageSelect from '../../../../../components/controls/HomePageSelect';
 import { mockBranch, mockPullRequest } from '../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../helpers/mocks/component';
-import { mockTaskWarning } from '../../../../../helpers/mocks/tasks';
-import { mockCurrentUser } from '../../../../../helpers/testMocks';
-import { ComponentQualifier } from '../../../../../types/component';
-import { getCurrentPage, HeaderMeta, HeaderMetaProps } from '../HeaderMeta';
+import { mockTask, mockTaskWarning } from '../../../../../helpers/mocks/tasks';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
+import { renderApp } from '../../../../../helpers/testReactTestingUtils';
+import { TaskStatuses } from '../../../../../types/tasks';
+import { CurrentUser } from '../../../../../types/users';
+import HeaderMeta, { HeaderMetaProps } from '../HeaderMeta';
 
-jest.mock('react-intl', () => ({
-  useIntl: jest.fn().mockImplementation(() => ({
-    formatDate: jest.fn().mockImplementation(() => '2017-01-02T00:00:00.000Z'),
-  })),
-}));
+it('should render correctly for a branch with warnings', async () => {
+  const user = userEvent.setup();
 
-it('should render correctly for a branch', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  renderHeaderMeta();
+
+  expect(screen.getByText('version_x.0.0.1')).toBeInTheDocument();
+
+  expect(screen.getByText('project_navigation.analysis_status.warnings')).toBeInTheDocument();
+
+  await user.click(screen.getByText('project_navigation.analysis_status.details_link'));
+
+  expect(screen.getByRole('heading', { name: 'warnings' })).toBeInTheDocument();
 });
 
-it('should render correctly for a main project branch', () => {
-  const wrapper = shallowRender({
-    branchLike: mockBranch({ isMain: true }),
-  });
-  expect(wrapper).toMatchSnapshot();
+it('should handle a branch with missing version and no warnings', () => {
+  renderHeaderMeta({ component: mockComponent({ version: undefined }), warnings: [] });
+
+  expect(screen.queryByText('version_x.0.0.1')).not.toBeInTheDocument();
+  expect(screen.queryByText('project_navigation.analysis_status.warnings')).not.toBeInTheDocument();
 });
 
-it('should render correctly for a portfolio', () => {
-  const wrapper = shallowRender({
-    component: mockComponent({ key: 'foo', qualifier: ComponentQualifier.Portfolio }),
+it('should render correctly with a failed analysis', async () => {
+  const user = userEvent.setup();
+
+  renderHeaderMeta({
+    currentTask: mockTask({
+      status: TaskStatuses.Failed,
+      errorMessage: 'this is the error message',
+    }),
   });
-  expect(wrapper).toMatchSnapshot();
+
+  expect(screen.getByText('project_navigation.analysis_status.failed')).toBeInTheDocument();
+
+  await user.click(screen.getByText('project_navigation.analysis_status.details_link'));
+
+  expect(screen.getByRole('heading', { name: 'error' })).toBeInTheDocument();
 });
 
 it('should render correctly for a pull request', () => {
-  const wrapper = shallowRender({
+  renderHeaderMeta({
     branchLike: mockPullRequest({
       url: 'https://example.com/pull/1234',
     }),
   });
-  expect(wrapper).toMatchSnapshot();
+
+  expect(screen.queryByText('version_x.0.0.1')).not.toBeInTheDocument();
+  expect(screen.getByText('branch_like_navigation.for_merge_into_x_from_y')).toBeInTheDocument();
 });
 
 it('should render correctly when the user is not logged in', () => {
-  const wrapper = shallowRender({ currentUser: { isLoggedIn: false, dismissedNotices: {} } });
-  expect(wrapper.find(HomePageSelect).exists()).toBe(false);
+  renderHeaderMeta({}, mockCurrentUser({ dismissedNotices: {} }));
+  expect(screen.queryByText('homepage.current.is_default')).not.toBeInTheDocument();
+  expect(screen.queryByText('homepage.current')).not.toBeInTheDocument();
+  expect(screen.queryByText('homepage.check')).not.toBeInTheDocument();
 });
 
-describe('#getCurrentPage', () => {
-  it('should return a portfolio page', () => {
-    expect(
-      getCurrentPage(
-        mockComponent({ key: 'foo', qualifier: ComponentQualifier.Portfolio }),
-        undefined
-      )
-    ).toEqual({
-      type: 'PORTFOLIO',
-      component: 'foo',
-    });
-  });
-
-  it('should return an application page', () => {
-    expect(
-      getCurrentPage(
-        mockComponent({ key: 'foo', qualifier: ComponentQualifier.Application }),
-        mockBranch({ name: 'develop' })
-      )
-    ).toEqual({ type: 'APPLICATION', component: 'foo', branch: 'develop' });
-  });
-
-  it('should return a project page', () => {
-    expect(getCurrentPage(mockComponent(), mockBranch({ name: 'feature/foo' }))).toEqual({
-      type: 'PROJECT',
-      component: 'my-project',
-      branch: 'feature/foo',
-    });
-  });
-});
-
-function shallowRender(props: Partial<HeaderMetaProps> = {}) {
-  return shallow(
+function renderHeaderMeta(
+  props: Partial<HeaderMetaProps> = {},
+  currentUser: CurrentUser = mockLoggedInUser()
+) {
+  return renderApp(
+    '/',
     <HeaderMeta
       branchLike={mockBranch()}
-      component={mockComponent({ analysisDate: '2017-01-02T00:00:00.000Z', version: '0.0.1' })}
-      currentUser={mockCurrentUser({ isLoggedIn: true })}
+      component={mockComponent({ version: '0.0.1' })}
       onWarningDismiss={jest.fn()}
-      warnings={[mockTaskWarning({ message: 'ERROR_1' }), mockTaskWarning({ message: 'ERROR_2' })]}
+      warnings={[
+        mockTaskWarning({ key: '1', message: 'ERROR_1' }),
+        mockTaskWarning({ key: '2', message: 'ERROR_2' }),
+      ]}
       {...props}
-    />
+    />,
+    { currentUser }
   );
 }

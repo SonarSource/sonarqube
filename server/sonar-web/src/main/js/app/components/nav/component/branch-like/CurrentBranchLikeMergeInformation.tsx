@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isPullRequest } from '../../../../../helpers/branch-like';
-import { translate } from '../../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../types/branch-like';
 
 export interface CurrentBranchLikeMergeInformationProps {
@@ -35,7 +35,14 @@ export function CurrentBranchLikeMergeInformation(props: CurrentBranchLikeMergeI
   }
 
   return (
-    <span className="big-spacer-left flex-shrink note text-ellipsis">
+    <span
+      className="sw-overflow-ellipsis sw-whitespace-nowrap sw-overflow-hidden sw-mx-1 sw-flex-shrink sw-min-w-0"
+      title={translateWithParameters(
+        'branch_like_navigation.for_merge_into_x_from_y.title',
+        currentBranchLike.target,
+        currentBranchLike.branch
+      )}
+    >
       <FormattedMessage
         defaultMessage={translate('branch_like_navigation.for_merge_into_x_from_y')}
         id="branch_like_navigation.for_merge_into_x_from_y"

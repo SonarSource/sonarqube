@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockTaskWarning } from '../../../../../helpers/mocks/tasks';
-import ComponentNavWarnings from '../ComponentNavWarnings';
+import { useTheme } from '@emotion/react';
+import { themeColor } from '../../helpers/theme';
+import { CustomIcon, IconProps } from './Icon';
 
-it('should render', () => {
-  const wrapper = shallow(
-    <ComponentNavWarnings
-      componentKey="foo"
-      isBranch={true}
-      onWarningDismiss={jest.fn()}
-      warnings={[mockTaskWarning({ message: 'warning 1' })]}
-    />
+export function FlagErrorIcon({ fill = 'iconError', ...iconProps }: IconProps) {
+  const theme = useTheme();
+  return (
+    <CustomIcon {...iconProps}>
+      <path
+        d="M7.364 1.707a1 1 0 0 1 1.414 0l5.657 5.657a1 1 0 0 1 0 1.414l-5.657 5.657a1 1 0 0 1-1.414 0L1.707 8.778a1 1 0 0 1 0-1.414l5.657-5.657ZM7 5a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0V5Zm1 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"
+        style={{ fill: themeColor(fill)({ theme }) }}
+      />
+    </CustomIcon>
   );
-  wrapper.setState({ modal: true });
-  expect(wrapper).toMatchSnapshot();
-});
+}

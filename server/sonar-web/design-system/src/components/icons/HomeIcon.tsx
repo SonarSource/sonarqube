@@ -17,14 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export { default as ClockIcon } from './ClockIcon';
-export { FlagErrorIcon } from './FlagErrorIcon';
-export { FlagInfoIcon } from './FlagInfoIcon';
-export { FlagSuccessIcon } from './FlagSuccessIcon';
-export { FlagWarningIcon } from './FlagWarningIcon';
-export { default as HomeFillIcon } from './HomeFillIcon';
-export { default as HomeIcon } from './HomeIcon';
-export { default as MenuHelpIcon } from './MenuHelpIcon';
-export { default as MenuSearchIcon } from './MenuSearchIcon';
-export { default as OpenNewTabIcon } from './OpenNewTabIcon';
-export { default as StarIcon } from './StarIcon';
+import { HomeIcon } from '@primer/octicons-react';
+import { OcticonHoc } from './Icon';
+
+export default OcticonHoc(HomeIcon);

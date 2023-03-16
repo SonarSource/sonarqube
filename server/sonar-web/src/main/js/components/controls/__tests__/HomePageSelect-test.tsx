@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { setHomePage } from '../../../api/users';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
@@ -29,12 +30,13 @@ jest.mock('../../../api/users', () => ({
 }));
 
 it('renders and behaves correctly', async () => {
+  const user = userEvent.setup();
   const updateCurrentUserHomepage = jest.fn();
   renderHomePageSelect({ updateCurrentUserHomepage });
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
 
-  button.click();
+  await user.click(button);
   await new Promise(setImmediate);
   expect(setHomePage).toHaveBeenCalledWith({ type: 'MY_PROJECTS' });
   expect(updateCurrentUserHomepage).toHaveBeenCalled();
@@ -42,11 +44,13 @@ it('renders and behaves correctly', async () => {
 });
 
 it('renders correctly if user is on the homepage', async () => {
+  const user = userEvent.setup();
+
   renderHomePageSelect({ currentUser: mockLoggedInUser({ homepage: { type: 'MY_PROJECTS' } }) });
   const button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
 
-  button.click();
+  await user.click(button);
   await new Promise(setImmediate);
   expect(setHomePage).toHaveBeenCalledWith(DEFAULT_HOMEPAGE);
   expect(button).toHaveFocus();

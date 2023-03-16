@@ -17,14 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export { default as ClockIcon } from './ClockIcon';
-export { FlagErrorIcon } from './FlagErrorIcon';
-export { FlagInfoIcon } from './FlagInfoIcon';
-export { FlagSuccessIcon } from './FlagSuccessIcon';
-export { FlagWarningIcon } from './FlagWarningIcon';
-export { default as HomeFillIcon } from './HomeFillIcon';
-export { default as HomeIcon } from './HomeIcon';
-export { default as MenuHelpIcon } from './MenuHelpIcon';
-export { default as MenuSearchIcon } from './MenuSearchIcon';
-export { default as OpenNewTabIcon } from './OpenNewTabIcon';
-export { default as StarIcon } from './StarIcon';
+import { useTheme } from '@emotion/react';
+import { themeColor } from '../../helpers/theme';
+import { CustomIcon, IconProps } from './Icon';
+
+export function FlagSuccessIcon({ fill = 'iconSuccess', ...iconProps }: IconProps) {
+  const theme = useTheme();
+  return (
+    <CustomIcon {...iconProps}>
+      <path
+        d="M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12Zm3.207-6.793a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l3.5-3.5Z"
+        style={{ fill: themeColor(fill)({ theme }) }}
+      />
+    </CustomIcon>
+  );
+}

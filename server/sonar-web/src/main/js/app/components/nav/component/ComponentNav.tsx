@@ -27,11 +27,10 @@ import {
 } from '../../../../types/alm-settings';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
-import { Task, TaskStatuses, TaskWarning } from '../../../../types/tasks';
+import { Task, TaskWarning } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
 import { rawSizes } from '../../../theme';
 import RecentHistory from '../../RecentHistory';
-import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
 import ComponentNavProjectBindingErrorNotif from './ComponentNavProjectBindingErrorNotif';
 import Header from './Header';
 import HeaderMeta from './HeaderMeta';
@@ -91,20 +90,6 @@ export default function ComponentNav(props: ComponentNavProps) {
 
   let contextNavHeight = contextNavHeightRaw;
 
-  let bgTaskNotifComponent;
-  if (isInProgress || isPending || (currentTask && currentTask.status === TaskStatuses.Failed)) {
-    bgTaskNotifComponent = (
-      <ComponentNavBgTaskNotif
-        component={component}
-        currentTask={currentTask}
-        currentTaskOnSameBranch={currentTaskOnSameBranch}
-        isInProgress={isInProgress}
-        isPending={isPending}
-      />
-    );
-    contextNavHeight += ALERT_HEIGHT;
-  }
-
   let prDecoNotifComponent;
   if (projectBindingErrors !== undefined) {
     prDecoNotifComponent = <ComponentNavProjectBindingErrorNotif component={component} />;
@@ -120,12 +105,7 @@ export default function ComponentNav(props: ComponentNavProps) {
       height={contextNavHeight}
       id="context-navigation"
       label={translate('qualifier', component.qualifier)}
-      notif={
-        <>
-          {bgTaskNotifComponent}
-          {prDecoNotifComponent}
-        </>
-      }
+      notif={<>{prDecoNotifComponent}</>}
     >
       <div
         className={classNames('display-flex-center display-flex-space-between', {
@@ -142,6 +122,10 @@ export default function ComponentNav(props: ComponentNavProps) {
         <HeaderMeta
           branchLike={currentBranchLike}
           component={component}
+          currentTask={currentTask}
+          currentTaskOnSameBranch={currentTaskOnSameBranch}
+          isInProgress={isInProgress}
+          isPending={isPending}
           onWarningDismiss={props.onWarningDismiss}
           warnings={warnings}
         />
@@ -152,7 +136,9 @@ export default function ComponentNav(props: ComponentNavProps) {
         component={component}
         isInProgress={isInProgress}
         isPending={isPending}
-        onToggleProjectInfo={() => setDisplayProjectInfo(!displayProjectInfo)}
+        onToggleProjectInfo={() => {
+          setDisplayProjectInfo(!displayProjectInfo);
+        }}
         projectInfoDisplayed={displayProjectInfo}
       />
       <InfoDrawer

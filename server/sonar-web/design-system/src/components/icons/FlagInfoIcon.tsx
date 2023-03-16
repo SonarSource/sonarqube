@@ -17,10 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.header-meta-warnings .alert {
-  margin-bottom: 5px;
-}
+import { useTheme } from '@emotion/react';
+import { themeColor } from '../../helpers/theme';
+import { CustomIcon, IconProps } from './Icon';
 
-.header-meta-warnings .alert-content {
-  padding: 6px 8px;
+export function FlagInfoIcon({ fill = 'iconInfo', ...iconProps }: IconProps) {
+  const theme = useTheme();
+  return (
+    <CustomIcon {...iconProps}>
+      <path
+        d="M14 8A6 6 0 1 1 2 8a6 6 0 0 1 12 0Zm-5 3a1 1 0 1 1-2 0V8a1 1 0 0 1 2 0v3ZM8 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+        style={{ fill: themeColor(fill)({ theme }) }}
+      />
+    </CustomIcon>
+  );
 }

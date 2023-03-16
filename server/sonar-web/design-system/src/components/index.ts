@@ -24,6 +24,7 @@ export { default as DeferredSpinner } from './DeferredSpinner';
 export { default as Dropdown } from './Dropdown';
 export * from './DropdownMenu';
 export { default as DropdownToggler } from './DropdownToggler';
+export { FlagMessage } from './FlagMessage';
 export * from './GenericAvatar';
 export * from './icons';
 export { default as InputSearch } from './InputSearch';

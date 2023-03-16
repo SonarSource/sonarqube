@@ -30,28 +30,28 @@ import ComponentNav, { ComponentNavProps } from '../ComponentNav';
 it('renders correctly when there are warnings', () => {
   renderComponentNav({ warnings: [mockTaskWarning()] });
   expect(
-    screen.getByText('component_navigation.last_analysis_had_warnings', { exact: false })
+    screen.getByText('project_navigation.analysis_status.warnings', { exact: false })
   ).toBeInTheDocument();
 });
 
 it('renders correctly when there is a background task in progress', () => {
   renderComponentNav({ isInProgress: true });
   expect(
-    screen.getByText('component_navigation.status.in_progress', { exact: false })
+    screen.getByText('project_navigation.analysis_status.in_progress', { exact: false })
   ).toBeInTheDocument();
 });
 
 it('renders correctly when there is a background task pending', () => {
   renderComponentNav({ isPending: true });
   expect(
-    screen.getByText('component_navigation.status.pending', { exact: false })
+    screen.getByText('project_navigation.analysis_status.pending', { exact: false })
   ).toBeInTheDocument();
 });
 
 it('renders correctly when there is a failing background task', () => {
   renderComponentNav({ currentTask: mockTask({ status: TaskStatuses.Failed }) });
   expect(
-    screen.getByText('component_navigation.status.failed_X', { exact: false })
+    screen.getByText('project_navigation.analysis_status.failed', { exact: false })
   ).toBeInTheDocument();
 });
 

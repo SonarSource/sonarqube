@@ -17,26 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockMainBranch, mockPullRequest } from '../../../../../../helpers/mocks/branch-like';
-import {
-  CurrentBranchLikeMergeInformation,
-  CurrentBranchLikeMergeInformationProps,
-} from '../CurrentBranchLikeMergeInformation';
+import { useTheme } from '@emotion/react';
+import { themeColor } from '../../helpers/theme';
+import { CustomIcon, IconProps } from './Icon';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should not render for non-pull-request branch like', () => {
-  const wrapper = shallowRender({ currentBranchLike: mockMainBranch() });
-  expect(wrapper.type()).toBeNull();
-});
-
-function shallowRender(props?: Partial<CurrentBranchLikeMergeInformationProps>) {
-  return shallow(
-    <CurrentBranchLikeMergeInformation currentBranchLike={mockPullRequest()} {...props} />
+export function FlagWarningIcon({ fill = 'iconWarning', ...iconProps }: IconProps) {
+  const theme = useTheme();
+  return (
+    <CustomIcon {...iconProps}>
+      <path
+        d="M14.41 12.55a1 1 0 0 1-.893 1.45H2.625a1 1 0 0 1-.892-1.45L7.178 1.766a1 1 0 0 1 1.786 0l5.445 10.782ZM7 6a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0V6Zm1 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"
+        style={{ fill: themeColor(fill)({ theme }) }}
+      />
+    </CustomIcon>
   );
 }

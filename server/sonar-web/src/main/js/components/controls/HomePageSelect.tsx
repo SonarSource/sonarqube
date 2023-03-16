@@ -18,13 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { BareButton, HomeFillIcon, HomeIcon, Tooltip } from 'design-system';
 import * as React from 'react';
 import { setHomePage } from '../../api/users';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import { ButtonLink } from '../../components/controls/buttons';
-import Tooltip from '../../components/controls/Tooltip';
-import HomeIcon from '../../components/icons/HomeIcon';
 import { translate } from '../../helpers/l10n';
 import { isSameHomePage } from '../../helpers/users';
 import { HomePage, isLoggedIn } from '../../types/users';
@@ -38,19 +36,13 @@ interface Props
 export const DEFAULT_HOMEPAGE: HomePage = { type: 'PROJECTS' };
 
 export class HomePageSelect extends React.PureComponent<Props> {
-  buttonNode?: HTMLElement | null;
-
   async setCurrentUserHomepage(homepage: HomePage) {
     const { currentUser } = this.props;
 
-    if (currentUser && isLoggedIn(currentUser)) {
+    if (isLoggedIn(currentUser)) {
       await setHomePage(homepage);
 
       this.props.updateCurrentUserHomepage(homepage);
-
-      if (this.buttonNode) {
-        this.buttonNode.focus();
-      }
     }
   }
 
@@ -84,17 +76,16 @@ export class HomePageSelect extends React.PureComponent<Props> {
             className={classNames('display-inline-block', className)}
             role="img"
           >
-            <HomeIcon filled={isChecked} />
+            <HomeFillIcon />
           </span>
         ) : (
-          <ButtonLink
+          <BareButton
             aria-label={tooltip}
-            className={classNames('link-no-underline', 'set-homepage-link', className)}
+            className={className}
             onClick={isChecked ? this.handleReset : this.handleClick}
-            innerRef={(node) => (this.buttonNode = node)}
           >
-            <HomeIcon filled={isChecked} />
-          </ButtonLink>
+            {isChecked ? <HomeFillIcon /> : <HomeIcon />}
+          </BareButton>
         )}
       </Tooltip>
     );

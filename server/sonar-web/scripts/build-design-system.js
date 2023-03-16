@@ -36,8 +36,8 @@ function buildDesignSystem(callback) {
     console.log(chalk.red.bold(data.toString()));
   });
 
-  build.on('exit', (code) => {
-    if (code === 0) {
+  build.on('exit', function (code) {
+    if (code === 0 && callback) {
       callback();
     }
   });
