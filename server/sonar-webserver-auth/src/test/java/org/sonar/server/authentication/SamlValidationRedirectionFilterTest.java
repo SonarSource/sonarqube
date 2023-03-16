@@ -52,7 +52,7 @@ public class SamlValidationRedirectionFilterTest {
   @Before
   public void setup() throws ServletException {
     Server server = mock(Server.class);
-    doReturn("").when(server).getContextPath();
+    doReturn("contextPath").when(server).getContextPath();
     underTest = new SamlValidationRedirectionFilter(server);
     underTest.init(mock(FilterConfig.class));
   }
@@ -74,16 +74,17 @@ public class SamlValidationRedirectionFilterTest {
     String validSample = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     when(servletRequest.getParameter(matches("SAMLResponse"))).thenReturn(validSample);
     when(servletRequest.getParameter(matches("RelayState"))).thenReturn("validation-query/CSRF_TOKEN");
+    when(servletRequest.getContextPath()).thenReturn("contextPath");
     PrintWriter pw = mock(PrintWriter.class);
     when(servletResponse.getWriter()).thenReturn(pw);
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
-    verify(servletResponse).setContentType("text/html");
     ArgumentCaptor<String> htmlProduced = ArgumentCaptor.forClass(String.class);
     verify(pw).print(htmlProduced.capture());
+    verifyResponseContentTypeAndCSPHeaders(servletResponse, "sha256-TClpsoWi64Z74Xuk4Fa3bdt7mY/7K+A2jHOgNpxDy2I=");
     assertThat(htmlProduced.getValue()).contains(validSample);
-    assertThat(htmlProduced.getValue()).contains("action=\"/saml/validation\"");
+    assertThat(htmlProduced.getValue()).contains("action=\"contextPath/saml/validation\"");
     assertThat(htmlProduced.getValue()).contains("value=\"CSRF_TOKEN\"");
   }
 
@@ -104,9 +105,9 @@ public class SamlValidationRedirectionFilterTest {
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
-    verify(servletResponse).setContentType("text/html");
     ArgumentCaptor<String> htmlProduced = ArgumentCaptor.forClass(String.class);
     verify(pw).print(htmlProduced.capture());
+    verifyResponseContentTypeAndCSPHeaders(servletResponse, "sha256-TClpsoWi64Z74Xuk4Fa3bdt7mY/7K+A2jHOgNpxDy2I=");
     assertThat(htmlProduced.getValue()).contains(validSample);
     assertThat(htmlProduced.getValue()).doesNotContain("<script>/*Malicious Token*/</script>");
 
@@ -127,11 +128,12 @@ public class SamlValidationRedirectionFilterTest {
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
-    verify(servletResponse).setContentType("text/html");
     ArgumentCaptor<String> htmlProduced = ArgumentCaptor.forClass(String.class);
+
     verify(pw).print(htmlProduced.capture());
+    verifyResponseContentTypeAndCSPHeaders(servletResponse, "sha256-TClpsoWi64Z74Xuk4Fa3bdt7mY/7K+A2jHOgNpxDy2I=");
     assertThat(htmlProduced.getValue()).doesNotContain("<script>/*hack website*/</script>");
-    assertThat(htmlProduced.getValue()).contains("action=\"/saml/validation\"");
+    assertThat(htmlProduced.getValue()).contains("action=\"contextPath/saml/validation\"");
   }
 
   @Test
@@ -155,6 +157,13 @@ public class SamlValidationRedirectionFilterTest {
   @DataProvider
   public static Object[] invalidRelayStateValues() {
     return new Object[]{"random_query", "validation-query", null};
+  }
+
+  private static void verifyResponseContentTypeAndCSPHeaders(HttpServletResponse servletResponse, String hash) {
+    verify(servletResponse).setContentType("text/html");
+    verify(servletResponse).setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
+    verify(servletResponse).setHeader("X-Content-Security-Policy", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
+    verify(servletResponse).setHeader("X-WebKit-CSP", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
   }
 
 }

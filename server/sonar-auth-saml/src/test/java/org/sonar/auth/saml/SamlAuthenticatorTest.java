@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SamlAuthenticatorTest {
 
@@ -33,6 +34,7 @@ public class SamlAuthenticatorTest {
     SamlAuthenticator samlAuthenticator = new SamlAuthenticator(mock(SamlSettings.class), mock(SamlMessageIdChecker.class));
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
+    when(request.getContextPath()).thenReturn("context");
 
     String authenticationStatus = samlAuthenticator.getAuthenticationStatusPage(request, response);
 

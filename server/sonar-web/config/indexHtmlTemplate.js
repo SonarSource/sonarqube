@@ -44,19 +44,12 @@ module.exports = (cssHash, jsHash) => `
 </head>
 
 <body>
-    <div id="content">
+    <div id="content" data-base-url="%WEB_CONTEXT%" data-server-status="%SERVER_STATUS%" data-instance="%INSTANCE%" data-official="%OFFICIAL%">
         <div class="global-loading">
             <i class="spinner global-loading-spinner"></i> 
             <span aria-live="polite" class="global-loading-text">Loading...</span>
         </div>
     </div>
-
-    <script>
-        window.baseUrl = '%WEB_CONTEXT%';
-        window.serverStatus = '%SERVER_STATUS%';
-        window.instance = '%INSTANCE%';
-        window.official = %OFFICIAL%;
-    </script>
 
     <script type="module" src="%WEB_CONTEXT%/js/out${jsHash}.js"></script>
 </body>

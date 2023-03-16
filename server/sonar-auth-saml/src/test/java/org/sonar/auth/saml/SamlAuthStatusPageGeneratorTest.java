@@ -25,6 +25,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -38,14 +39,16 @@ public class SamlAuthStatusPageGeneratorTest {
   @Test
   public void test_full_html_generation_with_empty_values() {
     SamlAuthenticationStatus samlAuthenticationStatus = mock(SamlAuthenticationStatus.class);
+    HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
     when(samlAuthenticationStatus.getStatus()).thenReturn(null);
     when(samlAuthenticationStatus.getErrors()).thenReturn(new ArrayList<>());
     when(samlAuthenticationStatus.getWarnings()).thenReturn(new ArrayList<>());
     when(samlAuthenticationStatus.getAvailableAttributes()).thenReturn(new HashMap<>());
     when(samlAuthenticationStatus.getMappedAttributes()).thenReturn(new HashMap<>());
+    when(httpServletRequest.getContextPath()).thenReturn("context");
 
-    String completeHtmlTemplate = getSamlAuthStatusHtml(samlAuthenticationStatus);
+    String completeHtmlTemplate = getSamlAuthStatusHtml(httpServletRequest, samlAuthenticationStatus);
     String expectedTemplate = loadTemplateFromResources(EMPTY_HTML_TEMPLATE_NAME);
 
     assertEquals(expectedTemplate, completeHtmlTemplate);

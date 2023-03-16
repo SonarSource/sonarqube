@@ -47,7 +47,7 @@ public class CspFilter implements Filter {
     cspPolicies.add("connect-src 'self' http: https:");
     cspPolicies.add("img-src * data: blob:");
     cspPolicies.add("object-src 'none'");
-    cspPolicies.add("script-src 'self' 'unsafe-inline' 'unsafe-eval'");
+    cspPolicies.add("script-src 'self'");
     cspPolicies.add("style-src 'self' 'unsafe-inline'");
     cspPolicies.add("worker-src 'none'");
     this.policies = String.join("; ", cspPolicies).trim();

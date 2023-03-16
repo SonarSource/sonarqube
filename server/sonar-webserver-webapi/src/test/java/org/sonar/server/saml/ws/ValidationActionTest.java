@@ -38,6 +38,7 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.sonar.server.authentication.SamlValidationCspHeaders.getHashForInlineScript;
 
 public class ValidationActionTest {
 
@@ -85,11 +87,14 @@ public class ValidationActionTest {
 
     doReturn(true).when(userSession).hasSession();
     doReturn(true).when(userSession).isSystemAdministrator();
+    doReturn(getBasicHtmlWithScript()).when(samlAuthenticator).getAuthenticationStatusPage(any(), any());
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
     verify(samlAuthenticator).getAuthenticationStatusPage(any(), any());
     verify(servletResponse).getWriter();
+    verifyResponseTypeAndCSPHeaders(servletResponse, getHashForInlineScript(getBasicHtmlWithScript()));
+    assertEquals(stringWriter.toString(), getBasicHtmlWithScript());
   }
 
   @Test
@@ -142,5 +147,59 @@ public class ValidationActionTest {
     assertThat(validationInitAction).isNotNull();
     assertThat(validationInitAction.description()).isNotEmpty();
     assertThat(validationInitAction.handler()).isNotNull();
+  }
+
+  private static void verifyResponseTypeAndCSPHeaders(HttpServletResponse servletResponse, String hash) {
+    verify(servletResponse).setContentType("text/html");
+    verify(servletResponse).setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
+    verify(servletResponse).setHeader("X-Content-Security-Policy", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
+    verify(servletResponse).setHeader("X-WebKit-CSP", "default-src 'self'; base-uri 'none'; connect-src 'self' http: https:; img-src * data: blob:; object-src 'none'; script-src 'self' '" + hash + "'; style-src 'self' 'unsafe-inline'; worker-src 'none'");
+  }
+
+  private String getBasicHtmlWithScript() {
+    return """
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" charset="UTF-8" />
+          <link rel="icon" type="image/x-icon" href="%WEB_CONTEXT%/favicon.ico" />
+          <meta name="application-name" content="SonarQube" />
+          <meta name="msapplication-TileColor" content="#FFFFFF" />
+          <meta name="msapplication-TileImage" content="%WEB_CONTEXT%/mstile-512x512.png" />
+          <title>SAML Authentication Test</title>
+            
+          <style>
+            .error {
+              background-color: #d02f3a;
+            }
+            
+            .success {
+              background-color: #008a25;
+            }
+          </style>
+        </head>
+            
+        <body>
+          <div id="content">
+            <h1>SAML Authentication Test</h1>
+            <div class="box">
+              <div id="status"></div>
+            </div>
+            <div id="response" data-response="%SAML_AUTHENTICATION_STATUS%"></div>
+          </div>
+            
+          <script>
+            window.addEventListener('DOMContentLoaded', (event) => {
+            
+            function createBox() {
+              const box = document.createElement("div");
+              box.className = "box";
+              return box;
+            }
+            });
+          </script>
+        </body>
+      </html>
+      """;
   }
 }

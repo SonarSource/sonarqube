@@ -37,6 +37,8 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.web.ServletFilter;
 
 import static org.sonar.server.authentication.AuthenticationFilter.CALLBACK_PATH;
+import static org.sonar.server.authentication.SamlValidationCspHeaders.addCspHeadersToResponse;
+import static org.sonar.server.authentication.SamlValidationCspHeaders.getHashForInlineScript;
 
 public class SamlValidationRedirectionFilter extends ServletFilter {
 
@@ -77,6 +79,7 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
     String relayState = request.getParameter(RELAY_STATE_PARAMETER);
 
     if (isSamlValidation(relayState)) {
+
       HttpServletResponse httpResponse = (HttpServletResponse) response;
 
       URI redirectionEndpointUrl = URI.create(server.getContextPath() + "/")
@@ -86,10 +89,11 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
       String csrfToken = getCsrfTokenFromRelayState(relayState);
 
       String template = StringUtils.replaceEachRepeatedly(redirectionPageTemplate,
-        new String[]{"%VALIDATION_URL%", "%SAML_RESPONSE%", "%CSRF_TOKEN%"},
-        new String[]{redirectionEndpointUrl.toString(), samlResponse, csrfToken});
+        new String[]{"%WEB_CONTEXT%", "%VALIDATION_URL%", "%SAML_RESPONSE%", "%CSRF_TOKEN%"},
+        new String[]{server.getContextPath(), redirectionEndpointUrl.toString(), samlResponse, csrfToken});
 
       httpResponse.setContentType("text/html");
+      addCspHeadersToResponse(httpResponse, getHashForInlineScript(template));
       httpResponse.getWriter().print(template);
       return;
     }
@@ -109,4 +113,5 @@ public class SamlValidationRedirectionFilter extends ServletFilter {
     }
     return "";
   }
+
 }

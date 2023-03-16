@@ -3,40 +3,40 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png" />
-    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png" />
-    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png" />
-    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon" href="context/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="context/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="context/apple-touch-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="context/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="context/apple-touch-icon-76x76.png" />
     <link
       rel="apple-touch-icon"
       sizes="114x114"
-      href="/apple-touch-icon-114x114.png"
+      href="context/apple-touch-icon-114x114.png"
     />
     <link
       rel="apple-touch-icon"
       sizes="120x120"
-      href="/apple-touch-icon-120x120.png"
+      href="context/apple-touch-icon-120x120.png"
     />
     <link
       rel="apple-touch-icon"
       sizes="144x144"
-      href="/apple-touch-icon-144x144.png"
+      href="context/apple-touch-icon-144x144.png"
     />
     <link
       rel="apple-touch-icon"
       sizes="152x152"
-      href="/apple-touch-icon-152x152.png"
+      href="context/apple-touch-icon-152x152.png"
     />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
-      href="/apple-touch-icon-180x180.png"
+      href="context/apple-touch-icon-180x180.png"
     />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="context/favicon.ico" />
     <meta name="application-name" content="SonarQube" />
     <meta name="msapplication-TileColor" content="#FFFFFF" />
-    <meta name="msapplication-TileImage" content="/mstile-512x512.png" />
+    <meta name="msapplication-TileImage" content="context/mstile-512x512.png" />
     <title>SAML Authentication Test</title>
 
     <style>
@@ -113,9 +113,12 @@
       <div class="box">
         <div id="status"></div>
       </div>
+      <div id="response" data-response="eyJ3YXJuaW5ncyI6W10sImF2YWlsYWJsZUF0dHJpYnV0ZXMiOnt9LCJlcnJvcnMiOltdLCJtYXBwZWRBdHRyaWJ1dGVzIjp7fX0="></div>
     </div>
 
     <script>
+      window.addEventListener('DOMContentLoaded', (event) => {
+
       function createBox() {
         const box = document.createElement("div");
         box.className = "box";
@@ -173,7 +176,8 @@
         container.appendChild(box);
       }
 
-      const response = 'eyJ3YXJuaW5ncyI6W10sImF2YWlsYWJsZUF0dHJpYnV0ZXMiOnt9LCJlcnJvcnMiOltdLCJtYXBwZWRBdHRyaWJ1dGVzIjp7fX0=';
+      const variables = document.querySelector("#response");
+      const response = variables.dataset.response;
       const decodedStatus = JSON.parse(atob(response));
       const status = decodedStatus.status;
       const attributes = decodedStatus.availableAttributes;
@@ -206,6 +210,7 @@
           addSection(container, "Attribute mappings", createTable(mappings));
         }
       }
+      });
     </script>
   </body>
 </html>

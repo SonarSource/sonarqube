@@ -41,6 +41,8 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.ws.ServletFilterHandler;
 
+import static org.sonar.server.authentication.SamlValidationCspHeaders.addCspHeadersToResponse;
+import static org.sonar.server.authentication.SamlValidationCspHeaders.getHashForInlineScript;
 import static org.sonar.server.saml.ws.SamlValidationWs.SAML_VALIDATION_CONTROLLER;
 
 public class ValidationAction extends ServletFilter implements SamlAction {
@@ -92,7 +94,10 @@ public class ValidationAction extends ServletFilter implements SamlAction {
     };
 
     httpResponse.setContentType("text/html");
-    httpResponse.getWriter().print(samlAuthenticator.getAuthenticationStatusPage(httpRequest, httpResponse));
+
+    String htmlResponse = samlAuthenticator.getAuthenticationStatusPage(httpRequest, httpResponse);
+    addCspHeadersToResponse(httpResponse, getHashForInlineScript(htmlResponse));
+    httpResponse.getWriter().print(htmlResponse);
   }
 
   @Override

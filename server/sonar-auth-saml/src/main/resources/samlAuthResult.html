@@ -113,9 +113,12 @@
       <div class="box">
         <div id="status"></div>
       </div>
+      <div id="response" data-response="%SAML_AUTHENTICATION_STATUS%"></div>
     </div>
 
     <script>
+      window.addEventListener('DOMContentLoaded', (event) => {
+
       function createBox() {
         const box = document.createElement("div");
         box.className = "box";
@@ -173,7 +176,8 @@
         container.appendChild(box);
       }
 
-      const response = %SAML_AUTHENTICATION_STATUS%;
+      const variables = document.querySelector("#response");
+      const response = variables.dataset.response;
       const decodedStatus = JSON.parse(atob(response));
       const status = decodedStatus.status;
       const attributes = decodedStatus.availableAttributes;
@@ -206,6 +210,7 @@
           addSection(container, "Attribute mappings", createTable(mappings));
         }
       }
+      });
     </script>
   </body>
 </html>

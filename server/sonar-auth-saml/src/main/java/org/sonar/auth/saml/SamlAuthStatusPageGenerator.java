@@ -25,21 +25,21 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.json.JSONObject;
 
 public final class SamlAuthStatusPageGenerator {
 
   private static final String WEB_CONTEXT = "%WEB_CONTEXT%";
   private static final String SAML_AUTHENTICATION_STATUS = "%SAML_AUTHENTICATION_STATUS%";
-
   private static final String HTML_TEMPLATE_NAME = "samlAuthResult.html";
 
   private SamlAuthStatusPageGenerator() {
     throw new IllegalStateException("This Utility class cannot be instantiated");
   }
 
-  public static String getSamlAuthStatusHtml(SamlAuthenticationStatus samlAuthenticationStatus) {
-    Map<String, String> substitutionsMap = getSubstitutionsMap(samlAuthenticationStatus);
+  public static String getSamlAuthStatusHtml(HttpServletRequest request, SamlAuthenticationStatus samlAuthenticationStatus) {
+    Map<String, String> substitutionsMap = getSubstitutionsMap(request, samlAuthenticationStatus);
     String htmlTemplate = getPlainTemplate();
 
     return substitutionsMap
@@ -48,15 +48,15 @@ public final class SamlAuthStatusPageGenerator {
       .reduce(htmlTemplate, (accumulator, pattern) -> accumulator.replace(pattern, substitutionsMap.get(pattern)));
   }
 
-  private static Map<String, String> getSubstitutionsMap(SamlAuthenticationStatus samlAuthenticationStatus) {
+  private static Map<String, String> getSubstitutionsMap(HttpServletRequest request, SamlAuthenticationStatus samlAuthenticationStatus) {
     return Map.of(
-      WEB_CONTEXT, "",
+      WEB_CONTEXT, request.getContextPath(),
       SAML_AUTHENTICATION_STATUS, getBase64EncodedStatus(samlAuthenticationStatus));
   }
 
   private static String getBase64EncodedStatus(SamlAuthenticationStatus samlAuthenticationStatus) {
     byte[] bytes = new JSONObject(samlAuthenticationStatus).toString().getBytes(StandardCharsets.UTF_8);
-    return String.format("'%s'", Base64.getEncoder().encodeToString(bytes));
+    return String.format("%s", Base64.getEncoder().encodeToString(bytes));
   }
 
   private static String getPlainTemplate() {

@@ -32,3 +32,12 @@ export interface EnhancedWindow extends Window {
   t: (...keys: string[]) => string;
   tp: (messageKey: string, ...parameters: Array<string | number>) => string;
 }
+
+export interface AppVariablesElement extends HTMLElement {
+  dataset: {
+    baseUrl: string;
+    serverStatus: SysStatus;
+    instance: InstanceType;
+    official: string;
+  };
+}

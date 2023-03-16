@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { AppVariablesElement } from '../types/browser';
 import { getEnhancedWindow } from './browser';
 
 export function getBaseUrl() {
@@ -37,4 +38,18 @@ export function isOfficial() {
 
 export function getReactDomContainerSelector() {
   return '#content';
+}
+
+export function initAppVariables() {
+  const appVariablesDiv = document.querySelector<AppVariablesElement>(
+    getReactDomContainerSelector()
+  );
+  if (appVariablesDiv === null) {
+    throw new Error('Failed to get app variables');
+  }
+
+  getEnhancedWindow().baseUrl = appVariablesDiv.dataset.baseUrl;
+  getEnhancedWindow().serverStatus = appVariablesDiv.dataset.serverStatus;
+  getEnhancedWindow().instance = appVariablesDiv.dataset.instance;
+  getEnhancedWindow().official = Boolean(appVariablesDiv.dataset.official);
 }

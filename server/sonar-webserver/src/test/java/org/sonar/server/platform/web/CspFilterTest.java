@@ -41,7 +41,7 @@ public class CspFilterTest {
     "connect-src 'self' http: https:; " +
     "img-src * data: blob:; " +
     "object-src 'none'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+    "script-src 'self'; " +
     "style-src 'self' 'unsafe-inline'; " +
     "worker-src 'none'";
   private final ServletContext servletContext = mock(ServletContext.class, RETURNS_MOCKS);
