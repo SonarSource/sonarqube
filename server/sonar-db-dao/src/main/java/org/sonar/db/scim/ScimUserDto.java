@@ -19,6 +19,8 @@
  */
 package org.sonar.db.scim;
 
+import java.util.Objects;
+
 public class ScimUserDto {
 
   private final String scimUserUuid;
@@ -38,4 +40,20 @@ public class ScimUserDto {
     return userUuid;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ScimUserDto that = (ScimUserDto) o;
+    return Objects.equals(scimUserUuid, that.scimUserUuid) && Objects.equals(userUuid, that.userUuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(scimUserUuid, userUuid);
+  }
 }
