@@ -182,21 +182,14 @@
     <if test="excludeViewRefresh">
         left join components c on c.uuid = cq.main_component_uuid and c.qualifier &lt;&gt; 'VW'
     </if>
+      left join ce_queue cq2 on cq.main_component_uuid=cq2.main_component_uuid and cq2.status &lt;&gt;'PENDING'
     where
       cq.status='PENDING'
       and cq.started_at is null
+      and cq2.uuid is null
       <if test="excludeIndexationJob">
         and cq.task_type &lt;&gt; 'ISSUE_SYNC'
       </if>
-      and not exists (
-        select
-          1
-        from
-          ce_queue cq2
-        where
-          cq.main_component_uuid=cq2.main_component_uuid
-          and cq2.status &lt;&gt; 'PENDING'
-      )
   </sql>
 
   <sql id="orderBySelectEligibleForPeek">
