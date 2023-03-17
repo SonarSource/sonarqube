@@ -17,24 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { DetailedHTMLProps, HTMLAttributes, PropsWithChildren } from 'react';
+import tw from 'twin.macro';
+import { LAYOUT_GLOBAL_NAV_HEIGHT } from '../helpers';
+import { themeColor, themeContrast } from '../helpers/theme';
 
-export * from './Avatar';
-export * from './buttons';
-export { default as DeferredSpinner } from './DeferredSpinner';
-export { default as Dropdown } from './Dropdown';
-export * from './DropdownMenu';
-export { default as DropdownToggler } from './DropdownToggler';
-export { FlagMessage } from './FlagMessage';
-export * from './GenericAvatar';
-export * from './icons';
-export { default as InputSearch } from './InputSearch';
-export * from './InteractiveIcon';
-export { default as Link } from './Link';
-export * from './MainAppBar';
-export * from './MainMenu';
-export { MainMenuItem } from './MainMenuItem';
-export * from './popups';
-export * from './SonarQubeLogo';
-export * from './Text';
-export { default as Tooltip } from './Tooltip';
-export { TopBar } from './TopBar';
+interface Props {
+  id?: string;
+}
+
+export function TopBar({
+  children,
+  ...props
+}: PropsWithChildren<Props> & DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>) {
+  return (
+    <BaseStyle style={{ top: LAYOUT_GLOBAL_NAV_HEIGHT }} {...props}>
+      {children}
+    </BaseStyle>
+  );
+}
+
+const BaseStyle = styled.nav`
+  ${tw`sw-sticky`}
+  ${tw`sw-z-top-navbar`}
+  ${tw`sw-px-6 sw-pt-4`}
+  ${tw`sw-font-sans`}
+  ${tw`sw-text-sm`}
+
+  background-color: ${themeColor('backgroundPrimary')};
+  color: ${themeContrast('backgroundPrimary')};
+`;

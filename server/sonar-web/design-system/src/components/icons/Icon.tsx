@@ -71,6 +71,7 @@ export function OcticonHoc(
 ): React.ComponentType<IconProps> {
   function IconWrapper({ fill, ...props }: IconProps) {
     const theme = useTheme();
+
     return (
       <WrappedOcticon
         fill={fill && themeColor(fill)({ theme })}

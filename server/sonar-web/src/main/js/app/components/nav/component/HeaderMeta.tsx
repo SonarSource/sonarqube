@@ -76,7 +76,7 @@ export function HeaderMeta(props: HeaderMetaProps) {
         </span>
       )}
       {isLoggedIn(currentUser) && currentPage !== undefined && !isPullRequest(branchLike) && (
-        <HomePageSelect className="sw-ml-4" currentPage={currentPage} />
+        <HomePageSelect className="sw-ml-2" currentPage={currentPage} />
       )}
     </div>
   );

@@ -37,8 +37,8 @@ const MainAppBarDiv = styled.div`
   ${tw`sw-flex`};
   ${tw`sw-items-center`};
   ${tw`sw-left-0`};
-  ${tw`sw-px-6`};
   ${tw`sw-right-0`};
+  ${tw`sw-px-6`};
   ${tw`sw-w-full`};
   ${tw`sw-box-border`};
   ${tw`sw-z-global-navbar`};

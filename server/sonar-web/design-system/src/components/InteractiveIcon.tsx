@@ -50,7 +50,6 @@ export interface InteractiveIconProps {
 export class InteractiveIconBase extends React.PureComponent<InteractiveIconProps> {
   handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     const { disabled, onClick, stopPropagation = true } = this.props;
-    event.currentTarget.blur();
 
     if (stopPropagation) {
       event.stopPropagation();

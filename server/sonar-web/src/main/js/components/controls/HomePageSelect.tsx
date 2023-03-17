@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { BareButton, HomeFillIcon, HomeIcon, Tooltip } from 'design-system';
+import { DiscreetInteractiveIcon, HomeFillIcon, HomeIcon, Tooltip } from 'design-system';
 import * as React from 'react';
 import { setHomePage } from '../../api/users';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
@@ -73,19 +73,18 @@ export class HomePageSelect extends React.PureComponent<Props> {
         {isDefault ? (
           <span
             aria-label={tooltip}
-            className={classNames('display-inline-block', className)}
+            className={classNames('sw-inline-block', className)}
             role="img"
           >
             <HomeFillIcon />
           </span>
         ) : (
-          <BareButton
+          <DiscreetInteractiveIcon
             aria-label={tooltip}
             className={className}
+            Icon={isChecked ? HomeFillIcon : HomeIcon}
             onClick={isChecked ? this.handleReset : this.handleClick}
-          >
-            {isChecked ? <HomeFillIcon /> : <HomeIcon />}
-          </BareButton>
+          />
         )}
       </Tooltip>
     );
