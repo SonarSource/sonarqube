@@ -45,9 +45,6 @@ import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LTE;
 
 public class ProjectMeasuresQueryFactoryTest {
 
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Test
   public void create_query() {
     List<Criterion> criteria = asList(

@@ -37,11 +37,6 @@ import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 
 public class SvgGeneratorTest {
 
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create();
-
   private SvgGenerator underTest;
 
   @Test

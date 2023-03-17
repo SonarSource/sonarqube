@@ -49,8 +49,6 @@ public class LogoutActionTest {
 
   private static final UserDto USER = newUserDto().setLogin("john");
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
