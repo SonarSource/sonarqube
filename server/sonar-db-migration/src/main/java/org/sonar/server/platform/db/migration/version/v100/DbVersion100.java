@@ -53,6 +53,9 @@ public class DbVersion100 implements DbVersion {
       .add(10_0_009, "Make column 'user_local' not nullable in the 'users' table", MakeColumnUserLocalNotNullableInUsers.class)
       .add(10_0_010, "Create 'scim_groups' table", CreateScimGroupsTable.class)
       .add(10_0_011, "Create unique index on scim_groups.group_uuid", CreateUniqueIndexForScimGroupsUuid.class)
+      .add(10_0_012, "Log a warning message if 'sonar.scim.enabled' is used", LogMessageIfSonarScimEnabledPresentProperty.class)
+      .add(10_0_013, "Drop 'sonar.scim.enabled' property", DropSonarScimEnabledProperty.class)
+      .add(10_0_014, "Drop any SCIM User provisioning, turning all users local", DropScimUserProvisioning.class)
     ;
   }
 }
