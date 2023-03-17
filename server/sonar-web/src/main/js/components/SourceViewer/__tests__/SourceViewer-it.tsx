@@ -387,7 +387,7 @@ it('should highlight symbol', async () => {
   const symbols = await screen.findAllByText('symbole');
   await user.click(symbols[0]);
 
-  // For now just check the class. Maybe found a better accessible way of showing higlighted symbole
+  // For now just check the class. Maybe find a better accessible way of showing higlighted symbols
   symbols.forEach((element) => {
     expect(element).toHaveClass('highlighted');
   });
