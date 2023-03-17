@@ -25,10 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaArchitectureInformationProviderTest {
 
-  private JavaArchitectureInformationProvider javaArchitectureInformationProvider = new JavaArchitectureInformationProvider();
+  private final JavaArchitectureInformationProvider javaArchitectureInformationProvider = new JavaArchitectureInformationProvider();
 
   @Test
-  public void is64bitJavaVersion_returnsTrue_whenRunningWith64bitJava() {
+  public void is64bitJavaVersion_whenRunningWith64bitJava_shouldReturnTrue() {
     assertThat(javaArchitectureInformationProvider.is64bitJavaVersion()).isTrue();
   }
 

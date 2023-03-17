@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
-import org.sonar.scanner.scan.ScanProperties;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.HttpException;
@@ -38,7 +37,6 @@ import static org.mockito.Mockito.mock;
 public class DefaultQualityProfileLoaderTest {
 
   private final DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
-  private final ScanProperties properties = mock(ScanProperties.class);
   private final DefaultQualityProfileLoader underTest = new DefaultQualityProfileLoader(wsClient);
 
   @Test

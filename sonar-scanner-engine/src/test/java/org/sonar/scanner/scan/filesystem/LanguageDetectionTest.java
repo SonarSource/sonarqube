@@ -41,7 +41,6 @@ public class LanguageDetectionTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-
   private MapSettings settings;
 
   @Before
