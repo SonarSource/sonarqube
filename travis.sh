@@ -57,7 +57,7 @@ echo "$BUILD_START_DATETIME" > /tmp/build_start_time
 if [[ -n "${NEXT_TOKEN-}" ]]; then
   sonar_params=(-Dsonar.projectKey=sonarqube
     -Dsonar.host.url="$SONAR_HOST_URL"
-    -Dsonar.login="$NEXT_TOKEN"
+    -Dsonar.token="$NEXT_TOKEN"
     -Dsonar.analysis.buildNumber="$BUILD_NUMBER"
     -Dsonar.analysis.pipeline="$BUILD_NUMBER"
     -Dsonar.analysis.sha1="$GIT_SHA1"
