@@ -113,7 +113,12 @@ public final class SamlStatusChecker {
       USER_NAME_ATTRIBUTE, samlSettings.getUserName(),
       USER_LOGIN_ATTRIBUTE, samlSettings.getUserLogin());
 
-    return generateMissingMappingMessages(mappings, auth);
+    List<String> mappingErrors = generateMissingMappingMessages(mappings, auth);
+    if (mappingErrors.isEmpty()) {
+      mappingErrors = generateEmptyMappingsMessages(mappings, auth);
+    }
+
+    return mappingErrors;
   }
 
   private static List<String> generateMissingMappingMessages(Map<String, String> mappings, Auth auth) {
@@ -124,4 +129,11 @@ public final class SamlStatusChecker {
       .toList();
   }
 
+  private static List<String> generateEmptyMappingsMessages(Map<String, String> mappings, Auth auth) {
+    return mappings.entrySet()
+      .stream()
+      .filter(entry -> (auth.getAttribute(entry.getValue()).size() == 1 && auth.getAttribute(entry.getValue()).contains("")))
+      .map(entry -> String.format("Mapping found for the property %s, but the field %s is empty in the SAML response.", entry.getKey(), entry.getValue()))
+      .toList();
+  }
 }

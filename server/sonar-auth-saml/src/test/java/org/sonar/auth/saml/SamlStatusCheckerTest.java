@@ -59,7 +59,7 @@ public class SamlStatusCheckerTest {
 
   @Before
   public void setUp() {
-    when(auth.getErrors()).thenReturn(new ArrayList<String>());
+    when(auth.getErrors()).thenReturn(new ArrayList<>());
     when(auth.getSettings()).thenReturn(new Saml2Settings());
     when(auth.getAttributes()).thenReturn(getResponseAttributes());
   }
@@ -156,6 +156,23 @@ public class SamlStatusCheckerTest {
       .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_LOGIN_ATTRIBUTE, "wrongLoginField")));
     assertTrue(samlAuthenticationStatus.getErrors()
       .contains(String.format("Mapping not found for the property %s, the field %s is not available in the SAML response.", USER_NAME_ATTRIBUTE, "wrongNameField")));
+  }
+
+  @Test
+  public void authentication_has_errors_when_login_and_name_are_empty() {
+    setSettings();
+    when(auth.getAttributes()).thenReturn(getEmptyAttributes());
+    getEmptyAttributes().forEach((key, value) -> when(auth.getAttribute(key)).thenReturn(value));
+
+    samlAuthenticationStatus = getSamlAuthenticationStatus(auth, new SamlSettings(settings.asConfig()));
+
+    assertEquals("error", samlAuthenticationStatus.getStatus());
+    assertTrue(samlAuthenticationStatus.getWarnings().isEmpty());
+    assertEquals(2, samlAuthenticationStatus.getErrors().size());
+    assertTrue(samlAuthenticationStatus.getErrors()
+      .contains(String.format("Mapping found for the property %s, but the field %s is empty in the SAML response.", USER_LOGIN_ATTRIBUTE, "login")));
+    assertTrue(samlAuthenticationStatus.getErrors()
+      .contains(String.format("Mapping found for the property %s, but the field %s is empty in the SAML response.", USER_NAME_ATTRIBUTE, "name")));
   }
 
   @Test
