@@ -81,7 +81,7 @@ export default class ChangeDefaultVisibilityForm extends React.PureComponent<Pro
         </div>
 
         <footer className="modal-foot">
-          <Button className="js-confirm" onClick={this.handleConfirmClick}>
+          <Button className="js-confirm" type="submit" onClick={this.handleConfirmClick}>
             {translate('settings.projects.change_visibility_form.submit')}
           </Button>
           <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>

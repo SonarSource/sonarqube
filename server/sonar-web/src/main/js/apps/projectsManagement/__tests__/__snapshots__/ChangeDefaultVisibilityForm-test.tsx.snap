@@ -65,6 +65,7 @@ exports[`changes visibility 1`] = `
     <Button
       className="js-confirm"
       onClick={[Function]}
+      type="submit"
     >
       settings.projects.change_visibility_form.submit
     </Button>
@@ -143,6 +144,7 @@ exports[`changes visibility 2`] = `
     <Button
       className="js-confirm"
       onClick={[Function]}
+      type="submit"
     >
       settings.projects.change_visibility_form.submit
     </Button>
