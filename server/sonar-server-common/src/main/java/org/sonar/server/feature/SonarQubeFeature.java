@@ -23,5 +23,5 @@ public interface SonarQubeFeature {
 
   String getName();
 
-  boolean isEnabled();
+  boolean isAvailable();
 }

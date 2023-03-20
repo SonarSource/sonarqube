@@ -55,7 +55,7 @@ public class LoginMessageAction implements SettingsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (JsonWriter writer = response.newJsonWriter()) {
       writer.beginObject()
-        .prop("message", isMessageDisplayEnabled() && loginMessageFeature.isEnabled() ? Markdown.convertToHtml(getLoginMessage()) : "")
+        .prop("message", isMessageDisplayEnabled() && loginMessageFeature.isAvailable() ? Markdown.convertToHtml(getLoginMessage()) : "")
         .endObject()
         .close();
     }

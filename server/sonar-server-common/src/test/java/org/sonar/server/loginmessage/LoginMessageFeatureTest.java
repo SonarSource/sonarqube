@@ -40,12 +40,12 @@ public class LoginMessageFeatureTest {
 
   @Test
   @UseDataProvider("editionsAndLoginMessageFeatureAvailability")
-  public void isEnabled_shouldOnlyBeEnabledInEnterpriseEditionPlus(SonarEdition edition, boolean shouldBeEnabled) {
+  public void isAvailable_shouldOnlyBeEnabledInEnterpriseEditionPlus(SonarEdition edition, boolean shouldBeEnabled) {
     when(sonarRuntime.getEdition()).thenReturn(edition);
 
-    boolean isEnabled = underTest.isEnabled();
+    boolean isAvailable = underTest.isAvailable();
 
-    assertThat(isEnabled).isEqualTo(shouldBeEnabled);
+    assertThat(isAvailable).isEqualTo(shouldBeEnabled);
   }
 
   @Test

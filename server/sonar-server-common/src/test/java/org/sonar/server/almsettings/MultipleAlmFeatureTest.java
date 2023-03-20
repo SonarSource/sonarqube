@@ -48,9 +48,9 @@ public class MultipleAlmFeatureTest {
   public void isEnabled_shouldOnlyBeEnabledInEnterpriseEditionPlus(SonarEdition edition, boolean shouldBeEnabled) {
     when(sonarRuntime.getEdition()).thenReturn(edition);
 
-    boolean isEnabled = underTest.isEnabled();
+    boolean isAvailable = underTest.isAvailable();
 
-    assertThat(isEnabled).isEqualTo(shouldBeEnabled);
+    assertThat(isAvailable).isEqualTo(shouldBeEnabled);
   }
 
   @DataProvider

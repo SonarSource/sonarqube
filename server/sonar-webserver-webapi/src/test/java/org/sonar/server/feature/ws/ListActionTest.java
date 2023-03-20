@@ -86,7 +86,7 @@ public class ListActionTest {
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isAvailable() {
       return enabled;
     }
   }

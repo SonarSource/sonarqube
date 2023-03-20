@@ -60,7 +60,7 @@ public class UpdateGitlabActionIT {
 
   @Before
   public void before() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(true);
+    when(multipleAlmFeature.isAvailable()).thenReturn(true);
   }
 
   @Test

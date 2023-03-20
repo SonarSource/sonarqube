@@ -56,7 +56,7 @@ public class CreateBitbucketActionIT {
 
   @Before
   public void before() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(false);
+    when(multipleAlmFeature.isAvailable()).thenReturn(false);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class CreateBitbucketActionIT {
 
   @Test
   public void fail_when_key_is_already_used() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(true);
+    when(multipleAlmFeature.isAvailable()).thenReturn(true);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto bitbucketAlmSetting = db.almSettings().insertBitbucketAlmSetting();
@@ -93,7 +93,7 @@ public class CreateBitbucketActionIT {
 
   @Test
   public void fail_when_no_multiple_instance_allowed() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(false);
+    when(multipleAlmFeature.isAvailable()).thenReturn(false);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertBitbucketAlmSetting();
@@ -109,7 +109,7 @@ public class CreateBitbucketActionIT {
 
   @Test
   public void fail_when_no_multiple_instance_allowed_and_bitbucket_cloud_exists() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(false);
+    when(multipleAlmFeature.isAvailable()).thenReturn(false);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertBitbucketCloudAlmSetting();

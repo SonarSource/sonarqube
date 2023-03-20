@@ -43,7 +43,7 @@ public class MultipleAlmFeature implements SonarQubeFeature {
   }
 
   @Override
-  public boolean isEnabled() {
+  public boolean isAvailable() {
     return sonarRuntime.getEdition() == ENTERPRISE || sonarRuntime.getEdition() == DATACENTER;
   }
 

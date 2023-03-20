@@ -56,7 +56,7 @@ public class CreateAzureActionIT {
 
   @Before
   public void before() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(false);
+    when(multipleAlmFeature.isAvailable()).thenReturn(false);
   }
 
   @Test
@@ -79,7 +79,7 @@ public class CreateAzureActionIT {
 
   @Test
   public void fail_when_key_is_already_used() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(true);
+    when(multipleAlmFeature.isAvailable()).thenReturn(true);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto azureAlmSetting = db.almSettings().insertAzureAlmSetting();
@@ -95,7 +95,7 @@ public class CreateAzureActionIT {
 
   @Test
   public void fail_when_no_multiple_instance_allowed() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(false);
+    when(multipleAlmFeature.isAvailable()).thenReturn(false);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertAzureAlmSetting();

@@ -63,7 +63,7 @@ public class CreateGithubActionIT {
 
   @Before
   public void setUp() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(false);
+    when(multipleAlmFeature.isAvailable()).thenReturn(false);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
   }
@@ -120,7 +120,7 @@ public class CreateGithubActionIT {
 
   @Test
   public void fail_when_key_is_already_used() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(true);
+    when(multipleAlmFeature.isAvailable()).thenReturn(true);
     AlmSettingDto gitHubAlmSetting = db.almSettings().insertGitHubAlmSetting();
 
     TestRequest request = buildTestRequest().setParam("key", gitHubAlmSetting.getKey());
@@ -132,7 +132,7 @@ public class CreateGithubActionIT {
 
   @Test
   public void fail_when_no_multiple_instance_allowed() {
-    when(multipleAlmFeature.isEnabled()).thenReturn(false);
+    when(multipleAlmFeature.isAvailable()).thenReturn(false);
     db.almSettings().insertGitHubAlmSetting();
 
     TestRequest request = buildTestRequest();

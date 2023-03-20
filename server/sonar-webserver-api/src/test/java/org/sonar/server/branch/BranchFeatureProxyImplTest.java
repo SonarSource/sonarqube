@@ -36,13 +36,13 @@ public class BranchFeatureProxyImplTest {
 
   @Test
   public void return_false_when_extension_returns_false() {
-    when(branchFeatureExtension.isEnabled()).thenReturn(false);
+    when(branchFeatureExtension.isAvailable()).thenReturn(false);
     assertThat(new BranchFeatureProxyImpl(branchFeatureExtension).isEnabled()).isFalse();
   }
 
   @Test
   public void return_true_when_extension_returns_ftrue() {
-    when(branchFeatureExtension.isEnabled()).thenReturn(true);
+    when(branchFeatureExtension.isAvailable()).thenReturn(true);
     assertThat(new BranchFeatureProxyImpl(branchFeatureExtension).isEnabled()).isTrue();
   }
 }

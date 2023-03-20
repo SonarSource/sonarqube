@@ -31,6 +31,6 @@ public class BranchFeatureProxyImpl implements BranchFeatureProxy {
 
   @Override
   public boolean isEnabled() {
-    return branchFeatureExtension != null && branchFeatureExtension.isEnabled();
+    return branchFeatureExtension != null && branchFeatureExtension.isAvailable();
   }
 }

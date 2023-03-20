@@ -67,7 +67,7 @@ public class AlmSettingsSupport {
 
   public void checkAlmMultipleFeatureEnabled(ALM alm) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (!multipleAlmFeature.isEnabled() && !dbClient.almSettingDao().selectByAlm(dbSession, alm).isEmpty()) {
+      if (!multipleAlmFeature.isAvailable() && !dbClient.almSettingDao().selectByAlm(dbSession, alm).isEmpty()) {
         throw BadRequestException.create("A " + alm + " setting is already defined");
       }
     }

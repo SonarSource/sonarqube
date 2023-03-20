@@ -51,7 +51,7 @@ public class LoginMessageActionTest {
   @Before
   public void setup() {
     propertiesDao = mock(PropertiesDao.class);
-    doReturn(true).when(loginMessageFeature).isEnabled();
+    doReturn(true).when(loginMessageFeature).isAvailable();
     doReturn(propertiesDao).when(dbClient).propertiesDao();
   }
 
@@ -86,7 +86,7 @@ public class LoginMessageActionTest {
   public void return_empty_message_when_feature_not_enabled() {
     mockProperty(SONAR_LOGIN_DISPLAY_MESSAGE, "true");
     mockProperty(SONAR_LOGIN_MESSAGE, LOGIN_MESSAGE_TEXT);
-    when(loginMessageFeature.isEnabled()).thenReturn(false);
+    when(loginMessageFeature.isAvailable()).thenReturn(false);
     TestResponse response = ws.newRequest().execute();
 
     assertThat(response.getInput()).isEqualTo(EMPTY_JSON_RESPONSE);
