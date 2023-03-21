@@ -65,6 +65,29 @@ it('should render correctly', () => {
   expect(screen.getByRole('link', { name: 'ComponentBar' })).toBeInTheDocument();
 });
 
+it('should render correctly when on a Portofolio', () => {
+  const component = {
+    ...BASE_COMPONENT,
+    configuration: {
+      showSettings: true,
+      extensions: [
+        { key: 'foo', name: 'Foo' },
+        { key: 'bar', name: 'Bar' },
+      ],
+    },
+    qualifier: ComponentQualifier.Portfolio,
+    extensions: [
+      { key: 'governance/foo', name: 'governance foo' },
+      { key: 'governance/bar', name: 'governance bar' },
+    ],
+  };
+  renderMenu({ component });
+  expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'issues.page' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'portfolio_breakdown.page' })).toBeInTheDocument();
+});
+
 it('should render correctly when on a branch', () => {
   renderMenu({
     branchLike: mockBranch(),
@@ -115,8 +138,8 @@ it('should disable links if no analysis has been done', () => {
     },
   });
   expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'issues.page' })).not.toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'layout.measures' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'issues.page' })).toHaveClass('disabled-link');
+  expect(screen.queryByRole('link', { name: 'layout.measures' })).toHaveClass('disabled-link');
   expect(screen.getByRole('button', { name: 'project.info.title' })).toBeInTheDocument();
 });
 

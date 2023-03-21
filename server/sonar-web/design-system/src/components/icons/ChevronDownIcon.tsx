@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import * as React from 'react';
-import './NavBarTabs.css';
+import { useTheme } from '@emotion/react';
+import { themeColor } from '../../helpers/theme';
+import { CustomIcon, IconProps } from './Icon';
 
-interface Props extends React.HTMLAttributes<HTMLUListElement> {
-  children?: React.ReactNode;
-  className?: string;
-}
-
-export default function NavBarTabs({ children, className, ...other }: Props) {
+export default function ChevronDownIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
+  const theme = useTheme();
   return (
-    <ul {...other} className={classNames('it__navbar-tabs navbar-tabs', className)}>
-      {children}
-    </ul>
+    <CustomIcon {...iconProps}>
+      <path
+        clipRule="evenodd"
+        d="M12.7236 5.83199c.1953.19527.1953.51185 0 .70711l-4.18499 4.185c-.19526.1953-.51184.1953-.7071 0l-4.18503-4.185c-.19527-.19526-.19527-.51184 0-.70711.19526-.19526.51184-.19526.7071 0l3.83148 3.83148 3.83144-3.83148c.1953-.19526.5119-.19526.7071 0Z"
+        fill={themeColor(fill)({ theme })}
+        fillRule="evenodd"
+      />
+    </CustomIcon>
   );
 }

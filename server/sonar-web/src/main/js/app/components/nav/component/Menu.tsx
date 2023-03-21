@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { DisabledTabLink, NavBarTabLink, NavBarTabs, Tooltip } from 'design-system';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import { ButtonLink } from '../../../../components/controls/buttons';
 import Dropdown from '../../../../components/controls/Dropdown';
-import Tooltip from '../../../../components/controls/Tooltip';
 import BulletListIcon from '../../../../components/icons/BulletListIcon';
 import DropdownIcon from '../../../../components/icons/DropdownIcon';
-import NavBarTabs from '../../../../components/ui/NavBarTabs';
+import SQNavBarTabs from '../../../../components/ui/NavBarTabs';
 import { getBranchLikeQuery, isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
@@ -148,7 +148,7 @@ export class Menu extends React.PureComponent<Props> {
     pathname,
     additionalQueryParams = {},
   }: {
-    label: React.ReactNode;
+    label: string;
     pathname: string;
     additionalQueryParams?: Dict<string>;
   }) => {
@@ -158,25 +158,16 @@ export class Menu extends React.PureComponent<Props> {
     if (isApplicationChildInaccessble) {
       return this.renderLinkWhenInaccessibleChild(label);
     }
-    return (
-      <li>
-        {hasAnalysis ? (
-          <NavLink
-            to={{
-              pathname,
-              search: new URLSearchParams({ ...query, ...additionalQueryParams }).toString(),
-            }}
-          >
-            {label}
-          </NavLink>
-        ) : (
-          <Tooltip overlay={translate('layout.must_be_configured')}>
-            <a aria-disabled="true" className="disabled-link">
-              {label}
-            </a>
-          </Tooltip>
-        )}
-      </li>
+    return hasAnalysis ? (
+      <NavBarTabLink
+        to={{
+          pathname,
+          search: new URLSearchParams({ ...query, ...additionalQueryParams }).toString(),
+        }}
+        text={label}
+      />
+    ) : (
+      <DisabledTabLink overlay={translate('layout.must_be_configured')} label={label} />
     );
   };
 
@@ -185,9 +176,7 @@ export class Menu extends React.PureComponent<Props> {
 
     if (this.isPortfolio()) {
       return this.isGovernanceEnabled() ? (
-        <li>
-          <NavLink to={getPortfolioUrl(id)}>{translate('overview.page')}</NavLink>
-        </li>
+        <NavBarTabLink to={getPortfolioUrl(id)} text={translate('overview.page')} />
       ) : null;
     }
 
@@ -196,9 +185,7 @@ export class Menu extends React.PureComponent<Props> {
       return this.renderLinkWhenInaccessibleChild(translate('overview.page'));
     }
     return (
-      <li>
-        <NavLink to={getProjectQueryUrl(id, branchLike)}>{translate('overview.page')}</NavLink>
-      </li>
+      <NavBarTabLink to={getProjectQueryUrl(id, branchLike)} text={translate('overview.page')} />
     );
   };
 
@@ -638,7 +625,7 @@ export class Menu extends React.PureComponent<Props> {
   render() {
     return (
       <div className="display-flex-center display-flex-space-between">
-        <NavBarTabs>
+        <NavBarTabs className="it__navbar-tabs">
           {this.renderDashboardLink()}
           {this.renderBreakdownLink()}
           {this.renderIssuesLink()}
@@ -649,10 +636,10 @@ export class Menu extends React.PureComponent<Props> {
           {this.renderActivityLink()}
           {this.renderExtensions()}
         </NavBarTabs>
-        <NavBarTabs>
+        <SQNavBarTabs>
           {this.renderAdministration()}
           {this.renderProjectInformationButton()}
-        </NavBarTabs>
+        </SQNavBarTabs>
       </div>
     );
   }

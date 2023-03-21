@@ -17,19 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import * as React from 'react';
-import './NavBarTabs.css';
 
-interface Props extends React.HTMLAttributes<HTMLUListElement> {
-  children?: React.ReactNode;
-  className?: string;
-}
+/* eslint-disable import/no-extraneous-dependencies */
 
-export default function NavBarTabs({ children, className, ...other }: Props) {
-  return (
-    <ul {...other} className={classNames('it__navbar-tabs navbar-tabs', className)}>
-      {children}
-    </ul>
-  );
-}
+import { screen } from '@testing-library/react';
+import { render } from '../../helpers/testUtils';
+import { MainMenu } from '../MainMenu';
+
+it('should render MainMenu', () => {
+  render(<MainMenu>Children</MainMenu>);
+
+  expect(screen.getByText('Children')).toBeInTheDocument();
+});

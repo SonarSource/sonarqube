@@ -365,6 +365,7 @@ const lightTheme = {
     subnavigationBorder: COLORS.grey[100],
     subnavigationSeparator: COLORS.grey[50],
     subnavigationSubheading: COLORS.blueGrey[25],
+    subnavigationDisabled: COLORS.blueGrey[300],
 
     // footer
     footer: COLORS.white,
@@ -675,6 +676,7 @@ const lightTheme = {
   borders: {
     default: ['1px', 'solid', ...COLORS.grey[50]],
     active: ['4px', 'solid', ...primary.light],
+    xsActive: ['3px', 'solid', ...primary.light],
     focus: ['4px', 'solid', ...secondary.default, OPACITY_20_PERCENT],
   },
 
