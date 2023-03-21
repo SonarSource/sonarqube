@@ -182,7 +182,7 @@ public class RuleRepositoryImpl implements RuleRepository {
     @Override
     @CheckForNull
     public RuleType getType() {
-      return null;
+      return addHocRule.getRuleType();
     }
 
     @Override
