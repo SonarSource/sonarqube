@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HelperHintIcon, ItemDivider, ItemHeader } from 'design-system';
 import * as React from 'react';
 import HelpTooltip from '../../../../../components/controls/HelpTooltip';
 import { getBranchLikeKey, isSameBranchLike } from '../../../../../helpers/branch-like';
 import { translate } from '../../../../../helpers/l10n';
-import { scrollToElement } from '../../../../../helpers/scrolling';
 import { isDefined } from '../../../../../helpers/types';
 import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
 import { Component } from '../../../../../types/types';
@@ -36,22 +36,21 @@ export interface MenuItemListProps {
 }
 
 export function MenuItemList(props: MenuItemListProps) {
-  let listNode: HTMLUListElement | null = null;
   let selectedNode: HTMLLIElement | null = null;
 
   React.useEffect(() => {
-    if (listNode && selectedNode) {
-      scrollToElement(selectedNode, { parent: listNode, smooth: false });
+    if (selectedNode) {
+      selectedNode.scrollIntoView({ block: 'center' });
+      selectedNode.focus();
     }
   });
 
   const { branchLikeTree, component, hasResults, onSelect, selectedBranchLike } = props;
 
-  const renderItem = (branchLike: BranchLike, indent?: boolean) => (
+  const renderItem = (branchLike: BranchLike) => (
     <MenuItem
       branchLike={branchLike}
       component={component}
-      indent={indent}
       key={getBranchLikeKey(branchLike)}
       onSelect={onSelect}
       selected={isSameBranchLike(branchLike, selectedBranchLike)}
@@ -60,11 +59,11 @@ export function MenuItemList(props: MenuItemListProps) {
   );
 
   return (
-    <ul className="item-list" ref={(node) => (listNode = node)}>
+    <ul className="item-list sw-overflow-scroll">
       {!hasResults && (
-        <li className="item">
-          <span className="note">{translate('no_results')}</span>
-        </li>
+        <div className="sw-px-3 sw-py-2">
+          <span>{translate('no_results')}</span>
+        </div>
       )}
 
       {/* BRANCHES & PR */}
@@ -75,22 +74,21 @@ export function MenuItemList(props: MenuItemListProps) {
             {renderItem(tree.branch)}
             {tree.pullRequests.length > 0 && (
               <>
-                <li className="item header">
-                  <span className="big-spacer-left">
-                    {translate('branch_like_navigation.pull_requests')}
-                  </span>
-                </li>
-                {tree.pullRequests.map((pr) => renderItem(pr, true))}
+                <ItemDivider />
+                <ItemHeader>{translate('branch_like_navigation.pull_requests')}</ItemHeader>
+                <ItemDivider />
+                {tree.pullRequests.map((pr) => renderItem(pr))}
               </>
             )}
-            <hr />
           </React.Fragment>
         ))}
 
       {/* PARENTLESS PR (for display during search) */}
       {branchLikeTree.parentlessPullRequests.length > 0 && (
         <>
-          <li className="item header">{translate('branch_like_navigation.pull_requests')}</li>
+          <ItemDivider />
+          <ItemHeader>{translate('branch_like_navigation.pull_requests')}</ItemHeader>
+          <ItemDivider />
           {branchLikeTree.parentlessPullRequests.map((pr) => renderItem(pr))}
         </>
       )}
@@ -98,13 +96,17 @@ export function MenuItemList(props: MenuItemListProps) {
       {/* ORPHAN PR */}
       {branchLikeTree.orphanPullRequests.length > 0 && (
         <>
-          <li className="item header">
+          <ItemDivider />
+          <ItemHeader>
             {translate('branch_like_navigation.orphan_pull_requests')}
             <HelpTooltip
               className="little-spacer-left"
               overlay={translate('branch_like_navigation.orphan_pull_requests.tooltip')}
-            />
-          </li>
+            >
+              <HelperHintIcon />
+            </HelpTooltip>
+          </ItemHeader>
+          <ItemDivider />
           {branchLikeTree.orphanPullRequests.map((pr) => renderItem(pr))}
         </>
       )}

@@ -82,7 +82,7 @@ function setupWithProps(props: Partial<FCProps<typeof InputSearch>> = {}) {
       onChange={jest.fn()}
       placeholder="placeholder"
       searchInputAriaLabel=""
-      tooShortText=""
+      tooShortText="too short"
       value="foo"
       {...props}
     />

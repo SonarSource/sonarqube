@@ -18,14 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Favorite from '../../../../components/controls/Favorite';
 import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import { BranchLike } from '../../../../types/branch-like';
 import { Component } from '../../../../types/types';
-import { CurrentUser, isLoggedIn } from '../../../../types/users';
+import { CurrentUser } from '../../../../types/users';
 import withCurrentUserContext from '../../current-user/withCurrentUserContext';
 import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
-import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMergeInformation';
 import { Breadcrumb } from './Breadcrumb';
 
 export interface HeaderProps {
@@ -40,25 +38,17 @@ export function Header(props: HeaderProps) {
   const { branchLikes, component, currentBranchLike, currentUser, projectBinding } = props;
 
   return (
-    <div className="display-flex-center flex-shrink">
-      <Breadcrumb component={component} currentBranchLike={currentBranchLike} />
-      {isLoggedIn(currentUser) && (
-        <Favorite
-          className="spacer-left"
-          component={component.key}
-          favorite={Boolean(component.isFavorite)}
-          qualifier={component.qualifier}
-        />
-      )}
+    <div className="sw-flex sw-flex-shrink sw-items-center">
+      <Breadcrumb component={component} currentUser={currentUser} />
       {currentBranchLike && (
         <>
+          <span className="slash-separator sw-ml-2" />
           <BranchLikeNavigation
             branchLikes={branchLikes}
             component={component}
             currentBranchLike={currentBranchLike}
             projectBinding={projectBinding}
           />
-          <CurrentBranchLikeMergeInformation currentBranchLike={currentBranchLike} />
         </>
       )}
     </div>

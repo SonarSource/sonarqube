@@ -17,25 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-/* eslint-disable import/no-extraneous-dependencies */
-
 import { screen } from '@testing-library/react';
 import { render } from '../../helpers/testUtils';
-import { TextBold, TextMuted } from '../Text';
+import Badge from '../Badge';
 
-it('should render SearchText', () => {
-  render(<TextBold match="hi" name="hiya" />);
-
-  expect(screen.getByText('hi')).toHaveStyle({
-    'font-weight': '600',
-  });
+it('renders badge correctly', () => {
+  render(<Badge>foo</Badge>);
+  expect(screen.getByRole('status')).toBeInTheDocument();
 });
 
-it('should render TextMuted', () => {
-  render(<TextMuted text="Hi" />);
-
-  expect(screen.getByText('Hi')).toHaveStyle({
-    color: 'rgb(106, 117, 144)',
-  });
+it('renders counter correctly', () => {
+  render(<Badge variant="counter">23</Badge>);
+  expect(screen.getByRole('status')).toHaveAttribute('aria-label', '23');
 });

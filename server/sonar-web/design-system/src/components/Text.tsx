@@ -21,25 +21,33 @@ import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers/theme';
 
-interface MainTextProps {
+interface TextBoldProps {
+  className?: string;
   match?: string;
   name: string;
 }
 
-export function SearchText({ match, name }: MainTextProps) {
+export function TextBold({ match, name, className }: TextBoldProps) {
   return match ? (
     <StyledText
+      className={className}
       // Safe: comes from the search engine, that injects bold tags into component names
       // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: match }}
     />
   ) : (
-    <StyledText title={name}>{name}</StyledText>
+    <StyledText className={className} title={name}>
+      {name}
+    </StyledText>
   );
 }
 
-export function TextMuted({ text }: { text: string }) {
-  return <StyledMutedText title={text}>{text}</StyledMutedText>;
+export function TextMuted({ text, className }: { className?: string; text: string }) {
+  return (
+    <StyledMutedText className={className} title={text}>
+      {text}
+    </StyledMutedText>
+  );
 }
 
 export const StyledText = styled.span`

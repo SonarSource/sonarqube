@@ -19,6 +19,7 @@
  */
 
 export * from './Avatar';
+export { default as Badge } from './Badge';
 export * from './buttons';
 export { default as DeferredSpinner } from './DeferredSpinner';
 export { default as Dropdown } from './Dropdown';
@@ -29,12 +30,14 @@ export * from './GenericAvatar';
 export * from './icons';
 export { default as InputSearch } from './InputSearch';
 export * from './InteractiveIcon';
+export * from './Link';
 export { default as Link } from './Link';
 export * from './MainAppBar';
 export * from './MainMenu';
 export * from './MainMenuItem';
 export * from './NavBarTabs';
 export * from './popups';
+export { default as QualityGateIndicator } from './QualityGateIndicator';
 export * from './SonarQubeLogo';
 export * from './Text';
 export { default as Tooltip } from './Tooltip';

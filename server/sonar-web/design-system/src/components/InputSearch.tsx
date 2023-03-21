@@ -49,7 +49,7 @@ interface Props {
   placeholder: string;
   searchInputAriaLabel: string;
   size?: InputSizeKeys;
-  tooShortText: string;
+  tooShortText?: string;
   value?: string;
 }
 
@@ -129,7 +129,7 @@ export default function InputSearch({
       id={id}
       onMouseDown={onMouseDown}
       style={{ '--inputSize': INPUT_SIZES[size] }}
-      title={tooShort && isDefined(minLength) ? tooShortText : ''}
+      title={tooShort && tooShortText && isDefined(minLength) ? tooShortText : ''}
     >
       <StyledInputWrapper className="sw-flex sw-items-center">
         <input
@@ -161,7 +161,7 @@ export default function InputSearch({
           />
         )}
 
-        {tooShort && isDefined(minLength) && (
+        {tooShort && tooShortText && isDefined(minLength) && (
           <StyledNote className="sw-ml-1" role="note">
             {tooShortText}
           </StyledNote>

@@ -34,7 +34,7 @@ export interface DocumentationTooltipProps {
 
 export default function DocumentationTooltip(props: DocumentationTooltipProps) {
   const nextSelectableNode = React.useRef<HTMLElement | undefined | null>();
-  const linksRef = React.useRef<(HTMLAnchorElement | null)[]>([]);
+  const linksRef = React.useRef<Array<HTMLAnchorElement | null>>([]);
   const helpRef = React.useRef<HTMLElement>(null);
   const { className, children, content, links, title } = props;
 
@@ -49,7 +49,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
 
   function handleTabPress(event: KeyboardEvent) {
     if (event.code === KeyboardKeys.Tab) {
-      if (event.shiftKey === true) {
+      if (event.shiftKey) {
         if (event.target === first(linksRef.current)) {
           helpRef.current?.focus();
         }

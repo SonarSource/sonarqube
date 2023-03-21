@@ -17,20 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BranchIcon, MainBranchIcon, PullRequestIcon, ThemeColors } from 'design-system';
 import * as React from 'react';
-import BranchIcon from '../../components/icons/BranchIcon';
 import { IconProps } from '../../components/icons/Icon';
-import PullRequestIcon from '../../components/icons/PullRequestIcon';
-import { isPullRequest } from '../../helpers/branch-like';
+import { isMainBranch, isPullRequest } from '../../helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
 
-export interface BranchLikeIconProps extends IconProps {
+export interface BranchLikeIconProps extends Omit<IconProps, 'fill'> {
   branchLike: BranchLike;
+  fill?: ThemeColors;
 }
 
 export default function BranchLikeIcon({ branchLike, ...props }: BranchLikeIconProps) {
   if (isPullRequest(branchLike)) {
-    return <PullRequestIcon {...props} />;
+    return <PullRequestIcon fill="pageContentLight" {...props} />;
+  } else if (isMainBranch(branchLike)) {
+    return <MainBranchIcon fill="pageContentLight" {...props} />;
   }
-  return <BranchIcon {...props} />;
+  return <BranchIcon fill="pageContentLight" {...props} />;
 }

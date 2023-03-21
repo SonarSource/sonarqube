@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DropdownMenu, InputSearch, ItemDivider, Link } from 'design-system';
 import * as React from 'react';
-import Link from '../../../../../components/common/Link';
-import { DropdownOverlay } from '../../../../../components/controls/Dropdown';
-import SearchBox from '../../../../../components/controls/SearchBox';
 import { Router, withRouter } from '../../../../../components/hoc/withRouter';
 import {
   getBrancheLikesAsTree,
@@ -156,43 +154,49 @@ export class Menu extends React.PureComponent<Props, State> {
     const { canAdminComponent, component, onClose } = this.props;
     const { branchLikesToDisplay, branchLikesToDisplayTree, query, selectedBranchLike } =
       this.state;
-
     const showManageLink = component.qualifier === ComponentQualifier.Project && canAdminComponent;
     const hasResults = branchLikesToDisplay.length > 0;
 
     return (
-      <DropdownOverlay className="branch-like-navigation-menu" noPadding={true}>
-        <div className="search-box-container">
-          <SearchBox
-            autoFocus={true}
-            onChange={this.handleSearchChange}
-            onKeyDown={this.handleKeyDown}
-            placeholder={translate('branch_like_navigation.search_for_branch_like')}
-            value={query}
-          />
-        </div>
-
-        <div className="item-list-container">
-          <MenuItemList
-            branchLikeTree={branchLikesToDisplayTree}
-            component={component}
-            hasResults={hasResults}
-            onSelect={this.handleOnSelect}
-            selectedBranchLike={selectedBranchLike}
-          />
-        </div>
-
+      <DropdownMenu
+        className="sw-overflow-y-auto sw-overflow-x-hidden it__branch-like-navigation-menu"
+        maxHeight="38rem"
+        size="auto"
+      >
+        <InputSearch
+          className="sw-mx-3 sw-my-2"
+          autoFocus={true}
+          onChange={this.handleSearchChange}
+          onKeyDown={this.handleKeyDown}
+          placeholder={translate('branch_like_navigation.search_for_branch_like')}
+          size="auto"
+          value={query}
+          searchInputAriaLabel={translate('search_verb')}
+          clearIconAriaLabel={translate('clear')}
+        />
+        <MenuItemList
+          branchLikeTree={branchLikesToDisplayTree}
+          component={component}
+          hasResults={hasResults}
+          onSelect={this.handleOnSelect}
+          selectedBranchLike={selectedBranchLike}
+        />
         {showManageLink && (
-          <div className="hint-container text-right">
-            <Link
-              onClick={() => onClose()}
-              to={{ pathname: '/project/branches', search: queryToSearch({ id: component.key }) }}
-            >
-              {translate('branch_like_navigation.manage')}
-            </Link>
-          </div>
+          <>
+            <ItemDivider />
+            <li className="sw-px-3 sw-py-2">
+              <Link
+                onClick={() => {
+                  onClose();
+                }}
+                to={{ pathname: '/project/branches', search: queryToSearch({ id: component.key }) }}
+              >
+                {translate('branch_like_navigation.manage')}
+              </Link>
+            </li>
+          </>
         )}
-      </DropdownOverlay>
+      </DropdownMenu>
     );
   }
 }

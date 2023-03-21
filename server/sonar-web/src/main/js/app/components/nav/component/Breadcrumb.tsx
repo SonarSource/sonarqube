@@ -17,87 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { last } from 'lodash';
+import { HoverLink, TextMuted } from 'design-system';
 import * as React from 'react';
-import Link from '../../../../components/common/Link';
-import QualifierIcon from '../../../../components/icons/QualifierIcon';
-import { isMainBranch } from '../../../../helpers/branch-like';
+import Favorite from '../../../../components/controls/Favorite';
 import { getComponentOverviewUrl } from '../../../../helpers/urls';
-import { BranchLike } from '../../../../types/branch-like';
 import { Component } from '../../../../types/types';
-import { colors } from '../../../theme';
+import { CurrentUser, isLoggedIn } from '../../../../types/users';
 
 export interface BreadcrumbProps {
   component: Component;
-  currentBranchLike: BranchLike | undefined;
+  currentUser: CurrentUser;
 }
 
 export function Breadcrumb(props: BreadcrumbProps) {
-  const {
-    component: { breadcrumbs },
-    currentBranchLike,
-  } = props;
-  const lastBreadcrumbElement = last(breadcrumbs);
-  const isNotMainBranch = currentBranchLike && !isMainBranch(currentBranchLike);
+  const { component, currentUser } = props;
 
   return (
-    <div className="big flex-shrink display-flex-center">
-      {breadcrumbs.map((breadcrumbElement, i) => {
-        const isFirst = i === 0;
-        const isNotLast = i < breadcrumbs.length - 1;
+    <div className="sw-text-sm sw-flex sw-justify-center">
+      {component.breadcrumbs.map((breadcrumbElement, i) => {
+        const isNotLast = i < component.breadcrumbs.length - 1;
         const isLast = !isNotLast;
-        const showQualifierIcon = isFirst && lastBreadcrumbElement;
-
-        const name =
-          isNotMainBranch || isNotLast ? (
-            <>
-              {showQualifierIcon && !isNotMainBranch && (
-                <QualifierIcon
-                  className="spacer-right"
-                  qualifier={lastBreadcrumbElement.qualifier}
-                  fill={colors.neutral800}
-                />
-              )}
-              <Link
-                className="link-no-underline"
-                to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}
-              >
-                {showQualifierIcon && isNotMainBranch && (
-                  <QualifierIcon
-                    className="spacer-right"
-                    qualifier={lastBreadcrumbElement.qualifier}
-                    fill={colors.primary}
-                  />
-                )}
-                {breadcrumbElement.name}
-              </Link>
-            </>
-          ) : (
-            <>
-              {showQualifierIcon && (
-                <QualifierIcon
-                  className="spacer-right"
-                  qualifier={lastBreadcrumbElement.qualifier}
-                  fill={colors.neutral800}
-                />
-              )}
-              {breadcrumbElement.name}
-            </>
-          );
 
         return (
-          <span className="flex-shrink display-flex-center" key={breadcrumbElement.key}>
-            {isLast ? (
-              <h1 className="text-ellipsis" title={breadcrumbElement.name}>
-                {name}
-              </h1>
-            ) : (
-              <span className="text-ellipsis" title={breadcrumbElement.name}>
-                {name}
-              </span>
+          <div key={breadcrumbElement.key} className="sw-flex">
+            {isLast && isLoggedIn(currentUser) && (
+              <Favorite
+                className="sw-mr-2"
+                component={component.key}
+                favorite={Boolean(component.isFavorite)}
+                qualifier={component.qualifier}
+              />
             )}
-            {isNotLast && <span className="slash-separator" />}
-          </span>
+            <HoverLink
+              blurAfterClick={true}
+              className="js-project-link sw-flex"
+              key={breadcrumbElement.name}
+              title={breadcrumbElement.name}
+              to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}
+            >
+              <TextMuted text={breadcrumbElement.name} />
+            </HoverLink>
+            {isNotLast && <span className="slash-separator sw-mx-2.5" />}
+          </div>
         );
       })}
     </div>

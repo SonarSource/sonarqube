@@ -17,20 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { ButtonSecondary, PopupPlacement, PopupZLevel, PortalPopup } from 'design-system';
 import * as React from 'react';
-import { ButtonPlain } from '../../../../../components/controls/buttons';
-import Toggler from '../../../../../components/controls/Toggler';
-import { ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
+import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
+import { AlmKeys, ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
+import { ComponentQualifier } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Component } from '../../../../../types/types';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../available-features/withAvailableFeatures';
-import './BranchLikeNavigation.css';
+import BranchHelpTooltip from './BranchHelpTooltip';
 import CurrentBranchLike from './CurrentBranchLike';
 import Menu from './Menu';
+import PRLink from './PRLink';
 
 export interface BranchLikeNavigationProps extends WithAvailableFeaturesProps {
   branchLikes: BranchLike[];
@@ -48,59 +49,72 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
     projectBinding,
   } = props;
 
+  const isApplication = component.qualifier === ComponentQualifier.Application;
+  const isGitLab = projectBinding !== undefined && projectBinding.alm === AlmKeys.GitLab;
+
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
-
-  const canAdminComponent = configuration && configuration.showSettings;
+  const canAdminComponent = configuration?.showSettings;
   const hasManyBranches = branchLikes.length >= 2;
   const isMenuEnabled = branchSupportEnabled && hasManyBranches;
 
   const currentBranchLikeElement = (
-    <CurrentBranchLike
-      branchesEnabled={branchSupportEnabled}
-      component={component}
-      currentBranchLike={currentBranchLike}
-      hasManyBranches={hasManyBranches}
-      projectBinding={projectBinding}
-    />
+    <CurrentBranchLike component={component} currentBranchLike={currentBranchLike} />
   );
 
   return (
-    <span
-      className={classNames(
-        'big-spacer-left flex-0 branch-like-navigation-toggler-container display-flex-center',
-        {
-          dropdown: isMenuEnabled,
-        }
-      )}
-    >
-      {isMenuEnabled ? (
-        <Toggler
-          onRequestClose={() => setIsMenuOpen(false)}
-          open={isMenuOpen}
+    <div className="sw-flex sw-items-center sw-ml-2 it__branch-like-navigation-toggler-container">
+      <OutsideClickHandler
+        onClickOutside={() => {
+          setIsMenuOpen(false);
+        }}
+      >
+        <PortalPopup
+          allowResizing={true}
           overlay={
-            <Menu
-              branchLikes={branchLikes}
-              canAdminComponent={canAdminComponent}
-              component={component}
-              currentBranchLike={currentBranchLike}
-              onClose={() => setIsMenuOpen(false)}
-            />
+            isMenuOpen && (
+              <Menu
+                branchLikes={branchLikes}
+                canAdminComponent={canAdminComponent}
+                component={component}
+                currentBranchLike={currentBranchLike}
+                onClose={() => {
+                  setIsMenuOpen(false);
+                }}
+              />
+            )
           }
+          placement={PopupPlacement.BottomLeft}
+          zLevel={PopupZLevel.Global}
         >
-          <ButtonPlain
-            className={classNames('branch-like-navigation-toggler', { open: isMenuOpen })}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          <ButtonSecondary
+            className="sw-max-w-abs-350"
+            onClick={() => {
+              setIsMenuOpen(!isMenuOpen);
+            }}
+            disabled={!isMenuEnabled}
             aria-expanded={isMenuOpen}
             aria-haspopup="menu"
           >
             {currentBranchLikeElement}
-          </ButtonPlain>
-        </Toggler>
-      ) : (
-        currentBranchLikeElement
-      )}
-    </span>
+          </ButtonSecondary>
+        </PortalPopup>
+      </OutsideClickHandler>
+
+      <div className="sw-ml-2">
+        <BranchHelpTooltip
+          component={component}
+          isApplication={isApplication}
+          projectBinding={projectBinding}
+          hasManyBranches={hasManyBranches}
+          canAdminComponent={canAdminComponent}
+          branchSupportEnabled={branchSupportEnabled}
+          isGitLab={isGitLab}
+        />
+      </div>
+
+      <PRLink currentBranchLike={currentBranchLike} component={component} />
+    </div>
   );
 }
 
