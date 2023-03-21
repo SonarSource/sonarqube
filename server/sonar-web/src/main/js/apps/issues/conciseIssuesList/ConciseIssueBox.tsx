@@ -34,92 +34,68 @@ interface Props {
   onClick: (issueKey: string) => void;
   onFlowSelect: (index?: number) => void;
   onLocationSelect: (index: number) => void;
-  scroll: (element: Element) => void;
   selected: boolean;
   selectedFlowIndex: number | undefined;
   selectedLocationIndex: number | undefined;
 }
 
-export default class ConciseIssueBox extends React.PureComponent<Props> {
-  messageElement?: HTMLElement | null;
+export default function ConciseIssueBox(props: Props) {
+  const { issue, selected, selectedFlowIndex, selectedLocationIndex } = props;
 
-  componentDidMount() {
-    if (this.props.selected) {
-      this.handleScroll();
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.selected && prevProps.selected !== this.props.selected) {
-      this.handleScroll();
-    }
-  }
-
-  handleClick = () => {
-    this.props.onClick(this.props.issue.key);
+  const handleClick = () => {
+    props.onClick(issue.key);
   };
 
-  handleScroll = () => {
-    if (this.messageElement) {
-      this.props.scroll(this.messageElement);
-    }
-  };
+  const locations = React.useMemo(
+    () => getLocations(issue, selectedFlowIndex),
+    [issue, selectedFlowIndex]
+  );
 
-  render() {
-    const { issue, selected, selectedFlowIndex, selectedLocationIndex } = this.props;
-
-    const locations = getLocations(issue, selectedFlowIndex);
-
-    return (
-      <div
-        className={classNames('concise-issue-box', 'clearfix', { selected })}
-        onClick={selected ? undefined : this.handleClick}
-      >
-        <ButtonPlain
-          className="concise-issue-box-message"
-          aria-current={selected}
-          innerRef={(node) => (this.messageElement = node)}
-        >
-          <IssueMessageHighlighting
-            message={issue.message}
-            messageFormattings={issue.messageFormattings}
+  return (
+    <div
+      className={classNames('concise-issue-box', 'clearfix', { selected })}
+      onClick={selected ? undefined : handleClick}
+    >
+      <ButtonPlain className="concise-issue-box-message" aria-current={selected}>
+        <IssueMessageHighlighting
+          message={issue.message}
+          messageFormattings={issue.messageFormattings}
+        />
+      </ButtonPlain>
+      <div className="concise-issue-box-attributes">
+        <TypeHelper className="display-block little-spacer-right" type={issue.type} />
+        {issue.flowsWithType.length > 0 ? (
+          <span className="concise-issue-box-flow-indicator muted">
+            {translateWithParameters(
+              'issue.x_data_flows',
+              issue.flowsWithType.filter((f) => f.type === FlowType.DATA).length
+            )}
+          </span>
+        ) : (
+          <ConciseIssueLocations
+            issue={issue}
+            onFlowSelect={props.onFlowSelect}
+            selectedFlowIndex={selectedFlowIndex}
           />
-        </ButtonPlain>
-        <div className="concise-issue-box-attributes">
-          <TypeHelper className="display-block little-spacer-right" type={issue.type} />
-          {issue.flowsWithType.length > 0 ? (
-            <span className="concise-issue-box-flow-indicator muted">
-              {translateWithParameters(
-                'issue.x_data_flows',
-                issue.flowsWithType.filter((f) => f.type === FlowType.DATA).length
-              )}
-            </span>
-          ) : (
-            <ConciseIssueLocations
-              issue={issue}
-              onFlowSelect={this.props.onFlowSelect}
-              selectedFlowIndex={selectedFlowIndex}
-            />
-          )}
-        </div>
-        {selected &&
-          (issue.flowsWithType.length > 0 ? (
-            <FlowsList
-              flows={issue.flowsWithType}
-              onLocationSelect={this.props.onLocationSelect}
-              onFlowSelect={this.props.onFlowSelect}
-              selectedLocationIndex={selectedLocationIndex}
-              selectedFlowIndex={selectedFlowIndex}
-            />
-          ) : (
-            <LocationsList
-              locations={locations}
-              componentKey={issue.component}
-              onLocationSelect={this.props.onLocationSelect}
-              selectedLocationIndex={selectedLocationIndex}
-            />
-          ))}
+        )}
       </div>
-    );
-  }
+      {selected &&
+        (issue.flowsWithType.length > 0 ? (
+          <FlowsList
+            flows={issue.flowsWithType}
+            onLocationSelect={props.onLocationSelect}
+            onFlowSelect={props.onFlowSelect}
+            selectedLocationIndex={selectedLocationIndex}
+            selectedFlowIndex={selectedFlowIndex}
+          />
+        ) : (
+          <LocationsList
+            locations={locations}
+            componentKey={issue.component}
+            onLocationSelect={props.onLocationSelect}
+            selectedLocationIndex={selectedLocationIndex}
+          />
+        ))}
+    </div>
+  );
 }

@@ -22,13 +22,14 @@ import { Issue } from '../../../types/types';
 import ConciseIssueBox from './ConciseIssueBox';
 import ConciseIssueComponent from './ConciseIssueComponent';
 
+const HALF_DIVIDER = 2;
+
 export interface ConciseIssueProps {
   issue: Issue;
   onFlowSelect: (index?: number) => void;
   onLocationSelect: (index: number) => void;
   onSelect: (issueKey: string) => void;
   previousIssue: Issue | undefined;
-  scroll: (element: Element) => void;
   selected: boolean;
   selectedFlowIndex: number | undefined;
   selectedLocationIndex: number | undefined;
@@ -36,8 +37,19 @@ export interface ConciseIssueProps {
 
 export default function ConciseIssue(props: ConciseIssueProps) {
   const { issue, previousIssue, selected, selectedFlowIndex, selectedLocationIndex } = props;
+  const element = React.useRef<HTMLLIElement>(null);
 
   const displayComponent = !previousIssue || previousIssue.component !== issue.component;
+
+  React.useEffect(() => {
+    if (selected && element.current) {
+      const parent = document.querySelector('.layout-page-side') as HTMLMenuElement;
+      const rect = parent.getBoundingClientRect();
+      const offset =
+        element.current.offsetTop - rect.height / HALF_DIVIDER + rect.top / HALF_DIVIDER;
+      parent.scrollTo({ top: offset, behavior: 'smooth' });
+    }
+  }, [selected]);
 
   return (
     <>
@@ -46,13 +58,12 @@ export default function ConciseIssue(props: ConciseIssueProps) {
           <ConciseIssueComponent path={issue.componentLongName} />
         </li>
       )}
-      <li>
+      <li ref={element}>
         <ConciseIssueBox
           issue={issue}
           onClick={props.onSelect}
           onFlowSelect={props.onFlowSelect}
           onLocationSelect={props.onLocationSelect}
-          scroll={props.scroll}
           selected={selected}
           selectedFlowIndex={selected ? selectedFlowIndex : undefined}
           selectedLocationIndex={selected ? selectedLocationIndex : undefined}

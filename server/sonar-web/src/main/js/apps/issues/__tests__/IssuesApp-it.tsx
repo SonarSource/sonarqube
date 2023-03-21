@@ -48,7 +48,7 @@ beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
   window.scrollTo = jest.fn();
-  window.HTMLElement.prototype.scrollIntoView = jest.fn();
+  window.HTMLElement.prototype.scrollTo = jest.fn();
 });
 
 const ui = {

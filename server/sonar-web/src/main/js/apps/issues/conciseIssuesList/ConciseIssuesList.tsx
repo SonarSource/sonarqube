@@ -34,16 +34,6 @@ export interface ConciseIssuesListProps {
 export default function ConciseIssuesList(props: ConciseIssuesListProps) {
   const { issues, selected, selectedFlowIndex, selectedLocationIndex } = props;
 
-  const handleScroll = React.useCallback((element: Element) => {
-    if (element) {
-      element.scrollIntoView({
-        block: 'center',
-        behavior: 'smooth',
-        inline: 'center',
-      });
-    }
-  }, []);
-
   return (
     <ul>
       {issues.map((issue, index) => (
@@ -54,7 +44,6 @@ export default function ConciseIssuesList(props: ConciseIssuesListProps) {
           onLocationSelect={props.onLocationSelect}
           onSelect={props.onIssueSelect}
           previousIssue={index > 0 ? issues[index - 1] : undefined}
-          scroll={handleScroll}
           selected={issue.key === selected}
           selectedFlowIndex={selectedFlowIndex}
           selectedLocationIndex={selectedLocationIndex}

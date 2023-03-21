@@ -63,14 +63,20 @@ const issues = [
   }),
 ];
 
-const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+const scrollTo = jest.fn();
 
 beforeAll(() => {
-  HTMLElement.prototype.scrollIntoView = jest.fn();
+  // eslint-disable-next-line testing-library/no-node-access
+  document.querySelector = jest.fn(() => ({
+    scrollTo,
+    getBoundingClientRect: () => ({
+      height: 10,
+    }),
+  }));
 });
 
-afterAll(() => {
-  HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+beforeEach(() => {
+  scrollTo.mockClear();
 });
 
 describe('rendering', () => {
@@ -93,7 +99,7 @@ describe('rendering', () => {
       selected: 'issue2',
     });
 
-    expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledTimes(1);
   });
 
   it('should show locations and flows when selected', () => {
@@ -173,18 +179,16 @@ describe('interacting', () => {
   });
 
   it('should scroll selected issue into view', () => {
-    const scrollIntoView = jest.fn();
-    window.HTMLElement.prototype.scrollIntoView = scrollIntoView;
     const { override } = renderConciseIssues(issues, {
       selected: 'issue2',
     });
 
-    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledTimes(1);
 
     override(issues, {
       selected: 'issue4',
     });
-    expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    expect(scrollTo).toHaveBeenCalledTimes(2);
   });
 
   it('expand button should work correctly', async () => {
