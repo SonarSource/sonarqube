@@ -20,3 +20,24 @@
 .project-row-text-cell {
   max-width: 20em;
 }
+
+.projects-management-search {
+  display: flex;
+  gap: 20px;
+  padding: 8px 10px;
+  flex-wrap: wrap;
+}
+
+.projects-management-search > * {
+  display: flex;
+  white-space: nowrap;
+}
+
+.projects-management-search > *:not(.bulk-actions) {
+  flex-direction: column;
+  justify-content: center;
+}
+
+.projects-management-search > .bulk-actions {
+  justify-content: end;
+}

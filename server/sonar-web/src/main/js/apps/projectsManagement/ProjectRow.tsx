@@ -25,6 +25,7 @@ import Checkbox from '../../components/controls/Checkbox';
 import Tooltip from '../../components/controls/Tooltip';
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import DateFormatter from '../../components/intl/DateFormatter';
+import { translateWithParameters } from '../../helpers/l10n';
 import { getComponentOverviewUrl } from '../../helpers/urls';
 import { LoggedInUser } from '../../types/users';
 import './ProjectRow.css';
@@ -48,7 +49,11 @@ export default class ProjectRow extends React.PureComponent<Props> {
     return (
       <tr data-project-key={project.key}>
         <td className="thin">
-          <Checkbox checked={selected} onCheck={this.handleProjectCheck} />
+          <Checkbox
+            label={translateWithParameters('projects_management.select_project', project.name)}
+            checked={selected}
+            onCheck={this.handleProjectCheck}
+          />
         </td>
 
         <td className="nowrap hide-overflow project-row-text-cell">

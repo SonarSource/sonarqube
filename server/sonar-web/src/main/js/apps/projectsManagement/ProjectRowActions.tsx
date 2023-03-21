@@ -22,7 +22,7 @@ import { Project } from '../../api/components';
 import { getComponentNavigation } from '../../api/navigation';
 import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
 import { LoggedInUser } from '../../types/users';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
@@ -102,7 +102,13 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
 
     return (
       <>
-        <ActionsDropdown onOpen={this.handleDropdownOpen}>
+        <ActionsDropdown
+          label={translateWithParameters(
+            'projects_management.show_actions_for_x',
+            this.props.project.name
+          )}
+          onOpen={this.handleDropdownOpen}
+        >
           {loading ? (
             <ActionsDropdownItem>
               <DeferredSpinner />

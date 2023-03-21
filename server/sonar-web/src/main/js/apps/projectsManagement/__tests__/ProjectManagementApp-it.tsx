@@ -118,8 +118,8 @@ describe('Bulk Apply', () => {
 });
 
 function getProjects() {
-  // remove the first 2 rows: first is the filter bar, and second is the header
-  return screen.getAllByRole('row').slice(2);
+  // Remove the first row (header)
+  return screen.getAllByRole('row').slice(1);
 }
 
 function getComponentsImplementation(overridePageSize?: number) {

@@ -32,157 +32,137 @@ exports[`render qualifiers filter 1`] = `
 <div
   className="big-spacer-bottom"
 >
-  <table
-    className="data"
+  <div
+    className="projects-management-search"
   >
-    <tbody>
-      <tr>
-        <td
-          className="thin text-middle"
+    <div>
+      <Checkbox
+        checked={false}
+        id="projects-selection"
+        onCheck={[Function]}
+        thirdState={false}
+        title="check_all"
+      />
+    </div>
+    <Select
+      className="input-medium it__project-qualifier-select"
+      components={
+        {
+          "Option": [Function],
+          "SingleValue": [Function],
+        }
+      }
+      isDisabled={false}
+      isSearchable={false}
+      name="projects-qualifier"
+      onChange={[Function]}
+      options={
+        [
+          {
+            "label": "qualifiers.TRK",
+            "value": "TRK",
+          },
+          {
+            "label": "qualifiers.VW",
+            "value": "VW",
+          },
+          {
+            "label": "qualifiers.APP",
+            "value": "APP",
+          },
+        ]
+      }
+      value={
+        {
+          "label": "qualifiers.TRK",
+          "value": "TRK",
+        }
+      }
+    />
+    <DateInput
+      inputClassName="input-medium"
+      name="analyzed-before"
+      onChange={[MockFunction]}
+      placeholder="last_analysis_before"
+    />
+    <Select
+      className="input-small"
+      isDisabled={false}
+      isSearchable={false}
+      name="projects-visibility"
+      onChange={[Function]}
+      options={
+        [
+          {
+            "label": "visibility.both",
+            "value": "all",
+          },
+          {
+            "label": "visibility.public",
+            "value": "public",
+          },
+          {
+            "label": "visibility.private",
+            "value": "private",
+          },
+        ]
+      }
+      value={
+        {
+          "label": "visibility.both",
+          "value": "all",
+        }
+      }
+    />
+    <div>
+      <Checkbox
+        checked={false}
+        className="link-checkbox-control"
+        id="projects-provisioned"
+        onCheck={[MockFunction]}
+        thirdState={false}
+      >
+        <span
+          className="text-middle little-spacer-left"
         >
-          <Checkbox
-            checked={false}
-            id="projects-selection"
-            onCheck={[Function]}
-            thirdState={false}
-            title="check_all"
-          />
-        </td>
-        <td
-          className="thin nowrap text-middle"
-        >
-          <Select
-            className="input-medium it__project-qualifier-select"
-            components={
-              {
-                "Option": [Function],
-                "SingleValue": [Function],
-              }
-            }
-            isDisabled={false}
-            isSearchable={false}
-            name="projects-qualifier"
-            onChange={[Function]}
-            options={
-              [
-                {
-                  "label": "qualifiers.TRK",
-                  "value": "TRK",
-                },
-                {
-                  "label": "qualifiers.VW",
-                  "value": "VW",
-                },
-                {
-                  "label": "qualifiers.APP",
-                  "value": "APP",
-                },
-              ]
-            }
-            value={
-              {
-                "label": "qualifiers.TRK",
-                "value": "TRK",
-              }
-            }
-          />
-        </td>
-        <td
-          className="thin nowrap text-middle"
-        >
-          <DateInput
-            inputClassName="input-medium"
-            name="analyzed-before"
-            onChange={[MockFunction]}
-            placeholder="last_analysis_before"
-          />
-        </td>
-        <td
-          className="thin nowrap text-middle"
-        >
-          <Select
-            className="input-small"
-            isDisabled={false}
-            isSearchable={false}
-            name="projects-visibility"
-            onChange={[Function]}
-            options={
-              [
-                {
-                  "label": "visibility.both",
-                  "value": "all",
-                },
-                {
-                  "label": "visibility.public",
-                  "value": "public",
-                },
-                {
-                  "label": "visibility.private",
-                  "value": "private",
-                },
-              ]
-            }
-            value={
-              {
-                "label": "visibility.both",
-                "value": "all",
-              }
-            }
-          />
-        </td>
-        <td
-          className="thin nowrap text-middle"
-        >
-          <Checkbox
-            checked={false}
-            className="link-checkbox-control"
-            id="projects-provisioned"
-            onCheck={[MockFunction]}
-            thirdState={false}
-          >
-            <span
-              className="text-middle little-spacer-left"
-            >
-              provisioning.only_provisioned
-            </span>
-          </Checkbox>
-          <HelpTooltip
-            className="spacer-left"
-            overlay="provisioning.only_provisioned.tooltip"
-          />
-        </td>
-        <td
-          className="text-middle"
-        >
-          <SearchBox
-            minLength={3}
-            onChange={[MockFunction]}
-            placeholder="search.search_by_name_or_key"
-            value=""
-          />
-        </td>
-        <td
-          className="thin nowrap text-middle"
-        >
-          <Button
-            className="js-bulk-apply-permission-template"
-            disabled={true}
-            onClick={[Function]}
-          >
-            permission_templates.bulk_apply_permission_template
-          </Button>
-          <Button
-            className="js-delete spacer-left button-red"
-            disabled={true}
-            onClick={[Function]}
-            title="permission_templates.select_to_delete"
-          >
-            delete
-          </Button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          provisioning.only_provisioned
+        </span>
+        <HelpTooltip
+          className="spacer-left"
+          overlay="provisioning.only_provisioned.tooltip"
+        />
+      </Checkbox>
+    </div>
+    <div
+      className="flex-grow"
+    >
+      <SearchBox
+        minLength={3}
+        onChange={[MockFunction]}
+        placeholder="search.search_by_name_or_key"
+        value=""
+      />
+    </div>
+    <div
+      className="bulk-actions"
+    >
+      <Button
+        className="js-bulk-apply-permission-template"
+        disabled={true}
+        onClick={[Function]}
+      >
+        permission_templates.bulk_apply_permission_template
+      </Button>
+      <Button
+        className="js-delete spacer-left button-red"
+        disabled={true}
+        onClick={[Function]}
+        title="permission_templates.select_to_delete"
+      >
+        delete
+      </Button>
+    </div>
+  </div>
 </div>
 `;
 
@@ -190,118 +170,102 @@ exports[`renders 1`] = `
 <div
   className="big-spacer-bottom"
 >
-  <table
-    className="data"
+  <div
+    className="projects-management-search"
   >
-    <tbody>
-      <tr>
-        <td
-          className="thin text-middle"
+    <div>
+      <Checkbox
+        checked={false}
+        id="projects-selection"
+        onCheck={[Function]}
+        thirdState={false}
+        title="check_all"
+      />
+    </div>
+    <DateInput
+      inputClassName="input-medium"
+      name="analyzed-before"
+      onChange={[MockFunction]}
+      placeholder="last_analysis_before"
+    />
+    <Select
+      className="input-small"
+      isDisabled={false}
+      isSearchable={false}
+      name="projects-visibility"
+      onChange={[Function]}
+      options={
+        [
+          {
+            "label": "visibility.both",
+            "value": "all",
+          },
+          {
+            "label": "visibility.public",
+            "value": "public",
+          },
+          {
+            "label": "visibility.private",
+            "value": "private",
+          },
+        ]
+      }
+      value={
+        {
+          "label": "visibility.both",
+          "value": "all",
+        }
+      }
+    />
+    <div>
+      <Checkbox
+        checked={false}
+        className="link-checkbox-control"
+        id="projects-provisioned"
+        onCheck={[MockFunction]}
+        thirdState={false}
+      >
+        <span
+          className="text-middle little-spacer-left"
         >
-          <Checkbox
-            checked={false}
-            id="projects-selection"
-            onCheck={[Function]}
-            thirdState={false}
-            title="check_all"
-          />
-        </td>
-        <td
-          className="thin nowrap text-middle"
-        >
-          <DateInput
-            inputClassName="input-medium"
-            name="analyzed-before"
-            onChange={[MockFunction]}
-            placeholder="last_analysis_before"
-          />
-        </td>
-        <td
-          className="thin nowrap text-middle"
-        >
-          <Select
-            className="input-small"
-            isDisabled={false}
-            isSearchable={false}
-            name="projects-visibility"
-            onChange={[Function]}
-            options={
-              [
-                {
-                  "label": "visibility.both",
-                  "value": "all",
-                },
-                {
-                  "label": "visibility.public",
-                  "value": "public",
-                },
-                {
-                  "label": "visibility.private",
-                  "value": "private",
-                },
-              ]
-            }
-            value={
-              {
-                "label": "visibility.both",
-                "value": "all",
-              }
-            }
-          />
-        </td>
-        <td
-          className="thin nowrap text-middle"
-        >
-          <Checkbox
-            checked={false}
-            className="link-checkbox-control"
-            id="projects-provisioned"
-            onCheck={[MockFunction]}
-            thirdState={false}
-          >
-            <span
-              className="text-middle little-spacer-left"
-            >
-              provisioning.only_provisioned
-            </span>
-          </Checkbox>
-          <HelpTooltip
-            className="spacer-left"
-            overlay="provisioning.only_provisioned.tooltip"
-          />
-        </td>
-        <td
-          className="text-middle"
-        >
-          <SearchBox
-            minLength={3}
-            onChange={[MockFunction]}
-            placeholder="search.search_by_name_or_key"
-            value=""
-          />
-        </td>
-        <td
-          className="thin nowrap text-middle"
-        >
-          <Button
-            className="js-bulk-apply-permission-template"
-            disabled={true}
-            onClick={[Function]}
-          >
-            permission_templates.bulk_apply_permission_template
-          </Button>
-          <Button
-            className="js-delete spacer-left button-red"
-            disabled={true}
-            onClick={[Function]}
-            title="permission_templates.select_to_delete"
-          >
-            delete
-          </Button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          provisioning.only_provisioned
+        </span>
+        <HelpTooltip
+          className="spacer-left"
+          overlay="provisioning.only_provisioned.tooltip"
+        />
+      </Checkbox>
+    </div>
+    <div
+      className="flex-grow"
+    >
+      <SearchBox
+        minLength={3}
+        onChange={[MockFunction]}
+        placeholder="search.search_by_name_or_key"
+        value=""
+      />
+    </div>
+    <div
+      className="bulk-actions"
+    >
+      <Button
+        className="js-bulk-apply-permission-template"
+        disabled={true}
+        onClick={[Function]}
+      >
+        permission_templates.bulk_apply_permission_template
+      </Button>
+      <Button
+        className="js-delete spacer-left button-red"
+        disabled={true}
+        onClick={[Function]}
+        title="permission_templates.select_to_delete"
+      >
+        delete
+      </Button>
+    </div>
+  </div>
 </div>
 `;
 
@@ -314,9 +278,7 @@ exports[`renders optionrenderer and singlevaluerenderer: option renderer 1`] = `
     }
   }
 >
-  <div
-    className="display-flex-center"
-  >
+  <div>
     <QualifierIcon
       className="little-spacer-right"
       qualifier="val"
@@ -335,9 +297,7 @@ exports[`renders optionrenderer and singlevaluerenderer: single value renderer 1
     }
   }
 >
-  <div
-    className="display-flex-center"
-  >
+  <div>
     <QualifierIcon
       className="little-spacer-right"
       qualifier="val"

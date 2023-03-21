@@ -18,6 +18,7 @@ exports[`permissions shows the apply permission template modal 1`] = `
 exports[`renders correctly 1`] = `
 <Fragment>
   <ActionsDropdown
+    label="projects_management.show_actions_for_x.Foo"
     onOpen={[Function]}
   >
     <ActionsDropdownItem

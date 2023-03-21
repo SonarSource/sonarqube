@@ -64,6 +64,7 @@ export default class Header extends React.PureComponent<Props, State> {
             <EditButton
               className="js-change-visibility spacer-left button-small"
               onClick={this.handleChangeVisibilityClick}
+              aria-label={translate('settings.projects.change_visibility_form.label')}
             />
           </span>
 

@@ -33,6 +33,7 @@ exports[`renders: default 1`] = `
         </strong>
       </span>
       <EditButton
+        aria-label="settings.projects.change_visibility_form.label"
         className="js-change-visibility spacer-left button-small"
         onClick={[Function]}
       />
@@ -77,6 +78,7 @@ exports[`renders: undefined visibility 1`] = `
         </strong>
       </span>
       <EditButton
+        aria-label="settings.projects.change_visibility_form.label"
         className="js-change-visibility spacer-left button-small"
         onClick={[Function]}
       />

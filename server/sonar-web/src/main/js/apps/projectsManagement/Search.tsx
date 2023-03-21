@@ -139,7 +139,7 @@ export class Search extends React.PureComponent<Props, State> {
   };
 
   renderQualifierOption = (option: LabelValueSelectOption) => (
-    <div className="display-flex-center">
+    <div>
       <QualifierIcon className="little-spacer-right" qualifier={option.value} />
       {option.label}
     </div>
@@ -151,21 +151,19 @@ export class Search extends React.PureComponent<Props, State> {
       return null;
     }
     return (
-      <td className="thin nowrap text-middle">
-        <Select
-          className="input-medium it__project-qualifier-select"
-          isDisabled={!this.props.ready}
-          name="projects-qualifier"
-          onChange={this.handleQualifierChange}
-          isSearchable={false}
-          components={{
-            Option: this.optionRenderer,
-            SingleValue: this.singleValueRenderer,
-          }}
-          options={this.getQualifierOptions()}
-          value={options.find((option) => option.value === this.props.qualifiers)}
-        />
-      </td>
+      <Select
+        className="input-medium it__project-qualifier-select"
+        isDisabled={!this.props.ready}
+        name="projects-qualifier"
+        onChange={this.handleQualifierChange}
+        isSearchable={false}
+        components={{
+          Option: this.optionRenderer,
+          SingleValue: this.singleValueRenderer,
+        }}
+        options={this.getQualifierOptions()}
+        value={options.find((option) => option.value === this.props.qualifiers)}
+      />
     );
   };
 
@@ -176,23 +174,21 @@ export class Search extends React.PureComponent<Props, State> {
       { value: Visibility.Private, label: translate('visibility.private') },
     ];
     return (
-      <td className="thin nowrap text-middle">
-        <Select
-          className="input-small"
-          isDisabled={!this.props.ready}
-          name="projects-visibility"
-          onChange={this.handleVisibilityChange}
-          options={options}
-          isSearchable={false}
-          value={options.find((option) => option.value === (this.props.visibility || 'all'))}
-        />
-      </td>
+      <Select
+        className="input-small"
+        isDisabled={!this.props.ready}
+        name="projects-visibility"
+        onChange={this.handleVisibilityChange}
+        options={options}
+        isSearchable={false}
+        value={options.find((option) => option.value === (this.props.visibility || 'all'))}
+      />
     );
   };
 
   renderTypeFilter = () =>
     this.props.qualifiers === 'TRK' ? (
-      <td className="thin nowrap text-middle">
+      <div>
         <Checkbox
           checked={this.props.provisioned}
           className="link-checkbox-control"
@@ -202,75 +198,67 @@ export class Search extends React.PureComponent<Props, State> {
           <span className="text-middle little-spacer-left">
             {translate('provisioning.only_provisioned')}
           </span>
+          <HelpTooltip
+            className="spacer-left"
+            overlay={translate('provisioning.only_provisioned.tooltip')}
+          />
         </Checkbox>
-        <HelpTooltip
-          className="spacer-left"
-          overlay={translate('provisioning.only_provisioned.tooltip')}
-        />
-      </td>
+      </div>
     ) : null;
 
   renderDateFilter = () => {
     return (
-      <td className="thin nowrap text-middle">
-        <DateInput
-          inputClassName="input-medium"
-          name="analyzed-before"
-          onChange={this.props.onDateChanged}
-          placeholder={translate('last_analysis_before')}
-          value={this.props.analyzedBefore}
-        />
-      </td>
+      <DateInput
+        inputClassName="input-medium"
+        name="analyzed-before"
+        onChange={this.props.onDateChanged}
+        placeholder={translate('last_analysis_before')}
+        value={this.props.analyzedBefore}
+      />
     );
   };
 
   render() {
     return (
       <div className="big-spacer-bottom">
-        <table className="data">
-          <tbody>
-            <tr>
-              <td className="thin text-middle">
-                {this.props.ready ? this.renderCheckbox() : <i className="spinner" />}
-              </td>
-              {this.renderQualifierFilter()}
-              {this.renderDateFilter()}
-              {this.renderVisibilityFilter()}
-              {this.renderTypeFilter()}
-              <td className="text-middle">
-                <SearchBox
-                  minLength={3}
-                  onChange={this.props.onSearch}
-                  placeholder={translate('search.search_by_name_or_key')}
-                  value={this.props.query}
-                />
-              </td>
-              <td className="thin nowrap text-middle">
-                <Button
-                  className="js-bulk-apply-permission-template"
-                  disabled={this.props.selection.length === 0}
-                  onClick={this.handleBulkApplyTemplateClick}
-                >
-                  {translate('permission_templates.bulk_apply_permission_template')}
-                </Button>
-                {this.props.qualifiers === 'TRK' && (
-                  <Button
-                    className="js-delete spacer-left button-red"
-                    disabled={this.props.selection.length === 0}
-                    onClick={this.handleDeleteClick}
-                    title={
-                      this.props.selection.length === 0
-                        ? translate('permission_templates.select_to_delete')
-                        : translate('permission_templates.delete_selected')
-                    }
-                  >
-                    {translate('delete')}
-                  </Button>
-                )}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="projects-management-search">
+          <div>{this.props.ready ? this.renderCheckbox() : <i className="spinner" />}</div>
+          {this.renderQualifierFilter()}
+          {this.renderDateFilter()}
+          {this.renderVisibilityFilter()}
+          {this.renderTypeFilter()}
+          <div className="flex-grow">
+            <SearchBox
+              minLength={3}
+              onChange={this.props.onSearch}
+              placeholder={translate('search.search_by_name_or_key')}
+              value={this.props.query}
+            />
+          </div>
+          <div className="bulk-actions">
+            <Button
+              className="js-bulk-apply-permission-template"
+              disabled={this.props.selection.length === 0}
+              onClick={this.handleBulkApplyTemplateClick}
+            >
+              {translate('permission_templates.bulk_apply_permission_template')}
+            </Button>
+            {this.props.qualifiers === 'TRK' && (
+              <Button
+                className="js-delete spacer-left button-red"
+                disabled={this.props.selection.length === 0}
+                onClick={this.handleDeleteClick}
+                title={
+                  this.props.selection.length === 0
+                    ? translate('permission_templates.select_to_delete')
+                    : translate('permission_templates.delete_selected')
+                }
+              >
+                {translate('delete')}
+              </Button>
+            )}
+          </div>
+        </div>
 
         {this.state.bulkApplyTemplateModal && (
           <BulkApplyTemplateModal
