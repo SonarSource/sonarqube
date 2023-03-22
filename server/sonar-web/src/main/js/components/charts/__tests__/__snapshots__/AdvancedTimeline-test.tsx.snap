@@ -194,8 +194,8 @@ exports[`should render correctly 1`] = `
         className="line-chart-tick"
         key="0"
         textAnchor="end"
-        transform="rotate(-35, 1.875, 24)"
-        x={1.875}
+        transform="rotate(-35, 15, 24)"
+        x={15}
         y={24}
       >
         October
@@ -204,8 +204,8 @@ exports[`should render correctly 1`] = `
         className="line-chart-tick"
         key="1"
         textAnchor="end"
-        transform="rotate(-35, 5.625, 24)"
-        x={5.625}
+        transform="rotate(-35, 18.75, 24)"
+        x={18.75}
         y={24}
       >
         06 AM
@@ -214,8 +214,8 @@ exports[`should render correctly 1`] = `
         className="line-chart-tick"
         key="2"
         textAnchor="end"
-        transform="rotate(-35, 9.375, 24)"
-        x={9.375}
+        transform="rotate(-35, 22.5, 24)"
+        x={22.5}
         y={24}
       >
         12 PM
@@ -224,8 +224,8 @@ exports[`should render correctly 1`] = `
         className="line-chart-tick"
         key="3"
         textAnchor="end"
-        transform="rotate(-35, 13.125, 24)"
-        x={13.125}
+        transform="rotate(-35, 26.25, 24)"
+        x={26.25}
         y={24}
       >
         06 PM
@@ -234,8 +234,8 @@ exports[`should render correctly 1`] = `
         className="line-chart-tick"
         key="4"
         textAnchor="end"
-        transform="rotate(-35, 16.875, 24)"
-        x={16.875}
+        transform="rotate(-35, 30, 24)"
+        x={30}
         y={24}
       >
         Wed 02
@@ -244,8 +244,8 @@ exports[`should render correctly 1`] = `
         className="line-chart-tick"
         key="5"
         textAnchor="end"
-        transform="rotate(-35, 20.625, 24)"
-        x={20.625}
+        transform="rotate(-35, 33.75, 24)"
+        x={33.75}
         y={24}
       >
         06 AM
@@ -254,8 +254,8 @@ exports[`should render correctly 1`] = `
         className="line-chart-tick"
         key="6"
         textAnchor="end"
-        transform="rotate(-35, 24.375, 24)"
-        x={24.375}
+        transform="rotate(-35, 37.5, 24)"
+        x={37.5}
         y={24}
       >
         12 PM
@@ -264,8 +264,8 @@ exports[`should render correctly 1`] = `
         className="line-chart-tick"
         key="7"
         textAnchor="end"
-        transform="rotate(-35, 28.125, 24)"
-        x={28.125}
+        transform="rotate(-35, 41.25, 24)"
+        x={41.25}
         y={24}
       >
         06 PM
@@ -506,8 +506,8 @@ exports[`should render correctly: Zoom enabled 1`] = `
         className="line-chart-tick"
         key="0"
         textAnchor="end"
-        transform="rotate(-35, 1.875, 24)"
-        x={1.875}
+        transform="rotate(-35, 15, 24)"
+        x={15}
         y={24}
       >
         October
@@ -516,8 +516,8 @@ exports[`should render correctly: Zoom enabled 1`] = `
         className="line-chart-tick"
         key="1"
         textAnchor="end"
-        transform="rotate(-35, 5.625, 24)"
-        x={5.625}
+        transform="rotate(-35, 18.75, 24)"
+        x={18.75}
         y={24}
       >
         06 AM
@@ -526,8 +526,8 @@ exports[`should render correctly: Zoom enabled 1`] = `
         className="line-chart-tick"
         key="2"
         textAnchor="end"
-        transform="rotate(-35, 9.375, 24)"
-        x={9.375}
+        transform="rotate(-35, 22.5, 24)"
+        x={22.5}
         y={24}
       >
         12 PM
@@ -536,8 +536,8 @@ exports[`should render correctly: Zoom enabled 1`] = `
         className="line-chart-tick"
         key="3"
         textAnchor="end"
-        transform="rotate(-35, 13.125, 24)"
-        x={13.125}
+        transform="rotate(-35, 26.25, 24)"
+        x={26.25}
         y={24}
       >
         06 PM
@@ -546,8 +546,8 @@ exports[`should render correctly: Zoom enabled 1`] = `
         className="line-chart-tick"
         key="4"
         textAnchor="end"
-        transform="rotate(-35, 16.875, 24)"
-        x={16.875}
+        transform="rotate(-35, 30, 24)"
+        x={30}
         y={24}
       >
         Wed 02
@@ -556,8 +556,8 @@ exports[`should render correctly: Zoom enabled 1`] = `
         className="line-chart-tick"
         key="5"
         textAnchor="end"
-        transform="rotate(-35, 20.625, 24)"
-        x={20.625}
+        transform="rotate(-35, 33.75, 24)"
+        x={33.75}
         y={24}
       >
         06 AM
@@ -566,8 +566,8 @@ exports[`should render correctly: Zoom enabled 1`] = `
         className="line-chart-tick"
         key="6"
         textAnchor="end"
-        transform="rotate(-35, 24.375, 24)"
-        x={24.375}
+        transform="rotate(-35, 37.5, 24)"
+        x={37.5}
         y={24}
       >
         12 PM
@@ -576,8 +576,8 @@ exports[`should render correctly: Zoom enabled 1`] = `
         className="line-chart-tick"
         key="7"
         textAnchor="end"
-        transform="rotate(-35, 28.125, 24)"
-        x={28.125}
+        transform="rotate(-35, 41.25, 24)"
+        x={41.25}
         y={24}
       >
         06 PM
@@ -968,8 +968,8 @@ exports[`should render correctly: format y tick 1`] = `
         className="line-chart-tick"
         key="0"
         textAnchor="end"
-        transform="rotate(-35, 1.875, 24)"
-        x={1.875}
+        transform="rotate(-35, 15, 24)"
+        x={15}
         y={24}
       >
         October
@@ -978,8 +978,8 @@ exports[`should render correctly: format y tick 1`] = `
         className="line-chart-tick"
         key="1"
         textAnchor="end"
-        transform="rotate(-35, 5.625, 24)"
-        x={5.625}
+        transform="rotate(-35, 18.75, 24)"
+        x={18.75}
         y={24}
       >
         06 AM
@@ -988,8 +988,8 @@ exports[`should render correctly: format y tick 1`] = `
         className="line-chart-tick"
         key="2"
         textAnchor="end"
-        transform="rotate(-35, 9.375, 24)"
-        x={9.375}
+        transform="rotate(-35, 22.5, 24)"
+        x={22.5}
         y={24}
       >
         12 PM
@@ -998,8 +998,8 @@ exports[`should render correctly: format y tick 1`] = `
         className="line-chart-tick"
         key="3"
         textAnchor="end"
-        transform="rotate(-35, 13.125, 24)"
-        x={13.125}
+        transform="rotate(-35, 26.25, 24)"
+        x={26.25}
         y={24}
       >
         06 PM
@@ -1008,8 +1008,8 @@ exports[`should render correctly: format y tick 1`] = `
         className="line-chart-tick"
         key="4"
         textAnchor="end"
-        transform="rotate(-35, 16.875, 24)"
-        x={16.875}
+        transform="rotate(-35, 30, 24)"
+        x={30}
         y={24}
       >
         Wed 02
@@ -1018,8 +1018,8 @@ exports[`should render correctly: format y tick 1`] = `
         className="line-chart-tick"
         key="5"
         textAnchor="end"
-        transform="rotate(-35, 20.625, 24)"
-        x={20.625}
+        transform="rotate(-35, 33.75, 24)"
+        x={33.75}
         y={24}
       >
         06 AM
@@ -1028,8 +1028,8 @@ exports[`should render correctly: format y tick 1`] = `
         className="line-chart-tick"
         key="6"
         textAnchor="end"
-        transform="rotate(-35, 24.375, 24)"
-        x={24.375}
+        transform="rotate(-35, 37.5, 24)"
+        x={37.5}
         y={24}
       >
         12 PM
@@ -1038,8 +1038,8 @@ exports[`should render correctly: format y tick 1`] = `
         className="line-chart-tick"
         key="7"
         textAnchor="end"
-        transform="rotate(-35, 28.125, 24)"
-        x={28.125}
+        transform="rotate(-35, 41.25, 24)"
+        x={41.25}
         y={24}
       >
         06 PM
@@ -1269,8 +1269,8 @@ exports[`should render correctly: no areas 1`] = `
         className="line-chart-tick"
         key="0"
         textAnchor="end"
-        transform="rotate(-35, 1.875, 24)"
-        x={1.875}
+        transform="rotate(-35, 15, 24)"
+        x={15}
         y={24}
       >
         October
@@ -1279,8 +1279,8 @@ exports[`should render correctly: no areas 1`] = `
         className="line-chart-tick"
         key="1"
         textAnchor="end"
-        transform="rotate(-35, 5.625, 24)"
-        x={5.625}
+        transform="rotate(-35, 18.75, 24)"
+        x={18.75}
         y={24}
       >
         06 AM
@@ -1289,8 +1289,8 @@ exports[`should render correctly: no areas 1`] = `
         className="line-chart-tick"
         key="2"
         textAnchor="end"
-        transform="rotate(-35, 9.375, 24)"
-        x={9.375}
+        transform="rotate(-35, 22.5, 24)"
+        x={22.5}
         y={24}
       >
         12 PM
@@ -1299,8 +1299,8 @@ exports[`should render correctly: no areas 1`] = `
         className="line-chart-tick"
         key="3"
         textAnchor="end"
-        transform="rotate(-35, 13.125, 24)"
-        x={13.125}
+        transform="rotate(-35, 26.25, 24)"
+        x={26.25}
         y={24}
       >
         06 PM
@@ -1309,8 +1309,8 @@ exports[`should render correctly: no areas 1`] = `
         className="line-chart-tick"
         key="4"
         textAnchor="end"
-        transform="rotate(-35, 16.875, 24)"
-        x={16.875}
+        transform="rotate(-35, 30, 24)"
+        x={30}
         y={24}
       >
         Wed 02
@@ -1319,8 +1319,8 @@ exports[`should render correctly: no areas 1`] = `
         className="line-chart-tick"
         key="5"
         textAnchor="end"
-        transform="rotate(-35, 20.625, 24)"
-        x={20.625}
+        transform="rotate(-35, 33.75, 24)"
+        x={33.75}
         y={24}
       >
         06 AM
@@ -1329,8 +1329,8 @@ exports[`should render correctly: no areas 1`] = `
         className="line-chart-tick"
         key="6"
         textAnchor="end"
-        transform="rotate(-35, 24.375, 24)"
-        x={24.375}
+        transform="rotate(-35, 37.5, 24)"
+        x={37.5}
         y={24}
       >
         12 PM
@@ -1339,8 +1339,8 @@ exports[`should render correctly: no areas 1`] = `
         className="line-chart-tick"
         key="7"
         textAnchor="end"
-        transform="rotate(-35, 28.125, 24)"
-        x={28.125}
+        transform="rotate(-35, 41.25, 24)"
+        x={41.25}
         y={24}
       >
         06 PM
@@ -1597,8 +1597,8 @@ exports[`should render leak legend correctly 1`] = `
         className="line-chart-tick"
         key="0"
         textAnchor="end"
-        transform="rotate(-35, 1.875, 24)"
-        x={1.875}
+        transform="rotate(-35, 15, 24)"
+        x={15}
         y={24}
       >
         October
@@ -1607,8 +1607,8 @@ exports[`should render leak legend correctly 1`] = `
         className="line-chart-tick"
         key="1"
         textAnchor="end"
-        transform="rotate(-35, 5.625, 24)"
-        x={5.625}
+        transform="rotate(-35, 18.75, 24)"
+        x={18.75}
         y={24}
       >
         06 AM
@@ -1617,8 +1617,8 @@ exports[`should render leak legend correctly 1`] = `
         className="line-chart-tick"
         key="2"
         textAnchor="end"
-        transform="rotate(-35, 9.375, 24)"
-        x={9.375}
+        transform="rotate(-35, 22.5, 24)"
+        x={22.5}
         y={24}
       >
         12 PM
@@ -1627,8 +1627,8 @@ exports[`should render leak legend correctly 1`] = `
         className="line-chart-tick"
         key="3"
         textAnchor="end"
-        transform="rotate(-35, 13.125, 24)"
-        x={13.125}
+        transform="rotate(-35, 26.25, 24)"
+        x={26.25}
         y={24}
       >
         06 PM
@@ -1637,8 +1637,8 @@ exports[`should render leak legend correctly 1`] = `
         className="line-chart-tick"
         key="4"
         textAnchor="end"
-        transform="rotate(-35, 16.875, 24)"
-        x={16.875}
+        transform="rotate(-35, 30, 24)"
+        x={30}
         y={24}
       >
         Wed 02
@@ -1647,8 +1647,8 @@ exports[`should render leak legend correctly 1`] = `
         className="line-chart-tick"
         key="5"
         textAnchor="end"
-        transform="rotate(-35, 20.625, 24)"
-        x={20.625}
+        transform="rotate(-35, 33.75, 24)"
+        x={33.75}
         y={24}
       >
         06 AM
@@ -1657,8 +1657,8 @@ exports[`should render leak legend correctly 1`] = `
         className="line-chart-tick"
         key="6"
         textAnchor="end"
-        transform="rotate(-35, 24.375, 24)"
-        x={24.375}
+        transform="rotate(-35, 37.5, 24)"
+        x={37.5}
         y={24}
       >
         12 PM
@@ -1667,8 +1667,8 @@ exports[`should render leak legend correctly 1`] = `
         className="line-chart-tick"
         key="7"
         textAnchor="end"
-        transform="rotate(-35, 28.125, 24)"
-        x={28.125}
+        transform="rotate(-35, 41.25, 24)"
+        x={41.25}
         y={24}
       >
         06 PM

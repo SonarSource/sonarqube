@@ -19,7 +19,15 @@
  */
 import classNames from 'classnames';
 import { bisector, extent, max } from 'd3-array';
-import { scaleLinear, scalePoint, scaleTime, ScaleTime } from 'd3-scale';
+import {
+  NumberValue,
+  ScaleLinear,
+  scaleLinear,
+  ScalePoint,
+  scalePoint,
+  scaleTime,
+  ScaleTime,
+} from 'd3-scale';
 import { area, curveBasis, line as d3Line } from 'd3-shape';
 import { flatten, isEqual, sortBy, throttle, uniq } from 'lodash';
 import * as React from 'react';
@@ -56,10 +64,11 @@ export interface Props {
 }
 
 type XScale = ScaleTime<number, number>;
-// TODO it should be `ScaleLinear<number, number> | ScalePoint<number> | ScalePoint<string>`, but it's super hard to make it work :'(
-type YScale = any;
+type YScale = ScaleLinear<number, number> | ScalePoint<number | string>;
+type YPoint = (number | string) & NumberValue;
 
 const LEGEND_LINE_HEIGHT = 16;
+const X_LABEL_OFFSET = 15;
 
 interface State {
   leakLegendTextWidth?: number;
@@ -149,6 +158,10 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
       .domain([0, max(flatData, (d) => Number(d.y || 0)) || 1])
       .nice();
   };
+
+  isYScaleLinear(yScale: YScale): yScale is ScaleLinear<number, number> {
+    return 'ticks' in yScale;
+  }
 
   getXScale = ({ startDate, endDate }: Props, availableWidth: number, flatData: Chart.Point[]) => {
     const dateRange = extent(flatData, (d) => d.x) as [Date, Date];
@@ -287,7 +300,8 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   renderHorizontalGrid = () => {
     const { formatYTick } = this.props;
     const { xScale, yScale } = this.state;
-    const hasTicks = typeof yScale.ticks === 'function';
+    const hasTicks = this.isYScaleLinear(yScale);
+
     let ticks: Array<string | number> = hasTicks
       ? yScale.ticks(this.props.maxYTicksCount)
       : yScale.domain();
@@ -307,29 +321,32 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
 
     return (
       <g>
-        {ticks.map((tick) => (
-          <g key={tick}>
-            {formatYTick != null && (
-              <text
-                className="line-chart-tick line-chart-tick-x"
-                dx="-1em"
-                dy="0.3em"
-                textAnchor="end"
-                x={xScale.range()[0]}
-                y={yScale(tick)}
-              >
-                {formatYTick(tick)}
-              </text>
-            )}
-            <line
-              className="line-chart-grid"
-              x1={xScale.range()[0]}
-              x2={xScale.range()[1]}
-              y1={yScale(tick)}
-              y2={yScale(tick)}
-            />
-          </g>
-        ))}
+        {ticks.map((tick) => {
+          const y = yScale(tick as YPoint);
+          return (
+            <g key={tick}>
+              {formatYTick != null && (
+                <text
+                  className="line-chart-tick line-chart-tick-x"
+                  dx="-1em"
+                  dy="0.3em"
+                  textAnchor="end"
+                  x={xScale.range()[0]}
+                  y={y}
+                >
+                  {formatYTick(tick)}
+                </text>
+              )}
+              <line
+                className="line-chart-grid"
+                x1={xScale.range()[0]}
+                x2={xScale.range()[1]}
+                y1={y}
+                y2={y}
+              />
+            </g>
+          );
+        })}
       </g>
     );
   };
@@ -342,16 +359,15 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     return (
       <g transform="translate(0, 20)">
         {ticks.slice(0, -1).map((tick, index) => {
-          const nextTick = index + 1 < ticks.length ? ticks[index + 1] : xScale.domain()[1];
-          const x = (xScale(tick) + xScale(nextTick)) / 2;
+          const x = xScale(tick);
           return (
             <text
               className="line-chart-tick"
               // eslint-disable-next-line react/no-array-index-key
               key={index}
               textAnchor="end"
-              transform={`rotate(-35, ${x}, ${y})`}
-              x={x}
+              transform={`rotate(-35, ${x + X_LABEL_OFFSET}, ${y})`}
+              x={x + X_LABEL_OFFSET}
               y={y}
             >
               {format(tick)}
@@ -368,7 +384,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     const yRange = yScale.range();
     const xRange = xScale.range();
 
-    const legendMinWidth = (leakLegendTextWidth || 0) + rawSizes.grid;
+    const legendMinWidth = (leakLegendTextWidth ?? 0) + rawSizes.grid;
     const legendPadding = rawSizes.grid / 2;
 
     let legendBackgroundPosition;
@@ -447,10 +463,13 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderLines = () => {
+    const { xScale, yScale } = this.state;
+
     const lineGenerator = d3Line<Chart.Point>()
       .defined((d) => Boolean(d.y || d.y === 0))
-      .x((d) => this.state.xScale(d.x))
-      .y((d) => this.state.yScale(d.y));
+      .x((d) => xScale(d.x))
+      .y((d) => yScale(d.y as YPoint) as number);
+
     if (this.props.basisCurve) {
       lineGenerator.curve(curveBasis);
     }
@@ -458,8 +477,8 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
       <g>
         {this.props.series.map((serie, idx) => (
           <path
-            className={classNames('line-chart-path', 'line-chart-path-' + idx)}
-            d={lineGenerator(serie.data) || undefined}
+            className={classNames('line-chart-path', `line-chart-path-${idx}`)}
+            d={lineGenerator(serie.data) ?? undefined}
             key={serie.name}
           />
         ))}
@@ -468,9 +487,11 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderDots = () => {
+    const { series } = this.props;
+    const { xScale, yScale } = this.state;
     return (
       <g>
-        {this.props.series
+        {series
           .map((serie, serieIdx) =>
             serie.data
               .map((point, idx) => {
@@ -484,11 +505,10 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
                 }
                 return (
                   <circle
-                    className={classNames('line-chart-dot', 'line-chart-dot-' + serieIdx)}
-                    cx={this.state.xScale(point.x)}
-                    cy={this.state.yScale(point.y)}
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={serie.name + idx}
+                    className={classNames('line-chart-dot', `line-chart-dot-${serieIdx}`)}
+                    cx={xScale(point.x)}
+                    cy={yScale(point.y as YPoint)}
+                    key={`${serie.name}${idx}`}
                     r="2"
                   />
                 );
@@ -501,20 +521,24 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderAreas = () => {
+    const { series, basisCurve } = this.props;
+    const { xScale, yScale } = this.state;
+
     const areaGenerator = area<Chart.Point>()
       .defined((d) => Boolean(d.y || d.y === 0))
-      .x((d) => this.state.xScale(d.x))
-      .y1((d) => this.state.yScale(d.y))
-      .y0(this.state.yScale(0));
-    if (this.props.basisCurve) {
+      .x((d) => xScale(d.x))
+      .y1((d) => yScale(d.y as YPoint) as number)
+      .y0(yScale(0) as number);
+
+    if (basisCurve) {
       areaGenerator.curve(curveBasis);
     }
     return (
       <g>
-        {this.props.series.map((serie, idx) => (
+        {series.map((serie, idx) => (
           <path
-            className={classNames('line-chart-area', 'line-chart-area-' + idx)}
-            d={areaGenerator(serie.data) || undefined}
+            className={classNames('line-chart-area', `line-chart-area-${idx}`)}
+            d={areaGenerator(serie.data) ?? undefined}
             key={serie.name}
           />
         ))}
@@ -545,9 +569,9 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
           }
           return (
             <circle
-              className={classNames('line-chart-dot', 'line-chart-dot-' + idx)}
+              className={classNames('line-chart-dot', `line-chart-dot-${idx}`)}
               cx={selectedDateXPos}
-              cy={yScale(point.y)}
+              cy={yScale(point.y as YPoint)}
               key={serie.name}
               r="4"
             />
@@ -558,13 +582,15 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderClipPath = () => {
+    const { yScale, xScale } = this.state;
+
     return (
       <defs>
         <clipPath id="chart-clip">
           <rect
-            height={this.state.yScale.range()[0] + 10}
+            height={yScale.range()[0] + 10}
             transform="translate(0,-5)"
-            width={this.state.xScale.range()[1]}
+            width={xScale.range()[1]}
           />
         </clipPath>
       </defs>
@@ -572,6 +598,8 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderMouseEventsOverlay = (zoomEnabled: boolean) => {
+    const { yScale, xScale } = this.state;
+
     const mouseEvents: Partial<React.SVGProps<SVGRectElement>> = {};
     if (zoomEnabled) {
       mouseEvents.onWheel = this.handleWheel;
@@ -587,8 +615,8 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     return (
       <rect
         className="chart-mouse-events-overlay"
-        height={this.state.yScale.range()[0]}
-        width={this.state.xScale.range()[1]}
+        height={yScale.range()[0]}
+        width={xScale.range()[1]}
         {...mouseEvents}
       />
     );
@@ -612,7 +640,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
       return <div />;
     }
     const zoomEnabled = !disableZoom && this.props.updateZoom != null;
-    const isZoomed = Boolean(startDate || endDate);
+    const isZoomed = Boolean(startDate ?? endDate);
     return (
       <svg
         aria-label={graphDescription}
