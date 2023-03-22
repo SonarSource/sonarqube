@@ -45,6 +45,7 @@ exports[`render qualifiers filter 1`] = `
       />
     </div>
     <Select
+      aria-label="projects_management.filter_by_component"
       className="input-medium it__project-qualifier-select"
       components={
         {
@@ -86,6 +87,7 @@ exports[`render qualifiers filter 1`] = `
       placeholder="last_analysis_before"
     />
     <Select
+      aria-label="projects_management.filter_by_visibility"
       className="input-small"
       isDisabled={false}
       isSearchable={false}
@@ -189,6 +191,7 @@ exports[`renders 1`] = `
       placeholder="last_analysis_before"
     />
     <Select
+      aria-label="projects_management.filter_by_visibility"
       className="input-small"
       isDisabled={false}
       isSearchable={false}
@@ -278,7 +281,9 @@ exports[`renders optionrenderer and singlevaluerenderer: option renderer 1`] = `
     }
   }
 >
-  <div>
+  <div
+    className="display-flex-center"
+  >
     <QualifierIcon
       className="little-spacer-right"
       qualifier="val"
@@ -297,7 +302,9 @@ exports[`renders optionrenderer and singlevaluerenderer: single value renderer 1
     }
   }
 >
-  <div>
+  <div
+    className="display-flex-center"
+  >
     <QualifierIcon
       className="little-spacer-right"
       qualifier="val"
