@@ -21,6 +21,9 @@ package org.sonar.server.platform.db.migration.version.v110;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.server.platform.db.migration.version.v100.AddIsMainColumnInProjectBranches;
+import org.sonar.server.platform.db.migration.version.v100.AlterIsMainColumnInProjectBranches;
+import org.sonar.server.platform.db.migration.version.v100.UpdateIsMainColumnInProjectBranches;
 
 // ignoring bad number formatting, as it's indented that we align the migration numbers to SQ versions
 @SuppressWarnings("java:S3937")
@@ -46,6 +49,9 @@ public class DbVersion110 implements DbVersion {
       .add(10_1_002, "Add index on 'scm_accounts.scm_account'", CreateIndexForScmAccountOnScmAccountsTable.class)
       .add(10_1_003, "Add index on 'users.email'", CreateIndexForEmailOnUsersTable.class)
       .add(10_1_004, "Drop 'scm_accounts' column in 'users' table", DropScmAccountsInUsers.class)
+      .add(10_1_005, "Add column 'is_main' to 'project_branches' table", AddIsMainColumnInProjectBranches.class)
+      .add(10_1_006, "Update value of 'is_main' in 'project_branches' table", UpdateIsMainColumnInProjectBranches.class)
+      .add(10_1_007, "Alter column 'is_main' in 'project_branches' table - make it not nullable", AlterIsMainColumnInProjectBranches.class)
     ;
   }
 }
