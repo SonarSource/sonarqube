@@ -47,5 +47,5 @@ it('should render correctly', () => {
 });
 
 function shallowRender(props: Partial<PluginUpdatesProps> = {}) {
-  return shallow<PluginUpdatesProps>(<PluginUpdates {...props} />);
+  return shallow<PluginUpdatesProps>(<PluginUpdates pluginName="Xoo" {...props} />);
 }

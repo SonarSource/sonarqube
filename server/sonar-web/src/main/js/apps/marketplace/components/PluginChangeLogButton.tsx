@@ -21,21 +21,30 @@ import * as React from 'react';
 import { ButtonLink } from '../../../components/controls/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
 import EllipsisIcon from '../../../components/icons/EllipsisIcon';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { Release, Update } from '../../../types/plugins';
 import PluginChangeLog from './PluginChangeLog';
 
 interface Props {
+  pluginName: string;
   release: Release;
   update: Update;
 }
 
-export default function PluginChangeLogButton({ release, update }: Props) {
+export default function PluginChangeLogButton({ pluginName, release, update }: Props) {
   return (
     <Dropdown
       className="display-inline-block little-spacer-left"
       overlay={<PluginChangeLog release={release} update={update} />}
     >
-      <ButtonLink className="js-changelog">
+      <ButtonLink
+        className="js-changelog"
+        aria-label={translateWithParameters(
+          'marketplace.show_plugin_changelog',
+          pluginName,
+          release.version
+        )}
+      >
         <EllipsisIcon />
       </ButtonLink>
     </Dropdown>

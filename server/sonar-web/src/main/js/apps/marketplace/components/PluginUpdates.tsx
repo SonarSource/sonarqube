@@ -23,10 +23,11 @@ import { Update } from '../../../types/plugins';
 import PluginUpdateItem from './PluginUpdateItem';
 
 export interface PluginUpdatesProps {
+  pluginName: string;
   updates?: Update[];
 }
 
-export default function PluginUpdates({ updates }: PluginUpdatesProps) {
+export default function PluginUpdates({ pluginName, updates }: PluginUpdatesProps) {
   if (!updates || updates.length <= 0) {
     return null;
   }
@@ -38,6 +39,7 @@ export default function PluginUpdates({ updates }: PluginUpdatesProps) {
           update.release ? (
             <PluginUpdateItem
               key={update.release.version}
+              pluginName={pluginName}
               release={update.release}
               update={update}
             />

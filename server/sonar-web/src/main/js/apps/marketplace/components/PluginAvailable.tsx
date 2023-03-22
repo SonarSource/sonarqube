@@ -49,7 +49,11 @@ export default function PluginAvailable(props: PluginAvailableProps) {
             </div>
             <div>
               {plugin.release.description}
-              <PluginChangeLogButton release={plugin.release} update={plugin.update} />
+              <PluginChangeLogButton
+                pluginName={plugin.name}
+                release={plugin.release}
+                update={plugin.update}
+              />
               {plugin.update.requires.length > 0 && (
                 <p className="little-spacer-top">
                   <strong>

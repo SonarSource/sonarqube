@@ -36,6 +36,7 @@ exports[`should render correctly: default 1`] = `
         </div>
         <div>
           <PluginChangeLogButton
+            pluginName="Sonar Foo"
             release={
               {
                 "date": "2020-01-01",
@@ -153,6 +154,7 @@ exports[`should render correctly: has requirements 1`] = `
         </div>
         <div>
           <PluginChangeLogButton
+            pluginName="Sonar Foo"
             release={
               {
                 "date": "2020-01-01",
@@ -307,6 +309,7 @@ exports[`should render correctly: has requirements, some of them already met 1`]
         </div>
         <div>
           <PluginChangeLogButton
+            pluginName="Sonar Foo"
             release={
               {
                 "date": "2020-01-01",
@@ -486,6 +489,7 @@ exports[`should render correctly: read only 1`] = `
         </div>
         <div>
           <PluginChangeLogButton
+            pluginName="Sonar Foo"
             release={
               {
                 "date": "2020-01-01",

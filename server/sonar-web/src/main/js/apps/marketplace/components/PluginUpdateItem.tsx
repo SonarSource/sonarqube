@@ -24,6 +24,7 @@ import { Release, Update } from '../../../types/plugins';
 import PluginChangeLogButton from './PluginChangeLogButton';
 
 interface Props {
+  pluginName: string;
   update: Update;
   release: Release;
 }
@@ -64,7 +65,11 @@ export default class PluginUpdateItem extends React.PureComponent<Props, State> 
         </div>
         <div>
           {release.description}
-          <PluginChangeLogButton release={release} update={update} />
+          <PluginChangeLogButton
+            pluginName={this.props.pluginName}
+            release={release}
+            update={update}
+          />
         </div>
       </li>
     );

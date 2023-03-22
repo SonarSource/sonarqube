@@ -46,7 +46,7 @@ export default function PluginInstalled({ plugin, readOnly, refreshPending, stat
             </strong>
             {translate('marketplace._installed')}
           </li>
-          <PluginUpdates updates={plugin.updates} />
+          <PluginUpdates pluginName={plugin.name} updates={plugin.updates} />
         </ul>
       </td>
 
