@@ -78,6 +78,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
             className="spacer-left button-small"
             id="edit-logs-level-button"
             onClick={this.handleLogsLevelOpen}
+            aria-label={translate('system.logs_level.change')}
           />
         </span>
         {this.props.canDownloadLogs && (

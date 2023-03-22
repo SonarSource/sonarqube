@@ -27,7 +27,7 @@ import {
   mockStandaloneSysInfo,
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { App } from '../App';
+import { SystemApp } from '../SystemApp';
 
 jest.mock('../../../../api/system', () => ({
   getSystemInfo: jest.fn().mockResolvedValue(null),
@@ -79,6 +79,8 @@ it('should toggle cards and update the URL', () => {
   );
 });
 
-function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(<App location={mockLocation()} router={mockRouter()} {...props} />);
+function shallowRender(props: Partial<SystemApp['props']> = {}) {
+  return shallow<SystemApp>(
+    <SystemApp location={mockLocation()} router={mockRouter()} {...props} />
+  );
 }

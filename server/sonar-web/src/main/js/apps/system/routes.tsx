@@ -19,8 +19,8 @@
  */
 import React from 'react';
 import { Route } from 'react-router-dom';
-import App from './components/App';
+import SystemApp from './components/SystemApp';
 
-export const routes = () => <Route path="system" element={<App />} />;
+export const routes = () => <Route path="system" element={<SystemApp />} />;
 
 export default routes;

@@ -50,7 +50,7 @@ interface State {
   sysInfoData?: SysInfoCluster | SysInfoStandalone;
 }
 
-export class App extends React.PureComponent<Props, State> {
+export class SystemApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 
@@ -148,4 +148,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(App);
+export default withRouter(SystemApp);

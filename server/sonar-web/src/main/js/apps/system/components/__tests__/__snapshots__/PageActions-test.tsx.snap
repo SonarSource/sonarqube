@@ -17,6 +17,7 @@ exports[`should render correctly 1`] = `
       </strong>
     </span>
     <EditButton
+      aria-label="system.logs_level.change"
       className="spacer-left button-small"
       id="edit-logs-level-button"
       onClick={[Function]}
@@ -198,6 +199,7 @@ exports[`should render without log download 1`] = `
       </strong>
     </span>
     <EditButton
+      aria-label="system.logs_level.change"
       className="spacer-left button-small"
       id="edit-logs-level-button"
       onClick={[Function]}
