@@ -100,7 +100,6 @@ public class UpdateIsMainColumnInProjectBranchesTest {
     map.put("PULL_REQUEST_BINARY", null);
     map.put("EXCLUDE_FROM_PURGE", true);
     map.put("NEED_ISSUE_SYNC", false);
-    map.put("IS_MAIN", false);
     db.executeInsert("project_branches", map);
     return uuid;
   }

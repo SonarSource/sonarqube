@@ -34,13 +34,15 @@ public class UpdateIsMainColumnInProjectBranches extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select uuid from project_branches where project_uuid = uuid");
+    massUpdate.select("select uuid, uuid = project_uuid from project_branches");
     massUpdate.update("update project_branches set is_main = ? where uuid = ?");
     massUpdate.execute((row, update) -> {
       String uuid = row.getString(1);
-      update.setBoolean(1, true);
+      boolean isMain = row.getBoolean(2);
+      update.setBoolean(1, isMain);
       update.setString(2, uuid);
       return true;
     });
+
   }
 }
