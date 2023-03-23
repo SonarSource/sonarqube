@@ -10,19 +10,28 @@ exports[`should render 1`] = `
   >
     <thead>
       <tr>
-        <th />
+        <th
+          id="list-group-name"
+        >
+          user_groups.page.group_header
+        </th>
         <th
           className="nowrap width-10"
-          colSpan={2}
+          id="list-group-member"
         >
           members
         </th>
         <th
           className="nowrap"
+          id="list-group-description"
         >
           description
         </th>
-        <th />
+        <th
+          id="list-group-actions"
+        >
+          actions
+        </th>
       </tr>
     </thead>
     <tbody>

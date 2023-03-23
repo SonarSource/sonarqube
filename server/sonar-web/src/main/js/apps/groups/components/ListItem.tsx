@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownDivider,
@@ -48,24 +49,28 @@ export default function ListItem(props: ListItemProps) {
 
   return (
     <tr data-id={name}>
-      <td className="width-20">
-        <strong className="js-group-name">{name}</strong>
+      <td className="width-20" headers="list-group-name">
+        <strong>{name}</strong>
         {group.default && <span className="little-spacer-left">({translate('default')})</span>}
         {isGroupLocal() && <span className="little-spacer-left badge">{translate('local')}</span>}
       </td>
 
-      <td className="thin text-middle text-right little-padded-right">{membersCount}</td>
-      <td className="little-padded-left">
+      <td className="group-members display-flex-justify-end" headers="list-group-member">
+        <span
+          className={classNames({ 'big-padded-right spacer-right': group.default && !isManaged() })}
+        >
+          {membersCount}
+        </span>
         {!group.default && !isManaged() && (
           <EditMembers group={group} onEdit={props.onEditMembers} />
         )}
       </td>
 
-      <td className="width-40">
+      <td className="width-40" headers="list-group-description">
         <span className="js-group-description">{description}</span>
       </td>
 
-      <td className="thin nowrap text-right">
+      <td className="thin nowrap text-right" headers="list-group-actions">
         {!group.default && (!isManaged() || isGroupLocal()) && (
           <ActionsDropdown label={translateWithParameters('groups.edit', group.name)}>
             {!isManaged() && (

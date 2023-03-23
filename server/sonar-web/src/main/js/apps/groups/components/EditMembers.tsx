@@ -62,7 +62,7 @@ export default class EditMembers extends React.PureComponent<Props, State> {
       <>
         <ButtonIcon
           aria-label={translateWithParameters('groups.users.edit', this.props.group.name)}
-          className="button-small"
+          className="button-small little-spacer-left little-padded"
           onClick={this.handleMembersClick}
           title={translateWithParameters('groups.users.edit', this.props.group.name)}
         >

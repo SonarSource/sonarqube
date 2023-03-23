@@ -29,6 +29,7 @@ import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { omitNil } from '../../../helpers/request';
 import { Group, Paging, SysInfoCluster } from '../../../types/types';
+import '../groups.css';
 import DeleteForm from './DeleteForm';
 import Form from './Form';
 import Header from './Header';

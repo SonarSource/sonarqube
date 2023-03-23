@@ -39,12 +39,14 @@ export default function List(props: Props) {
       <table className="data zebra zebra-hover" id="groups-list">
         <thead>
           <tr>
-            <th />
-            <th className="nowrap width-10" colSpan={2}>
+            <th id="list-group-name">{translate('user_groups.page.group_header')}</th>
+            <th id="list-group-member" className="nowrap width-10">
               {translate('members')}
             </th>
-            <th className="nowrap">{translate('description')}</th>
-            <th />
+            <th id="list-group-description" className="nowrap">
+              {translate('description')}
+            </th>
+            <th id="list-group-actions">{translate('actions')}</th>
           </tr>
         </thead>
         <tbody>

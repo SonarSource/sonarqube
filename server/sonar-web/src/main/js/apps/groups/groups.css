@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockGroup } from '../../../../helpers/testMocks';
-import List from '../List';
 
-it('should render', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-function shallowRender() {
-  const groups = [
-    mockGroup({ name: 'sonar-users', description: '', membersCount: 55, default: true }),
-    mockGroup({ name: 'foo', description: 'foobar', membersCount: 0, default: false }),
-    mockGroup({ name: 'bar', description: 'barbar', membersCount: 1, default: false }),
-  ];
-  return shallow(
-    <List
-      groups={groups}
-      onDelete={jest.fn()}
-      onEdit={jest.fn()}
-      onEditMembers={jest.fn()}
-      manageProvider={undefined}
-    />
-  );
+#groups-page .group-members {
+  padding-right: 50%;
 }

@@ -6,21 +6,19 @@ exports[`should render correctly 1`] = `
 >
   <td
     className="width-20"
+    headers="list-group-name"
   >
-    <strong
-      className="js-group-name"
-    >
+    <strong>
       Foo
     </strong>
   </td>
   <td
-    className="thin text-middle text-right little-padded-right"
+    className="group-members display-flex-justify-end"
+    headers="list-group-member"
   >
-    1
-  </td>
-  <td
-    className="little-padded-left"
-  >
+    <span>
+      1
+    </span>
     <EditMembers
       group={
         {
@@ -34,6 +32,7 @@ exports[`should render correctly 1`] = `
   </td>
   <td
     className="width-40"
+    headers="list-group-description"
   >
     <span
       className="js-group-description"
@@ -41,6 +40,7 @@ exports[`should render correctly 1`] = `
   </td>
   <td
     className="thin nowrap text-right"
+    headers="list-group-actions"
   >
     <ActionsDropdown
       label="groups.edit.Foo"
@@ -70,10 +70,9 @@ exports[`should render correctly: default group 1`] = `
 >
   <td
     className="width-20"
+    headers="list-group-name"
   >
-    <strong
-      className="js-group-name"
-    >
+    <strong>
       Foo
     </strong>
     <span
@@ -85,15 +84,18 @@ exports[`should render correctly: default group 1`] = `
     </span>
   </td>
   <td
-    className="thin text-middle text-right little-padded-right"
+    className="group-members display-flex-justify-end"
+    headers="list-group-member"
   >
-    1
+    <span
+      className="big-padded-right spacer-right"
+    >
+      1
+    </span>
   </td>
   <td
-    className="little-padded-left"
-  />
-  <td
     className="width-40"
+    headers="list-group-description"
   >
     <span
       className="js-group-description"
@@ -101,6 +103,7 @@ exports[`should render correctly: default group 1`] = `
   </td>
   <td
     className="thin nowrap text-right"
+    headers="list-group-actions"
   />
 </tr>
 `;
