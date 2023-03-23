@@ -63,14 +63,13 @@ public class ProcessWrapperFactory {
 
       Process p = pb.start();
       try {
-        InputStream processStdOutput = p.getInputStream();
-        // don't use BufferedReader#readLine because it will also parse CR, which may be part of the actual source code line
-        try (Scanner scanner = new Scanner(new InputStreamReader(processStdOutput, UTF_8))) {
-          scanner.useDelimiter("\n");
-          while (scanner.hasNext()) {
-            stdOutLineConsumer.accept(scanner.next());
+        processInputStream(p.getInputStream(), stdOutLineConsumer);
+
+        processInputStream(p.getErrorStream(), line -> {
+          if (!line.isBlank()) {
+            LOG.debug(line);
           }
-        }
+        });
 
         int exit = p.waitFor();
         if (exit != 0) {
@@ -81,6 +80,15 @@ public class ProcessWrapperFactory {
         Thread.currentThread().interrupt();
       } finally {
         p.destroy();
+      }
+    }
+
+    private static void processInputStream(InputStream inputStream, Consumer<String> stringConsumer) {
+      try (Scanner scanner = new Scanner(new InputStreamReader(inputStream, UTF_8))) {
+        scanner.useDelimiter("\n");
+        while (scanner.hasNext()) {
+          stringConsumer.accept(scanner.next());
+        }
       }
     }
   }
