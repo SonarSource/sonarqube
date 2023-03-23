@@ -61,6 +61,7 @@ exports[`should render correctly 1`] = `
     className="thin nowrap text-middle"
   >
     <ButtonIcon
+      aria-label="users.update_tokens_for_x.One"
       className="js-user-tokens spacer-left button-small"
       onClick={[Function]}
       tooltip="users.update_tokens"
@@ -151,6 +152,7 @@ exports[`should render correctly without last connection date 1`] = `
     className="thin nowrap text-middle"
   >
     <ButtonIcon
+      aria-label="users.update_tokens_for_x.One"
       className="js-user-tokens spacer-left button-small"
       onClick={[Function]}
       tooltip="users.update_tokens"
