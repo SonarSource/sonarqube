@@ -171,12 +171,11 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    // including the anyone (deprecated) group
-    expect(await screen.findAllByRole('row')).toHaveLength(4);
+    expect(await screen.findAllByRole('row')).toHaveLength(3);
 
     await user.click(await ui.showMore.find());
 
-    expect(await screen.findAllByRole('row')).toHaveLength(6);
+    expect(await screen.findAllByRole('row')).toHaveLength(5);
   });
 });
 

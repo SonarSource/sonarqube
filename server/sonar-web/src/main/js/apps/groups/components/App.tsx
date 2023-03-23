@@ -205,8 +205,6 @@ export default class App extends React.PureComponent<{}, State> {
       managed,
     } = this.state;
 
-    const showAnyone = 'anyone'.includes(query.toLowerCase());
-
     return (
       <>
         <Suggestions suggestions="user_groups" />
@@ -251,7 +249,6 @@ export default class App extends React.PureComponent<{}, State> {
               onDelete={(groupToBeDeleted) => this.setState({ groupToBeDeleted })}
               onEdit={(editedGroup) => this.setState({ editedGroup })}
               onEditMembers={this.refresh}
-              showAnyone={showAnyone}
               manageProvider={manageProvider}
             />
           )}
@@ -259,7 +256,7 @@ export default class App extends React.PureComponent<{}, State> {
           {groups !== undefined && paging !== undefined && (
             <div id="groups-list-footer">
               <ListFooter
-                count={showAnyone ? groups.length + 1 : groups.length}
+                count={groups.length}
                 loading={loading}
                 loadMore={() => {
                   if (paging.total > paging.pageIndex * paging.pageSize) {
@@ -267,7 +264,7 @@ export default class App extends React.PureComponent<{}, State> {
                   }
                 }}
                 ready={!loading}
-                total={showAnyone ? paging.total + 1 : paging.total}
+                total={paging.total}
               />
             </div>
           )}

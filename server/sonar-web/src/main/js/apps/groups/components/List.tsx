@@ -28,12 +28,11 @@ interface Props {
   onDelete: (group: Group) => void;
   onEdit: (group: Group) => void;
   onEditMembers: () => void;
-  showAnyone: boolean;
   manageProvider: string | undefined;
 }
 
 export default function List(props: Props) {
-  const { groups, manageProvider, showAnyone } = props;
+  const { groups, manageProvider } = props;
 
   return (
     <div className="boxed-group boxed-group-inner">
@@ -49,21 +48,6 @@ export default function List(props: Props) {
           </tr>
         </thead>
         <tbody>
-          {showAnyone && (
-            <tr className="js-anyone" key="anyone">
-              <td className="width-20">
-                <strong className="js-group-name">{translate('groups.anyone')}</strong>
-                <span className="spacer-left badge badge-error">{translate('deprecated')}</span>
-              </td>
-              <td className="width-10" colSpan={2} />
-              <td className="width-40" colSpan={2}>
-                <span className="js-group-description">
-                  {translate('user_groups.anyone.description')}
-                </span>
-              </td>
-            </tr>
-          )}
-
           {sortBy(groups, (group) => group.name.toLowerCase()).map((group) => (
             <ListItem
               group={group}
