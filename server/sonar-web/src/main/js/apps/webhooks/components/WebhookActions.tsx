@@ -22,7 +22,7 @@ import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Webhook } from '../../../types/webhook';
 import CreateWebhookForm from './CreateWebhookForm';
 import DeleteWebhookForm from './DeleteWebhookForm';
@@ -90,7 +90,10 @@ export default class WebhookActions extends React.PureComponent<Props, State> {
     const { webhook } = this.props;
     return (
       <>
-        <ActionsDropdown className="big-spacer-left">
+        <ActionsDropdown
+          className="big-spacer-left"
+          label={translateWithParameters('webhooks.show_actions', webhook.name)}
+        >
           <ActionsDropdownItem className="js-webhook-update" onClick={this.handleUpdateClick}>
             {translate('update_verb')}
           </ActionsDropdownItem>

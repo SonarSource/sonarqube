@@ -4,6 +4,7 @@ exports[`should display the deliveries form 1`] = `
 <Fragment>
   <ActionsDropdown
     className="big-spacer-left"
+    label="webhooks.show_actions.foo"
   >
     <ActionsDropdownItem
       className="js-webhook-update"
@@ -33,6 +34,7 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <ActionsDropdown
     className="big-spacer-left"
+    label="webhooks.show_actions.foo"
   >
     <ActionsDropdownItem
       className="js-webhook-update"
