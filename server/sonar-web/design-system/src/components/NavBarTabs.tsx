@@ -20,10 +20,11 @@
 
 import styled from '@emotion/styled';
 import classNames from 'classnames';
+import React from 'react';
 import tw, { theme } from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { isDefined } from '../helpers/types';
-import ChevronDownIcon from './icons/ChevronDownIcon';
+import { ChevronDownIcon } from './icons/ChevronDownIcon';
 import NavLink, { NavLinkProps } from './NavLink';
 import Tooltip from './Tooltip';
 
@@ -34,7 +35,7 @@ interface Props extends React.HTMLAttributes<HTMLUListElement> {
 
 export function NavBarTabs({ children, className, ...other }: Props) {
   return (
-    <ul className={classNames('sw-flex sw-items-end sw-gap-6', className)} {...other}>
+    <ul className={`sw-flex sw-items-end sw-gap-6 ${className ?? ''}`} {...other}>
       {children}
     </ul>
   );
@@ -43,17 +44,22 @@ export function NavBarTabs({ children, className, ...other }: Props) {
 interface NavBarTabLinkProps extends Omit<NavLinkProps, 'children'> {
   active?: boolean;
   children?: React.ReactNode;
+  className?: string;
   text: string;
   withChevron?: boolean;
 }
 
 export function NavBarTabLink(props: NavBarTabLinkProps) {
-  const { active, children, text, withChevron = false, ...linkProps } = props;
+  const { active, children, className, text, withChevron = false, ...linkProps } = props;
   return (
     <NavBarTabLinkWrapper>
       <NavLink
         className={({ isActive }) =>
-          classNames('sw-flex sw-items-center', { active: isDefined(active) ? active : isActive })
+          classNames(
+            'sw-flex sw-items-center',
+            { active: isDefined(active) ? active : isActive },
+            className
+          )
         }
         {...linkProps}
       >
@@ -81,27 +87,31 @@ export function DisabledTabLink(props: { label: string; overlay: React.ReactNode
 
 // Styling for <NavLink> due to its special className function, it conflicts when styled with Emotion.
 const NavBarTabLinkWrapper = styled.li`
+  ${tw`sw-body-md`};
   & > a {
     ${tw`sw-pb-3`};
     ${tw`sw-block`};
     ${tw`sw-box-border`};
     ${tw`sw-transition-none`};
-    ${tw`sw-body-md`};
+
     color: ${themeContrast('buttonSecondary')};
     text-decoration: none;
     border-bottom: ${themeBorder('xsActive', 'transparent')};
     padding-bottom: calc(${theme('spacing.3')} + 1px); // 12px spacing + 3px border + 1px = 16px
   }
+
   & > a.active,
   & > a:active,
   & > a:hover,
   & > a:focus {
     border-bottom-color: ${themeColor('tabBorder')};
   }
+
   & > a.active > span[data-text],
   & > a:active > span {
     ${tw`sw-body-md-highlight`};
   }
+
   // This is a hack to have a link take the space of the bold font, so when active other ones are not moving
   & > a > span[data-text]::before {
     ${tw`sw-block`};

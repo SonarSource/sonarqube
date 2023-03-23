@@ -21,16 +21,12 @@
   --drawer-width: 380px;
 }
 
-/* TODO: should we move this? Or handle it differently? */
-.navbar-inner-with-notif .info-drawer {
-  border-top: 1px solid var(--barBorderColor);
-}
-
 .info-drawer-pane {
   background-color: white;
   right: calc(-1 * var(--drawer-width));
   width: var(--drawer-width);
   transition: right 0.3s ease-in-out;
+  border-top: 1px solid var(--barBorderColor);
   border-left: 1px solid var(--barBorderColor);
   box-sizing: border-box;
 }

@@ -41,7 +41,7 @@ exports[`should render correctly when governance is active 1`] = `
     <Dropdown
       overlay={
         <ul
-          className="menu"
+          className="menu dropdown-menu"
         >
           <li>
             <NavLink
@@ -83,7 +83,7 @@ exports[`should render correctly when governance is active 1`] = `
     <Dropdown
       overlay={
         <ul
-          className="menu"
+          className="menu dropdown-menu"
         >
           <li>
             <NavLink
@@ -126,7 +126,7 @@ exports[`should render correctly when governance is active 1`] = `
     <Dropdown
       overlay={
         <ul
-          className="menu"
+          className="menu dropdown-menu"
         >
           <li>
             <NavLink
@@ -195,7 +195,7 @@ exports[`should work with extensions 1`] = `
     <Dropdown
       overlay={
         <ul
-          className="menu"
+          className="menu dropdown-menu"
         >
           <li>
             <NavLink
@@ -237,7 +237,7 @@ exports[`should work with extensions 1`] = `
     <Dropdown
       overlay={
         <ul
-          className="menu"
+          className="menu dropdown-menu"
         >
           <li>
             <NavLink
@@ -280,7 +280,7 @@ exports[`should work with extensions 1`] = `
     <Dropdown
       overlay={
         <ul
-          className="menu"
+          className="menu dropdown-menu"
         >
           <li>
             <NavLink
@@ -329,7 +329,7 @@ exports[`should work with extensions 2`] = `
   <Dropdown
     overlay={
       <ul
-        className="menu"
+        className="menu dropdown-menu"
       >
         <li>
           <NavLink
@@ -371,7 +371,7 @@ exports[`should work with extensions 2`] = `
   <Dropdown
     overlay={
       <ul
-        className="menu"
+        className="menu dropdown-menu"
       >
         <li>
           <NavLink
@@ -414,7 +414,7 @@ exports[`should work with extensions 2`] = `
   <Dropdown
     overlay={
       <ul
-        className="menu"
+        className="menu dropdown-menu"
       >
         <li>
           <NavLink

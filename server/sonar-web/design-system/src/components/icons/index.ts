@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export { default as BranchIcon } from './BranchIcon';
-export { default as ChevronDownIcon } from './ChevronDownIcon';
+export { ChevronDownIcon } from './ChevronDownIcon';
 export { default as ClockIcon } from './ClockIcon';
 export { FlagErrorIcon } from './FlagErrorIcon';
 export { FlagInfoIcon } from './FlagInfoIcon';

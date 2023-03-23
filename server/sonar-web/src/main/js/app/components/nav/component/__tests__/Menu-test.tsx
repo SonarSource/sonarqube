@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import {
   mockBranch,
@@ -35,7 +36,8 @@ const BASE_COMPONENT = mockComponent({
   name: 'foo',
 });
 
-it('should render correctly', () => {
+it('should render correctly', async () => {
+  const user = userEvent.setup();
   const component = {
     ...BASE_COMPONENT,
     configuration: {
@@ -60,9 +62,9 @@ it('should render correctly', () => {
   // Check the dropdown.
   const button = screen.getByRole('button', { name: 'more' });
   expect(button).toBeInTheDocument();
-  button.click();
-  expect(screen.getByRole('link', { name: 'ComponentFoo' })).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'ComponentBar' })).toBeInTheDocument();
+  await user.click(button);
+  expect(screen.getByRole('menuitem', { name: 'ComponentFoo' })).toBeInTheDocument();
+  expect(screen.getByRole('menuitem', { name: 'ComponentBar' })).toBeInTheDocument();
 });
 
 it('should render correctly when on a Portofolio', () => {
@@ -101,13 +103,7 @@ it('should render correctly when on a branch', () => {
   expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'issues.page' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'project.info.title' })).toBeInTheDocument();
-
-  // If on a branch, regardless is the user is an admin or not, we do not show
-  // the settings link.
-  expect(
-    screen.queryByRole('link', { name: `layout.settings.${ComponentQualifier.Project}` })
-  ).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'project.info.title' })).toBeInTheDocument();
 });
 
 it('should render correctly when on a pull request', () => {
@@ -140,7 +136,7 @@ it('should disable links if no analysis has been done', () => {
   expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
   expect(screen.queryByRole('link', { name: 'issues.page' })).toHaveClass('disabled-link');
   expect(screen.queryByRole('link', { name: 'layout.measures' })).toHaveClass('disabled-link');
-  expect(screen.getByRole('button', { name: 'project.info.title' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'project.info.title' })).toBeInTheDocument();
 });
 
 it('should disable links if application has inaccessible projects', () => {
