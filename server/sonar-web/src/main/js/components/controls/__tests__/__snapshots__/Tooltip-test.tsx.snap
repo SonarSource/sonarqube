@@ -21,7 +21,6 @@ exports[`should render 1`] = `
     onFocus={[Function]}
     onPointerEnter={[Function]}
     onPointerLeave={[Function]}
-    tabIndex={0}
   />
   <div
     aria-hidden={true}
@@ -45,7 +44,6 @@ exports[`should render 2`] = `
     onFocus={[Function]}
     onPointerEnter={[Function]}
     onPointerLeave={[Function]}
-    tabIndex={0}
   />
   <EscKeydownHandler
     onKeydown={[Function]}

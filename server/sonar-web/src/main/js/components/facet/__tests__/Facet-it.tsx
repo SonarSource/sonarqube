@@ -20,7 +20,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { findTooltipWithContent, renderComponent } from '../../../helpers/testReactTestingUtils';
 import FacetBox, { FacetBoxProps } from '../FacetBox';
 import FacetHeader from '../FacetHeader';
 import FacetItem from '../FacetItem';
@@ -60,7 +60,7 @@ it('should correctly render a header with helper text', async () => {
   renderFacet(undefined, { helper: 'Help text' });
   await userEvent.tab();
   await userEvent.tab();
-  expect(screen.getByText('Help text')).toBeInTheDocument();
+  expect(findTooltipWithContent('Help text')).toBeInTheDocument();
 });
 
 it('should correctly render a header with value data', () => {

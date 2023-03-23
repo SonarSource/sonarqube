@@ -309,9 +309,6 @@ export class ComponentMeasuresApp extends React.PureComponent<Props, State> {
                           {translate('component_measures.not_all_measures_are_shown')}
                           <HelpTooltip
                             className="spacer-left"
-                            ariaLabel={translate(
-                              'component_measures.not_all_measures_are_shown.help'
-                            )}
                             overlay={translate(
                               'component_measures.not_all_measures_are_shown.help'
                             )}

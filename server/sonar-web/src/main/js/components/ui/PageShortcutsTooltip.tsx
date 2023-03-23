@@ -34,7 +34,6 @@ export default function PageShortcutsTooltip(props: PageShortcutsTooltipProps) {
   const { className, leftAndRightLabel, leftLabel, upAndDownLabel, metaModifierLabel } = props;
   return (
     <Tooltip
-      accessible={false}
       overlay={
         <div className="small nowrap">
           <div>

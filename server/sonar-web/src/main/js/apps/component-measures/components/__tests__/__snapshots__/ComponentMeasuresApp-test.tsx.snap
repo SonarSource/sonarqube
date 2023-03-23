@@ -77,7 +77,6 @@ exports[`should render a warning message when user does not have access to all p
         <Styled(div)>
           component_measures.not_all_measures_are_shown
           <HelpTooltip
-            ariaLabel="component_measures.not_all_measures_are_shown.help"
             className="spacer-left"
             overlay="component_measures.not_all_measures_are_shown.help"
           />

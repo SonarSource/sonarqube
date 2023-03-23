@@ -73,7 +73,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
     const { disabled, values, disabledHelper, name, open, children, fetching } = this.props;
     const showClearButton = values != null && values.length > 0 && this.props.onClear != null;
     const header = disabled ? (
-      <Tooltip overlay={disabledHelper} accessible={false}>
+      <Tooltip overlay={disabledHelper}>
         <ButtonLink
           className="disabled"
           aria-disabled={true}

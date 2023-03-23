@@ -111,14 +111,16 @@ export function ClipboardButton({
   return (
     <ClipboardBase>
       {({ setCopyButton, copySuccess }) => (
-        <Tooltip overlay={translate('copied_action')} visible={copySuccess} accessible={false}>
+        <Tooltip overlay={translate('copied_action')} visible={copySuccess}>
           <Button
             className={classNames('no-select', className)}
             data-clipboard-text={copyValue}
             innerRef={setCopyButton}
-            aria-label={ariaLabel ?? translate('copy_to_clipboard')}
+            aria-label={
+              copySuccess ? translate('copied_action') : ariaLabel ?? translate('copy_to_clipboard')
+            }
           >
-            {children || (
+            {children ?? (
               <>
                 <CopyIcon className="little-spacer-right" />
                 {translate('copy')}
@@ -138,18 +140,20 @@ export interface ClipboardIconButtonProps {
 }
 
 export function ClipboardIconButton(props: ClipboardIconButtonProps) {
-  const { className, copyValue } = props;
+  const { 'aria-label': ariaLabel, className, copyValue } = props;
   return (
     <ClipboardBase>
       {({ setCopyButton, copySuccess }) => {
         return (
           <ButtonIcon
-            aria-label={props['aria-label'] ?? translate('copy_to_clipboard')}
+            aria-label={
+              copySuccess ? translate('copied_action') : ariaLabel ?? translate('copy_to_clipboard')
+            }
             className={classNames('no-select', className)}
             data-clipboard-text={copyValue}
             innerRef={setCopyButton}
             tooltip={copySuccess ? translate('copied_action') : undefined}
-            tooltipProps={copySuccess ? { visible: copySuccess, accessible: false } : undefined}
+            tooltipProps={copySuccess ? { visible: true } : undefined}
           >
             <CopyIcon />
           </ButtonIcon>

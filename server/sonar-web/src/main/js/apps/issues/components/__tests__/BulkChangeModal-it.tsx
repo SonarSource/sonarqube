@@ -90,7 +90,7 @@ it('should disable the submit button unless some change is configured', async ()
   expect(await screen.findByRole('button', { name: 'apply' })).toBeDisabled();
 
   // Adding a comment should not enable the submit button
-  await user.type(screen.getByRole('textbox', { name: 'issue.comment.formlink' }), 'some comment');
+  await user.type(screen.getByRole('textbox', { name: /issue.comment.formlink/ }), 'some comment');
   expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
 
   // Select a severity
@@ -159,7 +159,7 @@ it('should properly submit', async () => {
   ]);
 
   // Comment
-  await user.type(screen.getByRole('textbox', { name: 'issue.comment.formlink' }), 'some comment');
+  await user.type(screen.getByRole('textbox', { name: /issue.comment.formlink/ }), 'some comment');
 
   // Send notification
   await user.click(screen.getByRole('checkbox', { name: 'issue.send_notifications' }));

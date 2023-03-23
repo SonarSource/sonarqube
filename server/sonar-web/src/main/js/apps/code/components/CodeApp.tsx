@@ -300,7 +300,6 @@ class CodeApp extends React.Component<Props, State> {
               {translate('code_viewer.not_all_measures_are_shown')}
               <HelpTooltip
                 className="spacer-left"
-                ariaLabel={translate('code_viewer.not_all_measures_are_shown.help')}
                 overlay={translate('code_viewer.not_all_measures_are_shown.help')}
               />
             </AlertContent>

@@ -23,7 +23,8 @@ export interface IconProps extends React.AriaAttributes {
   className?: string;
   fill?: string;
   size?: number;
-  label?: string;
+  label?: React.ReactNode;
+  description?: React.ReactNode;
 }
 
 interface Props extends React.AriaAttributes {
@@ -31,7 +32,8 @@ interface Props extends React.AriaAttributes {
   className?: string;
   size?: number;
   style?: React.CSSProperties;
-  label?: string;
+  label?: React.ReactNode;
+  description?: React.ReactNode;
 
   // try to avoid using these:
   width?: number;
@@ -48,6 +50,7 @@ export default function Icon({
   width = size,
   viewBox = '0 0 16 16',
   label,
+  description,
   'aria-hidden': hidden,
   ...iconProps
 }: Props) {
@@ -70,6 +73,7 @@ export default function Icon({
       {...iconProps}
     >
       {label && !hidden && <title>{label}</title>}
+      {description && !hidden && <desc>{description}</desc>}
       {children}
     </svg>
   );

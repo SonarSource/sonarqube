@@ -22,6 +22,7 @@ import { throttle, uniqueId } from 'lodash';
 import * as React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
 import { rawSizes } from '../../app/theme';
+import { translate } from '../../helpers/l10n';
 import EscKeydownHandler from './EscKeydownHandler';
 import FocusOutHandler from './FocusOutHandler';
 import ScreenPositionFixer from './ScreenPositionFixer';
@@ -30,9 +31,8 @@ import './Tooltip.css';
 export type Placement = 'bottom' | 'right' | 'left' | 'top';
 
 export interface TooltipProps {
-  accessible?: boolean;
   classNameSpace?: string;
-  children: React.ReactElement<{}>;
+  children: React.ReactElement;
   mouseEnterDelay?: number;
   mouseLeaveDelay?: number;
   onShow?: () => void;
@@ -398,23 +398,26 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   renderOverlay() {
     const isVisible = this.isVisible();
-    const { classNameSpace = 'tooltip', accessible = true } = this.props;
+    const { classNameSpace = 'tooltip', isInteractive, overlay } = this.props;
 
     return (
       <div
         className={classNames(`${classNameSpace}-inner`, { hidden: !isVisible })}
         id={this.id}
         role="tooltip"
-        aria-hidden={!accessible || !isVisible}
+        aria-hidden={!isInteractive || !isVisible}
       >
-        {this.props.overlay}
+        {isInteractive && (
+          <span className="a11y-hidden">{translate('tooltip_is_interactive')}</span>
+        )}
+        {overlay}
       </div>
     );
   }
 
   render() {
     const isVisible = this.isVisible();
-    const { accessible = true } = this.props;
+    const { isInteractive } = this.props;
     return (
       <>
         {React.cloneElement(this.props.children, {
@@ -422,12 +425,14 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           onPointerLeave: this.handleMouseLeave,
           onFocus: this.handleFocus,
           onBlur: this.handleBlur,
-          tabIndex: accessible ? 0 : undefined,
+          tabIndex: isInteractive ? 0 : undefined,
           // aria-describedby is the semantically correct property to use, but it's not
-          // always well supported. As a fallback, we use aria-labelledby as well.
-          // See https://sarahmhigley.com/writing/tooltips-in-wcag-21/
-          // See https://css-tricks.com/accessible-svgs/
-          'aria-describedby': accessible ? this.id : undefined,
+          // always well supported. We sometimes need to handle this differently, depending
+          // on the triggering element. For example, we can add a child <description> element
+          // if the triggering element is an SVG. See HelpTooltip for an example.
+          // We should NOT use aria-labelledby, as this can have unintended effects (e.g., this
+          // can mess up buttons that need a tooltip).
+          'aria-describedby': this.id,
         })}
         {!isVisible && this.renderOverlay()}
         {isVisible && (

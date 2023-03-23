@@ -26,7 +26,10 @@ import PermissionsServiceMock from '../../../../api/mocks/PermissionsServiceMock
 import { mockPermissionGroup, mockPermissionUser } from '../../../../helpers/mocks/permissions';
 import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE } from '../../../../helpers/permissions';
 import { mockAppState } from '../../../../helpers/testMocks';
-import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
+import {
+  findTooltipWithContent,
+  renderAppWithAdminContext,
+} from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
 import { PermissionGroup, PermissionUser } from '../../../../types/types';
@@ -51,16 +54,16 @@ describe('rendering', () => {
 
     // Shows all permission table headers.
     PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.forEach((permission, i) => {
-      expect(ui.getTableHeaderHelpTooltip(i + 1)).toHaveTextContent(
-        `projects_role.${permission}.desc`
-      );
+      expect(
+        ui.getTableHeaderHelpTooltip(i + 1, `projects_role.${permission}.desc`)
+      ).toBeInTheDocument();
     });
 
     // Shows warning for browse and code viewer permissions.
     [Permissions.Browse, Permissions.CodeViewer].forEach((_permission, i) => {
-      expect(ui.getTableHeaderHelpTooltip(i + 1)).toHaveTextContent(
-        'projects_role.public_projects_warning'
-      );
+      expect(
+        ui.getTableHeaderHelpTooltip(i + 1, 'projects_role.public_projects_warning')
+      ).toBeInTheDocument();
     });
 
     // Check summaries.
@@ -94,7 +97,9 @@ describe('rendering', () => {
     expect(screen.getByText('This is permission template 1')).toBeInTheDocument();
     PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.forEach((permission, i) => {
       expect(ui.permissionCheckbox('johndoe', permission).get()).toBeInTheDocument();
-      expect(ui.getTableHeaderHelpTooltip(i)).toHaveTextContent(`projects_role.${permission}.desc`);
+      expect(
+        ui.getTableHeaderHelpTooltip(i, `projects_role.${permission}.desc`)
+      ).toBeInTheDocument();
     });
   });
 });
@@ -511,13 +516,16 @@ function getPageObject(user: UserEvent) {
       await user.click(ui.cogMenuBtn(name).get());
       await user.click(ui.setDefaultBtn(qualifier).get());
     },
-    getTableHeaderHelpTooltip(i: number) {
+    getTableHeaderHelpTooltip(i: number, text: string) {
       const th = byRole('columnheader').getAll().at(i);
       if (th === undefined) {
         throw new Error(`Couldn't locate the <th> at index ${i}`);
       }
-      within(th).getByTestId('help-tooltip-activator').focus();
-      return screen.getByRole('tooltip');
+      return findTooltipWithContent((_content, element) => {
+        // For some reason, using the `content` parameter doesn't work for 1 of the
+        // tests. Explicitly using the element's `textContent` always works.
+        return Boolean(element?.textContent?.includes(text));
+      }, th);
     },
   };
 }

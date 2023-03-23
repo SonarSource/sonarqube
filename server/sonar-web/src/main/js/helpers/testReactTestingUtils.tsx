@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { fireEvent, render, RenderResult } from '@testing-library/react';
+import { fireEvent, Matcher, render, RenderResult, screen, within } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { omit } from 'lodash';
 import * as React from 'react';
@@ -247,3 +247,9 @@ export function dateInputEvent(user: UserEvent) {
   };
 }
 /* eslint-enable testing-library/no-node-access */
+
+export function findTooltipWithContent(text: Matcher, target?: HTMLElement) {
+  return target
+    ? within(target).getByText(text, { selector: 'svg > desc' })
+    : screen.getByText(text, { selector: 'svg > desc' });
+}

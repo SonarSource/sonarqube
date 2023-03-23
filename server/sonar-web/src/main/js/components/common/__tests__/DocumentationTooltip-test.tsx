@@ -43,9 +43,9 @@ it('should correctly navigate through TAB', async () => {
   await user.tab();
   expect(ui.helpIcon.get()).toHaveFocus();
   await user.tab();
-  expect(ui.linkInTooltip.get()).toHaveFocus();
+  expect(ui.linkInTooltip.getAll().at(1)).toHaveFocus();
   await user.tab();
-  expect(ui.linkInTooltip2.get()).toHaveFocus();
+  expect(ui.linkInTooltip2.getAll().at(1)).toHaveFocus();
   // Looks like RTL tab event ignores any custom focuses during the events phase,
   // unless preventDefault is specified
   await user.tab();

@@ -33,6 +33,11 @@ exports[`should render properly: default 1`] = `
       data-testid="help-tooltip-activator"
     >
       <HelpIcon
+        description={
+          <div
+            className="my-overlay"
+          />
+        }
         fill="#888"
         size={12}
       />

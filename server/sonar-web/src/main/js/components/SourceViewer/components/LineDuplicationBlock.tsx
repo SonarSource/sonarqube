@@ -48,7 +48,7 @@ export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
 
   return duplicated ? (
     <td className={className} data-index={index} data-line-number={line.line}>
-      <Tooltip overlay={tooltip} placement="right" accessible={false}>
+      <Tooltip overlay={tooltip} placement="right">
         <div>
           <Toggler
             onRequestClose={() => setDropdownOpen(false)}

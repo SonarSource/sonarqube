@@ -50,9 +50,9 @@ const ui = {
   runAnalysisTitle: byRole('heading', { name: 'onboarding.analysis.header' }),
   generateTokenRadio: byRole('radio', { name: 'onboarding.token.generate.PROJECT_ANALYSIS_TOKEN' }),
   existingTokenRadio: byRole('radio', { name: 'onboarding.token.use_existing_token' }),
-  tokenNameInput: byRole('textbox', { name: 'onboarding.token.name.label' }),
+  tokenNameInput: byRole('textbox', { name: /onboarding.token.name.label/ }),
   expiresInSelect: byRole('combobox', { name: '' }),
-  tokenValueInput: byRole('textbox', { name: 'onboarding.token.use_existing_token.label' }),
+  tokenValueInput: byRole('textbox', { name: /onboarding.token.use_existing_token.label/ }),
   invalidTokenValueMessage: byText('onboarding.token.invalid_format'),
   ...getTutorialActionButtons(),
   ...getTutorialBuildButtons(),
@@ -67,7 +67,7 @@ it('should generate/delete a new token or use existing one', async () => {
   expect(ui.runAnalysisTitle.get()).toBeInTheDocument();
 
   // Generating token
-  user.type(ui.tokenNameInput.get(), 'Testing token');
+  await user.type(ui.tokenNameInput.get(), 'Testing token');
   await selectEvent.select(ui.expiresInSelect.get(), 'users.tokens.expiration.365');
   await user.click(ui.generateTokenButton.get());
 
@@ -80,7 +80,7 @@ it('should generate/delete a new token or use existing one', async () => {
   await user.type(ui.tokenValueInput.get(), 'INVALID TOKEN VALUE');
   expect(ui.invalidTokenValueMessage.get()).toBeInTheDocument();
 
-  user.clear(ui.tokenValueInput.get());
+  await user.clear(ui.tokenValueInput.get());
   await user.type(ui.tokenValueInput.get(), 'validtokenvalue');
   expect(ui.continueButton.get()).toBeEnabled();
 

@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { colors } from '../../app/theme';
+import { translate } from '../../helpers/l10n';
 import HelpIcon from '../icons/HelpIcon';
 import { IconProps } from '../icons/Icon';
 import './HelpTooltip.css';
@@ -32,42 +33,45 @@ interface Props extends Pick<IconProps, 'size'> {
   onHide?: () => void;
   overlay: React.ReactNode;
   placement?: Placement;
-  ariaLabel?: string;
-  ariaLabelledby?: string;
   isInteractive?: boolean;
   innerRef?: React.Ref<HTMLSpanElement>;
 }
 
 const DEFAULT_SIZE = 12;
 
-export default function HelpTooltip({
-  size = DEFAULT_SIZE,
-  ariaLabel,
-  ariaLabelledby,
-  ...props
-}: Props) {
-  const role = ariaLabel || ariaLabelledby ? 'note' : undefined;
+export default function HelpTooltip(props: Props) {
+  const { size = DEFAULT_SIZE, overlay, placement, isInteractive, innerRef, children } = props;
   return (
-    <div
-      className={classNames('help-tooltip', props.className)}
-      aria-labelledby={ariaLabelledby}
-      aria-label={ariaLabel}
-      role={role}
-    >
+    <div className={classNames('help-tooltip', props.className)}>
       <Tooltip
         mouseLeaveDelay={0.25}
         onShow={props.onShow}
         onHide={props.onHide}
-        overlay={props.overlay}
-        placement={props.placement}
-        isInteractive={props.isInteractive}
+        overlay={overlay}
+        placement={placement}
+        isInteractive={isInteractive}
       >
         <span
           className="display-inline-flex-center"
           data-testid="help-tooltip-activator"
-          ref={props.innerRef}
+          ref={innerRef}
         >
-          {props.children || <HelpIcon fill={colors.gray60} size={size} />}
+          {children ?? (
+            <HelpIcon
+              fill={colors.gray60}
+              size={size}
+              description={
+                isInteractive ? (
+                  <>
+                    {translate('tooltip_is_interactive')}
+                    {overlay}
+                  </>
+                ) : (
+                  overlay
+                )
+              }
+            />
+          )}
         </span>
       </Tooltip>
     </div>

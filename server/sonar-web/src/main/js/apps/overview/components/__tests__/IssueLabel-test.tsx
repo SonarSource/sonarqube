@@ -22,7 +22,7 @@ import * as React from 'react';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
-import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { findTooltipWithContent, renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { IssueType } from '../../../../types/issues';
 import { MetricKey } from '../../../../types/metrics';
 import { IssueLabel, IssueLabelProps } from '../IssueLabel';
@@ -71,7 +71,7 @@ it('should render correctly for hotspots with tooltip', async () => {
     })
   ).toBeInTheDocument();
 
-  expect(await screen.findByText('tooltip text')).toBeInTheDocument();
+  expect(findTooltipWithContent('tooltip text')).toBeInTheDocument();
 });
 
 function renderIssueLabel(props: Partial<IssueLabelProps> = {}) {

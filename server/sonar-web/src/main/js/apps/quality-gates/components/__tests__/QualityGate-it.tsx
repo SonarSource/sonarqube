@@ -169,11 +169,11 @@ it('should be able to set as default a quality gate which is CAYC compliant', as
   handler.setIsAdmin(true);
   renderQualityGateApp();
 
-  const notDefaultQualityGate = await screen.findByText('Sonar way');
+  const notDefaultQualityGate = await screen.findByRole('link', { name: /Sonar way/ });
   await user.click(notDefaultQualityGate);
   const setAsDefaultButton = screen.getByRole('button', { name: 'set_as_default' });
   await user.click(setAsDefaultButton);
-  expect(screen.getAllByRole('link')[2]).toHaveTextContent('default');
+  expect(screen.getByRole('link', { name: /Sonar way/ })).toHaveTextContent('default');
 });
 
 it('should be able to add a condition', async () => {
