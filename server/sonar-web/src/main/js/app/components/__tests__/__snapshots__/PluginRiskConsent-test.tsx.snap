@@ -4,6 +4,12 @@ exports[`should render correctly: default 1`] = `
 <div
   className="plugin-risk-consent-page"
 >
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="plugin_risk_consent.page"
+  />
   <div
     className="plugin-risk-consent-content boxed-group"
   >

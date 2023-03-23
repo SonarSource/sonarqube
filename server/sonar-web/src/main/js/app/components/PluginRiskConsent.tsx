@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { setSimpleSettingValue } from '../../api/settings';
 import { Button } from '../../components/controls/buttons';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
@@ -67,6 +68,7 @@ export function PluginRiskConsent(props: PluginRiskConsentProps) {
 
   return (
     <div className="plugin-risk-consent-page">
+      <Helmet defer={false} title={translate('plugin_risk_consent.page')} />
       <div className="plugin-risk-consent-content boxed-group">
         <div className="boxed-group-inner text-center">
           <h1 className="big-spacer-bottom">{translate('plugin_risk_consent.title')}</h1>

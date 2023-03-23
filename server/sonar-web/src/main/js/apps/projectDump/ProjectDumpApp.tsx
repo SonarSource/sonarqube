@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { getActivity } from '../../api/ce';
 import { getStatus } from '../../api/project-dump';
 import withAvailableFeatures, {
@@ -158,6 +159,7 @@ export class ProjectDumpApp extends React.Component<Props, State> {
 
     return (
       <div className="page page-limited" id="project-dump">
+        <Helmet defer={false} title={translate('project_dump.page')} />
         <header className="page-header">
           <h1 className="page-title">{translate('project_dump.page')}</h1>
           <div className="page-description">

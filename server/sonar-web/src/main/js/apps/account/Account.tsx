@@ -24,7 +24,7 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import handleRequiredAuthentication from '../../helpers/handleRequiredAuthentication';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { CurrentUser, LoggedInUser } from '../../types/users';
 import './account.css';
 import Nav from './components/Nav';
@@ -52,7 +52,14 @@ export class Account extends React.PureComponent<Props> {
     return (
       <div id="account-page">
         <Suggestions suggestions="account" />
-        <Helmet defaultTitle={title} defer={false} titleTemplate={`%s - ${title}`} />
+        <Helmet
+          defaultTitle={title}
+          defer={false}
+          titleTemplate={translateWithParameters(
+            'page_title.template.with_category',
+            translate('my_account.page')
+          )}
+        />
         <A11ySkipTarget anchor="account_main" />
         <header className="account-header">
           <div className="account-container clearfix">

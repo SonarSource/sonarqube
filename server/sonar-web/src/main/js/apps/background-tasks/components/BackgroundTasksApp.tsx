@@ -216,6 +216,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     if (!types) {
       return (
         <div className="page page-limited">
+          <Helmet defer={false} title={translate('background_tasks.page')} />
           <i className="spinner" />
         </div>
       );

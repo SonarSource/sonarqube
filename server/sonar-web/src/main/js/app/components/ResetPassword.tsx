@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import ResetPasswordForm from '../../components/common/ResetPasswordForm';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { translate } from '../../helpers/l10n';
@@ -31,6 +32,7 @@ export interface ResetPasswordProps {
 export function ResetPassword({ currentUser }: ResetPasswordProps) {
   return (
     <div className="page-wrapper-simple">
+      <Helmet defer={false} title={translate('my_account.reset_password.page')} />
       <div className="page-simple">
         <h1 className="text-center huge">{translate('my_account.reset_password')}</h1>
         <p className="text-center huge-spacer-top huge-spacer-bottom">

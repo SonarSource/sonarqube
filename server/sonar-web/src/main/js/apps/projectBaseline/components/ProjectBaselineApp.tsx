@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {
@@ -265,6 +266,7 @@ export class ProjectBaselineApp extends React.PureComponent<Props, State> {
     return (
       <>
         <Suggestions suggestions="project_baseline" />
+        <Helmet defer={false} title={translate('project_baseline.page')} />
         <div className="page page-limited">
           <AppHeader canAdmin={!!appState.canAdmin} />
           {loading ? (

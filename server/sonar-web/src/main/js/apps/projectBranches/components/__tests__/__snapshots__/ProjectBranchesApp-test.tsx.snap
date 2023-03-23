@@ -8,6 +8,12 @@ exports[`should render correctly 1`] = `
   <header
     className="page-header"
   >
+    <Helmet
+      defer={false}
+      encodeSpecialCharacters={true}
+      prioritizeSeoTags={false}
+      title="project_branch_pull_request.page"
+    />
     <h1>
       project_branch_pull_request.page
     </h1>

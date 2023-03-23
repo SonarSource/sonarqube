@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
 import Favorite from '../../../../components/controls/Favorite';
 import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import { BranchLike } from '../../../../types/branch-like';
@@ -41,31 +40,28 @@ export function Header(props: HeaderProps) {
   const { branchLikes, component, currentBranchLike, currentUser, projectBinding } = props;
 
   return (
-    <>
-      <Helmet title={component.name} />
-      <div className="display-flex-center flex-shrink">
-        <Breadcrumb component={component} currentBranchLike={currentBranchLike} />
-        {isLoggedIn(currentUser) && (
-          <Favorite
-            className="spacer-left"
-            component={component.key}
-            favorite={Boolean(component.isFavorite)}
-            qualifier={component.qualifier}
+    <div className="display-flex-center flex-shrink">
+      <Breadcrumb component={component} currentBranchLike={currentBranchLike} />
+      {isLoggedIn(currentUser) && (
+        <Favorite
+          className="spacer-left"
+          component={component.key}
+          favorite={Boolean(component.isFavorite)}
+          qualifier={component.qualifier}
+        />
+      )}
+      {currentBranchLike && (
+        <>
+          <BranchLikeNavigation
+            branchLikes={branchLikes}
+            component={component}
+            currentBranchLike={currentBranchLike}
+            projectBinding={projectBinding}
           />
-        )}
-        {currentBranchLike && (
-          <>
-            <BranchLikeNavigation
-              branchLikes={branchLikes}
-              component={component}
-              currentBranchLike={currentBranchLike}
-              projectBinding={projectBinding}
-            />
-            <CurrentBranchLikeMergeInformation currentBranchLike={currentBranchLike} />
-          </>
-        )}
-      </div>
-    </>
+          <CurrentBranchLikeMergeInformation currentBranchLike={currentBranchLike} />
+        </>
+      )}
+    </div>
   );
 }
 

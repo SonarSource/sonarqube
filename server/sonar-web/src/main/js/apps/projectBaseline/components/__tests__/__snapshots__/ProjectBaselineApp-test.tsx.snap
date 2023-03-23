@@ -5,6 +5,12 @@ exports[`should render correctly 1`] = `
   <Suggestions
     suggestions="project_baseline"
   />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="project_baseline.page"
+  />
   <div
     className="page page-limited"
   >
@@ -127,6 +133,12 @@ exports[`should render correctly: without branch support 1`] = `
 <Fragment>
   <Suggestions
     suggestions="project_baseline"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="project_baseline.page"
   />
   <div
     className="page page-limited"

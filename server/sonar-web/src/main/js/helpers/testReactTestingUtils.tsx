@@ -94,11 +94,13 @@ export function renderComponent(component: React.ReactElement, pathname = '/') {
   function Wrapper({ children }: { children: React.ReactElement }) {
     return (
       <IntlProvider defaultLocale="en" locale="en">
-        <MemoryRouter initialEntries={[pathname]}>
-          <Routes>
-            <Route path="*" element={children} />
-          </Routes>
-        </MemoryRouter>
+        <HelmetProvider>
+          <MemoryRouter initialEntries={[pathname]}>
+            <Routes>
+              <Route path="*" element={children} />
+            </Routes>
+          </MemoryRouter>
+        </HelmetProvider>
       </IntlProvider>
     );
   }

@@ -18,10 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { translate } from '../../helpers/l10n';
 
 export default function FormattingHelp() {
   return (
     <div className="page page-limited">
+      <Helmet defer={false} title={translate('formatting.page')} />
       <h2 className="spacer-bottom">Formatting Syntax</h2>
       <table className="width-100 data zebra">
         <thead>

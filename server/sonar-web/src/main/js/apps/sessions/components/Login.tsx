@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Location } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -47,7 +48,7 @@ export default function Login(props: LoginProps) {
       <h1 className="login-title text-center big-spacer-bottom">
         {translate('login.login_to_sonarqube')}
       </h1>
-
+      <Helmet defer={false} title={translate('login.page')} />
       {loading ? (
         <DeferredSpinner loading={loading} timeout={0} />
       ) : (

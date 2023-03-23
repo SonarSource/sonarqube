@@ -5,6 +5,12 @@ exports[`should render correctly: loaded 1`] = `
   className="page page-limited"
   id="project-dump"
 >
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="project_dump.page"
+  />
   <header
     className="page-header"
   >
@@ -74,6 +80,12 @@ exports[`should render correctly: loaded without import 1`] = `
   className="page page-limited"
   id="project-dump"
 >
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="project_dump.page"
+  />
   <header
     className="page-header"
   >
@@ -119,6 +131,12 @@ exports[`should render correctly: loading 1`] = `
   className="page page-limited"
   id="project-dump"
 >
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="project_dump.page"
+  />
   <header
     className="page-header"
   >

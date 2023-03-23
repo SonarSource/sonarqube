@@ -4,6 +4,12 @@ exports[`should render correctly 1`] = `
 <div
   className="page page-limited"
 >
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="formatting.page"
+  />
   <h2
     className="spacer-bottom"
   >

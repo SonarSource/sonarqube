@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import Link from '../../../components/common/Link';
 import { getCookie } from '../../../helpers/cookies';
 import { translate } from '../../../helpers/l10n';
@@ -26,6 +27,7 @@ export default function Unauthorized() {
   const message = decodeURIComponent(getCookie('AUTHENTICATION-ERROR') || '');
   return (
     <div className="page-wrapper-simple" id="bd">
+      <Helmet defer={false} title={translate('unauthorized.page')} />
       <div className="page-simple" id="nonav">
         <div className="text-center">
           <p id="unauthorized">{translate('unauthorized.message')}</p>

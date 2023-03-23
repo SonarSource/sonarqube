@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
@@ -37,6 +38,7 @@ export function ProjectBranchesApp(props: ProjectBranchesAppProps) {
   return (
     <div className="page page-limited" id="project-branch-like">
       <header className="page-header">
+        <Helmet defer={false} title={translate('project_branch_pull_request.page')} />
         <h1>{translate('project_branch_pull_request.page')}</h1>
         <LifetimeInformation />
       </header>

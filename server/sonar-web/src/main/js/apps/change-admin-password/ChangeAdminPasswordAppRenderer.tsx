@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { SubmitButton } from '../../components/controls/buttons';
 import { Location } from '../../components/hoc/withRouter';
 import { Alert } from '../../components/ui/Alert';
@@ -58,6 +59,7 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
 
   return (
     <div className="page-wrapper-simple">
+      <Helmet defer={false} title={translate('users.change_admin_password.page')} />
       <div className="page-simple">
         {success ? (
           <Alert variant="success">

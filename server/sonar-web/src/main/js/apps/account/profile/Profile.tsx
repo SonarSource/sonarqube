@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { translate } from '../../../helpers/l10n';
@@ -34,6 +35,7 @@ export function Profile({ currentUser }: ProfileProps) {
 
   return (
     <div className="account-body account-container account-profile">
+      <Helmet defer={false} title={translate('my_account.profile')} />
       <div className="boxed-group">
         {renderLogin()}
         {renderEmail()}
