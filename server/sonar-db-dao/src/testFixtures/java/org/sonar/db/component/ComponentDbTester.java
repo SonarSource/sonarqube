@@ -405,6 +405,7 @@ public class ComponentDbTester {
     BranchDto branchDto = ComponentTesting.newBranchDto(component, BRANCH);
     branchDto.setExcludeFromPurge(true);
     branchPopulator.accept(branchDto);
+    branchDto.setIsMain(true);
     dbClient.branchDao().insert(dbSession, branchDto);
 
     db.commit();

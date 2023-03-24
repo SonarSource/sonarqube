@@ -213,6 +213,7 @@ public class ComponentUpdater {
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.BRANCH)
       .setUuid(componentUuid)
+      .setIsMain(true)
       .setKey(Optional.ofNullable(mainBranch).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()))
       .setMergeBranchUuid(null)
       .setExcludeFromPurge(true)

@@ -14,7 +14,8 @@
     pb.merge_branch_uuid as mergeBranchUuid,
     pb.pull_request_binary as pullRequestBinary,
     pb.exclude_from_purge as excludeFromPurge,
-    pb.need_issue_sync as needIssueSync
+    pb.need_issue_sync as needIssueSync,
+    pb.is_main as isMain
   </sql>
 
   <sql id="projectColumns">

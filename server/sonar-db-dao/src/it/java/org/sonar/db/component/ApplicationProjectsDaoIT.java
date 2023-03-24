@@ -161,7 +161,8 @@ public class ApplicationProjectsDaoIT {
       "kee", branchKey,
       "NEED_ISSUE_SYNC", true,
       "updated_at", 1000L,
-      "created_at", 1000L);
+      "created_at", 1000L,
+      "is_main", false);
   }
 
 }

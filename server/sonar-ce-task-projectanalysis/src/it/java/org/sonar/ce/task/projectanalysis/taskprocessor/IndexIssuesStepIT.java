@@ -72,6 +72,7 @@ public class IndexIssuesStepIT {
       .setKey("branchName")
       .setUuid(BRANCH_UUID)
       .setProjectUuid("project_uuid")
+      .setIsMain(false)
       .setNeedIssueSync(true);
     dbClient.branchDao().insert(dbTester.getSession(), branchDto);
     dbTester.commit();
@@ -90,6 +91,7 @@ public class IndexIssuesStepIT {
       .setKey("branchName")
       .setUuid(BRANCH_UUID)
       .setProjectUuid("project_uuid")
+      .setIsMain(false)
       .setNeedIssueSync(false);
     dbClient.branchDao().insert(dbTester.getSession(), branchDto);
     dbTester.commit();

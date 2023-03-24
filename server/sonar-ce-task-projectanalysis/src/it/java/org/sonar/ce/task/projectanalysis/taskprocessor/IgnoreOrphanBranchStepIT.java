@@ -55,6 +55,7 @@ public class IgnoreOrphanBranchStepIT {
     BranchDto branchDto = new BranchDto()
       .setBranchType(BRANCH)
       .setKey("branchName")
+      .setIsMain(false)
       .setUuid(BRANCH_UUID)
       .setProjectUuid("project_uuid")
       .setNeedIssueSync(true);
@@ -75,6 +76,7 @@ public class IgnoreOrphanBranchStepIT {
       .setKey("branchName")
       .setUuid(BRANCH_UUID)
       .setProjectUuid("project_uuid")
+      .setIsMain(false)
       .setNeedIssueSync(false);
     dbClient.branchDao().insert(dbTester.getSession(), branchDto);
     dbTester.commit();

@@ -66,15 +66,15 @@ public class ExportNewCodePeriodsStepIT {
     .setKey("another_project");
 
   private static final List<BranchDto> PROJECT_BRANCHES = ImmutableList.of(
-    new BranchDto().setBranchType(BranchType.PULL_REQUEST).setProjectUuid(PROJECT_UUID).setKey("pr-1").setUuid("pr-uuid-1").setMergeBranchUuid("master"),
+    new BranchDto().setBranchType(BranchType.PULL_REQUEST).setProjectUuid(PROJECT_UUID).setKey("pr-1").setUuid("pr-uuid-1").setMergeBranchUuid("master").setIsMain(false),
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(PROJECT_UUID).setKey("branch-1").setUuid("branch-uuid-1").setMergeBranchUuid("master")
-      .setExcludeFromPurge(true),
+      .setExcludeFromPurge(true).setIsMain(false),
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(PROJECT_UUID).setKey("branch-2").setUuid("branch-uuid-2").setMergeBranchUuid("master")
-      .setExcludeFromPurge(false));
+      .setExcludeFromPurge(false).setIsMain(false));
 
   private static final List<BranchDto> ANOTHER_PROJECT_BRANCHES = ImmutableList.of(
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(ANOTHER_PROJECT_UUID).setKey("branch-3").setUuid("branch-uuid-3").setMergeBranchUuid("master")
-      .setExcludeFromPurge(true));
+      .setExcludeFromPurge(true).setIsMain(false));
 
   @Rule
   public LogTester logTester = new LogTester();

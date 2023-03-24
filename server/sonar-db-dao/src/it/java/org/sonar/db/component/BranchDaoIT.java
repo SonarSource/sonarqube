@@ -50,6 +50,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.linesOf;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
@@ -58,9 +59,10 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 public class BranchDaoIT {
 
   private static final long NOW = 1_000L;
-  private static final String SELECT_FROM = "select project_uuid as \"projectUuid\", uuid as \"uuid\", branch_type as \"branchType\",  " +
-    "kee as \"kee\", merge_branch_uuid as \"mergeBranchUuid\", pull_request_binary as \"pullRequestBinary\", created_at as \"createdAt\", updated_at as \"updatedAt\" " +
-    "from project_branches ";
+  private static final String SELECT_FROM = """
+    select project_uuid as "projectUuid", uuid as "uuid", branch_type as "branchType",
+    kee as "kee", merge_branch_uuid as "mergeBranchUuid", pull_request_binary as "pullRequestBinary", created_at as "createdAt", updated_at as "updatedAt", is_main as "isMain"
+    from project_branches""";
   private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
@@ -75,6 +77,7 @@ public class BranchDaoIT {
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
     dto.setBranchType(BranchType.BRANCH);
+    dto.setIsMain(true);
     dto.setKey("feature/foo");
 
     underTest.insert(dbSession, dto);
@@ -85,6 +88,7 @@ public class BranchDaoIT {
       entry("uuid", "U2"),
       entry("branchType", "BRANCH"),
       entry("kee", "feature/foo"),
+      entry("isMain", true),
       entry("mergeBranchUuid", null),
       entry("pullRequestBinary", null),
       entry("createdAt", 1_000L),
@@ -96,6 +100,7 @@ public class BranchDaoIT {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U1");
+    dto.setIsMain(true);
     dto.setBranchType(BranchType.BRANCH);
     dto.setKey("feature");
     underTest.insert(dbSession, dto);
@@ -103,15 +108,19 @@ public class BranchDaoIT {
     BranchDto dto2 = new BranchDto();
     dto2.setProjectUuid("U2");
     dto2.setUuid("U2");
+    dto2.setIsMain(true);
     dto2.setBranchType(BranchType.BRANCH);
     dto2.setKey("branch");
     underTest.insert(dbSession, dto2);
+
+    int a = 12124;
 
     underTest.updateBranchName(dbSession, "U1", "master");
     BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "master").get();
     assertThat(loaded.getMergeBranchUuid()).isNull();
     assertThat(loaded.getProjectUuid()).isEqualTo("U1");
     assertThat(loaded.getBranchType()).isEqualTo(BranchType.BRANCH);
+    assertThat(loaded.isMain()).isTrue();
   }
 
   @Test
@@ -121,6 +130,7 @@ public class BranchDaoIT {
     dto.setUuid("U1");
     dto.setBranchType(BranchType.BRANCH);
     dto.setKey("feature");
+    dto.setIsMain(true);
     dto.setExcludeFromPurge(false);
     underTest.insert(dbSession, dto);
 
@@ -159,6 +169,7 @@ public class BranchDaoIT {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid(repeat("a", 50));
     dto.setUuid(repeat("b", 50));
+    dto.setIsMain(false);
     dto.setBranchType(BranchType.BRANCH);
     dto.setKey(repeat("c", 255));
     dto.setMergeBranchUuid(repeat("d", 50));
@@ -182,6 +193,7 @@ public class BranchDaoIT {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid(projectUuid);
     dto.setUuid(uuid);
+    dto.setIsMain(false);
     dto.setBranchType(branchType);
     dto.setKey(kee);
 
@@ -191,6 +203,7 @@ public class BranchDaoIT {
 
     assertThat(loaded.getProjectUuid()).isEqualTo(projectUuid);
     assertThat(loaded.getUuid()).isEqualTo(uuid);
+    assertThat(loaded.isMain()).isFalse();
     assertThat(loaded.getBranchType()).isEqualTo(branchType);
     assertThat(loaded.getKey()).isEqualTo(kee);
     assertThat(loaded.getMergeBranchUuid()).isNull();
@@ -219,6 +232,7 @@ public class BranchDaoIT {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid(projectUuid);
     dto.setUuid(uuid);
+    dto.setIsMain(false);
     dto.setBranchType(branchType);
     dto.setKey(kee);
     dto.setPullRequestData(pullRequestData);
@@ -246,6 +260,7 @@ public class BranchDaoIT {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
+    dto.setIsMain(false);
     dto.setBranchType(BranchType.BRANCH);
     dto.setKey("foo");
     underTest.insert(dbSession, dto);
@@ -271,6 +286,7 @@ public class BranchDaoIT {
     dto.setUuid("U2");
     dto.setBranchType(BranchType.PULL_REQUEST);
     dto.setKey("foo");
+    dto.setIsMain(false);
     underTest.insert(dbSession, dto);
 
     // the fields that can be updated
@@ -303,8 +319,7 @@ public class BranchDaoIT {
     assertThat(loadedPullRequestData).isNotNull();
     assertThat(loadedPullRequestData.getBranch()).isEqualTo(branch);
     assertThat(loadedPullRequestData.getTitle()).isEqualTo(title);
-    assertThat(loadedPullRequestData.getUrl()).isEqualTo(url);
-    assertThat(loadedPullRequestData.getAttributesMap()).containsEntry(tokenAttributeName, tokenAttributeValue);
+    assertThat(loadedPullRequestData.getUrl()).isEqualTo(url);    assertThat(loadedPullRequestData.getAttributesMap()).containsEntry(tokenAttributeName, tokenAttributeValue);
   }
 
   @Test
@@ -312,6 +327,7 @@ public class BranchDaoIT {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
+    dto.setIsMain(false);
     dto.setBranchType(BranchType.PULL_REQUEST);
     dto.setKey("foo");
 
@@ -365,6 +381,7 @@ public class BranchDaoIT {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
+    mainBranch.setIsMain(true);
     mainBranch.setBranchType(BranchType.BRANCH);
     mainBranch.setKey("master");
     underTest.insert(dbSession, mainBranch);
@@ -372,6 +389,7 @@ public class BranchDaoIT {
     BranchDto featureBranch = new BranchDto();
     featureBranch.setProjectUuid("U1");
     featureBranch.setUuid("U2");
+    featureBranch.setIsMain(false);
     featureBranch.setBranchType(BranchType.BRANCH);
     featureBranch.setKey("feature/foo");
     featureBranch.setMergeBranchUuid("U3");
@@ -381,6 +399,7 @@ public class BranchDaoIT {
     BranchDto loaded = underTest.selectByBranchKey(dbSession, "U1", "feature/foo").get();
     assertThat(loaded.getUuid()).isEqualTo(featureBranch.getUuid());
     assertThat(loaded.getKey()).isEqualTo(featureBranch.getKey());
+    assertThat(loaded.isMain()).isFalse();
     assertThat(loaded.getProjectUuid()).isEqualTo(featureBranch.getProjectUuid());
     assertThat(loaded.getBranchType()).isEqualTo(featureBranch.getBranchType());
     assertThat(loaded.getMergeBranchUuid()).isEqualTo(featureBranch.getMergeBranchUuid());
@@ -414,6 +433,7 @@ public class BranchDaoIT {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
+    mainBranch.setIsMain(true);
     mainBranch.setBranchType(BranchType.BRANCH);
     mainBranch.setKey("master");
     underTest.insert(dbSession, mainBranch);
@@ -421,6 +441,7 @@ public class BranchDaoIT {
     BranchDto featureBranch = new BranchDto();
     featureBranch.setProjectUuid("U1");
     featureBranch.setUuid("U2");
+    featureBranch.setIsMain(false);
     featureBranch.setBranchType(BranchType.BRANCH);
     featureBranch.setKey("feature/foo");
     featureBranch.setMergeBranchUuid("U3");
@@ -433,22 +454,25 @@ public class BranchDaoIT {
 
     assertThat(branches).hasSize(2);
 
-    assertThat(branches).extracting(BranchDto::getUuid, BranchDto::getKey, BranchDto::getProjectUuid, BranchDto::getBranchType, BranchDto::getMergeBranchUuid)
-      .containsOnly(tuple(mainBranch.getUuid(), mainBranch.getKey(), mainBranch.getProjectUuid(), mainBranch.getBranchType(), mainBranch.getMergeBranchUuid()),
-        tuple(featureBranch.getUuid(), featureBranch.getKey(), featureBranch.getProjectUuid(), featureBranch.getBranchType(), featureBranch.getMergeBranchUuid()));
+    assertThat(branches).extracting(BranchDto::getUuid, BranchDto::getKey,BranchDto::isMain, BranchDto::getProjectUuid, BranchDto::getBranchType, BranchDto::getMergeBranchUuid)
+      .containsOnly(tuple(mainBranch.getUuid(), mainBranch.getKey(),mainBranch.isMain(), mainBranch.getProjectUuid(), mainBranch.getBranchType(), mainBranch.getMergeBranchUuid()),
+        tuple(featureBranch.getUuid(), featureBranch.getKey(), featureBranch.isMain(), featureBranch.getProjectUuid(), featureBranch.getBranchType(), featureBranch.getMergeBranchUuid()));
   }
 
   @Test
-  public void selectByPullRequestKey() {
+  public void
+  selectByPullRequestKey() {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
     mainBranch.setBranchType(BranchType.BRANCH);
     mainBranch.setKey("master");
+    mainBranch.setIsMain(true);
     underTest.insert(dbSession, mainBranch);
 
     String pullRequestId = "123";
     BranchDto pullRequest = new BranchDto();
+    pullRequest.setIsMain(false);
     pullRequest.setProjectUuid("U1");
     pullRequest.setUuid("U2");
     pullRequest.setBranchType(BranchType.PULL_REQUEST);
@@ -473,6 +497,7 @@ public class BranchDaoIT {
     BranchDto mainBranch = new BranchDto()
       .setProjectUuid("U1")
       .setUuid("U1")
+      .setIsMain(true)
       .setBranchType(BranchType.BRANCH)
       .setKey("master");
     underTest.insert(dbSession, mainBranch);
@@ -480,6 +505,7 @@ public class BranchDaoIT {
     BranchDto featureBranch = new BranchDto()
       .setProjectUuid("U1")
       .setUuid("U2")
+      .setIsMain(false)
       .setBranchType(BranchType.BRANCH)
       .setKey("feature1");
     underTest.insert(dbSession, featureBranch);
@@ -488,6 +514,7 @@ public class BranchDaoIT {
     BranchDto pullRequest = new BranchDto()
       .setProjectUuid("U1")
       .setUuid("U3")
+      .setIsMain(false)
       .setBranchType(BranchType.PULL_REQUEST)
       .setKey(pullRequestId)
       .setMergeBranchUuid("U4");

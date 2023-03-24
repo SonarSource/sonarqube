@@ -91,6 +91,8 @@ public class BranchDto {
 
   private boolean needIssueSync = false;
 
+  private Boolean isMain;
+
   public String getUuid() {
     return uuid;
   }
@@ -110,7 +112,12 @@ public class BranchDto {
   }
 
   public boolean isMain() {
-    return projectUuid.equals(uuid);
+    return isMain;
+  }
+
+  public BranchDto setIsMain(boolean isMain) {
+    this.isMain = isMain;
+    return this;
   }
 
   /**
@@ -226,6 +233,7 @@ public class BranchDto {
     BranchDto branchDto = (BranchDto) o;
     return Objects.equals(uuid, branchDto.uuid) &&
       Objects.equals(projectUuid, branchDto.projectUuid) &&
+      Objects.equals(isMain, branchDto.isMain) &&
       Objects.equals(kee, branchDto.kee) &&
       branchType == branchDto.branchType &&
       Objects.equals(mergeBranchUuid, branchDto.mergeBranchUuid) &&
@@ -234,7 +242,7 @@ public class BranchDto {
 
   @Override
   public int hashCode() {
-    return Objects.hash(uuid, projectUuid, kee, branchType, mergeBranchUuid, needIssueSync);
+    return Objects.hash(uuid, projectUuid, isMain, kee, branchType, mergeBranchUuid, needIssueSync);
   }
 
   @Override
@@ -242,6 +250,7 @@ public class BranchDto {
     return "BranchDto{" +
       "uuid='" + uuid + '\'' +
       ", projectUuid='" + projectUuid + '\'' +
+      ", isMain='" + isMain + '\'' +
       ", kee='" + kee + '\'' +
       ", branchType=" + branchType +
       ", mergeBranchUuid='" + mergeBranchUuid + '\'' +

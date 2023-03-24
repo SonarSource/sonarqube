@@ -70,11 +70,11 @@ public class ExportAdHocRulesStepIT {
     .setBranchUuid(PROJECT_UUID);
 
   private static final List<BranchDto> BRANCHES = ImmutableList.of(
-    new BranchDto().setBranchType(BranchType.PULL_REQUEST).setProjectUuid(PROJECT_UUID).setKey("pr-1").setUuid("pr-1-uuid").setMergeBranchUuid("master"),
+    new BranchDto().setBranchType(BranchType.PULL_REQUEST).setProjectUuid(PROJECT_UUID).setKey("pr-1").setUuid("pr-1-uuid").setMergeBranchUuid("master").setIsMain(false),
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(PROJECT_UUID).setKey("branch-2").setUuid("branch-2-uuid").setMergeBranchUuid("master")
-      .setExcludeFromPurge(true),
+      .setExcludeFromPurge(true).setIsMain(false),
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(PROJECT_UUID).setKey("branch-3").setUuid("branch-3-uuid").setMergeBranchUuid("master")
-      .setExcludeFromPurge(false));
+      .setExcludeFromPurge(false).setIsMain(false));
 
   @Rule
   public LogTester logTester = new LogTester();

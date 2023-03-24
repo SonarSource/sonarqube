@@ -181,17 +181,23 @@ public class ComponentTesting {
       .setPrivate(project.isPrivate());
   }
 
+
   public static BranchDto newBranchDto(@Nullable String projectUuid, BranchType branchType) {
     String key = projectUuid == null ? null : "branch_" + randomAlphanumeric(248);
     return new BranchDto()
       .setKey(key)
       .setUuid(Uuids.createFast())
+      .setIsMain(false)
       // MainBranchProjectUuid will be null if it's a main branch
       .setProjectUuid(projectUuid)
       .setBranchType(branchType);
   }
 
   public static BranchDto newBranchDto(ComponentDto project) {
+    return newBranchDto(project.branchUuid(), BranchType.BRANCH);
+  }
+
+  public static BranchDto newBranchDto(ComponentDto project, boolean isMain) {
     return newBranchDto(project.branchUuid(), BranchType.BRANCH);
   }
 
@@ -202,6 +208,7 @@ public class ComponentTesting {
 
     return new BranchDto()
       .setKey(key)
+      .setIsMain(isMain)
       .setUuid(branchComponent.uuid())
       .setProjectUuid(projectUuid)
       .setBranchType(branchType);

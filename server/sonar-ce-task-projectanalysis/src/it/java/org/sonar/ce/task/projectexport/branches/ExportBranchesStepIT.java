@@ -80,24 +80,28 @@ public class ExportBranchesStepIT {
       .setKey("branch-1")
       .setUuid("branch-1-uuid")
       .setMergeBranchUuid("master")
+      .setIsMain(false)
       .setExcludeFromPurge(true),
     new BranchDto()
       .setBranchType(BranchType.PULL_REQUEST)
       .setProjectUuid(PROJECT_UUID)
       .setKey("branch-3")
       .setUuid("branch-3-uuid")
+      .setIsMain(false)
       .setMergeBranchUuid("master"),
     new BranchDto()
       .setBranchType(BranchType.BRANCH)
       .setProjectUuid(PROJECT_UUID)
       .setKey("branch-4")
       .setUuid("branch-4-uuid")
+      .setIsMain(false)
       .setMergeBranchUuid("branch-1-uuid"),
     new BranchDto()
       .setBranchType(BranchType.BRANCH)
       .setProjectUuid(PROJECT_UUID)
       .setKey("branch-5")
       .setUuid("branch-5-uuid")
+      .setIsMain(false)
       .setMergeBranchUuid("master")
       .setExcludeFromPurge(true));
 

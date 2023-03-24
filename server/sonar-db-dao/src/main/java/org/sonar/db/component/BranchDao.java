@@ -42,7 +42,8 @@ public class BranchDao implements Dao {
   }
 
   public void insert(DbSession dbSession, BranchDto dto) {
-    mapper(dbSession).insert(dto, system2.now());
+    BranchMapper mapper = mapper(dbSession);
+    mapper.insert(dto, system2.now());
   }
 
   public void upsert(DbSession dbSession, BranchDto dto) {

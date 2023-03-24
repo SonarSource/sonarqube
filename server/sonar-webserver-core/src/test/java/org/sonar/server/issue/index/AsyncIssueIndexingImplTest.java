@@ -86,7 +86,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(BRANCH)
       .setKey("branchName")
       .setUuid("branch_uuid")
-      .setProjectUuid("project_uuid");
+      .setProjectUuid("project_uuid")
+      .setIsMain(false);
     dbClient.branchDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
 
@@ -108,7 +109,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(BRANCH)
       .setKey("branchName")
       .setUuid("branch_uuid")
-      .setProjectUuid(projectDto.getUuid());
+      .setProjectUuid(projectDto.getUuid())
+      .setIsMain(true);
     dbTester.components().insertProjectBranch(projectDto, dto);
 
     underTest.triggerForProject(projectDto.getUuid());
@@ -218,7 +220,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(BRANCH)
       .setKey("branch_1")
       .setUuid("branch_uuid1")
-      .setProjectUuid("project_uuid1");
+      .setProjectUuid("project_uuid1")
+      .setIsMain(false);
     dbClient.branchDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
     insertSnapshot("analysis_1", "project_uuid1", 1);
@@ -227,7 +230,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(BRANCH)
       .setKey("branch_2")
       .setUuid("branch_uuid2")
-      .setProjectUuid("project_uuid2");
+      .setProjectUuid("project_uuid2")
+      .setIsMain(false);
     dbClient.branchDao().insert(dbTester.getSession(), dto2);
     dbTester.commit();
     insertSnapshot("analysis_2", "project_uuid2", 2);
@@ -257,7 +261,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(BRANCH)
       .setKey("branch_1")
       .setUuid("branch_uuid1")
-      .setProjectUuid("project_uuid1");
+      .setProjectUuid("project_uuid1")
+      .setIsMain(false);
     dbClient.branchDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
     insertSnapshot("analysis_1", "project_uuid1", 1);
@@ -266,7 +271,8 @@ public class AsyncIssueIndexingImplTest {
       .setBranchType(PULL_REQUEST)
       .setKey("pr_1")
       .setUuid("pr_uuid_1")
-      .setProjectUuid("project_uuid2");
+      .setProjectUuid("project_uuid2")
+      .setIsMain(false);
     dbClient.branchDao().insert(dbTester.getSession(), dto2);
     dbTester.commit();
     insertSnapshot("analysis_2", "project_uuid2", 2);
@@ -307,7 +313,8 @@ public class AsyncIssueIndexingImplTest {
         .setBranchType(BRANCH)
         .setKey("branch_" + i)
         .setUuid("branch_uuid" + i)
-        .setProjectUuid("project_uuid" + i);
+        .setProjectUuid("project_uuid" + i)
+        .setIsMain(false);
       dbClient.branchDao().insert(dbTester.getSession(), dto);
       dbTester.commit();
       insertSnapshot("analysis_" + i, "project_uuid" + i, 1);
@@ -318,7 +325,8 @@ public class AsyncIssueIndexingImplTest {
         .setBranchType(BRANCH)
         .setKey("branch_" + i)
         .setUuid("branch_uuid" + i)
-        .setProjectUuid("project_uuid" + i);
+        .setProjectUuid("project_uuid" + i)
+        .setIsMain(false);
       dbClient.branchDao().insert(dbTester.getSession(), dto);
       dbTester.commit();
     }

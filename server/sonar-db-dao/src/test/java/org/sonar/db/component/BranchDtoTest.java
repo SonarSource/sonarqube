@@ -29,38 +29,24 @@ public class BranchDtoTest {
   private final BranchDto underTest = new BranchDto();
 
   @Test
-  public void isMain_is_true_if_branch_uuid_equals_project_uuid() {
-    underTest.setProjectUuid("U1");
-    underTest.setUuid("U1");
-
-    assertThat(underTest.isMain()).isTrue();
-  }
-
-  @Test
-  public void isMain_is_false_if_branch_uuid_does_not_equal_project_uuid() {
-    underTest.setProjectUuid("U1");
-    underTest.setUuid("U2");
-
-    assertThat(underTest.isMain()).isFalse();
-  }
-
-  @Test
-  public void verify_equals() {
+  public void verify_toString() {
     underTest.setUuid("U1");
     underTest.setProjectUuid("U2");
+    underTest.setIsMain(false);
     underTest.setKey("K1");
     underTest.setBranchType(BranchType.BRANCH);
     underTest.setMergeBranchUuid("U3");
     underTest.setExcludeFromPurge(true);
 
     assertThat(underTest).hasToString("BranchDto{uuid='U1', " +
-      "projectUuid='U2', kee='K1', branchType=BRANCH, mergeBranchUuid='U3', excludeFromPurge=true, needIssueSync=false}");
+      "projectUuid='U2', isMain='false', kee='K1', branchType=BRANCH, mergeBranchUuid='U3', excludeFromPurge=true, needIssueSync=false}");
   }
 
   @Test
-  public void verify_toString() {
+  public void verify_equals() {
     underTest.setUuid("U1");
     underTest.setProjectUuid("U2");
+    underTest.setIsMain(true);
     underTest.setKey("K1");
     underTest.setBranchType(BranchType.BRANCH);
     underTest.setMergeBranchUuid("U3");
@@ -69,6 +55,7 @@ public class BranchDtoTest {
 
     toCompare.setUuid("U1");
     toCompare.setProjectUuid("U2");
+    toCompare.setIsMain(true);
     toCompare.setKey("K1");
     toCompare.setBranchType(BranchType.BRANCH);
     toCompare.setMergeBranchUuid("U3");

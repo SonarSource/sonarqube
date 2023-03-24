@@ -10,7 +10,8 @@
     pb.merge_branch_uuid as mergeBranchUuid,
     pb.pull_request_binary as pullRequestBinary,
     pb.exclude_from_purge as excludeFromPurge,
-    pb.need_issue_sync as needIssueSync
+    pb.need_issue_sync as needIssueSync,
+    pb.is_main as isMain
   </sql>
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
@@ -24,7 +25,8 @@
     created_at,
     updated_at,
     exclude_from_purge,
-    need_issue_sync
+    need_issue_sync,
+    is_main
     ) values (
     #{dto.uuid, jdbcType=VARCHAR},
     #{dto.projectUuid, jdbcType=VARCHAR},
@@ -35,7 +37,8 @@
     #{now, jdbcType=BIGINT},
     #{now, jdbcType=BIGINT},
     #{dto.excludeFromPurge, jdbcType=BOOLEAN},
-    #{dto.needIssueSync, jdbcType=BOOLEAN}
+    #{dto.needIssueSync, jdbcType=BOOLEAN},
+    #{dto.isMain, jdbcType=BOOLEAN}
     )
   </insert>
 
