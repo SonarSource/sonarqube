@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { DeleteButton } from '../../../components/controls/buttons';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
   idx: number;
@@ -27,23 +28,30 @@ export interface Props {
   onRemove: (idx: number) => void;
 }
 
-export default class UserScmAccountInput extends React.PureComponent<Props> {
-  handleChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.props.onChange(this.props.idx, event.currentTarget.value);
+export default function UserScmAccountInput(props: Props) {
+  const { idx, scmAccount } = props;
 
-  handleRemove = () => this.props.onRemove(this.props.idx);
+  const inputAriaLabel = scmAccount.trim()
+    ? translateWithParameters('users.create_user.scm_account_x', scmAccount)
+    : translate('users.create_user.scm_account_new');
 
-  render() {
-    return (
-      <div className="js-scm-account display-flex-row spacer-bottom">
-        <input
-          maxLength={255}
-          onChange={this.handleChange}
-          type="text"
-          value={this.props.scmAccount}
-        />
-        <DeleteButton onClick={this.handleRemove} />
-      </div>
-    );
-  }
+  return (
+    <div className="js-scm-account display-flex-row spacer-bottom">
+      <input
+        maxLength={255}
+        onChange={(event) => {
+          props.onChange(idx, event.currentTarget.value);
+        }}
+        type="text"
+        aria-label={inputAriaLabel}
+        value={scmAccount}
+      />
+      <DeleteButton
+        aria-label={translateWithParameters('remove_x', inputAriaLabel)}
+        onClick={() => {
+          props.onRemove(idx);
+        }}
+      />
+    </div>
+  );
 }

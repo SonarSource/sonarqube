@@ -68,19 +68,21 @@ exports[`should render correctly 1`] = `
       <div
         className="modal-field"
       >
-        <label>
-          my_profile.scm_accounts
-        </label>
-        <div
-          className="spacer-bottom"
-        >
-          <Button
-            className="js-scm-account-add"
-            onClick={[Function]}
+        <fieldset>
+          <legend>
+            my_profile.scm_accounts
+          </legend>
+          <div
+            className="spacer-bottom"
           >
-            add_verb
-          </Button>
-        </div>
+            <Button
+              className="js-scm-account-add"
+              onClick={[Function]}
+            >
+              add_verb
+            </Button>
+          </div>
+        </fieldset>
         <p
           className="note"
         >
@@ -218,19 +220,21 @@ exports[`should render correctly 2`] = `
       <div
         className="modal-field"
       >
-        <label>
-          my_profile.scm_accounts
-        </label>
-        <div
-          className="spacer-bottom"
-        >
-          <Button
-            className="js-scm-account-add"
-            onClick={[Function]}
+        <fieldset>
+          <legend>
+            my_profile.scm_accounts
+          </legend>
+          <div
+            className="spacer-bottom"
           >
-            add_verb
-          </Button>
-        </div>
+            <Button
+              className="js-scm-account-add"
+              onClick={[Function]}
+            >
+              add_verb
+            </Button>
+          </div>
+        </fieldset>
         <p
           className="note"
         >

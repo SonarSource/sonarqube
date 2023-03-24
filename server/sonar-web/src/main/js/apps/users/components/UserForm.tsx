@@ -240,21 +240,23 @@ export default class UserForm extends React.PureComponent<Props, State> {
                 </div>
               )}
               <div className="modal-field">
-                <label>{translate('my_profile.scm_accounts')}</label>
-                {this.state.scmAccounts.map((scm, idx) => (
-                  <UserScmAccountInput
-                    idx={idx}
-                    key={idx}
-                    onChange={this.handleUpdateScmAccount}
-                    onRemove={this.handleRemoveScmAccount}
-                    scmAccount={scm}
-                  />
-                ))}
-                <div className="spacer-bottom">
-                  <Button className="js-scm-account-add" onClick={this.handleAddScmAccount}>
-                    {translate('add_verb')}
-                  </Button>
-                </div>
+                <fieldset>
+                  <legend>{translate('my_profile.scm_accounts')}</legend>
+                  {this.state.scmAccounts.map((scm, idx) => (
+                    <UserScmAccountInput
+                      idx={idx}
+                      key={idx}
+                      onChange={this.handleUpdateScmAccount}
+                      onRemove={this.handleRemoveScmAccount}
+                      scmAccount={scm}
+                    />
+                  ))}
+                  <div className="spacer-bottom">
+                    <Button className="js-scm-account-add" onClick={this.handleAddScmAccount}>
+                      {translate('add_verb')}
+                    </Button>
+                  </div>
+                </fieldset>
                 <p className="note">{translate('user.login_or_email_used_as_scm_account')}</p>
               </div>
             </div>

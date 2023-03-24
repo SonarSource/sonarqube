@@ -23,27 +23,30 @@ import { mockClusterSysInfo, mockIdentityProvider, mockUser } from '../../helper
 import { IdentityProvider, Paging, SysInfoCluster } from '../../types/types';
 import { User } from '../../types/users';
 import { getSystemInfo } from '../system';
-import { getIdentityProviders, searchUsers } from '../users';
+import { createUser, getIdentityProviders, searchUsers } from '../users';
+
+const DEFAULT_USERS = [
+  mockUser({
+    managed: true,
+    login: 'bob.marley',
+    name: 'Bob Marley',
+  }),
+  mockUser({
+    managed: false,
+    login: 'alice.merveille',
+    name: 'Alice Merveille',
+  }),
+];
 
 export default class UsersServiceMock {
   isManaged = true;
-  users = [
-    mockUser({
-      managed: true,
-      login: 'bob.marley',
-      name: 'Bob Marley',
-    }),
-    mockUser({
-      managed: false,
-      login: 'alice.merveille',
-      name: 'Alice Merveille',
-    }),
-  ];
+  users = cloneDeep(DEFAULT_USERS);
 
   constructor() {
     jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
     jest.mocked(getIdentityProviders).mockImplementation(this.handleGetIdentityProviders);
     jest.mocked(searchUsers).mockImplementation((p) => this.handleSearchUsers(p));
+    jest.mocked(createUser).mockImplementation(this.handleCreateUser);
   }
 
   setIsManaged(managed: boolean) {
@@ -67,6 +70,26 @@ export default class UsersServiceMock {
     return this.reply({ paging, users: this.users });
   };
 
+  handleCreateUser = (data: {
+    email?: string;
+    local?: boolean;
+    login: string;
+    name: string;
+    password?: string;
+    scmAccount: string[];
+  }) => {
+    const { email, local, login, name, scmAccount } = data;
+    const newUser = mockUser({
+      email,
+      local,
+      login,
+      name,
+      scmAccounts: scmAccount,
+    });
+    this.users.push(newUser);
+    return this.reply(undefined);
+  };
+
   handleGetIdentityProviders = (): Promise<{ identityProviders: IdentityProvider[] }> => {
     return this.reply({ identityProviders: [mockIdentityProvider()] });
   };
@@ -85,6 +108,11 @@ export default class UsersServiceMock {
           : {}
       )
     );
+  };
+
+  reset = () => {
+    this.isManaged = true;
+    this.users = cloneDeep(DEFAULT_USERS);
   };
 
   reply<T>(response: T): Promise<T> {
