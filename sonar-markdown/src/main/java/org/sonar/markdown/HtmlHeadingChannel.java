@@ -58,15 +58,17 @@ public class HtmlHeadingChannel extends RegexChannel<MarkdownOutput> {
   protected void consume(CharSequence token, MarkdownOutput output) {
     int index = 0;
     int headingLevel = 0;
-    while(index < token.length() && Character.isWhitespace(token.charAt(index))) {
-      index ++;
+    while (index < token.length() && Character.isWhitespace(token.charAt(index))) {
+      index++;
     }
-    while(index < token.length() && index <= MAX_HEADING_DEPTH && token.charAt(index) == '=') {
-      index ++;
-      headingLevel ++;
+    while (index < token.length() && token.charAt(index) == '=') {
+      if (index < MAX_HEADING_DEPTH) {
+        headingLevel++;
+      }
+      index++;
     }
-    while(index < token.length() && Character.isWhitespace(token.charAt(index))) {
-      index ++;
+    while (index < token.length() && Character.isWhitespace(token.charAt(index))) {
+      index++;
     }
     CharSequence headingText = token.subSequence(index, token.length());
 

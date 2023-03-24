@@ -67,8 +67,8 @@ public class MarkdownTest {
 
   @Test
   public void shouldDecorateHeadings() {
-    assertThat(Markdown.convertToHtml("  = Top\r== Sub\r\n=== Sub sub\n ==== \n 1.five"))
-        .isEqualTo("<h1>Top</h1><h2>Sub</h2><h3>Sub sub</h3><h4></h4> 1.five");
+    assertThat(Markdown.convertToHtml("  = Top\r== Sub\r\n=== Sub sub\n ==== \n ===== five\n============ max"))
+        .isEqualTo("<h1>Top</h1><h2>Sub</h2><h3>Sub sub</h3><h4></h4><h5>five</h5><h6>max</h6>");
   }
 
   @Test
