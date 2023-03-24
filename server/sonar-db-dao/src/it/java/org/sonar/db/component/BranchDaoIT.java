@@ -88,11 +88,11 @@ public class BranchDaoIT {
       entry("uuid", "U2"),
       entry("branchType", "BRANCH"),
       entry("kee", "feature/foo"),
-      entry("isMain", true),
       entry("mergeBranchUuid", null),
       entry("pullRequestBinary", null),
       entry("createdAt", 1_000L),
       entry("updatedAt", 1_000L));
+    assertThat(map.get("isMain")).isIn(true, 1L); // Oracle returns 1L instead of true
   }
 
   @Test

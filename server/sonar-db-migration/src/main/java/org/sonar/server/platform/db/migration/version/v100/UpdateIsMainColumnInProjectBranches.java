@@ -34,7 +34,8 @@ public class UpdateIsMainColumnInProjectBranches extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select uuid, uuid = project_uuid from project_branches");
+    // we need to use case/when/then because Oracle doesn't accept simple solution uuid = project_uuid here
+    massUpdate.select("select uuid, case when uuid = project_uuid then 'true' else 'false' end  from project_branches");
     massUpdate.update("update project_branches set is_main = ? where uuid = ?");
     massUpdate.execute((row, update) -> {
       String uuid = row.getString(1);

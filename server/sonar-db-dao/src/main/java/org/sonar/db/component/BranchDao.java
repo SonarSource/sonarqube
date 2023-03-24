@@ -90,6 +90,9 @@ public class BranchDao implements Dao {
     return executeLargeInputs(branchKeys, partition -> mapper(dbSession).selectByKeys(projectUuid, branchKeys));
   }
 
+  /*
+   * Returns collection of branches that are in the same project as the component
+   */
   public Collection<BranchDto> selectByComponent(DbSession dbSession, ComponentDto component) {
     String projectUuid = component.getMainBranchProjectUuid();
     if (projectUuid == null) {
