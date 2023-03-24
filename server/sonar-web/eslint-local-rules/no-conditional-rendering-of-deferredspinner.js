@@ -27,14 +27,33 @@ module.exports = {
   create(context) {
     return {
       JSXExpressionContainer(node) {
-        if (
-          node.expression.type === 'LogicalExpression' &&
-          node.expression.right.type === 'JSXElement' &&
-          node.expression.right.openingElement.name.name === 'DeferredSpinner'
-        ) {
-          context.report({ node, messageId: 'noConditionalRenderingOfDeferredSpinner' });
+        switch (node.expression.type) {
+          case 'LogicalExpression':
+            const { right } = node.expression;
+            if (isDeferredSpinnerComponent(right)) {
+              context.report({ node, messageId: 'noConditionalRenderingOfDeferredSpinner' });
+            }
+            break;
+
+          case 'ConditionalExpression':
+            const { consequent, alternate } = node.expression;
+            if (isDeferredSpinnerComponent(consequent)) {
+              context.report({ node, messageId: 'noConditionalRenderingOfDeferredSpinner' });
+            }
+            if (isDeferredSpinnerComponent(alternate)) {
+              context.report({ node, messageId: 'noConditionalRenderingOfDeferredSpinner' });
+            }
+            break;
         }
       },
     };
   },
 };
+
+function isDeferredSpinnerComponent(element) {
+  return (
+    element.type === 'JSXElement' &&
+    element.openingElement &&
+    element.openingElement.name.name === 'DeferredSpinner'
+  );
+}

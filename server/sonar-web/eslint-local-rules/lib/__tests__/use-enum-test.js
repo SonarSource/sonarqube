@@ -17,21 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = (values, name, help) => ({
-  meta: {
-    messages: {
-      [`use${name}Enum`]: `Hard-coded strings ${
-        help ? help + ' ' : ''
-      }are not allowed; use the ${name} enum instead`,
+const { RuleTester } = require('eslint');
+const { useEnum } = require('../use-enum');
+const useSomeEnum = useEnum(['Val1', 'Val2', 'Val3'], 'SomeEnum');
+
+const ruleTester = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+});
+
+ruleTester.run('use-some-enum', useSomeEnum, {
+  valid: [
+    {
+      code: '{ qualifier: SomeEnum.FirstValue };',
     },
-  },
-  create(context) {
-    return {
-      Literal(node) {
-        if (node.parent.type !== 'TSEnumMember' && values.includes(node.value)) {
-          context.report({ node, messageId: `use${name}Enum` });
-        }
-      },
-    };
-  },
+    {
+      code: 'varName === SomeEnum.SecondValue',
+    },
+    {
+      code: `enum SomeEnum {
+  FirstValue = 'Val1',
+  SecondValue = 'Val2',
+  ThirdValue = 'Val3',
+}`,
+    },
+  ],
+  invalid: [
+    {
+      code: '{ value: "Val1" };',
+      errors: [{ messageId: 'useSomeEnumEnum' }],
+    },
+    {
+      code: "varName === 'Val2'",
+      errors: [{ messageId: 'useSomeEnumEnum' }],
+    },
+  ],
 });

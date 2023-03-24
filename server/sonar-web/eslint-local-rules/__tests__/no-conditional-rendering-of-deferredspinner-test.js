@@ -51,6 +51,22 @@ ruleTester.run(
 }`,
         errors: [{ messageId: 'noConditionalRenderingOfDeferredSpinner' }],
       },
+      {
+        code: `function MyComponent({ loading }) {
+  return <>
+    {loading ? <DeferredSpinner /> : <div />}
+  </>
+}`,
+        errors: [{ messageId: 'noConditionalRenderingOfDeferredSpinner' }],
+      },
+      {
+        code: `function MyCompontent({ loaded }) {
+  return <>
+    {loaded ? <div /> : <DeferredSpinner />}
+  </>
+}`,
+        errors: [{ messageId: 'noConditionalRenderingOfDeferredSpinner' }],
+      },
     ],
   }
 );

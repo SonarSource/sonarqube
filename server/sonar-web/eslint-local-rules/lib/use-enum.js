@@ -18,11 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 module.exports = {
-  'use-jest-mocked': require('./use-jest-mocked'),
-  'convert-class-to-function-component': require('./convert-class-to-function-component'),
-  'no-conditional-rendering-of-deferredspinner': require('./no-conditional-rendering-of-deferredspinner'),
-  'use-visibility-enum': require('./use-visibility-enum'),
-  'use-componentqualifier-enum': require('./use-componentqualifier-enum'),
-  'use-metrickey-enum': require('./use-metrickey-enum'),
-  'use-metrictype-enum': require('./use-metrictype-enum'),
+  useEnum(values, name, help) {
+    return {
+      meta: {
+        messages: {
+          [`use${name}Enum`]: `Hard-coded strings ${
+            help ? help + ' ' : ''
+          }are not allowed; use the ${name} enum instead`,
+        },
+      },
+      create(context) {
+        return {
+          Literal(node) {
+            if (node.parent.type !== 'TSEnumMember' && values.includes(node.value)) {
+              context.report({ node, messageId: `use${name}Enum` });
+            }
+          },
+        };
+      },
+    };
+  },
 };

@@ -116,7 +116,7 @@
     "build": "node scripts/build.js",
     "build-release": "yarn install --immutable && node scripts/build.js release",
     "test": "jest",
-    "test-eslint-local-rules": "jest eslint-local-rules",
+    "test-eslint-local-rules": "jest -c eslint-local-rules/jest.config.js",
     "format": "prettier --write --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",
     "format-check": "prettier --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",
     "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
@@ -125,7 +125,7 @@
     "ts-check": "tsc --noEmit",
     "validate": "yarn dep-check && yarn lint && yarn ts-check && yarn format-check && yarn test",
     "validate-ci": "yarn install --immutable && yarn dep-check && yarn test --coverage --maxWorkers=4 --ci",
-    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check",
+    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check && yarn test-eslint-local-rules",
     "update-cwes": "node scripts/update-cwes.js",
     "dep-check": "node scripts/validate-package-json.js"
   },

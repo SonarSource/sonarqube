@@ -17,40 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const { RuleTester } = require('eslint');
-const useComponentQualifierEnum = require('../use-enum')(
+const { useEnum } = require('./lib/use-enum');
+module.exports = useEnum(
   ['APP', 'DIR', 'DEV', 'FIL', 'VW', 'TRK', 'SVW', 'UTS'],
   'ComponentQualifier'
 );
-
-const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-});
-
-ruleTester.run('use-componentqualifier-enum', useComponentQualifierEnum, {
-  valid: [
-    {
-      code: '{ qualifier: ComponentQualifier.Project };',
-    },
-    {
-      code: 'varName === ComponentQualifier.File',
-    },
-    {
-      code: `enum ComponentQualifier {
-  Portfolio = 'VW',
-  Project = 'TRK',
-  SubPortfolio = 'SVW',
-}`,
-    },
-  ],
-  invalid: [
-    {
-      code: '{ qualifier: "TRK" };',
-      errors: [{ messageId: 'useComponentQualifierEnum' }],
-    },
-    {
-      code: 'varName === "FIL"',
-      errors: [{ messageId: 'useComponentQualifierEnum' }],
-    },
-  ],
-});
