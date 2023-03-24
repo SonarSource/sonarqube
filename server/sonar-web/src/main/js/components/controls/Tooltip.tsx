@@ -126,18 +126,14 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     if (
       // opens
       (this.props.visible === true && !prevProps.visible) ||
-      (this.props.visible === undefined &&
-        this.state.visible === true &&
-        prevState.visible === false)
+      (this.props.visible === undefined && this.state.visible && !prevState.visible)
     ) {
       this.positionTooltip();
       this.addEventListeners();
     } else if (
       // closes
       (!this.props.visible && prevProps.visible === true) ||
-      (this.props.visible === undefined &&
-        this.state.visible === false &&
-        prevState.visible === true)
+      (this.props.visible === undefined && !this.state.visible && prevState.visible)
     ) {
       this.clearPosition();
       this.removeEventListeners();
@@ -402,7 +398,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
     return (
       <div
-        className={classNames(`${classNameSpace}-inner`, { hidden: !isVisible })}
+        className={classNames(`${classNameSpace}-inner sw-font-sans`, { hidden: !isVisible })}
         id={this.id}
         role="tooltip"
         aria-hidden={!isInteractive || !isVisible}

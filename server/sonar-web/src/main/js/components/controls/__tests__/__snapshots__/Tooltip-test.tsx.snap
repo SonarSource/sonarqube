@@ -24,7 +24,7 @@ exports[`should render 1`] = `
   />
   <div
     aria-hidden={true}
-    className="tooltip-inner hidden"
+    className="tooltip-inner sw-font-sans hidden"
     id="tooltip-1"
     role="tooltip"
   >

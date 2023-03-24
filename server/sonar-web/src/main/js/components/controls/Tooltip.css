@@ -23,9 +23,9 @@
   display: block;
   height: auto;
   box-sizing: border-box;
-  font-size: var(--baseFontSize);
-  font-weight: 300;
-  line-height: 1.5;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
   animation: fadeIn 0.3s forwards;
 }
 
@@ -57,8 +57,8 @@
   overflow: hidden;
   word-break: break-word;
   padding: 12px 17px;
-  color: #fff;
-  background-color: #475760;
+  color: #eff2f9;
+  background-color: #2a2f40;
   letter-spacing: 0.04em;
 }
 
@@ -68,8 +68,8 @@
 }
 
 .tooltip-inner a {
-  border-bottom-color: #8da6b3;
-  color: #a5d0ea;
+  border-bottom-color: #bdc6ff;
+  color: #bdc6ff;
 }
 
 .tooltip-inner hr {
@@ -112,7 +112,7 @@
   left: 50%;
   transform: translateX(-5px);
   border-width: 0 5px 5px;
-  border-bottom-color: #475760;
+  border-bottom-color: #2a2f40;
 }
 
 /* Workaround for react issue with onMouseLeave in disabled buttons: https://github.com/facebook/react/issues/4251 */
