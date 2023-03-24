@@ -210,14 +210,19 @@ export default function SamlAuthentication(props: SamlAuthenticationProps) {
                             'settings.authentication.saml.form.provisioning_with_scim.sub'
                           )}
                         </p>
+                        <p className="spacer-bottom">
+                          {translate(
+                            'settings.authentication.saml.form.provisioning_with_scim.description'
+                          )}
+                        </p>
                         <p>
                           <FormattedMessage
-                            id="settings.authentication.saml.form.provisioning_with_scim.description"
+                            id="settings.authentication.saml.form.provisioning_with_scim.description.doc"
                             defaultMessage={translate(
-                              'settings.authentication.saml.form.provisioning_with_scim.description'
+                              'settings.authentication.saml.form.provisioning_with_scim.description.doc'
                             )}
                             values={{
-                              doc: (
+                              documentation: (
                                 <DocLink to="/instance-administration/authentication/saml/scim/overview">
                                   {translate('documentation')}
                                 </DocLink>
