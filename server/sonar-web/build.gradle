@@ -42,6 +42,8 @@ task yarn_run(type: Exec) {
 build.dependsOn(yarn_run)
 
 task "yarn_lint-report-ci"(type: Exec) {
+  dependsOn "yarn_design-system"
+  
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src/main/js'].each {
     inputs.dir(it)
