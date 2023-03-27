@@ -91,6 +91,12 @@ export default function InputSearch({
     }
   }, [parentValue]);
 
+  useEffect(() => {
+    if (autoFocus && input.current) {
+      input.current.focus();
+    }
+  });
+
   const changeValue = (newValue: string) => {
     if (newValue.length === 0 || !minLength || minLength <= newValue.length) {
       debouncedOnChange(newValue);
@@ -135,7 +141,6 @@ export default function InputSearch({
         <input
           aria-label={searchInputAriaLabel}
           autoComplete="off"
-          autoFocus={autoFocus}
           className={inputClassName}
           maxLength={maxLength}
           onBlur={onBlur}
