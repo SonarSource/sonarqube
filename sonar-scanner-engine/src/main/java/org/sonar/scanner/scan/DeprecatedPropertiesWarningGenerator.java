@@ -32,8 +32,12 @@ public class DeprecatedPropertiesWarningGenerator {
   private static final Logger LOG = Loggers.get(DeprecatedPropertiesWarningGenerator.class);
 
   @VisibleForTesting
-  static final String CREDENTIALS_WARN_MESSAGE = String.format("The properties '%s' and '%s' are deprecated. They will not be supported " +
-    "in the future. Please instead use the '%s' parameter.", CoreProperties.LOGIN, CoreProperties.PASSWORD, ScannerWsClientProvider.TOKEN_PROPERTY);
+  static final String PASSWORD_WARN_MESSAGE = String.format("The properties '%s' and '%s' are deprecated and will be removed in the " +
+      "future. Please pass a token with the '%s' property instead.", CoreProperties.LOGIN, CoreProperties.PASSWORD,
+    ScannerWsClientProvider.TOKEN_PROPERTY);
+  @VisibleForTesting
+  static final String LOGIN_WARN_MESSAGE = String.format("The property '%s' is deprecated and will be removed in the future. " +
+    "Please use the '%s' property instead when passing a token.", CoreProperties.LOGIN, ScannerWsClientProvider.TOKEN_PROPERTY);
 
   private final Configuration configuration;
   private final AnalysisWarnings analysisWarnings;
@@ -46,10 +50,12 @@ public class DeprecatedPropertiesWarningGenerator {
   public void execute() {
     Optional<String> login = configuration.get(CoreProperties.LOGIN);
     Optional<String> password = configuration.get(CoreProperties.PASSWORD);
-    if (login.isPresent() || password.isPresent()) {
-      LOG.warn(CREDENTIALS_WARN_MESSAGE);
-      analysisWarnings.addUnique(CREDENTIALS_WARN_MESSAGE);
+    if (password.isPresent()) {
+      LOG.warn(PASSWORD_WARN_MESSAGE);
+      analysisWarnings.addUnique(PASSWORD_WARN_MESSAGE);
+    } else if (login.isPresent()) {
+      LOG.warn(LOGIN_WARN_MESSAGE);
+      analysisWarnings.addUnique(LOGIN_WARN_MESSAGE);
     }
   }
-
 }

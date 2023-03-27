@@ -33,7 +33,8 @@ import org.sonar.api.utils.log.LoggerLevel;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.sonar.scanner.scan.DeprecatedPropertiesWarningGenerator.CREDENTIALS_WARN_MESSAGE;
+import static org.sonar.scanner.scan.DeprecatedPropertiesWarningGenerator.LOGIN_WARN_MESSAGE;
+import static org.sonar.scanner.scan.DeprecatedPropertiesWarningGenerator.PASSWORD_WARN_MESSAGE;
 
 public class DeprecatedPropertiesWarningGeneratorTest {
 
@@ -58,18 +59,19 @@ public class DeprecatedPropertiesWarningGeneratorTest {
 
     underTest.execute();
 
-    verify(analysisWarnings, times(1)).addUnique(CREDENTIALS_WARN_MESSAGE);
-    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(CREDENTIALS_WARN_MESSAGE);
+    verify(analysisWarnings, times(1)).addUnique(LOGIN_WARN_MESSAGE);
+    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(LOGIN_WARN_MESSAGE);
   }
 
   @Test
   public void execute_whenUsingPassword_shouldAddWarning() {
+    settings.setProperty(CoreProperties.LOGIN, "test");
     settings.setProperty(CoreProperties.PASSWORD, "winner winner chicken dinner");
 
     underTest.execute();
 
-    verify(analysisWarnings, times(1)).addUnique(CREDENTIALS_WARN_MESSAGE);
-    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(CREDENTIALS_WARN_MESSAGE);
+    verify(analysisWarnings, times(1)).addUnique(PASSWORD_WARN_MESSAGE);
+    Assertions.assertThat(logger.logs(LoggerLevel.WARN)).contains(PASSWORD_WARN_MESSAGE);
   }
 
   @Test
