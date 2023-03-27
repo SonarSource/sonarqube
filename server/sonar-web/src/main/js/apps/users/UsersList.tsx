@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { CurrentUserContext } from '../../app/components/current-user/CurrentUserContext';
 import { translate } from '../../helpers/l10n';
 import { IdentityProvider } from '../../types/types';
-import { User } from '../../types/users';
+import { isLoggedIn, User } from '../../types/users';
 import UserListItem from './components/UserListItem';
 
 interface Props {
-  currentUser: { isLoggedIn: boolean; login?: string };
   identityProviders: IdentityProvider[];
   onUpdateUsers: () => void;
   updateTokensCount: (login: string, tokensCount: number) => void;
@@ -33,13 +33,15 @@ interface Props {
 }
 
 export default function UsersList({
-  currentUser,
   identityProviders,
   onUpdateUsers,
   updateTokensCount,
   users,
   manageProvider,
 }: Props) {
+  const userContext = React.useContext(CurrentUserContext);
+  const currentUser = userContext?.currentUser;
+
   return (
     <div className="boxed-group boxed-group-inner">
       <table className="data zebra" id="users-list">
@@ -62,7 +64,7 @@ export default function UsersList({
               identityProvider={identityProviders.find(
                 (provider) => user.externalProvider === provider.key
               )}
-              isCurrentUser={currentUser.isLoggedIn && currentUser.login === user.login}
+              isCurrentUser={isLoggedIn(currentUser) && currentUser.login === user.login}
               key={user.login}
               onUpdateUsers={onUpdateUsers}
               updateTokensCount={updateTokensCount}

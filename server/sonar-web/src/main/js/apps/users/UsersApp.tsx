@@ -17,180 +17,110 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { getSystemInfo } from '../../api/system';
 import { getIdentityProviders, searchUsers } from '../../api/users';
-import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import ButtonToggle from '../../components/controls/ButtonToggle';
 import ListFooter from '../../components/controls/ListFooter';
+import { ManagedFilter } from '../../components/controls/ManagedFilter';
 import SearchBox from '../../components/controls/SearchBox';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import { Location, Router, withRouter } from '../../components/hoc/withRouter';
+import { useManageProvider } from '../../components/hooks/useManageProvider';
+import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
-import { IdentityProvider, Paging, SysInfoCluster } from '../../types/types';
-import { CurrentUser, User } from '../../types/users';
+import { IdentityProvider, Paging } from '../../types/types';
+import { User } from '../../types/users';
 import Header from './Header';
 import UsersList from './UsersList';
-import { parseQuery, Query, serializeQuery } from './utils';
 
-interface Props {
-  currentUser: CurrentUser;
-  location: Location;
-  router: Router;
-}
+export default function UsersApp() {
+  const [identityProviders, setIdentityProviders] = useState<IdentityProvider[]>([]);
 
-interface State {
-  identityProviders: IdentityProvider[];
-  manageProvider?: string;
-  loading: boolean;
-  paging?: Paging;
-  users: User[];
-}
+  const [loading, setLoading] = useState(true);
+  const [paging, setPaging] = useState<Paging>();
+  const [users, setUsers] = useState<User[]>([]);
 
-export class UsersApp extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { identityProviders: [], loading: true, users: [] };
+  const [search, setSearch] = useState('');
+  const [managed, setManaged] = useState<boolean | undefined>(undefined);
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchIdentityProviders();
-    this.fetchManageInstance();
-    this.fetchUsers();
-  }
+  const manageProvider = useManageProvider();
 
-  componentDidUpdate(prevProps: Props) {
-    if (
-      prevProps.location.query.search !== this.props.location.query.search ||
-      prevProps.location.query.managed !== this.props.location.query.managed
-    ) {
-      this.fetchUsers();
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { paging, users } = await searchUsers({ q: search, managed });
+      setPaging(paging);
+      setUsers(users);
+    } finally {
+      setLoading(false);
     }
-  }
+  }, [search, managed]);
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  finishLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
+  const fetchMoreUsers = useCallback(async () => {
+    if (!paging) {
+      return;
     }
-  };
-
-  async fetchManageInstance() {
-    const info = (await getSystemInfo()) as SysInfoCluster;
-    if (this.mounted) {
-      this.setState({
-        manageProvider: info.System['External Users and Groups Provisioning'],
-      });
-    }
-  }
-
-  fetchIdentityProviders = () =>
-    getIdentityProviders().then(({ identityProviders }) => {
-      if (this.mounted) {
-        this.setState({ identityProviders });
-      }
-    });
-
-  fetchUsers = () => {
-    const { search, managed } = parseQuery(this.props.location.query);
-    this.setState({ loading: true });
-    searchUsers({
-      q: search,
-      managed,
-    }).then(({ paging, users }) => {
-      if (this.mounted) {
-        this.setState({ loading: false, paging, users });
-      }
-    }, this.finishLoading);
-  };
-
-  fetchMoreUsers = () => {
-    const { paging } = this.state;
-    if (paging) {
-      const { search, managed } = parseQuery(this.props.location.query);
-      this.setState({ loading: true });
-      searchUsers({
-        p: paging.pageIndex + 1,
+    setLoading(true);
+    try {
+      const { paging: nextPage, users: nextUsers } = await searchUsers({
         q: search,
         managed,
-      }).then(({ paging, users }) => {
-        if (this.mounted) {
-          this.setState((state) => ({ loading: false, users: [...state.users, ...users], paging }));
-        }
-      }, this.finishLoading);
+        p: paging.pageIndex + 1,
+      });
+      setPaging(nextPage);
+      setUsers([...users, ...nextUsers]);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [search, managed, paging, users]);
 
-  updateQuery = (newQuery: Partial<Query>) => {
-    const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
-    this.props.router.push({ ...this.props.location, query });
-  };
+  useEffect(() => {
+    (async () => {
+      const { identityProviders } = await getIdentityProviders();
+      setIdentityProviders(identityProviders);
+    })();
+  }, []);
 
-  updateTokensCount = (login: string, tokensCount: number) => {
-    this.setState((state) => ({
-      users: state.users.map((user) => (user.login === login ? { ...user, tokensCount } : user)),
-    }));
-  };
+  useEffect(() => {
+    fetchUsers();
+  }, [search, managed]);
 
-  render() {
-    const { search, managed } = parseQuery(this.props.location.query);
-    const { loading, paging, users, manageProvider } = this.state;
-
-    return (
-      <main className="page page-limited" id="users-page">
-        <Suggestions suggestions="users" />
-        <Helmet defer={false} title={translate('users.page')} />
-        <Header onUpdateUsers={this.fetchUsers} manageProvider={manageProvider} />
-        <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
-          {manageProvider !== undefined && (
-            <div className="big-spacer-right">
-              <ButtonToggle
-                value={managed === undefined ? 'all' : managed}
-                disabled={loading}
-                options={[
-                  { label: translate('all'), value: 'all' },
-                  { label: translate('managed'), value: true },
-                  { label: translate('local'), value: false },
-                ]}
-                onCheck={(filterOption) => {
-                  if (filterOption === 'all') {
-                    this.updateQuery({ managed: undefined });
-                  } else {
-                    this.updateQuery({ managed: filterOption as boolean });
-                  }
-                }}
-              />
-            </div>
-          )}
-          <SearchBox
-            id="users-search"
-            onChange={(search: string) => this.updateQuery({ search })}
-            placeholder={translate('search.search_by_login_or_name')}
-            value={search}
-          />
-        </div>
+  return (
+    <main className="page page-limited" id="users-page">
+      <Suggestions suggestions="users" />
+      <Helmet defer={false} title={translate('users.page')} />
+      <Header onUpdateUsers={fetchUsers} manageProvider={manageProvider} />
+      <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
+        <ManagedFilter
+          manageProvider={manageProvider}
+          loading={loading}
+          managed={managed}
+          setManaged={setManaged}
+        />
+        <SearchBox
+          id="users-search"
+          minLength={2}
+          onChange={(search: string) => setSearch(search)}
+          placeholder={translate('search.search_by_login_or_name')}
+          value={search}
+        />
+      </div>
+      <DeferredSpinner loading={loading}>
         <UsersList
-          currentUser={this.props.currentUser}
-          identityProviders={this.state.identityProviders}
-          onUpdateUsers={this.fetchUsers}
-          updateTokensCount={this.updateTokensCount}
+          identityProviders={identityProviders}
+          onUpdateUsers={fetchUsers}
+          updateTokensCount={fetchUsers}
           users={users}
           manageProvider={manageProvider}
         />
-        {paging !== undefined && (
-          <ListFooter
-            count={users.length}
-            loadMore={this.fetchMoreUsers}
-            ready={!loading}
-            total={paging.total}
-          />
-        )}
-      </main>
-    );
-  }
+      </DeferredSpinner>
+      {paging !== undefined && (
+        <ListFooter
+          count={users.length}
+          loadMore={fetchMoreUsers}
+          ready={!loading}
+          total={paging.total}
+        />
+      )}
+    </main>
+  );
 }
-
-export default withRouter(withCurrentUserContext(UsersApp));

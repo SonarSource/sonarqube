@@ -17,50 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+
 import * as React from 'react';
-import UsersList from '../UsersList';
+import { useEffect } from 'react';
+import { getSystemInfo } from '../../api/system';
+import { SysInfoCluster } from '../../types/types';
 
-const users = [
-  {
-    login: 'luke',
-    name: 'Luke',
-    active: true,
-    scmAccounts: [],
-    local: false,
-    managed: false,
-  },
-  {
-    login: 'obi',
-    name: 'One',
-    active: true,
-    scmAccounts: [],
-    local: false,
-    managed: false,
-  },
-];
+export function useManageProvider(): string | undefined {
+  const [manageProvider, setManageProvider] = React.useState<string | undefined>();
 
-it('should render correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
-});
+  useEffect(() => {
+    (async () => {
+      const info = (await getSystemInfo()) as SysInfoCluster;
+      setManageProvider(info.System['External Users and Groups Provisioning']);
+    })();
+  }, []);
 
-function getWrapper(props = {}) {
-  return shallow(
-    <UsersList
-      currentUser={{ isLoggedIn: true, login: 'luke' }}
-      identityProviders={[
-        {
-          backgroundColor: 'blue',
-          iconPath: 'icon/path',
-          key: 'foo',
-          name: 'Foo Provider',
-        },
-      ]}
-      onUpdateUsers={jest.fn()}
-      updateTokensCount={jest.fn()}
-      users={users}
-      manageProvider={undefined}
-      {...props}
-    />
-  );
+  return manageProvider;
 }

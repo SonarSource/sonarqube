@@ -23,10 +23,10 @@ import DocLink from '../../../components/common/DocLink';
 import { Button } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
-import Form from './Form';
+import GroupForm from './GroupForm';
 
 interface HeaderProps {
-  onCreate: (data: { description: string; name: string }) => Promise<void>;
+  reload: () => void;
   manageProvider?: string;
 }
 
@@ -69,12 +69,7 @@ export default function Header(props: HeaderProps) {
         )}
       </div>
       {createModal && (
-        <Form
-          confirmButtonText={translate('create')}
-          header={translate('groups.create_group')}
-          onClose={() => setCreateModal(false)}
-          onSubmit={props.onCreate}
-        />
+        <GroupForm onClose={() => setCreateModal(false)} create={true} reload={props.reload} />
       )}
     </>
   );

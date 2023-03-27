@@ -41,7 +41,6 @@ const DEFAULT_USERS = [
 export default class UsersServiceMock {
   isManaged = true;
   users = cloneDeep(DEFAULT_USERS);
-
   constructor() {
     jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
     jest.mocked(getIdentityProviders).mockImplementation(this.handleGetIdentityProviders);
@@ -54,11 +53,21 @@ export default class UsersServiceMock {
   }
 
   handleSearchUsers = (data: any): Promise<{ paging: Paging; users: User[] }> => {
-    const paging = {
+    let paging = {
       pageIndex: 1,
-      pageSize: 100,
-      total: 0,
+      pageSize: 2,
+      total: 6,
     };
+
+    if (data.p !== undefined && data.p !== paging.pageIndex) {
+      paging = { pageIndex: 2, pageSize: 2, total: 6 };
+      const users = [
+        mockUser({ name: `local-user ${this.users.length + 4}` }),
+        mockUser({ name: `local-user ${this.users.length + 5}` }),
+      ];
+
+      return this.reply({ paging, users });
+    }
 
     if (this.isManaged) {
       if (data.managed === undefined) {

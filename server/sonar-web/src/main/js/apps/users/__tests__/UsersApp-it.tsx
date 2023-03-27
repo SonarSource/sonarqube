@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { byLabelText, byRole, byText } from 'testing-library-selector';
@@ -37,6 +38,7 @@ const ui = {
   allFilter: byRole('button', { name: 'all' }),
   managedFilter: byRole('button', { name: 'managed' }),
   localFilter: byRole('button', { name: 'local' }),
+  showMore: byRole('button', { name: 'show_more' }),
   aliceRow: byRole('row', { name: 'AM Alice Merveille alice.merveille never' }),
   aliceRowWithLocalBadge: byRole('row', {
     name: 'AM Alice Merveille alice.merveille local never',
@@ -99,22 +101,37 @@ describe('in non managed mode', () => {
     renderUsersApp();
 
     expect(await ui.aliceUpdateGroupButton.find()).toBeInTheDocument();
-    expect(await ui.bobUpdateGroupButton.find()).toBeInTheDocument();
+    expect(ui.bobUpdateGroupButton.get()).toBeInTheDocument();
   });
 
   it('should be able to update / change password / deactivate a user', async () => {
     renderUsersApp();
 
     expect(await ui.aliceUpdateButton.find()).toBeInTheDocument();
-    expect(await ui.bobUpdateButton.find()).toBeInTheDocument();
+    expect(ui.bobUpdateButton.get()).toBeInTheDocument();
   });
 
   it('should render all users', async () => {
     renderUsersApp();
 
-    expect(ui.aliceRowWithLocalBadge.query()).not.toBeInTheDocument();
     expect(await ui.aliceRow.find()).toBeInTheDocument();
-    expect(await ui.bobRow.find()).toBeInTheDocument();
+    expect(ui.bobRow.get()).toBeInTheDocument();
+    expect(ui.aliceRowWithLocalBadge.query()).not.toBeInTheDocument();
+  });
+
+  it('should be able load more users', async () => {
+    const user = userEvent.setup();
+    renderUsersApp();
+
+    expect(await ui.aliceRow.find()).toBeInTheDocument();
+    expect(ui.bobRow.get()).toBeInTheDocument();
+    expect(screen.getAllByRole('row')).toHaveLength(4);
+
+    await act(async () => {
+      await user.click(await ui.showMore.find());
+    });
+
+    expect(screen.getAllByRole('row')).toHaveLength(6);
   });
 });
 
@@ -125,8 +142,9 @@ describe('in manage mode', () => {
 
   it('should not be able to create a user"', async () => {
     renderUsersApp();
-    expect(await ui.createUserButton.get()).toBeDisabled();
+
     expect(await ui.infoManageMode.find()).toBeInTheDocument();
+    expect(ui.createUserButton.get()).toBeDisabled();
   });
 
   it("should not be able to add/remove a user's group", async () => {
@@ -134,8 +152,7 @@ describe('in manage mode', () => {
 
     expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
     expect(ui.aliceUpdateGroupButton.query()).not.toBeInTheDocument();
-
-    expect(await ui.bobRow.find()).toBeInTheDocument();
+    expect(ui.bobRow.get()).toBeInTheDocument();
     expect(ui.bobUpdateGroupButton.query()).not.toBeInTheDocument();
   });
 
@@ -152,7 +169,7 @@ describe('in manage mode', () => {
 
     expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
     await user.click(ui.aliceUpdateButton.get());
-    expect(await ui.alicedDeactivateButton.get()).toBeInTheDocument();
+    expect(await ui.alicedDeactivateButton.find()).toBeInTheDocument();
   });
 
   it('should render list of all users', async () => {
@@ -168,19 +185,25 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await user.click(await ui.managedFilter.find());
+    expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
 
+    await act(async () => {
+      await user.click(await ui.managedFilter.find());
+    });
+
+    expect(await ui.bobRow.find()).toBeInTheDocument();
     expect(ui.aliceRowWithLocalBadge.query()).not.toBeInTheDocument();
-    expect(ui.bobRow.get()).toBeInTheDocument();
   });
 
   it('should render list of local users', async () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await user.click(await ui.localFilter.find());
+    await act(async () => {
+      await user.click(await ui.localFilter.find());
+    });
 
-    expect(ui.aliceRowWithLocalBadge.get()).toBeInTheDocument();
+    expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
     expect(ui.bobRow.query()).not.toBeInTheDocument();
   });
 });

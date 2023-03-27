@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { noop } from 'lodash';
 import * as React from 'react';
 import { CurrentUser, HomePage, NoticeType } from '../../../types/users';
 
@@ -26,6 +27,11 @@ export interface CurrentUserContextInterface {
   updateDismissedNotices: (key: NoticeType, value: boolean) => void;
 }
 
-export const CurrentUserContext = React.createContext<CurrentUserContextInterface | undefined>(
-  undefined
-);
+export const CurrentUserContext = React.createContext<CurrentUserContextInterface>({
+  currentUser: {
+    isLoggedIn: false,
+    dismissedNotices: {},
+  },
+  updateCurrentUserHomepage: noop,
+  updateDismissedNotices: noop,
+});

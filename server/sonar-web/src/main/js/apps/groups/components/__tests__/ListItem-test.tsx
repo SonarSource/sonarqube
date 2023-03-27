@@ -29,13 +29,6 @@ it('should render correctly', () => {
 
 function shallowRender(overrides: Partial<ListItemProps> = {}) {
   return shallow(
-    <ListItem
-      group={mockGroup()}
-      onDelete={jest.fn()}
-      onEdit={jest.fn()}
-      onEditMembers={jest.fn()}
-      manageProvider={undefined}
-      {...overrides}
-    />
+    <ListItem group={mockGroup()} reload={jest.fn()} manageProvider={undefined} {...overrides} />
   );
 }

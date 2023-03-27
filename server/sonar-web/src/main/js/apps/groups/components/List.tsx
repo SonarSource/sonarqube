@@ -25,9 +25,7 @@ import ListItem from './ListItem';
 
 interface Props {
   groups: Group[];
-  onDelete: (group: Group) => void;
-  onEdit: (group: Group) => void;
-  onEditMembers: () => void;
+  reload: () => void;
   manageProvider: string | undefined;
 }
 
@@ -54,9 +52,7 @@ export default function List(props: Props) {
             <ListItem
               group={group}
               key={group.name}
-              onDelete={props.onDelete}
-              onEdit={props.onEdit}
-              onEditMembers={props.onEditMembers}
+              reload={props.reload}
               manageProvider={manageProvider}
             />
           ))}

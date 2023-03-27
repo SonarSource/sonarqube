@@ -32,13 +32,5 @@ function shallowRender() {
     mockGroup({ name: 'foo', description: 'foobar', membersCount: 0, default: false }),
     mockGroup({ name: 'bar', description: 'barbar', membersCount: 1, default: false }),
   ];
-  return shallow(
-    <List
-      groups={groups}
-      onDelete={jest.fn()}
-      onEdit={jest.fn()}
-      onEditMembers={jest.fn()}
-      manageProvider={undefined}
-    />
-  );
+  return shallow(<List groups={groups} manageProvider={undefined} reload={jest.fn()} />);
 }

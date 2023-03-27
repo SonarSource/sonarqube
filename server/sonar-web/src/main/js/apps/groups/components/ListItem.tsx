@@ -19,25 +19,29 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { useState } from 'react';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Group } from '../../../types/types';
+import DeleteGroupForm from './DeleteGroupForm';
 import EditMembers from './EditMembers';
+import GroupForm from './GroupForm';
 
 export interface ListItemProps {
   group: Group;
-  onDelete: (group: Group) => void;
-  onEdit: (group: Group) => void;
-  onEditMembers: () => void;
+  reload: () => void;
   manageProvider: string | undefined;
 }
 
 export default function ListItem(props: ListItemProps) {
   const { manageProvider, group } = props;
   const { name, managed, membersCount, description } = group;
+
+  const [groupToDelete, setGroupToDelete] = useState<Group | undefined>();
+  const [groupToEdit, setGroupToEdit] = useState<Group | undefined>();
 
   const isManaged = () => {
     return manageProvider !== undefined;
@@ -61,9 +65,7 @@ export default function ListItem(props: ListItemProps) {
         >
           {membersCount}
         </span>
-        {!group.default && !isManaged() && (
-          <EditMembers group={group} onEdit={props.onEditMembers} />
-        )}
+        {!group.default && !isManaged() && <EditMembers group={group} onEdit={props.reload} />}
       </td>
 
       <td className="width-40" headers="list-group-description">
@@ -77,7 +79,7 @@ export default function ListItem(props: ListItemProps) {
               <>
                 <ActionsDropdownItem
                   className="js-group-update"
-                  onClick={() => props.onEdit(group)}
+                  onClick={() => setGroupToEdit(group)}
                 >
                   {translate('update_details')}
                 </ActionsDropdownItem>
@@ -88,12 +90,27 @@ export default function ListItem(props: ListItemProps) {
               <ActionsDropdownItem
                 className="js-group-delete"
                 destructive={true}
-                onClick={() => props.onDelete(group)}
+                onClick={() => setGroupToDelete(group)}
               >
                 {translate('delete')}
               </ActionsDropdownItem>
             )}
           </ActionsDropdown>
+        )}
+        {groupToDelete && (
+          <DeleteGroupForm
+            group={groupToDelete}
+            reload={props.reload}
+            onClose={() => setGroupToDelete(undefined)}
+          />
+        )}
+        {groupToEdit && (
+          <GroupForm
+            create={false}
+            group={groupToEdit}
+            reload={props.reload}
+            onClose={() => setGroupToEdit(undefined)}
+          />
         )}
       </td>
     </tr>
