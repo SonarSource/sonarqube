@@ -37,7 +37,6 @@ import { Component, Dict, Extension } from '../../../../types/types';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../available-features/withAvailableFeatures';
-import './Menu.css';
 
 const SETTINGS_URLS = [
   '/project/admin',
@@ -614,7 +613,7 @@ export class Menu extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div className="sw-flex sw-justify-between sw-pt-3 it__navbar-tabs">
+      <div className="sw-flex sw-justify-between sw-pt-4 it__navbar-tabs">
         <NavBarTabs>
           {this.renderDashboardLink()}
           {this.renderBreakdownLink()}
