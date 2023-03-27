@@ -34,6 +34,9 @@ build_dependant_task_template: &BUILD_DEPENDANT_TASK_TEMPLATE
 nightly_task_template: &NIGHTLY_TASK_TEMPLATE
   only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY
 
+master_and_nightly_task_template: &MASTER_AND_NIGHTLY_TASK_TEMPLATE
+    only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN
+
 except_nightly_task_template: &EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   only_if: $CIRRUS_BRANCH != $BRANCH_NIGHTLY
 
@@ -387,6 +390,24 @@ qa_ha_task:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
     QA_CATEGORY: HA
+  script:
+    - ./private/cirrus/cirrus-qa.sh postgres
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+qa_performance_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *MASTER_AND_NIGHTLY_TASK_TEMPLATE
+  <<: *JAR_CACHE_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 2.4
+    memory: 10Gb
+    additional_containers:
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+  env:
+    QA_CATEGORY: AnalysisPerformance
   script:
     - ./private/cirrus/cirrus-qa.sh postgres
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
