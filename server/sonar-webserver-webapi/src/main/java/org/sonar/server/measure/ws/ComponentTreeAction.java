@@ -270,7 +270,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   private ComponentTreeWsResponse doHandle(ComponentTreeRequest request) {
     ComponentTreeData data = load(request);
     if (data.getComponents() == null) {
-      return emptyResponse(data.getBaseComponent(), request);
+      return emptyResponse(data.getBaseComponent(), data.getBranch(), request);
     }
 
     return buildResponse(
@@ -290,7 +290,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setTotal(paging.total())
       .build();
 
-    boolean isMainBranch = data.getBaseComponent().getMainBranchProjectUuid() == null;
+    boolean isMainBranch = data.getBranch() == null || data.getBranch().isMain();
     response.setBaseComponent(
       toWsComponent(
         data.getBaseComponent(),
@@ -333,14 +333,14 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return additionalFields != null && additionalFields.contains(ADDITIONAL_METRICS);
   }
 
-  private static ComponentTreeWsResponse emptyResponse(@Nullable ComponentDto baseComponent, ComponentTreeRequest request) {
+  private static ComponentTreeWsResponse emptyResponse(@Nullable ComponentDto baseComponent, @Nullable BranchDto branch, ComponentTreeRequest request) {
     ComponentTreeWsResponse.Builder response = ComponentTreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(request.getPage())
       .setPageSize(request.getPageSize())
       .setTotal(0);
     if (baseComponent != null) {
-      boolean isMainBranch = baseComponent.getMainBranchProjectUuid() == null;
+      boolean isMainBranch = branch == null || branch.isMain();
       response.setBaseComponent(componentDtoToWsComponent(baseComponent, isMainBranch ? null : request.getBranch(), request.getPullRequest()));
     }
     return response.build();
@@ -415,9 +415,13 @@ public class ComponentTreeAction implements MeasuresWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto baseComponent = loadComponent(dbSession, wsRequest);
       checkPermissions(baseComponent);
+      // portfolios don't have branches
+      BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, baseComponent.branchUuid()).orElse(null);
+
       Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.branchUuid());
       if (baseSnapshot.isEmpty()) {
         return ComponentTreeData.builder()
+          .setBranch(branchDto)
           .setBaseComponent(baseComponent)
           .build();
       }
@@ -455,6 +459,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
       return ComponentTreeData.builder()
         .setBaseComponent(baseComponent)
+        .setBranch(branchDto)
         .setComponentsFromDb(components)
         .setComponentCount(componentCount)
         .setBranchByReferenceUuid(branchByReferenceUuid)

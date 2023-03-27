@@ -66,7 +66,7 @@ class ComponentDtoToWsComponent {
   }
 
   public static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, @Nullable ProjectDto parentProjectDto,
-    @Nullable SnapshotDto lastAnalysis, @Nullable String branch, @Nullable String pullRequest) {
+    @Nullable SnapshotDto lastAnalysis, boolean isMainBranch, @Nullable String branch, @Nullable String pullRequest) {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
       .setKey(ComponentDto.removeBranchAndPullRequestFromKey(dto.getKey()))
       .setName(dto.name())
@@ -84,7 +84,7 @@ class ComponentDtoToWsComponent {
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(dto.qualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));
-      if (Arrays.asList(Qualifiers.PROJECT, Qualifiers.APP).contains(dto.qualifier()) && dto.getMainBranchProjectUuid() != null && parentProjectDto != null) {
+      if (Arrays.asList(Qualifiers.PROJECT, Qualifiers.APP).contains(dto.qualifier()) && parentProjectDto != null && isMainBranch) {
         wsComponent.getTagsBuilder().addAllTags(parentProjectDto.getTags());
       }
     }

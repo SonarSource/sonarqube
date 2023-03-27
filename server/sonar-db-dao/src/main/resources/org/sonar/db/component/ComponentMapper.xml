@@ -25,10 +25,10 @@
     SELECT
       <include refid="componentColumns"/>
     FROM components p
+    left outer join project_branches pb on pb.uuid = p.branch_uuid
     where
       p.kee=#{key,jdbcType=VARCHAR}
-      and p.main_branch_project_uuid is null
-  </select>
+      and (pb.is_main = null or pb.is_main = ${_true}) </select>
 
   <select id="selectByKeyCaseInsensitive" parameterType="String" resultType="Component">
     SELECT

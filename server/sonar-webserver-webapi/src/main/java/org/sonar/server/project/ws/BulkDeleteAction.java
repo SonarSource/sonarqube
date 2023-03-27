@@ -94,7 +94,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .setChangelog(
         new Change("7.8", parameterRequiredMessage),
         new Change("9.1", "The parameter '" + PARAM_ANALYZED_BEFORE + "' "
-        + "takes into account the analysis of all branches and pull requests, not only the main branch."));
+          + "takes into account the analysis of all branches and pull requests, not only the main branch."));
 
     action
       .createParam(PARAM_PROJECTS)
@@ -115,7 +115,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-        "If no visibility is specified, the default project visibility will be used.",
+          "If no visibility is specified, the default project visibility will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
@@ -148,7 +148,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
       Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, query, 0, Integer.MAX_VALUE));
 
       try {
-        componentDtos.forEach(p -> componentCleanerService.delete(dbSession, p));
+        componentDtos.forEach(p -> componentCleanerService.deleteComponent(dbSession, p));
       } finally {
         projectLifeCycleListeners.onProjectsDeleted(componentDtos.stream().map(Project::from).collect(MoreCollectors.toSet(componentDtos.size())));
       }

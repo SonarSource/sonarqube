@@ -113,6 +113,30 @@ public class ComponentFinder {
     return getBranchOrPullRequest(dbSession, project.getUuid(), project.getKey(), branchKey, pullRequestKey);
   }
 
+  public ProjectAndBranch getAppOrProjectAndBranch(DbSession dbSession, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
+    ProjectDto projectOrApp = getProjectOrApplicationByKey(dbSession, projectKey);
+    BranchDto branch = getBranchOrPullRequest(dbSession, projectOrApp, branchKey, pullRequestKey);
+    return new ProjectAndBranch(projectOrApp, branch);
+  }
+
+  public static class ProjectAndBranch {
+    private final ProjectDto project;
+    private final BranchDto branch;
+
+    public ProjectAndBranch(ProjectDto project, BranchDto branch) {
+      this.project = project;
+      this.branch = branch;
+    }
+
+    public ProjectDto getProject() {
+      return project;
+    }
+
+    public BranchDto getBranch() {
+      return branch;
+    }
+  }
+
   public BranchDto getBranchOrPullRequest(DbSession dbSession, String projectUuid, String projectKey, @Nullable String branchKey, @Nullable String pullRequestKey) {
     if (branchKey != null) {
       return dbClient.branchDao().selectByBranchKey(dbSession, projectUuid, branchKey)
@@ -139,23 +163,22 @@ public class ComponentFinder {
   }
 
   private ComponentDto getByKey(DbSession dbSession, String key, String label) {
-    return checkComponent(dbClient.componentDao().selectByKey(dbSession, key), "%s key '%s' not found", label, key);
+    return checkComponent(dbSession, dbClient.componentDao().selectByKey(dbSession, key), "%s key '%s' not found", label, key);
   }
 
-  /**
-   * This method only returns components in main branches.
-   */
   public ComponentDto getByUuidFromMainBranch(DbSession dbSession, String uuid) {
     return getByUuidFromMainBranch(dbSession, uuid, LABEL_COMPONENT);
   }
 
   private ComponentDto getByUuidFromMainBranch(DbSession dbSession, String uuid, String label) {
-    return checkComponent(dbClient.componentDao().selectByUuid(dbSession, uuid), "%s id '%s' not found", label, uuid);
+    return checkComponent(dbSession, dbClient.componentDao().selectByUuid(dbSession, uuid), "%s id '%s' not found", label, uuid);
   }
 
-  private static ComponentDto checkComponent(Optional<ComponentDto> componentDto, String message, Object... messageArguments) {
-    if (componentDto.isPresent() && componentDto.get().isEnabled() && componentDto.get().getMainBranchProjectUuid() == null) {
-      return componentDto.get();
+  private ComponentDto checkComponent(DbSession session, Optional<ComponentDto> componentDto, String message, Object... messageArguments) {
+    if (componentDto.isPresent() && componentDto.get().isEnabled()) {
+      if (dbClient.branchDao().selectByUuid(session, componentDto.get().branchUuid()).map(BranchDto::isMain).orElse(true)) {
+        return componentDto.get();
+      }
     }
     throw new NotFoundException(format(message, messageArguments));
   }

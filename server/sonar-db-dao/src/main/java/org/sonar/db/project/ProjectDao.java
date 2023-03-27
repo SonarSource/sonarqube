@@ -83,6 +83,10 @@ public class ProjectDao implements Dao {
     return executeLargeInputs(keys, partition -> mapper(session).selectApplicationsByKeys(partition));
   }
 
+  public Optional<ProjectDto> selectByBranchUuid(DbSession dbSession, String branchUuid) {
+    return Optional.ofNullable(mapper(dbSession).selectByBranchUuid(branchUuid));
+  }
+
   public List<ProjectDto> selectProjects(DbSession session) {
     return mapper(session).selectProjects();
   }

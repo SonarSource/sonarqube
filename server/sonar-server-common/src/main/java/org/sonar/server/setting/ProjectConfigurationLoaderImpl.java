@@ -20,6 +20,7 @@
 package org.sonar.server.setting;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.DbClient;
@@ -37,27 +38,34 @@ public class ProjectConfigurationLoaderImpl implements ProjectConfigurationLoade
   }
 
   @Override
-  public Configuration loadProjectConfiguration(DbSession dbSession, BranchDto branchDto) {
-    if (branchDto.isMain()) {
-      ChildSettings mainBranchSettings = loadMainBranchConfiguration(dbSession, branchDto.getUuid());
-      return mainBranchSettings.asConfiguration();
-    } else {
-      BranchDto mainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, branchDto.getProjectUuid())
-        .orElseThrow(() -> new IllegalStateException("Main branch not found for project: " + branchDto.getProjectUuid()));
-
-      ChildSettings mainBranchSettings = loadMainBranchConfiguration(dbSession, mainBranch.getUuid());
-      ChildSettings settings = new ChildSettings(mainBranchSettings);
-      dbClient.propertiesDao()
-        .selectComponentProperties(dbSession, branchDto.getUuid())
-        .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
-      return settings.asConfiguration();
-    }
+  public Configuration loadBranchConfiguration(DbSession dbSession, BranchDto branch) {
+    return loadProjectAndBranchConfiguration(dbSession, branch.getProjectUuid(), branch.getUuid());
   }
 
-  private ChildSettings loadMainBranchConfiguration(DbSession dbSession, String uuid) {
+  @Override
+  public Configuration loadProjectConfiguration(DbSession dbSession, String projectUuid) {
+    return loadProjectAndBranchConfiguration(dbSession, projectUuid, null);
+  }
+
+  private Configuration loadProjectAndBranchConfiguration(DbSession dbSession, String projectUuid, @Nullable String branchUuid) {
+    ChildSettings projectSettings = internalLoadProjectConfiguration(dbSession, projectUuid);
+
+    if (branchUuid == null) {
+      return projectSettings.asConfiguration();
+    }
+
+    ChildSettings settings = new ChildSettings(projectSettings);
+    dbClient.propertiesDao()
+      .selectComponentProperties(dbSession, branchUuid)
+      .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
+    return settings.asConfiguration();
+  }
+
+  private ChildSettings internalLoadProjectConfiguration(DbSession dbSession, String uuid) {
     ChildSettings settings = new ChildSettings(globalSettings);
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectComponentProperties(dbSession, uuid);
     propertyDtos.forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
     return settings;
   }
+
 }

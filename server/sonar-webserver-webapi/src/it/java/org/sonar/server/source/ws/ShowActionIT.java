@@ -27,6 +27,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -54,6 +55,7 @@ public class ShowActionIT {
   private DbClient dbClient = mock(DbClient.class);
   private DbSession session = mock(DbSession.class);
   private ComponentDao componentDao = mock(ComponentDao.class);
+  private BranchDao branchDao = mock(BranchDao.class);
   private ComponentDto project = ComponentTesting.newPrivateProjectDto();
   private ComponentDto file = ComponentTesting.newFileDto(project);
   private ShowAction underTest = new ShowAction(sourceService, dbClient, userSessionRule,
@@ -63,6 +65,7 @@ public class ShowActionIT {
   @Before
   public void setUp() {
     when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.branchDao()).thenReturn(branchDao);
     when(dbClient.openSession(false)).thenReturn(session);
   }
 

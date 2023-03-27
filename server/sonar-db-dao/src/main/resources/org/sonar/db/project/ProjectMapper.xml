@@ -64,6 +64,13 @@
       </foreach>
   </select>
 
+    <select id="selectByBranchUuid" parameterType="String" resultType="Project">
+    SELECT
+      <include refid="projectColumns"/>
+    FROM projects p inner join project_branches pb on pb.project_uuid = p.uuid
+    where pb.uuid=#{branchUuid,jdbcType=VARCHAR}
+  </select>
+
     <select id="selectProjects" resultType="Project">
     select
       <include refid="projectColumns"/>

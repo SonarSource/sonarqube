@@ -30,8 +30,8 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.ws.IssueUpdater;
@@ -135,11 +135,11 @@ public class AssignAction implements HotspotsWsAction {
     return checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, assignee), "Unknown user: %s", assignee);
   }
 
-  private void checkAssigneeProjectPermission(DbSession dbSession, UserDto assignee, String issueProjectUuid) {
-    ComponentDto componentDto = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, issueProjectUuid),
-      "Could not find project for issue");
-    String mainProjectUuid = componentDto.getMainBranchProjectUuid() == null ? componentDto.uuid() : componentDto.getMainBranchProjectUuid();
-    if (componentDto.isPrivate() && !hasProjectPermission(dbSession, assignee.getUuid(), mainProjectUuid)) {
+  private void checkAssigneeProjectPermission(DbSession dbSession, UserDto assignee, String issueBranchUuid) {
+    ProjectDto project = checkFoundWithOptional(dbClient.projectDao().selectByBranchUuid(dbSession, issueBranchUuid),
+      "Could not find branch for issue");
+
+    if (project.isPrivate() && !hasProjectPermission(dbSession, assignee.getUuid(), project.getUuid())) {
       throw new IllegalArgumentException(String.format("Provided user with login '%s' does not have 'Browse' permission to project", assignee.getLogin()));
     }
   }

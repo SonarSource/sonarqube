@@ -22,7 +22,6 @@ package org.sonar.server.setting;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
 
 public interface ProjectConfigurationLoader {
   /**
@@ -31,7 +30,8 @@ public interface ProjectConfigurationLoader {
    * Returns the applicable component configuration with most specific configuration overriding more global ones
    * (eg. global > project > branch).
    * <p>
-   * Any component is accepted but SQ only supports specific properties for projects and branches.
    */
-  Configuration loadProjectConfiguration(DbSession dbSession, BranchDto branch);
+  Configuration loadBranchConfiguration(DbSession dbSession, BranchDto branch);
+
+  Configuration loadProjectConfiguration(DbSession dbSession, String projectUuid);
 }

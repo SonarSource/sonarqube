@@ -165,7 +165,7 @@ public class ComponentAction implements MeasuresWsAction {
 
       Optional<Measures.Period> period = snapshotToWsPeriods(analysis);
       Optional<RefComponent> reference = getReference(dbSession, component);
-      return buildResponse(request, component, reference, measuresByMetric, metrics, period);
+      return buildResponse(dbSession, request, component, reference, measuresByMetric, metrics, period);
     }
   }
 
@@ -246,10 +246,9 @@ public class ComponentAction implements MeasuresWsAction {
     return refBranch.map(rb -> new RefComponent(rb, refComponent.get()));
   }
 
-  private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<RefComponent> reference,
+  private ComponentWsResponse buildResponse(DbSession dbSession, ComponentRequest request, ComponentDto component, Optional<RefComponent> reference,
     Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, Optional<Measures.Period> period) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
-    boolean isMainBranch = component.getMainBranchProjectUuid() == null;
 
     if (reference.isPresent()) {
       BranchDto refBranch = reference.get().getRefBranch();
@@ -257,6 +256,7 @@ public class ComponentAction implements MeasuresWsAction {
       response.setComponent(componentDtoToWsComponent(component, measuresByMetric, singletonMap(refComponent.uuid(), refComponent),
         refBranch.isMain() ? null : refBranch.getBranchKey(), null));
     } else {
+      boolean isMainBranch = dbClient.branchDao().selectByUuid(dbSession, component.branchUuid()).map(BranchDto::isMain).orElse(true);
       response.setComponent(componentDtoToWsComponent(component, measuresByMetric, emptyMap(), isMainBranch ? null : request.getBranch(), request.getPullRequest()));
     }
 

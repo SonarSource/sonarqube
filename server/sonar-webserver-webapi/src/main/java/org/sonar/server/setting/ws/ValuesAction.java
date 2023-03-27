@@ -25,6 +25,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -124,11 +125,9 @@ public class ValuesAction implements SettingsWsAction {
     try (DbSession dbSession = dbClient.openSession(true)) {
       ValuesRequest valuesRequest = ValuesRequest.from(request);
       Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
-      BranchDto branchDto = component.map(c -> componentFinder.getBranchByUuid(dbSession, c.branchUuid())).orElse(null);
-
       Set<String> keys = loadKeys(valuesRequest);
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
-      List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet(), branchDto);
+      List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
       return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
     }
   }
@@ -160,28 +159,33 @@ public class ValuesAction implements SettingsWsAction {
     return Optional.of(component);
   }
 
-  private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys, @Nullable BranchDto branchDto) {
+  private List<Setting> loadSettings(DbSession dbSession, Optional<ComponentDto> component, Set<String> keys) {
     // List of settings must be kept in the following orders : default -> global -> component -> branch
     List<Setting> settings = new ArrayList<>();
     settings.addAll(loadDefaultValues(keys));
     settings.addAll(loadGlobalSettings(dbSession, keys));
-    String branch = getBranchKeySafely(branchDto);
-    if (component.isPresent() && branch != null && component.get().getMainBranchProjectUuid() != null) {
-      ComponentDto project = componentFinder.getByUuidFromMainBranch(dbSession, component.get().getMainBranchProjectUuid());
-      settings.addAll(loadComponentSettings(dbSession, keys, project).values());
-    }
-    component.ifPresent(componentDto -> settings.addAll(loadComponentSettings(dbSession, keys, componentDto).values()));
+    component.ifPresent(c -> settings.addAll(loadComponentSettings(dbSession, c, keys)));
     return settings.stream()
       .filter(s -> settingsWsSupport.isVisible(s.getKey(), component))
       .toList();
   }
 
-  @CheckForNull
-  private static String getBranchKeySafely(@Nullable BranchDto branchDto) {
-    if (branchDto != null) {
-      return branchDto.isMain() ? null : branchDto.getBranchKey();
+  private Collection<Setting> loadComponentSettings(DbSession dbSession, ComponentDto componentDto, Set<String> keys) {
+    BranchDto branchDto = componentFinder.getBranchByUuid(dbSession, componentDto.branchUuid());
+
+    List<String> componentUuids = new LinkedList<>();
+    if (!branchDto.isMain()) {
+      ComponentDto mainBranchComponent = componentFinder.getByKey(dbSession, componentDto.getKey());
+      if (!mainBranchComponent.isRoot()) {
+        componentUuids.add(mainBranchComponent.branchUuid());
+      }
+      componentUuids.add(mainBranchComponent.uuid());
     }
-    return null;
+    if (!componentDto.isRoot()) {
+      componentUuids.add(componentDto.branchUuid());
+    }
+    componentUuids.add(componentDto.uuid());
+    return loadComponentsSettings(dbSession, keys, componentUuids);
   }
 
   private List<Setting> loadDefaultValues(Set<String> keys) {
@@ -209,14 +213,9 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   /**
-   * Return list of settings by component uuid
+   * Return list of settings by component uuids
    */
-  private Multimap<String, Setting> loadComponentSettings(DbSession dbSession, Set<String> keys, ComponentDto component) {
-    List<String> componentUuids = new LinkedList<>();
-    if (!component.uuid().equals(component.branchUuid())) {
-      componentUuids.add(component.branchUuid());
-    }
-    componentUuids.add(component.uuid());
+  private Collection<Setting> loadComponentsSettings(DbSession dbSession, Set<String> keys, List<String> componentUuids) {
     List<PropertyDto> properties = dbClient.propertiesDao().selectPropertiesByKeysAndComponentUuids(dbSession, keys, componentUuids);
     List<PropertyDto> propertySets = dbClient.propertiesDao().selectPropertiesByKeysAndComponentUuids(dbSession, getPropertySetKeys(properties), componentUuids);
 
@@ -227,7 +226,7 @@ public class ValuesAction implements SettingsWsAction {
       settingsByUuid.put(componentUuid,
         Setting.createFromDto(propertyDto, getPropertySets(propertyKey, propertySets, componentUuid), propertyDefinitions.get(propertyKey)));
     }
-    return settingsByUuid;
+    return settingsByUuid.values();
   }
 
   private Set<String> getPropertySetKeys(List<PropertyDto> properties) {

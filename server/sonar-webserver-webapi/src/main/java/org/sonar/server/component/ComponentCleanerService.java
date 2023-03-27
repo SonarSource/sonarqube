@@ -54,12 +54,6 @@ public class ComponentCleanerService {
     }
   }
 
-  public void deleteComponents(DbSession dbSession, List<ComponentDto> components) {
-    for (ComponentDto component : components) {
-      delete(dbSession, component);
-    }
-  }
-
   public void deleteBranch(DbSession dbSession, BranchDto branch) {
     dbClient.purgeDao().deleteBranch(dbSession, branch.getUuid());
     projectIndexers.commitAndIndexBranches(dbSession, singletonList(branch), PROJECT_DELETION);
@@ -78,12 +72,12 @@ public class ComponentCleanerService {
     projectIndexers.commitAndIndexProjects(dbSession, singletonList(application), PROJECT_DELETION);
   }
 
-  public void delete(DbSession dbSession, ComponentDto project) {
-    checkArgument(hasProjectScope(project) && isDeletable(project) && project.getMainBranchProjectUuid() == null, "Only projects can be deleted");
-    dbClient.purgeDao().deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
-    dbClient.userDao().cleanHomepage(dbSession, project);
-    dbClient.userTokenDao().deleteByProjectKey(dbSession, project.getKey());
-    projectIndexers.commitAndIndexComponents(dbSession, singletonList(project), PROJECT_DELETION);
+  public void deleteComponent(DbSession dbSession, ComponentDto component) {
+    checkArgument(hasProjectScope(component) && isDeletable(component), "Only projects can be deleted");
+    dbClient.purgeDao().deleteProject(dbSession, component.uuid(), component.qualifier(), component.name(), component.getKey());
+    dbClient.userDao().cleanHomepage(dbSession, component);
+    dbClient.userTokenDao().deleteByProjectKey(dbSession, component.getKey());
+    projectIndexers.commitAndIndexComponents(dbSession, singletonList(component), PROJECT_DELETION);
   }
 
   private static boolean hasProjectScope(ComponentDto project) {

@@ -335,28 +335,28 @@ public class ValuesActionIT {
   }
 
   @Test
-  public void return_inherited_values_on_module() {
+  public void return_inherited_values_on_component() {
     logInAsProjectUser();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     definitions.addComponents(asList(
       PropertyDefinition.builder("defaultProperty").defaultValue("default").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("globalProperty").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("projectProperty").onQualifiers(PROJECT).build(),
-      PropertyDefinition.builder("moduleProperty").onQualifiers(PROJECT).build()));
+      PropertyDefinition.builder("componentProperty").onQualifiers(PROJECT).build()));
     db.properties().insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("globalProperty").setValue("global"));
     db.properties().insertProperties(null, project.getKey(), project.name(), project.qualifier(),
       newComponentPropertyDto(project).setKey("projectProperty").setValue("project"));
     db.properties().insertProperties(null, file.getKey(), file.name(), file.qualifier(),
-      newComponentPropertyDto(file).setKey("moduleProperty").setValue("module"));
+      newComponentPropertyDto(file).setKey("componentProperty").setValue("component"));
 
-    ValuesWsResponse result = executeRequestForComponentProperties(file, "defaultProperty", "globalProperty", "projectProperty", "moduleProperty");
+    ValuesWsResponse result = executeRequestForComponentProperties(file, "defaultProperty", "globalProperty", "projectProperty", "componentProperty");
 
     assertThat(result.getSettingsList()).hasSize(4);
     assertSetting(result.getSettings(0), "defaultProperty", "default", true);
     assertSetting(result.getSettings(1), "globalProperty", "global", true);
     assertSetting(result.getSettings(2), "projectProperty", "project", true);
-    assertSetting(result.getSettings(3), "moduleProperty", "module", false);
+    assertSetting(result.getSettings(3), "componentProperty", "component", false);
   }
 
   @Test

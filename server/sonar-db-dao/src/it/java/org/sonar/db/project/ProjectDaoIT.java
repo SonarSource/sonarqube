@@ -41,6 +41,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -90,6 +91,14 @@ public class ProjectDaoIT {
     Optional<ProjectDto> projectByKee = projectDao.selectProjectByKey(db.getSession(), "projectKee_o1_p1");
     assertThat(projectByKee).isPresent();
     assertProject(projectByKee.get(), "projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false);
+  }
+
+  @Test
+  public void select_by_branch_uuid() {
+    ProjectDto dto = createProject("o1", "p1");
+    projectDao.insert(db.getSession(), dto);
+    BranchDto branchDto = db.components().insertProjectBranch(dto);
+    assertThat(projectDao.selectByBranchUuid(db.getSession(), branchDto.getUuid()).get().getUuid()).isEqualTo(dto.getUuid());
   }
 
   @Test

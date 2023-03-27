@@ -230,7 +230,7 @@ public class BulkDeleteActionIT {
       .setParam("projects", StringUtils.join(keys, ","))
       .execute();
 
-    verify(componentCleanerService, times(1_000)).delete(any(DbSession.class), any(ComponentDto.class));
+    verify(componentCleanerService, times(1_000)).deleteComponent(any(DbSession.class), any(ComponentDto.class));
     ArgumentCaptor<Set<Project>> projectsCaptor = ArgumentCaptor.forClass(Set.class);
     verify(projectLifeCycleListeners).onProjectsDeleted(projectsCaptor.capture());
     assertThat(projectsCaptor.getValue()).hasSize(1_000);
@@ -306,7 +306,7 @@ public class BulkDeleteActionIT {
 
   private void verifyComponentDeleted(ComponentDto... projects) {
     ArgumentCaptor<ComponentDto> argument = ArgumentCaptor.forClass(ComponentDto.class);
-    verify(componentCleanerService, times(projects.length)).delete(any(DbSession.class), argument.capture());
+    verify(componentCleanerService, times(projects.length)).deleteComponent(any(DbSession.class), argument.capture());
 
     for (ComponentDto project : projects) {
       assertThat(argument.getAllValues()).extracting(ComponentDto::uuid).contains(project.uuid());

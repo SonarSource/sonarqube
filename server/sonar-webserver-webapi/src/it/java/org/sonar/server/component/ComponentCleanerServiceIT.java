@@ -86,33 +86,26 @@ public class ComponentCleanerServiceIT {
   }
 
   @Test
-  public void delete_list_of_components_from_db() {
+  public void delete_component_from_db() {
     ComponentDto componentDto1 = db.components().insertPublicProject();
     ComponentDto componentDto2 = db.components().insertPublicProject();
-    ComponentDto componentDto3 = db.components().insertPublicProject();
 
     mockResourceTypeAsValidProject();
 
-    underTest.deleteComponents(dbSession, asList(componentDto1, componentDto2));
+    underTest.deleteComponent(dbSession, componentDto1);
     dbSession.commit();
 
     assertNotExists(componentDto1);
-    assertNotExists(componentDto2);
-    assertExists(componentDto3);
+    assertExists(componentDto2);
   }
 
   @Test
   public void fail_with_IAE_if_project_non_deletable() {
     ComponentDto componentDto1 = db.components().insertPublicProject();
-    ComponentDto componentDto2 = db.components().insertPublicProject();
-
     mockResourceTypeAsNonDeletable();
-
     dbSession.commit();
 
-    List<ComponentDto> componentDtos = asList(componentDto1, componentDto2);
-
-    assertThatThrownBy(() -> underTest.deleteComponents(dbSession, componentDtos))
+    assertThatThrownBy(() -> underTest.deleteComponent(dbSession, componentDto1))
       .withFailMessage("Only projects can be deleted")
       .isInstanceOf(IllegalArgumentException.class);
   }
@@ -187,7 +180,7 @@ public class ComponentCleanerServiceIT {
     dbClient.componentDao().insertOnMainBranch(dbSession, file);
     dbSession.commit();
 
-    assertThatThrownBy(() -> underTest.delete(dbSession, file))
+    assertThatThrownBy(() -> underTest.deleteComponent(dbSession, file))
       .isInstanceOf(IllegalArgumentException.class);
   }
 

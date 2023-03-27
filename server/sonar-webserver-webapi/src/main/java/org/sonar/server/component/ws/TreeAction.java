@@ -233,33 +233,33 @@ public class TreeAction implements ComponentsWsAction {
       .filter(b -> !b.isMain())
       .collect(Collectors.toMap(BranchDto::getUuid, BranchDto::getBranchKey));
 
-    response.setBaseComponent(toWsComponent(dbSession, baseComponent, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
+    boolean isMainBranch = dbClient.branchDao().selectByUuid(dbSession, baseComponent.branchUuid()).map(BranchDto::isMain).orElse(true);
+    response.setBaseComponent(toWsComponent(dbSession, baseComponent, isMainBranch, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
     for (ComponentDto dto : components) {
-      response.addComponents(toWsComponent(dbSession, dto, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
+      response.addComponents(toWsComponent(dbSession, dto, isMainBranch, referenceComponentsByUuid, branchKeyByReferenceUuid, request));
     }
 
     return response.build();
   }
 
-  private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component,
+  private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component, boolean isMainBranch,
     Map<String, ComponentDto> referenceComponentsByUuid, Map<String, String> branchKeyByReferenceUuid, Request request) {
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
 
     Components.Component.Builder wsComponent;
-    if (component.getMainBranchProjectUuid() == null && component.isRootProject() && PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier())) {
+    if (isMainBranch && component.isRootProject() && PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier())) {
       ProjectDto projectDto = componentFinder.getProjectOrApplicationByKey(dbSession, component.getKey());
       wsComponent = projectOrAppToWsComponent(projectDto, null);
     } else {
-      Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
-        ofNullable(component.getMainBranchProjectUuid()).orElse(component.branchUuid()));
+      ProjectDto parentProject = dbClient.projectDao().selectByBranchUuid(dbSession, component.branchUuid()).orElse(null);
 
       if (referenceComponent != null) {
-        wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, branchKeyByReferenceUuid.get(referenceComponent.uuid()), null);
-      } else if (component.getMainBranchProjectUuid() != null) {
-        wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, request.branch, request.pullRequest);
+        wsComponent = componentDtoToWsComponent(component, parentProject, null, false, branchKeyByReferenceUuid.get(referenceComponent.uuid()), null);
+      } else if (!isMainBranch) {
+        wsComponent = componentDtoToWsComponent(component, parentProject, null, false, request.branch, request.pullRequest);
       } else {
-        wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null, null, null);
+        wsComponent = componentDtoToWsComponent(component, parentProject, null, true, null, null);
       }
     }
 

@@ -337,7 +337,7 @@ public class SearchActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Component key '%s' not found", key);
+      .hasMessage("Project '%s' not found", key);
   }
 
   @Test

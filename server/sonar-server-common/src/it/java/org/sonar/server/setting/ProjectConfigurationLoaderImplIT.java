@@ -56,7 +56,7 @@ public class ProjectConfigurationLoaderImplIT {
     globalSettings.setProperty(MAIN_BRANCH_PROP_KEY, MAIN_BRANCH_PROP_VALUE);
 
     BranchDto mainBranch = insertBranch(MAIN_BRANCH_UUID, MAIN_BRANCH_UUID, true);
-    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), mainBranch);
+    Configuration configuration = underTest.loadBranchConfiguration(db.getSession(), mainBranch);
 
     assertThat(configuration.get(MAIN_BRANCH_PROP_KEY)).contains(MAIN_BRANCH_PROP_VALUE);
   }
@@ -72,8 +72,7 @@ public class ProjectConfigurationLoaderImplIT {
     db.properties().insertProperty(projectPropKey2, projectPropValue2, MAIN_BRANCH_UUID);
     BranchDto mainBranch = insertBranch(MAIN_BRANCH_UUID, MAIN_BRANCH_UUID, true);
 
-
-    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), mainBranch);
+    Configuration configuration = underTest.loadBranchConfiguration(db.getSession(), mainBranch);
 
     assertThat(configuration.get(GLOBAL_PROP_KEY)).contains(GLOBAL_PROP_VALUE);
     assertThat(configuration.get(projectPropKey1)).contains(projectPropValue1);
@@ -90,7 +89,7 @@ public class ProjectConfigurationLoaderImplIT {
     BranchDto mainBranch = insertBranch(MAIN_BRANCH_UUID, MAIN_BRANCH_UUID, true);
     BranchDto branch = insertBranch(BRANCH_UUID, MAIN_BRANCH_UUID, false);
 
-    Configuration configuration = underTest.loadProjectConfiguration(db.getSession(), branch);
+    Configuration configuration = underTest.loadBranchConfiguration(db.getSession(), branch);
 
     assertThat(configuration.get(GLOBAL_PROP_KEY)).contains(GLOBAL_PROP_VALUE);
     assertThat(configuration.get(MAIN_BRANCH_PROP_KEY)).contains(MAIN_BRANCH_PROP_VALUE);
