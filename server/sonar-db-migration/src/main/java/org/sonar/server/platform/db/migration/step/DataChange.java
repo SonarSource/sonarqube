@@ -88,6 +88,9 @@ public abstract class DataChange implements MigrationStep {
     public MassUpdate prepareMassUpdate() {
       return new MassUpdate(db, readConnection, writeConnection);
     }
+    public <T> MassRowSplitter<T> prepareMassRowSplitter() {
+      return new MassRowSplitter<>(db, readConnection, writeConnection);
+    }
   }
 
 }

@@ -23,10 +23,13 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +37,8 @@ import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.Select.Row;
 import org.sonar.server.platform.db.migration.step.Select.RowReader;
 
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
@@ -393,6 +398,60 @@ public class DataChangeTest {
   }
 
   @Test
+  public void row_splitter_should_split_correctly() throws Exception {
+    insertPersons();
+
+    new DataChange(db.database()) {
+      @Override
+      public void execute(Context context) throws SQLException {
+        MassRowSplitter<PhoneNumberRow> massRowSplitter = context.prepareMassRowSplitter();
+        massRowSplitter.select("select id, phone_numbers from persons where id>?").setLong(1, -2L);
+        massRowSplitter.splitRow(row -> {
+          try {
+            int personId = row.getInt(1);
+            String phoneNumbers = row.getString(2);
+            if (phoneNumbers == null) {
+              return emptySet();
+            }
+            return Arrays.stream(StringUtils.split(phoneNumbers, '\n'))
+              .map(number -> new PhoneNumberRow(personId, number))
+              .collect(toSet());
+          } catch (SQLException e) {
+            throw new RuntimeException(e);
+          }
+        });
+
+        massRowSplitter.insert("insert into phone_numbers (person_id, phone_number) values (?, ?)");
+        massRowSplitter.execute((row, insert) -> {
+          insert.setLong(1, row.personId())
+            .setString(2, row.phoneNumber());
+          return true;
+        });
+      }
+    }.execute();
+
+    Set<PhoneNumberRow> actualRows = getPhoneNumberRows();
+
+    assertThat(actualRows)
+      .containsExactlyInAnyOrder(
+        new PhoneNumberRow(1, "1"),
+        new PhoneNumberRow(1, "32234"),
+        new PhoneNumberRow(1, "42343"),
+        new PhoneNumberRow(2, "432423")
+      );
+  }
+
+  private Set<PhoneNumberRow> getPhoneNumberRows() {
+    return db
+      .select("select person_id as personId, phone_number as phoneNumber from phone_numbers")
+      .stream()
+      .map(row -> new PhoneNumberRow((long) row.get("PERSONID"), (String) row.get("PHONENUMBER")))
+      .collect(toSet());
+  }
+
+  private record PhoneNumberRow(long personId, String phoneNumber){}
+
+  @Test
   public void display_current_row_details_if_error_during_mass_update() throws Exception {
     insertPersons();
 
@@ -497,9 +556,9 @@ public class DataChangeTest {
   }
 
   private void insertPersons() throws ParseException {
-    insertPerson(1, "barbara", 56, false, "2014-01-25", 1.5d);
-    insertPerson(2, "emmerik", 14, true, "2014-01-25", 5.2d);
-    insertPerson(3, "morgan", 3, true, "2014-01-25", 5.4d);
+    insertPerson(1, "barbara", 56, false, "2014-01-25", 1.5d, "\n1\n32234\n42343\n");
+    insertPerson(2, "emmerik", 14, true, "2014-01-25", 5.2d, "432423");
+    insertPerson(3, "morgan", 3, true, "2014-01-25", 5.4d, null);
   }
 
   private void assertInitialPersons() throws ParseException {
@@ -508,17 +567,19 @@ public class DataChangeTest {
     assertPerson(3L, "morgan", 3L, true, "2014-01-25", 5.4d);
   }
 
-  private void insertPerson(int id, String login, int age, boolean enabled, String updatedAt, double coeff) throws ParseException {
+  private void insertPerson(int id, String login, int age, boolean enabled, String updatedAt, double coeff, @Nullable String newLineSeparatedPhoneNumbers) throws ParseException {
     db.executeInsert("persons",
       "ID", id,
       "LOGIN", login,
       "AGE", age,
       "ENABLED", enabled,
       "UPDATED_AT", dateFormat.parse(updatedAt),
-      "COEFF", coeff);
+      "COEFF", coeff,
+      "PHONE_NUMBERS", newLineSeparatedPhoneNumbers);
   }
 
-  private void assertPerson(long id, @Nullable String login, @Nullable Long age, @Nullable Boolean enabled, @Nullable String updatedAt, @Nullable Double coeff) throws ParseException {
+  private void assertPerson(long id, @Nullable String login, @Nullable Long age, @Nullable Boolean enabled, @Nullable String updatedAt, @Nullable Double coeff)
+    throws ParseException {
     List<Map<String, Object>> rows = db
       .select("select id as \"ID\", login as \"LOGIN\", age as \"AGE\", enabled as \"ENABLED\", coeff as \"COEFF\", updated_at as \"UPDATED\" from persons where id=" + id);
     assertThat(rows).describedAs("id=" + id).hasSize(1);
