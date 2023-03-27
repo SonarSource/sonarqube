@@ -20,6 +20,7 @@
 package org.sonar.server.user.ws;
 
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -167,7 +168,7 @@ public class UpdateActionIT {
       .execute();
 
     UserDto userDto = dbClient.userDao().selectByLogin(dbSession, "john");
-    assertThat(userDto.getScmAccounts()).isNull();
+    assertThat(userDto.getSortedScmAccounts()).isEmpty();
   }
 
   @Test
@@ -181,20 +182,20 @@ public class UpdateActionIT {
       .assertJson(getClass(), "update_scm_accounts.json");
 
     UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
-    assertThat(user.getScmAccountsAsList()).containsOnly("jon.snow");
+    assertThat(user.getSortedScmAccounts()).containsOnly("jon.snow");
   }
 
   @Test
-  public void update_scm_account_having_coma() {
+  public void update_scm_account() {
     createUser();
 
     ws.newRequest()
       .setParam("login", "john")
-      .setMultiParam("scmAccount", singletonList("jon,snow"))
+      .setMultiParam("scmAccount", List.of("jon", "snow"))
       .execute();
 
     UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
-    assertThat(user.getScmAccountsAsList()).containsOnly("jon,snow");
+    assertThat(user.getSortedScmAccounts()).containsExactly("jon", "snow");
   }
 
   @Test
@@ -237,7 +238,7 @@ public class UpdateActionIT {
       .execute();
 
     UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
-    assertThat(user.getScmAccountsAsList()).containsExactly("Jon.1", "JON.2", "jon.3");
+    assertThat(user.getSortedScmAccounts()).containsExactly("Jon.1", "JON.2", "jon.3");
   }
 
   @Test

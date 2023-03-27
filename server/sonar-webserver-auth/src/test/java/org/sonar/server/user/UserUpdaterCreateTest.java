@@ -99,7 +99,7 @@ public class UserUpdaterCreateTest {
     assertThat(dto.getLogin()).isEqualTo("user");
     assertThat(dto.getName()).isEqualTo("User");
     assertThat(dto.getEmail()).isEqualTo("user@mail.com");
-    assertThat(dto.getScmAccountsAsList()).containsOnly("u1", "u_1", "User 1");
+    assertThat(dto.getSortedScmAccounts()).containsOnly("u1", "u_1", "User 1");
     assertThat(dto.isActive()).isTrue();
     assertThat(dto.isLocal()).isTrue();
 
@@ -135,7 +135,7 @@ public class UserUpdaterCreateTest {
     assertThat(dto.getLogin()).isEqualTo("us");
     assertThat(dto.getName()).isEqualTo("User");
     assertThat(dto.getEmail()).isNull();
-    assertThat(dto.getScmAccounts()).isNull();
+    assertThat(dto.getSortedScmAccounts()).isEmpty();
     assertThat(dto.isActive()).isTrue();
   }
 
@@ -238,7 +238,7 @@ public class UserUpdaterCreateTest {
       .build(), u -> {
     });
 
-    assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
+    assertThat(dbClient.userDao().selectByLogin(session, "user").getSortedScmAccounts()).containsOnly("u1");
   }
 
   @Test
@@ -253,7 +253,7 @@ public class UserUpdaterCreateTest {
       .build(), u -> {
     });
 
-    assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccounts()).isNull();
+    assertThat(dbClient.userDao().selectByLogin(session, "user").getSortedScmAccounts()).isEmpty();
   }
 
   @Test
@@ -268,7 +268,7 @@ public class UserUpdaterCreateTest {
       .build(), u -> {
     });
 
-    assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
+    assertThat(dbClient.userDao().selectByLogin(session, "user").getSortedScmAccounts()).containsOnly("u1");
   }
 
   @Test

@@ -20,6 +20,7 @@
 package org.sonar.db.user;
 
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,7 +90,7 @@ public class UserDaoWithPersisterIT {
       .setLogin("johnDoo")
       .setName("John Doo")
       .setEmail("jodoo@hn.com")
-      .setScmAccounts(",jo.hn,john2,johndoo,")
+      .setScmAccounts(List.of("jo.hn","john2","johndoo"))
       .setActive(false)
       .setResetPassword(true)
       .setSalt("12345")
@@ -111,7 +112,7 @@ public class UserDaoWithPersisterIT {
         UserNewValue::getScmAccounts, UserNewValue::getExternalId, UserNewValue::getExternalLogin, UserNewValue::getExternalIdentityProvider,
         UserNewValue::isLocal, UserNewValue::getLastConnectionDate)
       .containsExactly(updatedUser.getUuid(), updatedUser.getLogin(), updatedUser.getName(), updatedUser.getEmail(), updatedUser.isActive(),
-        updatedUser.getScmAccounts(), updatedUser.getExternalId(), updatedUser.getExternalLogin(), updatedUser.getExternalIdentityProvider(),
+        updatedUser.getSortedScmAccounts(), updatedUser.getExternalId(), updatedUser.getExternalLogin(), updatedUser.getExternalIdentityProvider(),
         updatedUser.isLocal(), updatedUser.getLastConnectionDate());
     assertThat(newValue.toString())
       .contains("name")

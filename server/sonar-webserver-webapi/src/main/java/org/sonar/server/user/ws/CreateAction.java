@@ -158,7 +158,7 @@ public class CreateAction implements UsersWsAction {
       .setName(userDto.getName())
       .setActive(userDto.isActive())
       .setLocal(userDto.isLocal())
-      .addAllScmAccounts(userDto.getScmAccountsAsList());
+      .addAllScmAccounts(userDto.getSortedScmAccounts());
     ofNullable(emptyToNull(userDto.getEmail())).ifPresent(userBuilder::setEmail);
     return CreateWsResponse.newBuilder().setUser(userBuilder).build();
   }

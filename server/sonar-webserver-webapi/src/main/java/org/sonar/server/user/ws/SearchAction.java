@@ -204,8 +204,8 @@ public class SearchAction implements UsersWsAction {
       userBuilder.setActive(user.isActive());
       userBuilder.setLocal(user.isLocal());
       ofNullable(user.getExternalIdentityProvider()).ifPresent(userBuilder::setExternalProvider);
-      if (!user.getScmAccountsAsList().isEmpty()) {
-        userBuilder.setScmAccounts(ScmAccounts.newBuilder().addAllScmAccounts(user.getScmAccountsAsList()));
+      if (!user.getSortedScmAccounts().isEmpty()) {
+        userBuilder.setScmAccounts(ScmAccounts.newBuilder().addAllScmAccounts(user.getSortedScmAccounts()));
       }
     }
     if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), user.getUuid())) {

@@ -509,7 +509,7 @@ public class DeactivateActionIT {
     assertThat(user).isPresent();
     assertThat(user.get().isActive()).isFalse();
     assertThat(user.get().getEmail()).isNull();
-    assertThat(user.get().getScmAccountsAsList()).isEmpty();
+    assertThat(user.get().getSortedScmAccounts()).isEmpty();
   }
 
   private void verifyThatUserIsAnomymized(String login) {

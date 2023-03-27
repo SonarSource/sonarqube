@@ -145,8 +145,9 @@ public class UserIndexer implements ResilientIndexer {
     doc.setName(user.getName());
     doc.setEmail(user.getEmail());
     doc.setActive(user.isActive());
-    doc.setScmAccounts(UserDto.decodeScmAccounts(user.getScmAccounts()));
+    doc.setScmAccounts(user.getSortedScmAccounts());
 
     return doc.toIndexRequest();
   }
+
 }

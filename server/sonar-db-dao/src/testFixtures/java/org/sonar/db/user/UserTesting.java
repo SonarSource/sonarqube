@@ -21,6 +21,7 @@ package org.sonar.db.user;
 
 import javax.annotation.Nullable;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
@@ -79,7 +80,7 @@ public class UserTesting {
     return newUserDto()
       .setActive(false)
       // All these fields are reset when disabling a user
-      .setScmAccounts((String) null)
+      .setScmAccounts(emptyList())
       .setEmail(null)
       .setCryptedPassword(null)
       .setSalt(null);

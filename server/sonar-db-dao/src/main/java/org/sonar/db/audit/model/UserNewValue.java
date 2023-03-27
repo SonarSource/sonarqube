@@ -19,6 +19,8 @@
  */
 package org.sonar.db.audit.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
@@ -40,8 +42,7 @@ public class UserNewValue extends NewValue {
   @Nullable
   private Boolean isActive;
 
-  @Nullable
-  private String scmAccounts;
+  private List<String> scmAccounts = new ArrayList<>();
 
   @Nullable
   private String externalId;
@@ -69,7 +70,7 @@ public class UserNewValue extends NewValue {
     this.name = userDto.getName();
     this.email = userDto.getEmail();
     this.isActive = userDto.isActive();
-    this.scmAccounts = userDto.getScmAccounts();
+    this.scmAccounts = userDto.getSortedScmAccounts();
     this.externalId = userDto.getExternalId();
     this.externalLogin = userDto.getExternalLogin();
     this.externalIdentityProvider = userDto.getExternalIdentityProvider();
@@ -100,8 +101,7 @@ public class UserNewValue extends NewValue {
     return this.isActive;
   }
 
-  @CheckForNull
-  public String getScmAccounts() {
+  public List<String> getScmAccounts() {
     return this.scmAccounts;
   }
 
@@ -138,7 +138,7 @@ public class UserNewValue extends NewValue {
     addField(sb, "\"name\": ", this.name, true);
     addField(sb, "\"email\": ", this.email, true);
     addField(sb, "\"isActive\": ", ObjectUtils.toString(this.isActive), false);
-    addField(sb, "\"scmAccounts\": ", this.scmAccounts, true);
+    addField(sb, "\"scmAccounts\": ", String.join(",", scmAccounts), true);
     addField(sb, "\"externalId\": ", this.externalId, true);
     addField(sb, "\"externalLogin\": ", this.externalLogin, true);
     addField(sb, "\"externalIdentityProvider\": ", this.externalIdentityProvider, true);

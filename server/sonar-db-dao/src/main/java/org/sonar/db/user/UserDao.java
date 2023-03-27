@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
@@ -42,7 +43,6 @@ import static java.util.Locale.ENGLISH;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
-import static org.sonar.db.user.UserDto.SCM_ACCOUNTS_SEPARATOR;
 
 public class UserDao implements Dao {
   private static final long WEEK_IN_MS = DAYS.toMillis(7L);
@@ -78,6 +78,7 @@ public class UserDao implements Dao {
   /**
    * Select users by uuids, including disabled users. An empty list is returned
    * if list of uuids is empty, without any db round trips.
+   *
    * @return
    */
   public List<UserDto> selectByUuids(DbSession session, Collection<String> uuids) {
@@ -117,8 +118,15 @@ public class UserDao implements Dao {
   public UserDto insert(DbSession session, UserDto dto) {
     long now = system2.now();
     mapper(session).insert(dto.setUuid(uuidFactory.create()).setCreatedAt(now).setUpdatedAt(now));
+    insertScmAccounts(session, dto.getUuid(), dto.getSortedScmAccounts());
     auditPersister.addUser(session, new UserNewValue(dto.getUuid(), dto.getLogin()));
     return dto;
+  }
+
+  private static void insertScmAccounts(DbSession session, String userUuid, List<String> scmAccounts) {
+    scmAccounts.stream()
+      .filter(StringUtils::isNotBlank)
+      .forEach(scmAccount -> mapper(session).insertScmAccount(userUuid, scmAccount));
   }
 
   public UserDto update(DbSession session, UserDto dto) {
@@ -127,6 +135,8 @@ public class UserDao implements Dao {
 
   public UserDto update(DbSession session, UserDto dto, boolean track) {
     mapper(session).update(dto.setUpdatedAt(system2.now()));
+    mapper(session).deleteAllScmAccounts(dto.getUuid());
+    insertScmAccounts(session, dto.getUuid(), dto.getSortedScmAccounts());
     if (track) {
       auditPersister.updateUser(session, new UserNewValue(dto));
     }
@@ -139,6 +149,7 @@ public class UserDao implements Dao {
 
   public void deactivateUser(DbSession dbSession, UserDto user) {
     mapper(dbSession).deactivateUser(user.getLogin(), system2.now());
+    mapper(dbSession).deleteAllScmAccounts(user.getUuid());
     auditPersister.deactivateUser(dbSession, new UserNewValue(user.getUuid(), user.getLogin()));
   }
 
@@ -160,15 +171,11 @@ public class UserDao implements Dao {
   }
 
   public List<UserDto> selectByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
-    String like = new StringBuilder().append("%")
-      .append(SCM_ACCOUNTS_SEPARATOR).append(scmAccountOrLoginOrEmail)
-      .append(SCM_ACCOUNTS_SEPARATOR).append("%").toString();
-    return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail, like);
+    return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail);
   }
 
   /**
    * Search for an active user with the given emailCaseInsensitive exits in database
-   *
    * Select is case insensitive. Result for searching 'mail@emailCaseInsensitive.com' or 'Mail@Email.com' is the same
    */
   public List<UserDto> selectByEmail(DbSession dbSession, String emailCaseInsensitive) {

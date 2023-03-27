@@ -38,7 +38,7 @@ public interface UserMapper {
    * Can return multiple results if an email is used by many users (For instance, technical account can use the same email as a none technical account)
    */
   @CheckForNull
-  List<UserDto> selectNullableByScmAccountOrLoginOrEmail(@Param("scmAccount") String scmAccountOrLoginOrEmail, @Param("likeScmAccount") String likeScmAccount);
+  List<UserDto> selectNullableByScmAccountOrLoginOrEmail(@Param("scmAccount") String scmAccountOrLoginOrEmail);
 
   /**
    * Select user by login. Note that disabled users are ignored.
@@ -85,4 +85,8 @@ public interface UserMapper {
   long countActiveSonarlintUsers(@Param("sinceDate") long sinceDate);
 
   long countActiveUsers();
+
+  void insertScmAccount(@Param("userUuid") String userUuid, @Param("scmAccount") String scmAccount);
+
+  void deleteAllScmAccounts(@Param("userUuid") String userUuid);
 }

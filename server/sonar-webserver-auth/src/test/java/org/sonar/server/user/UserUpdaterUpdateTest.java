@@ -100,7 +100,7 @@ public class UserUpdaterUpdateTest {
     assertThat(updatedUser.isActive()).isTrue();
     assertThat(updatedUser.getName()).isEqualTo("Marius2");
     assertThat(updatedUser.getEmail()).isEqualTo("marius2@mail.com");
-    assertThat(updatedUser.getScmAccountsAsList()).containsOnly("ma2");
+    assertThat(updatedUser.getSortedScmAccounts()).containsOnly("ma2");
     assertThat(updatedUser.getCreatedAt()).isEqualTo(user.getCreatedAt());
     assertThat(updatedUser.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
 
@@ -167,7 +167,7 @@ public class UserUpdaterUpdateTest {
     });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
-    assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
+    assertThat(dto.getSortedScmAccounts()).containsOnly("ma2");
     verify(auditPersister, times(1)).updateUserPassword(any(), any());
   }
 
@@ -190,7 +190,7 @@ public class UserUpdaterUpdateTest {
     assertThat(userReloaded.isLocal()).isTrue();
     assertThat(userReloaded.getName()).isEqualTo(user.getName());
     assertThat(userReloaded.getEmail()).isEqualTo(user.getEmail());
-    assertThat(userReloaded.getScmAccountsAsList()).containsAll(user.getScmAccountsAsList());
+    assertThat(userReloaded.getSortedScmAccounts()).containsAll(user.getSortedScmAccounts());
     assertThat(userReloaded.getSalt()).isEqualTo(user.getSalt());
     assertThat(userReloaded.getCryptedPassword()).isEqualTo(user.getCryptedPassword());
   }
@@ -213,7 +213,7 @@ public class UserUpdaterUpdateTest {
     assertThat(userReloaded.getExternalId()).isEqualTo(user.getExternalId());
     assertThat(userReloaded.getName()).isEqualTo(user.getName());
     assertThat(userReloaded.getEmail()).isEqualTo(user.getEmail());
-    assertThat(userReloaded.getScmAccountsAsList()).containsAll(user.getScmAccountsAsList());
+    assertThat(userReloaded.getSortedScmAccounts()).containsAll(user.getSortedScmAccounts());
     assertThat(userReloaded.getSalt()).isEqualTo(user.getSalt());
     assertThat(userReloaded.getCryptedPassword()).isEqualTo(user.getCryptedPassword());
   }
@@ -280,7 +280,7 @@ public class UserUpdaterUpdateTest {
 
     // Following fields has not changed
     assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
-    assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
+    assertThat(dto.getSortedScmAccounts()).containsOnly("ma", "marius33");
     assertThat(dto.getSalt()).isEqualTo("salt");
     assertThat(dto.getCryptedPassword()).isEqualTo("crypted password");
   }
@@ -302,7 +302,7 @@ public class UserUpdaterUpdateTest {
 
     // Following fields has not changed
     assertThat(dto.getName()).isEqualTo("Marius");
-    assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
+    assertThat(dto.getSortedScmAccounts()).containsOnly("ma", "marius33");
     assertThat(dto.getSalt()).isEqualTo("salt");
     assertThat(dto.getCryptedPassword()).isEqualTo("crypted password");
   }
@@ -320,7 +320,7 @@ public class UserUpdaterUpdateTest {
     });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
-    assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
+    assertThat(dto.getSortedScmAccounts()).containsOnly("ma2");
 
     // Following fields has not changed
     assertThat(dto.getName()).isEqualTo("Marius");
@@ -340,7 +340,7 @@ public class UserUpdaterUpdateTest {
     });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
-    assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
+    assertThat(dto.getSortedScmAccounts()).containsOnly("ma", "marius33");
   }
 
   @Test
@@ -354,7 +354,7 @@ public class UserUpdaterUpdateTest {
     });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
-    assertThat(dto.getScmAccounts()).isNull();
+    assertThat(dto.getSortedScmAccounts()).isEmpty();
   }
 
   @Test
@@ -375,7 +375,7 @@ public class UserUpdaterUpdateTest {
 
     // Following fields has not changed
     assertThat(dto.getName()).isEqualTo("Marius");
-    assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
+    assertThat(dto.getSortedScmAccounts()).containsOnly("ma", "marius33");
     assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
   }
 
@@ -399,7 +399,7 @@ public class UserUpdaterUpdateTest {
 
     // Following fields has not changed
     assertThat(dto.getName()).isEqualTo("Marius");
-    assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
+    assertThat(dto.getSortedScmAccounts()).containsOnly("ma", "marius33");
     assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
   }
 
@@ -461,7 +461,7 @@ public class UserUpdaterUpdateTest {
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setName(user.getName())
       .setEmail(user.getEmail())
-      .setScmAccounts(user.getScmAccountsAsList())
+      .setScmAccounts(user.getSortedScmAccounts())
       .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalLogin(), user.getExternalId())), u -> {
     });
 

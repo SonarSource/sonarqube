@@ -9,7 +9,6 @@
         u.name as name,
         u.email as email,
         u.active as "active",
-        u.scm_accounts as "scmAccounts",
         u.salt as "salt",
         u.crypted_password as "cryptedPassword",
         u.hash_method as "hashMethod",
@@ -26,75 +25,91 @@
         u.updated_at as "updatedAt"
     </sql>
 
-    <select id="selectByUuid" parameterType="String" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+  <sql id="usersAndScmAccountsColumns">
+    sa.scm_account as "scm_account",
+    <include refid="userColumns"/>
+  </sql>
+
+
+  <sql id="leftOuterJoinScmAccounts">
+      left outer join scm_accounts sa on
+        sa.user_uuid = u.uuid
+  </sql>
+
+  <sql id="selectFromUsersAndJoinScmAccounts">
+    SELECT
+    <include refid="usersAndScmAccountsColumns"/>
+    FROM users u
+    <include refid="leftOuterJoinScmAccounts"/>
+  </sql>
+
+  <resultMap id="userResultMap" type="org.sonar.db.user.UserDto" autoMapping="true">
+    <id property="uuid" column="uuid"/>
+    <collection property="scmAccounts" javaType="list" ofType="java.lang.String">
+      <result column="scm_account"/>
+    </collection>
+  </resultMap>
+
+    <select id="selectByUuid" parameterType="String" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.uuid=#{uuid, jdbcType=VARCHAR}
     </select>
 
-    <select id="selectByLogin" parameterType="String" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByLogin" parameterType="String" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.login=#{login, jdbcType=VARCHAR}
     </select>
 
-    <select id="selectNullableByScmAccountOrLoginOrEmail" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
-        WHERE
-        u.login=#{scmAccount, jdbcType=VARCHAR}
-        OR u.email=#{scmAccount, jdbcType=VARCHAR}
-        OR u.scm_accounts like #{likeScmAccount, jdbcType=VARCHAR}
+    <select id="selectNullableByScmAccountOrLoginOrEmail" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
+        WHERE uuid IN (
+          SELECT
+          u.uuid
+          FROM users u
+          <include refid="leftOuterJoinScmAccounts"/>
+          WHERE
+          u.login=#{scmAccount, jdbcType=VARCHAR}
+          OR u.email=#{scmAccount, jdbcType=VARCHAR}
+          OR sa.scm_account=#{scmAccount, jdbcType=VARCHAR}
+        )
     </select>
 
-    <select id="selectUserByLogin" parameterType="string" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectUserByLogin" parameterType="string" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.login=#{id, jdbcType=INTEGER} AND u.active=${_true}
     </select>
 
-    <select id="selectByLogins" parameterType="string" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByLogins" parameterType="string" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.login in
         <foreach collection="list" open="(" close=")" item="login" separator=",">
             #{login, jdbcType=VARCHAR}
         </foreach>
     </select>
 
-    <select id="selectByUuids" parameterType="string" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByUuids" parameterType="string" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.uuid in
         <foreach collection="list" open="(" close=")" item="uuid" separator=",">
             #{uuid, jdbcType=VARCHAR}
         </foreach>
     </select>
 
-    <select id="scrollAll" resultType="User" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
-        select
-        <include refid="userColumns"/>
-        from users u
+    <select id="scrollAll" resultMap="userResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
+        ORDER BY u.uuid, sa.scm_account
     </select>
 
-    <select id="selectUsers" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectUsers" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         <include refid="searchByQueryWhereClause"/>
         ORDER BY u.login
         limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
     </select>
 
-    <select id="selectUsers" parameterType="map" resultType="User" databaseId="mssql">
+    <select id="selectUsers" parameterType="map" resultMap="userResultMap" databaseId="mssql">
         SELECT
-            <include refid="userColumns"/>
+            <include refid="usersAndScmAccountsColumns"/>
         FROM
             (SELECT
                 <include refid="searchByQueryInnerQueryColumns"/>
@@ -104,11 +119,12 @@
             offset #{pagination.offset} rows
             fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
             ) u
+        <include refid="leftOuterJoinScmAccounts"/>
     </select>
 
-    <select id="selectUsers" parameterType="map" resultType="User" databaseId="oracle">
+    <select id="selectUsers" parameterType="map" resultMap="userResultMap" databaseId="oracle">
         SELECT
-            <include refid="userColumns"/>
+            <include refid="usersAndScmAccountsColumns"/>
         FROM
             (SELECT rownum as rn, t.* from (
                 SELECT
@@ -118,6 +134,7 @@
                 ORDER BY u.login ASC
                 ) t
             ) u
+        <include refid="leftOuterJoinScmAccounts"/>
         WHERE
         u.rn BETWEEN #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
 	      ORDER BY u.rn ASC
@@ -184,10 +201,8 @@
         ORDER BY u.uuid
     </select>
 
-    <select id="selectByEmail" parameterType="String" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByEmail" parameterType="String" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE lower(u.email)=#{email, jdbcType=VARCHAR}
         AND u.active=${_true}
     </select>
@@ -196,17 +211,13 @@
         SELECT distinct(external_identity_provider) from users
     </select>
 
-    <select id="selectByExternalIdAndIdentityProvider" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByExternalIdAndIdentityProvider" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.external_id=#{externalId, jdbcType=VARCHAR} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
     </select>
 
-    <select id="selectByExternalIdsAndIdentityProvider" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByExternalIdsAndIdentityProvider" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
         AND u.external_id in
         <foreach collection="externalIds" open="(" close=")" item="externalId" separator=",">
@@ -214,10 +225,8 @@
         </foreach>
     </select>
 
-    <select id="selectByExternalLoginAndIdentityProvider" parameterType="map" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
+    <select id="selectByExternalLoginAndIdentityProvider" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.external_login=#{externalLogin, jdbcType=VARCHAR} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
     </select>
 
@@ -272,7 +281,6 @@
         name,
         email,
         active,
-        scm_accounts,
         external_id,
         external_login,
         external_identity_provider,
@@ -292,7 +300,6 @@
         #{user.name,jdbcType=VARCHAR},
         #{user.email,jdbcType=VARCHAR},
         #{user.active,jdbcType=BOOLEAN},
-        #{user.scmAccounts,jdbcType=VARCHAR},
         #{user.externalId,jdbcType=VARCHAR},
         #{user.externalLogin,jdbcType=VARCHAR},
         #{user.externalIdentityProvider,jdbcType=VARCHAR},
@@ -315,7 +322,6 @@
         name = #{user.name, jdbcType=VARCHAR},
         email = #{user.email, jdbcType=VARCHAR},
         active = #{user.active, jdbcType=BOOLEAN},
-        scm_accounts = #{user.scmAccounts, jdbcType=VARCHAR},
         external_id = #{user.externalId, jdbcType=VARCHAR},
         external_login = #{user.externalLogin, jdbcType=VARCHAR},
         external_identity_provider = #{user.externalIdentityProvider, jdbcType=VARCHAR},
@@ -341,5 +347,21 @@
     <select id="countActiveUsers" resultType="long">
         select count(1) from users u WHERE u.active=${_true}
     </select>
+
+    <insert id="insertScmAccount" parameterType="map" useGeneratedKeys="false">
+      insert into scm_accounts (
+      user_uuid,
+      scm_account
+      ) values (
+      #{userUuid,jdbcType=VARCHAR},
+      #{scmAccount,jdbcType=VARCHAR}
+      )
+    </insert>
+
+    <delete id="deleteAllScmAccounts" parameterType="map">
+      delete from scm_accounts
+      where
+      user_uuid = #{userUuid,jdbcType=VARCHAR}
+    </delete>
 
 </mapper>

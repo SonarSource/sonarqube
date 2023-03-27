@@ -101,6 +101,7 @@ public final class SqTables {
     "schema_migrations",
     "scim_groups",
     "scim_users",
+    "scm_accounts",
     "session_tokens",
     "snapshots",
     "users",

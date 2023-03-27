@@ -87,7 +87,7 @@ public class UserUpdaterReactivateTest {
     assertThat(reloaded.getLogin()).isEqualTo("marius");
     assertThat(reloaded.getName()).isEqualTo("Marius2");
     assertThat(reloaded.getEmail()).isEqualTo("marius2@mail.com");
-    assertThat(reloaded.getScmAccounts()).isNull();
+    assertThat(reloaded.getSortedScmAccounts()).isEmpty();
     assertThat(reloaded.isLocal()).isTrue();
     assertThat(reloaded.getSalt()).isNotNull();
     assertThat(reloaded.getHashMethod()).isEqualTo(HashMethod.PBKDF2.name());
@@ -129,7 +129,7 @@ public class UserUpdaterReactivateTest {
 
     assertThat(dto.isActive()).isTrue();
     assertThat(dto.getName()).isEqualTo(user.getName());
-    assertThat(dto.getScmAccounts()).isNull();
+    assertThat(dto.getSortedScmAccounts()).isEmpty();
     assertThat(dto.getSalt()).isNull();
     assertThat(dto.getCryptedPassword()).isNull();
     assertThat(dto.getCreatedAt()).isEqualTo(user.getCreatedAt());

@@ -42,6 +42,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Users.CurrentWsResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -84,7 +85,7 @@ public class CurrentActionIT {
         CurrentWsResponse::getLocal,
         CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList)
       .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
-        newArrayList("obiwan:github", "obiwan:bitbucket"));
+        newArrayList("obiwan:bitbucket", "obiwan:github"));
   }
 
   @Test
@@ -123,7 +124,7 @@ public class CurrentActionIT {
       .setLocal(true)
       .setExternalLogin("obiwan")
       .setExternalIdentityProvider("sonarqube")
-      .setScmAccounts((String) null));
+      .setScmAccounts(emptyList()));
     userSession.logIn(user);
 
     CurrentWsResponse response = call();

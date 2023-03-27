@@ -47,6 +47,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -77,7 +78,7 @@ public class AnonymizeActionIT {
       .setName("Ada Lovelace")
       .setActive(false)
       .setEmail(null)
-      .setScmAccounts((String) null)
+      .setScmAccounts(emptyList())
       .setExternalIdentityProvider("provider")
       .setExternalLogin("external.login")
       .setExternalId("external.id"));

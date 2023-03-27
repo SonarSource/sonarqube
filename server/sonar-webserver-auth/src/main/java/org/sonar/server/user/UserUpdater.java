@@ -22,7 +22,6 @@ package org.sonar.server.user;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -52,6 +51,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Stream.concat;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.core.util.Slug.slugify;
@@ -262,7 +262,7 @@ public class UserUpdater {
   private boolean updateScmAccounts(DbSession dbSession, UpdateUser updateUser, UserDto userDto, List<String> messages) {
     String email = updateUser.email();
     List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
-    List<String> existingScmAccounts = userDto.getScmAccountsAsList();
+    List<String> existingScmAccounts = userDto.getSortedScmAccounts();
     if (updateUser.isScmAccountsChanged() && !(existingScmAccounts.containsAll(scmAccounts) && scmAccounts.containsAll(existingScmAccounts))) {
       if (!scmAccounts.isEmpty()) {
         String newOrOldEmail = email != null ? email : userDto.getEmail();
@@ -270,7 +270,7 @@ public class UserUpdater {
           userDto.setScmAccounts(scmAccounts);
         }
       } else {
-        userDto.setScmAccounts((String) null);
+        userDto.setScmAccounts(emptyList());
       }
       return true;
     }
@@ -411,7 +411,7 @@ public class UserUpdater {
         .sorted(String::compareToIgnoreCase)
         .collect(toList(scmAccounts.size()));
     }
-    return Collections.emptyList();
+    return emptyList();
   }
 
   private void checkLoginUniqueness(DbSession dbSession, String login) {

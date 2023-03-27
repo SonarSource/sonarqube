@@ -100,7 +100,7 @@ public class UserJsonWriter {
     if (isFieldNeeded(FIELD_SCM_ACCOUNTS, fields)) {
       json.name(FIELD_SCM_ACCOUNTS)
         .beginArray()
-        .values(user.getScmAccountsAsList())
+        .values(user.getSortedScmAccounts())
         .endArray();
     }
   }

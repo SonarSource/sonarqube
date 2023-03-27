@@ -34,7 +34,7 @@ public class CreateScmAccountsTable extends CreateTableChange {
   static final String SCM_ACCOUNT_COLUMN_NAME = "scm_account";
 
   @VisibleForTesting
-  static final int SCM_ACCOUNT_SIZE = 100;
+  static final int SCM_ACCOUNT_SIZE = 255;
 
   public CreateScmAccountsTable(Database db) {
     super(db, TABLE_NAME);

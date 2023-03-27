@@ -65,7 +65,7 @@ public class UserIndexerIT {
     assertThat(doc.name()).isEqualTo(user.getName());
     assertThat(doc.email()).isEqualTo(user.getEmail());
     assertThat(doc.active()).isEqualTo(user.isActive());
-    assertThat(doc.scmAccounts()).isEqualTo(user.getScmAccountsAsList());
+    assertThat(doc.scmAccounts()).isEqualTo(user.getSortedScmAccounts());
   }
 
   @Test
@@ -82,7 +82,7 @@ public class UserIndexerIT {
     assertThat(doc.name()).isEqualTo(user.getName());
     assertThat(doc.email()).isEqualTo(user.getEmail());
     assertThat(doc.active()).isEqualTo(user.isActive());
-    assertThat(doc.scmAccounts()).isEqualTo(user.getScmAccountsAsList());
+    assertThat(doc.scmAccounts()).isEqualTo(user.getSortedScmAccounts());
   }
 
   @Test
