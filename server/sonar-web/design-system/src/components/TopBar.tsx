@@ -45,6 +45,6 @@ const BaseStyle = styled.nav`
   ${tw`sw-font-sans`}
   ${tw`sw-text-sm`}
 
-  background-color: ${themeColor('backgroundPrimary')};
-  color: ${themeContrast('backgroundPrimary')};
+  background-color: ${themeColor('navbar')};
+  color: ${themeContrast('navbar')};
 `;

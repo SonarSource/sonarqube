@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { TextMuted } from 'design-system';
 import * as React from 'react';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
 import { isBranch, isPullRequest } from '../../../../helpers/branch-like';
@@ -71,9 +72,10 @@ export function HeaderMeta(props: HeaderMetaProps) {
       />
       {branchLike && <CurrentBranchLikeMergeInformation currentBranchLike={branchLike} />}
       {component.version !== undefined && isABranch && (
-        <span className="sw-ml-4 sw-whitespace-nowrap">
-          {translateWithParameters('version_x', component.version)}
-        </span>
+        <TextMuted
+          text={translateWithParameters('version_x', component.version)}
+          className="sw-ml-4 sw-whitespace-nowrap"
+        />
       )}
       {isLoggedIn(currentUser) && currentPage !== undefined && !isPullRequest(branchLike) && (
         <HomePageSelect className="sw-ml-2" currentPage={currentPage} />
