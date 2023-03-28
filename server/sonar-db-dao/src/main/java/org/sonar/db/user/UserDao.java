@@ -126,7 +126,7 @@ public class UserDao implements Dao {
   private static void insertScmAccounts(DbSession session, String userUuid, List<String> scmAccounts) {
     scmAccounts.stream()
       .filter(StringUtils::isNotBlank)
-      .forEach(scmAccount -> mapper(session).insertScmAccount(userUuid, scmAccount));
+      .forEach(scmAccount -> mapper(session).insertScmAccount(userUuid, scmAccount.toLowerCase(ENGLISH)));
   }
 
   public UserDto update(DbSession session, UserDto dto) {
@@ -172,6 +172,13 @@ public class UserDao implements Dao {
 
   public List<UserDto> selectByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
     return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail);
+  }
+
+  /**
+   * This method is optimized for the first analysis: we tried to keep performance optimal (<10ms) for projects with large number of contributors
+   */
+  public List<String> selectUserUuidByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
+    return mapper(session).selectUserUuidByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail);
   }
 
   /**

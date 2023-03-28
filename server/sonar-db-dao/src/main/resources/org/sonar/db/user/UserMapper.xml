@@ -364,4 +364,14 @@
       user_uuid = #{userUuid,jdbcType=VARCHAR}
     </delete>
 
+    <select id="selectUserUuidByScmAccountOrLoginOrEmail" parameterType="String" resultType="String">
+      select user_uuid as uuid from scm_accounts sa
+      left join users u on sa.user_uuid = u.uuid
+      where u.active=${_true} and sa.scm_account = lower(#{scmAccount,jdbcType=VARCHAR})
+      union
+      select uuid from
+      users u
+      where active=${_true} and (login=#{scmAccount,jdbcType=VARCHAR} or email=#{scmAccount,jdbcType=VARCHAR} )
+    </select>
+
 </mapper>

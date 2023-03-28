@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v100;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -40,8 +41,9 @@ import static org.sonar.server.platform.db.migration.version.v100.MigrateScmAcco
 public class MigrateScmAccountsFromUsersToScmAccountsTest {
 
   private static final UuidFactory UUID_FACTORY = UuidFactoryFast.getInstance();
-  private static final String SCM_ACCOUNT1 = "scmAccount";
-  private static final String SCM_ACCOUNT2 = "scmAccount2";
+  private static final String SCM_ACCOUNT1 = "scmaccount";
+  private static final String SCM_ACCOUNT2 = "scmaccount2";
+  private static final String SCM_ACCOUNT_CAMELCASE = "scmAccount3";
 
   @Rule
   public final CoreDbTester db = CoreDbTester.createForSchema(MigrateScmAccountsFromUsersToScmAccountsTest.class, "schema.sql");
@@ -106,6 +108,16 @@ public class MigrateScmAccountsFromUsersToScmAccountsTest {
 
     Set<ScmAccountRow> scmAccounts = findAllScmAccounts();
     assertThat(scmAccounts).containsExactly(new ScmAccountRow(userUuid, SCM_ACCOUNT1));
+  }
+
+  @Test
+  public void execute_whenUserHasOneScmAccountWithMixedCase_insertsInScmAccountsInLowerCase() throws SQLException {
+    String userUuid = insertUserAndGetUuid(format("%s%s%s", SCM_ACCOUNTS_SEPARATOR_CHAR, SCM_ACCOUNT_CAMELCASE, SCM_ACCOUNTS_SEPARATOR_CHAR));
+
+    migrateScmAccountsFromUsersToScmAccounts.execute();
+
+    Set<ScmAccountRow> scmAccounts = findAllScmAccounts();
+    assertThat(scmAccounts).containsExactly(new ScmAccountRow(userUuid, SCM_ACCOUNT_CAMELCASE.toLowerCase(Locale.ENGLISH)));
   }
 
   @Test

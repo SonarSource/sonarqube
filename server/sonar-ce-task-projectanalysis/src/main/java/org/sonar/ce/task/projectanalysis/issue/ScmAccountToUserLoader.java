@@ -20,16 +20,15 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Ordering;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.util.cache.CacheLoader;
-import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 
 /**
  * Loads the association between a SCM account and a SQ user
@@ -38,28 +37,29 @@ public class ScmAccountToUserLoader implements CacheLoader<String, String> {
 
   private static final Logger LOGGER = Loggers.get(ScmAccountToUserLoader.class);
 
-  private final UserIndex index;
+  private final DbClient dbClient;
 
-  public ScmAccountToUserLoader(UserIndex index) {
-    this.index = index;
+  public ScmAccountToUserLoader(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @Override
   public String load(String scmAccount) {
-    List<UserDoc> users = index.getAtMostThreeActiveUsersForScmAccount(scmAccount);
-    if (users.size() == 1) {
-      return users.get(0).uuid();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<String> userUuids = dbClient.userDao().selectUserUuidByScmAccountOrLoginOrEmail(dbSession, scmAccount);
+      if (userUuids.size() == 1) {
+        return userUuids.iterator().next();
+      }
+      if (!userUuids.isEmpty()) {
+        List<UserDto> userDtos = dbClient.userDao().selectByUuids(dbSession, userUuids);
+        Collection<String> logins = userDtos.stream()
+          .map(UserDto::getLogin)
+          .sorted()
+          .toList();
+        LOGGER.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
+      }
+      return null;
     }
-    if (!users.isEmpty()) {
-      // multiple users are associated to the same SCM account, for example
-      // the same email
-      Collection<String> logins = users.stream()
-        .map(UserDoc::login)
-        .sorted(Ordering.natural())
-        .collect(MoreCollectors.toList(users.size()));
-      LOGGER.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
-    }
-    return null;
   }
 
   @Override

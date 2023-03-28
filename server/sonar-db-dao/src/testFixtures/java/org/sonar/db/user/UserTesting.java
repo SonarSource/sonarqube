@@ -19,6 +19,7 @@
  */
 package org.sonar.db.user;
 
+import java.util.Locale;
 import javax.annotation.Nullable;
 
 import static java.util.Collections.emptyList;
@@ -37,7 +38,7 @@ public class UserTesting {
       .setLogin(randomAlphanumeric(30))
       .setName(randomAlphanumeric(30))
       .setEmail(randomAlphanumeric(30))
-      .setScmAccounts(singletonList(randomAlphanumeric(40)))
+      .setScmAccounts(singletonList(randomAlphanumeric(40).toLowerCase(Locale.ENGLISH)))
       .setExternalId(randomAlphanumeric(40))
       .setExternalLogin(randomAlphanumeric(40))
       .setExternalIdentityProvider(randomAlphanumeric(40))

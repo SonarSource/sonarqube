@@ -238,7 +238,7 @@ public class UpdateActionIT {
       .execute();
 
     UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
-    assertThat(user.getSortedScmAccounts()).containsExactly("Jon.1", "JON.2", "jon.3");
+    assertThat(user.getSortedScmAccounts()).containsExactly("jon.1", "jon.2", "jon.3");
   }
 
   @Test

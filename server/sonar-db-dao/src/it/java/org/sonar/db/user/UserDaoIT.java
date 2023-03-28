@@ -91,6 +91,22 @@ public class UserDaoIT {
   }
 
   @Test
+  public void selectUserUuidByScmAccountOrLoginOrEmail_findsCorrectResults() {
+    String user1 = db.users().insertUser(user -> user.setLogin("user1").setEmail("toto@tata.com")).getUuid();
+    String user2 = db.users().insertUser(user -> user.setLogin("user2")).getUuid();
+    String user3 = db.users().insertUser(user -> user.setLogin("user3").setScmAccounts(List.of("scmuser3", "scmuser3bis"))).getUuid();
+    db.users().insertUser();
+    db.users().insertUser(user -> user.setLogin("inactive_user1").setActive(false));
+    db.users().insertUser(user -> user.setLogin("inactive_user2").setActive(false).setScmAccounts(List.of("inactive_user2")));
+
+    assertThat(underTest.selectUserUuidByScmAccountOrLoginOrEmail(session, "toto@tata.com")).containsExactly(user1);
+    assertThat(underTest.selectUserUuidByScmAccountOrLoginOrEmail(session, "user2")).containsExactly(user2);
+    assertThat(underTest.selectUserUuidByScmAccountOrLoginOrEmail(session, "scmuser3")).containsExactly(user3);
+    assertThat(underTest.selectUserUuidByScmAccountOrLoginOrEmail(session, "inactive_user1")).isEmpty();
+    assertThat(underTest.selectUserUuidByScmAccountOrLoginOrEmail(session, "inactive_user2")).isEmpty();
+  }
+
+  @Test
   public void selectUserByLogin_ignore_inactive() {
     db.users().insertUser(user -> user.setLogin("user1"));
     db.users().insertUser(user -> user.setLogin("user2"));
@@ -309,7 +325,7 @@ public class UserDaoIT {
       .setLogin("john")
       .setName("John")
       .setEmail("jo@hn.com")
-      .setScmAccounts(List.of("jo.hn", "john2", ""))
+      .setScmAccounts(List.of("jo.hn", "john2", "", "JoHn"))
       .setActive(true)
       .setResetPassword(true)
       .setSalt("1234")
@@ -334,7 +350,7 @@ public class UserDaoIT {
     assertThat(user.getEmail()).isEqualTo("jo@hn.com");
     assertThat(user.isActive()).isTrue();
     assertThat(user.isResetPassword()).isTrue();
-    assertThat(user.getSortedScmAccounts()).containsExactly("jo.hn", "john2");
+    assertThat(user.getSortedScmAccounts()).containsExactly("jo.hn", "john", "john2");
     assertThat(user.getSalt()).isEqualTo("1234");
     assertThat(user.getCryptedPassword()).isEqualTo("abcd");
     assertThat(user.getHashMethod()).isEqualTo("SHA1");
@@ -411,9 +427,9 @@ public class UserDaoIT {
   public void update_scmAccounts() {
     UserDto user = db.users().insertUser(u -> u.setScmAccounts(emptyList()));
 
-    underTest.update(db.getSession(), user.setScmAccounts(List.of("jo.hn", "john2", "johndoo", "")));
+    underTest.update(db.getSession(), user.setScmAccounts(List.of("jo.hn", "john2", "johndooUpper", "")));
     UserDto reloaded = Objects.requireNonNull(underTest.selectByUuid(db.getSession(), user.getUuid()));
-    assertThat(reloaded.getSortedScmAccounts()).containsExactly("jo.hn", "john2", "johndoo");
+    assertThat(reloaded.getSortedScmAccounts()).containsExactly("jo.hn", "john2", "johndooupper");
 
     underTest.update(db.getSession(), user.setScmAccounts(List.of("jo.hn", "john2")));
     reloaded = Objects.requireNonNull(underTest.selectByUuid(db.getSession(), user.getUuid()));

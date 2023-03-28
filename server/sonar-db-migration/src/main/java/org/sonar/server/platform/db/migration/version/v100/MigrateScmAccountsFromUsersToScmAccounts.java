@@ -45,7 +45,7 @@ public class MigrateScmAccountsFromUsersToScmAccounts extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassRowSplitter<ScmAccountRow> massRowSplitter = context.prepareMassRowSplitter();
 
-    massRowSplitter.select("select u.uuid, u.scm_accounts from users u where u.active=? and not exists (select 1 from scm_accounts sa where sa.user_uuid = u.uuid)")
+    massRowSplitter.select("select u.uuid, lower(u.scm_accounts) from users u where u.active=? and not exists (select 1 from scm_accounts sa where sa.user_uuid = u.uuid)")
       .setBoolean(1, true);
 
     massRowSplitter.insert("insert into scm_accounts (user_uuid, scm_account) values (?, ?)");
