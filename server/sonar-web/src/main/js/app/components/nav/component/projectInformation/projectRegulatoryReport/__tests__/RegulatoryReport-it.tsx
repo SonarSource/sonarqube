@@ -40,6 +40,10 @@ it('should open the regulatory report page', async () => {
   expect(await screen.findByText('regulatory_report.page')).toBeInTheDocument();
   expect(screen.getByText('regulatory_report.description1')).toBeInTheDocument();
   expect(screen.getByText('regulatory_report.description2')).toBeInTheDocument();
+  expect(
+    screen.getByText('regulatory_page.available_branches_info.only_keep_when_inactive')
+  ).toBeInTheDocument();
+  expect(screen.getByText('regulatory_page.available_branches_info.more_info')).toBeInTheDocument();
 
   const branchSelect = screen.getByRole('combobox', { name: 'regulatory_page.select_branch' });
   expect(branchSelect).toBeInTheDocument();

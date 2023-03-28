@@ -20,10 +20,13 @@
 import classNames from 'classnames';
 import { orderBy } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { getBranches } from '../../../../../../api/branches';
 import { getRegulatoryReportUrl } from '../../../../../../api/regulatory-report';
+import DocLink from '../../../../../../components/common/DocLink';
 import { ButtonLink } from '../../../../../../components/controls/buttons';
 import Select, { LabelValueSelectOption } from '../../../../../../components/controls/Select';
+import { Alert } from '../../../../../../components/ui/Alert';
 import {
   getBranchLikeDisplayName,
   isBranch,
@@ -123,6 +126,24 @@ export default class RegulatoryReport extends React.PureComponent<Props, State> 
               value={branchLikesOptions.find((o) => o.value === selectedBranch)}
             />
           </div>
+          <Alert variant="info">
+            <div>
+              {translate('regulatory_page.available_branches_info.only_keep_when_inactive')}
+            </div>
+            <div>
+              <FormattedMessage
+                id="regulatory_page.available_branches_info.more_info"
+                defaultMessage={translate('regulatory_page.available_branches_info.more_info')}
+                values={{
+                  doc_link: (
+                    <DocLink to="/analyzing-source-code/branches/branch-analysis/#inactive-branches">
+                      {translate('regulatory_page.available_branches_info.more_info.doc_link')}
+                    </DocLink>
+                  ),
+                }}
+              />
+            </div>
+          </Alert>
           <div className="modal-field big-spacer-top">
             {downloadStarted && (
               <div>
