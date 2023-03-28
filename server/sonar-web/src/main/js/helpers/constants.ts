@@ -20,10 +20,10 @@
 import { colors } from '../app/theme';
 import { AlmKeys } from '../types/alm-settings';
 import { ComponentQualifier } from '../types/component';
-import { IssueScope, IssueType } from '../types/issues';
+import { IssueScope, IssueSeverity, IssueType } from '../types/issues';
 import { RuleType } from '../types/types';
 
-export const SEVERITIES = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
+export const SEVERITIES = Object.values(IssueSeverity);
 export const STATUSES = ['OPEN', 'REOPENED', 'CONFIRMED', 'RESOLVED', 'CLOSED'];
 export const ISSUE_TYPES: IssueType[] = [
   IssueType.Bug,

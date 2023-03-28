@@ -22,18 +22,18 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { IssueChangelogDiff as TypeIssueChangelogDiff } from '../../../types/types';
 
-interface Props {
+export interface IssueChangelogDiffProps {
   diff: TypeIssueChangelogDiff;
 }
 
-export default function IssueChangelogDiff({ diff }: Props) {
+export default function IssueChangelogDiff({ diff }: IssueChangelogDiffProps) {
   if (diff.key === 'file') {
     return (
       <p>
         {translateWithParameters(
           'issue.change.file_move',
-          diff.oldValue || '',
-          diff.newValue || ''
+          diff.oldValue ?? '',
+          diff.newValue ?? ''
         )}
       </p>
     );
@@ -42,8 +42,8 @@ export default function IssueChangelogDiff({ diff }: Props) {
       <p>
         {translateWithParameters(
           'issue.change.from_branch',
-          diff.oldValue || '',
-          diff.newValue || ''
+          diff.oldValue ?? '',
+          diff.newValue ?? ''
         )}
       </p>
     );
@@ -53,13 +53,13 @@ export default function IssueChangelogDiff({ diff }: Props) {
       <p>
         {translateWithParameters(
           'issue.change.from_non_branch',
-          diff.oldValue || '',
-          diff.newValue || ''
+          diff.oldValue ?? '',
+          diff.newValue ?? ''
         )}
       </p>
     );
   } else if (diff.key === 'line') {
-    return <p>{translateWithParameters('issue.changelog.line_removed_X', diff.oldValue || '')}</p>;
+    return <p>{translateWithParameters('issue.changelog.line_removed_X', diff.oldValue ?? '')}</p>;
   }
 
   let message;

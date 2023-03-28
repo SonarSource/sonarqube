@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`should render without the action when there is no transitions 1`] = `
-<StatusHelper
-  className="issue-meta-label"
-  status="CLOSED"
-/>
-`;

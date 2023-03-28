@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep, keyBy, times } from 'lodash';
+import { cloneDeep, keyBy, times, uniqueId } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
+import { mockIssueChangelog } from '../../helpers/mocks/issues';
 import { mockSnippetsByComponent } from '../../helpers/mocks/sources';
 import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
 import {
-  mockCurrentUser,
   mockLoggedInUser,
   mockPaging,
   mockRawIssue,
@@ -31,10 +31,12 @@ import {
 } from '../../helpers/testMocks';
 import {
   ASSIGNEE_ME,
+  IssueActions,
   IssueResolution,
   IssueScope,
   IssueSeverity,
   IssueStatus,
+  IssueTransition,
   IssueType,
   RawFacet,
   RawIssue,
@@ -49,12 +51,13 @@ import {
   RuleDetails,
   SnippetsByComponent,
 } from '../../types/types';
-import { NoticeType } from '../../types/users';
+import { LoggedInUser, NoticeType } from '../../types/users';
 import {
   addIssueComment,
   bulkChangeIssues,
   deleteIssueComment,
   editIssueComment,
+  getIssueChangelog,
   getIssueFlowSnippets,
   searchIssues,
   searchIssueTags,
@@ -97,11 +100,13 @@ interface IssueData {
 
 export default class IssuesServiceMock {
   isAdmin = false;
+  currentUser: LoggedInUser;
   standards?: Standards;
   defaultList: IssueData[];
   list: IssueData[];
 
   constructor() {
+    this.currentUser = mockLoggedInUser();
     this.defaultList = [
       {
         issue: mockRawIssue(false, {
@@ -336,7 +341,7 @@ export default class IssuesServiceMock {
       },
       {
         issue: mockRawIssue(false, {
-          actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
+          actions: Object.values(IssueActions),
           transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
           key: 'issue2',
           component: 'foo:test2.js',
@@ -391,7 +396,7 @@ export default class IssuesServiceMock {
       },
       {
         issue: mockRawIssue(false, {
-          actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
+          actions: Object.values(IssueActions),
           transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
           key: 'issue4',
           component: 'foo:test2.js',
@@ -444,19 +449,29 @@ export default class IssuesServiceMock {
     (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
     (dismissNotice as jest.Mock).mockImplementation(this.handleDismissNotification);
     (setIssueType as jest.Mock).mockImplementation(this.handleSetIssueType);
-    (setIssueAssignee as jest.Mock).mockImplementation(this.handleSetIssueAssignee);
+    jest.mocked(setIssueAssignee).mockImplementation(this.handleSetIssueAssignee);
     (setIssueSeverity as jest.Mock).mockImplementation(this.handleSetIssueSeverity);
     (setIssueTransition as jest.Mock).mockImplementation(this.handleSetIssueTransition);
     (setIssueTags as jest.Mock).mockImplementation(this.handleSetIssueTags);
-    (addIssueComment as jest.Mock).mockImplementation(this.handleAddComment);
-    (editIssueComment as jest.Mock).mockImplementation(this.handleEditComment);
-    (deleteIssueComment as jest.Mock).mockImplementation(this.handleDeleteComment);
+    jest.mocked(addIssueComment).mockImplementation(this.handleAddComment);
+    jest.mocked(editIssueComment).mockImplementation(this.handleEditComment);
+    jest.mocked(deleteIssueComment).mockImplementation(this.handleDeleteComment);
     (searchUsers as jest.Mock).mockImplementation(this.handleSearchUsers);
     (searchIssueTags as jest.Mock).mockImplementation(this.handleSearchIssueTags);
+    jest.mocked(getIssueChangelog).mockImplementation(this.handleGetIssueChangelog);
   }
 
   reset = () => {
     this.list = cloneDeep(this.defaultList);
+    this.currentUser = mockLoggedInUser();
+  };
+
+  setCurrentUser = (user: LoggedInUser) => {
+    this.currentUser = user;
+  };
+
+  setIssueList = (list: IssueData[]) => {
+    this.list = list;
   };
 
   async getStandards(): Promise<Standards> {
@@ -703,7 +718,7 @@ export default class IssuesServiceMock {
   };
 
   handleGetCurrentUser = () => {
-    return this.reply(mockCurrentUser());
+    return this.reply(this.currentUser);
   };
 
   handleDismissNotification = (noticeType: NoticeType) => {
@@ -723,27 +738,45 @@ export default class IssuesServiceMock {
   };
 
   handleSetIssueAssignee = (data: { issue: string; assignee?: string }) => {
-    return this.getActionsResponse({ assignee: data.assignee }, data.issue);
+    return this.getActionsResponse(
+      { assignee: data.assignee === '_me' ? this.currentUser.login : data.assignee },
+      data.issue
+    );
   };
 
   handleSetIssueTransition = (data: { issue: string; transition: string }) => {
-    const statusMap: { [key: string]: string } = {
-      confirm: 'CONFIRMED',
-      unconfirm: 'REOPENED',
-      resolve: 'RESOLVED',
-      wontfix: 'RESOLVED',
-      falsepositive: 'RESOLVED',
+    const statusMap: { [key: string]: IssueStatus } = {
+      [IssueTransition.Confirm]: IssueStatus.Confirmed,
+      [IssueTransition.UnConfirm]: IssueStatus.Reopened,
+      [IssueTransition.Resolve]: IssueStatus.Resolved,
+      [IssueTransition.WontFix]: IssueStatus.Resolved,
+      [IssueTransition.FalsePositive]: IssueStatus.Resolved,
     };
-    const transitionMap: Dict<string[]> = {
-      REOPENED: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
-      OPEN: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
-      CONFIRMED: ['resolve', 'unconfirm', 'falsepositive', 'wontfix'],
-      RESOLVED: ['reopen'],
+    const transitionMap: Dict<IssueTransition[]> = {
+      [IssueStatus.Reopened]: [
+        IssueTransition.Confirm,
+        IssueTransition.Resolve,
+        IssueTransition.FalsePositive,
+        IssueTransition.WontFix,
+      ],
+      [IssueStatus.Open]: [
+        IssueTransition.Confirm,
+        IssueTransition.Resolve,
+        IssueTransition.FalsePositive,
+        IssueTransition.WontFix,
+      ],
+      [IssueStatus.Confirmed]: [
+        IssueTransition.Resolve,
+        IssueTransition.UnConfirm,
+        IssueTransition.FalsePositive,
+        IssueTransition.WontFix,
+      ],
+      [IssueStatus.Resolved]: [IssueTransition.Reopen],
     };
 
     const resolutionMap: Dict<string> = {
-      wontfix: IssueResolution.WontFix,
-      falsepositive: IssueResolution.FalsePositive,
+      [IssueTransition.WontFix]: IssueResolution.WontFix,
+      [IssueTransition.FalsePositive]: IssueResolution.FalsePositive,
     };
 
     return this.getActionsResponse(
@@ -762,14 +795,13 @@ export default class IssuesServiceMock {
   };
 
   handleAddComment = (data: { issue: string; text: string }) => {
-    // For comment its little more complex to get comment Id
     return this.getActionsResponse(
       {
         comments: [
           {
             createdAt: '2022-07-28T11:30:04+0200',
             htmlText: data.text,
-            key: '1234',
+            key: uniqueId(),
             login: 'admin',
             markdown: data.text,
             updatable: true,
@@ -781,31 +813,40 @@ export default class IssuesServiceMock {
   };
 
   handleEditComment = (data: { comment: string; text: string }) => {
-    // For comment its little more complex to get comment Id
+    const issueKey = this.list.find((i) => i.issue.comments?.some((c) => c.key === data.comment))
+      ?.issue.key;
+    if (!issueKey) {
+      throw new Error(`Couldn't find issue for comment ${data.comment}`);
+    }
     return this.getActionsResponse(
       {
         comments: [
           {
             createdAt: '2022-07-28T11:30:04+0200',
             htmlText: data.text,
-            key: '1234',
+            key: data.comment,
             login: 'admin',
             markdown: data.text,
             updatable: true,
           },
         ],
       },
-      'issue2'
+      issueKey
     );
   };
 
-  handleDeleteComment = () => {
-    // For comment its little more complex to get comment Id
+  handleDeleteComment = (data: { comment: string }) => {
+    const issue = this.list.find((i) =>
+      i.issue.comments?.some((c) => c.key === data.comment)
+    )?.issue;
+    if (!issue) {
+      throw new Error(`Couldn't find issue for comment ${data.comment}`);
+    }
     return this.getActionsResponse(
       {
-        comments: [],
+        comments: issue.comments?.filter((c) => c.key !== data.comment),
       },
-      'issue2'
+      issue.key
     );
   };
 
@@ -815,6 +856,33 @@ export default class IssuesServiceMock {
 
   handleSearchIssueTags = () => {
     return this.reply(['accessibility', 'android']);
+  };
+
+  handleGetIssueChangelog = (_issue: string) => {
+    return this.reply({
+      changelog: [
+        mockIssueChangelog({
+          creationDate: '2018-09-01',
+          diffs: [
+            {
+              key: 'status',
+              newValue: IssueStatus.Reopened,
+              oldValue: IssueStatus.Confirmed,
+            },
+          ],
+        }),
+        mockIssueChangelog({
+          creationDate: '2018-10-01',
+          diffs: [
+            {
+              key: 'assign',
+              newValue: 'darth.vader',
+              oldValue: 'luke.skywalker',
+            },
+          ],
+        }),
+      ],
+    });
   };
 
   getActionsResponse = (overrides: Partial<RawIssue>, issueKey: string) => {

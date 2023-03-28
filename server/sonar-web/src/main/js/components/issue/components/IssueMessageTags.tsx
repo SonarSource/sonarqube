@@ -37,7 +37,7 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
   const { engine, quickFixAvailable, ruleStatus } = props;
 
   const { externalRulesRepoNames } = React.useContext(WorkspaceContext);
-  const ruleEngine = (engine && externalRulesRepoNames && externalRulesRepoNames[engine]) || engine;
+  const ruleEngine = (engine && externalRulesRepoNames[engine]) || engine;
 
   return (
     <>
@@ -64,7 +64,7 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
           <SonarLintIcon
             className="it__issues-sonarlint-quick-fix spacer-right"
             size={15}
-            label="sonar-lint-icon"
+            description={translate('issue.quick_fix_available_with_sonarlint_no_link')}
           />
         </Tooltip>
       )}

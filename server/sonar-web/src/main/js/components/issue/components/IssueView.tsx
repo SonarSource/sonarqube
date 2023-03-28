@@ -19,15 +19,15 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { deleteIssueComment, editIssueComment } from '../../api/issues';
-import Checkbox from '../../components/controls/Checkbox';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import { BranchLike } from '../../types/branch-like';
-import { Issue } from '../../types/types';
-import { updateIssue } from './actions';
-import IssueActionsBar from './components/IssueActionsBar';
-import IssueCommentLine from './components/IssueCommentLine';
-import IssueTitleBar from './components/IssueTitleBar';
+import { deleteIssueComment, editIssueComment } from '../../../api/issues';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { BranchLike } from '../../../types/branch-like';
+import { Issue } from '../../../types/types';
+import Checkbox from '../../controls/Checkbox';
+import { updateIssue } from '../actions';
+import IssueActionsBar from './IssueActionsBar';
+import IssueCommentLine from './IssueCommentLine';
+import IssueTitleBar from './IssueTitleBar';
 
 interface Props {
   branchLike?: BranchLike;
@@ -89,7 +89,6 @@ export default class IssueView extends React.PureComponent<Props> {
 
     const issueClass = classNames('issue', {
       'no-click': this.props.onClick === undefined,
-      hotspot: issue.type === 'SECURITY_HOTSPOT',
       'issue-with-checkbox': hasCheckbox,
       selected: this.props.selected,
     });
@@ -103,7 +102,7 @@ export default class IssueView extends React.PureComponent<Props> {
       >
         {hasCheckbox && (
           <Checkbox
-            checked={checked || false}
+            checked={checked ?? false}
             className="issue-checkbox-container"
             onCheck={this.handleCheck}
             label={translateWithParameters('issues.action_select.label', issue.message)}
@@ -130,7 +129,7 @@ export default class IssueView extends React.PureComponent<Props> {
           togglePopup={this.props.togglePopup}
         />
         {issue.comments && issue.comments.length > 0 && (
-          <div className="issue-comments">
+          <ul className="issue-comments" data-testid="issue-comments">
             {issue.comments.map((comment) => (
               <IssueCommentLine
                 comment={comment}
@@ -139,7 +138,7 @@ export default class IssueView extends React.PureComponent<Props> {
                 onEdit={this.editComment}
               />
             ))}
-          </div>
+          </ul>
         )}
       </div>
     );

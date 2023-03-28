@@ -18,53 +18,58 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { injectIntl, WrappedComponentProps } from 'react-intl';
 import { ButtonLink } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
+import { formatterOption } from '../../intl/DateFormatter';
 import DateFromNow from '../../intl/DateFromNow';
 import ChangelogPopup from '../popups/ChangelogPopup';
 
-interface Props {
+export interface IssueChangelogProps extends WrappedComponentProps {
   isOpen: boolean;
   issue: Pick<Issue, 'author' | 'creationDate' | 'key'>;
   creationDate: string;
   togglePopup: (popup: string, show?: boolean) => void;
 }
 
-export default class IssueChangelog extends React.PureComponent<Props> {
-  toggleChangelog = (open?: boolean) => {
-    this.props.togglePopup('changelog', open);
-  };
-
-  handleClick = () => {
-    this.toggleChangelog();
-  };
-
-  handleClose = () => {
-    this.toggleChangelog(false);
-  };
-
-  render() {
-    return (
-      <div className="dropdown">
-        <Toggler
-          onRequestClose={this.handleClose}
-          open={this.props.isOpen}
-          overlay={<ChangelogPopup issue={this.props.issue} />}
+function IssueChangelog(props: IssueChangelogProps) {
+  const {
+    isOpen,
+    issue,
+    creationDate,
+    intl: { formatDate },
+  } = props;
+  return (
+    <div className="dropdown">
+      <Toggler
+        onRequestClose={() => {
+          props.togglePopup('changelog', false);
+        }}
+        open={isOpen}
+        overlay={<ChangelogPopup issue={issue} />}
+      >
+        <ButtonLink
+          aria-expanded={isOpen}
+          aria-label={translateWithParameters(
+            'issue.changelog.found_on_x_show_more',
+            formatDate(creationDate, formatterOption)
+          )}
+          className="issue-action issue-action-with-options js-issue-show-changelog"
+          onClick={() => {
+            props.togglePopup('changelog');
+          }}
         >
-          <ButtonLink
-            aria-expanded={this.props.isOpen}
-            className="issue-action issue-action-with-options js-issue-show-changelog"
-            onClick={this.handleClick}
-          >
-            <span className="issue-meta-label">
-              <DateFromNow date={this.props.creationDate} />
-            </span>
-            <DropdownIcon className="little-spacer-left" />
-          </ButtonLink>
-        </Toggler>
-      </div>
-    );
-  }
+          <span className="issue-meta-label">
+            <DateFromNow date={creationDate} />
+          </span>
+          <DropdownIcon className="little-spacer-left" />
+        </ButtonLink>
+      </Toggler>
+    </div>
+  );
 }
+
+export default injectIntl(IssueChangelog);

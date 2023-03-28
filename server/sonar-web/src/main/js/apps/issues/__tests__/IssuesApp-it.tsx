@@ -290,8 +290,10 @@ describe('issues app', () => {
     // Improve this to include all the bulk change fonctionality
     it('should be able to bulk change', async () => {
       const user = userEvent.setup();
+      const currentUser = mockLoggedInUser();
       issuesHandler.setIsAdmin(true);
-      renderIssueApp(mockLoggedInUser());
+      issuesHandler.setCurrentUser(currentUser);
+      renderIssueApp(currentUser);
 
       // Check that the bulk button has correct behavior
       expect(screen.getByRole('button', { name: 'bulk_change' })).toBeDisabled();
@@ -481,7 +483,9 @@ describe('issues app', () => {
 
     it('should allow to set creation date', async () => {
       const user = userEvent.setup();
-      renderIssueApp(mockLoggedInUser());
+      const currentUser = mockLoggedInUser();
+      issuesHandler.setCurrentUser(currentUser);
+      renderIssueApp(currentUser);
       await waitOnDataLoaded();
 
       // Select a specific date range such that only one issue matches
@@ -503,7 +507,9 @@ describe('issues app', () => {
 
     it('should allow to only show my issues', async () => {
       const user = userEvent.setup();
-      renderIssueApp(mockLoggedInUser());
+      const currentUser = mockLoggedInUser();
+      issuesHandler.setCurrentUser(currentUser);
+      renderIssueApp(currentUser);
       await waitOnDataLoaded();
 
       // By default, it should show all issues
@@ -895,7 +901,7 @@ describe('issues item', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Issue with tags sonar-lint-icon issue.resolution.badge.DEPRECATED',
+        name: 'Issue with tags issue.quick_fix_available_with_sonarlint_no_link issue.resolution.badge.DEPRECATED',
       })
     ).toBeInTheDocument();
   });

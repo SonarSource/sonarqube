@@ -85,7 +85,7 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
                       <DateTimeFormatter date={item.creationDate} />
                     </td>
                     <td className="text-left text-top">
-                      <p>
+                      <div>
                         {userName && (
                           <>
                             <Avatar
@@ -104,7 +104,7 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
                             'issue.changelog.webhook_source',
                             item.webhookSource
                           )}
-                      </p>
+                      </div>
                       {item.diffs.map((diff) => (
                         <IssueChangelogDiff diff={diff} key={diff.key} />
                       ))}

@@ -20,7 +20,12 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { IssueResolution, IssueResponse, IssueType as IssueTypeEnum } from '../../../types/issues';
+import {
+  IssueActions,
+  IssueResolution,
+  IssueResponse,
+  IssueType as IssueTypeEnum,
+} from '../../../types/issues';
 import { Issue, RawQuery } from '../../../types/types';
 import { updateIssue } from '../actions';
 import IssueAssign from './IssueAssign';
@@ -90,13 +95,12 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
 
   render() {
     const { issue, className, showCommentsInPopup } = this.props;
-    const canAssign = issue.actions.includes('assign');
-    const canComment = issue.actions.includes('comment');
-    const canSetSeverity = issue.actions.includes('set_severity');
-    const canSetType = issue.actions.includes('set_type');
-    const canSetTags = issue.actions.includes('set_tags');
-    const hasTransitions = issue.transitions && issue.transitions.length > 0;
-    const isSecurityHotspot = issue.type === IssueTypeEnum.SecurityHotspot;
+    const canAssign = issue.actions.includes(IssueActions.Assign);
+    const canComment = issue.actions.includes(IssueActions.Comment);
+    const canSetSeverity = issue.actions.includes(IssueActions.SetSeverity);
+    const canSetType = issue.actions.includes(IssueActions.SetType);
+    const canSetTags = issue.actions.includes(IssueActions.SetTags);
+    const hasTransitions = issue.transitions.length > 0;
 
     return (
       <div className={classNames(className, 'issue-actions')}>
@@ -110,17 +114,15 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               togglePopup={this.props.togglePopup}
             />
           </div>
-          {!isSecurityHotspot && (
-            <div className="issue-meta">
-              <IssueSeverity
-                canSetSeverity={canSetSeverity}
-                isOpen={this.props.currentPopup === 'set-severity' && canSetSeverity}
-                issue={issue}
-                setIssueProperty={this.setIssueProperty}
-                togglePopup={this.props.togglePopup}
-              />
-            </div>
-          )}
+          <div className="issue-meta">
+            <IssueSeverity
+              canSetSeverity={canSetSeverity}
+              isOpen={this.props.currentPopup === 'set-severity' && canSetSeverity}
+              issue={issue}
+              setIssueProperty={this.setIssueProperty}
+              togglePopup={this.props.togglePopup}
+            />
+          </div>
           <div className="issue-meta">
             <IssueTransition
               hasTransitions={hasTransitions}
@@ -139,7 +141,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
               togglePopup={this.props.togglePopup}
             />
           </div>
-          {!isSecurityHotspot && issue.effort && (
+          {issue.effort && (
             <div className="issue-meta">
               <span className="issue-meta-label">
                 {translateWithParameters('issue.x_effort', issue.effort)}

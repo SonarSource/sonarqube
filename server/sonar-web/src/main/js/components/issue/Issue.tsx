@@ -25,8 +25,8 @@ import { getKeyboardShortcutEnabled } from '../../helpers/preferences';
 import { BranchLike } from '../../types/branch-like';
 import { Issue as TypeIssue } from '../../types/types';
 import { updateIssue } from './actions';
+import IssueView from './components/IssueView';
 import './Issue.css';
-import IssueView from './IssueView';
 
 interface Props {
   branchLike?: BranchLike;

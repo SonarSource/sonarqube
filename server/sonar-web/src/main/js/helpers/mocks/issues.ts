@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { uniqueId } from 'lodash';
 import { Query } from '../../apps/issues/utils';
 import { ReferencedRule } from '../../types/issues';
-import { IssueChangelog } from '../../types/types';
+import { IssueChangelog, IssueChangelogDiff, IssueComment } from '../../types/types';
 
 export function mockReferencedRule(overrides: Partial<ReferencedRule> = {}): ReferencedRule {
   return {
@@ -35,13 +36,32 @@ export function mockIssueChangelog(overrides: Partial<IssueChangelog> = {}): Iss
     isUserActive: true,
     user: 'luke.skywalker',
     userName: 'Luke Skywalker',
-    diffs: [
-      {
-        key: 'assign',
-        newValue: 'darth.vader',
-        oldValue: 'luke.skywalker',
-      },
-    ],
+    diffs: [mockIssueChangelogDiff()],
+    ...overrides,
+  };
+}
+
+export function mockIssueChangelogDiff(
+  overrides: Partial<IssueChangelogDiff> = {}
+): IssueChangelogDiff {
+  return {
+    key: 'assign',
+    newValue: 'darth.vader',
+    oldValue: 'luke.skywalker',
+    ...overrides,
+  };
+}
+
+export function mockIssueComment(overrides: Partial<IssueComment> = {}): IssueComment {
+  return {
+    author: 'luke.skywalker',
+    authorLogin: 'luke.skywalker',
+    authorName: 'Luke Skywalker',
+    createdAt: '2018-10-01',
+    htmlText: 'This is a <strong>comment</strong>, <code>bud</code>',
+    key: uniqueId(),
+    markdown: 'This is a *comment*, `bud`',
+    updatable: false,
     ...overrides,
   };
 }

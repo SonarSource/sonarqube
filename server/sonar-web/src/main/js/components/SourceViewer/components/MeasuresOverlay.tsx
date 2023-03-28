@@ -39,7 +39,8 @@ import {
 } from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { IssueType as IssueTypeEnum } from '../../../types/issues';
+import { IssueSeverity, IssueType as IssueTypeEnum } from '../../../types/issues';
+import { MetricType } from '../../../types/metrics';
 import { FacetValue, IssueType, MeasureEnhanced, SourceViewerFile } from '../../../types/types';
 import Measure from '../../measure/Measure';
 import SeverityHelper from '../../shared/SeverityHelper';
@@ -199,7 +200,9 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
                           <IssueTypeIcon className="little-spacer-right" query={f.val} />
                           {translate('issue.type', f.val)}
                         </span>
-                        <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
+                        <span className="measure-value">
+                          {formatMeasure(f.count, MetricType.ShortInteger)}
+                        </span>
                       </div>
                     )
                   )}
@@ -207,14 +210,18 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
               )}
               {severitiesFacet && (
                 <div className="measures">
-                  {sortBy(severitiesFacet, (f) => SEVERITIES.indexOf(f.val)).map((f) => (
-                    <div className="measure measure-one-line" key={f.val}>
-                      <span className="measure-name">
-                        <SeverityHelper severity={f.val} />
-                      </span>
-                      <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
-                    </div>
-                  ))}
+                  {sortBy(severitiesFacet, (f) => SEVERITIES.indexOf(f.val as IssueSeverity)).map(
+                    (f) => (
+                      <div className="measure measure-one-line" key={f.val}>
+                        <span className="measure-name">
+                          <SeverityHelper severity={f.val} />
+                        </span>
+                        <span className="measure-value">
+                          {formatMeasure(f.count, MetricType.ShortInteger)}
+                        </span>
+                      </div>
+                    )
+                  )}
                 </div>
               )}
               {tagsFacet && (
@@ -225,7 +232,9 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
                         <TagsIcon className="little-spacer-right" />
                         {f.val}
                       </span>
-                      <span className="measure-value">{formatMeasure(f.count, 'SHORT_INT')}</span>
+                      <span className="measure-value">
+                        {formatMeasure(f.count, MetricType.ShortInteger)}
+                      </span>
                     </div>
                   ))}
                 </div>

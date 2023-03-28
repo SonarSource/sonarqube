@@ -44,9 +44,9 @@ export default function CommentForm(props: CommentFormProps) {
           style={{ resize: 'vertical' }}
           placeholder={placeholder}
           aria-label={translate('issue.comment.enter_comment')}
-          onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
-            setEditComment(event.target.value)
-          }
+          onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => {
+            setEditComment(event.target.value);
+          }}
           onKeyDown={(event: React.KeyboardEvent) => {
             if (event.nativeEvent.key === KeyboardKeys.Enter && (event.metaKey || event.ctrlKey)) {
               props.onSaveComment(editComment);

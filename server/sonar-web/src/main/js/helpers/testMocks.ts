@@ -295,6 +295,7 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
     status: IssueStatus.Open,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     type: IssueType.CodeSmell,
+    transitions: [],
     scope: IssueScope.Main,
     ...overrides,
   };

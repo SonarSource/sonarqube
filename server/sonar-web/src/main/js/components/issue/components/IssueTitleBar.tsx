@@ -26,6 +26,8 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { IssueType } from '../../../types/issues';
+import { MetricType } from '../../../types/metrics';
 import { Issue } from '../../../types/types';
 import LocationIndex from '../../common/LocationIndex';
 import IssueChangelog from './IssueChangelog';
@@ -57,7 +59,7 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
     <Tooltip
       overlay={translateWithParameters(
         'issue.this_issue_involves_x_code_locations',
-        formatMeasure(locationsCount, 'INT')
+        formatMeasure(locationsCount, MetricType.Integer)
       )}
     >
       <LocationIndex>{locationsCount}</LocationIndex>
@@ -70,7 +72,7 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
     ...getBranchLikeQuery(props.branchLike),
     issues: issue.key,
     open: issue.key,
-    types: issue.type === 'SECURITY_HOTSPOT' ? issue.type : undefined,
+    types: issue.type === IssueType.SecurityHotspot ? issue.type : undefined,
   });
 
   return (

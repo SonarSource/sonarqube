@@ -31,10 +31,6 @@
   cursor: initial;
 }
 
-.issue.hotspot {
-  background-color: var(--hotspotBgColor);
-}
-
 .issue.selected,
 .issue-message-box.selected {
   box-shadow: none;

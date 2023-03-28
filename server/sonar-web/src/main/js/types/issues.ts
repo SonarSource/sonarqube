@@ -29,12 +29,13 @@ export enum IssueType {
   SecurityHotspot = 'SECURITY_HOTSPOT',
 }
 
+// Keep this enum in the correct order (most severe to least severe).
 export enum IssueSeverity {
   Blocker = 'BLOCKER',
-  Minor = 'MINOR',
   Critical = 'CRITICAL',
-  Info = 'INFO',
   Major = 'MAJOR',
+  Minor = 'MINOR',
+  Info = 'INFO',
 }
 
 export enum IssueScope {
@@ -56,6 +57,23 @@ export enum IssueStatus {
   Reopened = 'REOPENED',
   Resolved = 'RESOLVED',
   Closed = 'CLOSED',
+}
+
+export enum IssueActions {
+  SetType = 'set_type',
+  SetTags = 'set_tags',
+  SetSeverity = 'set_severity',
+  Comment = 'comment',
+  Assign = 'assign',
+}
+
+export enum IssueTransition {
+  Confirm = 'confirm',
+  UnConfirm = 'unconfirm',
+  Resolve = 'resolve',
+  FalsePositive = 'falsepositive',
+  WontFix = 'wontfix',
+  Reopen = 'reopen',
 }
 
 interface Comment {
@@ -87,11 +105,11 @@ export interface RawFlowLocation {
 
 export interface RawIssue {
   actions: string[];
-  transitions?: string[];
+  transitions: string[];
   tags?: string[];
   assignee?: string;
   author?: string;
-  comments?: Array<Comment>;
+  comments?: Comment[];
   creationDate: string;
   component: string;
   flows?: Array<{
@@ -120,7 +138,7 @@ export interface IssueResponse {
   components?: Array<{ key: string; name: string }>;
   issue: RawIssue;
   rules?: Array<{}>;
-  users?: Array<UserBase>;
+  users?: UserBase[];
 }
 
 export interface RawIssuesResponse {
@@ -131,7 +149,7 @@ export interface RawIssuesResponse {
   languages: ReferencedLanguage[];
   paging: Paging;
   rules?: Array<{}>;
-  users?: Array<UserBase>;
+  users?: UserBase[];
 }
 
 export interface FetchIssuesPromise {

@@ -85,7 +85,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
         ? translateWithParameters('user.x_deleted', author)
         : author;
     return (
-      <div className="issue-comment">
+      <li className="issue-comment">
         <div className="issue-comment-author" title={displayName}>
           <Avatar
             className="little-spacer-right"
@@ -145,7 +145,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
             </div>
           )}
         </div>
-      </div>
+      </li>
     );
   }
 }
