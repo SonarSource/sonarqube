@@ -24,7 +24,7 @@ import java.util.List;
 public interface HomepageTypes {
 
   enum Type {
-    PROJECT, PROJECTS, ISSUES, PORTFOLIOS, PORTFOLIO, APPLICATION
+    PROJECT, PROJECTS, ISSUES, PORTFOLIOS, PORTFOLIO, APPLICATION, ORGANIZATION
   }
 
   List<Type> getTypes();

@@ -132,6 +132,7 @@ message CurrentWsResponse {
     PORTFOLIO = 4;
     PORTFOLIOS = 5;
     APPLICATION = 6;
+    ORGANIZATION = 7;
   }
 
   message Homepage {

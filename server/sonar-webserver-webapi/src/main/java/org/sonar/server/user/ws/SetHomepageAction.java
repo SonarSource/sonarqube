@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -39,11 +40,11 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECT;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-
+import static org.sonar.server.user.ws.HomepageTypes.Type.ORGANIZATION;
 public class SetHomepageAction implements UsersWsAction {
 
   private static final String ACTION = "set_homepage";
-
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_TYPE = "type";
   public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_BRANCH = "branch";
@@ -87,6 +88,11 @@ public class SetHomepageAction implements UsersWsAction {
       .setDescription("Branch key. It can only be used when parameter '%s' is set to '%s'", PARAM_TYPE, PROJECT)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001)
       .setSince("7.1");
+
+    action.createParam(PARAM_ORGANIZATION)
+            .setDescription("Organization key. It should only be used when parameter '%s' is set to '%s'", PARAM_TYPE, ORGANIZATION)
+            .setSince("7.1")
+            .setExampleValue("my-org");
   }
 
   @Override
@@ -94,9 +100,9 @@ public class SetHomepageAction implements UsersWsAction {
     userSession.checkLoggedIn();
     HomepageTypes.Type type = request.mandatoryParamAsEnum(PARAM_TYPE, HomepageTypes.Type.class);
     String componentParameter = request.param(PARAM_COMPONENT);
-
+    String organizationParameter = request.param(PARAM_ORGANIZATION);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String parameter = getHomepageParameter(dbSession, type, componentParameter, request.param(PARAM_BRANCH));
+      String parameter = getHomepageParameter(dbSession, type, componentParameter, request.param(PARAM_BRANCH), organizationParameter);
 
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin());
       checkState(user != null, "User login '%s' cannot be found", userSession.getLogin());
@@ -111,7 +117,8 @@ public class SetHomepageAction implements UsersWsAction {
   }
 
   @CheckForNull
-  private String getHomepageParameter(DbSession dbSession, HomepageTypes.Type type, @Nullable String componentParameter, @Nullable String branchParameter) {
+  private String getHomepageParameter(DbSession dbSession, HomepageTypes.Type type, @Nullable String componentParameter, @Nullable String branchParameter,
+          @Nullable String organizationParameter) {
     switch (type) {
       case PROJECT:
         checkArgument(isNotBlank(componentParameter), PARAMETER_REQUIRED, type.name(), PARAM_COMPONENT);
@@ -126,6 +133,11 @@ public class SetHomepageAction implements UsersWsAction {
         return componentFinder.getByKey(dbSession, componentParameter).uuid();
       case PORTFOLIOS, PROJECTS, ISSUES:
         return null;
+      case ORGANIZATION:
+        checkArgument(isNotBlank(organizationParameter), PARAMETER_REQUIRED, type.name(), PARAM_ORGANIZATION);
+        return dbClient.organizationDao().selectByKey(dbSession, organizationParameter)
+                .orElseThrow(() -> new NotFoundException(format("No organizationDto with key '%s'", organizationParameter)))
+                .getUuid();
       default:
         throw new IllegalArgumentException(format("Unknown type '%s'", type.name()));
     }
